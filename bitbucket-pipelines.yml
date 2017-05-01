@@ -1,0 +1,10 @@
+image: python:3.6
+
+pipelines:
+    default:
+        - step:
+            script:
+                - pip install -U tox
+                - pip --version
+                - tox --version
+                - tox -r -e py27,py36,cython

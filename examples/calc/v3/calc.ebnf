@@ -1,0 +1,36 @@
+@@grammar::Calc
+
+
+start
+    =
+    expression $
+    ;
+
+
+expression
+    =
+    | left:term op:'+' ~ right:expression
+    | left:term op:'-' ~ right:expression
+    | term:term
+    ;
+
+
+term
+    =
+    | left:factor op:'*' ~ right:term
+    | left:factor '/' ~ right:term
+    | factor:factor
+    ;
+
+
+factor
+    =
+    | '(' ~ @:expression ')'
+    | number
+    ;
+
+
+number
+    =
+    /\d+/
+    ;

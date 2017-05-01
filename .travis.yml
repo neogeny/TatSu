@@ -1,0 +1,34 @@
+sudo: false
+language: python
+
+python:
+    - '2.7'
+    - '3.4'
+    - '3.5'
+    - '3.6'
+    - pypy
+
+
+branches:
+  only:
+  - master
+  - release
+
+install:
+    - pip install tox-travis
+    - pip install pygraphviz
+    - pip install regex
+
+script:
+    tox
+
+deploy:
+    provider: pypi
+    user: apalala
+    password:
+        secure: g7OavOVyFgbdI6y11w+fu9JCilIF0bbuvYHdxAz3Gyv6Idl7MIxBI6NqrQTMDyeYv1v59uIAA2c09vDCIP4UnARlLWUv5hrdxPm3EUaKRhy1C6QTWuQt5NJdiI9D9tM8/IOFKNGDuYWnzsclzOMc5EG53JJerZzp0ItHPsVqLnDZ7ed/9V1FfUf/upeAXYrFE5j/Do9FTshasUE3qBgA9jj2FX9Nt6O9VxjfZEX8h71rltVoku2RuBYgK2GwgQRPHO/bdM2Mzfh/1A8/1U5b1Q08uJoEr5tYK2ACGaWznxY/NWLqX4m18BI3PP1zUh1OSoTfEDg+1km5SqWOzCIz6QPgdOQUae/wByKSEhg5aeX0SrDDhg+/zdFvA7sf5UXRJIapI9wNdPF2HZLCpklplvKVjOH+JYzWgkClHiRSA6CB7+n5ET24oJNz/cWvVWU1E4kPnDDaJZUQpvBz9XL2d87LL48HTCYzgAU2KINvF6w5m3yMVVpaOAP88NzrttNgBmvBkhO0v56++FTwTiwhW4fPSccJDaQKD0LtNWafHXwMNcMO+FXQNX8uVL9H1rSChcOJfRg0OuDw6e2KnV5MWi4Ax8wRI5X/XVmMT8qacYKZgdDZRyKVpraoN9snpW4xk4oaR1lEnOgE8fW98ARba+8M9aMdeClRryqj19HVr88=
+    on:
+        tags: true
+        distributions: sdist bdist_wheel
+        repo: apalala/tatsu
+        branch: release

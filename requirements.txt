@@ -1,0 +1,13 @@
+colorama>=0.3
+Cython>=0.25
+docutils>=0.12
+flake8>=3.2
+pep257>=0.7
+prospector>=0.12
+pygraphviz>=1.3
+pytest>=3.0
+PyYAML>=3.12
+regex>=2016.11
+tox>=2.5
+tox-travis>=0.5
+twine>=1.8

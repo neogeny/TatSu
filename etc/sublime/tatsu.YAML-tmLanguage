@@ -1,0 +1,69 @@
+# [PackageDev] target_format: plist, ext: tmLanguage
+name: tatsu
+scopeName: source.tatsu
+fileTypes: [tatsu]
+uuid: D9954069-097B-4361-818D-EF4986D442E7
+
+patterns:
+- comment: directive
+  name: keyword.other
+  match: '@@.*::'
+
+- comment: decorator
+  name: keyword.other
+  match: '^@.*'
+
+- comment: include directive
+  name: keyword.other
+  match: '#include\s*::'
+
+- name: comment.line.number-sign.tatsu
+  match: '#.*$'
+
+- name: comment.block.tatsu
+  begin: ^\(\*
+  end: \*\)
+
+- name: meta.tatsu.syntax-rule
+  begin: ^\s*(\b(?:\w|\s|[\-_0-9])+\b)\s*=
+  beginCaptures:
+    '1': {name: entity.name.function}
+  end: ;
+  patterns:
+  - comment: comment blocks
+    name: comment.block.tatsu
+    begin: ^\(\*
+    end: \*\)
+
+  - comment: special characters
+    name: support.type
+    match: '[~+*%\.]'
+
+  - comment: double-quote-string
+    name: string.quoted.double
+    begin: '"'
+    end: '"'
+
+  - comment: single-quote-string
+    name: string.quoted.single
+    begin: ''''
+    end: ''''
+
+  - comment: regex
+    name: string.regexp
+    begin: '/'
+    end: '/'
+
+  - comment: special regex
+    name: string.regexp
+    begin: '\?'
+    end: '\?'
+
+  - comment: special regex
+    name: support.constant
+    begin: '`'
+    end: '`'
+
+  - comment: non-terminal
+    name: variable.other.tatsu.non-terminal
+    match: \w(?:\w|[\-_0-9])*\w
