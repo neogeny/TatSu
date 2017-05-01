@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.c
+*.so
+tmp/
 
 # C extensions
 *.so
@@ -100,5 +103,3 @@ ENV/
 # PyCharm
 /.idea/
 
-# VIM
-.ropeproject/
