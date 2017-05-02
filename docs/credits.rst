@@ -3,9 +3,7 @@
 Credits
 -------
 
-The following must be mentioned as contributors of thoughts, ideas,
-code, *and funding* to the **Tatsu** project:
-
+-   **Tatsu** is the successor of Grako_, which was built by **Juancarlo Añez** and funded by **Thomas Bragg** to do analysis and translation of programs written in legacy programming languages.
 -  **Niklaus Wirth** was the chief designer of the programming languages
    `Euler`_, `Algol W`_, `Pascal`_, `Modula`_, `Modula-2`_, `Oberon`_,
    and `Oberon-2`_. In the last chapter of his 1976 book `Algorithms +
