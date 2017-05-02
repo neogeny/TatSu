@@ -143,7 +143,7 @@ Documentation
 -------------
 
 For a detailed explanation of what **Tatsu** is capable off, please see the
-documenation_.
+documentation_.
 
 .. _documentation: http://tatsu.readthedocs.io/
 
