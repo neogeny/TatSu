@@ -9,6 +9,7 @@ pytest>=3.0
 PyYAML>=3.12
 regex>=2016.11
 Sphinx>=1.5
+sphinx-rtd-theme>=0.2
 tox>=2.5
 tox-travis>=0.5
 twine>=1.8

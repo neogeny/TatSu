@@ -4,12 +4,15 @@ import io
 import setuptools
 import tatsu
 
+NAME = tatsu.__toolname__
+PACKAGE = tatsu.__toolname__.lower()
 
 SHORT_DESCRIPTION = (
     '{toolname} takes a grammar'
     ' in a variation of EBNF as input, and outputs a memoizing'
     ' PEG/Packrat parser in Python.'
-).format(toolname=tatsu.__toolname__)
+).format(toolname=NAME)
+
 
 try:
     from Cython.Build import cythonize
@@ -23,10 +26,15 @@ setuptools.setup(
     name='tatsu',
     version=tatsu.__version__,
     url='https://bitbucket.org/neogeny/{package}'.format(
-        package=tatsu.__toolname__.lower(),
+        package=PACKAGE
+    ),
+    download_url='https://bitbucket.org/neogeny/{package}/get/master.zip'.format(
+        package=PACKAGE
     ),
     author='Juancarlo Añez',
     author_email='apalala@gmail.com',
+    maintainer='Juancarlo Añez',
+    maintainer_email='apalala@gmail.com',
     description=SHORT_DESCRIPTION,
     long_description=io.open('README.rst', encoding='utf-8').read(),
     license='BSD License',

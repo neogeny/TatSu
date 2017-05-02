@@ -3,16 +3,52 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to tatsu's documentation!
-=================================
+.. include:: links.rst
+
+
+TATSU
+=====
+
+    *At least for the people who send me mail about a new language that
+    they're designing, the general advice is: do it to learn about how
+    to write a compiler. Don't have any expectations that anyone will
+    use it, unless you hook up with some sort of organization in a
+    position to push it hard. It's a lottery, and some can buy a lot of
+    the tickets. There are plenty of beautiful languages (more beautiful
+    than C) that didn't catch on. But someone does win the lottery, and
+    doing a language at least teaches you something.*
+
+    `Dennis Ritchie`_ (1941-2011) *Creator of the `C`_ programming
+    language and of `Unix`_*
+
+
+**Tatsu** (for *grammar compiler*) is a tool that takes grammars in a
+variation of `EBNF`_ as input, and outputs `memoizing`_ (`Packrat`_)
+`PEG`_ parsers in `Python`_.
+
+**Tatsu** can also compile a grammar stored in a string into a
+``tatsu.grammars.Grammar`` object that can be used to parse any given
+input, much like the `re`_ module does with regular expressions.
 
 .. toctree::
     :maxdepth: 2
-    :caption: Contents:
 
+    intro
+    rationale
+    install
+    use
     syntax
     ast
     semantics
+    models
+    examples
+    support
+    credits
+    contributors
+    contributing
+
+.. toctree::
+    :hidden:
 
 
 
