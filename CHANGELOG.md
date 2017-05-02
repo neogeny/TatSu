@@ -7,7 +7,7 @@ The format of this *Change Log* is inspired by [keeapachangelog.org][].
 
 
 ## [X.Y.Z][] @ 2017-05-01
-[X.Y.Z]: https://github.com/apalala/tatsu/branches/compare/0.0.0...master
+[X.Y.Z]: https://github.com/apalala/tatsu/compare/0.0.0...master
 
 
 ## [0.0.0][] @ 2017-05-01
