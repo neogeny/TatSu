@@ -7,7 +7,7 @@ The format of this *Change Log* is inspired by [keeapachangelog.org][].
 
 
 ## [X.Y.Z][] @ 2017
-[X.Y.Z]: https://bitbucket.org/neogeny/tatsu/branches/compare/default%0D0.0.0
+[X.Y.Z]: https://bitbucket.org/neogeny/tatsu/branches/compare/master%0D0.0.0
 
 ## [0.0.0][] @ 2017
 [0.0.0]: https://bitbucket.org/neogeny/tatsu/commits/tag/0.0.0
