@@ -139,6 +139,14 @@ You may use **Tatsu** under the terms of the `BSD`_-style license
 described in the enclosed **`LICENSE.txt`_** file. *If your project
 requires different licensing* please `email`_.
 
+Documentation
+-------------
+
+For a detailed explanation of what **Tatsu** is capable off, please see the
+documenation_.
+
+.. _documentation: http://tatsu.readthedocs.io/
+
 Questions?
 ----------
 
