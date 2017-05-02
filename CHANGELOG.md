@@ -6,11 +6,12 @@ The format of this *Change Log* is inspired by [keeapachangelog.org][].
 
 
 
-## [X.Y.Z][] @ 2017
-[X.Y.Z]: https://bitbucket.org/neogeny/tatsu/branches/compare/master%0D0.0.0
+## [X.Y.Z][] @ 2017-05-01
+[X.Y.Z]: https://github.org/apalala/tatsu/branches/compare/0.0.0...master
 
-## [0.0.0][] @ 2017
-[0.0.0]: https://bitbucket.org/neogeny/tatsu/commits/tag/0.0.0
+
+## [0.0.0][] @ 2017-05-01
+[0.0.0]: https://github.org/apalala/tatsu/releases/tag/0.0.0
 
 ### Added
 
@@ -26,7 +27,6 @@ The format of this *Change Log* is inspired by [keeapachangelog.org][].
 [Cyclomatic complexity]: http://en.wikipedia.org/wiki/Cyclomatic_complexity
 [Cython]: http://cython.org/
 [EBNF]: http://en.wikipedia.org/wiki/Ebnf
-[Franz\_G]: https://bitbucket.org/Franz_G
 [JSON]: http://www.json.org/
 [Java]:  http://en.wikipedia.org/wiki/Java_(programming_language)
 [KLOC]: http://en.wikipedia.org/wiki/KLOC
@@ -48,9 +48,7 @@ The format of this *Change Log* is inspired by [keeapachangelog.org][].
 [Visitor Pattern]: http://en.wikipedia.org/wiki/Visitor_pattern
 [Warth et al]: http://www.vpri.org/pdf/tr2007002_packrat.pdf
 [YAML]: https://en.wikipedia.org/wiki/YAML
-[bitbucket]: https://bitbucket.org/neogeny/tatsu/
 [colorama]: https://pypi.python.org/pypi/colorama/
-[commit log]: https://bitbucket.org/neogeny/tatsu/commits/
 [context managers]: http://docs.python.org/2/library/contextlib.html
 [email]: mailto:apalala@gmail.com
 [flake8]: https://pypi.python.org/pypi/flake8
@@ -59,7 +57,6 @@ The format of this *Change Log* is inspired by [keeapachangelog.org][].
 [legacy code]: http://en.wikipedia.org/wiki/Legacy_code
 [legacy]: http://en.wikipedia.org/wiki/Legacy_code
 [memoizing]: http://en.wikipedia.org/wiki/Memoization
-[pull request]: https://bitbucket.org/neogeny/tatsu/pull-request/13/
 [pygraphviz]: https://pypi.python.org/pypi/pygraphviz
 [pytest]: https://pypi.org/project/pytest/
 [raw string literal]: https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
@@ -67,25 +64,3 @@ The format of this *Change Log* is inspired by [keeapachangelog.org][].
 [regex]: https://pypi.python.org/pypi/regex
 [string literal]: https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
 [tox]: https://testrun.org/tox/latest/
-
-[Sargent]: https://bitbucket.org/PaulS/
-[Speer]: https://bitbucket.org/r_speer
-[basel-shishani]: https://bitbucket.org/basel-shishani
-[drothlis]: https://bitbucket.org/drothlis/
-[franz_g]: https://bitbucket.org/Franz_G
-[gapag]: https://bitbucket.org/gapag/
-[gegenschall]: https://bitbucket.org/gegenschall/
-[gkimbar]: https://bitbucket.org/gkimbar/
-[jimon]: https://bitbucket.org/jimon/
-[lambdafu]: http://blog.marcus-brinkmann.de/
-[linkdd]: https://bitbucket.org/linkdd/
-[marcus]: http://blog.marcus-brinkmann.de/
-[nehz]: https://bitbucket.org/nehz/tatsu
-[neumond]: https://bitbucket.org/neumond/
-[pauls]: https://bitbucket.org/PaulS/
-[pgebhard]: https://github.com/pgebhard?tab=repositories
-[r_speer]: https://bitbucket.org/r_speer
-[siemer]: https://bitbucket.org/siemer/
-[starkat]: https://bitbucket.org/starkat
-[vmuriart]: https://bitbucket.org/vmuriart/
-[sjbrownBitbucket]: https://bitbucket.org/sjbrownBitbucket/
