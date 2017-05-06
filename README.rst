@@ -150,7 +150,7 @@ documentation_.
 Questions?
 ----------
 
-For general Q&A, please use the **``[tatsu]``** tag on `StackOverflow`_.
+For general Q&A, please use the **[tatsu]** tag on `StackOverflow`_.
 
 Changes
 -------
