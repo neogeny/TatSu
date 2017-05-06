@@ -22,6 +22,7 @@ TATSU
     language and of Unix_
 
 
+
 **Tatsu** (for *grammar compiler*) is a tool that takes grammars in a
 variation of `EBNF`_ as input, and outputs `memoizing`_ (`Packrat`_)
 `PEG`_ parsers in `Python`_.
