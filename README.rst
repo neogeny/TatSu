@@ -195,7 +195,7 @@ See the `CHANGELOG`_ for details.
 .. _smc.mw: https://github.com/lambdafu/smc.mw
 .. _MediaWiki: http://www.mediawiki.org/wiki/MediaWiki
 .. _BSD: http://en.wikipedia.org/wiki/BSD_licenses#2-clause_license_.28.22Simplified_BSD_License.22_or_.22FreeBSD_License.22.29
-.. _LICENSE.txt: LICENSE.txt
+.. _`LICENSE.txt`: LICENSE.txt
 .. _email: mailto:apalala@gmail.com
 .. _StackOverflow: http://stackoverflow.com/tags/tatsu/info
 .. _Tatsu Forum: https://groups.google.com/forum/?fromgroups#!forum/tatsu
