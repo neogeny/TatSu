@@ -46,6 +46,7 @@ input, much like the `re`_ module does with regular expressions, or it can gener
     credits
     contributors
     contributing
+    license
 
 .. toctree::
     :hidden:
