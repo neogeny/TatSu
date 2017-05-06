@@ -136,7 +136,7 @@ License
 -------
 
 You may use **Tatsu** under the terms of the `BSD`_-style license
-described in the enclosed LICENSE_.txt` file. *If your project
+described in the enclosed `LICENSE.txt`_ file. *If your project
 requires different licensing* please `email`_.
 
 Documentation
