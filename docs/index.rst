@@ -26,9 +26,9 @@ TATSU
 variation of `EBNF`_ as input, and outputs `memoizing`_ (`Packrat`_)
 `PEG`_ parsers in `Python`_.
 
-**Tatsu** can also compile a grammar stored in a string into a
+**Tatsu** can compile a grammar stored in a string into a
 ``tatsu.grammars.Grammar`` object that can be used to parse any given
-input, much like the `re`_ module does with regular expressions.
+input, much like the `re`_ module does with regular expressions, or it can generate a Python_ module that implements the parser.
 
 .. toctree::
     :maxdepth: 2

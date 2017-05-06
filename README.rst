@@ -15,13 +15,13 @@
 Tatsu
 =====
 
-**Tatsu** (the successor to **Grako**) is a tool that takes grammars in a
+**Tatsu** (the successor to Grako_) is a tool that takes grammars in a
 variation of `EBNF`_ as input, and outputs `memoizing`_ (`Packrat`_)
 `PEG`_ parsers in `Python`_.
 
-**Tatsu** can also compile a grammar stored in a string into a
+**Tatsu** can compile a grammar stored in a string into a
 ``tatsu.grammars.Grammar`` object that can be used to parse any given
-input, much like the `re`_ module does with regular expressions.
+input, much like the `re`_ module does with regular expressions, or it can generate a Python_ module that implements the parser.
 
 Installation
 ------------
@@ -162,6 +162,7 @@ See the `CHANGELOG`_ for details.
 .. _Unix: http://en.wikipedia.org/wiki/Unix
 .. _make a donation: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=P9PV7ZACB669J
 .. _EBNF: http://en.wikipedia.org/wiki/Ebnf
+.. _Grako: https://bitbucket.org/neogeny/grako/
 .. _memoizing: http://en.wikipedia.org/wiki/Memoization
 .. _Packrat: http://bford.info/packrat/
 .. _PEG: http://en.wikipedia.org/wiki/Parsing_expression_grammar

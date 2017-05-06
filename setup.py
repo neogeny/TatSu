@@ -25,12 +25,12 @@ setuptools.setup(
     zip_safe=False,
     name='tatsu',
     version=tatsu.__version__,
-    url='https://bitbucket.org/neogeny/{package}'.format(
+    url='https://github.com/apalala/{package}'.format(
         package=PACKAGE
     ),
-    download_url='https://bitbucket.org/neogeny/{package}/get/master.zip'.format(
-        package=PACKAGE
-    ),
+    # download_url='https://bitbucket.org/neogeny/{package}/get/master.zip'.format(
+    #     package=PACKAGE
+    # ),
     author='Juancarlo Añez',
     author_email='apalala@gmail.com',
     maintainer='Juancarlo Añez',
