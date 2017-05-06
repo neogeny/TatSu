@@ -12,14 +12,14 @@
     `Dennis Ritchie`_ (1941-2011) Creator of the C_ programming
     language and of Unix_
 
-Tatsu
-=====
+|TatSu| TatSu
+=============
 
-**Tatsu** (the successor to Grako_) is a tool that takes grammars in a
+|TatSu| **TatSu** (the successor to Grako_) is a tool that takes grammars in a
 variation of `EBNF`_ as input, and outputs `memoizing`_ (`Packrat`_)
 `PEG`_ parsers in `Python`_.
 
-**Tatsu** can compile a grammar stored in a string into a
+|TatSu| **TatSu** can compile a grammar stored in a string into a
 ``tatsu.grammars.Grammar`` object that can be used to parse any given
 input, much like the `re`_ module does with regular expressions, or it can generate a Python_ module that implements the parser.
 
@@ -34,7 +34,7 @@ Installation
 Using the Tool
 --------------
 
-**Tatsu** can generate Python_ code for a parser, be used as a library, much like `Python`_'s ``re``, by embedding grammars as strings and generating grammar models instead of generating code.
+|TatSu| **TatSu** can generate Python_ code for a parser, be used as a library, much like `Python`_'s ``re``, by embedding grammars as strings and generating grammar models instead of generating code.
 
 -  ``tatsu.compile(grammar, name=None, **kwargs)`` > Compiles the
    grammar and generates a *model* that can subsequently be used for
@@ -51,7 +51,7 @@ Using the Tool
    > Compiles the grammar to the `Python`_ sourcecode that implements
    the parser.
 
-This is an example of how to use **Tatsu** as a library:
+This is an example of how to use |TatSu| **TatSu** as a library:
 
 .. code:: python
 
@@ -135,14 +135,14 @@ And this is the output:
 License
 -------
 
-You may use **Tatsu** under the terms of the `BSD`_-style license
+You may use |TatSu| **TatSu** under the terms of the `BSD`_-style license
 described in the enclosed `LICENSE.txt`_ file. *If your project
 requires different licensing* please `email`_.
 
 Documentation
 -------------
 
-For a detailed explanation of what **Tatsu** is capable off, please see the
+For a detailed explanation of what |TatSu| **TatSu** is capable off, please see the
 documentation_.
 
 .. _documentation: http://tatsu.readthedocs.io/
@@ -198,7 +198,7 @@ See the `CHANGELOG`_ for details.
 .. _`LICENSE.txt`: LICENSE.txt
 .. _email: mailto:apalala@gmail.com
 .. _StackOverflow: http://stackoverflow.com/tags/tatsu/info
-.. _Tatsu Forum: https://groups.google.com/forum/?fromgroups#!forum/tatsu
+.. _TatSu Forum: https://groups.google.com/forum/?fromgroups#!forum/tatsu
 .. _Euler: http://en.wikipedia.org/wiki/Euler_programming_language
 .. _Algol W: http://en.wikipedia.org/wiki/Algol_W
 .. _Pascal: http://en.wikipedia.org/wiki/Pascal_programming_language
@@ -253,6 +253,7 @@ See the `CHANGELOG`_ for details.
 .. _vmuriart: https://bitbucket.org/vmuriart
 .. _CHANGELOG: CHANGELOG.md
 
+.. |TatSu| unicode:: 0x7ADC .. unicode dragon
 .. |fury| image:: https://badge.fury.io/py/tatsu.svg
    :target: https://badge.fury.io/py/tatsu
 .. |license| image:: https://img.shields.io/badge/license-BSD-blue.svg

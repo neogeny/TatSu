@@ -1,3 +1,5 @@
+.. |TatSu| unicode:: 0x7ADC .. unicode dragon
+
 .. _ANTLR: http://www.antlr.org/
 .. _AST: http://en.wikipedia.org/wiki/Abstract_syntax_tree
 .. _Abstract Syntax Tree: http://en.wikipedia.org/wiki/Abstract_syntax_tree
