@@ -57,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'TatSu'
-copyright = 'Copyright (C) 2017 Juancarlo Añez'
+copyright = '2017 Juancarlo Añez'
 author = 'Juancarlo Añez'
 
 # The version info for the project you're documenting, acts as replacement for
