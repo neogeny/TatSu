@@ -57,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Tatsu'
-copyright = '(C) 2017 Juancarlo Añez'
+copyright = 'Copyright (C) 2017 Juancarlo Añez'
 author = 'Juancarlo Añez'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -97,7 +97,7 @@ html_theme = 'sphinx_rtd_theme'
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+# html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # Add path to the RTD explicitly to robustify builds (otherwise might
