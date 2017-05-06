@@ -18,8 +18,8 @@ TATSU
     than C) that didn't catch on. But someone does win the lottery, and
     doing a language at least teaches you something.*
 
-    `Dennis Ritchie`_ (1941-2011) *Creator of the `C`_ programming
-    language and of `Unix`_*
+    `Dennis Ritchie`_ (1941-2011) Creator of the C_ programming
+    language and of Unix_
 
 
 **Tatsu** (for *grammar compiler*) is a tool that takes grammars in a
