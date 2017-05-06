@@ -6,8 +6,8 @@
 .. include:: links.rst
 
 
-TATSU
-=====
+|TatSu| TatSu
+=============
 
     *At least for the people who send me mail about a new language that
     they're designing, the general advice is: do it to learn about how
@@ -23,11 +23,11 @@ TATSU
 
 
 
-**Tatsu** (for *grammar compiler*) is a tool that takes grammars in a
+|TatSu| **TatSu** (for *grammar compiler*) is a tool that takes grammars in a
 variation of `EBNF`_ as input, and outputs `memoizing`_ (`Packrat`_)
 `PEG`_ parsers in `Python`_.
 
-**Tatsu** can compile a grammar stored in a string into a
+|TatSu| **TatSu** can compile a grammar stored in a string into a
 ``tatsu.grammars.Grammar`` object that can be used to parse any given
 input, much like the `re`_ module does with regular expressions, or it can generate a Python_ module that implements the parser.
 

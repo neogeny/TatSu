@@ -1,14 +1,16 @@
+.. include:: links.rst
+
 Semantic Actions
 ----------------
 
-There are no constructs for semantic actions in **Tatsu** grammars. This
+There are no constructs for semantic actions in |TatSu| **TatSu** grammars. This
 is on purpose, because semantic actions obscure the declarative nature
 of grammars and provide for poor modularization from the
 parser-execution perspective.
 
 Semantic actions are defined in a class, and applied by passing an
 object of the class to the ``parse()`` method of the parser as the
-``semantics=`` parameter. **Tatsu** will invoke the method that matches
+``semantics=`` parameter. |TatSu| **TatSu** will invoke the method that matches
 the name of the grammar rule every time the rule parses. The argument to
 the method will be the `AST`_ constructed from the right-hand-side of
 the rule:
@@ -22,7 +24,7 @@ the rule:
         def _default(self, ast):
             pass
 
-If there's no method matching the rule's name, **Tatsu** will try to
+If there's no method matching the rule's name, |TatSu| **TatSu** will try to
 invoke a ``_default()`` method if it's defined:
 
 .. code:: python

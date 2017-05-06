@@ -10,7 +10,7 @@ Tree* (`AST`_) that reflects the semantic structure of what was parsed.
 But an `AST`_ doesn't carry information about the rule that generated
 it, so navigating the trees may be difficult.
 
-**Tatsu** defines the ``tatsu.model.ModelBuilderSemantics`` semantics
+|TatSu| **TatSu** defines the ``tatsu.model.ModelBuilderSemantics`` semantics
 class which helps construct object models from abtract syntax trees:
 
 .. code:: python
@@ -119,7 +119,7 @@ It is possible to specify a a base class for generated model nodes:
         left:mulexpre op:'-' right:additive
         ;
 
-**Tatsu** will generate the base class if it's not already known.
+|TatSu| **TatSu** will generate the base class if it's not already known.
 
 Base classes can be used as the target class in *walkers*, and in *code
 generators*:
@@ -142,28 +142,28 @@ Templates and Translation
 -------------------------
 
 **note**
-    As of **Tatsu** 3.2.0, code generation is separated from grammar
+    As of |TatSu| **TatSu** 3.2.0, code generation is separated from grammar
     models through ``tatsu.codegen.CodeGenerator`` as to allow for code
     generation targets different from `Python`_. Still, the use of
     inline templates and ``rendering.Renderer`` hasn't changed. See the
     *regex* example for merged modeling and code generation.
 
-**Tatsu** doesn't impose a way to create translators with it, but it
+|TatSu| **TatSu** doesn't impose a way to create translators with it, but it
 exposes the facilities it uses to generate the `Python`_ source code for
 parsers.
 
-Translation in **Tatsu** is *template-based*, but instead of defining or
+Translation in |TatSu| **TatSu** is *template-based*, but instead of defining or
 using a complex templating engine (yet another language), it relies on
 the simple but powerful ``string.Formatter`` of the `Python`_ standard
-library. The templates are simple strings that, in **Tatsu**'s style,
+library. The templates are simple strings that, in |TatSu| **TatSu**'s style,
 are inlined with the code.
 
-To generate a parser, **Tatsu** constructs an object model of the parsed
+To generate a parser, |TatSu| **TatSu** constructs an object model of the parsed
 grammar. A ``tatsu.codegen.CodeGenerator`` instance matches model
 objects to classes that descend from ``tatsu.codegen.ModelRenderer`` and
 implement the translation and rendering using string templates.
 Templates are left-trimmed on whitespace, like `Python`_ *doc-comments*
-are. This is an example taken from **Tatsu**'s source code:
+are. This is an example taken from |TatSu| **TatSu**'s source code:
 
 .. code:: python
 

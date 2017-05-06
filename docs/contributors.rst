@@ -3,7 +3,7 @@
 Contributors
 ------------
 
-The following, among others, have contributted to **Tatsu** with
+The following, among others, have contributted to |TatSu| **TatSu** with
 features, bug fixes, or suggestions:
 
     `basel-shishani`_ , `drothlis`_ , `franz\_g`_ , `gapag`_ ,
