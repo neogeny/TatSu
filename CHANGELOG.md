@@ -1,19 +1,15 @@
 # Change Log
 
-**Tatsu** uses [Semantic Versioning][] for its releases, so parts of the version number may increase without any significant changes or backwards incompatibilities in the software.
+&#7ADC; **TatSu** uses [Semantic Versioning][] for its releases, so parts of the version number may increase without any significant changes or backwards incompatibilities in the software.
 
 The format of this *Change Log* is inspired by [keeapachangelog.org][].
 
-
-
 ## [X.Y.Z][] @ 2017-05-01
-[X.Y.Z]: https://github.com/apalala/tatsu/compare/0.0.0...master
+[X.Y.Z]: https://github.com/apalala/tatsu/compare/4.0.0...master
 
 
-## [0.0.0][] @ 2017-05-01
-[0.0.0]: https://github.com/apalala/tatsu/releases/tag/0.0.0
-
-### Added
+## [4.0.0][] @ 2017-05-06
+[4.0.0]: https://github.com/apalala/tatsu/compare/0.0.0...4.0.0
 
 -   First release.
 
