@@ -28,7 +28,7 @@ Installation
 
 .. code:: bash
 
-    $ pip install tatsu
+    $ pip install TatSu
 
 
 Using the Tool

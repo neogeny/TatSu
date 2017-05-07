@@ -23,7 +23,7 @@ else:
 
 setuptools.setup(
     zip_safe=False,
-    name='tatsu',
+    name='TatSu',
     version=tatsu.__version__,
     url='https://github.com/apalala/{package}'.format(
         package=PACKAGE
