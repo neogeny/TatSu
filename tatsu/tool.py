@@ -19,7 +19,7 @@ from tatsu.codegen.python import codegen as pythoncg
 from tatsu.codegen import objectmodel
 
 DESCRIPTION = (
-    'Tatsu (for "grammar compiler") takes a grammar'
+    'TatSu (for "grammar compiler") takes a grammar'
     ' in a variation of EBNF as input, and outputs a memoizing'
     ' PEG/Packrat parser in Python.'
 )
@@ -61,7 +61,7 @@ def parse_args():
     argparser.add_argument(
         'filename',
         metavar='GRAMMAR',
-        help='the filename of the Tatsu grammar to parse'
+        help='the filename of the TatSu grammar to parse'
     )
     ebnf_opts.add_argument(
         '--color', '-c',

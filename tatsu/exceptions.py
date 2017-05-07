@@ -9,7 +9,7 @@ class ParseException(Exception):
 
 
 # alias
-TatsuException = ParseException
+TatSuException = ParseException
 
 
 class OptionSucceeded(ParseException):
