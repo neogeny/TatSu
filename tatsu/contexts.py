@@ -15,7 +15,7 @@ from ._unicode_characters import (
 from tatsu.util import notnone, ustr, prune_dict, is_list, info, safe_name
 from tatsu.util import left_assoc, right_assoc
 from tatsu.ast import AST
-from tatsu.infos import ParseInfo, RuleResultInfo
+from tatsu.infos import ParseInfo, RuleResult
 from tatsu import buffering
 from tatsu import color
 from tatsu.exceptions import (
@@ -477,26 +477,28 @@ class ParseContext(object):
 
     def _invoke_rule(self, rule, name, params, kwparams):
         lastpos = self._pos
+
         result = self._invoke_rule_inner(rule, name, params, kwparams)
+        if not self.left_recursion or not self._is_recursive(rule):
+            return result
 
-        if self.left_recursion and self._is_recursive(rule):
-            while self._pos > lastpos:
-                lastpos = self._pos
+        while self._pos > lastpos:
+            lastpos = self._pos
 
-                if name[0].islower():
-                    self._next_token()
+            if name[0].islower():
+                self._next_token()
 
-                new_result = RuleResultInfo(
-                    [result.node],
-                    self._pos,
-                    result.newstate
-                )
-                key = (self._pos, name, self._state)
-                self._recursion_cache[key] = new_result
-                try:
-                    result = self._invoke_rule_inner(rule, name, params, kwparams)
-                except FailedParse:
-                    break
+            new_result = RuleResult(
+                [result.node],
+                self._pos,
+                result.newstate
+            )
+            key = (self._pos, name, self._state)
+            self._recursion_cache[key] = new_result
+            try:
+                result = self._invoke_rule_inner(rule, name, params, kwparams)
+            except FailedParse:
+                break
 
         return result
 
@@ -532,7 +534,7 @@ class ParseContext(object):
                     node.set_parseinfo(self._get_parseinfo(name, pos))
 
                 node = self._invoke_semantic_rule(name, node, params, kwparams)
-                result = RuleResultInfo(node, self._pos, self._state)
+                result = RuleResult(node, self._pos, self._state)
 
                 if self._memoization():
                     cache[key] = result
