@@ -18,6 +18,7 @@
 .. _Japanese: http://en.wikipedia.org/wiki/Japanese_grammar
 .. _KLOC: http://en.wikipedia.org/wiki/KLOC
 .. _Keywords: https://en.wikipedia.org/wiki/Reserved_word
+.. _`left-recursive`: https://en.wikipedia.org/wiki/Left_recursion
 .. _LICENSE.txt: LICENSE.txt
 .. _LL(1): http://en.wikipedia.org/wiki/LL(1)
 .. _MediaWiki: http://www.mediawiki.org/wiki/MediaWiki
