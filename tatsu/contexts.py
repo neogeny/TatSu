@@ -507,15 +507,17 @@ class ParseContext(object):
         pos = self._pos
 
         key = (pos, name, self._state)
-        if key in cache:
-            memo = cache[key]
+        memo = cache.get(key)
+        if memo:
             if isinstance(memo, FailedLeftRecursion):
                 self._recursive_rules.add(rule)
                 if key in self._recursion_cache:
                     return self._recursion_cache[key]
+
             if isinstance(memo, Exception):
                 raise memo
             return memo
+
         self._set_left_recursion_guard(name, key)
 
         self._push_ast()
