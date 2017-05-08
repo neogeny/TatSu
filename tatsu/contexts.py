@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals  # noqa
 
 import sys
 import functools
@@ -12,7 +12,7 @@ from ._unicode_characters import (
     C_FAILURE,
     C_RECURSION,
 )
-from tatsu.util import notnone, ustr, prune_dict, is_list, info, debug, safe_name
+from tatsu.util import notnone, ustr, prune_dict, is_list, info, safe_name
 from tatsu.util import left_assoc, right_assoc
 from tatsu.ast import AST
 from tatsu.infos import ParseInfo, RuleResultInfo
@@ -477,13 +477,12 @@ class ParseContext(object):
 
     def _invoke_rule(self, rule, name, params, kwparams):
         lastpos = self._pos
-        if self._is_recursive(rule):
-            debug('CALL', name, lastpos)
-
         result = self._invoke_rule_inner(rule, name, params, kwparams)
 
         if self.left_recursion and self._is_recursive(rule):
             while self._pos > lastpos:
+                lastpos = self._pos
+
                 if name[0].islower():
                     self._next_token()
 
@@ -493,10 +492,8 @@ class ParseContext(object):
                     result.newstate
                 )
                 key = (self._pos, name, self._state)
-                debug('CACHING', key, result, file=sys.stderr)
                 self._recursion_cache[key] = new_result
                 try:
-                    lastpos = self._pos
                     result = self._invoke_rule_inner(rule, name, params, kwparams)
                 except FailedParse:
                     break
@@ -513,12 +510,9 @@ class ParseContext(object):
         if key in cache:
             memo = cache[key]
             if isinstance(memo, FailedLeftRecursion):
-                debug('RECURSION', name, key)
                 self._recursive_rules.add(rule)
                 if key in self._recursion_cache:
-                    result = self._recursion_cache[key]
-                    debug('RETURNING', name, result)
-                    return result
+                    return self._recursion_cache[key]
             if isinstance(memo, Exception):
                 raise memo
             return memo
