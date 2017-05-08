@@ -44,9 +44,10 @@ Using the Tool
 
 -   ``tatsu.parse(grammar, input, **kwargs)``
 
-    Compiles the grammar and parses the given input producing an AST_ as result. The result is equivalent to calling
+    Compiles the grammar and parses the given input producing an AST_ as result. The result is equivalent to calling::
 
-    ``model = compile(grammar); model.parse(input)``.
+        model = compile(grammar)
+        ast = model.parse(input)
 
     Compiled grammars are cached for efficiency.
 
