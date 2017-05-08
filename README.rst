@@ -34,7 +34,7 @@ Installation
 Using the Tool
 --------------
 
-|TatSu| **TatSu** can generate Python_ code for a parser, be used as a library, much like `Python`_'s ``re``, by embedding grammars as strings and generating grammar models instead of generating code.
+|TatSu| **TatSu** can be used as a library, much like `Python`_'s ``re``, by embedding grammars as strings and generating grammar models instead of generating Python_ code.
 
 -  ``tatsu.compile(grammar, name=None, **kwargs)`` > Compiles the
    grammar and generates a *model* that can subsequently be used for
