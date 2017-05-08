@@ -262,7 +262,7 @@ See the `CHANGELOG`_ for details.
    :target: https://pypi.python.org/pypi/tatsu
 .. |travis| image:: https://secure.travis-ci.org/apalala/tatsu.svg
    :target: http://travis-ci.org/apalala/tatsu
-.. |landscape| image:: https://landscape.io/github/apalala/tatsu/master/landscape.png
-   :target: https://landscape.io/github/apalala/tatsu/master
+.. |landscape| image:: https://landscape.io/github/apalala/TatSu/master/landscape.png
+   :target: https://landscape.io/github/apalala/TatSu/master
 .. |donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif
    :target: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=P9PV7ZACB669J
