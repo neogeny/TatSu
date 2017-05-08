@@ -36,20 +36,15 @@ Using the Tool
 
 |TatSu| **TatSu** can be used as a library, much like `Python`_'s ``re``, by embedding grammars as strings and generating grammar models instead of generating Python_ code.
 
--  ``tatsu.compile(grammar, name=None, **kwargs)`` > Compiles the
-   grammar and generates a *model* that can subsequently be used for
-   parsing input with.
+-   ``tatsu.compile(grammar, name=None, **kwargs)``
+    Compiles the grammar and generates a *model* that can subsequently be used for parsing input with.
 
--  ``tatsu.parse(grammar, input, **kwargs)`` > Compiles the grammar and
-   parses the given input producing an
-   `AST <https://en.wikipedia.org/wiki/Abstract_syntax_tree>`__ as
-   result. The result is equivalent to calling
-   ``model = compile(grammar); model.parse(input)``. Compiled grammars
+-   ``tatsu.parse(grammar, input, **kwargs)``
+    Compiles the grammar and parses the given input producing an `AST <https://en.wikipedia.org/wiki/Abstract_syntax_tree>`__ as result. The result is equivalent to calling ``model = compile(grammar); model.parse(input)``. Compiled grammars
    are cached for efficiency.
 
--  ``tatsu.to_python_sourcecode(grammar, name=None, filename=None, **kwargs)``
-   > Compiles the grammar to the `Python`_ sourcecode that implements
-   the parser.
+-   ``tatsu.to_python_sourcecode(grammar, name=None, filename=None, **kwargs)``
+    Compiles the grammar to the `Python`_ sourcecode that implements the parser.
 
 This is an example of how to use |TatSu| **TatSu** as a library:
 
