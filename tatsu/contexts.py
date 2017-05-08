@@ -484,17 +484,15 @@ class ParseContext(object):
 
         while self._pos > lastpos:
             lastpos = self._pos
-
             if name[0].islower():
                 self._next_token()
 
-            new_result = RuleResult(
+            key = (self._pos, name, self._state)
+            self._recursion_cache[key] = RuleResult(
                 [result.node],
                 self._pos,
                 result.newstate
             )
-            key = (self._pos, name, self._state)
-            self._recursion_cache[key] = new_result
             try:
                 result = self._invoke_rule_inner(rule, name, params, kwparams)
             except FailedParse:
