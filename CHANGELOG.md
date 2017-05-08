@@ -9,7 +9,7 @@ The format of this *Change Log* is inspired by [keeapachangelog.org][].
 
 ### Added
 
--   Brand new support for _left recursion_. All test cases pass.
+-   Brand new support for _left recursion_ with correct associativity. All test cases pass.
 
 
 ## [4.0.0][] @ 2017-05-06

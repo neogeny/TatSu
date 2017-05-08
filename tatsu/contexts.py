@@ -487,14 +487,14 @@ class ParseContext(object):
                 if name[0].islower():
                     self._next_token()
 
-                result = RuleResultInfo(
-                    result.node,
+                new_result = RuleResultInfo(
+                    [result.node],
                     self._pos,
                     result.newstate
                 )
                 key = (self._pos, name, self._state)
                 debug('CACHING', key, result, file=sys.stderr)
-                self._recursion_cache[key] = result
+                self._recursion_cache[key] = new_result
                 try:
                     lastpos = self._pos
                     result = self._invoke_rule_inner(rule, name, params, kwparams)
@@ -522,8 +522,8 @@ class ParseContext(object):
             if isinstance(memo, Exception):
                 raise memo
             return memo
-
         self._set_left_recursion_guard(name, key)
+
         self._push_ast()
         try:
             try:
