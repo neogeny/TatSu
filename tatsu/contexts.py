@@ -109,10 +109,6 @@ class ParseContext(object):
         self._state = None
         self._lookahead = 0
 
-        self._recursive_results = dict()
-        self._recursive_eval = []
-        self._recursive_head = []
-
     def _reset(self,
                text=None,
                filename=None,
@@ -224,7 +220,6 @@ class ParseContext(object):
 
     def _clear_cache(self):
         self._memoization_cache = dict()
-        self._recursive_results = dict()
 
     def _goto(self, pos):
         self._buffer.goto(pos)
@@ -325,7 +320,6 @@ class ParseContext(object):
             prune_dict(cache, lambda k, _: k[0] < cutpos)
 
         prune_cache(self._memoization_cache)
-        prune_cache(self._recursive_results)
 
     def _push_cut(self):
         self._cut_stack.append(False)
@@ -482,7 +476,6 @@ class ParseContext(object):
         key = (pos, rule, self._state)
         if key in cache:
             memo = cache[key]
-            memo = self._left_recursion_check(name, key, memo)
             if isinstance(memo, Exception):
                 raise memo
             return memo
@@ -504,9 +497,7 @@ class ParseContext(object):
                 node = self._invoke_semantic_rule(name, node, params, kwparams)
                 result = (node, self._pos, self._state)
 
-                result = self._left_recurse(rule, name, pos, key, result, params, kwparams)
-
-                if self._memoization() and not self._in_recursive_loop():
+                if self._memoization():
                     cache[key] = result
                 return result
             except FailedSemantics as e:
@@ -534,58 +525,6 @@ class ParseContext(object):
         #
         if self._memoization():
             self._memoization_cache[key] = exception
-
-    def _left_recursion_check(self, name, key, memo):
-        if isinstance(memo, FailedLeftRecursion) and self.left_recursion:
-            # At this point we know we've already seen this rule
-            # at this position. Either we've got a potential
-            # result from a previous pass that we can return, or
-            # we make a note of the rule so that we can take
-            # action as we unwind the rule stack.
-
-            if key in self._recursive_results:
-                memo = self._recursive_results[key]
-            else:
-                self._recursive_head.append(name)
-        return memo
-
-    def _in_recursive_loop(self):
-        head = self._recursive_head
-        return head and head[-1] in self._rule_stack
-
-    def _left_recurse(self, rule, name, pos, key, result, params, kwparams):
-        if self._memoization():
-            self._recursive_results[key] = result
-
-        # If the current name is in the head, then we've just
-        # unwound to the highest rule in the recursion
-        cache = self._memoization_cache
-        last_pos = pos
-        if (
-            [name] == self._recursive_head[-1:] and
-            self._recursive_head[-1:] != self._recursive_eval[-1:]
-        ):
-            # Repeatedly apply the rule until it can't consume any
-            # more. We store the last good result each time. Prior
-            # to doing so we reset the position and remove any
-            # failures from the cache.
-            last_result = result
-            self._recursive_eval.append(name)
-            while self._pos > last_pos:
-                last_result = result
-                last_pos = self._pos
-                self._goto(pos)
-                prune_dict(cache, lambda _, v: isinstance(v, FailedParse))
-                try:
-                    result = self._invoke_rule(rule, name, params, kwparams)
-                except FailedParse:
-                    pass
-
-            result = last_result
-            self._recursive_results = dict()
-            self._recursive_head.pop()
-            self._recursive_eval.pop()
-        return result
 
     def _invoke_semantic_rule(self, name, node, params, kwparams):
         semantic_rule, postproc = self._find_semantic_rule(name)
