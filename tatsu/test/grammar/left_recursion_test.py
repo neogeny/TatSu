@@ -33,6 +33,8 @@ class LeftRecursionTests(unittest.TestCase):
         '''
         model = compile(grammar, "test")
         ast = model.parse("1*2+3*5", trace=trace, colorize=True)
+        import pprint
+        pprint.pprint(ast)
         self.assertEqual(['1', '*', '2', '+', '3', '*', '5'], ast)
 
     def test_indirect_left_recursion(self, trace=False):
@@ -168,7 +170,7 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model_b.parse("(((1+2)))", trace=trace, colorize=True)
         self.assertEqual(['1', '+', '2'], ast)
 
-    def notest_left_recursion_bug(self, trace=False):
+    def test_left_recursion_bug(self, trace=True):
         grammar = '''\
             @@grammar :: Minus
             @@left_recursion :: True
@@ -188,30 +190,15 @@ class LeftRecursionTests(unittest.TestCase):
 
             minus_expression
                 =
-                expression '-' value
+                expression '-' expression
                 ;
 
             value = /[0-9]+/ ;
         '''
         model = compile(grammar=grammar)
-        # model.parse('3', trace=trace, colorize=True)
-        # model.parse('3 - 2', trace=trace, colorize=True)
-        # model.parse('(3 - 2)', trace=trace, colorize=True)
-        # model.parse('(3 - 2) - 1', trace=trace, colorize=True)
-        # model.parse('3 - 2 - 1', trace=trace, colorize=True)
+        model.parse('3', trace=trace, colorize=True)
+        model.parse('3 - 2', trace=trace, colorize=True)
+        model.parse('(3 - 2)', trace=trace, colorize=True)
+        model.parse('(3 - 2) - 1', trace=trace, colorize=True)
+        model.parse('3 - 2 - 1', trace=trace, colorize=True)
         model.parse('3 - (2 - 1)', trace=trace, colorize=True)
-
-
-def main(trace=True):
-    t = LeftRecursionTests('test_direct_left_recursion')
-    # t.test_direct_left_recursion(trace=trace)
-    # t.test_indirect_left_recursion(trace=trace)
-    # t.test_indirect_left_recursion_with_cut(trace=trace)
-    # t.test_indirect_left_recursion_complex(trace=trace)
-    # t.test_no_left_recursion(trace=trace)
-    # t.test_nested_left_recursion(trace=trace)
-    t.no_test_left_recursion_bug(trace=trace)
-
-
-if __name__ == '__main__':
-    main()
