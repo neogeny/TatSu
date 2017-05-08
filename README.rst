@@ -42,7 +42,11 @@ Using the Tool
 
 -   ``tatsu.parse(grammar, input, **kwargs)``
 
-    Compiles the grammar and parses the given input producing an `AST <https://en.wikipedia.org/wiki/Abstract_syntax_tree>`__ as result. The result is equivalent to calling ``model = compile(grammar); model.parse(input)``. Compiled grammars are cached for efficiency.
+    Compiles the grammar and parses the given input producing an `AST <https://en.wikipedia.org/wiki/Abstract_syntax_tree>`__ as result. The result is equivalent to calling
+
+    ``model = compile(grammar); model.parse(input)``.
+
+    Compiled grammars are cached for efficiency.
 
 -   ``tatsu.to_python_sourcecode(grammar, name=None, filename=None, **kwargs)``
 
