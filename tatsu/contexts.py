@@ -12,10 +12,10 @@ from ._unicode_characters import (
     C_FAILURE,
     C_RECURSION,
 )
-from tatsu.util import notnone, ustr, prune_dict, is_list, info, safe_name
+from tatsu.util import notnone, ustr, prune_dict, is_list, info, debug, safe_name
 from tatsu.util import left_assoc, right_assoc
 from tatsu.ast import AST
-from tatsu.infos import ParseInfo
+from tatsu.infos import ParseInfo, RuleResultInfo
 from tatsu import buffering
 from tatsu import color
 from tatsu.exceptions import (
@@ -108,6 +108,9 @@ class ParseContext(object):
         self._last_node = None
         self._state = None
         self._lookahead = 0
+
+        self._recursive_rules = set()
+        self._recursion_cache = dict()
 
     def _reset(self,
                text=None,
@@ -314,12 +317,12 @@ class ParseContext(object):
         # positions less than the current cut position. It remains to
         # be proven if doing it this way affects linearity. Empirically,
         # it hasn't.
-        cutpos = self._pos
 
-        def prune_cache(cache):
+        def prune(cache, cutpos):
             prune_dict(cache, lambda k, _: k[0] < cutpos)
 
-        prune_cache(self._memoization_cache)
+        prune(self._memoization_cache, self._pos)
+        prune(self._recursion_cache, self._pos)
 
     def _push_cut(self):
         self._cut_stack.append(False)
@@ -445,7 +448,8 @@ class ParseContext(object):
 
             self._last_node = None
 
-            node, newpos, newstate = self._invoke_rule(rule, name, params, kwparams)
+            result = self._invoke_rule(rule, name, params, kwparams)
+            node, newpos, newstate = result
 
             self._goto(newpos)
             self._state = newstate
@@ -453,6 +457,7 @@ class ParseContext(object):
             self._last_node = node
 
             self._trace_success()
+
             return node
         except FailedPattern:
             self._error('Expecting <%s>' % name)
@@ -467,15 +472,53 @@ class ParseContext(object):
         finally:
             self._rule_stack.pop()
 
+    def _is_recursive(self, rule):
+        return rule in self._recursive_rules
+
     def _invoke_rule(self, rule, name, params, kwparams):
+        lastpos = self._pos
+        if self._is_recursive(rule):
+            debug('CALL', name, lastpos)
+
+        result = self._invoke_rule_inner(rule, name, params, kwparams)
+
+        if self.left_recursion and self._is_recursive(rule):
+            while self._pos > lastpos:
+                if name[0].islower():
+                    self._next_token()
+
+                result = RuleResultInfo(
+                    result.node,
+                    self._pos,
+                    result.newstate
+                )
+                key = (self._pos, name, self._state)
+                debug('CACHING', key, result, file=sys.stderr)
+                self._recursion_cache[key] = result
+                try:
+                    lastpos = self._pos
+                    result = self._invoke_rule_inner(rule, name, params, kwparams)
+                except FailedParse:
+                    break
+
+        return result
+
+    def _invoke_rule_inner(self, rule, name, params, kwparams):
         cache = self._memoization_cache
         if name[0].islower():
             self._next_token()
         pos = self._pos
 
-        key = (pos, rule, self._state)
+        key = (pos, name, self._state)
         if key in cache:
             memo = cache[key]
+            if isinstance(memo, FailedLeftRecursion):
+                debug('RECURSION', name, key)
+                self._recursive_rules.add(rule)
+                if key in self._recursion_cache:
+                    result = self._recursion_cache[key]
+                    debug('RETURNING', name, result)
+                    return result
             if isinstance(memo, Exception):
                 raise memo
             return memo
@@ -495,7 +538,7 @@ class ParseContext(object):
                     node.set_parseinfo(self._get_parseinfo(name, pos))
 
                 node = self._invoke_semantic_rule(name, node, params, kwparams)
-                result = (node, self._pos, self._state)
+                result = RuleResultInfo(node, self._pos, self._state)
 
                 if self._memoization():
                     cache[key] = result

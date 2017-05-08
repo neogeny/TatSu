@@ -65,3 +65,22 @@ class ParseInfo(_ParseInfo):
 
     def line_index(self):
         return self.buffer.line_index(self.line, self.endline)
+
+
+RecursionInfo = namedtuple(
+    'RecursionInfo',
+    [
+        'rule',
+        'result',
+    ]
+)
+
+
+RuleResultInfo = namedtuple(
+    'RuleResult',
+    [
+        'node',
+        'newpos',
+        'newstate',
+    ]
+)
