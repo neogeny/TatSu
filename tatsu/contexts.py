@@ -550,12 +550,15 @@ class ParseContext(object):
 
     def _memoization_for(self, key):
         memo = self._memoization_cache.get(key)
+
         if isinstance(memo, FailedLeftRecursion):
             self._recursive_rules.add(key.name)
             if key in self._recursion_cache:
                 memo = self._recursion_cache[key]
+
         if isinstance(memo, Exception):
             raise memo
+
         return memo
 
     def _set_left_recursion_guard(self, name, key):
