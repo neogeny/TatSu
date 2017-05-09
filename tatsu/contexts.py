@@ -499,6 +499,10 @@ class ParseContext(object):
             try:
                 result = self._invoke_rule(rule, name, params, kwparams)
             except FailedParse:
+                # Logic says we should delete the memo,
+                # but leaving it hasn't hurt, and might help
+                #
+                # del self._recursion_cache[key]
                 break
 
         return result
