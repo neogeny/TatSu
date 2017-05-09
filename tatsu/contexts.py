@@ -103,14 +103,13 @@ class ParseContext(object):
         self._concrete_stack = [None]
         self._rule_stack = []
         self._cut_stack = [False]
-        self._memoization_cache = dict()
 
         self._last_node = None
         self._state = None
         self._lookahead = 0
 
         self._recursive_rules = set()
-        self._recursion_cache = dict()
+        self._clear_memoizetion_caches()
 
     def _reset(self,
                text=None,
@@ -204,7 +203,7 @@ class ParseContext(object):
             self._set_furthest_exception(e)
             raise self._furthest_exception
         finally:
-            self._clear_cache()
+            self._clear_memoizetion_caches()
 
     def goto(self, pos):
         self._buffer.goto(pos)
@@ -221,8 +220,9 @@ class ParseContext(object):
     def _pos(self):
         return self._buffer.pos
 
-    def _clear_cache(self):
+    def _clear_memoizetion_caches(self):
         self._memoization_cache = dict()
+        self._recursion_cache = dict()
 
     def _goto(self, pos):
         self._buffer.goto(pos)
