@@ -14,7 +14,8 @@
 from __future__ import print_function, division, absolute_import, unicode_literals
 
 from tatsu.buffering import Buffer
-from tatsu.parsing import graken, Parser
+from tatsu.parsing import Parser
+from tatsu.parsing import tatsumasu
 from tatsu.util import re, RE_FLAGS, generic_main  # noqa
 
 
@@ -76,19 +77,19 @@ class RegexpParser(Parser):
             **kwargs
         )
 
-    @graken()
+    @tatsumasu()
     def _S0_(self):
         self._S1_()
         self._check_eof()
 
-    @graken()
+    @tatsumasu()
     def _S1_(self):
 
         def block0():
             self._S2_()
         self._closure(block0)
 
-    @graken()
+    @tatsumasu()
     def _S2_(self):
         with self._choice():
             with self._option():
@@ -97,11 +98,11 @@ class RegexpParser(Parser):
                 self._S4_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _S3_(self):
         self._pattern(r'a')
 
-    @graken()
+    @tatsumasu()
     def _S4_(self):
         self._pattern(r'b')
 

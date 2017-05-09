@@ -372,7 +372,7 @@ class Rule(_Decorator):
         )
 
     template = '''
-        @graken({params})
+        @tatsumasu({params})
         def _{name}_(self):
         {exp:1::}{check_name}{defines}
         '''
@@ -471,7 +471,8 @@ class Grammar(Base):
                 from __future__ import print_function, division, absolute_import, unicode_literals
 
                 from tatsu.buffering import Buffer
-                from tatsu.parsing import graken, Parser
+                from tatsu.parsing import Parser
+                from tatsu.parsing import tatsumasu
                 from tatsu.util import re, RE_FLAGS, generic_main  # noqa
 
 

@@ -14,7 +14,8 @@
 from __future__ import print_function, division, absolute_import, unicode_literals
 
 from tatsu.buffering import Buffer
-from tatsu.parsing import graken, Parser
+from tatsu.parsing import Parser
+from tatsu.parsing import tatsumasu
 from tatsu.util import re, RE_FLAGS, generic_main  # noqa
 
 
@@ -76,12 +77,12 @@ class CalcParser(Parser):
             **kwargs
         )
 
-    @graken()
+    @tatsumasu()
     def _start_(self):
         self._expression_()
         self._check_eof()
 
-    @graken()
+    @tatsumasu()
     def _expression_(self):
         with self._choice():
             with self._option():
@@ -98,7 +99,7 @@ class CalcParser(Parser):
                 self._term_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _term_(self):
         with self._choice():
             with self._option():
@@ -115,7 +116,7 @@ class CalcParser(Parser):
                 self._factor_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _factor_(self):
         with self._choice():
             with self._option():
@@ -127,7 +128,7 @@ class CalcParser(Parser):
                 self._number_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _number_(self):
         self._pattern(r'\d+')
 

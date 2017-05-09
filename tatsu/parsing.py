@@ -2,7 +2,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from tatsu.exceptions import FailedRef
-from tatsu.contexts import ParseContext, graken  # noqa
+from tatsu.contexts import ParseContext, tatsumasu  # noqa
 
 
 class Parser(ParseContext):

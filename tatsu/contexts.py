@@ -35,7 +35,7 @@ __all__ = ['ParseContext']
 
 
 # decorator for rule implementation methods
-def graken(*params, **kwparams):
+def tatsumasu(*params, **kwparams):
     def decorator(rule):
         @functools.wraps(rule)
         def wrapper(self):

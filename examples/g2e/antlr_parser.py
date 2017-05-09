@@ -14,7 +14,8 @@
 from __future__ import print_function, division, absolute_import, unicode_literals
 
 from tatsu.buffering import Buffer
-from tatsu.parsing import graken, Parser
+from tatsu.parsing import Parser
+from tatsu.parsing import tatsumasu
 from tatsu.util import re, RE_FLAGS, generic_main  # noqa
 
 
@@ -76,7 +77,7 @@ class ANTLRParser(Parser):
             **kwargs
         )
 
-    @graken()
+    @tatsumasu()
     def _grammar_(self):
         with self._optional():
             with self._group():
@@ -119,7 +120,7 @@ class ANTLRParser(Parser):
             []
         )
 
-    @graken()
+    @tatsumasu()
     def _options_(self):
         self._token('options')
         self._token('{')
@@ -130,7 +131,7 @@ class ANTLRParser(Parser):
         self._token('}')
         self._cut()
 
-    @graken()
+    @tatsumasu()
     def _option_(self):
         self._id_()
         self._token('=')
@@ -150,7 +151,7 @@ class ANTLRParser(Parser):
         self._token(';')
         self._cut()
 
-    @graken()
+    @tatsumasu()
     def _imports_(self):
         self._token('import')
         self._name_()
@@ -161,17 +162,17 @@ class ANTLRParser(Parser):
         self._closure(block0)
         self._token(';')
 
-    @graken()
+    @tatsumasu()
     def _header_(self):
         self._token('@header')
         self._block_()
 
-    @graken()
+    @tatsumasu()
     def _members_(self):
         self._token('@members')
         self._block_()
 
-    @graken()
+    @tatsumasu()
     def _tokens_(self):
         self._token('tokens')
         self._token('{')
@@ -181,7 +182,7 @@ class ANTLRParser(Parser):
         self._positive_closure(block0)
         self._token('}')
 
-    @graken()
+    @tatsumasu()
     def _token_(self):
         self._token_name_()
         self.name_last_node('name')
@@ -197,11 +198,11 @@ class ANTLRParser(Parser):
             []
         )
 
-    @graken()
+    @tatsumasu()
     def _token_value_(self):
         self._literal_()
 
-    @graken()
+    @tatsumasu()
     def _scope_(self):
         self._token('scope')
         self._cut()
@@ -231,7 +232,7 @@ class ANTLRParser(Parser):
                     self._block_()
                 self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _action_(self):
         self._token('@')
         with self._group():
@@ -248,7 +249,7 @@ class ANTLRParser(Parser):
             self._id_()
         self._block_()
 
-    @graken()
+    @tatsumasu()
     def _block_(self):
         self._token('{')
 
@@ -262,7 +263,7 @@ class ANTLRParser(Parser):
         self._closure(block0)
         self._token('}')
 
-    @graken()
+    @tatsumasu()
     def _rule_(self):
         with self._optional():
             with self._choice():
@@ -313,7 +314,7 @@ class ANTLRParser(Parser):
             []
         )
 
-    @graken()
+    @tatsumasu()
     def _arg_(self):
         self._token('[')
         self._cut()
@@ -328,7 +329,7 @@ class ANTLRParser(Parser):
         self._closure(block0)
         self._token(']')
 
-    @graken()
+    @tatsumasu()
     def _exceptions_(self):
 
         def block0():
@@ -340,7 +341,7 @@ class ANTLRParser(Parser):
             self._token('finally')
             self._block_()
 
-    @graken()
+    @tatsumasu()
     def _alternatives_(self):
 
         def sep0():
@@ -357,7 +358,7 @@ class ANTLRParser(Parser):
             ['options']
         )
 
-    @graken()
+    @tatsumasu()
     def _alternative_(self):
         self._elements_()
         self.name_last_node('@')
@@ -365,14 +366,14 @@ class ANTLRParser(Parser):
             self._token('->')
             self._rewrite_()
 
-    @graken()
+    @tatsumasu()
     def _elements_(self):
 
         def block0():
             self._element_()
         self._closure(block0)
 
-    @graken()
+    @tatsumasu()
     def _element_(self):
         with self._choice():
             with self._option():
@@ -389,7 +390,7 @@ class ANTLRParser(Parser):
                 self._atom_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _named_(self):
         self._id_()
         self.name_last_node('name')
@@ -408,7 +409,7 @@ class ANTLRParser(Parser):
             []
         )
 
-    @graken()
+    @tatsumasu()
     def _predicate_or_action_(self):
         with self._choice():
             with self._option():
@@ -419,19 +420,19 @@ class ANTLRParser(Parser):
                 self._semantic_action_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _gated_predicate_(self):
         self._block_()
         self._token('?=>')
         self._cut()
 
-    @graken()
+    @tatsumasu()
     def _semantic_predicate_(self):
         self._block_()
         self._token('?')
         self._cut()
 
-    @graken()
+    @tatsumasu()
     def _semantic_action_(self):
         self._token('{')
 
@@ -445,14 +446,14 @@ class ANTLRParser(Parser):
         self._closure(block0)
         self._token('}')
 
-    @graken()
+    @tatsumasu()
     def _syntactic_predicate_(self):
         self._subexp_()
         self.name_last_node('@')
         self._token('=>')
         self._cut()
 
-    @graken()
+    @tatsumasu()
     def _optional_(self):
         with self._group():
             with self._choice():
@@ -476,21 +477,21 @@ class ANTLRParser(Parser):
         self._token('?')
         self._cut()
 
-    @graken()
+    @tatsumasu()
     def _closure_(self):
         self._atom_()
         self.name_last_node('@')
         self._token('*')
         self._cut()
 
-    @graken()
+    @tatsumasu()
     def _positive_closure_(self):
         self._atom_()
         self.name_last_node('@')
         self._token('+')
         self._cut()
 
-    @graken()
+    @tatsumasu()
     def _atom_(self):
         with self._group():
             with self._choice():
@@ -522,7 +523,7 @@ class ANTLRParser(Parser):
         with self._optional():
             self._annotation_()
 
-    @graken()
+    @tatsumasu()
     def _annotation_(self):
         self._token('<')
 
@@ -537,18 +538,18 @@ class ANTLRParser(Parser):
         self._positive_gather(block0, sep0)
         self._token('>')
 
-    @graken()
+    @tatsumasu()
     def _eof_(self):
         self._token('EOF')
 
-    @graken()
+    @tatsumasu()
     def _regexp_(self):
 
         def block0():
             self._charset_()
         self._positive_closure(block0)
 
-    @graken()
+    @tatsumasu()
     def _charset_(self):
         with self._choice():
             with self._option():
@@ -561,7 +562,7 @@ class ANTLRParser(Parser):
                 self._charset_term_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _charset_optional_(self):
         self._token('(')
         self._charset_()
@@ -570,7 +571,7 @@ class ANTLRParser(Parser):
         self._token('?')
         self._cut()
 
-    @graken()
+    @tatsumasu()
     def _charset_closure_(self):
         self._token('(')
         self._charset_()
@@ -579,7 +580,7 @@ class ANTLRParser(Parser):
         self._token('*')
         self._cut()
 
-    @graken()
+    @tatsumasu()
     def _charset_positive_closure_(self):
         self._token('(')
         self._charset_()
@@ -588,7 +589,7 @@ class ANTLRParser(Parser):
         self._token('+')
         self._cut()
 
-    @graken()
+    @tatsumasu()
     def _charset_term_(self):
         with self._choice():
             with self._option():
@@ -602,7 +603,7 @@ class ANTLRParser(Parser):
                 self._charset_or_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _charset_or_(self):
         with self._choice():
             with self._option():
@@ -625,7 +626,7 @@ class ANTLRParser(Parser):
                 self._positive_closure(block4)
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _charset_negative_or_(self):
         self._token('~')
         self._token('(')
@@ -652,7 +653,7 @@ class ANTLRParser(Parser):
                 self._error('no available options')
         self._token(')')
 
-    @graken()
+    @tatsumasu()
     def _charset_atom_(self):
         with self._choice():
             with self._option():
@@ -661,11 +662,11 @@ class ANTLRParser(Parser):
                 self._char_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _charset_char_(self):
         self._char_()
 
-    @graken()
+    @tatsumasu()
     def _charset_range_(self):
         self._charset_char_()
         self.name_last_node('first')
@@ -677,7 +678,7 @@ class ANTLRParser(Parser):
             []
         )
 
-    @graken()
+    @tatsumasu()
     def _newranges_(self):
 
         def block0():
@@ -689,7 +690,7 @@ class ANTLRParser(Parser):
                 self._error('no available options')
         self._positive_closure(block0)
 
-    @graken()
+    @tatsumasu()
     def _newrange_(self):
         self._token('[')
         self._pattern(r'([^\]]|\\u[a-fA-F0-9]{4}|\\.)+')
@@ -703,7 +704,7 @@ class ANTLRParser(Parser):
             []
         )
 
-    @graken()
+    @tatsumasu()
     def _negative_newrange_(self):
         self._token('~')
         self._token('[')
@@ -718,7 +719,7 @@ class ANTLRParser(Parser):
             []
         )
 
-    @graken()
+    @tatsumasu()
     def _subexp_(self):
         self._token('(')
         with self._optional():
@@ -729,13 +730,13 @@ class ANTLRParser(Parser):
         self.name_last_node('@')
         self._token(')')
 
-    @graken()
+    @tatsumasu()
     def _negative_(self):
         self._token('~')
         self._atom_()
         self.name_last_node('@')
 
-    @graken()
+    @tatsumasu()
     def _non_terminal_(self):
         with self._group():
             with self._choice():
@@ -748,7 +749,7 @@ class ANTLRParser(Parser):
         with self._optional():
             self._arg_()
 
-    @graken()
+    @tatsumasu()
     def _terminal_(self):
         with self._choice():
             with self._option():
@@ -757,21 +758,21 @@ class ANTLRParser(Parser):
                 self._any_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _any_(self):
         with self._ifnot():
             self._token('..')
         self._token('.')
         self._cut()
 
-    @graken()
+    @tatsumasu()
     def _rewrite_(self):
 
         def block0():
             self._rewrite_term_()
         self._closure(block0)
 
-    @graken()
+    @tatsumasu()
     def _rewrite_term_(self):
         with self._choice():
             with self._option():
@@ -785,21 +786,21 @@ class ANTLRParser(Parser):
                 self._pattern(r'[^|;^)]*')
             self._error('expecting one of: [^|;^)]*')
 
-    @graken()
+    @tatsumasu()
     def _rule_ref_(self):
         self._lower_name_()
         with self._optional():
             self._annotation_()
 
-    @graken()
+    @tatsumasu()
     def _token_ref_(self):
         self._upper_name_()
 
-    @graken()
+    @tatsumasu()
     def _token_name_(self):
         self._upper_name_()
 
-    @graken()
+    @tatsumasu()
     def _literal_(self):
         with self._choice():
             with self._option():
@@ -810,34 +811,34 @@ class ANTLRParser(Parser):
                 self._int_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _id_(self):
         self._name_()
 
-    @graken()
+    @tatsumasu()
     def _name_(self):
         self._pattern(r'[a-zA-Z][A-Za-z0-9_]*')
 
-    @graken()
+    @tatsumasu()
     def _lower_name_(self):
         self._pattern(r'[a-z][A-Za-z0-9_]*')
 
-    @graken()
+    @tatsumasu()
     def _upper_name_(self):
         self._pattern(r'[A-Z][A-Za-z0-9_]*')
 
-    @graken()
+    @tatsumasu()
     def _char_(self):
         self._token("'")
         self._pattern(r"[^'\n\\]|\\'|\\u[a-fA-F0-9]{4}|\\.")
         self.name_last_node('@')
         self._token("'")
 
-    @graken()
+    @tatsumasu()
     def _string_(self):
         self._STRING_()
 
-    @graken()
+    @tatsumasu()
     def _STRING_(self):
         with self._choice():
             with self._option():
@@ -852,11 +853,11 @@ class ANTLRParser(Parser):
                 self._token("'")
             self._error('expecting one of: " \'')
 
-    @graken()
+    @tatsumasu()
     def _int_(self):
         self._pattern(r'[0-9]+')
 
-    @graken()
+    @tatsumasu()
     def _ESC_(self):
         with self._choice():
             with self._option():

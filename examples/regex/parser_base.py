@@ -14,7 +14,8 @@
 from __future__ import print_function, division, absolute_import, unicode_literals
 
 from tatsu.buffering import Buffer
-from tatsu.parsing import graken, Parser
+from tatsu.parsing import Parser
+from tatsu.parsing import tatsumasu
 from tatsu.util import re, RE_FLAGS, generic_main  # noqa
 
 
@@ -76,12 +77,12 @@ class RegexParser(Parser):
             **kwargs
         )
 
-    @graken()
+    @tatsumasu()
     def _START_(self):
         self._EXPRE_()
         self._check_eof()
 
-    @graken()
+    @tatsumasu()
     def _EXPRE_(self):
         with self._choice():
             with self._option():
@@ -90,7 +91,7 @@ class RegexParser(Parser):
                 self._SEQUENCE_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _CHOICE_(self):
         self._SEQUENCE_()
         self.add_last_node_to_name('opts')
@@ -106,7 +107,7 @@ class RegexParser(Parser):
             ['opts']
         )
 
-    @graken()
+    @tatsumasu()
     def _SEQUENCE_(self):
 
         def block1():
@@ -118,7 +119,7 @@ class RegexParser(Parser):
             []
         )
 
-    @graken()
+    @tatsumasu()
     def _TERM_(self):
         with self._choice():
             with self._option():
@@ -127,14 +128,14 @@ class RegexParser(Parser):
                 self._ATOM_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _CLOSURE_(self):
         self._ATOM_()
         self.name_last_node('@')
         self._token('*')
         self._cut()
 
-    @graken()
+    @tatsumasu()
     def _ATOM_(self):
         with self._choice():
             with self._option():
@@ -143,7 +144,7 @@ class RegexParser(Parser):
                 self._LITERAL_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _SUBEXP_(self):
         self._token('(')
         self._cut()
@@ -151,7 +152,7 @@ class RegexParser(Parser):
         self.name_last_node('@')
         self._token(')')
 
-    @graken()
+    @tatsumasu()
     def _LITERAL_(self):
         self._pattern(r'(?:\\;|[^|*\\()])+')
 

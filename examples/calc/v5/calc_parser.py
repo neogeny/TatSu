@@ -14,7 +14,8 @@
 from __future__ import print_function, division, absolute_import, unicode_literals
 
 from tatsu.buffering import Buffer
-from tatsu.parsing import graken, Parser
+from tatsu.parsing import Parser
+from tatsu.parsing import tatsumasu
 from tatsu.util import re, RE_FLAGS, generic_main  # noqa
 
 
@@ -76,12 +77,12 @@ class CalcParser(Parser):
             **kwargs
         )
 
-    @graken()
+    @tatsumasu()
     def _start_(self):
         self._expression_()
         self._check_eof()
 
-    @graken()
+    @tatsumasu()
     def _expression_(self):
         with self._choice():
             with self._option():
@@ -92,7 +93,7 @@ class CalcParser(Parser):
                 self._term_()
             self._error('no available options')
 
-    @graken('Add')
+    @tatsumasu('Add')
     def _addition_(self):
         self._term_()
         self.name_last_node('left')
@@ -106,7 +107,7 @@ class CalcParser(Parser):
             []
         )
 
-    @graken('Subtract')
+    @tatsumasu('Subtract')
     def _subtraction_(self):
         self._term_()
         self.name_last_node('left')
@@ -120,7 +121,7 @@ class CalcParser(Parser):
             []
         )
 
-    @graken()
+    @tatsumasu()
     def _term_(self):
         with self._choice():
             with self._option():
@@ -131,7 +132,7 @@ class CalcParser(Parser):
                 self._factor_()
             self._error('no available options')
 
-    @graken('Multiply')
+    @tatsumasu('Multiply')
     def _multiplication_(self):
         self._factor_()
         self.name_last_node('left')
@@ -145,7 +146,7 @@ class CalcParser(Parser):
             []
         )
 
-    @graken('Divide')
+    @tatsumasu('Divide')
     def _division_(self):
         self._factor_()
         self.name_last_node('left')
@@ -158,7 +159,7 @@ class CalcParser(Parser):
             []
         )
 
-    @graken()
+    @tatsumasu()
     def _factor_(self):
         with self._choice():
             with self._option():
@@ -167,7 +168,7 @@ class CalcParser(Parser):
                 self._number_()
             self._error('no available options')
 
-    @graken()
+    @tatsumasu()
     def _subexpression_(self):
         self._token('(')
         self._cut()
@@ -175,7 +176,7 @@ class CalcParser(Parser):
         self.name_last_node('@')
         self._token(')')
 
-    @graken('Number')
+    @tatsumasu('Number')
     def _number_(self):
         self._pattern(r'\d+')
         self.name_last_node('value')
