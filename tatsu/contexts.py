@@ -15,7 +15,7 @@ from ._unicode_characters import (
 from tatsu.util import notnone, ustr, prune_dict, is_list, info, safe_name
 from tatsu.util import left_assoc, right_assoc
 from tatsu.ast import AST
-from tatsu.infos import ParseInfo, RuleResult
+from tatsu.infos import ParseInfo, RuleResult, MemoKey
 from tatsu import buffering
 from tatsu import color
 from tatsu.exceptions import (
@@ -31,7 +31,7 @@ from tatsu.exceptions import (
     OptionSucceeded
 )
 
-__all__ = ['ParseContext']
+__all__ = ['ParseContext', 'tatsumasu']
 
 
 # decorator for rule implementation methods
@@ -448,7 +448,7 @@ class ParseContext(object):
 
             self._last_node = None
 
-            result = self._invoke_rule(rule, name, params, kwparams)
+            result = self._recursive_call(rule, name, params, kwparams)
             node, newpos, newstate = result
 
             self._goto(newpos)
@@ -475,11 +475,14 @@ class ParseContext(object):
     def _is_recursive(self, rule):
         return rule in self._recursive_rules
 
-    def _invoke_rule(self, rule, name, params, kwparams):
+    def _recursive_call(self, rule, name, params, kwparams):
         lastpos = self._pos
 
-        result = self._invoke_rule_inner(rule, name, params, kwparams)
-        if not self.left_recursion or not self._is_recursive(rule):
+        result = self._invoke_rule(rule, name, params, kwparams)
+
+        if not self.left_recursion:
+            return result
+        if not self._is_recursive(name):
             return result
 
         while self._pos > lastpos:
@@ -487,37 +490,29 @@ class ParseContext(object):
             if name[0].islower():
                 self._next_token()
 
-            key = (self._pos, name, self._state)
+            key = MemoKey(self._pos, name, self._state)
             self._recursion_cache[key] = RuleResult(
                 [result.node],
                 self._pos,
                 result.newstate
             )
             try:
-                result = self._invoke_rule_inner(rule, name, params, kwparams)
+                result = self._invoke_rule(rule, name, params, kwparams)
             except FailedParse:
                 break
 
         return result
 
-    def _invoke_rule_inner(self, rule, name, params, kwparams):
+    def _invoke_rule(self, rule, name, params, kwparams):
         cache = self._memoization_cache
         if name[0].islower():
             self._next_token()
         pos = self._pos
 
-        key = (pos, name, self._state)
-        memo = cache.get(key)
+        key = MemoKey(pos, name, self._state)
+        memo = self._memoization_for(key)
         if memo:
-            if isinstance(memo, FailedLeftRecursion):
-                self._recursive_rules.add(rule)
-                if key in self._recursion_cache:
-                    return self._recursion_cache[key]
-
-            if isinstance(memo, Exception):
-                raise memo
             return memo
-
         self._set_left_recursion_guard(name, key)
 
         self._push_ast()
@@ -548,6 +543,16 @@ class ParseContext(object):
             raise
         finally:
             self._pop_ast()
+
+    def _memoization_for(self, key):
+        memo = self._memoization_cache.get(key)
+        if isinstance(memo, FailedLeftRecursion):
+            self._recursive_rules.add(key.name)
+            if key in self._recursion_cache:
+                memo = self._recursion_cache[key]
+        if isinstance(memo, Exception):
+            raise memo
+        return memo
 
     def _set_left_recursion_guard(self, name, key):
         exception = FailedLeftRecursion(

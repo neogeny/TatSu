@@ -67,6 +67,16 @@ class ParseInfo(_ParseInfo):
         return self.buffer.line_index(self.line, self.endline)
 
 
+MemoKey = namedtuple(
+    'MemoKey',
+    [
+        'pos',
+        'name',
+        'state'
+    ]
+)
+
+
 RuleResult = namedtuple(
     'RuleResult',
     [
