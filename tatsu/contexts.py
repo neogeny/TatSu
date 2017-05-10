@@ -520,7 +520,6 @@ class ParseContext(object):
             return result
 
         while self._pos > lastpos:
-            lastpos = self._pos
             self._next_token(for_rule_name=ruleinfo.name)
 
             key = self._memo_key(ruleinfo.name)
@@ -530,6 +529,7 @@ class ParseContext(object):
                 result.newstate
             )
             try:
+                lastpos = self._pos
                 result = self._invoke_cached_rule(ruleinfo)
             except FailedParse:
                 # del self._recursion_cache[key]

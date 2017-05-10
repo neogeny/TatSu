@@ -420,7 +420,7 @@ class Grammar(Base):
         comments_re = urepr(self.node.directives.get('comments'))
         eol_comments_re = urepr(self.node.directives.get('eol_comments'))
         ignorecase = self.node.directives.get('ignorecase', 'None')
-        left_recursion = self.node.directives.get('left_recursion', False)
+        left_recursion = self.node.directives.get('left_recursion', True)
         parseinfo = self.node.directives.get('parseinfo', True)
 
         namechars = urepr(self.node.directives.get('namechars') or '')

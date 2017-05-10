@@ -54,7 +54,7 @@ class EBNFBootstrapParser(Parser):
         comments_re='\\(\\*((?:.|\\n)*?)\\*\\)',
         eol_comments_re='#([^\\n]*?)$',
         ignorecase=None,
-        left_recursion=False,
+        left_recursion=True,
         parseinfo=True,
         keywords=None,
         namechars='',
