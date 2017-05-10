@@ -96,5 +96,3 @@ RuleResult = namedtuple(
         'newstate',
     ]
 )
-
-
