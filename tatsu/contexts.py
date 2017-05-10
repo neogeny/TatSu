@@ -227,8 +227,9 @@ class ParseContext(object):
     def _goto(self, pos):
         self._buffer.goto(pos)
 
-    def _next_token(self):
-        self._buffer.next_token()
+    def _next_token(self, for_rule_name=None):
+        if for_rule_name is None or for_rule_name.islower():
+            self._buffer.next_token()
 
     @property
     def ast(self):
@@ -440,6 +441,38 @@ class ParseContext(object):
             self._buffer.posline(endpos),
         )
 
+    def _is_recursive(self, name):
+        return name in self._recursive_rules
+
+    def _memo_key(self, name):
+        key = MemoKey(self._pos, name, self._state)
+        return key
+
+    def _memoize(self, key, memo):
+        if self._memoization():
+            self._memoization_cache[key] = memo
+        return memo
+
+    def _memo_for(self, key):
+        memo = self._memoization_cache.get(key)
+
+        if isinstance(memo, FailedLeftRecursion):
+            self._recursive_rules.add(key.name)
+            memo = self._recursion_cache.get(key, memo)
+
+        if isinstance(memo, Exception):
+            raise memo
+
+        return memo
+
+    def _set_left_recursion_guard(self, key):
+        exception = FailedLeftRecursion(
+            self._buffer,
+            list(reversed(self._rule_stack[:])),
+            key.name
+        )
+        self._memoize(key, exception)
+
     def _call(self, rule, name, params, kwparams):
         self._rule_stack.append(name)
         pos = self._pos
@@ -472,13 +505,9 @@ class ParseContext(object):
         finally:
             self._rule_stack.pop()
 
-    def _is_recursive(self, rule):
-        return rule in self._recursive_rules
-
     def _recursive_call(self, rule, name, params, kwparams):
         lastpos = self._pos
-
-        result = self._invoke_rule(rule, name, params, kwparams)
+        result = self._invoke_cached_rule(rule, name, params, kwparams)
 
         if not self.left_recursion:
             return result
@@ -487,95 +516,61 @@ class ParseContext(object):
 
         while self._pos > lastpos:
             lastpos = self._pos
-            if name[0].islower():
-                self._next_token()
+            self._next_token(for_rule_name=name)
 
-            key = MemoKey(self._pos, name, self._state)
+            key = self._memo_key(name)
             self._recursion_cache[key] = RuleResult(
                 [result.node],
                 self._pos,
                 result.newstate
             )
             try:
-                result = self._invoke_rule(rule, name, params, kwparams)
+                result = self._invoke_cached_rule(rule, name, params, kwparams)
             except FailedParse:
-                # Logic says we should delete the memo,
-                # but leaving it hasn't hurt, and might help
-                #
                 # del self._recursion_cache[key]
                 break
 
         return result
 
-    def _invoke_rule(self, rule, name, params, kwparams):
+    def _invoke_cached_rule(self, rule, name, params, kwparams):
         cache = self._memoization_cache
-        if name[0].islower():
-            self._next_token()
-        pos = self._pos
+        self._next_token(for_rule_name=name)
 
-        key = MemoKey(pos, name, self._state)
-        memo = self._memoization_for(key)
+        key = self._memo_key(name)
+        memo = self._memo_for(key)
         if memo:
             return memo
-        self._set_left_recursion_guard(name, key)
-
-        self._push_ast()
+        self._set_left_recursion_guard(key)
         try:
-            try:
-                rule(self)
-
-                node = self.ast
-                if not node:
-                    node = self.cst
-                elif '@' in node:
-                    node = node['@']  # override the AST
-                elif self.parseinfo:
-                    node.set_parseinfo(self._get_parseinfo(name, pos))
-
-                node = self._invoke_semantic_rule(name, node, params, kwparams)
-                result = RuleResult(node, self._pos, self._state)
-
-                if self._memoization():
-                    cache[key] = result
-                return result
-            except FailedSemantics as e:
-                self._error(ustr(e), FailedParse)
+            result = self._invoke_rule(rule, name, params, kwparams)
+            self._memoize(key, result)
+            return result
         except FailedParse as e:
             self._set_furthest_exception(e)
             if self._memoization():
                 cache[key] = e
             raise
+
+    def _invoke_rule(self, rule, name, params, kwparams):
+        self._push_ast()
+        try:
+            pos = self._pos
+            rule(self)
+
+            node = self.ast
+            if not node:
+                node = self.cst
+            elif '@' in node:
+                node = node['@']  # override the AST
+            elif self.parseinfo:
+                node.set_parseinfo(self._get_parseinfo(name, pos))
+
+            node = self._invoke_semantic_rule(name, node, params, kwparams)
+            return RuleResult(node, self._pos, self._state)
+        except FailedSemantics as e:
+            self._error(ustr(e), FailedParse)
         finally:
             self._pop_ast()
-
-    def _memoization_for(self, key):
-        memo = self._memoization_cache.get(key)
-
-        if isinstance(memo, FailedLeftRecursion):
-            self._recursive_rules.add(key.name)
-            if key in self._recursion_cache:
-                memo = self._recursion_cache[key]
-
-        if isinstance(memo, Exception):
-            raise memo
-
-        return memo
-
-    def _set_left_recursion_guard(self, name, key):
-        exception = FailedLeftRecursion(
-            self._buffer,
-            list(reversed(self._rule_stack[:])),
-            name
-        )
-
-        # Alessandro Warth et al say that we can deal with
-        # direct and indirect left-recursion by seeding the
-        # memoization cache with a parse failure.
-        #
-        #   http://www.vpri.org/pdf/tr2007002_packrat.pdf
-        #
-        if self._memoization():
-            self._memoization_cache[key] = exception
 
     def _invoke_semantic_rule(self, name, node, params, kwparams):
         semantic_rule, postproc = self._find_semantic_rule(name)
