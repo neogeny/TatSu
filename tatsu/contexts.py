@@ -446,12 +446,8 @@ class ParseContext(object):
             self._buffer.posline(endpos),
         )
 
-    def _is_recursive(self, name):
-        return name in self._recursive_rules
-
     def _memo_key(self, name):
-        key = MemoKey(self._pos, name, self._state)
-        return key
+        return MemoKey(self._pos, name, self._state)
 
     def _memoize(self, key, memo):
         if self._memoization():
@@ -462,13 +458,27 @@ class ParseContext(object):
         memo = self._memoization_cache.get(key)
 
         if isinstance(memo, FailedLeftRecursion):
-            self._recursive_rules.add(key.name)
+            self._set_recursive(key.name)
             memo = self._recursion_cache.get(key, memo)
 
         if isinstance(memo, Exception):
             raise memo
 
         return memo
+
+    def _rule_result(self, node):
+        return RuleResult(node, self._pos, self._state)
+
+    def _cache_result(self, key, node):
+        if not isinstance(node, AST):
+            node = [node]
+        self._recursion_cache[key] = self._rule_result(node)
+
+    def _is_recursive(self, name):
+        return name in self._recursive_rules
+
+    def _set_recursive(self, name):
+        self._recursive_rules.add(name)
 
     def _set_left_recursion_guard(self, key):
         exception = FailedLeftRecursion(
@@ -524,11 +534,7 @@ class ParseContext(object):
 
             key = self._memo_key(ruleinfo.name)
             node = result.node
-            self._recursion_cache[key] = RuleResult(
-                node if isinstance(node, AST) else [node],
-                self._pos,
-                result.newstate
-            )
+            self._cache_result(key, node)
             try:
                 lastpos = self._pos
                 result = self._invoke_cached_rule(ruleinfo)
@@ -572,7 +578,7 @@ class ParseContext(object):
                 node.set_parseinfo(self._get_parseinfo(ruleinfo.name, pos))
 
             node = self._invoke_semantic_rule(ruleinfo, node)
-            return RuleResult(node, self._pos, self._state)
+            return self._rule_result(node)
         except FailedSemantics as e:
             self._error(ustr(e), FailedParse)
         finally:
