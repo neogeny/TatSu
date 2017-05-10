@@ -525,7 +525,7 @@ class ParseContext(object):
             key = self._memo_key(ruleinfo.name)
             node = result.node
             self._recursion_cache[key] = RuleResult(
-                [node] if not isinstance(node, AST) else node,
+                node if isinstance(node, AST) else [node],
                 self._pos,
                 result.newstate
             )
