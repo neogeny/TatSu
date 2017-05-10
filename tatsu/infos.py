@@ -77,6 +77,17 @@ MemoKey = namedtuple(
 )
 
 
+RuleInfo = namedtuple(
+    'RuleInfo',
+    [
+        'name',
+        'impl',
+        'params',
+        'kwparams',
+    ]
+)
+
+
 RuleResult = namedtuple(
     'RuleResult',
     [
@@ -85,3 +96,5 @@ RuleResult = namedtuple(
         'newstate',
     ]
 )
+
+

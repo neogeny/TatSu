@@ -13,6 +13,7 @@ from tatsu.ast import AST
 from tatsu.contexts import ParseContext
 from tatsu.objectmodel import Node
 from tatsu.bootstrap import EBNFBootstrapBuffer
+from tatsu.infos import RuleInfo
 
 
 PEP8_LLEN = 72
@@ -679,7 +680,8 @@ class Rule(Decorator):
         return result
 
     def _parse_rhs(self, ctx, exp):
-        result = ctx._call(exp.parse, self.name, self.params, self.kwparams)
+        ruleinfo = RuleInfo(self.name, exp.parse, self.params, self.kwparams)
+        result = ctx._call(ruleinfo)
         if isinstance(result, AST):
             defines = compress_seq(self.defines())
             result._define(

@@ -15,9 +15,14 @@ from ._unicode_characters import (
 from tatsu.util import notnone, ustr, prune_dict, is_list, info, safe_name
 from tatsu.util import left_assoc, right_assoc
 from tatsu.ast import AST
-from tatsu.infos import ParseInfo, RuleResult, MemoKey
 from tatsu import buffering
 from tatsu import color
+from tatsu.infos import (
+    MemoKey,
+    ParseInfo,
+    RuleInfo,
+    RuleResult,
+)
 from tatsu.exceptions import (
     FailedCut,
     FailedLeftRecursion,
@@ -36,14 +41,15 @@ __all__ = ['ParseContext', 'tatsumasu']
 
 # decorator for rule implementation methods
 def tatsumasu(*params, **kwparams):
-    def decorator(rule):
-        @functools.wraps(rule)
+    def decorator(impl):
+        @functools.wraps(impl)
         def wrapper(self):
-            name = rule.__name__
+            name = impl.__name__
             # remove the single leading and trailing underscore
             # that the parser generator added
             name = name[1:-1]
-            return self._call(rule, name, params, kwparams)
+            ruleinfo = RuleInfo(name, impl, params, kwparams)
+            return self._call(ruleinfo)
         return wrapper
     return decorator
 
@@ -352,23 +358,22 @@ class ParseContext(object):
         self._error(name, etype=FailedRef)
         return lambda: None  # makes static checkers happy
 
-    def _find_semantic_rule(self, name):
+    def _find_semantic_action(self, name):
         if self.semantics is None:
             return None, None
 
         postproc = getattr(self.semantics, '_postproc', None)
+
+        action = getattr(self.semantics, safe_name(name), None)
+        if not callable(action):
+            action = getattr(self.semantics, '_default', None)
+
+        if not callable(action):
+            action = None
         if not callable(postproc):
             postproc = None
 
-        rule = getattr(self.semantics, safe_name(name), None)
-        if callable(rule):
-            return rule, postproc
-
-        rule = getattr(self.semantics, '_default', None)
-        if callable(rule):
-            return rule, postproc
-
-        return None, postproc
+        return action, postproc
 
     def _trace(self, msg, *params):
         if self.trace:
@@ -473,15 +478,15 @@ class ParseContext(object):
         )
         self._memoize(key, exception)
 
-    def _call(self, rule, name, params, kwparams):
-        self._rule_stack.append(name)
+    def _call(self, ruleinfo):
+        self._rule_stack.append(ruleinfo.name)
         pos = self._pos
         try:
             self._trace_entry()
 
             self._last_node = None
 
-            result = self._recursive_call(rule, name, params, kwparams)
+            result = self._recursive_call(ruleinfo)
             node, newpos, newstate = result
 
             self._goto(newpos)
@@ -493,7 +498,7 @@ class ParseContext(object):
 
             return node
         except FailedPattern:
-            self._error('Expecting <%s>' % name)
+            self._error('Expecting <%s>' % ruleinfo.name)
         except FailedParse as e:
             self._goto(pos)
             self._set_furthest_exception(e)
@@ -505,44 +510,44 @@ class ParseContext(object):
         finally:
             self._rule_stack.pop()
 
-    def _recursive_call(self, rule, name, params, kwparams):
+    def _recursive_call(self, ruleinfo):
         lastpos = self._pos
-        result = self._invoke_cached_rule(rule, name, params, kwparams)
+        result = self._invoke_cached_rule(ruleinfo)
 
         if not self.left_recursion:
             return result
-        if not self._is_recursive(name):
+        if not self._is_recursive(ruleinfo.name):
             return result
 
         while self._pos > lastpos:
             lastpos = self._pos
-            self._next_token(for_rule_name=name)
+            self._next_token(for_rule_name=ruleinfo.name)
 
-            key = self._memo_key(name)
+            key = self._memo_key(ruleinfo.name)
             self._recursion_cache[key] = RuleResult(
                 [result.node],
                 self._pos,
                 result.newstate
             )
             try:
-                result = self._invoke_cached_rule(rule, name, params, kwparams)
+                result = self._invoke_cached_rule(ruleinfo)
             except FailedParse:
                 # del self._recursion_cache[key]
                 break
 
         return result
 
-    def _invoke_cached_rule(self, rule, name, params, kwparams):
+    def _invoke_cached_rule(self, ruleinfo):
         cache = self._memoization_cache
-        self._next_token(for_rule_name=name)
+        self._next_token(for_rule_name=ruleinfo.name)
 
-        key = self._memo_key(name)
+        key = self._memo_key(ruleinfo.name)
         memo = self._memo_for(key)
         if memo:
             return memo
         self._set_left_recursion_guard(key)
         try:
-            result = self._invoke_rule(rule, name, params, kwparams)
+            result = self._invoke_rule(ruleinfo)
             self._memoize(key, result)
             return result
         except FailedParse as e:
@@ -551,11 +556,11 @@ class ParseContext(object):
                 cache[key] = e
             raise
 
-    def _invoke_rule(self, rule, name, params, kwparams):
+    def _invoke_rule(self, ruleinfo):
         self._push_ast()
         try:
             pos = self._pos
-            rule(self)
+            ruleinfo.impl(self)
 
             node = self.ast
             if not node:
@@ -563,19 +568,19 @@ class ParseContext(object):
             elif '@' in node:
                 node = node['@']  # override the AST
             elif self.parseinfo:
-                node.set_parseinfo(self._get_parseinfo(name, pos))
+                node.set_parseinfo(self._get_parseinfo(ruleinfo.name, pos))
 
-            node = self._invoke_semantic_rule(name, node, params, kwparams)
+            node = self._invoke_semantic_rule(ruleinfo, node)
             return RuleResult(node, self._pos, self._state)
         except FailedSemantics as e:
             self._error(ustr(e), FailedParse)
         finally:
             self._pop_ast()
 
-    def _invoke_semantic_rule(self, name, node, params, kwparams):
-        semantic_rule, postproc = self._find_semantic_rule(name)
+    def _invoke_semantic_rule(self, rule, node):
+        semantic_rule, postproc = self._find_semantic_action(rule.name)
         if semantic_rule:
-            node = semantic_rule(node, *(params or ()), **(kwparams or {}))
+            node = semantic_rule(node, *(rule.params or ()), **(rule.kwparams or {}))
         if postproc is not None:
             postproc(self, node)
         return node
