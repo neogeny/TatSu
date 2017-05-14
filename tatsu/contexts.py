@@ -540,7 +540,6 @@ class ParseContext(object):
         return result
 
     def _invoke_cached_rule(self, ruleinfo):
-        cache = self._memoization_cache
         self._next_token(for_rule_name=ruleinfo.name)
 
         key = self._memo_key(ruleinfo.name)
