@@ -16,7 +16,7 @@ from __future__ import print_function, division, absolute_import, unicode_litera
 from tatsu.buffering import Buffer
 from tatsu.parsing import Parser
 from tatsu.parsing import tatsumasu
-from tatsu.util import re, RE_FLAGS, generic_main  # noqa
+from tatsu.util import re, generic_main  # noqa
 
 
 KEYWORDS = {}
@@ -54,7 +54,7 @@ class EBNFBootstrapParser(Parser):
         comments_re='\\(\\*((?:.|\\n)*?)\\*\\)',
         eol_comments_re='#([^\\n]*?)$',
         ignorecase=None,
-        left_recursion=True,
+        left_recursion=False,
         parseinfo=True,
         keywords=None,
         namechars='',
