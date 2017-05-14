@@ -329,8 +329,6 @@ class Buffer(object):
             return token
 
     def _scanre(self, pattern, ignorecase=None, offset=0):
-        ignorecase = ignorecase if ignorecase is not None else self.ignorecase
-
         if isinstance(pattern, RETYPE):
             re = pattern
         elif pattern in self._re_cache:
