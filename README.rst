@@ -23,7 +23,7 @@ variation of `EBNF`_ as input, and outputs `memoizing`_ (`Packrat`_)
 ``tatsu.grammars.Grammar`` object that can be used to parse any given
 input, much like the `re`_ module does with regular expressions, or it can generate a Python_ module that implements the parser.
 
-|TatSu| fully supports `left-recursive`_  rules in PEG_ grammars generating an AST_ with the expected associativity.
+|TatSu| fully supports `left-recursive`_  rules in PEG_ grammars, and the generated AST_ has the expected left associativity.
 
 Installation
 ------------
