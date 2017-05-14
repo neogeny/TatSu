@@ -462,8 +462,8 @@ class ParseContext(object):
 
         if isinstance(memo, Exception):
             raise memo
-
-        return memo
+        else:
+            return memo
 
     def _rule_result(self, node):
         return RuleResult(node, self._pos, self._state)
