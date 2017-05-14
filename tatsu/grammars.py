@@ -627,7 +627,7 @@ class RuleRef(Model):
         try:
             rule = ctx._find_rule(self.name)
         except KeyError:
-            ctx._error(self.name, etype=FailedRef)
+            ctx._error(self.name, exclass=FailedRef)
         else:
             return rule()
 

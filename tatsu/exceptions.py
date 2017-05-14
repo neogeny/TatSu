@@ -51,7 +51,7 @@ class NoParseInfo(ParseException):
 class FailedParse(ParseError):
     def __init__(self, buf, stack, item):
         self.buf = buf
-        self.stack = stack
+        self.stack = stack[:]
         self.pos = buf.pos
         self.item = item
 
@@ -72,7 +72,7 @@ class FailedParse(ParseError):
                                self.message.rstrip(),
                                text,
                                leading,
-                               '\n'.join(self.stack)
+                               '\n'.join(reversed(self.stack))
                                )
 
 

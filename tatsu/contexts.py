@@ -355,7 +355,7 @@ class ParseContext(object):
         return stack
 
     def _find_rule(self, name):
-        self._error(name, etype=FailedRef)
+        self._error(name, exclass=FailedRef)
         return lambda: None  # makes static checkers happy
 
     def _find_semantic_action(self, name):
@@ -425,12 +425,11 @@ class ParseContext(object):
                 color.Style.RESET_ALL
             )
 
-    def _error(self, item, etype=FailedParse):
-        raise etype(
-            self._buffer,
-            list(reversed(self._rule_stack[:])),
-            item
-        )
+    def _make_exception(self, item, exclass=FailedParse):
+        return exclass(self._buffer, self._rule_stack, item)
+
+    def _error(self, item, exclass=FailedParse):
+        raise self._make_exception(item, exclass=exclass)
 
     def _fail(self):
         self._error('fail')
@@ -481,12 +480,8 @@ class ParseContext(object):
         self._recursive_rules.add(name)
 
     def _set_left_recursion_guard(self, key):
-        exception = FailedLeftRecursion(
-            self._buffer,
-            list(reversed(self._rule_stack[:])),
-            key.name
-        )
-        self._memoize(key, exception)
+        ex = self._make_exception(key.name, exclass=FailedLeftRecursion)
+        self._memoize(key, ex)
 
     def _call(self, ruleinfo):
         self._rule_stack.append(ruleinfo.name)
@@ -559,8 +554,7 @@ class ParseContext(object):
             return result
         except FailedParse as e:
             self._set_furthest_exception(e)
-            if self._memoization():
-                cache[key] = e
+            self._memoize(key, e)
             raise
 
     def _invoke_rule(self, ruleinfo):
@@ -596,7 +590,7 @@ class ParseContext(object):
         self._next_token()
         if self._buffer.match(token) is None:
             self._trace_match(token, failed=True)
-            self._error(token, etype=FailedToken)
+            self._error(token, exclass=FailedToken)
         self._trace_match(token)
         self._add_cst_node(token)
         self._last_node = token
@@ -613,7 +607,7 @@ class ParseContext(object):
         token = self._buffer.matchre(pattern)
         if token is None:
             self._trace_match('', pattern, failed=True)
-            self._error(pattern, etype=FailedPattern)
+            self._error(pattern, exclass=FailedPattern)
         self._trace_match(token, pattern)
         self._add_cst_node(token)
         self._last_node = token
@@ -717,7 +711,7 @@ class ParseContext(object):
         except FailedParse:
             pass
         else:
-            self._error('', etype=FailedLookahead)
+            self._error('', exclass=FailedLookahead)
 
     def _isolate(self, block):
         self._push_cst()

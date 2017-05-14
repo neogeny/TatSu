@@ -13,7 +13,7 @@ class Parser(ParseContext):
         rule = getattr(self, name, None)
         if isinstance(rule, type(self._find_rule)):
             return rule
-        self._error(name, etype=FailedRef)
+        self._error(name, exclass=FailedRef)
 
     @classmethod
     def rule_list(cls):
