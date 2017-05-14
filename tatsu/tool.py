@@ -137,10 +137,10 @@ def compile(grammar, name=None, semantics=None, **kwargs):
 __compiled_grammar_cache = {}
 
 
-def parse(grammar, input, semantics=None, **kwargs):
+def parse(grammar, input, name=None, semantics=None, **kwargs):
     global __compiled_grammar_cache
     cache = __compiled_grammar_cache
-    model = cache.setdefault(grammar, compile(grammar, **kwargs))
+    model = cache.setdefault(grammar, compile(grammar, name=name, **kwargs))
     return model.parse(input, semantics=semantics, **kwargs)
 
 
