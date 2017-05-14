@@ -1,3 +1,5 @@
+.. include:: links.rst
+
 Abstract Syntax Trees (ASTs)
 ----------------------------
 
