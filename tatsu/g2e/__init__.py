@@ -5,11 +5,15 @@ from __future__ import (absolute_import, division, print_function,
 
 import codecs
 import sys
+import pkgutil
 from os import path
 
-from tatsu import parse, compile
-from .grammar import ANTLR_GRAMMAR
+from tatsu import parse
 from .semantics import ANTLRSemantics
+
+
+def antlr_grammar():
+    return str(pkgutil.get_data(__name__, 'antlr.ebnf'), 'utf-8')
 
 
 def translate(filename, trace):
@@ -18,7 +22,7 @@ def translate(filename, trace):
     gname = path.splitext(path.basename(filename))[0].capitalize()
     semantics = ANTLRSemantics(gname)
     model = parse(
-        ANTLR_GRAMMAR,
+        antlr_grammar(),
         text,
         name=gname,
         filename=filename,
