@@ -15,7 +15,7 @@ from itertools import takewhile, repeat
 from tatsu.util import identity, imap, ustr, strtype
 from tatsu.util import extend_list, contains_sublist
 from tatsu.util import re as regexp
-from tatsu.util import WHITESPACE_RE, RE_FLAGS
+from tatsu.util import WHITESPACE_RE
 from tatsu.exceptions import ParseError
 from tatsu.infos import PosLine, LineIndexInfo, LineInfo, CommentInfo
 
@@ -87,7 +87,8 @@ class Buffer(object):
                 # a list or a set?
                 whitespace = ''.join(c for c in whitespace)
             return regexp.compile(
-                '[%s]+' % regexp.escape(whitespace), RE_FLAGS
+                '[%s]+' % regexp.escape(whitespace),
+                regexp.MULTILINE | regexp.UNICODE
             )
         else:
             return None
@@ -335,11 +336,7 @@ class Buffer(object):
         elif pattern in self._re_cache:
             re = self._re_cache[pattern]
         else:
-            flags = RE_FLAGS | (regexp.IGNORECASE if ignorecase else 0)
-            re = regexp.compile(
-                pattern,
-                flags
-            )
+            re = regexp.compile(pattern, regexp.MULTILINE | regexp.UNICODE)
             self._re_cache[pattern] = re
         return re.match(self.text, self.pos + offset)
 

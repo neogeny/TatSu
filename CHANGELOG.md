@@ -10,9 +10,14 @@ The format of this *Change Log* is inspired by [keeapachangelog.org][].
 ### Added
 
 -   New support for _left recursion_ with correct associativity. All test cases pass.
+
 -   Left recursion is enabled by default. Use the `@@left_recursion :: False` directive to diasable it.
+
 -   Renamed the decorator for generated rule methods to `@tatsumasu`.
+
 -   Refactored the `tatsu.contexts.ParseContext` for clarity.
+
+-   The `@@ignorecase` directive and the `ignorecase=` parameter no longer appy to regular expressions (patterns) in grammars. Use `(?i)` in the pattern to ignore the case in a particular pattern.
 
 ## [4.0.0][] @ 2017-05-06
 [4.0.0]: https://github.com/apalala/tatsu/compare/0.0.0...v4.0.0

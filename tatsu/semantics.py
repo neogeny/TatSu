@@ -7,7 +7,7 @@ from tatsu.util import simplify_list
 from tatsu.util import eval_escapes
 from tatsu.util import warning
 from tatsu.util import builtins
-from tatsu.util import re, RE_FLAGS
+from tatsu.util import re
 
 from tatsu.exceptions import FailedSemantics
 from tatsu.exceptions import SemanticError
@@ -130,7 +130,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
     def regexes(self, ast, *args):
         pattern = ''.join(ast)
         try:
-            re.compile(pattern, RE_FLAGS)
+            re.compile(pattern)
         except (TypeError, re.error) as e:
             raise FailedSemantics('regexp error: ' + str(e))
         return ast
@@ -138,7 +138,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
     def regex(self, ast, *args):
         pattern = ast
         try:
-            re.compile(pattern, RE_FLAGS)
+            re.compile(pattern)
         except (TypeError, re.error) as e:
             raise FailedSemantics('regexp error: ' + str(e))
         return pattern

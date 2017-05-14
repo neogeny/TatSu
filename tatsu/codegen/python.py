@@ -406,7 +406,7 @@ class Grammar(Base):
         if self.node.whitespace is not None:
             whitespace = urepr(self.node.whitespace)
         elif self.node.directives.get('whitespace') is not None:
-            whitespace = 're.compile({0}, RE_FLAGS | re.DOTALL)'.format(urepr(self.node.directives.get('whitespace')))
+            whitespace = 're.compile({0})'.format(urepr(self.node.directives.get('whitespace')))
         else:
             whitespace = 'None'
 
@@ -473,7 +473,7 @@ class Grammar(Base):
                 from tatsu.buffering import Buffer
                 from tatsu.parsing import Parser
                 from tatsu.parsing import tatsumasu
-                from tatsu.util import re, RE_FLAGS, generic_main  # noqa
+                from tatsu.util import re, generic_main  # noqa
 
 
                 KEYWORDS = {{{keywords}}}

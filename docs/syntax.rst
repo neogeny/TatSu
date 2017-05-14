@@ -278,28 +278,13 @@ The expressions, in reverse order of operator precedence, can be:
     Match the token *text* within the quotation marks, interpreting *text* like `Python`_'s `raw string literal`_\ s.
 
 
-``?"regexp"`` or ``?'regexp'``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``?"regexp"`` or ``?'regexp'`` or ``/regexp/``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     The *pattern* expression. Match the `Python`_ regular expression ``regexp`` at the current text position. Unlike other expressions, this one does not advance over whitespace or comments. For that, place the ``regexp`` as the only term in its own rule.
 
-    The *regex* is interpreted as a Python_'s `raw string literal`_ and
-    passed *as-is* to the Python_ re_ module (or to
-    regex_, if available), using `match()` at the current position in
-    the text. The matched text is the AST_ for
-    the expression.
+    The *regex* is interpreted as a Python_'s `raw string literal`_ and passed with `regexp.MULTILINE | regexp.UNICODE` options to the Python_ re_ module (or to regex_, if available), using `match()` at the current position in the text. The matched text is the AST_ for the expression.
 
     Consecutive patterns are concatenated to form a single one.
-
-
-``/regexp/``
-^^^^^^^^^^^^
-    Another form of the *pattern* expression.
-
-
-``?"regexp"`` or ``?'regexp'`` or ``+/regexp/``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Concatenate the given pattern with the preceding one.
-
 
 ```constant```
 ^^^^^^^^^^^^^^
@@ -423,21 +408,31 @@ When a rule has named elements, the unnamed ones are excluded from the
 `AST`_ (they are ignored).
 
 
-Deprecated Expressions
-~~~~~~~~~~~~~~~~~~~~~~
+..
+    Deprecated Expressions
+    ~~~~~~~~~~~~~~~~~~~~~~
 
-The following expressions are still recognized in grammars, but they are
-considered deprecated, and will be removed in a future version of
-|TatSu|.
+..
+    The following expressions are still recognized in grammars, but they are
+    considered deprecated, and will be removed in a future version of
+    |TatSu|.
 
-``?/regexp/?``
-^^^^^^^^^^^^^^
-    Another form of the pattern expression that can be used when there are slashes (``/``) in the pattern. Use the ``?"regexp"`` or ``?'regexp'`` forms instead.
+..
+    ``?/regexp/?``
+    ^^^^^^^^^^^^^^
+        Another form of the pattern expression that can be used when there are slashes (``/``) in the pattern. Use the ``?"regexp"`` or ``?'regexp'`` forms instead.
 
 
-``(* comment *)``
-^^^^^^^^^^^^^^^^^^^^^^^
-    Comments may appear anywhere in the text. Use the `Python`_-style comments instead.
+..
+    ``+?"regexp"`` or ``+?'regexp'`` or ``+/regexp/``
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Concatenate the given pattern with the preceding one.
+
+
+..
+    ``(* comment *)``
+    ^^^^^^^^^^^^^^^^^^^^^^^
+        Comments may appear anywhere in the text. Use the `Python`_-style comments instead.
 
 
 Rules with Arguments
@@ -609,7 +604,8 @@ You may also specify case insensitivity within the grammar using the
 
     @@ignorecase :: True
 
-The change will affect both token and pattern matching.
+The change will affect both token matching, but not pattern matching. Use `(?i)`
+in patterns that should ignore case.
 
 Comments
 ~~~~~~~~

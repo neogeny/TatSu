@@ -93,7 +93,7 @@ class FailedPattern(FailedParse):
 
     @property
     def message(self):
-        return "expecting %s" % repr(self.pattern).strip('u')
+        return "expecting /%s/" % self.pattern
 
 
 class FailedMatch(FailedParse):

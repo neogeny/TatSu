@@ -16,7 +16,7 @@ from __future__ import print_function, division, absolute_import, unicode_litera
 from tatsu.buffering import Buffer
 from tatsu.parsing import Parser
 from tatsu.parsing import tatsumasu
-from tatsu.util import re, RE_FLAGS, generic_main  # noqa
+from tatsu.util import re, generic_main  # noqa
 
 
 KEYWORDS = {}
@@ -54,7 +54,7 @@ class CalcParser(Parser):
         comments_re=None,
         eol_comments_re=None,
         ignorecase=None,
-        left_recursion=False,
+        left_recursion=True,
         parseinfo=True,
         keywords=None,
         namechars='',

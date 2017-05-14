@@ -24,11 +24,10 @@ logger.addHandler(ch)
 
 try:
     import regex as re
-    WHITESPACE_RE = re.compile(r'\p{IsPattern_White_Space}+', re.UNICODE)
+    WHITESPACE_RE = re.compile(r'\p{IsPattern_White_Space}+')
 except ImportError:
     import re
-    WHITESPACE_RE = re.compile(r'\s+', re.UNICODE)
-RE_FLAGS = re.UNICODE | re.MULTILINE
+    WHITESPACE_RE = re.compile(r'\s+')
 
 
 PY3 = sys.version_info[0] >= 3
