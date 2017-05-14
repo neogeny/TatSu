@@ -3,7 +3,7 @@
 Contributing
 ------------
 
-|TatSu| **TatSu** development is done on Bitbucket_. Bug reports, patches, suggestions, and improvements are welcome.
+|TatSu| development is done on Bitbucket_. Bug reports, patches, suggestions, and improvements are welcome.
 
 .. _bitbucket : https://bitbucket.org/neogeny/tatsu/
 
@@ -13,7 +13,7 @@ Donations
 
     |donate|
 
-    *If you'd like to contribute to the future development of |TatSu| **TatSu**,
+    *If you'd like to contribute to the future development of |TatSu|,
     please* **`make a donation`_** to the project.
 
     *Some of the planned new features are: grammar expressions for left

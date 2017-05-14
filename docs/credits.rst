@@ -3,7 +3,7 @@
 Credits
 -------
 
--   |TatSu| **TatSu** is the successor of Grako_, which was built by **Juancarlo Añez** and funded by **Thomas Bragg** to do analysis and translation of programs written in legacy programming languages.
+-   |TatSu| is the successor of Grako_, which was built by **Juancarlo Añez** and funded by **Thomas Bragg** to do analysis and translation of programs written in legacy programming languages.
 -  **Niklaus Wirth** was the chief designer of the programming languages
    `Euler`_, `Algol W`_, `Pascal`_, `Modula`_, `Modula-2`_, `Oberon`_,
    and `Oberon-2`_. In the last chapter of his 1976 book `Algorithms +
@@ -14,29 +14,29 @@ Credits
 -  **Bryan Ford** `introduced`_ `PEG`_ (parsing expression grammars) in
    2004.
 -  Other parser generators like `PEG.js`_ by **David Majda** inspired
-   the work in |TatSu| **TatSu**.
+   the work in |TatSu|.
 -  **William Thompson** inspired the use of context managers with his
    `blog post`_ that I knew about through the invaluable `Python
    Weekly`_ newsletter, curated by **Rahul Chaudhary**
--  **Jeff Knupp** explains why |TatSu| **TatSu**'s use of `exceptions`_ is
+-  **Jeff Knupp** explains why |TatSu|'s use of `exceptions`_ is
    sound, so I don't have to.
 -  **Terence Parr** created `ANTLR`_, probably the most solid and
    professional parser generator out there. *Ter*, *ANTLR*, and the
-   folks on the *ANLTR* forums helped me shape my ideas about |TatSu| **TatSu**.
+   folks on the *ANLTR* forums helped me shape my ideas about |TatSu|.
 -  **JavaCC** (originally `Jack`_) looks like an abandoned project. It
    was the first parser generator I used while teaching.
--  |TatSu| **TatSu** is very fast. But dealing with millions of lines of legacy
+-  |TatSu| is very fast. But dealing with millions of lines of legacy
    source code in a matter of minutes would be impossible without
    `PyPy`_, the work of **Armin Rigo** and the `PyPy team`_.
 -  **Guido van Rossum** created and has lead the development of the
    `Python`_ programming environment for over a decade. A tool like
-   |TatSu| **TatSu**, at under six thousand lines of code, would not have been
+   |TatSu|, at under six thousand lines of code, would not have been
    possible without `Python`_.
 -  **Kota Mizushima** welcomed me to the `CSAIL at MIT`_ `PEG and
    Packrat parsing mailing list`_, and immediately offered ideas and
    pointed me to documentation about the implementation of *cut* in
    modern parsers. The optimization of memoization information in
-   |TatSu| **TatSu** is thanks to one of his papers.
+   |TatSu| is thanks to one of his papers.
 -  **My students** at `UCAB`_ inspired me to think about how
    grammar-based parser generation could be made more approachable.
 -  **Gustavo Lau** was my professor of *Language Theory* at `USB`_, and
@@ -54,7 +54,7 @@ Credits
    are in `English`_, the structure of the programs we write is more
    like `Japanese`_.
 -  `Marcus Brinkmann`_ has kindly submitted patches that have resolved
-   obscure bugs in |TatSu| **TatSu**'s implementation, and that have made the
+   obscure bugs in |TatSu|'s implementation, and that have made the
    tool more user-friendly, specially for newcomers to parsing and
    translation.
 -  `Robert Speer`_ cleaned up the nonsense in trying to have Unicode
@@ -62,12 +62,12 @@ Credits
    canonical way of honoring escape sequences in grammar tokens without
    throwing off the encoding.
 -  `Basel Shishani`_ has been an incredibly throrough peer-reviewer of
-   |TatSu| **TatSu**.
+   |TatSu|.
 -  `Paul Sargent`_ implemented `Warth et al`_'s algorithm for supporting
    direct and indirect left recursion in `PEG`_ parsers.
 -  `Kathryn Long`_ proposed better support for UNICODE in the treatment
    of whitespace and regular expressions (patterns) in general. Her
-   other contributions have made |TatSu| **TatSu** more congruent, and more
+   other contributions have made |TatSu| more congruent, and more
    user-friendly.
 -  `David Röthlisberger`_ provided the definitive patch that allows the
    use of `Python`_ keywords as rule names.

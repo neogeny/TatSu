@@ -6,7 +6,7 @@ Using the Tool
 As a Library
 ~~~~~~~~~~~~
 
-|TatSu| **TatSu** can be used as a library, much like `Python`_'s ``re``, by embedding grammars as strings and generating grammar models instead of generating Python_ code.
+|TatSu| can be used as a library, much like `Python`_'s ``re``, by embedding grammars as strings and generating grammar models instead of generating Python_ code.
 
 -   ``tatsu.compile(grammar, name=None, **kwargs)``
 

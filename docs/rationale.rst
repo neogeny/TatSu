@@ -3,7 +3,7 @@
 Rationale
 ---------
 
-|TatSu| **TatSu** was created to address some recurring problems encountered
+|TatSu| was created to address some recurring problems encountered
 over decades of working with parser generation tools:
 
 -  Some programming languages allow the use of *keywords* as
@@ -29,7 +29,7 @@ over decades of working with parser generation tools:
    not in the grammar.
 -  It is easy to recruit help with knowledge about a mainstream
    programming language like `Python`_, but help is hard to find for
-   working with complex grammar-description languages. |TatSu| **TatSu**
+   working with complex grammar-description languages. |TatSu|
    grammars are in the spirit of a *Translators and Interpreters 101*
    course (if something is hard to explain to a college student, it's
    probably too complicated, or not well understood).

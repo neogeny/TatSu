@@ -12,18 +12,18 @@
     `Dennis Ritchie`_ (1941-2011) Creator of the C_ programming
     language and of Unix_
 
-|TatSu| TatSu
-=============
+|TatSu|
+=======
 
-|TatSu| **TatSu** (the successor to Grako_) is a tool that takes grammars in a
+|TatSu| (the successor to Grako_) is a tool that takes grammars in a
 variation of `EBNF`_ as input, and outputs `memoizing`_ (`Packrat`_)
 `PEG`_ parsers in `Python`_.
 
-|TatSu| **TatSu** can compile a grammar stored in a string into a
+|TatSu| can compile a grammar stored in a string into a
 ``tatsu.grammars.Grammar`` object that can be used to parse any given
 input, much like the `re`_ module does with regular expressions, or it can generate a Python_ module that implements the parser.
 
-|TatSu| **TatSu** fully supports `left-recursive`_  rules in PEG_ grammars generating an AST_ with the expected associativity.
+|TatSu| fully supports `left-recursive`_  rules in PEG_ grammars generating an AST_ with the expected associativity.
 
 Installation
 ------------
@@ -36,7 +36,7 @@ Installation
 Using the Tool
 --------------
 
-|TatSu| **TatSu** can be used as a library, much like `Python`_'s ``re``, by embedding grammars as strings and generating grammar models instead of generating Python_ code.
+|TatSu| can be used as a library, much like `Python`_'s ``re``, by embedding grammars as strings and generating grammar models instead of generating Python_ code.
 
 -   ``tatsu.compile(grammar, name=None, **kwargs)``
 
@@ -55,7 +55,7 @@ Using the Tool
 
     Compiles the grammar to the `Python`_ sourcecode that implements the parser.
 
-This is an example of how to use |TatSu| **TatSu** as a library:
+This is an example of how to use |TatSu| as a library:
 
 .. code:: python
 
@@ -139,14 +139,14 @@ And this is the output:
 License
 -------
 
-You may use |TatSu| **TatSu** under the terms of the `BSD`_-style license
+You may use |TatSu| under the terms of the `BSD`_-style license
 described in the enclosed `LICENSE.txt`_ file. *If your project
 requires different licensing* please `email`_.
 
 Documentation
 -------------
 
-For a detailed explanation of what |TatSu| **TatSu** is capable off, please see the
+For a detailed explanation of what |TatSu| is capable off, please see the
 documentation_.
 
 .. _documentation: http://tatsu.readthedocs.io/
