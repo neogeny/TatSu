@@ -60,7 +60,7 @@ subexpression
     ;
 
 
-number::int
+number::Number
     =
-    /\d+/
+    value:/\d+/
     ;

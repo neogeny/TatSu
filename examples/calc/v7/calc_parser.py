@@ -95,12 +95,12 @@ class CalcParser(Parser):
 
     @tatsumasu('Add')
     def _addition_(self):
-        self._expression_()
+        self._term_()
         self.name_last_node('left')
         self._token('+')
         self.name_last_node('op')
         self._cut()
-        self._term_()
+        self._expression_()
         self.name_last_node('right')
         self.ast._define(
             ['left', 'op', 'right'],
@@ -109,12 +109,12 @@ class CalcParser(Parser):
 
     @tatsumasu('Subtract')
     def _subtraction_(self):
-        self._expression_()
+        self._term_()
         self.name_last_node('left')
         self._token('-')
         self.name_last_node('op')
         self._cut()
-        self._term_()
+        self._expression_()
         self.name_last_node('right')
         self.ast._define(
             ['left', 'op', 'right'],
@@ -134,12 +134,12 @@ class CalcParser(Parser):
 
     @tatsumasu('Multiply')
     def _multiplication_(self):
-        self._term_()
+        self._factor_()
         self.name_last_node('left')
         self._token('*')
         self.name_last_node('op')
         self._cut()
-        self._factor_()
+        self._term_()
         self.name_last_node('right')
         self.ast._define(
             ['left', 'op', 'right'],
@@ -148,11 +148,11 @@ class CalcParser(Parser):
 
     @tatsumasu('Divide')
     def _division_(self):
-        self._term_()
+        self._factor_()
         self.name_last_node('left')
         self._token('/')
         self._cut()
-        self._factor_()
+        self._term_()
         self.name_last_node('right')
         self.ast._define(
             ['left', 'right'],
@@ -176,9 +176,14 @@ class CalcParser(Parser):
         self.name_last_node('@')
         self._token(')')
 
-    @tatsumasu('int')
+    @tatsumasu('Number')
     def _number_(self):
         self._pattern(r'\d+')
+        self.name_last_node('value')
+        self.ast._define(
+            ['value'],
+            []
+        )
 
 
 class CalcSemantics(object):

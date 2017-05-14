@@ -5,6 +5,7 @@ test:
 	make -C v4
 	make -C v5
 	make -C v6
+	make -C v7
 
 
 clean:
