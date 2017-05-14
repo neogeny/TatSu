@@ -1,7 +1,7 @@
 
 start: test
 
-test:
+test: clean
 	PYTHONPATH=../.. \
 		python -m tatsu.g2e grammar/Python.g  \
 				> python.ebnf
@@ -9,3 +9,5 @@ test:
 		python -m tatsu python.ebnf  \
 				2>&1
 
+clean:
+	:
