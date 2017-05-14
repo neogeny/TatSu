@@ -3,7 +3,7 @@
 Grammar Syntax
 --------------
 
-**Tatsu** uses a variant of the standard `EBNF`_ syntax. Syntax
+|TatSu| **TatSu** uses a variant of the standard `EBNF`_ syntax. Syntax
 definitions for `VIM`_ and for `Sublime Text`_ can be found under the
 ``etc/vim`` and ``etc/sublime`` directories in the source code
 distribution.
@@ -49,12 +49,11 @@ The expressions, in reverse order of operator precedence, can be:
 
 ``e1 | e2``
 ^^^^^^^^^^^
-
-: Choice. Match either ``e1`` or ``e2``.
-
-::
+    Choice. Match either ``e1`` or ``e2``.
 
     A `|` be be used before the first option if desired:
+
+.. code:: ocaml
 
         choices
             =
@@ -63,48 +62,45 @@ The expressions, in reverse order of operator precedence, can be:
             | e3
             ;
 
+
 ``e1 e2``
 ^^^^^^^^^
+    Sequence. Match ``e1`` and then match ``e2``.
 
-: Sequence. Match ``e1`` and then match ``e2``.
 
 ``( e )``
 ^^^^^^^^^
+    Grouping. Match ``e``. For example: ``('a' | 'b')``.
 
-: Grouping. Match ``e``. For example: ``('a' | 'b')``.
 
 ``[ e ]``
 ^^^^^^^^^
+    Optionally match ``e``.
 
-: Optionally match ``e``.
 
 ``{ e }`` or ``{ e }*``
 ^^^^^^^^^^^^^^^^^^^^^^^
+    Closure. Match ``e`` zero or more times. Note that the `AST`_ returned for a closure is always a list.
 
-: Closure. Match ``e`` zero or more times. Note that the `AST`_ returned
-for a closure is always a list.
 
 ``{ e }+``
 ^^^^^^^^^^
+    Positive closure. Match ``e`` one or more times. The `AST`_ is always a list.
 
-: Positive closure. Match ``e`` one or more times. The `AST`_ is always
-a list.
 
 ``{}``
 ^^^^^^
+    Empty closure. Match nothing and produce an empty list as `AST`_.
 
-: Empty closure. Match nothing and produce an empty list as `AST`_.
 
 ``~``
 ^^^^^
-
-: The *cut* expression. Commit to the current option and prevent other
-options from being considered even if what follows fails to parse.
-
-::
+    The *cut* expression. Commit to the current option and prevent other options from being considered even if what follows fails to parse.
 
     In this example, other options won't be considered if a
     parenthesis is parsed:
+
+.. code:: ocaml
 
         atom
             =
@@ -113,54 +109,65 @@ options from being considered even if what follows fails to parse.
             | bool
             ;
 
+
 ``s%{ e }+``
 ^^^^^^^^^^^^
+    Positive join. Inspired by `Python`_'s ``str.join()``, it parses the same as this expression:
 
-: Positive join. Inspired by `Python`_'s ``str.join()``, it parses the
-same as this expression:
-
-::
+.. code:: ocaml
 
         e {s ~ e}
+..
 
     yet the result is a single list of the form:
 
+.. code:: ocaml
+
         [e, s, e, s, e....]
+
+..
 
     Use grouping if `s` is more complex than a *token* or a *pattern*:
 
+.. code:: ocaml
+
         (s t)%{ e }+
+
 
 ``s%{ e }`` or ``s%{ e }*``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-: Join. Parses the list of ``s``-separated expressions, or the empty
-closure.
-
-::
+    Join. Parses the list of ``s``-separated expressions, or the empty closure.
 
     It is equivalent to:
 
+.. code:: ocaml
+
         s%{e}+|{}
+
 
 ``op<{ e }+``
 ^^^^^^^^^^^^^
-
-: Left join. Like the *join expression*, but the result is a
-left-associative tree built with ``tuple()``, in wich the first elelemnt
-is the separator (``op``), and the other two elements are the operands.
-
-::
+    Left join. Like the *join expression*, but the result is a left-associative tree built with ``tuple()``, in wich the first elelemnt is the separator (``op``), and the other two elements are the operands.
 
     The expression:
 
+.. code:: ocaml
+
         '+'<{/\d+/}+
+
+..
 
     Will parse this input:
 
+.. code:: python
+
         1 + 2 + 3 + 4
 
+..
+
     To this tree:
+
+.. code:: python
 
         (
             '+',
@@ -176,25 +183,28 @@ is the separator (``op``), and the other two elements are the operands.
             '4'
         )
 
+
 ``op>{ e }+``
 ^^^^^^^^^^^^^
-
-: Right join. Like the *join expression*, but the result is a
-right-associative tree built with ``tuple()``, in wich the first
-elelemnt is the separator (``op``), and the other two elements are the
-operands.
-
-::
+    Right join. Like the *join expression*, but the result is a right-associative tree built with ``tuple()``, in wich the first elelemnt is the separator (``op``), and the other two elements are the operands.
 
     The expression:
 
+.. code:: ocaml
+
         '+'>{/\d+/}+
+..
 
     Will parse this input:
 
+.. code:: python
+
         1 + 2 + 3 + 4
+..
 
     To this tree:
+
+.. code:: python
 
         (
             '+',
@@ -210,45 +220,38 @@ operands.
             )
         )
 
+
 ``s.{ e }+``
 ^^^^^^^^^^^^
+    Positive *gather*. Like *positive join*, but the separator is not included in the resulting `AST <https://en.wikipedia.org/wiki/Abstract_syntax_tree>`__.
 
-: Positive *gather*. Like *positive join*, but the separator is not
-included in the resulting
-`AST <https://en.wikipedia.org/wiki/Abstract_syntax_tree>`__.
 
 ``s.{ e }`` or ``s.{ e }*``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-: *Gather*. Like the *join*, but the separator is not included in the
-resulting `AST <https://en.wikipedia.org/wiki/Abstract_syntax_tree>`__.
-
-::
+    *Gather*. Like the *join*, but the separator is not included in the resulting `AST <https://en.wikipedia.org/wiki/Abstract_syntax_tree>`__.
 
     It is equivalent to:
 
+.. code:: ocaml
+
         s.{e}+|{}
+
 
 ``&e``
 ^^^^^^
+    Positive lookahead. Succeed if ``e`` can be parsed, but do not consume any input.
 
-: Positive lookahead. Succeed if ``e`` can be parsed, but do not consume
-any input.
 
 ``!e``
 ^^^^^^
+    Negative lookahead. Fail if ``e`` can be parsed, and do not consume any input.
 
-: Negative lookahead. Fail if ``e`` can be parsed, and do not consume
-any input.
 
 ``'text'`` or ``"text"``
 ^^^^^^^^^^^^^^^^^^^^^^^^
+    Match the token *text* within the quotation marks.
 
-: Match the token *text* within the quotation marks.
-
-::
-
-    Note that if *text* is alphanumeric, then **Tatsu** will check
+    Note that if *text* is alphanumeric, then |TatSu| **TatSu** will check
     that the character following the token is not alphanumeric. This
     is done to prevent tokens like *IN* matching when the text ahead
     is *INITIALIZE*. This feature can be turned off by passing
@@ -257,120 +260,111 @@ any input.
     Alternatively, the `@@nameguard` or `@@namechars` directives may
     be specified in the grammar:
 
+.. code:: ocaml
+
         @@nameguard :: False
+..
 
     or to specify additional characters that should also be considered
     part of names:
 
+.. code:: ocaml
+
         @@namechars :: '$-.'
+
 
 ``r'text'`` or ``r"text"``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Match the token *text* within the quotation marks, interpreting *text* like `Python`_'s `raw string literal`_\ s.
 
-: Match the token *text* within the quotation marks, interpreting *text*
-like `Python`_'s `raw string literal`_\ s.
 
 ``?"regexp"`` or ``?'regexp'``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    The *pattern* expression. Match the `Python`_ regular expression ``regexp`` at the current text position. Unlike other expressions, this one does not advance over whitespace or comments. For that, place the ``regexp`` as the only term in its own rule.
 
-: The *pattern* expression. Match the `Python`_ regular expression
-``regexp`` at the current text position. Unlike other expressions, this
-one does not advance over whitespace or comments. For that, place the
-``regexp`` as the only term in its own rule.
-
-::
-
-    The *regex* is interpreted as a [Python]'s [raw string literal] and
-    passed *as-is* to the [Python][] [re] module (or to
-    [regex], if available), using `match()` at the current position in
-    the text. The matched text is the [AST][Abstract Syntax Tree] for
+    The *regex* is interpreted as a Python_'s `raw string literal`_ and
+    passed *as-is* to the Python_ re_ module (or to
+    regex_, if available), using `match()` at the current position in
+    the text. The matched text is the AST_ for
     the expression.
 
     Consecutive patterns are concatenated to form a single one.
 
--  ``/regexp/``
 
-: Another form of the *pattern* expression.
+``/regexp/``
+^^^^^^^^^^^^
+    Another form of the *pattern* expression.
 
--  ``+/regexp/``
 
-: Concatenate the given pattern with the preceding one.
+``?"regexp"`` or ``?'regexp'`` or ``+/regexp/``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Concatenate the given pattern with the preceding one.
+
 
 ```constant```
 ^^^^^^^^^^^^^^
-
-: Match nothing, but behave as if ``constant`` had been parsed.
-
-::
+    Match nothing, but behave as if ``constant`` had been parsed.
 
     Constants can be used to inject elements into the concrete and
     abstract syntax trees, perhaps avoiding having to write a
     semantic action. For example:
 
+.. code:: ocaml
+
         boolean_option = name ['=' (boolean|`true`) ] ;
 
 ``rulename``
 ^^^^^^^^^^^^
+    Invoke the rule named ``rulename``. To help with lexical aspects of grammars, rules with names that begin with an uppercase letter will not advance the input over whitespace or comments.
 
-: Invoke the rule named ``rulename``. To help with lexical aspects of
-grammars, rules with names that begin with an uppercase letter will not
-advance the input over whitespace or comments.
 
 ``>rulename``
 ^^^^^^^^^^^^^
-
-: The include operator. Include the *right hand side* of rule
-``rulename`` at this point.
-
-::
+    The include operator. Include the *right hand side* of rule ``rulename`` at this point.
 
     The following set of declarations:
+
+.. code:: ocaml
 
         includable = exp1 ;
 
         expanded = exp0 >includable exp2 ;
+..
 
     Has the same effect as defining *expanded* as:
 
+.. code:: ocaml
+
         expanded = exp0 exp1 exp2 ;
+..
 
     Note that the included rule must be defined before the rule that
     includes it.
 
+
 ``()``
 ^^^^^^
+    The empty expression. Succeed without advancing over input. Its value is ``None``.
 
-: The empty expression. Succeed without advancing over input. Its value
-is ``None``.
 
 ``!()``
 ^^^^^^^
+    The *fail* expression. This is actually ``!`` applied to ``()``, which always fails.
 
-: The *fail* expression. This is actually ``!`` applied to ``()``, which
-always fails.
 
 ``name:e``
 ^^^^^^^^^^
+    Add the result of ``e`` to the `AST`_ using ``name`` as key. If ``name`` collides with any attribute or method of ``dict``, or is a `Python`_ keyword, an underscore (``_``) will be appended to the name.
 
-: Add the result of ``e`` to the `AST`_ using ``name`` as key. If
-``name`` collides with any attribute or method of ``dict``, or is a
-`Python`_ keyword, an underscore (``_``) will be appended to the name.
 
 ``name+:e``
 ^^^^^^^^^^^
+    Add the result of ``e`` to the `AST`_ using ``name`` as key. Force the entry to be a list even if only one element is added. Collisions with ``dict`` attributes or `Python`_ keywords are resolved by appending an underscore to ``name``.
 
-: Add the result of ``e`` to the `AST`_ using ``name`` as key. Force the
-entry to be a list even if only one element is added. Collisions with
-``dict`` attributes or `Python`_ keywords are resolved by appending an
-underscore to ``name``.
 
 ``@:e``
 ^^^^^^^
-
-: The override operator. Make the `AST`_ for the complete rule be the
-`AST`_ for ``e``.
-
-::
+    The override operator. Make the `AST`_ for the complete rule be the `AST`_ for ``e``.
 
     The override operator is useful to recover only part of the right
     hand side of a rule without the need to name it, or add a
@@ -378,35 +372,38 @@ underscore to ``name``.
 
     This is a typical use of the override operator:
 
+.. code:: ocaml
+
         subexp = '(' @:expre ')' ;
+..
 
     The [AST][Abstract Syntax Tree] returned for the `subexp` rule
     will be the [AST][Abstract Syntax Tree] recovered from invoking
     `expre`.
 
+
 ``@+:e``
 ^^^^^^^^
-
-: Like ``@:e``, but make the `AST`_ always be a list.
-
-::
+    Like ``@:e``, but make the `AST`_ always be a list.
 
     This operator is convenient in cases such as:
 
+.. code:: ocaml
+
         arglist = '(' @+:arg {',' @+:arg}* ')' ;
+..
 
     In which the delimiting tokens are of no interest.
 
+
 ``$``
 ^^^^^
+    The *end of text* symbol. Verify that the end of the input text has been reached.
 
-: The *end of text* symbol. Verify that the end of the input text has
-been reached.
 
-``#`` *comment*
-^^^^^^^^^^^^^^^
-
-: `Python`_-style comments are also allowed.
+``# comment``
+^^^^^^^^^^^^^
+    `Python`_-style comments are also allowed.
 
 When there are no named items in a rule, the `AST`_ consists of the
 elements parsed by the rule, either a single item or a list. This
@@ -425,28 +422,28 @@ Without having to write:
 When a rule has named elements, the unnamed ones are excluded from the
 `AST`_ (they are ignored).
 
+
 Deprecated Expressions
 ~~~~~~~~~~~~~~~~~~~~~~
 
 The following expressions are still recognized in grammars, but they are
 considered deprecated, and will be removed in a future version of
-**Tatsu**.
+|TatSu| **TatSu**.
 
--  ``?/regexp/?``
+``?/regexp/?``
+^^^^^^^^^^^^^^
+    Another form of the pattern expression that can be used when there are slashes (``/``) in the pattern. Use the ``?"regexp"`` or ``?'regexp'`` forms instead.
 
-: Another form of the pattern expression that can be used when there are
-slashes (``/``) in the pattern. Use the ``?"regexp"`` or ``?'regexp'``
-forms instead.
 
--  ``(*`` *comment* ``*)``
+``(* comment *)``
+^^^^^^^^^^^^^^^^^^^^^^^
+    Comments may appear anywhere in the text. Use the `Python`_-style comments instead.
 
-: Comments may appear anywhere in the text. Use the `Python`_-style
-comments instead.
 
 Rules with Arguments
 ~~~~~~~~~~~~~~~~~~~~
 
-**Tatsu** allows rules to specify `Python`_-style arguments:
+|TatSu| **TatSu** allows rules to specify `Python`_-style arguments:
 
 .. code:: ocaml
 
@@ -528,7 +525,7 @@ used to create a modified grammar without altering the original.
 Grammar Name
 ~~~~~~~~~~~~
 
-The prefix to be used in classes generated by **Tatsu** can be passed to
+The prefix to be used in classes generated by |TatSu| **TatSu** can be passed to
 the command-line tool using the ``-m`` option:
 
 .. code:: bash
@@ -552,7 +549,7 @@ The name can also be specified within the grammar using the
 Whitespace
 ~~~~~~~~~~
 
-By default, **Tatsu** generated parsers skip the usual whitespace
+By default, |TatSu| **TatSu** generated parsers skip the usual whitespace
 characters with the regular expression ``r'\s+'`` using the
 ``re.UNICODE`` flag (or with the ``Pattern_White_Space`` property if the
 `regex`_ module is available), but you can change that behavior by
@@ -576,7 +573,7 @@ The following is equivalent to the above example:
 
     parser = MyParser(text, whitespace=re.compile(r'[\t ]+'))
 
-Note that the regular expression must be pre-compiled to let **Tatsu**
+Note that the regular expression must be pre-compiled to let |TatSu| **TatSu**
 distinguish it from plain string.
 
 If you do not define any whitespace characters, then you will have to
@@ -654,7 +651,7 @@ identifiers because the tokens are used to mark particular constructs in
 the language. Those reserved tokens are known as `Reserved Words`_ or
 `Keywords`_
 
-**Tatsu** provides support for preventing the use of `keywords`_ as
+|TatSu| **TatSu** provides support for preventing the use of `keywords`_ as
 identifiers though the ``@@ keyword`` directive,and the ``@ name``
 decorator.
 
@@ -685,7 +682,7 @@ use of the token:
 Include Directive
 ~~~~~~~~~~~~~~~~-
 
-**Tatsu** grammars support file inclusion through the include directive:
+|TatSu| **TatSu** grammars support file inclusion through the include directive:
 
 .. code:: ocaml
 
@@ -695,14 +692,14 @@ The resolution of the *filename* is relative to the directory/folder of
 the source. Absolute paths and ``../`` navigations are honored.
 
 The functionality required for implementing includes is available to all
-**Tatsu**-generated parsers through the ``Buffer`` class; see the
+|TatSu| **TatSu**-generated parsers through the ``Buffer`` class; see the
 ``EBNFBuffer`` class in the ``tatsu.parser`` module for an example.
 
 
 Left Recursion
 ~~~~~~~~~~~~~~
 
-**Tatsu** provides experimental support for left recursion in `PEG`_
+|TatSu| **TatSu** provides experimental support for left recursion in `PEG`_
 grammars. The implementation of left recursion is ongoing; it does not
 yet handle all cases. The algorithm used is `Warth et al`_'s.
 

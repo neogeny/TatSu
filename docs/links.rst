@@ -42,7 +42,7 @@
 .. _Semantic Graph: http://en.wikipedia.org/wiki/Abstract_semantic_graph
 .. _StackOverflow: http://stackoverflow.com/tags/tatsu/info
 .. _Sublime Text: https://www.sublimetext.com
-.. _Tatsu Forum: https://groups.google.com/forum/?fromgroups#!forum/tatsu
+.. _TatSu Forum: https://groups.google.com/forum/?fromgroups#!forum/tatsu
 .. _UCAB: http://www.ucab.edu.ve/
 .. _USB: http://www.usb.ve/
 .. _Unix: http://en.wikipedia.org/wiki/Unix
