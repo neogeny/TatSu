@@ -130,18 +130,18 @@ def parse_args():
     return args
 
 
-def compile(grammar, name=None, **kwargs):
+def compile(grammar, name=None, semantics=None, **kwargs):
     return GrammarGenerator(name, **kwargs).parse(grammar, **kwargs)
 
 
 __compiled_grammar_cache = {}
 
 
-def parse(grammar, input, **kwargs):
+def parse(grammar, input, semantics=None, **kwargs):
     global __compiled_grammar_cache
     cache = __compiled_grammar_cache
     model = cache.setdefault(grammar, compile(grammar, **kwargs))
-    return model.parse(input, **kwargs)
+    return model.parse(input, semantics=semantics, **kwargs)
 
 
 def to_python_sourcecode(grammar, name=None, filename=None, **kwargs):
