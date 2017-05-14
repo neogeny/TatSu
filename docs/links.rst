@@ -1,4 +1,5 @@
-.. |TatSu| unicode:: 0x7ADC .. unicode dragon
+.. |dragon| unicode:: 0x7ADC .. unicode dragon
+.. |TatSu| replace:: |dragon| **TatSu**
 
 .. _ANTLR: http://www.antlr.org/
 .. _AST: http://en.wikipedia.org/wiki/Abstract_syntax_tree

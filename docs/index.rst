@@ -6,8 +6,8 @@
 .. include:: links.rst
 
 
-|TatSu| TatSu
-=============
+|TatSu|
+=======
 
     *At least for the people who send me mail about a new language that
     they're designing, the general advice is: do it to learn about how
@@ -23,15 +23,15 @@
 
 
 
-|TatSu| **TatSu** (for *grammar compiler*) is a tool that takes grammars in a
+|TatSu| (for *grammar compiler*) is a tool that takes grammars in a
 variation of `EBNF`_ as input, and outputs `memoizing`_ (`Packrat`_)
 `PEG`_ parsers in `Python`_.
 
-|TatSu| **TatSu** can compile a grammar stored in a string into a
+|TatSu| can compile a grammar stored in a string into a
 ``tatsu.grammars.Grammar`` object that can be used to parse any given
 input, much like the `re`_ module does with regular expressions, or it can generate a Python_ module that implements the parser.
 
-|TatSu| **TatSu** fully supports `left-recursive`_  rules in PEG_ grammars, and it honors *left-associativity* in the resulting parse trees.
+|TatSu| fully supports `left-recursive`_  rules in PEG_ grammars, and it honors *left-associativity* in the resulting parse trees.
 
 .. toctree::
     :maxdepth: 2
@@ -46,6 +46,7 @@ input, much like the `re`_ module does with regular expressions, or it can gener
     models
     examples
     support
+    grako
     credits
     contributors
     contributing
