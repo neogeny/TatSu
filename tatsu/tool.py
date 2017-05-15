@@ -130,17 +130,23 @@ def parse_args():
     return args
 
 
-def compile(grammar, name=None, semantics=None, **kwargs):
-    return GrammarGenerator(name, **kwargs).parse(grammar, **kwargs)
-
-
 __compiled_grammar_cache = {}
 
 
-def parse(grammar, input, name=None, semantics=None, **kwargs):
+def compile(grammar, name=None, semantics=None, **kwargs):
     global __compiled_grammar_cache
     cache = __compiled_grammar_cache
-    model = cache.setdefault(grammar, compile(grammar, name=name, **kwargs))
+
+    if grammar in cache:
+        model = cache[grammar]
+    else:
+        gen = GrammarGenerator(name, **kwargs)
+        model = cache[grammar] = gen.parse(grammar, **kwargs)
+    return model
+
+
+def parse(grammar, input, name=None, semantics=None, **kwargs):
+    model = compile(grammar, name=name, semantics=semantics, **kwargs)
     return model.parse(input, semantics=semantics, **kwargs)
 
 
@@ -150,11 +156,11 @@ def to_python_sourcecode(grammar, name=None, filename=None, **kwargs):
 
 
 # for backwards compatibility. Use `compile()` instead
-def genmodel(name=None, grammar=None, **kwargs):
+def genmodel(name=None, grammar=None, semantics=None, **kwargs):
     if grammar is None:
         raise ParseException('grammar is None')
 
-    return compile(grammar, name=name, **kwargs)
+    return compile(grammar, name=name, semantics=semantics, **kwargs)
 
 
 # for backwards compatibility. Use `compile()` instead
@@ -190,7 +196,13 @@ def main(codegen=pythoncg):
     grammar = codecs.open(args.filename, 'r', encoding='utf-8').read()
 
     try:
-        model = compile(grammar, args.name, trace=args.trace, filename=args.filename, colorize=args.color)
+        model = compile(
+            grammar,
+            args.name,
+            trace=args.trace,
+            filename=args.filename,
+            colorize=args.color
+        )
         model.whitespace = args.whitespace
         model.nameguard = args.nameguard
         model.left_recursion = args.left_recursion
@@ -219,7 +231,7 @@ def main(codegen=pythoncg):
 
         print('-' * 72, file=sys.stderr)
         print('{:12,d}  lines in grammar'.format(len(grammar.split())), file=sys.stderr)
-        print('{:12,d}  rules in grammar'.format(len(model.rules)), file=sys.stderr)
+        print('{:12,d}  rules in grammar'.format(len(model.rules)), file=sys.stderr)  # noqa
         print('{:12,d}  nodes in AST'.format(model.nodecount()), file=sys.stderr)
     except ParseException as e:
         print(e, file=sys.stderr)
