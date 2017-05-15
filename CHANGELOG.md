@@ -19,6 +19,8 @@ The format of this *Change Log* is inspired by [keeapachangelog.org][].
 
 -   The `@@ignorecase` directive and the `ignorecase=` parameter no longer appy to regular expressions (patterns) in grammars. Use `(?i)` in the pattern to ignore the case in a particular pattern.
 
+-   Now `tatsu.g2e` is a library and executable module for translating [ANTLR][] grammars to **TatSu**.
+
 ## [4.0.0][] @ 2017-05-06
 [4.0.0]: https://github.com/apalala/tatsu/compare/0.0.0...v4.0.0
 
