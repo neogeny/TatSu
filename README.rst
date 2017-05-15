@@ -1,3 +1,6 @@
+.. |dragon| unicode:: 0x7ADC .. unicode dragon
+.. |TatSu| replace:: |dragon| **TatSu**
+
 |fury| |license| |pyversions| |travis| |landscape|
 
     *At least for the people who send me mail about a new language that
@@ -258,7 +261,6 @@ See the `CHANGELOG`_ for details.
 .. _vinay.sajip: https://bitbucket.org/vinay.sajip
 .. _vmuriart: https://bitbucket.org/vmuriart
 
-.. |TatSu| unicode:: 0x7ADC .. unicode dragon
 .. |fury| image:: https://badge.fury.io/py/tatsu.svg
    :target: https://badge.fury.io/py/tatsu
 .. |license| image:: https://img.shields.io/badge/license-BSD-blue.svg
