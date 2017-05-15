@@ -255,9 +255,9 @@ The expressions, in reverse order of operator precedence, can be:
     that the character following the token is not alphanumeric. This
     is done to prevent tokens like *IN* matching when the text ahead
     is *INITIALIZE*. This feature can be turned off by passing
-    `nameguard=False` to the `Parser` or the `Buffer`, or by using a
+    ``nameguard=False`` to the ``Parser`` or the ``Buffer``, or by using a
     pattern expression (see below) instead of a token expression.
-    Alternatively, the `@@nameguard` or `@@namechars` directives may
+    Alternatively, the ``@@nameguard`` or ``@@namechars`` directives may
     be specified in the grammar:
 
 .. code:: ocaml
@@ -362,7 +362,7 @@ The expressions, in reverse order of operator precedence, can be:
         subexp = '(' @:expre ')' ;
 ..
 
-    The [AST][Abstract Syntax Tree] returned for the `subexp` rule
+    The [AST][Abstract Syntax Tree] returned for the ``subexp`` rule
     will be the [AST][Abstract Syntax Tree] recovered from invoking
     `expre`.
 
