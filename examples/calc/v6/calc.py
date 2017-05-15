@@ -3,8 +3,10 @@
 from __future__ import print_function
 import sys
 from tatsu.walkers import NodeWalker
+
 from calc_parser import CalcParser
 from calc_model import CalcModelBuilderSemantics
+from calc_codegen import PostfixCodeGenerator
 
 
 class CalcWalker(NodeWalker):
@@ -29,7 +31,7 @@ class CalcWalker(NodeWalker):
 
 def calc(text):
     parser = CalcParser(semantics=CalcModelBuilderSemantics())
-    return parser.parse(text, parseinfo=False)
+    return parser.parse(text)
 
 
 if __name__ == '__main__':
@@ -37,3 +39,5 @@ if __name__ == '__main__':
     model = calc(text)
     print(model)
     print(text.strip(), '=', CalcWalker().walk(model))
+    print('-' * 40)
+    print(PostfixCodeGenerator().render(model))

@@ -81,3 +81,13 @@ class Divide(ModelBase):
             right=right,
             **_kwargs_
         )
+
+
+class Number(ModelBase):
+    def __init__(self,
+                 value=None,
+                 **_kwargs_):
+        super(Number, self).__init__(
+            value=value,
+            **_kwargs_
+        )

@@ -695,9 +695,6 @@ The above program produces this result:
 ```
 
 
-## Left Recursion and Left Associativity
-
-
 ## Code Generation
 
 Translation is one of the most common tasks in language processing. Analysis often sumarizes the parsed input, and _walkers_ are good for that. In translation, the output can often be as verbose as the input, so a systematic approach that avoids bookkeeping as much as possible. **Tatsu** provides support for template-based code generation (translation) in the ``tatsu.codegen`` module.  Code generation works defining a translation class for each class in the model specified by the grammar.
