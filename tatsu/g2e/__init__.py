@@ -22,7 +22,7 @@ def translate(text=None, filename=None, name=None, encoding='utf-8', trace=False
     if text is None:
         name = name or path.splitext(path.basename(filename))[0].capitalize()
         with codecs.open(filename, encoding=encoding) as f:
-            text = f.read
+            text = f.read()
 
     name = name or 'Unknown'
 
@@ -45,7 +45,10 @@ def main():
         print('Usage:')
         print('\t', thisprog, 'FILENAME.g [--trace]')
         sys.exit(1)
-    translate(filename=sys.argv[1], '--trace' in sys.argv or '-t' in sys.argv)
+    translate(
+        filename=sys.argv[1],
+        trace='--trace' in sys.argv or '-t' in sys.argv
+    )
 
 
 if __name__ == '__main__':
