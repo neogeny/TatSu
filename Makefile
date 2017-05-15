@@ -2,7 +2,7 @@ test: flake8 tatsu_test examples
 
 
 tatsu_test:
-	python -u -m tatsu.test 2>&1
+	py.test
 
 
 examples: regex_test g2e_test calc_test
