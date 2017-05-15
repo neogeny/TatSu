@@ -202,3 +202,16 @@ class LeftRecursionTests(unittest.TestCase):
         model.parse('(3 - 2) - 1', trace=trace, colorize=True)
         model.parse('3 - 2 - 1', trace=trace, colorize=True)
         model.parse('3 - (2 - 1)', trace=trace, colorize=True)
+
+    def _no_test_left_and_right_recursion(self, trace=True):
+        # by Nicolas LAURENT in eg@lists.csail.mit.edu
+        grammar = '''
+            @@left_recursion :: True
+
+            s = e $ ;
+            e = e '+' e | n ;
+            n = /[0-9]+/ ;
+        '''
+        model = compile(grammar, "test")
+        ast = model.parse("1+2+3", trace=trace, colorize=True)
+        self.assertEqual([['1', '+', '2'], '+', '3'], ast)

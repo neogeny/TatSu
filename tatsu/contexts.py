@@ -513,6 +513,7 @@ class ParseContext(object):
             self._rule_stack.pop()
 
     def _recursive_call(self, ruleinfo):
+        self._next_token(for_rule_name=ruleinfo.name)
         lastpos = self._pos
         result = self._invoke_cached_rule(ruleinfo)
 
@@ -536,8 +537,6 @@ class ParseContext(object):
         return result
 
     def _invoke_cached_rule(self, ruleinfo):
-        self._next_token(for_rule_name=ruleinfo.name)
-
         key = self._memo_key(ruleinfo.name)
         memo = self._memo_for(key)
         if isinstance(memo, Exception):
