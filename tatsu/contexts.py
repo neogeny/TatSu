@@ -476,6 +476,9 @@ class ParseContext(object):
     def _set_recursive(self, name):
         self._recursive_rules.add(name)
 
+    def _unset_recursive(self, name):
+        self._recursive_rules.remove(name)
+
     def _set_left_recursion_guard(self, key):
         ex = self._make_exception(key.name, exclass=FailedLeftRecursion)
         self._memoize(key, ex)
