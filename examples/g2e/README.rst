@@ -1,6 +1,6 @@
-Copyright (C) 2017, Juancarlo Añez
+Copyright (C) 2017 Juancarlo Añez
 
-This project contains a tanslator of ANTLR grammars to Tatsu grammars. It shows how to build a translator using models, templates and Tatsu. The test case used is the Python grammar available on the ANTLR grammar repository.
+This uses the tanslator from ANTLR grammars to Tatsu grammars. It shows how to build a translator using models, templates and Tatsu. The test case used is the Python grammar available on the ANTLR grammar repository.
 
 The translator ignores:
 

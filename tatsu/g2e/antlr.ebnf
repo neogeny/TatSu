@@ -6,6 +6,15 @@
     License to keep in the spirit of ANTLR.
 *)
 
+@@comments :: ?'/\*(?:.|\n)*?\*/'
+@@eol_comments :: ?'//[^\n]*?\n'
+
+
+start
+    =
+    grammar
+    ;
+
 grammar
     =
     [('lexer'|'parser')] 'grammar'  name:name ';'

@@ -460,17 +460,14 @@ class ParseContext(object):
             self._set_recursive(key.name)
             memo = self._recursion_cache.get(key, memo)
 
-        if isinstance(memo, Exception):
-            raise memo
-        else:
-            return memo
+        return memo
 
     def _rule_result(self, node):
         return RuleResult(node, self._pos, self._state)
 
     def _cache_result(self, key, node):
-        if not isinstance(node, AST):
-            node = [node]
+        if is_list(node):
+            node = Closure(node)
         self._recursion_cache[key] = self._rule_result(node)
 
     def _is_recursive(self, name):
@@ -528,8 +525,7 @@ class ParseContext(object):
             self._next_token(for_rule_name=ruleinfo.name)
 
             key = self._memo_key(ruleinfo.name)
-            node = result.node
-            self._cache_result(key, node)
+            self._cache_result(key, result.node)
             try:
                 lastpos = self._pos
                 result = self._invoke_cached_rule(ruleinfo)
@@ -544,11 +540,14 @@ class ParseContext(object):
 
         key = self._memo_key(ruleinfo.name)
         memo = self._memo_for(key)
-        if memo:
+        if isinstance(memo, Exception):
+            raise memo
+        elif memo:
             return memo
         self._set_left_recursion_guard(key)
         try:
             result = self._invoke_rule(ruleinfo)
+            self._last_node = result
             self._memoize(key, result)
             return result
         except FailedParse as e:

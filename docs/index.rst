@@ -44,9 +44,11 @@ input, much like the `re`_ module does with regular expressions, or it can gener
     ast
     semantics
     models
+    left_recursion
+    grako
+    antlr
     examples
     support
-    grako
     credits
     contributors
     contributing
