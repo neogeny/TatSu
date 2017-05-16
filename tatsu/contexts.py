@@ -227,8 +227,8 @@ class ParseContext(object):
         return self._buffer.pos
 
     def _clear_memoizetion_caches(self):
-        self._memoization_cache = dict()
-        self._recursion_cache = dict()
+        self._memos = dict()
+        self._results = dict()
 
     def _goto(self, pos):
         self._buffer.goto(pos)
@@ -328,8 +328,8 @@ class ParseContext(object):
         def prune(cache, cutpos):
             prune_dict(cache, lambda k, _: k[0] < cutpos)
 
-        prune(self._memoization_cache, self._pos)
-        prune(self._recursion_cache, self._pos)
+        prune(self._memos, self._pos)
+        prune(self._results, self._pos)
 
     def _push_cut(self):
         self._cut_stack.append(False)
@@ -450,15 +450,15 @@ class ParseContext(object):
 
     def _memoize(self, key, memo):
         if self._memoization():
-            self._memoization_cache[key] = memo
+            self._memos[key] = memo
         return memo
 
     def _memo_for(self, key):
-        memo = self._memoization_cache.get(key)
+        memo = self._memos.get(key)
 
         if isinstance(memo, FailedLeftRecursion):
             self._set_recursive(key.name)
-            memo = self._recursion_cache.get(key, memo)
+            memo = self._results.get(key, memo)
 
         return memo
 
@@ -468,7 +468,7 @@ class ParseContext(object):
     def _cache_result(self, key, node):
         if is_list(node):
             node = Closure(node)
-        self._recursion_cache[key] = self._rule_result(node)
+        self._results[key] = self._rule_result(node)
 
     def _is_recursive(self, name):
         return name in self._recursive_rules
