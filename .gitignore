@@ -5,6 +5,7 @@ __pycache__/
 *.c
 *.so
 tmp/
+/parsers/
 
 # C extensions
 *.so
