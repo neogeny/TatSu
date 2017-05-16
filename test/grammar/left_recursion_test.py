@@ -203,7 +203,7 @@ class LeftRecursionTests(unittest.TestCase):
         model.parse('3 - 2 - 1', trace=trace, colorize=True)
         model.parse('3 - (2 - 1)', trace=trace, colorize=True)
 
-    def test_left_and_right_recursion(self, trace=False):
+    def test_left_recursion_with_right_associativity(self, trace=False):
         # by Nicolas LAURENT in eg@lists.csail.mit.edu
         grammar = '''
             @@left_recursion :: True
@@ -214,4 +214,4 @@ class LeftRecursionTests(unittest.TestCase):
         '''
         model = compile(grammar, "test")
         ast = model.parse("1+2+3", trace=trace, colorize=True)
-        self.assertEqual([['1', '+', '2'], '+', '3'], ast)
+        self.assertEqual(['1', '+', ['2', '+', '3']], ast)
