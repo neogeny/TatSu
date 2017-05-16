@@ -398,8 +398,11 @@ class ParseContext(object):
     def _trace_success(self):
         self._trace_event(color.Fore.GREEN + color.Style.BRIGHT + C_SUCCESS)
 
-    def _trace_failure(self):
-        self._trace_event(color.Fore.RED + color.Style.BRIGHT + C_FAILURE)
+    def _trace_failure(self, ex=None):
+        if isinstance(ex, FailedLeftRecursion):
+            self._trace_recursion()
+        else:
+            self._trace_event(color.Fore.RED + color.Style.BRIGHT + C_FAILURE)
 
     def _trace_recursion(self):
         self._trace_event(color.Fore.RED + color.Style.BRIGHT + C_RECURSION)
@@ -445,8 +448,13 @@ class ParseContext(object):
             self._buffer.posline(endpos),
         )
 
-    def _memo_key(self, name):
-        return MemoKey(self._pos, name, self._state)
+    @property
+    def rule(self):
+        return self._rule_stack[-1]
+
+    @property
+    def memokey(self):
+        return MemoKey(self._pos, self.rule, self._state)
 
     def _memoize(self, key, memo):
         if self._memoization():
@@ -462,13 +470,13 @@ class ParseContext(object):
 
         return memo
 
-    def _rule_result(self, node):
+    def _mkresult(self, node):
         return RuleResult(node, self._pos, self._state)
 
-    def _cache_result(self, key, node):
+    def _save_result(self, key, node):
         if is_list(node):
             node = Closure(node)
-        self._results[key] = self._rule_result(node)
+        self._results[key] = self._mkresult(node)
 
     def _is_recursive(self, name):
         return name in self._recursive_rules
@@ -484,7 +492,7 @@ class ParseContext(object):
         self._memoize(key, ex)
 
     def _call(self, ruleinfo):
-        self._rule_stack.append(ruleinfo.name)
+        self._rule_stack += [ruleinfo.name]
         pos = self._pos
         try:
             self._trace_entry()
@@ -507,10 +515,7 @@ class ParseContext(object):
         except FailedParse as e:
             self._goto(pos)
             self._set_furthest_exception(e)
-            if isinstance(e, FailedLeftRecursion):
-                self._trace_recursion()
-            else:
-                self._trace_failure()
+            self._trace_failure(e)
             raise
         finally:
             self._rule_stack.pop()
@@ -528,8 +533,7 @@ class ParseContext(object):
         while self._pos > lastpos:
             self._next_token(for_rule_name=ruleinfo.name)
 
-            key = self._memo_key(ruleinfo.name)
-            self._cache_result(key, result.node)
+            self._save_result(self.memokey, result.node)
             try:
                 lastpos = self._pos
                 result = self._invoke_cached_rule(ruleinfo)
@@ -540,7 +544,7 @@ class ParseContext(object):
         return result
 
     def _invoke_cached_rule(self, ruleinfo):
-        key = self._memo_key(ruleinfo.name)
+        key = self.memokey
         memo = self._memo_for(key)
         if isinstance(memo, Exception):
             raise memo
@@ -549,11 +553,9 @@ class ParseContext(object):
         self._set_left_recursion_guard(key)
         try:
             result = self._invoke_rule(ruleinfo)
-            self._last_node = result
             self._memoize(key, result)
             return result
         except FailedParse as e:
-            self._set_furthest_exception(e)
             self._memoize(key, e)
             raise
 
@@ -572,7 +574,7 @@ class ParseContext(object):
                 node.set_parseinfo(self._get_parseinfo(ruleinfo.name, pos))
 
             node = self._invoke_semantic_rule(ruleinfo, node)
-            return self._rule_result(node)
+            return self._mkresult(node)
         except FailedSemantics as e:
             self._error(ustr(e), FailedParse)
         finally:
