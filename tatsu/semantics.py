@@ -186,7 +186,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         return name
 
     def boolean(self, ast):
-        return eval(ast)
+        return str(ast).lower() in {'true', 'yes', 'ok', '1'}
 
     def rule(self, ast, *args):
         decorators = ast.decorators
