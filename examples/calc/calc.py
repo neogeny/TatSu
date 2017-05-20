@@ -9,7 +9,7 @@ import tatsu
 from tatsu.ast import AST
 from tatsu.walkers import NodeWalker
 
-from model import PostfixCodeGenerator
+from codegen import PostfixCodeGenerator
 
 
 def simple_parse():
@@ -143,7 +143,7 @@ def parse_and_walk_model():
     parser = tatsu.compile(grammar, asmodel=True)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
-    print('# WALKER RESULT IS')
+    print('# WALKER RESULT')
     print(CalcWalker().walk(model))
     print()
 
