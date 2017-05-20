@@ -13,6 +13,7 @@ from tatsu._version import __version__
 from tatsu.util import eval_escapes
 from tatsu.exceptions import ParseException
 from tatsu.parser import GrammarGenerator
+from tatsu.semantics import ModelBuilderSemantics
 
 # we hook the tool to the Python code generator as the default
 from tatsu.codegen.python import codegen as pythoncg
@@ -79,7 +80,8 @@ def parse_args():
         '--no-left-recursion', '-l',
         help='turns left-recusion support off',
         dest="left_recursion",
-        action='store_false'
+        action='store_false',
+        default=True,
     )
     generation_opts.add_argument(
         '--name', '-m',
@@ -133,26 +135,32 @@ def parse_args():
 __compiled_grammar_cache = {}
 
 
-def compile(grammar, name=None, semantics=None, **kwargs):
+def compile(grammar, name=None, semantics=None, asmodel=False, **kwargs):
     global __compiled_grammar_cache
     cache = __compiled_grammar_cache
 
-    if grammar in cache:
-        model = cache[grammar]
+    if (grammar, semantics) in cache:
+        model = cache[(grammar, semantics)]
     else:
         gen = GrammarGenerator(name, **kwargs)
         model = cache[grammar] = gen.parse(grammar, **kwargs)
+        model.semantics = semantics or asmodel and ModelBuilderSemantics()
     return model
 
 
-def parse(grammar, input, name=None, semantics=None, **kwargs):
-    model = compile(grammar, name=name, semantics=semantics, **kwargs)
+def parse(grammar, input, name=None, semantics=None, asmodel=False, **kwargs):
+    model = compile(grammar, name=name, semantics=semantics, asmodel=asmodel, **kwargs)
     return model.parse(input, semantics=semantics, **kwargs)
 
 
 def to_python_sourcecode(grammar, name=None, filename=None, **kwargs):
     model = compile(grammar, name=name, filename=filename, **kwargs)
     return pythoncg(model)
+
+
+def to_python_model(grammar, name=None, filename=None, **kwargs):
+    model = compile(grammar, name=name, filename=filename, **kwargs)
+    return objectmodel.codegen(model)
 
 
 # for backwards compatibility. Use `compile()` instead

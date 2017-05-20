@@ -65,35 +65,40 @@ This is an example of how to use |TatSu| as a library:
 .. code:: python
 
     GRAMMAR = '''
-        @@grammar::Calc
+        @@grammar::CALC
+
 
         start = expression $ ;
 
+
         expression
             =
-            | term '+' ~ expression
-            | term '-' ~ expression
+            | expression '+' term
+            | expression '-' term
             | term
             ;
 
+
         term
             =
-            | factor '*' ~ term
-            | factor '/' ~ term
+            | term '*' factor
+            | term '/' factor
             | factor
             ;
 
+
         factor
             =
-            | '(' ~ @:expression ')'
+            | '(' expression ')'
             | number
             ;
+
 
         number = /\d+/ ;
     '''
 
 
-    def main():
+    if __name__ == '__main__':
         import pprint
         import json
         from tatsu import parse
@@ -108,10 +113,7 @@ This is an example of how to use |TatSu| as a library:
         print('JSON')
         print(json.dumps(json_ast, indent=2))
         print()
-
-
-    if __name__ == '__main__':
-        main()
+..
 
 And this is the output:
 

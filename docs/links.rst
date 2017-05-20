@@ -31,6 +31,7 @@
 .. _PEG.js: http://pegjs.majda.cz/
 .. _PEG: http://en.wikipedia.org/wiki/Parsing_expression_grammar
 .. _PL/0: http://en.wikipedia.org/wiki/PL/0
+.. _PLY: http://www.dabeaz.com/ply/ply.html#ply_nn22
 .. _Packrat: http://bford.info/packrat/
 .. _Pascal: http://en.wikipedia.org/wiki/Pascal_programming_language
 .. _Perl: http://www.perl.org/

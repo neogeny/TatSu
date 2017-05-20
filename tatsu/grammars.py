@@ -778,6 +778,7 @@ class Grammar(Model):
     def __init__(self,
                  name,
                  rules,
+                 semantics=None,
                  filename='Unknown',
                  whitespace=None,
                  nameguard=None,
@@ -801,6 +802,8 @@ class Grammar(Model):
             name = os.path.splitext(os.path.basename(filename))[0]
         self.name = name
 
+        self.semantics = semantics
+
         if whitespace is None:
             whitespace = directives.get('whitespace')
         self.whitespace = whitespace
@@ -810,7 +813,7 @@ class Grammar(Model):
         self.nameguard = nameguard
 
         if left_recursion is None:
-            left_recursion = directives.get('left_recursion')
+            left_recursion = directives.get('left_recursion', True)
         self.left_recursion = left_recursion
 
         if parseinfo is None:
@@ -891,6 +894,9 @@ class Grammar(Model):
             trace=trace,
             keywords=self.keywords,
             **kwargs)
+
+        if semantics is None:
+            semantics = self.semantics
 
         if whitespace is None:
             whitespace = self.whitespace

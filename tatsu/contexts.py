@@ -71,7 +71,7 @@ class ParseContext(object):
                  ignorecase=False,
                  nameguard=None,
                  memoize_lookaheads=True,
-                 left_recursion=False,
+                 left_recursion=True,
                  trace_length=72,
                  trace_separator=C_DERIVE,
                  trace_filename=False,
