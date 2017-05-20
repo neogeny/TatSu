@@ -810,7 +810,7 @@ class Grammar(Model):
         self.nameguard = nameguard
 
         if left_recursion is None:
-            left_recursion = directives.get('left_recursion')
+            left_recursion = directives.get('left_recursion', True)
         self.left_recursion = left_recursion
 
         if parseinfo is None:

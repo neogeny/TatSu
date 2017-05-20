@@ -79,7 +79,8 @@ def parse_args():
         '--no-left-recursion', '-l',
         help='turns left-recusion support off',
         dest="left_recursion",
-        action='store_false'
+        action='store_false',
+        default=True,
     )
     generation_opts.add_argument(
         '--name', '-m',
