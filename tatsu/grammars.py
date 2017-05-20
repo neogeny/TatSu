@@ -778,6 +778,7 @@ class Grammar(Model):
     def __init__(self,
                  name,
                  rules,
+                 semantics=None,
                  filename='Unknown',
                  whitespace=None,
                  nameguard=None,
@@ -800,6 +801,8 @@ class Grammar(Model):
         if name is None:
             name = os.path.splitext(os.path.basename(filename))[0]
         self.name = name
+
+        self.semantics = semantics
 
         if whitespace is None:
             whitespace = directives.get('whitespace')
@@ -891,6 +894,9 @@ class Grammar(Model):
             trace=trace,
             keywords=self.keywords,
             **kwargs)
+
+        if semantics is None:
+            semantics = self.semantics
 
         if whitespace is None:
             whitespace = self.whitespace

@@ -15,13 +15,13 @@ expression
     ;
 
 
-addition
+addition::Add
     =
     left:term op:'+' ~ right:expression
     ;
 
 
-subtraction
+subtraction::Subtract
     =
     left:term op:'-' ~ right:expression
     ;
@@ -35,13 +35,13 @@ term
     ;
 
 
-multiplication
+multiplication::Multiply
     =
     left:factor op:'*' ~ right:term
     ;
 
 
-division
+division::Divide
     =
     left:factor '/' ~ right:term
     ;
@@ -60,7 +60,7 @@ subexpression
     ;
 
 
-number
+number::int
     =
     /\d+/
     ;
