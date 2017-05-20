@@ -1,4 +1,4 @@
-@@grammar::Calc
+@@grammar::CALC
 
 
 start
@@ -9,23 +9,23 @@ start
 
 expression
     =
-    | term '+' ~ expression
-    | term '-' ~ expression
+    | expression '+' term
+    | expression '-' term
     | term
     ;
 
 
 term
     =
-    | factor '*' ~ term
-    | factor '/' ~ term
+    | term '*' factor
+    | term '/' factor
     | factor
     ;
 
 
 factor
     =
-    | '(' ~ expression ')'
+    | '(' expression ')'
     | number
     ;
 
@@ -34,4 +34,3 @@ number
     =
     /\d+/
     ;
-

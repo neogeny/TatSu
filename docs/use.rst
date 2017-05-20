@@ -25,6 +25,10 @@ As a Library
 
     Compiles the grammar to the `Python`_ sourcecode that implements the parser.
 
+-   ``to_python_model(grammar, name=None, filename=None, **kwargs)``
+
+    Compiles the grammar and generates the `Python`_ sourcecode that implements the object model defined by rule annotations.
+
 This is an example of how to use **Tatsu** as a library:
 
 .. code:: python

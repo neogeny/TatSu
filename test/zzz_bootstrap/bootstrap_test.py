@@ -15,7 +15,7 @@ import py_compile
 
 from tatsu.walkers import DepthFirstWalker
 from tatsu.parser import GrammarGenerator, EBNFParser
-from tatsu.semantics import EBNFGrammarSemantics
+from tatsu.parser_semantics import EBNFGrammarSemantics
 from tatsu.codegen import codegen
 from tatsu.util import asjson
 
