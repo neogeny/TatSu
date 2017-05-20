@@ -124,16 +124,16 @@ class CalcWalker(NodeWalker):
     def walk_object(self, node):
         return node
 
-    def walk_Add(self, node):
+    def walk_add(self, node):
         return self.walk(node.left) + self.walk(node.right)
 
-    def walk_Subtract(self, node):
+    def walk_subtract(self, node):
         return self.walk(node.left) - self.walk(node.right)
 
-    def walk_Multiply(self, node):
+    def walk_multiply(self, node):
         return self.walk(node.left) * self.walk(node.right)
 
-    def walk_Divide(self, node):
+    def walk_divide(self, node):
         return self.walk(node.left) / self.walk(node.right)
 
 
@@ -154,8 +154,10 @@ def parse_and_translate():
     parser = tatsu.compile(grammar, asmodel=True)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
+    postfix = PostfixCodeGenerator().render(model)
+
     print('# TRANSLATED TO POSTFIX')
-    print(PostfixCodeGenerator().render(model))
+    print(postfix)
 
 
 def main():
