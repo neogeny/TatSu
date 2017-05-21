@@ -268,7 +268,7 @@ See the `CHANGELOG`_ for details.
 .. |fury| image:: https://badge.fury.io/py/tatsu.svg
    :target: https://badge.fury.io/py/tatsu
 .. |license| image:: https://img.shields.io/badge/license-BSD-blue.svg
-   :target: https://raw.githubusercontent.com/apalala/tatsu/master/LICENSE.txt
+   :target: https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt
 .. |pyversions| image:: https://img.shields.io/pypi/pyversions/tatsu.svg
    :target: https://pypi.python.org/pypi/tatsu
 .. |travis| image:: https://secure.travis-ci.org/apalala/TatSu.svg

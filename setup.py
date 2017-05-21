@@ -25,7 +25,7 @@ setuptools.setup(
     zip_safe=False,
     name='TatSu',
     version=tatsu.__version__,
-    url='https://github.com/apalala/{package}'.format(
+    url='https://github.com/neogeny/{package}'.format(
         package=PACKAGE
     ),
     # download_url='https://bitbucket.org/neogeny/{package}/get/master.zip'.format(
