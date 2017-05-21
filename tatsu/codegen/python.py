@@ -373,7 +373,7 @@ class Rule(_Decorator):
 
     template = '''
         @tatsumasu({params})
-        def _{name}_(self):
+        def _{name}_(self):  # noqa
         {exp:1::}{check_name}{defines}
         '''
 

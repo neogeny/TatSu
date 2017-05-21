@@ -78,12 +78,12 @@ class RegexParser(Parser):
         )
 
     @tatsumasu()
-    def _START_(self):
+    def _START_(self):  # noqa
         self._EXPRE_()
         self._check_eof()
 
     @tatsumasu()
-    def _EXPRE_(self):
+    def _EXPRE_(self):  # noqa
         with self._choice():
             with self._option():
                 self._CHOICE_()
@@ -92,7 +92,7 @@ class RegexParser(Parser):
             self._error('no available options')
 
     @tatsumasu()
-    def _CHOICE_(self):
+    def _CHOICE_(self):  # noqa
         self._SEQUENCE_()
         self.add_last_node_to_name('opts')
 
@@ -108,7 +108,7 @@ class RegexParser(Parser):
         )
 
     @tatsumasu()
-    def _SEQUENCE_(self):
+    def _SEQUENCE_(self):  # noqa
 
         def block1():
             self._TERM_()
@@ -120,7 +120,7 @@ class RegexParser(Parser):
         )
 
     @tatsumasu()
-    def _TERM_(self):
+    def _TERM_(self):  # noqa
         with self._choice():
             with self._option():
                 self._CLOSURE_()
@@ -129,14 +129,14 @@ class RegexParser(Parser):
             self._error('no available options')
 
     @tatsumasu()
-    def _CLOSURE_(self):
+    def _CLOSURE_(self):  # noqa
         self._ATOM_()
         self.name_last_node('@')
         self._token('*')
         self._cut()
 
     @tatsumasu()
-    def _ATOM_(self):
+    def _ATOM_(self):  # noqa
         with self._choice():
             with self._option():
                 self._SUBEXP_()
@@ -145,7 +145,7 @@ class RegexParser(Parser):
             self._error('no available options')
 
     @tatsumasu()
-    def _SUBEXP_(self):
+    def _SUBEXP_(self):  # noqa
         self._token('(')
         self._cut()
         self._EXPRE_()
@@ -153,7 +153,7 @@ class RegexParser(Parser):
         self._token(')')
 
     @tatsumasu()
-    def _LITERAL_(self):
+    def _LITERAL_(self):  # noqa
         self._pattern(r'(?:\\;|[^|*\\()])+')
 
 
