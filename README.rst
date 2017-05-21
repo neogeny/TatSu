@@ -1,7 +1,7 @@
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
 .. |TatSu| replace:: |dragon| **TatSu**
 
-|fury| |license| |pyversions| |travis| |landscape|
+|fury| |license| |pyversions| |circle| |travis| |landscape|
 
     *At least for the people who send me mail about a new language that
     they're designing, the general advice is: do it to learn about how
@@ -273,6 +273,8 @@ See the `CHANGELOG`_ for details.
    :target: https://pypi.python.org/pypi/tatsu
 .. |travis| image:: https://secure.travis-ci.org/apalala/tatsu.svg
    :target: http://travis-ci.org/apalala/tatsu
+.. |circleci| image:: https://circleci.com/gh/apalala/TatSu.svg?style=shield
+    :target: https://circleci.com/gh/apalala/TatSu
 .. |landscape| image:: https://landscape.io/github/apalala/TatSu/master/landscape.png
    :target: https://landscape.io/github/apalala/TatSu/master
 .. |donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif
