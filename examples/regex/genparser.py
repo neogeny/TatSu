@@ -78,19 +78,19 @@ class RegexpParser(Parser):
         )
 
     @tatsumasu()
-    def _S0_(self):
+    def _S0_(self):  # noqa
         self._S1_()
         self._check_eof()
 
     @tatsumasu()
-    def _S1_(self):
+    def _S1_(self):  # noqa
 
         def block0():
             self._S2_()
         self._closure(block0)
 
     @tatsumasu()
-    def _S2_(self):
+    def _S2_(self):  # noqa
         with self._choice():
             with self._option():
                 self._S3_()
@@ -99,11 +99,11 @@ class RegexpParser(Parser):
             self._error('no available options')
 
     @tatsumasu()
-    def _S3_(self):
+    def _S3_(self):  # noqa
         self._pattern(r'a')
 
     @tatsumasu()
-    def _S4_(self):
+    def _S4_(self):  # noqa
         self._pattern(r'b')
 
 
