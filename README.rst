@@ -1,7 +1,7 @@
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
 .. |TatSu| replace:: |dragon| **TatSu**
 
-|fury| |license| |pyversions| |circleci| |travis| |landscape|
+|fury| |license| |pyversions| |circleci| |travis| |landscape| |quantifiedcode|
 
     *At least for the people who send me mail about a new language that
     they're designing, the general advice is: do it to learn about how
@@ -279,3 +279,6 @@ See the `CHANGELOG`_ for details.
    :target: https://landscape.io/github/apalala/TatSu/master
 .. |donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif
    :target: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=P9PV7ZACB669J
+.. |quantifiedcode| image:: https://www.quantifiedcode.com/api/v1/project/f60bbd94ae2d4bd5b2e04c241c9d47ff/badge.svg
+  :target: https://www.quantifiedcode.com/app/project/f60bbd94ae2d4bd5b2e04c241c9d47ff
+  :alt: Code issues
