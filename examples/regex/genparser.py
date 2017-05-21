@@ -108,19 +108,19 @@ class RegexpParser(Parser):
 
 
 class RegexpSemantics(object):
-    def S0(self, ast):
+    def S0(self, ast):  # noqa
         return ast
 
-    def S1(self, ast):
+    def S1(self, ast):  # noqa
         return ast
 
-    def S2(self, ast):
+    def S2(self, ast):  # noqa
         return ast
 
-    def S3(self, ast):
+    def S3(self, ast):  # noqa
         return ast
 
-    def S4(self, ast):
+    def S4(self, ast):  # noqa
         return ast
 
 

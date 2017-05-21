@@ -450,7 +450,7 @@ class Grammar(Base):
                       )
 
     abstract_rule_template = '''
-            def {name}(self, ast):
+            def {name}(self, ast):  # noqa
                 return ast
             '''
 
