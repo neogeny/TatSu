@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# 7ADC TatSu documentation build configuration file, created by
+# \u7ADC TatSu documentation build configuration file, created by
 # sphinx-quickstart on Mon May  1 18:01:31 2017.
 #
 # This file is execfile()d with the current directory set to its
@@ -56,7 +56,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = '7ADC TatSu'
+project = '\u7ADC TatSu'
 copyright = '2017 Juancarlo Añez'
 author = 'Juancarlo Añez'
 
@@ -147,7 +147,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'tatsu.tex', '7ADC TatSu Documentation',
+    (master_doc, 'tatsu.tex', '\u7ADC TatSu Documentation',
      'Juancarlo Añez', 'manual'),
 ]
 
@@ -157,7 +157,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, '7ADC TatSu', '7ADC TatSu Documentation',
+    (master_doc, '\u7ADC TatSu', '\u7ADC TatSu Documentation',
      [author], 1)
 ]
 
@@ -168,8 +168,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, '7ADC TatSu', '7ADC TatSu Documentation',
-     author, '7ADC TatSu', 'One line description of project.',
+    (master_doc, '\u7ADC TatSu', '\u7ADC TatSu Documentation',
+     author, '\u7ADC TatSu', 'One line description of project.',
      'Miscellaneous'),
 ]
 
