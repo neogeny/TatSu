@@ -136,7 +136,6 @@ __compiled_grammar_cache = {}
 
 
 def compile(grammar, name=None, semantics=None, asmodel=False, **kwargs):
-    global __compiled_grammar_cache
     cache = __compiled_grammar_cache
 
     if (grammar, semantics) in cache:
