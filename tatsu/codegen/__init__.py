@@ -2,7 +2,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from tatsu.exceptions import CodegenError
-from tatsu.codegen.cgbase import (
+from tatsu.codegen.cgbase import (  # noqa
     DelegatingRenderingFormatter,
     ModelRenderer,
     NullModelRenderer,
