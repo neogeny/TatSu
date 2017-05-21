@@ -2,7 +2,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from datetime import datetime
-from collections import namedtuple as NT  # noqa: N812
+from collections import namedtuple
 
 from tatsu.util import (
     compress_seq,
@@ -20,7 +20,7 @@ from tatsu.codegen.cgbase import ModelRenderer, CodeGenerator
 NODE_NAME_PATTERN = '(?!\d)\w+(' + BASE_CLASS_TOKEN + '(?!\d)\w+)*'
 
 
-_TypeSpec = NT('TypeSpec', ['class_name', 'base'])
+TypeSpec = namedtuple('TypeSpec', ['class_name', 'base'])
 
 
 def codegen(model):
@@ -41,7 +41,7 @@ def _get_node_class_name(rule):
 
 def _typespec(rule, default_base=True):
     if not _get_node_class_name(rule):
-        return _TypeSpec(None, None)
+        return TypeSpec(None, None)
 
     spec = rule.params[0].split(BASE_CLASS_TOKEN)
     class_name = safe_name(spec[0])
@@ -51,7 +51,7 @@ def _typespec(rule, default_base=True):
         base = safe_name(bases[0])
     elif default_base:
         base = 'ModelBase'
-    return _TypeSpec(class_name, base)
+    return TypeSpec(class_name, base)
 
 
 class BaseClassRenderer(Renderer):
