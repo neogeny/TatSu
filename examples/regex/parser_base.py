@@ -158,31 +158,31 @@ class RegexParser(Parser):
 
 
 class RegexSemantics(object):
-    def START(self, ast):
+    def START(self, ast):  # noqa
         return ast
 
-    def EXPRE(self, ast):
+    def EXPRE(self, ast):  # noqa
         return ast
 
-    def CHOICE(self, ast):
+    def CHOICE(self, ast):  # noqa
         return ast
 
-    def SEQUENCE(self, ast):
+    def SEQUENCE(self, ast):  # noqa
         return ast
 
-    def TERM(self, ast):
+    def TERM(self, ast):  # noqa
         return ast
 
-    def CLOSURE(self, ast):
+    def CLOSURE(self, ast):  # noqa
         return ast
 
-    def ATOM(self, ast):
+    def ATOM(self, ast):  # noqa
         return ast
 
-    def SUBEXP(self, ast):
+    def SUBEXP(self, ast):  # noqa
         return ast
 
-    def LITERAL(self, ast):
+    def LITERAL(self, ast):  # noqa
         return ast
 
 

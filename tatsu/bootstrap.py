@@ -924,196 +924,196 @@ class EBNFBootstrapParser(Parser):
 
 
 class EBNFBootstrapSemantics(object):
-    def start(self, ast):
+    def start(self, ast):  # noqa
         return ast
 
-    def grammar(self, ast):
+    def grammar(self, ast):  # noqa
         return ast
 
-    def directive(self, ast):
+    def directive(self, ast):  # noqa
         return ast
 
-    def keywords(self, ast):
+    def keywords(self, ast):  # noqa
         return ast
 
-    def paramdef(self, ast):
+    def paramdef(self, ast):  # noqa
         return ast
 
-    def rule(self, ast):
+    def rule(self, ast):  # noqa
         return ast
 
-    def decorator(self, ast):
+    def decorator(self, ast):  # noqa
         return ast
 
-    def params(self, ast):
+    def params(self, ast):  # noqa
         return ast
 
-    def first_param(self, ast):
+    def first_param(self, ast):  # noqa
         return ast
 
-    def kwparams(self, ast):
+    def kwparams(self, ast):  # noqa
         return ast
 
-    def pair(self, ast):
+    def pair(self, ast):  # noqa
         return ast
 
-    def expre(self, ast):
+    def expre(self, ast):  # noqa
         return ast
 
-    def choice(self, ast):
+    def choice(self, ast):  # noqa
         return ast
 
-    def sequence(self, ast):
+    def sequence(self, ast):  # noqa
         return ast
 
-    def element(self, ast):
+    def element(self, ast):  # noqa
         return ast
 
-    def rule_include(self, ast):
+    def rule_include(self, ast):  # noqa
         return ast
 
-    def named(self, ast):
+    def named(self, ast):  # noqa
         return ast
 
-    def named_list(self, ast):
+    def named_list(self, ast):  # noqa
         return ast
 
-    def named_single(self, ast):
+    def named_single(self, ast):  # noqa
         return ast
 
-    def override(self, ast):
+    def override(self, ast):  # noqa
         return ast
 
-    def override_list(self, ast):
+    def override_list(self, ast):  # noqa
         return ast
 
-    def override_single(self, ast):
+    def override_single(self, ast):  # noqa
         return ast
 
-    def override_single_deprecated(self, ast):
+    def override_single_deprecated(self, ast):  # noqa
         return ast
 
-    def term(self, ast):
+    def term(self, ast):  # noqa
         return ast
 
-    def group(self, ast):
+    def group(self, ast):  # noqa
         return ast
 
-    def gather(self, ast):
+    def gather(self, ast):  # noqa
         return ast
 
-    def positive_gather(self, ast):
+    def positive_gather(self, ast):  # noqa
         return ast
 
-    def normal_gather(self, ast):
+    def normal_gather(self, ast):  # noqa
         return ast
 
-    def join(self, ast):
+    def join(self, ast):  # noqa
         return ast
 
-    def positive_join(self, ast):
+    def positive_join(self, ast):  # noqa
         return ast
 
-    def normal_join(self, ast):
+    def normal_join(self, ast):  # noqa
         return ast
 
-    def left_join(self, ast):
+    def left_join(self, ast):  # noqa
         return ast
 
-    def right_join(self, ast):
+    def right_join(self, ast):  # noqa
         return ast
 
-    def separator(self, ast):
+    def separator(self, ast):  # noqa
         return ast
 
-    def positive_closure(self, ast):
+    def positive_closure(self, ast):  # noqa
         return ast
 
-    def closure(self, ast):
+    def closure(self, ast):  # noqa
         return ast
 
-    def empty_closure(self, ast):
+    def empty_closure(self, ast):  # noqa
         return ast
 
-    def optional(self, ast):
+    def optional(self, ast):  # noqa
         return ast
 
-    def special(self, ast):
+    def special(self, ast):  # noqa
         return ast
 
-    def kif(self, ast):
+    def kif(self, ast):  # noqa
         return ast
 
-    def knot(self, ast):
+    def knot(self, ast):  # noqa
         return ast
 
-    def atom(self, ast):
+    def atom(self, ast):  # noqa
         return ast
 
-    def call(self, ast):
+    def call(self, ast):  # noqa
         return ast
 
-    def void(self, ast):
+    def void(self, ast):  # noqa
         return ast
 
-    def cut(self, ast):
+    def cut(self, ast):  # noqa
         return ast
 
-    def cut_deprecated(self, ast):
+    def cut_deprecated(self, ast):  # noqa
         return ast
 
-    def known_name(self, ast):
+    def known_name(self, ast):  # noqa
         return ast
 
-    def name(self, ast):
+    def name(self, ast):  # noqa
         return ast
 
-    def constant(self, ast):
+    def constant(self, ast):  # noqa
         return ast
 
-    def token(self, ast):
+    def token(self, ast):  # noqa
         return ast
 
-    def literal(self, ast):
+    def literal(self, ast):  # noqa
         return ast
 
-    def string(self, ast):
+    def string(self, ast):  # noqa
         return ast
 
-    def raw_string(self, ast):
+    def raw_string(self, ast):  # noqa
         return ast
 
-    def STRING(self, ast):
+    def STRING(self, ast):  # noqa
         return ast
 
-    def hex(self, ast):
+    def hex(self, ast):  # noqa
         return ast
 
-    def float(self, ast):
+    def float(self, ast):  # noqa
         return ast
 
-    def int(self, ast):
+    def int(self, ast):  # noqa
         return ast
 
-    def path(self, ast):
+    def path(self, ast):  # noqa
         return ast
 
-    def word(self, ast):
+    def word(self, ast):  # noqa
         return ast
 
-    def pattern(self, ast):
+    def pattern(self, ast):  # noqa
         return ast
 
-    def regexes(self, ast):
+    def regexes(self, ast):  # noqa
         return ast
 
-    def regex(self, ast):
+    def regex(self, ast):  # noqa
         return ast
 
-    def boolean(self, ast):
+    def boolean(self, ast):  # noqa
         return ast
 
-    def eof(self, ast):
+    def eof(self, ast):  # noqa
         return ast
 
 
