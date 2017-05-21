@@ -70,7 +70,7 @@ class ObjectModelCodeGenerator(CodeGenerator):
             return None
 
         name = item.__class__.__name__
-        renderer = globals().get(name, None)
+        renderer = globals().get(name)
         if not renderer or not issubclass(renderer, ModelRenderer):
             raise CodegenError('Renderer for %s not found' % name)
         return renderer
