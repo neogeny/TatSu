@@ -25,7 +25,7 @@ PRAGMA_RE = r'^\s*#[a-z]+'
 
 
 def dot(x, y, k):
-    return set([(a + b)[:k] for a in x for b in y])
+    return {(a + b)[:k] for a in x for b in y}
 
 
 def pythonize_name(name):
