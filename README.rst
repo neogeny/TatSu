@@ -176,7 +176,7 @@ See the `CHANGELOG`_ for details.
 .. _BSD: http://en.wikipedia.org/wiki/BSD_licenses#2-clause_license_.28.22Simplified_BSD_License.22_or_.22FreeBSD_License.22.29
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _C: http://en.wikipedia.org/wiki/C_language
-.. _CHANGELOG: CHANGELOG.md
+.. _CHANGELOG: CHANGELOG.rst
 .. _CSAIL at MIT: http://www.csail.mit.edu/
 .. _Cyclomatic complexity: http://en.wikipedia.org/wiki/Cyclomatic_complexity
 .. _David Röthlisberger: https://bitbucket.org/drothlis/
