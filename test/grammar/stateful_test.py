@@ -44,9 +44,8 @@ class StatefulTests(unittest.TestCase):
 
             def ul_marker(self, ast):
                 ctx = self._context
-                if ctx._state is not None:
-                    if not ctx.buf.match("*" * ctx._state):
-                        raise FailedSemantics("not at correct level")
+                if ctx._state is not None and not ctx.buf.match("*" * ctx._state):
+                    raise FailedSemantics("not at correct level")
                 return ast
 
             def ul(self, ast):
@@ -60,13 +59,52 @@ class StatefulTests(unittest.TestCase):
 
         model = compile(grammar, "test")
         context = ModelContext(model.rules, whitespace='', nameguard=False)
-        ast = model.parse('*abc', "document", context=context, semantics=StatefulSemantics(context), whitespace='', nameguard=False)
+
+        ast = model.parse(
+            '*abc', "document",
+            context=context,
+            semantics=StatefulSemantics(context),
+            whitespace='',
+            nameguard=False
+        )
         self.assertEqual(ast, "<ul><li>abc</li></ul>")
-        ast = model.parse('*abc\n', "document", context=context, semantics=StatefulSemantics(context), whitespace='', nameguard=False)
+
+        ast = model.parse(
+            '*abc\n',
+            "document",
+            context=context,
+            semantics=StatefulSemantics(context),
+            whitespace='',
+            nameguard=False
+        )
         self.assertEqual("<ul><li>abc</li></ul>", ast)
-        ast = model.parse('*abc\n*def\n', "document", context=context, semantics=StatefulSemantics(context), whitespace='', nameguard=False)
+
+        ast = model.parse(
+            '*abc\n*def\n',
+            "document",
+            context=context,
+            semantics=StatefulSemantics(context),
+            whitespace='',
+            nameguard=False
+        )
         self.assertEqual("<ul><li>abc</li><li>def</li></ul>", ast)
-        ast = model.parse('**abc', "document", context=context, semantics=StatefulSemantics(context), whitespace='', nameguard=False)
+
+        ast = model.parse(
+            '**abc',
+            "document",
+            context=context,
+            semantics=StatefulSemantics(context),
+            whitespace='',
+            nameguard=False
+        )
         self.assertEqual("<ul><li><ul><li>abc</li></ul></li></ul>", ast)
-        ast = model.parse('*abc\n**def\n', "document", context=context, semantics=StatefulSemantics(context), whitespace='', nameguard=False)
+
+        ast = model.parse(
+            '*abc\n**def\n',
+            "document",
+            context=context,
+            semantics=StatefulSemantics(context),
+            whitespace='',
+            nameguard=False
+        )
         self.assertEqual("<ul><li>abc<ul><li>def</li></ul></li></ul>", ast)
