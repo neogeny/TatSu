@@ -35,11 +35,20 @@ class NodeWalker(object):
             if callable(walker):
                 break
 
-            pythonic_name = re.sub('[A-Z]', pythonize_match, cls.__name__)
+            # walk__pythonic_name with double underscore after walk
+            pythonic_name = re.sub('[A-Z]+', pythonize_match, cls.__name__)
             if pythonic_name != cammelcase_name:
                 walker = getattr(self, prefix + pythonic_name, None)
                 if callable(walker):
                     break
+
+            # walk_pythonic_name with single underscore after walk
+
+            # pythonic_name = pythonic_name.lstrip('_')
+            # if pythonic_name != cammelcase_name:
+            #     walker = getattr(self, prefix + pythonic_name, None)
+            #     if callable(walker):
+            #         break
 
             for b in cls.__bases__:
                 if b not in classes:
@@ -68,7 +77,7 @@ class NodePreOrderWalker(NodeWalker):
     def walk_object(self, node, *args, **kwargs):
         return node
 
-    def walk_Node(self, node, *args, **kwargs):
+    def walk_node(self, node, *args, **kwargs):
         for child in node.children_list():
             self.walk(child)
         return node

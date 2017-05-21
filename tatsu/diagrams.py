@@ -127,13 +127,13 @@ class GraphvizWalker(NodeWalker):
     def _walk_decorator(self, d):
         return self.walk(d.exp)
 
-    def _walk__Decorator(self, d):
-        return self._walk_decorator(d)
-
     def walk_default(self, node):
         raise Exception('No walking for ', type(node).__name__)
 
-    def walk_Grammar(self, g):
+    def walk__decorator(self, d):
+        return self.walk(d.exp)
+
+    def walk__grammar(self, g):
         self.push_graph(g.name + '0')
         try:
             vrules = [self.walk(r) for r in reversed(g.rules)]
@@ -151,7 +151,7 @@ class GraphvizWalker(NodeWalker):
         s, t = vrules[0][0], vrules[-1][1]
         return (s, t)
 
-    def walk_Rule(self, r):
+    def walk__rule(self, r):
         self.push_graph(r.name)
         try:
             i, e = self.walk(r.exp)
@@ -163,32 +163,32 @@ class GraphvizWalker(NodeWalker):
         finally:
             self.pop_graph()
 
-    def walk_BasedRule(self, r):
+    def walk__based_rule(self, r):
         return self.walk_Rule(r)
 
-    def walk_RuleRef(self, rr):
+    def walk__rule_ref(self, rr):
         n = self.ref_node(rr.name)
         return (n, n)
 
-    def walk_Special(self, s):
+    def walk__special(self, s):
         n = self.node(s.special)
         return (n, n)
 
-    def walk_Override(self, o):
+    def walk__override(self, o):
         return self._walk_decorator(o)
 
-    def walk_Named(self, n):
+    def walk__named(self, n):
         return self._walk_decorator(n)
 
-    def walk_NamedList(self, n):
+    def walk__named_list(self, n):
         return self._walk_decorator(n)
 
-    def walk_Cut(self, c):
+    def walk__cut(self, c):
         # c = self.node('>>')
         # return (c, c)
         return None
 
-    def walk_Optional(self, o):
+    def walk__optional(self, o):
         i, e = self._walk_decorator(o)
         ni = self.dot()
         ne = self.dot()
@@ -197,7 +197,7 @@ class GraphvizWalker(NodeWalker):
         self.zedge(e, ne)
         return (ni, ne)
 
-    def walk_Closure(self, r):
+    def walk__closure(self, r):
         self.push_graph(rankdir='TB')
         try:
             i, e = self._walk_decorator(r)
@@ -208,7 +208,7 @@ class GraphvizWalker(NodeWalker):
         finally:
             self.pop_graph()
 
-    def walk_PositiveClosure(self, r):
+    def walk__positive_closure(self, r):
         i, e = self._walk_decorator(r)
         if i == e:
             self.redge(e, i)
@@ -216,17 +216,17 @@ class GraphvizWalker(NodeWalker):
             self.edge(e, i)
         return (i, e)
 
-    def walk_Join(self, r):
+    def walk__join(self, r):
         i, e = self._walk_decorator(r)
         n = self.tnode(r.sep)
         self.edge(i, n)
         self.edge(n, e)
         return (i, e)
 
-    def walk_Group(self, g):
+    def walk__group(self, g):
         return self._walk_decorator(g)
 
-    def walk_Choice(self, c):
+    def walk__choice(self, c):
         vopt = [self.walk(o) for o in c.options]
         vopt = [o for o in vopt if o is not None]
         ni = self.dot()
@@ -236,7 +236,7 @@ class GraphvizWalker(NodeWalker):
             self.edge(e, ne)
         return (ni, ne)
 
-    def walk_Sequence(self, s):
+    def walk__sequence(self, s):
         vseq = [self.walk(x) for x in s.sequence]
         vseq = [x for x in vseq if x is not None]
         i, _ = vseq[0]
@@ -248,41 +248,41 @@ class GraphvizWalker(NodeWalker):
                 self.edge(n, n1)
         return (i, e)
 
-    def walk_Lookahead(self, l):
+    def walk__lookahead(self, l):
         i, e = self._walk_decorator(l)
         n = self.node('&')
         self.edge(n, e)
         return (n, e)
 
-    def walk_NegativeLookahead(self, l):
+    def walk__negative_lookahead(self, l):
         i, e = self._walk_decorator(l)
         n = self.node('!')
         self.edge(n, e)
         return (n, e)
 
-    def walk_RuleInclude(self, l):
+    def walk__rule_include(self, l):
         i, e = self._walk_decorator(l)
         n = self.node('>')
         self.edge(n, e)
         return (n, e)
 
-    def walk_Pattern(self, p):
+    def walk__pattern(self, p):
         n = self.tnode(p.pattern)
         return (n, n)
 
-    def walk_Token(self, t):
+    def walk__token(self, t):
         n = self.tnode(t.token)
         return (n, n)
 
-    def walk_Void(self, v):
+    def walk__void(self, v):
         n = self.dot()
         return (n, n)
 
-    def walk_Constant(self, t):
+    def walk__constant(self, t):
         n = self.tnode('`%s`' % t.ast)
         return (n, n)
 
-    def walk_EOF(self, v):
+    def walk__eof(self, v):
         # n = self.node('$')
         # return (n, n)
         return None
