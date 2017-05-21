@@ -12,6 +12,13 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2017
 ---------------
+.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.0.0...master
+
+
+
+`4.1.0`_ @ 2017-05-21
+---------------------
+.. _4.1.0: https://github.com/apalala/tatsu/compare/v4.0.0...v4.1.0
 
 Added
 ~~~~~
@@ -41,11 +48,10 @@ Added
 
 `4.0.0`_ @ 2017-05-06
 ---------------------
+.. _4.0.0: https://github.com/apalala/tatsu/compare/0.0.0...v4.0.0
 
 -  First release.
 
 .. _Semantic Versioning: http://semver.org/
 .. _keeapachangelog.org: http://keepachangelog.com/
-.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.0.0...master
 .. _ANTLR: http://www.antlr.org
-.. _4.0.0: https://github.com/apalala/tatsu/compare/0.0.0...v4.0.0
