@@ -50,6 +50,5 @@ def init():
         Fore = colorama.Fore
         Back = colorama.Back
         Style = colorama.Style
-        colorama.Fore
     except ImportError:
         pass
