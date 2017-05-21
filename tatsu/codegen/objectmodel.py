@@ -81,31 +81,23 @@ class Rule(ModelRenderer):
         defs = [safe_name(d) for d, l in compress_seq(self.defines())]
         defs = list(sorted(set(defs)))
 
-        kwargs = '\n'.join('%s=None, ' % d for d in defs)
-        params = '\n'.join('%s=%s,' % (d, d) for d in defs)
-        if params:
-            params = '\n' + params + '\n**_kwargs_\n'
-            params = indent(params, 3)
-            params = params + '\n' + indent(')', 2)
-
-            kwargs = '\n' + indent(kwargs + '\n**_kwargs_', indent=17, multiplier=1)
+        kwargs = '\n'.join('%s = None' % d for d in defs)
+        if kwargs:
+            kwargs = indent(kwargs)
         else:
-            kwargs = ' **_kwargs_'
-            params = '**_kwargs_)'
+            kwargs = indent('pass')
 
         spec = _typespec(self.node)
 
         fields.update(
             class_name=spec.class_name,
             base=spec.base,
-            _kwargs_=kwargs,
-            params=params,
+            kwargs=kwargs,
         )
 
     template = '''
         class {class_name}({base}):
-            def __init__(self,{_kwargs_}):
-                super({class_name}, self).__init__({params}\
+        {kwargs}
         '''
 
 

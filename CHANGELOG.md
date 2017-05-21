@@ -25,6 +25,8 @@ The format of this *Change Log* is inspired by [keeapachangelog.org][].
 
 -   Modernized the `calc` example and made it part of the documentation as *Mini Tutorial*.
 
+- Simplified the generated object models using the semantics of class attributes in Python_
+
 
 ## [4.0.0][] @ 2017-05-06
 [4.0.0]: https://github.com/apalala/tatsu/compare/0.0.0...v4.0.0
