@@ -42,7 +42,8 @@ setuptools.setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'tatsu = tatsu:main'
+            'tatsu = tatsu:main',
+            'g2e = tatsu.g2e:main',
         ]
     },
     classifiers=[
