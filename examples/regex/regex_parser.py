@@ -11,13 +11,13 @@ class RegexSemantics(object):
         super(RegexSemantics, self).__init__()
         self._count = 0
 
-    def START(self, ast):
+    def START(self, ast):  # noqa
         return model.Regex(ast)
 
-    def CHOICE(self, ast):
+    def CHOICE(self, ast):  # noqa
         return model.Choice(ast.opts)
 
-    def SEQUENCE(self, ast):
+    def SEQUENCE(self, ast):  # noqa
         if not ast.terms:
             return model.Empty()
         elif len(ast.terms) < 2:
@@ -25,13 +25,13 @@ class RegexSemantics(object):
         else:
             return model.Sequence(ast.terms)
 
-    def CLOSURE(self, ast):
+    def CLOSURE(self, ast):  # noqa
         return model.Closure(ast)
 
-    def SUBEXP(self, ast):
+    def SUBEXP(self, ast):  # noqa
         return ast
 
-    def LITERAL(self, ast):
+    def LITERAL(self, ast):  # noqa
         return model.Literal(ast)
 
 
