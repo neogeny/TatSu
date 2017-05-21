@@ -60,7 +60,7 @@ class AST(dict):
     def set(self, key, value, force_list=False):
         key = self._safekey(key)
 
-        previous = self.get(key, None)
+        previous = self.get(key)
         if previous is None:
             if force_list:
                 super(AST, self).__setitem__(key, [value])
