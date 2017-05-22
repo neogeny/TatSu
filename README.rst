@@ -271,8 +271,8 @@ See the `CHANGELOG`_ for details.
    :target: https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt
 .. |pyversions| image:: https://img.shields.io/pypi/pyversions/tatsu.svg
    :target: https://pypi.python.org/pypi/tatsu
-.. |travis| image:: https://secure.travis-ci.org/apalala/TatSu.svg
-   :target: http://travis-ci.org/apalala/TatSu
+.. |travis| image:: https://secure.travis-ci.org/neogeny/TatSu.svg
+   :target: http://travis-ci.org/neogeny/TatSu
 .. |circleci| image:: https://circleci.com/gh/apalala/TatSu.svg?style=shield
     :target: https://circleci.com/gh/apalala/TatSu
 .. |landscape| image:: https://landscape.io/github/apalala/TatSu/master/landscape.png
