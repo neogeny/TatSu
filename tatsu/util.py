@@ -41,8 +41,10 @@ if PY3:
     if PY33:
         from collections import abc
         Mapping = abc.Mapping
+        MutableMapping = abc.MutableMapping
     else:
         Mapping = collections.Mapping
+        MutableMapping = collections.MutableMapping
     zip_longest = itertools.zip_longest
     import builtins
     imap = map
