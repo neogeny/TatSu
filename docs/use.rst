@@ -145,8 +145,8 @@ The *-h* and *--help* parameters provide full usage information:
                 [--whitespace CHARACTERS] [--help] [--version]
                 GRAMMAR
 
-    Tatsu (for "grammar compiler") takes a grammar in a variation of EBNF as
-    input, and outputs a memoizing PEG/Packrat parser in Python.
+    TatSu takes a grammar in a variation of EBNF as input, and outputs a memoizing
+    PEG/Packrat parser in Python.
 
     positional arguments:
     GRAMMAR               the filename of the Tatsu grammar to parse

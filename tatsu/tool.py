@@ -20,7 +20,7 @@ from tatsu.codegen.python import codegen as pythoncg
 from tatsu.codegen import objectmodel
 
 DESCRIPTION = (
-    'TatSu (for "grammar compiler") takes a grammar'
+    'TatSu takes a grammar'
     ' in a variation of EBNF as input, and outputs a memoizing'
     ' PEG/Packrat parser in Python.'
 )
