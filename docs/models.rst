@@ -65,9 +65,9 @@ The class ``tatsu.model.NodeWalker`` allows for the easy traversal
     walker.walk(model)
 
 When a method with a name like ``walk_AddOperator()`` is defined, it
-will be called when a node of that type is *walked* (the *pythonic*
+will be called when a node of that type is *walked*. The *pythonic*
 version of the class name may also be used for the *walk* method:
-``walk_add_operator()``.
+``walk__add_operator()`` (note the double underscore).
 
 If a *walk* method for a node class is not found, then a method for the
 class's bases is searched, so it is possible to write *catch-all*
