@@ -97,7 +97,7 @@ class Rule(ModelRenderer):
 
     template = '''
         class {class_name}({base}):
-        {kwargs}
+        {kwargs}\
         '''
 
 

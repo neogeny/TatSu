@@ -5,7 +5,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import collections
 import weakref
 
-from tatsu.util import asjson, asjsons, Mapping
+from tatsu.util import asjson, asjsons
+from tatsu.util import Mapping, MutableMapping
 from tatsu.infos import CommentInfo
 from tatsu.ast import AST
 # TODO: from tatsu.exceptions import NoParseInfo
@@ -26,19 +27,19 @@ class Node(object):
 
         attributes = ast or {}
         # asume that kwargs contains node attributes of interest
-        if isinstance(attributes, Mapping):
-            attributes.update({k: v for k, v in kwargs.items() if v is not None})
+        if isinstance(attributes, MutableMapping):
+            attributes.update(kwargs)
 
         self._parent = None  # will always be a weakref or None
         self._adopt_children(attributes)
         self.__postinit__(attributes)
 
     def __postinit__(self, ast):
-        if isinstance(ast, Mapping):
-            for name, value in ast.items():
-                while hasattr(self, name):
-                    name = name + '_'
-                setattr(self, name, value)
+        if not isinstance(ast, Mapping):
+            return
+
+        for name in set(ast) - {'parseinfo'}:
+            setattr(self, name, ast[name])
 
     @property
     def ast(self):
