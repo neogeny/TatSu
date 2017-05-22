@@ -53,6 +53,7 @@ else:
     strtype = basestring  # noqa
     _unicode = unicode
     Mapping = collections.Mapping
+    MutableMapping = collections.MutableMapping
     zip_longest = itertools.izip_longest
     imap = itertools.imap
     import __builtin__ as builtins
