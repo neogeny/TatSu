@@ -282,5 +282,10 @@ See the `CHANGELOG`_ for details.
 .. |quantifiedcode| image:: https://www.quantifiedcode.com/api/v1/project/f60bbd94ae2d4bd5b2e04c241c9d47ff/badge.svg
   :target: https://www.quantifiedcode.com/app/project/f60bbd94ae2d4bd5b2e04c241c9d47ff
   :alt: Code issues
-.. |docs| image:: https://readthedocs.org/projects/TatSu/badge/?version=latest
+
+..
+
+    https://readthedocs.org/projects/TatSu/badge/?version=latest
+
+.. |docs| image:: https://readthedocs.org/projects/TatSu/badge/
    :target: http://tatsu.readthedocs.io/en/latest/
