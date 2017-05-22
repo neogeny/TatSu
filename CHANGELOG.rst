@@ -12,7 +12,17 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2017
 ---------------
-.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.1.0...master
+.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.1.1...master
+
+
+`4.1.1`_ @ 2017-05-21
+---------------------
+.. _4.1.1: https://github.com/apalala/tatsu/compare/v4.1.0...v4.1.1
+
+Fixed
+~~~~~
+
+*   ``tatus.objectmodel.Node`` not setting attributes from ``AST``.
 
 
 
@@ -23,27 +33,27 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 Added
 ~~~~~
 
--  New support for *left recursion* with correct associativity. All test
+*  New support for *left recursion* with correct associativity. All test
    cases pass.
 
--  Left recursion is enabled by default. Use the
+*  Left recursion is enabled by default. Use the
    ``@@left_recursion :: False`` directive to diasable it.
 
--  Renamed the decorator for generated rule methods to ``@tatsumasu``.
+*  Renamed the decorator for generated rule methods to ``@tatsumasu``.
 
--  Refactored the ``tatsu.contexts.ParseContext`` for clarity.
+*  Refactored the ``tatsu.contexts.ParseContext`` for clarity.
 
--  The ``@@ignorecase`` directive and the ``ignorecase=`` parameter no
+*  The ``@@ignorecase`` directive and the ``ignorecase=`` parameter no
    longer appy to regular expressions (patterns) in grammars. Use
    ``(?i)`` in the pattern to ignore the case in a particular pattern.
 
--  Now ``tatsu.g2e`` is a library and executable module for translating
+*  Now ``tatsu.g2e`` is a library and executable module for translating
    `ANTLR`_ grammars to **TatSu**.
 
--  Modernized the ``calc`` example and made it part of the documentation
+*  Modernized the ``calc`` example and made it part of the documentation
    as *Mini Tutorial*.
 
--  Simplified the generated object models using the semantics of class
+*  Simplified the generated object models using the semantics of class
    attributes in Python\_
 
 `4.0.0`_ @ 2017-05-06
