@@ -564,21 +564,23 @@ class ParseContext(object):
         try:
             pos = self._pos
             ruleinfo.impl(self)
-
-            node = self.ast
-            if not node:
-                node = self.cst
-            elif '@' in node:
-                node = node['@']  # override the AST
-            elif self.parseinfo:
-                node.set_parseinfo(self._get_parseinfo(ruleinfo.name, pos))
-
+            node = self._get_node(pos, ruleinfo)
             node = self._invoke_semantic_rule(ruleinfo, node)
             return self._mkresult(node)
         except FailedSemantics as e:
             self._error(ustr(e), FailedParse)
         finally:
             self._pop_ast()
+
+    def _get_node(self, pos, ruleinfo):
+        node = self.ast
+        if not node:
+            node = self.cst
+        elif '@' in node:
+            node = node['@']  # override the AST
+        elif self.parseinfo:
+            node.set_parseinfo(self._get_parseinfo(ruleinfo.name, pos))
+        return node
 
     def _invoke_semantic_rule(self, rule, node):
         semantic_rule, postproc = self._find_semantic_action(rule.name)
@@ -667,11 +669,10 @@ class ParseContext(object):
     @contextmanager
     def _choice(self):
         self.last_node = None
-        with self._try():
-            try:
-                yield
-            except OptionSucceeded:
-                pass
+        try:
+            yield
+        except OptionSucceeded:
+            pass
 
     @contextmanager
     def _optional(self):
@@ -755,10 +756,9 @@ class ParseContext(object):
         try:
             self.cst = []
             with self._optional():
-                with self._try():
-                    block()
+                block()
                 self.cst = [self.cst]
-                self._repeater(block, prefix=sep, omitprefix=omitsep)
+            self._repeater(block, prefix=sep, omitprefix=omitsep)
             cst = Closure(self.cst)
         finally:
             self._pop_cst()
@@ -769,9 +769,7 @@ class ParseContext(object):
     def _positive_closure(self, block, sep=None, omitsep=False):
         self._push_cst()
         try:
-            self.cst = None
-            with self._try():
-                block()
+            block()
             self.cst = [self.cst]
             self._repeater(block, prefix=sep, omitprefix=omitsep)
             cst = Closure(self.cst)
