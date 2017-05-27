@@ -14,6 +14,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.1.1...master
 
+*   Parse speeds on large files reduced by 2-10% by optimizing parse contexts.
+
 
 `4.1.1`_ @ 2017-05-21
 ---------------------
