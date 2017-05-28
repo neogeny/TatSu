@@ -232,6 +232,9 @@ class ParseContext(object):
     def _goto(self, pos):
         self._buffer.goto(pos)
 
+    def _next(self):
+        self._buffer.next()
+
     def _next_token(self, for_rule_name=None):
         if for_rule_name is None or for_rule_name.islower():
             self._buffer.next_token()
@@ -798,3 +801,13 @@ class ParseContext(object):
 
     def _void(self):
         self.last_node = None
+
+    def _skip_to(self, block):
+        while True:
+            self._next()
+            try:
+                with self._ifnot():
+                    block()
+            except FailedLookahead:
+                break
+        block()

@@ -258,6 +258,14 @@ class EmptyClosure(Base):
     template = 'self._empty_closure()'
 
 
+class SkipTo(Closure):
+    template = '''\
+                def block{n}():
+                {exp:1::}
+                self._skip_to(block{n})\
+    '''
+
+
 class Optional(_Decorator):
     template = '''\
                 with self._optional():

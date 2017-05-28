@@ -198,8 +198,9 @@ term
     | closure
     | optional
     | special
-    | kif
-    | knot
+    | skip_to
+    | lookahead
+    | negative_lookahead
     | atom
     ;
 
@@ -302,15 +303,21 @@ special::Special
     ;
 
 
-kif::Lookahead
+lookahead::Lookahead
     =
     '&' ~ @:term
     ;
 
 
-knot::NegativeLookahead
+negative_lookahead::NegativeLookahead
     =
     '!' ~ @:term
+    ;
+
+
+skip_to::SkipTo
+    =
+    '->' ~ @:term
     ;
 
 
