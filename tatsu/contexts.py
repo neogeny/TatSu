@@ -22,6 +22,7 @@ from tatsu.infos import (
     ParseInfo,
     RuleInfo,
     RuleResult,
+    TreeInfo,
 )
 from tatsu.exceptions import (
     FailedCut,
@@ -105,8 +106,7 @@ class ParseContext(object):
         self._initialize_caches()
 
     def _initialize_caches(self):
-        self._ast_stack = [AST()]
-        self._concrete_stack = [None]
+        self._tree_stack = [TreeInfo()]
         self._rule_stack = []
         self._cut_stack = [False]
 
@@ -239,11 +239,11 @@ class ParseContext(object):
 
     @property
     def ast(self):
-        return self._ast_stack[-1]
+        return self._tree_stack[-1].ast
 
     @ast.setter
     def ast(self, value):
-        self._ast_stack[-1] = value
+        self._tree_stack[-1].ast = value
 
     def name_last_node(self, name):
         self.ast[name] = self.last_node
@@ -252,26 +252,26 @@ class ParseContext(object):
         self.ast.setlist(name, self.last_node)
 
     def _push_ast(self):
-        self._push_cst()
-        self._ast_stack.append(AST())
+        self._tree_stack.append(TreeInfo())
 
     def _pop_ast(self):
-        self._pop_cst()
-        return self._ast_stack.pop()
+        self._tree_stack.pop()
 
     @property
     def cst(self):
-        return self._concrete_stack[-1]
+        return self._tree_stack[-1].cst
 
     @cst.setter
     def cst(self, value):
-        self._concrete_stack[-1] = value
+        self._tree_stack[-1].cst = value
 
     def _push_cst(self):
-        self._concrete_stack.append(None)
+        self._tree_stack.append(TreeInfo(ast=self.ast))
 
     def _pop_cst(self):
-        return self._concrete_stack.pop()
+        ast = self.ast
+        self._tree_stack.pop()
+        self.ast = ast
 
     def _add_cst_node(self, node):
         if node is None:
@@ -330,18 +330,6 @@ class ParseContext(object):
 
         prune(self._memos, self._pos)
         prune(self._results, self._pos)
-
-    def _push_cut(self):
-        self._cut_stack.append(False)
-
-    def _pop_cut(self):
-        return self._cut_stack.pop()
-
-    def _enter_lookahead(self):
-        self._lookahead += 1
-
-    def _leave_lookahead(self):
-        self._lookahead -= 1
 
     def _memoization(self):
         return self.memoize_lookaheads or self._lookahead == 0
@@ -653,7 +641,7 @@ class ParseContext(object):
     @contextmanager
     def _option(self):
         self.last_node = None
-        self._push_cut()
+        self._cut_stack.append(False)
         try:
             with self._try():
                 yield
@@ -664,7 +652,7 @@ class ParseContext(object):
             if self._is_cut_set():
                 raise FailedCut(e)
         finally:
-            self._pop_cut()
+            self._cut_stack.pop()
 
     @contextmanager
     def _choice(self):
@@ -697,11 +685,11 @@ class ParseContext(object):
         p = self._pos
         s = self._state
         self._push_ast()
-        self._enter_lookahead()
+        self._lookahead += 1
         try:
             yield
         finally:
-            self._leave_lookahead()
+            self._lookahead -= 1
             self._goto(p)
             self._state = s
             self._pop_ast()  # simply discard
