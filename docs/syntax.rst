@@ -255,7 +255,7 @@ The expressions, in reverse order of operator precedence, can be:
 
 ``->e``
 ^^^^^^^
-    The *"skip to"* expression; useful for writing *recovery* rules.
+    The "*skip to"* expression; useful for writing *recovery* rules.
 
     The parser will advance over input, one character at time, until ``e`` matches. Whitespace and comments will be skipped at each step.
 
@@ -266,7 +266,7 @@ The expressions, in reverse order of operator precedence, can be:
     { /./ !e} e
 ..
 
-    This is an example of the use of the *skip to* expression for recovery:
+    This is an example of the use of the "*skip to*" expression for recovery:
 
 
 .. code:: ocaml
