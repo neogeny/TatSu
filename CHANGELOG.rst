@@ -62,7 +62,7 @@ Added
    as *Mini Tutorial*.
 
 *  Simplified the generated object models using the semantics of class
-   attributes in Python\_
+   attributes in Python_
 
 `4.0.0`_ @ 2017-05-06
 ---------------------
@@ -153,7 +153,7 @@ Added
 .. _Robert Speer: https://bitbucket.org/r_speer
 .. _basel-shishani: https://bitbucket.org/basel-shishani
 .. _drothlis: https://bitbucket.org/drothlis
-.. _franz\_g: https://bitbucket.org/franz_g
+.. _franz_g: https://bitbucket.org/franz_g
 .. _gapag: https://bitbucket.org/gapag
 .. _gegenschall: https://bitbucket.org/gegenschall
 .. _gkimbar: https://bitbucket.org/gkimbar
@@ -164,11 +164,11 @@ Added
 .. _neumond: https://bitbucket.org/neumond
 .. _pauls: https://bitbucket.org/pauls
 .. _pgebhard: https://bitbucket.org/pgebhard
-.. _r\_speer: https://bitbucket.org/r_speer
+.. _r_speer: https://bitbucket.org/r_speer
 .. _siemer: https://bitbucket.org/siemer
 .. _sjbrownBitbucket: https://bitbucket.org/sjbrownBitbucket
 .. _starkat: https://bitbucket.org/starkat
-.. _tonico\_strasser: https://bitbucket.org/tonico_strasser
+.. _tonico_strasser: https://bitbucket.org/tonico_strasser
 .. _vinay.sajip: https://bitbucket.org/vinay.sajip
 .. _vmuriart: https://bitbucket.org/vmuriart
 
