@@ -80,17 +80,17 @@ The expressions, in reverse order of operator precedence, can be:
 
 ``{ e }`` or ``{ e }*``
 ^^^^^^^^^^^^^^^^^^^^^^^
-    Closure. Match ``e`` zero or more times. Note that the `AST`_ returned for a closure is always a list.
+    closure. Match ``e`` zero or more times. The `AST`_ returned for a closure is always a ``list``.
 
 
 ``{ e }+``
 ^^^^^^^^^^
-    Positive closure. Match ``e`` one or more times. The `AST`_ is always a list.
+    Positive closure. Match ``e`` one or more times. The `AST`_ is always a ``list``.
 
 
 ``{}``
 ^^^^^^
-    Empty closure. Match nothing and produce an empty list as `AST`_.
+    Empty closure. Match nothing and produce an empty ``list`` as `AST`_.
 
 
 ``~``
@@ -344,7 +344,7 @@ The expressions, in reverse order of operator precedence, can be:
 
 ``name+:e``
 ^^^^^^^^^^^
-    Add the result of ``e`` to the `AST`_ using ``name`` as key. Force the entry to be a list even if only one element is added. Collisions with ``dict`` attributes or `Python`_ keywords are resolved by appending an underscore to ``name``.
+    Add the result of ``e`` to the `AST`_ using ``name`` as key. Force the entry to be a ``list`` even if only one element is added. Collisions with ``dict`` attributes or `Python`_ keywords are resolved by appending an underscore to ``name``.
 
 
 ``@:e``
@@ -369,7 +369,7 @@ The expressions, in reverse order of operator precedence, can be:
 
 ``@+:e``
 ^^^^^^^^
-    Like ``@:e``, but make the `AST`_ always be a list.
+    Like ``@:e``, but make the `AST`_ always be a ``list``.
 
     This operator is convenient in cases such as:
 
@@ -391,7 +391,7 @@ The expressions, in reverse order of operator precedence, can be:
     `Python`_-style comments are also allowed.
 
 When there are no named items in a rule, the `AST`_ consists of the
-elements parsed by the rule, either a single item or a list. This
+elements parsed by the rule, either a single item or a ``list``. This
 default behavior makes it easier to write simple rules:
 
 .. code:: ocaml
