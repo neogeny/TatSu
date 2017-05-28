@@ -492,9 +492,11 @@ class EBNFBootstrapParser(Parser):
             with self._option():
                 self._special_()
             with self._option():
-                self._kif_()
+                self._skip_to_()
             with self._option():
-                self._knot_()
+                self._lookahead_()
+            with self._option():
+                self._negative_lookahead_()
             with self._option():
                 self._atom_()
             self._error('no available options')
@@ -728,15 +730,22 @@ class EBNFBootstrapParser(Parser):
         self._cut()
 
     @tatsumasu('Lookahead')
-    def _kif_(self):  # noqa
+    def _lookahead_(self):  # noqa
         self._token('&')
         self._cut()
         self._term_()
         self.name_last_node('@')
 
     @tatsumasu('NegativeLookahead')
-    def _knot_(self):  # noqa
+    def _negative_lookahead_(self):  # noqa
         self._token('!')
+        self._cut()
+        self._term_()
+        self.name_last_node('@')
+
+    @tatsumasu('SkipTo')
+    def _skip_to_(self):  # noqa
+        self._token('->')
         self._cut()
         self._term_()
         self.name_last_node('@')
@@ -1041,10 +1050,13 @@ class EBNFBootstrapSemantics(object):
     def special(self, ast):  # noqa
         return ast
 
-    def kif(self, ast):  # noqa
+    def lookahead(self, ast):  # noqa
         return ast
 
-    def knot(self, ast):  # noqa
+    def negative_lookahead(self, ast):  # noqa
+        return ast
+
+    def skip_to(self, ast):  # noqa
         return ast
 
     def atom(self, ast):  # noqa

@@ -322,6 +322,14 @@ class NegativeLookahead(Decorator):
             super(NegativeLookahead, self).parse(ctx)
 
 
+class SkipTo(Decorator):
+    def parse(self, ctx):
+        return ctx._skip_to(lambda: super(SkipTo, self).parse(ctx))
+
+    def _to_str(self, lean=False):
+        return '->' + self.exp._to_ustr(lean=lean)
+
+
 class Sequence(Model):
     def __init__(self, ast, **kwargs):
         assert ast.sequence

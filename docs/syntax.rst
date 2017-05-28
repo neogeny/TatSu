@@ -47,6 +47,12 @@ Expressions
 
 The expressions, in reverse order of operator precedence, can be:
 
+
+``# comment``
+^^^^^^^^^^^^^
+    `Python`_-style comments are allowed.
+
+
 ``e1 | e2``
 ^^^^^^^^^^^
     Choice. Match either ``e1`` or ``e2``.
@@ -247,6 +253,39 @@ The expressions, in reverse order of operator precedence, can be:
     Negative lookahead. Fail if ``e`` can be parsed, and do not consume any input.
 
 
+``->e``
+^^^^^^^
+    The *"skip to"* expression; useful for writing *recovery* rules.
+
+    The parser will advance over input, one character at time, until ``e`` matches. Whitespace and comments will be skipped at each step.
+
+    The expression is equivalent to:
+
+.. code:: ocaml
+
+    { /./ !e} e
+..
+
+    This is an example of the use of the _skip to_ expression for recovery:
+
+
+.. code:: ocaml
+
+        statement =
+            | if_statement
+            # ...
+            ;
+
+        if_statement
+            =
+            | 'if' condition 'then' statement ['else' statement]
+            | 'if' statement_recovery
+            ;
+
+        statement_recovery = ->&statement ;
+..
+
+
 ``'text'`` or ``"text"``
 ^^^^^^^^^^^^^^^^^^^^^^^^
     Match the token *text* within the quotation marks.
@@ -385,10 +424,6 @@ The expressions, in reverse order of operator precedence, can be:
 ^^^^^
     The *end of text* symbol. Verify that the end of the input text has been reached.
 
-
-``# comment``
-^^^^^^^^^^^^^
-    `Python`_-style comments are also allowed.
 
 When there are no named items in a rule, the `AST`_ consists of the
 elements parsed by the rule, either a single item or a ``list``. This
