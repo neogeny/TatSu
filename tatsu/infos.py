@@ -3,6 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from collections import namedtuple
 
+from .ast import AST
+
 
 class PosLine(namedtuple('_PosLine', ['start', 'line', 'length'])):
     __slots__ = ()
@@ -96,3 +98,14 @@ RuleResult = namedtuple(
         'newstate',
     ]
 )
+
+
+class TreeInfo(object):
+    __slots__ = (
+        'ast',
+        'cst'
+    )
+
+    def __init__(self, ast=None, cst=None):
+        self.ast = AST() if ast is None else ast
+        self.cst = cst
