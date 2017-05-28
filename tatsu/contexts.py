@@ -54,7 +54,7 @@ def tatsumasu(*params, **kwparams):
     return decorator
 
 
-class Closure(list):
+class closure(list):
     pass
 
 
@@ -475,7 +475,7 @@ class ParseContext(object):
 
     def _save_result(self, key, node):
         if is_list(node):
-            node = Closure(node)
+            node = closure(node)
         self._results[key] = self._mkresult(node)
 
     def _is_recursive(self, name):
@@ -725,7 +725,7 @@ class ParseContext(object):
             self._pop_cst()
 
         if is_list(cst):
-            cst = Closure(cst)
+            cst = closure(cst)
         if not drop:
             self._add_cst_node(cst)
         return cst
@@ -743,7 +743,7 @@ class ParseContext(object):
                     self._isolate(block)
 
                     if self._pos == p:
-                        self._error('empty Closure')
+                        self._error('empty closure')
                 return
 
     def _closure(self, block, sep=None, omitsep=False):
@@ -754,7 +754,7 @@ class ParseContext(object):
                 block()
                 self.cst = [self.cst]
             self._repeat(block, prefix=sep, dropprefix=omitsep)
-            cst = Closure(self.cst)
+            cst = closure(self.cst)
         finally:
             self._pop_cst()
         self._add_cst_node(cst)
@@ -767,7 +767,7 @@ class ParseContext(object):
             block()
             self.cst = [self.cst]
             self._repeat(block, prefix=sep, dropprefix=omitsep)
-            cst = Closure(self.cst)
+            cst = closure(self.cst)
         finally:
             self._pop_cst()
         self._add_cst_node(cst)
@@ -775,7 +775,7 @@ class ParseContext(object):
         return cst
 
     def _empty_closure(self):
-        cst = Closure([])
+        cst = closure([])
         self._add_cst_node(cst)
         self.last_node = cst
         return cst
