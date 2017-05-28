@@ -144,7 +144,7 @@ class JoinTests(unittest.TestCase):
         self.assertEqual(['x', 'x'], ast)
 
     def test_left_join(self):
-        grammar = '''
+        grammar = r'''
             start
                 =
                 (op)<{number}+ $
@@ -187,7 +187,7 @@ class JoinTests(unittest.TestCase):
         )
 
     def test_right_join(self):
-        grammar = '''
+        grammar = r'''
             start
                 =
                 (op)>{number}+ $
