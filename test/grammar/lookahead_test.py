@@ -10,8 +10,8 @@ class LookaheadTests(unittest.TestCase):
     def test_skip_to(self, trace=False):
         grammar = '''
             start = 'x' ab $ ;
-            
-            ab 
+
+            ab
                 =
                 | 'a' 'b'
                 | ->'a' 'b'
@@ -23,8 +23,8 @@ class LookaheadTests(unittest.TestCase):
 
         grammar = '''
             start = 'x' ab $ ;
-            
-            ab 
+
+            ab
                 =
                 | 'a' 'b'
                 | ->&'a' 'a' 'b'
