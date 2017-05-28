@@ -266,7 +266,7 @@ The expressions, in reverse order of operator precedence, can be:
     { /./ !e} e
 ..
 
-    This is an example of the use of the _skip to_ expression for recovery:
+    This is an example of the use of the *skip to* expression for recovery:
 
 
 .. code:: ocaml
