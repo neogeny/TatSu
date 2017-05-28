@@ -716,40 +716,35 @@ class ParseContext(object):
         else:
             self._error('', exclass=FailedLookahead)
 
-    def _isolate(self, block):
+    def _isolate(self, block, drop=False):
         self._push_cst()
         try:
-            with self._try():
-                block()
-                return self.cst
+            block()
+            cst = self.cst
         finally:
             self._pop_cst()
 
-    def _repeater(self, block, prefix=None, omitprefix=False):
+        if is_list(cst):
+            cst = Closure(cst)
+        if not drop:
+            self._add_cst_node(cst)
+        return cst
+
+    def _repeat(self, block, prefix=None, dropprefix=False):
         while True:
-            self._push_cut()
-            try:
-                p = self._pos
+            with self._choice():
+                with self._option():
+                    p = self._pos
 
-                if prefix:
-                    cst = self._isolate(prefix)
-                    self._cut()
-                    if not omitprefix:
-                        self._add_cst_node(cst)
+                    if prefix:
+                        self._isolate(prefix, drop=dropprefix)
+                        self._cut()
 
-                cst = self._isolate(block)
-                self._add_cst_node(cst)
+                    self._isolate(block)
 
-                if self._pos == p:
-                    self._error('empty closure')
-            except FailedCut:
-                raise
-            except FailedParse as e:
-                if self._is_cut_set():
-                    raise FailedCut(e)
-                break
-            finally:
-                self._pop_cut()
+                    if self._pos == p:
+                        self._error('empty Closure')
+                return
 
     def _closure(self, block, sep=None, omitsep=False):
         self._push_cst()
@@ -758,7 +753,7 @@ class ParseContext(object):
             with self._optional():
                 block()
                 self.cst = [self.cst]
-            self._repeater(block, prefix=sep, omitprefix=omitsep)
+            self._repeat(block, prefix=sep, dropprefix=omitsep)
             cst = Closure(self.cst)
         finally:
             self._pop_cst()
@@ -771,7 +766,7 @@ class ParseContext(object):
         try:
             block()
             self.cst = [self.cst]
-            self._repeater(block, prefix=sep, omitprefix=omitsep)
+            self._repeat(block, prefix=sep, dropprefix=omitsep)
             cst = Closure(self.cst)
         finally:
             self._pop_cst()
