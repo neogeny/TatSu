@@ -14,7 +14,6 @@ from ._unicode_characters import (
 )
 from tatsu.util import notnone, ustr, prune_dict, is_list, info, safe_name
 from tatsu.util import left_assoc, right_assoc
-from tatsu.ast import AST
 from tatsu import buffering
 from tatsu import color
 from tatsu.infos import (
@@ -55,7 +54,7 @@ def tatsumasu(*params, **kwparams):
     return decorator
 
 
-class closure(list):
+class closure(list):  # noqa
     pass
 
 
