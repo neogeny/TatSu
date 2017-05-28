@@ -9,6 +9,7 @@
 .. _BSD: http://en.wikipedia.org/wiki/BSD_licenses#2-clause_license_.28.22Simplified_BSD_License.22_or_.22FreeBSD_License.22.29
 .. _C: http://en.wikipedia.org/wiki/C_language
 .. _CSAIL at MIT: http://www.csail.mit.edu/
+.. _CST: https://en.wikipedia.org/wiki/Parse_tree
 .. _Cyclomatic complexity: http://en.wikipedia.org/wiki/Cyclomatic_complexity
 .. _Dennis Ritchie: http://en.wikipedia.org/wiki/Dennis_Ritchie
 .. _EBNF: http://en.wikipedia.org/wiki/Ebnf
