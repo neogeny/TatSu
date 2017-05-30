@@ -132,7 +132,7 @@ class Choice(Base):
                 option=indent(self.rend(o))) for o in self.node.options
         ]
         options = '\n'.join(o for o in options)
-        firstset = ' '.join(f[0] for f in sorted(self.node.firstset) if f)
+        firstset = ' '.join(f[0] for f in sorted(self.node.lookahead()) if f)
         if firstset:
             error = 'expecting one of: ' + firstset
         else:
@@ -165,7 +165,7 @@ class Closure(_Decorator):
         fields.update(n=self.counter())
 
     def render(self, **fields):
-        if {()} in self.node.exp.firstset:
+        if {()} in self.node.exp.lookahead():
             raise CodegenError('may repeat empty sequence')
         return '\n' + super(Closure, self).render(**fields)
 
@@ -189,7 +189,7 @@ class Join(_Decorator):
         fields.update(n=self.counter())
 
     def render(self, **fields):
-        if {()} in self.node.exp.firstset:
+        if {()} in self.node.exp.lookahead():
             raise CodegenError('may repeat empty sequence')
         return '\n' + super(Join, self).render(**fields)
 
@@ -488,7 +488,7 @@ class Grammar(Base):
                 from tatsu.util import re, generic_main  # noqa
 
 
-                KEYWORDS = {{{keywords}}}
+                KEYWORDS = {{{keywords}}}  # type: ignore
 
 
                 class {name}Buffer(Buffer):

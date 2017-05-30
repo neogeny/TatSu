@@ -132,7 +132,7 @@ def parse_args():
     return args
 
 
-__compiled_grammar_cache = {}
+__compiled_grammar_cache = {}  # type: ignore
 
 
 def compile(grammar, name=None, semantics=None, asmodel=False, **kwargs):

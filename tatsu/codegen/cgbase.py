@@ -2,7 +2,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from tatsu.objectmodel import Node
-from tatsu.codegen import CodegenError
+from tatsu.exceptions import CodegenError
 from tatsu.rendering import render, Renderer, RenderingFormatter
 
 

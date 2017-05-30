@@ -19,7 +19,7 @@ from tatsu.parsing import tatsumasu
 from tatsu.util import re, generic_main  # noqa
 
 
-KEYWORDS = {}
+KEYWORDS = {}  # type: ignore
 
 
 class EBNFBootstrapBuffer(Buffer):
@@ -120,7 +120,7 @@ class EBNFBootstrapParser(Parser):
                                 self._token('eol_comments')
                             with self._option():
                                 self._token('whitespace')
-                            self._error('expecting one of: comments eol_comments whitespace')
+                            self._error('no available options')
                     self.name_last_node('name')
                     self._cut()
                     self._cut()
@@ -139,7 +139,7 @@ class EBNFBootstrapParser(Parser):
                                 self._token('left_recursion')
                             with self._option():
                                 self._token('parseinfo')
-                            self._error('expecting one of: ignorecase left_recursion nameguard parseinfo')
+                            self._error('no available options')
                     self.name_last_node('name')
                     self._cut()
                     with self._group():
@@ -196,7 +196,7 @@ class EBNFBootstrapParser(Parser):
                                 self._token(':')
                             with self._option():
                                 self._token('=')
-                            self._error('expecting one of: : =')
+                            self._error('no available options')
             self._closure(block1)
         self._closure(block0)
 
@@ -298,7 +298,7 @@ class EBNFBootstrapParser(Parser):
                     self._token('override')
                 with self._option():
                     self._token('name')
-                self._error('expecting one of: name override')
+                self._error('no available options')
         self.name_last_node('@')
 
     @tatsumasu()
@@ -543,7 +543,7 @@ class EBNFBootstrapParser(Parser):
                     self._token('+')
                 with self._option():
                     self._token('-')
-                self._error('expecting one of: + -')
+                self._error('no available options')
         self._cut()
         self.ast._define(
             ['exp', 'sep'],
@@ -597,7 +597,7 @@ class EBNFBootstrapParser(Parser):
                     self._token('+')
                 with self._option():
                     self._token('-')
-                self._error('expecting one of: + -')
+                self._error('no available options')
         self._cut()
         self.ast._define(
             ['exp', 'sep'],
@@ -637,7 +637,7 @@ class EBNFBootstrapParser(Parser):
                     self._token('+')
                 with self._option():
                     self._token('-')
-                self._error('expecting one of: + -')
+                self._error('no available options')
         self._cut()
         self.ast._define(
             ['exp', 'sep'],
@@ -659,7 +659,7 @@ class EBNFBootstrapParser(Parser):
                     self._token('+')
                 with self._option():
                     self._token('-')
-                self._error('expecting one of: + -')
+                self._error('no available options')
         self._cut()
         self.ast._define(
             ['exp', 'sep'],
@@ -693,7 +693,7 @@ class EBNFBootstrapParser(Parser):
                     self._token('-')
                 with self._option():
                     self._token('+')
-                self._error('expecting one of: + -')
+                self._error('no available options')
         self._cut()
 
     @tatsumasu('Closure')
@@ -860,7 +860,7 @@ class EBNFBootstrapParser(Parser):
                 self.name_last_node('@')
                 self._token("'")
                 self._cut()
-            self._error('expecting one of: " \'')
+            self._error('no available options')
 
     @tatsumasu()
     def _hex_(self):  # noqa
@@ -921,7 +921,7 @@ class EBNFBootstrapParser(Parser):
                 self._token('?')
                 self._STRING_()
                 self.name_last_node('@')
-            self._error('expecting one of: / ?/')
+            self._error('no available options')
 
     @tatsumasu()
     def _boolean_(self):  # noqa
@@ -930,7 +930,7 @@ class EBNFBootstrapParser(Parser):
                 self._token('True')
             with self._option():
                 self._token('False')
-            self._error('expecting one of: False True')
+            self._error('no available options')
 
     @tatsumasu('EOF')
     def _eof_(self):  # noqa

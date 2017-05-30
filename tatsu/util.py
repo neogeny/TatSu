@@ -26,7 +26,7 @@ try:
     import regex as re
     WHITESPACE_RE = re.compile(r'\p{IsPattern_White_Space}+')
 except ImportError:
-    import re
+    import re  # type: ignore
     WHITESPACE_RE = re.compile(r'\s+')
 
 
@@ -39,12 +39,9 @@ if PY3:
     unicode = None
     _unicode = str
     if PY33:
-        from collections import abc
-        Mapping = abc.Mapping
-        MutableMapping = abc.MutableMapping
+        from collections.abc import Mapping, MutableMapping
     else:
-        Mapping = collections.Mapping
-        MutableMapping = collections.MutableMapping
+        from collections import Mapping, MutableMapping
     zip_longest = itertools.zip_longest
     import builtins
     imap = map

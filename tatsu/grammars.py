@@ -110,19 +110,16 @@ class Model(Node):
     def defines(self):
         return []
 
-    @property
     def lookahead(self, k=1):
         if self._lookahead is None:
-            self._lookahead = dot(self.firstset, self.followset, k)
+            self._lookahead = dot(self.firstset(k), self.followset(k), k)
         return self._lookahead
 
-    @property
     def firstset(self, k=1):
         if self._first_set is None:
             self._first_set = self._first(k, {})
         return self._first_set
 
-    @property
     def followset(self, k=1):
         return self._follow_set
 
@@ -371,7 +368,7 @@ class Sequence(Model):
             if isinstance(x, RuleRef):
                 fl[x.name] |= fs
             x._follow(k, fl, fs)
-            fs = dot(x.firstset, fs, k)
+            fs = dot(x.firstset(k=k), fs, k)
         return a
 
     def nodecount(self):
@@ -399,7 +396,7 @@ class Choice(Model):
                     ctx.last_node = o.parse(ctx)
                     return ctx.last_node
 
-            lookahead = ' '.join(ustr(urepr(f[0])) for f in self.lookahead if str(f))
+            lookahead = ' '.join(ustr(urepr(f[0])) for f in self.lookahead() if str(f))
             if lookahead:
                 ctx._error('expecting one of {%s}' % lookahead)
             ctx._error('no available options')
@@ -662,7 +659,6 @@ class RuleRef(Model):
         self._first_set = f.get(self.name, set())
         return self._first_set
 
-    @property
     def firstset(self, k=1):
         if self._first_set is None:
             self._first_set = {('<%s>' % self.name,)}

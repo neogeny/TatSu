@@ -19,7 +19,7 @@ from tatsu.parsing import tatsumasu
 from tatsu.util import re, generic_main  # noqa
 
 
-KEYWORDS = {}
+KEYWORDS = {}  # type: ignore
 
 
 class RegexBuffer(Buffer):
