@@ -253,46 +253,6 @@ The expressions, in reverse order of operator precedence, can be:
     Negative lookahead. Fail if ``e`` can be parsed, and do not consume any input.
 
 
-``->e``
-^^^^^^^
-    The "*skip to*" expression; useful for writing *recovery* rules.
-
-    The parser will advance over input, one character at time, until ``e`` matches. Whitespace and comments will be skipped at each step. Advancing over input is done efficiently, with no regular expressions are involved.
-
-    The expression is equivalent to:
-
-.. code:: ocaml
-
-    { !e /./ } e
-..
-
-    A common form of the expression is ``->&e``, which is equivalent to:
-
-.. code:: ocaml
-
-    { !e /./ } &e
-..
-
-    This is an example of the use of the "*skip to*" expression for recovery:
-
-
-.. code:: ocaml
-
-        statement =
-            | if_statement
-            # ...
-            ;
-
-        if_statement
-            =
-            | 'if' condition 'then' statement ['else' statement]
-            | 'if' statement_recovery
-            ;
-
-        statement_recovery = ->&statement ;
-..
-
-
 ``'text'`` or ``"text"``
 ^^^^^^^^^^^^^^^^^^^^^^^^
     Match the token *text* within the quotation marks.
@@ -335,6 +295,46 @@ The expressions, in reverse order of operator precedence, can be:
 ``/./``
 ^^^^^^^
     The *any* expression, matches the next position in the input. It works exactly like the ``?'.'`` pattern, but is implemented at the buffer level, without regular expressions.
+
+
+``->e``
+^^^^^^^
+    The "*skip to*" expression; useful for writing *recovery* rules.
+
+    The parser will advance over input, one character at time, until ``e`` matches. Whitespace and comments will be skipped at each step. Advancing over input is done efficiently, with no regular expressions are involved.
+
+    The expression is equivalent to:
+
+.. code:: ocaml
+
+    { !e /./ } e
+..
+
+    A common form of the expression is ``->&e``, which is equivalent to:
+
+.. code:: ocaml
+
+    { !e /./ } &e
+..
+
+    This is an example of the use of the "*skip to*" expression for recovery:
+
+
+.. code:: ocaml
+
+        statement =
+            | if_statement
+            # ...
+            ;
+
+        if_statement
+            =
+            | 'if' condition 'then' statement ['else' statement]
+            | 'if' statement_recovery
+            ;
+
+        statement_recovery = ->&statement ;
+..
 
 
 ```constant```
