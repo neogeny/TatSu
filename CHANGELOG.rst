@@ -20,7 +20,9 @@ Added
 
 *   Parse speeds on large files reduced by 5-20% by optimizing parse contexts and closures, and unifying the AST_ and CST_ stacks.
 
-*   Added the *"skip to"* expression, useful for writing *recovery* rules.  The parser will advance over input, one character at time, until the expression matches. Whitespace and comments will be skipped at each step.
+*   Added the *"skip to"* expression ( ``->``), useful for writing *recovery* rules.  The parser will advance over input, one character at time, until the expression matches. Whitespace and comments will be skipped at each step.
+
+*   Added the *any* expression ( ``/./``) for matching the next character in the input.
 
 
 `4.1.1`_ @ 2017-05-21
