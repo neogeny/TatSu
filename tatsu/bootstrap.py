@@ -676,6 +676,8 @@ class EBNFBootstrapParser(Parser):
             with self._option():
                 self._constant_()
             with self._option():
+                self._any_()
+            with self._option():
                 self._pattern_()
             self._error('no available options')
 
@@ -879,6 +881,10 @@ class EBNFBootstrapParser(Parser):
     @tatsumasu()
     def _word_(self):  # noqa
         self._pattern(r'(?!\d)\w+')
+
+    @tatsumasu('Any')
+    def _any_(self):  # noqa
+        self._token('/./')
 
     @tatsumasu('Pattern')
     def _pattern_(self):  # noqa
@@ -1111,6 +1117,9 @@ class EBNFBootstrapSemantics(object):
         return ast
 
     def word(self, ast):  # noqa
+        return ast
+
+    def any(self, ast):  # noqa
         return ast
 
     def pattern(self, ast):  # noqa

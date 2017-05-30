@@ -165,11 +165,25 @@ class Model(Node):
 
 
 class Void(Model):
+    def parse(self, ctx):
+        return ctx._void()
+
     def _to_str(self, lean=False):
         return '()'
 
 
+class Any(Model):
+    def parse(self, ctx):
+        return ctx._any()
+
+    def _to_str(self, lean=False):
+        return '/./'
+
+
 class Fail(Model):
+    def parse(self, ctx):
+        return ctx._fail()
+
     def _to_str(self, lean=False):
         return '!()'
 
