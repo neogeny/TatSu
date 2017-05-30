@@ -325,6 +325,11 @@ The expressions, in reverse order of operator precedence, can be:
 
     Consecutive patterns are concatenated to form a single one.
 
+``/./``
+^^^^^^^
+    The *any* expression, matches the next position in the input. It works exactly like the ``?'.'`` pattern, but is implemented at the buffer level, without regulat expressions.
+
+
 ```constant```
 ^^^^^^^^^^^^^^
     Match nothing, but behave as if ``constant`` had been parsed.

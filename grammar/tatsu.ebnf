@@ -269,7 +269,7 @@ right_join::RightJoin
 
 separator
     =
-    group | token | constant |  pattern
+    group | token | constant |  any | pattern
     ;
 
 
@@ -428,6 +428,12 @@ path
 word
     =
     /(?!\d)\w+/
+    ;
+
+
+any::Any
+    =
+    '/./'
     ;
 
 
