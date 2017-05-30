@@ -1,8 +1,12 @@
-test: flake8 tatsu_test examples
+test: flake8 tatsu_test documentation examples
 
 
 tatsu_test:
 	py.test
+
+
+documentation:
+	cd docs; make -s html > /dev/null
 
 
 examples: regex_test g2e_test calc_test
