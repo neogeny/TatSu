@@ -312,3 +312,11 @@ class SyntaxTests(unittest.TestCase):
         model = compile(grammar, "start")
         print(model.pretty())
         self.assertEqual(trim(pretty), model.pretty())
+
+    def test_any(self):
+        grammar = '''
+            start = /./ 'xx' /./ /./ 'yy' $;
+        '''
+        model = compile(grammar, "start")
+        ast = model.parse("1xx 2 yy")
+        self.assertEqual(['1', 'xx', ' ', '2', 'yy'], ast)

@@ -233,7 +233,7 @@ class ParseContext(object):
         self._buffer.goto(pos)
 
     def _next(self):
-        self._buffer.next()
+        return self._buffer.next()
 
     def _next_token(self, for_rule_name=None):
         if for_rule_name is None or for_rule_name.islower():
@@ -801,6 +801,16 @@ class ParseContext(object):
 
     def _void(self):
         self.last_node = None
+
+    def _any(self):
+        c = self._next()
+        if c is None:
+            self._trace_match(c, failed=True)
+            self._error(c, exclass=FailedToken)
+        self._trace_match(c)
+        self._add_cst_node(c)
+        self._last_node = c
+        return c
 
     def _skip_to(self, block):
         while True:

@@ -255,7 +255,7 @@ The expressions, in reverse order of operator precedence, can be:
 
 ``->e``
 ^^^^^^^
-    The *"skip to"* expression; useful for writing *recovery* rules.
+    The "*skip to*" expression; useful for writing *recovery* rules.
 
     The parser will advance over input, one character at time, until ``e`` matches. Whitespace and comments will be skipped at each step.
 
@@ -266,7 +266,7 @@ The expressions, in reverse order of operator precedence, can be:
     { /./ !e} e
 ..
 
-    This is an example of the use of the _skip to_ expression for recovery:
+    This is an example of the use of the "*skip to*" expression for recovery:
 
 
 .. code:: ocaml
@@ -324,6 +324,11 @@ The expressions, in reverse order of operator precedence, can be:
     The *regex* is interpreted as a Python_'s `raw string literal`_ and passed with `regexp.MULTILINE | regexp.UNICODE` options to the Python_ re_ module (or to regex_, if available), using `match()` at the current position in the text. The matched text is the AST_ for the expression.
 
     Consecutive patterns are concatenated to form a single one.
+
+``/./``
+^^^^^^^
+    The *any* expression, matches the next position in the input. It works exactly like the ``?'.'`` pattern, but is implemented at the buffer level, without regular expressions.
+
 
 ```constant```
 ^^^^^^^^^^^^^^

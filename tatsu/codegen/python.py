@@ -44,6 +44,10 @@ class Void(Base):
     template = 'self._void()'
 
 
+class Any(Base):
+    template = 'self._any()'
+
+
 class Fail(Base):
     template = 'self._fail()'
 
