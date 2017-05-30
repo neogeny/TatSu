@@ -1,4 +1,4 @@
-test: flake8 tatsu_test documentation examples
+test: flake8 mypy tatsu_test documentation examples
 
 
 tatsu_test:
@@ -25,6 +25,10 @@ calc_test:
 
 flake8:
 	flake8
+
+
+mypy:
+	mypy tatsu test --ignore-missing-imports
 
 
 cython:

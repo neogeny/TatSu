@@ -2,6 +2,7 @@ colorama>=0.3
 cython>=0.25
 docutils>=0.12
 flake8>=3.2
+mypy>=0.511
 pep257>=0.7
 prospector>=0.12
 pygraphviz>=1.3
