@@ -28,7 +28,7 @@ flake8:
 
 
 mypy:
-	mypy tatsu test --ignore-missing-imports
+	mypy . --ignore-missing-imports
 
 
 cython:

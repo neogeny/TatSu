@@ -67,7 +67,7 @@ setuptools.setup(
     ],
     install_requires=[],
     setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+    tests_require=['pytest-mypy'],
     extras_require={
         'future-regex': ['regex']
     },
