@@ -255,15 +255,22 @@ The expressions, in reverse order of operator precedence, can be:
 
 ``->e``
 ^^^^^^^
-    The "*skip to"* expression; useful for writing *recovery* rules.
+    The "*skip to*" expression; useful for writing *recovery* rules.
 
-    The parser will advance over input, one character at time, until ``e`` matches. Whitespace and comments will be skipped at each step. No AST_ is generated for the skipped input.
+    The parser will advance over input, one character at time, until ``e`` matches. Whitespace and comments will be skipped at each step. Advancing over input is done efficiently, with no regular expressions are involved.
 
     The expression is equivalent to:
 
 .. code:: ocaml
 
-    { /./ !e} e
+    { !e /./ } e
+..
+
+    A common form of the expression is ``->&e``, which is equivalent to:
+
+.. code:: ocaml
+
+    { !e /./ } &e
 ..
 
     This is an example of the use of the "*skip to*" expression for recovery:

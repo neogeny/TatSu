@@ -814,10 +814,10 @@ class ParseContext(object):
 
     def _skip_to(self, block):
         while True:
-            self._next()
             try:
                 with self._ifnot():
                     block()
             except FailedLookahead:
                 break
+            self._next()
         block()
