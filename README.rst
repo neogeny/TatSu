@@ -278,8 +278,12 @@ See the `CHANGELOG`_ for details.
 .. |landscape| image:: https://landscape.io/github/apalala/TatSu/master/landscape.png
    :target: https://landscape.io/github/apalala/TatSu/master
 .. |donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif
-   :target: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=P9PV7ZACB669J
-.. |quantifiedcode| image:: https://www.quantifiedcode.com/api/v1/project/f60bbd94ae2d4bd5b2e04c241c9d47ff/badge.svg
+   :target: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=2TW56SV6WNJV6
+..
+
+    https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=P9PV7ZACB669J
+.. |
+quantifiedcode| image:: https://www.quantifiedcode.com/api/v1/project/f60bbd94ae2d4bd5b2e04c241c9d47ff/badge.svg
   :target: https://www.quantifiedcode.com/app/project/f60bbd94ae2d4bd5b2e04c241c9d47ff
   :alt: Code issues
 .. |docs| image:: https://readthedocs.org/projects/tatsu/badge/?version=stable
