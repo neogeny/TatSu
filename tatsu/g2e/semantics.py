@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import re
+from itertools import chain
 
 from tatsu.ast import AST
 from tatsu import grammars as model
@@ -21,11 +22,12 @@ class ANTLRSemantics(object):
         self.name = name
         self.tokens = {}
         self.token_rules = {}
+        self.synthetic_rules = []
 
     def grammar(self, ast):
         return model.Grammar(
             self.name,
-            [r for r in ast.rules if r is not None]
+            [r for r in chain(ast.rules, self.synthetic_rules) if r is not None]
         )
 
     def rule(self, ast):
@@ -125,10 +127,10 @@ class ANTLRSemantics(object):
         return ''.join('\\' + c if c in '[]().*+{}^$' else c for c in s)
 
     def charset_atom(self, ast):
-        return self.escape(ast)
+        return ast
 
     def charset_char(self, ast):
-        return self.escape(ast)
+        return ast
 
     def charset_range(self, ast):
         return '%s-%s' % (ast.first, ast.last)
@@ -149,6 +151,7 @@ class ANTLRSemantics(object):
         return pattern
 
     def rule_ref(self, ast):
+        assert ast[0].islower()
         return model.RuleRef(camel2py(ast))
 
     def any(self, ast):
@@ -164,9 +167,15 @@ class ANTLRSemantics(object):
         return model.EOF()
 
     def token(self, ast):
-        value = ast.value or ast.name
-        self.tokens[ast.name] = value
-        return value
+        name = ast.name
+        if ast.value:
+            exp = model.Token(ast.value)
+            self.tokens[name] = exp
+        else:
+            exp = model.Fail()
+            rule = model.Rule(ast, name, exp, [], {})
+            self.synthetic_rules.append(rule)
+        return exp
 
     def token_ref(self, ast):
         name = camel2py(ast).upper()

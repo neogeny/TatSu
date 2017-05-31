@@ -638,7 +638,7 @@ LONGINT
 
 EXPONENT
     =
-    /[eE][\+-]?/ DIGITS
+    /[eE][+-]?/ DIGITS
     ;
 
 
@@ -725,5 +725,17 @@ leading_ws
 comment
     =
     /[ \t]*/ '#' {!'\\n' /./} {'\\n'}+ | '#' {!'\\n' /./}
+    ;
+
+
+INDENT
+    =
+    !()
+    ;
+
+
+DEDENT
+    =
+    !()
     ;
 

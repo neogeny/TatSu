@@ -24,6 +24,10 @@ Added
 
 *   Added the *any* expression ( ``/./``) for matching the next character in the input.
 
+*   Check typing with MyPy_.
+
+*   Add the ANTLR_ grammar for Python3_ to the `g2e` example, and udate `g2e` to handle more ANTLR_ syntax.
+
 
 `4.1.1`_ @ 2017-05-21
 ---------------------
@@ -100,6 +104,7 @@ Added
 .. _MediaWiki: http://www.mediawiki.org/wiki/MediaWiki
 .. _Modula-2: http://en.wikipedia.org/wiki/Modula-2
 .. _Modula: http://en.wikipedia.org/wiki/Modula
+.. _Mypy: http://mypy-lang.org
 .. _Oberon-2: http://en.wikipedia.org/wiki/Oberon-2
 .. _Oberon: http://en.wikipedia.org/wiki/Oberon_(programming_language)
 .. _PEG and Packrat parsing mailing list: https://lists.csail.mit.edu/mailman/listinfo/peg
@@ -114,6 +119,7 @@ Added
 .. _PyPy: http://pypy.org/
 .. _Python Weekly: http://www.pythonweekly.com/
 .. _Python: http://python.org
+.. _Python3: http://python.org
 .. _Reserved Words: https://en.wikipedia.org/wiki/Reserved_word
 .. _Ruby: http://www.ruby-lang.org/
 .. _Semantic Graph: http://en.wikipedia.org/wiki/Abstract_semantic_graph
