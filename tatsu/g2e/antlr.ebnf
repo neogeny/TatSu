@@ -56,12 +56,12 @@ members
 
 tokens
     =
-    'tokens'  '{' {token}+ '}'
+    'tokens'  '{' {[','] token}+ '}'
     ;
 
 token
     =
-    name:token_name ['='  ~ exp:token_value ] ';' ~
+    name:token_name ['='  ~ exp:token_value ] [';'] ~
     ;
 
 token_value

@@ -20,7 +20,7 @@ from tatsu.codegen import codegen
 from tatsu.util import asjson
 
 tmp = os.path.abspath('./tmp')
-sys.path.insert(0, tmp)
+sys.path.insert(0, str(tmp))
 
 
 class BootstrapTests(unittest.TestCase):
