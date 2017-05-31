@@ -17,7 +17,7 @@ import logging
 logger = logging.getLogger('tatsu')
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
-formatter = logging.Formatter('%(message)s')
+formatter = logging.Formatter(str('%(message)s'))
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
