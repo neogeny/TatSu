@@ -24,7 +24,7 @@ Added
 
 *   Added the *any* expression ( ``/./``) for matching the next character in the input.
 
-*   Check typing with MyPy_.
+*   Check typing with Mypy_.
 
 *   Add the ANTLR_ grammar for Python3_ to the `g2e` example, and udate `g2e` to handle more ANTLR_ syntax.
 
