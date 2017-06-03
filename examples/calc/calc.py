@@ -16,7 +16,7 @@ def simple_parse():
     grammar = open('grammars/calc_cut.ebnf').read()
 
     parser = tatsu.compile(grammar)
-    ast = parser.parse('3 + 5 * ( 10 - 20 )')
+    ast = parser.parse('3 + 5 * ( 10 - 20 )', trace=True, colorize=True)
 
     print('# SIMPLE PARSE')
     print('# AST')

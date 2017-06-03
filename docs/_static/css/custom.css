@@ -1,11 +1,18 @@
-.red {
-    text-color: red;
+.succeed {
+    color: green;
+    font-family: monospace;
 }
 
-.green {
-    text-color: green;
+.fail {
+    color: red;
+    font-family: monospace;
 }
 
-.yellow {
-    text-color: yellow;
+.try {
+    color: orange;
+    font-family: monospace;
+}
+
+.console {
+    font-family: monospace;
 }
