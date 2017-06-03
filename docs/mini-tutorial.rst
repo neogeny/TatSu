@@ -36,7 +36,7 @@ The Tatsu grammar
 ~~~~~~~~~~~~~~~~~
 
 The first step is to convert the grammar to |TatSu| syntax and style,
-add rules for lexical elements (``NUMBER`` in this case), add a
+add rules for lexical elements (``number`` in this case), add a
 ``start`` rule that checks for end of input, and a directive to name the
 generated classes:
 
