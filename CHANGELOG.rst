@@ -24,14 +24,17 @@ Added
 
 *   Added the *any* expression ( ``/./``) for matching the next character in the input.
 
+*   Add the ANTLR_ grammar for Python3_ to the `g2e` example, and udate `g2e` to handle more ANTLR_ syntax.
+
 *   Check typing with Mypy_.
 
-*   Add the ANTLR_ grammar for Python3_ to the `g2e` example, and udate `g2e` to handle more ANTLR_ syntax.
 
 Changed
 ~~~~~~~
 
 *   Removed the very old _regex_ example.
+
+*   Make traces more compact. Add a section about them to the documentation.
 
 
 `4.1.1`_ @ 2017-05-21
