@@ -359,13 +359,19 @@ class Buffer(object):
 
         return LineInfo(filename, line, col, start, end, text)
 
+    def lookahead_pos(self):
+        if self.atend():
+            return ''
+        info = self.line_info()
+        return '~%d:%d' % (info.line + 1, info.col + 1)
+
     def lookahead(self):
         if self.atend():
             return ''
         info = self.line_info()
         text = info.text[info.col:info.col + 1 + 80]
         text = self.split_block_lines(text)[0].rstrip()
-        return '<%d:%d>%s' % (info.line + 1, info.col + 1, text)
+        return '%s' % (text)
 
     def get_line(self, n=None):
         if n is None:

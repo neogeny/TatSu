@@ -1,10 +1,12 @@
 
 
+.. role:: console
+
 .. role:: blackboard
 
-.. role:: red
+.. role:: fail
 
-.. role:: green
+.. role:: succeed
 
-.. role:: yellow
+.. role:: try
 

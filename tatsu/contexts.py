@@ -365,7 +365,7 @@ class ParseContext(object):
 
         return action, postproc
 
-    def _trace(self, msg, *params):
+    def _trace(self, msg, *params, **kwargs):
         if self.trace:
             msg = msg % params
             info(ustr(msg), file=sys.stderr)
@@ -375,12 +375,19 @@ class ParseContext(object):
             fname = ''
             if self.trace_filename:
                 fname = self._buffer.line_info().filename + '\n'
-            self._trace('%s   \n%s%s \n',
-                        event + self._rulestack(),
-                        color.Style.DIM + fname,
-                        color.Style.NORMAL + self._buffer.lookahead().rstrip('\r\n') +
-                        color.Style.RESET_ALL
-                        )
+
+            lookahead = self._buffer.lookahead().rstrip()
+            if lookahead:
+                lookahead = '\n' + lookahead
+            self._trace(
+                '%s %s%s%s',
+                event + self._rulestack(),
+                self._buffer.lookahead_pos(),
+                color.Style.DIM + fname,
+                color.Style.NORMAL + lookahead +
+                color.Style.RESET_ALL,
+                end=''
+            )
 
     def _trace_entry(self):
         self._trace_event(color.Fore.YELLOW + color.Style.BRIGHT + C_ENTRY)
@@ -409,13 +416,18 @@ class ParseContext(object):
             else:
                 fgcolor = color.Fore.RED + C_FAILURE
 
+            lookahead = self._buffer.lookahead().rstrip()
+            if lookahead:
+                lookahead = '\n' + lookahead
+
             self._trace(
-                color.Style.BRIGHT + fgcolor + "'%s' %s\n%s%s\n",
+                color.Style.BRIGHT + fgcolor + "'%s' %s%s%s",
                 token,
                 name,
                 color.Style.DIM + fname,
-                color.Style.NORMAL + self._buffer.lookahead().rstrip('\r\n') +
-                color.Style.RESET_ALL
+                color.Style.NORMAL + lookahead +
+                color.Style.RESET_ALL,
+                end=''
             )
 
     def _make_exception(self, item, exclass=FailedParse):
