@@ -28,6 +28,11 @@ Added
 
 *   Add the ANTLR_ grammar for Python3_ to the `g2e` example, and udate `g2e` to handle more ANTLR_ syntax.
 
+Changed
+~~~~~~~
+
+*   Removed the very old _regex_ example.
+
 
 `4.1.1`_ @ 2017-05-21
 ---------------------

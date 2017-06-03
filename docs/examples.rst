@@ -17,12 +17,6 @@ the generated parser).
 |TatSu| uses |TatSu| to translate grammars into parsers, so it is a
 good example of end-to-end translation.
 
-Regex
-~~~~~
-
-The project ``examples/regexp`` contains a regexp-to-EBNF translator and
-parser generator. The project has no practical use, but it's a complete,
-end-to-end example of how to implement a translator using |TatSu|.
 
 Calc
 ~~~~
@@ -30,6 +24,7 @@ Calc
 The project ``examples/calc`` implements a calculator for simple
 expressions, and is written as a tutorial over most of the features
 provided by |TatSu|.
+
 
 g2e
 ~~~
