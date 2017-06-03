@@ -20,11 +20,13 @@ Added
 
 *   Parse speeds on large files reduced by 5-20% by optimizing parse contexts and closures, and unifying the AST_ and CST_ stacks.
 
-*   Added the *"skip to"* expression ( ``->``), useful for writing *recovery* rules.  The parser will advance over input, one character at time, until the expression matches. Whitespace and comments will be skipped at each step.
+*   The *"skip to"* expression ( ``->``), useful for writing *recovery* rules.  The parser will advance over input, one character at time, until the expression matches. Whitespace and comments will be skipped at each step.
 
-*   Added the *any* expression ( ``/./``) for matching the next character in the input.
+*   The *any* expression ( ``/./``) for matching the next character in the input.
 
-*   Add the ANTLR_ grammar for Python3_ to the `g2e` example, and udate `g2e` to handle more ANTLR_ syntax.
+*   The ANTLR_ grammar for Python3_ to the `g2e` example, and udate `g2e` to handle more ANTLR_ syntax.
+
+*   A section about them to the documentation.
 
 *   Check typing with Mypy_.
 
@@ -34,7 +36,7 @@ Changed
 
 *   Removed the very old _regex_ example.
 
-*   Make traces more compact. Add a section about them to the documentation.
+*   Make traces more compact.
 
 
 `4.1.1`_ @ 2017-05-21
