@@ -3,7 +3,10 @@
 Grako (In)compatibility
 ------------------------
 
-Grako_ grammars can be used with |TatSu|, with these caveats:
+|TatSu| is routinely tested over major projects developed with Grako_. The
+backwards-compatibility suite includes (at least) translators for COBOL_, Java_, and (Oracle) SQL_.
+
+Grako_ grammars and projects can be used with |TatSu|, with these caveats:
 
 *   The Python_ module name changed to ``tatsu``.
 
