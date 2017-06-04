@@ -282,8 +282,7 @@ See the `CHANGELOG`_ for details.
 ..
 
     https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=P9PV7ZACB669J
-.. |
-quantifiedcode| image:: https://www.quantifiedcode.com/api/v1/project/f60bbd94ae2d4bd5b2e04c241c9d47ff/badge.svg
+.. |quantifiedcode| image:: https://www.quantifiedcode.com/api/v1/project/f60bbd94ae2d4bd5b2e04c241c9d47ff/badge.svg
   :target: https://www.quantifiedcode.com/app/project/f60bbd94ae2d4bd5b2e04c241c9d47ff
   :alt: Code issues
 .. |docs| image:: https://readthedocs.org/projects/tatsu/badge/?version=stable
