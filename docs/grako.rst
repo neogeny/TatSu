@@ -1,7 +1,7 @@
 .. include:: links.rst
 
-Grako (In)compatibility
-------------------------
+Grako Compatibility
+-------------------
 
 |TatSu| is routinely tested over major projects developed with Grako_. The
 backwards-compatibility suite includes (at least) translators for COBOL_, Java_, and (Oracle) SQL_.
