@@ -8,6 +8,7 @@
 .. _Algorithms + Data Structures = Programs: http://www.amazon.com/Algorithms-Structures-Prentice-Hall-Automatic-Computation/dp/0130224189/
 .. _BSD: http://en.wikipedia.org/wiki/BSD_licenses#2-clause_license_.28.22Simplified_BSD_License.22_or_.22FreeBSD_License.22.29
 .. _C: http://en.wikipedia.org/wiki/C_language
+.. _COBOL: https://en.wikipedia.org/wiki/COBOL
 .. _CSAIL at MIT: http://www.csail.mit.edu/
 .. _CST: https://en.wikipedia.org/wiki/Parse_tree
 .. _Cyclomatic complexity: http://en.wikipedia.org/wiki/Cyclomatic_complexity
@@ -18,6 +19,7 @@
 .. _Grako: https://pypi.python.org/pypi/grako/
 .. _Jack: http://en.wikipedia.org/wiki/Javacc
 .. _Japanese: http://en.wikipedia.org/wiki/Japanese_grammar
+.. _Java: https://en.wikipedia.org/wiki/Java
 .. _KLOC: http://en.wikipedia.org/wiki/KLOC
 .. _Keywords: https://en.wikipedia.org/wiki/Reserved_word
 .. _`left-recursive`: https://en.wikipedia.org/wiki/Left_recursion
@@ -43,6 +45,7 @@
 .. _Reserved Words: https://en.wikipedia.org/wiki/Reserved_word
 .. _Ruby: http://www.ruby-lang.org/
 .. _Semantic Graph: http://en.wikipedia.org/wiki/Abstract_semantic_graph
+.. _SQL: https://en.wikipedia.org/wiki/SQL
 .. _StackOverflow: http://stackoverflow.com/tags/tatsu/info
 .. _Sublime Text: https://www.sublimetext.com
 .. _TatSu Forum: https://groups.google.com/forum/?fromgroups#!forum/tatsu
