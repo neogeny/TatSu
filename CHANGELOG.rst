@@ -15,18 +15,20 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.1.1...master
 
 
+`4.2.0`_ @ 2017-05-21
+---------------------
+.. _4.2.0: https://github.com/apalala/tatsu/compare/v4.1.1...v4.2.0
+
 Added
 ~~~~~
 
 *   Parse speeds on large files reduced by 5-20% by optimizing parse contexts and closures, and unifying the AST_ and CST_ stacks.
 
-*   The *"skip to"* expression ( ``->``), useful for writing *recovery* rules.  The parser will advance over input, one character at time, until the expression matches. Whitespace and comments will be skipped at each step.
+*   Added the *"skip to"* expression ( ``->``), useful for writing *recovery* rules.  The parser will advance over input, one character at time, until the expression matches. Whitespace and comments will be skipped at each step.
 
-*   The *any* expression ( ``/./``) for matching the next character in the input.
+*   Added the *any* expression ( ``/./``) for matching the next character in the input.
 
 *   The ANTLR_ grammar for Python3_ to the `g2e` example, and udate `g2e` to handle more ANTLR_ syntax.
-
-*   A section about them to the documentation.
 
 *   Check typing with Mypy_.
 
@@ -36,7 +38,9 @@ Changed
 
 *   Removed the very old _regex_ example.
 
-*   Make traces more compact.
+*   Make parse traces more compact. Add a sample to the docs.
+
+*   Explain Grako_ compatibility in docs.
 
 
 `4.1.1`_ @ 2017-05-21
