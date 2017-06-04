@@ -12,7 +12,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2017
 ---------------
-.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.1.1...master
+.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.0...master
 
 
 `4.2.0`_ @ 2017-05-21
