@@ -651,7 +651,7 @@ You may also specify case insensitivity within the grammar using the
 
     @@ignorecase :: True
 
-The change will affect both token matching, but not pattern matching. Use `(?i)`
+The change will affect token matching, but not pattern matching. Use `(?i)`
 in patterns that should ignore case.
 
 Comments
