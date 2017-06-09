@@ -176,7 +176,7 @@ See the `CHANGELOG`_ for details.
 .. _BSD: http://en.wikipedia.org/wiki/BSD_licenses#2-clause_license_.28.22Simplified_BSD_License.22_or_.22FreeBSD_License.22.29
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _C: http://en.wikipedia.org/wiki/C_language
-.. _CHANGELOG: CHANGELOG.rst
+.. _CHANGELOG: https://github.com/neogeny/TatSu/releases
 .. _CSAIL at MIT: http://www.csail.mit.edu/
 .. _Cyclomatic complexity: http://en.wikipedia.org/wiki/Cyclomatic_complexity
 .. _David Röthlisberger: https://bitbucket.org/drothlis/
@@ -279,12 +279,8 @@ See the `CHANGELOG`_ for details.
    :target: https://landscape.io/github/apalala/TatSu/master
 .. |donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif
    :target: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=2TW56SV6WNJV6
-..
-
-    https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=P9PV7ZACB669J
-.. |
-quantifiedcode| image:: https://www.quantifiedcode.com/api/v1/project/f60bbd94ae2d4bd5b2e04c241c9d47ff/badge.svg
-  :target: https://www.quantifiedcode.com/app/project/f60bbd94ae2d4bd5b2e04c241c9d47ff
-  :alt: Code issues
+.. |quantifiedcode| image:: https://www.quantifiedcode.com/api/v1/project/f60bbd94ae2d4bd5b2e04c241c9d47ff/badge.svg
+   :target: https://www.quantifiedcode.com/app/project/f60bbd94ae2d4bd5b2e04c241c9d47ff
+   :alt: Code issues
 .. |docs| image:: https://readthedocs.org/projects/tatsu/badge/?version=stable
    :target: http://tatsu.readthedocs.io/en/stable/

@@ -8,7 +8,7 @@ Left Recursion
 
 Left recursive rules produce left-associative parse trees (AST_), as most users would expect.
 
-.. _paper: http://norswap.com/pubs/sle2016.pdf
+.. _paper: http://norswap.com/pubs/sle2015.pdf
 
 Left recursion support is enabled by default in |TatSu|. To disable it for a particular grammar, use the ``@@left_recursion`` directive:
 
