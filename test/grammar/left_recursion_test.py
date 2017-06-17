@@ -215,3 +215,32 @@ class LeftRecursionTests(unittest.TestCase):
         model = compile(grammar, "test")
         ast = model.parse("1+2+3", trace=trace, colorize=True)
         self.assertEqual(['1', '+', ['2', '+', '3']], ast)
+
+    def test_partial_input_bug(self, trace=False):
+        grammar = '''
+            start
+                =
+                expre
+                $
+                ;
+
+            expre
+                =
+                | '{' expre '}'
+                | expre '->' identifier
+                | identifier
+                ;
+
+            identifier
+                =
+                /\w+/
+                ;
+        '''
+
+        input = '''
+            { size } test
+        '''
+
+        model = compile(grammar)
+        ast = model.parse(input, trace=trace, colorize=True)
+        assert [] == ast

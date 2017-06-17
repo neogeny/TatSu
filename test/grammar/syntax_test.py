@@ -320,32 +320,3 @@ class SyntaxTests(unittest.TestCase):
         model = compile(grammar, "start")
         ast = model.parse("1xx 2 yy")
         self.assertEqual(['1', 'xx', ' ', '2', 'yy'], ast)
-
-    def test_partial_input(self, trace=True):
-        grammar = '''
-            start
-                =
-                expre
-                $
-                ;
-                
-            expre 
-                = 
-                | '{' expre '}' 
-                | expre '->' identifier 
-                | identifier 
-                ;
-                 
-            identifier 
-                = 
-                /\w+/ 
-                ;
-        '''
-
-        input = '''
-            { size } test
-        '''
-
-        model = compile(grammar)
-        ast = model.parse(input, trace=trace, colorize=True)
-        assert [] == ast
