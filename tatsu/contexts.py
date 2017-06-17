@@ -25,6 +25,7 @@ from tatsu.infos import (
 )
 from tatsu.exceptions import (
     FailedCut,
+    FailedExpectingEndOfText,
     FailedLeftRecursion,
     FailedLookahead,
     FailedParse,
@@ -622,7 +623,7 @@ class ParseContext(object):
     def _check_eof(self):
         self._next_token()
         if not self._buffer.atend():
-            self._error('Expecting end of text.')
+            self._error('Expecting end of text', exclass=FailedExpectingEndOfText)
 
     @contextmanager
     def _try(self):
