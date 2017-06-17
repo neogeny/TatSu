@@ -466,7 +466,7 @@ class ParseContext(object):
 
         if isinstance(memo, FailedLeftRecursion):
             self._set_recursive(key.name)
-            memo = self._results.get(key, memo)
+            # memo = self._results.get(key, memo)
 
         return memo
 
@@ -482,10 +482,11 @@ class ParseContext(object):
         return name in self._recursive_rules
 
     def _set_recursive(self, name):
-        self._recursive_rules.add(name)
+        if self.left_recursion:
+            self._recursive_rules.add(name)
 
     def _unset_recursive(self, name):
-        self._recursive_rules.remove(name)
+        self._recursive_rules -= {name}
 
     def _set_left_recursion_guard(self, key):
         ex = self._make_exception(key.name, exclass=FailedLeftRecursion)
@@ -521,36 +522,48 @@ class ParseContext(object):
             self._rule_stack.pop()
 
     def _recursive_call(self, ruleinfo):
+        pos = self._pos
         key = self.memokey
-        memo = self._memo_for(key)
 
+        if key in self._results:
+            return self._results[key]
+        result = self._invoke_rule(ruleinfo)
+
+        if not self._is_recursive(ruleinfo.name):
+            return result
+
+        try:
+            lastpos = self._pos
+            while True:
+                self._save_result(key, result.node)
+                self._memos.pop(key, None)
+                self._goto(pos)
+                try:
+                    new_result = self._invoke_rule(ruleinfo)
+                except FailedParse:
+                    break
+                if self._pos <= lastpos:
+                    break
+                result = new_result
+                lastpos = self._pos
+
+            self._goto(lastpos)
+            return result
+        finally:
+            self._results.pop(key, None)
+
+    def _invoke_rule(self, ruleinfo):
+        pos = self._pos
+        key = self.memokey
+
+        memo = self._memo_for(key)
         if isinstance(memo, Exception):
             raise memo
         elif memo:
             return memo
-
         self._set_left_recursion_guard(key)
-        result = self._invoke_rule(ruleinfo)
 
-        if not self.left_recursion:
-            return result
-        if not self._is_recursive(ruleinfo.name):
-            return result
-
-        self._next_token(ruleinfo)
-        key = self.memokey
-        self._save_result(key, result.node)
-        try:
-            result = self._recursive_call(ruleinfo)
-        except FailedParse:
-            pass
-
-        return result
-
-    def _invoke_rule(self, ruleinfo):
-        key = self.memokey
         self._push_ast()
-        pos = self._pos
         try:
             try:
                 self._next_token(ruleinfo)
