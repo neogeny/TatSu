@@ -243,35 +243,34 @@ class LeftRecursionTests(unittest.TestCase):
 
         model = compile(grammar)
         ast = model.parse(input, trace=trace, colorize=True)
-        assert ['{', 'size', '}', 'test'] == ast
+        assert ['{', 'size', '}'] == ast
 
     def test_dropped_input_bug(self, trace=False):
         grammar = '''
             @@left_recursion :: True
-            
-            start 
+
+            start
                 =
                 expr
                 ;
-            
-            expr 
-                = 
-                | expr ',' expr 
-                | identifier 
+
+            expr
+                =
+                | expr ',' expr
+                | identifier
                 ;
-            
-            identifier 
-                = 
-                /\w+/ 
+
+            identifier
+                =
+                /\w+/
                 ;
         '''
         model = compile(grammar)
 
-
         ast = model.parse('foo', trace=trace, colorize=True)
         self.assertEqual('foo', ast)
 
-        ast = model.parse('foo bar', trace=True, colorize=True)
+        ast = model.parse('foo bar', trace=trace, colorize=True)
         self.assertEqual('foo', ast)
 
         ast = model.parse('foo, bar', trace=trace, colorize=True)
