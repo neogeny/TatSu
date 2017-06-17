@@ -139,7 +139,7 @@ class LeftRecursionTests(unittest.TestCase):
         model.parse("1*2+3*5", trace=trace, colorize=True)
         try:
             model.parse("1*2+3*5", left_recursion=False, trace=trace, colorize=True)
-            self.Fail('expected left recursion failure')
+            self.fail('expected left recursion failure')
         except FailedParse:
             pass
 
@@ -215,3 +215,64 @@ class LeftRecursionTests(unittest.TestCase):
         model = compile(grammar, "test")
         ast = model.parse("1+2+3", trace=trace, colorize=True)
         self.assertEqual(['1', '+', ['2', '+', '3']], ast)
+
+    def test_partial_input_bug(self, trace=False):
+        grammar = '''
+            start
+                =
+                expre
+                $
+                ;
+
+            expre
+                =
+                | '{' expre '}'
+                | expre '->' identifier
+                | identifier
+                ;
+
+            identifier
+                =
+                /\w+/
+                ;
+        '''
+
+        input = '''
+            { size } test
+        '''
+
+        model = compile(grammar)
+        ast = model.parse(input, trace=trace, colorize=True)
+        assert ['{', 'size', '}', 'test'] == ast
+
+    def test_dropped_input_bug(self, trace=False):
+        grammar = '''
+            @@left_recursion :: True
+            
+            start 
+                =
+                expr
+                ;
+            
+            expr 
+                = 
+                | expr ',' expr 
+                | identifier 
+                ;
+            
+            identifier 
+                = 
+                /\w+/ 
+                ;
+        '''
+        model = compile(grammar)
+
+
+        ast = model.parse('foo', trace=trace, colorize=True)
+        self.assertEqual('foo', ast)
+
+        ast = model.parse('foo bar', trace=True, colorize=True)
+        self.assertEqual('foo', ast)
+
+        ast = model.parse('foo, bar', trace=trace, colorize=True)
+        self.assertEqual(['foo', ',', 'bar'], ast)
