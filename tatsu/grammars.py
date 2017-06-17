@@ -200,9 +200,7 @@ class EOLComment(Comment):
 
 class EOF(Model):
     def parse(self, ctx):
-        ctx._next_token()
-        if not ctx.buf.atend():
-            ctx._error('Expecting end of text.')
+        ctx._check_eof()
 
     def _to_str(self, lean=False):
         return '$'

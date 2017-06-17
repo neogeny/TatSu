@@ -143,3 +143,7 @@ class FailedLeftRecursion(FailedParse):
     @property
     def message(self):
         return 'infinite left recursion'
+
+
+class FailedExpectingEndOfText(FailedParse):
+    pass

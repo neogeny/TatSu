@@ -25,6 +25,7 @@ from tatsu.infos import (
 )
 from tatsu.exceptions import (
     FailedCut,
+    FailedExpectingEndOfText,
     FailedLeftRecursion,
     FailedLookahead,
     FailedParse,
@@ -210,9 +211,6 @@ class ParseContext(object):
         finally:
             self._clear_memoizetion_caches()
 
-    def goto(self, pos):
-        self._buffer.goto(pos)
-
     @property
     def last_node(self):
         return self._last_node
@@ -235,8 +233,8 @@ class ParseContext(object):
     def _next(self):
         return self._buffer.next()
 
-    def _next_token(self, for_rule_name=None):
-        if for_rule_name is None or for_rule_name.islower():
+    def _next_token(self, ruleinfo=None):
+        if ruleinfo is None or ruleinfo.name.islower():
             self._buffer.next_token()
 
     @property
@@ -523,56 +521,53 @@ class ParseContext(object):
             self._rule_stack.pop()
 
     def _recursive_call(self, ruleinfo):
-        self._next_token(for_rule_name=ruleinfo.name)
-        lastpos = self._pos
-        result = self._invoke_cached_rule(ruleinfo)
+        key = self.memokey
+        memo = self._memo_for(key)
+
+        if isinstance(memo, Exception):
+            raise memo
+        elif memo:
+            return memo
+
+        self._set_left_recursion_guard(key)
+        result = self._invoke_rule(ruleinfo)
 
         if not self.left_recursion:
             return result
         if not self._is_recursive(ruleinfo.name):
             return result
 
-        while self._pos > lastpos:
-            self._next_token(for_rule_name=ruleinfo.name)
-
-            self._save_result(self.memokey, result.node)
-            try:
-                lastpos = self._pos
-                result = self._invoke_cached_rule(ruleinfo)
-            except FailedParse:
-                # del self._recursion_cache[key]
-                break
+        self._next_token(ruleinfo)
+        key = self.memokey
+        self._save_result(key, result.node)
+        try:
+            result = self._recursive_call(ruleinfo)
+        except FailedParse:
+            pass
 
         return result
 
-    def _invoke_cached_rule(self, ruleinfo):
+    def _invoke_rule(self, ruleinfo):
         key = self.memokey
-        memo = self._memo_for(key)
-        if isinstance(memo, Exception):
-            raise memo
-        elif memo:
-            return memo
-        self._set_left_recursion_guard(key)
+        self._push_ast()
+        pos = self._pos
         try:
-            result = self._invoke_rule(ruleinfo)
-            self._memoize(key, result)
-            return result
+            try:
+                self._next_token(ruleinfo)
+                ruleinfo.impl(self)
+                node = self._get_node(pos, ruleinfo)
+                node = self._invoke_semantic_rule(ruleinfo, node)
+                result = self._mkresult(node)
+                self._memoize(key, result)
+                return result
+            except FailedSemantics as e:
+                self._error(ustr(e), FailedParse)
+            finally:
+                self._pop_ast()
         except FailedParse as e:
             self._memoize(key, e)
+            self._goto(pos)
             raise
-
-    def _invoke_rule(self, ruleinfo):
-        self._push_ast()
-        try:
-            pos = self._pos
-            ruleinfo.impl(self)
-            node = self._get_node(pos, ruleinfo)
-            node = self._invoke_semantic_rule(ruleinfo, node)
-            return self._mkresult(node)
-        except FailedSemantics as e:
-            self._error(ustr(e), FailedParse)
-        finally:
-            self._pop_ast()
 
     def _get_node(self, pos, ruleinfo):
         node = self.ast
@@ -628,7 +623,7 @@ class ParseContext(object):
     def _check_eof(self):
         self._next_token()
         if not self._buffer.atend():
-            self._error('Expecting end of text.')
+            self._error('Expecting end of text', exclass=FailedExpectingEndOfText)
 
     @contextmanager
     def _try(self):
