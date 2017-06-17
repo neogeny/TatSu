@@ -248,25 +248,24 @@ class LeftRecursionTests(unittest.TestCase):
     def test_dropped_input_bug(self, trace=False):
         grammar = '''
             @@left_recursion :: True
-            
-            start 
+
+            start
                 =
                 expr
                 ;
-            
-            expr 
-                = 
-                | expr ',' expr 
-                | identifier 
+
+            expr
+                =
+                | expr ',' expr
+                | identifier
                 ;
-            
-            identifier 
-                = 
-                /\w+/ 
+
+            identifier
+                =
+                /\w+/
                 ;
         '''
         model = compile(grammar)
-
 
         ast = model.parse('foo', trace=trace, colorize=True)
         self.assertEqual('foo', ast)
