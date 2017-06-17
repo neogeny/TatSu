@@ -139,7 +139,7 @@ class LeftRecursionTests(unittest.TestCase):
         model.parse("1*2+3*5", trace=trace, colorize=True)
         try:
             model.parse("1*2+3*5", left_recursion=False, trace=trace, colorize=True)
-            self.Fail('expected left recursion failure')
+            self.fail('expected left recursion failure')
         except FailedParse:
             pass
 
@@ -244,3 +244,18 @@ class LeftRecursionTests(unittest.TestCase):
         model = compile(grammar)
         ast = model.parse(input, trace=trace, colorize=True)
         assert [] == ast
+
+    def test_dropped_input_bug(self, trace=False):
+        grammar = '''
+            @@left_recursion :: True
+            identifier = /\w+/ ;
+            expr = expr ',' expr | identifier ;
+        '''
+        model = compile(grammar)
+
+        ast = model.parse('foo', 'expr', trace=trace, colorize=True)
+        self.assertEqual(ast, 'foo')
+        ast = model.parse('foo, bar', 'expr', trace=trace, colorize=True)
+        self.assertEqual(ast, ['foo', ',', 'bar'])
+        ast = model.parse('foo bar', 'expr', trace=trace, colorize=True)
+        self.assertEqual(ast, 'foo')
