@@ -210,9 +210,6 @@ class ParseContext(object):
         finally:
             self._clear_memoizetion_caches()
 
-    def goto(self, pos):
-        self._buffer.goto(pos)
-
     @property
     def last_node(self):
         return self._last_node
