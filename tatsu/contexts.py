@@ -532,25 +532,23 @@ class ParseContext(object):
         if not self._is_recursive(ruleinfo.name):
             return result
 
-        try:
+        lastpos = self._pos
+        while True:
+            self._save_result(key, result.node)
+            self._memos.pop(key, None)
+            self._goto(pos)
+            try:
+                new_result = self._invoke_rule(ruleinfo)
+            except FailedParse:
+                break
+            if self._pos <= lastpos:
+                del self._results[key]
+                break
+            result = new_result
             lastpos = self._pos
-            while True:
-                self._save_result(key, result.node)
-                self._memos.pop(key, None)
-                self._goto(pos)
-                try:
-                    new_result = self._invoke_rule(ruleinfo)
-                except FailedParse:
-                    break
-                if self._pos <= lastpos:
-                    break
-                result = new_result
-                lastpos = self._pos
 
-            self._goto(lastpos)
-            return result
-        finally:
-            self._results.pop(key, None)
+        self._goto(lastpos)
+        return result
 
     def _invoke_rule(self, ruleinfo):
         pos = self._pos
