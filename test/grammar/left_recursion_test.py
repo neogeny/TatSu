@@ -63,47 +63,81 @@ class LeftRecursionTests(unittest.TestCase):
     def test_indirect_left_recursion_complex(self, trace=False):
         grammar = '''
             @@left_recursion :: True
-            start = Primary $ ;
-            Primary = PrimaryNoNewArray ;
+            start
+                =
+                Primary $
+                ;
 
-            PrimaryNoNewArray =
-              ClassInstanceCreationExpression
-            | MethodInvocation
-            | FieldAccess
-            | ArrayAccess
-            | 'this' ;
+            Primary
+                =
+                PrimaryNoNewArray
+                ;
 
-            ClassInstanceCreationExpression =
-              'new' ClassOrInterfaceType '(' ')'
-            | Primary '.new' Identifier '()' ;
+            PrimaryNoNewArray
+                =
+                | ClassInstanceCreationExpression
+                | MethodInvocation
+                | FieldAccess
+                | ArrayAccess
+                | 'this'
+                ;
 
-            MethodInvocation =
-              Primary '.' MethodName '()'
-            | MethodName '()' ;
+            ClassInstanceCreationExpression
+                =
+                | 'new' ClassOrInterfaceType '(' ')'
+                | Primary '.new' Identifier '()'
+                ;
 
-            FieldAccess =
-              Primary '.' Identifier
-            | 'super.' Identifier ;
+            MethodInvocation
+                =
+                | MethodName '()'
+                | Primary '.' MethodName '()'
+                ;
 
-            ArrayAccess =
-              Primary '[' Expression ']'
-            | ExpressionName '[' Expression ']' ;
+            FieldAccess
+                =
+                | Primary '.' Identifier
+                | 'super.' Identifier
+                ;
 
-            ClassOrInterfaceType =
-              ClassName
-            | InterfaceTypeName ;
+            ArrayAccess
+                =
+                | Primary '[' Expression ']'
+                | ExpressionName '[' Expression ']'
+                ;
 
-            ClassName = 'C' | 'D' ;
-            InterfaceTypeName = 'I' | 'J' ;
-            Identifier = 'x' | 'y' | ClassOrInterfaceType ;
+            ClassOrInterfaceType
+                =
+                | ClassName
+                | InterfaceTypeName
+                ;
+
+            ClassName
+                =
+                'C' | 'D'
+                ;
+
+            InterfaceTypeName
+                =
+                'I' | 'J'
+                ;
+
+            Identifier
+                =
+                | 'x' | 'y'
+                | ClassOrInterfaceType
+                ;
+
             MethodName = 'm' | 'n' ;
+
             ExpressionName = Identifier ;
+
             Expression = 'i' | 'j' ;
         '''
         model = compile(grammar, "test")
         ast = model.parse("this", trace=trace, colorize=True)
         self.assertEqual('this', ast)
-        ast = model.parse("this.x", trace=trace, colorize=True)
+        ast = model.parse("this.x", trace=True, colorize=True)
         self.assertEqual(['this', '.', 'x'], ast)
         ast = model.parse("this.x.y", trace=trace, colorize=True)
         self.assertEqual([['this', '.', 'x'], '.', 'y'], ast)
