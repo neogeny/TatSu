@@ -12,7 +12,22 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2017
 ---------------
-.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.0...master
+.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.1...master
+
+
+`4.2.1`_ @ 2017
+---------------------
+.. _4.2.0: https://github.com/apalala/tatsu/compare/v4.2.0...v4.2.1
+
+
+Fixed
+~~~~~
+
+*   #27 Left-recursive parsers would drop or skip input on many combinations of grammars and correct/incorrect inputs(@manueljacob)
+
+*   Documentation fixes (@manueljacob, @paulhoule)
+
+.. _#27: https://github.com/neogeny/TatSu/issues/27
 
 
 `4.2.0`_ @ 2017-05-21
@@ -168,29 +183,30 @@ Added
 .. _smc.mw: https://github.com/lambdafu/smc.mw
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
+.. _David Delassus: https://bitbucket.org/linkdd
 .. _David Röthlisberger: https://bitbucket.org/drothlis/
+.. _Dmytro Ivanov: https://bitbucket.org/jimon
+.. _Franklin Lee: https://bitbucket.org/leewz
+.. _Gabriele Paganelli: https://bitbucket.org/gapag
 .. _Kathryn Long: https://bitbucket.org/starkat
-.. _Marcus Brinkmann: http://blog.marcus-brinkmann.de/
-.. _Paul Sargent: https://bitbucket.org/PaulS/
+.. _Manuel Jacob: https://github.com/manueljacob
+.. _manueljacob: https://github.com/manueljacob
+.. _Marcus Brinkmann: https://bitbucket.org/lambdafu/
+.. _Max Liebkies: https://bitbucket.org/gegenschall
+.. _Paul Houle: https://github.com/paulhoule
+.. _Paul Sargent: https://bitbucket.org/pauls
 .. _Robert Speer: https://bitbucket.org/r_speer
+.. _Ryan Gonzales: https://github.com/kirbyfan64
+.. _S Brown: https://bitbucket.org/sjbrownBitbucket
+.. _Tonico Strasser: https://bitbucket.org/tonico_strasser
+.. _Victor Uriarte: https://bitbucket.org/vmuriart
+.. _Vinay Sajip: https://bitbucket.org/vinay.sajip
 .. _basel-shishani: https://bitbucket.org/basel-shishani
 .. _drothlis: https://bitbucket.org/drothlis
-.. _franz_g: https://bitbucket.org/franz_g
-.. _gapag: https://bitbucket.org/gapag
-.. _gegenschall: https://bitbucket.org/gegenschall
+.. _franz\_g: https://bitbucket.org/franz_g
 .. _gkimbar: https://bitbucket.org/gkimbar
-.. _jimon: https://bitbucket.org/jimon
-.. _leewz: https://bitbucket.org/leewz
-.. _linkdd: https://bitbucket.org/linkdd
 .. _nehz: https://bitbucket.org/nehz
 .. _neumond: https://bitbucket.org/neumond
-.. _pauls: https://bitbucket.org/pauls
 .. _pgebhard: https://bitbucket.org/pgebhard
-.. _r_speer: https://bitbucket.org/r_speer
 .. _siemer: https://bitbucket.org/siemer
-.. _sjbrownBitbucket: https://bitbucket.org/sjbrownBitbucket
-.. _starkat: https://bitbucket.org/starkat
-.. _tonico_strasser: https://bitbucket.org/tonico_strasser
-.. _vinay.sajip: https://bitbucket.org/vinay.sajip
-.. _vmuriart: https://bitbucket.org/vmuriart
 
