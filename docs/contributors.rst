@@ -14,8 +14,10 @@ features, bug fixes, or suggestions:
     `Franklin Lee`_,
     `Gabriele Paganelli`_,
     `Kathryn Long`_,
+    `Manuel Jacob`_,
     `Marcus Brinkmann`_,
     `Max Liebkies`_,
+    `Paul Houle`_,
     `Paul Sargent`_,
     `Robert Speer`_,
     `Ryan Gonzales`_,
@@ -42,8 +44,10 @@ Most of the contributions are recorded as **Grako** commits_ or issues_.
 .. _Franklin Lee: https://bitbucket.org/leewz
 .. _Gabriele Paganelli: https://bitbucket.org/gapag
 .. _Kathryn Long: https://bitbucket.org/starkat
+.. _Manuel Jacob: https://github.com/manueljacob
 .. _Marcus Brinkmann: https://bitbucket.org/lambdafu/
 .. _Max Liebkies: https://bitbucket.org/gegenschall
+.. _Paul Houle: https://github.com/paulhoule
 .. _Paul Sargent: https://bitbucket.org/pauls
 .. _Robert Speer: https://bitbucket.org/r_speer
 .. _Ryan Gonzales: https://github.com/kirbyfan64
