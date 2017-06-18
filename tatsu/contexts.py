@@ -531,10 +531,9 @@ class ParseContext(object):
         finally:
             self._rule_stack.pop()
 
-    def _clear_recursion(self):
+    def _clear_recursion_errors(self):
         def filter(key, value):
-            if isinstance(value, FailedLeftRecursion):
-                return True
+            return isinstance(value, FailedLeftRecursion)
 
         prune_dict(self._memos, filter)
 
@@ -552,7 +551,7 @@ class ParseContext(object):
         while True:
             self._forget(key)
             self._save_result(key, result.node)
-            self._clear_recursion()
+            self._clear_recursion_errors()
             self._goto(pos)
             try:
                 new_result = self._invoke_rule(ruleinfo, pos, key)
