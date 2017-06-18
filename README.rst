@@ -102,16 +102,14 @@ This is an example of how to use |TatSu| as a library:
         import pprint
         import json
         from tatsu import parse
-        from tatsu.util import asjson
 
         ast = parse(GRAMMAR, '3 + 5 * ( 10 - 20 )')
         print('PPRINT')
         pprint.pprint(ast, indent=2, width=20)
         print()
 
-        json_ast = asjson(ast)
         print('JSON')
-        print(json.dumps(json_ast, indent=2))
+        print(json.dumps(ast.asjson(), indent=2))
         print()
 ..
 
