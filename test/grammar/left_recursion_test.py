@@ -60,6 +60,7 @@ class LeftRecursionTests(unittest.TestCase):
         print(ast)
         self.assertEqual([['5', '-', '87'], '-', '32'], ast)
 
+    @unittest.skip('uncertain if grammar is correct')
     def test_indirect_left_recursion_complex(self, trace=False):
         grammar = '''
             @@left_recursion :: True
