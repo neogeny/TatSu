@@ -17,7 +17,9 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `4.2.1`_ @ 2017
 ---------------
-.. _4.2.1: https://github.com/apalala/tatsu/compare/v4.2.0...v4.2.1
+..
+    .. _4.2.1: https://github.com/apalala/tatsu/compare/v4.2.0...v4.2.1
+.. _4.2.1: https://github.com/apalala/tatsu/compare/v4.2.0...master
 
 
 Fixed
