@@ -16,18 +16,19 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 
 `4.2.1`_ @ 2017
----------------------
-.. _4.2.0: https://github.com/apalala/tatsu/compare/v4.2.0...v4.2.1
+---------------
+.. _4.2.1: https://github.com/apalala/tatsu/compare/v4.2.0...v4.2.1
 
 
 Fixed
 ~~~~~
 
-*   #27 Left-recursive parsers would drop or skip input on many combinations of grammars and correct/incorrect inputs(@manueljacob)
+*   `#27`_ Left-recursive parsers would drop or skip input on many combinations of grammars and correct/incorrect inputs(`@manueljacob`_)
 
-*   Documentation fixes (@manueljacob, @paulhoule)
+*   Documentation fixes (`@manueljacob`_, `@paulhoule`_)
 
 .. _#27: https://github.com/neogeny/TatSu/issues/27
+
 
 
 `4.2.0`_ @ 2017-05-21
@@ -190,10 +191,11 @@ Added
 .. _Gabriele Paganelli: https://bitbucket.org/gapag
 .. _Kathryn Long: https://bitbucket.org/starkat
 .. _Manuel Jacob: https://github.com/manueljacob
-.. _manueljacob: https://github.com/manueljacob
+.. _@manueljacob: https://github.com/manueljacob
 .. _Marcus Brinkmann: https://bitbucket.org/lambdafu/
 .. _Max Liebkies: https://bitbucket.org/gegenschall
 .. _Paul Houle: https://github.com/paulhoule
+.. _@paulhoule: https://github.com/paulhoule
 .. _Paul Sargent: https://bitbucket.org/pauls
 .. _Robert Speer: https://bitbucket.org/r_speer
 .. _Ryan Gonzales: https://github.com/kirbyfan64
