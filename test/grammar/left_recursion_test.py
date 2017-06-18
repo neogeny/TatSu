@@ -170,7 +170,7 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model_b.parse("(((1+2)))", trace=trace, colorize=True)
         self.assertEqual(['1', '+', '2'], ast)
 
-    def test_left_recursion_bug(self, trace=True):
+    def test_left_recursion_bug(self, trace=False):
         grammar = '''\
             @@grammar :: Minus
             @@left_recursion :: True
@@ -197,7 +197,7 @@ class LeftRecursionTests(unittest.TestCase):
         '''
         model = compile(grammar=grammar)
         model.parse('3', trace=trace, colorize=True)
-        model.parse('3 - 2', trace=trace, colorize=True)
+        model.parse('3 - 2', trace=True, colorize=True)
         model.parse('(3 - 2)', trace=trace, colorize=True)
         model.parse('(3 - 2) - 1', trace=trace, colorize=True)
         model.parse('3 - 2 - 1', trace=trace, colorize=True)
@@ -221,7 +221,6 @@ class LeftRecursionTests(unittest.TestCase):
             start
                 =
                 expre
-                $
                 ;
 
             expre
