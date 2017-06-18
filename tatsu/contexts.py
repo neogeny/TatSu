@@ -14,6 +14,7 @@ from ._unicode_characters import (
 )
 from tatsu.util import notnone, ustr, prune_dict, is_list, info, safe_name
 from tatsu.util import left_assoc, right_assoc
+from tatsu.util import debug  # noqa
 from tatsu import buffering
 from tatsu import color
 from tatsu.infos import (
@@ -461,12 +462,16 @@ class ParseContext(object):
             self._memos[key] = memo
         return memo
 
+    def _forget(self, key):
+        self._memos.pop(key, None)
+        self._results.pop(key, None)
+
     def _memo_for(self, key):
         memo = self._memos.get(key)
 
         if isinstance(memo, FailedLeftRecursion):
             self._set_recursive(key.name)
-            # memo = self._results.get(key, memo)
+            memo = self._results.get(key, memo)
 
         return memo
 
@@ -479,11 +484,16 @@ class ParseContext(object):
         self._results[key] = self._mkresult(node)
 
     def _is_recursive(self, name):
-        return name in self._recursive_rules
+        return self.left_recursion and name in self._recursive_rules
 
     def _set_recursive(self, name):
         if self.left_recursion:
-            self._recursive_rules.add(name)
+            # add rules that are mutually recursive
+            i = self._rule_stack.index(name)
+            for rule in reversed(self._rule_stack[i:]):
+                if rule not in self._recursive_rules:
+                    print('left', rule)
+                self._recursive_rules.add(rule)
 
     def _unset_recursive(self, name):
         self._recursive_rules -= {name}
@@ -521,39 +531,42 @@ class ParseContext(object):
         finally:
             self._rule_stack.pop()
 
+    def _clear_recursion(self):
+        def filter(key, value):
+            if isinstance(value, FailedLeftRecursion):
+                return True
+
+        prune_dict(self._memos, filter)
+
     def _recursive_call(self, ruleinfo):
         pos = self._pos
         key = self.memokey
 
         if key in self._results:
             return self._results[key]
-        result = self._invoke_rule(ruleinfo)
+        result = self._invoke_rule(ruleinfo, pos, key)
 
         if not self._is_recursive(ruleinfo.name):
             return result
 
-        lastpos = self._pos
         while True:
+            self._forget(key)
             self._save_result(key, result.node)
-            self._memos.pop(key, None)
+            self._clear_recursion()
             self._goto(pos)
             try:
-                new_result = self._invoke_rule(ruleinfo)
+                new_result = self._invoke_rule(ruleinfo, pos, key)
             except FailedParse:
                 break
-            if self._pos <= lastpos:
-                del self._results[key]
+            if self._pos <= result.newpos:
                 break
             result = new_result
-            lastpos = self._pos
 
-        self._goto(lastpos)
+        del self._results[key]
+        self._forget(key)
         return result
 
-    def _invoke_rule(self, ruleinfo):
-        pos = self._pos
-        key = self.memokey
-
+    def _invoke_rule(self, ruleinfo, pos, key):
         memo = self._memo_for(key)
         if isinstance(memo, Exception):
             raise memo
