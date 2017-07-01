@@ -489,8 +489,6 @@ class ParseContext(object):
             # add rules that are mutually recursive
             i = self._rule_stack.index(name)
             for rule in reversed(self._rule_stack[i:]):
-                if rule not in self._recursive_rules:
-                    print('left', rule)
                 self._recursive_rules.add(rule)
 
     def _unset_recursive(self, name):
@@ -536,34 +534,31 @@ class ParseContext(object):
         prune_dict(self._memos, filter)
 
     def _recursive_call(self, ruleinfo):
-        pos = self._pos
+        self._next_token(ruleinfo)
+        lastpos = self._pos
         key = self.memokey
+        result = self._invoke_rule(ruleinfo, key)
 
-        if key in self._results:
-            return self._results[key]
-        result = self._invoke_rule(ruleinfo, pos, key)
-
+        if not self.left_recursion:
+            return result
         if not self._is_recursive(ruleinfo.name):
             return result
 
-        while True:
-            self._forget(key)
-            self._save_result(key, result.node)
-            self._clear_recursion_errors()
-            self._goto(pos)
-            try:
-                new_result = self._invoke_rule(ruleinfo, pos, key)
-            except FailedParse:
-                break
-            if self._pos <= result.newpos:
-                break
-            result = new_result
+        while self._pos > lastpos:
+            self._next_token(ruleinfo)
 
-        del self._results[key]
-        self._forget(key)
+            self._save_result(self.memokey, result.node)
+            try:
+                lastpos = self._pos
+                key = self.memokey
+                result = self._invoke_rule(ruleinfo, key)
+            except FailedParse:
+                # del self._recursion_cache[key]
+                break
+
         return result
 
-    def _invoke_rule(self, ruleinfo, pos, key):
+    def _invoke_rule(self, ruleinfo, key):
         memo = self._memo_for(key)
         if isinstance(memo, Exception):
             raise memo
@@ -576,7 +571,7 @@ class ParseContext(object):
             try:
                 self._next_token(ruleinfo)
                 ruleinfo.impl(self)
-                node = self._get_node(pos, ruleinfo)
+                node = self._get_node(key.pos, ruleinfo)
                 node = self._invoke_semantic_rule(ruleinfo, node)
                 result = self._mkresult(node)
                 self._memoize(key, result)
@@ -587,7 +582,7 @@ class ParseContext(object):
                 self._pop_ast()
         except FailedParse as e:
             self._memoize(key, e)
-            self._goto(pos)
+            self._goto(key.pos)
             raise
 
     def _get_node(self, pos, ruleinfo):
