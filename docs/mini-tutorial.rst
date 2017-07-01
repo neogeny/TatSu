@@ -145,13 +145,13 @@ We can now compile the grammar, and test the parser:
         parser = tatsu.compile(grammar)
         ast = parser.parse('3 + 5 * ( 10 - 20 )')
 
-        print('SIMPLE PARSE')
-        print('AST')
+        print('#SIMPLE PARSE')
+        print('#AST')
         pprint(ast, width=20, indent=4)
 
         print()
 
-        print('JSON')
+        print('#JSON')
         print(json.dumps(ast, indent=4))
 
 
@@ -601,16 +601,16 @@ The model that results from a parse can be printed, and walked:
         def walk_object(self, node):
             return node
 
-        def walk_add(self, node):
+        def walk_Add(self, node):
             return self.walk(node.left) + self.walk(node.right)
 
-        def walk_subtract(self, node):
+        def walk_Subtract(self, node):
             return self.walk(node.left) - self.walk(node.right)
 
-        def walk_multiply(self, node):
+        def walk_Multiply(self, node):
             return self.walk(node.left) * self.walk(node.right)
 
-        def walk_divide(self, node):
+        def walk_Divide(self, node):
             return self.walk(node.left) / self.walk(node.right)
 
 
@@ -705,8 +705,11 @@ The code generator can be used thus:
         print(postfix)
 
 
-Which results in::
+Which results in:
 
+.. code:: python
+
+    # TRANSLATED TO POSTFIX
     PUSH 3
     PUSH 5
     PUSH 10
