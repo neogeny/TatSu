@@ -330,7 +330,6 @@ class ParseContext(object):
             prune_dict(cache, lambda k, _: k[0] < cutpos)
 
         prune(self._memos, self._pos)
-        prune(self._results, self._pos)
 
     def _memoization(self):
         return self.memoize_lookaheads or self._lookahead == 0
@@ -464,7 +463,6 @@ class ParseContext(object):
 
     def _forget(self, key):
         self._memos.pop(key, None)
-        self._results.pop(key, None)
 
     def _memo_for(self, key):
         memo = self._memos.get(key)

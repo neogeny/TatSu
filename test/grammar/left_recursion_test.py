@@ -309,3 +309,46 @@ class LeftRecursionTests(unittest.TestCase):
 
         ast = model.parse('foo, bar', trace=trace, colorize=True)
         self.assertEqual(['foo', ',', 'bar'], ast)
+
+    def test_change_start_rule(self, trace=False):
+        grammar = '''
+            start = expr ;
+        
+            expr 
+                = 
+                mul | identifier 
+                ;
+                
+            mul 
+                = 
+                expr '*' identifier 
+                ;
+                
+            identifier 
+                = 
+                /\w+/ 
+                ;
+        '''
+        model = compile(grammar)
+
+        ast = model.parse('a * b', start='expr', trace=trace, colorize=True)
+        self.assertEqual(['a', '*', 'b'], ast)
+
+        try:
+            model.parse('a * b', start='mul', trace=trace, colorize=True)
+            self.fail('failure expected as first recursive rule does not cotain a choice')
+        except FailedParse:
+            pass
+
+    def test_with_gather(self, trace=False):
+        grammar = '''
+            identifier = /\w+/ ;
+            expr = mul | tmp ;
+            mul = expr '*' tmp ;
+            tmp = call | identifier ;
+            call = identifier '(' ','.{expr} ')' ;
+        '''
+        model = compile(grammar)
+
+        ast = model.parse('a(b, c)', start='expr', trace=trace, colorize=True)
+        self.assertEqual(['a', '(', ['b', 'c'], ')'], ast)
