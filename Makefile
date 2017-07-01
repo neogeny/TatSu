@@ -9,11 +9,7 @@ documentation:
 	cd docs; make -s html > /dev/null
 
 
-examples: regex_test g2e_test calc_test
-
-
-regex_test:
-	cd examples/regex; make -s clean; make -s test > /dev/null
+examples: g2e_test calc_test
 
 
 g2e_test:
