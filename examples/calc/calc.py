@@ -16,8 +16,9 @@ def simple_parse():
     grammar = open('grammars/calc_cut.ebnf').read()
 
     parser = tatsu.compile(grammar)
-    ast = parser.parse('3 + 5 * ( 10 - 20 )', trace=True, colorize=True)
+    ast = parser.parse('3 + 5 * ( 10 - 20 )', trace=False, colorize=True)
 
+    print()
     print('# SIMPLE PARSE')
     print('# AST')
     pprint(ast, width=20, indent=4)
@@ -34,6 +35,7 @@ def annotated_parse():
     parser = tatsu.compile(grammar)
     ast = parser.parse('3 + 5 * ( 10 - 20 )')
 
+    print()
     print('# ANNOTATED AST')
     pprint(ast, width=20, indent=4)
     print()
@@ -68,13 +70,15 @@ def parse_with_basic_semantics():
     grammar = open('grammars/calc_annotated.ebnf').read()
 
     parser = tatsu.compile(grammar)
-    ast = parser.parse(
+    result = parser.parse(
         '3 + 5 * ( 10 - 20 )',
         semantics=CalcBasicSemantics()
     )
 
+    print()
     print('# BASIC SEMANTICS RESULT')
-    pprint(ast, width=20, indent=4)
+    assert result == -47
+    print(result)
     print()
 
 
@@ -104,6 +108,7 @@ def parse_factored():
         semantics=CalcSemantics()
     )
 
+    print()
     print('# FACTORED SEMANTICS RESULT')
     pprint(ast, width=20, indent=4)
     print()
@@ -115,6 +120,7 @@ def parse_to_model():
     parser = tatsu.compile(grammar, asmodel=True)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
+    print()
     print('# MODEL TYPE IS:', type(model).__name__)
     print(json.dumps(model.asjson(), indent=4))
     print()
@@ -124,16 +130,16 @@ class CalcWalker(NodeWalker):
     def walk_object(self, node):
         return node
 
-    def walk_add(self, node):
+    def walk__add(self, node):
         return self.walk(node.left) + self.walk(node.right)
 
-    def walk_subtract(self, node):
+    def walk__subtract(self, node):
         return self.walk(node.left) - self.walk(node.right)
 
-    def walk_multiply(self, node):
+    def walk__multiply(self, node):
         return self.walk(node.left) * self.walk(node.right)
 
-    def walk_divide(self, node):
+    def walk__divide(self, node):
         return self.walk(node.left) / self.walk(node.right)
 
 
@@ -143,8 +149,11 @@ def parse_and_walk_model():
     parser = tatsu.compile(grammar, asmodel=True)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
+    print()
     print('# WALKER RESULT')
-    print(CalcWalker().walk(model))
+    result = CalcWalker().walk(model)
+    assert result == -47
+    print(result)
     print()
 
 
@@ -156,6 +165,7 @@ def parse_and_translate():
 
     postfix = PostfixCodeGenerator().render(model)
 
+    print()
     print('# TRANSLATED TO POSTFIX')
     print(postfix)
 
