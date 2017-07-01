@@ -15,6 +15,20 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.1...master
 
 
+Fixed
+~~~~~
+
+*   `#27`_ Undo the fixes to dropped input on left recursion because they broke previous
+  expected behavior.
+
+*   `#33`_ Fixes to the calc example and mini tutorial (`@heronils`_)
+
+*   `#34`_ More left-recursion test cases (`@manueljacob`_).
+
+.. _#33: https://github.com/neogeny/TatSu/issues/33
+.. _#34: https://github.com/neogeny/TatSu/issues/34
+
+
 `4.2.1`_ @ 2017-06-18
 ---------------------
 .. _4.2.1: https://github.com/apalala/tatsu/compare/v4.2.0...v4.2.1
@@ -211,4 +225,4 @@ Added
 .. _neumond: https://bitbucket.org/neumond
 .. _pgebhard: https://bitbucket.org/pgebhard
 .. _siemer: https://bitbucket.org/siemer
-
+.. _@heronils: https://github.com/heronils
