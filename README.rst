@@ -1,7 +1,7 @@
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
 .. |TatSu| replace:: |dragon| **TatSu**
 
-|license| |pyversions| |fury| |circleci| |travis| |docs| |quantifiedcode|
+|license| |pyversions| |fury| |circleci| |travis| |docs| |landscap|
 
     *At least for the people who send me mail about a new language that
     they're designing, the general advice is: do it to learn about how
