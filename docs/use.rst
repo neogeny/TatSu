@@ -247,7 +247,7 @@ passing the grammar to parse and the starting rule's name as parameter:
     parser = MyParser()
     ast = parser.parse('text to parse', rule_name='start')
     print(ast)
-    print(json.dumps(ast, indent=2)) # ASTs are JSON-friendy
+    print(json.dumps(asjson(ast), indent=2))
 
 The generated parsers' constructors accept named arguments to specify
 whitespace characters, the regular expression for comments, case
