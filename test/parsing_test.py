@@ -2,6 +2,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import unittest
+import tempfile
 
 import tatsu
 from tatsu.util import trim, eval_escapes
@@ -32,6 +33,24 @@ class ParsingTests(unittest.TestCase):
         '''
         buf = MockIncludeBuffer(trim(text))
         self.assertEqual('first\n\nINCLUDED "something"\n\nINCLUDED "anotherthing"\nlast', buf.text)
+
+    def test_real_include(self):
+        _, include_a = tempfile.mkstemp(suffix='.ebnf', prefix='include_')
+        _, include_b = tempfile.mkstemp(suffix='.ebnf', prefix='include_')
+
+        grammar = '''\
+            #include :: "{include_a}"
+            #include :: "{include_b}"
+
+            start = a b;'''
+
+        with open(include_a, 'w') as fh:
+            fh.write('a = \'inclusion\';')
+        with open(include_b, 'w') as fh:
+            fh.write('b = \'works\';')
+
+        model = tatsu.compile(grammar=grammar.format(include_a=include_a, include_b=include_b))
+        self.assertIsNotNone(model)
 
     def test_escape_sequences(self):
         self.assertEqual(u'\n', eval_escapes(r'\n'))

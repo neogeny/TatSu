@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from tatsu.bootstrap import EBNFBootstrapParser
 from tatsu.semantics import ASTSemantics
 from tatsu.parser_semantics import EBNFGrammarSemantics
+from tatsu.grammars import EBNFBuffer
 
 
 class EBNFParser(EBNFBootstrapParser):
@@ -20,5 +21,6 @@ class GrammarGenerator(EBNFBootstrapParser):
         super(GrammarGenerator, self).__init__(
             semantics=semantics,
             parseinfo=parseinfo,
+            buffer_class=EBNFBuffer,
             **kwargs
         )
