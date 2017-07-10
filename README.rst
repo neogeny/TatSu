@@ -115,9 +115,9 @@ This is an example of how to use |TatSu| as a library:
 
 And this is the output:
 
-.. code:: console
+.. code:: json
 
-    PPRINT
+    # PPRINT
     [ '3',
       '+',
       [ '5',
@@ -126,7 +126,7 @@ And this is the output:
           '-',
           '20']]]
 
-    JSON
+    # JSON
     [
       "3",
       "+",
