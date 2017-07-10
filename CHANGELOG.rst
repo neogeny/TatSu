@@ -22,9 +22,9 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 Fixed
 ~~~~~
 
-*  `#37`_ Regression: The #include pragma works by using the EBNFBuffer from grammars.py. Somehow the default EBNFBootstrapBuffer from bootstrap.py has been used instead (`@gegenschall`_).
+*  `#37`_ Regression: The ``#include`` pragma works by using the ``EBNFBuffer`` from ``grammars.py``. Somehow the default ``EBNFBootstrapBuffer`` from ``bootstrap.py`` has been used instead (`@gegenschall`_).
 
-*  `#38`_ Documentation: Use of `json.dumps()` requires `ast.asjson()` (`@davidchen`_).
+*  `#38`_ Documentation: Use of ``json.dumps()`` requires ``ast.asjson()`` (`@davidchen`_).
 
 .. _#37: https://github.com/neogeny/TatSu/issues/37
 .. _#38: https://github.com/neogeny/TatSu/issues/38
