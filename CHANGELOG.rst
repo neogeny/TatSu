@@ -14,6 +14,16 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.2...master
 
+Fixed
+~~~~~
+
+*  `#37`_ Regression: The #include pragma works by using the EBNFBuffer from grammars.py. Somehow the default EBNFBootstrapBuffer from bootstrap.py has been used instead (`@gegenschall`_).
+
+*  `#38`_ Documentation: Use of `json.dumps()` requires `ast.asjson()` (`@davidchen`_).
+
+.. _#37: https://github.com/neogeny/TatSu/issues/37
+.. _#38: https://github.com/neogeny/TatSu/issues/38
+
 
 `4.2.2`_ @ 2017-07-01
 ---------------------
@@ -202,6 +212,8 @@ Added
 .. _smc.mw: https://github.com/lambdafu/smc.mw
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
+.. _David Chen: https://github.com/davidchen
+.. _@davidchen: https://github.com/davidchen
 .. _David Delassus: https://bitbucket.org/linkdd
 .. _David Röthlisberger: https://bitbucket.org/drothlis/
 .. _Dmytro Ivanov: https://bitbucket.org/jimon
@@ -212,6 +224,7 @@ Added
 .. _@manueljacob: https://github.com/manueljacob
 .. _Marcus Brinkmann: https://bitbucket.org/lambdafu/
 .. _Max Liebkies: https://bitbucket.org/gegenschall
+.. _@gegenschall: https://bitbucket.org/gegenschall
 .. _Paul Houle: https://github.com/paulhoule
 .. _@paulhoule: https://github.com/paulhoule
 .. _Paul Sargent: https://bitbucket.org/pauls
