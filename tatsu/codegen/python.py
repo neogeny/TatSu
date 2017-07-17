@@ -481,6 +481,8 @@ class Grammar(Base):
 
 
                 from __future__ import print_function, division, absolute_import, unicode_literals
+                
+                import sys
 
                 from tatsu.buffering import Buffer
                 from tatsu.parsing import Parser
@@ -554,8 +556,11 @@ class Grammar(Base):
 
 
                 def main(filename, startrule, **kwargs):
-                    with open(filename) as f:
-                        text = f.read()
+                    if not filename or filename == '-':
+                        text = sys.stdin.read()
+                    else:
+                        with open(filename) as f:
+                            text = f.read()
                     parser = {name}Parser()
                     return parser.parse(text, startrule, filename=filename, **kwargs)
 

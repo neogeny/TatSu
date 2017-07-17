@@ -317,7 +317,9 @@ def generic_main(custom_main, parser_class, name='Unknown'):
            help="whitespace specification")
     addarg('file',
            metavar="FILE",
-           help="the input file to parse")
+           help="the input file to parse or '-' for standard input",
+           nargs='?',
+           default='-')
     addarg('startrule',
            metavar="STARTRULE",
            nargs='?',
