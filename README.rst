@@ -113,7 +113,9 @@ This is an example of how to use |TatSu| as a library:
         print()
 ..
 
-And this is the output:
+|TatSu| will use the first rule defined in the grammar as the *start* rule.
+
+This is the output:
 
 .. code:: console
 

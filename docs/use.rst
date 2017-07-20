@@ -12,7 +12,7 @@ As a Library
 
     Compiles the grammar and generates a *model* that can subsequently be used for parsing input with.
 
--   ``tatsu.parse(grammar, input, **kwargs)``
+-   ``tatsu.parse(grammar, input, start=None, **kwargs)``
 
     Compiles the grammar and parses the given input producing an AST_ as result. The result is equivalent to calling::
 

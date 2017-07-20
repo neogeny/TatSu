@@ -147,9 +147,9 @@ def compile(grammar, name=None, semantics=None, asmodel=False, **kwargs):
     return model
 
 
-def parse(grammar, input, name=None, semantics=None, asmodel=False, **kwargs):
+def parse(grammar, input, start=None, name=None, semantics=None, asmodel=False, **kwargs):
     model = compile(grammar, name=name, semantics=semantics, asmodel=asmodel, **kwargs)
-    return model.parse(input, semantics=semantics, **kwargs)
+    return model.parse(input, start=start, semantics=semantics, **kwargs)
 
 
 def to_python_sourcecode(grammar, name=None, filename=None, **kwargs):
