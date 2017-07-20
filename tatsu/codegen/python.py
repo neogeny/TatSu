@@ -448,6 +448,7 @@ class Grammar(Base):
             keywords = '\n%s\n' % keywords
 
         fields.update(rules=indent(rules),
+                      start=self.node.rules[0].name,
                       abstract_rules=abstract_rules,
                       version=version,
                       whitespace=whitespace,
@@ -555,14 +556,14 @@ class Grammar(Base):
                 {abstract_rules}
 
 
-                def main(filename, startrule, **kwargs):
+                def main(filename, start='{start}', **kwargs):
                     if not filename or filename == '-':
                         text = sys.stdin.read()
                     else:
                         with open(filename) as f:
                             text = f.read()
                     parser = {name}Parser()
-                    return parser.parse(text, startrule, filename=filename, **kwargs)
+                    return parser.parse(text, start=start, filename=filename, **kwargs)
 
 
                 if __name__ == '__main__':
@@ -575,5 +576,5 @@ class Grammar(Base):
                     print()
                     print('JSON:')
                     print(json.dumps(asjson(ast), indent=2))
-                    print()
+                    print()\
                 '''

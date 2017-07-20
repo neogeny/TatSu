@@ -324,7 +324,7 @@ def generic_main(custom_main, parser_class, name='Unknown'):
            metavar="STARTRULE",
            nargs='?',
            help="the start rule for parsing",
-           default='start')
+           default=None)
 
     args = argp.parse_args()
     try:
