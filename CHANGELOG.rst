@@ -15,6 +15,14 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.3...master
 
 
+Fixed
+~~~~~
+
+*   `#40`_ Make the start rule default to the first rule defined in the grammar (`@hariedo`_).
+
+.. _#40: https://github.com/neogeny/TatSu/issues/40
+
+
 `4.2.3`_ @ 2017-07-10
 ---------------------
 .. _4.2.3: https://github.com/apalala/tatsu/compare/v4.2.2...v4.2.3
@@ -248,3 +256,4 @@ Added
 .. _pgebhard: https://bitbucket.org/pgebhard
 .. _siemer: https://bitbucket.org/siemer
 .. _@heronils: https://github.com/heronils
+.. _@hariedo: https://github.com/hariedo
