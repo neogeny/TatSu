@@ -2,12 +2,11 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from collections import OrderedDict
-import re
 
 from tatsu import grammars
 from tatsu.exceptions import FailedSemantics
 from tatsu.semantics import ModelBuilderSemantics
-from tatsu.util import eval_escapes, warning
+from tatsu.util import eval_escapes, re, warning
 
 
 class EBNFGrammarSemantics(ModelBuilderSemantics):
