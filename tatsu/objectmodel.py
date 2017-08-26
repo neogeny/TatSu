@@ -94,9 +94,10 @@ class Node(object):
 
     @property
     def text(self):
-        if self.parseinfo:
-            text = self.parseinfo.buffer.text
-            return text[self.parseinfo.pos:self.parseinfo.endpos]
+        if not self.parseinfo:
+            return ''
+        text = self.parseinfo.buffer.text
+        return text[self.parseinfo.pos:self.parseinfo.endpos]
 
     @property
     def comments(self):
