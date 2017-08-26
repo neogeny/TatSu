@@ -7,6 +7,7 @@ Contributors
 The following, among others, have contributted to |TatSu| with
 features, bug fixes, or suggestions:
 
+    `Alberto Berti`_,
     `Basel Shishani`_,
     `David Chen`_,
     `David Delassus`_,
@@ -39,6 +40,7 @@ Most of the contributions are recorded as **Grako** commits_ or issues_.
 .. _commits: https://bitbucket.org/neogeny/grako/commits/all
 .. _issues: https://bitbucket.org/neogeny/grako/issues
 
+.. _Alberto Berti: https://github.com/azazel75
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
 .. _David Delassus: https://bitbucket.org/linkdd
