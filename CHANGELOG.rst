@@ -18,9 +18,11 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 Fixed
 ~~~~~
 
-*   `#40`_ Make the start rule default to the first rule defined in the grammar (`@hariedo`_).
+*   `#40`_ Make the start rule default to the first rule defined in the grammar (`@hariedo`_)
+*   `#43`_ Import 're' from tatsu.util to support optional 'regex'-only features (`@`_azazel75)
 
 .. _#40: https://github.com/neogeny/TatSu/issues/40
+.. _#43: https://github.com/neogeny/TatSu/issues/43
 
 
 `4.2.3`_ @ 2017-07-10
@@ -224,9 +226,15 @@ Added
 .. _regex: https://pypi.python.org/pypi/regex
 .. _smc.mw: https://github.com/lambdafu/smc.mw
 
+.. _@azazel75: https://github.com/azazel75
+.. _@davidchen: https://github.com/davidchen
+.. _@gegenschall: https://bitbucket.org/gegenschall
+.. _@hariedo: https://github.com/hariedo
+.. _@heronils: https://github.com/heronils
+.. _@manueljacob: https://github.com/manueljacob
+.. _@paulhoule: https://github.com/paulhoule
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
-.. _@davidchen: https://github.com/davidchen
 .. _David Delassus: https://bitbucket.org/linkdd
 .. _David Röthlisberger: https://bitbucket.org/drothlis/
 .. _Dmytro Ivanov: https://bitbucket.org/jimon
@@ -234,12 +242,9 @@ Added
 .. _Gabriele Paganelli: https://bitbucket.org/gapag
 .. _Kathryn Long: https://bitbucket.org/starkat
 .. _Manuel Jacob: https://github.com/manueljacob
-.. _@manueljacob: https://github.com/manueljacob
 .. _Marcus Brinkmann: https://bitbucket.org/lambdafu/
 .. _Max Liebkies: https://bitbucket.org/gegenschall
-.. _@gegenschall: https://bitbucket.org/gegenschall
 .. _Paul Houle: https://github.com/paulhoule
-.. _@paulhoule: https://github.com/paulhoule
 .. _Paul Sargent: https://bitbucket.org/pauls
 .. _Robert Speer: https://bitbucket.org/r_speer
 .. _Ryan Gonzales: https://github.com/kirbyfan64
@@ -255,5 +260,3 @@ Added
 .. _neumond: https://bitbucket.org/neumond
 .. _pgebhard: https://bitbucket.org/pgebhard
 .. _siemer: https://bitbucket.org/siemer
-.. _@heronils: https://github.com/heronils
-.. _@hariedo: https://github.com/hariedo
