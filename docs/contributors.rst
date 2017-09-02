@@ -19,6 +19,7 @@ features, bug fixes, or suggestions:
     `Manuel Jacob`_,
     `Marcus Brinkmann`_,
     `Max Liebkies`_,
+    `Michael Noronha`_,
     `Nils-Hero Lindemann`_,
     `Paul Houle`_,
     `Paul Sargent`_,
@@ -52,6 +53,7 @@ Most of the contributions are recorded as **Grako** commits_ or issues_.
 .. _Manuel Jacob: https://github.com/manueljacob
 .. _Marcus Brinkmann: https://bitbucket.org/lambdafu/
 .. _Max Liebkies: https://bitbucket.org/gegenschall
+.. _Michael Noronha: https://github.com/mtn
 .. _Nils-Hero Lindemann: https://github.com/heronils
 .. _Paul Houle: https://github.com/paulhoule
 .. _Paul Sargent: https://bitbucket.org/pauls
