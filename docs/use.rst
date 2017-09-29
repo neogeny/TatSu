@@ -73,7 +73,7 @@ This is an example of how to use **Tatsu** as a library:
         print()
 
         print('JSON')
-        print(json.dumps(ast.asjson(), indent=2))
+        print(json.dumps(ast, indent=2))
         print()
 
 
