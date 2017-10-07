@@ -3,7 +3,7 @@
 Abstract Syntax Trees (ASTs)
 ----------------------------
 
-By default, and `AST`_ is either a *list* (for *closures* and rules
+By default, an `AST`_ is either a *list* (for *closures* and rules
 without named elements), or *dict*-derived object that contains one item
 for every named element in the grammar rule. Items can be accessed
 through the standard ``dict`` syntax (``ast['key']``), or as attributes
