@@ -66,6 +66,7 @@ This is an example of how to use **Tatsu** as a library:
         import pprint
         import json
         from tatsu import parse
+        from tatsu.util import asjson
 
         ast = parse(GRAMMAR, '3 + 5 * ( 10 - 20 )')
         print('PPRINT')
@@ -73,7 +74,7 @@ This is an example of how to use **Tatsu** as a library:
         print()
 
         print('JSON')
-        print(json.dumps(ast.asjson(), indent=2))
+        print(json.dumps(asjson(ast), indent=2))
         print()
 
 
@@ -240,12 +241,13 @@ passing the grammar to parse and the starting rule's name as parameter:
 
 .. code:: python
 
+    from tatsu.util import asjson
     from myparser import MyParser
 
     parser = MyParser()
     ast = parser.parse('text to parse', rule_name='start')
     print(ast)
-    print(json.dumps(ast.asjson(), indent=2))
+    print(json.dumps(asjson(ast), indent=2))
 
 The generated parsers' constructors accept named arguments to specify
 whitespace characters, the regular expression for comments, case
