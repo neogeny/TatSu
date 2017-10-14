@@ -12,17 +12,23 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2017
 ---------------
-.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.3...master
+.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.4...master
 
+
+`4.2.3`_ @ 2017-07-10
+---------------------
+.. _4.2.4: https://github.com/apalala/tatsu/compare/v4.2.3...v4.2.4
 
 Fixed
 ~~~~~
 
 *   `#40`_ Make the start rule default to the first rule defined in the grammar (`@hariedo`_)
 *   `#43`_ Import 're' from tatsu.util to support optional 'regex'-only features (`@`_azazel75)
+*   `#47`_ Fix incorrect sample code in documentation.
 
 .. _#40: https://github.com/neogeny/TatSu/issues/40
 .. _#43: https://github.com/neogeny/TatSu/issues/43
+.. _#47: https://github.com/neogeny/TatSu/issues/47
 
 
 `4.2.3`_ @ 2017-07-10
