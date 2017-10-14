@@ -23,7 +23,7 @@ Fixed
 ~~~~~
 
 *   `#40`_ Make the start rule default to the first rule defined in the grammar (`@hariedo`_)
-*   `#43`_ Import 're' from tatsu.util to support optional 'regex'-only features (`@`_azazel75)
+*   `#43`_ Import 're' from tatsu.util to support optional 'regex'-only features (`@azazel75`_)
 *   `#47`_ Fix incorrect sample code in documentation.
 
 .. _#40: https://github.com/neogeny/TatSu/issues/40
