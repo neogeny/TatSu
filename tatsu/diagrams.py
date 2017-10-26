@@ -3,12 +3,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import itertools
 
-from tatsu.walkers import NodeWalker
+import pygraphviz as pgv
 
-try:
-    import pygraphviz as pgv
-except:
-    raise
+from tatsu.walkers import NodeWalker
 
 
 __all__ = ['draw']

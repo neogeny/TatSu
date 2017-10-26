@@ -653,7 +653,7 @@ class ParseContext(object):
             yield
             ast = self.ast
             cst = self.cst
-        except:
+        except FailedParse:
             self._goto(p)
             self._state = s
             raise
