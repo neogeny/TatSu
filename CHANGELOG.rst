@@ -15,6 +15,12 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.4...master
 
 
+*   `#42`_ Rename vim files from `grako.vim` to `tatsu.vim`  (`@fcoelho`_)
+
+
+.. _#42: https://github.com/neogeny/TatSu/issues/42
+
+
 `4.2.4`_ @ 2017-07-10
 ---------------------
 .. _4.2.4: https://github.com/apalala/tatsu/compare/v4.2.3...v4.2.4
