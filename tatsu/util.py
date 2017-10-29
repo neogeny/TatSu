@@ -28,6 +28,7 @@ try:
 except ImportError:
     import re  # type: ignore
     WHITESPACE_RE = re.compile(r'\s+')
+RETYPE = type(re.compile('.'))
 
 
 PY3 = sys.version_info[0] >= 3

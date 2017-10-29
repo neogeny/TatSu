@@ -15,11 +15,9 @@ from itertools import takewhile, repeat
 from tatsu.util import identity, imap, ustr, strtype
 from tatsu.util import extend_list, contains_sublist
 from tatsu.util import re as regexp
-from tatsu.util import WHITESPACE_RE
+from tatsu.util import RETYPE, WHITESPACE_RE
 from tatsu.exceptions import ParseError
 from tatsu.infos import PosLine, LineIndexInfo, LineInfo, CommentInfo
-
-RETYPE = type(regexp.compile('.'))
 
 # for backwards compatibility with existing parsers
 LineIndexEntry = LineIndexInfo
