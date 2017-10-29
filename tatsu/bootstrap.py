@@ -13,6 +13,8 @@
 
 from __future__ import print_function, division, absolute_import, unicode_literals
 
+import sys
+
 from tatsu.buffering import Buffer
 from tatsu.parsing import Parser
 from tatsu.parsing import tatsumasu
@@ -1138,11 +1140,14 @@ class EBNFBootstrapSemantics(object):
         return ast
 
 
-def main(filename, startrule, **kwargs):
-    with open(filename) as f:
-        text = f.read()
+def main(filename, start='start', **kwargs):
+    if not filename or filename == '-':
+        text = sys.stdin.read()
+    else:
+        with open(filename) as f:
+            text = f.read()
     parser = EBNFBootstrapParser()
-    return parser.parse(text, startrule, filename=filename, **kwargs)
+    return parser.parse(text, start=start, filename=filename, **kwargs)
 
 
 if __name__ == '__main__':

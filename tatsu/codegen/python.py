@@ -578,5 +578,5 @@ class Grammar(Base):
                     print()
                     print('JSON:')
                     print(json.dumps(asjson(ast), indent=2))
-                    print()\
+                    print()
                 '''
