@@ -11,7 +11,8 @@ from tatsu.util import (
     timestamp,
     urepr,
     ustr,
-    compress_seq
+    compress_seq,
+    RETYPE
 )
 from tatsu.exceptions import CodegenError
 from tatsu.objectmodel import Node
@@ -415,12 +416,13 @@ class Grammar(Base):
         ]
         abstract_rules = indent('\n'.join(abstract_rules))
 
-        if self.node.whitespace is not None:
-            whitespace = urepr(self.node.whitespace)
-        elif self.node.directives.get('whitespace') is not None:
-            whitespace = 're.compile({0})'.format(urepr(self.node.directives.get('whitespace')))
-        else:
+        whitespace = self.node.whitespace or self.node.directives.get('whitespace')
+        if not whitespace:
             whitespace = 'None'
+        elif isinstance(whitespace, RETYPE):
+            whitespace = urepr(whitespace)
+        else:
+            whitespace = 're.compile({0})'.format(urepr(whitespace))
 
         if self.node.nameguard is not None:
             nameguard = urepr(self.node.nameguard)
