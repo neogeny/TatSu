@@ -16,9 +16,11 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 
 *   `#42`_ Rename vim files from `grako.vim` to `tatsu.vim`  (`@fcoelho`_)
+*   `#51`_ Fix inconsistent code generation for `whitespace`  (`@fpom`_)
 
 
 .. _#42: https://github.com/neogeny/TatSu/issues/42
+.. _#51: https://github.com/neogeny/TatSu/issues/51
 
 
 `4.2.4`_ @ 2017-07-10
@@ -240,6 +242,8 @@ Added
 
 .. _@azazel75: https://github.com/azazel75
 .. _@davidchen: https://github.com/davidchen
+.. _@fcoelho: https://github.com/fcoelho
+.. _@fpom: https://github.com/fpom
 .. _@gegenschall: https://bitbucket.org/gegenschall
 .. _@hariedo: https://github.com/hariedo
 .. _@heronils: https://github.com/heronils

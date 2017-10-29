@@ -14,6 +14,7 @@ features, bug fixes, or suggestions:
     `David Röthlisberger`_,
     `Dmytro Ivanov`_,
     `Felipe`_,
+    `Franck Pommereau`_,
     `Franklin Lee`_,
     `Gabriele Paganelli`_,
     `Kathryn Long`_,
@@ -49,6 +50,7 @@ Most of the contributions are recorded as **Grako** commits_ or issues_.
 .. _David Röthlisberger: https://bitbucket.org/drothlis/
 .. _Dmytro Ivanov: https://bitbucket.org/jimon
 .. _Felipe: https://github.com/fcoelho
+.. _Franck Pommereau: https://github.com/fpom
 .. _Franklin Lee: https://bitbucket.org/leewz
 .. _Gabriele Paganelli: https://bitbucket.org/gapag
 .. _Kathryn Long: https://bitbucket.org/starkat
