@@ -76,6 +76,23 @@ class ParsingTests(unittest.TestCase):
         ast = tatsu.parse(grammar, "test", rule_name='start')
         self.assertEqual(ast, "test")
 
+    def test_rule_capitalization(self):
+        grammar = '''
+            start = ['test' {rulename}] ;
+            {rulename} = /[a-zA-Z0-9]+/ ;
+        '''
+        test_string = 'test 12'
+        lowercase_rule_names = ['nocaps', 'camelCase', 'tEST']
+        uppercase_rule_names = ['Capitalized', 'CamelCase', 'TEST']
+        ref_lowercase_result = tatsu.parse(grammar.format(rulename='reflowercase'), test_string, rule_name='start')
+        ref_uppercase_result = tatsu.parse(grammar.format(rulename='Refuppercase'), test_string, rule_name='start')
+        for rulename in lowercase_rule_names:
+            result = tatsu.parse(grammar.format(rulename=rulename), test_string, rule_name='start')
+            self.assertEqual(result, ref_lowercase_result)
+        for rulename in uppercase_rule_names:
+            result = tatsu.parse(grammar.format(rulename=rulename), test_string, rule_name='start')
+            self.assertEqual(result, ref_uppercase_result)
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ParsingTests)
