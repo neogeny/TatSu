@@ -8,6 +8,7 @@ The following, among others, have contributted to |TatSu| with
 features, bug fixes, or suggestions:
 
     `Alberto Berti`_,
+    `Andy Wright`_,
     `Basel Shishani`_,
     `David Chen`_,
     `David Delassus`_,
@@ -44,6 +45,7 @@ Most of the contributions are recorded as **Grako** commits_ or issues_.
 .. _issues: https://bitbucket.org/neogeny/grako/issues
 
 .. _Alberto Berti: https://github.com/azazel75
+.. _Andy Wright: https://github.com/acw1251
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
 .. _David Delassus: https://bitbucket.org/linkdd

@@ -12,15 +12,21 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2017
 ---------------
-.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.4...master
+.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.5...master
 
+
+`4.2.5`_ @ 2017-11-26
+---------------------
+.. _4.2.4: https://github.com/apalala/tatsu/compare/v4.2.4...v4.2.5
 
 *   `#42`_ Rename vim files from `grako.vim` to `tatsu.vim`  (`@fcoelho`_)
 *   `#51`_ Fix inconsistent code generation for `whitespace`  (`@fpom`_)
+*   `#54`_ Only care about case of first letter of rule name for determining advance over whitespace (`@acw1251`_)
 
 
 .. _#42: https://github.com/neogeny/TatSu/issues/42
 .. _#51: https://github.com/neogeny/TatSu/issues/51
+.. _#54: https://github.com/neogeny/TatSu/pull/54
 
 
 `4.2.4`_ @ 2017-07-10
@@ -32,7 +38,8 @@ Fixed
 
 *   `#40`_ Make the start rule default to the first rule defined in the grammar (`@hariedo`_)
 *   `#43`_ Import 're' from tatsu.util to support optional 'regex'-only features (`@azazel75`_)
-*   `#47`_ Fix incorrect sample code in documentation.
+*   `#47`_ Fix incorrect sample code in documentation (`@apalala`_)
+
 
 .. _#40: https://github.com/neogeny/TatSu/issues/40
 .. _#43: https://github.com/neogeny/TatSu/issues/43
@@ -240,6 +247,8 @@ Added
 .. _regex: https://pypi.python.org/pypi/regex
 .. _smc.mw: https://github.com/lambdafu/smc.mw
 
+.. _@acw1251: https://github.com/acw1251
+.. _@apalala: https://github.com/apalala
 .. _@azazel75: https://github.com/azazel75
 .. _@davidchen: https://github.com/davidchen
 .. _@fcoelho: https://github.com/fcoelho
