@@ -4,8 +4,8 @@
 Contributors
 ------------
 
-The following, among others, have contributted to |TatSu| with
-features, bug fixes, or suggestions:
+The following, among others, have contributed to |TatSu| with
+features, but reports, bug fixes, or suggestions:
 
     `Alberto Berti`_,
     `Andy Wright`_,
@@ -28,6 +28,7 @@ features, bug fixes, or suggestions:
     `Paul Sargent`_,
     `Robert Speer`_,
     `Ryan Gonzales`_,
+    `Ruth-Polymnia`_,
     `S Brown`_,
     `Tonico Strasser`_,
     `Victor Uriarte`_,
@@ -65,6 +66,7 @@ Most of the contributions are recorded as **Grako** commits_ or issues_.
 .. _Paul Sargent: https://bitbucket.org/pauls
 .. _Robert Speer: https://bitbucket.org/r_speer
 .. _Ryan Gonzales: https://github.com/kirbyfan64
+.. _Ruth-Polymnia: https://github.com/Ruth-Polymnia
 .. _S Brown: https://bitbucket.org/sjbrownBitbucket
 .. _Tonico Strasser: https://bitbucket.org/tonico_strasser
 .. _Victor Uriarte: https://bitbucket.org/vmuriart

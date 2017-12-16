@@ -14,6 +14,10 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.5...master
 
+*   `#56`_ Add missing `tatsu/g2e/antlr.ebnf` to distribution  (`@Ruth-Polymnia`_)
+
+.. _#56: https://github.com/neogeny/TatSu/issues/56
+
 
 `4.2.5`_ @ 2017-11-26
 ---------------------
@@ -258,6 +262,7 @@ Added
 .. _@heronils: https://github.com/heronils
 .. _@manueljacob: https://github.com/manueljacob
 .. _@paulhoule: https://github.com/paulhoule
+.. _@Ruth-Polymnia: https://github.com/Ruth-Polymnia
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
 .. _David Delassus: https://bitbucket.org/linkdd
