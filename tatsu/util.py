@@ -329,14 +329,23 @@ def generic_main(custom_main, parser_class, name='Unknown'):
 
     args = argp.parse_args()
     try:
-        return custom_main(
-            args.file,
-            args.startrule,
-            trace=args.trace,
-            whitespace=args.whitespace,
-            nameguard=not args.no_nameguard,
-            colorize=args.color
-        )
+        if args.startrule is None:
+            return custom_main(
+                args.file,
+                trace=args.trace,
+                whitespace=args.whitespace,
+                nameguard=not args.no_nameguard,
+                colorize=args.color
+            )
+        else:
+            return custom_main(
+                args.file,
+                start=args.startrule,
+                trace=args.trace,
+                whitespace=args.whitespace,
+                nameguard=not args.no_nameguard,
+                colorize=args.color
+            )
     except KeyboardInterrupt:
         pass
 
