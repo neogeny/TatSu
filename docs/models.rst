@@ -41,6 +41,8 @@ You can also use `Python`_'s built-in types as node types, and
 default behavior can be overidden by defining a method to handle the
 result of any particular grammar rule.
 
+The flag `asmodel=True` is an obsolete synonym for `semantics=ModelBuilderSemantics()`.
+
 Walking Models
 ~~~~~~~~~~~~~~
 

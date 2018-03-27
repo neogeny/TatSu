@@ -8,6 +8,7 @@ from pprint import pprint
 import tatsu
 from tatsu.ast import AST
 from tatsu.walkers import NodeWalker
+from tatsu.semantics import ModelBuilderSemantics
 
 from codegen import PostfixCodeGenerator
 
@@ -117,7 +118,7 @@ def parse_factored():
 def parse_to_model():
     grammar = open('grammars/calc_model.ebnf').read()
 
-    parser = tatsu.compile(grammar, asmodel=True)
+    parser = tatsu.compile(grammar, semantics=ModelBuilderSemantics())
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
     print()
@@ -146,7 +147,7 @@ class CalcWalker(NodeWalker):
 def parse_and_walk_model():
     grammar = open('grammars/calc_model.ebnf').read()
 
-    parser = tatsu.compile(grammar, asmodel=True)
+    parser = tatsu.compile(grammar, semantics=ModelBuilderSemantics())
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
     print()
@@ -160,7 +161,7 @@ def parse_and_walk_model():
 def parse_and_translate():
     grammar = open('grammars/calc_model.ebnf').read()
 
-    parser = tatsu.compile(grammar, asmodel=True)
+    parser = tatsu.compile(grammar, semantics=ModelBuilderSemantics())
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
     postfix = PostfixCodeGenerator().render(model)
