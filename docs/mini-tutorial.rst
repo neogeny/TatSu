@@ -595,6 +595,7 @@ The model that results from a parse can be printed, and walked:
 .. code:: python
 
     from tatsu.walkers import NodeWalker
+    from tatsu.semantics import ModelBuilderSemantics
 
 
     class CalcWalker(NodeWalker):
@@ -617,7 +618,7 @@ The model that results from a parse can be printed, and walked:
     def parse_and_walk_model():
         grammar = open('grammars/calc_model.ebnf').read()
 
-        parser = tatsu.compile(grammar, asmodel=True)
+        parser = tatsu.compile(grammar, semantics=ModelBuilderSemantics())
         model = parser.parse('3 + 5 * ( 10 - 20 )')
 
         print('# WALKER RESULT IS:')
@@ -696,7 +697,7 @@ The code generator can be used thus:
     def parse_and_translate():
         grammar = open('grammars/calc_model.ebnf').read()
 
-        parser = tatsu.compile(grammar, asmodel=True)
+        parser = tatsu.compile(grammar, semantics=ModelBuilderSemantics())
         model = parser.parse('3 + 5 * ( 10 - 20 )')
 
         postfix = PostfixCodeGenerator().render(model)
