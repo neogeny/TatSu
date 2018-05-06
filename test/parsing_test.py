@@ -96,7 +96,7 @@ class ParsingTests(unittest.TestCase):
     def test_startrule_issue62(self):
         grammar = '''
             @@grammar::TEST
-            
+
             file_input = expr $ ;
             expr = number '+' number ;
             number = /[0-9]/ ;
