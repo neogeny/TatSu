@@ -21,6 +21,7 @@ features, but reports, bug fixes, or suggestions:
     `Kathryn Long`_,
     `Manuel Jacob`_,
     `Marcus Brinkmann`_,
+    `Mark Jason Dominus`_,
     `Max Liebkies`_,
     `Michael Noronha`_,
     `Nicholas Bishop`_,
@@ -61,6 +62,7 @@ Most of the contributions are recorded as **Grako** commits_ or issues_.
 .. _Kathryn Long: https://bitbucket.org/starkat
 .. _Manuel Jacob: https://github.com/manueljacob
 .. _Marcus Brinkmann: https://bitbucket.org/lambdafu/
+.. _Mark Jason Dominus: https://github.com/mjdominus
 .. _Max Liebkies: https://bitbucket.org/gegenschall
 .. _Michael Noronha: https://github.com/mtn
 .. _Nicholas Bishop: https://github.com/nicholasbishop
