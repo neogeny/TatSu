@@ -12,16 +12,23 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2017
 ---------------
-.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.5...master
+.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.6...master
+
+`4.2.6`_ @ 2018-0506
+---------------------
+.. _4.2.6: https://github.com/apalala/tatsu/compare/v4.2.5...v4.2.6
 
 *   `#56`_ Add missing `tatsu/g2e/antlr.ebnf` to distribution  (`@Ruth-Polymnia`_)
+*   `#62`_ Fix |TatSu| ignoring start rule provided in command line  (`@r-chavez`_)
+*   Fix typos in documentation (`@mjdominus`_)
 
 .. _#56: https://github.com/neogeny/TatSu/issues/56
+.. _#62: https://github.com/neogeny/TatSu/issues/62
 
 
 `4.2.5`_ @ 2017-11-26
 ---------------------
-.. _4.2.4: https://github.com/apalala/tatsu/compare/v4.2.4...v4.2.5
+.. _4.2.5: https://github.com/apalala/tatsu/compare/v4.2.4...v4.2.5
 
 *   `#42`_ Rename vim files from `grako.vim` to `tatsu.vim`  (`@fcoelho`_)
 *   `#51`_ Fix inconsistent code generation for `whitespace`  (`@fpom`_)
@@ -261,8 +268,11 @@ Added
 .. _@hariedo: https://github.com/hariedo
 .. _@heronils: https://github.com/heronils
 .. _@manueljacob: https://github.com/manueljacob
+.. _@mjdominus: https://github.com/mjdominus
 .. _@paulhoule: https://github.com/paulhoule
 .. _@Ruth-Polymnia: https://github.com/Ruth-Polymnia
+.. _@r-chavez: https://github.com/r-chaves
+
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
 .. _David Delassus: https://bitbucket.org/linkdd
