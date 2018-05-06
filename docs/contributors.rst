@@ -23,10 +23,12 @@ features, but reports, bug fixes, or suggestions:
     `Marcus Brinkmann`_,
     `Max Liebkies`_,
     `Michael Noronha`_,
+    `Nicholas Bishop`_,
     `Nils-Hero Lindemann`_,
     `Paul Houle`_,
     `Paul Sargent`_,
     `Robert Speer`_,
+    `Ryan`_,
     `Ryan Gonzales`_,
     `Ruth-Polymnia`_,
     `S Brown`_,
@@ -61,10 +63,12 @@ Most of the contributions are recorded as **Grako** commits_ or issues_.
 .. _Marcus Brinkmann: https://bitbucket.org/lambdafu/
 .. _Max Liebkies: https://bitbucket.org/gegenschall
 .. _Michael Noronha: https://github.com/mtn
+.. _Nicholas Bishop: https://github.com/nicholasbishop
 .. _Nils-Hero Lindemann: https://github.com/heronils
 .. _Paul Houle: https://github.com/paulhoule
 .. _Paul Sargent: https://bitbucket.org/pauls
 .. _Robert Speer: https://bitbucket.org/r_speer
+.. _Ryan: https://github.com/r-chaves
 .. _Ryan Gonzales: https://github.com/kirbyfan64
 .. _Ruth-Polymnia: https://github.com/Ruth-Polymnia
 .. _S Brown: https://bitbucket.org/sjbrownBitbucket

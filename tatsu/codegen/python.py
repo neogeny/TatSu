@@ -558,7 +558,9 @@ class Grammar(Base):
                 {abstract_rules}
 
 
-                def main(filename, start='{start}', **kwargs):
+                def main(filename, start=None, **kwargs):
+                    if start is None:
+                        start = '{start}'
                     if not filename or filename == '-':
                         text = sys.stdin.read()
                     else:
