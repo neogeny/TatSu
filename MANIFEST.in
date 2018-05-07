@@ -1,4 +1,5 @@
 include *.cfg
+include *.ebnf
 include *.ini
 include *.md
 include *.rst

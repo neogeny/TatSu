@@ -93,6 +93,17 @@ class ParsingTests(unittest.TestCase):
             result = tatsu.parse(grammar.format(rulename=rulename), test_string, rule_name='start')
             self.assertEqual(result, ref_uppercase_result)
 
+    def test_startrule_issue62(self):
+        grammar = '''
+            @@grammar::TEST
+
+            file_input = expr $ ;
+            expr = number '+' number ;
+            number = /[0-9]/ ;
+        '''
+        model = tatsu.compile(grammar=grammar)
+        model.parse('4 + 5')
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ParsingTests)

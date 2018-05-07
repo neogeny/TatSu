@@ -687,7 +687,7 @@ Both patterns may also be specified within a grammar using the
     @@eol_comments :: /#.*?$/
 
 Reserved Words and Keywords
-~~~~~~~~~~~~~~~~~~~~~~~~~~-
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Some languages must reserve the use of certain tokens as valid
 identifiers because the tokens are used to mark particular constructs in
@@ -723,7 +723,7 @@ use of the token:
     statements = {!'END' statement}+ ;
 
 Include Directive
-~~~~~~~~~~~~~~~~-
+~~~~~~~~~~~~~~~~~
 
 |TatSu| grammars support file inclusion through the include directive:
 

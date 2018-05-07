@@ -14,6 +14,7 @@ from tatsu.contexts import ParseContext
 from tatsu.objectmodel import Node
 from tatsu.bootstrap import EBNFBootstrapBuffer
 from tatsu.infos import RuleInfo
+from tatsu.buffering import Buffer
 
 
 PEP8_LLEN = 72
@@ -71,7 +72,7 @@ class ModelContext(ParseContext):
     def __init__(self, rules, semantics=None, trace=False, **kwargs):
         super(ModelContext, self).__init__(
             semantics=semantics,
-            buffer_class=EBNFBuffer,
+            buffer_class=Buffer,
             trace=trace,
             **kwargs
         )

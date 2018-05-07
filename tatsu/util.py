@@ -331,7 +331,7 @@ def generic_main(custom_main, parser_class, name='Unknown'):
     try:
         return custom_main(
             args.file,
-            args.startrule,
+            start=args.startrule,
             trace=args.trace,
             whitespace=args.whitespace,
             nameguard=not args.no_nameguard,

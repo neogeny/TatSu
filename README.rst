@@ -154,7 +154,7 @@ requires different licensing* please `email`_.
 Documentation
 -------------
 
-For a detailed explanation of what |TatSu| is capable off, please see the
+For a detailed explanation of what |TatSu| is capable of, please see the
 documentation_.
 
 .. _documentation: http://tatsu.readthedocs.io/

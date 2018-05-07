@@ -4,8 +4,8 @@
 Contributors
 ------------
 
-The following, among others, have contributted to |TatSu| with
-features, bug fixes, or suggestions:
+The following, among others, have contributed to |TatSu| with
+features, but reports, bug fixes, or suggestions:
 
     `Alberto Berti`_,
     `Andy Wright`_,
@@ -21,13 +21,17 @@ features, bug fixes, or suggestions:
     `Kathryn Long`_,
     `Manuel Jacob`_,
     `Marcus Brinkmann`_,
+    `Mark Jason Dominus`_,
     `Max Liebkies`_,
     `Michael Noronha`_,
+    `Nicholas Bishop`_,
     `Nils-Hero Lindemann`_,
     `Paul Houle`_,
     `Paul Sargent`_,
     `Robert Speer`_,
+    `Ryan`_,
     `Ryan Gonzales`_,
+    `Ruth-Polymnia`_,
     `S Brown`_,
     `Tonico Strasser`_,
     `Victor Uriarte`_,
@@ -58,13 +62,17 @@ Most of the contributions are recorded as **Grako** commits_ or issues_.
 .. _Kathryn Long: https://bitbucket.org/starkat
 .. _Manuel Jacob: https://github.com/manueljacob
 .. _Marcus Brinkmann: https://bitbucket.org/lambdafu/
+.. _Mark Jason Dominus: https://github.com/mjdominus
 .. _Max Liebkies: https://bitbucket.org/gegenschall
 .. _Michael Noronha: https://github.com/mtn
+.. _Nicholas Bishop: https://github.com/nicholasbishop
 .. _Nils-Hero Lindemann: https://github.com/heronils
 .. _Paul Houle: https://github.com/paulhoule
 .. _Paul Sargent: https://bitbucket.org/pauls
 .. _Robert Speer: https://bitbucket.org/r_speer
+.. _Ryan: https://github.com/r-chaves
 .. _Ryan Gonzales: https://github.com/kirbyfan64
+.. _Ruth-Polymnia: https://github.com/Ruth-Polymnia
 .. _S Brown: https://bitbucket.org/sjbrownBitbucket
 .. _Tonico Strasser: https://bitbucket.org/tonico_strasser
 .. _Victor Uriarte: https://bitbucket.org/vmuriart
