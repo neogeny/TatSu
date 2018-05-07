@@ -19,7 +19,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _4.2.6: https://github.com/apalala/tatsu/compare/v4.2.5...v4.2.6
 
 *   `#56`_ Add missing `tatsu/g2e/antlr.ebnf` to distribution  (`@Ruth-Polymnia`_)
-*   `#62`_ Fix |TatSu| ignoring start rule provided in command line  (`@r-chavez`_)
+*   `#62`_ Fix |TatSu| ignoring start rule provided in command line  (`@r-chaves`_)
 *   Fix typos in documentation (`@mjdominus`_)
 
 .. _#56: https://github.com/neogeny/TatSu/issues/56
@@ -271,7 +271,7 @@ Added
 .. _@mjdominus: https://github.com/mjdominus
 .. _@paulhoule: https://github.com/paulhoule
 .. _@Ruth-Polymnia: https://github.com/Ruth-Polymnia
-.. _@r-chavez: https://github.com/r-chaves
+.. _@r-chaves: https://github.com/r-chaves
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
