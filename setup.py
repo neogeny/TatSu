@@ -60,7 +60,6 @@ setuptools.setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: PyPy',
-        'Programming Language :: Python :: Implementation :: PyPy3',
         'Programming Language :: Cython',
         'Topic :: Software Development :: Code Generators',
         'Topic :: Software Development :: Compilers',
