@@ -40,6 +40,7 @@ features, but reports, bug fixes, or suggestions:
     `gkimbar`_,
     `nehz`_ ,
     `neumond`_,
+    `pdw-mb`_,
     `pgebhard`_,
     `siemer`_
 
@@ -83,5 +84,6 @@ Most of the contributions are recorded as **Grako** commits_ or issues_.
 .. _gkimbar: https://bitbucket.org/gkimbar
 .. _nehz: https://bitbucket.org/nehz
 .. _neumond: https://bitbucket.org/neumond
+.. _pdw-mb: https://bitbucket.org/pdw-mb
 .. _pgebhard: https://bitbucket.org/pgebhard
 .. _siemer: https://bitbucket.org/siemer

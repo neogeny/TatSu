@@ -3,9 +3,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import unittest
 
-from tatsu.util import trim
+from tatsu.util import trim, urepr
 from tatsu.tool import compile
 from tatsu.exceptions import FailedParse
+from tatsu.codegen import codegen
 
 
 class PatternTests(unittest.TestCase):
@@ -103,3 +104,30 @@ class PatternTests(unittest.TestCase):
         model = compile(grammar=grammar)
         ast = model.parse('ABcD xYZ')
         self.assertEqual(['ABcD', 'xYZ'], ast)
+
+    def test_multiline_pattern(self):
+        grammar = r'''
+            start =
+            /(?x)
+            foo
+            bar
+            / $ ;
+        '''
+        model = compile(grammar=trim(grammar))
+        print(codegen(model.rules[0].exp.sequence[0]))
+        self.assertEqual(
+            codegen(model.rules[0].exp.sequence[0]),
+            urepr("self._pattern('(?x)\nfoo\nbar\n')").strip('"\'')
+        )
+
+        grammar = r'''
+            start =
+            /(?x)foo\nbar
+            blort/ $ ;
+        '''
+        model = compile(grammar=trim(grammar))
+        print(codegen(model.rules[0].exp.sequence[0]))
+        self.assertEqual(
+            trim(codegen(model.rules[0].exp.sequence[0])),
+            urepr("self._pattern('(?x)foo\\nbar\nblort')").strip('"\.')
+        )

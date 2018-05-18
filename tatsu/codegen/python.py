@@ -98,7 +98,7 @@ class Constant(Base):
 
 class Pattern(Base):
     def render_fields(self, fields):
-        raw_repr = 'r' + urepr(self.node.pattern).replace("\\\\", '\\')
+        raw_repr = urepr(self.node.pattern)
         fields.update(pattern=raw_repr)
 
     template = 'self._pattern({pattern})'

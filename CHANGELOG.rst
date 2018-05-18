@@ -14,6 +14,10 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.6...master
 
+*   `#66`_ Fix multiline (`(?x)`) patterns not properly supported in grammar  (`@pdw-mb`_)
+
+.. _#66: https://github.com/neogeny/TatSu/issues/56
+
 `4.2.6`_ @ 2018-0506
 ---------------------
 .. _4.2.6: https://github.com/apalala/tatsu/compare/v4.2.5...v4.2.6
@@ -298,5 +302,6 @@ Added
 .. _gkimbar: https://bitbucket.org/gkimbar
 .. _nehz: https://bitbucket.org/nehz
 .. _neumond: https://bitbucket.org/neumond
+.. _pdw-mb: https://bitbucket.org/pdw-mb
 .. _pgebhard: https://bitbucket.org/pgebhard
 .. _siemer: https://bitbucket.org/siemer
