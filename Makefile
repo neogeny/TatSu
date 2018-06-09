@@ -6,7 +6,7 @@ tatsu_test:
 
 
 documentation:
-	pandoc README.rst -t commonmark --wrap=none > README.md
+	pandoc README.rst -t markdown --wrap=none > README.md
 	cd docs; make -s html > /dev/null
 
 
