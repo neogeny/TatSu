@@ -1,4 +1,4 @@
-.. |dragon| unicode:: 0x7ADC .. unicode dragon
+.. |dragon| unicode-block:: 0x7ADC .. unicode dragon
 .. |TatSu| replace:: |dragon| **TatSu**
 
 |license| |pyversions| |fury| |circleci| |travis| |docs| |landscape|
@@ -33,7 +33,7 @@ input, much like the `re`_ module does with regular expressions, or it can gener
 Installation
 ------------
 
-.. code:: bash
+.. code-block:: bash
 
     $ pip install TatSu
 
@@ -62,7 +62,7 @@ Using the Tool
 
 This is an example of how to use |TatSu| as a library:
 
-.. code:: python
+.. code-block:: python
 
     GRAMMAR = '''
         @@grammar::CALC
@@ -118,7 +118,7 @@ This is an example of how to use |TatSu| as a library:
 
 This is the output:
 
-.. code:: console
+.. code-block:: console
 
     # PPRINT
     [ '3',
