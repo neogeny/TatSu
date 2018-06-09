@@ -1,4 +1,4 @@
-.. |dragon| unicode-block:: 0x7ADC .. unicode dragon
+.. |dragon| unicode:: 0x7ADC .. unicode dragon
 .. |TatSu| replace:: |dragon| **TatSu**
 
 |license| |pyversions| |fury| |circleci| |travis| |docs| |landscape|
