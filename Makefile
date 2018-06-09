@@ -6,6 +6,7 @@ tatsu_test:
 
 
 documentation:
+	pandoc README.rst -t commonmark --wrap=none > README.md
 	cd docs; make -s html > /dev/null
 
 
@@ -49,14 +50,14 @@ clean_cython:
 	find tatsu -name "*.c" | xargs rm -f
 
 
-release_check: clean
+release_check: clean documentation
 	rst2html.py README.rst > /dev/null
 	python setup.py sdist --formats=zip
 	tox
 	@echo version `python -m tatsu --version`
 
 
-distributions: clean release_check
+distributions: clean release_check 
 	python setup.py sdist --formats=zip
 	python setup.py bdist_wheel --universal
 
