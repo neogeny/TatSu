@@ -3,9 +3,9 @@
 Contributing
 ------------
 
-|TatSu| development is done on Bitbucket_. Bug reports, patches, suggestions, and improvements are welcome.
+|TatSu| development is done on github_. Bug reports, patches, suggestions, and improvements are welcome.
 
-.. _bitbucket : https://bitbucket.org/neogeny/tatsu/
+.. _github : https://github.com/neogeny/TatSu
 
 
 Donations
