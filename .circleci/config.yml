@@ -48,7 +48,8 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            tox
+            flake8
+            py.test
 
       - store_artifacts:
           path: test-reports
