@@ -276,8 +276,8 @@ See the `CHANGELOG`_ for details.
    :target: https://pypi.python.org/pypi/tatsu
 .. |travis| image:: https://secure.travis-ci.org/neogeny/TatSu.svg
    :target: http://travis-ci.org/neogeny/TatSu
-.. |circleci| image:: https://circleci.com/gh/apalala/TatSu.svg?style=shield
-    :target: https://circleci.com/gh/apalala/TatSu
+.. |circleci| image:: https://circleci.com/gh/neogeny/TatSu.svg?style=shield
+    :target: https://circleci.com/gh/neogeny/TatSu
 .. |landscape| image:: https://landscape.io/github/apalala/TatSu/master/landscape.png
    :target: https://landscape.io/github/apalala/TatSu/master
 .. |donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif
