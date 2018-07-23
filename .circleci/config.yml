@@ -41,7 +41,10 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            python -m venv venv
+            sudo apt update
+            sudo apt install -y python-pip
+            sudo apt install -y virtualenv
+            virtualenv venv
             . venv/bin/activate
             pip install -U pip
             pip install -r requirements-test.txt
@@ -103,8 +106,9 @@ jobs:
           name: install dependencies
           command: |
             sudo apt update
-            sudo apt install pypy
-            sudo apt install virtualenv
+            sudo apt install -y python-pip
+            sudo apt install -y virtualenv
+            sudo apt install -y pypy
             virtualenv venv -p pypy
             . venv/bin/activate
             pip install -U pip
