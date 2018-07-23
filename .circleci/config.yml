@@ -8,9 +8,11 @@ workflows:
   version: 2
   test:
     jobs:
+      - test-3.7
       - test-3.6
       - test-3.5
       - test-2.7
+      - test-pypy
 
 jobs:
   test-3.7:  &test-template
