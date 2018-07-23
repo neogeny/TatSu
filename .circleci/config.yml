@@ -3,13 +3,22 @@
 # Check https://circleci.com/docs/2.0/language-python/ for more details
 #
 version: 2
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test-3.6
+      - test-3.5
+      - test-2.7
+
 jobs:
-  build:
+  test-3.7:  &test-template
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
       - image: circleci/python:3.7
-      
+
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
@@ -39,7 +48,7 @@ jobs:
           paths:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements-test.txt" }}
-        
+
       # run tests!
       # this example uses Django's built-in test-runner
       # other common Python testing frameworks include pytest and nose
@@ -55,4 +64,66 @@ jobs:
       - store_artifacts:
           path: test-reports
           destination: test-reports
-          
+
+  test-2.7:
+    <<: *test-template
+    docker:
+      - image: circleci/python:2.7
+
+  test-3.6:
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.6
+
+  test-3.5:
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.5
+
+  test-pypy  :
+    docker:
+      - image: circleci/python:3.7
+
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "requirements-test.txt" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            sudo apt update
+            sudo apt install pypy
+            python3 -m venv venv -p pypy
+            . venv/bin/activate
+            pip install -U pip
+            pip install -r requirements-test.txt
+
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements-test.txt" }}
+
+      # run tests!
+      # this example uses Django's built-in test-runner
+      # other common Python testing frameworks include pytest and nose
+      # https://pytest.org
+      # https://nose.readthedocs.io
+      - run:
+          name: run tests
+          command: |
+            . venv/bin/activate
+            flake8
+            py.test
+
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
