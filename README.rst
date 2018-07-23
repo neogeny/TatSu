@@ -258,7 +258,7 @@ See the `CHANGELOG`_ for details.
 .. _pygraphviz: https://pypi.python.org/pypi/pygraphviz
 .. _r\_speer: https://bitbucket.org/r_speer
 .. _raw string literal: https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
-.. _re: https://docs.python.org/3.4/library/re.html
+.. _re: https://docs.python.org/3.7/library/re.html
 .. _regex: https://pypi.python.org/pypi/regex
 .. _siemer: https://bitbucket.org/siemer
 .. _sjbrownBitbucket: https://bitbucket.org/sjbrownBitbucket
