@@ -100,6 +100,29 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model.parse('3 + 5 * ( 10 - 20)', trace=trace, colorize=True)
         self.assertEqual(['3', '+', ['5', '*', ['10', '-', '20']]], ast)
 
+    def test_calc_indirect(self, trace=False):
+        grammar = '''
+            @@left_recursion :: True
+
+            start = expression $;
+            number = /\d+/;
+
+            addition = expression '+' number;
+            subtraction = expression '-' number;
+
+            expression =
+                | addition
+                | subtraction
+                | number;
+        '''
+        model = compile(grammar)
+        #ast = model.parse('1-1+1', trace=True, colorize=True)
+        #self.assertEqual([['1', '-', '1'], '+', '1'], ast)
+
+        ast = model.parse('1+1-1', trace=True, colorize=True)
+        self.assertEqual([['1', '+', '1'], '-', '1'], ast)
+
+
     def test_indirect_left_recursion(self, trace=False):
         grammar = '''
             @@left_recursion :: True
