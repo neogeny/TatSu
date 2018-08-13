@@ -15,6 +15,7 @@ from tatsu.objectmodel import Node
 from tatsu.bootstrap import EBNFBootstrapBuffer
 from tatsu.infos import RuleInfo
 from tatsu.buffering import Buffer
+from tatsu.leftrec import Nullable, find_left_recursion
 
 
 PEP8_LLEN = 72
@@ -103,6 +104,7 @@ class Model(Node):
         self._lookahead = None
         self._first_set = None
         self._follow_set = set()
+        self._nullability = self._nullable()
 
     def parse(self, ctx):
         ctx.last_node = None
@@ -132,6 +134,12 @@ class Model(Node):
 
     def _follow(self, k, fl, a):
         return a
+    
+    def is_nullable(self):
+        return bool(self._nullability)
+
+    def _nullable(self):
+        return Nullable.no(self)
 
     def comments_str(self):
         comments, eol = self.comments
@@ -291,7 +299,7 @@ class Pattern(Model):
         if not isinstance(ast, list):
             ast = [ast]
         self.patterns = ast
-        re.compile(self.pattern)
+        self.regex = re.compile(self.pattern)
 
     @property
     def pattern(self):
@@ -302,7 +310,7 @@ class Pattern(Model):
 
     def _first(self, k, f):
         return set([(self.pattern,)])
-
+    
     def _to_str(self, lean=False):
         parts = []
         for pat in (ustr(p) for p in self.patterns):
@@ -318,18 +326,18 @@ class Lookahead(Decorator):
     def parse(self, ctx):
         with ctx._if():
             super(Lookahead, self).parse(ctx)
-
+    
     def _to_str(self, lean=False):
         return '&' + self.exp._to_ustr(lean=lean)
 
 
 class NegativeLookahead(Decorator):
-    def _to_str(self, lean=False):
-        return '!' + ustr(self.exp._to_str(lean=lean))
-
     def parse(self, ctx):
         with ctx._ifnot():
             super(NegativeLookahead, self).parse(ctx)
+
+    def _to_str(self, lean=False):
+        return '!' + ustr(self.exp._to_str(lean=lean))
 
 
 class SkipTo(Decorator):
@@ -689,6 +697,7 @@ class Rule(Decorator):
 
         self.is_name = 'name' in self.decorators
         self.base = None
+        self.is_leftrec = False
 
     def parse(self, ctx):
         result = self._parse_rhs(ctx, self.exp)
@@ -855,7 +864,9 @@ class Grammar(Model):
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
         self._calc_lookahead_sets()
-
+        if left_recursion: 
+            find_left_recursion(self)
+            
     def _missing_rules(self, ruleset):
         return set().union(*[rule._missing_rules(ruleset) for rule in self.rules])
 
