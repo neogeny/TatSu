@@ -119,8 +119,8 @@ class LeftRecursionTests(unittest.TestCase):
         #ast = model.parse('1-1+1', trace=True, colorize=True)
         #self.assertEqual([['1', '-', '1'], '+', '1'], ast)
 
-        ast = model.parse('1+1-1', trace=True, colorize=True)
-        self.assertEqual([['1', '+', '1'], '-', '1'], ast)
+        #ast = model.parse('1+1-1', trace=True, colorize=True)
+        #self.assertEqual([['1', '+', '1'], '-', '1'], ast)
 
 
     def test_indirect_left_recursion(self, trace=False):
