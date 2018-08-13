@@ -1,17 +1,12 @@
-from builtins import object
 from collections import defaultdict
 
 # Based on https://github.com/ncellar/autumn_v1/
 
 class Nullable(object):
-    def __init__(self, model, children, resolved = False, nullable = False):
-        self.model = model
+    def __init__(self, children, resolved = False, nullable = False):
         self.resolved = resolved
         self.nullable = nullable
         self.children = children
-
-    def __bool__(self):
-        return self.resolved and self.nullable
 
     def resolve(self, nullabilities): pass
 
@@ -21,18 +16,16 @@ class Nullable(object):
         self.children = None
 
 class _All(Nullable):
-    def __init__(self, model, children):
-        super(_All, self).__init__(model, children)
-
-    def resolve(self, nullabilities):
+    def resolve(self):
         unresolved = []
-        for n in nullabilities:
+        for c in self.children:
+            n = c._nullability
             if n.resolved:
                 if not n.nullable:
                     # Not nullable if any is not nullable
                     self.resolve_with(False)
                     return
-            else: unresolved.append(n.model)
+            else: unresolved.append(c)
         if not unresolved:
             # Nullable if all are nullable
             self.resolve_with(True)
@@ -42,40 +35,36 @@ class _All(Nullable):
         
 
 class _Any(Nullable):
-    def __init__(self, model, children):
-        super(_Any, self).__init__(model, children)
-
-    def resolve(self, nullabilities):
+    def resolve(self):
         # Inverse of All
         unresolved = []
-        for n in nullabilities:
+        for c in self.children:
+            n = c._nullability
             if n.resolved:
                 if n.nullable:
                     self.resolve_with(True)
                     return
-            else: unresolved.append(n.model)
+            else: unresolved.append(c)
         if not unresolved:
             self.resolve_with(False)
         else: self.children = unresolved
 
 class _Single(Nullable):
-    def __init__(self, model, child):
-        super(_Single, self).__init__(model, [child])
-
-    def resolve(self, nullabilities):
-        if not nullabilities[0].resolved: return
-        self.resolve_with(nullabilities[0].nullable)
+    def resolve(self):
+        n = self.children[0]._nullability
+        if not n.resolved: return
+        self.resolve_with(n.nullable)
 
 Nullable.all = _All     # Nullable if all children are nullable
 Nullable.any = _Any     # Nullable if one child is nullable
-Nullable.of  = _Single  # Nullable if the only child is nullable
-Nullable.no  = lambda model: Nullable(model, None, True, False)   # Not nullable
-Nullable.yes = lambda model: Nullable(model, None, True, True)    # Nullable
+Nullable.of  = lambda child: _Single([child])  # Nullable if the only child is nullable
+Nullable.no  = lambda: Nullable(None, True, False)   # Not nullable
+Nullable.yes = lambda: Nullable(None, True, True)    # Nullable
 
 def resolve_nullability(grammar):
     dependants = defaultdict(list)
-    rule_dict = {rule.name : rule for rule in grammar.rules}
-    visited = set()
+    rule_dict = {rule.name : rule for rule in grammar.rules}    # Required to resolve rule references
+    visited = set()     # To prevent infinite recursion
 
     def walk(model):    # TODO Write a walker for this
         if model in visited: 
@@ -93,24 +82,38 @@ def resolve_nullability(grammar):
     def resolve(model):
         nullability = model._nullability
         if not nullability.resolved:
-            nullability.resolve([n._nullability for n in nullability.children])
+            nullability.resolve()
             if nullability.resolved:
-                for dependant in dependants[nullability.model]:
+                for dependant in dependants[model]:
                     n = dependant._nullability
                     if not n.resolved:
-                        resolve(dependant)
+                        resolve(dependant) # Resolve nodes that depend on this one
             else:
                 for n in nullability.children:
-                    dependants[n].append(nullability.model)
+                    dependants[n].append(model)
 
     walk(grammar)
 
-    for rule in grammar.children_list():
-        print(rule, "Nullable?", rule.is_nullable)
+    #for rule in grammar.children_list():
+    #    print(rule, "Nullable?", rule.is_nullable)
 
 # This breaks left recursive cycles by tagging
 # left recursive rules
 def find_left_recursion(grammar):
+
     # First we need to resolve nullable rules
     resolve_nullability(grammar) 
+
+    visited = set()
+
+    def walk(model):
+        if model in visited:
+            return
+        
+       
+
+        visited.add(model)
+
+    walk(grammar)
+
     return

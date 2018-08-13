@@ -137,20 +137,20 @@ class Model(Node):
     
     @property
     def is_nullable(self):
-        return bool(self._nullability)
+        return self._nullability.nullable
 
     # Can't call this inside the constructor because of RuleRef
     def _init_nullability(self, ctx):
         self._nullability = self._nullable(ctx)
         if isinstance(self._nullability, int): # Allow simple boolean values as return type
             if self._nullability:
-                self._nullability = Nullable.yes(self)
+                self._nullability = Nullable.yes()
             else:
-                self._nullability = Nullable.no(self)
+                self._nullability = Nullable.no()
 
     # ctx is a map of rule names
     def _nullable(self, ctx):
-        return Nullable.no(self)
+        return Nullable.no()
 
     def comments_str(self):
         comments, eol = self.comments
@@ -262,7 +262,7 @@ class Decorator(Model):
         return self.exp._to_ustr(lean=lean)
 
     def _nullable(self, ctx):
-        return Nullable.of(self, self.exp)
+        return Nullable.of(self.exp)
 
 
 # NOTE: backwards compatibility
@@ -415,7 +415,7 @@ class Sequence(Model):
             return comments + '\n'.join(seq)
 
     def _nullable(self, ctx):
-        return Nullable.all(self, self.sequence)
+        return Nullable.all(self.sequence)
 
 class Choice(Model):
     def __init__(self, ast=None, **kwargs):
@@ -468,7 +468,7 @@ class Choice(Model):
             return single
     
     def _nullable(self, ctx):
-        return Nullable.any(self, self.options)
+        return Nullable.any(self.options)
 
 
 class Closure(Decorator):
@@ -507,7 +507,7 @@ class PositiveClosure(Closure):
         return super(PositiveClosure, self)._to_str(lean=lean) + '+'
     
     def _nullable(self, ctx):
-        return Nullable.of(self, self.exp)
+        return Nullable.of(self.exp)
 
 
 class Join(Decorator):
@@ -548,7 +548,7 @@ class PositiveJoin(Join):
         return super(PositiveJoin, self)._to_str(lean=lean) + '+'
 
     def _nullable(self, ctx):
-        return Nullable.of(self, self.exp)
+        return Nullable.of(self.exp)
 
 
 class LeftJoin(PositiveJoin):
@@ -580,7 +580,7 @@ class PositiveGather(Gather):
         return super(PositiveGather, self)._to_str(lean=lean) + '+'
     
     def _nullable(self, ctx):
-        return Nullable.of(self, self.exp)
+        return Nullable.of(self.exp)
 
 
 class EmptyClosure(Model):
@@ -731,7 +731,7 @@ class RuleRef(Model):
         rule = ctx[self.name]
         if rule._nullability is None:
             rule._init_nullability(ctx)
-        return Nullable.of(self, rule)
+        return Nullable.of(rule)
 
 
 class RuleInclude(Decorator):
@@ -784,7 +784,7 @@ class Rule(Decorator):
         return self.exp._follow(k, fl, fl[self.name])
 
     def _nullable(self, ctx):
-        return Nullable.of(self, self.exp)
+        return Nullable.of(self.exp)
 
     @staticmethod
     def param_repr(p):
