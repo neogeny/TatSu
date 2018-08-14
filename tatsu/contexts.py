@@ -120,7 +120,6 @@ class ParseContext(object):
         self._state = None
         self._lookahead = 0
 
-        self._recursive_rules = set()
         self._clear_memoizetion_caches()
 
     def _reset(self,

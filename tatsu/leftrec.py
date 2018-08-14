@@ -2,14 +2,14 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from collections import defaultdict
-from tatsu import grammars
+import tatsu.grammars
 
 # Based on https://github.com/ncellar/autumn_v1/
 
 
 # Returns the correct Rule instance for a RuleRef
 def follow(node, rule_dict):
-    if isinstance(node, grammars.RuleRef):
+    if isinstance(node, tatsu.grammars.RuleRef):
         return rule_dict[node.name]
     else:
         return node
@@ -80,9 +80,9 @@ class _Single(Nullable):
 
 Nullable.all = _All     # Nullable if all children are nullable
 Nullable.any = _Any     # Nullable if one child is nullable
-Nullable.of = lambda child: _Single([child])       # Nullable if the only child is nullable
-Nullable.no = lambda: Nullable(None, True, False)  # Not nullable
-Nullable.yes = lambda: Nullable(None, True, True)   # Nullable
+Nullable.of = staticmethod(lambda child: _Single([child]))       # Nullable if the only child is nullable
+Nullable.no = staticmethod(lambda: Nullable(None, True, False))  # Not nullable
+Nullable.yes = staticmethod(lambda: Nullable(None, True, True))  # Nullable
 
 
 def resolve_nullability(grammar, rule_dict):
@@ -142,7 +142,7 @@ def find_left_recursion(grammar):
             return
 
         # beforeNode
-        leftrec = isinstance(model, grammars.Rule) and model.is_leftrec
+        leftrec = isinstance(model, tatsu.grammars.Rule) and model.is_leftrec
         if leftrec:
             lr_stack_positions.append(stack_depth[0])
 
