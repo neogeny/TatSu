@@ -11,7 +11,7 @@ from typing import Type  # noqa
 # Returns the correct Rule instance for a RuleRef
 def follow(node, rule_dict):
     if isinstance(node, tatsu.grammars.RuleRef):
-        return rule_dict[node.name]
+        return rule_dict.get(node.name, node)
     else:
         return node
 
