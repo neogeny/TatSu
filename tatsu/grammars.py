@@ -5,6 +5,7 @@ import os
 import functools
 from collections import defaultdict, Mapping
 from copy import copy
+from itertools import takewhile
 
 from tatsu.util import indent, trim, ustr, urepr, strtype, compress_seq, chunks
 from tatsu.util import re
@@ -150,7 +151,11 @@ class Model(Node):
 
     # ctx is a map of rule names
     def _nullable(self, ctx):
-        return Nullable.no()
+        return False
+
+    # list of rules that can be invoked at the same position
+    def at_same_pos(self):
+        return []
 
     def comments_str(self):
         comments, eol = self.comments
@@ -263,6 +268,9 @@ class Decorator(Model):
 
     def _nullable(self, ctx):
         return Nullable.of(self.exp)
+
+    def at_same_pos(self):
+        return [self.exp]
 
 
 # NOTE: backwards compatibility
@@ -417,6 +425,12 @@ class Sequence(Model):
     def _nullable(self, ctx):
         return Nullable.all(self.sequence)
 
+    def at_same_pos(self):
+        head = list(takewhile(lambda c: c.is_nullable, self.sequence))
+        head.append(self.sequence[len(head)])
+        return head
+
+
 class Choice(Model):
     def __init__(self, ast=None, **kwargs):
         super(Choice, self).__init__(ast=AST(options=ast))
@@ -469,6 +483,9 @@ class Choice(Model):
     
     def _nullable(self, ctx):
         return Nullable.any(self.options)
+
+    def at_same_pos(self):
+        return self.options
 
 
 class Closure(Decorator):

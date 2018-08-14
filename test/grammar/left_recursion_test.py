@@ -114,6 +114,10 @@ class LeftRecursionTests(unittest.TestCase):
                 | addition
                 | subtraction
                 | number;
+
+            lookahead = &number;
+            
+            hidden = lookahead hidden;
         '''
         model = compile(grammar)
         #ast = model.parse('1-1+1', trace=True, colorize=True)
