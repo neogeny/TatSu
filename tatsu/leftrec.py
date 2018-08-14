@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from collections import defaultdict
 import tatsu.grammars
+from typing import Type  # noqa
 
 # Based on https://github.com/ncellar/autumn_v1/
 
@@ -28,6 +29,12 @@ class Nullable(object):
         self.resolved = True
         self.nullable = n
         self.children = None  # No longer needed
+
+    all = None  # type: Type[Nullable]
+    any = None  # type: Type[Nullable]
+    of = None  # type: staticmethod
+    no = None  # type: staticmethod
+    yes = None  # type: staticmethod
 
 
 class _All(Nullable):
