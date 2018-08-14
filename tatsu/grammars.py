@@ -91,7 +91,7 @@ class ModelContext(ParseContext):
     def _find_rule(self, name):
         rule = self.rules[name]
         parse = functools.partial(rule.parse, self)
-        parse.is_leftrec = rule.is_leftrec # Mark rule as left recursive
+        parse.is_leftrec = rule.is_leftrec  # Mark rule as left recursive
         return parse
 
 
@@ -109,7 +109,7 @@ class Model(Node):
         self._first_set = None
         self._follow_set = set()
         self._nullability = self._nullable()
-        if isinstance(self._nullability, int): # Allow simple boolean values as return type
+        if isinstance(self._nullability, int):  # Allow simple boolean values as return type
             if self._nullability:
                 self._nullability = Nullable.yes()
             else:
@@ -143,8 +143,8 @@ class Model(Node):
 
     def _follow(self, k, fl, a):
         return a
-    
-    def is_nullable(self, ctx = None):
+
+    def is_nullable(self, ctx=None):
         return self._nullability.nullable
 
     def _nullable(self):
@@ -302,6 +302,7 @@ class Token(Model):
     def _to_str(self, lean=False):
         return urepr(self.token)
 
+
 class Constant(Model):
     def __postinit__(self, ast):
         super(Constant, self).__postinit__(ast)
@@ -315,6 +316,7 @@ class Constant(Model):
 
     def _nullable(self):
         return True
+
 
 class Pattern(Model):
     def __postinit__(self, ast):
@@ -333,7 +335,7 @@ class Pattern(Model):
 
     def _first(self, k, f):
         return set([(self.pattern,)])
-    
+
     def _to_str(self, lean=False):
         parts = []
         for pat in (ustr(p) for p in self.patterns):
@@ -343,20 +345,22 @@ class Pattern(Model):
                 pat = pat.replace('"', r'\"')
             parts.append(template % pat)
         return '\n+ '.join(parts)
-    
+
     def _nullable(self):
         return bool(self.regex.match(""))
+
 
 class Lookahead(Decorator):
     def parse(self, ctx):
         with ctx._if():
             super(Lookahead, self).parse(ctx)
-    
+
     def _to_str(self, lean=False):
         return '&' + self.exp._to_ustr(lean=lean)
 
     def _nullable(self):
         return True
+
 
 class NegativeLookahead(Decorator):
     def parse(self, ctx):
@@ -365,11 +369,12 @@ class NegativeLookahead(Decorator):
 
     def _to_str(self, lean=False):
         return '!' + ustr(self.exp._to_str(lean=lean))
-    
+
     def _nullable(self):
         return True
 
-class SkipTo(Decorator): # TODO How does this interact with left recursion?
+
+class SkipTo(Decorator):    # TODO How does this interact with left recursion?
     def parse(self, ctx):
         return ctx._skip_to(lambda: super(SkipTo, self).parse(ctx))
 
@@ -478,7 +483,7 @@ class Choice(Model):
             return '| ' + '\n| '.join(o for o in options)
         else:
             return single
-    
+
     def _nullable(self):
         return Nullable.any(self.options)
 
@@ -507,6 +512,7 @@ class Closure(Decorator):
     def _nullable(self):
         return True
 
+
 class PositiveClosure(Closure):
     def parse(self, ctx):
         return ctx._positive_closure(lambda: self.exp.parse(ctx))
@@ -520,7 +526,7 @@ class PositiveClosure(Closure):
 
     def _to_str(self, lean=False):
         return super(PositiveClosure, self)._to_str(lean=lean) + '+'
-    
+
     def _nullable(self):
         return Nullable.of(self.exp)
 
@@ -551,9 +557,10 @@ class Join(Decorator):
             return '%s%s{%s}' % (ssep, self.JOINOP, sexp)
         else:
             return '%s%s{\n%s\n}' % (ssep, self.JOINOP, sexp)
-    
+
     def _nullable(self):
         return True
+
 
 class PositiveJoin(Join):
     def _do_parse(self, ctx, exp, sep):
@@ -593,7 +600,7 @@ class PositiveGather(Gather):
 
     def _to_str(self, lean=False):
         return super(PositiveGather, self)._to_str(lean=lean) + '+'
-    
+
     def _nullable(self):
         return Nullable.of(self.exp)
 
@@ -711,6 +718,7 @@ class Special(Model):
 
     def _nullable(self):
         return True
+
 
 class RuleRef(Model):
     def __postinit__(self, ast):
@@ -938,9 +946,9 @@ class Grammar(Model):
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
         self._calc_lookahead_sets()
-        if left_recursion: 
+        if left_recursion:
             find_left_recursion(self)
-            
+
     def _missing_rules(self, ruleset):
         return set().union(*[rule._missing_rules(ruleset) for rule in self.rules])
 

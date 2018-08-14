@@ -55,6 +55,7 @@ def tatsumasu(*params, **kwparams):
         return wrapper
     return decorator
 
+
 # This is used to mark left recursive rules
 def leftrec(impl):
     impl.is_leftrec = True
