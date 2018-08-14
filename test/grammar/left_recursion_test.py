@@ -102,6 +102,7 @@ class LeftRecursionTests(unittest.TestCase):
 
     def test_calc_indirect(self, trace=False):
         grammar = '''
+            @@grammar::CALC
             @@left_recursion :: True
 
             start = expression $;
@@ -114,18 +115,20 @@ class LeftRecursionTests(unittest.TestCase):
                 | addition
                 | subtraction
                 | number;
-
-            lookahead = &number;
-            
-            hidden = lookahead hidden;
         '''
         model = compile(grammar)
-        #ast = model.parse('1-1+1', trace=True, colorize=True)
-        #self.assertEqual([['1', '-', '1'], '+', '1'], ast)
+        ast = model.parse('1-1+1', trace=trace, colorize=True)
+        self.assertEqual([['1', '-', '1'], '+', '1'], ast)
 
-        #ast = model.parse('1+1-1', trace=True, colorize=True)
-        #self.assertEqual([['1', '+', '1'], '-', '1'], ast)
+        ast = model.parse('1+1-1', trace=trace, colorize=True)
+        self.assertEqual([['1', '+', '1'], '-', '1'], ast)
 
+        #from tatsu.tool import to_python_sourcecode
+        #src = to_python_sourcecode(grammar)
+        #globals = {}
+        #exec(src, globals)
+        #parser = globals["CALCParser"]()
+        #print(parser.parse('1-1+1', trace=True))
 
     def test_indirect_left_recursion(self, trace=False):
         grammar = '''
@@ -152,7 +155,6 @@ class LeftRecursionTests(unittest.TestCase):
         print(ast)
         self.assertEqual([['5', '-', '87'], '-', '32'], ast)
 
-    @unittest.skip('uncertain if grammar is correct')
     def test_indirect_left_recursion_complex(self, trace=False):
         grammar = '''
             @@left_recursion :: True
@@ -230,14 +232,13 @@ class LeftRecursionTests(unittest.TestCase):
         model = compile(grammar, "test")
         ast = model.parse("this", trace=trace, colorize=True)
         self.assertEqual('this', ast)
-        ast = model.parse("this.x", trace=True, colorize=True)
+        ast = model.parse("this.x", trace=trace, colorize=True)
         self.assertEqual(['this', '.', 'x'], ast)
         ast = model.parse("this.x.y", trace=trace, colorize=True)
         self.assertEqual([['this', '.', 'x'], '.', 'y'], ast)
         ast = model.parse("this.x.m()", trace=trace, colorize=True)
         self.assertEqual([['this', '.', 'x'], '.', 'm', '()'], ast)
         ast = model.parse("x[i][j].y", trace=trace, colorize=True)
-        print(ast)
         self.assertEqual([[['x', '[', 'i', ']'], '[', 'j', ']'], '.', 'y'], ast)
 
     def test_no_left_recursion(self, trace=False):

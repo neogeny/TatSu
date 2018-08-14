@@ -6,6 +6,7 @@ from tatsu import grammars
 
 # Based on https://github.com/ncellar/autumn_v1/
 
+# Returns the correct Rule instance for a RuleRef
 def follow(node, rule_dict):
     if isinstance(node, grammars.RuleRef):
         return rule_dict[node.name]
@@ -152,10 +153,10 @@ def find_left_recursion(grammar):
     for rule in grammar.children_list():
         walk(rule)
 
-    print()
-    for rule in grammar.children_list():
-        print(rule)
-        if rule.is_leftrec: print("-> Leftrec")
-        if rule.is_nullable(rule_dict): print("-> Nullable")
+    #print()
+    #for rule in grammar.children_list():
+    #    print(rule)
+    #    if rule.is_leftrec: print("-> Leftrec")
+    #    if rule.is_nullable(): print("-> Nullable")
 
     return

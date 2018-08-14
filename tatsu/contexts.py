@@ -38,7 +38,7 @@ from tatsu.exceptions import (
     OptionSucceeded
 )
 
-__all__ = ['ParseContext', 'tatsumasu']
+__all__ = ['ParseContext', 'tatsumasu', 'leftrec']
 
 
 # decorator for rule implementation methods
@@ -55,6 +55,10 @@ def tatsumasu(*params, **kwparams):
         return wrapper
     return decorator
 
+# This is used to mark left recursive rules
+def leftrec(impl):
+    impl.is_leftrec = True
+    return impl
 
 class closure(list):  # noqa
     pass
@@ -468,7 +472,6 @@ class ParseContext(object):
         memo = self._memos.get(key)
 
         if isinstance(memo, FailedLeftRecursion):
-            self._set_recursive(key.name)
             memo = self._results.get(key, memo)
 
         return memo
@@ -482,17 +485,7 @@ class ParseContext(object):
         self._results[key] = self._mkresult(node)
 
     def _is_recursive(self, name):
-        return self.left_recursion and name in self._recursive_rules
-
-    def _set_recursive(self, name):
-        if self.left_recursion:
-            # add rules that are mutually recursive
-            i = self._rule_stack.index(name)
-            for rule in reversed(self._rule_stack[i:]):
-                self._recursive_rules.add(rule)
-
-    def _unset_recursive(self, name):
-        self._recursive_rules -= {name}
+        return self.left_recursion and getattr(self._find_rule(name), "is_leftrec", False)
 
     def _set_left_recursion_guard(self, key):
         ex = self._make_exception(key.name, exclass=FailedLeftRecursion)

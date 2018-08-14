@@ -383,8 +383,10 @@ class Rule(_Decorator):
         fields.update(
             check_name='\n    self._check_name()' if self.is_name else '',
         )
+        fields.update(leftrec='\n@leftrec' if self.node.is_leftrec else '')
 
-    template = '''
+    template = '''\
+        {leftrec}
         @tatsumasu({params})
         def _{name}_(self):  # noqa
         {exp:1::}{check_name}{defines}
@@ -489,7 +491,7 @@ class Grammar(Base):
 
                 from tatsu.buffering import Buffer
                 from tatsu.parsing import Parser
-                from tatsu.parsing import tatsumasu
+                from tatsu.parsing import tatsumasu, leftrec
                 from tatsu.util import re, generic_main  # noqa
 
 

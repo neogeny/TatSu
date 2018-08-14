@@ -89,7 +89,10 @@ class ModelContext(ParseContext):
         return self._buffer
 
     def _find_rule(self, name):
-        return functools.partial(self.rules[name].parse, self)
+        rule = self.rules[name]
+        parse = functools.partial(rule.parse, self)
+        parse.is_leftrec = rule.is_leftrec # Mark rule as left recursive
+        return parse
 
 
 class Model(Node):
@@ -421,7 +424,8 @@ class Sequence(Model):
 
     def at_same_pos(self, ctx):
         head = list(takewhile(lambda c: c.is_nullable(ctx), self.sequence))
-        head.append(self.sequence[len(head)])
+        if len(head) < len(self.sequence):
+            head.append(self.sequence[len(head)])
         return head
 
 
