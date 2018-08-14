@@ -3,7 +3,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from collections import defaultdict
 import tatsu.grammars
-from typing import Type  # noqa
+from .util import PY37
+if PY37:
+    from typing import Type  # noqa
 
 # Based on https://github.com/ncellar/autumn_v1/
 
