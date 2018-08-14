@@ -6,23 +6,29 @@ from tatsu import grammars
 
 # Based on https://github.com/ncellar/autumn_v1/
 
+def follow(node, rule_dict):
+    if isinstance(node, grammars.RuleRef):
+        return rule_dict[node.name]
+    else: return node
+
 class Nullable(object):
     def __init__(self, children, resolved = False, nullable = False):
         self.resolved = resolved
         self.nullable = nullable
         self.children = children
 
-    def resolve(self, nullabilities): pass
+    def resolve(self, node, rule_dict): pass
 
     def resolve_with(self, n):
         self.resolved = True
         self.nullable = n
-        self.children = None
+        self.children = None # No longer needed
 
 class _All(Nullable):
-    def resolve(self):
+    def resolve(self, node, rule_dict):
         unresolved = []
         for c in self.children:
+            c = follow(c, rule_dict)
             n = c._nullability
             if n.resolved:
                 if not n.nullable:
@@ -37,12 +43,12 @@ class _All(Nullable):
             # Otherwise still unresolved
             self.chilren = unresolved
         
-
 class _Any(Nullable):
-    def resolve(self):
+    def resolve(self, node, rule_dict):
         # Inverse of All
         unresolved = []
         for c in self.children:
+            c = follow(c, rule_dict)
             n = c._nullability
             if n.resolved:
                 if n.nullable:
@@ -54,8 +60,8 @@ class _Any(Nullable):
         else: self.children = unresolved
 
 class _Single(Nullable):
-    def resolve(self):
-        n = self.children[0]._nullability
+    def resolve(self, node, rule_dict):
+        n = follow(self.children[0], rule_dict)._nullability
         if not n.resolved: return
         self.resolve_with(n.nullable)
 
@@ -72,20 +78,18 @@ def resolve_nullability(grammar, rule_dict):
     def walk(model):    # TODO Write a walker for this?
         if model in visited: 
             return
-
-        model._init_nullability(rule_dict)
+        visited.add(model)
         
         for child in model.children_list():
+            child = follow(child, rule_dict)
             walk(child)
 
         resolve(model)
-
-        visited.add(model)
     
     def resolve(model):
         nullability = model._nullability
         if not nullability.resolved:
-            nullability.resolve()
+            nullability.resolve(model, rule_dict)
             if nullability.resolved:
                 for dependant in dependants[model]:
                     n = dependant._nullability
@@ -115,42 +119,26 @@ def find_left_recursion(grammar):
     stack_positions = {}
     lr_stack_positions = [-1]
 
-    # Follow RuleRef
-    def is_leftrec(model):
-        return (isinstance(model, grammars.Rule) and model.is_leftrec or
-            isinstance(model, grammars.RuleRef) and is_leftrec(rule_dict[model.name]))
-    
-    def set_leftrec(model):
-        if isinstance(model, grammars.RuleRef):
-            return set_leftrec(rule_dict[model.name])
-        # It should be a Rule now
-        assert isinstance(model, grammars.Rule)
-        model.is_leftrec = True
-
-    def children(model):
-        if isinstance(model, grammars.RuleRef):
-            return children(rule_dict[model.name])
-        return model.at_same_pos()
-
     def walk(model):
         if state[model] == FIRST:
             state[model] = CUTOFF
         else: return
 
         #beforeNode
-        leftrec = is_leftrec(model)
+        leftrec = isinstance(model, grammars.Rule) and model.is_leftrec
         if leftrec:
             lr_stack_positions.append(stack_depth[0])
         
         stack_positions[model] = stack_depth[0]
         stack_depth[0] += 1
 
-        for child in children(model):
+        for child in model.at_same_pos(rule_dict):
+            child = follow(child, rule_dict)
             walk(child)
             # afterEdge
             if state[child] == CUTOFF: # active cycle
                 if stack_positions[child] > lr_stack_positions[-1]:
-                    set_leftrec(model) # Set parent rule left recursive
+                    child.is_leftrec = True
 
         #afterNode
         if leftrec:
@@ -168,6 +156,6 @@ def find_left_recursion(grammar):
     for rule in grammar.children_list():
         print(rule)
         if rule.is_leftrec: print("-> Leftrec")
-        if rule.is_nullable: print("-> Nullable")
+        if rule.is_nullable(rule_dict): print("-> Nullable")
 
     return

@@ -105,7 +105,12 @@ class Model(Node):
         self._lookahead = None
         self._first_set = None
         self._follow_set = set()
-        self._nullability = None
+        self._nullability = self._nullable()
+        if isinstance(self._nullability, int): # Allow simple boolean values as return type
+            if self._nullability:
+                self._nullability = Nullable.yes()
+            else:
+                self._nullability = Nullable.no()
 
     def parse(self, ctx):
         ctx.last_node = None
@@ -136,25 +141,14 @@ class Model(Node):
     def _follow(self, k, fl, a):
         return a
     
-    @property
-    def is_nullable(self):
+    def is_nullable(self, ctx = None):
         return self._nullability.nullable
 
-    # Can't call this inside the constructor because of RuleRef
-    def _init_nullability(self, ctx):
-        self._nullability = self._nullable(ctx)
-        if isinstance(self._nullability, int): # Allow simple boolean values as return type
-            if self._nullability:
-                self._nullability = Nullable.yes()
-            else:
-                self._nullability = Nullable.no()
-
-    # ctx is a map of rule names
-    def _nullable(self, ctx):
+    def _nullable(self):
         return False
 
     # list of rules that can be invoked at the same position
-    def at_same_pos(self):
+    def at_same_pos(self, ctx):
         return []
 
     def comments_str(self):
@@ -193,7 +187,7 @@ class Void(Model):
     def _to_str(self, lean=False):
         return '()'
 
-    def _nullable(self, ctx):
+    def _nullable(self):
         return True
 
 
@@ -266,10 +260,10 @@ class Decorator(Model):
     def _to_str(self, lean=False):
         return self.exp._to_ustr(lean=lean)
 
-    def _nullable(self, ctx):
+    def _nullable(self):
         return Nullable.of(self.exp)
 
-    def at_same_pos(self):
+    def at_same_pos(self, ctx):
         return [self.exp]
 
 
@@ -316,7 +310,7 @@ class Constant(Model):
     def _to_str(self, lean=False):
         return '`%s`' % urepr(self.literal)
 
-    def _nullable(self, ctx):
+    def _nullable(self):
         return True
 
 class Pattern(Model):
@@ -347,7 +341,7 @@ class Pattern(Model):
             parts.append(template % pat)
         return '\n+ '.join(parts)
     
-    def _nullable(self, ctx):
+    def _nullable(self):
         return bool(self.regex.match(""))
 
 class Lookahead(Decorator):
@@ -358,7 +352,7 @@ class Lookahead(Decorator):
     def _to_str(self, lean=False):
         return '&' + self.exp._to_ustr(lean=lean)
 
-    def _nullable(self, ctx):
+    def _nullable(self):
         return True
 
 class NegativeLookahead(Decorator):
@@ -369,7 +363,7 @@ class NegativeLookahead(Decorator):
     def _to_str(self, lean=False):
         return '!' + ustr(self.exp._to_str(lean=lean))
     
-    def _nullable(self, ctx):
+    def _nullable(self):
         return True
 
 class SkipTo(Decorator): # TODO How does this interact with left recursion?
@@ -422,11 +416,11 @@ class Sequence(Model):
         else:
             return comments + '\n'.join(seq)
 
-    def _nullable(self, ctx):
+    def _nullable(self):
         return Nullable.all(self.sequence)
 
-    def at_same_pos(self):
-        head = list(takewhile(lambda c: c.is_nullable, self.sequence))
+    def at_same_pos(self, ctx):
+        head = list(takewhile(lambda c: c.is_nullable(ctx), self.sequence))
         head.append(self.sequence[len(head)])
         return head
 
@@ -481,10 +475,10 @@ class Choice(Model):
         else:
             return single
     
-    def _nullable(self, ctx):
+    def _nullable(self):
         return Nullable.any(self.options)
 
-    def at_same_pos(self):
+    def at_same_pos(self, ctx):
         return self.options
 
 
@@ -506,7 +500,7 @@ class Closure(Decorator):
         else:
             return '{\n%s\n}' % indent(sexp)
 
-    def _nullable(self, ctx):
+    def _nullable(self):
         return True
 
 class PositiveClosure(Closure):
@@ -523,7 +517,7 @@ class PositiveClosure(Closure):
     def _to_str(self, lean=False):
         return super(PositiveClosure, self)._to_str(lean=lean) + '+'
     
-    def _nullable(self, ctx):
+    def _nullable(self):
         return Nullable.of(self.exp)
 
 
@@ -554,7 +548,7 @@ class Join(Decorator):
         else:
             return '%s%s{\n%s\n}' % (ssep, self.JOINOP, sexp)
     
-    def _nullable(self, ctx):
+    def _nullable(self):
         return True
 
 class PositiveJoin(Join):
@@ -564,7 +558,7 @@ class PositiveJoin(Join):
     def _to_str(self, lean=False):
         return super(PositiveJoin, self)._to_str(lean=lean) + '+'
 
-    def _nullable(self, ctx):
+    def _nullable(self):
         return Nullable.of(self.exp)
 
 
@@ -596,7 +590,7 @@ class PositiveGather(Gather):
     def _to_str(self, lean=False):
         return super(PositiveGather, self)._to_str(lean=lean) + '+'
     
-    def _nullable(self, ctx):
+    def _nullable(self):
         return Nullable.of(self.exp)
 
 
@@ -607,7 +601,7 @@ class EmptyClosure(Model):
     def _to_str(self, lean=False):
         return '{}'
 
-    def _nullable(self, ctx):
+    def _nullable(self):
         return True
 
 
@@ -635,7 +629,7 @@ class Optional(Decorator):
             ]
             '''
 
-    def _nullable(self, ctx):
+    def _nullable(self):
         return True
 
 
@@ -650,7 +644,7 @@ class Cut(Model):   # TODO How does this interact with left recursion?
     def _to_str(self, lean=False):
         return '~'
 
-    def _nullable(self, ctx):
+    def _nullable(self):
         return True
 
 
@@ -711,7 +705,7 @@ class Special(Model):
     def _to_str(self, lean=False):
         return '?%s?' % self.value
 
-    def _nullable(self, ctx):
+    def _nullable(self):
         return True
 
 class RuleRef(Model):
@@ -744,11 +738,8 @@ class RuleRef(Model):
     def _to_str(self, lean=False):
         return self.name
 
-    def _nullable(self, ctx):
-        rule = ctx[self.name]
-        if rule._nullability is None:
-            rule._init_nullability(ctx)
-        return Nullable.of(rule)
+    def is_nullable(self, ctx):
+        return ctx[self.name].is_nullable(ctx)
 
 
 class RuleInclude(Decorator):
@@ -800,7 +791,7 @@ class Rule(Decorator):
     def _follow(self, k, fl, a):
         return self.exp._follow(k, fl, fl[self.name])
 
-    def _nullable(self, ctx):
+    def _nullable(self):
         return Nullable.of(self.exp)
 
     @staticmethod
