@@ -120,7 +120,7 @@ class ParseContext(object):
         self._state = None
         self._lookahead = 0
 
-        self._clear_memoizetion_caches()
+        self._clear_memoization_caches()
 
     def _reset(self,
                text=None,
@@ -214,7 +214,7 @@ class ParseContext(object):
             self._set_furthest_exception(e)
             raise self._furthest_exception
         finally:
-            self._clear_memoizetion_caches()
+            self._clear_memoization_caches()
 
     @property
     def last_node(self):
@@ -228,9 +228,10 @@ class ParseContext(object):
     def _pos(self):
         return self._buffer.pos
 
-    def _clear_memoizetion_caches(self):
+    def _clear_memoization_caches(self):
         self._memos = dict()
         self._results = dict()
+        self._blocked = set()
 
     def _goto(self, pos):
         self._buffer.goto(pos)
@@ -336,7 +337,8 @@ class ParseContext(object):
         prune(self._memos, self._pos)
 
     def _memoization(self):
-        return self.memoize_lookaheads or self._lookahead == 0
+        return False
+        #return self.memoize_lookaheads or self._lookahead == 0
 
     def _rulestack(self):
         stack = self.trace_separator.join(reversed(self._rule_stack))
@@ -471,18 +473,18 @@ class ParseContext(object):
     def _memo_for(self, key):
         memo = self._memos.get(key)
 
-        if isinstance(memo, FailedLeftRecursion):
-            memo = self._results.get(key, memo)
+        #if isinstance(memo, FailedLeftRecursion):
+        #    memo = self._results.get(key, memo)
 
         return memo
 
     def _mkresult(self, node):
         return RuleResult(node, self._pos, self._state)
 
-    def _save_result(self, key, node):
-        if is_list(node):
-            node = closure(node)
-        self._results[key] = self._mkresult(node)
+    def _save_result(self, key, result):
+        if is_list(result.node):
+            result = RuleResult(closure(result.node), result.newpos, result.newstate)
+        self._results[key] = result
 
     def _is_recursive(self, name):
         return self.left_recursion and getattr(self._find_rule(name), "is_leftrec", False)
@@ -527,28 +529,40 @@ class ParseContext(object):
         prune_dict(self._memos, filter)
 
     def _recursive_call(self, ruleinfo):
-        self._next_token(ruleinfo)
-        lastpos = self._pos
-        key = self.memokey
-        result = self._invoke_rule(ruleinfo, key)
-
-        if not self.left_recursion:
-            return result
         if not self._is_recursive(ruleinfo.name):
-            return result
+            #self._next_token(ruleinfo)
+            return self._invoke_rule(ruleinfo, self.memokey)
 
-        while self._pos > lastpos:
-            self._next_token(ruleinfo)
+        key = self.memokey
+        if key in self._results:
+            result = self._results[key]
+        else:
+            result = self._make_exception(ruleinfo.name, exclass=FailedLeftRecursion)
+            self._results[key] = result
 
-            self._save_result(self.memokey, result.node)
-            try:
-                lastpos = self._pos
-                key = self.memokey
-                result = self._invoke_rule(ruleinfo, key)
-            except FailedParse:
-                # del self._recursion_cache[key]
-                break
+            initial = self._pos
+            lastpos = initial
+            while True:
+                try:
+                    #self._next_token(ruleinfo)
+                    new_result = self._invoke_rule(ruleinfo, key)
+                    self._goto(initial)
+                except FailedParse:
+                    break
+                
+                if new_result.newpos > lastpos:
+                    #self._trace("Saving new result %s", new_result)
+                    self._save_result(key, new_result)
+                    lastpos = new_result.newpos
+                    result = new_result
+                else:
+                    break
 
+        if isinstance(result, Exception):
+            raise result
+
+        #self._goto(result.newpos)
+        #self._trace("Returning result %s", result)
         return result
 
     def _invoke_rule(self, ruleinfo, key):
