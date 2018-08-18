@@ -9,7 +9,6 @@ from tatsu.tool import compile
 
 class LeftRecursionTests(unittest.TestCase):
 
-    #@unittest.skip("Broken")
     def test_direct_left_recursion(self, trace=False):
         grammar = '''
             @@left_recursion :: True
@@ -52,7 +51,6 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model.parse('3 + 5 * ( 10 - 20 )', trace=trace, colorize=True)
         self.assertEqual([['3', '+', '5'], '*', ['10', '-', '20']], ast)
 
-    #@unittest.skip("Broken")
     def test_calc(self, trace=False):
         grammar = '''
             @@grammar::CALC
@@ -96,11 +94,11 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model.parse('10 - 20', trace=trace, colorize=True)
         self.assertEqual(['10', '-', '20'], ast)
 
-        ast = model.parse('(10 - 20)', trace=True, colorize=True)
+        ast = model.parse('( 10 - 20 )', trace=True, colorize=True)
         self.assertEqual(['10', '-', '20'], ast)
 
-        #ast = model.parse('3 + 5 * ( 10 - 20)', trace=trace, colorize=True)
-        #self.assertEqual(['3', '+', ['5', '*', ['10', '-', '20']]], ast)
+        ast = model.parse('3 + 5 * ( 10 - 20)', trace=trace, colorize=True)
+        self.assertEqual(['3', '+', ['5', '*', ['10', '-', '20']]], ast)
 
     def test_calc_indirect(self, trace=False):
         grammar = '''
@@ -243,7 +241,7 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model.parse("x[i][j].y", trace=trace, colorize=True)
         self.assertEqual([[['x', '[', 'i', ']'], '[', 'j', ']'], '.', 'y'], ast)
 
-    @unittest.skip("Broken")
+    @unittest.skip("Broken because memoization is currently disabled completely")
     def test_no_left_recursion(self, trace=False):
         grammar = '''
             @@left_recursion :: True
@@ -269,7 +267,7 @@ class LeftRecursionTests(unittest.TestCase):
         model = compile(grammar, "test")
         model.parse("1*2+3*5", trace=trace, colorize=True)
         try:
-            model.parse("1*2+3*5", left_recursion=False, trace=trace, colorize=True)
+            model.parse("1*2+3*5", left_recursion=False, trace=True, colorize=True)
             self.fail('expected left recursion failure')
         except FailedParse:
             pass
@@ -301,7 +299,6 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model_b.parse("(((1+2)))", trace=trace, colorize=True)
         self.assertEqual(['1', '+', '2'], ast)
 
-    @unittest.skip("Broken")
     def test_left_recursion_bug(self, trace=False):
         grammar = '''\
             @@grammar :: Minus
@@ -310,8 +307,8 @@ class LeftRecursionTests(unittest.TestCase):
             start = expression $ ;
 
             expression =
-                | paren_expression
                 | minus_expression
+                | paren_expression
                 | value
                 ;
 
@@ -329,9 +326,9 @@ class LeftRecursionTests(unittest.TestCase):
         '''
         model = compile(grammar=grammar)
         model.parse('3', trace=trace, colorize=True)
-        model.parse('3 - 2', trace=True, colorize=True)
+        model.parse('3 - 2', trace=trace, colorize=True)
         model.parse('(3 - 2)', trace=trace, colorize=True)
-        model.parse('(3 - 2) - 1', trace=trace, colorize=True)
+        model.parse('(3 - 2) - 1', trace=True, colorize=True)
         model.parse('3 - 2 - 1', trace=trace, colorize=True)
         model.parse('3 - (2 - 1)', trace=trace, colorize=True)
 
@@ -376,14 +373,15 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model.parse(input, trace=trace, colorize=True)
         assert ['{', 'size', '}'] == ast
 
-    #@unittest.skip('fix is pending')
     def test_dropped_input_bug(self, trace=False):
         grammar = '''
             @@left_recursion :: True
+            
+            start = expr;
 
-            start
+            expr
                 =
-                | start ',' identifier
+                | expr ',' expr
                 | identifier
                 ;
 

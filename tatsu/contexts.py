@@ -533,6 +533,7 @@ class ParseContext(object):
             #self._next_token(ruleinfo)
             return self._invoke_rule(ruleinfo, self.memokey)
 
+        self._next_token(ruleinfo)
         key = self.memokey
         if key in self._results:
             result = self._results[key]
@@ -544,14 +545,12 @@ class ParseContext(object):
             lastpos = initial
             while True:
                 try:
-                    #self._next_token(ruleinfo)
                     new_result = self._invoke_rule(ruleinfo, key)
                     self._goto(initial)
                 except FailedParse:
                     break
                 
                 if new_result.newpos > lastpos:
-                    #self._trace("Saving new result %s", new_result)
                     self._save_result(key, new_result)
                     lastpos = new_result.newpos
                     result = new_result
@@ -561,8 +560,6 @@ class ParseContext(object):
         if isinstance(result, Exception):
             raise result
 
-        #self._goto(result.newpos)
-        #self._trace("Returning result %s", result)
         return result
 
     def _invoke_rule(self, ruleinfo, key):
