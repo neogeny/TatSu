@@ -298,6 +298,40 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model_b.parse("(((1+2)))", trace=trace, colorize=True)
         self.assertEqual(['1', '+', '2'], ast)
 
+    @unittest.skip("For this the seed growing during left recursion is too primitive")
+    def test_interlocking_cycles(self, trace=False):
+        # See https://github.com/PhilippeSigaud/Pegged/wiki/Left-Recursion
+        grammar = '''
+            @@left_recursion :: False
+            @@nameguard :: False
+
+            s = e $;
+            e = f 'n' | 'n';
+            f = e '+' {i} | g '-';
+            g = h 'm' | e;
+            h = g 'l';
+            i = '(' {i}+ ')';
+            a = 'a';
+        '''
+
+        model = compile(grammar)
+        model.parse("nlm-n+(aaa)n", trace=True, colorize=True)
+
+    @unittest.skip("Similar to the one above")
+    def test_mutual_left_recursion(self, trace=False):
+        # See https://github.com/PhilippeSigaud/Pegged/wiki/Left-Recursion
+        grammar = '''
+            @@left_recursion :: True
+            @@nameguard :: False
+
+            s = l $;
+            l = p '.x' | 'x';
+            p = p '(n)' | l;
+        '''
+
+        model = compile(grammar)
+        model.parse("x(n).x")
+
     def test_left_recursion_bug(self, trace=False):
         grammar = '''\
             @@grammar :: Minus
