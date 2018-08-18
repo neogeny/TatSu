@@ -117,7 +117,7 @@ class LeftRecursionTests(unittest.TestCase):
                 | number;
         '''
         model = compile(grammar)
-        ast = model.parse('1-1+1', trace=trace, colorize=True)
+        ast = model.parse('1-1+1', trace=True, colorize=True)
         self.assertEqual([['1', '-', '1'], '+', '1'], ast)
 
         ast = model.parse('1+1-1', trace=trace, colorize=True)
@@ -241,7 +241,6 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model.parse("x[i][j].y", trace=trace, colorize=True)
         self.assertEqual([[['x', '[', 'i', ']'], '[', 'j', ']'], '.', 'y'], ast)
 
-    @unittest.skip("Broken because memoization is currently disabled completely")
     def test_no_left_recursion(self, trace=False):
         grammar = '''
             @@left_recursion :: True
@@ -426,7 +425,7 @@ class LeftRecursionTests(unittest.TestCase):
         self.assertEqual(['a', '*', 'b'], ast)
 
         try:
-            model.parse('a * b', start='mul', trace=trace, colorize=True)
+            model.parse('a * b', start='mul', trace=True, colorize=True)
             self.fail('failure expected as first recursive rule does not cotain a choice')
         except FailedParse:
             pass

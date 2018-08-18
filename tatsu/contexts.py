@@ -231,7 +231,7 @@ class ParseContext(object):
     def _clear_memoization_caches(self):
         self._memos = dict()
         self._results = dict()
-        self._blocked = set()
+        self._recursion_depth = 0
 
     def _goto(self, pos):
         self._buffer.goto(pos)
@@ -337,8 +337,9 @@ class ParseContext(object):
         prune(self._memos, self._pos)
 
     def _memoization(self):
-        return False  # TODO
-        # return self.memoize_lookaheads or self._lookahead == 0
+        if self._recursion_depth > 0:
+            return False
+        return self.memoize_lookaheads or self._lookahead == 0
 
     def _rulestack(self):
         stack = self.trace_separator.join(reversed(self._rule_stack))
@@ -530,11 +531,15 @@ class ParseContext(object):
 
     def _recursive_call(self, ruleinfo):
         if not self._is_recursive(ruleinfo.name):
-            # self._next_token(ruleinfo)
             return self._invoke_rule(ruleinfo, self.memokey)
 
         self._next_token(ruleinfo)
         key = self.memokey
+
+        # TODO: This blocks out a lot of valid memos
+        # Every node that isn't part of a recursive
+        # cycle could be memoized -> optimization
+        self._recursion_depth += 1
         if key in self._results:
             result = self._results[key]
         else:
@@ -545,6 +550,7 @@ class ParseContext(object):
             lastpos = initial
             while True:
                 try:
+                    self._clear_recursion_errors()
                     new_result = self._invoke_rule(ruleinfo, key)
                     self._goto(initial)
                 except FailedParse:
@@ -556,6 +562,7 @@ class ParseContext(object):
                     result = new_result
                 else:
                     break
+        self._recursion_depth -= 1
 
         if isinstance(result, Exception):
             raise result
