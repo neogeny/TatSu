@@ -337,8 +337,8 @@ class ParseContext(object):
         prune(self._memos, self._pos)
 
     def _memoization(self):
-        return False
-        #return self.memoize_lookaheads or self._lookahead == 0
+        return False  # TODO
+        # return self.memoize_lookaheads or self._lookahead == 0
 
     def _rulestack(self):
         stack = self.trace_separator.join(reversed(self._rule_stack))
@@ -473,8 +473,8 @@ class ParseContext(object):
     def _memo_for(self, key):
         memo = self._memos.get(key)
 
-        #if isinstance(memo, FailedLeftRecursion):
-        #    memo = self._results.get(key, memo)
+        # if isinstance(memo, FailedLeftRecursion):
+        #     memo = self._results.get(key, memo)
 
         return memo
 
@@ -530,7 +530,7 @@ class ParseContext(object):
 
     def _recursive_call(self, ruleinfo):
         if not self._is_recursive(ruleinfo.name):
-            #self._next_token(ruleinfo)
+            # self._next_token(ruleinfo)
             return self._invoke_rule(ruleinfo, self.memokey)
 
         self._next_token(ruleinfo)
@@ -549,7 +549,7 @@ class ParseContext(object):
                     self._goto(initial)
                 except FailedParse:
                     break
-                
+
                 if new_result.newpos > lastpos:
                     self._save_result(key, new_result)
                     lastpos = new_result.newpos

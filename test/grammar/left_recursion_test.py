@@ -376,7 +376,7 @@ class LeftRecursionTests(unittest.TestCase):
     def test_dropped_input_bug(self, trace=False):
         grammar = '''
             @@left_recursion :: True
-            
+
             start = expr;
 
             expr
