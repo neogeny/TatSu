@@ -84,6 +84,7 @@ RuleInfo = namedtuple(
     [
         'name',
         'impl',
+        'is_leftrec',
         'params',
         'kwparams',
     ]

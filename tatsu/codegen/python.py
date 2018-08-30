@@ -385,9 +385,9 @@ class Rule(_Decorator):
         )
         fields.update(leftrec='\n@leftrec' if self.node.is_leftrec else '')
 
-    template = '''\
+    template = '''
+        @tatsumasu({params})\
         {leftrec}
-        @tatsumasu({params})
         def _{name}_(self):  # noqa
         {exp:1::}{check_name}{defines}
         '''

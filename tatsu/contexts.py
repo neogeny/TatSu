@@ -50,7 +50,7 @@ def tatsumasu(*params, **kwparams):
             # remove the single leading and trailing underscore
             # that the parser generator added
             name = name[1:-1]
-            ruleinfo = RuleInfo(name, impl, params, kwparams)
+            ruleinfo = RuleInfo(name, impl, getattr(impl, "is_leftrec", False), params, kwparams)
             return self._call(ruleinfo)
         return wrapper
     return decorator
@@ -60,6 +60,7 @@ def tatsumasu(*params, **kwparams):
 def leftrec(impl):
     impl.is_leftrec = True
     return impl
+
 
 class closure(list):  # noqa
     pass
@@ -487,8 +488,8 @@ class ParseContext(object):
             result = RuleResult(closure(result.node), result.newpos, result.newstate)
         self._results[key] = result
 
-    def _is_recursive(self, name):
-        return self.left_recursion and getattr(self._find_rule(name), "is_leftrec", False)
+    def _is_recursive(self, ruleinfo):
+        return self.left_recursion and ruleinfo.is_leftrec
 
     def _set_left_recursion_guard(self, key):
         ex = self._make_exception(key.name, exclass=FailedLeftRecursion)
@@ -530,7 +531,7 @@ class ParseContext(object):
         prune_dict(self._memos, filter)
 
     def _recursive_call(self, ruleinfo):
-        if not self._is_recursive(ruleinfo.name):
+        if not self._is_recursive(ruleinfo):
             return self._invoke_rule(ruleinfo, self.memokey)
 
         self._next_token(ruleinfo)

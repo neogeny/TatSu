@@ -89,10 +89,7 @@ class ModelContext(ParseContext):
         return self._buffer
 
     def _find_rule(self, name):
-        rule = self.rules[name]
-        parse = functools.partial(rule.parse, self)
-        parse.is_leftrec = rule.is_leftrec  # Mark rule as left recursive
-        return parse
+        return functools.partial(self.rules[name].parse, self)
 
 
 class Model(Node):
@@ -374,7 +371,7 @@ class NegativeLookahead(Decorator):
         return True
 
 
-class SkipTo(Decorator):    # TODO How does this interact with left recursion?
+class SkipTo(Decorator):
     def parse(self, ctx):
         return ctx._skip_to(lambda: super(SkipTo, self).parse(ctx))
 
@@ -644,7 +641,7 @@ class Optional(Decorator):
         return True
 
 
-class Cut(Model):   # TODO How does this interact with left recursion?
+class Cut(Model):
     def parse(self, ctx):
         ctx._cut()
         return None
@@ -785,7 +782,7 @@ class Rule(Decorator):
         return result
 
     def _parse_rhs(self, ctx, exp):
-        ruleinfo = RuleInfo(self.name, exp.parse, self.params, self.kwparams)
+        ruleinfo = RuleInfo(self.name, exp.parse, self.is_leftrec, self.params, self.kwparams)
         result = ctx._call(ruleinfo)
         if isinstance(result, AST):
             defines = compress_seq(self.defines())
