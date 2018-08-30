@@ -34,3 +34,17 @@ class SemanticsTests(unittest.TestCase):
         model = compile(grammar, 'test')
         ast = model.parse(text, semantics=semantics)
         self.assertEqual('5.4.3.2.1', ast)
+
+    def test_builder_subclassing(self):
+        # from tatsu.synth import synthesize
+        # print(synthesize(str('B'), ()))
+
+        grammar = '''
+            start::A::B::C = text:/.*/ ;
+        '''
+
+        semantics = ModelBuilderSemantics()
+        model = compile(grammar)
+
+        ast = model.parse("test", semantics=semantics)
+        print(ast)
