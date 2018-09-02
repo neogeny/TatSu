@@ -64,6 +64,7 @@ def leftrec(impl):
     impl.is_memoizable = False
     return impl
 
+
 # Marks rules for which memoization has to be turned off
 # (has no effect when left recursion is turned off)
 def nomemo(impl):
@@ -475,7 +476,8 @@ class ParseContext(object):
     def _memoize(self, key, memo):
         if self._memoization():
             if self._recursion_depth > 0:
-                if not key.rule.is_memoizable: return memo
+                if not key.rule.is_memoizable:
+                    return memo
             self._memos[key] = memo
         return memo
 

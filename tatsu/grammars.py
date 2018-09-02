@@ -774,7 +774,7 @@ class Rule(Decorator):
         self.is_name = 'name' in self.decorators
         self.base = None
         self.is_leftrec = False  # Starts a left recursive cycle
-        self.is_memoizable = True  # False if part of a left recursive cycle 
+        self.is_memoizable = True  # False if part of a left recursive cycle
 
     def parse(self, ctx):
         result = self._parse_rhs(ctx, self.exp)
