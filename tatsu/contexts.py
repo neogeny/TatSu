@@ -195,7 +195,7 @@ class ParseContext(object):
                 filename=filename,
                 buffer_class=buffer_class,
                 semantics=semantics,
-                trace=trace or self.trace,
+                trace=trace if trace is not None else self.trace,
                 whitespace=whitespace if whitespace is not None else self.whitespace,
                 **kwargs
             )
