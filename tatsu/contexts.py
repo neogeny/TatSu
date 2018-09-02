@@ -445,7 +445,7 @@ class ParseContext(object):
             )
 
     def _make_exception(self, item, exclass=FailedParse):
-        rulestack = map(lambda r: r.name, self._rule_stack)
+        rulestack = list(map(lambda r: r.name, self._rule_stack))
         return exclass(self._buffer, rulestack, item)
 
     def _error(self, item, exclass=FailedParse):
