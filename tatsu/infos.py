@@ -99,6 +99,7 @@ class RuleInfo(_RuleInfo):
     def __eq__(self, other):
         if isinstance(other, RuleInfo):
             return self.name == other.name
+        return False
 
     def __ne__(self, other):
         return not self.__eq__(other)
