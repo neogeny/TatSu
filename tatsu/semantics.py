@@ -31,6 +31,7 @@ class ModelBuilderSemantics(object):
         nodes using the class name given as first parameter to a grammar
         rule, and synthesizes the class/type if it's not known.
     """
+
     def __init__(self, context=None, base_type=Node, types=None):
         self.ctx = context
         self.base_type = base_type

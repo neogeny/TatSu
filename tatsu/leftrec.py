@@ -164,6 +164,11 @@ def find_left_recursion(grammar):
             # afterEdge
             if state[child] == CUTOFF:  # active cycle
                 if stack_positions[child] > lr_stack_positions[-1]:
+                    # turn off memoization for all rules that were involved in this cycle
+                    for rule in stack_positions:
+                        if isinstance(rule, tatsu.grammars.Rule):
+                            rule.is_memoizable = False
+
                     child.is_leftrec = True
 
         # afterNode

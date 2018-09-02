@@ -773,7 +773,8 @@ class Rule(Decorator):
 
         self.is_name = 'name' in self.decorators
         self.base = None
-        self.is_leftrec = False
+        self.is_leftrec = False  # Starts a left recursive cycle
+        self.is_memoizable = True  # False if part of a left recursive cycle 
 
     def parse(self, ctx):
         result = self._parse_rhs(ctx, self.exp)
@@ -782,7 +783,7 @@ class Rule(Decorator):
         return result
 
     def _parse_rhs(self, ctx, exp):
-        ruleinfo = RuleInfo(self.name, exp.parse, self.is_leftrec, self.params, self.kwparams)
+        ruleinfo = RuleInfo(self.name, exp.parse, self.is_leftrec, self.is_memoizable, self.params, self.kwparams)
         result = ctx._call(ruleinfo)
         if isinstance(result, AST):
             defines = compress_seq(self.defines())

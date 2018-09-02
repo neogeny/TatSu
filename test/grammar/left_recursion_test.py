@@ -45,7 +45,7 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model.parse('10 - 20', trace=trace, colorize=True)
         self.assertEqual(['10', '-', '20'], ast)
 
-        ast = model.parse('( 10 - 20 )', trace=True, colorize=True)
+        ast = model.parse('( 10 - 20 )', trace=trace, colorize=True)
         self.assertEqual(['10', '-', '20'], ast)
 
         ast = model.parse('3 + 5 * ( 10 - 20 )', trace=trace, colorize=True)
@@ -94,7 +94,7 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model.parse('10 - 20', trace=trace, colorize=True)
         self.assertEqual(['10', '-', '20'], ast)
 
-        ast = model.parse('( 10 - 20 )', trace=True, colorize=True)
+        ast = model.parse('( 10 - 20 )', trace=trace, colorize=True)
         self.assertEqual(['10', '-', '20'], ast)
 
         ast = model.parse('3 + 5 * ( 10 - 20)', trace=trace, colorize=True)
@@ -117,7 +117,7 @@ class LeftRecursionTests(unittest.TestCase):
                 | number;
         '''
         model = compile(grammar)
-        ast = model.parse('1-1+1', trace=True, colorize=True)
+        ast = model.parse('1-1+1', trace=trace, colorize=True)
         self.assertEqual([['1', '-', '1'], '+', '1'], ast)
 
         ast = model.parse('1+1-1', trace=trace, colorize=True)
@@ -266,7 +266,7 @@ class LeftRecursionTests(unittest.TestCase):
         model = compile(grammar, "test")
         model.parse("1*2+3*5", trace=trace, colorize=True)
         try:
-            model.parse("1*2+3*5", left_recursion=False, trace=True, colorize=True)
+            model.parse("1*2+3*5", left_recursion=False, trace=trace, colorize=True)
             self.fail('expected left recursion failure')
         except FailedParse:
             pass
@@ -361,7 +361,7 @@ class LeftRecursionTests(unittest.TestCase):
         model.parse('3', trace=trace, colorize=True)
         model.parse('3 - 2', trace=trace, colorize=True)
         model.parse('(3 - 2)', trace=trace, colorize=True)
-        model.parse('(3 - 2) - 1', trace=True, colorize=True)
+        model.parse('(3 - 2) - 1', trace=trace, colorize=True)
         model.parse('3 - 2 - 1', trace=trace, colorize=True)
         model.parse('3 - (2 - 1)', trace=trace, colorize=True)
 
@@ -431,7 +431,7 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model.parse('foo bar', trace=trace, colorize=True)
         self.assertEqual('foo', ast)
 
-        ast = model.parse('foo, bar', trace=True, colorize=True)
+        ast = model.parse('foo, bar', trace=trace, colorize=True)
         self.assertEqual(['foo', ',', 'bar'], ast)
 
     def test_change_start_rule(self, trace=False):
@@ -459,7 +459,7 @@ class LeftRecursionTests(unittest.TestCase):
         self.assertEqual(['a', '*', 'b'], ast)
 
         try:
-            model.parse('a * b', start='mul', trace=True, colorize=True)
+            model.parse('a * b', start='mul', trace=trace, colorize=True)
             self.fail('failure expected as first recursive rule does not cotain a choice')
         except FailedParse:
             pass

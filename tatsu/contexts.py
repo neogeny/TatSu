@@ -38,7 +38,7 @@ from tatsu.exceptions import (
     OptionSucceeded
 )
 
-__all__ = ['ParseContext', 'tatsumasu', 'leftrec']
+__all__ = ['ParseContext', 'tatsumasu', 'leftrec', 'nomemo']
 
 
 # decorator for rule implementation methods
@@ -50,7 +50,9 @@ def tatsumasu(*params, **kwparams):
             # remove the single leading and trailing underscore
             # that the parser generator added
             name = name[1:-1]
-            ruleinfo = RuleInfo(name, impl, getattr(impl, "is_leftrec", False), params, kwparams)
+            is_leftrec = getattr(impl, "is_leftrec", False)
+            is_memoizable = getattr(impl, "is_memoizable", True)
+            ruleinfo = RuleInfo(name, impl, is_leftrec, is_memoizable, params, kwparams)
             return self._call(ruleinfo)
         return wrapper
     return decorator
@@ -59,8 +61,14 @@ def tatsumasu(*params, **kwparams):
 # This is used to mark left recursive rules
 def leftrec(impl):
     impl.is_leftrec = True
+    impl.is_memoizable = False
     return impl
 
+# Marks rules for which memoization has to be turned off
+# (has no effect when left recursion is turned off)
+def nomemo(impl):
+    impl.is_memoizable = False
+    return impl
 
 class closure(list):  # noqa
     pass
@@ -338,12 +346,11 @@ class ParseContext(object):
         prune(self._memos, self._pos)
 
     def _memoization(self):
-        if self._recursion_depth > 0:
-            return False
         return self.memoize_lookaheads or self._lookahead == 0
 
     def _rulestack(self):
-        stack = self.trace_separator.join(reversed(self._rule_stack))
+        rulestack = map(lambda r: r.name, reversed(self._rule_stack))
+        stack = self.trace_separator.join(rulestack)
         if max(len(s) for s in stack.splitlines()) > self.trace_length:
             stack = stack[:self.trace_length]
             stack = stack.rsplit(self.trace_separator, 1)[0]
@@ -437,7 +444,8 @@ class ParseContext(object):
             )
 
     def _make_exception(self, item, exclass=FailedParse):
-        return exclass(self._buffer, self._rule_stack, item)
+        rulestack = map(lambda r: r.name, self._rule_stack)
+        return exclass(self._buffer, rulestack, item)
 
     def _error(self, item, exclass=FailedParse):
         raise self._make_exception(item, exclass=exclass)
@@ -466,6 +474,8 @@ class ParseContext(object):
 
     def _memoize(self, key, memo):
         if self._memoization():
+            if self._recursion_depth > 0:
+                if not key.rule.is_memoizable: return memo
             self._memos[key] = memo
         return memo
 
@@ -492,11 +502,11 @@ class ParseContext(object):
         return self.left_recursion and ruleinfo.is_leftrec
 
     def _set_left_recursion_guard(self, key):
-        ex = self._make_exception(key.name, exclass=FailedLeftRecursion)
+        ex = self._make_exception(key.rule.name, exclass=FailedLeftRecursion)
         self._memoize(key, ex)
 
     def _call(self, ruleinfo):
-        self._rule_stack += [ruleinfo.name]
+        self._rule_stack += [ruleinfo]
         pos = self._pos
         try:
             self._trace_entry()
@@ -537,9 +547,6 @@ class ParseContext(object):
         self._next_token(ruleinfo)
         key = self.memokey
 
-        # TODO: This blocks out a lot of valid memos
-        # Every node that isn't part of a recursive
-        # cycle could be memoized -> optimization
         self._recursion_depth += 1
         if key in self._results:
             result = self._results[key]

@@ -73,22 +73,35 @@ MemoKey = namedtuple(
     'MemoKey',
     [
         'pos',
-        'name',
+        'rule',
         'state'
     ]
 )
 
 
-RuleInfo = namedtuple(
+_RuleInfo = namedtuple(
     'RuleInfo',
     [
         'name',
         'impl',
         'is_leftrec',
+        'is_memoizable',
         'params',
         'kwparams',
     ]
 )
+
+
+class RuleInfo(_RuleInfo):
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        if isinstance(other, RuleInfo):
+            return self.name == other.name
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
 RuleResult = namedtuple(
