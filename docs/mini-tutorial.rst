@@ -305,7 +305,7 @@ Semantics for |TatSu| parsers are not specified in the grammar, but in a separat
         parser = tatsu.compile(grammar)
         ast = parser.parse(
             '3 + 5 * ( 10 - 20 )',
-            parse_with_basic_semantics=CalcBasicSemantics()
+            semantics=CalcBasicSemantics()
         )
 
         print('# BASIC SEMANTICS RESULT')
