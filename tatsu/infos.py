@@ -93,6 +93,8 @@ _RuleInfo = namedtuple(
 
 
 class RuleInfo(_RuleInfo):
+    __slots__ = ()
+
     def __hash__(self):
         return hash(self.name)
 
