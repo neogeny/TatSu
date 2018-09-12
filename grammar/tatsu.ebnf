@@ -378,7 +378,7 @@ token::Token
 
 literal
     =
-    string | raw_string | word | hex | float | int
+    string | raw_string | boolean | word | hex | float | int
     ;
 
 
