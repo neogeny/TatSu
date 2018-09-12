@@ -192,7 +192,7 @@ class ParameterTests(unittest.TestCase):
 
     def test_numbers_and_unicode(self):
         grammar = '''
-            rúle(1, -23, 4.56, 7.89e-11, 0xABCDEF, Añez)
+            rúle(1, -23, 4.56, 7.89e-11, Añez)
                 =
                 'a'
                 ;

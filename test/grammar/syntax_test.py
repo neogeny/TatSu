@@ -323,7 +323,7 @@ class SyntaxTests(unittest.TestCase):
 
     def test_constant(self):
         grammar = '''
-            start = () 
+            start = ()
                 _0:`0` _1:`+1` _n123:`-123`
                 _xF:`0xF`
                 _string:`string`
@@ -343,4 +343,3 @@ class SyntaxTests(unittest.TestCase):
         self.assertEqual(ast._string_space, "string space")
         self.assertEqual(ast._true, True)
         self.assertEqual(ast._false, False)
-
