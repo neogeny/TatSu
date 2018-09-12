@@ -37,6 +37,8 @@ class SemanticsTests(unittest.TestCase):
 
     def test_builder_subclassing(self):
         from tatsu import synth
+        from tatsu.model import Node
+
         registry = getattr(synth, "__REGISTRY")
 
         grammar = '''
@@ -51,6 +53,6 @@ class SemanticsTests(unittest.TestCase):
         B = registry["B"]
         C = registry["C"]
 
-        self.assertTrue(issubclass(A, B) and issubclass(A, synth._Synthetic))
-        self.assertTrue(issubclass(B, C) and issubclass(B, synth._Synthetic))
-        self.assertTrue(issubclass(C, synth._Synthetic))
+        self.assertTrue(issubclass(A, B) and issubclass(A, synth._Synthetic) and issubclass(A, Node))
+        self.assertTrue(issubclass(B, C) and issubclass(B, synth._Synthetic) and issubclass(A, Node))
+        self.assertTrue(issubclass(C, synth._Synthetic) and issubclass(C, Node))
