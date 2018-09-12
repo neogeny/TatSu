@@ -7,6 +7,11 @@ from tatsu.tool import compile
 from tatsu.semantics import ModelBuilderSemantics
 
 
+class MyNode(object):
+    def __init__(self, ast):
+        pass
+
+
 class SemanticsTests(unittest.TestCase):
 
     def test_builder_semantics(self):
@@ -42,12 +47,12 @@ class SemanticsTests(unittest.TestCase):
         registry = getattr(synth, "__REGISTRY")
 
         grammar = '''
-            start::A::B::C = foo:/.*/ ;
+            @@grammar :: Test
+            start::A::B::C = $ ;
         '''
 
-        semantics = ModelBuilderSemantics()
-        model = compile(grammar)
-        model.parse("test", semantics=semantics)
+        model = compile(grammar, asmodel=True)
+        model.parse("")
 
         A = registry["A"]
         B = registry["B"]
@@ -56,3 +61,20 @@ class SemanticsTests(unittest.TestCase):
         self.assertTrue(issubclass(A, B) and issubclass(A, synth._Synthetic) and issubclass(A, Node))
         self.assertTrue(issubclass(B, C) and issubclass(B, synth._Synthetic) and issubclass(A, Node))
         self.assertTrue(issubclass(C, synth._Synthetic) and issubclass(C, Node))
+
+    def test_builder_basetype_codegen(self):
+        grammar = '''
+            @@grammar :: Test
+            start::MyNode = $ ;
+        '''
+
+        from tatsu.tool import to_python_model
+        src = to_python_model(grammar, base_type=MyNode)
+        globals = {}
+        exec(src, globals)
+        semantics = globals["TestModelBuilderSemantics"]()
+
+        model = compile(grammar, semantics=semantics)
+
+        ast = model.parse("", semantics=semantics)
+        self.assertIsInstance(ast, MyNode)

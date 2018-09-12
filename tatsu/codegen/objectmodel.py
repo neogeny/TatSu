@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import inspect
+
 from datetime import datetime
 from collections import namedtuple
 
@@ -15,6 +17,7 @@ from tatsu.objectmodel import BASE_CLASS_TOKEN
 from tatsu.exceptions import CodegenError
 from tatsu.rendering import Renderer
 from tatsu.codegen.cgbase import ModelRenderer, CodeGenerator
+from tatsu.util import PY33
 
 
 NODE_NAME_PATTERN = r'(?!\d)\w+(' + BASE_CLASS_TOKEN + r'(?!\d)\w+)*'
@@ -22,9 +25,14 @@ NODE_NAME_PATTERN = r'(?!\d)\w+(' + BASE_CLASS_TOKEN + r'(?!\d)\w+)*'
 
 TypeSpec = namedtuple('TypeSpec', ['class_name', 'base'])
 
+DEFAULT_BASE_TYPE = '''\
+class ModelBase(Node):
+    pass\
+'''
 
-def codegen(model):
-    return ObjectModelCodeGenerator().render(model)
+
+def codegen(model, base_type=None):
+    return ObjectModelCodeGenerator().render(model, base_type=base_type)
 
 
 def _get_node_class_name(rule):
@@ -52,6 +60,56 @@ def _typespec(rule, default_base=True):
     elif default_base:
         base = 'ModelBase'
     return TypeSpec(class_name, base)
+
+
+def _get_full_name(cls):
+    if not inspect.isclass(cls):
+        raise CodegenError("Base type has to be a class")
+    module = inspect.getmodule(cls)
+    if not module:
+        raise CodegenError("Base type has to be inside a module")
+    modulename = module.__name__
+
+    if PY33:
+        name = cls.__qualname__
+    else:
+        name = cls.__name__
+
+    # Try to reference the class
+    try:
+        idents = name.split('.')
+        _cls = getattr(module, idents[0])
+        for ident in idents[1:]:
+            _cls = getattr(_cls, ident)
+
+        assert _cls == cls
+    except AttributeError:
+        raise CodegenError("Couldn't find base type, it has to be importable")
+
+    return modulename, name
+
+
+class BaseTypeRenderer(Renderer):
+    def __init__(self, base_type):
+        self.base_type = base_type
+
+    def render_fields(self, fields):
+        module, name = _get_full_name(self.base_type)
+        if '.' in name:
+            lookup = "\nModelBase = %s" % name
+            name = name.split('.')[0]
+        else:
+            lookup = " as ModelBase"
+
+        fields.update(
+            module=module,
+            name=name,
+            lookup=lookup
+        )
+
+    template = '''
+        from {module} import {name} {lookup}\
+        '''
 
 
 class BaseClassRenderer(Renderer):
@@ -135,10 +193,13 @@ class Grammar(ModelRenderer):
 
         version = datetime.now().strftime('%Y.%m.%d.%H')
 
+        base_type = fields["base_type"]
+
         fields.update(
             base_class_declarations=base_class_declarations,
             model_class_declarations=model_class_declarations,
             version=version,
+            base_type=BaseTypeRenderer(base_type).render() if base_type else DEFAULT_BASE_TYPE
         )
 
     template = '''\
@@ -160,6 +221,9 @@ class Grammar(ModelRenderer):
                 from tatsu.semantics import ModelBuilderSemantics
 
 
+                {base_type}
+
+
                 class {name}ModelBuilderSemantics(ModelBuilderSemantics):
                     def __init__(self, context=None, types=None):
                         types = [
@@ -167,10 +231,6 @@ class Grammar(ModelRenderer):
                             if type(t) is type and issubclass(t, ModelBase)
                         ] + (types or [])
                         super({name}ModelBuilderSemantics, self).__init__(context=context, types=types)
-
-
-                class ModelBase(Node):
-                    pass
 
 
                 {base_class_declarations}{model_class_declarations}
