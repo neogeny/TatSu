@@ -46,7 +46,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
     def string(self, ast):
         return eval_escapes(ast)
 
-    def hext(self, ast):
+    def hex(self, ast):
         return int(ast, 16)
 
     def float(self, ast):

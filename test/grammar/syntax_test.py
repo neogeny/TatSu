@@ -323,11 +323,18 @@ class SyntaxTests(unittest.TestCase):
 
     def test_constant(self):
         grammar = '''
-            start = () _0:`0` _1:`1` $;
+            start = () 
+                _0:`0` _1:`1` 
+                _xF:`0xF`
+                _string:`string`
+                _string_space:`'string space'`$;
         '''
 
         model = compile(grammar)
         ast = model.parse("")
 
-        self.assertEqual(ast._0, 0)
+        # self.assertEqual(ast._0, 0)
         self.assertEqual(ast._1, 1)
+        self.assertEqual(ast._xF, 0xF)
+        self.assertEqual(ast._string, "string")
+        self.assertEqual(ast._string_space, "string space")
