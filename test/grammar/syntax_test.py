@@ -320,3 +320,14 @@ class SyntaxTests(unittest.TestCase):
         model = compile(grammar, "start")
         ast = model.parse("1xx 2 yy")
         self.assertEqual(['1', 'xx', ' ', '2', 'yy'], ast)
+
+    def test_constant(self):
+        grammar = '''
+            start = () _0:`0` _1:`1` $;
+        '''
+
+        model = compile(grammar)
+        ast = model.parse("")
+
+        self.assertEqual(ast._0, 0)
+        self.assertEqual(ast._1, 1)
