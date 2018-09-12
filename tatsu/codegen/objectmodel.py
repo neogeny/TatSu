@@ -108,7 +108,7 @@ class BaseTypeRenderer(Renderer):
         )
 
     template = '''
-        from {module} import {name} {lookup}\
+        from {module} import {name}{lookup}\
         '''
 
 
