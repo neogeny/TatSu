@@ -36,15 +36,21 @@ class SemanticsTests(unittest.TestCase):
         self.assertEqual('5.4.3.2.1', ast)
 
     def test_builder_subclassing(self):
-        # from tatsu.synth import synthesize
-        # print(synthesize(str('B'), ()))
+        from tatsu import synth
+        registry = getattr(synth, "__REGISTRY")
 
         grammar = '''
-            start::A::B::C = text:/.*/ ;
+            start::A::B::C = foo:/.*/ ;
         '''
 
         semantics = ModelBuilderSemantics()
         model = compile(grammar)
+        model.parse("test", semantics=semantics)
 
-        ast = model.parse("test", semantics=semantics)
-        print(ast)
+        A = registry["A"]
+        B = registry["B"]
+        C = registry["C"]
+
+        self.assertTrue(issubclass(A, B) and issubclass(A, synth._Synthetic))
+        self.assertTrue(issubclass(B, C) and issubclass(B, synth._Synthetic))
+        self.assertTrue(issubclass(C, synth._Synthetic))
