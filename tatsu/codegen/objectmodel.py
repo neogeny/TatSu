@@ -25,9 +25,9 @@ NODE_NAME_PATTERN = r'(?!\d)\w+(' + BASE_CLASS_TOKEN + r'(?!\d)\w+)*'
 
 TypeSpec = namedtuple('TypeSpec', ['class_name', 'base'])
 
-DEFAULT_BASE_TYPE = '''\
+DEFAULT_BASE_TYPE = '''
 class ModelBase(Node):
-    pass\
+    pass
 '''
 
 
@@ -220,9 +220,7 @@ class Grammar(ModelRenderer):
                 from tatsu.objectmodel import Node
                 from tatsu.semantics import ModelBuilderSemantics
 
-
                 {base_type}
-
 
                 class {name}ModelBuilderSemantics(ModelBuilderSemantics):
                     def __init__(self, context=None, types=None):
@@ -232,6 +230,6 @@ class Grammar(ModelRenderer):
                         ] + (types or [])
                         super({name}ModelBuilderSemantics, self).__init__(context=context, types=types)
 
-
-                {base_class_declarations}{model_class_declarations}
+                {base_class_declarations}
+                {model_class_declarations}
                 '''
