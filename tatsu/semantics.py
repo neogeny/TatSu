@@ -84,7 +84,6 @@ class ModelBuilderSemantics(object):
 
         base = self.base_type
         for base_ in bases:
-            # print("Generating base:", base_, base)
             base = self._get_constructor(base_, base)
 
         constructor = self._get_constructor(typename, base)

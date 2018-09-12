@@ -17,7 +17,7 @@ from tatsu.rendering import Renderer
 from tatsu.codegen.cgbase import ModelRenderer, CodeGenerator
 
 
-NODE_NAME_PATTERN = '(?!\d)\w+(' + BASE_CLASS_TOKEN + '(?!\d)\w+)*'
+NODE_NAME_PATTERN = r'(?!\d)\w+(' + BASE_CLASS_TOKEN + r'(?!\d)\w+)*'
 
 
 TypeSpec = namedtuple('TypeSpec', ['class_name', 'base'])
@@ -161,12 +161,12 @@ class Grammar(ModelRenderer):
 
 
                 class {name}ModelBuilderSemantics(ModelBuilderSemantics):
-                    def __init__(self):
+                    def __init__(self, context=None, types=None):
                         types = [
                             t for t in globals().values()
                             if type(t) is type and issubclass(t, ModelBase)
-                        ]
-                        super({name}ModelBuilderSemantics, self).__init__(types=types)
+                        ] + (types or [])
+                        super({name}ModelBuilderSemantics, self).__init__(context=context, types=types)
 
 
                 class ModelBase(Node):
