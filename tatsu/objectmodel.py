@@ -25,8 +25,8 @@ class Node(object):
             parseinfo = ast.parseinfo if not parseinfo else None
         self._parseinfo = parseinfo
 
-        attributes = ast or {}
-        # asume that kwargs contains node attributes of interest
+        attributes = ast if ast is not None else {}
+        # assume that kwargs contains node attributes of interest
         if isinstance(attributes, MutableMapping):
             attributes.update(kwargs)
 

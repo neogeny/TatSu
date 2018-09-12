@@ -333,7 +333,10 @@ class SyntaxTests(unittest.TestCase):
         model = compile(grammar)
         ast = model.parse("")
 
-        # self.assertEqual(ast._0, 0)
+        print()
+        print(ast)
+
+        self.assertEqual(ast._0, 0)
         self.assertEqual(ast._1, 1)
         self.assertEqual(ast._xF, 0xF)
         self.assertEqual(ast._string, "string")
