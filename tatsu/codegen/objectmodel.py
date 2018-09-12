@@ -118,7 +118,7 @@ class BaseClassRenderer(Renderer):
 
     template = '''
         class {class_name}(ModelBase):
-            pass
+            pass\
         '''
 
 
