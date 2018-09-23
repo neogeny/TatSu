@@ -152,7 +152,7 @@ class EBNFBootstrapParser(Parser):
                                 self._boolean_()
                                 self.name_last_node('value')
                             with self._option():
-                                self._constant('True')
+                                self._constant(True)
                                 self.name_last_node('value')
                             self._error('no available options')
                 with self._option():
@@ -728,7 +728,7 @@ class EBNFBootstrapParser(Parser):
     def _special_(self):  # noqa
         self._token('?(')
         self._cut()
-        self._pattern(r'.*?(?!\)\?)')
+        self._pattern('.*?(?!\\)\\?)')
         self.name_last_node('@')
         self._token(')?')
         self._cut()
@@ -803,11 +803,11 @@ class EBNFBootstrapParser(Parser):
 
     @tatsumasu('Constant')
     def _constant_(self):  # noqa
-        self._pattern(r'`')
+        self._pattern('`')
         self._cut()
         self._literal_()
         self.name_last_node('@')
-        self._pattern(r'`')
+        self._pattern('`')
 
     @tatsumasu('Token')
     def _token_(self):  # noqa
@@ -825,6 +825,8 @@ class EBNFBootstrapParser(Parser):
                 self._string_()
             with self._option():
                 self._raw_string_()
+            with self._option():
+                self._boolean_()
             with self._option():
                 self._word_()
             with self._option():
@@ -851,14 +853,14 @@ class EBNFBootstrapParser(Parser):
             with self._option():
                 self._token('"')
                 self._cut()
-                self._pattern(r'([^"\n]|\\"|\\\\)*')
+                self._pattern('([^"\\n]|\\\\"|\\\\\\\\)*')
                 self.name_last_node('@')
                 self._token('"')
                 self._cut()
             with self._option():
                 self._token("'")
                 self._cut()
-                self._pattern(r"([^'\n]|\\'|\\\\)*")
+                self._pattern("([^'\\n]|\\\\'|\\\\\\\\)*")
                 self.name_last_node('@')
                 self._token("'")
                 self._cut()
@@ -866,23 +868,23 @@ class EBNFBootstrapParser(Parser):
 
     @tatsumasu()
     def _hex_(self):  # noqa
-        self._pattern(r'0[xX](\d|[a-fA-F])+')
+        self._pattern('0[xX](\\d|[a-fA-F])+')
 
     @tatsumasu()
     def _float_(self):  # noqa
-        self._pattern(r'[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?')
+        self._pattern('[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?')
 
     @tatsumasu()
     def _int_(self):  # noqa
-        self._pattern(r'[-+]?\d+')
+        self._pattern('[-+]?\\d+')
 
     @tatsumasu()
     def _path_(self):  # noqa
-        self._pattern(r'(?!\d)\w+(::(?!\d)\w+)+')
+        self._pattern('(?!\\d)\\w+(::(?!\\d)\\w+)+')
 
     @tatsumasu()
     def _word_(self):  # noqa
-        self._pattern(r'(?!\d)\w+')
+        self._pattern('(?!\\d)\\w+')
 
     @tatsumasu('Any')
     def _any_(self):  # noqa
@@ -908,16 +910,16 @@ class EBNFBootstrapParser(Parser):
             with self._option():
                 self._token('/')
                 self._cut()
-                self._pattern(r'([^/\\]|\\/|\\.)+')
+                self._pattern('([^/\\\\]|\\\\/|\\\\.)+')
                 self.name_last_node('@')
                 self._token('/')
                 self._cut()
             with self._option():
                 self._token('?/')
                 self._cut()
-                self._pattern(r'(.|\n)+?(?=/\?)')
+                self._pattern('(.|\\n)+?(?=/\\?)')
                 self.name_last_node('@')
-                self._pattern(r'/\?+')
+                self._pattern('/\\?+')
                 self._cut()
             with self._option():
                 self._token('?')
@@ -1140,14 +1142,16 @@ class EBNFBootstrapSemantics(object):
         return ast
 
 
-def main(filename, start='start', **kwargs):
+def main(filename, start=None, **kwargs):
+    if start is None:
+        start = 'start'
     if not filename or filename == '-':
         text = sys.stdin.read()
     else:
         with open(filename) as f:
             text = f.read()
     parser = EBNFBootstrapParser()
-    return parser.parse(text, start=start, filename=filename, **kwargs)
+    return parser.parse(text, rule_name=start, filename=filename, **kwargs)
 
 
 if __name__ == '__main__':
