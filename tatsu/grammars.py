@@ -52,7 +52,7 @@ class EBNFBuffer(EBNFBootstrapBuffer):
             if re.match(PRAGMA_RE, line):
                 directive, arg = line.split('#', 1)[1], ''
                 if '::' in directive:
-                    directive, arg = directive.split('::')
+                    directive, arg = directive.split('::', 1)
                 directive, arg = directive.strip(), arg.strip()
                 i = self.pragma(name, directive, arg, lines, index, i)
             else:
