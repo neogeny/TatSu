@@ -47,19 +47,19 @@ def _get_node_class_name(rule):
     return typespec
 
 
-def _typespec(rule, default_base=True):
+def _typespec(rule):
     if not _get_node_class_name(rule):
-        return TypeSpec(None, None)
+        return []
 
     spec = rule.params[0].split(BASE_CLASS_TOKEN)
-    class_name = safe_name(spec[0])
-    base = None
-    bases = spec[1:]
-    if bases:
-        base = safe_name(bases[0])
-    elif default_base:
-        base = 'ModelBase'
-    return TypeSpec(class_name, base)
+    class_names = [safe_name(n) for n in spec] + ['ModelBase']
+
+    typespec = []
+    for i, class_name in enumerate(class_names[:-1]):
+        base = class_names[i + 1]
+        typespec.append(TypeSpec(class_name, base))
+
+    return typespec
 
 
 def _get_full_name(cls):
@@ -113,11 +113,12 @@ class BaseTypeRenderer(Renderer):
 
 
 class BaseClassRenderer(Renderer):
-    def __init__(self, class_name):
-        self.class_name = class_name
+    def __init__(self, spec):
+        self.class_name = spec.class_name
+        self.base = spec.base
 
     template = '''
-        class {class_name}(ModelBase):
+        class {class_name}({base}):
             pass\
         '''
 
@@ -138,14 +139,13 @@ class Rule(ModelRenderer):
     def render_fields(self, fields):
         defs = [safe_name(d) for d, l in compress_seq(self.defines())]
         defs = list(sorted(set(defs)))
+        spec = fields["spec"]
 
         kwargs = '\n'.join('%s = None' % d for d in defs)
         if kwargs:
             kwargs = indent(kwargs)
         else:
             kwargs = indent('pass')
-
-        spec = _typespec(self.node)
 
         fields.update(
             class_name=spec.class_name,
@@ -166,24 +166,26 @@ class Grammar(ModelRenderer):
         bases = []
         model_rules = []
         for rule in self.node.rules:
-            spec = _typespec(rule, False)
-            if not spec.class_name:
-                continue
-            if spec.class_name not in node_class_names:
-                model_rules.append(rule)
-            if spec.base and spec.base not in node_class_names:
-                bases.append(spec.base)
-            node_class_names.add(spec.class_name)
-            node_class_names.add(spec.base)
+            specs = _typespec(rule)
+            node_spec = specs[0]
+            base_spec = reversed(specs[1:])
+
+            if node_spec.class_name not in node_class_names:
+                model_rules.append((rule, node_spec))
+
+            bases.extend(base for base in base_spec
+                         if base.class_name not in node_class_names)
+
+            node_class_names.update(s.class_name for s in specs)
 
         base_class_declarations = [
-            BaseClassRenderer(base).render()
-            for base in bases
+            BaseClassRenderer(spec).render()
+            for spec in bases
         ]
 
         model_class_declarations = [
-            self.get_renderer(rule).render()
-            for rule in model_rules
+            self.get_renderer(rule).render(spec=spec)
+            for rule, spec in model_rules
         ]
 
         base_class_declarations = '\n\n\n'.join(base_class_declarations)

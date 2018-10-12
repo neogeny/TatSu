@@ -65,16 +65,28 @@ class SemanticsTests(unittest.TestCase):
     def test_builder_basetype_codegen(self):
         grammar = '''
             @@grammar :: Test
-            start::MyNode = $ ;
+            start::A::B::C = a:() b:() $ ;
+            second::D::A = ();
         '''
 
         from tatsu.tool import to_python_model
         src = to_python_model(grammar, base_type=MyNode)
+
         globals = {}
         exec(src, globals)
         semantics = globals["TestModelBuilderSemantics"]()
 
-        model = compile(grammar, semantics=semantics)
+        A = globals["A"]
+        B = globals["B"]
+        C = globals["C"]
+        D = globals["D"]
 
+        model = compile(grammar, semantics=semantics)
         ast = model.parse("", semantics=semantics)
+
         self.assertIsInstance(ast, MyNode)
+        self.assertIsInstance(ast, (A, B, C))
+        self.assertTrue(hasattr(ast, "a"))
+        self.assertTrue(hasattr(ast, "b"))
+
+        self.assertTrue(issubclass(D, (A, B, C)))
