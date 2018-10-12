@@ -67,6 +67,7 @@ class SemanticsTests(unittest.TestCase):
             @@grammar :: Test
             start::A::B::C = a:() b:() $ ;
             second::D::A = ();
+            third = ();
         '''
 
         from tatsu.tool import to_python_model
