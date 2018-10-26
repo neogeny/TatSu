@@ -1,6 +1,6 @@
 [![license](https://img.shields.io/badge/license-BSD-blue.svg)](https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt) [![pyversions](https://img.shields.io/pypi/pyversions/tatsu.svg)](https://pypi.python.org/pypi/tatsu) [![fury](https://badge.fury.io/py/tatsu.svg)](https://badge.fury.io/py/tatsu) [![circleci](https://circleci.com/gh/neogeny/TatSu.svg?style=shield)](https://circleci.com/gh/neogeny/TatSu) [![travis](https://secure.travis-ci.org/neogeny/TatSu.svg)](http://travis-ci.org/neogeny/TatSu) [![docs](https://readthedocs.org/projects/tatsu/badge/?version=stable)](http://tatsu.readthedocs.io/en/stable/) [![landscape](https://landscape.io/github/apalala/TatSu/master/landscape.png)](https://landscape.io/github/apalala/TatSu/master)
 
-> *At least for the people who send me mail about a new language that they\'re designing, the general advice is: do it to learn about how to write a compiler. Don\'t have any expectations that anyone will use it, unless you hook up with some sort of organization in a position to push it hard. It\'s a lottery, and some can buy a lot of the tickets. There are plenty of beautiful languages (more beautiful than C) that didn\'t catch on. But someone does win the lottery, and doing a language at least teaches you something.*
+> *At least for the people who send me mail about a new language that they're designing, the general advice is: do it to learn about how to write a compiler. Don't have any expectations that anyone will use it, unless you hook up with some sort of organization in a position to push it hard. It's a lottery, and some can buy a lot of the tickets. There are plenty of beautiful languages (more beautiful than C) that didn't catch on. But someone does win the lottery, and doing a language at least teaches you something.*
 >
 > [Dennis Ritchie](http://en.wikipedia.org/wiki/Dennis_Ritchie) (1941-2011) Creator of the [C](http://en.wikipedia.org/wiki/C_language) programming language and of [Unix](http://en.wikipedia.org/wiki/Unix)
 
@@ -11,7 +11,7 @@
 
 竜 **TatSu** can compile a grammar stored in a string into a `tatsu.grammars.Grammar` object that can be used to parse any given input, much like the [re](https://docs.python.org/3.7/library/re.html) module does with regular expressions, or it can generate a [Python](http://python.org) module that implements the parser.
 
-竜 **TatSu** fully supports [left-recursive](https://en.wikipedia.org/wiki/Left_recursion) rules in [PEG](http://en.wikipedia.org/wiki/Parsing_expression_grammar) grammars using the [algorithm](http://norswap.com/pubs/sle2016.pdf) by *Laurent* and *Mens*. The generated [AST](http://en.wikipedia.org/wiki/Abstract_syntax_tree) has the expected left associativity.
+竜 **TatSu** has experimental support for [left-recursive](https://en.wikipedia.org/wiki/Left_recursion) rules in [PEG](http://en.wikipedia.org/wiki/Parsing_expression_grammar) grammars using the [algorithm](http://norswap.com/pubs/sle2016.pdf) by *Laurent* and *Mens*. The generated [AST](http://en.wikipedia.org/wiki/Abstract_syntax_tree) has the expected left associativity.
 
 Installation
 ------------
@@ -23,7 +23,7 @@ $ pip install TatSu
 Using the Tool
 --------------
 
-竜 **TatSu** can be used as a library, much like [Python](http://python.org)\'s `re`, by embedding grammars as strings and generating grammar models instead of generating [Python](http://python.org) code.
+竜 **TatSu** can be used as a library, much like [Python](http://python.org)'s `re`, by embedding grammars as strings and generating grammar models instead of generating [Python](http://python.org) code.
 
 -   `tatsu.compile(grammar, name=None, **kwargs)`
 
