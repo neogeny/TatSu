@@ -39,7 +39,10 @@ class Node(object):
             return
 
         for name in set(ast) - {'parseinfo'}:
-            setattr(self, name, ast[name])
+            try:
+                setattr(self, name, ast[name])
+            except AttributeError:
+                raise AttributeError("'%s' is a reserved name" % name)
 
     @property
     def ast(self):

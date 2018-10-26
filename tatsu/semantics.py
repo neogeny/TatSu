@@ -31,6 +31,7 @@ class ModelBuilderSemantics(object):
         nodes using the class name given as first parameter to a grammar
         rule, and synthesizes the class/type if it's not known.
     """
+
     def __init__(self, context=None, base_type=Node, types=None):
         self.ctx = context
         self.base_type = base_type
@@ -79,11 +80,11 @@ class ModelBuilderSemantics(object):
 
         typespec = args[0].split(BASE_CLASS_TOKEN)
         typename = typespec[0]
-        bases = typespec[1:]
+        bases = typespec[-1:0:-1]
 
         base = self.base_type
-        for base in bases:
-            base = self._get_constructor(bases[0], base)
+        for base_ in bases:
+            base = self._get_constructor(base_, base)
 
         constructor = self._get_constructor(typename, base)
         try:
