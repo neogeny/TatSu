@@ -18,7 +18,7 @@ def synthesize(name, bases):
         bases = (bases,)
 
     if _Synthetic not in bases:
-        bases = (_Synthetic,) + bases
+        bases = bases + (_Synthetic,)
 
     constructor = __REGISTRY.get(typename)
     if not constructor:

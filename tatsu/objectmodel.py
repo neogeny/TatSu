@@ -25,8 +25,8 @@ class Node(object):
             parseinfo = ast.parseinfo if not parseinfo else None
         self._parseinfo = parseinfo
 
-        attributes = ast or {}
-        # asume that kwargs contains node attributes of interest
+        attributes = ast if ast is not None else {}
+        # assume that kwargs contains node attributes of interest
         if isinstance(attributes, MutableMapping):
             attributes.update(kwargs)
 
@@ -39,7 +39,10 @@ class Node(object):
             return
 
         for name in set(ast) - {'parseinfo'}:
-            setattr(self, name, ast[name])
+            try:
+                setattr(self, name, ast[name])
+            except AttributeError:
+                raise AttributeError("'%s' is a reserved name" % name)
 
     @property
     def ast(self):

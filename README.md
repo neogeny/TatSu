@@ -23,7 +23,7 @@ $ pip install TatSu
 Using the Tool
 --------------
 
-竜 **TatSu** can be used as a library, much like [Python](http://python.org)\'s `re`, by embedding grammars as strings and generating grammar models instead of generating [Python](http://python.org) code.
+竜 **TatSu** can be used as a library, much like [Python](http://python.org)'s `re`, by embedding grammars as strings and generating grammar models instead of generating [Python](http://python.org) code.
 
 -   `tatsu.compile(grammar, name=None, **kwargs)`
 

@@ -90,6 +90,7 @@ class CodeGenerator(object):
     ``ModelRenderer`` class with the same name as each model's node and
     uses it to render the node.
     """
+
     def __init__(self, modules=None):
         self.formatter = DelegatingRenderingFormatter(self)
         self._renderers = {}

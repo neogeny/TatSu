@@ -8,6 +8,7 @@ import codecs
 import argparse
 import os
 import sys
+import importlib
 
 from tatsu._version import __version__
 from tatsu.util import eval_escapes
@@ -111,6 +112,24 @@ def parse_args():
         help='characters to skip during parsing (use "" to disable)',
     )
 
+    def import_class(path):
+        try:
+            spath = path.rsplit('.', 1)
+            module = importlib.import_module(spath[0])
+
+            return getattr(module, spath[1])
+        except Exception:
+            raise argparse.ArgumentTypeError(
+                "Couldn't find class %s" % path
+            )
+
+    generation_opts.add_argument(
+        '--base-type',
+        metavar='CLASSPATH',
+        help='class to use as base type for the object model, for example "mymodule.MyNode"',
+        type=import_class
+    )
+
     std_args = argparser.add_argument_group('common options')
     std_args.add_argument(
         '--help', '-h',
@@ -157,9 +176,9 @@ def to_python_sourcecode(grammar, name=None, filename=None, **kwargs):
     return pythoncg(model)
 
 
-def to_python_model(grammar, name=None, filename=None, **kwargs):
+def to_python_model(grammar, name=None, filename=None, base_type=None, **kwargs):
     model = compile(grammar, name=name, filename=filename, **kwargs)
-    return objectmodel.codegen(model)
+    return objectmodel.codegen(model, base_type=base_type)
 
 
 # for backwards compatibility. Use `compile()` instead
@@ -223,7 +242,7 @@ def main(codegen=pythoncg):
             elif args.pretty_lean:
                 result = model.pretty_lean()
             elif args.object_model:
-                result = objectmodel.codegen(model)
+                result = objectmodel.codegen(model, base_type=args.base_type)
             else:
                 result = codegen(model)
 
@@ -234,7 +253,7 @@ def main(codegen=pythoncg):
 
         # if requested, always save it
         if args.object_model_outfile:
-            save(args.object_model_outfile, objectmodel.codegen(model))
+            save(args.object_model_outfile, objectmodel.codegen(model, base_type=args.base_type))
 
         print('-' * 72, file=sys.stderr)
         print('{:12,d}  lines in grammar'.format(len(grammar.split())), file=sys.stderr)
