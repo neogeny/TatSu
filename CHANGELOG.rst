@@ -10,16 +10,26 @@ backwards incompatibilities in the software.
 
 The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
-`X.Y.Z`_ @ 2017
+`X.Y.Z`_ @ 2018
 ---------------
-.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.2.6...master
+.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.3.0...master
+
+
+`4.3.0`_ @ 2018-10-30
+---------------------
+.. _4.3.0: https://github.com/apalala/tatsu/compare/v4.2.6...v4.3.0
 
 *   `#66`_ Fix multiline (`(?x)`) patterns not properly supported in grammar  (`@pdw-mb`_)
+*   `#70`_ Important upgrade to `ModelBuilder` and grammar specification of classes for generated
+  nodes. Sedd `pull request #78`_ for details (`@Victorious3_`)
 
-.. _#66: https://github.com/neogeny/TatSu/issues/56
+.. _#66: https://github.com/neogeny/TatSu/issues/66
+.. _#70: https://github.com/neogeny/TatSu/issues/70
+.. _pull request #78: https://github.com/neogeny/TatSu/pull/78
 
-`4.2.6`_ @ 2018-0506
----------------------
+
+`4.2.6`_ @ 2018-05-06
+----------------------
 .. _4.2.6: https://github.com/apalala/tatsu/compare/v4.2.5...v4.2.6
 
 *   `#56`_ Add missing `tatsu/g2e/antlr.ebnf` to distribution  (`@Ruth-Polymnia`_)
@@ -276,6 +286,7 @@ Added
 .. _@paulhoule: https://github.com/paulhoule
 .. _@Ruth-Polymnia: https://github.com/Ruth-Polymnia
 .. _@r-chaves: https://github.com/r-chaves
+.. _@Victorious3: https://github.com/Victorious3
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
