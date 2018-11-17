@@ -43,8 +43,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------------
 .. _4.2.5: https://github.com/apalala/tatsu/compare/v4.2.4...v4.2.5
 
-*   `#42`_ Rename vim files from `grako.vim` to `tatsu.vim`  (`@fcoelho`_)
-*   `#51`_ Fix inconsistent code generation for `whitespace`  (`@fpom`_)
+*   `#42`_ Rename vim files from ``grako.vim`` to ``tatsu.vim``  (`@fcoelho`_)
+*   `#51`_ Fix inconsistent code generation for ``whitespace``  (`@fpom`_)
 *   `#54`_ Only care about case of first letter of rule name for determining advance over whitespace (`@acw1251`_)
 
 
@@ -132,7 +132,7 @@ Added
 
 *   Added the *any* expression ( ``/./``) for matching the next character in the input.
 
-*   The ANTLR_ grammar for Python3_ to the `g2e` example, and udate `g2e` to handle more ANTLR_ syntax.
+*   The ANTLR_ grammar for Python3_ to the ``g2e`` example, and udate ``g2e`` to handle more ANTLR_ syntax.
 
 *   Check typing with Mypy_.
 
