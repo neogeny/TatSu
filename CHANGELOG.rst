@@ -19,8 +19,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------------
 .. _4.3.0: https://github.com/apalala/tatsu/compare/v4.2.6...v4.3.0
 
-*   `#66`_ Fix multiline (`(?x)`) patterns not properly supported in grammar  (`@pdw-mb`_)
-*   `#70`_ Important upgrade to `ModelBuilder` and grammar specification of classes for generated nodes. See `pull request #78`_ for details (`@Victorious3`_)
+*   `#66`_ Fix multiline ( ``(?x)`` ) patterns not properly supported in grammar  (`@pdw-mb`_)
+*   `#70`_ Important upgrade to ``ModelBuilder`` and grammar specification of classes for generated nodes. See `pull request #78`_ for details (`@Victorious3`_)
 
 .. _#66: https://github.com/neogeny/TatSu/issues/66
 .. _#70: https://github.com/neogeny/TatSu/issues/70
@@ -31,7 +31,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ----------------------
 .. _4.2.6: https://github.com/apalala/tatsu/compare/v4.2.5...v4.2.6
 
-*   `#56`_ Add missing `tatsu/g2e/antlr.ebnf` to distribution  (`@Ruth-Polymnia`_)
+*   `#56`_ Add missing ``tatsu/g2e/antlr.ebnf`` to distribution  (`@Ruth-Polymnia`_)
 *   `#62`_ Fix |TatSu| ignoring start rule provided in command line  (`@r-chaves`_)
 *   Fix typos in documentation (`@mjdominus`_)
 
