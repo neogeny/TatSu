@@ -286,7 +286,7 @@ Added
 .. _@Ruth-Polymnia: https://github.com/Ruth-Polymnia
 .. _@r-chaves: https://github.com/r-chaves
 .. _@Victorious3: https://github.com/Victorious3
-.. _@pdw-mb: https://bitbucket.org/pdw-mb
+.. _@pdw-mb: https://github.com/pdw-mb
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
