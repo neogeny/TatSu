@@ -20,8 +20,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _4.3.0: https://github.com/apalala/tatsu/compare/v4.2.6...v4.3.0
 
 *   `#66`_ Fix multiline (`(?x)`) patterns not properly supported in grammar  (`@pdw-mb`_)
-*   `#70`_ Important upgrade to `ModelBuilder` and grammar specification of classes for generated
-  nodes. Sedd `pull request #78`_ for details (`@Victorious3_`)
+*   `#70`_ Important upgrade to `ModelBuilder` and grammar specification of classes for generated nodes. See `pull request #78`_ for details (`@Victorious3`_)
 
 .. _#66: https://github.com/neogeny/TatSu/issues/66
 .. _#70: https://github.com/neogeny/TatSu/issues/70
@@ -287,6 +286,7 @@ Added
 .. _@Ruth-Polymnia: https://github.com/Ruth-Polymnia
 .. _@r-chaves: https://github.com/r-chaves
 .. _@Victorious3: https://github.com/Victorious3
+.. _@pdw-mb: https://bitbucket.org/pdw-mb
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
@@ -313,6 +313,5 @@ Added
 .. _gkimbar: https://bitbucket.org/gkimbar
 .. _nehz: https://bitbucket.org/nehz
 .. _neumond: https://bitbucket.org/neumond
-.. _pdw-mb: https://bitbucket.org/pdw-mb
 .. _pgebhard: https://bitbucket.org/pgebhard
 .. _siemer: https://bitbucket.org/siemer
