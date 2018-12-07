@@ -34,7 +34,7 @@ features, but reports, bug fixes, or suggestions:
     `Ruth-Polymnia`_,
     `S Brown`_,
     `Tonico Strasser`_,
-    `Victor Nightfall`_,
+    `Vic Nightfall`_,
     `Victor Uriarte`_,
     `Vinay Sajip`_,
     `franz\_g`_,
@@ -77,7 +77,7 @@ Most of the contributions are recorded as **Grako** commits_ or issues_.
 .. _Ruth-Polymnia: https://github.com/Ruth-Polymnia
 .. _S Brown: https://bitbucket.org/sjbrownBitbucket
 .. _Tonico Strasser: https://bitbucket.org/tonico_strasser
-.. _Victor Nightfall: https://bitbucket.org/Victorious3
+.. _Vic Nightfall: https://github.com/Victorious3
 .. _Victor Uriarte: https://bitbucket.org/vmuriart
 .. _Vinay Sajip: https://bitbucket.org/vinay.sajip
 .. _basel-shishani: https://bitbucket.org/basel-shishani

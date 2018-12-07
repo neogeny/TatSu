@@ -165,6 +165,9 @@ class BootstrapTests(unittest.TestCase):
         with open('./tmp/12.txt', 'w') as f:
             f.write('\n'.join(v.walked))
 
+        # note: pygraphviz not yet updated
+        if sys.version_info >= (3, 7):
+            return
         print('-' * 20, 'phase 13 - Graphics')
         try:
             from tatsu.diagrams import draw

@@ -15,13 +15,12 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.3.0...master
 
 
-`4.3.0`_ @ 2018-10-30
+`4.3.0`_ @ 2018-11-17
 ---------------------
 .. _4.3.0: https://github.com/apalala/tatsu/compare/v4.2.6...v4.3.0
 
-*   `#66`_ Fix multiline (`(?x)`) patterns not properly supported in grammar  (`@pdw-mb`_)
-*   `#70`_ Important upgrade to `ModelBuilder` and grammar specification of classes for generated
-  nodes. Sedd `pull request #78`_ for details (`@Victorious3_`)
+*   `#66`_ Fix multiline ( ``(?x)`` ) patterns not properly supported in grammar  (`@pdw-mb`_)
+*   `#70`_ Important upgrade to ``ModelBuilder`` and grammar specification of classes for generated nodes. See `pull request #78`_ for details (`@Victorious3`_)
 
 .. _#66: https://github.com/neogeny/TatSu/issues/66
 .. _#70: https://github.com/neogeny/TatSu/issues/70
@@ -32,7 +31,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ----------------------
 .. _4.2.6: https://github.com/apalala/tatsu/compare/v4.2.5...v4.2.6
 
-*   `#56`_ Add missing `tatsu/g2e/antlr.ebnf` to distribution  (`@Ruth-Polymnia`_)
+*   `#56`_ Add missing ``tatsu/g2e/antlr.ebnf`` to distribution  (`@Ruth-Polymnia`_)
 *   `#62`_ Fix |TatSu| ignoring start rule provided in command line  (`@r-chaves`_)
 *   Fix typos in documentation (`@mjdominus`_)
 
@@ -44,8 +43,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------------
 .. _4.2.5: https://github.com/apalala/tatsu/compare/v4.2.4...v4.2.5
 
-*   `#42`_ Rename vim files from `grako.vim` to `tatsu.vim`  (`@fcoelho`_)
-*   `#51`_ Fix inconsistent code generation for `whitespace`  (`@fpom`_)
+*   `#42`_ Rename vim files from ``grako.vim`` to ``tatsu.vim``  (`@fcoelho`_)
+*   `#51`_ Fix inconsistent code generation for ``whitespace``  (`@fpom`_)
 *   `#54`_ Only care about case of first letter of rule name for determining advance over whitespace (`@acw1251`_)
 
 
@@ -133,7 +132,7 @@ Added
 
 *   Added the *any* expression ( ``/./``) for matching the next character in the input.
 
-*   The ANTLR_ grammar for Python3_ to the `g2e` example, and udate `g2e` to handle more ANTLR_ syntax.
+*   The ANTLR_ grammar for Python3_ to the ``g2e`` example, and udate ``g2e`` to handle more ANTLR_ syntax.
 
 *   Check typing with Mypy_.
 
@@ -287,6 +286,7 @@ Added
 .. _@Ruth-Polymnia: https://github.com/Ruth-Polymnia
 .. _@r-chaves: https://github.com/r-chaves
 .. _@Victorious3: https://github.com/Victorious3
+.. _@pdw-mb: https://github.com/pdw-mb
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
@@ -313,6 +313,5 @@ Added
 .. _gkimbar: https://bitbucket.org/gkimbar
 .. _nehz: https://bitbucket.org/nehz
 .. _neumond: https://bitbucket.org/neumond
-.. _pdw-mb: https://bitbucket.org/pdw-mb
 .. _pgebhard: https://bitbucket.org/pgebhard
 .. _siemer: https://bitbucket.org/siemer
