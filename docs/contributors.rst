@@ -45,8 +45,6 @@ features, but reports, bug fixes, or suggestions:
     `pgebhard`_,
     `siemer`_
 
-Most of the contributions are recorded as **Grako** commits_ or issues_.
-
 .. _commits: https://bitbucket.org/neogeny/grako/commits/all
 .. _issues: https://bitbucket.org/neogeny/grako/issues
 
