@@ -14,7 +14,7 @@ Donations
 |donate|
 
 *If you'd like to contribute to the future development of |TatSu|,
-please* **`make a donation`_** to the project.
+please* `make a donation`_ to the project.
 
 *Some of the planned new features are: grammar expressions for left
 and right associativity, new algorithms for left-recursion, a
