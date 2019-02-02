@@ -67,7 +67,7 @@
 .. _keyword: https://en.wikipedia.org/wiki/Reserved_word
 .. _keywords: https://en.wikipedia.org/wiki/Reserved_word
 .. _lambdafu: http://blog.marcus-brinkmann.de/
-.. _make a donation: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=P9PV7ZACB669J
+.. _`make a donation`: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=2TW56SV6WNJV6
 .. _memoizing: http://en.wikipedia.org/wiki/Memoization
 .. _parsewkt: https://github.com/cleder/parsewkt
 .. _pygraphviz: https://pypi.python.org/pypi/pygraphviz
