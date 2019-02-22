@@ -153,7 +153,7 @@ The expressions, in reverse order of operator precedence, can be:
 
 ``op<{ e }+``
 ^^^^^^^^^^^^^
-    Left join. Like the *join expression*, but the result is a left-associative tree built with ``tuple()``, in wich the first elelemnt is the separator (``op``), and the other two elements are the operands.
+    Left join. Like the *join expression*, but the result is a left-associative tree built with ``tuple()``, in wich the first element is the separator (``op``), and the other two elements are the operands.
 
     The expression:
 
@@ -192,7 +192,7 @@ The expressions, in reverse order of operator precedence, can be:
 
 ``op>{ e }+``
 ^^^^^^^^^^^^^
-    Right join. Like the *join expression*, but the result is a right-associative tree built with ``tuple()``, in wich the first elelemnt is the separator (``op``), and the other two elements are the operands.
+    Right join. Like the *join expression*, but the result is a right-associative tree built with ``tuple()``, in wich the first element is the separator (``op``), and the other two elements are the operands.
 
     The expression:
 
