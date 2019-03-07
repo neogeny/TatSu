@@ -163,7 +163,7 @@ The *-h* and *--help* parameters provide full usage information:
 
     generation options:
     --no-left-recursion, -l
-                            turns left-recusion support off
+                            turns left-recursion support off
     --name NAME, -m NAME  Name for the grammar (defaults to GRAMMAR base name)
     --no-nameguard, -n    allow tokens that are prefixes of others
     --outfile FILE, --output FILE, -o FILE

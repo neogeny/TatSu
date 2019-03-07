@@ -79,7 +79,7 @@ def parse_args():
     generation_opts = argparser.add_argument_group('generation options')
     generation_opts.add_argument(
         '--no-left-recursion', '-l',
-        help='turns left-recusion support off',
+        help='turns left-recursion support off',
         dest="left_recursion",
         action='store_false',
         default=True,
