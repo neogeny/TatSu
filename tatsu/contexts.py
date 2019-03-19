@@ -116,7 +116,7 @@ class ParseContext(object):
         self._lookahead = 0
 
         self._recursive_rules = set()
-        self._clear_memoizetion_caches()
+        self._clear_memoization_caches()
 
     def _reset(self,
                text=None,
@@ -210,7 +210,7 @@ class ParseContext(object):
             self._set_furthest_exception(e)
             raise self._furthest_exception
         finally:
-            self._clear_memoizetion_caches()
+            self._clear_memoization_caches()
 
     @property
     def last_node(self):
@@ -224,7 +224,7 @@ class ParseContext(object):
     def _pos(self):
         return self._buffer.pos
 
-    def _clear_memoizetion_caches(self):
+    def _clear_memoization_caches(self):
         self._memos = dict()
         self._results = dict()
 
