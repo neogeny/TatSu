@@ -19,6 +19,7 @@ features, but reports, bug fixes, or suggestions:
     `Franck Pommereau`_,
     `Franklin Lee`_,
     `Gabriele Paganelli`_,
+    `Jack Taylor`_,
     `Kathryn Long`_,
     `Manuel Jacob`_,
     `Marcus Brinkmann`_,
@@ -61,6 +62,7 @@ features, but reports, bug fixes, or suggestions:
 .. _Franck Pommereau: https://github.com/fpom
 .. _Franklin Lee: https://bitbucket.org/leewz
 .. _Gabriele Paganelli: https://bitbucket.org/gapag
+.. _Jack Taylor: https://github.com/rayjolt
 .. _Kathryn Long: https://bitbucket.org/starkat
 .. _Manuel Jacob: https://github.com/manueljacob
 .. _Marcus Brinkmann: https://bitbucket.org/lambdafu/

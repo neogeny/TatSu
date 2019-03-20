@@ -14,7 +14,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.3.0...master
 
-*  Fix typos and Makefile (`@davesque`) 
+*  Various fixes for minor issues (`@davesque`_, `@nicholasbishop`_, `@rayjolt`) 
 
 
 `4.3.0`_ @ 2018-11-17
@@ -290,6 +290,8 @@ Added
 .. _@Victorious3: https://github.com/Victorious3
 .. _@pdw-mb: https://github.com/pdw-mb
 .. _@davesque: https://github.com/davesque
+.. _@nicholasbishop: https://github.com/nicholasbishop
+.. _@rayjolt: https://github.com/rayjolt
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
