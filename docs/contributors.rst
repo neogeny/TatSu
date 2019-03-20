@@ -56,7 +56,7 @@ features, but reports, bug fixes, or suggestions:
 .. _David Chen: https://github.com/davidchen
 .. _David Delassus: https://bitbucket.org/linkdd
 .. _David Röthlisberger: https://bitbucket.org/drothlis/
-.. _Davir Sanders: https://github.com/davesque
+.. _David Sanders: https://github.com/davesque
 .. _Dmytro Ivanov: https://bitbucket.org/jimon
 .. _Felipe: https://github.com/fcoelho
 .. _Franck Pommereau: https://github.com/fpom
