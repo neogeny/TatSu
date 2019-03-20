@@ -10,9 +10,11 @@ backwards incompatibilities in the software.
 
 The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
-`X.Y.Z`_ @ 2018
+`X.Y.Z`_ @ 2019
 ---------------
 .. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.3.0...master
+
+*  Fix typos and Makefile (`@davesque`) 
 
 
 `4.3.0`_ @ 2018-11-17
@@ -287,6 +289,7 @@ Added
 .. _@r-chaves: https://github.com/r-chaves
 .. _@Victorious3: https://github.com/Victorious3
 .. _@pdw-mb: https://github.com/pdw-mb
+.. _@davesque: https://github.com/davesque
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen

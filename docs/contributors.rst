@@ -13,6 +13,7 @@ features, but reports, bug fixes, or suggestions:
     `David Chen`_,
     `David Delassus`_,
     `David Röthlisberger`_,
+    `David Sanders`_,
     `Dmytro Ivanov`_,
     `Felipe`_,
     `Franck Pommereau`_,
@@ -54,6 +55,7 @@ features, but reports, bug fixes, or suggestions:
 .. _David Chen: https://github.com/davidchen
 .. _David Delassus: https://bitbucket.org/linkdd
 .. _David Röthlisberger: https://bitbucket.org/drothlis/
+.. _Davir Sanders: https://github.com/davesque
 .. _Dmytro Ivanov: https://bitbucket.org/jimon
 .. _Felipe: https://github.com/fcoelho
 .. _Franck Pommereau: https://github.com/fpom
