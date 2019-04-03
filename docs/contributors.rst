@@ -13,11 +13,13 @@ features, but reports, bug fixes, or suggestions:
     `David Chen`_,
     `David Delassus`_,
     `David Röthlisberger`_,
+    `David Sanders`_,
     `Dmytro Ivanov`_,
     `Felipe`_,
     `Franck Pommereau`_,
     `Franklin Lee`_,
     `Gabriele Paganelli`_,
+    `Jack Taylor`_,
     `Kathryn Long`_,
     `Manuel Jacob`_,
     `Marcus Brinkmann`_,
@@ -34,6 +36,7 @@ features, but reports, bug fixes, or suggestions:
     `Ruth-Polymnia`_,
     `S Brown`_,
     `Tonico Strasser`_,
+    `Vic Nightfall`_,
     `Victor Uriarte`_,
     `Vinay Sajip`_,
     `franz\_g`_,
@@ -44,8 +47,6 @@ features, but reports, bug fixes, or suggestions:
     `pgebhard`_,
     `siemer`_
 
-Most of the contributions are recorded as **Grako** commits_ or issues_.
-
 .. _commits: https://bitbucket.org/neogeny/grako/commits/all
 .. _issues: https://bitbucket.org/neogeny/grako/issues
 
@@ -55,11 +56,13 @@ Most of the contributions are recorded as **Grako** commits_ or issues_.
 .. _David Chen: https://github.com/davidchen
 .. _David Delassus: https://bitbucket.org/linkdd
 .. _David Röthlisberger: https://bitbucket.org/drothlis/
+.. _David Sanders: https://github.com/davesque
 .. _Dmytro Ivanov: https://bitbucket.org/jimon
 .. _Felipe: https://github.com/fcoelho
 .. _Franck Pommereau: https://github.com/fpom
 .. _Franklin Lee: https://bitbucket.org/leewz
 .. _Gabriele Paganelli: https://bitbucket.org/gapag
+.. _Jack Taylor: https://github.com/rayjolt
 .. _Kathryn Long: https://bitbucket.org/starkat
 .. _Manuel Jacob: https://github.com/manueljacob
 .. _Marcus Brinkmann: https://bitbucket.org/lambdafu/
@@ -76,6 +79,7 @@ Most of the contributions are recorded as **Grako** commits_ or issues_.
 .. _Ruth-Polymnia: https://github.com/Ruth-Polymnia
 .. _S Brown: https://bitbucket.org/sjbrownBitbucket
 .. _Tonico Strasser: https://bitbucket.org/tonico_strasser
+.. _Vic Nightfall: https://github.com/Victorious3
 .. _Victor Uriarte: https://bitbucket.org/vmuriart
 .. _Vinay Sajip: https://bitbucket.org/vinay.sajip
 .. _basel-shishani: https://bitbucket.org/basel-shishani
