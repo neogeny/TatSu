@@ -41,9 +41,9 @@ if PY3:
     unicode = None
     _unicode = str
     if PY33:
-        from collections.abc import Mapping, MutableMapping
+        from collections.abc import Mapping, MutableMapping, MutableSequence
     else:
-        from collections import Mapping, MutableMapping
+        from collections import Mapping, MutableMapping, MutableSequence
     zip_longest = itertools.zip_longest
     import builtins
     imap = map
@@ -128,6 +128,19 @@ def contains_sublist(lst, sublst):
 
 def join_lists(lists):
     return sum(lists, [])
+
+
+def flatten(o):
+    def _flatten(x):
+        if not isinstance(x, MutableSequence):
+            yield x
+            return
+
+        for item in o:
+            for result in flatten(item):
+                yield result
+
+    return list(_flatten(o))
 
 
 def compress_seq(seq):

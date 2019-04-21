@@ -22,7 +22,9 @@ from tatsu.parsing import leftrec, nomemo  # noqa
 from tatsu.util import re, generic_main  # noqa
 
 
-KEYWORDS = {}  # type: ignore
+KEYWORDS = {
+    None,
+}  # type: ignore
 
 
 class EBNFBootstrapBuffer(Buffer):
@@ -89,21 +91,33 @@ class EBNFBootstrapParser(Parser):
         self._constant('TATSU')
         self.name_last_node('title')
 
-        def block2():
-            self._directive_()
-        self._closure(block2)
-        self.name_last_node('directives')
-        self._keywords_()
-        self.name_last_node('keywords')
+        def block1():
+            with self._choice():
+                with self._option():
+                    self._directive_()
+                    self.add_last_node_to_name('directives')
+                with self._option():
+                    self._keyword_()
+                    self.add_last_node_to_name('keywords')
+                self._error('no available options')
+        self._closure(block1)
+        self._rule_()
+        self.add_last_node_to_name('rules')
 
-        def block5():
-            self._rule_()
-        self._positive_closure(block5)
-        self.name_last_node('rules')
+        def block6():
+            with self._choice():
+                with self._option():
+                    self._rule_()
+                    self.add_last_node_to_name('rules')
+                with self._option():
+                    self._keyword_()
+                    self.add_last_node_to_name('keywords')
+                self._error('no available options')
+        self._closure(block6)
         self._check_eof()
         self.ast._define(
-            ['directives', 'keywords', 'rules', 'title'],
-            []
+            ['title'],
+            ['directives', 'keywords', 'rules']
         )
 
     @tatsumasu()
@@ -203,23 +217,27 @@ class EBNFBootstrapParser(Parser):
     def _keywords_(self):  # noqa
 
         def block0():
-            self._token('@@keyword')
-            self._cut()
-            self._token('::')
-            self._cut()
+            self._keywords_()
+        self._positive_closure(block0)
 
-            def block1():
-                self._literal_()
-                self.add_last_node_to_name('@')
-                with self._ifnot():
-                    with self._group():
-                        with self._choice():
-                            with self._option():
-                                self._token(':')
-                            with self._option():
-                                self._token('=')
-                            self._error('no available options')
-            self._closure(block1)
+    @tatsumasu()
+    def _keyword_(self):  # noqa
+        self._token('@@keyword')
+        self._cut()
+        self._token('::')
+        self._cut()
+
+        def block0():
+            self._literal_()
+            self.add_last_node_to_name('@')
+            with self._ifnot():
+                with self._group():
+                    with self._choice():
+                        with self._option():
+                            self._token(':')
+                        with self._option():
+                            self._token('=')
+                        self._error('no available options')
         self._closure(block0)
 
     @tatsumasu()
@@ -313,6 +331,8 @@ class EBNFBootstrapParser(Parser):
     @tatsumasu()
     def _decorator_(self):  # noqa
         self._token('@')
+        with self._ifnot():
+            self._token('@')
         self._cut()
         with self._group():
             with self._choice():
@@ -973,6 +993,9 @@ class EBNFBootstrapSemantics(object):
         return ast
 
     def keywords(self, ast):  # noqa
+        return ast
+
+    def keyword(self, ast):  # noqa
         return ast
 
     def paramdef(self, ast):  # noqa

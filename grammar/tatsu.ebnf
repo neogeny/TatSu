@@ -14,9 +14,17 @@ start
 grammar::Grammar
     =
     title:`TATSU`
-    directives:{directive}
-    keywords:keywords
-    rules:{rule}+
+    {
+        directives+:directive
+    |
+        keywords+:keyword
+    }
+    rules+:rule
+    {
+        rules+:rule
+    |
+        keywords+:keyword
+    }
     $
     ;
 
@@ -50,7 +58,13 @@ directive
 
 keywords
     =
-    {'@@keyword' ~ '::' ~ {@+:literal !(':'|'=')} }
+    { keywords }+
+    ;
+
+
+keyword
+    =
+    '@@keyword' ~ '::' ~ {@+:literal !(':'|'=')}
     ;
 
 
@@ -87,7 +101,7 @@ rule::Rule
 
 decorator
     =
-    '@' ~ @:('override'|'name')
+    '@' !'@' ~ @:('override'|'name')
     ;
 
 
