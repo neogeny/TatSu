@@ -18,6 +18,7 @@ from tatsu.parser import GrammarGenerator, EBNFParser
 from tatsu.parser_semantics import EBNFGrammarSemantics
 from tatsu.codegen import codegen
 from tatsu.util import asjson
+import tatsu.util as util
 
 tmp = os.path.abspath('./tmp')
 sys.path.insert(0, str(tmp))
@@ -168,13 +169,15 @@ class BootstrapTests(unittest.TestCase):
         # note: pygraphviz not yet updated
         if sys.version_info >= (3, 7):
             return
+
         print('-' * 20, 'phase 13 - Graphics')
         try:
             from tatsu.diagrams import draw
         except ImportError:
             print('PyGraphViz not found!')
         else:
-            draw('./tmp/13.png', g11)
+            if not util.PY37:
+                draw('./tmp/13.png', g11)
 
 
 def suite():

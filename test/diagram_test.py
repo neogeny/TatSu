@@ -6,6 +6,7 @@ import unittest
 import pytest
 
 from tatsu.tool import compile
+from tatsu.util import PY37
 
 
 class DiagramTests(unittest.TestCase):
@@ -21,7 +22,8 @@ class DiagramTests(unittest.TestCase):
             return
 
         m = compile(grammar, 'Diagram')
-        draw('tmp/diagram.png', m)
+        if not PY37:
+            draw('tmp/diagram.png', m)
 
 
 def suite():

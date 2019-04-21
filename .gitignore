@@ -104,3 +104,8 @@ ENV/
 # PyCharm
 /.idea/
 
+# VSCode
+.vscode/*
+
+# generated files
+examples/g2e/python.ebnf

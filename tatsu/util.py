@@ -33,6 +33,7 @@ RETYPE = type(re.compile('.'))
 
 PY3 = sys.version_info[0] >= 3
 PY33 = PY3 and sys.version_info[1] >= 3
+PY37 = PY3 and sys.version_info[1] >= 7
 
 if PY3:
     strtype = str

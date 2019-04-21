@@ -1,6 +1,6 @@
 [![license](https://img.shields.io/badge/license-BSD-blue.svg)](https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt) [![pyversions](https://img.shields.io/pypi/pyversions/tatsu.svg)](https://pypi.python.org/pypi/tatsu) [![fury](https://badge.fury.io/py/tatsu.svg)](https://badge.fury.io/py/tatsu) [![circleci](https://circleci.com/gh/neogeny/TatSu.svg?style=shield)](https://circleci.com/gh/neogeny/TatSu) [![travis](https://secure.travis-ci.org/neogeny/TatSu.svg)](http://travis-ci.org/neogeny/TatSu) [![docs](https://readthedocs.org/projects/tatsu/badge/?version=stable)](http://tatsu.readthedocs.io/en/stable/) [![landscape](https://landscape.io/github/apalala/TatSu/master/landscape.png)](https://landscape.io/github/apalala/TatSu/master)
 
-> *At least for the people who send me mail about a new language that they're designing, the general advice is: do it to learn about how to write a compiler. Don't have any expectations that anyone will use it, unless you hook up with some sort of organization in a position to push it hard. It's a lottery, and some can buy a lot of the tickets. There are plenty of beautiful languages (more beautiful than C) that didn't catch on. But someone does win the lottery, and doing a language at least teaches you something.*
+> \*At least for the people who send me mail about a new language that they\'re designing, the general advice is: do it to learn about how to write a compiler. Don\'t have any expectations that anyone will use it, unless you hook up with some sort of organization in a position to push it hard. It\'s a lottery, and some can buy a lot of the tickets. There are plenty of beautiful languages (more beautiful than C) that didn\'t catch on. But someone does win the lottery, and doing a language at least teaches you something.\*
 >
 > [Dennis Ritchie](http://en.wikipedia.org/wiki/Dennis_Ritchie) (1941-2011) Creator of the [C](http://en.wikipedia.org/wiki/C_language) programming language and of [Unix](http://en.wikipedia.org/wiki/Unix)
 
@@ -128,7 +128,7 @@ This is the output:
 License
 -------
 
-You may use 竜 **TatSu** under the terms of the [BSD](http://en.wikipedia.org/wiki/BSD_licenses#2-clause_license_.28.22Simplified_BSD_License.22_or_.22FreeBSD_License.22.29)-style license described in the enclosed [LICENSE.txt](LICENSE.txt) file. *If your project requires different licensing* please [email](mailto:apalala@gmail.com).
+You may use 竜 **TatSu** under the terms of the [BSD](http://en.wikipedia.org/wiki/BSD_licenses#2-clause_license_.28.22Simplified_BSD_License.22_or_.22FreeBSD_License.22.29)-style license described in the enclosed [LICENSE.txt](LICENSE.txt) file. \*If your project requires different licensing\* please [email](mailto:apalala@gmail.com).
 
 Documentation
 -------------

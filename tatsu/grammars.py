@@ -5,6 +5,7 @@ import os
 import functools
 from collections import defaultdict, Mapping
 from copy import copy
+from itertools import takewhile
 
 from tatsu.util import (
     indent, trim, ustr, urepr, strtype, compress_seq, chunks,
@@ -17,6 +18,7 @@ from tatsu.objectmodel import Node
 from tatsu.bootstrap import EBNFBootstrapBuffer
 from tatsu.infos import RuleInfo
 from tatsu.buffering import Buffer
+from tatsu.leftrec import Nullable, find_left_recursion
 
 
 PEP8_LLEN = 72
@@ -105,6 +107,12 @@ class Model(Node):
         self._lookahead = None
         self._first_set = None
         self._follow_set = set()
+        self._nullability = self._nullable()
+        if isinstance(self._nullability, int):  # Allow simple boolean values as return type
+            if self._nullability:
+                self._nullability = Nullable.yes()
+            else:
+                self._nullability = Nullable.no()
 
     def parse(self, ctx):
         ctx.last_node = None
@@ -134,6 +142,16 @@ class Model(Node):
 
     def _follow(self, k, fl, a):
         return a
+
+    def is_nullable(self, ctx=None):
+        return self._nullability.nullable
+
+    def _nullable(self):
+        return False
+
+    # list of rules that can be invoked at the same position
+    def at_same_pos(self, ctx):
+        return []
 
     def comments_str(self):
         comments, eol = self.comments
@@ -170,6 +188,9 @@ class Void(Model):
 
     def _to_str(self, lean=False):
         return '()'
+
+    def _nullable(self):
+        return True
 
 
 class Any(Model):
@@ -241,6 +262,12 @@ class Decorator(Model):
     def _to_str(self, lean=False):
         return self.exp._to_ustr(lean=lean)
 
+    def _nullable(self):
+        return Nullable.of(self.exp)
+
+    def at_same_pos(self, ctx):
+        return [self.exp]
+
 
 # NOTE: backwards compatibility
 _Decorator = Decorator
@@ -286,6 +313,9 @@ class Constant(Model):
     def _to_str(self, lean=False):
         return '`%s`' % urepr(self.literal)
 
+    def _nullable(self):
+        return True
+
 
 class Pattern(Model):
     def __postinit__(self, ast):
@@ -293,7 +323,7 @@ class Pattern(Model):
         if not isinstance(ast, list):
             ast = [ast]
         self.patterns = ast
-        re.compile(self.pattern)
+        self.regex = re.compile(self.pattern)
 
     @property
     def pattern(self):
@@ -315,6 +345,9 @@ class Pattern(Model):
             parts.append(template % pat)
         return '\n+ '.join(parts)
 
+    def _nullable(self):
+        return bool(self.regex.match(""))
+
 
 class Lookahead(Decorator):
     def parse(self, ctx):
@@ -324,14 +357,20 @@ class Lookahead(Decorator):
     def _to_str(self, lean=False):
         return '&' + self.exp._to_ustr(lean=lean)
 
+    def _nullable(self):
+        return True
+
 
 class NegativeLookahead(Decorator):
-    def _to_str(self, lean=False):
-        return '!' + ustr(self.exp._to_str(lean=lean))
-
     def parse(self, ctx):
         with ctx._ifnot():
             super(NegativeLookahead, self).parse(ctx)
+
+    def _to_str(self, lean=False):
+        return '!' + ustr(self.exp._to_str(lean=lean))
+
+    def _nullable(self):
+        return True
 
 
 class SkipTo(Decorator):
@@ -384,6 +423,15 @@ class Sequence(Model):
         else:
             return comments + '\n'.join(seq)
 
+    def _nullable(self):
+        return Nullable.all(self.sequence)
+
+    def at_same_pos(self, ctx):
+        head = list(takewhile(lambda c: c.is_nullable(ctx), self.sequence))
+        if len(head) < len(self.sequence):
+            head.append(self.sequence[len(head)])
+        return head
+
 
 class Choice(Model):
     def __init__(self, ast=None, **kwargs):
@@ -435,6 +483,12 @@ class Choice(Model):
         else:
             return single
 
+    def _nullable(self):
+        return Nullable.any(self.options)
+
+    def at_same_pos(self, ctx):
+        return self.options
+
 
 class Closure(Decorator):
     def parse(self, ctx):
@@ -454,6 +508,9 @@ class Closure(Decorator):
         else:
             return '{\n%s\n}' % indent(sexp)
 
+    def _nullable(self):
+        return True
+
 
 class PositiveClosure(Closure):
     def parse(self, ctx):
@@ -468,6 +525,9 @@ class PositiveClosure(Closure):
 
     def _to_str(self, lean=False):
         return super(PositiveClosure, self)._to_str(lean=lean) + '+'
+
+    def _nullable(self):
+        return Nullable.of(self.exp)
 
 
 class Join(Decorator):
@@ -497,6 +557,9 @@ class Join(Decorator):
         else:
             return '%s%s{\n%s\n}' % (ssep, self.JOINOP, sexp)
 
+    def _nullable(self):
+        return True
+
 
 class PositiveJoin(Join):
     def _do_parse(self, ctx, exp, sep):
@@ -504,6 +567,9 @@ class PositiveJoin(Join):
 
     def _to_str(self, lean=False):
         return super(PositiveJoin, self)._to_str(lean=lean) + '+'
+
+    def _nullable(self):
+        return Nullable.of(self.exp)
 
 
 class LeftJoin(PositiveJoin):
@@ -534,6 +600,9 @@ class PositiveGather(Gather):
     def _to_str(self, lean=False):
         return super(PositiveGather, self)._to_str(lean=lean) + '+'
 
+    def _nullable(self):
+        return Nullable.of(self.exp)
+
 
 class EmptyClosure(Model):
     def parse(self, ctx):
@@ -541,6 +610,9 @@ class EmptyClosure(Model):
 
     def _to_str(self, lean=False):
         return '{}'
+
+    def _nullable(self):
+        return True
 
 
 class Optional(Decorator):
@@ -567,6 +639,9 @@ class Optional(Decorator):
             ]
             '''
 
+    def _nullable(self):
+        return True
+
 
 class Cut(Model):
     def parse(self, ctx):
@@ -578,6 +653,9 @@ class Cut(Model):
 
     def _to_str(self, lean=False):
         return '~'
+
+    def _nullable(self):
+        return True
 
 
 class Named(Decorator):
@@ -637,6 +715,9 @@ class Special(Model):
     def _to_str(self, lean=False):
         return '?%s?' % self.value
 
+    def _nullable(self):
+        return True
+
 
 class RuleRef(Model):
     def __postinit__(self, ast):
@@ -668,6 +749,9 @@ class RuleRef(Model):
     def _to_str(self, lean=False):
         return self.name
 
+    def is_nullable(self, ctx):
+        return ctx[self.name].is_nullable(ctx)
+
 
 class RuleInclude(Decorator):
     def __init__(self, rule):
@@ -691,6 +775,8 @@ class Rule(Decorator):
 
         self.is_name = 'name' in self.decorators
         self.base = None
+        self.is_leftrec = False  # Starts a left recursive cycle
+        self.is_memoizable = True  # False if part of a left recursive cycle
 
     def parse(self, ctx):
         result = self._parse_rhs(ctx, self.exp)
@@ -699,7 +785,7 @@ class Rule(Decorator):
         return result
 
     def _parse_rhs(self, ctx, exp):
-        ruleinfo = RuleInfo(self.name, exp.parse, self.params, self.kwparams)
+        ruleinfo = RuleInfo(self.name, exp.parse, self.is_leftrec, self.is_memoizable, self.params, self.kwparams)
         result = ctx._call(ruleinfo)
         if isinstance(result, AST):
             defines = compress_seq(self.defines())
@@ -716,6 +802,9 @@ class Rule(Decorator):
 
     def _follow(self, k, fl, a):
         return self.exp._follow(k, fl, fl[self.name])
+
+    def _nullable(self):
+        return Nullable.of(self.exp)
 
     @staticmethod
     def param_repr(p):
@@ -862,6 +951,8 @@ class Grammar(Model):
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
         self._calc_lookahead_sets()
+        if left_recursion:
+            find_left_recursion(self)
 
     def _missing_rules(self, ruleset):
         return set().union(*[rule._missing_rules(ruleset) for rule in self.rules])

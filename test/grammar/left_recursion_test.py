@@ -51,7 +51,7 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model.parse('3 + 5 * ( 10 - 20 )', trace=trace, colorize=True)
         self.assertEqual([['3', '+', '5'], '*', ['10', '-', '20']], ast)
 
-    def test_calc(self, trace=True):
+    def test_calc(self, trace=False):
         grammar = '''
             @@grammar::CALC
 
@@ -100,6 +100,36 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model.parse('3 + 5 * ( 10 - 20)', trace=trace, colorize=True)
         self.assertEqual(['3', '+', ['5', '*', ['10', '-', '20']]], ast)
 
+    def test_calc_indirect(self, trace=False):
+        grammar = '''
+            @@grammar::CALC
+            @@left_recursion :: True
+
+            start = expression $;
+            number = /\d+/;
+
+            addition = expression '+' number;
+            subtraction = expression '-' number;
+
+            expression =
+                | addition
+                | subtraction
+                | number;
+        '''
+        model = compile(grammar)
+        ast = model.parse('1-1+1', trace=trace, colorize=True)
+        self.assertEqual([['1', '-', '1'], '+', '1'], ast)
+
+        ast = model.parse('1+1-1', trace=trace, colorize=True)
+        self.assertEqual([['1', '+', '1'], '-', '1'], ast)
+
+        # from tatsu.tool import to_python_sourcecode
+        # src = to_python_sourcecode(grammar)
+        # globals = {}
+        # exec(src, globals)
+        # parser = globals["CALCParser"]()
+        # print(parser.parse('1-1+1', trace=True))
+
     def test_indirect_left_recursion(self, trace=False):
         grammar = '''
             @@left_recursion :: True
@@ -125,7 +155,6 @@ class LeftRecursionTests(unittest.TestCase):
         print(ast)
         self.assertEqual([['5', '-', '87'], '-', '32'], ast)
 
-    @unittest.skip('uncertain if grammar is correct')
     def test_indirect_left_recursion_complex(self, trace=False):
         grammar = '''
             @@left_recursion :: True
@@ -203,14 +232,13 @@ class LeftRecursionTests(unittest.TestCase):
         model = compile(grammar, "test")
         ast = model.parse("this", trace=trace, colorize=True)
         self.assertEqual('this', ast)
-        ast = model.parse("this.x", trace=True, colorize=True)
+        ast = model.parse("this.x", trace=trace, colorize=True)
         self.assertEqual(['this', '.', 'x'], ast)
         ast = model.parse("this.x.y", trace=trace, colorize=True)
         self.assertEqual([['this', '.', 'x'], '.', 'y'], ast)
         ast = model.parse("this.x.m()", trace=trace, colorize=True)
         self.assertEqual([['this', '.', 'x'], '.', 'm', '()'], ast)
         ast = model.parse("x[i][j].y", trace=trace, colorize=True)
-        print(ast)
         self.assertEqual([[['x', '[', 'i', ']'], '[', 'j', ']'], '.', 'y'], ast)
 
     def test_no_left_recursion(self, trace=False):
@@ -270,6 +298,40 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model_b.parse("(((1+2)))", trace=trace, colorize=True)
         self.assertEqual(['1', '+', '2'], ast)
 
+    @unittest.skip("For this the seed growing during left recursion is too primitive")
+    def test_interlocking_cycles(self, trace=False):
+        # See https://github.com/PhilippeSigaud/Pegged/wiki/Left-Recursion
+        grammar = '''
+            @@left_recursion :: False
+            @@nameguard :: False
+
+            s = e $;
+            e = f 'n' | 'n';
+            f = e '+' {i} | g '-';
+            g = h 'm' | e;
+            h = g 'l';
+            i = '(' {i}+ ')';
+            a = 'a';
+        '''
+
+        model = compile(grammar)
+        model.parse("nlm-n+(aaa)n", trace=True, colorize=True)
+
+    @unittest.skip("Similar to the one above")
+    def test_mutual_left_recursion(self, trace=False):
+        # See https://github.com/PhilippeSigaud/Pegged/wiki/Left-Recursion
+        grammar = '''
+            @@left_recursion :: True
+            @@nameguard :: False
+
+            s = l $;
+            l = p '.x' | 'x';
+            p = p '(n)' | l;
+        '''
+
+        model = compile(grammar)
+        model.parse("x(n).x")
+
     def test_left_recursion_bug(self, trace=False):
         grammar = '''\
             @@grammar :: Minus
@@ -278,8 +340,8 @@ class LeftRecursionTests(unittest.TestCase):
             start = expression $ ;
 
             expression =
-                | paren_expression
                 | minus_expression
+                | paren_expression
                 | value
                 ;
 
@@ -297,7 +359,7 @@ class LeftRecursionTests(unittest.TestCase):
         '''
         model = compile(grammar=grammar)
         model.parse('3', trace=trace, colorize=True)
-        model.parse('3 - 2', trace=True, colorize=True)
+        model.parse('3 - 2', trace=trace, colorize=True)
         model.parse('(3 - 2)', trace=trace, colorize=True)
         model.parse('(3 - 2) - 1', trace=trace, colorize=True)
         model.parse('3 - 2 - 1', trace=trace, colorize=True)
@@ -316,7 +378,6 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model.parse("1+2+3", trace=trace, colorize=True)
         self.assertEqual(['1', '+', ['2', '+', '3']], ast)
 
-    @unittest.skip('fix is pending')
     def test_partial_input_bug(self, trace=False):
         grammar = '''
             start
@@ -345,15 +406,11 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model.parse(input, trace=trace, colorize=True)
         assert ['{', 'size', '}'] == ast
 
-    @unittest.skip('fix is pending')
     def test_dropped_input_bug(self, trace=False):
         grammar = '''
             @@left_recursion :: True
 
-            start
-                =
-                expr
-                ;
+            start = expr;
 
             expr
                 =
