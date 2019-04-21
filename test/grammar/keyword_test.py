@@ -103,3 +103,34 @@ class KeywordTests(unittest.TestCase):
         '''
         model = compile(grammar, 'test')
         model.parse("hello Øresund")
+
+    def test_sparse_keywords(self):
+        import parser
+
+        grammar = '''
+            @@keyword :: A
+
+            @@ignorecase :: False
+
+            start = {id}+ $ ;
+
+            @@keyword :: B
+
+            @name
+            id = /\w+/ ;
+        '''
+        model = compile(grammar, 'test', trace=True, colorize=True)
+        c = codegen(model)
+        parser.suite(c)
+
+        ast = model.parse('hello world')
+        self.assertEqual(['hello', 'world'], ast)
+
+        for k in ('A', 'B'):
+            try:
+                ast = model.parse("hello %s world" % k)
+                self.assertEqual(['hello', k, 'world'], ast)
+                self.fail('accepted keyword "%s" as name' % k)
+            except FailedParse as e:
+                self.assertTrue('"%s" is a reserved word' % k in str(e))
+                pass

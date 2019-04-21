@@ -6,7 +6,7 @@ from collections import OrderedDict
 from tatsu import grammars
 from tatsu.exceptions import FailedSemantics
 from tatsu.semantics import ModelBuilderSemantics
-from tatsu.util import eval_escapes, re, warning
+from tatsu.util import eval_escapes, re, warning, flatten
 
 
 class EBNFGrammarSemantics(ModelBuilderSemantics):
@@ -119,8 +119,8 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         return grammars.RuleInclude(rule)
 
     def grammar(self, ast, *args):
-        directives = OrderedDict((d.name, d.value) for d in ast.directives)
-        keywords = set(ast.keywords or [])
+        directives = OrderedDict((d.name, d.value) for d in flatten(ast.directives))
+        keywords = set(flatten(ast.keywords) or [])
 
         if directives.get('whitespace') in ('None', 'False'):
             directives['whitespace'] = ''

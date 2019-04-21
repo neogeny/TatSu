@@ -130,6 +130,19 @@ def join_lists(lists):
     return sum(lists, [])
 
 
+def flatten(o):
+    def _flatten(x):
+        if not is_list(x):
+            yield x
+            return
+
+        for item in o:
+            for result in flatten(item):
+                yield result
+
+    return list(_flatten(o))
+
+
 def compress_seq(seq):
     seen = set()
     result = []
