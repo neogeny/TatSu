@@ -296,7 +296,7 @@ class Token(Model):
         return ctx._token(self.token)
 
     def _first(self, k, f):
-        return set([(self.token,)])
+        return {(self.token,)}
 
     def _to_str(self, lean=False):
         return urepr(self.token)
@@ -333,7 +333,7 @@ class Pattern(Model):
         return ctx._pattern(self.pattern)
 
     def _first(self, k, f):
-        return set([(self.pattern,)])
+        return {(self.pattern,)}
 
     def _to_str(self, lean=False):
         parts = []
@@ -710,7 +710,7 @@ class OverrideList(NamedList):
 
 class Special(Model):
     def _first(self, k, f):
-        return set([(self.value,)])
+        return {(self.value,)}
 
     def _to_str(self, lean=False):
         return '?%s?' % self.value
@@ -780,6 +780,7 @@ class Rule(Decorator):
 
     def parse(self, ctx):
         result = self._parse_rhs(ctx, self.exp)
+        self._add_defined_attributes(result)
         if self.is_name:
             ctx._check_name()
         return result
@@ -787,13 +788,15 @@ class Rule(Decorator):
     def _parse_rhs(self, ctx, exp):
         ruleinfo = RuleInfo(self.name, exp.parse, self.is_leftrec, self.is_memoizable, self.params, self.kwparams)
         result = ctx._call(ruleinfo)
-        if isinstance(result, AST):
-            defines = compress_seq(self.defines())
-            result._define(
-                [d for d, l in defines if not l],
-                [d for d, l in defines if l]
-            )
         return result
+
+    def _add_defined_attributes(self, ast):
+        defines = compress_seq(self.defines())
+        if not isinstance(ast, (AST, Node)):
+            return
+        for d, l in defines:
+            if not hasattr(ast, d):
+                setattr(ast, d, [] if l else None)
 
     def _first(self, k, f):
         if self._first_set:
