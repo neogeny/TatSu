@@ -11,7 +11,7 @@ Grammar Directives
     @@ignorecase :: True
 
 
-The *directives* supported by |TatSu| are:
+The *directives* supported by |TatSu| are described below.
 
 
 ``@@grammar :: <word>``
