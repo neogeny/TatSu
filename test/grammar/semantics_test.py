@@ -91,3 +91,19 @@ class SemanticsTests(unittest.TestCase):
         self.assertTrue(hasattr(ast, "b"))
 
         self.assertTrue(issubclass(D, (A, B, C)))
+
+    def test_optional_attributes(self):
+        grammar = r"""
+            foo::Foo = left:identifier [ ':' right:identifier ] $ ;
+            identifier = /\w+/ ;
+        """
+
+        grammar = compile(grammar)
+
+        a = grammar.parse('foo : bar', semantics=ModelBuilderSemantics())
+        assert a.left == 'foo'
+        assert a.right == 'bar'
+
+        b = grammar.parse('foo', semantics=ModelBuilderSemantics())
+        self.assertEquals(b.left, 'foo')
+        self.assertIsNone(b.right)
