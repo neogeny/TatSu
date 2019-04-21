@@ -147,5 +147,6 @@ class DirectiveTests(unittest.TestCase):
         '''
 
         model = tatsu.compile(GRAMMAR)
+        self.assertFalse(model.nameguard)
         self.assertEquals(['2', '3'], model.parse('23'))
         self.assertEquals(['x', 'x'], model.parse('xx'))
