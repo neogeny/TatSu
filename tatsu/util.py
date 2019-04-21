@@ -41,9 +41,9 @@ if PY3:
     unicode = None
     _unicode = str
     if PY33:
-        from collections.abc import Mapping, MutableMapping, MutableSequence
+        from collections.abc import Mapping, MutableMapping
     else:
-        from collections import Mapping, MutableMapping, MutableSequence
+        from collections import Mapping, MutableMapping
     zip_longest = itertools.zip_longest
     import builtins
     imap = map
@@ -132,7 +132,7 @@ def join_lists(lists):
 
 def flatten(o):
     def _flatten(x):
-        if not isinstance(x, MutableSequence):
+        if not is_list(x):
             yield x
             return
 
