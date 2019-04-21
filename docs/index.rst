@@ -41,6 +41,7 @@ input, much like the `re`_ module does with regular expressions, or it can gener
     install
     use
     syntax
+    directives
     ast
     semantics
     models
