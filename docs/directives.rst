@@ -4,14 +4,14 @@
 Grammar Directives
 ------------------
 
-|TatSu| allows _directives_ in the grammar that control the behavior of the generated parsers. All directives are of the form ``@@name :: <value>``. For example:
+|TatSu| allows *directives* in the grammar that control the behavior of the generated parsers. All directives are of the form ``@@name :: <value>``. For example:
 
 .. code:: ocaml
 
     @@ignorecase :: True
 
 
-The _directives_ supported by |TatSu| are:
+The *directives* supported by |TatSu| are:
 
 
 ``@@grammar :: <word>``
