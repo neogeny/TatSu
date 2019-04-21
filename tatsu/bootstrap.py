@@ -18,6 +18,7 @@ import sys
 from tatsu.buffering import Buffer
 from tatsu.parsing import Parser
 from tatsu.parsing import tatsumasu, leftrec, nomemo
+from tatsu.parsing import leftrec, nomemo  # noqa
 from tatsu.util import re, generic_main  # noqa
 
 
@@ -120,8 +121,6 @@ class EBNFBootstrapParser(Parser):
                                 self._token('comments')
                             with self._option():
                                 self._token('eol_comments')
-                            with self._option():
-                                self._token('whitespace')
                             self._error('no available options')
                     self.name_last_node('name')
                     self._cut()
@@ -129,6 +128,26 @@ class EBNFBootstrapParser(Parser):
                     self._token('::')
                     self._cut()
                     self._regex_()
+                    self.name_last_node('value')
+                with self._option():
+                    with self._group():
+                        self._token('whitespace')
+                    self.name_last_node('name')
+                    self._cut()
+                    self._cut()
+                    self._token('::')
+                    self._cut()
+                    with self._group():
+                        with self._choice():
+                            with self._option():
+                                self._regex_()
+                            with self._option():
+                                self._token('None')
+                            with self._option():
+                                self._token('False')
+                            with self._option():
+                                self._constant('None')
+                            self._error('no available options')
                     self.name_last_node('value')
                 with self._option():
                     with self._group():
@@ -174,6 +193,7 @@ class EBNFBootstrapParser(Parser):
                     self._string_()
                     self.name_last_node('value')
                 self._error('no available options')
+        self._cut()
         self.ast._define(
             ['name', 'value'],
             []
