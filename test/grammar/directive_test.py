@@ -134,3 +134,18 @@ class DirectiveTests(unittest.TestCase):
         code = codegen(model)
         self.assertTrue('parseinfo=False' in code)
         compile(code, 'test.py', EXEC)
+
+    def test_nameguard_directive(self):
+        GRAMMAR = '''
+            @@grammar :: test
+            @@nameguard :: False
+            @@namechars :: ''
+
+            start = sequence $ ;
+            sequence = {digit}+ ;
+            digit = 'x' | '1' | '2' | '3' | '4' | '5' ;
+        '''
+
+        model = tatsu.compile(GRAMMAR)
+        self.assertEquals(['2', '3'], model.parse('23'))
+        self.assertEquals(['x', 'x'], model.parse('xx'))
