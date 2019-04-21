@@ -29,12 +29,9 @@ provided by |TatSu|.
 g2e
 ~~~
 
-The project ``examples/g2e`` contains a `ANTLR`_ to |TatSu| grammar
-translator. The project is a good example of the use of models and
-templates in translation. The program, ``g2e.py`` generates the
+The project ``examples/g2e`` contains an example `ANTLR`_ to |TatSu| grammar
+translation. The project is a good example of the use ``g2e``. It generates the
 |TatSu| grammar on standard output, but because the model used is
 |TatSu|'s own, the same code can be used to directly generate a parser
-from an `ANTLR`_ grammar. Please take a look at the examples *README* to
+from any `ANTLR`_ grammar. Please take a look at the examples *README* to
 know about limitations.
-
-
