@@ -45,10 +45,11 @@ Style = _Style
 def init():
     try:
         import colorama
-
-        global Fore, Back, Style
-        Fore = colorama.Fore
-        Back = colorama.Back
-        Style = colorama.Style
+        colorama.init()
     except ImportError:
-        pass
+        return
+
+    global Fore, Back, Style
+    Fore = colorama.Fore
+    Back = colorama.Back
+    Style = colorama.Style
