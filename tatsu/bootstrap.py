@@ -17,7 +17,7 @@ import sys
 
 from tatsu.buffering import Buffer
 from tatsu.parsing import Parser
-from tatsu.parsing import tatsumasu
+from tatsu.parsing import tatsumasu, leftrec, nomemo
 from tatsu.util import re, generic_main  # noqa
 
 
@@ -910,14 +910,14 @@ class EBNFBootstrapParser(Parser):
             with self._option():
                 self._token('/')
                 self._cut()
-                self._pattern('([^/\\\\]|\\\\/|\\\\.)+')
+                self._pattern('([^/\\\\]|\\\\/|\\\\.)*')
                 self.name_last_node('@')
                 self._token('/')
                 self._cut()
             with self._option():
                 self._token('?/')
                 self._cut()
-                self._pattern('(.|\\n)+?(?=/\\?)')
+                self._pattern('(.|\\n)*?(?=/\\?)')
                 self.name_last_node('@')
                 self._pattern('/\\?+')
                 self._cut()
