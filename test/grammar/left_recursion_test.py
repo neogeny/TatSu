@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import unittest
 
 from tatsu.exceptions import FailedParse
-from tatsu.tool import compile
+from tatsu.tool import compile, parse
 
 
 class LeftRecursionTests(unittest.TestCase):
@@ -476,3 +476,18 @@ class LeftRecursionTests(unittest.TestCase):
 
         ast = model.parse('a(b, c)', start='expr', trace=trace, colorize=True)
         self.assertEqual(['a', '(', ['b', 'c'], ')'], ast)
+
+    def test_not_at_top_level(self):
+        grammar = r"""
+            identifier = /\w+/ ;
+
+            type = (vector_type | leaf_type) ;
+            vector_type = base:type '[]' ;
+            leaf_type = id:identifier ;
+
+            decl = type:type name:identifier ;
+        """
+        self.assertEquals(
+            {'type': {'id': 'int'}, 'name': 'x'},
+            parse(grammar, 'int x', start='decl').asjson()
+        )
