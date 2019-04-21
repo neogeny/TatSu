@@ -11,6 +11,7 @@ import random
 import unittest
 from codecs import open
 
+from tatsu import parse
 from tatsu.buffering import Buffer
 from tatsu.util import ustr
 
@@ -92,6 +93,18 @@ class BufferingTests(unittest.TestCase):
 
         b = Buffer('\n')
         self.assertEqual(2, b.linecount)
+
+    @unittest.skip('not valid')
+    def test_namechars(self):
+        grammar = '''
+            @@namechars :: '-'
+            start = 
+                "key" ~ ";"  |
+                "key-word" ~ ";" |
+                "key-word-extra" ~ ";" 
+                ;
+        '''
+        self.assertEquals(['key-word-extra', ';'], parse(grammar, 'key-word-extra;'))
 
 
 def suite():

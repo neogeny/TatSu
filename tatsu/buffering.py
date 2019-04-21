@@ -306,12 +306,9 @@ class Buffer(object):
 
         if is_match:
             self.move(len(token))
-            if not self.nameguard:
-                return token
-
             partial_match = (
-                token.isalnum() and
-                token[0].isalpha() and
+                self.nameguard and
+                all(self.is_name_char(t) for t in token) and
                 self.is_name_char(self.current())
             )
             if not partial_match:
