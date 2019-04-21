@@ -98,10 +98,10 @@ class BufferingTests(unittest.TestCase):
     def test_namechars(self):
         grammar = '''
             @@namechars :: '-'
-            start = 
+            start =
                 "key" ~ ";"  |
                 "key-word" ~ ";" |
-                "key-word-extra" ~ ";" 
+                "key-word-extra" ~ ";"
                 ;
         '''
         self.assertEquals(['key-word-extra', ';'], parse(grammar, 'key-word-extra;'))
