@@ -25,9 +25,13 @@ directive
     =
     '@@' !'keyword' ~
     (
-            name:('comments' | 'eol_comments' | 'whitespace') ~
+            name:('comments' | 'eol_comments') ~
             ~
             '::' ~ value:regex
+        |
+            name:('whitespace') ~
+            ~
+            '::' ~ value:(regex|'None'|'False'|`None`)
         |
             name:('nameguard' | 'ignorecase' | 'left_recursion' | 'parseinfo')
             ~
@@ -40,7 +44,7 @@ directive
             name:('namechars')
             ~
             '::' ~ value:string
-    )
+    ) ~
     ;
 
 

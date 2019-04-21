@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import unittest
 
 import tatsu
+from tatsu.exceptions import FailedParse
 from tatsu.util import trim
 from tatsu.codegen import codegen
 
@@ -22,6 +23,31 @@ class DirectiveTests(unittest.TestCase):
         model = tatsu.compile(grammar, "test")
         code = codegen(model)
         compile('test.py', code, EXEC)
+
+    def test_whitespace_none_directive(self):
+        grammars = [
+            '''
+                @@whitespace :: None
+                @@nameguard :: False
+
+                test = {'x'}+ $;
+            ''',
+            '''
+                @@whitespace :: False
+                @@nameguard :: False
+
+                test = {'x'}+ $;
+            ''',
+        ]
+        for grammar in grammars:
+            model = tatsu.compile(grammar, "test")
+            self.assertEquals(['x', 'x'], model.parse('xx', trace=True))
+            try:
+                self.assertEquals(['x', 'x'], model.parse('x x', trace=True))
+            except FailedParse:
+                pass
+            else:
+                self.fail('parsed through non-whitespace')
 
     def test_eol_comments_re_directive(self):
         grammar = '''

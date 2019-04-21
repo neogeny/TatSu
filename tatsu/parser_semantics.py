@@ -121,6 +121,10 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
     def grammar(self, ast, *args):
         directives = OrderedDict((d.name, d.value) for d in ast.directives)
         keywords = set(ast.keywords or [])
+
+        if directives.get('whitespace') in ('None', 'False'):
+            directives['whitespace'] = ''
+
         return grammars.Grammar(
             self.grammar_name,
             list(self.rules.values()),
