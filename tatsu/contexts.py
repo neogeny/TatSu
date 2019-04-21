@@ -71,7 +71,8 @@ def nomemo(impl):
     impl.is_memoizable = False
     return impl
 
-class closure(list):  # noqa
+
+class closure(list):
     pass
 
 
