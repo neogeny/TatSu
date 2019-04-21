@@ -742,9 +742,8 @@ The functionality required for implementing includes is available to all
 Left Recursion
 ~~~~~~~~~~~~~~
 
-|TatSu| provides experimental support for left recursion in `PEG`_
-grammars. The implementation of left recursion is ongoing; it does not
-yet handle all cases. The algorithm used is `Warth et al`_'s.
+|TatSu| supports left recursion in `PEG`_
+grammars. The algorithm used is `Warth et al`_'s.
 
 Sometimes, while debugging a grammar, it is useful to turn
 left-recursion support on or off:
