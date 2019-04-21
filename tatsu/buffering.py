@@ -44,14 +44,13 @@ class Buffer(object):
         self.comments_re = comments_re
         self.eol_comments_re = eol_comments_re
         self.ignorecase = ignorecase
-        self.nameguard = (nameguard
-                          if nameguard is not None
-                          else bool(self.whitespace_re))
+        self.nameguard = (
+            nameguard if nameguard is not None
+            else bool(self.whitespace_re) or bool(namechars)
+        )
         self.comment_recovery = comment_recovery
-        self.namechars = namechars
-        self._namechar_set = set(namechars)
-        if namechars:
-            self.nameguard = True
+        self.namechars = namechars if namechars is not None else ''
+        self._namechar_set = set(self.namechars)
 
         self._pos = 0
         self._len = 0

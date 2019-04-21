@@ -167,7 +167,7 @@ def compile(grammar, name=None, semantics=None, asmodel=False, **kwargs):
 
 
 def parse(grammar, input, start=None, name=None, semantics=None, asmodel=False, **kwargs):
-    model = compile(grammar, name=name, semantics=semantics, asmodel=asmodel, **kwargs)
+    model = compile(grammar, name=name, semantics=semantics, asmodel=asmodel)
     return model.parse(input, start=start, semantics=semantics, **kwargs)
 
 

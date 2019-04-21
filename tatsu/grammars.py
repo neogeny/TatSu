@@ -6,8 +6,10 @@ import functools
 from collections import defaultdict, Mapping
 from copy import copy
 
-from tatsu.util import indent, trim, ustr, urepr, strtype, compress_seq, chunks
-from tatsu.util import re
+from tatsu.util import (
+    indent, trim, ustr, urepr, strtype, compress_seq, chunks,
+    re, notnone,
+)
 from tatsu.exceptions import FailedRef, GrammarError
 from tatsu.ast import AST
 from tatsu.contexts import ParseContext
@@ -799,6 +801,7 @@ class Grammar(Model):
                  filename='Unknown',
                  whitespace=None,
                  nameguard=None,
+                 namechars=None,
                  left_recursion=None,
                  comments_re=None,
                  eol_comments_re=None,
@@ -828,6 +831,10 @@ class Grammar(Model):
         if nameguard is None:
             nameguard = directives.get('nameguard')
         self.nameguard = nameguard
+
+        if namechars is None:
+            namechars = directives.get('namechars')
+        self.namechars = namechars
 
         if left_recursion is None:
             left_recursion = directives.get('left_recursion', True)
@@ -902,6 +909,8 @@ class Grammar(Model):
               comments_re=None,
               eol_comments_re=None,
               parseinfo=None,
+              nameguard=None,
+              namechars=None,
               **kwargs):
         start = start if start is not None else rule_name
         start = start if start is not None else self.rules[0].name
@@ -912,25 +921,16 @@ class Grammar(Model):
             keywords=self.keywords,
             **kwargs)
 
-        if semantics is None:
-            semantics = self.semantics
-
-        if whitespace is None:
-            whitespace = self.whitespace
+        semantics = notnone(semantics, self.semantics)
+        left_recursion = notnone(left_recursion, self.left_recursion)
+        parseinfo = notnone(parseinfo, self._use_parseinfo)
+        comments_re = notnone(comments_re, self.comments_re)
+        eol_comments_re = notnone(eol_comments_re, self.eol_comments_re)
+        nameguard = notnone(nameguard, self.nameguard)
+        namechars = notnone(namechars, self.namechars)
+        whitespace = notnone(whitespace, self.whitespace)
         if whitespace:
             whitespace = re.compile(whitespace)
-
-        if left_recursion is None:
-            left_recursion = self.left_recursion
-
-        if parseinfo is None:
-            parseinfo = self._use_parseinfo
-
-        if comments_re is None:
-            comments_re = self.comments_re
-
-        if eol_comments_re is None:
-            eol_comments_re = self.eol_comments_re
 
         return ctx.parse(
             text,
@@ -943,6 +943,8 @@ class Grammar(Model):
             eol_comments_re=eol_comments_re,
             left_recursion=left_recursion,
             parseinfo=parseinfo,
+            nameguard=nameguard,
+            namechars=namechars,
             **kwargs
         )
 
