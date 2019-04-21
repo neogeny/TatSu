@@ -340,9 +340,7 @@ class Buffer(object):
         if pos is None:
             pos = self._pos
 
-        if pos >= len(self._line_cache):
-            return LineInfo(self.filename, self.linecount, 0, self._len, self._len, '')
-
+        pos = min(pos, len(self._line_cache) - 2)
         start, line, length = self._line_cache[pos]
         end = start + length
         col = pos - start
