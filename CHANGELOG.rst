@@ -12,14 +12,37 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2019
 ---------------
-.. _X.Y.Z: https://github.com/apalala/tatsu/compare/v4.3.0...master
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v4.3.0...master
 
-*  Various fixes for minor issues (`@davesque`_, `@nicholasbishop`_, `@rayjolt`) 
+
+`4.4.0a1`_ @ 2019-04-22
+-----------------------
+.. _4.4.0a1: https://github.com/apalala/tatsu/compare/v4.3.0...v4.4.0a1
+
+*   The default regexp for whitespace was changed to ``(?s)\s+`
+*   Allow empty patterns (``//``) like Python does
+*  `#89`_ Make all attributes defined in the rule present in the resulting ``AST`` or ``Node`` even if the associated expression was not parsed
+*  `#65`_ Allow initial, consecutive, and trailing ``@namechars``
+*  `#73`_ Allow ``@@whitespace :: None`` and ``@@whitespace :: False``
+*  `#75`_ Complete implemenation of left recursion(`@Victorious3`_)
+*  `#77`_ Allow ``@keyword`` throughout the grammar
+*  `#93`_ Fix trace colorization on Windows
+*  `#96`_ Documented each ``@@directive``
+*   Switched the documentation to the "Alabaster" theme
+*   Various code and documentation fixes (`@davesque`_, `@nicholasbishop`_, `@rayjolt`_)
+
+.. _#65: https://github.com/neogeny/TatSu/issues/65
+.. _#73: https://github.com/neogeny/TatSu/issues/73
+.. _#75: https://github.com/neogeny/TatSu/issues/75
+.. _#77: https://github.com/neogeny/TatSu/issues/77
+.. _#93: https://github.com/neogeny/TatSu/issues/93
+.. _#96: https://github.com/neogeny/TatSu/issues/96
 
 
 `4.3.0`_ @ 2018-11-17
 ---------------------
-.. _4.3.0: https://github.com/apalala/tatsu/compare/v4.2.6...v4.3.0
+
+.. _`4.3.0`: https://github.com/apalala/tatsu/compare/v4.2.6...v4.3.0
 
 *   `#66`_ Fix multiline ( ``(?x)`` ) patterns not properly supported in grammar  (`@pdw-mb`_)
 *   `#70`_ Important upgrade to ``ModelBuilder`` and grammar specification of classes for generated nodes. See `pull request #78`_ for details (`@Victorious3`_)

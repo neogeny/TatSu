@@ -7,6 +7,8 @@ tatsu_test:
 
 documentation:
 	pandoc README.rst -t markdown --wrap=none > README.md
+	pandoc CHANGELOG.rst -t markdown --wrap=none > CHANGELOG.md
+	rm CHANGELOG.md
 	cd docs; make -s html > /dev/null
 
 
@@ -57,7 +59,7 @@ release_check: clean documentation
 	@echo version `python -m tatsu --version`
 
 
-distributions: clean release_check 
+distributions: clean release_check
 	python setup.py sdist --formats=zip
 	python setup.py bdist_wheel --universal
 
