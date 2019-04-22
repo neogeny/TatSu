@@ -1,3 +1,5 @@
+.. include:: links_contributors.rst
+
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
 .. |TatSu| replace:: |dragon| **TatSu**
 
@@ -75,31 +77,3 @@
 .. _re: https://docs.python.org/3.4/library/re.html
 .. _regex: https://pypi.python.org/pypi/regex
 .. _smc.mw: https://github.com/lambdafu/smc.mw
-
-.. _Basel Shishani: https://bitbucket.org/basel-shishani
-.. _David Röthlisberger: https://bitbucket.org/drothlis/
-.. _Kathryn Long: https://bitbucket.org/starkat
-.. _Marcus Brinkmann: http://blog.marcus-brinkmann.de/
-.. _Paul Sargent: https://bitbucket.org/PaulS/
-.. _Robert Speer: https://bitbucket.org/r_speer
-.. _basel-shishani: https://bitbucket.org/basel-shishani
-.. _drothlis: https://bitbucket.org/drothlis
-.. _franz_g: https://bitbucket.org/franz_g
-.. _gapag: https://bitbucket.org/gapag
-.. _gegenschall: https://bitbucket.org/gegenschall
-.. _gkimbar: https://bitbucket.org/gkimbar
-.. _jimon: https://bitbucket.org/jimon
-.. _leewz: https://bitbucket.org/leewz
-.. _linkdd: https://bitbucket.org/linkdd
-.. _nehz: https://bitbucket.org/nehz
-.. _neumond: https://bitbucket.org/neumond
-.. _pauls: https://bitbucket.org/pauls
-.. _pgebhard: https://bitbucket.org/pgebhard
-.. _r_speer: https://bitbucket.org/r_speer
-.. _siemer: https://bitbucket.org/siemer
-.. _sjbrownBitbucket: https://bitbucket.org/sjbrownBitbucket
-.. _starkat: https://bitbucket.org/starkat
-.. _tonico_strasser: https://bitbucket.org/tonico_strasser
-.. _vinay.sajip: https://bitbucket.org/vinay.sajip
-.. _vmuriart: https://bitbucket.org/vmuriart
-

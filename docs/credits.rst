@@ -71,3 +71,6 @@ Credits
    user-friendly.
 -  `David Röthlisberger`_ provided the definitive patch that allows the
    use of `Python`_ keywords as rule names.
+-  `Vic Nightfall`_  designed and coded an implementation of left recursion that handles all the use cases of interest (see the `Left Recursion`_ topic for details).
+
+.. _Left Recursion:  left_recursion.html
