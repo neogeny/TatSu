@@ -152,16 +152,20 @@ documentation_.
 
 .. _documentation: http://tatsu.readthedocs.io/
 
-Changes
--------
 
-See the `CHANGELOG`_ for details.
 Questions?
 ----------
 
 For general Q&A, please use the `[tatsu]`_ tag on `StackOverflow`_.
 
 .. _[tatsu]: https://stackoverflow.com/tags/tatsu/info
+
+
+Changes
+-------
+
+See the `CHANGELOG`_ for details.
+
 
 License
 -------

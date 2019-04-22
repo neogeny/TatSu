@@ -130,12 +130,15 @@ Documentation
 
 For a detailed explanation of what 竜 **TatSu** is capable of, please see the [documentation](http://tatsu.readthedocs.io/).
 
+Questions?
+----------
+
+For general Q&A, please use the [\[tatsu\]](https://stackoverflow.com/tags/tatsu/info) tag on [StackOverflow](http://stackoverflow.com/tags/tatsu/info).
+
 Changes
 -------
 
-See the [CHANGELOG](https://github.com/neogeny/TatSu/releases) for details. Questions? \-\-\-\-\-\-\-\-\--
-
-For general Q&A, please use the [\[tatsu\]](https://stackoverflow.com/tags/tatsu/info) tag on [StackOverflow](http://stackoverflow.com/tags/tatsu/info).
+See the [CHANGELOG](https://github.com/neogeny/TatSu/releases) for details.
 
 License
 -------
