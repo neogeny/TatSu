@@ -71,6 +71,7 @@ Credits
    user-friendly.
 -  `David Röthlisberger`_ provided the definitive patch that allows the
    use of `Python`_ keywords as rule names.
+-  `Nicolas Laurent`_ researched, designed, implemented, and published the left recursion algorithm used in |TatSu|.
 -  `Vic Nightfall`_  designed and coded an implementation of left recursion that handles all the use cases of interest (see the `Left Recursion`_ topic for details).
 
 .. _Left Recursion:  left_recursion.html
