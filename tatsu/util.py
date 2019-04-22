@@ -27,7 +27,7 @@ try:
     WHITESPACE_RE = re.compile(r'\p{IsPattern_White_Space}+')
 except ImportError:
     import re  # type: ignore
-    WHITESPACE_RE = re.compile(r'\s+')
+    WHITESPACE_RE = re.compile(r'(?s)\s+')
 RETYPE = type(re.compile('.'))
 
 
