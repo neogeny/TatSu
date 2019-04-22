@@ -30,7 +30,7 @@ Credits
    `PyPy`_, the work of **Armin Rigo** and the `PyPy team`_.
 -  **Guido van Rossum** created and has lead the development of the
    `Python`_ programming environment for over a decade. A tool like
-   |TatSu|, at under six thousand lines of code, would not have been
+   |TatSu|, at under 10K lines of code, would not have been
    possible without `Python`_.
 -  **Kota Mizushima** welcomed me to the `CSAIL at MIT`_ `PEG and
    Packrat parsing mailing list`_, and immediately offered ideas and
