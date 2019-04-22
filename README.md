@@ -125,22 +125,19 @@ This is the output:
 ]
 ```
 
-License
--------
-
-You may use 竜 **TatSu** under the terms of the [BSD](http://en.wikipedia.org/wiki/BSD_licenses#2-clause_license_.28.22Simplified_BSD_License.22_or_.22FreeBSD_License.22.29)-style license described in the enclosed [LICENSE.txt](LICENSE.txt) file. *If your project requires different licensing* please [email](mailto:apalala@gmail.com).
-
 Documentation
 -------------
 
 For a detailed explanation of what 竜 **TatSu** is capable of, please see the [documentation](http://tatsu.readthedocs.io/).
 
-Questions?
-----------
-
-For general Q&A, please use the [\[tatsu\]](https://stackoverflow.com/tags/tatsu/info) tag on [StackOverflow](http://stackoverflow.com/tags/tatsu/info).
-
 Changes
 -------
 
-See the [CHANGELOG](https://github.com/neogeny/TatSu/releases) for details.
+See the [CHANGELOG](https://github.com/neogeny/TatSu/releases) for details. Questions? \-\-\-\-\-\-\-\-\--
+
+For general Q&A, please use the [\[tatsu\]](https://stackoverflow.com/tags/tatsu/info) tag on [StackOverflow](http://stackoverflow.com/tags/tatsu/info).
+
+License
+-------
+
+You may use 竜 **TatSu** under the terms of the [BSD](http://en.wikipedia.org/wiki/BSD_licenses#2-clause_license_.28.22Simplified_BSD_License.22_or_.22FreeBSD_License.22.29)-style license described in the enclosed [LICENSE.txt](LICENSE.txt) file. *If your project requires different licensing* please [email](mailto:apalala@gmail.com).
