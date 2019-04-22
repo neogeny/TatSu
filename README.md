@@ -133,7 +133,7 @@ For a detailed explanation of what 竜 **TatSu** is capable of, please see the [
 Questions?
 ----------
 
-For general Q&A, please use the [\[tatsu\]](https://stackoverflow.com/tags/tatsu/info) tag on [StackOverflow](http://stackoverflow.com/tags/tatsu/info).
+Please use the [\[tatsu\]](https://stackoverflow.com/tags/tatsu/info) tag on [StackOverflow](http://stackoverflow.com/tags/tatsu/info) for general Q&A, and limit Github issues to bugs, enhancement proposals, and feature requests.
 
 Changes
 -------

@@ -156,7 +156,7 @@ documentation_.
 Questions?
 ----------
 
-For general Q&A, please use the `[tatsu]`_ tag on `StackOverflow`_.
+Please use the `[tatsu]`_ tag on `StackOverflow`_ for general Q&A, and limit Github issues to bugs, enhancement proposals, and feature requests.
 
 .. _[tatsu]: https://stackoverflow.com/tags/tatsu/info
 
