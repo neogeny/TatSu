@@ -165,7 +165,7 @@ jobs:
 
   test-pypy3  :
     docker:
-      - image: circleci/python:3.8.0a3
+      - image: circleci/python:3.7
 
     working_directory: ~/repo-pypy3
 
@@ -180,6 +180,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
+            sudo add-apt-repository ppa:pypy/ppa
             sudo apt update
             sudo apt install -y python-pip
             sudo apt install -y virtualenv
