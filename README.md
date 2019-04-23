@@ -12,17 +12,10 @@
 
 竜 **TatSu** supports [left-recursive](https://en.wikipedia.org/wiki/Left_recursion) rules in [PEG](http://en.wikipedia.org/wiki/Parsing_expression_grammar) grammars using the [algorithm](http://norswap.com/pubs/sle2016.pdf) by *Laurent* and *Mens*. The generated [AST](http://en.wikipedia.org/wiki/Abstract_syntax_tree) has the expected left associativity.
 
-<div class="warning">
-
-<div class="admonition-title">
-
-Warning
-
-</div>
-
-v4.4.0 is the last version of 竜 **TatSu** supporting Python 2.7
-
-</div>
+``` python
+# WARNING
+#   v4.4.0 is the last version of |TatSu| supporting Python 2.7
+```
 
 ## Installation
 

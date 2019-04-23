@@ -18,6 +18,12 @@
 |TatSu|
 =======
 
+.. code-block:: python
+
+    # WARNING
+    #   v4.4.0 is the last version of |TatSu| supporting Python 2.7
+
+
 |TatSu| (the successor to Grako_) is a tool that takes grammars in a
 variation of `EBNF`_ as input, and outputs `memoizing`_ (`Packrat`_)
 `PEG`_ parsers in `Python`_.
@@ -29,9 +35,6 @@ input, much like the `re`_ module does with regular expressions, or it can gener
 |TatSu| supports `left-recursive`_  rules in PEG_ grammars using the algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left associativity.
 
 .. _algorithm: http://norswap.com/pubs/sle2016.pdf
-
-.. WARNING::
-    v4.4.0 is the last version of |TatSu| supporting Python 2.7
 
 Installation
 ------------
