@@ -21,11 +21,11 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 *   The default regexp for whitespace was changed to ``(?s)\s+`
 *   Allow empty patterns (``//``) like Python does
-*  `#89`_ Make all attributes defined in the rule present in the resulting ``AST`` or ``Node`` even if the associated expression was not parsed
 *  `#65`_ Allow initial, consecutive, and trailing ``@namechars``
 *  `#73`_ Allow ``@@whitespace :: None`` and ``@@whitespace :: False``
 *  `#75`_ Complete implemenation of left recursion(`@Victorious3`_)
 *  `#77`_ Allow ``@keyword`` throughout the grammar
+*  `#89`_ Make all attributes defined in the rule present in the resulting ``AST`` or ``Node`` even if the associated expression was not parsed
 *  `#93`_ Fix trace colorization on Windows
 *  `#96`_ Documented each ``@@directive``
 *   Switched the documentation to the "Alabaster" theme
