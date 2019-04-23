@@ -79,6 +79,7 @@ setuptools.setup(
             'tatsu/codegen/__init__.py',
             'tatsu/test/__main__.py',
             'tatsu/test/*.py'
-        ]
+        ],
+        language_level=2,
     ) if CYTHON else [],
 )
