@@ -38,7 +38,8 @@ def pythonize_name(name):
 
 
 class EBNFBuffer(EBNFBootstrapBuffer):
-    def __init__(self, text, filename=None, comments_re=None, eol_comments_re=None, **kwargs):
+    def __init__(
+            self, text, filename=None, comments_re=None, eol_comments_re=None, **kwargs):
         super().__init__(
             text,
             filename=filename,
@@ -107,8 +108,9 @@ class Model(Node):
         self._lookahead = None
         self._first_set = None
         self._follow_set = set()
+        self.value = None
         self._nullability = self._nullable()
-        if isinstance(self._nullability, int):  # Allow simple boolean values as return type
+        if isinstance(self._nullability, int):  # Allow simple boolean values
             if self._nullability:
                 self._nullability = Nullable.yes()
             else:
@@ -208,6 +210,7 @@ class Fail(Model):
 
 class Comment(Model):
     def __init__(self, ast=None, **kwargs):
+        self.comment = None
         super().__init__(ast=AST(comment=ast))
 
     def _to_str(self, lean=False):
@@ -382,6 +385,7 @@ class SkipTo(Decorator):
 class Sequence(Model):
     def __init__(self, ast, **kwargs):
         assert ast.sequence
+        self.sequence = None
         super().__init__(ast=ast)
 
     def parse(self, ctx):
@@ -433,6 +437,7 @@ class Sequence(Model):
 
 class Choice(Model):
     def __init__(self, ast=None, **kwargs):
+        self.options = None
         super().__init__(ast=AST(options=ast))
         assert isinstance(self.options, list), repr(self.options)
 
@@ -747,7 +752,7 @@ class RuleRef(Model):
     def _to_str(self, lean=False):
         return self.name
 
-    def is_nullable(self, ctx):
+    def is_nullable(self, ctx=None):
         return ctx[self.name].is_nullable(ctx)
 
 
@@ -784,7 +789,10 @@ class Rule(Decorator):
         return result
 
     def _parse_rhs(self, ctx, exp):
-        ruleinfo = RuleInfo(self.name, exp.parse, self.is_leftrec, self.is_memoizable, self.params, self.kwparams)
+        ruleinfo = RuleInfo(
+            self.name, exp.parse,
+            self.is_leftrec, self.is_memoizable, self.params, self.kwparams
+        )
         result = ctx._call(ruleinfo)
         return result
 
@@ -960,7 +968,7 @@ class Grammar(Model):
 
     @property
     def first_sets(self):
-        return self._first_sets
+        return self._first_set
 
     def _calc_lookahead_sets(self, k=1):
         self._calc_first_sets()
