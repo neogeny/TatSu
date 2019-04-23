@@ -39,7 +39,7 @@ class EBNFBootstrapBuffer(Buffer):
         namechars='',
         **kwargs
     ):
-        super(EBNFBootstrapBuffer, self).__init__(
+        super().__init__(
             text,
             whitespace=whitespace,
             nameguard=nameguard,
@@ -68,7 +68,7 @@ class EBNFBootstrapParser(Parser):
     ):
         if keywords is None:
             keywords = KEYWORDS
-        super(EBNFBootstrapParser, self).__init__(
+        super().__init__(
             whitespace=whitespace,
             nameguard=nameguard,
             comments_re=comments_re,

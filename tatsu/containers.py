@@ -12,12 +12,12 @@ class OrderedDefaultDict(OrderedDict):
         if not isinstance(default_factory, (Callable, type(None))):
             raise TypeError('first argument must be callable or None')
 
-        super(OrderedDefaultDict, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.default_factory = default_factory
 
     def __getitem__(self, key):
         try:
-            return super(OrderedDefaultDict, self).__getitem__(key)
+            return super().__getitem__(key)
         except KeyError:
             return self.__missing__(key)
 
@@ -46,5 +46,5 @@ class OrderedDefaultDict(OrderedDict):
     def __repr__(self):
         return 'OrderedDefaultDict(%s, %s)' % (
             self.default_factory,
-            super(OrderedDefaultDict, self).__repr__(self)
+            super().__repr__(self)
         )

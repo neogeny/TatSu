@@ -19,7 +19,7 @@ def draw(filename, grammar):
 
 class GraphvizWalker(NodeWalker):
     def __init__(self):
-        super(GraphvizWalker, self).__init__()
+        super().__init__()
         self.top_graph = pgv.AGraph(directed=True,
                                     rankdir='LR',
                                     packMode='clust',

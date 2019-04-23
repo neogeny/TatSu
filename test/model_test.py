@@ -10,7 +10,7 @@ class ModelTests(unittest.TestCase):
     def test_node_kwargs(self):
         class Atom(Node):
             def __init__(self, arguments=None, symbol=None, **_kwargs_):
-                super(Atom, self).__init__(
+                super().__init__(
                     arguments=arguments,
                     symbol=symbol,
                     **_kwargs_

@@ -145,7 +145,7 @@ class Choice(Base):
         if len(self.node.options) == 1:
             return self.rend(self.options[0], **fields)
         else:
-            return super(Choice, self).render(**fields)
+            return super().render(**fields)
 
     option_template = '''\
                     with self._option():
@@ -166,7 +166,7 @@ class Closure(_Decorator):
     def render(self, **fields):
         if {()} in self.node.exp.lookahead():
             raise CodegenError('may repeat empty sequence')
-        return '\n' + super(Closure, self).render(**fields)
+        return '\n' + super().render(**fields)
 
     template = '''\
                 def block{n}():
@@ -190,7 +190,7 @@ class Join(_Decorator):
     def render(self, **fields):
         if {()} in self.node.exp.lookahead():
             raise CodegenError('may repeat empty sequence')
-        return '\n' + super(Join, self).render(**fields)
+        return '\n' + super().render(**fields)
 
     template = '''\
                 def sep{n}():
@@ -320,7 +320,7 @@ class RuleRef(Base):
 
 class RuleInclude(_Decorator):
     def render_fields(self, fields):
-        super(RuleInclude, self).render_fields(fields)
+        super().render_fields(fields)
         fields.update(exp=self.rend(self.node.rule.exp))
 
     template = '''
@@ -406,7 +406,7 @@ class BasedRule(Rule):
         return self.rhs.defines()
 
     def render_fields(self, fields):
-        super(BasedRule, self).render_fields(fields)
+        super().render_fields(fields)
         fields.update(exp=self.rhs)
 
 

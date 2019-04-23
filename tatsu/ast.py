@@ -13,7 +13,7 @@ class AST(dict):
     _closed = False
 
     def __init__(self, *args, **kwargs):
-        super(AST, self).__init__()
+        super().__init__()
         self._order = []
 
         self.update(*args, **kwargs)
@@ -52,14 +52,14 @@ class AST(dict):
         previous = self.get(key)
         if previous is None:
             if force_list:
-                super(AST, self).__setitem__(key, [value])
+                super().__setitem__(key, [value])
             else:
-                super(AST, self).__setitem__(key, value)
+                super().__setitem__(key, value)
             self._order.append(key)
         elif is_list(previous):
             previous.append(value)
         else:
-            super(AST, self).__setitem__(key, [previous, value])
+            super().__setitem__(key, [previous, value])
         return self
 
     def setlist(self, key, value):
@@ -76,17 +76,17 @@ class AST(dict):
 
     def __getitem__(self, key):
         if key in self:
-            return super(AST, self).__getitem__(key)
+            return super().__getitem__(key)
         key = self._safekey(key)
         if key in self:
-            return super(AST, self).__getitem__(key)
+            return super().__getitem__(key)
 
     def __setitem__(self, key, value):
         self.set(key, value)
 
     def __delitem__(self, key):
         key = self._safekey(key)
-        super(AST, self).__delitem__(key)
+        super().__delitem__(key)
         self._order.remove(key)
 
     def __setattr__(self, name, value):
@@ -96,7 +96,7 @@ class AST(dict):
                 %
                 (self.__class__.__name__, name)
             )
-        super(AST, self).__setattr__(name, value)
+        super().__setattr__(name, value)
 
     def __getattr__(self, name):
         return self[name]
@@ -105,7 +105,7 @@ class AST(dict):
         if not isinstance(name, str):
             return False
         try:
-            super(AST, self).__getattribute__(name)
+            super().__getattribute__(name)
             return True
         except AttributeError:
             return False
@@ -128,7 +128,7 @@ class AST(dict):
         for key in keys:
             key = self._safekey(key)
             if key not in self:
-                super(AST, self).__setitem__(key, None)
+                super().__setitem__(key, None)
                 self._order.append(key)
 
     def __json__(self):
@@ -140,5 +140,5 @@ class AST(dict):
     def __repr__(self):
         return "%s(%s)" % (
             self.__class__.__name__,
-            super(AST, self).__repr__()
+            super().__repr__()
         )
