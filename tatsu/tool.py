@@ -14,7 +14,7 @@ import warnings
 from typing import Union
 
 from tatsu._version import __version__
-from tatsu.util import eval_escapes
+from tatsu.util import eval_escapes, deprecated
 from tatsu.exceptions import ParseException
 from tatsu.parser import GrammarGenerator
 from tatsu.semantics import ModelBuilderSemantics
@@ -208,16 +208,18 @@ def to_python_model(grammar: str, name: str = None, filename: str = None, base_t
     return objectmodel.codegen(model, base_type=base_type)
 
 
+@deprecated
 def genmodel(name=None, grammar=None, semantics=None, **kwargs):
-    warnings.warn("genmodel is deprecated: Use `compile()` instead", DeprecationWarning)
+    """ genmodel is deprecated: Use `compile()` instead """
     if grammar is None:
         raise ParseException('grammar is None')
 
     return compile(grammar, name=name, semantics=semantics, **kwargs)
 
 
+@deprecated
 def gencode(name=None, grammar=None, trace=False, filename=None, codegen=pythoncg, **kwargs):
-    warnings.warn("gencode is deprecated: Use `compile()` instead", DeprecationWarning)
+    """ gencode is deprecated: Use `compile()` instead """
     model = compile(grammar, name=name, filename=filename, trace=trace, **kwargs)
     return codegen(model)
 
