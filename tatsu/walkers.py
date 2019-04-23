@@ -56,7 +56,7 @@ class NodeWalker(object):
         else:
             walker = getattr(self, '_walk_default', None)
             if walker is None:
-                walker = getattr(self, 'walk_default', None)  # backwars compatibility
+                walker = getattr(self, 'walk_default', None)  # backwards compatibility
             if not callable(walker):
                 walker = None
 

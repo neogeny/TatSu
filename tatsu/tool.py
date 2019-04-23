@@ -160,7 +160,7 @@ def parse_args():
 __compiled_grammar_cache = {}  # type: ignore
 
 
-def compile(grammar: str, name: str=None, semantics=None, asmodel=False, **kwargs) -> Grammar:
+def compile(grammar: str, name: str = None, semantics=None, asmodel=False, **kwargs) -> Grammar:
     """ Compiles the grammar and generates a *model* that can subsequently be used for parsing input with.
 
         :param name: Name for the compiled grammar. Equivalent to specifying `@@grammar`.
@@ -178,19 +178,19 @@ def compile(grammar: str, name: str=None, semantics=None, asmodel=False, **kwarg
     return model
 
 
-def parse(grammar: str, input: str, start: str=None, name: str=None, semantics=None, asmodel=False, **kwargs) -> Union[AST, Node]:
+def parse(grammar: str, input: str, start: str = None, name: str = None, semantics=None, asmodel=False, **kwargs) -> Union[AST, Node]:
     """ Compiles the grammar and parses the given input producing an AST_ as result. The result is equivalent to calling::
 
             model = compile(grammar)
             ast = model.parse(input)
-        
+
         Compiled grammars are cached for efficiency.
     """
     model = compile(grammar, name=name, semantics=semantics, asmodel=asmodel)
     return model.parse(input, start=start, semantics=semantics, **kwargs)
 
 
-def to_python_sourcecode(grammar: str, name: str=None, filename: str=None, **kwargs) -> str:
+def to_python_sourcecode(grammar: str, name: str = None, filename: str = None, **kwargs) -> str:
     """ Compiles the grammar to the `Python`_ sourcecode that implements the parser.
 
         :param filename: Filename of the supplied grammar. This is used when outputting diagnostics.
@@ -199,8 +199,10 @@ def to_python_sourcecode(grammar: str, name: str=None, filename: str=None, **kwa
     return pythoncg(model)
 
 
-def to_python_model(grammar: str, name: str=None, filename: str=None, base_type=None, **kwargs) -> str:
+def to_python_model(grammar: str, name: str = None, filename: str = None, base_type=None, **kwargs) -> str:
     """ Compiles the grammar and generates the `Python`_ sourcecode that implements the object model defined by rule annotations.
+
+        :param basetype: Base type used for the model. It has to be importable from outside the module.
     """
     model = compile(grammar, name=name, filename=filename, **kwargs)
     return objectmodel.codegen(model, base_type=base_type)

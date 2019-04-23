@@ -10,6 +10,7 @@ import itertools
 import string
 
 from tatsu.util import indent, isiter, strtype, trim, ustr
+from typing import Optional, Dict, Any
 
 
 def render(item, join='', **fields):
@@ -30,6 +31,10 @@ def render(item, join='', **fields):
 
 
 class RenderingFormatter(string.Formatter):
+    """ Default formatter class for use with `Renderer`
+        This class is responsible for the special formatting described
+        in :doc:`models`
+    """
     def render(self, item, join='', **fields):
         return render(item, join=join, **fields)
 
@@ -81,7 +86,9 @@ class Renderer(object):
             self.template = template
 
     @classmethod
-    def counter(cls):
+    def counter(cls) -> int:
+        """ Simple counter. Every call increases it by one.
+        """
         return next(cls._counter)
 
     @classmethod
@@ -89,30 +96,32 @@ class Renderer(object):
         Renderer._counter = itertools.count()
 
     @property
-    def formatter(self):
+    def formatter(self) -> RenderingFormatter:
         return self._formatter
 
     @formatter.setter
-    def formatter(self, value):
+    def formatter(self, value: RenderingFormatter):
         self._formatter = value
 
-    def rend(self, item, join='', **fields):
+    def rend(self, item, join: str = '', **fields) -> str:
         """ A shortcut for self._formatter.render()
         """
         return self._formatter.render(item, join=join, **fields)
 
-    def indent(self, item, ind=1, multiplier=4):
+    def indent(self, item, ind: int = 1, multiplier: int = 4) -> str:
         return indent(self.rend(item), indent=ind, multiplier=4)
 
-    def trim(self, item, tabwidth=4):
+    def trim(self, item, tabwidth: int = 4) -> str:
         return trim(self.rend(item), tabwidth=tabwidth)
 
-    def render_fields(self, fields):
+    def render_fields(self, fields: Dict[str, Any]) -> Optional[str]:
         """ Pre-render fields before rendering the template.
+
+            :return: An optional string to be used instead of `template`
         """
         pass
 
-    def render(self, template=None, **fields):
+    def render(self, template: str = None, **fields) -> str:
         fields.update(__class__=self.__class__.__name__)
         fields.update({k: v for k, v in vars(self).items() if not k.startswith('_')})
 
