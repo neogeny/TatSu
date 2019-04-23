@@ -6,8 +6,8 @@ tatsu_test:
 
 
 documentation:
-	pandoc README.rst -t markdown --wrap=none > README.md
-	pandoc CHANGELOG.rst -t markdown --wrap=none > CHANGELOG.md
+	pandoc README.rst -t gfm --wrap=none > README.md
+	pandoc CHANGELOG.rst -t gfm --wrap=none > CHANGELOG.md
 	rm CHANGELOG.md
 	cd docs; make -s html > /dev/null
 
