@@ -20,8 +20,8 @@
 
 .. code-block:: python
 
-    # WARNING
-    #   v4.4.0 is the last version of |TatSu| supporting Python 2.7
+    def WARNING():
+        return 'v4.4.0 is the last version of |TatSu| supporting Python 2.7'
 
 
 |TatSu| (the successor to Grako_) is a tool that takes grammars in a
