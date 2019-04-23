@@ -13,7 +13,6 @@ workflows:
       - test-3.6
       - test-3.5
       - test-2.7
-      - test-pypy3
       - test-pypy
 
 jobs:
