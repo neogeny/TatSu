@@ -30,6 +30,9 @@ input, much like the `re`_ module does with regular expressions, or it can gener
 
 .. _algorithm: http://norswap.com/pubs/sle2016.pdf
 
+.. WARNING::
+    v4.4.0 is the last version of |TatSu| supporting Python 2.7
+
 Installation
 ------------
 
