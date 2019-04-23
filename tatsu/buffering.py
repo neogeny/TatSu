@@ -6,8 +6,7 @@ Line analysis and caching are done so the parser can freely move with goto(p)
 to any position in the parsed text, and still recover accurate information
 about source lines and content.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import generator_stop
 
 import os
 from itertools import takewhile, repeat

@@ -2,7 +2,7 @@
 """
 Python code generation for models defined with tatsu.model
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 from tatsu.util import (
     indent,
@@ -488,7 +488,7 @@ class Grammar(Base):
                 # the file is generated.
 
 
-                from __future__ import print_function, division, absolute_import, unicode_literals
+                from __future__ import generator_stop
 
                 import sys
 
