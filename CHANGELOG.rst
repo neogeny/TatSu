@@ -15,9 +15,9 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v4.3.0...master
 
 
-`4.4.0a1`_ @ 2019-04-22
+`4.4.0`_ @ 2019-04-22
 -----------------------
-.. _4.4.0a1: https://github.com/apalala/tatsu/compare/v4.3.0...v4.4.0a1
+.. _4.4.0: https://github.com/apalala/tatsu/compare/v4.3.0...v4.4.0
 
 *   The default regexp for whitespace was changed to ``(?s)\s+`
 *   Allow empty patterns (``//``) like Python does
