@@ -3,10 +3,10 @@ from __future__ import generator_stop
 
 
 import collections
+from collections.abc import Mapping, MutableMapping
 import weakref
 
 from tatsu.util import asjson, asjsons
-from tatsu.util import Mapping, MutableMapping
 from tatsu.infos import CommentInfo
 from tatsu.ast import AST
 # TODO: from tatsu.exceptions import NoParseInfo

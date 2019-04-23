@@ -9,8 +9,6 @@ from tatsu.util import (
     safe_name,
     trim,
     timestamp,
-    urepr,
-    ustr,
     compress_seq,
     RETYPE
 )
@@ -56,7 +54,7 @@ class Fail(Base):
 class Comment(Base):
     def render_fields(self, fields):
         lines = '\n'.join(
-            '# %s' % ustr(c) for c in self.node.comment.splitlines()
+            '# %s' % str(c) for c in self.node.comment.splitlines()
         )
         fields.update(lines=lines)
 
@@ -84,21 +82,21 @@ class Group(_Decorator):
 
 class Token(Base):
     def render_fields(self, fields):
-        fields.update(token=urepr(self.node.token))
+        fields.update(token=repr(self.node.token))
 
     template = "self._token({token})"
 
 
 class Constant(Base):
     def render_fields(self, fields):
-        fields.update(literal=urepr(self.node.literal))
+        fields.update(literal=repr(self.node.literal))
 
     template = "self._constant({literal})"
 
 
 class Pattern(Base):
     def render_fields(self, fields):
-        raw_repr = urepr(self.node.pattern)
+        raw_repr = repr(self.node.pattern)
         fields.update(pattern=raw_repr)
 
     template = 'self._pattern({pattern})'
@@ -140,7 +138,7 @@ class Choice(Base):
             error = 'no available options'
         fields.update(n=self.counter(),
                       options=indent(options),
-                      error=urepr(error)
+                      error=repr(error)
                       )
 
     def render(self, **fields):
@@ -334,9 +332,9 @@ class Rule(_Decorator):
     @staticmethod
     def param_repr(p):
         if isinstance(p, (int, float)):
-            return ustr(p)
+            return str(p)
         else:
-            return urepr(p.split(BASE_CLASS_TOKEN)[0])
+            return repr(p.split(BASE_CLASS_TOKEN)[0])
 
     def render_fields(self, fields):
         self.reset_counter()
@@ -369,8 +367,8 @@ class Rule(_Decorator):
         if not (sdefs or ldefs):
             sdefines = ''
         else:
-            sdefs = '[%s]' % ', '.join(urepr(d) for d in sorted(sdefs))
-            ldefs = '[%s]' % ', '.join(urepr(d) for d in sorted(ldefs))
+            sdefs = '[%s]' % ', '.join(repr(d) for d in sorted(sdefs))
+            ldefs = '[%s]' % ', '.join(repr(d) for d in sorted(ldefs))
             if not ldefs:
                 sdefines = '\n\n    self.ast._define(%s, %s)' % (sdefs, ldefs)
             else:
@@ -425,24 +423,24 @@ class Grammar(Base):
         if not whitespace:
             whitespace = 'None'
         elif isinstance(whitespace, RETYPE):
-            whitespace = urepr(whitespace)
+            whitespace = repr(whitespace)
         else:
-            whitespace = 're.compile({0})'.format(urepr(whitespace))
+            whitespace = 're.compile({0})'.format(repr(whitespace))
 
         if self.node.nameguard is not None:
-            nameguard = urepr(self.node.nameguard)
+            nameguard = repr(self.node.nameguard)
         elif self.node.directives.get('nameguard') is not None:
             nameguard = self.node.directives.get('nameguard')
         else:
             nameguard = 'None'
 
-        comments_re = urepr(self.node.directives.get('comments'))
-        eol_comments_re = urepr(self.node.directives.get('eol_comments'))
+        comments_re = repr(self.node.directives.get('comments'))
+        eol_comments_re = repr(self.node.directives.get('eol_comments'))
         ignorecase = self.node.directives.get('ignorecase', 'None')
         left_recursion = self.node.directives.get('left_recursion', True)
         parseinfo = self.node.directives.get('parseinfo', True)
 
-        namechars = urepr(self.node.directives.get('namechars') or '')
+        namechars = repr(self.node.directives.get('namechars') or '')
 
         rules = '\n'.join([
             self.get_renderer(rule).render() for rule in self.node.rules
@@ -450,7 +448,7 @@ class Grammar(Base):
 
         version = str(tuple(int(n) for n in str(timestamp()).split('.')))
 
-        keywords = '\n'.join("    %s," % urepr(k) for k in sorted(self.keywords))
+        keywords = '\n'.join("    %s," % repr(k) for k in sorted(self.keywords))
         if keywords:
             keywords = '\n%s\n' % keywords
 

@@ -3,15 +3,17 @@ from __future__ import generator_stop
 
 import sys
 import os
-import collections
 import json
 import datetime
 import codecs
-import itertools
 import keyword
 import functools
 import warnings
 import logging
+from io import StringIO
+from collections import OrderedDict
+from collections.abc import Mapping, Iterable
+from itertools import zip_longest
 
 
 logger = logging.getLogger('tatsu')
@@ -31,33 +33,9 @@ except ImportError:
 RETYPE = type(re.compile('.'))
 
 
-PY3 = sys.version_info[0] >= 3
-PY33 = PY3 and sys.version_info[1] >= 3
-PY37 = PY3 and sys.version_info[1] >= 7
-
-if PY3:
-    strtype = str
-    basestring = None
-    unicode = None
-    _unicode = str
-    if PY33:
-        from collections.abc import Mapping, MutableMapping
-    else:
-        from collections import Mapping, MutableMapping
-    zip_longest = itertools.zip_longest
-    import builtins
-    imap = map
-    from io import StringIO
-else:
-    strtype = basestring  # noqa
-    _unicode = unicode
-    Mapping = collections.Mapping
-    MutableMapping = collections.MutableMapping
-    zip_longest = itertools.izip_longest
-    imap = itertools.imap
-    import __builtin__ as builtins
-    from StringIO import StringIO
-assert builtins
+_PY3 = sys.version_info[0] >= 3
+PY35 = _PY3 and sys.version_info[1] >= 5
+PY37 = _PY3 and sys.version_info[1] >= 7
 
 
 def is_posix():
@@ -68,10 +46,7 @@ def _prints(*args, **kwargs):
     io = StringIO()
     kwargs['file'] = io
     kwargs['end'] = ''
-    if PY3:
-        print(*args, **kwargs)
-    else:
-        print(*(a.encode('utf-8') for a in args), **kwargs)
+    print(*args, **kwargs)
     return io.getvalue()
 
 
@@ -153,21 +128,6 @@ def compress_seq(seq):
     return result
 
 
-def ustr(s):
-    if PY3:
-        return str(s)
-    elif isinstance(s, unicode):
-        return s
-    elif isinstance(s, str):
-        return _unicode(s, 'utf-8')
-    else:
-        return ustr(s.__str__())  # FIXME: last case resource!  We don't know unicode, period.
-
-
-def urepr(obj):
-    return ustr(repr(obj)).lstrip('u')
-
-
 def eval_escapes(s):
     """
     Given a string, evaluate escape sequences starting with backslashes as
@@ -200,8 +160,8 @@ def eval_escapes(s):
 
 def isiter(value):
     return (
-        isinstance(value, collections.Iterable) and
-        not isinstance(value, strtype)
+        isinstance(value, Iterable) and
+        not isinstance(value, str)
     )
 
 
@@ -236,7 +196,7 @@ def indent(text, indent=1, multiplier=4):
     """
     if text is None:
         return ''
-    text = ustr(text)
+    text = str(text)
     if indent >= 0:
         sindent = ' ' * multiplier * indent
         text = '\n'.join((sindent + t).rstrip() for t in text.splitlines())
@@ -256,7 +216,7 @@ def timestamp():
 
 
 def asjson(obj, seen=None):
-    if isinstance(obj, collections.Mapping) or isiter(obj):
+    if isinstance(obj, Mapping) or isiter(obj):
         # prevent traversal of recursive structures
         if seen is None:
             seen = set()
@@ -266,8 +226,8 @@ def asjson(obj, seen=None):
 
     if hasattr(obj, '__json__') and type(obj) is not type:
         return obj.__json__()
-    elif isinstance(obj, collections.Mapping):
-        result = collections.OrderedDict()
+    elif isinstance(obj, Mapping):
+        result = OrderedDict()
         for k, v in obj.items():
             try:
                 result[asjson(k, seen)] = asjson(v, seen)
