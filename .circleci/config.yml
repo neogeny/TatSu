@@ -12,7 +12,6 @@ workflows:
       - test-3.7
       - test-3.6
       - test-3.5
-      - test-pypy
 
 jobs:
   test-3.7:  &test-template
@@ -76,47 +75,6 @@ jobs:
     docker:
       - image: circleci/python:3.5
 
-  test-pypy  :
-    docker:
-      - image: circleci/python:3.7
-
-    working_directory: ~/repo-pypy
-
-    steps:
-      - checkout
-
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "requirements-test.txt" }}
-          - v1-dependencies-
-
-      - run:
-          name: install dependencies
-          command: |
-            sudo apt update
-            sudo apt install -y python-pip
-            sudo apt install -y virtualenv
-            sudo apt install -y pypy
-            virtualenv venv -p pypy
-            . venv/bin/activate
-            pip install -U pip
-            pip install -r requirements-test.txt
-
-      - save_cache:
-          paths:
-            - ./venv
-          key: v1-dependencies-{{ checksum "requirements-test.txt" }}
-
-      - run:
-          name: run tests
-          command: |
-            . venv/bin/activate
-            flake8
-            py.test
-
-      - store_artifacts:
-          path: test-reports
-          destination: test-reports
 
   test-pypy3  :
     docker:
