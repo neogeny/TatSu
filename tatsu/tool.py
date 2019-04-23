@@ -9,12 +9,18 @@ import argparse
 import os
 import sys
 import importlib
+import warnings
+
+from typing import Union
 
 from tatsu._version import __version__
 from tatsu.util import eval_escapes
 from tatsu.exceptions import ParseException
 from tatsu.parser import GrammarGenerator
 from tatsu.semantics import ModelBuilderSemantics
+from tatsu.grammars import Grammar
+from tatsu.ast import AST
+from tatsu.model import Node
 
 # we hook the tool to the Python code generator as the default
 from tatsu.codegen.python import codegen as pythoncg
@@ -154,7 +160,13 @@ def parse_args():
 __compiled_grammar_cache = {}  # type: ignore
 
 
-def compile(grammar, name=None, semantics=None, asmodel=False, **kwargs):
+def compile(grammar: str, name: str=None, semantics=None, asmodel=False, **kwargs) -> Grammar:
+    """ Compiles the grammar and generates a *model* that can subsequently be used for parsing input with.
+
+        :param name: Name for the compiled grammar. Equivalent to specifying `@@grammar`.
+        :param semantics: See documentation on :doc:`semantics`.
+        :param asmodel: Use the default :class:`ModelBuilderSemantics` class.
+    """
     cache = __compiled_grammar_cache
 
     if (grammar, semantics) in cache:
@@ -166,31 +178,44 @@ def compile(grammar, name=None, semantics=None, asmodel=False, **kwargs):
     return model
 
 
-def parse(grammar, input, start=None, name=None, semantics=None, asmodel=False, **kwargs):
+def parse(grammar: str, input: str, start: str=None, name: str=None, semantics=None, asmodel=False, **kwargs) -> Union[AST, Node]:
+    """ Compiles the grammar and parses the given input producing an AST_ as result. The result is equivalent to calling::
+
+            model = compile(grammar)
+            ast = model.parse(input)
+        
+        Compiled grammars are cached for efficiency.
+    """
     model = compile(grammar, name=name, semantics=semantics, asmodel=asmodel)
     return model.parse(input, start=start, semantics=semantics, **kwargs)
 
 
-def to_python_sourcecode(grammar, name=None, filename=None, **kwargs):
+def to_python_sourcecode(grammar: str, name: str=None, filename: str=None, **kwargs) -> str:
+    """ Compiles the grammar to the `Python`_ sourcecode that implements the parser.
+
+        :param filename: Filename of the supplied grammar. This is used when outputting diagnostics.
+    """
     model = compile(grammar, name=name, filename=filename, **kwargs)
     return pythoncg(model)
 
 
-def to_python_model(grammar, name=None, filename=None, base_type=None, **kwargs):
+def to_python_model(grammar: str, name: str=None, filename: str=None, base_type=None, **kwargs) -> str:
+    """ Compiles the grammar and generates the `Python`_ sourcecode that implements the object model defined by rule annotations.
+    """
     model = compile(grammar, name=name, filename=filename, **kwargs)
     return objectmodel.codegen(model, base_type=base_type)
 
 
-# for backwards compatibility. Use `compile()` instead
 def genmodel(name=None, grammar=None, semantics=None, **kwargs):
+    warnings.warn("genmodel is deprecated: Use `compile()` instead", DeprecationWarning)
     if grammar is None:
         raise ParseException('grammar is None')
 
     return compile(grammar, name=name, semantics=semantics, **kwargs)
 
 
-# for backwards compatibility. Use `compile()` instead
 def gencode(name=None, grammar=None, trace=False, filename=None, codegen=pythoncg, **kwargs):
+    warnings.warn("gencode is deprecated: Use `compile()` instead", DeprecationWarning)
     model = compile(grammar, name=name, filename=filename, trace=trace, **kwargs)
     return codegen(model)
 
