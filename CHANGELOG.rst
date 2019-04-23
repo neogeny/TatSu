@@ -35,6 +35,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _#73: https://github.com/neogeny/TatSu/issues/73
 .. _#75: https://github.com/neogeny/TatSu/issues/75
 .. _#77: https://github.com/neogeny/TatSu/issues/77
+.. _#89: https://github.com/neogeny/TatSu/issues/89
 .. _#93: https://github.com/neogeny/TatSu/issues/93
 .. _#96: https://github.com/neogeny/TatSu/issues/96
 
