@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals  # noqa
+from __future__ import generator_stop
 
 import sys
 import functools
@@ -12,7 +12,7 @@ from ._unicode_characters import (
     C_FAILURE,
     C_RECURSION,
 )
-from tatsu.util import notnone, ustr, prune_dict, is_list, info, safe_name
+from tatsu.util import notnone, prune_dict, is_list, info, safe_name
 from tatsu.util import left_assoc, right_assoc
 from tatsu.util import debug  # noqa
 from tatsu import buffering
@@ -383,7 +383,7 @@ class ParseContext(object):
     def _trace(self, msg, *params, **kwargs):
         if self.trace:
             msg = msg % params
-            info(ustr(msg), file=sys.stderr)
+            info(str(msg), file=sys.stderr)
 
     def _trace_event(self, event):
         if self.trace:
@@ -599,7 +599,7 @@ class ParseContext(object):
                 self._memoize(key, result)
                 return result
             except FailedSemantics as e:
-                self._error(ustr(e), FailedParse)
+                self._error(str(e), FailedParse)
             finally:
                 self._pop_ast()
         except FailedParse as e:
@@ -838,7 +838,7 @@ class ParseContext(object):
         return self.cst
 
     def _check_name(self):
-        name = ustr(self.last_node)
+        name = str(self.last_node)
         if self.ignorecase or self._buffer.ignorecase:
             name = name.upper()
         if name in self.keywords:

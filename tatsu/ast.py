@@ -3,9 +3,10 @@
 Define the AST class, a direct descendant of dict that's used during parsing
 to store the values of named elements of grammar rules.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
+from collections.abc import Mapping
 
-from tatsu.util import strtype, asjson, is_list, PY3, Mapping
+from tatsu.util import asjson, is_list
 
 
 class AST(dict):
@@ -27,23 +28,11 @@ class AST(dict):
     def iterkeys(self):
         return iter(self)
 
-    def keys(self):
-        keys = self.iterkeys()
-        return keys if PY3 else list(keys)
-
-    def itervalues(self):
+    def values(self):
         return (self[k] for k in self)
 
-    def values(self):
-        values = self.itervalues()
-        return values if PY3 else list(values)
-
-    def iteritems(self):
-        return ((k, self[k]) for k in self)
-
     def items(self):
-        items = self.iteritems()
-        return items if PY3 else list(items)
+        return ((k, self[k]) for k in self)
 
     def update(self, *args, **kwargs):
         def upairs(d):
@@ -113,7 +102,7 @@ class AST(dict):
         return self[name]
 
     def __hasattribute__(self, name):
-        if not isinstance(name, strtype):
+        if not isinstance(name, str):
             return False
         try:
             super(AST, self).__getattribute__(name)

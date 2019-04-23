@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
+import builtins
 from tatsu.util import simplify_list
-from tatsu.util import builtins
 from tatsu.exceptions import SemanticError
 from tatsu.objectmodel import Node
 from tatsu.objectmodel import BASE_CLASS_TOKEN

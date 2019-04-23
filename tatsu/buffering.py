@@ -6,13 +6,12 @@ Line analysis and caching are done so the parser can freely move with goto(p)
 to any position in the parsed text, and still recover accurate information
 about source lines and content.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import generator_stop
 
 import os
 from itertools import takewhile, repeat
 
-from tatsu.util import identity, imap, ustr, strtype
+from tatsu.util import identity
 from tatsu.util import extend_list, contains_sublist
 from tatsu.util import re as regexp
 from tatsu.util import RETYPE, WHITESPACE_RE
@@ -35,7 +34,7 @@ class Buffer(object):
                  comment_recovery=False,
                  namechars='',
                  **kwargs):
-        text = ustr(text)
+        text = str(text)
         self.text = self.original_text = text
         self.filename = filename or ''
 
@@ -80,7 +79,7 @@ class Buffer(object):
         elif isinstance(whitespace, RETYPE):
             return whitespace
         elif whitespace:
-            if not isinstance(whitespace, strtype):
+            if not isinstance(whitespace, str):
                 # a list or a set?
                 whitespace = ''.join(c for c in whitespace)
             return regexp.compile(
@@ -243,7 +242,7 @@ class Buffer(object):
 
     def _eat_regex(self, regex):
         if regex is not None:
-            return list(takewhile(identity, imap(self.matchre, repeat(regex))))
+            return list(takewhile(identity, map(self.matchre, repeat(regex))))
 
     def eat_whitespace(self):
         return self._eat_regex(self.whitespace_re)

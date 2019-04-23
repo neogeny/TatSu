@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, \
-    unicode_literals
+from __future__ import generator_stop
 
 import unittest
 
 from tatsu.exceptions import FailedParse
 from tatsu.tool import compile
-from tatsu.util import trim, ustr
+from tatsu.util import trim
 from tatsu.codegen import codegen
 from tatsu.grammars import EBNFBuffer
 
@@ -221,7 +220,7 @@ class SyntaxTests(unittest.TestCase):
         model = compile(grammar, "test")
         ast = model.parse("abb", nameguard=False)
         self.assertEqual(['a', 'b', 'b'], ast)
-        self.assertEqual(trim(grammar), ustr(model))
+        self.assertEqual(trim(grammar), str(model))
 
     def test_rule_include(self):
         grammar = '''

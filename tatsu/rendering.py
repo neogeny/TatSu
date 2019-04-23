@@ -3,13 +3,12 @@
 The Renderer class provides the infrastructure for generating template-based
 code. It's used by the .grammars module for parser generation.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import generator_stop
 
 import itertools
 import string
 
-from tatsu.util import indent, isiter, strtype, trim, ustr
+from tatsu.util import indent, isiter, trim
 
 
 def render(item, join='', **fields):
@@ -17,7 +16,7 @@ def render(item, join='', **fields):
     """
     if item is None:
         return ''
-    elif isinstance(item, strtype):
+    elif isinstance(item, str):
         return item
     elif isinstance(item, Renderer):
         return item.render(join=join, **fields)
@@ -26,7 +25,7 @@ def render(item, join='', **fields):
     elif isinstance(item, (int, float)):
         return item
     else:
-        return ustr(item)
+        return str(item)
 
 
 class RenderingFormatter(string.Formatter):

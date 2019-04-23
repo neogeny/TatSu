@@ -2,8 +2,7 @@
 """
 This awkward set of tests tries to make the tool bang its head against iself.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import generator_stop
 
 import json
 import os

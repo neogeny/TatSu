@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys
+import sys  # noqa
 import io
 import setuptools
 import tatsu
@@ -14,12 +14,12 @@ SHORT_DESCRIPTION = (
 ).format(toolname=NAME)
 
 
-try:
-    from Cython.Build import cythonize
-except ImportError:
-    CYTHON = False
-else:
-    CYTHON = 'bdist_wheel' not in sys.argv
+# try:
+#     from Cython.Build import cythonize
+# except ImportError:
+#     CYTHON = False
+# else:
+#     CYTHON = 'bdist_wheel' not in sys.argv
 
 setuptools.setup(
     zip_safe=False,
@@ -54,12 +54,11 @@ setuptools.setup(
         'Intended Audience :: Science/Research',
         'Environment :: Console',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: Implementation :: PyPy',
-        'Programming Language :: Cython',
+        'Programming Language :: Python :: Implementation :: PyPy3',
+        # 'Programming Language :: Cython',
         'Topic :: Software Development :: Code Generators',
         'Topic :: Software Development :: Compilers',
         'Topic :: Software Development :: Interpreters',
@@ -71,15 +70,15 @@ setuptools.setup(
     extras_require={
         'future-regex': ['regex']
     },
-    ext_modules=cythonize(
-        "tatsu/**/*.py",
-        exclude=[
-            'tatsu/__main__.py',
-            'tatsu/__init__.py',
-            'tatsu/codegen/__init__.py',
-            'tatsu/test/__main__.py',
-            'tatsu/test/*.py'
-        ],
-        language_level=2,
-    ) if CYTHON else [],
+    # ext_modules=cythonize(
+    #     "tatsu/**/*.py",
+    #     exclude=[
+    #         'tatsu/__main__.py',
+    #         'tatsu/__init__.py',
+    #         'tatsu/codegen/__init__.py',
+    #         'tatsu/test/__main__.py',
+    #         'tatsu/test/*.py'
+    #     ],
+    #     language_level=2,
+    # ) if CYTHON else [],
 )

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 import inspect
 
@@ -17,7 +17,6 @@ from tatsu.objectmodel import BASE_CLASS_TOKEN
 from tatsu.exceptions import CodegenError
 from tatsu.rendering import Renderer
 from tatsu.codegen.cgbase import ModelRenderer, CodeGenerator
-from tatsu.util import PY33
 
 
 NODE_NAME_PATTERN = r'(?!\d)\w+(' + BASE_CLASS_TOKEN + r'(?!\d)\w+)*'
@@ -70,10 +69,7 @@ def _get_full_name(cls):
         raise CodegenError("Base type has to be inside a module")
     modulename = module.__name__
 
-    if PY33:
-        name = cls.__qualname__
-    else:
-        name = cls.__name__
+    name = cls.__qualname__
 
     # Try to reference the class
     try:
@@ -91,6 +87,7 @@ def _get_full_name(cls):
 
 class BaseTypeRenderer(Renderer):
     def __init__(self, base_type):
+        super().__init__()
         self.base_type = base_type
 
     def render_fields(self, fields):
@@ -220,7 +217,7 @@ class Grammar(ModelRenderer):
                 # Any changes you make to it will be overwritten the next time
                 # the file is generated.
 
-                from __future__ import print_function, division, absolute_import, unicode_literals
+                from __future__ import generator_stop
 
                 from tatsu.objectmodel import Node
                 from tatsu.semantics import ModelBuilderSemantics
