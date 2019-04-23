@@ -98,7 +98,7 @@ class JoinTests(unittest.TestCase):
         self.assertEqual([['x', 'y']], ast)
         try:
             ast = model.parse("y x", nameguard=False)
-            self.Fail('closure not positive')
+            self.fail('closure not positive')
         except FailedParse:
             pass
 

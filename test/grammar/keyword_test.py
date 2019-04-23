@@ -69,7 +69,7 @@ class KeywordTests(unittest.TestCase):
     def test_check_keywords(self):
         import parser
 
-        grammar = '''
+        grammar = r'''
             @@keyword :: A
 
             start = {id}+ $ ;
@@ -93,7 +93,7 @@ class KeywordTests(unittest.TestCase):
             pass
 
     def test_check_unicode_name(self):
-        grammar = '''
+        grammar = r'''
             @@keyword :: A
 
             start = {id}+ $ ;
@@ -107,7 +107,7 @@ class KeywordTests(unittest.TestCase):
     def test_sparse_keywords(self):
         import parser
 
-        grammar = '''
+        grammar = r'''
             @@keyword :: A
 
             @@ignorecase :: False

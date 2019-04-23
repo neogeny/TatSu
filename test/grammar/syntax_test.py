@@ -248,7 +248,7 @@ class SyntaxTests(unittest.TestCase):
         self.assertEqual(['a', 'b', 'b'], ast)
 
     def test_failed_ref(self):
-        grammar = """
+        grammar = r"""
             final = object;
             type = /[^\s=()]+/;
             object = '('type')' '{' @:{pair} {',' @:{pair}}* [','] '}';

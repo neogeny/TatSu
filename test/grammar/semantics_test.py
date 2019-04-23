@@ -15,7 +15,7 @@ class MyNode(object):
 class SemanticsTests(unittest.TestCase):
 
     def test_builder_semantics(self):
-        grammar = '''
+        grammar = r'''
             start::sum = {number}+ $ ;
             number::int = /\d+/ ;
         '''
@@ -30,7 +30,7 @@ class SemanticsTests(unittest.TestCase):
         dotted = functools.partial(type('').join, '.')
         dotted.__name__ = 'dotted'
 
-        grammar = '''
+        grammar = r'''
             start::dotted = {number}+ $ ;
             number = /\d+/ ;
         '''

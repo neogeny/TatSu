@@ -155,7 +155,7 @@ class ANTLRSemantics(object):
         return model.RuleRef(camel2py(ast))
 
     def any(self, ast):
-        return model.Pattern('\w+|\S+')
+        return model.Pattern(r'\w+|\S+')
 
     def string(self, ast):
         text = ast

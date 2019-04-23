@@ -129,5 +129,5 @@ class PatternTests(unittest.TestCase):
         print(codegen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
             trim(codegen(model.rules[0].exp.sequence[0])),
-            urepr("self._pattern('(?x)foo\\nbar\nblort')").strip('"\.')
+            urepr("self._pattern('(?x)foo\\nbar\nblort')").strip(r'"\.')
         )

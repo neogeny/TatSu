@@ -52,7 +52,7 @@ class LeftRecursionTests(unittest.TestCase):
         self.assertEqual([['3', '+', '5'], '*', ['10', '-', '20']], ast)
 
     def test_calc(self, trace=False):
-        grammar = '''
+        grammar = r'''
             @@grammar::CALC
 
 
@@ -101,7 +101,7 @@ class LeftRecursionTests(unittest.TestCase):
         self.assertEqual(['3', '+', ['5', '*', ['10', '-', '20']]], ast)
 
     def test_calc_indirect(self, trace=False):
-        grammar = '''
+        grammar = r'''
             @@grammar::CALC
             @@left_recursion :: True
 
@@ -379,7 +379,7 @@ class LeftRecursionTests(unittest.TestCase):
         self.assertEqual(['1', '+', ['2', '+', '3']], ast)
 
     def test_partial_input_bug(self, trace=False):
-        grammar = '''
+        grammar = r'''
             start
                 =
                 expre
@@ -407,7 +407,7 @@ class LeftRecursionTests(unittest.TestCase):
         assert ['{', 'size', '}'] == ast
 
     def test_dropped_input_bug(self, trace=False):
-        grammar = '''
+        grammar = r'''
             @@left_recursion :: True
 
             start = expr;
@@ -435,7 +435,7 @@ class LeftRecursionTests(unittest.TestCase):
         self.assertEqual(['foo', ',', 'bar'], ast)
 
     def test_change_start_rule(self, trace=False):
-        grammar = '''
+        grammar = r'''
             start = expr ;
 
             expr
@@ -465,7 +465,7 @@ class LeftRecursionTests(unittest.TestCase):
             pass
 
     def test_with_gather(self, trace=False):
-        grammar = '''
+        grammar = r'''
             identifier = /\w+/ ;
             expr = mul | tmp ;
             mul = expr '*' tmp ;
