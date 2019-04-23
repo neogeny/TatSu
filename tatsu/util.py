@@ -34,7 +34,7 @@ RETYPE = type(re.compile('.'))
 
 
 _PY3 = sys.version_info[0] >= 3
-PY35 = _PY3 and sys.version_info[1] >= 5
+PY36 = _PY3 and sys.version_info[1] >= 6
 PY37 = _PY3 and sys.version_info[1] >= 7
 
 

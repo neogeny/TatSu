@@ -54,9 +54,9 @@ setuptools.setup(
         'Intended Audience :: Science/Research',
         'Environment :: Console',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: PyPy3',
         # 'Programming Language :: Cython',
         'Topic :: Software Development :: Code Generators',
@@ -64,7 +64,10 @@ setuptools.setup(
         'Topic :: Software Development :: Interpreters',
         'Topic :: Text Processing :: General'
     ],
-    install_requires=[],
+    python_requires='>=3.6',
+    install_requires=[
+        'dataclasses>=0.6',
+    ],
     setup_requires=['pytest-runner'],
     tests_require=['pytest-mypy'],
     extras_require={

@@ -11,7 +11,6 @@ workflows:
       - test-3.8
       - test-3.7
       - test-3.6
-      - test-3.5
 
 jobs:
   test-3.7:  &test-template
@@ -69,12 +68,6 @@ jobs:
     <<: *test-template
     docker:
       - image: circleci/python:3.6
-
-  test-3.5:
-    <<: *test-template
-    docker:
-      - image: circleci/python:3.5
-
 
   test-pypy3  :
     docker:
