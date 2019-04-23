@@ -165,7 +165,7 @@ jobs:
 
   test-pypy3  :
     docker:
-      - image: circleci/python:3.7
+      - image: circleci/python:3.8.0a3
 
     working_directory: ~/repo-pypy3
 
