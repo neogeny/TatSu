@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys
+import sys  # noqa
 import io
 import setuptools
 import tatsu
