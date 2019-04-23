@@ -41,7 +41,7 @@ class SymbolTableError(ParseException):
 
 class Namespace(object):
     def __init__(self, ignorecase=False, duplicates=False, separator=DEFAULT_SEPARATOR):
-        super(Namespace, self).__init__()
+        super().__init__()
         self.ignorecase = ignorecase
         self.duplicates = duplicates
         self.separator = separator
@@ -151,7 +151,7 @@ class SymbolTable(Namespace):
 
 class Symbol(Namespace):
     def __init__(self, name, node, ignorecase=False, duplicates=False):
-        super(Symbol, self).__init__(ignorecase=ignorecase, duplicates=duplicates)
+        super().__init__(ignorecase=ignorecase, duplicates=duplicates)
         if not isinstance(name, str):
             raise ValueError('"%s" is not a valid symbol name' % name)
         self.name = name
@@ -181,7 +181,7 @@ class Symbol(Namespace):
         return self._references
 
     def insert(self, symbol):
-        super(Symbol, self).insert(symbol)
+        super().insert(symbol)
         symbol._parent = weakref.ref(self)
 
     def qualpath(self):
@@ -198,9 +198,9 @@ class Symbol(Namespace):
         elif not self.ignorecase and [self.name] == namelist:
             return [self]
         elif self.name == namelist[0]:
-            return super(Symbol, self)._lookup_drilldown(namelist[1:], drill=drill, max=max)
+            return super()._lookup_drilldown(namelist[1:], drill=drill, max=max)
         elif drill:
-            return super(Symbol, self)._lookup_drilldown(namelist, drill=drill, max=max)
+            return super()._lookup_drilldown(namelist, drill=drill, max=max)
         else:
             return []
 
@@ -209,12 +209,12 @@ class Symbol(Namespace):
 
     def filter(self, condition):
         this_case = [self] if condition(self) else []
-        return this_case + super(Symbol, self).filter(condition)
+        return this_case + super().filter(condition)
 
     def filter_first(self, condition):
         if condition(self):
             return self
-        return super(Symbol, self).filter(condition)
+        return super().filter(condition)
 
     def add_reference(self, qualname, node):
         # reference = SymbolReference(self, qualname, node)
@@ -253,7 +253,7 @@ class Symbol(Namespace):
     def __json__(self):
         return odict([
             ('node', type(self.node).__name__),
-            ('entries', super(Symbol, self).__json__()),
+            ('entries', super().__json__()),
             ('references', asjson(self._references)),
         ])
 
@@ -270,7 +270,7 @@ class Symbol(Namespace):
 
 class BasedSymbol(Namespace):
     def __init__(self, name, node, duplicates=False):
-        super(BasedSymbol, self).__init__(duplicates=duplicates)
+        super().__init__(duplicates=duplicates)
         self._bases = []
 
     @property
@@ -282,7 +282,7 @@ class BasedSymbol(Namespace):
         self._bases.append(base)
 
     def _lookup_drilldown(self, namelist, drill=True, max=max):
-        result = super(BasedSymbol, self)._lookup_drilldown(namelist, drill=drill, max=max)
+        result = super()._lookup_drilldown(namelist, drill=drill, max=max)
         if result:
             return result
 
@@ -293,6 +293,6 @@ class BasedSymbol(Namespace):
         return result
 
     def __json__(self):
-        result = super(BasedSymbol, self).__json__()
+        result = super().__json__()
         result['bases'] = asjson([b.qualname() for b in self.bases])
         return result

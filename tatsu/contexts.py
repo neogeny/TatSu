@@ -97,7 +97,7 @@ class ParseContext(object):
                  keywords=None,
                  namechars='',
                  **kwargs):
-        super(ParseContext, self).__init__()
+        super().__init__()
 
         self._buffer = None
         self.buffer_class = buffer_class

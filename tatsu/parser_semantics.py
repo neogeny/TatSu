@@ -11,7 +11,7 @@ from tatsu.util import eval_escapes, re, warning, flatten
 
 class EBNFGrammarSemantics(ModelBuilderSemantics):
     def __init__(self, grammar_name):
-        super(EBNFGrammarSemantics, self).__init__(
+        super().__init__(
             base_type=grammars.Model,
             types=grammars.Model.classes()
         )

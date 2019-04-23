@@ -11,7 +11,7 @@ THIS_MODULE = sys.modules[__name__]
 
 class PostfixCodeGenerator(CodeGenerator):
     def __init__(self):
-        super(PostfixCodeGenerator, self).__init__(modules=[THIS_MODULE])
+        super().__init__(modules=[THIS_MODULE])
 
 
 class Number(ModelRenderer):

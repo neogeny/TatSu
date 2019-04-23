@@ -530,7 +530,7 @@ This is how the model looks like when generated with the ``tatsu.to_python_model
                 t for t in globals().values()
                 if type(t) is type and issubclass(t, ModelBase)
             ]
-            super(CalcModelBuilderSemantics, self).__init__(types=types)
+            super().__init__(types=types)
 
 
     class ModelBase(Node):
@@ -543,7 +543,7 @@ This is how the model looks like when generated with the ``tatsu.to_python_model
                      op=None,
                      right=None,
                      **_kwargs_):
-            super(Add, self).__init__(
+            super().__init__(
                 left=left,
                 op=op,
                 right=right,
@@ -557,7 +557,7 @@ This is how the model looks like when generated with the ``tatsu.to_python_model
                      op=None,
                      right=None,
                      **_kwargs_):
-            super(Subtract, self).__init__(
+            super().__init__(
                 left=left,
                 op=op,
                 right=right,
@@ -571,7 +571,7 @@ This is how the model looks like when generated with the ``tatsu.to_python_model
                      op=None,
                      right=None,
                      **_kwargs_):
-            super(Multiply, self).__init__(
+            super().__init__(
                 left=left,
                 op=op,
                 right=right,
@@ -584,7 +584,7 @@ This is how the model looks like when generated with the ``tatsu.to_python_model
                      left=None,
                      right=None,
                      **_kwargs_):
-            super(Divide, self).__init__(
+            super().__init__(
                 left=left,
                 right=right,
                 **_kwargs_
@@ -651,7 +651,7 @@ The following code generator translates input expressions to the postfix instruc
 
     class PostfixCodeGenerator(CodeGenerator):
         def __init__(self):
-            super(PostfixCodeGenerator, self).__init__(modules=[THIS_MODULE])
+            super().__init__(modules=[THIS_MODULE])
 
 
     class Number(ModelRenderer):

@@ -34,7 +34,7 @@ class RenderingFormatter(string.Formatter):
 
     def format_field(self, value, spec):
         if ':' not in spec:
-            return super(RenderingFormatter, self).format_field(
+            return super().format_field(
                 self.render(value),
                 spec
             )

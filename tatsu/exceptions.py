@@ -78,7 +78,7 @@ class FailedParse(ParseError):
 
 class FailedToken(FailedParse):
     def __init__(self, buf, stack, token):
-        super(FailedToken, self).__init__(buf, stack, token)
+        super().__init__(buf, stack, token)
         self.token = token
 
     @property
@@ -88,7 +88,7 @@ class FailedToken(FailedParse):
 
 class FailedPattern(FailedParse):
     def __init__(self, buf, stack, pattern):
-        super(FailedPattern, self).__init__(buf, stack, pattern)
+        super().__init__(buf, stack, pattern)
         self.pattern = pattern
 
     @property
@@ -98,7 +98,7 @@ class FailedPattern(FailedParse):
 
 class FailedMatch(FailedParse):
     def __init__(self, buf, name, item):
-        super(FailedMatch, self).__init__(buf, item)
+        super().__init__(buf, item)
         self.name = name
 
     @property
@@ -108,7 +108,7 @@ class FailedMatch(FailedParse):
 
 class FailedRef(FailedParse):
     def __init__(self, buf, stack, name):
-        super(FailedRef, self).__init__(buf, stack, name)
+        super().__init__(buf, stack, name)
         self.name = name
 
     @property
@@ -118,7 +118,7 @@ class FailedRef(FailedParse):
 
 class FailedCut(FailedParse):
     def __init__(self, nested):
-        super(FailedCut, self).__init__(nested.buf, nested.stack, nested.item)
+        super().__init__(nested.buf, nested.stack, nested.item)
         self.pos = nested.pos
         self.nested = nested
 

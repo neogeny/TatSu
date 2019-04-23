@@ -12,7 +12,7 @@ import warnings
 import logging
 from io import StringIO
 from collections import OrderedDict
-from collections.abc import Mapping, Iterable
+from collections.abc import Mapping, Iterable, MutableSequence
 from itertools import zip_longest
 
 
@@ -106,16 +106,12 @@ def join_lists(lists):
 
 
 def flatten(o):
-    def _flatten(x):
-        if not is_list(x):
-            yield x
-            return
+    if not isinstance(o, MutableSequence):
+        yield o
+        return
 
-        for item in o:
-            for result in flatten(item):
-                yield result
-
-    return list(_flatten(o))
+    for item in o:
+        yield from flatten(item)
 
 
 def compress_seq(seq):

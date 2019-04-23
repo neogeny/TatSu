@@ -9,7 +9,7 @@ from tatsu.objectmodel import Node
 
 class Generator(CodeGenerator):
     def __init__(self):
-        super(Generator, self).__init__()
+        super().__init__()
 
     def _find_renderer_class(self, item):
         name = item.__class__.__name__
@@ -28,7 +28,7 @@ class Sub(Node):
 
 class Super(Node):
     def __init__(self, ctx):
-        super(Super, self).__init__(ctx)
+        super().__init__(ctx)
         self.sub = Sub(self.ctx)
 
 

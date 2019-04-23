@@ -17,7 +17,7 @@ BASE_CLASS_TOKEN = '::'
 
 class Node(object):
     def __init__(self, ctx=None, ast=None, parseinfo=None, **kwargs):
-        super(Node, self).__init__()
+        super().__init__()
         self._ctx = ctx
         self._ast = ast
 

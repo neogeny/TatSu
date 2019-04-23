@@ -39,7 +39,7 @@ def pythonize_name(name):
 
 class EBNFBuffer(EBNFBootstrapBuffer):
     def __init__(self, text, filename=None, comments_re=None, eol_comments_re=None, **kwargs):
-        super(EBNFBuffer, self).__init__(
+        super().__init__(
             text,
             filename=filename,
             memoize_lookaheads=False,
@@ -74,7 +74,7 @@ class EBNFBuffer(EBNFBootstrapBuffer):
 
 class ModelContext(ParseContext):
     def __init__(self, rules, semantics=None, trace=False, **kwargs):
-        super(ModelContext, self).__init__(
+        super().__init__(
             semantics=semantics,
             buffer_class=Buffer,
             trace=trace,
@@ -103,7 +103,7 @@ class Model(Node):
         ]
 
     def __init__(self, ast=None, ctx=None):
-        super(Model, self).__init__(ast=ast, ctx=ctx)
+        super().__init__(ast=ast, ctx=ctx)
         self._lookahead = None
         self._first_set = None
         self._follow_set = set()
@@ -208,7 +208,7 @@ class Fail(Model):
 
 class Comment(Model):
     def __init__(self, ast=None, **kwargs):
-        super(Comment, self).__init__(ast=AST(comment=ast))
+        super().__init__(ast=AST(comment=ast))
 
     def _to_str(self, lean=False):
         return '(* %s *)' % self.comment
@@ -235,7 +235,7 @@ class Decorator(Model):
             # Patch to avoid bad interactions with attribute setting in Model.
             # Also a shortcut for subexpressions that are not ASTs.
             ast = AST(exp=ast)
-        super(Decorator, self).__init__(ast)
+        super().__init__(ast)
         assert isinstance(self.exp, Model)
 
     def parse(self, ctx):
@@ -286,7 +286,7 @@ class Group(Decorator):
 
 class Token(Model):
     def __postinit__(self, ast):
-        super(Token, self).__postinit__(ast)
+        super().__postinit__(ast)
         self.token = ast
 
     def parse(self, ctx):
@@ -301,7 +301,7 @@ class Token(Model):
 
 class Constant(Model):
     def __postinit__(self, ast):
-        super(Constant, self).__postinit__(ast)
+        super().__postinit__(ast)
         self.literal = ast
 
     def parse(self, ctx):
@@ -316,7 +316,7 @@ class Constant(Model):
 
 class Pattern(Model):
     def __postinit__(self, ast):
-        super(Pattern, self).__postinit__(ast)
+        super().__postinit__(ast)
         if not isinstance(ast, list):
             ast = [ast]
         self.patterns = ast
@@ -349,7 +349,7 @@ class Pattern(Model):
 class Lookahead(Decorator):
     def parse(self, ctx):
         with ctx._if():
-            super(Lookahead, self).parse(ctx)
+            super().parse(ctx)
 
     def _to_str(self, lean=False):
         return '&' + self.exp._to_str(lean=lean)
@@ -361,7 +361,7 @@ class Lookahead(Decorator):
 class NegativeLookahead(Decorator):
     def parse(self, ctx):
         with ctx._ifnot():
-            super(NegativeLookahead, self).parse(ctx)
+            super().parse(ctx)
 
     def _to_str(self, lean=False):
         return '!' + str(self.exp._to_str(lean=lean))
@@ -372,7 +372,8 @@ class NegativeLookahead(Decorator):
 
 class SkipTo(Decorator):
     def parse(self, ctx):
-        return ctx._skip_to(lambda: super(SkipTo, self).parse(ctx))
+        super_parse = super().parse
+        return ctx._skip_to(lambda: super_parse(ctx))
 
     def _to_str(self, lean=False):
         return '->' + self.exp._to_str(lean=lean)
@@ -381,7 +382,7 @@ class SkipTo(Decorator):
 class Sequence(Model):
     def __init__(self, ast, **kwargs):
         assert ast.sequence
-        super(Sequence, self).__init__(ast=ast)
+        super().__init__(ast=ast)
 
     def parse(self, ctx):
         ctx.last_node = [s.parse(ctx) for s in self.sequence]
@@ -432,7 +433,7 @@ class Sequence(Model):
 
 class Choice(Model):
     def __init__(self, ast=None, **kwargs):
-        super(Choice, self).__init__(ast=AST(options=ast))
+        super().__init__(ast=AST(options=ast))
         assert isinstance(self.options, list), repr(self.options)
 
     def parse(self, ctx):
@@ -521,7 +522,7 @@ class PositiveClosure(Closure):
         return result
 
     def _to_str(self, lean=False):
-        return super(PositiveClosure, self)._to_str(lean=lean) + '+'
+        return super()._to_str(lean=lean) + '+'
 
     def _nullable(self):
         return Nullable.of(self.exp)
@@ -531,7 +532,7 @@ class Join(Decorator):
     JOINOP = '%'
 
     def __init__(self, ast=None, **kwargs):
-        super(Join, self).__init__(ast.exp)
+        super().__init__(ast.exp)
         self.sep = ast.sep
 
     def parse(self, ctx):
@@ -563,7 +564,7 @@ class PositiveJoin(Join):
         return ctx._positive_join(exp, sep)
 
     def _to_str(self, lean=False):
-        return super(PositiveJoin, self)._to_str(lean=lean) + '+'
+        return super()._to_str(lean=lean) + '+'
 
     def _nullable(self):
         return Nullable.of(self.exp)
@@ -595,7 +596,7 @@ class PositiveGather(Gather):
         return ctx._positive_gather(exp, sep)
 
     def _to_str(self, lean=False):
-        return super(PositiveGather, self)._to_str(lean=lean) + '+'
+        return super()._to_str(lean=lean) + '+'
 
     def _nullable(self):
         return Nullable.of(self.exp)
@@ -657,7 +658,7 @@ class Cut(Model):
 
 class Named(Decorator):
     def __init__(self, ast=None, **kwargs):
-        super(Named, self).__init__(ast.exp)
+        super().__init__(ast.exp)
         self.name = ast.name
 
     def parse(self, ctx):
@@ -666,7 +667,7 @@ class Named(Decorator):
         return value
 
     def defines(self):
-        return [(self.name, False)] + super(Named, self).defines()
+        return [(self.name, False)] + super().defines()
 
     def _to_str(self, lean=False):
         if lean:
@@ -681,7 +682,7 @@ class NamedList(Named):
         return value
 
     def defines(self):
-        return [(self.name, True)] + super(NamedList, self).defines()
+        return [(self.name, True)] + super().defines()
 
     def _to_str(self, lean=False):
         if lean:
@@ -691,7 +692,7 @@ class NamedList(Named):
 
 class Override(Named):
     def __init__(self, ast=None, **kwargs):
-        super(Override, self).__init__(ast=AST(name='@', exp=ast))
+        super().__init__(ast=AST(name='@', exp=ast))
 
     def defines(self):
         return []
@@ -699,7 +700,7 @@ class Override(Named):
 
 class OverrideList(NamedList):
     def __init__(self, ast=None, **kwargs):
-        super(OverrideList, self).__init__(ast=AST(name='@', exp=ast))
+        super().__init__(ast=AST(name='@', exp=ast))
 
     def defines(self):
         return []
@@ -718,7 +719,7 @@ class Special(Model):
 
 class RuleRef(Model):
     def __postinit__(self, ast):
-        super(RuleRef, self).__postinit__(ast)
+        super().__postinit__(ast)
         self.name = ast
 
     def parse(self, ctx):
@@ -753,7 +754,7 @@ class RuleRef(Model):
 class RuleInclude(Decorator):
     def __init__(self, rule):
         assert isinstance(rule, Rule), str(rule.name)
-        super(RuleInclude, self).__init__(rule.exp)
+        super().__init__(rule.exp)
         self.rule = rule
 
     def _to_str(self, lean=False):
@@ -763,7 +764,7 @@ class RuleInclude(Decorator):
 class Rule(Decorator):
     def __init__(self, ast, name, exp, params, kwparams, decorators=None):
         assert kwparams is None or isinstance(kwparams, Mapping), kwparams
-        super(Rule, self).__init__(exp=exp, ast=ast)
+        super().__init__(exp=exp, ast=ast)
         self.name = name
         self.params = params
         self.kwparams = kwparams
@@ -862,7 +863,7 @@ class Rule(Decorator):
 
 class BasedRule(Rule):
     def __init__(self, ast, name, exp, base, params, kwparams, decorators=None):
-        super(BasedRule, self).__init__(
+        super().__init__(
             ast,
             name,
             exp,
@@ -897,7 +898,7 @@ class Grammar(Model):
                  directives=None,
                  parseinfo=None,
                  keywords=None):
-        super(Grammar, self).__init__()
+        super().__init__()
         assert isinstance(rules, list), str(rules)
 
         self.rules = rules
