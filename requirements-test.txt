@@ -1,3 +1,5 @@
 flake8
+git-pylint-commit-hook
+pylint
 pytest
 tox

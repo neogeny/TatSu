@@ -6,6 +6,7 @@ flake8>=3.6
 mypy>=0.641
 pandoc>=1.0
 pep257>=0.7
+pygments>=2.3
 pygraphviz>=1.5
 pytest>=3.9
 pyyaml>=3.12
