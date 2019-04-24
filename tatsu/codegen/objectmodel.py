@@ -111,6 +111,7 @@ class BaseTypeRenderer(Renderer):
 
 class BaseClassRenderer(Renderer):
     def __init__(self, spec):
+        super().__init__()
         self.class_name = spec.class_name
         self.base = spec.base
 
@@ -121,11 +122,11 @@ class BaseClassRenderer(Renderer):
 
 
 class ObjectModelCodeGenerator(CodeGenerator):
-    def _find_renderer_class(self, item):
-        if not isinstance(item, Node):
+    def _find_renderer_class(self, node):
+        if not isinstance(node, Node):
             return None
 
-        name = item.__class__.__name__
+        name = node.__class__.__name__
         renderer = globals().get(name)
         if not renderer or not issubclass(renderer, ModelRenderer):
             raise CodegenError('Renderer for %s not found' % name)

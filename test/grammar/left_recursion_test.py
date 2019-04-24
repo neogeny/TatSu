@@ -487,7 +487,7 @@ class LeftRecursionTests(unittest.TestCase):
 
             decl = type:type name:identifier ;
         """
-        self.assertEquals(
+        self.assertEqual(
             {'type': {'id': 'int'}, 'name': 'x'},
             parse(grammar, 'int x', start='decl').asjson()
         )

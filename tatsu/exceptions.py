@@ -50,6 +50,7 @@ class NoParseInfo(ParseException):
 
 class FailedParse(ParseError):
     def __init__(self, buf, stack, item):
+        super().__init__()
         self.buf = buf
         self.stack = stack[:]
         self.pos = buf.pos
@@ -94,16 +95,6 @@ class FailedPattern(FailedParse):
     @property
     def message(self):
         return "expecting /%s/" % self.pattern
-
-
-class FailedMatch(FailedParse):
-    def __init__(self, buf, name, item):
-        super().__init__(buf, item)
-        self.name = name
-
-    @property
-    def message(self):
-        return "expecting %s" % repr(self.name).strip('u')
 
 
 class FailedRef(FailedParse):

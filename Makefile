@@ -1,8 +1,8 @@
-test: flake8 mypy tatsu_test documentation examples
+test:  static_test tatsu_test documentation examples
 
 
 tatsu_test:
-	py.test
+	pytest
 
 
 documentation:
@@ -22,12 +22,10 @@ calc_test:
 	cd examples/calc; make -s clean; make -s test > /dev/null
 
 
-flake8:
+static_test:
 	flake8
-
-
-mypy:
-	mypy . --ignore-missing-imports
+	pylint --ignore=bootstrap.py,model.py tatsu test examples
+	mypy   --ignore-missing-imports .
 
 
 cython:

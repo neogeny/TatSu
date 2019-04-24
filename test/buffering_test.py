@@ -72,7 +72,7 @@ class BufferingTests(unittest.TestCase):
             self.assertEqual(info.col, col)
             self.assertEqual(info.start, start)
             self.assertEqual(info.text, lines[line])
-            col = col + 1
+            col += 1
             if char == '\n':
                 line += 1
                 col = 0
@@ -102,7 +102,7 @@ class BufferingTests(unittest.TestCase):
                 "key-word-extra" ~ ";"
                 ;
         '''
-        self.assertEquals(['key-word-extra', ';'], parse(grammar, 'key-word-extra;'))
+        self.assertEqual(['key-word-extra', ';'], parse(grammar, 'key-word-extra;'))
 
 
 def suite():

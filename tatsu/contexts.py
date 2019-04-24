@@ -14,7 +14,6 @@ from ._unicode_characters import (
 )
 from tatsu.util import notnone, prune_dict, is_list, info, safe_name
 from tatsu.util import left_assoc, right_assoc
-from tatsu.util import debug  # noqa
 from tatsu import buffering
 from tatsu import color
 from tatsu.infos import (
@@ -382,7 +381,7 @@ class ParseContext(object):
 
     def _trace(self, msg, *params, **kwargs):
         if self.trace:
-            msg = msg % params
+            msg %= params
             info(str(msg), file=sys.stderr)
 
     def _trace_event(self, event):
@@ -584,7 +583,7 @@ class ParseContext(object):
         memo = self._memo_for(key)
         if isinstance(memo, Exception):
             raise memo
-        elif memo:
+        if memo:
             return memo
         self._set_left_recursion_guard(key)
 
@@ -599,7 +598,7 @@ class ParseContext(object):
                 self._memoize(key, result)
                 return result
             except FailedSemantics as e:
-                self._error(str(e), FailedParse)
+                self._error(str(e))
             finally:
                 self._pop_ast()
         except FailedParse as e:
@@ -822,10 +821,10 @@ class ParseContext(object):
         return self._positive_closure(block, sep=sep, omitsep=True)
 
     def _join(self, block, sep):
-        return self._closure(block, sep=sep, omitsep=False)
+        return self._closure(block, sep=sep)
 
     def _positive_join(self, block, sep):
-        return self._positive_closure(block, sep=sep, omitsep=False)
+        return self._positive_closure(block, sep=sep)
 
     def _left_join(self, block, sep):
         self.cst = left_assoc(self._positive_join(block, sep))

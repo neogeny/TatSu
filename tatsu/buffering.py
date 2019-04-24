@@ -289,7 +289,7 @@ class Buffer(object):
         return self.scan_space()
 
     def is_name_char(self, c):
-        return c is not None and c.isalnum() or c in self._namechar_set
+        return c is not None and (c.isalnum() or c in self._namechar_set)
 
     def match(self, token, ignorecase=None):
         ignorecase = ignorecase if ignorecase is not None else self.ignorecase

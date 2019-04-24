@@ -144,21 +144,23 @@ confidence=
 #        exception-escape,
 #        comprehension-escape
 
-disable=C0111, C0103, C0122,
+disable=C0111, C0103, C0122, C0123,
         C0301, C0330,
         C0411, C0412,
         C1801,
-        E1101,
-        R0201, R0205, 
-        R0901, R0902, R0903, 
-        R0912, R0913, R0914, R0915, 
-        R1702, R1705, R1710, R1711, 
+        E1101, E1128,
+        R0201, R0205,
+        R0801,
+        R0901, R0902, R0903,
+        R0912, R0913, R0914, R0915,
+        R1702, R1705, R1710, R1711,
         W0101, W0108,
-        W0201, W0212, W0223, 
-        W0401, 
-        W0511, 
-        W0613, 
-        W0702, W0703, 
+        W0201, W0212, W0223,
+        W0401,
+        W0511,
+        W0603, W0612, W0613,
+        W0621, W0622,
+        W0702, W0703,
         W1201, W1202,
         W1401
         # C, R, W
@@ -321,7 +323,8 @@ init-import=no
 
 # List of qualified module names which can have objects that can redefine
 # builtins.
-redefining-builtins-modules=six.moves,past.builtins,future.builtins,builtins,io
+redefining-builtins-modules=six.moves,past.builtins,future.builtins,builtins,io,
+    tatsu.__init__
 
 
 [FORMAT]
@@ -561,7 +564,7 @@ max-locals=15
 max-parents=7
 
 # Maximum number of public methods for a class (see R0904).
-max-public-methods=20
+max-public-methods=64
 
 # Maximum number of return / yield for function / method body.
 max-returns=6

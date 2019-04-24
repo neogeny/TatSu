@@ -2,7 +2,9 @@
 from __future__ import generator_stop
 
 from tatsu.exceptions import FailedRef
-from tatsu.contexts import ParseContext, tatsumasu, leftrec, nomemo  # noqa
+from tatsu.contexts import ParseContext
+from tatsu.contexts import tatsumasu, leftrec, nomemo
+assert tatsumasu and leftrec and nomemo
 
 
 class Parser(ParseContext):

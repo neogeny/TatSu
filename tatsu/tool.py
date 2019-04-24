@@ -219,7 +219,7 @@ def main(codegen=pythoncg):
     prepare_for_output(outfile)
     prepare_for_output(args.object_model_outfile)
 
-    grammar = codecs.open(args.filename, 'r', encoding='utf-8').read()
+    grammar = codecs.open(args.filename, encoding='utf-8').read()
 
     try:
         model = compile(

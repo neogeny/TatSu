@@ -90,7 +90,6 @@ class KeywordTests(unittest.TestCase):
             self.fail('accepted keyword as name')
         except FailedParse as e:
             self.assertTrue('"A" is a reserved word' in str(e))
-            pass
 
     def test_check_unicode_name(self):
         grammar = r'''
@@ -133,4 +132,3 @@ class KeywordTests(unittest.TestCase):
                 self.fail('accepted keyword "%s" as name' % k)
             except FailedParse as e:
                 self.assertTrue('"%s" is a reserved word' % k in str(e))
-                pass

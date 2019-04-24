@@ -3,7 +3,7 @@ from __future__ import generator_stop
 
 from tatsu._config import __version__
 from tatsu._config import __toolname__
-from tatsu.tool import (
+from tatsu.tool import (  # pylint: disable=W0622
     main,
     compile,
     parse,

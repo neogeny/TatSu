@@ -10,8 +10,8 @@ from tatsu.grammars import EBNFBuffer
 
 
 class MockIncludeBuffer(EBNFBuffer):
-    def get_include(self, source, name):
-        return '\nINCLUDED "%s"\n' % name, name
+    def get_include(self, source, filename):
+        return '\nINCLUDED "%s"\n' % filename, filename
 
 
 class ParsingTests(unittest.TestCase):

@@ -19,11 +19,11 @@ from tatsu.codegen.cgbase import ModelRenderer, CodeGenerator
 
 
 class PythonCodeGenerator(CodeGenerator):
-    def _find_renderer_class(self, item):
-        if not isinstance(item, Node):
+    def _find_renderer_class(self, node):
+        if not isinstance(node, Node):
             return None
 
-        name = item.__class__.__name__
+        name = node.__class__.__name__
         renderer = globals().get(name)
         if not renderer or not issubclass(renderer, Base):
             raise CodegenError('Renderer for %s not found' % name)
