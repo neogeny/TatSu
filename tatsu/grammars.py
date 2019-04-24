@@ -3,7 +3,8 @@ from __future__ import generator_stop
 
 import os
 import functools
-from collections import defaultdict, Mapping
+from collections.abc import Mapping
+from collections import defaultdict
 from copy import copy
 from itertools import takewhile
 
