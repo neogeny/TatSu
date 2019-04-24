@@ -53,7 +53,9 @@ jobs:
           command: |
             . venv/bin/activate
             flake8
-            py.test
+            pylint --ignore=bootstrap.py,model.py tatsu test examples
+            mypy   --ignore-missing-imports .
+            pytest -v
 
       - store_artifacts:
           path: test-reports
@@ -105,7 +107,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            py.test
+            pytest -v
 
       - store_artifacts:
           path: test-reports

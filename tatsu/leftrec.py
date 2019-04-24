@@ -2,8 +2,8 @@
 from __future__ import generator_stop
 
 from collections import defaultdict
-import tatsu.grammars
-from typing import Type
+import tatsu.grammars  # pylint: disable=R0401
+from typing import Callable, Optional
 
 # Based on https://github.com/ncellar/autumn_v1/
 
@@ -30,11 +30,11 @@ class Nullable(object):
         self.nullable = n
         self.children = None  # No longer needed
 
-    all = None  # type: Type[Nullable]
-    any = None  # type: Type[Nullable]
-    of = None  # type: staticmethod
-    no = None  # type: staticmethod
-    yes = None  # type: staticmethod
+    all: Optional[Callable]
+    any: Optional[Callable]
+    of: Optional[Callable]
+    no: Optional[Callable]
+    yes: Optional[Callable]
 
 
 class _All(Nullable):
@@ -87,9 +87,9 @@ class _Single(Nullable):
 
 Nullable.all = _All     # Nullable if all children are nullable
 Nullable.any = _Any     # Nullable if one child is nullable
-Nullable.of = staticmethod(lambda child: _Single([child]))       # Nullable if the only child is nullable
-Nullable.no = staticmethod(lambda: Nullable(None, True, False))  # Not nullable
-Nullable.yes = staticmethod(lambda: Nullable(None, True, True))  # Nullable
+Nullable.of = lambda child: _Single([child])       # Nullable if the only child is nullable
+Nullable.no = lambda: Nullable(None, True, False)  # Not nullable
+Nullable.yes = lambda: Nullable(None, True, True)  # Nullable
 
 
 def resolve_nullability(grammar, rule_dict):

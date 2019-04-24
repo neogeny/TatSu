@@ -34,7 +34,7 @@ class LineIndexInfo(namedtuple('_LineIndexInfoBase', ['filename', 'line'])):
         return list(LineIndexInfo(l, i) for l, i in zip(n * [name], range(n)))
 
 
-class LineInfo (namedtuple('_LineInfo', ['filename', 'line', 'col', 'start', 'end', 'text'])):
+class LineInfo(namedtuple('_LineInfo', ['filename', 'line', 'col', 'start', 'end', 'text'])):
     __slots__ = ()
 
 

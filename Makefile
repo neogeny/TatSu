@@ -24,7 +24,8 @@ calc_test:
 
 static_test:
 	flake8
-	mypy . --ignore-missing-imports
+	pylint --ignore=bootstrap.py,model.py tatsu test examples
+	mypy   --ignore-missing-imports .
 
 
 cython:

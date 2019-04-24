@@ -102,7 +102,7 @@ class BufferingTests(unittest.TestCase):
                 "key-word-extra" ~ ";"
                 ;
         '''
-        self.assertEquals(['key-word-extra', ';'], parse(grammar, 'key-word-extra;'))
+        self.assertEqual(['key-word-extra', ';'], parse(grammar, 'key-word-extra;'))
 
 
 def suite():

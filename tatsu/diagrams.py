@@ -3,7 +3,7 @@ from __future__ import generator_stop
 
 import itertools
 
-import pygraphviz as pgv
+import pygraphviz as pgv  # pylint: disable=E0401
 
 from tatsu.walkers import NodeWalker
 
@@ -47,7 +47,6 @@ class GraphvizWalker(NodeWalker):
 
     def pop_graph(self):
         self.stack.pop()
-        pass
 
     def node(self, name, id=None, **attr):
         if id is None:

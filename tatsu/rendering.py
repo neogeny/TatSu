@@ -32,14 +32,14 @@ class RenderingFormatter(string.Formatter):
     def render(self, item, join='', **fields):
         return render(item, join=join, **fields)
 
-    def format_field(self, value, spec):
-        if ':' not in spec:
+    def format_field(self, value, format_spec):
+        if ':' not in format_spec:
             return super().format_field(
                 self.render(value),
-                spec
+                format_spec
             )
 
-        ind, sep, fmt = spec.split(':')
+        ind, sep, fmt = format_spec.split(':')
         if sep == '\\n':
             sep = '\n'
 
@@ -109,9 +109,10 @@ class Renderer(object):
     def render_fields(self, fields):
         """ Pre-render fields before rendering the template.
         """
-        pass
+        return
 
-    def render(self, template=None, **fields):
+    def render(self, **fields):
+        template = fields.pop('template', None)
         fields.update(__class__=self.__class__.__name__)
         fields.update({k: v for k, v in vars(self).items() if not k.startswith('_')})
 

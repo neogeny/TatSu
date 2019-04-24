@@ -50,6 +50,7 @@ class NoParseInfo(ParseException):
 
 class FailedParse(ParseError):
     def __init__(self, buf, stack, item):
+        super().__init__()
         self.buf = buf
         self.stack = stack[:]
         self.pos = buf.pos

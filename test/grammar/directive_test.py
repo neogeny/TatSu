@@ -41,9 +41,9 @@ class DirectiveTests(unittest.TestCase):
         ]
         for grammar in grammars:
             model = tatsu.compile(grammar, "test")
-            self.assertEquals(['x', 'x'], model.parse('xx', trace=True))
+            self.assertEqual(['x', 'x'], model.parse('xx', trace=True))
             try:
-                self.assertEquals(['x', 'x'], model.parse('x x', trace=True))
+                self.assertEqual(['x', 'x'], model.parse('x x', trace=True))
             except FailedParse:
                 pass
             else:
@@ -175,5 +175,5 @@ class DirectiveTests(unittest.TestCase):
 
         model = tatsu.compile(grammar)
         self.assertFalse(model.nameguard)
-        self.assertEquals(['2', '3'], model.parse('23'))
-        self.assertEquals(['x', 'x'], model.parse('xx'))
+        self.assertEqual(['2', '3'], model.parse('23'))
+        self.assertEqual(['x', 'x'], model.parse('xx'))

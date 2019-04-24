@@ -14,7 +14,6 @@ from ._unicode_characters import (
 )
 from tatsu.util import notnone, prune_dict, is_list, info, safe_name
 from tatsu.util import left_assoc, right_assoc
-from tatsu.util import debug  # noqa
 from tatsu import buffering
 from tatsu import color
 from tatsu.infos import (
@@ -584,7 +583,7 @@ class ParseContext(object):
         memo = self._memo_for(key)
         if isinstance(memo, Exception):
             raise memo
-        elif memo:
+        if memo:
             return memo
         self._set_left_recursion_guard(key)
 

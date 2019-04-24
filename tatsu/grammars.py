@@ -384,7 +384,7 @@ class SkipTo(Decorator):
 class Sequence(Model):
     def __init__(self, ast, **kwargs):
         assert ast.sequence
-        self.sequence = None
+        self.sequence = []
         super().__init__(ast=ast)
 
     def parse(self, ctx):
@@ -394,8 +394,8 @@ class Sequence(Model):
     def defines(self):
         return [d for s in self.sequence for d in s.defines()]
 
-    def _missing_rules(self, ruleset):
-        return set().union(*[s._missing_rules(ruleset) for s in self.sequence])
+    def _missing_rules(self, rules):
+        return set().union(*[s._missing_rules(rules) for s in self.sequence])
 
     def _first(self, k, f):
         result = {()}
@@ -436,7 +436,7 @@ class Sequence(Model):
 
 class Choice(Model):
     def __init__(self, ast=None, **kwargs):
-        self.options = None
+        self.options = []
         super().__init__(ast=AST(options=ast))
         assert isinstance(self.options, list), repr(self.options)
 
@@ -734,8 +734,8 @@ class RuleRef(Model):
         else:
             return rule()
 
-    def _missing_rules(self, ruleset):
-        if self.name not in ruleset:
+    def _missing_rules(self, rules):
+        if self.name not in rules:
             return {self.name}
         return set()
 
@@ -962,8 +962,8 @@ class Grammar(Model):
         if left_recursion:
             find_left_recursion(self)
 
-    def _missing_rules(self, ruleset):
-        return set().union(*[rule._missing_rules(ruleset) for rule in self.rules])
+    def _missing_rules(self, rules):
+        return set().union(*[rule._missing_rules(rules) for rule in self.rules])
 
     @property
     def first_sets(self):
@@ -1010,7 +1010,7 @@ class Grammar(Model):
               parseinfo=None,
               nameguard=None,
               namechars=None,
-              **kwargs):
+              **kwargs):  # pylint: disable=W0221
         start = start if start is not None else rule_name
         start = start if start is not None else self.rules[0].name
 
