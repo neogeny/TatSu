@@ -19,11 +19,11 @@
 #
 import os
 import sys
-import tatsu
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('.'))
 del sys
 del os
+import tatsu
 
 
 # -- General configuration ------------------------------------------------
