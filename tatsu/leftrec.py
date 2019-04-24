@@ -3,9 +3,7 @@ from __future__ import generator_stop
 
 from collections import defaultdict
 import tatsu.grammars
-from .util import PY37
-if PY37:
-    from typing import Type  # noqa
+from typing import Type
 
 # Based on https://github.com/ncellar/autumn_v1/
 
