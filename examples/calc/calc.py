@@ -9,7 +9,7 @@ import tatsu
 from tatsu.ast import AST
 from tatsu.walkers import NodeWalker
 
-from .codegen import PostfixCodeGenerator
+from codegen import PostfixCodeGenerator  # pylint: disable= E0401 # noqa
 
 
 def simple_parse():

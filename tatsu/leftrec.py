@@ -3,7 +3,7 @@ from __future__ import generator_stop
 
 from collections import defaultdict
 import tatsu.grammars  # pylint: disable=R0401
-from typing import Callable, Optional
+from typing import Callable
 
 # Based on https://github.com/ncellar/autumn_v1/
 
@@ -30,11 +30,11 @@ class Nullable(object):
         self.nullable = n
         self.children = None  # No longer needed
 
-    all: Optional[Callable]
-    any: Optional[Callable]
-    of: Optional[Callable]
-    no: Optional[Callable]
-    yes: Optional[Callable]
+    all: Callable
+    any: Callable
+    of: Callable
+    no: Callable
+    yes: Callable
 
 
 class _All(Nullable):
