@@ -496,7 +496,7 @@ class LeftRecursionTests(unittest.TestCase):
         left_grammar = '''
             @@left_recursion :: True
             @@nameguard :: False
-            
+
             start = A $ ;
             A = | A 'a' | 'a' ;
         '''
@@ -506,7 +506,7 @@ class LeftRecursionTests(unittest.TestCase):
         right_grammar = '''
             @@left_recursion :: True
             @@nameguard :: False
-            
+
             start = A $ ;
             A = | 'a' A | 'a' ;
         '''
@@ -518,7 +518,7 @@ class LeftRecursionTests(unittest.TestCase):
         left_grammar = '''
             @@left_recursion :: True
             @@nameguard :: False
-            
+
             start = A $ ;
             A = | A 'a' | 'a' A | 'a' ;
         '''
@@ -528,7 +528,7 @@ class LeftRecursionTests(unittest.TestCase):
         right_grammar = '''
             @@left_recursion :: True
             @@nameguard :: False
-            
+
             start = A $ ;
             A = | 'a' A | A 'a' | 'a' ;
         '''
@@ -540,7 +540,7 @@ class LeftRecursionTests(unittest.TestCase):
         left_grammar = '''
             @@left_recursion :: True
             @@nameguard :: False
-            
+
             start = A $ ;
             A = | A 'a' | () ;
         '''
