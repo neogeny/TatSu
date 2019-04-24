@@ -491,3 +491,58 @@ class LeftRecursionTests(unittest.TestCase):
             {'type': {'id': 'int'}, 'name': 'x'},
             parse(grammar, 'int x', start='decl').asjson()
         )
+
+    def test_associativity(self):
+        left_grammar = '''
+            @@left_recursion :: True
+            @@nameguard :: False
+            
+            start = A $ ;
+            A = | A 'a' | 'a' ;
+        '''
+
+        assert [['a', 'a'], 'a'] == parse(left_grammar, 'aaa')
+
+        right_grammar = '''
+            @@left_recursion :: True
+            @@nameguard :: False
+            
+            start = A $ ;
+            A = | 'a' A | 'a' ;
+        '''
+
+        assert ['a', ['a', 'a']] == parse(right_grammar, 'aaa')
+
+    @unittest.skip('PEG associativity not implemented')
+    def test_peg_associativity(self):
+        left_grammar = '''
+            @@left_recursion :: True
+            @@nameguard :: False
+            
+            start = A $ ;
+            A = | A 'a' | 'a' A | 'a' ;
+        '''
+
+        assert [['a', 'a'], 'a'] == parse(left_grammar, 'aaa')
+
+        right_grammar = '''
+            @@left_recursion :: True
+            @@nameguard :: False
+            
+            start = A $ ;
+            A = | 'a' A | A 'a' | 'a' ;
+        '''
+
+        assert ['a', ['a', 'a']] == parse(right_grammar, 'aaa')
+
+    @unittest.skip('bug in calculation of nullable')
+    def test_nullable_void(self):
+        left_grammar = '''
+            @@left_recursion :: True
+            @@nameguard :: False
+            
+            start = A $ ;
+            A = | A 'a' | () ;
+        '''
+
+        assert [['a', 'a'], 'a'] == parse(left_grammar, 'aaa')
