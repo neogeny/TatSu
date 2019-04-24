@@ -3,7 +3,7 @@ from __future__ import generator_stop
 
 import copy
 from collections import OrderedDict
-from collections import Callable
+from collections.abc import Callable
 
 
 # Source: http://stackoverflow.com/a/6190500/562769
