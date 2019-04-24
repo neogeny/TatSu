@@ -111,6 +111,7 @@ class BaseTypeRenderer(Renderer):
 
 class BaseClassRenderer(Renderer):
     def __init__(self, spec):
+        super().__init__()
         self.class_name = spec.class_name
         self.base = spec.base
 

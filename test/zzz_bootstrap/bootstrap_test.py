@@ -45,17 +45,17 @@ class BootstrapTests(unittest.TestCase):
         with open('grammar/tatsu.ebnf') as f:
             text = str(f.read())
         g = GrammarGenerator('EBNFBootstrap')
-        g.parse(text, trace=False)
+        g.parse(text)
 
         generated_grammar1 = str(g.ast['start'])
         with open('./tmp/01.ebnf', 'w') as f:
             f.write(generated_grammar1)
 
         print('-' * 20, 'phase 02 - parse previous output with the parser generator')
-        with open('./tmp/01.ebnf', 'r') as f:
+        with open('./tmp/01.ebnf') as f:
             text = str(f.read())
         g = GrammarGenerator('EBNFBootstrap')
-        g.parse(text, trace=False)
+        g.parse(text)
         generated_grammar2 = str(g.ast['start'])
         with open('./tmp/02.ebnf', 'w') as f:
             f.write(generated_grammar2)

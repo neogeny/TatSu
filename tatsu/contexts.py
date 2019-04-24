@@ -382,7 +382,7 @@ class ParseContext(object):
 
     def _trace(self, msg, *params, **kwargs):
         if self.trace:
-            msg = msg % params
+            msg %= params
             info(str(msg), file=sys.stderr)
 
     def _trace_event(self, event):
@@ -599,7 +599,7 @@ class ParseContext(object):
                 self._memoize(key, result)
                 return result
             except FailedSemantics as e:
-                self._error(str(e), FailedParse)
+                self._error(str(e))
             finally:
                 self._pop_ast()
         except FailedParse as e:
@@ -822,10 +822,10 @@ class ParseContext(object):
         return self._positive_closure(block, sep=sep, omitsep=True)
 
     def _join(self, block, sep):
-        return self._closure(block, sep=sep, omitsep=False)
+        return self._closure(block, sep=sep)
 
     def _positive_join(self, block, sep):
-        return self._positive_closure(block, sep=sep, omitsep=False)
+        return self._positive_closure(block, sep=sep)
 
     def _left_join(self, block, sep):
         self.cst = left_assoc(self._positive_join(block, sep))

@@ -161,7 +161,7 @@ class GraphvizWalker(NodeWalker):
             self.pop_graph()
 
     def walk__based_rule(self, r):
-        return self.walk_Rule(r)
+        return self.walk__rule(r)
 
     def walk__rule_ref(self, rr):
         n = self.ref_node(rr.name)

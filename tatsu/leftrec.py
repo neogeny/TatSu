@@ -55,7 +55,7 @@ class _All(Nullable):
             self.resolve_with(True)
         else:
             # Otherwise still unresolved
-            self.chilren = unresolved
+            self.children = unresolved
 
 
 class _Any(Nullable):

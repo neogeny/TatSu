@@ -101,7 +101,7 @@ class Renderer(object):
         return self._formatter.render(item, join=join, **fields)
 
     def indent(self, item, ind=1, multiplier=4):
-        return indent(self.rend(item), indent=ind, multiplier=4)
+        return indent(self.rend(item), indent=ind)
 
     def trim(self, item, tabwidth=4):
         return trim(self.rend(item), tabwidth=tabwidth)

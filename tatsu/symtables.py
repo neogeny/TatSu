@@ -98,7 +98,7 @@ class Namespace(object):
     def lookup_all(self, qualname, drill=True):
         if self.ignorecase:
             qualname = qualname.upper()
-        return self._lookup_drilldown(qualname.split(self.separator), drill=drill, max=None)
+        return self._lookup_drilldown(qualname.split(self.separator), drill=drill)
 
     def lookup(self, qualname, drill=True):
         if self.ignorecase:

@@ -3,9 +3,9 @@ from __future__ import generator_stop
 
 
 def main():
-    import py
+    import pytest
 
-    py.test.main()
+    pytest.main()
 
 
 if __name__ == '__main__':

@@ -18,7 +18,6 @@ from tatsu.contexts import ParseContext
 from tatsu.objectmodel import Node
 from tatsu.bootstrap import EBNFBootstrapBuffer
 from tatsu.infos import RuleInfo
-from tatsu.buffering import Buffer
 from tatsu.leftrec import Nullable, find_left_recursion
 
 
@@ -78,7 +77,6 @@ class ModelContext(ParseContext):
     def __init__(self, rules, semantics=None, trace=False, **kwargs):
         super().__init__(
             semantics=semantics,
-            buffer_class=Buffer,
             trace=trace,
             **kwargs
         )

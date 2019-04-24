@@ -19,7 +19,7 @@ class ParameterTests(unittest.TestCase):
                 ;
         '''
         g = GrammarGenerator('Keywords')
-        model = g.parse(grammar, trace=False)
+        model = g.parse(grammar)
         code = codegen(model)
         self.assertEqual('#!/usr/bin/env python', code.splitlines()[0])
         pass
@@ -186,9 +186,12 @@ class ParameterTests(unittest.TestCase):
         import codecs
         with codecs.open("tc36unicharstest.py", "w", "utf-8") as f:
             f.write(code)
-        import tc36unicharstest
-        tc36unicharstest
-        _trydelete("tc36unicharstest")
+        try:
+            import tc36unicharstest
+            assert tc36unicharstest
+            _trydelete("tc36unicharstest")
+        except Exception:
+            raise
 
     def test_numbers_and_unicode(self):
         grammar = '''

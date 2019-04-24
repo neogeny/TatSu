@@ -19,12 +19,11 @@
 #
 import os
 import sys
+import tatsu
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('.'))
 del sys
 del os
-
-import tatsu
 
 
 # -- General configuration ------------------------------------------------
@@ -36,12 +35,14 @@ import tatsu
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
+extensions = [
+    'sphinx.ext.autodoc',
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages']
+    'sphinx.ext.githubpages',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -103,8 +104,7 @@ html_theme = 'alabaster'
 # Add any paths that contain custom themes here, relative to this directory.
 # Add path to the RTD explicitly to robustify builds (otherwise might
 # fail in a clean Debian build env)
-import sphinx_rtd_theme
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_theme_path = []
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

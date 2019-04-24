@@ -96,16 +96,6 @@ class FailedPattern(FailedParse):
         return "expecting /%s/" % self.pattern
 
 
-class FailedMatch(FailedParse):
-    def __init__(self, buf, name, item):
-        super().__init__(buf, item)
-        self.name = name
-
-    @property
-    def message(self):
-        return "expecting %s" % repr(self.name).strip('u')
-
-
 class FailedRef(FailedParse):
     def __init__(self, buf, stack, name):
         super().__init__(buf, stack, name)
