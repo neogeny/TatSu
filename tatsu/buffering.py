@@ -339,12 +339,15 @@ class Buffer(object):
         if pos is None:
             pos = self._pos
 
+        # -2 to skip over sentinel
         pos = min(pos, len(self._line_cache) - 2)
         start, line, length = self._line_cache[pos]
         end = start + length
         col = pos - start
 
         text = self.text[start:end]
+
+        # only required to support includes
         n = min(len(self._line_index) - 1, line)
         filename, line = self._line_index[n]
 
