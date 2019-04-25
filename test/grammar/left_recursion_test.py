@@ -546,3 +546,15 @@ class LeftRecursionTests(unittest.TestCase):
         '''
 
         assert [['a', 'a'], 'a'] == parse(left_grammar, 'aaa')
+
+    def test_leftrec_with_void(self):
+        left_grammar = '''
+            @@left_recursion :: True
+            @@nameguard :: False
+
+            start = A | () ;
+            A = | A 'a' | 'a' ;
+        '''
+
+        assert [['a', 'a'], 'a'] == parse(left_grammar, 'aaa')
+        assert parse(left_grammar, '') is None
