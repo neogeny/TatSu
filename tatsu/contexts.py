@@ -557,7 +557,7 @@ class ParseContext(object):
             self._results[key] = result
 
             initial = self._pos
-            lastpos = initial
+            lastpos = initial - 1
             while True:
                 try:
                     self._clear_recursion_errors()

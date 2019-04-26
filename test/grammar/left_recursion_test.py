@@ -535,7 +535,6 @@ class LeftRecursionTests(unittest.TestCase):
 
         assert ['a', ['a', 'a']] == parse(right_grammar, 'aaa')
 
-    @unittest.skip('bug in calculation of nullable')
     def test_nullable_void(self):
         left_grammar = '''
             @@left_recursion :: True
