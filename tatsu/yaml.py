@@ -7,7 +7,6 @@ from __future__ import generator_stop
 #
 
 import yaml
-import yaml.resolver
 
 from tatsu.ast import AST
 
