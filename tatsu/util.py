@@ -223,10 +223,10 @@ def asjson(obj, seen=None):
     if hasattr(obj, '__json__') and type(obj) is not type:
         return obj.__json__()
     elif isinstance(obj, Mapping):
-        result = OrderedDict()
+        result = {}
         for k, v in obj.items():
             try:
-                result[asjson(k, seen)] = asjson(v, seen)
+                result[k] = asjson(v, seen)
             except TypeError:
                 debug('Unhashable key?', type(k), str(k))
                 raise
