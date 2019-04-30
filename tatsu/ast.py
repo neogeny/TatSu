@@ -10,28 +10,19 @@ from tatsu.util import asjson, is_list
 
 
 class AST(dict):
-    _closed = False
+    _frozen = False
 
     def __init__(self, *args, **kwargs):
         super().__init__()
 
         self.update(*args, **kwargs)
-        self._closed = True
+        self._frozen = True
 
     def set_parseinfo(self, value):
-        self.set('parseinfo', value)
+        self._set('parseinfo', value)
 
     def asjson(self):
         return asjson(self)
-
-    def iterkeys(self):
-        return iter(self)
-
-    def values(self):
-        return (self[k] for k in self)
-
-    def items(self):
-        return ((k, self[k]) for k in self)
 
     def update(self, *args, **kwargs):
         def upairs(d):
@@ -45,7 +36,7 @@ class AST(dict):
                 upairs(d)
         upairs(kwargs.items())
 
-    def set(self, key, value, force_list=False):
+    def _set(self, key, value, force_list=False):
         key = self._safekey(key)
 
         previous = self.get(key)
@@ -60,14 +51,17 @@ class AST(dict):
             super().__setitem__(key, [previous, value])
         return self
 
-    def setlist(self, key, value):
-        return self.set(key, value, force_list=True)
+    def _setlist(self, key, value):
+        return self._set(key, value, force_list=True)
 
-    def copy(self):
+    def __copy__(self):
         return AST(
             (k, v[:] if is_list(v) else v)
             for k, v in self.items()
         )
+
+    def copy(self):
+        return self.__copy__()
 
     def __getitem__(self, key):
         if key in self:
@@ -77,14 +71,14 @@ class AST(dict):
             return super().__getitem__(key)
 
     def __setitem__(self, key, value):
-        self.set(key, value)
+        self._set(key, value)
 
     def __delitem__(self, key):
         key = self._safekey(key)
         super().__delitem__(key)
 
     def __setattr__(self, name, value):
-        if self._closed and name not in vars(self):
+        if self._frozen and name not in vars(self):
             raise AttributeError(
                 '%s attributes are fixed. Cannot set attribute %s.'
                 %
