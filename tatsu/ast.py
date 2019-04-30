@@ -14,7 +14,6 @@ class AST(dict):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        self._order = []
 
         self.update(*args, **kwargs)
         self._closed = True
@@ -55,7 +54,6 @@ class AST(dict):
                 super().__setitem__(key, [value])
             else:
                 super().__setitem__(key, value)
-            self._order.append(key)
         elif is_list(previous):
             previous.append(value)
         else:
@@ -71,9 +69,6 @@ class AST(dict):
             for k, v in self.items()
         )
 
-    def __iter__(self):
-        return iter(self._order)
-
     def __getitem__(self, key):
         if key in self:
             return super().__getitem__(key)
@@ -87,7 +82,6 @@ class AST(dict):
     def __delitem__(self, key):
         key = self._safekey(key)
         super().__delitem__(key)
-        self._order.remove(key)
 
     def __setattr__(self, name, value):
         if self._closed and name not in vars(self):
@@ -129,7 +123,6 @@ class AST(dict):
             key = self._safekey(key)
             if key not in self:
                 super().__setitem__(key, None)
-                self._order.append(key)
 
     def __json__(self):
         return {
