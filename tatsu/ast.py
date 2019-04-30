@@ -51,18 +51,18 @@ class AST(dict):
 
     def _set(self, key, value, force_list=False):
         key = self._safekey(key)
-
         previous = self.get(key)
-        if previous is None:
-            if force_list:
-                super().__setitem__(key, [value])
-            else:
-                super().__setitem__(key, value)
+
+        if previous is None and force_list:
+            value = [value]
+        elif previous is None:
+            value = value
         elif is_list(previous):
-            super().__setitem__(key, previous + [value])
+            value = previous + [value]
         else:
-            super().__setitem__(key, [previous, value])
-        return self
+            value = [previous, value]
+
+        super().__setitem__(key, value)
 
     def _setlist(self, key, value):
         return self._set(key, value, force_list=True)
