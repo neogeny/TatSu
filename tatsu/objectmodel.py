@@ -171,11 +171,10 @@ class Node(object):
         }
 
     def __json__(self):
-        result = collections.OrderedDict(
-            __class__=self.__class__.__name__,
-        )
-        result.update(self._pubdict())
-        return asjson(result)
+        return asjson({
+            '__class__': type(self).__name__,
+            **self._pubdict()
+        })
 
     def __str__(self):
         return asjsons(self)

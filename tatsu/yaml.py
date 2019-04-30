@@ -7,34 +7,12 @@ from __future__ import generator_stop
 #
 
 import yaml
-from collections import OrderedDict
+import yaml.resolver
 
 from tatsu.ast import AST
 
 
-def dump(data, stream=None, dumper_class=yaml.SafeDumper, object_pairs_hook=OrderedDict, **kwds):
-
-    class OrderedDumper(dumper_class):
-        pass
-
-    def _dict_representer(dumper, data):
-        return dumper.represent_mapping(
-            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-            data.items()
-        )
-
-    OrderedDumper.add_representer(OrderedDict, _dict_representer)
-
-    return yaml.dump(
-        data,
-        stream,
-        OrderedDumper,
-        default_flow_style=False,
-        **kwds
-    )
-
-
-def load(stream, loader_class=yaml.SafeLoader, object_pairs_hook=OrderedDict):
+def load(stream, loader_class=yaml.SafeLoader, object_pairs_hook=dict):
 
     class OrderedLoader(loader_class):
         pass
@@ -47,7 +25,7 @@ def load(stream, loader_class=yaml.SafeLoader, object_pairs_hook=OrderedDict):
 
 
 def ast_dump(data, **kwargs):
-    return dump(data, object_pairs_hook=AST, **kwargs)
+    return yaml.dump(data, object_pairs_hook=AST, **kwargs)
 
 
 def ast_load(stream, **kwargs):
