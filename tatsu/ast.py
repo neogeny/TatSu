@@ -138,4 +138,7 @@ class AST(dict):
         }
 
     def __repr__(self):
-        return f'{type(self).__name__}({super().__repr__()}'
+        return repr(self.asjson())
+
+    def __str__(self):
+        return str(self.asjson())
