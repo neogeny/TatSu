@@ -17,7 +17,7 @@ import sys
 
 from tatsu.buffering import Buffer
 from tatsu.parsing import Parser
-from tatsu.parsing import tatsumasu
+from tatsu.parsing import tatsumasu, leftrec, nomemo
 from tatsu.parsing import leftrec, nomemo  # noqa
 from tatsu.util import re, generic_main  # noqa
 
@@ -340,6 +340,8 @@ class EBNFBootstrapParser(Parser):
                     self._token('override')
                 with self._option():
                     self._token('name')
+                with self._option():
+                    self._token('nomemo')
                 self._error('no available options')
         self.name_last_node('@')
 
