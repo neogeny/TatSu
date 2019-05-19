@@ -157,12 +157,13 @@ __compiled_grammar_cache = {}  # type: ignore
 def compile(grammar, name=None, semantics=None, asmodel=False, **kwargs):
     cache = __compiled_grammar_cache
 
-    if (grammar, semantics) in cache:
-        model = cache[(grammar, semantics)]
+    key = grammar
+    if key in cache:
+        model = cache[key]
     else:
         gen = GrammarGenerator(name, **kwargs)
-        model = cache[grammar] = gen.parse(grammar, **kwargs)
-        model.semantics = semantics or asmodel and ModelBuilderSemantics()
+        model = cache[key] = gen.parse(grammar, **kwargs)
+    model.semantics = semantics or asmodel and ModelBuilderSemantics()
     return model
 
 
