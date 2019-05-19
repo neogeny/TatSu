@@ -474,10 +474,7 @@ class ParseContext(object):
         return MemoKey(self._pos, self.rule, self._state)
 
     def _memoize(self, key, memo):
-        if self._memoization():
-            if self._recursion_depth > 0:
-                if not key.rule.is_memoizable:
-                    return memo
+        if self._memoization() and key.rule.is_memoizable:
             self._memos[key] = memo
         return memo
 
@@ -501,7 +498,7 @@ class ParseContext(object):
         self._results[key] = result
 
     def _is_recursive(self, ruleinfo):
-        return self.left_recursion and ruleinfo.is_leftrec
+        return ruleinfo.is_leftrec
 
     def _set_left_recursion_guard(self, key):
         ex = self._make_exception(key.rule.name, exclass=FailedLeftRecursion)
@@ -543,8 +540,10 @@ class ParseContext(object):
         prune_dict(self._memos, filter)
 
     def _recursive_call(self, ruleinfo):
-        if not self._is_recursive(ruleinfo):
+        if not ruleinfo.is_leftrec:
             return self._invoke_rule(ruleinfo, self.memokey)
+        elif not self.left_recursion:
+            self._error('Left recursion detected', exclass=FailedLeftRecursion)
 
         self._next_token(ruleinfo)
         key = self.memokey

@@ -512,7 +512,7 @@ class Grammar(Base):
                         namechars={namechars},
                         **kwargs
                     ):
-                        super({name}Buffer, self).__init__(
+                        super().__init__(
                             text,
                             whitespace=whitespace,
                             nameguard=nameguard,
@@ -541,7 +541,7 @@ class Grammar(Base):
                     ):
                         if keywords is None:
                             keywords = KEYWORDS
-                        super({name}Parser, self).__init__(
+                        super().__init__(
                             whitespace=whitespace,
                             nameguard=nameguard,
                             comments_re=comments_re,
