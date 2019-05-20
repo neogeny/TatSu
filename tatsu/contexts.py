@@ -250,7 +250,7 @@ class ParseContext(object):
         return self._buffer.next()
 
     def _next_token(self, ruleinfo=None):
-        if ruleinfo is None or ruleinfo.name[0].islower():
+        if ruleinfo is None or not ruleinfo.name.lstrip('_')[:1].isupper():
             self._buffer.next_token()
 
     @property
