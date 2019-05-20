@@ -547,6 +547,29 @@ Parameters from the *base rule* are copied to the new rule if the new
 rule doesn't define its own. Repeated inheritance should be possible,
 but it *hasn't been tested*.
 
+
+Memoization
+~~~~~~~~~~~
+
+|TatSu| is a packrat parser. The result of parsing a rule at a given position in the input is
+cached, so the next time the parser visits the same input position with the same rule the same
+result is returned and the input advanced, without repeating the parsing. Memoization allows for
+grammars that are clearer and easier to write because there's no fear that repeating
+subexpressions will impact performance.
+
+There are rules that should not be memoized. For example, rules that may succeed or not depending on the associated semantic action should not be memoized if sucess depends on more than just the input.
+
+The ``@nomemo`` decorator turns off memoization for a particular rule:
+
+.. code:: ocaml
+
+    @nomemo
+    INDENT = () ;
+
+    @nomemo
+    DEDENT = () ;
+
+
 Rule Overrides
 ~~~~~~~~~~~~~~
 
@@ -761,4 +784,3 @@ Left recursion can also be turned off from within the grammar using the
 .. code:: ocaml
 
     @@left_recursion :: False
-
