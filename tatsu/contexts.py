@@ -5,7 +5,7 @@ import sys
 import functools
 from contextlib import contextmanager
 
-from ._unicode_characters import (
+from tatsu.util.unicode_characters import (
     C_DERIVE,
     C_ENTRY,
     C_SUCCESS,
