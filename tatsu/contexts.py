@@ -733,11 +733,13 @@ class ParseContext(object):
         self._lookahead += 1
         try:
             yield
+            cst = self.cst
         finally:
             self._lookahead -= 1
             self._goto(p)
             self._state = s
             self._pop_ast()  # simply discard
+        self.last_node = cst
 
     @contextmanager
     def _ifnot(self):

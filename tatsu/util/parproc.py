@@ -195,7 +195,7 @@ def file_process_summary(filenames, total_time, results, verbose=False):
     parsed = [r for r in results if r.outcome or r.exception]
     lines_parsed = sum(line_counts[r.payload] for r in parsed)
 
-    dashes = '-' * 80 + '\n'
+    dashes = '-' * 80
     summary_text = '''\
         {:12,d}   files input
         {:12,d}   files parsed

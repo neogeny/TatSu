@@ -351,7 +351,7 @@ class Pattern(Model):
 class Lookahead(Decorator):
     def parse(self, ctx):
         with ctx._if():
-            super().parse(ctx)
+            return super().parse(ctx)
 
     def _to_str(self, lean=False):
         return '&' + self.exp._to_str(lean=lean)
@@ -363,7 +363,7 @@ class Lookahead(Decorator):
 class NegativeLookahead(Decorator):
     def parse(self, ctx):
         with ctx._ifnot():
-            super().parse(ctx)
+            return super().parse(ctx)
 
     def _to_str(self, lean=False):
         return '!' + str(self.exp._to_str(lean=lean))
