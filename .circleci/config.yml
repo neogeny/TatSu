@@ -64,7 +64,8 @@ jobs:
       - run:
           name: package
           command: |
-              make distributions
+              python setup.py sdist --formats=zip
+              python setup.py bdist_wheel --universal
 
       - store_artifacts:
           path: test-reports
