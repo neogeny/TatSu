@@ -227,7 +227,7 @@ def file_process_summary(filenames, total_time, results, verbose=False):
         100 * success_count / filecount if filecount != 0 else 0,
         format_hours(total_time),
         format_hours(run_time),
-        int(lines_parsed // run_time)
+        int(lines_parsed // total_time)
     )
     print(EOLCH + 80 * ' ', file=sys.stderr)
     print(file=sys.stderr)
