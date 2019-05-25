@@ -31,7 +31,7 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "requirements-test.txt" }}
+          - v1-dependencies-{{ checksum "requirements-dev.txt" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
@@ -41,12 +41,12 @@ jobs:
             python -m venv venv || virtualenv venv
             . venv/bin/activate
             pip install -U pip
-            pip install -r requirements-test.txt
+            pip install -r requirements-dev.txt
 
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements-test.txt" }}
+          key: v1-dependencies-{{ checksum "requirements-dev.txt" }}
 
       - run:
           name: run tests
@@ -87,7 +87,7 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "requirements-test.txt" }}
+          - v1-dependencies-{{ checksum "requirements-dev.txt" }}
           - v1-dependencies-
 
       - run:
@@ -101,12 +101,12 @@ jobs:
             virtualenv venv -p pypy3
             . venv/bin/activate
             pip install -U pip
-            pip install -r requirements-test.txt
+            pip install -r requirements-dev.txt
 
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements-test.txt" }}
+          key: v1-dependencies-{{ checksum "requirements-dev.txt" }}
 
       - run:
           name: run tests
