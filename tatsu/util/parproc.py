@@ -66,6 +66,7 @@ def processing_loop(process, filenames, verbose=False, exitfirst=False, *args, *
 
 
 def process_payload(process, task, pickable=identity, **kwargs):
+    print(task.payload, file=sys.stderr)
     start_time = time.process_time()
     result = ParprocResult(task.payload)
     try:
@@ -162,7 +163,7 @@ def file_process_progress(results, successful, total, total_time):
             '%3d%%(%3d%%)' % (100 * percent, 100 * success_percent),
             # format_hours(total_time),
             '%sETA' % format_hours(eta),
-            # format_minutes(latest_result),
+            format_minutes(latest_result),
             '%3dMiB' % mb_memory if mb_memory else '',
             (Path(filename).name + ' ' * 80)[:32],
             end=EOLCH,
