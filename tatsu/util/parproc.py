@@ -182,38 +182,33 @@ def format_hours(time):
 
 
 def file_process_summary(filenames, total_time, results, verbose=False):
+    runtime = sum(r.time for r in results)
     successes = {result.payload for result in results if result.success}
-    run_time = sum(r.time for r in results)
 
-    filecount = 0
-    linecount = 0
-    success_count = 0
-    for fname in filenames:
-        filecount += 1
-
-        nlines = len(try_read(fname).splitlines())
-        linecount += nlines
-
-        if fname in successes:
-            success_count += 1
-    failure_count = len({result.payload for result in results if result.exception})
-
+    filecount = len(filenames)
     parsed = [r for r in results if r.outcome or r.exception]
-    success_linecount = sum(r.linecount for r in parsed if r.success)
-    lines_parsed = sum(r.linecount for r in parsed)
+    success_count = sum(1 for result in results if result.outcome and not result.exception)
+    failure_count = sum(1 for result in results if result.exception)
+
+    line_counts = {
+        filename: len(try_read(filename).splitlines())
+        for filename in filenames
+    }
+    linecount = sum(line_counts.values())
+    lines_parsed = sum(line_counts[r.payload] for r in parsed)
 
     dashes = '-' * 80 + '\n'
     summary_text = '''\
         {:12,d}   files input
         {:12,d}   files parsed
         {:12,d}   lines input
-        {:12,d}   lines successfully parsed
+        {:12,d}   lines parsed
         {:12,d}   successes
         {:12,d}   failures
       {:11.1f}%   success rate
-        {:>12s}   time
-        {:>12s}   run time
-        {:>12d}   line/sec
+        {:>12s}   elapsed time
+        {:>12s}   runtime
+        {:>12d}   LOC/s
     '''
     summary_text = '\n'.join(l.strip() for l in summary_text.splitlines())
 
@@ -221,13 +216,13 @@ def file_process_summary(filenames, total_time, results, verbose=False):
         filecount,
         success_count + failure_count,
         linecount,
-        success_linecount,
+        lines_parsed,
         success_count,
         failure_count,
         100 * success_count / filecount if filecount != 0 else 0,
         format_hours(total_time),
-        format_hours(run_time),
-        int(lines_parsed // total_time)
+        format_hours(runtime),
+        int(lines_parsed // runtime)
     )
     print(EOLCH + 80 * ' ', file=sys.stderr)
     print(file=sys.stderr)
