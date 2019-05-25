@@ -183,7 +183,6 @@ def format_hours(time):
 
 def file_process_summary(filenames, total_time, results, verbose=False):
     successes = {result.payload for result in results if result.success}
-    success_linecount = sum(r.linecount for r in results)
     run_time = sum(r.time for r in results)
 
     filecount = 0
@@ -199,6 +198,10 @@ def file_process_summary(filenames, total_time, results, verbose=False):
             success_count += 1
     failure_count = len({result.payload for result in results if result.exception})
 
+    parsed = [r for r in results if r.outcome or r.exception]
+    success_linecount = sum(r.linecount for r in parsed if r.success)
+    lines_parsed = sum(r.linecount for r in parsed)
+
     dashes = '-' * 80 + '\n'
     summary_text = '''\
         {:12,d}   files input
@@ -207,9 +210,10 @@ def file_process_summary(filenames, total_time, results, verbose=False):
         {:12,d}   lines successfully parsed
         {:12,d}   successes
         {:12,d}   failures
-        {:12.1f}%  success rate
-         {:>13s}  time
-         {:>13s}  run time
+      {:11.1f}%   success rate
+        {:>12s}   time
+        {:>12s}   run time
+        {:>12d}   line/sec
     '''
     summary_text = '\n'.join(l.strip() for l in summary_text.splitlines())
 
@@ -223,6 +227,7 @@ def file_process_summary(filenames, total_time, results, verbose=False):
         100 * success_count / filecount if filecount != 0 else 0,
         format_hours(total_time),
         format_hours(run_time),
+        int(lines_parsed // run_time)
     )
     print(EOLCH + 80 * ' ', file=sys.stderr)
     print(file=sys.stderr)
