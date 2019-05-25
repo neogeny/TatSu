@@ -15,6 +15,7 @@ from collections import OrderedDict
 from collections.abc import Mapping, Iterable, MutableSequence
 from itertools import zip_longest
 from pathlib import Path
+import os.path
 
 
 logger = logging.getLogger('tatsu')
@@ -382,10 +383,7 @@ def try_read(filename):
     raise UnicodeDecodeError("cannot find the encoding for '%s'" % filename)
 
 
-def filelist_from_patterns(patterns, excludes=None, base='.', sizesort=False):
-    def excluded(path):
-        return any(path.match(ex) for ex in excludes)
-
+def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
     base = Path(base or '.').expanduser().resolve()
 
     filenames = set()
@@ -399,9 +397,27 @@ def filelist_from_patterns(patterns, excludes=None, base='.', sizesort=False):
         filenames.update((p for p in Path(path.root).glob(pattern) if not p.is_dir()))
 
     filenames = list(filenames)
-    if excludes:
+
+    def excluded(path):
+        return any(path.match(ex) for ex in ignore)
+
+    if ignore:
         filenames = [path for path in filenames if not excluded(path)]
     if sizesort:
         filenames.sort(key=lambda f: f.stat().st_size)
 
     return filenames
+
+
+def short_relative_path(path, base='.'):
+    base = Path(base).resolve()
+    path = path.resolve()
+    common = Path(os.path.commonpath([base, path]))
+
+    if common == Path.home():
+        up = Path('~')
+    else:
+        n = len(base.parts) - len(common.parts)
+        up = Path('../' * n)
+
+    return str(up / path.relative_to(common))

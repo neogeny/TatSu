@@ -4,12 +4,24 @@ from .import filelist_from_patterns
 from .parproc import processing_loop
 
 
-def parallel_test_run(parse, patterns, sizesort=True, reraise=False, excludes=None, base=None, **kwargs):
+def parallel_test_run(parse, options):
     try:
-        filenames = filelist_from_patterns(patterns, base=base, sizesort=sizesort, excludes=excludes)
-        return processing_loop(parse, filenames, reraise=reraise, **kwargs)
+        filenames = filelist_from_patterns(
+            options.patterns,
+            sizesort=options.sort,
+            ignore=options.ignore
+        )
+
+        kwargs = vars(options)
+        kwargs.pop('patterns', None)
+        kwargs.pop('sort', None)
+        kwargs.pop('ignore', None)
+        parallel = not kwargs.pop('serial', False)
+
+        return processing_loop(parse, filenames, parallel=parallel, **kwargs)
+
     except KeyboardInterrupt:
-        if reraise:
+        if options.verbose:
             raise
 
 
@@ -27,9 +39,15 @@ def parse_args():
         help='filename patterns',
     )
     argparser.add_argument(
-        '--reraise', '-r',
-        help='show complete stack trace for exceptions',
-        action='store_true',
+        '--help', '-h',
+        help='show this help message and exit',
+        action='help',
+    )
+    argparser.add_argument(
+        '--ignore', '-i',
+        metavar='PATTERN',
+        help='ignore these patterns',
+        action='append',
     )
     argparser.add_argument(
         '--sort', '-s',
@@ -47,27 +65,17 @@ def parse_args():
         action='store_true',
     )
     argparser.add_argument(
-        '--exclude', '-x',
-        metavar='PATTERN',
-        help='exclude these patterns',
-        action='append',
+        '--verbose', '-v',
+        help='output exceptions as they happen',
+        action='store_true',
     )
     argparser.add_argument(
-        '--help', '-h',
-        help='show this help message and exit',
-        action='help',
+        '--exitfirst', '-x',
+        help='output exceptions as they happen',
+        action='store_true',
     )
     return argparser.parse_args()
 
 
 def generic_main(parse):
-    args = parse_args()
-    return parallel_test_run(
-        parse,
-        args.patterns,
-        reraise=args.reraise,
-        trace=args.trace,
-        parallel=not args.serial,
-        sizesort=args.sort,
-        excludes=args.exclude,
-    )
+    return parallel_test_run(parse, parse_args())

@@ -8,8 +8,7 @@ from pathlib import Path
 from dataclasses import dataclass
 from typing import Any
 
-from .import identity, try_read
-from .import memory_use
+from .import identity, try_read, memory_use, short_relative_path
 
 EOLCH = '\r' if sys.stderr.isatty() else '\n'
 
@@ -33,7 +32,7 @@ class ParprocResult:
         return self.exception is None
 
 
-def processing_loop(process, filenames, reraise=False, *args, **kwargs):
+def processing_loop(process, filenames, verbose=False, exitfirst=False, *args, **kwargs):
     all_results = []
     successful_results = []
     total = len(filenames)
@@ -50,24 +49,23 @@ def processing_loop(process, filenames, reraise=False, *args, **kwargs):
             total_time = time.time() - start_time
             file_process_progress(all_results, successful_results, total, total_time)
 
-            if result.exception and reraise:
-                print(file=sys.stderr)
-                try:
-                    print('ERROR:', result.payload, file=sys.stderr)
-                    print(result.exception, file=sys.stderr)
-                except Exception:
-                    print('EXCEPTION', type(result.exception).__name__, file=sys.stderr)
-                raise result.exception from result.exception
-            elif result.outcome is not None:
+            if result.exception:
+                if verbose:
+                    with console_lock:
+                        print(file=sys.stderr)
+                        print(f'{result.exception.split()[0]:16} {result.payload}', file=sys.stderr)
+                if exitfirst:
+                    raise KeyboardInterrupt
+            else:
                 successful_results.append(result)
-
-        file_process_summary(filenames, total_time, successful_results)
     except KeyboardInterrupt:
         pass
+    finally:
+        file_process_summary(filenames, total_time, all_results, verbose=verbose)
     return all_results
 
 
-def process_payload(process, task, pickable=identity, reraise=False):
+def process_payload(process, task, pickable=identity, **kwargs):
     start_time = time.process_time()
     result = ParprocResult(task.payload)
     try:
@@ -81,7 +79,7 @@ def process_payload(process, task, pickable=identity, reraise=False):
     except KeyboardInterrupt:
         raise
     except Exception as e:
-        result.exception = e
+        result.exception = f'{type(e).__name__}: {str(e)}'
     finally:
         result.time = time.process_time() - start_time
 
@@ -121,8 +119,6 @@ def _imap_pmap(process, tasks):
             try:
                 yield from pool.imap_unordered(process, chunk)
             except KeyboardInterrupt:
-                pool.terminate()
-                pool.join()
                 raise
 
 
@@ -132,9 +128,9 @@ _pmap = _imap_pmap
 def process_in_parallel(payloads, process, *args, **kwargs):
     pickable = kwargs.pop('pickable', identity)
     parallel = kwargs.pop('parallel', True)
-    reraise = kwargs.pop('reraise', False)
+    verbose = kwargs.pop('verbose', False)
 
-    process = partial(process_payload, process, pickable=pickable, reraise=reraise)
+    process = partial(process_payload, process, pickable=pickable, verbose=verbose)
     tasks = [__Task(payload, args, kwargs) for payload in payloads]
 
     try:
@@ -166,7 +162,7 @@ def file_process_progress(results, successful, total, total_time):
             '%3d%%(%3d%%)' % (100 * percent, 100 * success_percent),
             # format_hours(total_time),
             '%sETA' % format_hours(eta),
-            format_minutes(latest_result),
+            # format_minutes(latest_result),
             '%3dMiB' % mb_memory if mb_memory else '',
             (Path(filename).name + ' ' * 80)[:32],
             end=EOLCH,
@@ -183,8 +179,8 @@ def format_hours(time):
     return '%2.0f:%02.0f:%02.0f' % (time // 3600, (time // 60) % 60, time % 60)
 
 
-def file_process_summary(filenames, total_time, results):
-    successes = {result.payload for result in results}
+def file_process_summary(filenames, total_time, results, verbose=False):
+    successes = {result.payload for result in results if result.success}
     success_linecount = sum(r.linecount for r in results)
     run_time = sum(r.time for r in results)
 
@@ -224,12 +220,12 @@ def file_process_summary(filenames, total_time, results):
         format_hours(run_time),
     )
     # print(EOLCH + 80 * ' ', file=sys.stderr)
-    print()
+    print(file=sys.stderr)
     print(summary, file=sys.stderr)
 
     for result in results:
         if result.success:
             continue
-        print()
-        print(result.payload)
-        print(result.exception)
+        print(f'{short_relative_path(result.payload):60} {result.exception.split()[0]} ', file=sys.stderr)
+        if verbose:
+            print(f'{result.exception}')
