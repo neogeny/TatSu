@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .import identity, try_read, memory_use, short_relative_path
+from .unicode_characters import C_SUCCESS, C_FAILURE
 
 EOLCH = '\r' if sys.stderr.isatty() else '\n'
 
@@ -164,6 +165,7 @@ def file_process_progress(results, successful, total, total_time):
             '%sETA' % format_hours(eta),
             format_minutes(latest_result),
             '%3dMiB' % mb_memory if mb_memory else '',
+            C_SUCCESS if latest_result.success else C_FAILURE,
             (Path(filename).name + ' ' * 80)[:32],
             end=EOLCH,
             file=sys.stderr
@@ -195,7 +197,9 @@ def file_process_summary(filenames, total_time, results, verbose=False):
 
         if fname in successes:
             success_count += 1
+    failure_count = len({result.payload for result in results if result.exception})
 
+    dashes = '-' * 80 + '\n'
     summary_text = '''\
         {:12,d}   files input
         {:12,d}   source lines input
@@ -207,25 +211,28 @@ def file_process_summary(filenames, total_time, results, verbose=False):
          {:>13s}  run time
     '''
     summary_text = '\n'.join(l.strip() for l in summary_text.splitlines())
-    summary_text = '-' * 80 + '\n' + summary_text
 
     summary = summary_text.format(
         filecount,
         linecount,
         success_linecount,
         success_count,
-        filecount - success_count,
+        failure_count,
         100 * success_count / filecount if filecount != 0 else 0,
         format_hours(total_time),
         format_hours(run_time),
     )
-    # print(EOLCH + 80 * ' ', file=sys.stderr)
+    print(EOLCH + 80 * ' ', file=sys.stderr)
     print(file=sys.stderr)
-    print(summary, file=sys.stderr)
 
+    print(dashes, file=sys.stderr)
     for result in results:
         if result.success:
             continue
         print(f'{short_relative_path(result.payload):60} {result.exception.split()[0]} ', file=sys.stderr)
         if verbose:
             print(f'{result.exception}')
+
+    print(dashes, file=sys.stderr)
+    print(summary, file=sys.stderr)
+
