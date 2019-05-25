@@ -38,6 +38,10 @@ jobs:
       - run:
           name: install dependencies
           command: |
+            sudo apt update
+            sudo apt install -y python-pip
+            sudo apt install -y virtualenv
+            sudo apt install -y pandoc
             python -m venv venv || virtualenv venv
             . venv/bin/activate
             pip install -U pip
@@ -98,6 +102,7 @@ jobs:
             sudo apt install -y python-pip
             sudo apt install -y virtualenv
             sudo apt install -y pypy3
+            sudo apt install -y pandoc
             virtualenv venv -p pypy3
             . venv/bin/activate
             pip install -U pip
