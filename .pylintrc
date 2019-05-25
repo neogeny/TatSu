@@ -162,7 +162,8 @@ disable=C0111, C0103, C0122, C0123,
         W0621, W0622,
         W0702, W0703,
         W1201, W1202,
-        W1401
+        W1401,
+        W1618
         # C, R, W
 
 # Enable the message, report, category or checker with the given id(s). You can
