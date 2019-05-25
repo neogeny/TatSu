@@ -237,4 +237,3 @@ def file_process_summary(filenames, total_time, results, verbose=False):
 
     print(dashes, file=sys.stderr)
     print(summary, file=sys.stderr)
-
