@@ -202,8 +202,9 @@ def file_process_summary(filenames, total_time, results, verbose=False):
     dashes = '-' * 80 + '\n'
     summary_text = '''\
         {:12,d}   files input
-        {:12,d}   source lines input
-        {:12,d}   total lines processed
+        {:12,d}   files parsed
+        {:12,d}   lines input
+        {:12,d}   lines successfully parsed
         {:12,d}   successes
         {:12,d}   failures
         {:12.1f}%  success rate
@@ -214,6 +215,7 @@ def file_process_summary(filenames, total_time, results, verbose=False):
 
     summary = summary_text.format(
         filecount,
+        success_count + failure_count,
         linecount,
         success_linecount,
         success_count,
