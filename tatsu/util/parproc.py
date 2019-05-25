@@ -66,7 +66,6 @@ def processing_loop(process, filenames, verbose=False, exitfirst=False, *args, *
 
 
 def process_payload(process, task, pickable=identity, **kwargs):
-    print(task.payload, file=sys.stderr)
     start_time = time.process_time()
     result = ParprocResult(task.payload)
     try:
