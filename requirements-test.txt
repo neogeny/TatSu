@@ -1,3 +1,4 @@
+-r requiremets.txt
 flake8
 git-pylint-commit-hook
 mypy

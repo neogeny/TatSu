@@ -57,6 +57,11 @@ jobs:
             mypy   --ignore-missing-imports .
             pytest -v
 
+      - run:
+          name: package
+          command: |
+              make distributions
+
       - store_artifacts:
           path: test-reports
           destination: test-reports
