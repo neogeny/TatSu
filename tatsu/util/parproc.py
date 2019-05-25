@@ -33,7 +33,7 @@ class ParprocResult:
         return self.exception is None
 
 
-def processing_loop(process, filenames, verbose=False, exitfirst=False, *args, **kwargs):
+def processing_loop(process, filenames, *args, verbose=False, exitfirst=False, **kwargs):
     all_results = []
     successful_results = []
     total = len(filenames)
