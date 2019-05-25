@@ -183,10 +183,7 @@ def format_hours(time):
 
 def file_process_summary(filenames, total_time, results, verbose=False):
     runtime = sum(r.time for r in results)
-    successes = {result.payload for result in results if result.success}
-
     filecount = len(filenames)
-    parsed = [r for r in results if r.outcome or r.exception]
     success_count = sum(1 for result in results if result.outcome and not result.exception)
     failure_count = sum(1 for result in results if result.exception)
 
@@ -195,6 +192,7 @@ def file_process_summary(filenames, total_time, results, verbose=False):
         for filename in filenames
     }
     linecount = sum(line_counts.values())
+    parsed = [r for r in results if r.outcome or r.exception]
     lines_parsed = sum(line_counts[r.payload] for r in parsed)
 
     dashes = '-' * 80 + '\n'
