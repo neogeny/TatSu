@@ -1,6 +1,7 @@
 flake8
 git-pylint-commit-hook
 mypy
+psutil
 pylint
 pytest
 tox

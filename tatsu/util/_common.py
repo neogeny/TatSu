@@ -14,6 +14,7 @@ from io import StringIO
 from collections import OrderedDict
 from collections.abc import Mapping, Iterable, MutableSequence
 from itertools import zip_longest
+from pathlib import Path
 
 
 logger = logging.getLogger('tatsu')
@@ -59,7 +60,11 @@ def debug(*args, **kwargs):
 
 
 def warning(*args, **kwargs):
-    logger.warning(_prints('WARNING:', *args, **kwargs))
+    logger.warning(_prints(*args, **kwargs))
+
+
+def error(*args, **kwargs):
+    logger.error(_prints(*args, **kwargs))
 
 
 def identity(*args):
@@ -353,3 +358,50 @@ def right_assoc(elements):
             return (op, left, assoc(it))
 
     return assoc(iter(elements))
+
+
+def memory_use():
+    try:
+        import psutil
+    except ImportError:
+        return 0
+    else:
+        process = psutil.Process(os.getpid())
+        return process.memory_info().rss
+
+
+def try_read(filename):
+    if isinstance(filename, Path):
+        filename = str(filename)
+    for e in ['utf-16', 'utf-8', 'latin-1', 'cp1252', 'ascii']:
+        try:
+            with open(filename, 'r', encoding=e) as f:
+                return f.read()
+        except UnicodeError:
+            pass
+    raise UnicodeDecodeError("cannot find the encoding for '%s'" % filename)
+
+
+def filelist_from_patterns(patterns, excludes=None, base='.', sizesort=False):
+    def excluded(path):
+        return any(path.match(ex) for ex in excludes)
+
+    base = Path(base or '.').expanduser().resolve()
+
+    filenames = set()
+    for pattern in patterns or []:
+        path = base / pattern
+        if path.is_dir():
+            path += '/*'
+
+        parts = path.parts[1:] if path.is_absolute() else path.parts
+        pattern = str(Path("").joinpath(*parts))
+        filenames.update((p for p in Path(path.root).glob(pattern) if not p.is_dir()))
+
+    filenames = list(filenames)
+    if excludes:
+        filenames = [path for path in filenames if not excluded(path)]
+    if sizesort:
+        filenames.sort(key=lambda f: f.stat().st_size)
+
+    return filenames
