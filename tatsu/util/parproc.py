@@ -23,7 +23,7 @@ console_lock = Lock()
 class ParprocResult:
     payload: str
     outcome: Any = None
-    exception: BaseException= None
+    exception: BaseException = None
     linecount: int = 0
     time: float = 0
     memory: int = 0
