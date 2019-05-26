@@ -21,6 +21,6 @@ class GrammarGenerator(EBNFBootstrapParser):
         super().__init__(
             semantics=semantics,
             parseinfo=parseinfo,
-            buffer_class=EBNFBuffer,
+            tokenizercls=EBNFBuffer,
             **kwargs
         )

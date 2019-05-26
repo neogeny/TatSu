@@ -11,18 +11,19 @@ from __future__ import generator_stop
 import os
 from itertools import takewhile, repeat
 
-from tatsu.util import identity
-from tatsu.util import extend_list, contains_sublist
-from tatsu.util import re as regexp
-from tatsu.util import RETYPE, WHITESPACE_RE
-from tatsu.exceptions import ParseError
-from tatsu.infos import PosLine, LineIndexInfo, LineInfo, CommentInfo
+from .tokenizing import Tokenizer
+from .util import identity
+from .util import extend_list, contains_sublist
+from .util import re as regexp
+from .util import RETYPE, WHITESPACE_RE
+from .exceptions import ParseError
+from .infos import PosLine, LineIndexInfo, LineInfo, CommentInfo
 
 # for backwards compatibility with existing parsers
 LineIndexEntry = LineIndexInfo
 
 
-class Buffer(object):
+class Buffer(Tokenizer):
     def __init__(self,
                  text,
                  filename=None,
@@ -36,13 +37,13 @@ class Buffer(object):
                  **kwargs):
         text = str(text)
         self.text = self.original_text = text
-        self.filename = filename or ''
+        self._filename = filename or ''
 
         self.whitespace = whitespace
 
         self.comments_re = comments_re
         self.eol_comments_re = eol_comments_re
-        self.ignorecase = ignorecase
+        self._ignorecase = ignorecase
         self.nameguard = (
             nameguard if nameguard is not None
             else bool(self.whitespace_re) or bool(namechars)
@@ -62,6 +63,14 @@ class Buffer(object):
 
         self._preprocess()
         self._postprocess()
+
+    @property
+    def filename(self):
+        return self._filename
+
+    @property
+    def ignorecase(self):
+        return self._ignorecase
 
     @property
     def whitespace(self):
@@ -203,8 +212,8 @@ class Buffer(object):
         self._pos += 1
         return c
 
-    def goto(self, p):
-        self._pos = max(0, min(len(self.text), p))
+    def goto(self, pos):
+        self._pos = max(0, min(len(self.text), pos))
 
     def move(self, n):
         self.goto(self.pos + n)

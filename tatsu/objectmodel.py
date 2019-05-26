@@ -93,19 +93,19 @@ class Node(object):
     @property
     def line_info(self):
         if self.parseinfo:
-            return self.parseinfo.buffer.line_info(self.parseinfo.pos)
+            return self.parseinfo.tokenizer.line_info(self.parseinfo.pos)
 
     @property
     def text(self):
         if not self.parseinfo:
             return ''
-        text = self.parseinfo.buffer.text
+        text = self.parseinfo.tokenizer.text
         return text[self.parseinfo.pos:self.parseinfo.endpos]
 
     @property
     def comments(self):
         if self.parseinfo:
-            return self.parseinfo.buffer.comments(self.parseinfo.pos)
+            return self.parseinfo.tokenizer.comments(self.parseinfo.pos)
         return CommentInfo([], [])
 
     def __cn(self, add_child, child_collection, child, seen=None):
