@@ -208,7 +208,7 @@ def file_process_summary(filenames, total_time, results, verbose=False):
       {:11.1f}%   success rate
         {:>12s}   elapsed time
         {:>12s}   runtime
-        {:>12d}   LOC/s
+        {:>12d}   lines/sec
     '''
     summary_text = '\n'.join(l.strip() for l in summary_text.splitlines())
 
