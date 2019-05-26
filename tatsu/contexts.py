@@ -189,6 +189,9 @@ class ParseContext(object):
                 **kwargs)
         self._tokenizer = tokenizer
 
+        if hasattr(self.semantics, 'set_tokenizer'):
+            self.semantics.set_tokenizer(self.tokenizer)
+
     def _set_furthest_exception(self, e):
         if not self._furthest_exception or e.pos > self._furthest_exception.pos:
             self._furthest_exception = e
