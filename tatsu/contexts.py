@@ -147,7 +147,7 @@ class ParseContext(object):
                left_recursion=None,
                colorize=None,
                keywords=None,
-               namechars='',
+               namechars=None,
                **kwargs):
         if ignorecase is None:
             ignorecase = self.ignorecase
@@ -168,7 +168,7 @@ class ParseContext(object):
         if self.colorize:
             color.init()
         if namechars is not None:
-            namechars = self.namechars
+            self.namechars = namechars
 
         self._initialize_caches()
         self._furthest_exception = None

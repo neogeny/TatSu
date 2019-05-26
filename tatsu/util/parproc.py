@@ -9,8 +9,10 @@ from dataclasses import dataclass
 from typing import Any
 
 from .import identity, try_read, memory_use, short_relative_path
-from .unicode_characters import C_SUCCESS, C_FAILURE
 
+
+SUCCESSCH = '\u2705'
+FAILURECH = '\u274C'
 EOLCH = '\r' if sys.stderr.isatty() else '\n'
 
 
@@ -165,7 +167,7 @@ def file_process_progress(results, successful, total, total_time):
             '%sETA' % format_hours(eta),
             format_minutes(latest_result),
             '%3dMiB' % mb_memory if mb_memory else '',
-            C_SUCCESS if latest_result.success else C_FAILURE,
+            SUCCESSCH if latest_result.success else FAILURECH,
             (Path(filename).name + ' ' * 80)[:32],
             end=EOLCH,
             file=sys.stderr
