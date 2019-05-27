@@ -1,0 +1,14 @@
+-r requirements.txt
+Cython
+docutils
+flake8
+git-pylint-commit-hook
+pandoc
+pep257
+psutil
+pygments
+pylint
+pytest
+sphinx
+tox
+twine

@@ -5,7 +5,7 @@ import sys
 import functools
 from contextlib import contextmanager
 
-from ._unicode_characters import (
+from tatsu.util.unicode_characters import (
     C_DERIVE,
     C_ENTRY,
     C_SUCCESS,
@@ -147,7 +147,7 @@ class ParseContext(object):
                left_recursion=None,
                colorize=None,
                keywords=None,
-               namechars='',
+               namechars=None,
                **kwargs):
         if ignorecase is None:
             ignorecase = self.ignorecase
@@ -168,7 +168,7 @@ class ParseContext(object):
         if self.colorize:
             color.init()
         if namechars is not None:
-            namechars = self.namechars
+            self.namechars = namechars
 
         self._initialize_caches()
         self._furthest_exception = None
@@ -250,7 +250,7 @@ class ParseContext(object):
         return self._buffer.next()
 
     def _next_token(self, ruleinfo=None):
-        if ruleinfo is None or ruleinfo.name[0].islower():
+        if ruleinfo is None or not ruleinfo.name.lstrip('_')[:1].isupper():
             self._buffer.next_token()
 
     @property
@@ -474,10 +474,7 @@ class ParseContext(object):
         return MemoKey(self._pos, self.rule, self._state)
 
     def _memoize(self, key, memo):
-        if self._memoization():
-            if self._recursion_depth > 0:
-                if not key.rule.is_memoizable:
-                    return memo
+        if self._memoization() and key.rule.is_memoizable:
             self._memos[key] = memo
         return memo
 
@@ -501,7 +498,7 @@ class ParseContext(object):
         self._results[key] = result
 
     def _is_recursive(self, ruleinfo):
-        return self.left_recursion and ruleinfo.is_leftrec
+        return ruleinfo.is_leftrec
 
     def _set_left_recursion_guard(self, key):
         ex = self._make_exception(key.rule.name, exclass=FailedLeftRecursion)
@@ -543,8 +540,10 @@ class ParseContext(object):
         prune_dict(self._memos, filter)
 
     def _recursive_call(self, ruleinfo):
-        if not self._is_recursive(ruleinfo):
+        if not ruleinfo.is_leftrec:
             return self._invoke_rule(ruleinfo, self.memokey)
+        elif not self.left_recursion:
+            self._error('Left recursion detected', exclass=FailedLeftRecursion)
 
         self._next_token(ruleinfo)
         key = self.memokey
@@ -734,11 +733,13 @@ class ParseContext(object):
         self._lookahead += 1
         try:
             yield
+            cst = self.cst
         finally:
             self._lookahead -= 1
             self._goto(p)
             self._state = s
             self._pop_ast()  # simply discard
+        self.last_node = cst
 
     @contextmanager
     def _ifnot(self):

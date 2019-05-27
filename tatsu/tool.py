@@ -163,7 +163,12 @@ def compile(grammar, name=None, semantics=None, asmodel=False, **kwargs):
     else:
         gen = GrammarGenerator(name, **kwargs)
         model = cache[key] = gen.parse(grammar, **kwargs)
-    model.semantics = semantics or asmodel and ModelBuilderSemantics()
+
+    if semantics is not None:
+        model.semantics = semantics
+    elif asmodel:
+        model.semantics = ModelBuilderSemantics()
+
     return model
 
 

@@ -144,7 +144,7 @@ confidence=
 #        exception-escape,
 #        comprehension-escape
 
-disable=C0111, C0103, C0122, C0123,
+disable=C0102, C0103, C0111, C0122, C0123,
         C0301, C0330,
         C0411, C0412,
         C1801,
@@ -160,9 +160,10 @@ disable=C0111, C0103, C0122, C0123,
         W0511,
         W0603, W0612, W0613,
         W0621, W0622,
-        W0702, W0703,
+        W0702, W0703, W0706,
         W1201, W1202,
-        W1401
+        W1401,
+        W1618
         # C, R, W
 
 # Enable the message, report, category or checker with the given id(s). You can

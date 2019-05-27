@@ -31,22 +31,27 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "requirements-test.txt" }}
+          - v1-dependencies-{{ checksum "requirements-dev.txt" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
       - run:
           name: install dependencies
           command: |
+            sudo apt update
+            sudo apt install -y python-pip
+            sudo apt install -y virtualenv
+            sudo apt install -y pandoc
+            sudo apt install -y graphviz
             python -m venv venv || virtualenv venv
             . venv/bin/activate
             pip install -U pip
-            pip install -r requirements-test.txt
+            pip install -r requirements-dev.txt
 
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements-test.txt" }}
+          key: v1-dependencies-{{ checksum "requirements-dev.txt" }}
 
       - run:
           name: run tests
@@ -56,6 +61,12 @@ jobs:
             pylint --ignore=bootstrap.py,model.py tatsu test examples
             mypy   --ignore-missing-imports .
             pytest -v
+
+      - run:
+          name: package
+          command: |
+              python setup.py sdist --formats=zip
+              python setup.py bdist_wheel --universal
 
       - store_artifacts:
           path: test-reports
@@ -82,7 +93,7 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "requirements-test.txt" }}
+          - v1-dependencies-{{ checksum "requirements-dev.txt" }}
           - v1-dependencies-
 
       - run:
@@ -93,15 +104,17 @@ jobs:
             sudo apt install -y python-pip
             sudo apt install -y virtualenv
             sudo apt install -y pypy3
+            sudo apt install -y pandoc
+            sudo apt install -y graphviz
             virtualenv venv -p pypy3
             . venv/bin/activate
             pip install -U pip
-            pip install -r requirements-test.txt
+            pip install -r requirements-dev.txt
 
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements-test.txt" }}
+          key: v1-dependencies-{{ checksum "requirements-dev.txt" }}
 
       - run:
           name: run tests

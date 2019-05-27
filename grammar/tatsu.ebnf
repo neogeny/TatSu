@@ -101,7 +101,7 @@ rule::Rule
 
 decorator
     =
-    '@' !'@' ~ @:('override'|'name')
+    '@' !'@' ~ @:('override'|'name'|'nomemo')
     ;
 
 
