@@ -3,7 +3,6 @@ from __future__ import generator_stop
 
 import weakref
 from copy import copy
-from collections import OrderedDict as odict  # noqa:N813
 from collections import defaultdict
 
 from tatsu.util import asjson
@@ -140,7 +139,7 @@ class Namespace(object):
         return '%s[]' % type(self).__name__
 
     def __json__(self):
-        return odict([(name, asjson(symbols)) for name, symbols in self.entries.items()])
+        return {name: asjson(symbols) for name, symbols in self.entries.items()}
 
 
 class SymbolTable(Namespace):
@@ -251,7 +250,7 @@ class Symbol(Namespace):
         return '%s[]' % self.name
 
     def __json__(self):
-        return odict([
+        return dict([
             ('node', type(self.node).__name__),
             ('entries', super().__json__()),
             ('references', asjson(self._references)),
