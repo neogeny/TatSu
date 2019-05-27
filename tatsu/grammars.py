@@ -678,7 +678,7 @@ class Named(Decorator):
 class NamedList(Named):
     def parse(self, ctx):
         value = self.exp.parse(ctx)
-        ctx.ast.setlist(self.name, value)
+        ctx.ast._setlist(self.name, value)
         return value
 
     def defines(self):

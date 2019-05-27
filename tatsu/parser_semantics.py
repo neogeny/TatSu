@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import generator_stop
 
-from collections import OrderedDict
-
 from tatsu import grammars
 from tatsu.exceptions import FailedSemantics
 from tatsu.semantics import ModelBuilderSemantics
@@ -16,7 +14,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
             types=grammars.Model.classes()
         )
         self.grammar_name = grammar_name
-        self.rules = OrderedDict()
+        self.rules = {}
 
     def token(self, ast, *args):
         token = ast
@@ -94,7 +92,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         exp = ast.exp
         base = ast.base
         params = ast.params
-        kwparams = OrderedDict(ast.kwparams) if ast.kwparams else None
+        kwparams = dict(ast.kwparams) if ast.kwparams else None
 
         if 'override' not in decorators and name in self.rules:
             self.new_name(name)
@@ -119,7 +117,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         return grammars.RuleInclude(rule)
 
     def grammar(self, ast, *args):
-        directives = OrderedDict((d.name, d.value) for d in flatten(ast.directives))
+        directives = {d.name: d.value for d in flatten(ast.directives)}
         keywords = set(flatten(ast.keywords) or [])
 
         if directives.get('whitespace') in ('None', 'False'):

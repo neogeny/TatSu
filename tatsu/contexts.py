@@ -272,7 +272,7 @@ class ParseContext(object):
         self.ast[name] = self.last_node
 
     def add_last_node_to_name(self, name):
-        self.ast.setlist(name, self.last_node)
+        self.ast._setlist(name, self.last_node)
 
     def _push_ast(self):
         self._tree_stack.append(TreeInfo())
