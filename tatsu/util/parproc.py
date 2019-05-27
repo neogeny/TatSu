@@ -197,6 +197,8 @@ def file_process_summary(filenames, total_time, results, verbose=False):
     parsed = [r for r in results if r.outcome or r.exception]
     lines_parsed = sum(line_counts[r.payload] for r in parsed)
 
+    mb_memory = max(result.memory // (1024 * 1024) for result in results)
+
     dashes = '-' * 80
     summary_text = '''\
         {:12,d}   files input
@@ -209,6 +211,7 @@ def file_process_summary(filenames, total_time, results, verbose=False):
         {:>12s}   elapsed time
         {:>12s}   runtime
         {:>12d}   lines/sec
+        {:>12d}   mib max memory
     '''
     summary_text = '\n'.join(l.strip() for l in summary_text.splitlines())
 
@@ -222,7 +225,8 @@ def file_process_summary(filenames, total_time, results, verbose=False):
         100 * success_count / filecount if filecount != 0 else 0,
         format_hours(total_time),
         format_hours(runtime),
-        int(lines_parsed // runtime)
+        int(lines_parsed // runtime),
+        mb_memory,
     )
     print(EOLCH + 80 * ' ', file=sys.stderr)
     print(file=sys.stderr)
