@@ -465,6 +465,7 @@ class ParseContext(object):
     def _get_parseinfo(self, name, pos):
         endpos = self._pos
         return ParseInfo(
+            self._tokenizer,
             name,
             pos,
             endpos,

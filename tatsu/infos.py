@@ -49,6 +49,7 @@ class CommentInfo(namedtuple('_CommentInfo', ['inline', 'eol'])):
 _ParseInfo = namedtuple(
     '_ParseInfoTuple',
     [
+        'tokenizer',
         'rule',
         'pos',
         'endpos',
