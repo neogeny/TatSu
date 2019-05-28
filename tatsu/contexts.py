@@ -12,6 +12,7 @@ from tatsu.util.unicode_characters import (
     C_FAILURE,
     C_RECURSION,
 )
+from . import tokenizing
 from . import buffering
 from . import color
 from .util import notnone, prune_dict, is_list, info, safe_name
@@ -173,7 +174,7 @@ class ParseContext(object):
         self._initialize_caches()
         self._furthest_exception = None
 
-        if isinstance(text, buffering.Buffer):
+        if isinstance(text, tokenizing.Tokenizer):
             tokenizer = text
         else:
             tokenizercls = tokenizercls or self.tokenizercls

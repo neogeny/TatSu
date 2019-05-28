@@ -44,11 +44,11 @@ def is_posix():
 
 
 def _prints(*args, **kwargs):
-    io = StringIO()
-    kwargs['file'] = io
-    kwargs['end'] = ''
-    print(*args, **kwargs)
-    return io.getvalue()
+    with StringIO() as f:
+        kwargs['file'] = f
+        kwargs['end'] = ''
+        print(*args, **kwargs)
+        return f.getvalue()
 
 
 def info(*args, **kwargs):

@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import generator_stop
 
+from .util._common import _prints
+from .exceptions import ParseError  # noqa
+
 
 class Tokenizer:
+    def error(self, *args, **kwargs):
+        raise ParseError(_prints(*args, **kwargs))
+
     @property
     def filename(self):
         raise NotImplementedError
@@ -23,6 +29,14 @@ class Tokenizer:
 
     def ateol(self):
         raise NotImplementedError
+
+    @property
+    def token(self):
+        raise NotImplementedError
+
+    @property
+    def current(self):
+        return self.token
 
     def next(self):
         raise NotImplementedError

@@ -190,8 +190,9 @@ class Buffer(Tokenizer):
         return self._pos >= self._len
 
     def ateol(self):
-        return self.atend() or self.current() in '\r\n'
+        return self.atend() or self.current in '\r\n'
 
+    @property
     def current(self):
         if self._pos >= self._len:
             return None
@@ -206,7 +207,7 @@ class Buffer(Tokenizer):
         return self.at(self._pos + n)
 
     def next(self):
-        if self._pos >= self._len:
+        if self.atend():
             return None
         c = self.text[self._pos]
         self._pos += 1
@@ -317,7 +318,7 @@ class Buffer(Tokenizer):
             partial_match = (
                 self.nameguard and
                 all(self.is_name_char(t) for t in token) and
-                self.is_name_char(self.current())
+                self.is_name_char(self.current)
             )
             if not partial_match:
                 return token
