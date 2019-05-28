@@ -31,8 +31,8 @@ class PatternTests(unittest.TestCase):
         '''
 
         model = compile(grammar, "test")
-        ast = model.parse('\n\n', trace=True)
-        self.assertEqual(['\n', '\n'], ast)
+        ast = model.parse('\n\n')
+        self.assertEqual(('\n', '\n'), ast)
 
     def test_pattern_concatenation(self):
         grammar = '''
