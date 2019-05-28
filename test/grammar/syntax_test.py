@@ -106,7 +106,7 @@ class SyntaxTests(unittest.TestCase):
         '''
         model = compile(grammar, "test")
         ast = model.parse("1234", nameguard=False)
-        self.assertEqual(['1', '2', '3', '4'], ast)
+        self.assertEqual(('1', '2', '3', '4'), ast)
 
         grammar = '''
             start = '1' foo:['2' '3'] '4' $ ;
@@ -121,7 +121,7 @@ class SyntaxTests(unittest.TestCase):
         '''
         model = compile(grammar, "test")
         ast = model.parse("1234", nameguard=False)
-        self.assertEqual(['1', '2', '3', '4'], ast)
+        self.assertEqual(('1', '2', '3', '4'), ast)
 
     def test_partial_options(self):
         grammar = '''
@@ -142,7 +142,7 @@ class SyntaxTests(unittest.TestCase):
         '''
         model = compile(grammar, "test")
         ast = model.parse("AB", nameguard=False)
-        self.assertEqual(['A', 'B'], ast)
+        self.assertEqual(('A', 'B'), ast)
 
     def test_partial_choice(self):
         grammar = '''
@@ -219,7 +219,7 @@ class SyntaxTests(unittest.TestCase):
             '''
         model = compile(grammar, "test")
         ast = model.parse("abb", nameguard=False)
-        self.assertEqual(['a', 'b', 'b'], ast)
+        self.assertEqual(('a', 'b', 'b'), ast)
         self.assertEqual(trim(grammar), str(model))
 
     def test_rule_include(self):
@@ -231,7 +231,7 @@ class SyntaxTests(unittest.TestCase):
         '''
         model = compile(grammar, "test")
         ast = model.parse("abb", nameguard=False)
-        self.assertEqual(['a', 'b', 'b'], ast)
+        self.assertEqual(('a', 'b', 'b'), ast)
 
     def test_48_rule_override(self):
         grammar = '''
@@ -244,7 +244,7 @@ class SyntaxTests(unittest.TestCase):
         '''
         model = compile(grammar, "test")
         ast = model.parse("abb", nameguard=False)
-        self.assertEqual(['a', 'b', 'b'], ast)
+        self.assertEqual(('a', 'b', 'b'), ast)
 
     def test_failed_ref(self):
         grammar = r"""
@@ -285,7 +285,7 @@ class SyntaxTests(unittest.TestCase):
         model = compile(grammar, "test")
         codegen(model)
         ast = model.parse("xxxy", nameguard=False)
-        self.assertEqual([['x', 'x', 'x'], [], 'y'], ast)
+        self.assertEqual((['x', 'x', 'x'], [], 'y'), ast)
 
     def test_parseinfo(self):
         grammar = '''
@@ -318,7 +318,7 @@ class SyntaxTests(unittest.TestCase):
         '''
         model = compile(grammar, "start")
         ast = model.parse("1xx 2 yy")
-        self.assertEqual(['1', 'xx', ' ', '2', 'yy'], ast)
+        self.assertEqual(('1', 'xx', ' ', '2', 'yy'), ast)
 
     def test_constant(self):
         grammar = '''

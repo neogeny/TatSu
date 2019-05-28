@@ -615,7 +615,7 @@ class ParseContext(object):
     def _get_node(self, pos, ruleinfo):
         node = self.ast
         if not node:
-            node = self.cst
+            node = tuple(self.cst) if is_list(self.cst) else self.cst
         elif '@' in node:
             node = node['@']  # override the AST
         elif self.parseinfo:

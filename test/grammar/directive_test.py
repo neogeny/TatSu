@@ -91,27 +91,9 @@ class DirectiveTests(unittest.TestCase):
         """)
 
         expected = [
-            [
-                [
-                    "a",
-                    "b"
-                ],
-                "\n"
-            ],
-            [
-                [
-                    "c",
-                    "d"
-                ],
-                "\n"
-            ],
-            [
-                [
-                    "e",
-                    "f"
-                ],
-                "\n"
-            ]
+            (["a", "b"], "\n"),
+            (["c", "d"], "\n"),
+            (["e", "f"], "\n"),
         ]
 
         model = tatsu.compile(grammar, "document")

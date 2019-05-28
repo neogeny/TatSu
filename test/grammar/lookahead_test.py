@@ -19,7 +19,7 @@ class LookaheadTests(unittest.TestCase):
         '''
         m = compile(grammar, trace=trace)
         ast = m.parse('x xx yyy a b')
-        self.assertEqual(['x', ['a', 'b']], ast)
+        self.assertEqual(('x', ('a', 'b')), ast)
 
         grammar = '''
             start = 'x' ab $ ;
@@ -32,4 +32,4 @@ class LookaheadTests(unittest.TestCase):
         '''
         m = compile(grammar, trace=trace)
         ast = m.parse('x xx yyy a b')
-        self.assertEqual(['x', ['a', 'b']], ast)
+        self.assertEqual(('x', ('a', 'b')), ast)

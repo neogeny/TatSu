@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import generator_stop
 
-from tatsu import grammars
-from tatsu.exceptions import FailedSemantics
-from tatsu.semantics import ModelBuilderSemantics
-from tatsu.util import eval_escapes, re, warning, flatten
+from collections.abc import Sequence
+
+from . import grammars
+from .exceptions import FailedSemantics
+from .semantics import ModelBuilderSemantics
+from .util import eval_escapes, re, warning, flatten
 
 
 class EBNFGrammarSemantics(ModelBuilderSemantics):
@@ -63,7 +65,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
 
     def sequence(self, ast, *args):
         seq = ast.sequence
-        assert isinstance(seq, list), str(seq)
+        assert isinstance(seq, Sequence), str(seq)
         if len(seq) == 1:
             return seq[0]
         return grammars.Sequence(ast)

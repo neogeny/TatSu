@@ -380,7 +380,7 @@ class SkipTo(Decorator):
 class Sequence(Model):
     def __init__(self, ast, **kwargs):
         assert ast.sequence
-        self.sequence = []
+        self.sequence = ()
         super().__init__(ast=ast)
 
     def parse(self, ctx):
