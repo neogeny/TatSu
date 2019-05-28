@@ -7,25 +7,29 @@ from __future__ import generator_stop
 #
 
 import yaml
+import yaml.resolver
 
 from tatsu.ast import AST
 
 
-def load(stream, loader_class=yaml.SafeLoader, object_pairs_hook=dict):
-
-    class OrderedLoader(loader_class):
+def ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=dict):
+    class OrderedLoader(Loader):
         pass
+
+    def construct_mapping(loader, node):
+        loader.flatten_mapping(node)
+        return object_pairs_hook(loader.construct_pairs(node))
 
     OrderedLoader.add_constructor(
         yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-        lambda loader, node: object_pairs_hook(loader.construct_pairs(node)))
+        construct_mapping)
 
     return yaml.load(stream, OrderedLoader)
 
 
 def ast_dump(data, **kwargs):
-    return yaml.dump(data, object_pairs_hook=AST, **kwargs)
+    return yaml.dump(data, **kwargs)
 
 
 def ast_load(stream, **kwargs):
-    return load(stream, object_pairs_hook=AST, **kwargs)
+    return ordered_load(stream, object_pairs_hook=AST, **kwargs)
