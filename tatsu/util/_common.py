@@ -422,7 +422,7 @@ def short_relative_path(path, base='.'):
         up = Path('../' * n)
 
     rel = str(up / path.relative_to(common))
-    if len(str(rel)) < len(str(path)):
+    if len(rel) < len(str(path)):
         return rel
     else:
-        return path
+        return str(path)
