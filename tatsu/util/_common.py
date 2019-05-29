@@ -413,7 +413,9 @@ def short_relative_path(path, base='.'):
     path = path.resolve()
     common = Path(os.path.commonpath([base, path]))
 
-    if common == Path.home():
+    if common == path.root:
+        return path
+    elif common == Path.home():
         up = Path('~')
     else:
         n = len(base.parts) - len(common.parts)
