@@ -421,4 +421,8 @@ def short_relative_path(path, base='.'):
         n = len(base.parts) - len(common.parts)
         up = Path('../' * n)
 
-    return str(up / path.relative_to(common))
+    rel = str(up / path.relative_to(common))
+    if len(str(rel)) < len(str(path)):
+        return rel
+    else:
+        return path
