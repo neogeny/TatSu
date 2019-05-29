@@ -14,24 +14,24 @@ class Tail(MutableSequence):
     def start(self):
         return self._start
 
-    def insert(self, i, x):
+    def insert(self, index, value):
         if self._tailfull():
             self._tail.popleft()
             self._start += 1
-        self._tail.insert(i - self._start, x)
+        self._tail.insert(index - self._start, value)
 
     def flush(self):
         self._start += len(self._tail)
         self._tail = deque(maxlen=self._tail.maxlen)
 
-    def __getitem__(self, i):
-        return self._tail[i - self._start]
+    def __getitem__(self, index):
+        return self._tail[index - self._start]
 
-    def __setitem__(self, i, x):
-        self._tail[i - self._start] = x
+    def __setitem__(self, index, value):
+        self._tail[index - self._start] = value
 
-    def __delitem__(self, i):
-        del self._tail[i - self._start]
+    def __delitem__(self, index):
+        del self._tail[index - self._start]
 
     def __len__(self):
         return len(self._tail) + self._start
