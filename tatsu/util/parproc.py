@@ -159,7 +159,7 @@ def file_process_progress(results, successful, total, total_time, verbose=False)
     bar = '[%-16s]' % ('#' * round(16 * percent))
 
     if not latest_result.success:
-        print(EOLCH + 90 * ' ', end='', file=sys.stderr)
+        print(EOLCH + 90 * ' ' + EOLCH, end='', file=sys.stderr)
         print(
             f'{short_relative_path(latest_result.payload):60} '
             f'{latest_result.exception.split()[0]} ',
