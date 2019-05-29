@@ -20,6 +20,10 @@ class Tail(MutableSequence):
             self._start += 1
         self._tail.insert(i - self._start, x)
 
+    def flush(self):
+        self._start += len(self._tail)
+        self._tail = deque(maxlen=self._tail.maxlen)
+
     def __getitem__(self, i):
         return self._tail[i - self._start]
 
