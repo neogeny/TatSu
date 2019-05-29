@@ -7,15 +7,15 @@ class Tail(MutableSequence):
         self._tail = deque(maxlen=maxlen)
         self._start = 0
 
-    def _tailfull(self):
-        return len(self._tail) == self._tail.maxlen
-
     @property
     def start(self):
         return self._start
 
+    def tailfull(self):
+        return len(self._tail) == self._tail.maxlen
+
     def insert(self, index, value):
-        if self._tailfull():
+        if self.tailfull():
             self._tail.popleft()
             self._start += 1
         self._tail.insert(index - self._start, value)
