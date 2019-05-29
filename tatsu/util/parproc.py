@@ -50,7 +50,7 @@ def processing_loop(process, filenames, *args, verbose=False, exitfirst=False, *
             all_results.append(result)
 
             total_time = time.time() - start_time
-            file_process_progress(all_results, successful_results, total, total_time)
+            file_process_progress(all_results, successful_results, total, total_time, verbose=verbose)
 
             if result.exception:
                 if verbose:
@@ -146,7 +146,7 @@ def process_in_parallel(payloads, process, *args, **kwargs):
         raise
 
 
-def file_process_progress(results, successful, total, total_time):
+def file_process_progress(results, successful, total, total_time, verbose=False):
     i = len(results)
     latest_result = results[-1]
     filename = latest_result.payload
@@ -157,6 +157,12 @@ def file_process_progress(results, successful, total, total_time):
 
     eta = (total - i) * 0.8 * total_time / (0.2 * i)
     bar = '[%-16s]' % ('#' * round(16 * percent))
+
+    if not latest_result.success:
+        print(EOLCH + 80 * ' ', file=sys.stderr)
+        print(f'{short_relative_path(result.payload):60} {result.exception.split()[0]} ', file=sys.stderr)
+        if verbose:
+            print(f'{result.exception}')
 
     with console_lock:
         print(
@@ -233,14 +239,6 @@ def file_process_summary(filenames, total_time, results, verbose=False):
     )
     print(EOLCH + 80 * ' ', file=sys.stderr)
     print(file=sys.stderr)
-
-    print(dashes, file=sys.stderr)
-    for result in results:
-        if result.success:
-            continue
-        print(f'{short_relative_path(result.payload):60} {result.exception.split()[0]} ', file=sys.stderr)
-        if verbose:
-            print(f'{result.exception}')
-
     print(dashes, file=sys.stderr)
     print(summary, file=sys.stderr)
+    print(dashes, file=sys.stderr)
