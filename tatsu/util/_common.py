@@ -383,7 +383,7 @@ def try_read(filename):
 
 
 def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
-    base = Path(base or '.').expanduser().resolve()
+    base = Path(base or '.').expanduser()
 
     filenames = set()
     for pattern in patterns or []:
@@ -425,6 +425,8 @@ def short_relative_path(path, base='.'):
         return path
     elif common == Path.home():
         up = Path('~')
+    elif common == base:
+        up = Path('.')
     else:
         n = len(base.parts) - len(common.parts)
         up = Path('../' * n)
