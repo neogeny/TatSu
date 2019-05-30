@@ -41,6 +41,7 @@ def processing_loop(process, filenames, *args, verbose=False, exitfirst=False, *
     total = len(filenames)
     total_time = 0
     start_time = time.time()
+    print(len(filenames), 'filenames', file=sys.stderr)
     try:
         results = process_in_parallel(filenames, process, *args, **kwargs)
         results = results or []

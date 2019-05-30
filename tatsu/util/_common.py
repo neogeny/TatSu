@@ -388,6 +388,10 @@ def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
     filenames = set()
     for pattern in patterns or []:
         path = base / pattern
+        if path.is_file():
+            filenames.add(path)
+            continue
+
         if path.is_dir():
             path += '/*'
 
@@ -398,7 +402,11 @@ def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
     filenames = list(filenames)
 
     def excluded(path):
-        return any(path.match(ex) for ex in ignore)
+        if any(path.match(ex) for ex in ignore):
+            return True
+        for part in path.parts:
+            if any(Path(part).match(ex) for ex in ignore):
+                return True
 
     if ignore:
         filenames = [path for path in filenames if not excluded(path)]
