@@ -417,9 +417,9 @@ def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
 
 
 def short_relative_path(path, base='.'):
-    base = Path(base).resolve()
-    path = path.resolve()
-    common = Path(os.path.commonpath([base, path]))
+    path = Path(path)
+    base = Path(base)
+    common = Path(os.path.commonpath([base.resolve(), path.resolve()]))
 
     if common == path.root:
         return path
