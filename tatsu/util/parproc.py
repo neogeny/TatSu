@@ -172,7 +172,7 @@ def file_process_progress(results, successful, total, total_time, verbose=False)
         print(
             '%3d/%-3d' % (i, total),
             bar,
-            '%3d%%(%3d%%%s)' % (100 * percent, 100 * success_percent, SUCCESSCH),
+            '%0.1f%%(%0.1f%%%s)' % (100 * percent, 100 * success_percent, SUCCESSCH),
             # format_hours(total_time),
             '%sETA' % format_hours(eta),
             format_minutes(latest_result),
