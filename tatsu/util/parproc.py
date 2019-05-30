@@ -166,7 +166,7 @@ def file_process_progress(results, successful, total, total_time, verbose=False)
             file=sys.stderr,
         )
         if verbose:
-            print(f'{result.exception}')
+            print(f'{latest_result.exception}')
 
     with console_lock:
         print(
