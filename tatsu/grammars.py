@@ -12,7 +12,6 @@ from tatsu.util import (
     indent, trim, compress_seq, chunks,
     re, notnone,
 )
-from tatsu.util import debug  # noqa
 from tatsu.exceptions import FailedRef, GrammarError
 from tatsu.ast import AST
 from tatsu.contexts import ParseContext
@@ -977,11 +976,11 @@ class Grammar(Model):
     def missing_rules(self, rules):
         return set().union(*[rule.missing_rules(rules) for rule in self.rules])
 
-    def _used_rule_names(self, start='start'):
+    def _used_rule_names(self):
         if not self.rules:
             return {}
 
-        used = {start}
+        used = {'start', self.rules[0].name}
         prev = {}
         while used != prev:
             prev = used
@@ -992,8 +991,8 @@ class Grammar(Model):
             ])
         return used
 
-    def used_rules(self, start='start'):
-        used = self._used_rule_names(start=start)
+    def used_rules(self):
+        used = self._used_rule_names()
         return [rule for rule in self.rules if rule.name in used]
 
     @property
