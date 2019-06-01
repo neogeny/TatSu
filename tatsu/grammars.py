@@ -12,6 +12,7 @@ from tatsu.util import (
     indent, trim, compress_seq, chunks,
     re, notnone,
 )
+from tatsu.util import debug  # noqa
 from tatsu.exceptions import FailedRef, GrammarError
 from tatsu.ast import AST
 from tatsu.contexts import ParseContext
@@ -131,7 +132,10 @@ class Model(Node):
     def followset(self, k=1):
         return self._follow_set
 
-    def _missing_rules(self, rules):
+    def missing_rules(self, rules):
+        return set()
+
+    def _used_rule_names(self):
         return set()
 
     def _first(self, k, f):
@@ -242,8 +246,11 @@ class Decorator(Model):
     def defines(self):
         return self.exp.defines()
 
-    def _missing_rules(self, rules):
-        return self.exp._missing_rules(rules)
+    def missing_rules(self, rules):
+        return self.exp.missing_rules(rules)
+
+    def _used_rule_names(self):
+        return self.exp._used_rule_names()
 
     def _first(self, k, f):
         return self.exp._first(k, f)
@@ -390,8 +397,11 @@ class Sequence(Model):
     def defines(self):
         return [d for s in self.sequence for d in s.defines()]
 
-    def _missing_rules(self, rules):
-        return set().union(*[s._missing_rules(rules) for s in self.sequence])
+    def missing_rules(self, rules):
+        return set().union(*[s.missing_rules(rules) for s in self.sequence])
+
+    def _used_rule_names(self):
+        return set().union(*[s._used_rule_names() for s in self.sequence])
 
     def _first(self, k, f):
         result = {()}
@@ -451,8 +461,11 @@ class Choice(Model):
     def defines(self):
         return [d for o in self.options for d in o.defines()]
 
-    def _missing_rules(self, rules):
-        return set().union(*[o._missing_rules(rules) for o in self.options])
+    def missing_rules(self, rules):
+        return set().union(*[o.missing_rules(rules) for o in self.options])
+
+    def _used_rule_names(self):
+        return set().union(*[o._used_rule_names() for o in self.options])
 
     def _first(self, k, f):
         result = set()
@@ -730,10 +743,13 @@ class RuleRef(Model):
         else:
             return rule()
 
-    def _missing_rules(self, rules):
+    def missing_rules(self, rules):
         if self.name not in rules:
             return {self.name}
         return set()
+
+    def _used_rule_names(self):
+        return {self.name}
 
     def _first(self, k, f):
         self._first_set = f.get(self.name, set())
@@ -949,7 +965,7 @@ class Grammar(Model):
 
         self._adopt_children(rules)
 
-        missing = self._missing_rules({r.name for r in self.rules})
+        missing = self.missing_rules({r.name for r in self.rules})
         if missing:
             msg = '\n'.join([''] + list(sorted(missing)))
             raise GrammarError('Unknown rules, no parser generated:' + msg)
@@ -958,8 +974,27 @@ class Grammar(Model):
         if left_recursion:
             find_left_recursion(self)
 
-    def _missing_rules(self, rules):
-        return set().union(*[rule._missing_rules(rules) for rule in self.rules])
+    def missing_rules(self, rules):
+        return set().union(*[rule.missing_rules(rules) for rule in self.rules])
+
+    def _used_rule_names(self, start='start'):
+        if not self.rules:
+            return {}
+
+        used = {start}
+        prev = {}
+        while used != prev:
+            prev = used
+            used = used | set().union(*[
+                rule._used_rule_names()
+                for rule in self.rules
+                if rule.name in used
+            ])
+        return used
+
+    def used_rules(self, start='start'):
+        used = self._used_rule_names(start=start)
+        return [rule for rule in self.rules if rule.name in used]
 
     @property
     def first_sets(self):
