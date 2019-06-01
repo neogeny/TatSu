@@ -11,18 +11,19 @@ from __future__ import generator_stop
 import os
 from itertools import takewhile, repeat
 
-from tatsu.util import identity
-from tatsu.util import extend_list, contains_sublist
-from tatsu.util import re as regexp
-from tatsu.util import RETYPE, WHITESPACE_RE
-from tatsu.exceptions import ParseError
-from tatsu.infos import PosLine, LineIndexInfo, LineInfo, CommentInfo
+from .tokenizing import Tokenizer
+from .util import identity
+from .util import extend_list, contains_sublist
+from .util import re as regexp
+from .util import RETYPE, WHITESPACE_RE
+from .exceptions import ParseError
+from .infos import PosLine, LineIndexInfo, LineInfo, CommentInfo
 
 # for backwards compatibility with existing parsers
 LineIndexEntry = LineIndexInfo
 
 
-class Buffer(object):
+class Buffer(Tokenizer):
     def __init__(self,
                  text,
                  filename=None,
@@ -36,13 +37,13 @@ class Buffer(object):
                  **kwargs):
         text = str(text)
         self.text = self.original_text = text
-        self.filename = filename or ''
+        self._filename = filename or ''
 
         self.whitespace = whitespace
 
         self.comments_re = comments_re
         self.eol_comments_re = eol_comments_re
-        self.ignorecase = ignorecase
+        self._ignorecase = ignorecase
         self.nameguard = (
             nameguard if nameguard is not None
             else bool(self.whitespace_re) or bool(namechars)
@@ -62,6 +63,14 @@ class Buffer(object):
 
         self._preprocess()
         self._postprocess()
+
+    @property
+    def filename(self):
+        return self._filename
+
+    @property
+    def ignorecase(self):
+        return self._ignorecase
 
     @property
     def whitespace(self):
@@ -181,8 +190,9 @@ class Buffer(object):
         return self._pos >= self._len
 
     def ateol(self):
-        return self.atend() or self.current() in '\r\n'
+        return self.atend() or self.current in '\r\n'
 
+    @property
     def current(self):
         if self._pos >= self._len:
             return None
@@ -197,14 +207,14 @@ class Buffer(object):
         return self.at(self._pos + n)
 
     def next(self):
-        if self._pos >= self._len:
+        if self.atend():
             return None
         c = self.text[self._pos]
         self._pos += 1
         return c
 
-    def goto(self, p):
-        self._pos = max(0, min(len(self.text), p))
+    def goto(self, pos):
+        self._pos = max(0, min(len(self.text), pos))
 
     def move(self, n):
         self.goto(self.pos + n)
@@ -308,7 +318,7 @@ class Buffer(object):
             partial_match = (
                 self.nameguard and
                 all(self.is_name_char(t) for t in token) and
-                self.is_name_char(self.current())
+                self.is_name_char(self.current)
             )
             if not partial_match:
                 return token

@@ -49,11 +49,11 @@ class NoParseInfo(ParseException):
 
 
 class FailedParse(ParseError):
-    def __init__(self, buf, stack, item):
+    def __init__(self, tokenizer, stack, item):
         super().__init__()
-        self.buf = buf
+        self.tokenizer = tokenizer
         self.stack = stack[:]
-        self.pos = buf.pos
+        self.pos = tokenizer.pos
         self.item = item
 
     @property
@@ -61,7 +61,7 @@ class FailedParse(ParseError):
         return self.item
 
     def __str__(self):
-        info = self.buf.line_info(self.pos)
+        info = self.tokenizer.line_info(self.pos)
         template = "{}({}:{}) {} :\n{}\n{}^\n{}"
         text = info.text.rstrip()
         leading = re.sub(r'[^\t]', ' ', text)[:info.col]
@@ -78,8 +78,8 @@ class FailedParse(ParseError):
 
 
 class FailedToken(FailedParse):
-    def __init__(self, buf, stack, token):
-        super().__init__(buf, stack, token)
+    def __init__(self, tokenizer, stack, token):
+        super().__init__(tokenizer, stack, token)
         self.token = token
 
     @property
@@ -88,8 +88,8 @@ class FailedToken(FailedParse):
 
 
 class FailedPattern(FailedParse):
-    def __init__(self, buf, stack, pattern):
-        super().__init__(buf, stack, pattern)
+    def __init__(self, tokenizer, stack, pattern):
+        super().__init__(tokenizer, stack, pattern)
         self.pattern = pattern
 
     @property
@@ -98,8 +98,8 @@ class FailedPattern(FailedParse):
 
 
 class FailedRef(FailedParse):
-    def __init__(self, buf, stack, name):
-        super().__init__(buf, stack, name)
+    def __init__(self, tokenizer, stack, name):
+        super().__init__(tokenizer, stack, name)
         self.name = name
 
     @property
@@ -109,7 +109,7 @@ class FailedRef(FailedParse):
 
 class FailedCut(FailedParse):
     def __init__(self, nested):
-        super().__init__(nested.buf, nested.stack, nested.item)
+        super().__init__(nested.tokenizer, nested.stack, nested.item)
         self.pos = nested.pos
         self.nested = nested
 

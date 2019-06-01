@@ -49,7 +49,7 @@ class CommentInfo(namedtuple('_CommentInfo', ['inline', 'eol'])):
 _ParseInfo = namedtuple(
     '_ParseInfoTuple',
     [
-        'buffer',
+        'tokenizer',
         'rule',
         'pos',
         'endpos',
@@ -63,10 +63,10 @@ class ParseInfo(_ParseInfo):
     __slots__ = ()
 
     def text_lines(self):
-        return self.buffer.get_lines(self.line, self.endline)
+        return self.tokenizer.get_lines(self.line, self.endline)
 
     def line_index(self):
-        return self.buffer.line_index(self.line, self.endline)
+        return self.tokenizer.line_index(self.line, self.endline)
 
 
 MemoKey = namedtuple(

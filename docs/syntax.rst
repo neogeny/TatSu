@@ -294,7 +294,7 @@ The expressions, in reverse order of operator precedence, can be:
 
 ``/./``
 ^^^^^^^
-    The *any* expression, matches the next position in the input. It works exactly like the ``?'.'`` pattern, but is implemented at the buffer level, without regular expressions.
+    The *any* expression, matches the next position in the input. It works exactly like the ``?'.'`` pattern, but is implemented at the lexical level, without regular expressions.
 
 
 ``->e``

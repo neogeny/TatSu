@@ -26,7 +26,7 @@ PEP8_LLEN = 72
 
 COMMENTS_RE = r'\(\*((?:.|\n)*?)\*\)'
 EOL_COMMENTS_RE = r'#([^\n]*?)$'
-PRAGMA_RE = r'^\s*#[a-z]+'
+PRAGMA_RE = r'^\s*#include.*$'
 
 
 def dot(x, y, k):
@@ -84,11 +84,7 @@ class ModelContext(ParseContext):
 
     @property
     def pos(self):
-        return self._buffer.pos
-
-    @property
-    def buf(self):
-        return self._buffer
+        return self._tokenizer.pos
 
     def _find_rule(self, name):
         return functools.partial(self.rules[name].parse, self)

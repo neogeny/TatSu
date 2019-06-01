@@ -26,7 +26,7 @@ with the parse information for the node:
     ParseInfo = namedtuple(
         'ParseInfo',
         [
-            'buffer',
+            'tokenizer',
             'rule',
             'pos',
             'endpos',

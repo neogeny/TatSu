@@ -5,9 +5,21 @@ from .parproc import processing_loop
 
 
 def parallel_test_run(parse, options):
+
+    def pysearch(pattern):
+        if pattern.endswith('.py'):
+            return pattern
+        else:
+            if not pattern.endswith('/'):
+                pattern += '/'
+            if '**' not in pattern:
+                pattern += '**/'
+            return pattern + '*.py'
+
     try:
+        patterns = [pysearch(p) for p in options.patterns]
         filenames = filelist_from_patterns(
-            options.patterns,
+            patterns,
             sizesort=options.sort,
             ignore=options.ignore
         )

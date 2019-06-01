@@ -6,7 +6,7 @@ Grammar Directives
 
 |TatSu| allows *directives* in the grammar that control the behavior of the generated parsers. All directives are of the form ``@@name :: <value>``. For example:
 
-.. code:: ocaml
+.. code:: ebnf
 
     @@ignorecase :: True
 
@@ -25,7 +25,7 @@ The *directives* supported by |TatSu| are described below.
 
 Specifies a regular expression to identify and exclude inline (bracketed) comments before the text is scanned by the parser. For ``(* ... *)`` comments:
 
-.. code:: ocaml
+.. code:: ebnf
 
     @@comments :: /\(\*((?:.|\n)*?)\*\)/
 
@@ -35,7 +35,7 @@ Specifies a regular expression to identify and exclude inline (bracketed) commen
 
 Specifies a regular expression to identify and exclude end-of-line comments before the text is scanned by the parser. For ``# ...`` comments:
 
-.. code:: ocaml
+.. code:: ebnf
 
     @@eol_comments :: /#([^\n]*?)$/
 
@@ -46,7 +46,7 @@ Specifies a regular expression to identify and exclude end-of-line comments befo
 If set to ``True`` makes |TatSu| not consider case when parsing tokens. Defaults to ``False``:
 
 
-.. code:: ocaml
+.. code:: ebnf
 
     @@ignorecase :: True
 
@@ -73,7 +73,7 @@ Enables left-recursive rules in the grammar. See the `Left Recursion`_ sections 
 
 A list of (non-alfanumeric) characters that should be considered part of names when using the `@@nameguard`_ feature:
 
-.. code:: ocaml
+.. code:: ebnf
 
     @@namechars :: '-_$'
 
@@ -85,7 +85,7 @@ A list of (non-alfanumeric) characters that should be considered part of names w
 
 When set to ``True``, avoids matching tokens when the next character in the input sequence is alfarnumeric or a ``@@namechar``. Defaults to ``True``. See the `'text' expression`_ for an explanation.
 
-.. code:: ocaml
+.. code:: ebnf
 
     @@nameguard :: False
 
@@ -111,6 +111,6 @@ Enabling ``@@parseinfo`` will allow precise reporting over the input source-code
 
 Provides a regular expression for the whitespace to be ignored by the parser. It defaults to ``/(?s)\s+/``:
 
-.. code:: ocaml
+.. code:: ebnf
 
     @@whitespace :: /[\t ]+/

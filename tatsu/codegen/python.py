@@ -536,7 +536,7 @@ class Grammar(Base):
                         parseinfo={parseinfo},
                         keywords=None,
                         namechars={namechars},
-                        buffer_class={name}Buffer,
+                        tokenizercls={name}Buffer,
                         **kwargs
                     ):
                         if keywords is None:
@@ -551,7 +551,7 @@ class Grammar(Base):
                             parseinfo=parseinfo,
                             keywords=keywords,
                             namechars=namechars,
-                            buffer_class=buffer_class,
+                            tokenizercls=tokenizercls,
                             **kwargs
                         )
 

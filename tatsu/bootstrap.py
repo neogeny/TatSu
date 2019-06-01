@@ -63,7 +63,7 @@ class EBNFBootstrapParser(Parser):
         parseinfo=True,
         keywords=None,
         namechars='',
-        buffer_class=EBNFBootstrapBuffer,
+        tokenizercls=EBNFBootstrapBuffer,
         **kwargs
     ):
         if keywords is None:
@@ -78,7 +78,7 @@ class EBNFBootstrapParser(Parser):
             parseinfo=parseinfo,
             keywords=keywords,
             namechars=namechars,
-            buffer_class=buffer_class,
+            tokenizercls=tokenizercls,
             **kwargs
         )
 

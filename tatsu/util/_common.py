@@ -44,11 +44,11 @@ def is_posix():
 
 
 def _prints(*args, **kwargs):
-    io = StringIO()
-    kwargs['file'] = io
-    kwargs['end'] = ''
-    print(*args, **kwargs)
-    return io.getvalue()
+    with StringIO() as f:
+        kwargs['file'] = f
+        kwargs['end'] = ''
+        print(*args, **kwargs)
+        return f.getvalue()
 
 
 def info(*args, **kwargs):
@@ -383,11 +383,15 @@ def try_read(filename):
 
 
 def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
-    base = Path(base or '.').expanduser().resolve()
+    base = Path(base or '.').expanduser()
 
     filenames = set()
     for pattern in patterns or []:
         path = base / pattern
+        if path.is_file():
+            filenames.add(path)
+            continue
+
         if path.is_dir():
             path += '/*'
 
@@ -398,7 +402,11 @@ def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
     filenames = list(filenames)
 
     def excluded(path):
-        return any(path.match(ex) for ex in ignore)
+        if any(path.match(ex) for ex in ignore):
+            return True
+        for part in path.parts:
+            if any(Path(part).match(ex) for ex in ignore):
+                return True
 
     if ignore:
         filenames = [path for path in filenames if not excluded(path)]
@@ -409,14 +417,22 @@ def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
 
 
 def short_relative_path(path, base='.'):
-    base = Path(base).resolve()
-    path = path.resolve()
-    common = Path(os.path.commonpath([base, path]))
+    path = Path(path)
+    base = Path(base)
+    common = Path(os.path.commonpath([base.resolve(), path.resolve()]))
 
-    if common == Path.home():
+    if common == path.root:
+        return path
+    elif common == Path.home():
         up = Path('~')
+    elif common == base:
+        up = Path('.')
     else:
         n = len(base.parts) - len(common.parts)
         up = Path('../' * n)
 
-    return str(up / path.relative_to(common))
+    rel = str(up / path.resolve().relative_to(common))
+    if len(rel) < len(str(path)):
+        return rel
+    else:
+        return str(path)

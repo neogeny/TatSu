@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Define the AST class, a direct descendant of dict that's used during parsing
-to store the values of named elements of grammar rules.
-"""
 from __future__ import generator_stop
-from collections.abc import Mapping
 
 from tatsu.util import asjson, is_list
 
@@ -30,18 +25,6 @@ class AST(dict):
 
     def set_parseinfo(self, value):
         super().__setitem__('parseinfo', value)
-
-    def update(self, *args, **kwargs):
-        def update_pairs(d):
-            for k, v in d:
-                self[k] = v
-
-        for d in args:
-            if isinstance(d, Mapping):
-                update_pairs(d.items())
-            else:
-                update_pairs(d)
-        update_pairs(kwargs.items())
 
     def copy(self):
         return self.__copy__()
