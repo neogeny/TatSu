@@ -117,7 +117,7 @@ RuleResult = namedtuple(
 )
 
 
-class TreeInfo(object):
+class ParseState(object):
     __slots__ = (
         'ast',
         'cst'

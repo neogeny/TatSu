@@ -22,7 +22,7 @@ from .infos import (
     ParseInfo,
     RuleInfo,
     RuleResult,
-    TreeInfo,
+    ParseState,
 )
 from tatsu.exceptions import (
     FailedCut,
@@ -123,7 +123,7 @@ class ParseContext(object):
         self._initialize_caches()
 
     def _initialize_caches(self):
-        self._tree_stack = [TreeInfo()]
+        self._tree_stack = [ParseState()]
         self._rule_stack = []
         self._cut_stack = [False]
 
@@ -276,7 +276,7 @@ class ParseContext(object):
         self.ast._setlist(name, self.last_node)
 
     def _push_ast(self):
-        self._tree_stack.append(TreeInfo())
+        self._tree_stack.append(ParseState())
 
     def _pop_ast(self):
         self._tree_stack.pop()
@@ -290,7 +290,7 @@ class ParseContext(object):
         self._tree_stack[-1].cst = value
 
     def _push_cst(self):
-        self._tree_stack.append(TreeInfo(ast=self.ast))
+        self._tree_stack.append(ParseState(ast=self.ast))
 
     def _pop_cst(self):
         ast = self.ast
