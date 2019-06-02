@@ -263,21 +263,29 @@ class ParseContext(object):
             self._tokenizer.next_token()
 
     @property
-    def ast(self):
+    def _rawast(self):
         return self._statestack[-1].ast
+
+    @_rawast.setter
+    def _rawast(self, value):
+        self._statestack[-1].ast = value
+
+    @property
+    def ast(self):
+        ast = self._rawast
+        if not isinstance(ast, AST):
+            ast = AST()
+            self._rawast = ast
+        return ast
 
     @ast.setter
     def ast(self, value):
-        self._statestack[-1].ast = value
+        self._rawast = value
 
     def name_last_node(self, name):
-        if not isinstance(self.ast, AST):
-            self.ast = AST()
         self.ast[name] = self.last_node
 
     def add_last_node_to_name(self, name):
-        if not isinstance(self.ast, AST):
-            self.ast = AST()
         self.ast._setlist(name, self.last_node)
 
     def _push_ast(self):
@@ -295,12 +303,20 @@ class ParseContext(object):
         self._statestack[-1].cst = value
 
     def _push_cst(self):
-        self._statestack.append(ParseState(ast=self.ast))
+        self._statestack.append(ParseState(ast=self._rawast))
 
     def _pop_cst(self):
-        ast = self.ast
+        ast = self._rawast
         self._statestack.pop()
         self.ast = ast
+
+    def _merge_cst(self):
+        cst = self.cst
+        self._pop_cst()
+        self._add_cst_node(cst)
+        self.last_node = cst
+
+
 
     def _add_cst_node(self, node):
         if node is None:

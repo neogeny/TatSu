@@ -121,6 +121,6 @@ RuleResult = namedtuple(
 
 @dataclass
 class ParseState(object):
-    ast: Union[AST, tuple, str, list] = field(default_factory=AST)
+    ast: AST = None
     cst: Any = None
     substate: Any = None

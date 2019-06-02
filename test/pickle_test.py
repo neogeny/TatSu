@@ -30,4 +30,4 @@ class PickleTest(unittest.TestCase):
         new_model = pickle.loads(p)
         self.assertEqual('ASeq', type(new_model).__name__)
 
-        self.assertEqual(model._ast, new_model._ast)
+        self.assertEqual(model.ast, new_model.ast)
