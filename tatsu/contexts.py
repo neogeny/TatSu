@@ -128,7 +128,7 @@ class ParseContext(object):
         self._cut_stack = [False]
 
         self._last_node = None
-        self._state = None
+        self.substate = None
         self._lookahead = 0
 
         self._clear_memoization_caches()
@@ -479,7 +479,7 @@ class ParseContext(object):
 
     @property
     def memokey(self):
-        return MemoKey(self._pos, self.rule, self._state)
+        return MemoKey(self._pos, self.rule, self.substate)
 
     def _memoize(self, key, memo):
         if self._memoization() and key.rule.is_memoizable:
@@ -498,7 +498,7 @@ class ParseContext(object):
         return memo
 
     def _mkresult(self, node):
-        return RuleResult(node, self._pos, self._state)
+        return RuleResult(node, self._pos, self.substate)
 
     def _save_result(self, key, result):
         if is_list(result.node):
@@ -524,7 +524,7 @@ class ParseContext(object):
             node, newpos, newstate = result
 
             self._goto(newpos)
-            self._state = newstate
+            self.substate = newstate
             self._add_cst_node(node)
             self._last_node = node
 
@@ -672,7 +672,7 @@ class ParseContext(object):
     @contextmanager
     def _try(self):
         p = self._pos
-        s = self._state
+        s = self.substate
         ast_copy = self.ast.copy()
         self._push_ast()
         self.last_node = None
@@ -683,7 +683,7 @@ class ParseContext(object):
             cst = self.cst
         except FailedParse:
             self._goto(p)
-            self._state = s
+            self.substate = s
             raise
         finally:
             self._pop_ast()
@@ -736,7 +736,7 @@ class ParseContext(object):
     @contextmanager
     def _if(self):
         p = self._pos
-        s = self._state
+        s = self.substate
         self._push_ast()
         self._lookahead += 1
         try:
@@ -745,7 +745,7 @@ class ParseContext(object):
         finally:
             self._lookahead -= 1
             self._goto(p)
-            self._state = s
+            self.substate = s
             self._pop_ast()  # simply discard
         self.last_node = cst
 
