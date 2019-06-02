@@ -3,7 +3,7 @@ from __future__ import generator_stop
 
 from collections import namedtuple
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Union
 
 from .ast import AST
 
@@ -121,6 +121,6 @@ RuleResult = namedtuple(
 
 @dataclass
 class ParseState(object):
-    ast: AST = field(default_factory=AST)
+    ast: Union[AST, tuple, str, list] = field(default_factory=AST)
     cst: Any = None
     substate: Any = None

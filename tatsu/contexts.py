@@ -4,6 +4,7 @@ from __future__ import generator_stop
 import sys
 import functools
 from contextlib import contextmanager
+from copy import copy
 
 from tatsu.util.unicode_characters import (
     C_DERIVE,
@@ -17,6 +18,7 @@ from . import buffering
 from . import color
 from .util import notnone, prune_dict, is_list, info, safe_name
 from .util import left_assoc, right_assoc
+from .ast import AST
 from .infos import (
     MemoKey,
     ParseInfo,
@@ -219,7 +221,6 @@ class ParseContext(object):
             )
             rule = self._find_rule(rule_name)
             result = rule()
-            self.ast[rule_name] = result
             return result
         except FailedCut as e:
             self._set_furthest_exception(e.nested)
@@ -270,9 +271,13 @@ class ParseContext(object):
         self._statestack[-1].ast = value
 
     def name_last_node(self, name):
+        if not isinstance(self.ast, AST):
+            self.ast = AST()
         self.ast[name] = self.last_node
 
     def add_last_node_to_name(self, name):
+        if not isinstance(self.ast, AST):
+            self.ast = AST()
         self.ast._setlist(name, self.last_node)
 
     def _push_ast(self):
@@ -673,7 +678,7 @@ class ParseContext(object):
     def _try(self):
         p = self._pos
         s = self.substate
-        ast_copy = self.ast.copy()
+        ast_copy = copy(self.ast)
         self._push_ast()
         self.last_node = None
         try:
