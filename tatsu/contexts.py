@@ -123,7 +123,7 @@ class ParseContext(object):
         self._initialize_caches()
 
     def _initialize_caches(self):
-        self._tree_stack = [ParseState()]
+        self._statestack = [ParseState()]
         self._rule_stack = []
         self._cut_stack = [False]
 
@@ -263,11 +263,11 @@ class ParseContext(object):
 
     @property
     def ast(self):
-        return self._tree_stack[-1].ast
+        return self._statestack[-1].ast
 
     @ast.setter
     def ast(self, value):
-        self._tree_stack[-1].ast = value
+        self._statestack[-1].ast = value
 
     def name_last_node(self, name):
         self.ast[name] = self.last_node
@@ -276,25 +276,25 @@ class ParseContext(object):
         self.ast._setlist(name, self.last_node)
 
     def _push_ast(self):
-        self._tree_stack.append(ParseState())
+        self._statestack.append(ParseState())
 
     def _pop_ast(self):
-        self._tree_stack.pop()
+        self._statestack.pop()
 
     @property
     def cst(self):
-        return self._tree_stack[-1].cst
+        return self._statestack[-1].cst
 
     @cst.setter
     def cst(self, value):
-        self._tree_stack[-1].cst = value
+        self._statestack[-1].cst = value
 
     def _push_cst(self):
-        self._tree_stack.append(ParseState(ast=self.ast))
+        self._statestack.append(ParseState(ast=self.ast))
 
     def _pop_cst(self):
         ast = self.ast
-        self._tree_stack.pop()
+        self._statestack.pop()
         self.ast = ast
 
     def _add_cst_node(self, node):

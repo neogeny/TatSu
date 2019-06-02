@@ -34,17 +34,17 @@ class StatefulTests(unittest.TestCase):
 
             def ul_start(self, ast):
                 ctx = self._context
-                ctx._state = 1 if ctx._state is None else ctx._state + 1
+                ctx.substate = 1 if ctx.substate is None else ctx.substate + 1
                 return ast
 
             def ul_end(self, ast):
                 ctx = self._context
-                ctx._state = None if ctx._state is None or ctx._state <= 1 else ctx._state - 1
+                ctx.substate = None if ctx.substate is None or ctx.substate <= 1 else ctx.substate - 1
                 return ast
 
             def ul_marker(self, ast):
                 ctx = self._context
-                if ctx._state is not None and not ctx.tokenizer.match("*" * ctx._state):
+                if ctx.substate is not None and not ctx.tokenizer.match("*" * ctx.substate):
                     raise FailedSemantics("not at correct level")
                 return ast
 
