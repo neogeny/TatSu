@@ -190,8 +190,8 @@ class ParseContext(object):
                 **kwargs)
         self._tokenizer = tokenizer
 
-        if hasattr(self.semantics, 'set_tokenizer'):
-            self.semantics.set_tokenizer(self.tokenizer)
+        if hasattr(self.semantics, 'set_context'):
+            self.semantics.set_context(self)
 
     def _set_furthest_exception(self, e):
         if not self._furthest_exception or e.pos > self._furthest_exception.pos:
@@ -845,8 +845,9 @@ class ParseContext(object):
         self.last_node = self.cst
         return self.cst
 
-    def _check_name(self):
-        name = str(self.last_node)
+    def _check_name(self, name=None):
+        if name is None:
+            name = str(self.last_node)
         if self.ignorecase or self._tokenizer.ignorecase:
             name = name.upper()
         if name in self.keywords:
