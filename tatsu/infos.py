@@ -121,6 +121,6 @@ RuleResult = namedtuple(
 
 @dataclass
 class ParseState(object):
+    pos: int = 0
     ast: AST = field(default_factory=AST)
     cst: Any = None
-    substate: Any = None

@@ -263,12 +263,16 @@ class ParseContext(object):
             self._tokenizer.next_token()
 
     @property
+    def state(self):
+        return self._statestack[-1]
+
+    @property
     def ast(self):
-        return self._statestack[-1].ast
+        return self.state.ast
 
     @ast.setter
     def ast(self, value):
-        self._statestack[-1].ast = value
+        self.state.ast = value
 
     def name_last_node(self, name):
         self.ast[name] = self.last_node
@@ -276,19 +280,32 @@ class ParseContext(object):
     def add_last_node_to_name(self, name):
         self.ast._setlist(name, self.last_node)
 
-    def _push_ast(self):
-        self._statestack.append(ParseState())
+    def _push_ast(self, copyast=False):
+        ast = copy(self.ast) if copyast else AST()
+        self.state.pos = self._pos
+        self._statestack.append(
+            ParseState(
+                ast=ast,
+                pos=self._pos,
+            )
+        )
 
     def _pop_ast(self):
         self._statestack.pop()
+        self.tokenizer.goto(self.state.pos)
+
+    def _merge_ast(self):
+        pos = self._pos
+        self._statestack.pop()
+        self.tokenizer.goto(pos)
 
     @property
     def cst(self):
-        return self._statestack[-1].cst
+        return self.state.cst
 
     @cst.setter
     def cst(self, value):
-        self._statestack[-1].cst = value
+        self.state.cst = value
 
     def _push_cst(self):
         self._statestack.append(ParseState(ast=self.ast))
@@ -610,14 +627,13 @@ class ParseContext(object):
                 node = self._invoke_semantic_rule(ruleinfo, node)
                 result = self._mkresult(node)
                 self._memoize(key, result)
+                self._merge_ast()
                 return result
             except FailedSemantics as e:
                 self._error(str(e))
-            finally:
-                self._pop_ast()
         except FailedParse as e:
+            self._pop_ast()
             self._memoize(key, e)
-            self._goto(key.pos)
             raise
 
     def _get_node(self, pos, ruleinfo):
@@ -675,22 +691,18 @@ class ParseContext(object):
 
     @contextmanager
     def _try(self):
-        p = self._pos
         s = self.substate
-        ast_copy = copy(self.ast)
-        self._push_ast()
+        self._push_ast(True)
         self.last_node = None
         try:
-            self.ast = ast_copy
             yield
             ast = self.ast
             cst = self.cst
+            self._merge_ast()
         except FailedParse:
-            self._goto(p)
+            self._pop_ast()
             self.substate = s
             raise
-        finally:
-            self._pop_ast()
         self.ast = ast
         self._extend_cst(cst)
 
@@ -737,7 +749,6 @@ class ParseContext(object):
 
     @contextmanager
     def _if(self):
-        p = self._pos
         s = self.substate
         self._push_ast()
         self._lookahead += 1
@@ -745,11 +756,9 @@ class ParseContext(object):
             yield
             cst = self.cst
         finally:
-            self._lookahead -= 1
-            self._goto(p)
-            self.substate = s
             self._pop_ast()  # simply discard
-        self.last_node = cst
+            self._lookahead -= 1
+            self.substate = s
 
     @contextmanager
     def _ifnot(self):
