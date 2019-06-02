@@ -296,7 +296,11 @@ class ParseContext(object):
 
     def _merge_ast(self):
         pos = self._pos
+        ast = self.ast
+        cst = self.cst
         self._statestack.pop()
+        self.ast = ast
+        self._extend_cst(cst)
         self.tokenizer.goto(pos)
 
     @property
@@ -315,12 +319,16 @@ class ParseContext(object):
         self._statestack.pop()
         self.ast = ast
 
-    def _merge_cst(self):
+    def _merge_cst(self, extend=True):
         cst = self.cst
         self._pop_cst()
-        self._add_cst_node(cst)
+        if extend:
+            self._extend_cst(cst)
+        else:
+            self._append_cst(cst)
+        return cst
 
-    def _add_cst_node(self, node):
+    def _append_cst(self, node):
         if node is None:
             return
         self.last_node = node
@@ -331,6 +339,7 @@ class ParseContext(object):
             previous.append(node)
         else:
             self.cst = [previous, node]
+        return node
 
     def _extend_cst(self, node):
         if node is None:
@@ -348,6 +357,7 @@ class ParseContext(object):
             previous.append(node)
         else:
             self.cst = [previous, node]
+        return node
 
     def _copy_node(self, node):
         if node is None:
@@ -550,7 +560,7 @@ class ParseContext(object):
 
             self._goto(newpos)
             self.substate = newstate
-            self._add_cst_node(node)
+            self._append_cst(node)
 
             self._trace_success()
 
@@ -627,14 +637,14 @@ class ParseContext(object):
                 node = self._invoke_semantic_rule(ruleinfo, node)
                 result = self._mkresult(node)
                 self._memoize(key, result)
-                self._merge_ast()
                 return result
             except FailedSemantics as e:
                 self._error(str(e))
         except FailedParse as e:
-            self._pop_ast()
             self._memoize(key, e)
             raise
+        finally:
+            self._pop_ast()
 
     def _get_node(self, pos, ruleinfo):
         node = self.ast
@@ -660,13 +670,13 @@ class ParseContext(object):
             self._trace_match(token, failed=True)
             self._error(token, exclass=FailedToken)
         self._trace_match(token)
-        self._add_cst_node(token)
+        self._append_cst(token)
         return token
 
     def _constant(self, literal):
         self._next_token()
         self._trace_match(literal)
-        self._add_cst_node(literal)
+        self._append_cst(literal)
         return literal
 
     def _pattern(self, pattern):
@@ -675,7 +685,7 @@ class ParseContext(object):
             self._trace_match('', pattern, failed=True)
             self._error(pattern, exclass=FailedPattern)
         self._trace_match(token, pattern)
-        self._add_cst_node(token)
+        self._append_cst(token)
         return token
 
     def _eof(self):
@@ -692,19 +702,15 @@ class ParseContext(object):
     @contextmanager
     def _try(self):
         s = self.substate
-        self._push_ast(True)
+        self._push_ast(copyast=True)
         self.last_node = None
         try:
             yield
-            ast = self.ast
-            cst = self.cst
             self._merge_ast()
         except FailedParse:
             self._pop_ast()
             self.substate = s
             raise
-        self.ast = ast
-        self._extend_cst(cst)
 
     @contextmanager
     def _option(self):
@@ -742,10 +748,10 @@ class ParseContext(object):
         self._push_cst()
         try:
             yield
-            cst = self.cst
-        finally:
+            self._merge_cst(extend=True)
+        except:
             self._pop_cst()
-        self._extend_cst(cst)
+            raise
 
     @contextmanager
     def _if(self):
@@ -781,7 +787,7 @@ class ParseContext(object):
         if is_list(cst):
             cst = closure(cst)
         if not drop:
-            self._add_cst_node(cst)
+            self._append_cst(cst)
         return cst
 
     def _repeat(self, block, prefix=None, dropprefix=False):
@@ -808,11 +814,11 @@ class ParseContext(object):
                 block()
                 self.cst = [self.cst]
             self._repeat(block, prefix=sep, dropprefix=omitsep)
-            cst = closure(self.cst)
-        finally:
+            self.cst = closure(self.cst)
+            return self._merge_cst()
+        except:
             self._pop_cst()
-        self._add_cst_node(cst)
-        return cst
+            raise
 
     def _positive_closure(self, block, sep=None, omitsep=False):
         self._push_cst()
@@ -820,15 +826,15 @@ class ParseContext(object):
             block()
             self.cst = [self.cst]
             self._repeat(block, prefix=sep, dropprefix=omitsep)
-            cst = closure(self.cst)
-        finally:
+            self.cst = closure(self.cst)
+            return self._merge_cst()
+        except:
             self._pop_cst()
-        self._add_cst_node(cst)
-        return cst
+            raise
 
     def _empty_closure(self):
         cst = closure([])
-        self._add_cst_node(cst)
+        self._append_cst(cst)
         return cst
 
     def _gather(self, block, sep):
@@ -870,7 +876,7 @@ class ParseContext(object):
             self._trace_match(c, failed=True)
             self._error(c, exclass=FailedToken)
         self._trace_match(c)
-        self._add_cst_node(c)
+        self._append_cst(c)
         return c
 
     def _skip_to(self, block):
