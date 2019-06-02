@@ -263,24 +263,12 @@ class ParseContext(object):
             self._tokenizer.next_token()
 
     @property
-    def _rawast(self):
-        return self._statestack[-1].ast
-
-    @_rawast.setter
-    def _rawast(self, value):
-        self._statestack[-1].ast = value
-
-    @property
     def ast(self):
-        ast = self._rawast
-        if not isinstance(ast, AST):
-            ast = AST()
-            self._rawast = ast
-        return ast
+        return self._statestack[-1].ast
 
     @ast.setter
     def ast(self, value):
-        self._rawast = value
+        self._statestack[-1].ast = value
 
     def name_last_node(self, name):
         self.ast[name] = self.last_node
@@ -303,10 +291,10 @@ class ParseContext(object):
         self._statestack[-1].cst = value
 
     def _push_cst(self):
-        self._statestack.append(ParseState(ast=self._rawast))
+        self._statestack.append(ParseState(ast=self.ast))
 
     def _pop_cst(self):
-        ast = self._rawast
+        ast = self.ast
         self._statestack.pop()
         self.ast = ast
 
@@ -314,13 +302,11 @@ class ParseContext(object):
         cst = self.cst
         self._pop_cst()
         self._add_cst_node(cst)
-        self.last_node = cst
-
-
 
     def _add_cst_node(self, node):
         if node is None:
             return
+        self.last_node = node
         previous = self.cst
         if previous is None:
             self.cst = self._copy_node(node)
@@ -332,6 +318,7 @@ class ParseContext(object):
     def _extend_cst(self, node):
         if node is None:
             return
+        self.last_node = node
         previous = self.cst
         if previous is None:
             self.cst = self._copy_node(node)
@@ -547,7 +534,6 @@ class ParseContext(object):
             self._goto(newpos)
             self.substate = newstate
             self._add_cst_node(node)
-            self._last_node = node
 
             self._trace_success()
 
@@ -659,14 +645,12 @@ class ParseContext(object):
             self._error(token, exclass=FailedToken)
         self._trace_match(token)
         self._add_cst_node(token)
-        self._last_node = token
         return token
 
     def _constant(self, literal):
         self._next_token()
         self._trace_match(literal)
         self._add_cst_node(literal)
-        self._last_node = literal
         return literal
 
     def _pattern(self, pattern):
@@ -676,7 +660,6 @@ class ParseContext(object):
             self._error(pattern, exclass=FailedPattern)
         self._trace_match(token, pattern)
         self._add_cst_node(token)
-        self._last_node = token
         return token
 
     def _eof(self):
@@ -710,7 +693,6 @@ class ParseContext(object):
             self._pop_ast()
         self.ast = ast
         self._extend_cst(cst)
-        self.last_node = cst
 
     @contextmanager
     def _option(self):
@@ -752,7 +734,6 @@ class ParseContext(object):
         finally:
             self._pop_cst()
         self._extend_cst(cst)
-        self.last_node = cst
 
     @contextmanager
     def _if(self):
@@ -822,7 +803,6 @@ class ParseContext(object):
         finally:
             self._pop_cst()
         self._add_cst_node(cst)
-        self.last_node = cst
         return cst
 
     def _positive_closure(self, block, sep=None, omitsep=False):
@@ -835,13 +815,11 @@ class ParseContext(object):
         finally:
             self._pop_cst()
         self._add_cst_node(cst)
-        self.last_node = cst
         return cst
 
     def _empty_closure(self):
         cst = closure([])
         self._add_cst_node(cst)
-        self.last_node = cst
         return cst
 
     def _gather(self, block, sep):
@@ -884,7 +862,6 @@ class ParseContext(object):
             self._error(c, exclass=FailedToken)
         self._trace_match(c)
         self._add_cst_node(c)
-        self._last_node = c
         return c
 
     def _skip_to(self, block):
