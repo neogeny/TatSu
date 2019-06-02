@@ -749,7 +749,7 @@ class ParseContext(object):
         try:
             yield
             self._merge_cst(extend=True)
-        except:
+        except Exception:
             self._pop_cst()
             raise
 
@@ -760,7 +760,6 @@ class ParseContext(object):
         self._lookahead += 1
         try:
             yield
-            cst = self.cst
         finally:
             self._pop_ast()  # simply discard
             self._lookahead -= 1
@@ -816,7 +815,7 @@ class ParseContext(object):
             self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
             return self._merge_cst()
-        except:
+        except Exception:
             self._pop_cst()
             raise
 
@@ -828,7 +827,7 @@ class ParseContext(object):
             self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
             return self._merge_cst()
-        except:
+        except Exception:
             self._pop_cst()
             raise
 

@@ -3,7 +3,7 @@ from __future__ import generator_stop
 
 from collections import namedtuple
 from dataclasses import dataclass, field
-from typing import Any, Union
+from typing import Any
 
 from .ast import AST
 
