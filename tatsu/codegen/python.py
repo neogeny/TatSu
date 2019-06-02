@@ -448,7 +448,8 @@ class Grammar(Base):
 
         version = str(tuple(int(n) for n in str(timestamp()).split('.')))
 
-        keywords = '\n'.join("    %s," % repr(k) for k in sorted(self.keywords))
+        keywords = [str(k) for k in self.keywords]
+        keywords = '\n'.join("    %s," % repr(k) for k in keywords)
         if keywords:
             keywords = '\n%s\n' % keywords
 
