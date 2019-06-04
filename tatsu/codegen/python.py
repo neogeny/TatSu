@@ -378,9 +378,6 @@ class Rule(_Decorator):
                 )
 
         fields.update(defines=sdefines)
-        fields.update(
-            check_name='\n    self._check_name()' if self.is_name else '',
-        )
         leftrec = self.node.is_leftrec
         fields.update(leftrec='\n@leftrec' if leftrec else '')
         fields.update(nomemo='\n@nomemo' if not self.node.is_memoizable and not leftrec else '')
@@ -390,7 +387,7 @@ class Rule(_Decorator):
         {leftrec}\
         {nomemo}
         def _{name}_(self):  # noqa
-        {exp:1::}{check_name}{defines}
+        {exp:1::}{defines}
         '''
 
     define_template = '''\
