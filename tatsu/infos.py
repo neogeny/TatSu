@@ -88,6 +88,7 @@ _RuleInfo = namedtuple(
         'impl',
         'is_leftrec',
         'is_memoizable',
+        'is_name',
         'params',
         'kwparams',
     ]

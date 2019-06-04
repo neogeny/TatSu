@@ -35,7 +35,8 @@ from tatsu.exceptions import (
     FailedPattern,
     FailedRef,
     FailedSemantics,
-    FailedKeywordSemantics,
+    FailedKeyword,  # noqa
+    FailedKeywordSemantics,  # noqa
     FailedToken,
     OptionSucceeded
 )
@@ -54,7 +55,16 @@ def tatsumasu(*params, **kwparams):
             name = name[1:-1]
             is_leftrec = getattr(impl, "is_leftrec", False)
             is_memoizable = getattr(impl, "is_memoizable", True)
-            ruleinfo = RuleInfo(name, impl, is_leftrec, is_memoizable, params, kwparams)
+            is_name = False,
+            ruleinfo = RuleInfo(
+                name,
+                impl,
+                is_leftrec,
+                is_memoizable,
+                is_name,
+                params,
+                kwparams
+            )
             return self._call(ruleinfo)
         return wrapper
     return decorator
@@ -662,6 +672,8 @@ class ParseContext(object):
             node = semantic_rule(node, *(rule.params or ()), **(rule.kwparams or {}))
         if postproc is not None:
             postproc(self, node)
+        if rule.is_name:
+            self._check_name(node)
         return node
 
     def _token(self, token):
@@ -860,10 +872,13 @@ class ParseContext(object):
 
     def _check_name(self, name=None):
         if name is None:
-            name = str(self.last_node)
+            name = self.last_node
+        if not isinstance(name, str):
+            return
         if self.ignorecase or self._tokenizer.ignorecase:
             name = name.upper()
         if name in self.keywords:
+            # self._error('"%s" is a reserved word' % name, exclass=FailedKeyword)
             raise FailedKeywordSemantics('"%s" is a reserved word' % name)
 
     def _void(self):
