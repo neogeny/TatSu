@@ -297,7 +297,7 @@ class Token(Model):
         return ctx._token(self.token)
 
     def _first(self, k, f):
-        return {(self.token,)}
+        return {(repr(self.token),)}
 
     def _to_str(self, lean=False):
         return repr(self.token)
@@ -310,6 +310,9 @@ class Constant(Model):
 
     def parse(self, ctx):
         return self.literal
+
+    def _first(self, k, f):
+        return {()}
 
     def _to_str(self, lean=False):
         return '`%s`' % repr(self.literal)
@@ -334,7 +337,10 @@ class Pattern(Model):
         return ctx._pattern(self.pattern)
 
     def _first(self, k, f):
-        return {(self.pattern,)}
+        if bool(self.regex.match("")):
+            return {(), (self.pattern,)}
+        else:
+            return {(self.pattern,)}
 
     def _to_str(self, lean=False):
         parts = []
@@ -355,6 +361,9 @@ class Lookahead(Decorator):
         with ctx._if():
             return super().parse(ctx)
 
+    def _first(self, k, f):
+        return {()}
+
     def _to_str(self, lean=False):
         return '&' + self.exp._to_str(lean=lean)
 
@@ -367,6 +376,9 @@ class NegativeLookahead(Decorator):
         with ctx._ifnot():
             return super().parse(ctx)
 
+    def _first(self, k, f):
+        return {()}
+
     def _to_str(self, lean=False):
         return '!' + str(self.exp._to_str(lean=lean))
 
@@ -378,6 +390,10 @@ class SkipTo(Decorator):
     def parse(self, ctx):
         super_parse = super().parse
         return ctx._skip_to(lambda: super_parse(ctx))
+
+    def _first(self, k, f):
+        # use None to represent ANY
+        return {(None,)} | super()._first(k, f)
 
     def _to_str(self, lean=False):
         return '->' + self.exp._to_str(lean=lean)
@@ -540,7 +556,7 @@ class PositiveClosure(Closure):
         return Nullable.of(self.exp)
 
 
-class Join(Decorator):
+class Join(Closure):
     JOINOP = '%'
 
     def __init__(self, ast=None, **kwargs):
@@ -559,6 +575,14 @@ class Join(Decorator):
     def _do_parse(self, ctx, exp, sep):
         return ctx._join(exp, sep)
 
+    def _first(self, k, f):
+        efirst = self.exp._first(k, f)
+        result = {()}
+        for _i in range(k):
+            result = dot(result, {(self.sep,)}, k)
+            result = dot(result, efirst, k)
+        return {()} | result
+
     def _to_str(self, lean=False):
         ssep = self.sep._to_str(lean=lean)
         sexp = str(self.exp._to_str(lean=lean))
@@ -574,6 +598,14 @@ class Join(Decorator):
 class PositiveJoin(Join):
     def _do_parse(self, ctx, exp, sep):
         return ctx._positive_join(exp, sep)
+
+    def _first(self, k, f):
+        efirst = self.exp._first(k, f)
+        result = {()}
+        for _i in range(k):
+            result = dot(result, {(self.sep,)}, k)
+            result = dot(result, efirst, k)
+        return result
 
     def _to_str(self, lean=False):
         return super()._to_str(lean=lean) + '+'
@@ -617,6 +649,9 @@ class PositiveGather(Gather):
 class EmptyClosure(Model):
     def parse(self, ctx):
         return ctx._empty_closure()
+
+    def _first(self, k, f):
+        return {()}
 
     def _to_str(self, lean=False):
         return '{}'
@@ -753,6 +788,10 @@ class RuleRef(Model):
     def _first(self, k, f):
         self._first_set = f.get(self.name, set())
         return self._first_set
+
+    def _follow(self, k, fl, a):
+        fl[self.name] |= a
+        return a | {self.name}
 
     def firstset(self, k=1):
         if self._first_set is None:
