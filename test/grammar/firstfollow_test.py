@@ -93,6 +93,7 @@ class FirstFollowTests(unittest.TestCase):
         e = model.rulemap['e']
         p = model.rulemap['p']
         f = model.rulemap['f']
+        assert f  # to avoid linters
 
         assert e.is_leftrec
         assert not p.is_leftrec
