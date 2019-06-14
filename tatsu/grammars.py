@@ -4,7 +4,7 @@ from __future__ import generator_stop
 import os
 import functools
 from collections.abc import Mapping
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from copy import copy
 from itertools import takewhile
 
@@ -437,8 +437,9 @@ class Sequence(Model):
         result = {()}
         for s in self.sequence:
             x = s._first(k, f)
-            if isinstance(x, RuleRef):
-                x |= f[x.name]
+            # FIXME:
+            # if isinstance(x, RuleRef):
+            #     x |= f[x.name]
             result = kdot(result, x, k)
         self._firstset = result
         return result
@@ -1046,7 +1047,7 @@ class Grammar(Model):
         prev = {}
         while used != prev:
             prev = used
-            used = used | set().union(*[
+            used |= set().union(*[
                 rule._used_rule_names()
                 for rule in self.rules
                 if rule.name in used
@@ -1073,6 +1074,7 @@ class Grammar(Model):
             for rule in self.rules:
                 f[rule.name] |= rule._first(k, f)
 
+        # cache results
         for rule in self.rules:
             rule._firstset = f[rule.name]
 
