@@ -32,7 +32,6 @@ class PickleTest(unittest.TestCase):
 
         self.assertEqual(model._ast, new_model._ast)
 
-
     def test_nested_class_synth_model(self):
         grammar = '''
             start::ASeq
@@ -60,7 +59,3 @@ class PickleTest(unittest.TestCase):
         # So either (1) we recursively walk the objects and compare fields or (2) we convert it into a
         # str()/repr() and compare that. Do the latter as it is easier.
         self.assertEqual(str(model._ast), str(new_model._ast))
-
-
-
-

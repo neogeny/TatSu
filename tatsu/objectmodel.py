@@ -184,6 +184,4 @@ class Node(object):
     def __setstate__(self, state):
         self.__dict__.update(state)
 
-
-
 ParseModel = Node
