@@ -2,7 +2,6 @@
 from __future__ import generator_stop
 
 from collections.abc import Mapping, MutableMapping
-import weakref
 
 from tatsu.util import asjson, asjsons
 from tatsu.infos import CommentInfo
@@ -28,7 +27,7 @@ class Node(object):
         if isinstance(attributes, MutableMapping):
             attributes.update(kwargs)
 
-        self._parent = None  # will always be a weakref or None
+        self._parent = None  # will always be a ref or None
         self._adopt_children(attributes)
         self.__postinit__(attributes)
 
@@ -49,7 +48,7 @@ class Node(object):
     @property
     def parent(self):
         if self._parent is not None:
-            return self._parent()
+            return self._parent
 
     @property
     def line(self):
@@ -151,7 +150,7 @@ class Node(object):
         if parent is None:
             parent = self
         if isinstance(node, Node):
-            node._parent = weakref.ref(parent)
+            node._parent = parent
             for c in node.children():
                 node._adopt_children(c, parent=node)
         elif isinstance(node, Mapping):
@@ -184,8 +183,7 @@ class Node(object):
 
     def __setstate__(self, state):
         self.__dict__.update(state)
-        if self._parent is not None:
-            self._parent = weakref.ref(self._parent)
+
 
 
 ParseModel = Node
