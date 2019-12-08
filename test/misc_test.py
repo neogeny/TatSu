@@ -8,6 +8,6 @@ class MiscTests(unittest.TestCase):
     def test_import_mapping_from_collectionsABC(self):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            from tatsu.grammars import Mapping
+            from tatsu.grammars import Mapping  # noqa
 
             self.assertEqual(len(w), 0)
