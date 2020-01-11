@@ -44,7 +44,7 @@ jobs:
             python -m venv venv || virtualenv venv
             . venv/bin/activate
             pip install -U pip
-            pip install -r requirements-test.txt
+            pip install -Ur requirements-test.txt
 
       - save_cache:
           paths:
@@ -101,7 +101,7 @@ jobs:
             virtualenv venv -p python2.7
             . venv/bin/activate
             pip install -U pip
-            pip install -r requirements-test.txt
+            pip install -Ur requirements-test.txt
 
       - save_cache:
           paths:
@@ -144,7 +144,7 @@ jobs:
             virtualenv venv -p pypy
             . venv/bin/activate
             pip install -U pip
-            pip install -r requirements-test.txt
+            pip install -Ur requirements-test.txt
 
       - save_cache:
           paths:
@@ -187,7 +187,7 @@ jobs:
             virtualenv venv -p pypy3
             . venv/bin/activate
             pip install -U pip
-            pip install -r requirements-test.txt
+            pip install -Ur requirements-test.txt
 
       - save_cache:
           paths:
