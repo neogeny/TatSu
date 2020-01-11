@@ -10,10 +10,17 @@ backwards incompatibilities in the software.
 
 The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
-`X.Y.Z`_ @ 2019
+`X.Y.Z`_ @ 2020
 ---------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v4.3.0...master
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v4.4.1...master
 
+
+`4.4.1`_ @ 2020-01-11
+-----------------------
+.. _4.4.1: https://github.com/apalala/tatsu/compare/v4.4.0...v4.4.1
+
+*   Apply ``nameguard`` only if ``token[0].isalpha()``. This solves a regression afecting
+  previous TatSu and Grako grammars.
 
 `4.4.0`_ @ 2019-04-22
 -----------------------
