@@ -21,6 +21,10 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 *   Apply ``nameguard`` only if ``token[0].isalpha()``. This solves a regression afecting
   previous TatSu and Grako grammars.
+*   Remove `pygraphviz` from develoment requirements, as it doesn't build under Py38
+*  `#56`_   Include missing ``tatsu/g2e/antlr.ebnf`` in distribution
+
+.. _#56: https://github.com/neogeny/TatSu/issues/56
 
 `4.4.0`_ @ 2019-04-22
 -----------------------
