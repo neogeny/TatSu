@@ -7,6 +7,8 @@ include *.txt
 include *.yaml
 include Makefile
 
+recursive-include tatsu *.ebnf
+
 recursive-include etc *
 recursive-exclude etc *.pdf
 
