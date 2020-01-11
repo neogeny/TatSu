@@ -7,6 +7,12 @@ include *.txt
 include *.yaml
 include Makefile
 
+
+include docs/*
+exclude docs/_build
+exclude docs/_static
+exclude docs/_templates
+
 recursive-include tatsu *.ebnf
 
 recursive-include etc *

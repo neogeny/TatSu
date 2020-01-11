@@ -48,7 +48,7 @@ clean_cython:
 
 
 release_check: clean documentation
-	rst2html.py README.rst > /dev/null
+	rst2html.py CHANGELOG.rst > /dev/null
 	python setup.py sdist --formats=zip
 	tox
 	@echo version `python -m tatsu --version`
