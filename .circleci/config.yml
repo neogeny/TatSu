@@ -83,7 +83,8 @@ jobs:
           name: install dependencies
           command: |
             sudo apt update
-            sudo apt install -y python-pip
+            sudo apt install -y python3-pip
+            sudo apt install -y python3-dev
             sudo apt install -y virtualenv
             sudo apt install -y pypy3
             sudo apt install -y pandoc
