@@ -9,7 +9,6 @@ workflows:
   test:
     jobs:
       - test-3.8
-      - test-pypy3
 
 jobs:
   test-3.8:  &test-template
