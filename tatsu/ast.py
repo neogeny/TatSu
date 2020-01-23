@@ -39,7 +39,7 @@ class AST(dict):
         if previous is None and force_list:
             value = [value]
         elif previous is None:
-            value = value
+            pass
         elif is_list(previous):
             value = previous + [value]
         else:

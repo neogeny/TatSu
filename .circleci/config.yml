@@ -9,20 +9,12 @@ workflows:
   test:
     jobs:
       - test-3.8
-      - test-3.7
-      - test-3.6
 
 jobs:
-  test-3.7:  &test-template
+  test-3.8:  &test-template
     docker:
-      # specify the version you desire here
-      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.7
+      - image: circleci/python:3.8
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
 
     working_directory: ~/repo
 
@@ -31,7 +23,7 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "requirements-dev.txt" }}
+          - v1-dependencies-{{ checksum "requirements-test.txt" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
@@ -46,12 +38,12 @@ jobs:
             python -m venv venv || virtualenv venv
             . venv/bin/activate
             pip install -U pip
-            pip install -r requirements-dev.txt
+            pip install -Ur requirements-test.txt
 
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements-dev.txt" }}
+          key: v1-dependencies-{{ checksum "requirements-test.txt" }}
 
       - run:
           name: run tests
@@ -72,19 +64,9 @@ jobs:
           path: test-reports
           destination: test-reports
 
-  test-3.8:
-    <<: *test-template
-    docker:
-      - image: circleci/python:3.8.0a3
-
-  test-3.6:
-    <<: *test-template
-    docker:
-      - image: circleci/python:3.6
-
   test-pypy3  :
     docker:
-      - image: circleci/python:3.7
+      - image: circleci/python:3.8
 
     working_directory: ~/repo-pypy3
 
@@ -93,15 +75,15 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "requirements-dev.txt" }}
+          - v1-dependencies-{{ checksum "requirements-test.txt" }}
           - v1-dependencies-
 
       - run:
           name: install dependencies
           command: |
-            sudo add-apt-repository ppa:pypy/ppa
             sudo apt update
-            sudo apt install -y python-pip
+            sudo apt install -y python3-pip
+            sudo apt install -y python3-dev
             sudo apt install -y virtualenv
             sudo apt install -y pypy3
             sudo apt install -y pandoc
@@ -109,12 +91,12 @@ jobs:
             virtualenv venv -p pypy3
             . venv/bin/activate
             pip install -U pip
-            pip install -r requirements-dev.txt
+            pip install -Ur requirements-test.txt
 
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements-dev.txt" }}
+          key: v1-dependencies-{{ checksum "requirements-test.txt" }}
 
       - run:
           name: run tests

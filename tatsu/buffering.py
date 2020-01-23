@@ -317,6 +317,7 @@ class Buffer(Tokenizer):
             self.move(len(token))
             partial_match = (
                 self.nameguard and
+                token and token[0].isalpha() and
                 all(self.is_name_char(t) for t in token) and
                 self.is_name_char(self.current)
             )
