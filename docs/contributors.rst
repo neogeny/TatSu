@@ -20,6 +20,7 @@ features, but reports, bug fixes, or suggestions:
     `Gabriele Paganelli`_,
     `Jack Taylor`_,
     `Kathryn Long`_,
+    `Karthikeyan Singaravelan`_,
     `Manuel Jacob`_,
     `Marcus Brinkmann`_,
     `Mark Jason Dominus`_,

@@ -24,7 +24,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
   previous TatSu and Grako grammars.
 *   Remove ``pygraphviz`` from develoment requirements, as it doesn't build under Py38
 *  `#56`_   Include missing ``tatsu/g2e/antlr.ebnf`` in distribution
-*  `#153`_   Import ABCs from ``collections.abc``
+*  `#153`_   Import ABCs from ``collections.abc`` (`@tirkarthi`_)
 
 .. _#56: https://github.com/neogeny/TatSu/issues/56
 .. _#153: https://github.com/neogeny/TatSu/issues/153
@@ -330,6 +330,7 @@ Added
 .. _@davesque: https://github.com/davesque
 .. _@nicholasbishop: https://github.com/nicholasbishop
 .. _@rayjolt: https://github.com/rayjolt
+.. _@tirkarthi: https://github.com/tirkarthi
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
