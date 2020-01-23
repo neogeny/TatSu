@@ -12,25 +12,28 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2020
 ---------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v4.4.1...master
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.0.0...master
 
 
-`4.4.1`_ @ 2020-01-11
+`5.0.0`_ @ 2020-01-25
 -----------------------
-.. _4.4.1: https://github.com/apalala/tatsu/compare/v4.4.0...v4.4.1
+.. _5.0.0: https://github.com/apalala/tatsu/compare/v4.4.0...v5.0.0
 
+*   |TatSu| is now only tested against Python 3.8. Earlier versions of Python are now deprecated, and Python 2.X versions are no longer supported.
 *   Apply ``nameguard`` only if ``token[0].isalpha()``. This solves a regression afecting
   previous TatSu and Grako grammars.
-*   Remove `pygraphviz` from develoment requirements, as it doesn't build under Py38
+*   Remove ``pygraphviz`` from develoment requirements, as it doesn't build under Py38
 *  `#56`_   Include missing ``tatsu/g2e/antlr.ebnf`` in distribution
+*  `#153`_   Import ABCs from ``collections.abc``
 
 .. _#56: https://github.com/neogeny/TatSu/issues/56
+.. _#153: https://github.com/neogeny/TatSu/issues/153
 
 `4.4.0`_ @ 2019-04-22
 -----------------------
 .. _4.4.0: https://github.com/apalala/tatsu/compare/v4.3.0...v4.4.0
 
-*   The default regexp for whitespace was changed to ``(?s)\s+`
+*   The default regexp for whitespace was changed to ``(?s)\s+``
 *   Allow empty patterns (``//``) like Python does
 *  `#65`_ Allow initial, consecutive, and trailing ``@namechars``
 *  `#73`_ Allow ``@@whitespace :: None`` and ``@@whitespace :: False``
