@@ -13,9 +13,10 @@
 .. _Franck Pommereau: https://github.com/fpom
 .. _Franklin Lee: https://bitbucket.org/leewz
 .. _Gabriele Paganelli: https://bitbucket.org/gapag
+.. _Guido van Rossum: https://github.com/gvanrossum
 .. _Jack Taylor: https://github.com/rayjolt
 .. _Kathryn Long: https://bitbucket.org/starkat
-.. _Kathryn Long: https://bitbucket.org/starkat
+.. _Karthikeyan Singaravelan: https://github.com/tirkarthi
 .. _Manuel Jacob: https://github.com/manueljacob
 .. _Marcus Brinkmann: https://bitbucket.org/lambdafu/
 .. _Mark Jason Dominus: https://github.com/mjdominus
