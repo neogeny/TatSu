@@ -51,7 +51,10 @@ jobs:
           command: |
             . venv/bin/activate
             make clean
-            tox
+            flake8
+            pylint --ignore=bootstrap.py,model.py tatsu test examples
+            mypy   --ignore-missing-imports .
+            py.test
 
       - run:
           name: examples
