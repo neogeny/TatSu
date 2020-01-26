@@ -12,7 +12,7 @@ SHORT_DESCRIPTION = (
     ' PEG/Packrat parser in Python.'
 ).format(toolname=NAME)
 
-LONG_DESCRIPTION = io.open('README.md', encoding='utf-8').read()
+LONG_DESCRIPTION = io.open('README.rst', encoding='utf-8').read()
 
 
 setuptools.setup(
@@ -28,7 +28,6 @@ setuptools.setup(
     maintainer_email='apalala@gmail.com',
     description=SHORT_DESCRIPTION,
     long_description=LONG_DESCRIPTION,
-    long_description_content_type='text/markdown',
     license='BSD License',
     packages=setuptools.find_packages(),
     include_package_data=True,

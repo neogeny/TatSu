@@ -6,6 +6,7 @@ tatsu_test:
 
 
 documentation:
+	pandoc README.rst -o README.md
 	cd docs; make -s html > /dev/null
 
 
