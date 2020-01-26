@@ -50,8 +50,20 @@ jobs:
           name: test
           command: |
             . venv/bin/activate
-            make test
+            make clean
+            tox
+
+      - run:
+          name: examples
+          command: |
+            . venv/bin/activate
             make examples
+
+      - run:
+          name: documentation
+          command: |
+            . venv/bin/activate
+            make documentation
 
       - run:
           name: package
