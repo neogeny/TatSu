@@ -13,8 +13,7 @@ workflows:
 jobs:
   test-3.8:  &test-template
     docker:
-      - image: circleci/python:3.8
-
+      - image: circleci/python:latest
 
     working_directory: ~/repo
 
@@ -34,8 +33,10 @@ jobs:
             sudo apt install -y python-pip
             sudo apt install -y virtualenv
             sudo apt install -y pandoc
-            sudo apt install -y graphviz
-            python -m venv venv || virtualenv venv
+            sudo apt install -y python-sphinx
+            sudo apt install -y python-docutils
+            sudo apt install -y tox
+            python3.8 -m venv venv || python3.8 -m virtualenv venv
             . venv/bin/activate
             pip install -U pip
             pip install -Ur requirements-test.txt
@@ -46,63 +47,31 @@ jobs:
           key: v1-dependencies-{{ checksum "requirements-test.txt" }}
 
       - run:
-          name: run tests
+          name: test
           command: |
             . venv/bin/activate
+            make clean
             flake8
             pylint --ignore=bootstrap.py,model.py tatsu test examples
             mypy   --ignore-missing-imports .
-            pytest -v
+            py.test
+
+      - run:
+          name: examples
+          command: |
+            . venv/bin/activate
+            make examples
+
+      - run:
+          name: documentation
+          command: |
+            . venv/bin/activate
+            make documentation
 
       - run:
           name: package
           command: |
-              python setup.py sdist --formats=zip
-              python setup.py bdist_wheel --universal
-
-      - store_artifacts:
-          path: test-reports
-          destination: test-reports
-
-  test-pypy3  :
-    docker:
-      - image: circleci/python:3.8
-
-    working_directory: ~/repo-pypy3
-
-    steps:
-      - checkout
-
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "requirements-test.txt" }}
-          - v1-dependencies-
-
-      - run:
-          name: install dependencies
-          command: |
-            sudo apt update
-            sudo apt install -y python3-pip
-            sudo apt install -y python3-dev
-            sudo apt install -y virtualenv
-            sudo apt install -y pypy3
-            sudo apt install -y pandoc
-            sudo apt install -y graphviz
-            virtualenv venv -p pypy3
-            . venv/bin/activate
-            pip install -U pip
-            pip install -Ur requirements-test.txt
-
-      - save_cache:
-          paths:
-            - ./venv
-          key: v1-dependencies-{{ checksum "requirements-test.txt" }}
-
-      - run:
-          name: run tests
-          command: |
-            . venv/bin/activate
-            pytest -v
+            make distributions
 
       - store_artifacts:
           path: test-reports

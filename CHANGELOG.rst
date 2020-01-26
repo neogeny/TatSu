@@ -15,7 +15,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.0.0...master
 
 
-`5.0.0`_ @ 2020-01-25
+`5.0.0`_ @ 2020-01-26
 -----------------------
 .. _5.0.0: https://github.com/apalala/tatsu/compare/v4.4.0...v5.0.0
 
@@ -133,8 +133,7 @@ Fixed
 Fixed
 ~~~~~
 
-*   `#27`_ Undo the fixes to dropped input on left recursion because they broke previous
-  expected behavior.
+*   `#27`_ Undo the fixes to dropped input on left recursion because they broke previous expected behavior.
 
 *   `#33`_ Fixes to the calc example and mini tutorial (`@heronils`_)
 
