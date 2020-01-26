@@ -15,7 +15,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.0.0...master
 
 
-`5.0.0`_ @ 2020-01-25
+`5.0.0`_ @ 2020-01-26
 -----------------------
 .. _5.0.0: https://github.com/apalala/tatsu/compare/v4.4.0...v5.0.0
 
