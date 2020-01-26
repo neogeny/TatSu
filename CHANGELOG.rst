@@ -133,8 +133,7 @@ Fixed
 Fixed
 ~~~~~
 
-*   `#27`_ Undo the fixes to dropped input on left recursion because they broke previous
-  expected behavior.
+*   `#27`_ Undo the fixes to dropped input on left recursion because they broke previous expected behavior.
 
 *   `#33`_ Fixes to the calc example and mini tutorial (`@heronils`_)
 
