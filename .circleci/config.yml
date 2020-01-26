@@ -33,6 +33,7 @@ jobs:
             sudo apt install -y python-pip
             sudo apt install -y virtualenv
             sudo apt install -y pandoc
+            sudo apt install -y python3-sphinx
             python -m venv venv || virtualenv venv
             . venv/bin/activate
             pip install -U pip
