@@ -9,23 +9,23 @@
 ``` python
 def WARNING():
     """
-    |TatSu| requires Python >= 3.8
-
-    Python 2.7 reached its end of life on January 2020.
-
-    Python 3.5 Python 3.5 has now entered "security fixes only" mode.
-
-    Python 3.6 had its last bugfix release on December 2019.
+    |TatSu|>=5.0.0 requires Python>=3.8
 
     Python 3.8 introduced new language features that allow writing better programs
-    more clearly, and all code written over Python 3.7 should run fine on 3.8 with
-    minor, or no changes.
+    more clearly, and all code compatible with Python 3.7 should run fine on 3.8
+    with minor, or no changes.  Python has adopted an anual release schedule
+    (PEP-602), and Python 3.9 is  due to be released on June 2020.
 
-    Finally, Python has adopted an anual release schedule (PEP-602), and Python 3.9
-    is  due to be released on June 2020.
+    There are compelling reasons to upgrade 3.x projects to Python 3.8 (and no
+    reasons not to).
 
-    There are compelling reasons to upgrade to Python 3.8, and no reasons not to.
+    Python 3.7 will have bugfix releases only until mid 2020.
+    Python 3.6 had its last bugfix release on December 2019.
+    Python 3.5 has now entered "security fixes only" mode.
+    Python 2.7 reached its end of life on January 2020.
+
     """
+    pass
 ```
 
 竜 **TatSu** (the successor to [Grako](https://bitbucket.org/neogeny/grako/)) is a tool that takes grammars in a variation of [EBNF](http://en.wikipedia.org/wiki/Ebnf) as input, and outputs [memoizing](http://en.wikipedia.org/wiki/Memoization) ([Packrat](http://bford.info/packrat/)) [PEG](http://en.wikipedia.org/wiki/Parsing_expression_grammar) parsers in [Python](http://python.org).
