@@ -20,13 +20,14 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _5.0.0: https://github.com/apalala/tatsu/compare/v4.4.0...v5.0.0
 
 *   |TatSu| is now only tested against Python 3.8. Earlier versions of Python are now deprecated, and Python 2.X versions are no longer supported.
-*   Apply ``nameguard`` only if ``token[0].isalpha()``. This solves a regression afecting
-  previous TatSu and Grako grammars.
+*   Apply ``nameguard`` only if ``token[0].isalpha()``. This solves a regression afecting previous TatSu and Grako grammars (`@apalala`_).
 *   Remove ``pygraphviz`` from develoment requirements, as it doesn't build under Py38
 *  `#56`_   Include missing ``tatsu/g2e/antlr.ebnf`` in distribution
+*  `#138`_   Reimplement the calculation of ``FIRST``, ``FOLLOW``, and ``LOOKAHEAD`` sets using latest theories. For now, this should improve parser error reporting, but should eventually enable the simplification of parsing of leftrec grammars (`@apalala`_).
 *  `#153`_   Import ABCs from ``collections.abc`` (`@tirkarthi`_)
 
 .. _#56: https://github.com/neogeny/TatSu/issues/56
+.. _#138: https://github.com/neogeny/TatSu/issues/138
 .. _#153: https://github.com/neogeny/TatSu/issues/153
 
 `4.4.0`_ @ 2019-04-22
