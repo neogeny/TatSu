@@ -59,8 +59,12 @@ distributions: clean release_check
 	python setup.py bdist_wheel --universal
 
 
-test_upload: distributions
-	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+test_distributions:
+	python setup.py sdist --formats=zip
+	python setup.py bdist_wheel --universal
+
+test_upload: test_distributions
+	twine upload --repository test dist/*
 
 upload: distributions
 	twine upload dist/*

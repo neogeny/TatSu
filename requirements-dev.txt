@@ -1,9 +1,10 @@
 -r requirements-test.txt
-Cython
 docutils
 pandoc
-pep257
+pip
 psutil
-pygments
+pyyaml
+regex
 sphinx
+sphinx-rtd-theme
 twine
