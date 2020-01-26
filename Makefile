@@ -45,7 +45,7 @@ release_check: clean documentation
 	@echo version `python -m tatsu --version`
 
 
-distributions: clean release_check
+distributions: clean
 	python setup.py sdist --formats=zip
 	python setup.py bdist_wheel --universal
 
@@ -59,5 +59,5 @@ test_upload: test_distributions
 	twine upload --repository test dist/*
 
 
-upload: distributions
+upload: release_check distributions
 	twine upload dist/*
