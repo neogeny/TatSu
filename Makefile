@@ -6,7 +6,7 @@ tatsu_test:
 
 
 documentation:
-	pandoc README.rst -o README.md
+	pandoc README.rst -t gfm --wrap=none > README.md
 	cd docs; make -s html > /dev/null
 
 
