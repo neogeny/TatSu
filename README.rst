@@ -41,9 +41,8 @@
         pass
 
 
-|TatSu| (the successor to Grako_) is a tool that takes grammars in a
-variation of `EBNF`_ as input, and outputs `memoizing`_ (`Packrat`_)
-`PEG`_ parsers in `Python`_.
+|TatSu| is a tool that takes grammars in a variation of `EBNF`_ as input, and
+outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_.
 
 |TatSu| can compile a grammar stored in a string into a
 ``tatsu.grammars.Grammar`` object that can be used to parse any given

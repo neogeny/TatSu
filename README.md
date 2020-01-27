@@ -28,7 +28,7 @@ def WARNING():
     pass
 ```
 
-竜 **TatSu** (the successor to [Grako](https://bitbucket.org/neogeny/grako/)) is a tool that takes grammars in a variation of [EBNF](http://en.wikipedia.org/wiki/Ebnf) as input, and outputs [memoizing](http://en.wikipedia.org/wiki/Memoization) ([Packrat](http://bford.info/packrat/)) [PEG](http://en.wikipedia.org/wiki/Parsing_expression_grammar) parsers in [Python](http://python.org).
+竜 **TatSu** is a tool that takes grammars in a variation of [EBNF](http://en.wikipedia.org/wiki/Ebnf) as input, and outputs [memoizing](http://en.wikipedia.org/wiki/Memoization) ([Packrat](http://bford.info/packrat/)) [PEG](http://en.wikipedia.org/wiki/Parsing_expression_grammar) parsers in [Python](http://python.org).
 
 竜 **TatSu** can compile a grammar stored in a string into a `tatsu.grammars.Grammar` object that can be used to parse any given input, much like the [re](https://docs.python.org/3.7/library/re.html) module does with regular expressions, or it can generate a [Python](http://python.org) module that implements the parser.
 
