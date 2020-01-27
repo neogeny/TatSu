@@ -39,8 +39,11 @@ parsed:
 -  An object, when ModelBuilderSemantics is used
 -  None
 
-See the *Abstract Syntax Trees* and *Building Models* sections for more
+See the `Abstract Syntax Trees`_ and `Building Models`_ sections for more
 details.
+
+.. _Abstract Syntax Trees: ast.html
+.. _Building Models: models.html
 
 Expressions
 ~~~~~~~~~~~
