@@ -294,8 +294,8 @@ requires different licensing* please `email`_.
 .. _vinay.sajip: https://bitbucket.org/vinay.sajip
 .. _vmuriart: https://bitbucket.org/vmuriart
 
-.. |fury| image:: https://badge.fury.io/py/tatsu.svg
-   :target: https://badge.fury.io/py/tatsu
+.. |fury| image:: https://badge.fury.io/py/TatSu.svg
+   :target: https://badge.fury.io/py/TatSu
 .. |license| image:: https://img.shields.io/badge/license-BSD-blue.svg
    :target: https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt
 .. |pyversions| image:: https://img.shields.io/pypi/pyversions/tatsu.svg
