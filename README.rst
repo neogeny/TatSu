@@ -26,17 +26,17 @@
 
         Python 3.8 introduced new language features that allow writing better programs
         more clearly, and all code compatible with Python 3.7 should run fine on 3.8
-        with minor, or no changes.  Python has adopted an anual release schedule
-        (PEP-602), and Python 3.9 is  due to be released on June 2020.
+        with minor, or no changes.
 
-        There are compelling reasons to upgrade 3.x projects to Python 3.8 (and no
-        reasons not to).
+        Python has adopted an anual release schedule (PEP-602).
 
-        Python 3.7 will have bugfix releases only until mid 2020.
-        Python 3.6 had its last bugfix release on December 2019.
-        Python 3.5 has now entered "security fixes only" mode.
-        Python 2.7 reached its end of life on January 2020.
+        Python 3.9 is due to be released on June 2020
+        Python 3.7 will have bugfix releases only until mid 2020
+        Python 3.6 had its last bugfix release on December 2019
+        Python 3.5 entered "security fixes only" mode since August 2018
+        Python 2.7 reached its end of life on January 2020
 
+        There are compelling reasons to upgrade 3.x projects to Python 3.8
         """
         pass
 
