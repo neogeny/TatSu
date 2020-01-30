@@ -128,19 +128,20 @@ input.
         /\d+/
         ;
 
+Let's save the above grammar in a file called ``calc_cut.ebnf``.
 We can now compile the grammar, and test the parser:
 
 .. code:: python
 
     import json
-    from codecs import open
     from pprint import pprint
 
     import tatsu
 
 
     def simple_parse():
-        grammar = open('grammars/calc_cut.ebnf').read()
+        with open('calc_cut.ebnf') as f:
+            grammar = f.read()
 
         parser = tatsu.compile(grammar)
         ast = parser.parse('3 + 5 * ( 10 - 20 )')
@@ -155,20 +156,16 @@ We can now compile the grammar, and test the parser:
         print(json.dumps(ast, indent=4))
 
 
-    def main():
-        simple_parse()
-
-
     if __name__ == '__main__':
-        main()
+        simple_parse()
 
 ..
 
-This is the output:
+Save the above in ``calc.py``. This is the output:
 
 .. code:: bash
 
-    $ PYTHONPATH=../.. python calc.py
+    $ python calc.py
 
 .. code:: python
 
@@ -252,7 +249,8 @@ clearer semantics code. This is an annotated version of the grammar:
         ;
 
 
-This is the resulting AST:
+Save the annotated grammar in ``calc_annotated.ebnf``, change
+the grammar filename in ``calc.py`` and re-execute it to get the resulting AST:
 
 .. code:: python
 
@@ -265,14 +263,18 @@ This is the resulting AST:
                                 'op': '-',
                                 'right': '20'}}}
 
-Semmantics
+Semantics
 ~~~~~~~~~~
 
-Semantics for |TatSu| parsers are not specified in the grammar, but in a separate *semantics* class.
+Semantic actions for |TatSu| parsers are not specified in the grammar, but in a separate *semantics* class.
 
 .. code:: python
 
+    from pprint import pprint
+
+    import tatsu
     from tatsu.ast import AST
+
 
     class CalcBasicSemantics(object):
         def number(self, ast):
@@ -300,7 +302,8 @@ Semantics for |TatSu| parsers are not specified in the grammar, but in a separat
 
 
     def parse_with_basic_semantics():
-        grammar = open('grammars/calc_annotated.ebnf').read()
+        with open('calc_annotated.ebnf') as f:
+            grammar = f.read()
 
         parser = tatsu.compile(grammar)
         ast = parser.parse(
@@ -312,6 +315,10 @@ Semantics for |TatSu| parsers are not specified in the grammar, but in a separat
         pprint(ast, width=20, indent=4)
 
 
+    if __name__ == '__main__':
+        parse_with_basic_semantics()
+
+Save the above in ``calc_semantics.py`` and execute it with ``python calc_semantics.py``.
 The result is:
 
 .. code:: python
@@ -388,8 +395,13 @@ Having semantic actions determine what was parsed with ``isinstance()`` or query
         /\d+/
         ;
 
+Save the above in ``calc_refactored.ebnf``.
 
 .. code:: python
+
+    from pprint import pprint
+
+    import tatsu
 
 
     class CalcSemantics(object):
@@ -409,8 +421,9 @@ Having semantic actions determine what was parsed with ``isinstance()`` or query
             return ast.left / ast.right
 
 
-    def parse_factored():
-        grammar = open('grammars/calc_factored.ebnf').read()
+    def parse_refactored():
+        with open('calc_refactored.ebnf') as f:
+            grammar = f.read()
 
         parser = tatsu.compile(grammar)
         ast = parser.parse(
@@ -418,16 +431,20 @@ Having semantic actions determine what was parsed with ``isinstance()`` or query
             semantics=CalcSemantics()
         )
 
-        print('# FACTORED SEMANTICS RESULT')
+        print('# REFACTORED SEMANTICS RESULT')
         pprint(ast, width=20, indent=4)
         print()
+
+
+    if __name__ == '__main__':
+        parse_refactored()
 
 
 The semantics implementation is simpler, and the results are the same:
 
 .. code:: python
 
-    # FACTORED SEMANTICS RESULT
+    # REFACTORED SEMANTICS RESULT
     -47
 
 
@@ -436,13 +453,13 @@ Object models
 
 Binding semantics to grammar rules is powerful and versatile, but this
 approach risks tying the semantics to the *parsing process*, rather than
-to the *objects* that are parsed.
+to the parsed *objects*.
 
 That is not a problem for simple languages, like the arithmetic expression language in this tutorial. But as the complexity of the parsed language increases, the number of grammar rules quickly becomes larger than the types of objects parsed.
 
-|TatSu| provides for the creation of typed object models directly from the parsing process, and for the navigation (*walking*) and transformation (like *code generation*) of those models in later passes.
+|TatSu| can create typed object models directly from the parsing process which can be navigated (*walked*) and transformed (with *code generation*) in later passes.
 
-The first step in the creation of an object model is to annotate the grammar rule names with the desired class names for the objects parsed:
+The first step to create an object model is to annotate the rule names with the desired class names:
 
 .. code:: ocaml
 
@@ -513,10 +530,12 @@ The first step in the creation of an object model is to annotate the grammar rul
         /\d+/
         ;
 
+Save the grammar in a file name ``calc_model.ebnf``.
 
 The ``tatsu.objectmodel.Node`` descendants are synthetized at runtime using ``tatsu.semantics.ModelBuilderSemantics``.
 
-This is how the model looks like when generated with the ``tatsu.to_python_model()`` function:
+This is how the model looks like when generated with the ``tatsu.to_python_model()``
+function or from the command line with ``tatsu --object-model calc_model.ebnf -G calc_semantics_model.py``:
 
 .. code:: python
 
@@ -524,76 +543,46 @@ This is how the model looks like when generated with the ``tatsu.to_python_model
     from tatsu.semantics import ModelBuilderSemantics
 
 
+    class ModelBase(Node):
+    pass
+
+
     class CalcModelBuilderSemantics(ModelBuilderSemantics):
-        def __init__(self):
+        def __init__(self, context=None, types=None):
             types = [
                 t for t in globals().values()
                 if type(t) is type and issubclass(t, ModelBase)
-            ]
-            super().__init__(types=types)
-
-
-    class ModelBase(Node):
-        pass
+            ] + (types or [])
+            super(CalcModelBuilderSemantics, self).__init__(context=context, types=types)
 
 
     class Add(ModelBase):
-        def __init__(self,
-                     left=None,
-                     op=None,
-                     right=None,
-                     **_kwargs_):
-            super().__init__(
-                left=left,
-                op=op,
-                right=right,
-                **_kwargs_
-            )
+        left = None
+        op = None
+        right = None
 
 
     class Subtract(ModelBase):
-        def __init__(self,
-                     left=None,
-                     op=None,
-                     right=None,
-                     **_kwargs_):
-            super().__init__(
-                left=left,
-                op=op,
-                right=right,
-                **_kwargs_
-            )
+        left = None
+        op = None
+        right = None
 
 
     class Multiply(ModelBase):
-        def __init__(self,
-                     left=None,
-                     op=None,
-                     right=None,
-                     **_kwargs_):
-            super().__init__(
-                left=left,
-                op=op,
-                right=right,
-                **_kwargs_
-            )
+        left = None
+        op = None
+        right = None
 
 
     class Divide(ModelBase):
-        def __init__(self,
-                     left=None,
-                     right=None,
-                     **_kwargs_):
-            super().__init__(
-                left=left,
-                right=right,
-                **_kwargs_
-            )
+        left = None
+        right = None
 
 The model that results from a parse can be printed, and walked:
 
 .. code:: python
 
+    import tatsu
     from tatsu.walkers import NodeWalker
 
 
@@ -615,7 +604,8 @@ The model that results from a parse can be printed, and walked:
 
 
     def parse_and_walk_model():
-        grammar = open('grammars/calc_model.ebnf').read()
+        with open('calc_model.ebnf') as f:
+            grammar = f.read()
 
         parser = tatsu.compile(grammar, asmodel=True)
         model = parser.parse('3 + 5 * ( 10 - 20 )')
@@ -624,7 +614,11 @@ The model that results from a parse can be printed, and walked:
         print(CalcWalker().walk(model))
         print()
 
-The above program produces this result:
+
+    if __name__ == '__main__':
+        parse_and_walk_model()
+
+Save the above program in ``calc_model.py`` and execute it to get this result:
 
 .. code:: python
 
@@ -635,13 +629,28 @@ The above program produces this result:
 Code Generation
 ~~~~~~~~~~~~~~~
 
-Translation is one of the most common tasks in language processing.  Analysis often sumarizes the parsed input, and *walkers* are good for that. In translation, the output can often be as verbose as the input, so a systematic approach that avoids bookkeeping as much as possible is convenient.
+Translation is one of the most common tasks in language processing.
+Analysis often sumarizes the parsed input, and *walkers* are good for that.
+In translation, the output can often be as verbose as the input, so a systematic approach that avoids bookkeeping as much as possible is convenient.
 
-|TatSu| provides support for template-based code generation (translation) in the ``tatsu.codegen`` module. Code generation works defining a translation class for each class in the model specified by the grammar.
+|TatSu| provides support for template-based code generation (translation) in the ``tatsu.codegen`` module.
+Code generation works by defining a translation class for each class in the model specified by the grammar.
+
+Adjust our previous ``calc_model.ebnf`` grammar and annotate the *number* rule
+like so:
+
+.. code:: ocaml
+
+    number::Number
+        =
+        value:/\d+/
+        ;
 
 The following code generator translates input expressions to the postfix instructions of a stack-based processor:
 
 .. code:: python
+
+    import sys
 
     from tatsu.codegen import ModelRenderer
     from tatsu.codegen import CodeGenerator
@@ -686,7 +695,8 @@ The following code generator translates input expressions to the postfix instruc
         {right}
         DIV'''
 
-The code generator can be used thus:
+Save the above in ``codegen.py``.
+The code generator can be used as follows:
 
 .. code:: python
 
@@ -694,7 +704,8 @@ The code generator can be used thus:
 
 
     def parse_and_translate():
-        grammar = open('grammars/calc_model.ebnf').read()
+        with open('calc_model.ebnf') as f:
+            grammar = f.read()
 
         parser = tatsu.compile(grammar, asmodel=True)
         model = parser.parse('3 + 5 * ( 10 - 20 )')
@@ -704,8 +715,10 @@ The code generator can be used thus:
         print('# TRANSLATED TO POSTFIX')
         print(postfix)
 
+    if __name__ == '__main__':
+        parse_and_translate()
 
-Which results in:
+Save the above program in ``calc_translate.py`` and execute it to get this result:
 
 .. code:: python
 
