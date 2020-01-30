@@ -13,7 +13,7 @@ The initial grammar
 
 This is the original `PLY`_ grammar for arithmetic expressions:
 
-.. code:: ocaml
+.. code::
 
     expression : expression + term
                | expression - term
@@ -40,7 +40,7 @@ add rules for lexical elements (``number`` in this case), add a
 ``start`` rule that checks for end of input, and a directive to name the
 generated classes:
 
-.. code:: ocaml
+.. code::
 
     @@grammar::CALC
 
@@ -89,7 +89,7 @@ other options are not tried. They also make error messages more precise,
 because errors will be reported closest to the point of failure in the
 input.
 
-.. code:: ocaml
+.. code::
 
     @@grammar::CALC
 
@@ -209,7 +209,7 @@ difficult to read, and error-prone. |TatSu| allows naming the elements
 in a rule to produce more humanly-readable `AST`_\ s and to allow for
 clearer semantics code. This is an annotated version of the grammar:
 
-.. code:: ocaml
+.. code::
 
     @@grammar::CALC
 
@@ -333,7 +333,7 @@ One rule per expression type
 Having semantic actions determine what was parsed with ``isinstance()`` or querying the AST_ for operators is not very pythonic, nor object oriented, and it leads to code that's more difficult to maintain. It's preferable to have one rule per *expression kind*, something that will be necessary if we want to build object models to use *walkers* and *code generation*.
 
 
-.. code:: ocaml
+.. code::
 
     @@grammar::CALC
 
@@ -461,7 +461,7 @@ That is not a problem for simple languages, like the arithmetic expression langu
 
 The first step to create an object model is to annotate the rule names with the desired class names:
 
-.. code:: ocaml
+.. code::
 
     @@grammar::Calc
 
@@ -639,7 +639,7 @@ Code generation works by defining a translation class for each class in the mode
 Adjust our previous ``calc_model.ebnf`` grammar and annotate the *number* rule
 like so:
 
-.. code:: ocaml
+.. code::
 
     number::Number
         =
