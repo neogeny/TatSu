@@ -30,6 +30,7 @@ features, but reports, bug fixes, or suggestions:
     `Nicholas Bishop`_,
     `Nicolas Laurent`_,
     `Nils-Hero Lindemann`_,
+    `Oleg Komarov`_,
     `Paul Houle`_,
     `Paul Sargent`_,
     `Robert Speer`_,

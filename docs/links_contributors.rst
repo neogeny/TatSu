@@ -25,6 +25,7 @@
 .. _Nicholas Bishop: https://github.com/nicholasbishop
 .. _Nicolas Laurent: https://github.com/norswap
 .. _Nils-Hero Lindemann: https://github.com/heronils
+.. _Oleg Komarov: https://github.com/okomarov
 .. _Paul Houle: https://github.com/paulhoule
 .. _Paul Sargent: https://bitbucket.org/pauls
 .. _Philippe Sigaud: https://github.com/PhilippeSigaud

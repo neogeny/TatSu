@@ -14,8 +14,11 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.0.0...master
 
-*  `#156`_   Clarify limitations of left-recursion in PEG.
+*  `#156`_   Clarify limitations of left-recursion in PEG (`@apalala`_).
+*  `#159`_   Clean up examples and tutorial, upgrade them to Python 3 (`@okomarov`_).
+
 .. _#156: https://github.com/neogeny/TatSu/issues/156
+.. _#159: https://github.com/neogeny/TatSu/pull/159
 
 
 `5.0.0`_ @ 2020-01-26
@@ -334,6 +337,7 @@ Added
 .. _@nicholasbishop: https://github.com/nicholasbishop
 .. _@rayjolt: https://github.com/rayjolt
 .. _@tirkarthi: https://github.com/tirkarthi
+.. _@okomarov: https://github.com/okomarov
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
