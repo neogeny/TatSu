@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 from tatsu.objectmodel import Node
 from tatsu.exceptions import CodegenError
@@ -17,26 +17,26 @@ __all__ = [
 class DelegatingRenderingFormatter(RenderingFormatter):
     def __init__(self, delegate):
         assert hasattr(delegate, 'render')
-        super(DelegatingRenderingFormatter, self).__init__()
+        super().__init__()
         self.delegate = delegate
 
     # override
     def render(self, item, join='', **fields):
         result = self.delegate.render(item, join=join, **fields)
         if result is None:
-            result = super(DelegatingRenderingFormatter, self).render(item, join=join, **fields)
+            result = super().render(item, join=join, **fields)
         return result
 
     def convert_field(self, value, conversion):
         if isinstance(value, Node):
             return self.render(value)
         else:
-            return super(DelegatingRenderingFormatter, self).convert_field(value, conversion)
+            return super().convert_field(value, conversion)
 
 
 class ModelRenderer(Renderer):
     def __init__(self, codegen, node, template=None):
-        super(ModelRenderer, self).__init__(template=template)
+        super().__init__(template=template)
         self._codegen = codegen
         self._node = node
 
@@ -49,7 +49,7 @@ class ModelRenderer(Renderer):
 
     def __getattr__(self, name):
         try:
-            super(ModelRenderer, self).__getattr__(name)
+            super().__getattr__(name)
         except AttributeError:
             if name.startswith('_'):
                 raise
@@ -70,12 +70,13 @@ class ModelRenderer(Renderer):
     def get_renderer(self, item):
         return self.codegen.get_renderer(item)
 
-    def render(self, template=None, **fields):
+    def render(self, **fields):
+        template = fields.pop('template', None)
         if isinstance(self.node, Node):
             fields.update({k: v for k, v in vars(self.node).items() if not k.startswith('_')})
         else:
             fields.update(value=self.node)
-        return super(ModelRenderer, self).render(template=template, **fields)
+        return super().render(template=template, **fields)
 
 
 class NullModelRenderer(ModelRenderer):

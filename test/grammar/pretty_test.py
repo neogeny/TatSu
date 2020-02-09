@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 import unittest
 
@@ -10,7 +10,7 @@ from tatsu.tool import compile
 class PrettyTests(unittest.TestCase):
 
     def test_pretty(self):
-        grammar = '''\
+        grammar = r'''
             start = lisp ;
             lisp = sexp | list | symbol;
             sexp::SExp = '(' cons:lisp '.' ~ cdr:lisp ')' ;
@@ -18,7 +18,7 @@ class PrettyTests(unittest.TestCase):
             symbol::Symbol = value:/[^\s().]+/ ;
         '''
 
-        pretty = trim('''\
+        pretty = trim(r'''
             start
                 =
                 lisp
@@ -49,7 +49,7 @@ class PrettyTests(unittest.TestCase):
                 ;
         ''')
 
-        pretty_lean = trim('''\
+        pretty_lean = trim(r'''
             start
                 =
                 lisp

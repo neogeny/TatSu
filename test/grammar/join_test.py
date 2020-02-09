@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 import unittest
 
@@ -57,13 +57,13 @@ class JoinTests(unittest.TestCase):
         codegen(model)
 
         ast = model.parse("x y, x y z", nameguard=False)
-        self.assertEqual([[['x', 'y'], ',', ['x', 'y']], 'z'], ast)
+        self.assertEqual(([['x', 'y'], ',', ['x', 'y']], 'z'), ast)
 
         ast = model.parse("x y z", nameguard=False)
-        self.assertEqual([[['x', 'y']], 'z'], ast)
+        self.assertEqual(([['x', 'y']], 'z'), ast)
 
         ast = model.parse("z", nameguard=False)
-        self.assertEqual([[], 'z'], ast)
+        self.assertEqual(([], 'z'), ast)
 
     def test_group_join(self):
         grammar = '''
@@ -98,7 +98,7 @@ class JoinTests(unittest.TestCase):
         self.assertEqual([['x', 'y']], ast)
         try:
             ast = model.parse("y x", nameguard=False)
-            self.Fail('closure not positive')
+            self.fail('closure not positive')
         except FailedParse:
             pass
 
@@ -123,13 +123,13 @@ class JoinTests(unittest.TestCase):
         codegen(model)
 
         ast = model.parse("x y, x y z", nameguard=False)
-        self.assertEqual([[['x', 'y'], ['x', 'y']], 'z'], ast)
+        self.assertEqual(([['x', 'y'], ['x', 'y']], 'z'), ast)
 
         ast = model.parse("x y z", nameguard=False)
-        self.assertEqual([[['x', 'y']], 'z'], ast)
+        self.assertEqual(([['x', 'y']], 'z'), ast)
 
         ast = model.parse("z", nameguard=False)
-        self.assertEqual([[], 'z'], ast)
+        self.assertEqual(([], 'z'), ast)
 
     def test_group_gather(self):
         grammar = '''

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 import json
 from codecs import open
@@ -9,7 +9,7 @@ import tatsu
 from tatsu.ast import AST
 from tatsu.walkers import NodeWalker
 
-from codegen import PostfixCodeGenerator
+from codegen import PostfixCodeGenerator  # pylint: disable= E0401 # noqa
 
 
 def simple_parse():

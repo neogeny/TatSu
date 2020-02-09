@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 import unittest
 
@@ -44,7 +44,7 @@ class StatefulTests(unittest.TestCase):
 
             def ul_marker(self, ast):
                 ctx = self._context
-                if ctx._state is not None and not ctx.buf.match("*" * ctx._state):
+                if ctx._state is not None and not ctx.tokenizer.match("*" * ctx._state):
                     raise FailedSemantics("not at correct level")
                 return ast
 

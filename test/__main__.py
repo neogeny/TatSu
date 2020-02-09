@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 
 def main():
-    import py
+    import pytest
 
-    py.test.main()
+    pytest.main()
 
 
 if __name__ == '__main__':

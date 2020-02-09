@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 import unittest
 
@@ -15,7 +15,7 @@ class MyNode(object):
 class SemanticsTests(unittest.TestCase):
 
     def test_builder_semantics(self):
-        grammar = '''
+        grammar = r'''
             start::sum = {number}+ $ ;
             number::int = /\d+/ ;
         '''
@@ -30,7 +30,7 @@ class SemanticsTests(unittest.TestCase):
         dotted = functools.partial(type('').join, '.')
         dotted.__name__ = 'dotted'
 
-        grammar = '''
+        grammar = r'''
             start::dotted = {number}+ $ ;
             number = /\d+/ ;
         '''
@@ -74,7 +74,7 @@ class SemanticsTests(unittest.TestCase):
         src = to_python_model(grammar, base_type=MyNode)
 
         globals = {}
-        exec(src, globals)
+        exec(src, globals)  # pylint: disable=W0122
         semantics = globals["TestModelBuilderSemantics"]()
 
         A = globals["A"]
@@ -105,5 +105,5 @@ class SemanticsTests(unittest.TestCase):
         assert a.right == 'bar'
 
         b = grammar.parse('foo', semantics=ModelBuilderSemantics())
-        self.assertEquals(b.left, 'foo')
+        self.assertEqual(b.left, 'foo')
         self.assertIsNone(b.right)

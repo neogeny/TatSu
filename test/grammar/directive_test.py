@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 import unittest
 
@@ -41,9 +41,9 @@ class DirectiveTests(unittest.TestCase):
         ]
         for grammar in grammars:
             model = tatsu.compile(grammar, "test")
-            self.assertEquals(['x', 'x'], model.parse('xx', trace=True))
+            self.assertEqual(['x', 'x'], model.parse('xx', trace=True))
             try:
-                self.assertEquals(['x', 'x'], model.parse('x x', trace=True))
+                self.assertEqual(['x', 'x'], model.parse('x x', trace=True))
             except FailedParse:
                 pass
             else:
@@ -78,7 +78,8 @@ class DirectiveTests(unittest.TestCase):
             # this is just a token with any character but space and newline
             # it should finish before it capture space or newline character
             token = /[^ \n]+/;
-            # expect whitespace to capture spaces between tokens, but newline should be captured afterwards
+            # expect whitespace to capture spaces between tokens, but newline
+            # should be captured afterwards
             token2 = {token}* /\n/;
             # document is just list of this strings of tokens
             document = {@+:token2}* $;
@@ -90,27 +91,9 @@ class DirectiveTests(unittest.TestCase):
         """)
 
         expected = [
-            [
-                [
-                    "a",
-                    "b"
-                ],
-                "\n"
-            ],
-            [
-                [
-                    "c",
-                    "d"
-                ],
-                "\n"
-            ],
-            [
-                [
-                    "e",
-                    "f"
-                ],
-                "\n"
-            ]
+            (["a", "b"], "\n"),
+            (["c", "d"], "\n"),
+            (["e", "f"], "\n"),
         ]
 
         model = tatsu.compile(grammar, "document")
@@ -162,7 +145,7 @@ class DirectiveTests(unittest.TestCase):
         compile(code, 'test.py', EXEC)
 
     def test_nameguard_directive(self):
-        GRAMMAR = '''
+        grammar = '''
             @@grammar :: test
             @@nameguard :: False
             @@namechars :: ''
@@ -172,7 +155,7 @@ class DirectiveTests(unittest.TestCase):
             digit = 'x' | '1' | '2' | '3' | '4' | '5' ;
         '''
 
-        model = tatsu.compile(GRAMMAR)
+        model = tatsu.compile(grammar)
         self.assertFalse(model.nameguard)
-        self.assertEquals(['2', '3'], model.parse('23'))
-        self.assertEquals(['x', 'x'], model.parse('xx'))
+        self.assertEqual(['2', '3'], model.parse('23'))
+        self.assertEqual(['x', 'x'], model.parse('xx'))

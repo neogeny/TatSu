@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 from tatsu.util import re
 
@@ -49,10 +49,11 @@ class NoParseInfo(ParseException):
 
 
 class FailedParse(ParseError):
-    def __init__(self, buf, stack, item):
-        self.buf = buf
+    def __init__(self, tokenizer, stack, item):
+        super().__init__()
+        self.tokenizer = tokenizer
         self.stack = stack[:]
-        self.pos = buf.pos
+        self.pos = tokenizer.pos
         self.item = item
 
     @property
@@ -60,7 +61,7 @@ class FailedParse(ParseError):
         return self.item
 
     def __str__(self):
-        info = self.buf.line_info(self.pos)
+        info = self.tokenizer.line_info(self.pos)
         template = "{}({}:{}) {} :\n{}\n{}^\n{}"
         text = info.text.rstrip()
         leading = re.sub(r'[^\t]', ' ', text)[:info.col]
@@ -77,8 +78,8 @@ class FailedParse(ParseError):
 
 
 class FailedToken(FailedParse):
-    def __init__(self, buf, stack, token):
-        super(FailedToken, self).__init__(buf, stack, token)
+    def __init__(self, tokenizer, stack, token):
+        super().__init__(tokenizer, stack, token)
         self.token = token
 
     @property
@@ -87,8 +88,8 @@ class FailedToken(FailedParse):
 
 
 class FailedPattern(FailedParse):
-    def __init__(self, buf, stack, pattern):
-        super(FailedPattern, self).__init__(buf, stack, pattern)
+    def __init__(self, tokenizer, stack, pattern):
+        super().__init__(tokenizer, stack, pattern)
         self.pattern = pattern
 
     @property
@@ -96,19 +97,9 @@ class FailedPattern(FailedParse):
         return "expecting /%s/" % self.pattern
 
 
-class FailedMatch(FailedParse):
-    def __init__(self, buf, name, item):
-        super(FailedMatch, self).__init__(buf, item)
-        self.name = name
-
-    @property
-    def message(self):
-        return "expecting %s" % repr(self.name).strip('u')
-
-
 class FailedRef(FailedParse):
-    def __init__(self, buf, stack, name):
-        super(FailedRef, self).__init__(buf, stack, name)
+    def __init__(self, tokenizer, stack, name):
+        super().__init__(tokenizer, stack, name)
         self.name = name
 
     @property
@@ -118,7 +109,7 @@ class FailedRef(FailedParse):
 
 class FailedCut(FailedParse):
     def __init__(self, nested):
-        super(FailedCut, self).__init__(nested.buf, nested.stack, nested.item)
+        super().__init__(nested.tokenizer, nested.stack, nested.item)
         self.pos = nested.pos
         self.nested = nested
 

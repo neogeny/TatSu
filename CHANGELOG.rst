@@ -10,22 +10,43 @@ backwards incompatibilities in the software.
 
 The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
-`X.Y.Z`_ @ 2019
+`X.Y.Z`_ @ 2020
 ---------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v4.3.0...master
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.0.0...master
+
+*  `#156`_   Clarify limitations of left-recursion in PEG (`@apalala`_).
+*  `#159`_   Clean up examples and tutorial, upgrade them to Python 3 (`@okomarov`_).
+
+.. _#156: https://github.com/neogeny/TatSu/issues/156
+.. _#159: https://github.com/neogeny/TatSu/pull/159
 
 
-`4.4.0a1`_ @ 2019-04-22
+`5.0.0`_ @ 2020-01-26
 -----------------------
-.. _4.4.0a1: https://github.com/apalala/tatsu/compare/v4.3.0...v4.4.0a1
+.. _5.0.0: https://github.com/apalala/tatsu/compare/v4.4.0...v5.0.0
 
-*   The default regexp for whitespace was changed to ``(?s)\s+`
+*   |TatSu| is now only tested against Python 3.8. Earlier versions of Python are now deprecated, and Python 2.X versions are no longer supported.
+*   Apply ``nameguard`` only if ``token[0].isalpha()``. This solves a regression afecting previous TatSu and Grako grammars (`@apalala`_).
+*   Remove ``pygraphviz`` from develoment requirements, as it doesn't build under Py38
+*  `#56`_   Include missing ``tatsu/g2e/antlr.ebnf`` in distribution
+*  `#138`_   Reimplement the calculation of ``FIRST``, ``FOLLOW``, and ``LOOKAHEAD`` sets using latest theories. For now, this should improve parser error reporting, but should eventually enable the simplification of parsing of leftrec grammars (`@apalala`_).
+*  `#153`_   Import ABCs from ``collections.abc`` (`@tirkarthi`_)
+
+.. _#56: https://github.com/neogeny/TatSu/issues/56
+.. _#138: https://github.com/neogeny/TatSu/issues/138
+.. _#153: https://github.com/neogeny/TatSu/issues/153
+
+`4.4.0`_ @ 2019-04-22
+-----------------------
+.. _4.4.0: https://github.com/apalala/tatsu/compare/v4.3.0...v4.4.0
+
+*   The default regexp for whitespace was changed to ``(?s)\s+``
 *   Allow empty patterns (``//``) like Python does
-*  `#89`_ Make all attributes defined in the rule present in the resulting ``AST`` or ``Node`` even if the associated expression was not parsed
 *  `#65`_ Allow initial, consecutive, and trailing ``@namechars``
 *  `#73`_ Allow ``@@whitespace :: None`` and ``@@whitespace :: False``
 *  `#75`_ Complete implemenation of left recursion(`@Victorious3`_)
 *  `#77`_ Allow ``@keyword`` throughout the grammar
+*  `#89`_ Make all attributes defined in the rule present in the resulting ``AST`` or ``Node`` even if the associated expression was not parsed
 *  `#93`_ Fix trace colorization on Windows
 *  `#96`_ Documented each ``@@directive``
 *   Switched the documentation to the "Alabaster" theme
@@ -35,6 +56,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _#73: https://github.com/neogeny/TatSu/issues/73
 .. _#75: https://github.com/neogeny/TatSu/issues/75
 .. _#77: https://github.com/neogeny/TatSu/issues/77
+.. _#89: https://github.com/neogeny/TatSu/issues/89
 .. _#93: https://github.com/neogeny/TatSu/issues/93
 .. _#96: https://github.com/neogeny/TatSu/issues/96
 
@@ -117,8 +139,7 @@ Fixed
 Fixed
 ~~~~~
 
-*   `#27`_ Undo the fixes to dropped input on left recursion because they broke previous
-  expected behavior.
+*   `#27`_ Undo the fixes to dropped input on left recursion because they broke previous expected behavior.
 
 *   `#33`_ Fixes to the calc example and mini tutorial (`@heronils`_)
 
@@ -315,6 +336,8 @@ Added
 .. _@davesque: https://github.com/davesque
 .. _@nicholasbishop: https://github.com/nicholasbishop
 .. _@rayjolt: https://github.com/rayjolt
+.. _@tirkarthi: https://github.com/tirkarthi
+.. _@okomarov: https://github.com/okomarov
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen

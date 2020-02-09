@@ -3,8 +3,7 @@
 Tests for consistency of the line information caches kept by
 tatsu.buffering.Buffer.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import generator_stop
 
 import os
 import random
@@ -13,7 +12,6 @@ from codecs import open
 
 from tatsu import parse
 from tatsu.buffering import Buffer
-from tatsu.util import ustr
 
 
 class BufferingTests(unittest.TestCase):
@@ -21,7 +19,7 @@ class BufferingTests(unittest.TestCase):
     def setUp(self):
         testfile = os.path.splitext(__file__)[0] + '.py'
         with open(testfile, encoding='utf-8') as f:
-            self.text = ustr(f.read())
+            self.text = str(f.read())
         self.buf = Buffer(self.text, whitespace='')
 
     def test_pos_consistency(self):
@@ -74,7 +72,7 @@ class BufferingTests(unittest.TestCase):
             self.assertEqual(info.col, col)
             self.assertEqual(info.start, start)
             self.assertEqual(info.text, lines[line])
-            col = col + 1
+            col += 1
             if char == '\n':
                 line += 1
                 col = 0
@@ -104,7 +102,7 @@ class BufferingTests(unittest.TestCase):
                 "key-word-extra" ~ ";"
                 ;
         '''
-        self.assertEquals(['key-word-extra', ';'], parse(grammar, 'key-word-extra;'))
+        self.assertEqual(['key-word-extra', ';'], parse(grammar, 'key-word-extra;'))
 
 
 def suite():

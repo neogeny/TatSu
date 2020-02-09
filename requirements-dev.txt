@@ -1,0 +1,7 @@
+-r requirements-test.txt
+git-pylint-commit-hook
+ipython
+pip
+psutil
+pyyaml
+twine

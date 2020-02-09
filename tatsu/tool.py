@@ -3,7 +3,7 @@
 Parse and translate an EBNF grammar into a Python parser for
 the described language.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 import codecs
 import argparse
 import os
@@ -169,12 +169,18 @@ def compile(grammar: str, name: str = None, semantics=None, asmodel=False, **kwa
     """
     cache = __compiled_grammar_cache
 
-    if (grammar, semantics) in cache:
-        model = cache[(grammar, semantics)]
+    key = grammar
+    if key in cache:
+        model = cache[key]
     else:
         gen = GrammarGenerator(name, **kwargs)
-        model = cache[grammar] = gen.parse(grammar, **kwargs)
-        model.semantics = semantics or asmodel and ModelBuilderSemantics()
+        model = cache[key] = gen.parse(grammar, **kwargs)
+
+    if semantics is not None:
+        model.semantics = semantics
+    elif asmodel:
+        model.semantics = ModelBuilderSemantics()
+
     return model
 
 
@@ -248,7 +254,7 @@ def main(codegen=pythoncg):
     prepare_for_output(outfile)
     prepare_for_output(args.object_model_outfile)
 
-    grammar = codecs.open(args.filename, 'r', encoding='utf-8').read()
+    grammar = codecs.open(args.filename, encoding='utf-8').read()
 
     try:
         model = compile(

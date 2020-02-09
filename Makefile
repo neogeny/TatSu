@@ -1,18 +1,17 @@
-test: flake8 mypy tatsu_test documentation examples
+test:  static_test tatsu_test documentation examples
 
 
-tatsu_test:
-	py.test
+tatsu_test: clean
+	pytest
 
 
-documentation:
-	pandoc README.rst -t markdown --wrap=none > README.md
-	pandoc CHANGELOG.rst -t markdown --wrap=none > CHANGELOG.md
-	rm CHANGELOG.md
+documentation: clean
+	rst2html5 CHANGELOG.rst > /dev/null
+	pandoc README.rst -t gfm --wrap=none > README.md
 	cd docs; make -s html > /dev/null
 
 
-examples: g2e_test calc_test
+examples: clean g2e_test calc_test
 
 
 g2e_test:
@@ -22,20 +21,13 @@ calc_test:
 	cd examples/calc; make -s clean; make -s test > /dev/null
 
 
-flake8:
+static_test:
 	flake8
+	pylint --ignore=bootstrap.py,model.py tatsu test examples
+	mypy   --ignore-missing-imports .
 
 
-mypy:
-	mypy . --ignore-missing-imports
-
-
-cython:
-	python setup.py build_ext --inplace
-	python3 setup.py build_ext --inplace
-
-
-clean: clean_cython
+clean:
 	find . -name "__pycache__" | xargs rm -rf
 	find . -name "*.pyc" | xargs rm -f
 	find . -name "*.pyd" | xargs rm -f
@@ -47,22 +39,25 @@ clean: clean_cython
 	rm -rf .tox
 
 
-clean_cython:
-	find tatsu -name "*.so" | xargs rm -f
-	find tatsu -name "*.c" | xargs rm -f
-
-
 release_check: clean documentation
-	rst2html.py README.rst > /dev/null
 	python setup.py sdist --formats=zip
 	tox
 	@echo version `python -m tatsu --version`
 
 
-distributions: clean release_check
+distributions: clean
 	python setup.py sdist --formats=zip
 	python setup.py bdist_wheel --universal
 
 
-upload: distributions
+test_distributions: clean
+	python setup.py sdist --formats=zip
+	python setup.py bdist_wheel --universal
+
+
+test_upload: test_distributions
+	twine upload --repository test dist/*
+
+
+upload: release_check distributions
 	twine upload dist/*

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 import unittest
 
@@ -10,7 +10,8 @@ class ModelTests(unittest.TestCase):
     def test_node_kwargs(self):
         class Atom(Node):
             def __init__(self, arguments=None, symbol=None, **_kwargs_):
-                super(Atom, self).__init__(
+                self.symbol = None
+                super().__init__(
                     arguments=arguments,
                     symbol=symbol,
                     **_kwargs_

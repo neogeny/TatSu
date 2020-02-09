@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 import unittest
 
 from tatsu.parser import GrammarGenerator
 from tatsu.tool import compile
-from tatsu.util import trim, ustr, PY3
+from tatsu.util import trim
 from tatsu.codegen import codegen
 
 
@@ -19,10 +19,9 @@ class ParameterTests(unittest.TestCase):
                 ;
         '''
         g = GrammarGenerator('Keywords')
-        model = g.parse(grammar, trace=False)
+        model = g.parse(grammar)
         code = codegen(model)
         self.assertEqual('#!/usr/bin/env python', code.splitlines()[0])
-        pass
 
     def test_35_only_keyword_params(self):
         grammar = '''
@@ -32,7 +31,7 @@ class ParameterTests(unittest.TestCase):
                 ;
         '''
         model = compile(grammar, "test")
-        self.assertEqual(trim(grammar), ustr(model))
+        self.assertEqual(trim(grammar), str(model))
 
     def test_36_params_and_keyword_params(self):
         grammar = '''
@@ -42,7 +41,7 @@ class ParameterTests(unittest.TestCase):
                 ;
         '''
         model = compile(grammar, "test")
-        self.assertEqual(trim(grammar), ustr(model))
+        self.assertEqual(trim(grammar), str(model))
 
     def test_36_param_combinations(self):
         def assert_equal(target, value):
@@ -120,7 +119,7 @@ class ParameterTests(unittest.TestCase):
         '''
 
         model = compile(grammar, 'RuleArguments')
-        self.assertEqual(trim(pretty), ustr(model))
+        self.assertEqual(trim(pretty), str(model))
         model = compile(pretty, 'RuleArguments')
 
         ast = model.parse("a b c")
@@ -186,9 +185,12 @@ class ParameterTests(unittest.TestCase):
         import codecs
         with codecs.open("tc36unicharstest.py", "w", "utf-8") as f:
             f.write(code)
-        import tc36unicharstest
-        tc36unicharstest
-        _trydelete("tc36unicharstest")
+        try:
+            import tc36unicharstest  # pylint: disable=E0401
+            assert tc36unicharstest
+            _trydelete("tc36unicharstest")
+        except Exception as e:
+            self.fail(e)
 
     def test_numbers_and_unicode(self):
         grammar = '''
@@ -196,25 +198,13 @@ class ParameterTests(unittest.TestCase):
                 =
                 'a'
                 ;
-        '''
-        rule2 = '''
 
-            rulé::Añez
-                =
-                '\\xf1'
-                ;
-        '''
-        rule3 = '''
 
             rúlé::Añez
                 =
                 'ñ'
                 ;
         '''
-        if PY3:
-            grammar += rule3
-        else:
-            grammar += rule2
 
         model = compile(grammar, "test")
-        self.assertEqual(trim(grammar), ustr(model))
+        self.assertEqual(trim(grammar), str(model))

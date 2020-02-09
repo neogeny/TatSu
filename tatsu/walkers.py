@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import collections
+from collections.abc import Mapping
 from contextlib import contextmanager
 
 from tatsu.objectmodel import Node
@@ -66,7 +66,7 @@ class NodeWalker(object):
 
 class PreOrderWalker(NodeWalker):
     def walk(self, node, *args, **kwargs):
-        result = super(PreOrderWalker, self).walk(node, *args, **kwargs)
+        result = super().walk(node, *args, **kwargs)
         if isinstance(node, Node):
             for child in node.children_list():
                 self.walk(child)
@@ -75,11 +75,11 @@ class PreOrderWalker(NodeWalker):
 
 class DepthFirstWalker(NodeWalker):
     def walk(self, node, *args, **kwargs):
-        supers_walk = super(DepthFirstWalker, self).walk
+        supers_walk = super().walk
         if isinstance(node, Node):
             children = [self.walk(c, *args, **kwargs) for c in node.children()]
             return supers_walk(node, children, *args, **kwargs)
-        elif isinstance(node, collections.Mapping):
+        elif isinstance(node, Mapping):
             return {n: self.walk(e, *args, **kwargs) for n, e in node.items()}
         elif is_list(node):
             return [self.walk(e, *args, **kwargs) for e in iter(node)]
@@ -89,7 +89,7 @@ class DepthFirstWalker(NodeWalker):
 
 class ContextWalker(NodeWalker):
     def __init__(self, initial_context):
-        super(ContextWalker, self).__init__()
+        super().__init__()
         self._initial_context = initial_context
         self._context_stack = [initial_context]
 

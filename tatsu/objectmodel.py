@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
-
-import collections
-import weakref
+from collections.abc import Mapping, MutableMapping
 
 from tatsu.util import asjson, asjsons
-from tatsu.util import Mapping, MutableMapping
 from tatsu.infos import CommentInfo
 from tatsu.ast import AST
 # TODO: from tatsu.exceptions import NoParseInfo
@@ -17,7 +14,7 @@ BASE_CLASS_TOKEN = '::'
 
 class Node(object):
     def __init__(self, ctx=None, ast=None, parseinfo=None, **kwargs):
-        super(Node, self).__init__()
+        super().__init__()
         self._ctx = ctx
         self._ast = ast
 
@@ -30,7 +27,7 @@ class Node(object):
         if isinstance(attributes, MutableMapping):
             attributes.update(kwargs)
 
-        self._parent = None  # will always be a weakref or None
+        self._parent = None  # will always be a ref or None
         self._adopt_children(attributes)
         self.__postinit__(attributes)
 
@@ -51,7 +48,7 @@ class Node(object):
     @property
     def parent(self):
         if self._parent is not None:
-            return self._parent()
+            return self._parent
 
     @property
     def line(self):
@@ -93,19 +90,19 @@ class Node(object):
     @property
     def line_info(self):
         if self.parseinfo:
-            return self.parseinfo.buffer.line_info(self.parseinfo.pos)
+            return self.parseinfo.tokenizer.line_info(self.parseinfo.pos)
 
     @property
     def text(self):
         if not self.parseinfo:
             return ''
-        text = self.parseinfo.buffer.text
+        text = self.parseinfo.tokenizer.text
         return text[self.parseinfo.pos:self.parseinfo.endpos]
 
     @property
     def comments(self):
         if self.parseinfo:
-            return self.parseinfo.buffer.comments(self.parseinfo.pos)
+            return self.parseinfo.tokenizer.comments(self.parseinfo.pos)
         return CommentInfo([], [])
 
     def __cn(self, add_child, child_collection, child, seen=None):
@@ -153,7 +150,7 @@ class Node(object):
         if parent is None:
             parent = self
         if isinstance(node, Node):
-            node._parent = weakref.ref(parent)
+            node._parent = parent
             for c in node.children():
                 node._adopt_children(c, parent=node)
         elif isinstance(node, Mapping):
@@ -171,11 +168,10 @@ class Node(object):
         }
 
     def __json__(self):
-        result = collections.OrderedDict(
-            __class__=self.__class__.__name__,
-        )
-        result.update(self._pubdict())
-        return asjson(result)
+        return asjson({
+            '__class__': type(self).__name__,
+            **self._pubdict()
+        })
 
     def __str__(self):
         return asjsons(self)
@@ -187,8 +183,6 @@ class Node(object):
 
     def __setstate__(self, state):
         self.__dict__.update(state)
-        if self._parent is not None:
-            self._parent = weakref.ref(self._parent)
 
 
 ParseModel = Node

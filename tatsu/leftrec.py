@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 from collections import defaultdict
-import tatsu.grammars
-from .util import PY37
-if PY37:
-    from typing import Type  # noqa
+import tatsu.grammars  # pylint: disable=R0401
+from typing import Callable
 
 # Based on https://github.com/ncellar/autumn_v1/
 
@@ -32,11 +30,11 @@ class Nullable(object):
         self.nullable = n
         self.children = None  # No longer needed
 
-    all = None  # type: Type[Nullable]
-    any = None  # type: Type[Nullable]
-    of = None  # type: staticmethod
-    no = None  # type: staticmethod
-    yes = None  # type: staticmethod
+    all: Callable
+    any: Callable
+    of: Callable
+    no: Callable
+    yes: Callable
 
 
 class _All(Nullable):
@@ -57,7 +55,7 @@ class _All(Nullable):
             self.resolve_with(True)
         else:
             # Otherwise still unresolved
-            self.chilren = unresolved
+            self.children = unresolved
 
 
 class _Any(Nullable):
@@ -89,9 +87,9 @@ class _Single(Nullable):
 
 Nullable.all = _All     # Nullable if all children are nullable
 Nullable.any = _Any     # Nullable if one child is nullable
-Nullable.of = staticmethod(lambda child: _Single([child]))       # Nullable if the only child is nullable
-Nullable.no = staticmethod(lambda: Nullable(None, True, False))  # Not nullable
-Nullable.yes = staticmethod(lambda: Nullable(None, True, True))  # Nullable
+Nullable.of = lambda child: _Single([child])       # Nullable if the only child is nullable
+Nullable.no = lambda: Nullable(None, True, False)  # Not nullable
+Nullable.yes = lambda: Nullable(None, True, True)  # Nullable
 
 
 def resolve_nullability(grammar, rule_dict):

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 import unittest
 
-from tatsu.util import trim, urepr
+from tatsu.util import trim
 from tatsu.tool import compile
 from tatsu.exceptions import FailedParse
 from tatsu.codegen import codegen
@@ -31,8 +31,8 @@ class PatternTests(unittest.TestCase):
         '''
 
         model = compile(grammar, "test")
-        ast = model.parse('\n\n', trace=True)
-        self.assertEqual(['\n', '\n'], ast)
+        ast = model.parse('\n\n')
+        self.assertEqual(('\n', '\n'), ast)
 
     def test_pattern_concatenation(self):
         grammar = '''
@@ -117,7 +117,7 @@ class PatternTests(unittest.TestCase):
         print(codegen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
             codegen(model.rules[0].exp.sequence[0]),
-            urepr("self._pattern('(?x)\nfoo\nbar\n')").strip('"\'')
+            repr("self._pattern('(?x)\nfoo\nbar\n')").strip('"\'')
         )
 
         grammar = r'''
@@ -129,5 +129,5 @@ class PatternTests(unittest.TestCase):
         print(codegen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
             trim(codegen(model.rules[0].exp.sequence[0])),
-            urepr("self._pattern('(?x)foo\\nbar\nblort')").strip('"\.')
+            repr("self._pattern('(?x)foo\\nbar\nblort')").strip(r'"\.')
         )

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 import sys
 
@@ -11,7 +11,7 @@ THIS_MODULE = sys.modules[__name__]
 
 class PostfixCodeGenerator(CodeGenerator):
     def __init__(self):
-        super(PostfixCodeGenerator, self).__init__(modules=[THIS_MODULE])
+        super().__init__(modules=[THIS_MODULE])
 
 
 class Number(ModelRenderer):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 from collections import namedtuple
 
@@ -34,7 +34,7 @@ class LineIndexInfo(namedtuple('_LineIndexInfoBase', ['filename', 'line'])):
         return list(LineIndexInfo(l, i) for l, i in zip(n * [name], range(n)))
 
 
-class LineInfo (namedtuple('_LineInfo', ['filename', 'line', 'col', 'start', 'end', 'text'])):
+class LineInfo(namedtuple('_LineInfo', ['filename', 'line', 'col', 'start', 'end', 'text'])):
     __slots__ = ()
 
 
@@ -49,7 +49,7 @@ class CommentInfo(namedtuple('_CommentInfo', ['inline', 'eol'])):
 _ParseInfo = namedtuple(
     '_ParseInfoTuple',
     [
-        'buffer',
+        'tokenizer',
         'rule',
         'pos',
         'endpos',
@@ -63,10 +63,10 @@ class ParseInfo(_ParseInfo):
     __slots__ = ()
 
     def text_lines(self):
-        return self.buffer.get_lines(self.line, self.endline)
+        return self.tokenizer.get_lines(self.line, self.endline)
 
     def line_index(self):
-        return self.buffer.line_index(self.line, self.endline)
+        return self.tokenizer.line_index(self.line, self.endline)
 
 
 MemoKey = namedtuple(

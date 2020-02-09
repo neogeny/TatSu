@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 import sys
 import os
-import collections
 import json
 import datetime
 import codecs
-import itertools
 import keyword
 import functools
 import warnings
 import logging
+from io import StringIO
+from collections.abc import Mapping, Iterable, MutableSequence
+from itertools import zip_longest
+from pathlib import Path
+import os.path
 
 
 logger = logging.getLogger('tatsu')
@@ -31,33 +34,9 @@ except ImportError:
 RETYPE = type(re.compile('.'))
 
 
-PY3 = sys.version_info[0] >= 3
-PY33 = PY3 and sys.version_info[1] >= 3
-PY37 = PY3 and sys.version_info[1] >= 7
-
-if PY3:
-    strtype = str
-    basestring = None
-    unicode = None
-    _unicode = str
-    if PY33:
-        from collections.abc import Mapping, MutableMapping
-    else:
-        from collections import Mapping, MutableMapping
-    zip_longest = itertools.zip_longest
-    import builtins
-    imap = map
-    from io import StringIO
-else:
-    strtype = basestring  # noqa
-    _unicode = unicode
-    Mapping = collections.Mapping
-    MutableMapping = collections.MutableMapping
-    zip_longest = itertools.izip_longest
-    imap = itertools.imap
-    import __builtin__ as builtins
-    from StringIO import StringIO
-assert builtins
+_PY3 = sys.version_info[0] >= 3
+PY36 = _PY3 and sys.version_info[1] >= 6
+PY37 = _PY3 and sys.version_info[1] >= 7
 
 
 def is_posix():
@@ -65,14 +44,11 @@ def is_posix():
 
 
 def _prints(*args, **kwargs):
-    io = StringIO()
-    kwargs['file'] = io
-    kwargs['end'] = ''
-    if PY3:
+    with StringIO() as f:
+        kwargs['file'] = f
+        kwargs['end'] = ''
         print(*args, **kwargs)
-    else:
-        print(*(a.encode('utf-8') for a in args), **kwargs)
-    return io.getvalue()
+        return f.getvalue()
 
 
 def info(*args, **kwargs):
@@ -84,7 +60,11 @@ def debug(*args, **kwargs):
 
 
 def warning(*args, **kwargs):
-    logger.warning(_prints('WARNING:', *args, **kwargs))
+    logger.warning(_prints(*args, **kwargs))
+
+
+def error(*args, **kwargs):
+    logger.error(_prints(*args, **kwargs))
 
 
 def identity(*args):
@@ -131,16 +111,12 @@ def join_lists(lists):
 
 
 def flatten(o):
-    def _flatten(x):
-        if not is_list(x):
-            yield x
-            return
+    if not isinstance(o, MutableSequence):
+        yield o
+        return
 
-        for item in o:
-            for result in flatten(item):
-                yield result
-
-    return list(_flatten(o))
+    for item in o:
+        yield from flatten(item)
 
 
 def compress_seq(seq):
@@ -151,21 +127,6 @@ def compress_seq(seq):
             result.append(x)
             seen.add(x)
     return result
-
-
-def ustr(s):
-    if PY3:
-        return str(s)
-    elif isinstance(s, unicode):
-        return s
-    elif isinstance(s, str):
-        return _unicode(s, 'utf-8')
-    else:
-        return ustr(s.__str__())  # FIXME: last case resource!  We don't know unicode, period.
-
-
-def urepr(obj):
-    return ustr(repr(obj)).lstrip('u')
 
 
 def eval_escapes(s):
@@ -200,8 +161,8 @@ def eval_escapes(s):
 
 def isiter(value):
     return (
-        isinstance(value, collections.Iterable) and
-        not isinstance(value, strtype)
+        isinstance(value, Iterable) and
+        not isinstance(value, str)
     )
 
 
@@ -236,7 +197,7 @@ def indent(text, indent=1, multiplier=4):
     """
     if text is None:
         return ''
-    text = ustr(text)
+    text = str(text)
     if indent >= 0:
         sindent = ' ' * multiplier * indent
         text = '\n'.join((sindent + t).rstrip() for t in text.splitlines())
@@ -256,7 +217,7 @@ def timestamp():
 
 
 def asjson(obj, seen=None):
-    if isinstance(obj, collections.Mapping) or isiter(obj):
+    if isinstance(obj, Mapping) or isiter(obj):
         # prevent traversal of recursive structures
         if seen is None:
             seen = set()
@@ -266,11 +227,11 @@ def asjson(obj, seen=None):
 
     if hasattr(obj, '__json__') and type(obj) is not type:
         return obj.__json__()
-    elif isinstance(obj, collections.Mapping):
-        result = collections.OrderedDict()
+    elif isinstance(obj, Mapping):
+        result = {}
         for k, v in obj.items():
             try:
-                result[asjson(k, seen)] = asjson(v, seen)
+                result[k] = asjson(v, seen)
             except TypeError:
                 debug('Unhashable key?', type(k), str(k))
                 raise
@@ -397,3 +358,81 @@ def right_assoc(elements):
             return (op, left, assoc(it))
 
     return assoc(iter(elements))
+
+
+def memory_use():
+    try:
+        import psutil
+    except ImportError:
+        return 0
+    else:
+        process = psutil.Process(os.getpid())
+        return process.memory_info().rss
+
+
+def try_read(filename):
+    if isinstance(filename, Path):
+        filename = str(filename)
+    for e in ['utf-16', 'utf-8', 'latin-1', 'cp1252', 'ascii']:
+        try:
+            with open(filename, 'r', encoding=e) as f:
+                return f.read()
+        except UnicodeError:
+            pass
+    raise UnicodeDecodeError("cannot find the encoding for '%s'" % filename)
+
+
+def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
+    base = Path(base or '.').expanduser()
+
+    filenames = set()
+    for pattern in patterns or []:
+        path = base / pattern
+        if path.is_file():
+            filenames.add(path)
+            continue
+
+        if path.is_dir():
+            path += '/*'
+
+        parts = path.parts[1:] if path.is_absolute() else path.parts
+        pattern = str(Path("").joinpath(*parts))
+        filenames.update((p for p in Path(path.root).glob(pattern) if not p.is_dir()))
+
+    filenames = list(filenames)
+
+    def excluded(path):
+        if any(path.match(ex) for ex in ignore):
+            return True
+        for part in path.parts:
+            if any(Path(part).match(ex) for ex in ignore):
+                return True
+
+    if ignore:
+        filenames = [path for path in filenames if not excluded(path)]
+    if sizesort:
+        filenames.sort(key=lambda f: f.stat().st_size)
+
+    return filenames
+
+
+def short_relative_path(path, base='.'):
+    path = Path(path)
+    base = Path(base)
+    common = Path(os.path.commonpath([base.resolve(), path.resolve()]))
+
+    if common == path.root:
+        return path
+    elif common == Path.home():
+        up = Path('~')
+    elif common == base:
+        up = Path('.')
+    else:
+        n = len(base.parts) - len(common.parts)
+        up = Path('../' * n)
+
+    rel = str(up / path.resolve().relative_to(common))
+    if len(rel) < len(str(path)):
+        return rel
+    else:
+        return str(path)

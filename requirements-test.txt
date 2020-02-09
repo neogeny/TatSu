@@ -1,3 +1,11 @@
+docutils
 flake8
+mypy
+pandoc
+pylint
 pytest
+regex
+setuptools
+sphinx
+sphinx-rtd-theme
 tox

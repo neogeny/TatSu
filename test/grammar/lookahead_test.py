@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 import unittest
 
@@ -19,7 +19,7 @@ class LookaheadTests(unittest.TestCase):
         '''
         m = compile(grammar, trace=trace)
         ast = m.parse('x xx yyy a b')
-        self.assertEqual(['x', ['a', 'b']], ast)
+        self.assertEqual(('x', ('a', 'b')), ast)
 
         grammar = '''
             start = 'x' ab $ ;
@@ -32,4 +32,4 @@ class LookaheadTests(unittest.TestCase):
         '''
         m = compile(grammar, trace=trace)
         ast = m.parse('x xx yyy a b')
-        self.assertEqual(['x', ['a', 'b']], ast)
+        self.assertEqual(('x', ('a', 'b')), ast)

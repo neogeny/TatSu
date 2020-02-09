@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import generator_stop
 
 import unittest
 
@@ -10,10 +9,10 @@ from tatsu.objectmodel import Node
 
 class Generator(CodeGenerator):
     def __init__(self):
-        super(Generator, self).__init__()
+        super().__init__()
 
-    def _find_renderer_class(self, item):
-        name = item.__class__.__name__
+    def _find_renderer_class(self, node):
+        name = node.__class__.__name__
         return getattr(self, name, None)
 
     class Super(ModelRenderer):
@@ -29,7 +28,7 @@ class Sub(Node):
 
 class Super(Node):
     def __init__(self, ctx):
-        super(Super, self).__init__(ctx)
+        super().__init__(ctx)
         self.sub = Sub(self.ctx)
 
 

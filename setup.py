@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys
 import io
 import setuptools
 import tatsu
@@ -13,13 +12,8 @@ SHORT_DESCRIPTION = (
     ' PEG/Packrat parser in Python.'
 ).format(toolname=NAME)
 
+LONG_DESCRIPTION = io.open('README.rst', encoding='utf-8').read()
 
-try:
-    from Cython.Build import cythonize
-except ImportError:
-    CYTHON = False
-else:
-    CYTHON = 'bdist_wheel' not in sys.argv
 
 setuptools.setup(
     zip_safe=False,
@@ -28,15 +22,12 @@ setuptools.setup(
     url='https://github.com/neogeny/{package}'.format(
         package=PACKAGE
     ),
-    # download_url='https://bitbucket.org/neogeny/{package}/get/master.zip'.format(
-    #     package=PACKAGE
-    # ),
     author='Juancarlo Añez',
     author_email='apalala@gmail.com',
     maintainer='Juancarlo Añez',
     maintainer_email='apalala@gmail.com',
     description=SHORT_DESCRIPTION,
-    long_description=io.open('README.rst', encoding='utf-8').read(),
+    long_description=LONG_DESCRIPTION,
     license='BSD License',
     packages=setuptools.find_packages(),
     include_package_data=True,
@@ -54,31 +45,16 @@ setuptools.setup(
         'Intended Audience :: Science/Research',
         'Environment :: Console',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: Implementation :: PyPy',
-        'Programming Language :: Cython',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Software Development :: Code Generators',
         'Topic :: Software Development :: Compilers',
         'Topic :: Software Development :: Interpreters',
         'Topic :: Text Processing :: General'
     ],
-    install_requires=[],
+    python_requires='>=3.8',
     setup_requires=['pytest-runner'],
     tests_require=['pytest-mypy'],
     extras_require={
         'future-regex': ['regex']
     },
-    ext_modules=cythonize(
-        "tatsu/**/*.py",
-        exclude=[
-            'tatsu/__main__.py',
-            'tatsu/__init__.py',
-            'tatsu/codegen/__init__.py',
-            'tatsu/test/__main__.py',
-            'tatsu/test/*.py'
-        ]
-    ) if CYTHON else [],
 )

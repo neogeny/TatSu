@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import generator_stop
 
 import unittest
 
@@ -69,7 +69,7 @@ class KeywordTests(unittest.TestCase):
     def test_check_keywords(self):
         import parser
 
-        grammar = '''
+        grammar = r'''
             @@keyword :: A
 
             start = {id}+ $ ;
@@ -90,10 +90,9 @@ class KeywordTests(unittest.TestCase):
             self.fail('accepted keyword as name')
         except FailedParse as e:
             self.assertTrue('"A" is a reserved word' in str(e))
-            pass
 
     def test_check_unicode_name(self):
-        grammar = '''
+        grammar = r'''
             @@keyword :: A
 
             start = {id}+ $ ;
@@ -107,7 +106,7 @@ class KeywordTests(unittest.TestCase):
     def test_sparse_keywords(self):
         import parser
 
-        grammar = '''
+        grammar = r'''
             @@keyword :: A
 
             @@ignorecase :: False
@@ -133,4 +132,3 @@ class KeywordTests(unittest.TestCase):
                 self.fail('accepted keyword "%s" as name' % k)
             except FailedParse as e:
                 self.assertTrue('"%s" is a reserved word' % k in str(e))
-                pass

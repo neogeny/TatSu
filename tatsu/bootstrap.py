@@ -11,7 +11,7 @@
 # the file is generated.
 
 
-from __future__ import print_function, division, absolute_import, unicode_literals
+from __future__ import generator_stop
 
 import sys
 
@@ -39,7 +39,7 @@ class EBNFBootstrapBuffer(Buffer):
         namechars='',
         **kwargs
     ):
-        super(EBNFBootstrapBuffer, self).__init__(
+        super().__init__(
             text,
             whitespace=whitespace,
             nameguard=nameguard,
@@ -63,12 +63,12 @@ class EBNFBootstrapParser(Parser):
         parseinfo=True,
         keywords=None,
         namechars='',
-        buffer_class=EBNFBootstrapBuffer,
+        tokenizercls=EBNFBootstrapBuffer,
         **kwargs
     ):
         if keywords is None:
             keywords = KEYWORDS
-        super(EBNFBootstrapParser, self).__init__(
+        super().__init__(
             whitespace=whitespace,
             nameguard=nameguard,
             comments_re=comments_re,
@@ -78,7 +78,7 @@ class EBNFBootstrapParser(Parser):
             parseinfo=parseinfo,
             keywords=keywords,
             namechars=namechars,
-            buffer_class=buffer_class,
+            tokenizercls=tokenizercls,
             **kwargs
         )
 
@@ -340,6 +340,8 @@ class EBNFBootstrapParser(Parser):
                     self._token('override')
                 with self._option():
                     self._token('name')
+                with self._option():
+                    self._token('nomemo')
                 self._error('no available options')
         self.name_last_node('@')
 
