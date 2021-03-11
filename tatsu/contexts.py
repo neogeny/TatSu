@@ -154,6 +154,8 @@ class ParseContext(object):
             ignorecase = self.ignorecase
         if nameguard is None:
             nameguard = self.nameguard
+        if namechars is None:
+            namechars = self.namechars
         if memoize_lookaheads is not None:
             self.memoize_lookaheads = memoize_lookaheads
         if left_recursion is not None:
@@ -168,8 +170,6 @@ class ParseContext(object):
             self.keywords = keywords
         if self.colorize:
             color.init()
-        if namechars is not None:
-            self.namechars = namechars
 
         self._initialize_caches()
         self._furthest_exception = None
