@@ -1,0 +1,6 @@
+flake8
+git-pylint-commit-hook
+mypy
+pylint
+pytest
+tox

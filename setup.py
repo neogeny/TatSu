@@ -36,7 +36,7 @@ setuptools.setup(
     maintainer='Juancarlo Añez',
     maintainer_email='apalala@gmail.com',
     description=SHORT_DESCRIPTION,
-    long_description=io.open('README.rst', encoding='utf-8').read(),
+    long_description=io.open('README.md', encoding='utf-8').read(),
     license='BSD License',
     packages=setuptools.find_packages(),
     include_package_data=True,
