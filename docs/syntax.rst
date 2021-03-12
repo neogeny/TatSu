@@ -13,7 +13,7 @@ Rules
 
 A grammar consists of a sequence of one or more rules of the form:
 
-.. code:: ocaml
+.. code::
 
     name = <expre> ;
 
@@ -22,7 +22,7 @@ will be appended to it on the generated parser.
 
 Rule names that start with an uppercase character:
 
-.. code:: ocaml
+.. code::
 
     FRAGMENT = /[a-z]+/ ;
 
@@ -39,8 +39,11 @@ parsed:
 -  An object, when ModelBuilderSemantics is used
 -  None
 
-See the *Abstract Syntax Trees* and *Building Models* sections for more
+See the `Abstract Syntax Trees`_ and `Building Models`_ sections for more
 details.
+
+.. _Abstract Syntax Trees: ast.html
+.. _Building Models: models.html
 
 Expressions
 ~~~~~~~~~~~
@@ -59,7 +62,7 @@ The expressions, in reverse order of operator precedence, can be:
 
     A `|` be be used before the first option if desired:
 
-.. code:: ocaml
+.. code::
 
         choices
             =
@@ -106,7 +109,7 @@ The expressions, in reverse order of operator precedence, can be:
     In this example, other options won't be considered if a
     parenthesis is parsed:
 
-.. code:: ocaml
+.. code::
 
         atom
             =
@@ -120,14 +123,14 @@ The expressions, in reverse order of operator precedence, can be:
 ^^^^^^^^^^^^
     Positive join. Inspired by `Python`_'s ``str.join()``, it parses the same as this expression:
 
-.. code:: ocaml
+.. code::
 
         e {s ~ e}
 ..
 
     yet the result is a single list of the form:
 
-.. code:: ocaml
+.. code::
 
         [e, s, e, s, e....]
 
@@ -135,7 +138,7 @@ The expressions, in reverse order of operator precedence, can be:
 
     Use grouping if `s` is more complex than a *token* or a *pattern*:
 
-.. code:: ocaml
+.. code::
 
         (s t)%{ e }+
 
@@ -146,7 +149,7 @@ The expressions, in reverse order of operator precedence, can be:
 
     It is equivalent to:
 
-.. code:: ocaml
+.. code::
 
         s%{e}+|{}
 
@@ -157,7 +160,7 @@ The expressions, in reverse order of operator precedence, can be:
 
     The expression:
 
-.. code:: ocaml
+.. code::
 
         '+'<{/\d+/}+
 
@@ -196,7 +199,7 @@ The expressions, in reverse order of operator precedence, can be:
 
     The expression:
 
-.. code:: ocaml
+.. code::
 
         '+'>{/\d+/}+
 ..
@@ -238,7 +241,7 @@ The expressions, in reverse order of operator precedence, can be:
 
     It is equivalent to:
 
-.. code:: ocaml
+.. code::
 
         s.{e}+|{}
 
@@ -266,7 +269,7 @@ The expressions, in reverse order of operator precedence, can be:
     Alternatively, the ``@@nameguard`` or ``@@namechars`` directives may
     be specified in the grammar:
 
-.. code:: ocaml
+.. code::
 
         @@nameguard :: False
 ..
@@ -274,7 +277,7 @@ The expressions, in reverse order of operator precedence, can be:
     or to specify additional characters that should also be considered
     part of names:
 
-.. code:: ocaml
+.. code::
 
         @@namechars :: '$-.'
 
@@ -305,14 +308,14 @@ The expressions, in reverse order of operator precedence, can be:
 
     The expression is equivalent to:
 
-.. code:: ocaml
+.. code::
 
     { !e /./ } e
 ..
 
     A common form of the expression is ``->&e``, which is equivalent to:
 
-.. code:: ocaml
+.. code::
 
     { !e /./ } &e
 ..
@@ -320,7 +323,7 @@ The expressions, in reverse order of operator precedence, can be:
     This is an example of the use of the "*skip to*" expression for recovery:
 
 
-.. code:: ocaml
+.. code::
 
         statement =
             | if_statement
@@ -345,7 +348,7 @@ The expressions, in reverse order of operator precedence, can be:
     abstract syntax trees, perhaps avoiding having to write a
     semantic action. For example:
 
-.. code:: ocaml
+.. code::
 
         boolean_option = name ['=' (boolean|`true`) ] ;
 
@@ -360,7 +363,7 @@ The expressions, in reverse order of operator precedence, can be:
 
     The following set of declarations:
 
-.. code:: ocaml
+.. code::
 
         includable = exp1 ;
 
@@ -369,7 +372,7 @@ The expressions, in reverse order of operator precedence, can be:
 
     Has the same effect as defining *expanded* as:
 
-.. code:: ocaml
+.. code::
 
         expanded = exp0 exp1 exp2 ;
 ..
@@ -408,7 +411,7 @@ The expressions, in reverse order of operator precedence, can be:
 
     This is a typical use of the override operator:
 
-.. code:: ocaml
+.. code::
 
         subexp = '(' @:expre ')' ;
 ..
@@ -424,7 +427,7 @@ The expressions, in reverse order of operator precedence, can be:
 
     This operator is convenient in cases such as:
 
-.. code:: ocaml
+.. code::
 
         arglist = '(' @+:arg {',' @+:arg}* ')' ;
 ..
@@ -441,13 +444,13 @@ When there are no named items in a rule, the `AST`_ consists of the
 elements parsed by the rule, either a single item or a ``list``. This
 default behavior makes it easier to write simple rules:
 
-.. code:: ocaml
+.. code::
 
     number = /[0-9]+/ ;
 
 Without having to write:
 
-.. code:: ocaml
+.. code::
 
     number = number:/[0-9]+/ ;
 
@@ -487,7 +490,7 @@ Rules with Arguments
 
 |TatSu| allows rules to specify `Python`_-style arguments:
 
-.. code:: ocaml
+.. code::
 
     addition(Add, op='+')
         =
@@ -499,7 +502,7 @@ The arguments values are fixed at grammar-compilation time.
 An alternative syntax is available if no *keyword parameters* are
 required:
 
-.. code:: ocaml
+.. code::
 
     addition::Add, '+'
         =
@@ -531,7 +534,7 @@ Rules may extend previously defined rules using the ``<`` operator. The
 
 The following set of declarations:
 
-.. code:: ocaml
+.. code::
 
     base::Param = exp1 ;
 
@@ -539,7 +542,7 @@ The following set of declarations:
 
 Has the same effect as defining *extended* as:
 
-.. code:: ocaml
+.. code::
 
     extended::Param = exp1 exp2 ;
 
@@ -561,7 +564,7 @@ There are rules that should not be memoized. For example, rules that may succeed
 
 The ``@nomemo`` decorator turns off memoization for a particular rule:
 
-.. code:: ocaml
+.. code::
 
     @nomemo
     INDENT = () ;
@@ -575,7 +578,7 @@ Rule Overrides
 
 A grammar rule may be redefined by using the ``@override`` decorator:
 
-.. code:: ocaml
+.. code::
 
     start = ab $;
 
@@ -607,7 +610,7 @@ will generate:
 The name can also be specified within the grammar using the
 ``@@grammar`` directive:
 
-.. code:: ocaml
+.. code::
 
     @@grammar :: MyLanguage
 
@@ -653,7 +656,7 @@ Whitespace may also be specified within the grammar using the
 ``@@whitespace`` directive, although any of the above methods will
 overwrite the setting in the grammar:
 
-.. code:: ocaml
+.. code::
 
     @@whitespace :: /[\t ]+/
 
@@ -670,7 +673,7 @@ parser by using the ``ignorecase`` parameter:
 You may also specify case insensitivity within the grammar using the
 ``@@ignorecase`` directive:
 
-.. code:: ocaml
+.. code::
 
     @@ignorecase :: True
 
@@ -704,7 +707,7 @@ comments separately:
 Both patterns may also be specified within a grammar using the
 ``@@comments`` and ``@@eol_comments`` directives:
 
-.. code:: ocaml
+.. code::
 
     @@comments :: /\(\*.*?\*\)/
     @@eol_comments :: /#.*?$/
@@ -724,7 +727,7 @@ decorator.
 A grammar may specify reserved tokens providing a list of them in one or
 more ``@@ keyword`` directives:
 
-.. code:: ocaml
+.. code::
 
     @@keyword :: if endif
     @@keyword :: else elseif
@@ -732,7 +735,7 @@ more ``@@ keyword`` directives:
 The ``@ name`` decorator checks that the result of a grammar rule does
 not match a token defined as a `keyword`_:
 
-.. code:: ocaml
+.. code::
 
     @name
     identifier = /(?!\d)\w+/ ;
@@ -741,7 +744,7 @@ There are situations in which a token is reserved only in a very
 specific context. In those cases, a negative lookahead will prevent the
 use of the token:
 
-.. code:: ocaml
+.. code::
 
     statements = {!'END' statement}+ ;
 
@@ -750,7 +753,7 @@ Include Directive
 
 |TatSu| grammars support file inclusion through the include directive:
 
-.. code:: ocaml
+.. code::
 
     #include :: "filename"
 
@@ -781,6 +784,6 @@ left-recursion support on or off:
 Left recursion can also be turned off from within the grammar using the
 ``@@left_recursion`` directive:
 
-.. code:: ocaml
+.. code::
 
     @@left_recursion :: False

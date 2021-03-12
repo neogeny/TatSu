@@ -1,9 +1,7 @@
 -r requirements-test.txt
-Cython
-docutils
-pandoc
-pep257
+git-pylint-commit-hook
+ipython
+pip
 psutil
-pygments
-sphinx
+pyyaml
 twine

@@ -1,7 +1,7 @@
-[![license](https://img.shields.io/badge/license-BSD-blue.svg)](https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt) [![pyversions](https://img.shields.io/pypi/pyversions/tatsu.svg)](https://pypi.python.org/pypi/tatsu) [![fury](https://badge.fury.io/py/TatSu.svg)](https://badge.fury.io/py/tatsu) [![circleci](https://circleci.com/gh/neogeny/TatSu.svg?style=shield)](https://circleci.com/gh/neogeny/TatSu) [![docs](https://readthedocs.org/projects/tatsu/badge/?version=stable)](http://tatsu.readthedocs.io/en/stable/)
+[![license](https://img.shields.io/badge/license-BSD-blue.svg)](https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt) [![pyversions](https://img.shields.io/pypi/pyversions/tatsu.svg)](https://pypi.python.org/pypi/tatsu) [![fury](https://badge.fury.io/py/TatSu.svg)](https://badge.fury.io/py/TatSu) [![circleci](https://circleci.com/gh/neogeny/TatSu.svg?style=shield)](https://circleci.com/gh/neogeny/TatSu) [![docs](https://readthedocs.org/projects/tatsu/badge/?version=stable)](http://tatsu.readthedocs.io/en/stable/)
 
 > *At least for the people who send me mail about a new language that they're designing, the general advice is: do it to learn about how to write a compiler. Don't have any expectations that anyone will use it, unless you hook up with some sort of organization in a position to push it hard. It's a lottery, and some can buy a lot of the tickets. There are plenty of beautiful languages (more beautiful than C) that didn't catch on. But someone does win the lottery, and doing a language at least teaches you something.*
->
+> 
 > [Dennis Ritchie](http://en.wikipedia.org/wiki/Dennis_Ritchie) (1941-2011) Creator of the [C](http://en.wikipedia.org/wiki/C_language) programming language and of [Unix](http://en.wikipedia.org/wiki/Unix)
 
 # 竜 **TatSu**
@@ -13,22 +13,22 @@ def WARNING():
 
     Python 3.8 introduced new language features that allow writing better programs
     more clearly, and all code compatible with Python 3.7 should run fine on 3.8
-    with minor, or no changes.  Python has adopted an anual release schedule
-    (PEP-602), and Python 3.9 is  due to be released on June 2020.
+    with minor, or no changes.
 
-    There are compelling reasons to upgrade 3.x projects to Python 3.8 (and no
-    reasons not to).
+    Python has adopted an anual release schedule (PEP-602).
 
-    Python 3.7 will have bugfix releases only until mid 2020.
-    Python 3.6 had its last bugfix release on December 2019.
-    Python 3.5 has now entered "security fixes only" mode.
-    Python 2.7 reached its end of life on January 2020.
+    Python 3.9 is due to be released on June 2020
+    Python 3.7 will have bugfix releases only until mid 2020
+    Python 3.6 had its last bugfix release on December 2019
+    Python 3.5 entered "security fixes only" mode since August 2018
+    Python 2.7 reached its end of life on January 2020
 
+    There are compelling reasons to upgrade 3.x projects to Python 3.8
     """
     pass
 ```
 
-竜 **TatSu** (the successor to [Grako](https://bitbucket.org/neogeny/grako/)) is a tool that takes grammars in a variation of [EBNF](http://en.wikipedia.org/wiki/Ebnf) as input, and outputs [memoizing](http://en.wikipedia.org/wiki/Memoization) ([Packrat](http://bford.info/packrat/)) [PEG](http://en.wikipedia.org/wiki/Parsing_expression_grammar) parsers in [Python](http://python.org).
+竜 **TatSu** is a tool that takes grammars in a variation of [EBNF](http://en.wikipedia.org/wiki/Ebnf) as input, and outputs [memoizing](http://en.wikipedia.org/wiki/Memoization) ([Packrat](http://bford.info/packrat/)) [PEG](http://en.wikipedia.org/wiki/Parsing_expression_grammar) parsers in [Python](http://python.org).
 
 竜 **TatSu** can compile a grammar stored in a string into a `tatsu.grammars.Grammar` object that can be used to parse any given input, much like the [re](https://docs.python.org/3.7/library/re.html) module does with regular expressions, or it can generate a [Python](http://python.org) module that implements the parser.
 
@@ -45,20 +45,20 @@ $ pip install TatSu
 竜 **TatSu** can be used as a library, much like [Python](http://python.org)'s `re`, by embedding grammars as strings and generating grammar models instead of generating [Python](http://python.org) code.
 
   - `tatsu.compile(grammar, name=None, **kwargs)`
-
+    
     Compiles the grammar and generates a *model* that can subsequently be used for parsing input with.
 
   - `tatsu.parse(grammar, input, **kwargs)`
-
+    
     Compiles the grammar and parses the given input producing an [AST](http://en.wikipedia.org/wiki/Abstract_syntax_tree) as result. The result is equivalent to calling:
-
+    
         model = compile(grammar)
         ast = model.parse(input)
-
+    
     Compiled grammars are cached for efficiency.
 
   - `tatsu.to_python_sourcecode(grammar, name=None, filename=None, **kwargs)`
-
+    
     Compiles the grammar to the [Python](http://python.org) sourcecode that implements the parser.
 
 This is an example of how to use 竜 **TatSu** as a library:

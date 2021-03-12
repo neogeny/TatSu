@@ -14,8 +14,14 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.0.0...master
 
+*  `#156`_   Clarify limitations of left-recursion in PEG (`@apalala`_).
+*  `#159`_   Clean up examples and tutorial, upgrade them to Python 3 (`@okomarov`_).
 
-`5.0.0`_ @ 2020-01-25
+.. _#156: https://github.com/neogeny/TatSu/issues/156
+.. _#159: https://github.com/neogeny/TatSu/pull/159
+
+
+`5.0.0`_ @ 2020-01-26
 -----------------------
 .. _5.0.0: https://github.com/apalala/tatsu/compare/v4.4.0...v5.0.0
 
@@ -133,8 +139,7 @@ Fixed
 Fixed
 ~~~~~
 
-*   `#27`_ Undo the fixes to dropped input on left recursion because they broke previous
-  expected behavior.
+*   `#27`_ Undo the fixes to dropped input on left recursion because they broke previous expected behavior.
 
 *   `#33`_ Fixes to the calc example and mini tutorial (`@heronils`_)
 
@@ -332,6 +337,7 @@ Added
 .. _@nicholasbishop: https://github.com/nicholasbishop
 .. _@rayjolt: https://github.com/rayjolt
 .. _@tirkarthi: https://github.com/tirkarthi
+.. _@okomarov: https://github.com/okomarov
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen

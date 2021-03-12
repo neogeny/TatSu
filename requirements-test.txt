@@ -1,6 +1,11 @@
+docutils
 flake8
-git-pylint-commit-hook
 mypy
+pandoc
 pylint
 pytest
+regex
+setuptools
+sphinx
+sphinx-rtd-theme
 tox
