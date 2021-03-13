@@ -342,7 +342,7 @@ class ParseContext(object):
         # memos for previous positions in the tokenizer under
         # certain circumstances, without affecting the linearity
         # of PEG parsing.
-        #   http://goo.gl/VaGpj
+        #   https://kmizu.github.io/papers/paste513-mizushima.pdf
         #
         # We adopt the heuristic of always dropping the cache for
         # positions less than the current cut position. It remains to
