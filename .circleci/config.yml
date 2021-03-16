@@ -36,7 +36,6 @@ jobs:
             sudo apt install -y python-sphinx
             sudo apt install -y python-docutils
             sudo apt install -y tox
-            sudo apt install -y python3.8 python3.9
             python3 -m venv venv || python3 -m virtualenv venv
             . venv/bin/activate
             pip install -U pip
