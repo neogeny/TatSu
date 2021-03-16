@@ -577,7 +577,7 @@ class PositiveClosure(Closure):
         return Nullable.of(self.exp)
 
 
-class Join(Closure):
+class Join(Decorator):
     JOINOP = '%'
 
     def __init__(self, ast=None, **kwargs):
@@ -596,14 +596,6 @@ class Join(Closure):
     def _do_parse(self, ctx, exp, sep):
         return ctx._join(exp, sep)
 
-    def _first(self, k, f):
-        efirst = self.exp._first(k, f)
-        result = {()}
-        for _i in range(k):
-            result = kdot(result, {(self.sep,)}, k)
-            result = kdot(result, efirst, k)
-        return {()} | result
-
     def _to_str(self, lean=False):
         ssep = self.sep._to_str(lean=lean)
         sexp = str(self.exp._to_str(lean=lean))
@@ -619,14 +611,6 @@ class Join(Closure):
 class PositiveJoin(Join):
     def _do_parse(self, ctx, exp, sep):
         return ctx._positive_join(exp, sep)
-
-    def _first(self, k, f):
-        efirst = self.exp._first(k, f)
-        result = {()}
-        for _i in range(k):
-            result = kdot(result, {(self.sep,)}, k)
-            result = kdot(result, efirst, k)
-        return result
 
     def _to_str(self, lean=False):
         return super()._to_str(lean=lean) + '+'
