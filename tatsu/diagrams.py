@@ -244,20 +244,20 @@ class GraphvizWalker(NodeWalker):
                 self.edge(n, n1)
         return (i, e)
 
-    def walk__lookahead(self, l):
-        i, e = self._walk_decorator(l)
+    def walk__lookahead(self, la):
+        i, e = self._walk_decorator(la)
         n = self.node('&')
         self.edge(n, e)
         return (n, e)
 
-    def walk__negative_lookahead(self, l):
-        i, e = self._walk_decorator(l)
+    def walk__negative_lookahead(self, la):
+        i, e = self._walk_decorator(la)
         n = self.node('!')
         self.edge(n, e)
         return (n, e)
 
-    def walk__rule_include(self, l):
-        i, e = self._walk_decorator(l)
+    def walk__rule_include(self, la):
+        i, e = self._walk_decorator(la)
         n = self.node('>')
         self.edge(n, e)
         return (n, e)

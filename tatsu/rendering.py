@@ -124,12 +124,12 @@ class Renderer(object):
 
         try:
             return self._formatter.format(trim(template), **fields)
-        except KeyError:
+        except KeyError as e:
             # find the missing key
             keys = (p[1] for p in self._formatter.parse(template))
             for key in keys:
                 if key and key not in fields:
-                    raise KeyError(key, type(self))
+                    raise KeyError(key, type(self)) from e
             raise
 
     def __str__(self):

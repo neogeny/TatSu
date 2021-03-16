@@ -4,6 +4,7 @@ mypy
 pandoc
 pylint
 pytest
+pyyaml
 regex
 setuptools
 sphinx

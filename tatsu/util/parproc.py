@@ -229,7 +229,7 @@ def file_process_summary(filenames, total_time, results, verbose=False):
         {:>12d}   lines/sec
         {:>12d}   mib max memory
     '''
-    summary_text = '\n'.join(l.strip() for l in summary_text.splitlines())
+    summary_text = '\n'.join(line.strip() for line in summary_text.splitlines())
 
     summary = summary_text.format(
         filecount,
