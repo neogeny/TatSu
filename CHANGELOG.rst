@@ -12,7 +12,14 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2020
 ---------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.0.0...master
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.5.0...master
+
+*  Test with Python 3.9
+
+
+`5.5.0`_ @ 2020
+---------------
+.. _`5.5.0`: https://github.com/apalala/tatsu/compare/v5.0.0...master
 
 *  `#156`_   Clarify limitations of left-recursion in PEG (`@apalala`_).
 *  `#159`_   Clean up examples and tutorial, upgrade them to Python 3 (`@okomarov`_).
