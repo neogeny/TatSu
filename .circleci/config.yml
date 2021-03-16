@@ -52,8 +52,8 @@ jobs:
             . venv/bin/activate
             make clean
             flake8
-            # pylint --ignore=bootstrap.py,model.py tatsu test examples
-            mypy   --ignore-missing-imports .
+            pylint --ignore=bootstrap.py,model.py tatsu test examples
+            mypy   --ignore-missing-imports --exclude "parsers|docs" .
             py.test
 
       - run:
