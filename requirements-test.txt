@@ -9,3 +9,4 @@ setuptools
 sphinx
 sphinx-rtd-theme
 tox
+yaml
