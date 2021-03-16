@@ -5,6 +5,7 @@ from multiprocessing import cpu_count, Pool, Lock
 from concurrent.futures import as_completed, ThreadPoolExecutor, ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
+from statistics import mean
 from dataclasses import dataclass
 from typing import Any
 
@@ -212,6 +213,8 @@ def file_process_summary(filenames, total_time, results, verbose=False):
         if results else 0
     )
 
+    lines_sec = round(mean(r.linecount / r.time for r in results if r.time))
+
     dashes = '-' * 80
     summary_text = '''\
         {:12,d}   files input
@@ -226,7 +229,7 @@ def file_process_summary(filenames, total_time, results, verbose=False):
         {:>12d}   lines/sec
         {:>12d}   mib max memory
     '''
-    summary_text = '\n'.join(l.strip() for l in summary_text.splitlines())
+    summary_text = '\n'.join(line.strip() for line in summary_text.splitlines())
 
     summary = summary_text.format(
         filecount,
@@ -238,7 +241,7 @@ def file_process_summary(filenames, total_time, results, verbose=False):
         100 * success_count / filecount if filecount != 0 else 0,
         format_hours(total_time),
         format_hours(runtime),
-        int(lines_parsed // runtime) if runtime else 0,
+        lines_sec,
         mb_memory,
     )
     print(EOLCH + 80 * ' ', file=sys.stderr)

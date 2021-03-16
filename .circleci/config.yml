@@ -8,21 +8,12 @@ workflows:
   version: 2
   test:
     jobs:
-      - test-3.8
-      - test-3.7
-      - test-3.6
+      - test
 
 jobs:
-  test-3.7:  &test-template
+  test:  &test-template
     docker:
-      # specify the version you desire here
-      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.7
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
+      - image: circleci/python:latest
 
     working_directory: ~/repo
 
@@ -31,7 +22,7 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "requirements-dev.txt" }}
+          - v1-dependencies-{{ checksum "requirements-test.txt" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
@@ -42,85 +33,45 @@ jobs:
             sudo apt install -y python-pip
             sudo apt install -y virtualenv
             sudo apt install -y pandoc
-            sudo apt install -y graphviz
-            python -m venv venv || virtualenv venv
+            sudo apt install -y python-sphinx
+            sudo apt install -y python-docutils
+            sudo apt install -y tox
+            python3 -m venv venv || python3 -m virtualenv venv
             . venv/bin/activate
             pip install -U pip
-            pip install -r requirements-dev.txt
+            pip install -Ur requirements-test.txt
 
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements-dev.txt" }}
+          key: v1-dependencies-{{ checksum "requirements-test.txt" }}
 
       - run:
-          name: run tests
+          name: test
           command: |
             . venv/bin/activate
+            make clean
             flake8
             pylint --ignore=bootstrap.py,model.py tatsu test examples
-            mypy   --ignore-missing-imports .
-            pytest -v
+            mypy   --ignore-missing-imports --exclude "parsers|docs" .
+            py.test
+
+      - run:
+          name: examples
+          command: |
+            . venv/bin/activate
+            make examples
+
+      - run:
+          name: documentation
+          command: |
+            . venv/bin/activate
+            make documentation
 
       - run:
           name: package
           command: |
-              python setup.py sdist --formats=zip
-              python setup.py bdist_wheel --universal
-
-      - store_artifacts:
-          path: test-reports
-          destination: test-reports
-
-  test-3.8:
-    <<: *test-template
-    docker:
-      - image: circleci/python:3.8.0a3
-
-  test-3.6:
-    <<: *test-template
-    docker:
-      - image: circleci/python:3.6
-
-  test-pypy3  :
-    docker:
-      - image: circleci/python:3.7
-
-    working_directory: ~/repo-pypy3
-
-    steps:
-      - checkout
-
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "requirements-dev.txt" }}
-          - v1-dependencies-
-
-      - run:
-          name: install dependencies
-          command: |
-            sudo add-apt-repository ppa:pypy/ppa
-            sudo apt update
-            sudo apt install -y python-pip
-            sudo apt install -y virtualenv
-            sudo apt install -y pypy3
-            sudo apt install -y pandoc
-            sudo apt install -y graphviz
-            virtualenv venv -p pypy3
-            . venv/bin/activate
-            pip install -U pip
-            pip install -r requirements-dev.txt
-
-      - save_cache:
-          paths:
-            - ./venv
-          key: v1-dependencies-{{ checksum "requirements-dev.txt" }}
-
-      - run:
-          name: run tests
-          command: |
-            . venv/bin/activate
-            pytest -v
+            make distributions
 
       - store_artifacts:
           path: test-reports

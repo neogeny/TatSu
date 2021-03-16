@@ -166,6 +166,8 @@ class ParseContext(object):
             ignorecase = self.ignorecase
         if nameguard is None:
             nameguard = self.nameguard
+        if namechars is None:
+            namechars = self.namechars
         if memoize_lookaheads is not None:
             self.memoize_lookaheads = memoize_lookaheads
         if left_recursion is not None:
@@ -180,8 +182,6 @@ class ParseContext(object):
             self.keywords = keywords
         if self.colorize:
             color.init()
-        if namechars is not None:
-            self.namechars = namechars
 
         self._initialize_caches()
         self._furthest_exception = None
@@ -387,7 +387,7 @@ class ParseContext(object):
         # memos for previous positions in the tokenizer under
         # certain circumstances, without affecting the linearity
         # of PEG parsing.
-        #   http://goo.gl/VaGpj
+        #   https://kmizu.github.io/papers/paste513-mizushima.pdf
         #
         # We adopt the heuristic of always dropping the cache for
         # positions less than the current cut position. It remains to

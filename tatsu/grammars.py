@@ -29,8 +29,22 @@ EOL_COMMENTS_RE = r'#([^\n]*?)$'
 PRAGMA_RE = r'^\s*#include.*$'
 
 
-def dot(x, y, k):
-    return {(a + b)[:k] for a in x for b in y}
+class _ref(str):
+    def __repr__(self):
+        return f'<{self}>'
+
+
+def ref(name):
+    return (_ref(name),)
+
+
+def kdot(x, y, k):
+    if not y:
+        return {a[:k] for a in x}
+    elif not x:
+        return {b[:k] for b in y}
+    else:
+        return {(a + b)[:k] for a in x for b in y}
 
 
 def pythonize_name(name):
@@ -101,7 +115,7 @@ class Model(Node):
     def __init__(self, ast=None, ctx=None):
         super().__init__(ast=ast, ctx=ctx)
         self._lookahead = None
-        self._first_set = None
+        self._firstset = None
         self._follow_set = set()
         self.value = None
         self._nullability = self._nullable()
@@ -120,13 +134,13 @@ class Model(Node):
 
     def lookahead(self, k=1):
         if self._lookahead is None:
-            self._lookahead = dot(self.firstset(k), self.followset(k), k)
+            self._lookahead = kdot(self.firstset(k), self.followset(k), k)
         return self._lookahead
 
     def firstset(self, k=1):
-        if self._first_set is None:
-            self._first_set = self._first(k, {})
-        return self._first_set
+        if self._firstset is None:
+            self._firstset = self._first(k, defaultdict(set))
+        return self._firstset
 
     def followset(self, k=1):
         return self._follow_set
@@ -311,6 +325,9 @@ class Constant(Model):
     def parse(self, ctx):
         return self.literal
 
+    def _first(self, k, f):
+        return {()}
+
     def _to_str(self, lean=False):
         return '`%s`' % repr(self.literal)
 
@@ -334,7 +351,11 @@ class Pattern(Model):
         return ctx._pattern(self.pattern)
 
     def _first(self, k, f):
-        return {(self.pattern,)}
+        x = f'/{self.pattern}/'
+        if bool(self.regex.match("")):
+            return {(), (x,)}
+        else:
+            return {(x,)}
 
     def _to_str(self, lean=False):
         parts = []
@@ -355,6 +376,9 @@ class Lookahead(Decorator):
         with ctx._if():
             return super().parse(ctx)
 
+    def _first(self, k, f):
+        return {()}
+
     def _to_str(self, lean=False):
         return '&' + self.exp._to_str(lean=lean)
 
@@ -367,6 +391,9 @@ class NegativeLookahead(Decorator):
         with ctx._ifnot():
             return super().parse(ctx)
 
+    def _first(self, k, f):
+        return {()}
+
     def _to_str(self, lean=False):
         return '!' + str(self.exp._to_str(lean=lean))
 
@@ -378,6 +405,10 @@ class SkipTo(Decorator):
     def parse(self, ctx):
         super_parse = super().parse
         return ctx._skip_to(lambda: super_parse(ctx))
+
+    def _first(self, k, f):
+        # use None to represent ANY
+        return {(None,)} | super()._first(k, f)
 
     def _to_str(self, lean=False):
         return '->' + self.exp._to_str(lean=lean)
@@ -405,7 +436,12 @@ class Sequence(Model):
     def _first(self, k, f):
         result = {()}
         for s in self.sequence:
-            result = dot(result, s._first(k, f), k)
+            x = s._first(k, f)
+            # FIXME:
+            # if isinstance(x, RuleRef):
+            #     x |= f[x.name]
+            result = kdot(result, x, k)
+        self._firstset = result
         return result
 
     def _follow(self, k, fl, a):
@@ -414,7 +450,7 @@ class Sequence(Model):
             if isinstance(x, RuleRef):
                 fl[x.name] |= fs
             x._follow(k, fl, fs)
-            fs = dot(x.firstset(k=k), fs, k)
+            fs = kdot(x.firstset(k=k), fs, k)
         return a
 
     def nodecount(self):
@@ -470,6 +506,7 @@ class Choice(Model):
         result = set()
         for o in self.options:
             result |= o._first(k, f)
+        self._firstset = result
         return result
 
     def _follow(self, k, fl, a):
@@ -508,7 +545,7 @@ class Closure(Decorator):
         efirst = self.exp._first(k, f)
         result = {()}
         for _i in range(k):
-            result = dot(result, efirst, k)
+            result = kdot(result, efirst, k)
         return {()} | result
 
     def _to_str(self, lean=False):
@@ -530,7 +567,7 @@ class PositiveClosure(Closure):
         efirst = self.exp._first(k, f)
         result = {()}
         for _i in range(k):
-            result = dot(result, efirst, k)
+            result = kdot(result, efirst, k)
         return result
 
     def _to_str(self, lean=False):
@@ -617,6 +654,9 @@ class PositiveGather(Gather):
 class EmptyClosure(Model):
     def parse(self, ctx):
         return ctx._empty_closure()
+
+    def _first(self, k, f):
+        return {()}
 
     def _to_str(self, lean=False):
         return '{}'
@@ -751,13 +791,17 @@ class RuleRef(Model):
         return {self.name}
 
     def _first(self, k, f):
-        self._first_set = f.get(self.name, set())
-        return self._first_set
+        self._firstset = f[self.name] | {ref(self.name)}
+        return self._firstset
+
+    def _follow(self, k, fl, a):
+        fl[self.name] |= a
+        return a | {self.name}
 
     def firstset(self, k=1):
-        if self._first_set is None:
-            self._first_set = {('<%s>' % self.name,)}
-        return self._first_set
+        if self._firstset is None:
+            self._firstset = {ref(self.name)}
+        return self._firstset
 
     def _to_str(self, lean=False):
         return self.name
@@ -816,10 +860,12 @@ class Rule(Decorator):
             if not hasattr(ast, d):
                 setattr(ast, d, [] if l else None)
 
+    # def firstset(self, k=1):
+    #     return self.exp.firstset(k=k)
+
     def _first(self, k, f):
-        if self._first_set:
-            return self._first_set
-        return self.exp._first(k, f)
+        self._firstset = self.exp._first(k, f) | f[self.name]
+        return self._firstset
 
     def _follow(self, k, fl, a):
         return self.exp._follow(k, fl, fl[self.name])
@@ -922,6 +968,7 @@ class Grammar(Model):
         assert isinstance(rules, list), str(rules)
 
         self.rules = rules
+        self.rulemap = {rule.name: rule for rule in rules}
 
         directives = directives or {}
         self.directives = directives
@@ -986,7 +1033,7 @@ class Grammar(Model):
         prev = {}
         while used != prev:
             prev = used
-            used = used | set().union(*[
+            used |= set().union(*[
                 rule._used_rule_names()
                 for rule in self.rules
                 if rule.name in used
@@ -999,7 +1046,7 @@ class Grammar(Model):
 
     @property
     def first_sets(self):
-        return self._first_set
+        return self._firstset
 
     def _calc_lookahead_sets(self, k=1):
         self._calc_first_sets()
@@ -1013,8 +1060,9 @@ class Grammar(Model):
             for rule in self.rules:
                 f[rule.name] |= rule._first(k, f)
 
+        # cache results
         for rule in self.rules:
-            rule._first_set = f[rule.name]
+            rule._firstset = f[rule.name]
 
     def _calc_follow_sets(self, k=1):
         fl = defaultdict(set)

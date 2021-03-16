@@ -13,9 +13,10 @@
 .. _Franck Pommereau: https://github.com/fpom
 .. _Franklin Lee: https://bitbucket.org/leewz
 .. _Gabriele Paganelli: https://bitbucket.org/gapag
+.. _Guido van Rossum: https://github.com/gvanrossum
 .. _Jack Taylor: https://github.com/rayjolt
 .. _Kathryn Long: https://bitbucket.org/starkat
-.. _Kathryn Long: https://bitbucket.org/starkat
+.. _Karthikeyan Singaravelan: https://github.com/tirkarthi
 .. _Manuel Jacob: https://github.com/manueljacob
 .. _Marcus Brinkmann: https://bitbucket.org/lambdafu/
 .. _Mark Jason Dominus: https://github.com/mjdominus
@@ -24,6 +25,7 @@
 .. _Nicholas Bishop: https://github.com/nicholasbishop
 .. _Nicolas Laurent: https://github.com/norswap
 .. _Nils-Hero Lindemann: https://github.com/heronils
+.. _Oleg Komarov: https://github.com/okomarov
 .. _Paul Houle: https://github.com/paulhoule
 .. _Paul Sargent: https://bitbucket.org/pauls
 .. _Philippe Sigaud: https://github.com/PhilippeSigaud

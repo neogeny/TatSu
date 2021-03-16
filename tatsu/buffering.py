@@ -143,8 +143,8 @@ class Buffer(Tokenizer):
         try:
             with open(include) as f:
                 return f.read(), include
-        except IOError:
-            raise ParseError('include not found: %s' % include)
+        except IOError as e:
+            raise ParseError('include not found: %s' % include) from e
 
     def replace_lines(self, i, j, name, block):
         lines = self.split_block_lines(self.text)
@@ -317,6 +317,7 @@ class Buffer(Tokenizer):
             self.move(len(token))
             partial_match = (
                 self.nameguard and
+                token and token[0].isalpha() and
                 all(self.is_name_char(t) for t in token) and
                 self.is_name_char(self.current)
             )

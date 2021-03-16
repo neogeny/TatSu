@@ -10,7 +10,7 @@ extension-pkg-whitelist=
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=CVS
+ignore=CVS,bootstrap.py,model.py
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
@@ -146,9 +146,11 @@ confidence=
 
 disable=C0102, C0103, C0111, C0122, C0123,
         C0301, C0321, C0330,
-        C0411, C0412,
+        C0411, C0412, C0415,
         C1801,
-        E1101, E1128,
+        E1101,
+        E1102,  # not callable
+        E1128,
         R0201, R0205,
         R0801,
         R0901, R0902, R0903,
@@ -158,9 +160,10 @@ disable=C0102, C0103, C0111, C0122, C0123,
         W0201, W0212, W0223,
         W0401,
         W0511,
-        W0603, W0612, W0613,
+        W0603, W0612, W0611, W0613,
         W0621, W0622,
         W0702, W0703, W0706,
+        W0707, # consider using `raise from`
         W1201, W1202,
         W1401,
         W1618

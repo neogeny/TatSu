@@ -33,7 +33,7 @@ class LineIndexInfo(namedtuple('_LineIndexInfoBase', ['filename', 'line'])):
 
     @staticmethod
     def block_index(name, n):
-        return list(LineIndexInfo(l, i) for l, i in zip(n * [name], range(n)))
+        return list(LineIndexInfo(line, i) for line, i in zip(n * [name], range(n)))
 
 
 class LineInfo(namedtuple('_LineInfo', ['filename', 'line', 'col', 'start', 'end', 'text'])):
@@ -49,7 +49,7 @@ class CommentInfo(namedtuple('_CommentInfo', ['inline', 'eol'])):
 
 
 _ParseInfo = namedtuple(
-    '_ParseInfoTuple',
+    '_ParseInfo',
     [
         'tokenizer',
         'rule',
@@ -82,7 +82,7 @@ MemoKey = namedtuple(
 
 
 _RuleInfo = namedtuple(
-    'RuleInfo',
+    '_RuleInfo',
     [
         'name',
         'impl',

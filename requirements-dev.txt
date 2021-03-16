@@ -1,14 +1,7 @@
--r requirements.txt
-Cython
-docutils
-flake8
+-r requirements-test.txt
 git-pylint-commit-hook
-pandoc
-pep257
+ipython
+pip
 psutil
-pygments
-pylint
-pytest
-sphinx
-tox
+pyyaml
 twine

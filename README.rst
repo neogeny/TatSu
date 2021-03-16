@@ -21,12 +21,28 @@
 .. code-block:: python
 
     def WARNING():
-        return 'v4.4.0 is the last version of |TatSu| supporting Python 2.7'
+        """
+        |TatSu|>=5.0.0 requires Python>=3.8
+
+        Python 3.8 introduced new language features that allow writing better programs
+        more clearly, and all code compatible with Python 3.7 should run fine on 3.8
+        with minor, or no changes.
+
+        Python has adopted an anual release schedule (PEP-602).
+
+        Python 3.9 is due to be released on June 2020
+        Python 3.7 will have bugfix releases only until mid 2020
+        Python 3.6 had its last bugfix release on December 2019
+        Python 3.5 entered "security fixes only" mode since August 2018
+        Python 2.7 reached its end of life on January 2020
+
+        There are compelling reasons to upgrade 3.x projects to Python 3.8
+        """
+        pass
 
 
-|TatSu| (the successor to Grako_) is a tool that takes grammars in a
-variation of `EBNF`_ as input, and outputs `memoizing`_ (`Packrat`_)
-`PEG`_ parsers in `Python`_.
+|TatSu| is a tool that takes grammars in a variation of `EBNF`_ as input, and
+outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_.
 
 |TatSu| can compile a grammar stored in a string into a
 ``tatsu.grammars.Grammar`` object that can be used to parse any given
@@ -278,8 +294,8 @@ requires different licensing* please `email`_.
 .. _vinay.sajip: https://bitbucket.org/vinay.sajip
 .. _vmuriart: https://bitbucket.org/vmuriart
 
-.. |fury| image:: https://badge.fury.io/py/tatsu.svg
-   :target: https://badge.fury.io/py/tatsu
+.. |fury| image:: https://badge.fury.io/py/TatSu.svg
+   :target: https://badge.fury.io/py/TatSu
 .. |license| image:: https://img.shields.io/badge/license-BSD-blue.svg
    :target: https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt
 .. |pyversions| image:: https://img.shields.io/pypi/pyversions/tatsu.svg
