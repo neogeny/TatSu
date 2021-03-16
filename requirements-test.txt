@@ -4,9 +4,9 @@ mypy
 pandoc
 pylint
 pytest
+pyyaml
 regex
 setuptools
 sphinx
 sphinx-rtd-theme
 tox
-yaml
