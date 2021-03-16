@@ -26,7 +26,7 @@ from .infos import (
     RuleResult,
     ParseState,
 )
-from tatsu.exceptions import (
+from tatsu.exceptions import (  # noqa
     FailedCut,
     FailedExpectingEndOfText,
     FailedLeftRecursion,
@@ -35,8 +35,8 @@ from tatsu.exceptions import (
     FailedPattern,
     FailedRef,
     FailedSemantics,
-    FailedKeyword,  # noqa
-    FailedKeywordSemantics,  # noqa
+    FailedKeyword,
+    FailedKeywordSemantics,
     FailedToken,
     OptionSucceeded
 )
@@ -55,7 +55,7 @@ def tatsumasu(*params, **kwparams):
             name = name[1:-1]
             is_leftrec = getattr(impl, "is_leftrec", False)
             is_memoizable = getattr(impl, "is_memoizable", True)
-            is_name = False,
+            is_name = False
             ruleinfo = RuleInfo(
                 name,
                 impl,
