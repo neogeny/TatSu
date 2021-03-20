@@ -69,6 +69,7 @@ def test_codegen_parse():
         output = UnknownParser().parse(INPUT)
         assert output == OUTPUT
     finally:
-        init_filename.unlink()
-        input_filename.unlink()
-        parser_filename.unlink()
+        pass
+        # init_filename.unlink()
+        # input_filename.unlink()
+        # parser_filename.unlink()
