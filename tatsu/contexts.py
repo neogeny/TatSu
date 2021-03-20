@@ -872,11 +872,8 @@ class ParseContext(object):
         self.last_node = self.cst
         return self.cst
 
-    def _check_name(self, name=None):
-        if name is None:
-            name = self.last_node
-        if not isinstance(name, str):
-            return
+    def _check_name(self, name):
+        name = str(name)
         if self.ignorecase or self.tokenizer.ignorecase:
             name = name.upper()
         if name in self.keywords:
