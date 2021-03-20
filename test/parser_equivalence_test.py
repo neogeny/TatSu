@@ -68,8 +68,11 @@ def test_codegen_parse():
         #     }
         # ).decode()
         # print(output)
-        from tmp.parser import TestParser  # pylint: disable=all
-        output = TestParser().parse(INPUT)
+        try:
+            from tmp.parser import TestParser as Parser # pylint: disable=all
+        except ImportError:
+            from tmp.parser import UnknownParser as Parser # pylint: disable=all
+        output = Parser().parse(INPUT)
         assert output == OUTPUT
     finally:
         pass
