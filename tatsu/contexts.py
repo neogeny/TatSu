@@ -205,6 +205,7 @@ class ParseContext(object):
               semantics=None,
               trace=False,
               whitespace=None,
+              ignorecase=None,
               **kwargs):
         try:
             self.parseinfo = kwargs.pop('parseinfo', self.parseinfo)
@@ -215,6 +216,7 @@ class ParseContext(object):
                 semantics=semantics,
                 trace=trace if trace is not None else self.trace,
                 whitespace=whitespace if whitespace is not None else self.whitespace,
+                ignorecase=ignorecase,
                 **kwargs
             )
             rule = self._find_rule(rule_name)
@@ -848,7 +850,7 @@ class ParseContext(object):
     def _check_name(self, name=None):
         if name is None:
             name = str(self.last_node)
-        if self.ignorecase or self._tokenizer.ignorecase:
+        if self.ignorecase or self.tokenizer.ignorecase:
             name = name.upper()
         if name in self.keywords:
             raise FailedKeywordSemantics('"%s" is a reserved word' % name)
