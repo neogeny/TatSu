@@ -4,6 +4,8 @@ Python code generation for models defined with tatsu.model
 """
 from __future__ import generator_stop
 
+import textwrap
+
 from tatsu.util import (
     indent,
     safe_name,
@@ -131,14 +133,15 @@ class Choice(Base):
                 option=indent(self.rend(o))) for o in self.node.options
         ]
         options = '\n'.join(o for o in options)
-        firstset = ' '.join(f[0] for f in sorted(self.node.lookahead()) if f)
+        firstset = ' '.join(repr(f[0]) for f in sorted(self.node.lookahead()) if f)
         if firstset:
-            error = 'expecting one of: ' + firstset
+            msglines = textwrap.wrap(firstset, width=40)
+            error = ['expecting one of:'] + msglines
         else:
-            error = 'no available options'
+            error = ['no available options']
         fields.update(n=self.counter(),
                       options=indent(options),
-                      error=repr(error)
+                      error=[repr(e) for e in error],
                       )
 
     def render(self, **fields):
@@ -155,7 +158,9 @@ class Choice(Base):
     template = '''\
                 with self._choice():
                 {options}
-                    self._error({error})\
+                    self._error(
+                {error:2:\\n:}
+                    )\
                 '''
 
 
