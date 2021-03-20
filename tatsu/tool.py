@@ -195,7 +195,6 @@ def genmodel(name=None, grammar=None, semantics=None, **kwargs):
     return compile(grammar, name=name, semantics=semantics, **kwargs)
 
 
-# for backwards compatibility. Use `compile()` instead
 def gencode(name=None, grammar=None, trace=False, filename=None, codegen=pythoncg, **kwargs):
     model = compile(grammar, name=name, filename=filename, trace=trace, **kwargs)
     return codegen(model)
