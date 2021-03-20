@@ -339,9 +339,9 @@ class ParseContext(object):
         return cst
 
     def _append_cst(self, node):
+        self.last_node = node
         if node is None:
             return
-        self.last_node = node
         previous = self.cst
         if previous is None:
             self.cst = self._copy_node(node)
@@ -352,9 +352,9 @@ class ParseContext(object):
         return node
 
     def _extend_cst(self, node):
+        self.last_node = node
         if node is None:
             return
-        self.last_node = node
         previous = self.cst
         if previous is None:
             self.cst = self._copy_node(node)
