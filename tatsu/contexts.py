@@ -15,6 +15,7 @@ from tatsu.util.unicode_characters import (
 from . import tokenizing
 from . import buffering
 from . import color
+from .ast import AST
 from .util import notnone, prune_dict, is_list, info, safe_name
 from .util import left_assoc, right_assoc
 from .infos import (
@@ -262,6 +263,13 @@ class ParseContext(object):
     def _next_token(self, ruleinfo=None):
         if ruleinfo is None or not ruleinfo.name.lstrip('_')[:1].isupper():
             self._tokenizer.next_token()
+
+    def _define(self, keys, list_keys=None):
+        if self.ast and isinstance(self.ast, AST):
+            ast = AST()
+            ast._define(keys, list_keys=list_keys)
+            ast.update(self.ast)
+            self.ast = ast
 
     @property
     def ast(self):
