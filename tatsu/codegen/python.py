@@ -375,10 +375,9 @@ class Rule(_Decorator):
             sdefs = '[%s]' % ', '.join(repr(d) for d in sorted(sdefs))
             ldefs = '[%s]' % ', '.join(repr(d) for d in sorted(ldefs))
             if not ldefs:
-                sdefines = '\n\n    self.ast._define(%s, %s)' % (sdefs, ldefs)
+                sdefines = '\n    self.ast._define(%s, %s)' % (sdefs, ldefs)
             else:
                 sdefines = indent(
-                    '\n' +
                     trim(self.define_template % (sdefs, ldefs))
                 )
 
@@ -395,7 +394,8 @@ class Rule(_Decorator):
         {leftrec}\
         {nomemo}
         def _{name}_(self):  # noqa
-        {exp:1::}{check_name}{defines}
+        {defines}
+        {exp:1::}{check_name}
         '''
 
     define_template = '''\
