@@ -48,6 +48,8 @@ def test_model_parse():
 
 # @pytest.mark.skip('work in progress')
 def test_codegen_parse():
+    tmp_dir = Path('./tmp')
+    tmp_dir.mkdir(parents=True, exist_ok=True)
     init_filename = Path('./tmp/__init__.py')
     init_filename.touch(exist_ok=True)
 
