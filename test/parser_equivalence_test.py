@@ -3,7 +3,7 @@ import subprocess  # noqa
 import py_compile  # noqa
 from pathlib import Path
 
-import pytest
+import pytest  # noqa
 
 from tatsu.tool import compile, gencode
 
@@ -46,7 +46,7 @@ def test_model_parse():
     assert OUTPUT == model.parse(INPUT)
 
 
-@pytest.mark.skip('work in progress')
+# @pytest.mark.skip('work in progress')
 def test_codegen_parse():
     init_filename = Path('./tmp/__init__.py')
     init_filename.touch(exist_ok=True)
@@ -69,8 +69,11 @@ def test_codegen_parse():
         #     }
         # ).decode()
         # print(output)
-        from tmp.parser import UnknownParser  # pylint: disable=all
-        output = UnknownParser().parse(INPUT)
+        try:
+            from tmp.parser import UnknownParser as Parser  # pylint: disable=all
+        except ImportError:
+            from tmp.parser import TestParser as Parser  # pylint: disable=all
+        output = Parser().parse(INPUT, parseinfo=False)
         assert output == OUTPUT
     finally:
         init_filename.unlink()

@@ -115,7 +115,7 @@ class EBNFBootstrapParser(Parser):
                 self._error('no available options')
         self._closure(block6)
         self._check_eof()
-        self.ast._define(
+        self._define(
             ['title'],
             ['directives', 'keywords', 'rules']
         )
@@ -208,7 +208,7 @@ class EBNFBootstrapParser(Parser):
                     self.name_last_node('value')
                 self._error('no available options')
         self._cut()
-        self.ast._define(
+        self._define(
             ['name', 'value'],
             []
         )
@@ -269,7 +269,7 @@ class EBNFBootstrapParser(Parser):
                         self._error('no available options')
                 self._token(')')
             self._error('no available options')
-        self.ast._define(
+        self._define(
             ['kwparams', 'params'],
             []
         )
@@ -323,7 +323,7 @@ class EBNFBootstrapParser(Parser):
         self.name_last_node('exp')
         self._token(';')
         self._cut()
-        self.ast._define(
+        self._define(
             ['base', 'decorators', 'exp', 'kwparams', 'name', 'params'],
             []
         )
@@ -418,7 +418,7 @@ class EBNFBootstrapParser(Parser):
             self._element_()
         self._positive_closure(block1)
         self.name_last_node('sequence')
-        self.ast._define(
+        self._define(
             ['sequence'],
             []
         )
@@ -460,7 +460,7 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._term_()
         self.name_last_node('exp')
-        self.ast._define(
+        self._define(
             ['exp', 'name'],
             []
         )
@@ -473,7 +473,7 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._term_()
         self.name_last_node('exp')
-        self.ast._define(
+        self._define(
             ['exp', 'name'],
             []
         )
@@ -553,7 +553,7 @@ class EBNFBootstrapParser(Parser):
         self.name_last_node('exp')
         self._token(')')
         self._cut()
-        self.ast._define(
+        self._define(
             ['exp'],
             []
         )
@@ -589,7 +589,7 @@ class EBNFBootstrapParser(Parser):
                     self._token('-')
                 self._error('no available options')
         self._cut()
-        self.ast._define(
+        self._define(
             ['exp', 'sep'],
             []
         )
@@ -607,7 +607,7 @@ class EBNFBootstrapParser(Parser):
             self._token('*')
             self._cut()
         self._cut()
-        self.ast._define(
+        self._define(
             ['exp', 'sep'],
             []
         )
@@ -643,7 +643,7 @@ class EBNFBootstrapParser(Parser):
                     self._token('-')
                 self._error('no available options')
         self._cut()
-        self.ast._define(
+        self._define(
             ['exp', 'sep'],
             []
         )
@@ -661,7 +661,7 @@ class EBNFBootstrapParser(Parser):
             self._token('*')
             self._cut()
         self._cut()
-        self.ast._define(
+        self._define(
             ['exp', 'sep'],
             []
         )
@@ -683,7 +683,7 @@ class EBNFBootstrapParser(Parser):
                     self._token('-')
                 self._error('no available options')
         self._cut()
-        self.ast._define(
+        self._define(
             ['exp', 'sep'],
             []
         )
@@ -705,7 +705,7 @@ class EBNFBootstrapParser(Parser):
                     self._token('-')
                 self._error('no available options')
         self._cut()
-        self.ast._define(
+        self._define(
             ['exp', 'sep'],
             []
         )
