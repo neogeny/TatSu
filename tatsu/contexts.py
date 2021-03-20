@@ -17,6 +17,7 @@ from . import buffering
 from . import color
 from .util import notnone, prune_dict, is_list, info, safe_name
 from .util import left_assoc, right_assoc
+from .ast import AST
 from .infos import (
     MemoKey,
     ParseInfo,
@@ -264,6 +265,14 @@ class ParseContext(object):
             self._tokenizer.next_token()
 
     @property
+    def tree(self):
+        return self._tree_stack[-1]
+
+    @tree.setter
+    def tree(self, value):
+        self._tree_stack[-1] = value
+
+    @property
     def ast(self):
         return self._tree_stack[-1].ast
 
@@ -277,11 +286,17 @@ class ParseContext(object):
     def add_last_node_to_name(self, name):
         self.ast._setlist(name, self.last_node)
 
-    def _push_ast(self):
+    def _push_tree(self):
         self._tree_stack.append(TreeInfo())
 
-    def _pop_ast(self):
+    def _pop_tree(self):
         self._tree_stack.pop()
+
+    def _push_ast(self):
+        self._push_tree()
+
+    def _pop_ast(self):
+        self._pop_tree()
 
     @property
     def cst(self):
@@ -621,7 +636,7 @@ class ParseContext(object):
             node = tuple(self.cst) if is_list(self.cst) else self.cst
         elif '@' in node:
             node = node['@']  # override the AST
-        elif self.parseinfo:
+        elif isinstance(node, AST) and self.parseinfo:
             node.set_parseinfo(self._get_parseinfo(ruleinfo.name, pos))
         return node
 
@@ -700,6 +715,7 @@ class ParseContext(object):
         try:
             with self._try():
                 yield
+            self.ast = self.last_node
             raise OptionSucceeded()
         except FailedCut:
             raise
