@@ -956,6 +956,7 @@ class Grammar(Model):
                  semantics=None,
                  filename='Unknown',
                  whitespace=None,
+                 ignorecase=None,
                  nameguard=None,
                  namechars=None,
                  left_recursion=None,
@@ -985,6 +986,10 @@ class Grammar(Model):
             whitespace = directives.get('whitespace')
         self.whitespace = whitespace
 
+        if ignorecase is None:
+            ignorecase = directives.get('ignorecase')
+        self.ignorecase = ignorecase
+
         if nameguard is None:
             nameguard = directives.get('nameguard')
         self.nameguard = nameguard
@@ -1010,6 +1015,8 @@ class Grammar(Model):
         self.eol_comments_re = eol_comments_re
 
         self.keywords = keywords or set()
+        if ignorecase:
+            self.keywords = {k.upper() for k in self.keywords}
 
         self._adopt_children(rules)
 
@@ -1084,6 +1091,7 @@ class Grammar(Model):
               trace=False,
               context=None,
               whitespace=None,
+              ignorecase=None,
               left_recursion=None,
               comments_re=None,
               eol_comments_re=None,
@@ -1108,6 +1116,7 @@ class Grammar(Model):
         nameguard = notnone(nameguard, self.nameguard)
         namechars = notnone(namechars, self.namechars)
         whitespace = notnone(whitespace, self.whitespace)
+        ignorecase = notnone(ignorecase, self.ignorecase)
         if whitespace:
             whitespace = re.compile(whitespace)
 
@@ -1118,6 +1127,7 @@ class Grammar(Model):
             semantics=semantics,
             trace=trace,
             whitespace=whitespace,
+            ignorecase=ignorecase,
             comments_re=comments_re,
             eol_comments_re=eol_comments_re,
             left_recursion=left_recursion,

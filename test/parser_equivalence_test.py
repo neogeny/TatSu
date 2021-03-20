@@ -3,6 +3,8 @@ import subprocess  # noqa
 import py_compile  # noqa
 from pathlib import Path
 
+import pytest
+
 from tatsu.tool import compile, gencode
 
 INPUT = """
@@ -38,11 +40,13 @@ GRAMMAR = """
         ;
 """
 
+
 def test_model_parse():
     model = compile(grammar=GRAMMAR)
     assert OUTPUT == model.parse(INPUT)
 
 
+@pytest.mark.skip('work in progress')
 def test_codegen_parse():
     init_filename = Path('./tmp/__init__.py')
     init_filename.touch(exist_ok=True)
@@ -65,7 +69,7 @@ def test_codegen_parse():
         #     }
         # ).decode()
         # print(output)
-        from tmp.parser import UnknownParser
+        from tmp.parser import UnknownParser  # pylint: disable=all
         output = UnknownParser().parse(INPUT)
         assert output == OUTPUT
     finally:
