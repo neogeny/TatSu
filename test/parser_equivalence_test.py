@@ -40,9 +40,11 @@ GRAMMAR = """
         ;
 """
 
+
 def test_model_parse():
     model = compile(grammar=GRAMMAR)
     assert OUTPUT == model.parse(INPUT)
+
 
 @pytest.mark.skip('work in progress')
 def test_codegen_parse():
@@ -67,7 +69,7 @@ def test_codegen_parse():
         #     }
         # ).decode()
         # print(output)
-        from tmp.parser import UnknownParser
+        from tmp.parser import UnknownParser  # pylint: disable=all
         output = UnknownParser().parse(INPUT)
         assert output == OUTPUT
     finally:
