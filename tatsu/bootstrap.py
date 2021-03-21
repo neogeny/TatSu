@@ -16,8 +16,8 @@ import sys
 
 from tatsu.buffering import Buffer
 from tatsu.parsing import Parser
-from tatsu.parsing import tatsumasu, leftrec, nomemo
-from tatsu.parsing import leftrec, nomemo  # noqa
+from tatsu.parsing import tatsumasu
+from tatsu.parsing import leftrec, nomemo, isname # noqa
 from tatsu.util import re, generic_main  # noqa
 
 
@@ -116,7 +116,7 @@ class EBNFBootstrapParser(Parser):
                     self.add_last_node_to_name('keywords')
                 self._error(
                     'expecting one of: '
-                    '<keyword> <rule>'
+                    '<rule> <keyword>'
                 )
         self._closure(block6)
         self._check_eof()
@@ -171,7 +171,7 @@ class EBNFBootstrapParser(Parser):
                                 self._constant('None')
                             self._error(
                                 'expecting one of: '
-                                "'False' 'None' <regex>"
+                                "<regex> 'None' 'False'"
                             )
                     self.name_last_node('value')
                 with self._option():
@@ -187,8 +187,8 @@ class EBNFBootstrapParser(Parser):
                                 self._token('parseinfo')
                             self._error(
                                 'expecting one of: '
-                                "'ignorecase' 'left_recursion'"
-                                "'nameguard' 'parseinfo'"
+                                "'nameguard' 'ignorecase'"
+                                "'left_recursion' 'parseinfo'"
                             )
                     self.name_last_node('name')
                     self._cut()
@@ -226,10 +226,10 @@ class EBNFBootstrapParser(Parser):
                     self.name_last_node('value')
                 self._error(
                     'expecting one of: '
-                    "'comments' 'eol_comments' 'grammar'"
-                    "'ignorecase' 'left_recursion'"
-                    "'namechars' 'nameguard' 'parseinfo'"
-                    "'whitespace'"
+                    "'comments' 'eol_comments' 'whitespace'"
+                    "'nameguard' 'ignorecase'"
+                    "'left_recursion' 'parseinfo' 'grammar'"
+                    "'namechars'"
                 )
         self._cut()
         self._define(
@@ -300,7 +300,7 @@ class EBNFBootstrapParser(Parser):
                 self._token(')')
             self._error(
                 'expecting one of: '
-                "'(' '::'"
+                "'::' '('"
             )
         self._define(
             ['kwparams', 'params'],
@@ -349,7 +349,7 @@ class EBNFBootstrapParser(Parser):
                     self._token(')')
                 self._error(
                     'expecting one of: '
-                    "'(' '::'"
+                    "'::' '('"
                 )
         with self._optional():
             self._token('<')
@@ -383,7 +383,7 @@ class EBNFBootstrapParser(Parser):
                     self._token('nomemo')
                 self._error(
                     'expecting one of: '
-                    "'name' 'nomemo' 'override'"
+                    "'override' 'name' 'nomemo'"
                 )
         self.name_last_node('@')
 
@@ -410,9 +410,9 @@ class EBNFBootstrapParser(Parser):
                 self._literal_()
             self._error(
                 'expecting one of: '
-                "'/(?!\\\\d)\\\\w+(::(?!\\\\d)\\\\w+)+/'"
-                '<boolean> <float> <hex> <int> <literal>'
-                '<path> <raw_string> <string> <word>'
+                '(?!\\d)\\w+(::(?!\\d)\\w+)+ <path> <string>'
+                '<raw_string> <boolean> <word> <hex>'
+                '<float> <int> <literal>'
             )
 
     @tatsumasu()
@@ -443,7 +443,7 @@ class EBNFBootstrapParser(Parser):
                 self._sequence_()
             self._error(
                 'expecting one of: '
-                "<choice> <element> <sequence> '|'"
+                "<sequence> '|' <choice> <element>"
             )
 
     @tatsumasu('Choice')
@@ -486,16 +486,15 @@ class EBNFBootstrapParser(Parser):
                 self._term_()
             self._error(
                 'expecting one of: '
-                "'>' <atom> <closure> <empty_closure>"
-                '<gather> <group> <join> <left_join>'
-                '<lookahead> <named> <named_list>'
-                '<named_single> <negative_lookahead>'
-                '<optional> <override> <override_list>'
+                "'>' <rule_include> <named_list>"
+                '<named_single> <named> <override_list>'
                 '<override_single>'
-                '<override_single_deprecated>'
-                '<positive_closure> <right_join>'
-                '<rule_include> <skip_to> <special>'
-                '<term> <void>'
+                '<override_single_deprecated> <override>'
+                '<void> <gather> <join> <left_join>'
+                '<right_join> <group> <empty_closure>'
+                '<positive_closure> <closure> <optional>'
+                '<special> <skip_to> <lookahead>'
+                '<negative_lookahead> <atom> <term>'
             )
 
     @tatsumasu('RuleInclude')
@@ -554,8 +553,8 @@ class EBNFBootstrapParser(Parser):
                 self._override_single_deprecated_()
             self._error(
                 'expecting one of: '
-                "'@' '@+:' '@:' <override_list>"
-                '<override_single>'
+                "'@+:' <override_list> '@:'"
+                "<override_single> '@'"
                 '<override_single_deprecated>'
             )
 
@@ -615,14 +614,14 @@ class EBNFBootstrapParser(Parser):
                 self._atom_()
             self._error(
                 'expecting one of: '
-                "'!' '&' '(' '()' '->' '?(' '[' <atom>"
-                '<call> <closure> <constant> <cut>'
-                '<cut_deprecated> <empty_closure> <eof>'
-                '<gather> <group> <join> <left_join>'
-                '<lookahead> <negative_lookahead>'
-                '<optional> <pattern> <positive_closure>'
-                '<right_join> <separator> <skip_to>'
-                "<special> <token> <void> '{' '~'"
+                "'()' <void> '~' <gather> <join>"
+                "<separator> <left_join> <right_join> '('"
+                "<group> '{' <empty_closure>"
+                "<positive_closure> <closure> '['"
+                "<optional> '?(' <special> '->' <skip_to>"
+                "'&' <lookahead> '!' <negative_lookahead>"
+                '<cut> <cut_deprecated> <token>'
+                '<constant> <call> <pattern> <eof> <atom>'
             )
 
     @tatsumasu('Group')
@@ -653,7 +652,7 @@ class EBNFBootstrapParser(Parser):
                     self._normal_gather_()
                 self._error(
                     'expecting one of: '
-                    '<normal_gather> <positive_gather>'
+                    '<positive_gather> <normal_gather>'
                 )
 
     @tatsumasu('PositiveGather')
@@ -713,7 +712,7 @@ class EBNFBootstrapParser(Parser):
                     self._normal_join_()
                 self._error(
                     'expecting one of: '
-                    '<normal_join> <positive_join>'
+                    '<positive_join> <normal_join>'
                 )
 
     @tatsumasu('PositiveJoin')
@@ -823,9 +822,9 @@ class EBNFBootstrapParser(Parser):
                 self._pattern_()
             self._error(
                 'expecting one of: '
-                "'(' '/./' '/`/' <any> <constant> <group>"
-                '<pattern> <raw_string> <regexes>'
-                '<string> <token>'
+                "'(' <group> <string> <raw_string>"
+                "<token> ` <constant> '/./' <any>"
+                '<regexes> <pattern>'
             )
 
     @tatsumasu('PositiveClosure')
@@ -842,7 +841,7 @@ class EBNFBootstrapParser(Parser):
                     self._token('+')
                 self._error(
                     'expecting one of: '
-                    "'+' '-'"
+                    "'-' '+'"
                 )
         self._cut()
 
@@ -921,10 +920,9 @@ class EBNFBootstrapParser(Parser):
                 self._eof_()
             self._error(
                 'expecting one of: '
-                "'$' '/`/' '>>' <call> <constant> <cut>"
-                '<cut_deprecated> <eof> <pattern>'
-                '<raw_string> <regexes> <string> <token>'
-                "<word> '~'"
+                "'~' <cut> '>>' <cut_deprecated> <string>"
+                '<raw_string> <token> ` <constant> <word>'
+                "<call> <regexes> <pattern> '$' <eof>"
             )
 
     @tatsumasu('RuleRef')
@@ -972,7 +970,7 @@ class EBNFBootstrapParser(Parser):
                 self._raw_string_()
             self._error(
                 'expecting one of: '
-                "<STRING> 'r' <raw_string> <string>"
+                "<STRING> <string> 'r' <raw_string>"
             )
 
     @tatsumasu()
@@ -994,11 +992,11 @@ class EBNFBootstrapParser(Parser):
                 self._int_()
             self._error(
                 'expecting one of: '
-                "'/(?!\\\\d)\\\\w+/' '/0[xX](\\\\d|[a-fA-F])+/'"
-                "'/[-+]?(?:\\\\d+\\\\.\\\\d*|\\\\d*\\\\.\\\\d+)(?:[Ee"
-                "][-+]?\\\\d+)?/' '/[-+]?\\\\d+/' 'False'"
-                "<STRING> 'True' <boolean> <float> <hex>"
-                "<int> 'r' <raw_string> <string> <word>"
+                "<STRING> <string> 'r' <raw_string>"
+                "'True' 'False' <boolean> (?!\\d)\\w+"
+                '<word> 0[xX](\\d|[a-fA-F])+ <hex> [-+]?(?'
+                ':\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?'
+                '<float> [-+]?\\d+ <int>'
             )
 
     @tatsumasu()
@@ -1094,7 +1092,7 @@ class EBNFBootstrapParser(Parser):
                 self.name_last_node('@')
             self._error(
                 'expecting one of: '
-                "'/' '?' '?/'"
+                "'/' '?/' '?'"
             )
 
     @tatsumasu()
@@ -1106,7 +1104,7 @@ class EBNFBootstrapParser(Parser):
                 self._token('False')
             self._error(
                 'expecting one of: '
-                "'False' 'True'"
+                "'True' 'False'"
             )
 
     @tatsumasu('EOF')

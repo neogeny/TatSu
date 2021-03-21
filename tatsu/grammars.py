@@ -354,7 +354,7 @@ class Pattern(Model):
         return ctx._pattern(self.pattern)
 
     def _first(self, k, f):
-        x = f'/{self.pattern}/'
+        x = self
         if bool(self.regex.match("")):
             return oset([(), (x,)])
         else:
@@ -372,6 +372,9 @@ class Pattern(Model):
 
     def _nullable(self):
         return bool(self.regex.match(""))
+
+    def __repr__(self):
+        return self.pattern.replace('\\\\', '\\')
 
 
 class Lookahead(Decorator):
