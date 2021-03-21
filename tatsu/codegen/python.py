@@ -580,7 +580,12 @@ class Grammar(Base):
                         with open(filename) as f:
                             text = f.read()
                     parser = {name}Parser()
-                    return parser.parse(text, rule_name=start, filename=filename, **kwargs)
+                    return parser.parse(
+                        text, 
+                        rule_name=start, 
+                        filename=filename, 
+                        **kwargs
+                    )
 
 
                 if __name__ == '__main__':
@@ -588,10 +593,6 @@ class Grammar(Base):
                     from tatsu.util import asjson
 
                     ast = generic_main(main, {name}Parser, name='{name}')
-                    print('AST:')
-                    print(ast)
-                    print()
-                    print('JSON:')
-                    print(json.dumps(asjson(ast), indent=2))
-                    print()
+                    data = asjson(ast) 
+                    print(json.dumps(data, indent=2))
                 '''
