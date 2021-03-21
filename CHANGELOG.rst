@@ -20,10 +20,11 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _`5.5.1`: https://github.com/apalala/tatsu/compare/v5.0.0...v5.5.1
 
-*   `#167`_   Make ``ignorecase`` settings apply to defined ``@@keywords``
-*   `#180`_   Fixed output of generated parsers differing from model parser
-*   Update the bootrstap parser (``tatsu/bootrstrap.py``) to the generated parser
+*   `#167`_   Make ``ignorecase`` settings apply to defined ``@@keywords`` (`@apalala`_)
+*   `#180`_   Fixed output of generated parsers differing from model parser (`@apalala`_)
+*   Update the bootstrap parser (``tatsu/bootstrap.py``) to the generated parser (`@apalala`_)
 *   Minor documentation issues fixed
+*   Remove more Python 2.7 traces
 *   Make all tests run with Python 3.9
 
 .. _#167: https://github.com/neogeny/TatSu/issues/167
@@ -34,8 +35,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _`5.5.0`: https://github.com/apalala/tatsu/compare/v5.0.0...v5.5.0
 
-*  `#156`_   Clarify limitations of left-recursion in PEG (`@apalala`_).
-*  `#159`_   Clean up examples and tutorial, upgrade them to Python 3 (`@okomarov`_).
+*  `#156`_   Clarify limitations of left-recursion in PEG (`@apalala`_)
+*  `#159`_   Clean up examples and tutorial, upgrade them to Python 3 (`@okomarov`_)
 
 .. _#156: https://github.com/neogeny/TatSu/issues/156
 .. _#159: https://github.com/neogeny/TatSu/pull/159
