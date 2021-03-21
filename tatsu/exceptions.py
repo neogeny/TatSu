@@ -138,3 +138,7 @@ class FailedLeftRecursion(FailedParse):
 
 class FailedExpectingEndOfText(FailedParse):
     pass
+
+
+class FailedKeyword(FailedParse):
+    pass

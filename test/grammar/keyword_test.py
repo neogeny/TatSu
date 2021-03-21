@@ -118,7 +118,7 @@ class KeywordTests(unittest.TestCase):
             @name
             id = /\w+/ ;
         '''
-        model = compile(grammar, 'test', trace=True, colorize=True)
+        model = compile(grammar, 'test', trace=False, colorize=True)
         c = codegen(model)
         parser.suite(c)
 
@@ -132,3 +132,29 @@ class KeywordTests(unittest.TestCase):
                 self.fail('accepted keyword "%s" as name' % k)
             except FailedParse as e:
                 self.assertTrue('"%s" is a reserved word' % k in str(e))
+
+    def test_ignorecase_keywords(self):
+        grammar = '''
+            @@ignorecase :: True
+            @@keyword :: if
+
+            start = rule ;
+
+            @name
+            rule = @:word if_exp $ ;
+
+            if_exp = 'if' digit ;
+
+            word = /\w+/ ;
+            digit = /\d/ ;
+        '''
+
+        model = compile(grammar, 'test')
+
+        model.parse('nonIF if 1', trace=False)
+
+        with self.assertRaises(FailedParse):
+            model.parse('i rf if 1', trace=False)
+
+        with self.assertRaises(FailedParse):
+            model.parse('IF if 1', trace=False)

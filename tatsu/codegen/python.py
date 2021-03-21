@@ -4,6 +4,8 @@ Python code generation for models defined with tatsu.model
 """
 from __future__ import generator_stop
 
+import textwrap
+
 from tatsu.util import (
     indent,
     safe_name,
@@ -131,14 +133,16 @@ class Choice(Base):
                 option=indent(self.rend(o))) for o in self.node.options
         ]
         options = '\n'.join(o for o in options)
-        firstset = ' '.join(f[0] for f in sorted(self.node.lookahead()) if f)
+        firstset = self.node.lookahead_str()
         if firstset:
-            error = 'expecting one of: ' + firstset
+            msglines = textwrap.wrap(firstset, width=40)
+            error = ['expecting one of: '] + msglines
         else:
-            error = 'no available options'
+            error = ['no available options']
+        error = [repr(e) for e in error]
         fields.update(n=self.counter(),
                       options=indent(options),
-                      error=repr(error)
+                      error=error,
                       )
 
     def render(self, **fields):
@@ -155,7 +159,9 @@ class Choice(Base):
     template = '''\
                 with self._choice():
                 {options}
-                    self._error({error})\
+                    self._error(
+                {error:2:\\n:}
+                    )\
                 '''
 
 
@@ -164,8 +170,8 @@ class Closure(_Decorator):
         fields.update(n=self.counter())
 
     def render(self, **fields):
-        if {()} in self.node.exp.lookahead():
-            raise CodegenError('may repeat empty sequence')
+        if () in self.node.exp.lookahead():
+            raise CodegenError(f'{str(self.node)} may repeat empty sequence')
         return '\n' + super().render(**fields)
 
     template = '''\
@@ -188,7 +194,7 @@ class Join(_Decorator):
         fields.update(n=self.counter())
 
     def render(self, **fields):
-        if {()} in self.node.exp.lookahead():
+        if () in self.node.exp.lookahead():
             raise CodegenError('may repeat empty sequence')
         return '\n' + super().render(**fields)
 
@@ -336,6 +342,12 @@ class Rule(_Decorator):
         else:
             return repr(p.split(BASE_CLASS_TOKEN)[0])
 
+    def render(self, **fields):
+        try:
+            return super().render(**fields)
+        except CodegenError as e:
+            raise CodegenError(f'{self.node.name}={e}') from e
+
     def render_fields(self, fields):
         self.reset_counter()
 
@@ -370,7 +382,7 @@ class Rule(_Decorator):
             sdefs = '[%s]' % ', '.join(repr(d) for d in sorted(sdefs))
             ldefs = '[%s]' % ', '.join(repr(d) for d in sorted(ldefs))
             if not ldefs:
-                sdefines = '\n\n    self.ast._define(%s, %s)' % (sdefs, ldefs)
+                sdefines = '\n\n    self._define(%s, %s)' % (sdefs, ldefs)
             else:
                 sdefines = indent(
                     '\n' +
@@ -378,23 +390,22 @@ class Rule(_Decorator):
                 )
 
         fields.update(defines=sdefines)
-        fields.update(
-            check_name='\n    self._check_name()' if self.is_name else '',
-        )
         leftrec = self.node.is_leftrec
         fields.update(leftrec='\n@leftrec' if leftrec else '')
         fields.update(nomemo='\n@nomemo' if not self.node.is_memoizable and not leftrec else '')
+        fields.update(isname='\n@isname' if self.node.is_name else '')
 
     template = '''
         @tatsumasu({params})\
         {leftrec}\
-        {nomemo}
+        {nomemo}\
+        {isname}
         def _{name}_(self):  # noqa
-        {exp:1::}{check_name}{defines}
+        {exp:1::}{defines}
         '''
 
     define_template = '''\
-            self.ast._define(
+            self._define(
                 %s,
                 %s
             )\
@@ -493,8 +504,8 @@ class Grammar(Base):
 
                 from tatsu.buffering import Buffer
                 from tatsu.parsing import Parser
-                from tatsu.parsing import tatsumasu, leftrec, nomemo
-                from tatsu.parsing import leftrec, nomemo  # noqa
+                from tatsu.parsing import tatsumasu
+                from tatsu.parsing import leftrec, nomemo, isname # noqa
                 from tatsu.util import re, generic_main  # noqa
 
 
@@ -572,7 +583,12 @@ class Grammar(Base):
                         with open(filename) as f:
                             text = f.read()
                     parser = {name}Parser()
-                    return parser.parse(text, rule_name=start, filename=filename, **kwargs)
+                    return parser.parse(
+                        text, 
+                        rule_name=start, 
+                        filename=filename, 
+                        **kwargs
+                    )
 
 
                 if __name__ == '__main__':
@@ -580,10 +596,6 @@ class Grammar(Base):
                     from tatsu.util import asjson
 
                     ast = generic_main(main, {name}Parser, name='{name}')
-                    print('AST:')
-                    print(ast)
-                    print()
-                    print('JSON:')
-                    print(json.dumps(asjson(ast), indent=2))
-                    print()
+                    data = asjson(ast) 
+                    print(json.dumps(data, indent=2))
                 '''
