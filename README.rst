@@ -22,19 +22,21 @@
 
     def WARNING():
         """
-        |TatSu|>=5.0.0 requires Python>=3.8
+        |TatSu|==5.6.0 requires Python>=3.8
+        |TatSu|>=5.7.0 will require Python>=3.9
 
-        Python 3.8 introduced new language features that allow writing better programs
-        more clearly, and all code compatible with Python 3.7 should run fine on 3.8
-        with minor, or no changes.
+        Python 3.8 and 3.9 introduced new language features that allow
+        writing better programs more clearly. All code written for
+        Python 3.7 should run fine on Python 3.9 with minor, or no changes.
 
         Python has adopted an anual release schedule (PEP-602).
 
-        Python 3.9 is due to be released on June 2020
-        Python 3.7 will have bugfix releases only until mid 2020
-        Python 3.6 had its last bugfix release on December 2019
-        Python 3.5 entered "security fixes only" mode since August 2018
-        Python 2.7 reached its end of life on January 2020
+        Python 3.10 will be released in Oct 2021
+        Python 3.9  was released on Oct 20220
+        Python 3.8  bugfix releases final in March 2021
+        Python 3.7  bugfix releases final in mid 2020
+        Python 3.6  had its last bugfix release on December 2019
+        Python 2.7  reached its end of life on January 2020
 
         There are compelling reasons to upgrade 3.x projects to Python 3.8
         """
@@ -48,7 +50,8 @@ outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_.
 ``tatsu.grammars.Grammar`` object that can be used to parse any given
 input, much like the `re`_ module does with regular expressions, or it can generate a Python_ module that implements the parser.
 
-|TatSu| supports `left-recursive`_  rules in PEG_ grammars using the algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left associativity.
+|TatSu| supports `left-recursive`_  rules in PEG_ grammars using the
+algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left associativity.
 
 .. _algorithm: http://norswap.com/pubs/sle2016.pdf
 
@@ -142,16 +145,6 @@ This is the output:
 
 .. code-block:: console
 
-    # PPRINT
-    [ '3',
-      '+',
-      [ '5',
-        '*',
-        [ '10',
-          '-',
-          '20']]]
-
-    # JSON
     [
       "3",
       "+",
@@ -178,7 +171,8 @@ documentation_.
 Questions?
 ----------
 
-Please use the `[tatsu]`_ tag on `StackOverflow`_ for general Q&A, and limit Github issues to bugs, enhancement proposals, and feature requests.
+Please use the `[tatsu]`_ tag on `StackOverflow`_ for general Q&A, and limit
+Github issues to bugs, enhancement proposals, and feature requests.
 
 .. _[tatsu]: https://stackoverflow.com/tags/tatsu/info
 

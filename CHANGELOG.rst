@@ -16,9 +16,9 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 
 
-`5.5.1`_ @ 2021-03-21
+`5.6.0`_ @ 2021-03-21
 ---------------------
-.. _`5.5.1`: https://github.com/apalala/tatsu/compare/v5.0.0...v5.5.1
+.. _`5.6.0`: https://github.com/apalala/tatsu/compare/v5.5.0...v5.6.0
 
 *   Bug fix release
 *   Several important refactorings in ``contexts.ParseContext``
@@ -30,10 +30,11 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 *   Preserve name declaration order in returned ``AST``
 *   Update the bootstrap parser (``tatsu/bootstrap.py``) to the generated parser
 *   Now generated parser's ``main()`` only outputs the JSON for the parse ``AST``
+*   Minor version bumped in case the many fixes break backwards-compatibility
 *   Any already generated parsers must be re-generated because of the changes
-*   Abandon issue, pr, and author references in this CHANGELOG.
+*   Abandon issue, PR, and author references in this CHANGELOG.
 *   Minor documentation issues fixed
-*   Remove even more Python 2.7 traces
+*   Remove even more traces of Python 2.7
 *   All tests run with Python 3.9
 *   All tests run with Python 3.10
 

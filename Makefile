@@ -45,7 +45,7 @@ release_check: clean documentation
 	@echo version `python -m tatsu --version`
 
 
-distributions: clean
+dist: release_check
 	python setup.py sdist --formats=zip
 	python setup.py bdist_wheel --universal
 
