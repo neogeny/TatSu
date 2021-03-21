@@ -74,7 +74,7 @@ def test_codegen_parse():
         try:
             from tmp.test_codegen_parser import UnknownParser as Parser  # pylint: disable=all
         except ImportError:
-            from tmp.test_codegen_parser  import TestParser as Parser  # pylint: disable=all
+            from tmp.test_codegen_parser import TestParser as Parser  # pylint: disable=all
         output = Parser().parse(INPUT, parseinfo=False)
         assert output == OUTPUT
     finally:
