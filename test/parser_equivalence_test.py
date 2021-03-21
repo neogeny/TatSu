@@ -58,7 +58,7 @@ def test_codegen_parse():
         f.write(INPUT)
 
     parser = gencode(name='Test', grammar=GRAMMAR)
-    parser_filename = Path('./tmp/parser.py')
+    parser_filename = Path('./tmp/test_codegen_parser.py')
     with open(parser_filename, 'wt') as f:
         f.write(parser)
 
@@ -72,12 +72,13 @@ def test_codegen_parse():
         # ).decode()
         # print(output)
         try:
-            from tmp.parser import UnknownParser as Parser  # pylint: disable=all
+            from tmp.test_codegen_parser import UnknownParser as Parser  # pylint: disable=all
         except ImportError:
-            from tmp.parser import TestParser as Parser  # pylint: disable=all
+            from tmp.test_codegen_parser import TestParser as Parser  # pylint: disable=all
         output = Parser().parse(INPUT, parseinfo=False)
         assert output == OUTPUT
     finally:
-        init_filename.unlink()
-        input_filename.unlink()
-        parser_filename.unlink()
+        pass
+        # init_filename.unlink()
+        # input_filename.unlink()
+        # parser_filename.unlink()

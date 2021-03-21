@@ -23,7 +23,7 @@ from tatsu.util import re, generic_main  # noqa
 
 
 KEYWORDS = {
-    None,
+    'None',
 }  # type: ignore
 
 
@@ -99,7 +99,10 @@ class EBNFBootstrapParser(Parser):
                 with self._option():
                     self._keyword_()
                     self.add_last_node_to_name('keywords')
-                self._error('no available options')
+                self._error(
+                    'expecting one of: '
+                    '<directive> <keyword>'
+                )
         self._closure(block1)
         self._rule_()
         self.add_last_node_to_name('rules')
@@ -112,7 +115,10 @@ class EBNFBootstrapParser(Parser):
                 with self._option():
                     self._keyword_()
                     self.add_last_node_to_name('keywords')
-                self._error('no available options')
+                self._error(
+                    'expecting one of: '
+                    '<keyword> <rule>'
+                )
         self._closure(block6)
         self._check_eof()
         self._define(
@@ -135,7 +141,10 @@ class EBNFBootstrapParser(Parser):
                                 self._token('comments')
                             with self._option():
                                 self._token('eol_comments')
-                            self._error('no available options')
+                            self._error(
+                                'expecting one of: '
+                                "'comments' 'eol_comments'"
+                            )
                     self.name_last_node('name')
                     self._cut()
                     self._cut()
@@ -161,7 +170,10 @@ class EBNFBootstrapParser(Parser):
                                 self._token('False')
                             with self._option():
                                 self._constant('None')
-                            self._error('no available options')
+                            self._error(
+                                'expecting one of: '
+                                "'False' 'None' <regex>"
+                            )
                     self.name_last_node('value')
                 with self._option():
                     with self._group():
@@ -174,7 +186,11 @@ class EBNFBootstrapParser(Parser):
                                 self._token('left_recursion')
                             with self._option():
                                 self._token('parseinfo')
-                            self._error('no available options')
+                            self._error(
+                                'expecting one of: '
+                                "'ignorecase' 'left_recursion'"
+                                "'nameguard' 'parseinfo'"
+                            )
                     self.name_last_node('name')
                     self._cut()
                     with self._group():
@@ -187,7 +203,10 @@ class EBNFBootstrapParser(Parser):
                             with self._option():
                                 self._constant(True)
                                 self.name_last_node('value')
-                            self._error('no available options')
+                            self._error(
+                                'expecting one of: '
+                                "'::'"
+                            )
                 with self._option():
                     with self._group():
                         self._token('grammar')
@@ -206,7 +225,13 @@ class EBNFBootstrapParser(Parser):
                     self._cut()
                     self._string_()
                     self.name_last_node('value')
-                self._error('no available options')
+                self._error(
+                    'expecting one of: '
+                    "'comments' 'eol_comments' 'grammar'"
+                    "'ignorecase' 'left_recursion'"
+                    "'namechars' 'nameguard' 'parseinfo'"
+                    "'whitespace'"
+                )
         self._cut()
         self._define(
             ['name', 'value'],
@@ -237,7 +262,10 @@ class EBNFBootstrapParser(Parser):
                             self._token(':')
                         with self._option():
                             self._token('=')
-                        self._error('no available options')
+                        self._error(
+                            'expecting one of: '
+                            "':' '='"
+                        )
         self._closure(block0)
 
     @tatsumasu()
@@ -266,9 +294,15 @@ class EBNFBootstrapParser(Parser):
                         with self._option():
                             self._params_()
                             self.name_last_node('params')
-                        self._error('no available options')
+                        self._error(
+                            'expecting one of: '
+                            '<kwparams> <params>'
+                        )
                 self._token(')')
-            self._error('no available options')
+            self._error(
+                'expecting one of: '
+                "'(' '::'"
+            )
         self._define(
             ['kwparams', 'params'],
             []
@@ -309,9 +343,15 @@ class EBNFBootstrapParser(Parser):
                             with self._option():
                                 self._params_()
                                 self.name_last_node('params')
-                            self._error('no available options')
+                            self._error(
+                                'expecting one of: '
+                                '<kwparams> <params>'
+                            )
                     self._token(')')
-                self._error('no available options')
+                self._error(
+                    'expecting one of: '
+                    "'(' '::'"
+                )
         with self._optional():
             self._token('<')
             self._cut()
@@ -342,7 +382,10 @@ class EBNFBootstrapParser(Parser):
                     self._token('name')
                 with self._option():
                     self._token('nomemo')
-                self._error('no available options')
+                self._error(
+                    'expecting one of: '
+                    "'name' 'nomemo' 'override'"
+                )
         self.name_last_node('@')
 
     @tatsumasu()
@@ -366,7 +409,12 @@ class EBNFBootstrapParser(Parser):
                 self._path_()
             with self._option():
                 self._literal_()
-            self._error('no available options')
+            self._error(
+                'expecting one of: '
+                "'/(?!\\\\d)\\\\w+(::(?!\\\\d)\\\\w+)+/'"
+                '<boolean> <float> <hex> <int> <literal>'
+                '<path> <raw_string> <string> <word>'
+            )
 
     @tatsumasu()
     def _kwparams_(self):  # noqa
@@ -394,7 +442,10 @@ class EBNFBootstrapParser(Parser):
                 self._choice_()
             with self._option():
                 self._sequence_()
-            self._error('no available options')
+            self._error(
+                'expecting one of: '
+                "<choice> <element> <sequence> '|'"
+            )
 
     @tatsumasu('Choice')
     def _choice_(self):  # noqa
@@ -434,7 +485,19 @@ class EBNFBootstrapParser(Parser):
                 self._override_()
             with self._option():
                 self._term_()
-            self._error('no available options')
+            self._error(
+                'expecting one of: '
+                "'>' <atom> <closure> <empty_closure>"
+                '<gather> <group> <join> <left_join>'
+                '<lookahead> <named> <named_list>'
+                '<named_single> <negative_lookahead>'
+                '<optional> <override> <override_list>'
+                '<override_single>'
+                '<override_single_deprecated>'
+                '<positive_closure> <right_join>'
+                '<rule_include> <skip_to> <special>'
+                '<term> <void>'
+            )
 
     @tatsumasu('RuleInclude')
     def _rule_include_(self):  # noqa
@@ -450,7 +513,10 @@ class EBNFBootstrapParser(Parser):
                 self._named_list_()
             with self._option():
                 self._named_single_()
-            self._error('no available options')
+            self._error(
+                'expecting one of: '
+                '<name> <named_list> <named_single>'
+            )
 
     @tatsumasu('NamedList')
     def _named_list_(self):  # noqa
@@ -487,7 +553,12 @@ class EBNFBootstrapParser(Parser):
                 self._override_single_()
             with self._option():
                 self._override_single_deprecated_()
-            self._error('no available options')
+            self._error(
+                'expecting one of: '
+                "'@' '@+:' '@:' <override_list>"
+                '<override_single>'
+                '<override_single_deprecated>'
+            )
 
     @tatsumasu('OverrideList')
     def _override_list_(self):  # noqa
@@ -543,7 +614,17 @@ class EBNFBootstrapParser(Parser):
                 self._negative_lookahead_()
             with self._option():
                 self._atom_()
-            self._error('no available options')
+            self._error(
+                'expecting one of: '
+                "'!' '&' '(' '()' '->' '?(' '[' <atom>"
+                '<call> <closure> <constant> <cut>'
+                '<cut_deprecated> <empty_closure> <eof>'
+                '<gather> <group> <join> <left_join>'
+                '<lookahead> <negative_lookahead>'
+                '<optional> <pattern> <positive_closure>'
+                '<right_join> <separator> <skip_to>'
+                "<special> <token> <void> '{' '~'"
+            )
 
     @tatsumasu('Group')
     def _group_(self):  # noqa
@@ -571,7 +652,10 @@ class EBNFBootstrapParser(Parser):
                     self._positive_gather_()
                 with self._option():
                     self._normal_gather_()
-                self._error('no available options')
+                self._error(
+                    'expecting one of: '
+                    '<normal_gather> <positive_gather>'
+                )
 
     @tatsumasu('PositiveGather')
     def _positive_gather_(self):  # noqa
@@ -587,7 +671,10 @@ class EBNFBootstrapParser(Parser):
                     self._token('+')
                 with self._option():
                     self._token('-')
-                self._error('no available options')
+                self._error(
+                    'expecting one of: '
+                    "'+' '-'"
+                )
         self._cut()
         self._define(
             ['exp', 'sep'],
@@ -625,7 +712,10 @@ class EBNFBootstrapParser(Parser):
                     self._positive_join_()
                 with self._option():
                     self._normal_join_()
-                self._error('no available options')
+                self._error(
+                    'expecting one of: '
+                    '<normal_join> <positive_join>'
+                )
 
     @tatsumasu('PositiveJoin')
     def _positive_join_(self):  # noqa
@@ -641,7 +731,10 @@ class EBNFBootstrapParser(Parser):
                     self._token('+')
                 with self._option():
                     self._token('-')
-                self._error('no available options')
+                self._error(
+                    'expecting one of: '
+                    "'+' '-'"
+                )
         self._cut()
         self._define(
             ['exp', 'sep'],
@@ -681,7 +774,10 @@ class EBNFBootstrapParser(Parser):
                     self._token('+')
                 with self._option():
                     self._token('-')
-                self._error('no available options')
+                self._error(
+                    'expecting one of: '
+                    "'+' '-'"
+                )
         self._cut()
         self._define(
             ['exp', 'sep'],
@@ -703,7 +799,10 @@ class EBNFBootstrapParser(Parser):
                     self._token('+')
                 with self._option():
                     self._token('-')
-                self._error('no available options')
+                self._error(
+                    'expecting one of: '
+                    "'+' '-'"
+                )
         self._cut()
         self._define(
             ['exp', 'sep'],
@@ -723,7 +822,12 @@ class EBNFBootstrapParser(Parser):
                 self._any_()
             with self._option():
                 self._pattern_()
-            self._error('no available options')
+            self._error(
+                'expecting one of: '
+                "'(' '/./' '/`/' <any> <constant> <group>"
+                '<pattern> <raw_string> <regexes>'
+                '<string> <token>'
+            )
 
     @tatsumasu('PositiveClosure')
     def _positive_closure_(self):  # noqa
@@ -737,7 +841,10 @@ class EBNFBootstrapParser(Parser):
                     self._token('-')
                 with self._option():
                     self._token('+')
-                self._error('no available options')
+                self._error(
+                    'expecting one of: '
+                    "'+' '-'"
+                )
         self._cut()
 
     @tatsumasu('Closure')
@@ -813,7 +920,13 @@ class EBNFBootstrapParser(Parser):
                 self._pattern_()
             with self._option():
                 self._eof_()
-            self._error('no available options')
+            self._error(
+                'expecting one of: '
+                "'$' '/`/' '>>' <call> <constant> <cut>"
+                '<cut_deprecated> <eof> <pattern>'
+                '<raw_string> <regexes> <string> <token>'
+                "<word> '~'"
+            )
 
     @tatsumasu('RuleRef')
     def _call_(self):  # noqa
@@ -858,7 +971,10 @@ class EBNFBootstrapParser(Parser):
                 self._string_()
             with self._option():
                 self._raw_string_()
-            self._error('no available options')
+            self._error(
+                'expecting one of: '
+                "<STRING> 'r' <raw_string> <string>"
+            )
 
     @tatsumasu()
     def _literal_(self):  # noqa
@@ -877,7 +993,14 @@ class EBNFBootstrapParser(Parser):
                 self._float_()
             with self._option():
                 self._int_()
-            self._error('no available options')
+            self._error(
+                'expecting one of: '
+                "'/(?!\\\\d)\\\\w+/' '/0[xX](\\\\d|[a-fA-F])+/'"
+                "'/[-+]?(?:\\\\d+\\\\.\\\\d*|\\\\d*\\\\.\\\\d+)(?:[Ee"
+                "][-+]?\\\\d+)?/' '/[-+]?\\\\d+/' 'False'"
+                "<STRING> 'True' <boolean> <float> <hex>"
+                "<int> 'r' <raw_string> <string> <word>"
+            )
 
     @tatsumasu()
     def _string_(self):  # noqa
@@ -906,7 +1029,10 @@ class EBNFBootstrapParser(Parser):
                 self.name_last_node('@')
                 self._token("'")
                 self._cut()
-            self._error('no available options')
+            self._error(
+                'expecting one of: '
+                '\'"\' "\'"'
+            )
 
     @tatsumasu()
     def _hex_(self):  # noqa
@@ -967,7 +1093,10 @@ class EBNFBootstrapParser(Parser):
                 self._token('?')
                 self._STRING_()
                 self.name_last_node('@')
-            self._error('no available options')
+            self._error(
+                'expecting one of: '
+                "'/' '?' '?/'"
+            )
 
     @tatsumasu()
     def _boolean_(self):  # noqa
@@ -976,7 +1105,10 @@ class EBNFBootstrapParser(Parser):
                 self._token('True')
             with self._option():
                 self._token('False')
-            self._error('no available options')
+            self._error(
+                'expecting one of: '
+                "'False' 'True'"
+            )
 
     @tatsumasu('EOF')
     def _eof_(self):  # noqa
