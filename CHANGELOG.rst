@@ -20,7 +20,6 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------------
 .. _`5.6.0`: https://github.com/apalala/tatsu/compare/v5.5.0...v5.6.0
 
-*   Bug fix release
 *   Several important refactorings in ``contexts.ParseContext``
 *   Make ``ignorecase`` settings apply to defined ``@@keywords``
 *   Move checking of keywords used as names into ``ParseContext``
