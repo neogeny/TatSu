@@ -842,14 +842,16 @@ class Rule(Decorator):
     def parse(self, ctx):
         result = self._parse_rhs(ctx, self.exp)
         self._add_defined_attributes(result)
-        if self.is_name:
-            ctx._check_name()
         return result
 
     def _parse_rhs(self, ctx, exp):
         ruleinfo = RuleInfo(
             self.name, exp.parse,
-            self.is_leftrec, self.is_memoizable, self.params, self.kwparams
+            self.is_leftrec,
+            self.is_memoizable,
+            self.is_name,
+            self.params,
+            self.kwparams
         )
         result = ctx._call(ruleinfo)
         return result

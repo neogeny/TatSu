@@ -45,9 +45,9 @@ class BootstrapTests(unittest.TestCase):
         with open('grammar/tatsu.ebnf') as f:
             text = str(f.read())
         g = GrammarGenerator('EBNFBootstrap')
-        g.parse(text)
+        result = g.parse(text)
 
-        generated_grammar1 = str(g.ast['start'])
+        generated_grammar1 = str(result)
         with open('./tmp/01.ebnf', 'w') as f:
             f.write(generated_grammar1)
 
@@ -55,8 +55,8 @@ class BootstrapTests(unittest.TestCase):
         with open('./tmp/01.ebnf') as f:
             text = str(f.read())
         g = GrammarGenerator('EBNFBootstrap')
-        g.parse(text)
-        generated_grammar2 = str(g.ast['start'])
+        result = g.parse(text)
+        generated_grammar2 = str(result)
         with open('./tmp/02.ebnf', 'w') as f:
             f.write(generated_grammar2)
         self.assertEqual(generated_grammar2, generated_grammar1)
@@ -73,8 +73,7 @@ class BootstrapTests(unittest.TestCase):
         with open('./tmp/02.ebnf') as f:
             text = f.read()
         g = GrammarGenerator('EBNFBootstrap')
-        g.parse(text)
-        parser = g.ast['start']
+        parser = g.parse(text)
     #    pprint(parser.first_sets, indent=2, depth=3)
         generated_grammar4 = str(parser)
         with open('./tmp/04.ebnf', 'w') as f:

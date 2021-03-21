@@ -360,12 +360,13 @@ def right_assoc(elements):
     return assoc(iter(elements))
 
 
-def memory_use():
-    try:
-        import psutil
-    except ImportError:
+try:
+    import psutil
+except ImportError:
+    def memory_use():
         return 0
-    else:
+else:
+    def memory_use():
         process = psutil.Process(os.getpid())
         return process.memory_info().rss
 
