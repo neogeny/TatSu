@@ -170,7 +170,7 @@ class Closure(_Decorator):
 
     def render(self, **fields):
         if () in self.node.exp.lookahead():
-            raise CodegenError('may repeat empty sequence')
+            raise CodegenError(f'{str(self.node)} may repeat empty sequence')
         return '\n' + super().render(**fields)
 
     template = '''\
@@ -340,6 +340,12 @@ class Rule(_Decorator):
             return str(p)
         else:
             return repr(p.split(BASE_CLASS_TOKEN)[0])
+
+    def render(self, **fields):
+        try:
+            return super().render(**fields)
+        except CodegenError as e:
+            raise CodegenError(f'{self.node.name}={e}') from e
 
     def render_fields(self, fields):
         self.reset_counter()
