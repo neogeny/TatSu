@@ -170,7 +170,7 @@ class Closure(_Decorator):
         fields.update(n=self.counter())
 
     def render(self, **fields):
-        if {()} in self.node.exp.lookahead():
+        if () in self.node.exp.lookahead():
             raise CodegenError('may repeat empty sequence')
         return '\n' + super().render(**fields)
 
@@ -194,7 +194,7 @@ class Join(_Decorator):
         fields.update(n=self.counter())
 
     def render(self, **fields):
-        if {()} in self.node.exp.lookahead():
+        if () in self.node.exp.lookahead():
             raise CodegenError('may repeat empty sequence')
         return '\n' + super().render(**fields)
 

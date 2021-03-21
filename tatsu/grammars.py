@@ -357,7 +357,7 @@ class Pattern(Model):
     def _first(self, k, f):
         x = f'/{self.pattern}/'
         if bool(self.regex.match("")):
-            return oset((), (x,))
+            return oset([(), (x,)])
         else:
             return {(x,)}
 
