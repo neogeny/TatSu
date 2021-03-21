@@ -147,7 +147,7 @@ class BootstrapTests(unittest.TestCase):
         with open('./tmp/11.ebnf', 'w') as f:
             f.write(str(g11))
         gencode11 = codegen(r11)
-        with open('./tmp/g11.py', 'w') as f:
+        with open('./tmp/bootstrap_g11.py', 'w') as f:
             f.write(gencode11)
 
         print('-' * 20, 'phase 12 - Walker')
