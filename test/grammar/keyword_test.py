@@ -113,7 +113,7 @@ class KeywordTests(unittest.TestCase):
             @name
             id = /\w+/ ;
         '''
-        model = compile(grammar, 'test', trace=True, colorize=True)
+        model = compile(grammar, 'test', trace=False, colorize=True)
         c = codegen(model)
         parse(c)
 
@@ -146,10 +146,10 @@ class KeywordTests(unittest.TestCase):
 
         model = compile(grammar, 'test')
 
-        model.parse('nonIF if 1', trace=True)
+        model.parse('nonIF if 1', trace=False)
 
         with self.assertRaises(FailedParse):
-            model.parse('i rf if 1', trace=True)
+            model.parse('i rf if 1', trace=False)
 
         with self.assertRaises(FailedParse):
-            model.parse('IF if 1', trace=True)
+            model.parse('IF if 1', trace=False)

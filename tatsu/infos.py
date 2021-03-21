@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from collections import namedtuple
+from dataclasses import dataclass, field
+from typing import Any
 
 from .ast import AST
 
@@ -85,6 +87,7 @@ _RuleInfo = namedtuple(
         'impl',
         'is_leftrec',
         'is_memoizable',
+        'is_name',
         'params',
         'kwparams',
     ]
@@ -116,12 +119,8 @@ RuleResult = namedtuple(
 )
 
 
-class TreeInfo(object):
-    __slots__ = (
-        'ast',
-        'cst'
-    )
-
-    def __init__(self, ast=None, cst=None):
-        self.ast = AST() if ast is None else ast
-        self.cst = cst
+@dataclass
+class ParseState(object):
+    pos: int = 0
+    ast: AST = field(default_factory=AST)
+    cst: Any = None

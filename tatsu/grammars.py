@@ -11,13 +11,14 @@ from tatsu.util import (
     indent, trim, compress_seq, chunks,
     re, notnone,
 )
-from tatsu.exceptions import FailedRef, GrammarError
-from tatsu.ast import AST
-from tatsu.contexts import ParseContext
-from tatsu.objectmodel import Node
-from tatsu.bootstrap import EBNFBootstrapBuffer
-from tatsu.infos import RuleInfo
-from tatsu.leftrec import Nullable, find_left_recursion
+from .exceptions import FailedRef, GrammarError
+from .ast import AST
+from .contexts import ParseContext
+from .objectmodel import Node
+from .bootstrap import EBNFBootstrapBuffer
+from .infos import RuleInfo
+from .leftrec import Nullable, find_left_recursion
+from .collections import OrderedSet as oset
 
 
 PEP8_LLEN = 72
@@ -39,11 +40,11 @@ def ref(name):
 
 def kdot(x, y, k):
     if not y:
-        return {a[:k] for a in x}
+        return oset(a[:k] for a in x)
     elif not x:
-        return {b[:k] for b in y}
+        return oset(b[:k] for b in y)
     else:
-        return {(a + b)[:k] for a in x for b in y}
+        return oset((a + b)[:k] for a in x for b in y)
 
 
 def pythonize_name(name):
@@ -115,7 +116,7 @@ class Model(Node):
         super().__init__(ast=ast, ctx=ctx)
         self._lookahead = None
         self._firstset = None
-        self._follow_set = set()
+        self._follow_set = oset()
         self.value = None
         self._nullability = self._nullable()
         if isinstance(self._nullability, int):  # Allow simple boolean values
@@ -136,22 +137,25 @@ class Model(Node):
             self._lookahead = kdot(self.firstset(k), self.followset(k), k)
         return self._lookahead
 
+    def lookahead_str(self):
+        return ' '.join(repr(f[0]) for f in self.lookahead() if f)
+
     def firstset(self, k=1):
         if self._firstset is None:
-            self._firstset = self._first(k, defaultdict(set))
+            self._firstset = self._first(k, defaultdict(oset))
         return self._firstset
 
     def followset(self, k=1):
         return self._follow_set
 
     def missing_rules(self, rules):
-        return set()
+        return oset()
 
     def _used_rule_names(self):
-        return set()
+        return oset()
 
     def _first(self, k, f):
-        return set()
+        return oset()
 
     def _follow(self, k, fl, a):
         return a
@@ -352,7 +356,7 @@ class Pattern(Model):
     def _first(self, k, f):
         x = f'/{self.pattern}/'
         if bool(self.regex.match("")):
-            return {(), (x,)}
+            return oset([(), (x,)])
         else:
             return {(x,)}
 
@@ -407,7 +411,7 @@ class SkipTo(Decorator):
 
     def _first(self, k, f):
         # use None to represent ANY
-        return {(None,)} | super()._first(k, f)
+        return oset({(None,)}) | super()._first(k, f)
 
     def _to_str(self, lean=False):
         return '->' + self.exp._to_str(lean=lean)
@@ -427,10 +431,10 @@ class Sequence(Model):
         return [d for s in self.sequence for d in s.defines()]
 
     def missing_rules(self, rules):
-        return set().union(*[s.missing_rules(rules) for s in self.sequence])
+        return oset().union(*[s.missing_rules(rules) for s in self.sequence])
 
     def _used_rule_names(self):
-        return set().union(*[s._used_rule_names() for s in self.sequence])
+        return oset().union(*[s._used_rule_names() for s in self.sequence])
 
     def _first(self, k, f):
         result = {()}
@@ -487,22 +491,22 @@ class Choice(Model):
                     ctx.last_node = o.parse(ctx)
                     return ctx.last_node
 
-            lookahead = ' '.join(str(repr(f[0])) for f in self.lookahead() if str(f))
+            lookahead = self.lookahead_str()
             if lookahead:
-                ctx._error('expecting one of {%s}' % lookahead)
+                ctx._error('expecting one of: %s:' % lookahead)
             ctx._error('no available options')
 
     def defines(self):
         return [d for o in self.options for d in o.defines()]
 
     def missing_rules(self, rules):
-        return set().union(*[o.missing_rules(rules) for o in self.options])
+        return oset().union(*[o.missing_rules(rules) for o in self.options])
 
     def _used_rule_names(self):
-        return set().union(*[o._used_rule_names() for o in self.options])
+        return oset().union(*[o._used_rule_names() for o in self.options])
 
     def _first(self, k, f):
-        result = set()
+        result = oset()
         for o in self.options:
             result |= o._first(k, f)
         self._firstset = result
@@ -545,7 +549,7 @@ class Closure(Decorator):
         result = {()}
         for _i in range(k):
             result = kdot(result, efirst, k)
-        return {()} | result
+        return oset({()}) | result
 
     def _to_str(self, lean=False):
         sexp = str(self.exp._to_str(lean=lean))
@@ -671,7 +675,7 @@ class Optional(Decorator):
             return self.exp.parse(ctx)
 
     def _first(self, k, f):
-        return {()} | self.exp._first(k, f)
+        return oset({()}) | self.exp._first(k, f)
 
     def _to_str(self, lean=False):
         exp = str(self.exp._to_str(lean=lean))
@@ -784,18 +788,18 @@ class RuleRef(Model):
     def missing_rules(self, rules):
         if self.name not in rules:
             return {self.name}
-        return set()
+        return oset()
 
     def _used_rule_names(self):
         return {self.name}
 
     def _first(self, k, f):
-        self._firstset = f[self.name] | {ref(self.name)}
+        self._firstset = oset(f[self.name]) | {ref(self.name)}
         return self._firstset
 
     def _follow(self, k, fl, a):
         fl[self.name] |= a
-        return a | {self.name}
+        return oset(a) | {self.name}
 
     def firstset(self, k=1):
         if self._firstset is None:
@@ -837,14 +841,16 @@ class Rule(Decorator):
     def parse(self, ctx):
         result = self._parse_rhs(ctx, self.exp)
         self._add_defined_attributes(result)
-        if self.is_name:
-            ctx._check_name()
         return result
 
     def _parse_rhs(self, ctx, exp):
         ruleinfo = RuleInfo(
             self.name, exp.parse,
-            self.is_leftrec, self.is_memoizable, self.params, self.kwparams
+            self.is_leftrec,
+            self.is_memoizable,
+            self.is_name,
+            self.params,
+            self.kwparams
         )
         result = ctx._call(ruleinfo)
         return result
@@ -1011,9 +1017,9 @@ class Grammar(Model):
             eol_comments_re = directives.get('eol_comments')
         self.eol_comments_re = eol_comments_re
 
-        self.keywords = keywords or set()
+        self.keywords = oset(keywords)
         if ignorecase:
-            self.keywords = {k.upper() for k in self.keywords}
+            self.keywords = oset(k.upper() for k in self.keywords)
 
         self._adopt_children(rules)
 
@@ -1027,7 +1033,7 @@ class Grammar(Model):
             find_left_recursion(self)
 
     def missing_rules(self, rules):
-        return set().union(*[rule.missing_rules(rules) for rule in self.rules])
+        return oset().union(*[rule.missing_rules(rules) for rule in self.rules])
 
     def _used_rule_names(self):
         if not self.rules:
@@ -1037,7 +1043,7 @@ class Grammar(Model):
         prev = {}
         while used != prev:
             prev = used
-            used |= set().union(*[
+            used |= oset().union(*[
                 rule._used_rule_names()
                 for rule in self.rules
                 if rule.name in used
@@ -1057,7 +1063,7 @@ class Grammar(Model):
         self._calc_follow_sets()
 
     def _calc_first_sets(self, k=1):
-        f = defaultdict(set)
+        f = defaultdict(oset)
         f1 = None
         while f1 != f:
             f1 = copy(f)
@@ -1069,12 +1075,12 @@ class Grammar(Model):
             rule._firstset = f[rule.name]
 
     def _calc_follow_sets(self, k=1):
-        fl = defaultdict(set)
+        fl = defaultdict(oset)
         fl1 = None
         while fl1 != fl:
             fl1 = copy(fl)
             for rule in self.rules:
-                rule._follow(k, fl, set())
+                rule._follow(k, fl, oset())
 
         for rule in self.rules:
             rule._follow_set = fl[rule.name]
