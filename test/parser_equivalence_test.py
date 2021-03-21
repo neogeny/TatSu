@@ -66,7 +66,6 @@ def test_model_parse():
     assert OUTPUT == model.parse(INPUT)
 
 
-# @pytest.mark.skip('work in progress')
 def test_codegen_parse():
     tmp_dir = Path('./tmp')
     tmp_dir.mkdir(parents=True, exist_ok=True)
@@ -80,6 +79,7 @@ def test_codegen_parse():
     compile_run(GRAMMAR, INPUT, OUTPUT)
 
 
+@pytest.mark.skip('work in progress')
 def test_error_messages():
     grammar = '''
         @@grammar :: ORDER
@@ -91,8 +91,17 @@ def test_error_messages():
     '''
     input = 'a b'
 
+    e1 = e2 = None
+
     model = compile(grammar)
     try:
         model.parse(input)
-    except FailedParse as e1:  # noqa
-        pass
+    except FailedParse as e:  # noqa
+        e1 = e
+
+    try:
+        compile_run(grammar, input, '')
+    except FailedParse as e:
+        e2 = e
+
+    assert str(e1) == str(e2)
