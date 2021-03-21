@@ -18,7 +18,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `5.5.1`_ @ 2021
 ---------------
-.. _`5.5.0`: https://github.com/apalala/tatsu/compare/v5.0.0...v5.5.1
+.. _`5.5.1`: https://github.com/apalala/tatsu/compare/v5.0.0...v5.5.1
 
 *   `#167`_   Make ``ignorecase`` settings apply to defined ``@@keywords``
 *   `#180`_   Fixed output of generated parsers differing from model parser
