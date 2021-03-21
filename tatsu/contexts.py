@@ -19,7 +19,6 @@ from . import color
 from .ast import AST
 from .util import notnone, prune_dict, is_list, info, safe_name
 from .util import left_assoc, right_assoc
-from .ast import AST
 from .infos import (
     MemoKey,
     ParseInfo,
