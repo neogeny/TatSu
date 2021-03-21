@@ -10,16 +10,29 @@ backwards incompatibilities in the software.
 
 The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
-`X.Y.Z`_ @ 2020
+`X.Y.Z`_ @ 2021
 ---------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.5.0...master
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.5.1...master
 
-*  Test with Python 3.9
+
+
+`5.5.1`_ @ 2021
+---------------
+.. _`5.5.0`: https://github.com/apalala/tatsu/compare/v5.0.0...v5.5.1
+
+*   `#167`_   Make ``ignorecase`` settings apply to defined ``@@keywords``
+*   `#180`_   Fixed output of generated parsers differing from model parser
+*   Update the bootrstap parser (``tatsu/bootrstrap.py``) to the generated parser
+*   Minor documentation issues fixed
+*   Make all tests run with Python 3.9
+
+.. _#167: https://github.com/neogeny/TatSu/issues/167
+.. _#180: https://github.com/neogeny/TatSu/issues/180
 
 
 `5.5.0`_ @ 2020
 ---------------
-.. _`5.5.0`: https://github.com/apalala/tatsu/compare/v5.0.0...master
+.. _`5.5.0`: https://github.com/apalala/tatsu/compare/v5.0.0...v5.5.0
 
 *  `#156`_   Clarify limitations of left-recursion in PEG (`@apalala`_).
 *  `#159`_   Clean up examples and tutorial, upgrade them to Python 3 (`@okomarov`_).
