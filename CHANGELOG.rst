@@ -23,19 +23,15 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 *   Several important refactorings in ``contexts.ParseContext``
 *   Make ``ignorecase`` settings apply to defined ``@@keywords``
 *   Move checking of keywords used as names into ``ParseContext``
-*   Output of generated parsers again matches that of model parsersuuuu
+*   Output of generated parsers again matches that of model parsers
 *   Improve *"expecting one of:"* messages so elements are in declaration order
 *   Stop code generation if there are closures over possibly empty expressions
 *   Preserve name declaration order in returned ``AST``
 *   Update the bootstrap parser (``tatsu/bootstrap.py``) to the generated parser
 *   Now generated parser's ``main()`` only outputs the JSON for the parse ``AST``
 *   Minor version bumped in case the many fixes break backwards-compatibility
-*   Any already generated parsers must be re-generated because of the changes
-*   Abandon issue, PR, and author references in this CHANGELOG.
 *   Minor documentation issues fixed
-*   Remove even more traces of Python 2.7
-*   All tests run with Python 3.9
-*   All tests run with Python 3.10
+*   All tests run with Python 3.8, 3.9, 3.10
 
 
 `5.5.0`_ @ 2020-01-26
