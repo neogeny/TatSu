@@ -25,7 +25,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 *   Update the bootstrap parser (``tatsu/bootstrap.py``) to the generated parser (`@apalala`_)
 *   Minor documentation issues fixed
 *   Remove more Python 2.7 traces
-*   Make all tests run with Python 3.9
+*   All tests run with Python 3.9
+*   All tests run with Python 3.10
 
 .. _#167: https://github.com/neogeny/TatSu/issues/167
 .. _#180: https://github.com/neogeny/TatSu/issues/180
