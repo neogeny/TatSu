@@ -4,6 +4,8 @@ Python code generation for models defined with tatsu.model
 """
 from __future__ import generator_stop
 
+import textwrap
+
 from tatsu.util import (
     indent,
     safe_name,
@@ -131,14 +133,16 @@ class Choice(Base):
                 option=indent(self.rend(o))) for o in self.node.options
         ]
         options = '\n'.join(o for o in options)
-        firstset = ' '.join(f[0] for f in sorted(self.node.lookahead()) if f)
+        firstset = ' '.join(repr(f[0]) for f in sorted(self.node.lookahead()) if f)
         if firstset:
-            error = 'expecting one of: ' + firstset
+            msglines = textwrap.wrap(firstset, width=40)
+            error = ['expecting one of: '] + msglines
         else:
-            error = 'no available options'
+            error = ['no available options']
+        error = [repr(e) for e in error]
         fields.update(n=self.counter(),
                       options=indent(options),
-                      error=repr(error)
+                      error=error,
                       )
 
     def render(self, **fields):
@@ -155,7 +159,9 @@ class Choice(Base):
     template = '''\
                 with self._choice():
                 {options}
-                    self._error({error})\
+                    self._error(
+                {error:2:\\n:}
+                    )\
                 '''
 
 
@@ -370,7 +376,7 @@ class Rule(_Decorator):
             sdefs = '[%s]' % ', '.join(repr(d) for d in sorted(sdefs))
             ldefs = '[%s]' % ', '.join(repr(d) for d in sorted(ldefs))
             if not ldefs:
-                sdefines = '\n\n    self.ast._define(%s, %s)' % (sdefs, ldefs)
+                sdefines = '\n\n    self._define(%s, %s)' % (sdefs, ldefs)
             else:
                 sdefines = indent(
                     '\n' +
@@ -391,7 +397,7 @@ class Rule(_Decorator):
         '''
 
     define_template = '''\
-            self.ast._define(
+            self._define(
                 %s,
                 %s
             )\

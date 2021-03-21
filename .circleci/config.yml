@@ -40,6 +40,7 @@ jobs:
             . venv/bin/activate
             pip install -U pip
             pip install -Ur requirements-test.txt
+            mkdir -p tmp
 
       - save_cache:
           paths:
