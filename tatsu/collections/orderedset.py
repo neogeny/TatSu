@@ -9,7 +9,6 @@ from typing import (
     MutableSet,
     Optional,
     Set,
-    Type,
     TypeVar,
 )
 
