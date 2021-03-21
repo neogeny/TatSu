@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import generator_stop
+from __future__ import annotations
 
 from tatsu.exceptions import FailedRef
 from tatsu.contexts import ParseContext

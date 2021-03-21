@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import generator_stop
+from __future__ import annotations
 
 from collections import defaultdict
 import tatsu.grammars  # pylint: disable=R0401

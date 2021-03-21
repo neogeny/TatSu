@@ -2,7 +2,7 @@
 """
 Python code generation for models defined with tatsu.model
 """
-from __future__ import generator_stop
+from __future__ import annotations
 
 import textwrap
 
@@ -493,7 +493,7 @@ class Grammar(Base):
                 # the file is generated.
 
 
-                from __future__ import generator_stop
+                from __future__ import annotations
 
                 import sys
 

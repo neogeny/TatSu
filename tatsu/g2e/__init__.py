@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import generator_stop
+from __future__ import annotations
 
 import codecs
 import sys

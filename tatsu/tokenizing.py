@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import generator_stop
+from __future__ import annotations
 
 from .util._common import _prints
 from .exceptions import ParseError  # noqa
