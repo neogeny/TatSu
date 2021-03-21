@@ -29,7 +29,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 *   Stop code generation if there are closures over possibly empty expressions
 *   Preserve name declaration order in returned ``AST``
 *   Update the bootstrap parser (``tatsu/bootstrap.py``) to the generated parser
-*   Generated parsers must be re-generated
+*   Now generated parser's ``main()`` only outputs the JSON for the parse ``AST``
+*   Any already generated parsers must be re-generated because of the changes
 *   Abandon issue, pr, and author references in this CHANGELOG.
 *   Minor documentation issues fixed
 *   Remove even more Python 2.7 traces
