@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import io
 import setuptools
 import tatsu
@@ -47,6 +46,7 @@ setuptools.setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Topic :: Software Development :: Code Generators',
         'Topic :: Software Development :: Compilers',
         'Topic :: Software Development :: Interpreters',

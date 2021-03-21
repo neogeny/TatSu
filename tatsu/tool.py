@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 """
 Parse and translate an EBNF grammar into a Python parser for
 the described language.
 """
-from __future__ import generator_stop
+from __future__ import annotations
 import codecs
 import argparse
 import os

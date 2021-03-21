@@ -5,3 +5,4 @@ pip
 psutil
 pyyaml
 twine
+auto-changelog

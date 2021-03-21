@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # CAVEAT UTILITOR
 #
@@ -11,7 +10,7 @@
 # the file is generated.
 
 
-from __future__ import generator_stop
+from __future__ import annotations
 
 import sys
 

@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-from __future__ import generator_stop
+from __future__ import annotations
 
 # This code was copied from post from coldfix in Stack Overflow:
 #
