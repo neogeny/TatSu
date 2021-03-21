@@ -133,7 +133,7 @@ class Choice(Base):
                 option=indent(self.rend(o))) for o in self.node.options
         ]
         options = '\n'.join(o for o in options)
-        firstset = ' '.join(repr(f[0]) for f in sorted(self.node.lookahead()) if f)
+        firstset = self.node.lookahead_str()
         if firstset:
             msglines = textwrap.wrap(firstset, width=40)
             error = ['expecting one of: '] + msglines

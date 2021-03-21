@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest  # noqa
 
+from tatsu.exceptions import FailedParse
 from tatsu.tool import compile, gencode
 
 INPUT = """
@@ -41,6 +42,25 @@ GRAMMAR = """
 """
 
 
+def compile_run(grammar, input, output):
+    parser = gencode(name='Test', grammar=grammar)
+    parser_filename = Path('./tmp/test_codegen_parser.py')
+    with open(parser_filename, 'wt') as f:
+        f.write(parser)
+    try:
+        try:
+            from tmp.test_codegen_parser import UnknownParser as Parser  # pylint: disable=all
+        except ImportError:
+            from tmp.test_codegen_parser import TestParser as Parser  # pylint: disable=all
+        output = Parser().parse(input, parseinfo=False)
+        assert output == output
+    finally:
+        pass
+        # init_filename.unlink()
+        # input_filename.unlink()
+        # parser_filename.unlink()
+
+
 def test_model_parse():
     model = compile(grammar=GRAMMAR)
     assert OUTPUT == model.parse(INPUT)
@@ -57,31 +77,8 @@ def test_codegen_parse():
     with open(input_filename, 'wt') as f:
         f.write(INPUT)
 
-    parser = gencode(name='Test', grammar=GRAMMAR)
-    parser_filename = Path('./tmp/test_codegen_parser.py')
-    with open(parser_filename, 'wt') as f:
-        f.write(parser)
+    compile_run(GRAMMAR, INPUT, OUTPUT)
 
-    try:
-        # py_compile.compile(parser_filename, doraise=True)
-        # output = subprocess.check_output(
-        #     ['python3', parser_filename, '-t', input_filename],
-        #     env={
-        #         'PYTHONPATH': '.',
-        #     }
-        # ).decode()
-        # print(output)
-        try:
-            from tmp.test_codegen_parser import UnknownParser as Parser  # pylint: disable=all
-        except ImportError:
-            from tmp.test_codegen_parser import TestParser as Parser  # pylint: disable=all
-        output = Parser().parse(INPUT, parseinfo=False)
-        assert output == OUTPUT
-    finally:
-        pass
-        # init_filename.unlink()
-        # input_filename.unlink()
-        # parser_filename.unlink()
 
 def test_error_messages():
     grammar = '''
@@ -95,4 +92,7 @@ def test_error_messages():
     input = 'a b'
 
     model = compile(grammar)
-    assert '' == model.parse(input)
+    try:
+        model.parse(input)
+    except FailedParse as e1:  # noqa
+        pass
