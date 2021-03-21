@@ -82,3 +82,17 @@ def test_codegen_parse():
         # init_filename.unlink()
         # input_filename.unlink()
         # parser_filename.unlink()
+
+def test_error_messages():
+    grammar = '''
+        @@grammar :: ORDER
+        alphabet = a b others $ ;
+
+        a = 'a' ;
+        b = 'b' ;
+        others = 'c' | 'd' | 'e' | 'f' |'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o';
+    '''
+    input = 'a b'
+
+    model = compile(grammar)
+    assert '' == model.parse(input)
