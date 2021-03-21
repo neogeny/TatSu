@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Python code generation for models defined with tatsu.model
 """
@@ -481,7 +480,6 @@ class Grammar(Base):
 
     template = '''\
                 #!/usr/bin/env python
-                # -*- coding: utf-8 -*-
 
                 # CAVEAT UTILITOR
                 #
@@ -491,7 +489,6 @@ class Grammar(Base):
                 #
                 # Any changes you make to it will be overwritten the next time
                 # the file is generated.
-
 
                 from __future__ import annotations
 

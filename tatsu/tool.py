@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Parse and translate an EBNF grammar into a Python parser for
 the described language.

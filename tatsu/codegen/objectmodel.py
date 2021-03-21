@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import inspect
@@ -207,7 +206,6 @@ class Grammar(ModelRenderer):
 
     template = '''\
                 #!/usr/bin/env python
-                # -*- coding: utf-8 -*-
 
                 # CAVEAT UTILITOR
                 #

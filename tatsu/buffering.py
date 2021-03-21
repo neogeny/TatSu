@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 The Buffer class provides the functionality required by a parser-driven lexer.
 
