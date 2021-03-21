@@ -1,11 +1,11 @@
-test:  static_test tatsu_test docs examples
+test:  static_test tatsu_test documentation examples
 
 
 tatsu_test: clean
 	pytest
 
 
-docs: clean
+documentation: clean
 	rst2html5 CHANGELOG.rst > /dev/null
 	pandoc README.rst -t gfm --wrap=none > README.md
 	cd docs; make -s html > /dev/null
@@ -39,18 +39,23 @@ clean:
 	rm -rf .tox
 
 
-release_check: clean docs
+release_check: clean documentation
 	python setup.py sdist --formats=zip
 	tox
 	@echo version `python -m tatsu --version`
 
 
-dist: release_check
+distributions: clean
 	python setup.py sdist --formats=zip
 	python setup.py bdist_wheel --universal
 
 
-test_upload: distributions
+test_distributions: clean
+	python setup.py sdist --formats=zip
+	python setup.py bdist_wheel --universal
+
+
+test_upload: test_distributions
 	twine upload --repository test dist/*
 
 

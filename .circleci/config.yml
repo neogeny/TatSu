@@ -72,7 +72,7 @@ jobs:
       - run:
           name: package
           command: |
-            make dist
+            make distributions
 
       - store_artifacts:
           path: test-reports
