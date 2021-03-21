@@ -16,20 +16,25 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 
 
-`5.5.1`_ @ 2021-03-22
+`5.5.1`_ @ 2021-03-21
 ---------------------
 .. _`5.5.1`: https://github.com/apalala/tatsu/compare/v5.0.0...v5.5.1
 
-*   `#167`_   Make ``ignorecase`` settings apply to defined ``@@keywords`` (`@apalala`_)
-*   `#180`_   Fixed output of generated parsers differing from model parser (`@apalala`_)
-*   Update the bootstrap parser (``tatsu/bootstrap.py``) to the generated parser (`@apalala`_)
+*   Bug fix release
+*   Several important refactorings in ``contexts.ParseContext``
+*   Make ``ignorecase`` settings apply to defined ``@@keywords``
+*   Move checking of keywords used as names into ``ParseContext``
+*   Output of generated parsers again matches that of model parsersuuuu
+*   Improve *"expecting one of:"* messages so elements are in declaration order
+*   Stop code generation if there are closures over possibly empty expressions
+*   Preserve name declaration order in returned ``AST``
+*   Update the bootstrap parser (``tatsu/bootstrap.py``) to the generated parser
+*   Generated parsers must be re-generated
+*   Abandon issue, pr, and author references in this CHANGELOG.
 *   Minor documentation issues fixed
-*   Remove more Python 2.7 traces
+*   Remove even more Python 2.7 traces
 *   All tests run with Python 3.9
 *   All tests run with Python 3.10
-
-.. _#167: https://github.com/neogeny/TatSu/issues/167
-.. _#180: https://github.com/neogeny/TatSu/issues/180
 
 
 `5.5.0`_ @ 2020-01-26
