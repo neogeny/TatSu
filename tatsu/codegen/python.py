@@ -387,11 +387,13 @@ class Rule(_Decorator):
         leftrec = self.node.is_leftrec
         fields.update(leftrec='\n@leftrec' if leftrec else '')
         fields.update(nomemo='\n@nomemo' if not self.node.is_memoizable and not leftrec else '')
+        fields.update(isname='\n@isname' if self.node.is_name else '')
 
     template = '''
         @tatsumasu({params})\
         {leftrec}\
-        {nomemo}
+        {nomemo}\
+        {isname}
         def _{name}_(self):  # noqa
         {exp:1::}{defines}
         '''
@@ -496,8 +498,8 @@ class Grammar(Base):
 
                 from tatsu.buffering import Buffer
                 from tatsu.parsing import Parser
-                from tatsu.parsing import tatsumasu, leftrec, nomemo
-                from tatsu.parsing import leftrec, nomemo  # noqa
+                from tatsu.parsing import tatsumasu
+                from tatsu.parsing import leftrec, nomemo, isname # noqa
                 from tatsu.util import re, generic_main  # noqa
 
 

@@ -55,7 +55,7 @@ def tatsumasu(*params, **kwparams):
             name = name[1:-1]
             is_leftrec = getattr(impl, "is_leftrec", False)
             is_memoizable = getattr(impl, "is_memoizable", True)
-            is_name = False
+            is_name = getattr(impl, 'is_name', False)
             ruleinfo = RuleInfo(
                 name,
                 impl,
@@ -81,6 +81,11 @@ def leftrec(impl):
 # (has no effect when left recursion is turned off)
 def nomemo(impl):
     impl.is_memoizable = False
+    return impl
+
+# Marks rules marked as @name in the grammar
+def isname(impl):
+    impl.is_name = True
     return impl
 
 
