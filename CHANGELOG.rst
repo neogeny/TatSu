@@ -16,8 +16,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 
 
-`5.5.1`_ @ 2021
----------------
+`5.5.1`_ @ 2021-03-22
+---------------------
 .. _`5.5.1`: https://github.com/apalala/tatsu/compare/v5.0.0...v5.5.1
 
 *   `#167`_   Make ``ignorecase`` settings apply to defined ``@@keywords`` (`@apalala`_)
@@ -32,8 +32,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _#180: https://github.com/neogeny/TatSu/issues/180
 
 
-`5.5.0`_ @ 2020
----------------
+`5.5.0`_ @ 2020-01-26
+---------------------
 .. _`5.5.0`: https://github.com/apalala/tatsu/compare/v5.0.0...v5.5.0
 
 *  `#156`_   Clarify limitations of left-recursion in PEG (`@apalala`_)

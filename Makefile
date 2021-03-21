@@ -50,12 +50,7 @@ distributions: clean
 	python setup.py bdist_wheel --universal
 
 
-test_distributions: clean
-	python setup.py sdist --formats=zip
-	python setup.py bdist_wheel --universal
-
-
-test_upload: test_distributions
+test_upload: distributions
 	twine upload --repository test dist/*
 
 
