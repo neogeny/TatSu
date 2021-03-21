@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # \u7ADC TatSu documentation build configuration file, created by
 # sphinx-quickstart on Mon May  1 18:01:31 2017.
