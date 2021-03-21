@@ -79,7 +79,7 @@ def test_codegen_parse():
     compile_run(GRAMMAR, INPUT, OUTPUT)
 
 
-@pytest.mark.skip('work in progress')
+# @pytest.mark.skip('work in progress')
 def test_error_messages():
     grammar = '''
         @@grammar :: ORDER
@@ -91,17 +91,10 @@ def test_error_messages():
     '''
     input = 'a b'
 
-    e1 = e2 = None
-
+    e1 = None
     model = compile(grammar)
     try:
         model.parse(input)
     except FailedParse as e:  # noqa
-        e1 = e
-
-    try:
-        compile_run(grammar, input, '')
-    except FailedParse as e:
-        e2 = e
-
-    assert str(e1) == str(e2)
+        e1 = str(e)
+    assert "expecting one of: 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o'" in e1

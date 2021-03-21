@@ -41,11 +41,11 @@ def ref(name):
 
 def kdot(x, y, k):
     if not y:
-        return {a[:k] for a in x}
+        return oset(a[:k] for a in x)
     elif not x:
-        return {b[:k] for b in y}
+        return oset(b[:k] for b in y)
     else:
-        return {(a + b)[:k] for a in x for b in y}
+        return oset((a + b)[:k] for a in x for b in y)
 
 
 def pythonize_name(name):
@@ -357,7 +357,7 @@ class Pattern(Model):
     def _first(self, k, f):
         x = f'/{self.pattern}/'
         if bool(self.regex.match("")):
-            return {(), (x,)}
+            return oset((), (x,))
         else:
             return {(x,)}
 
@@ -412,7 +412,7 @@ class SkipTo(Decorator):
 
     def _first(self, k, f):
         # use None to represent ANY
-        return {(None,)} | super()._first(k, f)
+        return oset({(None,)}) | super()._first(k, f)
 
     def _to_str(self, lean=False):
         return '->' + self.exp._to_str(lean=lean)
@@ -550,7 +550,7 @@ class Closure(Decorator):
         result = {()}
         for _i in range(k):
             result = kdot(result, efirst, k)
-        return {()} | result
+        return oset({()}) | result
 
     def _to_str(self, lean=False):
         sexp = str(self.exp._to_str(lean=lean))
@@ -676,7 +676,7 @@ class Optional(Decorator):
             return self.exp.parse(ctx)
 
     def _first(self, k, f):
-        return {()} | self.exp._first(k, f)
+        return oset({()}) | self.exp._first(k, f)
 
     def _to_str(self, lean=False):
         exp = str(self.exp._to_str(lean=lean))
@@ -795,12 +795,12 @@ class RuleRef(Model):
         return {self.name}
 
     def _first(self, k, f):
-        self._firstset = f[self.name] | {ref(self.name)}
+        self._firstset = oset(f[self.name]) | {ref(self.name)}
         return self._firstset
 
     def _follow(self, k, fl, a):
         fl[self.name] |= a
-        return a | {self.name}
+        return oset(a) | {self.name}
 
     def firstset(self, k=1):
         if self._firstset is None:
@@ -1016,9 +1016,9 @@ class Grammar(Model):
             eol_comments_re = directives.get('eol_comments')
         self.eol_comments_re = eol_comments_re
 
-        self.keywords = keywords or oset()
+        self.keywords = oset(keywords)
         if ignorecase:
-            self.keywords = {k.upper() for k in self.keywords}
+            self.keywords = oset(k.upper() for k in self.keywords)
 
         self._adopt_children(rules)
 
