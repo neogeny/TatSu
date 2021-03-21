@@ -6,27 +6,22 @@ from typing import (
     Dict,
     Iterable,
     Iterator,
-    List,
     MutableSet,
     Optional,
-    Sequence,
     Set,
+    Type,
     TypeVar,
-    Union,
 )
 
 T = TypeVar("T")
-
-def _is_atomic(obj: Any) -> bool:
-    return isinstance(obj, str) or isinstance(obj, tuple)
 
 
 class OrderedSet(MutableSet[T]):
     def __init__(self, iterable: Optional[Iterable[T]] = None):
         if iterable is not None:
-            self._map = dict.fromkeys(iterable)
+            self._map = dict.fromkeys(iterable)  # type: Dict[T, int]
         else:
-            self._map = {}  # type: Dict[T, int]
+            self._map = {}
 
     def __len__(self):
         return len(self._map)
@@ -49,7 +44,7 @@ class OrderedSet(MutableSet[T]):
     def __contains__(self, key: Any) -> bool:
         return key in self._map
 
-    def add(self, key: T):
+    def add(self, key: T):  # pylint: disable=W0221
         self._map[key] = len(self._map)
 
     def update(self, sequence: Iterable[T]):
@@ -60,7 +55,7 @@ class OrderedSet(MutableSet[T]):
         self._map.pop(key)
         return key
 
-    def discard(self, key: T):
+    def discard(self, key: T):  # pylint: disable=W0221
         self._map.pop(key, None)
 
     def clear(self):
@@ -72,28 +67,26 @@ class OrderedSet(MutableSet[T]):
     def __repr__(self) -> str:
         return "{%s}" % ', '.join(repr(e) for e in self)
 
-    def __eq__(self, other: Set) -> bool:
+    def __eq__(self, other: Any) -> bool:
         return all(item in other for item in self)
 
     def union(self, *other: Iterable[T]) -> "OrderedSet[T]":
-        cls = self.__class__ if isinstance(self, OrderedSet) else OrderedSet
-        items = itertools.chain.from_iterable(itertools.chain([self], *other))
-        return cls(itertools.chain(items))
+        inner = itertools.chain([self], *other)  # type: ignore
+        items = itertools.chain.from_iterable(inner)  # type: ignore
+        return type(self)(itertools.chain(items))
 
-    def __and__(self, other: Union[Sequence[T], Set[T]]) -> "OrderedSet[T]":
+    def __and__(self, other: Iterable[Iterable[T]]) -> "OrderedSet[T]":
         return self.intersection(other)
 
-    def intersection(self, *other: Iterable[T]) -> "OrderedSet[T]":
-        cls = self.__class__ if isinstance(self, OrderedSet) else OrderedSet
-        common = set.intersection(*other)
+    def intersection(self, *other: Iterable[Iterable[T]]) -> "OrderedSet[T]":
+        common = set.intersection(*other)  # type: ignore
         items = (item for item in self if item in common)
-        return cls(items)
+        return type(self)(items)
 
     def difference(self, *other: Iterable[T]) -> "OrderedSet[T]":
-        cls = self.__class__
-        other = set.union(*other)
+        other = set.union(*other)  # type: ignore
         items = (item for item in self if item not in other)
-        return cls(items)
+        return type(self)(items)
 
     def issubset(self, other: Set[T]) -> bool:
         return all(item in other for item in self)
@@ -104,16 +97,16 @@ class OrderedSet(MutableSet[T]):
         return all(item in self for item in other)
 
     def symmetric_difference(self, other: Set[T]) -> "OrderedSet[T]":
-        cls = self.__class__ if isinstance(self, OrderedSet) else OrderedSet
+        cls = type(self)
         diff1 = cls(self).difference(other)
         diff2 = cls(other).difference(self)
-        return diff1.union(diff2)
+        return cls().union(diff1, diff2)
 
-    def difference_update(self, *other: Union[Sequence[T], Set[T]]):
+    def difference_update(self, *other: Iterable[T]):
         self._map = dict.fromkeys(self.difference(*other))
 
-    def intersection_update(self, other: Union[Sequence[T], Set[T]]):
+    def intersection_update(self, *other: Iterable[Iterable[T]]):
         self._map = dict.fromkeys(self.intersection(*other))
 
-    def symmetric_difference_update(self, other: Union[Sequence[T], Set[T]]):
+    def symmetric_difference_update(self, *other: Iterable[T]):
         self._map = dict.fromkeys(self.difference(*other))
