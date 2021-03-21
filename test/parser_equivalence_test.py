@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest  # noqa
 
+from tatsu.exceptions import FailedParse
 from tatsu.tool import compile, gencode
 
 INPUT = """
@@ -41,12 +42,30 @@ GRAMMAR = """
 """
 
 
+def compile_run(grammar, input, output):
+    parser = gencode(name='Test', grammar=grammar)
+    parser_filename = Path('./tmp/test_codegen_parser.py')
+    with open(parser_filename, 'wt') as f:
+        f.write(parser)
+    try:
+        try:
+            from tmp.test_codegen_parser import UnknownParser as Parser  # pylint: disable=all
+        except ImportError:
+            from tmp.test_codegen_parser import TestParser as Parser  # pylint: disable=all
+        output = Parser().parse(input, parseinfo=False)
+        assert output == output
+    finally:
+        pass
+        # init_filename.unlink()
+        # input_filename.unlink()
+        # parser_filename.unlink()
+
+
 def test_model_parse():
     model = compile(grammar=GRAMMAR)
     assert OUTPUT == model.parse(INPUT)
 
 
-# @pytest.mark.skip('work in progress')
 def test_codegen_parse():
     tmp_dir = Path('./tmp')
     tmp_dir.mkdir(parents=True, exist_ok=True)
@@ -57,28 +76,25 @@ def test_codegen_parse():
     with open(input_filename, 'wt') as f:
         f.write(INPUT)
 
-    parser = gencode(name='Test', grammar=GRAMMAR)
-    parser_filename = Path('./tmp/test_codegen_parser.py')
-    with open(parser_filename, 'wt') as f:
-        f.write(parser)
+    compile_run(GRAMMAR, INPUT, OUTPUT)
 
+
+# @pytest.mark.skip('work in progress')
+def test_error_messages():
+    grammar = '''
+        @@grammar :: ORDER
+        alphabet = a b others $ ;
+
+        a = 'a' ;
+        b = 'b' ;
+        others = 'c' | 'd' | 'e' | 'f' |'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o';
+    '''
+    input = 'a b'
+
+    e1 = None
+    model = compile(grammar)
     try:
-        # py_compile.compile(parser_filename, doraise=True)
-        # output = subprocess.check_output(
-        #     ['python3', parser_filename, '-t', input_filename],
-        #     env={
-        #         'PYTHONPATH': '.',
-        #     }
-        # ).decode()
-        # print(output)
-        try:
-            from tmp.test_codegen_parser import UnknownParser as Parser  # pylint: disable=all
-        except ImportError:
-            from tmp.test_codegen_parser import TestParser as Parser  # pylint: disable=all
-        output = Parser().parse(INPUT, parseinfo=False)
-        assert output == OUTPUT
-    finally:
-        pass
-        # init_filename.unlink()
-        # input_filename.unlink()
-        # parser_filename.unlink()
+        model.parse(input)
+    except FailedParse as e:  # noqa
+        e1 = str(e)
+    assert "expecting one of: 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o'" in e1
