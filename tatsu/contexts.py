@@ -83,6 +83,7 @@ def nomemo(impl):
     impl.is_memoizable = False
     return impl
 
+
 # Marks rules marked as @name in the grammar
 def isname(impl):
     impl.is_name = True
