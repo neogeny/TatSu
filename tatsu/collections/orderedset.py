@@ -22,7 +22,7 @@ class OrderedSet(MutableSet[T], Sequence[T]):
             self._map = dict.fromkeys(iterable)  # type: Dict[T, int]
         else:
             self._map = {}
-        self._list_cache: Optional[list[T]] = None
+        self._list_cache: Optional[Sequence[T]] = None
 
     def __len__(self):
         return len(self._map)

@@ -12,9 +12,14 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2021
 ---------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.6.0...master
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.6.1...master
 
 
+`5.6.1`_ @ 2021-03-22
+---------------------
+.. _`5.6.0`: https://github.com/apalala/tatsu/compare/v5.6.0...v5.6.1
+
+*   Fix bug in which rule fields were forced on empty ``AST`` (`@Victorious3`_)
 
 `5.6.0`_ @ 2021-03-21
 ---------------------
@@ -68,7 +73,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 *   Allow empty patterns (``//``) like Python does
 *  `#65`_ Allow initial, consecutive, and trailing ``@namechars``
 *  `#73`_ Allow ``@@whitespace :: None`` and ``@@whitespace :: False``
-*  `#75`_ Complete implemenation of left recursion(`@Victorious3`_)
+*  `#75`_ Complete implemenation of left recursion (`@Victorious3`_)
 *  `#77`_ Allow ``@keyword`` throughout the grammar
 *  `#89`_ Make all attributes defined in the rule present in the resulting ``AST`` or ``Node`` even if the associated expression was not parsed
 *  `#93`_ Fix trace colorization on Windows
