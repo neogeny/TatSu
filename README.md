@@ -9,8 +9,8 @@
 ``` python
 def WARNING():
     """
-    TatSu==5.6.0 requires Python>=3.8
-    TatSu>=5.7.0 will require Python>=3.9
+    TatSu>=5.6 requires Python>=3.8
+    TatSu>=5.7 will require Python>=3.9
 
     Python 3.8 and 3.9 introduced new language features that allow
     writing better programs more clearly. All code written for
