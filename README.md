@@ -16,7 +16,7 @@ def WARNING():
     writing better programs more clearly. All code written for
     Python 3.7 should run fine on Python 3.9 with minor, or no changes.
 
-    Python has adopted an anual release schedule (PEP-602).
+    Python has adopted an annual release schedule (PEP-602).
 
     Python 3.10 will be released in Oct 2021
     Python 3.9  was released on Oct 20220
