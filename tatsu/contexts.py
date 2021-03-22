@@ -280,7 +280,7 @@ class ParseContext(object):
             self._tokenizer.next_token()
 
     def _define(self, keys, list_keys=None):
-        if self.ast and isinstance(self.ast, AST):
+        if self.ast is not None and isinstance(self.ast, AST):
             ast = AST()
             ast._define(keys, list_keys=list_keys)
             ast.update(self.ast)
