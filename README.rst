@@ -33,7 +33,7 @@
 
         Python 3.10 will be released in Oct 2021
         Python 3.9  was released on Oct 20220
-        Python 3.8  bugfix releases final in March 2021
+        Python 3.8  bugfix releases final in May 2021
         Python 3.7  bugfix releases final in mid 2020
         Python 3.6  had its last bugfix release on December 2019
         Python 2.7  reached its end of life on January 2020
