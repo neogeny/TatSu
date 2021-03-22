@@ -8,6 +8,7 @@ from typing import (
     Iterator,
     MutableSet,
     Optional,
+    Sequence,
     Set,
     TypeVar,
 )
@@ -15,15 +16,21 @@ from typing import (
 T = TypeVar("T")
 
 
-class OrderedSet(MutableSet[T]):
+class OrderedSet(MutableSet[T], Sequence[T]):
     def __init__(self, iterable: Optional[Iterable[T]] = None):
         if iterable is not None:
             self._map = dict.fromkeys(iterable)  # type: Dict[T, int]
         else:
             self._map = {}
+        self._list_cache: Optional[list[T]] = None
 
     def __len__(self):
         return len(self._map)
+
+    def __getitem__(self, i):
+        if self._list_cache is None:
+            self._list_cache = list(self._map.keys())
+        return self._list_cache[i]
 
     def copy(self) -> "OrderedSet[T]":
         return self.__class__(self)
@@ -45,20 +52,25 @@ class OrderedSet(MutableSet[T]):
 
     def add(self, key: T):  # pylint: disable=W0221
         self._map[key] = len(self._map)
+        self._list_cache = None
 
     def update(self, sequence: Iterable[T]):
         self._map.update(dict.fromkeys(sequence))
+        self._list_cache = None
 
     def pop(self) -> T:
         key = next(iter(self._map.keys()))
         self._map.pop(key)
+        self._list_cache = None
         return key
 
     def discard(self, key: T):  # pylint: disable=W0221
         self._map.pop(key, None)
+        self._list_cache = None
 
     def clear(self):
         self._map = {}
+        self._list_cache = None
 
     def __iter__(self) -> Iterator[T]:
         return iter(self._map.keys())
