@@ -14,6 +14,7 @@ from tatsu.util import eval_escapes
 from tatsu.exceptions import ParseException
 from tatsu.parser import GrammarGenerator
 from tatsu.semantics import ModelBuilderSemantics
+from tatsu.infos import ParserConfig
 
 # we hook the tool to the Python code generator as the default
 from tatsu.codegen.python import codegen as pythoncg
@@ -153,15 +154,15 @@ def parse_args():
 __compiled_grammar_cache = {}  # type: ignore
 
 
-def compile(grammar, name=None, semantics=None, asmodel=False, **kwargs):
+def compile(grammar, name=None, semantics=None, asmodel=False, config:ParserConfig = None, **settings):
     cache = __compiled_grammar_cache
 
     key = (name, grammar, id(semantics))
     if key in cache:
         model = cache[key]
     else:
-        gen = GrammarGenerator(name, **kwargs)
-        model = cache[key] = gen.parse(grammar, **kwargs)
+        gen = GrammarGenerator(name, config=config, **settings)
+        model = cache[key] = gen.parse(grammar, config=config, **settings)
 
     if semantics is not None:
         model.semantics = semantics
@@ -171,31 +172,31 @@ def compile(grammar, name=None, semantics=None, asmodel=False, **kwargs):
     return model
 
 
-def parse(grammar, input, start=None, name=None, semantics=None, asmodel=False, **kwargs):
-    model = compile(grammar, name=name, semantics=semantics, asmodel=asmodel)
-    return model.parse(input, start=start, semantics=semantics, **kwargs)
+def parse(grammar, input, start=None, name=None, semantics=None, asmodel=False, config:ParserConfig = None, **settings):
+    model = compile(grammar, name=name, semantics=semantics, asmodel=asmodel, config=config, **settings)
+    return model.parse(input, start=start, semantics=semantics, config=config, **settings)
 
 
-def to_python_sourcecode(grammar, name=None, filename=None, **kwargs):
-    model = compile(grammar, name=name, filename=filename, **kwargs)
+def to_python_sourcecode(grammar, name=None, filename=None, config: ParserConfig = None, **settings):
+    model = compile(grammar, name=name, filename=filename, config=config, **settings)
     return pythoncg(model)
 
 
-def to_python_model(grammar, name=None, filename=None, base_type=None, **kwargs):
-    model = compile(grammar, name=name, filename=filename, **kwargs)
+def to_python_model(grammar, name=None, filename=None, base_type=None, config:ParserConfig = None, **settings):
+    model = compile(grammar, name=name, filename=filename, config=config, **settings)
     return objectmodel.codegen(model, base_type=base_type)
 
 
 # for backwards compatibility. Use `compile()` instead
-def genmodel(name=None, grammar=None, semantics=None, **kwargs):
+def genmodel(name=None, grammar=None, semantics=None, config: ParserConfig = None, **settings):
     if grammar is None:
         raise ParseException('grammar is None')
 
-    return compile(grammar, name=name, semantics=semantics, **kwargs)
+    return compile(grammar, name=name, semantics=semantics, config=config, **settings)
 
 
-def gencode(name=None, grammar=None, trace=False, filename=None, codegen=pythoncg, **kwargs):
-    model = compile(grammar, name=name, filename=filename, trace=trace, **kwargs)
+def gencode(name=None, grammar=None, trace=False, filename=None, codegen=pythoncg, config:ParserConfig = None, **settings):
+    model = compile(grammar, name=name, filename=filename, trace=trace, config=config, **settings)
     return codegen(model)
 
 
