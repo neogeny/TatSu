@@ -86,12 +86,9 @@ class EBNFBuffer(EBNFBootstrapBuffer):
 
 
 class ModelContext(ParseContext):
-    def __init__(self, rules, semantics=None, trace=False, **kwargs):
-        super().__init__(
-            semantics=semantics,
-            trace=trace,
-            **kwargs
-        )
+    def __init__(self, rules, /, config: ParserConfig = None, **settings):
+        config = ParserConfig.new(config, **settings)
+        super().__init__(**config.asdict())
         self.rules = {rule.name: rule for rule in rules}
 
     @property
