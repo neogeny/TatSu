@@ -99,6 +99,7 @@ class ParseContext(object):
     def __init__(self, config: ParserConfig = None, tokenizer=None, tokenizercls=None, **settings):
         super().__init__()
         config = ParserConfig.new(config, **settings)
+        config.replace(tokenizercls=tokenizercls)
         self.config = config
 
         if tokenizercls is None:

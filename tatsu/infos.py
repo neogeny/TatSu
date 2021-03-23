@@ -19,8 +19,32 @@ COMMENTS_RE = r'\(\*((?:.|\n)*?)\*\)'
 EOL_COMMENTS_RE = r'#([^\n]*?)$'
 
 
-@dataclasses.dataclass(frozen=False)
-class ParserDirectives:
+@dataclasses.dataclass
+class ParserConfig:
+    owner: object = None
+    name: Optional[str] = 'Test'
+    filename: str = ''
+    encoding: str = 'utf-8'
+
+    start: Optional[str] = None  # FIXME
+    start_rule: Optional[str] = None  # FIXME
+
+    comments_re: Optional[str] = COMMENTS_RE
+    eol_comments_re: Optional[str] = EOL_COMMENTS_RE
+
+    tokenizercls: Optional[Type] = None  # FIXME
+    semantics: Optional[Type] = None
+
+    comment_recovery: bool = False
+    memoize_lookaheads: bool = True
+
+    colorize: bool = False
+    trace: bool = False
+    trace_filename: bool = False
+    trace_length: int = 72
+    trace_separator: str = C_DERIVE
+
+    # parser directives
     grammar: Optional[str] = None
     left_recursion: bool = True
 
@@ -35,37 +59,7 @@ class ParserDirectives:
 
     parseinfo: bool = False
 
-    def __post_init__(self):  # noqa
-        pass
-
-
-@dataclasses.dataclass(frozen=False)
-class ParserConfig(ParserDirectives):
-    owner: object = None
-    name: Optional[str] = 'Test'
-    filename: str = ''
-    encoding: str = 'utf-8'
-
-    start: Optional[str] = None  # FIXME
-    start_rule: Optional[str] = None  # FIXME
-
-    comments_re: Optional[str] = COMMENTS_RE
-    eol_comments_re: Optional[str] = EOL_COMMENTS_RE
-
-    # tokenizercls: Optional[Type] = None  # FIXME
-    semantics: Optional[Type] = None
-
-    comment_recovery: bool = False
-    memoize_lookaheads: bool = True
-
-    colorize: bool = False
-    trace: bool = False
-    trace_filename: bool = False
-    trace_length: int = 72
-    trace_separator: str = C_DERIVE
-
     def __post_init__(self):  # pylint: disable=W0235
-        super().__post_init__()  # pylint: disable=W0235
         if self.ignorecase:
             self.keywords = [k.upper() for k in self.keywords]
         if self.comments:
