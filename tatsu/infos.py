@@ -59,8 +59,8 @@ class ParserConfig(ParserDirectives):
         pass
 
     @classmethod
-    def new(cls, other, /, **settings) -> ParserConfig:
-        config = cls()
+    def new(cls, other, /, config: ParserConfig = None, **settings) -> ParserConfig:
+        config = config if config is not None else cls()
         config = config.replace_config(other)
         config = config.replace(**settings)
         return config
