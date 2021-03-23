@@ -24,8 +24,6 @@ from .collections import OrderedSet as oset
 PEP8_LLEN = 72
 
 
-COMMENTS_RE = r'\(\*((?:.|\n)*?)\*\)'
-EOL_COMMENTS_RE = r'#([^\n]*?)$'
 PRAGMA_RE = r'^\s*#include.*$'
 
 
@@ -59,8 +57,8 @@ class EBNFBuffer(EBNFBootstrapBuffer):
             filename=filename,
             memoize_lookaheads=False,
             comment_recovery=True,
-            comments_re=comments_re or COMMENTS_RE,
-            eol_comments_re=eol_comments_re or EOL_COMMENTS_RE,
+            comments_re=comments_re,
+            eol_comments_re=eol_comments_re,
             **kwargs
         )
 
