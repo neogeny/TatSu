@@ -15,13 +15,17 @@ from .collections import OrderedSet as oset
 from .util.unicode_characters import C_DERIVE
 
 
+COMMENTS_RE = r'\(\*((?:.|\n)*?)\*\)'
+EOL_COMMENTS_RE = r'#([^\n]*?)$'
+
+
 @dataclasses.dataclass(frozen=False)
 class ParserDirectives:
     grammar: Optional[str] = None
     left_recursion: bool = True
 
-    comments_re: Optional[str] = r'\(\*((?:.|\n)*?)\*\)'
-    eol_comments_re: Optional[str] = r'#([^\n]*?)$'
+    comments: Optional[str] = None
+    eol_comments: Optional[str] = None
     keywords: list[str] = dataclasses.field(default_factory=list)
 
     ignorecase: Optional[bool] = False
@@ -46,6 +50,9 @@ class ParserConfig(ParserDirectives):
     start_rule: Optional[str] = None  # FIXME
     rule_name: Optional[str] = None  # FIXME
 
+    comments_re: Optional[str] = COMMENTS_RE
+    eol_comments_re: Optional[str] = EOL_COMMENTS_RE
+
     # tokenizercls: Optional[Type] = None
     semantics: Optional[Type] = None
 
@@ -62,6 +69,10 @@ class ParserConfig(ParserDirectives):
         super().__post_init__()  # pylint: disable=W0235
         if self.ignorecase:
             self.keywords = oset(k.upper() for k in self.keywords)
+        if self.comments:
+            self.comments_re = self.comments
+        if self.eol_comments:
+            self.eol_comments_re = self.eol_comments
 
     @classmethod
     def new(cls, config: Optional[ParserConfig], owner: Any = None, **settings: Mapping[str, Any]) -> ParserConfig:
@@ -87,13 +98,7 @@ class ParserConfig(ParserDirectives):
 
     def replace(self, **settings: Mapping[str, Any]) -> ParserConfig:
         overrides = self._find_common(**settings)
-
         result = dataclasses.replace(self, **overrides)
-        # result = ParserConfig()
-        # for name, value in overrides.items():
-        #     setattr(result, name, value)
-        # result.__post_init__()
-
         if 'grammar' in overrides:
             result.name = result.grammar
         return result
