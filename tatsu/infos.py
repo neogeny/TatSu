@@ -25,7 +25,7 @@ class ParserConfig:
     tokenizercls: Optional[Type] = None
     semantics: Optional[Type] = None
 
-    namechars: Optional[str] = None
+    namechars: str = ''
     nameguard: Optional[bool] = None  # implied by namechars
     whitespace: str = WHITESPACE_RE
 
