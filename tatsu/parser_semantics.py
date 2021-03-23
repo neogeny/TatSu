@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from . import grammars
+from .collections import OrderedSet as oset
 from .exceptions import FailedSemantics
 from .semantics import ModelBuilderSemantics
 from .util import eval_escapes, re, warning, flatten
@@ -119,7 +120,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
 
     def grammar(self, ast, *args):
         directives = {d.name: d.value for d in flatten(ast.directives)}
-        keywords = set(flatten(ast.keywords) or [])
+        keywords = oset(flatten(ast.keywords) or oset())
 
         if directives.get('whitespace') in ('None', 'False'):
             directives['whitespace'] = ''
