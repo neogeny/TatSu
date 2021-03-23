@@ -120,7 +120,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
 
     def grammar(self, ast, *args):
         directives = {d.name: d.value for d in flatten(ast.directives)}
-        keywords = oset(flatten(ast.keywords) or oset())
+        keywords = flatten(ast.keywords) or []
 
         if directives.get('whitespace') in ('None', 'False'):
             directives['whitespace'] = ''
