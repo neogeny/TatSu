@@ -975,21 +975,6 @@ class Grammar(Model):
             name = Path(config.filename).stem
         self.name = name
 
-        self.whitespace = config.whitespace
-        self.ignorecase = config.ignorecase
-        self.nameguard = config.nameguard
-        self.namechars = config.namechars
-        self.left_recursion = config.left_recursion
-        self._use_parseinfo = config.parseinfo
-
-        if config.comments_re is None:
-            config.comments_re = directives.get('comments')
-        self.comments_re = config.comments_re
-
-        if config.eol_comments_re is None:
-            config.eol_comments_re = directives.get('eol_comments')
-        self.eol_comments_re = config.eol_comments_re
-
         self._adopt_children(rules)
 
         missing = self.missing_rules({r.name for r in self.rules})
