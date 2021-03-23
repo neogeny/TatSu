@@ -14,6 +14,9 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.6.1...master
 
+*   Parser configuration variables were moved into a ``config: ParserConfig`` attribute.This may impact code that accessed those variables directly. Now instead of ``model.configuration_var`` you should use ``model.config.configuration_var``
+*   Now ``config: ParserConfig`` is used in ``__init__()`` and ``parse()`` methods of ``contexts.ParseContext``, ``grammars.Grammar``, and elsewhere to avoid the very long parameter lists that abounded. ``ParseContext`` also provides clean and clear ways of overridinga group of settings with another.
+
 
 `5.6.1`_ @ 2021-03-22
 ---------------------
