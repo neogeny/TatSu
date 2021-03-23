@@ -513,7 +513,7 @@ class ParseContext(object):
 
     def _make_exception(self, item, exclass=FailedParse):
         rulestack = list(map(lambda r: r.name, self._rule_stack))
-        return exclass(self._tokenizer, rulestack, item)
+        return exclass(self.tokenizer, rulestack, item)
 
     def _error(self, item, exclass=FailedParse):
         raise self._make_exception(item, exclass=exclass)
@@ -524,12 +524,12 @@ class ParseContext(object):
     def _get_parseinfo(self, name, pos):
         endpos = self._pos
         return ParseInfo(
-            self._tokenizer,
+            self.tokenizer,
             name,
             pos,
             endpos,
-            self._tokenizer.posline(pos),
-            self._tokenizer.posline(endpos),
+            self.tokenizer.posline(pos),
+            self.tokenizer.posline(endpos),
         )
 
     @property
@@ -692,7 +692,7 @@ class ParseContext(object):
 
     def _token(self, token):
         self._next_token()
-        if self._tokenizer.match(token) is None:
+        if self.tokenizer.match(token) is None:
             self._trace_match(token, failed=True)
             self._error(token, exclass=FailedToken)
         self._trace_match(token)
@@ -706,7 +706,7 @@ class ParseContext(object):
         return literal
 
     def _pattern(self, pattern):
-        token = self._tokenizer.matchre(pattern)
+        token = self.tokenizer.matchre(pattern)
         if token is None:
             self._trace_match('', pattern, failed=True)
             self._error(pattern, exclass=FailedPattern)
@@ -715,14 +715,14 @@ class ParseContext(object):
         return token
 
     def _eof(self):
-        return self._tokenizer.atend()
+        return self.tokenizer.atend()
 
     def _eol(self):
-        return self._tokenizer.ateol()
+        return self.tokenizer.ateol()
 
     def _check_eof(self):
         self._next_token()
-        if not self._tokenizer.atend():
+        if not self.tokenizer.atend():
             self._error('Expecting end of text', exclass=FailedExpectingEndOfText)
 
     @contextmanager

@@ -9,7 +9,7 @@ from itertools import takewhile
 
 from tatsu.util import (
     indent, trim, compress_seq, chunks,
-    re, notnone,
+    re,
 )
 from .exceptions import FailedRef, GrammarError
 from .ast import AST
@@ -976,9 +976,6 @@ class Grammar(Model):
         if name is None:
             name = Path(config.filename).stem
         self.name = name
-        print(f'{self.name=}')
-
-        self.semantics = config.semantics
 
         self.whitespace = config.whitespace
         self.ignorecase = config.ignorecase
@@ -995,10 +992,6 @@ class Grammar(Model):
             config.eol_comments_re = directives.get('eol_comments')
         self.eol_comments_re = config.eol_comments_re
 
-        self.keywords = oset(config.keywords)
-        if config.ignorecase:
-            self.keywords = oset(k.upper() for k in self.keywords)
-
         self._adopt_children(rules)
 
         missing = self.missing_rules({r.name for r in self.rules})
@@ -1009,6 +1002,18 @@ class Grammar(Model):
         self._calc_lookahead_sets()
         if config.left_recursion:
             find_left_recursion(self)
+
+    @property
+    def keywords(self):
+        return self.config.keywords
+
+    @property
+    def semantics(self):
+        return self.config.semantics
+
+    @semantics.setter
+    def semantics(self, value):
+        self.config.semantics = value
 
     def missing_rules(self, rules):
         return oset().union(*[rule.missing_rules(rules) for rule in self.rules])
@@ -1063,60 +1068,17 @@ class Grammar(Model):
         for rule in self.rules:
             rule._follow_set = fl[rule.name]
 
-    def parse(self,
-              text,
-              rule_name=None,
-              start=None,
-              filename=None,
-              semantics=None,
-              trace=False,
-              context=None,
-              whitespace=None,
-              ignorecase=None,
-              left_recursion=None,
-              comments_re=None,
-              eol_comments_re=None,
-              parseinfo=None,
-              nameguard=None,
-              namechars=None,
-              **kwargs):  # pylint: disable=W0221
-        start = start if start is not None else rule_name
+    def parse(self, text: str, /, start=None, context=None, config: ParserConfig = None, **settings):  # type: ignore
+        config = self.config.replace_config(config)
+        config = config.replace(**settings)
+        config.start = start
+
+        start = config.start if config.start is not None else config.rule_name
         start = start if start is not None else self.rules[0].name
+        config.rule_name = start
 
-        ctx = context or ModelContext(
-            self.rules,
-            trace=trace,
-            keywords=self.keywords,
-            **kwargs)
-
-        semantics = notnone(semantics, self.semantics)
-        left_recursion = notnone(left_recursion, self.left_recursion)
-        parseinfo = notnone(parseinfo, self._use_parseinfo)
-        comments_re = notnone(comments_re, self.comments_re)
-        eol_comments_re = notnone(eol_comments_re, self.eol_comments_re)
-        nameguard = notnone(nameguard, self.nameguard)
-        namechars = notnone(namechars, self.namechars)
-        whitespace = notnone(whitespace, self.whitespace)
-        ignorecase = notnone(ignorecase, self.ignorecase)
-        if whitespace:
-            whitespace = re.compile(whitespace)
-
-        return ctx.parse(
-            text,
-            rule_name=start,
-            filename=filename,
-            semantics=semantics,
-            trace=trace,
-            whitespace=whitespace,
-            ignorecase=ignorecase,
-            comments_re=comments_re,
-            eol_comments_re=eol_comments_re,
-            left_recursion=left_recursion,
-            parseinfo=parseinfo,
-            nameguard=nameguard,
-            namechars=namechars,
-            **kwargs
-        )
+        ctx = context if context else ModelContext(self.rules, config=config, **config.asdict())
+        return ctx.parse(text, config=config, **config.asdict())
 
     def nodecount(self):
         return 1 + sum(r.nodecount() for r in self.rules)

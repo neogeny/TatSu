@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 from collections import namedtuple
 import dataclasses
 from typing import (
@@ -10,6 +11,7 @@ from typing import (
 )
 
 from .ast import AST
+from .collections import OrderedSet as oset
 from .util.unicode_characters import C_DERIVE
 
 
@@ -18,8 +20,8 @@ class ParserDirectives:
     grammar: Optional[str] = None
     left_recursion: bool = True
 
-    comments_re: Optional[str] = None
-    eol_comments_re: Optional[str] = None
+    comments_re: Optional[str] = r'\(\*((?:.|\n)*?)\*\)'
+    eol_comments_re: Optional[str] = r'#([^\n]*?)$'
     keywords: list[str] = dataclasses.field(default_factory=list)
 
     ignorecase: Optional[bool] = False
@@ -40,7 +42,9 @@ class ParserConfig(ParserDirectives):
     filename: str = ''
     encoding: str = 'utf-8'
 
+    start: Optional[str] = None  # FIXME
     start_rule: Optional[str] = None  # FIXME
+    rule_name: Optional[str] = None  # FIXME
 
     # tokenizercls: Optional[Type] = None
     semantics: Optional[Type] = None
@@ -56,9 +60,11 @@ class ParserConfig(ParserDirectives):
 
     def __post_init__(self):  # pylint: disable=W0235
         super().__post_init__()  # pylint: disable=W0235
+        if self.ignorecase:
+            self.keywords = oset(k.upper() for k in self.keywords)
 
     @classmethod
-    def new(cls, config: ParserConfig = None, owner: Any = None, **settings: Mapping[str, Any]) -> ParserConfig:
+    def new(cls, config: Optional[ParserConfig], owner: Any = None, **settings: Mapping[str, Any]) -> ParserConfig:
         result = cls(owner=owner)
         if config is not None:
             result = config.replace_config(config)
@@ -68,18 +74,26 @@ class ParserConfig(ParserDirectives):
         return {
             name: value
             for name, value in settings.items()
-            if value is not None and hasattr(self, name) and name != 'owner'
+            if value is not None and hasattr(self, name)
         }
 
-    def replace_config(self, other: ParserConfig) -> ParserConfig:
+    def replace_config(self, other: Optional[ParserConfig]) -> ParserConfig:
         if other is None:
             return self
+        elif not isinstance(other, ParserConfig):
+            raise TypeError(f'Unexpected type {type(other).__name__}')
         else:
             return self.replace(**vars(other))
 
     def replace(self, **settings: Mapping[str, Any]) -> ParserConfig:
         overrides = self._find_common(**settings)
+
         result = dataclasses.replace(self, **overrides)
+        # result = ParserConfig()
+        # for name, value in overrides.items():
+        #     setattr(result, name, value)
+        # result.__post_init__()
+
         if 'grammar' in overrides:
             result.name = result.grammar
         return result
@@ -90,10 +104,14 @@ class ParserConfig(ParserDirectives):
             name: value for name, value in overrides.items()
             if getattr(self, name, None) is None
         }
-        return dataclasses.replace(self, **overrides)
+        return self.replace(**overrides)
 
     def asdict(self):
-        return dataclasses.asdict(self)
+        # warning: it seems dataclasses.asdict does a deepcopy
+        # result = dataclasses.asdict(self)
+        result = copy.copy(vars(self))
+        result.pop('owner', None)
+        return result
 
 
 class PosLine(namedtuple('_PosLine', ['start', 'line', 'length'])):
