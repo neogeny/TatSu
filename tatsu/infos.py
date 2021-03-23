@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from collections import namedtuple
 import dataclasses
-import weakref
 from pathlib import Path
 from typing import (
     Any,
@@ -18,7 +17,7 @@ from .util.unicode_characters import C_DERIVE
 
 @dataclasses.dataclass(frozen=False)
 class ParserConfig:
-    owner: object
+    owner: object = None
     filename: str = ''
     encoding: str = 'utf-8'
 
@@ -37,7 +36,7 @@ class ParserConfig:
     comment_recovery: bool = False
 
     ignorecase: bool = False
-    keywords: Optional[Set[str]] = None
+    keywords: list[str] = dataclasses.field(default_factory=list)
     left_recursion: bool = True
     memoize_lookaheads: bool = True
     parseinfo: bool = False
@@ -50,14 +49,12 @@ class ParserConfig:
     trace_separator: str = C_DERIVE
 
     def __post_init__(self):  # noqa
-        if not isinstance(self.owner, weakref.ref):
-            self.owner = weakref.ref(self.owner)
         if self.ignorecase and self.keywords:
             self.keywords = {k.upper() for k in self.keywords}
 
     @classmethod
-    def new(cls, owner, other, /, **settings) -> ParserConfig:
-        config = ParserConfig(owner)
+    def new(cls, other, /, **settings) -> ParserConfig:
+        config = ParserConfig()
         config = config.merge_config(other)
         config = config.merge(**settings)
         return config
