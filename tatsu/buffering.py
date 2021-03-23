@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import os
 from itertools import takewhile, repeat
+from collections.abc import Mapping
 
 from .tokenizing import Tokenizer
 from .util import identity
@@ -16,39 +17,45 @@ from .util import extend_list, contains_sublist
 from .util import re as regexp
 from .util import RETYPE, WHITESPACE_RE
 from .exceptions import ParseError
-from .infos import PosLine, LineIndexInfo, LineInfo, CommentInfo
+from .infos import (
+    ParserConfig,
+    PosLine, LineIndexInfo, LineInfo, CommentInfo,
+)
 
 # for backwards compatibility with existing parsers
 LineIndexEntry = LineIndexInfo
 
 
 class Buffer(Tokenizer):
-    def __init__(self,
-                 text,
-                 filename=None,
-                 whitespace=None,
-                 comments_re=None,
-                 eol_comments_re=None,
-                 ignorecase=False,
-                 nameguard=None,
-                 comment_recovery=False,
-                 namechars='',
-                 **kwargs):
+    def __init__(self, text, /, config: ParserConfig = None, **settings: Mapping[str, Any]):
+                 # text,
+                 # filename=None,
+                 # whitespace=None,
+                 # comments_re=None,
+                 # eol_comments_re=None,
+                 # ignorecase=False,
+                 # nameguard=None,
+                 # comment_recovery=False,
+                 # namechars='',
+                 # **kwargs):
+        config = ParserConfig.new(config, **settings)
+        self.config = config
+
         text = str(text)
         self.text = self.original_text = text
-        self._filename = filename or ''
+        self._filename = self.config.filename
 
-        self.whitespace = whitespace
+        self.whitespace = config.whitespace
 
-        self.comments_re = comments_re
-        self.eol_comments_re = eol_comments_re
-        self._ignorecase = ignorecase
+        self.comments_re = config.comments_re
+        self.eol_comments_re = config.eol_comments_re
+        self._ignorecase = config.ignorecase
         self.nameguard = (
-            nameguard if nameguard is not None
-            else bool(self.whitespace_re) or bool(namechars)
+            config.nameguard if config.nameguard is not None
+            else bool(self.whitespace_re) or bool(config.namechars)
         )
-        self.comment_recovery = comment_recovery
-        self.namechars = namechars if namechars is not None else ''
+        self.comment_recovery = config.comment_recovery
+        self.namechars = config.namechars if config.namechars is not None else ''
         self._namechar_set = set(self.namechars)
 
         self._pos = 0
