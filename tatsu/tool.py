@@ -156,7 +156,7 @@ __compiled_grammar_cache = {}  # type: ignore
 def compile(grammar, name=None, semantics=None, asmodel=False, **kwargs):
     cache = __compiled_grammar_cache
 
-    key = grammar
+    key = (name, grammar, id(semantics))
     if key in cache:
         model = cache[key]
     else:
