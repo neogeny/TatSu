@@ -17,7 +17,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `5.6.1`_ @ 2021-03-22
 ---------------------
-.. _`5.6.0`: https://github.com/apalala/tatsu/compare/v5.6.0...v5.6.1
+.. _`5.6.1`: https://github.com/apalala/tatsu/compare/v5.6.0...v5.6.1
 
 *   Fix bug in which rule fields were forced on empty ``AST`` (`@Victorious3`_)
 
