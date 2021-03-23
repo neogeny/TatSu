@@ -1325,7 +1325,7 @@ def main(filename, start=None, **kwargs):
         with open(filename) as f:
             text = f.read()
     parser = EBNFBootstrapParser()
-    return parser.parse(text, rule_name=start, filename=filename, **kwargs)
+    return parser.parse(text, start=start, filename=filename, **kwargs)
 
 
 if __name__ == '__main__':

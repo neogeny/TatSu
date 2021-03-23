@@ -86,9 +86,12 @@ class EBNFBuffer(EBNFBootstrapBuffer):
 
 
 class ModelContext(ParseContext):
-    def __init__(self, rules, /, config: ParserConfig = None, **settings):
+    def __init__(self, rules, /, start=None, config: ParserConfig = None, **settings):
         config = ParserConfig.new(config, **settings)
-        super().__init__(**config.asdict())
+        config = config.replace(start=start)
+
+        super().__init__(config=config)
+
         self.rules = {rule.name: rule for rule in rules}
 
     @property
@@ -1051,14 +1054,14 @@ class Grammar(Model):
     def parse(self, text: str, /, start=None, context=None, config: ParserConfig = None, **settings):  # type: ignore
         config = self.config.replace_config(config)
         config = config.replace(**settings)
-        config.start = start
+        config = config.replace(start=start)
 
-        start = config.start if config.start is not None else config.rule_name
+        start = start if start is not None else config.effective_rule_name()
         start = start if start is not None else self.rules[0].name
-        config.rule_name = start
+        config.replace(start=start)
 
-        ctx = context if context else ModelContext(self.rules, config=config, **config.asdict())
-        return ctx.parse(text, config=config, **config.asdict())
+        ctx = context if context else ModelContext(self.rules, config=config)
+        return ctx.parse(text, start, config=config)
 
     def nodecount(self):
         return 1 + sum(r.nodecount() for r in self.rules)

@@ -6,7 +6,6 @@ from contextlib import contextmanager
 from copy import copy
 
 from tatsu.util.unicode_characters import (
-    C_DERIVE,
     C_ENTRY,
     C_SUCCESS,
     C_FAILURE,
@@ -16,7 +15,8 @@ from . import tokenizing
 from . import buffering
 from . import color
 from .ast import AST
-from .util import notnone, prune_dict, is_list, info, safe_name
+from .collections import OrderedSet as oset
+from .util import prune_dict, is_list, info, safe_name
 from .util import left_assoc, right_assoc
 from .infos import (
     MemoKey,
@@ -24,6 +24,7 @@ from .infos import (
     RuleInfo,
     RuleResult,
     ParseState,
+    ParserConfig,
 )
 from tatsu.exceptions import (  # noqa
     FailedCut,
@@ -37,7 +38,8 @@ from tatsu.exceptions import (  # noqa
     FailedKeyword,
     FailedKeywordSemantics,
     FailedToken,
-    OptionSucceeded
+    OptionSucceeded,
+    ParseError,
 )
 
 __all__ = ['ParseContext', 'tatsumasu', 'leftrec', 'nomemo']
@@ -94,48 +96,17 @@ class closure(list):
 
 
 class ParseContext(object):
-    def __init__(self,
-                 tokenizercls=buffering.Buffer,
-                 semantics=None,
-                 parseinfo=False,
-                 trace=False,
-                 encoding='utf-8',
-                 comments_re=None,
-                 eol_comments_re=None,
-                 whitespace=None,
-                 ignorecase=False,
-                 nameguard=None,
-                 memoize_lookaheads=True,
-                 left_recursion=True,
-                 trace_length=72,
-                 trace_separator=C_DERIVE,
-                 trace_filename=False,
-                 colorize=None,
-                 keywords=None,
-                 namechars='',
-                 **kwargs):
+    def __init__(self, config: ParserConfig = None, tokenizer=None, tokenizercls=None, **settings):
         super().__init__()
+        config = ParserConfig.new(config, **settings)
+        self.config = config
 
-        self._tokenizer = None
+        if tokenizercls is None:
+            tokenizercls = buffering.Buffer
         self.tokenizercls = tokenizercls
-        self.semantics = semantics
-        self.encoding = encoding
-        self.parseinfo = parseinfo
-        self.trace = trace
-        self.trace_length = trace_length
-        self.trace_separator = trace_separator
-        self.trace_filename = trace_filename
+        self._tokenizer = tokenizer
 
-        self.comments_re = comments_re
-        self.eol_comments_re = eol_comments_re
-        self.whitespace = whitespace
-        self.ignorecase = ignorecase
-        self.nameguard = nameguard
-        self.memoize_lookaheads = memoize_lookaheads
-        self.left_recursion = left_recursion
-        self.colorize = colorize
-        self.keywords = set(keywords or [])
-        self.namechars = namechars
+        self._semantics = config.semantics
 
         self._initialize_caches()
 
@@ -147,96 +118,110 @@ class ParseContext(object):
         self._last_node = None
         self.substate = None
         self._lookahead = 0
+        self._furthest_exception = None
 
         self._clear_memoization_caches()
 
-    def _reset(self,
-               text=None,
-               filename=None,
-               tokenizercls=None,
-               semantics=None,
-               trace=None,
-               comments_re=None,
-               eol_comments_re=None,
-               whitespace=None,
-               ignorecase=None,
-               nameguard=None,
-               memoize_lookaheads=None,
-               left_recursion=None,
-               colorize=None,
-               keywords=None,
-               namechars=None,
-               **kwargs):
-        if ignorecase is None:
-            ignorecase = self.ignorecase
-        if nameguard is None:
-            nameguard = self.nameguard
-        if namechars is None:
-            namechars = self.namechars
-        if memoize_lookaheads is not None:
-            self.memoize_lookaheads = memoize_lookaheads
-        if left_recursion is not None:
-            self.left_recursion = left_recursion
-        if trace is not None:
-            self.trace = trace
-        if semantics is not None:
-            self.semantics = semantics
-        if colorize is not None:
-            self.colorize = colorize
-        if keywords is not None:
-            self.keywords = keywords
-        if self.colorize:
+    @property
+    def semantics(self):
+        return self._semantics
+
+    @property
+    def encoding(self):
+        return self.config.encoding
+
+    @property
+    def parseinfo(self):
+        return self.config.parseinfo
+
+    @property
+    def trace(self):
+        return self.config.trace
+
+    @property
+    def trace_length(self):
+        return self.config.trace_length
+
+    @property
+    def trace_separator(self):
+        return self.config.trace_separator
+
+    @property
+    def trace_filename(self):
+        return self.config.trace_filename
+
+    @property
+    def comments_re(self):
+        return self.config.comments_re
+
+    @property
+    def eol_comments_re(self):
+        return self.config.eol_comments_re
+
+    @property
+    def whitespace(self):
+        return self.config.whitespace
+
+    @property
+    def ignorecase(self):
+        return self.config.ignorecase
+
+    @property
+    def nameguard(self):
+        return self.config.nameguard
+
+    @property
+    def memoize_lookaheads(self):
+        return self.config.memoize_lookaheads
+
+    @property
+    def left_recursion(self):
+        return self.config.left_recursion
+
+    @property
+    def colorize(self):
+        return self.config.colorize
+
+    @property
+    def keywords(self):
+        return self._keywords
+
+    @property
+    def namechars(self):
+        return self.config.namechars
+
+    def _reset(self, config: ParserConfig):
+        if self.config.colorize:
             color.init()
-
         self._initialize_caches()
-        self._furthest_exception = None
-
-        if isinstance(text, tokenizing.Tokenizer):
-            tokenizer = text
-        else:
-            tokenizercls = tokenizercls or self.tokenizercls
-            tokenizer = tokenizercls(
-                text,
-                filename=filename,
-                comments_re=comments_re or self.comments_re,
-                eol_comments_re=eol_comments_re or self.eol_comments_re,
-                whitespace=notnone(whitespace, default=self.whitespace),
-                ignorecase=ignorecase,
-                nameguard=nameguard,
-                namechars=namechars,
-                **kwargs)
-        self._tokenizer = tokenizer
-
+        self._keywords = oset(config.keywords)
+        self._semantics = config.semantics
         if hasattr(self.semantics, 'set_context'):
             self.semantics.set_context(self)
+        return config
 
     def _set_furthest_exception(self, e):
         if not self._furthest_exception or e.pos > self._furthest_exception.pos:
             self._furthest_exception = e
 
-    def parse(self,
-              text,
-              rule_name='start',
-              filename=None,
-              tokenizercls=None,
-              semantics=None,
-              trace=False,
-              whitespace=None,
-              ignorecase=None,
-              **kwargs):
+    def parse(self, text, /, start='start', config: ParserConfig = None, tokenizercls=None, **settings):
+        config = self.config.replace_config(config)
+        config = config.replace(**settings)
+        config = config.replace(start=start)
+
+        self._reset(config)
+        if isinstance(text, tokenizing.Tokenizer):
+            tokenizer = text
+        elif text is not None:
+            tokenizercls = tokenizercls or self.tokenizercls
+            tokenizer = tokenizercls(text, config=config)
+        else:
+            raise ParseError('No tokenizer or text')
+        self._tokenizer = tokenizer
+        start = start or self.config.effective_rule_name()
+
         try:
-            self.parseinfo = kwargs.pop('parseinfo', self.parseinfo)
-            self._reset(
-                text=text,
-                filename=filename,
-                tokenizercls=tokenizercls,
-                semantics=semantics,
-                trace=trace if trace is not None else self.trace,
-                whitespace=whitespace if whitespace is not None else self.whitespace,
-                ignorecase=ignorecase,
-                **kwargs
-            )
-            rule = self._find_rule(rule_name)
+            rule = self._find_rule(start)
             result = rule()
             return result
         except FailedCut as e:

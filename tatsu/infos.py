@@ -8,10 +8,10 @@ from typing import (
     Mapping,
     Optional,
     Type,
+    Union,
 )
 
 from .ast import AST
-from .collections import OrderedSet as oset
 from .util.unicode_characters import C_DERIVE
 
 
@@ -26,7 +26,7 @@ class ParserDirectives:
 
     comments: Optional[str] = None
     eol_comments: Optional[str] = None
-    keywords: list[str] = dataclasses.field(default_factory=list)
+    keywords: Union[list[str], set[str]] = dataclasses.field(default_factory=list)  # type: ignore
 
     ignorecase: Optional[bool] = False
     namechars: str = ''
@@ -48,12 +48,11 @@ class ParserConfig(ParserDirectives):
 
     start: Optional[str] = None  # FIXME
     start_rule: Optional[str] = None  # FIXME
-    rule_name: Optional[str] = None  # FIXME
 
     comments_re: Optional[str] = COMMENTS_RE
     eol_comments_re: Optional[str] = EOL_COMMENTS_RE
 
-    # tokenizercls: Optional[Type] = None
+    # tokenizercls: Optional[Type] = None  # FIXME
     semantics: Optional[Type] = None
 
     comment_recovery: bool = False
@@ -68,20 +67,27 @@ class ParserConfig(ParserDirectives):
     def __post_init__(self):  # pylint: disable=W0235
         super().__post_init__()  # pylint: disable=W0235
         if self.ignorecase:
-            self.keywords = oset(k.upper() for k in self.keywords)
+            self.keywords = [k.upper() for k in self.keywords]
         if self.comments:
             self.comments_re = self.comments
         if self.eol_comments:
             self.eol_comments_re = self.eol_comments
 
     @classmethod
-    def new(cls, config: Optional[ParserConfig], owner: Any = None, **settings: Mapping[str, Any]) -> ParserConfig:
+    def new(cls, config: Optional[ParserConfig], owner: Any = None, **settings: Any) -> ParserConfig:
         result = cls(owner=owner)
         if config is not None:
             result = config.replace_config(config)
         return result.replace(**settings)
 
-    def _find_common(self, **settings: Mapping[str, Any]) -> Mapping[str, Any]:
+    def effective_rule_name(self):
+        # note: there are legacy reasons for this mess
+        return (
+            self.start_rule or
+            self.start
+        )
+
+    def _find_common(self, **settings: Any) -> Mapping[str, Any]:
         return {
             name: value
             for name, value in settings.items()
@@ -96,14 +102,14 @@ class ParserConfig(ParserDirectives):
         else:
             return self.replace(**vars(other))
 
-    def replace(self, **settings: Mapping[str, Any]) -> ParserConfig:
+    def replace(self, **settings: Any) -> ParserConfig:
         overrides = self._find_common(**settings)
         result = dataclasses.replace(self, **overrides)
         if 'grammar' in overrides:
             result.name = result.grammar
         return result
 
-    def merge(self, **settings: Mapping[str, Any]) -> ParserConfig:
+    def merge(self, **settings: Any) -> ParserConfig:
         overrides = self._find_common(**settings)
         overrides = {
             name: value for name, value in overrides.items()

@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import os
 from itertools import takewhile, repeat
-from collections.abc import Mapping
 from typing import (Any,)
 
 from .tokenizing import Tokenizer
@@ -28,7 +27,7 @@ LineIndexEntry = LineIndexInfo
 
 
 class Buffer(Tokenizer):
-    def __init__(self, text, /, config: ParserConfig = None, **settings: Mapping[str, Any]):
+    def __init__(self, text, /, config: ParserConfig = None, **settings: Any):
         config = ParserConfig.new(config=config, owner=self, **settings)
         self.config = config
 
