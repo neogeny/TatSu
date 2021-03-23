@@ -65,7 +65,6 @@ class Base(ModelRenderer):
         '''
 
 
-
 class Void(Base):
     template = 'self._void()'
 
@@ -179,6 +178,7 @@ class Choice(Base):
                     )\
                 '''
 
+
 class Option(_Decorator):
     def render_fields(self, fields):
         defines = self.make_defines_declaration()
@@ -189,6 +189,7 @@ class Option(_Decorator):
                 {exp:1::}\
                 {defines}\
                 '''
+
 
 class Closure(_Decorator):
     def render_fields(self, fields):

@@ -508,8 +508,7 @@ class Choice(Model):
             ctx._error('no available options')
 
     def defines(self):
-        # return [d for o in self.options for d in o.defines()]
-        return []
+        return [d for o in self.options for d in o.defines()]
 
     def missing_rules(self, rules):
         return oset().union(*[o.missing_rules(rules) for o in self.options])
@@ -874,8 +873,11 @@ class Rule(Decorator):
         result = ctx._call(ruleinfo)
         return result
 
-    # def firstset(self, k=1):
-    #     return self.exp.firstset(k=k)
+    def defines(self):
+        if isinstance(self.exp, Choice):
+            return []  # defines done in Choice.options
+        else:
+            return super().defines()
 
     def _first(self, k, f):
         self._firstset = self.exp._first(k, f) | f[self.name]

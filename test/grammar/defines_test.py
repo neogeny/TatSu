@@ -4,7 +4,8 @@ import pytest
 
 from tatsu.tool import compile, gencode
 
-# @pytest.mark.skip('working on it')
+
+@pytest.mark.skip('working on it')
 def test_name_in_option():
     grammar = '''
         start = expr_range ;
@@ -14,7 +15,7 @@ def test_name_in_option():
             | expr
             ;
 
-        expr = 
+        expr =
             /[\d]+/
         ;
     '''
@@ -30,5 +31,11 @@ def test_name_in_option():
     ast = model.parse(' .. 10')
     assert ast == {'from': None, 'to': '10'}
 
-    code = gencode(grammar)
+    ast = model.parse('1 .. ')
+    assert ast == {'from': '1', 'to': None}
+
+    ast = model.parse(' .. ')
+    assert ast == '..'
+
+    code = gencode(grammar=grammar)
     print(code)
