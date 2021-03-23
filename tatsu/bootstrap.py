@@ -451,15 +451,19 @@ class EBNFBootstrapParser(Parser):
         with self._optional():
             self._token('|')
             self._cut()
-        self._sequence_()
+        self._option_()
         self.add_last_node_to_name('@')
 
         def block1():
             self._token('|')
             self._cut()
-            self._sequence_()
+            self._option_()
             self.add_last_node_to_name('@')
         self._positive_closure(block1)
+
+    @tatsumasu('Sequence')
+    def _option_(self):  # noqa
+        self._sequence_()
 
     @tatsumasu('Sequence')
     def _sequence_(self):  # noqa
