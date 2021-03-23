@@ -2,39 +2,42 @@ from __future__ import annotations
 
 from collections import namedtuple
 import dataclasses
+import weakref
+from pathlib import Path
 from typing import (
     Any,
     Mapping,
     Optional,
+    Set,
     Type,
 )
 
 from .ast import AST
-from .util import WHITESPACE_RE
-from tatsu.util.unicode_characters import C_DERIVE
+from .util.unicode_characters import C_DERIVE
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=False)
 class ParserConfig:
+    owner: object
     filename: str = ''
     encoding: str = 'utf-8'
 
-    start: str = 'start'
     start_rule: Optional[str] = None  # FIXME
+    # directives: Mapping[str, Any]  = dataclasses.field(default_factory=dict)
 
-    tokenizercls: Optional[Type] = None
+    # tokenizercls: Optional[Type] = None
     semantics: Optional[Type] = None
 
     namechars: str = ''
     nameguard: Optional[bool] = None  # implied by namechars
-    whitespace: str = WHITESPACE_RE
+    whitespace: Optional[str] = None
 
     comments_re: Optional[str] = None
     eol_comments_re: Optional[str] = None
     comment_recovery: bool = False
 
     ignorecase: bool = False
-    keywords: set = dataclasses.field(default_factory=set)
+    keywords: Optional[Set[str]] = None
     left_recursion: bool = True
     memoize_lookaheads: bool = True
     parseinfo: bool = False
@@ -46,13 +49,15 @@ class ParserConfig:
     trace_length: int = 72
     trace_separator: str = C_DERIVE
 
-    def __post_init__(self):
-        if not self.start and self.start_rule is not None:
-            self.start = self.start_rule
+    def __post_init__(self):  # noqa
+        if not isinstance(self.owner, weakref.ref):
+            self.owner = weakref.ref(self.owner)
+        if self.ignorecase and self.keywords:
+            self.keywords = {k.upper() for k in self.keywords}
 
     @classmethod
-    def new(cls, other, /, **settings) -> ParserConfig:
-        config = ParserConfig()
+    def new(cls, owner, other, /, **settings) -> ParserConfig:
+        config = ParserConfig(owner)
         config = config.merge_config(other)
         config = config.merge(**settings)
         return config
@@ -67,9 +72,12 @@ class ParserConfig:
         overrides = {
             name: value
             for name, value in settings.items()
-            if value is not None and hasattr(self, name)
+            if value is not None and hasattr(self, name) and name != 'owner'
         }
         return dataclasses.replace(self, **overrides)
+
+    def asdict(self):
+        return dataclasses.asdict(self)
 
 
 class PosLine(namedtuple('_PosLine', ['start', 'line', 'length'])):

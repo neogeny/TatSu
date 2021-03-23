@@ -28,7 +28,7 @@ LineIndexEntry = LineIndexInfo
 
 class Buffer(Tokenizer):
     def __init__(self, text, /, config: ParserConfig = None, **settings: Mapping[str, Any]):
-        config = ParserConfig.new(config, **settings)
+        config = ParserConfig.new(self, config, **settings)
         self.config = config
 
         text = str(text)
