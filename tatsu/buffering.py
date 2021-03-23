@@ -29,7 +29,7 @@ LineIndexEntry = LineIndexInfo
 
 class Buffer(Tokenizer):
     def __init__(self, text, /, config: ParserConfig = None, **settings: Mapping[str, Any]):
-        config = ParserConfig.new(config, owner=self, **settings)
+        config = ParserConfig.new(config=config, owner=self, **settings)
         self.config = config
 
         text = str(text)
@@ -45,11 +45,10 @@ class Buffer(Tokenizer):
         self._pos = 0
         self._len = 0
         self._linecount = 0
-        self._lines = []
-        self._line_index = []
-        self._line_cache = []
-        self._comment_index = []
-        self._re_cache = {}
+        self._lines: list[str] = []
+        self._line_index: list[LineIndexInfo] = []
+        self._line_cache: list[PosLine] = []
+        self._comment_index: list[CommentInfo] = []
 
         self._preprocess()
         self._postprocess()
@@ -320,11 +319,8 @@ class Buffer(Tokenizer):
     def _scanre(self, pattern, ignorecase=None, offset=0):
         if isinstance(pattern, RETYPE):
             re = pattern
-        elif pattern in self._re_cache:
-            re = self._re_cache[pattern]
         else:
             re = regexp.compile(pattern, regexp.MULTILINE | regexp.UNICODE)
-            self._re_cache[pattern] = re
         return re.match(self.text, self.pos + offset)
 
     @property

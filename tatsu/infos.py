@@ -36,7 +36,7 @@ class ParserDirectives:
 @dataclasses.dataclass(frozen=False)
 class ParserConfig(ParserDirectives):
     owner: object = None
-    name: str = 'Test'
+    name: Optional[str] = 'Test'
     filename: str = ''
     encoding: str = 'utf-8'
 
@@ -54,16 +54,15 @@ class ParserConfig(ParserDirectives):
     trace_length: int = 72
     trace_separator: str = C_DERIVE
 
-    def __post_init__(self):  # noqa
-        super().__post_init__()
-        pass
+    def __post_init__(self):  # pylint: disable=W0235
+        super().__post_init__()  # pylint: disable=W0235
 
     @classmethod
-    def new(cls, other, /, config: ParserConfig = None, **settings) -> ParserConfig:
-        config = config if config is not None else cls()
-        config = config.replace_config(other)
-        config = config.replace(**settings)
-        return config
+    def new(cls, config: ParserConfig = None, owner: Any = None, **settings: Mapping[str, Any]) -> ParserConfig:
+        result = cls(owner=owner)
+        if config is not None:
+            result = config.replace_config(config)
+        return result.replace(**settings)
 
     def _find_common(self, **settings: Mapping[str, Any]) -> Mapping[str, Any]:
         return {

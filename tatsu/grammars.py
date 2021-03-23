@@ -957,27 +957,12 @@ class BasedRule(Rule):
 
 class Grammar(Model):
     def __init__(self, name, rules, /, config: ParserConfig = None, directives: dict = None, **settings):
-    # def __init__(self,
-    #              name,
-    #              rules,
-    #              semantics=None,
-    #              filename='Unknown',
-    #              whitespace=None,
-    #              ignorecase=None,
-    #              nameguard=None,
-    #              namechars=None,
-    #              left_recursion=None,
-    #              comments_re=None,
-    #              eol_comments_re=None,
-    #              directives=None,
-    #              parseinfo=None,
-    #              keywords=None):
         super().__init__()
         assert isinstance(rules, list), str(rules)
         directives = directives or {}
         self.directives = directives
 
-        config = ParserConfig.new(config, owner=self, **directives)
+        config = ParserConfig.new(config=config, owner=self, **directives)
         config = config.replace(**settings)
         self.config = config
 
