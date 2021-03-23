@@ -22,7 +22,7 @@ class ParserDirectives:
     eol_comments_re: Optional[str] = None
     keywords: list[str] = dataclasses.field(default_factory=list)
 
-    ignorecase: bool = False
+    ignorecase: Optional[bool] = False
     namechars: str = ''
     nameguard: Optional[bool] = None  # implied by namechars
     whitespace: Optional[str] = None
@@ -36,6 +36,7 @@ class ParserDirectives:
 @dataclasses.dataclass(frozen=False)
 class ParserConfig(ParserDirectives):
     owner: object = None
+    name: str = 'Test'
     filename: str = ''
     encoding: str = 'utf-8'
 
@@ -60,21 +61,35 @@ class ParserConfig(ParserDirectives):
     @classmethod
     def new(cls, other, /, **settings) -> ParserConfig:
         config = cls()
-        config = config.merge_config(other)
-        config = config.merge(**settings)
+        config = config.replace_config(other)
+        config = config.replace(**settings)
         return config
 
-    def merge_config(self, other: ParserConfig) -> ParserConfig:
-        if other is None:
-            return self
-        else:
-            return self.merge(**vars(other))
-
-    def merge(self, **settings: Mapping[str, Any]) -> ParserConfig:
-        overrides = {
+    def _find_common(self, **settings: Mapping[str, Any]) -> Mapping[str, Any]:
+        return {
             name: value
             for name, value in settings.items()
             if value is not None and hasattr(self, name) and name != 'owner'
+        }
+
+    def replace_config(self, other: ParserConfig) -> ParserConfig:
+        if other is None:
+            return self
+        else:
+            return self.replace(**vars(other))
+
+    def replace(self, **settings: Mapping[str, Any]) -> ParserConfig:
+        overrides = self._find_common(**settings)
+        result = dataclasses.replace(self, **overrides)
+        if 'grammar' in overrides:
+            result.name = result.grammar
+        return result
+
+    def merge(self, **settings: Mapping[str, Any]) -> ParserConfig:
+        overrides = self._find_common(**settings)
+        overrides = {
+            name: value for name, value in overrides.items()
+            if getattr(self, name, None) is None
         }
         return dataclasses.replace(self, **overrides)
 
