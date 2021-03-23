@@ -1,10 +1,75 @@
 from __future__ import annotations
 
 from collections import namedtuple
-from dataclasses import dataclass, field
-from typing import Any
+import dataclasses
+from typing import (
+    Any,
+    Mapping,
+    Optional,
+    Type,
+)
 
 from .ast import AST
+from .util import WHITESPACE_RE
+from tatsu.util.unicode_characters import C_DERIVE
+
+
+@dataclasses.dataclass(frozen=True)
+class ParserConfig:
+    filename: str = ''
+    encoding: str = 'utf-8'
+
+    start: str = 'start'
+    start_rule: Optional[str] = None  # FIXME
+
+    tokenizercls: Optional[Type] = None
+    semantics: Optional[Type] = None
+
+    namechars: Optional[str] = None
+    nameguard: Optional[bool] = None  # implied by namechars
+    whitespace: str = WHITESPACE_RE
+
+    comments_re: Optional[str] = None
+    eol_comments_re: Optional[str] = None
+    comment_recovery: bool = False
+
+    ignorecase: bool = False
+    keywords: set = dataclasses.field(default_factory=set)
+    left_recursion: bool = True
+    memoize_lookaheads: bool = True
+    parseinfo: bool = False
+
+    colorize: bool = False
+
+    trace: bool = False
+    trace_filename: bool = False
+    trace_length: int = 72
+    trace_separator: str = C_DERIVE
+
+    def __post_init__(self):
+        if not self.start and self.start_rule is not None:
+            self.start = self.start_rule
+
+    @classmethod
+    def new(cls, other, /, **settings) -> ParserConfig:
+        config = ParserConfig()
+        config = config.merge_config(other)
+        config = config.merge(**settings)
+        return config
+
+    def merge_config(self, other: ParserConfig) -> ParserConfig:
+        if other is None:
+            return self
+        else:
+            return self.merge(**vars(other))
+
+    def merge(self, **settings: Mapping[str, Any]) -> ParserConfig:
+        overrides = {
+            name: value
+            for name, value in settings.items()
+            if value is not None and hasattr(self, name)
+        }
+        return dataclasses.replace(self, **overrides)
 
 
 class PosLine(namedtuple('_PosLine', ['start', 'line', 'length'])):
@@ -119,8 +184,8 @@ RuleResult = namedtuple(
 )
 
 
-@dataclass
+@dataclasses.dataclass
 class ParseState(object):
     pos: int = 0
-    ast: AST = field(default_factory=AST)
+    ast: AST = dataclasses.field(default_factory=AST)
     cst: Any = None
