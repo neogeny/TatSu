@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import os
 import functools
 from collections.abc import Mapping
 from collections import defaultdict
+from pathlib import Path
 from copy import copy
 from itertools import takewhile
 
@@ -16,7 +16,7 @@ from .ast import AST
 from .contexts import ParseContext
 from .objectmodel import Node
 from .bootstrap import EBNFBootstrapBuffer
-from .infos import RuleInfo
+from .infos import RuleInfo, ParserConfig
 from .leftrec import Nullable, find_left_recursion
 from .collections import OrderedSet as oset
 
@@ -956,72 +956,62 @@ class BasedRule(Rule):
 
 
 class Grammar(Model):
-    def __init__(self,
-                 name,
-                 rules,
-                 semantics=None,
-                 filename='Unknown',
-                 whitespace=None,
-                 ignorecase=None,
-                 nameguard=None,
-                 namechars=None,
-                 left_recursion=None,
-                 comments_re=None,
-                 eol_comments_re=None,
-                 directives=None,
-                 parseinfo=None,
-                 keywords=None):
+    def __init__(self, name, rules, /, config: ParserConfig = None, directives: dict = None, **settings):
+    # def __init__(self,
+    #              name,
+    #              rules,
+    #              semantics=None,
+    #              filename='Unknown',
+    #              whitespace=None,
+    #              ignorecase=None,
+    #              nameguard=None,
+    #              namechars=None,
+    #              left_recursion=None,
+    #              comments_re=None,
+    #              eol_comments_re=None,
+    #              directives=None,
+    #              parseinfo=None,
+    #              keywords=None):
         super().__init__()
         assert isinstance(rules, list), str(rules)
+        directives = directives or {}
+        self.directives = directives
+
+        config = ParserConfig.new(config, owner=self, **directives)
+        config = config.replace(**settings)
+        self.config = config
 
         self.rules = rules
         self.rulemap = {rule.name: rule for rule in rules}
 
-        directives = directives or {}
-        self.directives = directives
+        config = config.merge(**directives)
 
         if name is None:
             name = self.directives.get('grammar')
         if name is None:
-            name = os.path.splitext(os.path.basename(filename))[0]
+            name = Path(config.filename).stem
         self.name = name
+        print(f'{self.name=}')
 
-        self.semantics = semantics
+        self.semantics = config.semantics
 
-        if whitespace is None:
-            whitespace = directives.get('whitespace')
-        self.whitespace = whitespace
+        self.whitespace = config.whitespace
+        self.ignorecase = config.ignorecase
+        self.nameguard = config.nameguard
+        self.namechars = config.namechars
+        self.left_recursion = config.left_recursion
+        self._use_parseinfo = config.parseinfo
 
-        if ignorecase is None:
-            ignorecase = directives.get('ignorecase')
-        self.ignorecase = ignorecase
+        if config.comments_re is None:
+            config.comments_re = directives.get('comments')
+        self.comments_re = config.comments_re
 
-        if nameguard is None:
-            nameguard = directives.get('nameguard')
-        self.nameguard = nameguard
+        if config.eol_comments_re is None:
+            config.eol_comments_re = directives.get('eol_comments')
+        self.eol_comments_re = config.eol_comments_re
 
-        if namechars is None:
-            namechars = directives.get('namechars')
-        self.namechars = namechars
-
-        if left_recursion is None:
-            left_recursion = directives.get('left_recursion', True)
-        self.left_recursion = left_recursion
-
-        if parseinfo is None:
-            parseinfo = directives.get('parseinfo')
-        self._use_parseinfo = parseinfo
-
-        if comments_re is None:
-            comments_re = directives.get('comments')
-        self.comments_re = comments_re
-
-        if eol_comments_re is None:
-            eol_comments_re = directives.get('eol_comments')
-        self.eol_comments_re = eol_comments_re
-
-        self.keywords = oset(keywords)
-        if ignorecase:
+        self.keywords = oset(config.keywords)
+        if config.ignorecase:
             self.keywords = oset(k.upper() for k in self.keywords)
 
         self._adopt_children(rules)
@@ -1032,7 +1022,7 @@ class Grammar(Model):
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
         self._calc_lookahead_sets()
-        if left_recursion:
+        if config.left_recursion:
             find_left_recursion(self)
 
     def missing_rules(self, rules):
