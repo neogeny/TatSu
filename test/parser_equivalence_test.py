@@ -63,7 +63,7 @@ def generate_and_load_parser(name, grammar):
 
 
 def test_model_parse():
-    model = compile(grammar=GRAMMAR)
+    model = compile(name='Test', grammar=GRAMMAR)
     assert OUTPUT == model.parse(INPUT)
 
 
