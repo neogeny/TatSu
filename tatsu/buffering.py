@@ -10,6 +10,7 @@ from __future__ import annotations
 import os
 from itertools import takewhile, repeat
 from collections.abc import Mapping
+from typing import (Any,)
 
 from .tokenizing import Tokenizer
 from .util import identity

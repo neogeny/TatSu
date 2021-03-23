@@ -2,12 +2,10 @@ from __future__ import annotations
 
 from collections import namedtuple
 import dataclasses
-from pathlib import Path
 from typing import (
     Any,
     Mapping,
     Optional,
-    Set,
     Type,
 )
 
@@ -16,45 +14,52 @@ from .util.unicode_characters import C_DERIVE
 
 
 @dataclasses.dataclass(frozen=False)
-class ParserConfig:
+class ParserDirectives:
+    grammar: Optional[str] = None
+    left_recursion: bool = True
+
+    comments_re: Optional[str] = None
+    eol_comments_re: Optional[str] = None
+    keywords: list[str] = dataclasses.field(default_factory=list)
+
+    ignorecase: bool = False
+    namechars: str = ''
+    nameguard: Optional[bool] = None  # implied by namechars
+    whitespace: Optional[str] = None
+
+    parseinfo: bool = False
+
+    def __post_init__(self):  # noqa
+        pass
+
+
+@dataclasses.dataclass(frozen=False)
+class ParserConfig(ParserDirectives):
     owner: object = None
     filename: str = ''
     encoding: str = 'utf-8'
 
     start_rule: Optional[str] = None  # FIXME
-    # directives: Mapping[str, Any]  = dataclasses.field(default_factory=dict)
 
     # tokenizercls: Optional[Type] = None
     semantics: Optional[Type] = None
 
-    namechars: str = ''
-    nameguard: Optional[bool] = None  # implied by namechars
-    whitespace: Optional[str] = None
-
-    comments_re: Optional[str] = None
-    eol_comments_re: Optional[str] = None
     comment_recovery: bool = False
-
-    ignorecase: bool = False
-    keywords: list[str] = dataclasses.field(default_factory=list)
-    left_recursion: bool = True
     memoize_lookaheads: bool = True
-    parseinfo: bool = False
 
     colorize: bool = False
-
     trace: bool = False
     trace_filename: bool = False
     trace_length: int = 72
     trace_separator: str = C_DERIVE
 
     def __post_init__(self):  # noqa
-        if self.ignorecase and self.keywords:
-            self.keywords = {k.upper() for k in self.keywords}
+        super().__post_init__()
+        pass
 
     @classmethod
     def new(cls, other, /, **settings) -> ParserConfig:
-        config = ParserConfig()
+        config = cls()
         config = config.merge_config(other)
         config = config.merge(**settings)
         return config

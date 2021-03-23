@@ -3,7 +3,6 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from . import grammars
-from .collections import OrderedSet as oset
 from .exceptions import FailedSemantics
 from .semantics import ModelBuilderSemantics
 from .util import eval_escapes, re, warning, flatten
