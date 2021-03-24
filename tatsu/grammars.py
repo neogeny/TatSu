@@ -1,22 +1,22 @@
 from __future__ import annotations
 
-import os
 import functools
 from collections.abc import Mapping
 from collections import defaultdict
+from pathlib import Path
 from copy import copy
 from itertools import takewhile
 
 from tatsu.util import (
     indent, trim, compress_seq, chunks,
-    re, notnone,
+    re,
 )
 from .exceptions import FailedRef, GrammarError
 from .ast import AST
 from .contexts import ParseContext
 from .objectmodel import Node
 from .bootstrap import EBNFBootstrapBuffer
-from .infos import RuleInfo
+from .infos import RuleInfo, ParserConfig
 from .leftrec import Nullable, find_left_recursion
 from .collections import OrderedSet as oset
 
@@ -24,8 +24,6 @@ from .collections import OrderedSet as oset
 PEP8_LLEN = 72
 
 
-COMMENTS_RE = r'\(\*((?:.|\n)*?)\*\)'
-EOL_COMMENTS_RE = r'#([^\n]*?)$'
 PRAGMA_RE = r'^\s*#include.*$'
 
 
@@ -59,8 +57,8 @@ class EBNFBuffer(EBNFBootstrapBuffer):
             filename=filename,
             memoize_lookaheads=False,
             comment_recovery=True,
-            comments_re=comments_re or COMMENTS_RE,
-            eol_comments_re=eol_comments_re or EOL_COMMENTS_RE,
+            comments_re=comments_re,
+            eol_comments_re=eol_comments_re,
             **kwargs
         )
 
@@ -88,12 +86,12 @@ class EBNFBuffer(EBNFBootstrapBuffer):
 
 
 class ModelContext(ParseContext):
-    def __init__(self, rules, semantics=None, trace=False, **kwargs):
-        super().__init__(
-            semantics=semantics,
-            trace=trace,
-            **kwargs
-        )
+    def __init__(self, rules, /, start=None, config: ParserConfig = None, **settings):
+        config = ParserConfig.new(config, **settings)
+        config = config.replace(start=start)
+
+        super().__init__(config=config)
+
         self.rules = {rule.name: rule for rule in rules}
 
     @property
@@ -966,73 +964,26 @@ class BasedRule(Rule):
 
 
 class Grammar(Model):
-    def __init__(self,
-                 name,
-                 rules,
-                 semantics=None,
-                 filename='Unknown',
-                 whitespace=None,
-                 ignorecase=None,
-                 nameguard=None,
-                 namechars=None,
-                 left_recursion=None,
-                 comments_re=None,
-                 eol_comments_re=None,
-                 directives=None,
-                 parseinfo=None,
-                 keywords=None):
+    def __init__(self, name, rules, /, config: ParserConfig = None, directives: dict = None, **settings):
         super().__init__()
         assert isinstance(rules, list), str(rules)
+        directives = directives or {}
+        self.directives = directives
+
+        config = ParserConfig.new(config=config, owner=self, **directives)
+        config = config.replace(**settings)
+        self.config = config
 
         self.rules = rules
         self.rulemap = {rule.name: rule for rule in rules}
 
-        directives = directives or {}
-        self.directives = directives
+        config = config.merge(**directives)
 
         if name is None:
             name = self.directives.get('grammar')
         if name is None:
-            name = os.path.splitext(os.path.basename(filename))[0]
+            name = Path(config.filename).stem
         self.name = name
-
-        self.semantics = semantics
-
-        if whitespace is None:
-            whitespace = directives.get('whitespace')
-        self.whitespace = whitespace
-
-        if ignorecase is None:
-            ignorecase = directives.get('ignorecase')
-        self.ignorecase = ignorecase
-
-        if nameguard is None:
-            nameguard = directives.get('nameguard')
-        self.nameguard = nameguard
-
-        if namechars is None:
-            namechars = directives.get('namechars')
-        self.namechars = namechars
-
-        if left_recursion is None:
-            left_recursion = directives.get('left_recursion', True)
-        self.left_recursion = left_recursion
-
-        if parseinfo is None:
-            parseinfo = directives.get('parseinfo')
-        self._use_parseinfo = parseinfo
-
-        if comments_re is None:
-            comments_re = directives.get('comments')
-        self.comments_re = comments_re
-
-        if eol_comments_re is None:
-            eol_comments_re = directives.get('eol_comments')
-        self.eol_comments_re = eol_comments_re
-
-        self.keywords = oset(keywords)
-        if ignorecase:
-            self.keywords = oset(k.upper() for k in self.keywords)
 
         self._adopt_children(rules)
 
@@ -1042,8 +993,20 @@ class Grammar(Model):
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
         self._calc_lookahead_sets()
-        if left_recursion:
+        if config.left_recursion:
             find_left_recursion(self)
+
+    @property
+    def keywords(self):
+        return self.config.keywords
+
+    @property
+    def semantics(self):
+        return self.config.semantics
+
+    @semantics.setter
+    def semantics(self, value):
+        self.config.semantics = value
 
     def missing_rules(self, rules):
         return oset().union(*[rule.missing_rules(rules) for rule in self.rules])
@@ -1098,60 +1061,17 @@ class Grammar(Model):
         for rule in self.rules:
             rule._follow_set = fl[rule.name]
 
-    def parse(self,
-              text,
-              rule_name=None,
-              start=None,
-              filename=None,
-              semantics=None,
-              trace=False,
-              context=None,
-              whitespace=None,
-              ignorecase=None,
-              left_recursion=None,
-              comments_re=None,
-              eol_comments_re=None,
-              parseinfo=None,
-              nameguard=None,
-              namechars=None,
-              **kwargs):  # pylint: disable=W0221
-        start = start if start is not None else rule_name
+    def parse(self, text: str, /, start=None, context=None, config: ParserConfig = None, **settings):  # type: ignore
+        config = self.config.replace_config(config)
+        config = config.replace(**settings)
+        config = config.replace(start=start)
+
+        start = start if start is not None else config.effective_rule_name()
         start = start if start is not None else self.rules[0].name
+        config.replace(start=start)
 
-        ctx = context or ModelContext(
-            self.rules,
-            trace=trace,
-            keywords=self.keywords,
-            **kwargs)
-
-        semantics = notnone(semantics, self.semantics)
-        left_recursion = notnone(left_recursion, self.left_recursion)
-        parseinfo = notnone(parseinfo, self._use_parseinfo)
-        comments_re = notnone(comments_re, self.comments_re)
-        eol_comments_re = notnone(eol_comments_re, self.eol_comments_re)
-        nameguard = notnone(nameguard, self.nameguard)
-        namechars = notnone(namechars, self.namechars)
-        whitespace = notnone(whitespace, self.whitespace)
-        ignorecase = notnone(ignorecase, self.ignorecase)
-        if whitespace:
-            whitespace = re.compile(whitespace)
-
-        return ctx.parse(
-            text,
-            rule_name=start,
-            filename=filename,
-            semantics=semantics,
-            trace=trace,
-            whitespace=whitespace,
-            ignorecase=ignorecase,
-            comments_re=comments_re,
-            eol_comments_re=eol_comments_re,
-            left_recursion=left_recursion,
-            parseinfo=parseinfo,
-            nameguard=nameguard,
-            namechars=namechars,
-            **kwargs
-        )
+        ctx = context if context else ModelContext(self.rules, config=config)
+        return ctx.parse(text, start, config=config)
 
     def nodecount(self):
         return 1 + sum(r.nodecount() for r in self.rules)

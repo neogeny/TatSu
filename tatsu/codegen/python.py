@@ -433,7 +433,7 @@ class Grammar(Base):
         ]
         abstract_rules = indent('\n'.join(abstract_rules))
 
-        whitespace = self.node.whitespace or self.node.directives.get('whitespace')
+        whitespace = self.node.config.whitespace
         if not whitespace:
             whitespace = 'None'
         elif isinstance(whitespace, RETYPE):
@@ -441,20 +441,17 @@ class Grammar(Base):
         else:
             whitespace = 're.compile({0})'.format(repr(whitespace))
 
-        if self.node.nameguard is not None:
-            nameguard = repr(self.node.nameguard)
-        elif self.node.directives.get('nameguard') is not None:
-            nameguard = self.node.directives.get('nameguard')
+        if self.node.config.nameguard is not None:
+            nameguard = repr(self.node.config.nameguard)
         else:
             nameguard = 'None'
 
-        comments_re = repr(self.node.directives.get('comments'))
-        eol_comments_re = repr(self.node.directives.get('eol_comments'))
-        ignorecase = self.node.directives.get('ignorecase', 'None')
-        left_recursion = self.node.directives.get('left_recursion', True)
-        parseinfo = self.node.directives.get('parseinfo', True)
-
-        namechars = repr(self.node.directives.get('namechars') or '')
+        comments_re = repr(self.node.config.comments)
+        eol_comments_re = repr(self.node.config.eol_comments)
+        ignorecase = self.node.config.ignorecase
+        left_recursion = self.node.config.left_recursion
+        parseinfo = self.node.config.parseinfo
+        namechars = repr(self.node.config.namechars or '')
 
         rules = '\n'.join([
             self.get_renderer(rule).render() for rule in self.node.rules

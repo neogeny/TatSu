@@ -67,7 +67,7 @@ class DirectiveTests(unittest.TestCase):
         '''
         model = tatsu.compile(grammar, "test")
         self.assertFalse(model.directives.get('left_recursion'))
-        self.assertFalse(model.left_recursion)
+        self.assertFalse(model.config.left_recursion)
 
         code = codegen(model)
         compile('test.py', code, EXEC)
@@ -156,6 +156,6 @@ class DirectiveTests(unittest.TestCase):
         '''
 
         model = tatsu.compile(grammar)
-        self.assertFalse(model.nameguard)
+        self.assertFalse(model.config.nameguard)
         self.assertEqual(['2', '3'], model.parse('23'))
         self.assertEqual(['x', 'x'], model.parse('xx'))

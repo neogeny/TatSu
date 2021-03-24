@@ -1,4 +1,6 @@
-__REGISTRY = vars()
+from typing import Any
+
+__REGISTRY: dict[str, Any] = vars()
 
 
 class _Synthetic(object):
