@@ -2,9 +2,12 @@
 from __future__ import generator_stop
 
 import unittest
+from typing import Any
 
 from tatsu.tool import compile
 from tatsu.semantics import ModelBuilderSemantics
+from tatsu import synth
+from tatsu.model import Node
 
 
 class MyNode(object):
@@ -41,10 +44,7 @@ class SemanticsTests(unittest.TestCase):
         self.assertEqual('5.4.3.2.1', ast)
 
     def test_builder_subclassing(self):
-        from tatsu import synth
-        from tatsu.model import Node
-
-        registry = getattr(synth, "__REGISTRY")
+        registry = getattr(synth, "__REGISTRY")  # type: dict[str, Any]
 
         grammar = '''
             @@grammar :: Test
@@ -54,6 +54,7 @@ class SemanticsTests(unittest.TestCase):
         model = compile(grammar, asmodel=True)
         model.parse("")
 
+        print(f'{registry=}')
         A = registry["A"]
         B = registry["B"]
         C = registry["C"]
