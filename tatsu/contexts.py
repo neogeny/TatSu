@@ -290,6 +290,33 @@ class ParseContext(object):
     def add_last_node_to_name(self, name):
         self.ast._setlist(name, self.last_node)
 
+    @staticmethod
+    def _safe_name(name, ast):
+        while name in ast:
+            name += '_'
+        return name
+
+    def ast_set(self, name, value, as_list=False):
+        ast = self.ast
+        name = self._safe_name(name, ast)
+
+        previous = ast.get(name)
+        if previous is None:
+            if as_list:
+                new_value = [value]
+            else:
+                new_value = value
+        elif is_list(previous):
+            new_value = previous + [value]
+        else:
+            new_value = [previous, value]
+
+        ast = AST(ast, name=new_value)
+        self.ast = ast
+
+    def ast_append(self, name, value):
+        self.ast_set(name, value, as_list=True)
+
     def _push_ast(self, copyast=False):
         ast = copy(self.ast) if copyast else AST()
         self.state.pos = self._pos
