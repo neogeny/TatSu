@@ -64,3 +64,21 @@ def test_by_option():
 
     ast = model.parse('1, ')
     assert ast == {'left': '1', 'right': None}
+
+
+def test_inner_potions():
+    grammar = '''
+        start = switch;
+        switch = 'switch' [(on:'on'|off:'off')] ;
+    '''
+
+    model = compile(grammar)
+
+    ast = model.parse('switch on')
+    assert ast == {'on': 'on', 'off': None}
+
+    ast = model.parse('switch off')
+    assert ast == {'off': 'off', 'on': None}
+
+    ast = model.parse('switch')
+    assert ast == 'switch'

@@ -857,7 +857,7 @@ class Rule(Decorator):
 
     def parse(self, ctx):
         result = self._parse_rhs(ctx, self.exp)
-        if not isinstance(self.exp, Choice):
+        if not isinstance(self.exp, Choice) or not ctx.ast:
             # note: a patch, but it avoids more complicated solutions
             self._add_defined_attributes(ctx, result)
         return result

@@ -267,7 +267,10 @@ class ParseContext(object):
 
     def _define(self, keys, list_keys=None):
         if self.ast and isinstance(self.ast, AST):
-            self.ast._define(keys, list_keys=list_keys)
+            ast = AST()
+            ast._define(keys, list_keys)
+            ast.update(**self.ast)
+            self.ast = ast
 
     @property
     def state(self):
