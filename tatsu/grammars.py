@@ -130,7 +130,7 @@ class Model(Node):
     def defines(self):
         return []
 
-    def _add_defined_attributes(self, ctx, ast):
+    def _add_defined_attributes(self, ctx, ast=None):
         defines = dict(compress_seq(self.defines()))
 
         keys = [k for k, list in defines.items() if not list]
@@ -552,6 +552,7 @@ class Choice(Model):
 
 class Option(Decorator):
     def parse(self, ctx):
+        self._add_defined_attributes(ctx)
         result = super().parse(ctx)
         self._add_defined_attributes(ctx, result)
         return result

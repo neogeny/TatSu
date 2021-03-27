@@ -34,7 +34,7 @@ def test_name_in_option():
     assert ast == {'from': '1', 'to': None}
 
     ast = model.parse(' .. ')
-    assert ast == '..'
+    assert ast == {'from': None, 'to': None}
 
     code = gencode(grammar=grammar)
     print(code)
@@ -81,4 +81,4 @@ def test_inner_potions():
     assert ast == {'off': 'off', 'on': None}
 
     ast = model.parse('switch')
-    assert ast == 'switch'
+    assert ast == {'off': None, 'on': None}
