@@ -399,7 +399,7 @@ class Rule(_Decorator):
 
         fields.update(params=params)
 
-        if isinstance(self.exp, Choice):
+        if isinstance(self.exp, grammars.Choice):
             sdefines = ''
         else:
             sdefines = self.make_defines_declaration()
