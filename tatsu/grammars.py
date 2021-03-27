@@ -552,7 +552,6 @@ class Choice(Model):
 
 class Option(Decorator):
     def parse(self, ctx):
-        self._add_defined_attributes(ctx)
         result = super().parse(ctx)
         self._add_defined_attributes(ctx, result)
         return result
@@ -858,6 +857,7 @@ class Rule(Decorator):
 
     def parse(self, ctx):
         result = self._parse_rhs(ctx, self.exp)
+        ctx.last_node = result
         if not isinstance(self.exp, Choice) or not ctx.ast:
             # note: a patch, but it avoids more complicated solutions
             self._add_defined_attributes(ctx, result)

@@ -66,7 +66,7 @@ def test_by_option():
     assert ast == {'left': '1', 'right': None}
 
 
-def test_inner_potions():
+def test_inner_options():
     grammar = '''
         start = switch;
         switch = 'switch' [(on:'on'|off:'off')] ;
