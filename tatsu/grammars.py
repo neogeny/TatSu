@@ -130,13 +130,15 @@ class Model(Node):
     def defines(self):
         return []
 
-    def _add_defined_attributes(self, ast):
-        if not isinstance(ast, (AST, Node)):
-            return
+    def _add_defined_attributes(self, ctx, ast):
         defines = dict(compress_seq(self.defines()))
+
         keys = [k for k, list in defines.items() if not list]
         list_keys = [k for k, list in defines.items() if list]
-        ast._define(keys, list_keys)
+        print(defines)
+        ctx._define(keys, list_keys)
+        if isinstance(ast, (AST, Node)):
+            ast._define(keys, list_keys)
 
     def lookahead(self, k=1):
         if self._lookahead is None:
@@ -552,7 +554,7 @@ class Choice(Model):
 class Option(Decorator):
     def parse(self, ctx):
         result = super().parse(ctx)
-        self._add_defined_attributes(result)
+        self._add_defined_attributes(ctx, result)
         return result
 
 
@@ -856,7 +858,9 @@ class Rule(Decorator):
 
     def parse(self, ctx):
         result = self._parse_rhs(ctx, self.exp)
-        self._add_defined_attributes(result)
+        if not isinstance(self.exp, Choice):
+            # note: a patch, but it avoids more complicated solutions
+            self._add_defined_attributes(ctx, result)
         return result
 
     def _parse_rhs(self, ctx, exp):

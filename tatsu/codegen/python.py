@@ -13,6 +13,7 @@ from tatsu.util import (
     compress_seq,
     RETYPE
 )
+from tatsu import grammars
 from tatsu.exceptions import CodegenError
 from tatsu.objectmodel import Node
 from tatsu.objectmodel import BASE_CLASS_TOKEN
@@ -398,7 +399,10 @@ class Rule(_Decorator):
 
         fields.update(params=params)
 
-        sdefines = self.make_defines_declaration()
+        if isinstance(self.exp, Choice):
+            sdefines = ''
+        else:
+            sdefines = self.make_defines_declaration()
         fields.update(defines=sdefines)
         leftrec = self.node.is_leftrec
         fields.update(leftrec='\n@leftrec' if leftrec else '')

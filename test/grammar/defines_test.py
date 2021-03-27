@@ -5,7 +5,7 @@ import pytest
 from tatsu.tool import compile, gencode
 
 
-@pytest.mark.skip('working on it')
+# @pytest.mark.skip('working on it')
 def test_name_in_option():
     grammar = '''
         start = expr_range ;
