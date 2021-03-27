@@ -135,7 +135,6 @@ class Model(Node):
 
         keys = [k for k, list in defines.items() if not list]
         list_keys = [k for k, list in defines.items() if list]
-        print(defines)
         ctx._define(keys, list_keys)
         if isinstance(ast, (AST, Node)):
             ast._define(keys, list_keys)
