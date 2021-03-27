@@ -38,3 +38,29 @@ def test_name_in_option():
 
     code = gencode(grammar=grammar)
     print(code)
+
+
+def test_by_option():
+    grammar = '''
+        start = expr_range ;
+
+        expr_range =
+            | [from: expr] '..' [to: expr]
+            | left:expr ','  [right:expr]
+            ;
+
+        expr =
+            /[\d]+/
+        ;
+    '''
+
+    model = compile(grammar)
+
+    ast = model.parse(' .. 10')
+    assert ast == {'from': None, 'to': '10'}
+
+    ast = model.parse('1, 2')
+    assert ast == {'left': '1', 'right': '2'}
+
+    ast = model.parse('1, ')
+    assert ast == {'left': '1', 'right': None}
