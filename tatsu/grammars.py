@@ -860,6 +860,7 @@ class Rule(Decorator):
         ctx.last_node = result
         if not isinstance(self.exp, Choice) or not ctx.ast:
             # note: a patch, but it avoids more complicated solutions
+            print(f'define {self.defines()=}')
             self._add_defined_attributes(ctx, result)
         return result
 

@@ -266,8 +266,10 @@ class ParseContext(object):
             self._tokenizer.next_token()
 
     def _define(self, keys, list_keys=None):
-        if self.ast and isinstance(self.ast, AST):
+        if isinstance(self.ast, AST):
+            print(f'in {self.ast=} {keys=}')
             self.ast._define(keys, list_keys)
+            print(f'out {self.ast=} {keys=}')
 
     @property
     def state(self):
