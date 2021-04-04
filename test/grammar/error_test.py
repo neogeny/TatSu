@@ -10,7 +10,7 @@ def test_missing_rule():
           block = test ;
     '''
     try:
-        ast = parse(grammar, 'abc')
+        parse(grammar, 'abc')
     except GrammarError as e:
         assert str(e) == 'Unknown rules, no parser generated:\ntest'
 
@@ -21,6 +21,6 @@ def test_missing_rules():
           block = test | test2;
     '''
     try:
-        ast = parse(grammar, 'abc')
+        parse(grammar, 'abc')
     except GrammarError as e:
         assert str(e) == 'Unknown rules, no parser generated:\ntest\ntest2'
