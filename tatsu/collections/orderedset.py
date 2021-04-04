@@ -84,11 +84,11 @@ class OrderedSet(MutableSet[T], Sequence[T]):
 
     def union(self, *other: Iterable[T]) -> "OrderedSet[T]":
         # do not split `str`
-        other = (
-            o if isinstance(o, (Set, Mapping, MutableSequence)) else [o]
+        outer = tuple(
+            [o] if not isinstance(o, (Set, Mapping, MutableSequence)) else o
             for o in other
         )
-        inner = itertools.chain([self], *other)  # type: ignore
+        inner = itertools.chain([self], *outer)  # type: ignore
         items = itertools.chain.from_iterable(inner)  # type: ignore
         return type(self)(itertools.chain(items))
 
