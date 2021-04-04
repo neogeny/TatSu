@@ -166,6 +166,7 @@ disable=C0102, C0103, C0111, C0122, C0123,
         W0621, W0622,
         W0702, W0703, W0706,
         W0707, # consider using `raise from`
+        W1116, # pylint doesn'get tuples of type for isinstance()
         W1201, W1202,
         W1401,
         W1618

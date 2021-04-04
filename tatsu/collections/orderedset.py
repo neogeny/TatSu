@@ -1,5 +1,4 @@
-# from https://github.com/LuminosoInsight/ordered-set/blob/master/ordered_set.py
-# removed Sequence behavior
+# NOTE: from https://github.com/LuminosoInsight/ordered-set/blob/master/ordered_set.py
 import itertools
 from typing import (
     Any,
