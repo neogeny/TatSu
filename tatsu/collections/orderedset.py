@@ -6,9 +6,11 @@ from typing import (
     Dict,
     Iterable,
     Iterator,
+    Mapping,
     MutableSet,
     Optional,
     Sequence,
+    MutableSequence,
     Set,
     TypeVar,
 )
@@ -82,6 +84,11 @@ class OrderedSet(MutableSet[T], Sequence[T]):
         return all(item in other for item in self)
 
     def union(self, *other: Iterable[T]) -> "OrderedSet[T]":
+        # do not split `str`
+        other = (
+            o if isinstance(o, (Set, Mapping, MutableSequence)) else [o]
+            for o in other
+        )
         inner = itertools.chain([self], *other)  # type: ignore
         items = itertools.chain.from_iterable(inner)  # type: ignore
         return type(self)(itertools.chain(items))
