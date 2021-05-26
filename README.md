@@ -4,6 +4,10 @@
 >
 > [Dennis Ritchie](http://en.wikipedia.org/wiki/Dennis_Ritchie) (1941-2011) Creator of the [C](http://en.wikipedia.org/wiki/C_language) programming language and of [Unix](http://en.wikipedia.org/wiki/Unix)
 
+# 竜 **TatSu** Jobs
+
+> [ResQSoft](https://www.resqsoft.com) is hiring 竜 **TatSu** developers. Contact [Tom Bragg](mailto:tbragg@resqsoft.com) at <tbragg@resqsoft.com> for more information.
+
 # 竜 **TatSu**
 
 ``` python
