@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import generator_stop
 
 from tatsu.exceptions import FailedRef
 from tatsu.contexts import ParseContext

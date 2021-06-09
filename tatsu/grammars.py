@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import generator_stop
 
 import functools
 from collections.abc import Mapping
@@ -29,7 +29,7 @@ PRAGMA_RE = r'^\s*#include.*$'
 
 class _ref(str):
     def __repr__(self):
-        return f'<{self}>'
+        return '<' + str(self) + '>'
 
 
 def ref(name):
@@ -86,7 +86,7 @@ class EBNFBuffer(EBNFBootstrapBuffer):
 
 
 class ModelContext(ParseContext):
-    def __init__(self, rules, /, start=None, config: ParserConfig = None, **settings):
+    def __init__(self, rules, start=None, config: ParserConfig = None, **settings):
         config = ParserConfig.new(config, **settings)
         config = config.replace(start=start)
 
@@ -954,7 +954,7 @@ class BasedRule(Rule):
 
 
 class Grammar(Model):
-    def __init__(self, name, rules, /, config: ParserConfig = None, directives: dict = None, **settings):
+    def __init__(self, name, rules, config: ParserConfig = None, directives: dict = None, **settings):
         super().__init__()
         assert isinstance(rules, list), str(rules)
         directives = directives or {}
@@ -1051,7 +1051,7 @@ class Grammar(Model):
         for rule in self.rules:
             rule._follow_set = fl[rule.name]
 
-    def parse(self, text: str, /, start=None, context=None, config: ParserConfig = None, **settings):  # type: ignore
+    def parse(self, text: str, start=None, context=None, config: ParserConfig = None, **settings):  # type: ignore
         config = self.config.replace_config(config)
         config = config.replace(**settings)
         config = config.replace(start=start)

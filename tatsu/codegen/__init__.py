@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import generator_stop
 
 from tatsu.exceptions import CodegenError
 from tatsu.codegen.cgbase import (  # noqa

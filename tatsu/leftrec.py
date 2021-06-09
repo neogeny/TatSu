@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import generator_stop
 
 from collections import defaultdict
 import tatsu.grammars  # pylint: disable=R0401
@@ -29,11 +29,11 @@ class Nullable(object):
         self.nullable = n
         self.children = None  # No longer needed
 
-    all: Callable
-    any: Callable
-    of: Callable
-    no: Callable
-    yes: Callable
+    all = None # type: Callable
+    any = None # type: Callable
+    of = None # type: Callable
+    no = None # type: Callable
+    yes = None # type: Callable
 
 
 class _All(Nullable):

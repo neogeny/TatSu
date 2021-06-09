@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import generator_stop
 
 from tatsu._config import __version__
 from tatsu._config import __toolname__

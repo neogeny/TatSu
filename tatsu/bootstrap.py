@@ -10,7 +10,7 @@
 # the file is generated.
 
 
-from __future__ import annotations
+from __future__ import generator_stop
 
 import sys
 

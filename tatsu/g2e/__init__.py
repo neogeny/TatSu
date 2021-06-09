@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import annotations
+from __future__ import generator_stop
 
 import codecs
 import sys

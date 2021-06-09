@@ -2,7 +2,7 @@
 The Renderer class provides the infrastructure for generating template-based
 code. It's used by the .grammars module for parser generation.
 """
-from __future__ import annotations
+from __future__ import generator_stop
 
 import itertools
 import string

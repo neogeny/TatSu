@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import generator_stop
 
 from tatsu.util import asjson, is_list
 
@@ -69,8 +69,8 @@ class AST(dict):
     def __setattr__(self, name, value):
         if self._frozen and name not in vars(self):
             raise AttributeError(
-                f'{type(self).__name__} attributes are fixed. '
-                f' Cannot set attribute "{name}".'
+                type(self).__name__ + ' attributes are fixed. '
+                ' Cannot set attribute "' + name + '".'
             )
         super().__setattr__(name, value)
 

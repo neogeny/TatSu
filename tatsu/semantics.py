@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import generator_stop
 
 import builtins
 from tatsu.util import simplify_list

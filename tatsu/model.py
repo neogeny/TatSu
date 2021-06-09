@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import generator_stop
 
 from tatsu.ast import AST                           # noqa: F401
 from tatsu.objectmodel import Node                  # noqa: F401

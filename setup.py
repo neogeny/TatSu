@@ -52,7 +52,7 @@ setuptools.setup(
         'Topic :: Software Development :: Interpreters',
         'Topic :: Text Processing :: General'
     ],
-    python_requires='>=3.8',
+    python_requires='>=3.4',
     setup_requires=['pytest-runner'],
     tests_require=['pytest-mypy'],
     extras_require={

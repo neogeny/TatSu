@@ -5,7 +5,7 @@ Line analysis and caching are done so the parser can freely move with goto(p)
 to any position in the parsed text, and still recover accurate information
 about source lines and content.
 """
-from __future__ import annotations
+from __future__ import generator_stop
 
 import os
 from itertools import takewhile, repeat
@@ -27,7 +27,7 @@ LineIndexEntry = LineIndexInfo
 
 
 class Buffer(Tokenizer):
-    def __init__(self, text, /, config: ParserConfig = None, **settings: Any):
+    def __init__(self, text, config: ParserConfig = None, **settings: Any):
         config = ParserConfig.new(config=config, owner=self, **settings)
         self.config = config
 
@@ -44,10 +44,10 @@ class Buffer(Tokenizer):
         self._pos = 0
         self._len = 0
         self._linecount = 0
-        self._lines: list[str] = []
-        self._line_index: list[LineIndexInfo] = []
-        self._line_cache: list[PosLine] = []
-        self._comment_index: list[CommentInfo] = []
+        self._lines = []
+        self._line_index = []  # type: list[LineIndexInfo]
+        self._line_cache = []  # type: list[PosLine]
+        self._comment_index = []  # type: list[CommentInfo]
 
         self._preprocess()
         self._postprocess()

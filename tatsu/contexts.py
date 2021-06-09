@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import generator_stop
 
 import sys
 import functools
@@ -205,7 +205,7 @@ class ParseContext(object):
         if not self._furthest_exception or e.pos > self._furthest_exception.pos:
             self._furthest_exception = e
 
-    def parse(self, text, /, start='start', config: ParserConfig = None, tokenizercls=None, **settings):
+    def parse(self, text, start='start', config: ParserConfig = None, tokenizercls=None, **settings):
         config = self.config.replace_config(config)
         config = config.replace(**settings)
         config = config.replace(start=start)
