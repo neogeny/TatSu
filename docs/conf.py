@@ -57,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = '\u7ADC TatSu'
-copyright = '2017-2019 Juancarlo Añez'
+copyright = '2017-2021 Juancarlo Añez'
 author = 'Juancarlo Añez'
 
 # The version info for the project you're documenting, acts as replacement for
