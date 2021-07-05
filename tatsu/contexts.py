@@ -653,7 +653,7 @@ class ParseContext(object):
         self._recursion_depth -= 1
 
         if isinstance(result, Exception):
-            raise result
+            raise result  # pylint: disable=raising-non-exception
 
         return result
 
