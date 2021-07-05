@@ -54,7 +54,7 @@ jobs:
             make clean
             flake8
             pylint --ignore=bootstrap.py,model.py tatsu test examples
-            mypy   --ignore-missing-imports --exclude "parsers|docs" .
+            mypy   --ignore-missing-imports tatsu test examples
             py.test
 
       - run:
