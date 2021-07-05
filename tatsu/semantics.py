@@ -54,7 +54,7 @@ class ModelBuilderSemantics(object):
                 raise SemanticError(
                     'Could not find constructor for %s (%s): %s'
                     % (typename, type(constructor).__name__, str(e))
-                )
+                ) from e
             if name in context:
                 constructor = context[name]
             else:
@@ -96,4 +96,4 @@ class ModelBuilderSemantics(object):
             raise SemanticError(
                 'Could not call constructor for %s: %s'
                 % (typename, str(e))
-            )
+            ) from e

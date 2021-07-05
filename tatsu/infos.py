@@ -47,7 +47,7 @@ class CommentInfo(namedtuple('_CommentInfo', ['inline', 'eol'])):
 
 
 _ParseInfo = namedtuple(
-    '_ParseInfoTuple',
+    '_ParseInfo',
     [
         'tokenizer',
         'rule',
@@ -80,7 +80,7 @@ MemoKey = namedtuple(
 
 
 _RuleInfo = namedtuple(
-    'RuleInfo',
+    '_RuleInfo',
     [
         'name',
         'impl',

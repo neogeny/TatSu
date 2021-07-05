@@ -581,8 +581,8 @@ class ParseContext(object):
                     break
         self._recursion_depth -= 1
 
-        if isinstance(result, Exception):
-            raise result
+        if isinstance(result, BaseException):
+            raise result  # pylint: disable=E0710
 
         return result
 
@@ -627,8 +627,8 @@ class ParseContext(object):
         semantic_rule, postproc = self._find_semantic_action(rule.name)
         if semantic_rule:
             node = semantic_rule(node, *(rule.params or ()), **(rule.kwparams or {}))
-        if postproc is not None:
-            postproc(self, node)
+        if callable(postproc):
+            postproc(self, node)  # pylint: disable=E1102
         return node
 
     def _token(self, token):
@@ -703,7 +703,7 @@ class ParseContext(object):
             raise
         except FailedParse as e:
             if self._is_cut_set():
-                raise FailedCut(e)
+                raise FailedCut(e) from e
         finally:
             self._cut_stack.pop()
 

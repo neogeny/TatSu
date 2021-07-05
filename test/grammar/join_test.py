@@ -2,6 +2,7 @@
 from __future__ import generator_stop
 
 import unittest
+from ast import parse as ast_parse
 
 from tatsu.exceptions import FailedParse
 from tatsu.tool import compile
@@ -71,8 +72,7 @@ class JoinTests(unittest.TestCase):
         '''
         model = compile(grammar, "test")
         c = codegen(model)
-        import parser
-        parser.suite(c)
+        ast_parse(c)
 
         ast = model.parse("x a b x", nameguard=False)
         self.assertEqual(['x', ['a', 'b'], 'x'], ast)
@@ -137,8 +137,7 @@ class JoinTests(unittest.TestCase):
         '''
         model = compile(grammar, "test")
         c = codegen(model)
-        import parser
-        parser.suite(c)
+        ast_parse(c)
 
         ast = model.parse("x a b x", nameguard=False)
         self.assertEqual(['x', 'x'], ast)

@@ -16,8 +16,8 @@ from tatsu.walkers import DepthFirstWalker
 from tatsu.parser import GrammarGenerator, EBNFParser
 from tatsu.parser_semantics import EBNFGrammarSemantics
 from tatsu.codegen import codegen
+from tatsu import util
 from tatsu.util import asjson
-import tatsu.util as util
 
 tmp = os.path.abspath('./tmp')
 sys.path.insert(0, str(tmp))
