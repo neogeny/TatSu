@@ -8,10 +8,10 @@ workflows:
   version: 2
   test:
     jobs:
-      - test-3.8
+      - test-3.9
 
 jobs:
-  test-3.8:  &test-template
+  test-3.9:  &test-template
     docker:
       - image: circleci/python:latest
 
@@ -36,7 +36,7 @@ jobs:
             sudo apt install -y python-sphinx
             sudo apt install -y python-docutils
             sudo apt install -y tox
-            python3.8 -m venv venv || python3.8 -m virtualenv venv
+            python3.9 -m venv venv || python3.9 -m virtualenv venv
             . venv/bin/activate
             pip install -U pip
             pip install -Ur requirements-test.txt
