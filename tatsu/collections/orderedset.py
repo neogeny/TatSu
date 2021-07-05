@@ -51,8 +51,8 @@ class OrderedSet(MutableSet[T], Sequence[T]):
     def __contains__(self, key: Any) -> bool:
         return key in self._map
 
-    def add(self, key: T):  # pylint: disable=W0221
-        self._map[key] = len(self._map)
+    def add(self, value: T):  # pylint: disable=W0221
+        self._map[value] = len(self._map)
         self._list_cache = None
 
     def update(self, sequence: Iterable[T]):
@@ -65,8 +65,8 @@ class OrderedSet(MutableSet[T], Sequence[T]):
         self._list_cache = None
         return key
 
-    def discard(self, key: T):  # pylint: disable=W0221
-        self._map.pop(key, None)
+    def discard(self, value: T):  # pylint: disable=W0221
+        self._map.pop(value, None)
         self._list_cache = None
 
     def clear(self):
