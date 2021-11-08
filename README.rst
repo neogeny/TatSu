@@ -15,6 +15,19 @@
     `Dennis Ritchie`_ (1941-2011) Creator of the C_ programming
     language and of Unix_
 
+
+|TatSu| Jobs
+============
+
+    ResQSoft_ is hiring |TatSu| developers. Contact `Tom Bragg`_ at `tbragg@resqsoft.com`_ for more information.
+
+
+.. _ResQSoft: https://www.resqsoft.com
+.. _Tom Bragg: mailto:tbragg@resqsoft.com
+.. _tbragg@resqsoft.com: mailto:tbragg@resqsoft.com
+
+
+
 |TatSu|
 =======
 
@@ -32,7 +45,7 @@
         Python has adopted an annual release schedule (PEP-602).
 
         Python 3.10 will be released in Oct 2021
-        Python 3.9  was released on Oct 20220
+        Python 3.9  was released on Oct 2020
         Python 3.8  bugfix releases final in May 2021
         Python 3.7  bugfix releases final in mid 2020
         Python 3.6  had its last bugfix release on Dec 2019
