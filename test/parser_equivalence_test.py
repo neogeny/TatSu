@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest  # noqa
 
 from tatsu.exceptions import FailedParse
-from tatsu.util.testing import generate_and_load_parser
+from test.util.testing import generate_and_load_parser
 from tatsu.tool import compile
 
 INPUT = """

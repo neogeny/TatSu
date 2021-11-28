@@ -3,9 +3,9 @@ import importlib
 import argparse
 from pathlib import Path
 
-from ..tool import gencode
-from .import filelist_from_patterns
-from .parproc import processing_loop
+from tatsu.tool import gencode
+from tatsu.util import filelist_from_patterns
+from tatsu.util.parproc import processing_loop
 
 
 def generate_and_load_parser(name, grammar):
