@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # \u7ADC TatSu documentation build configuration file, created by
 # sphinx-quickstart on Mon May  1 18:01:31 2017.
@@ -58,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = '\u7ADC TatSu'
-copyright = '2017-2019 Juancarlo Añez'
+copyright = '2017-2021 Juancarlo Añez'
 author = 'Juancarlo Añez'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -186,4 +185,4 @@ html_sidebars = {
 
 
 def setup(app):
-    app.add_stylesheet('css/custom.css')  # may also be an URL
+    app.add_css_file('css/custom.css')  # may also be an URL

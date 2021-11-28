@@ -10,19 +10,44 @@ backwards incompatibilities in the software.
 
 The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
-`X.Y.Z`_ @ 2020
+`X.Y.Z`_ @ 2021
 ---------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.5.0...master
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.6.1...master
 
-*  Test with Python 3.9
+*   Parser configuration variables were moved into a ``config: ParserConfig`` attribute.This may impact code that accessed those variables directly. Now instead of ``model.configuration_var`` you should use ``model.config.configuration_var``
+*   Now ``config: ParserConfig`` is used in ``__init__()`` and ``parse()`` methods of ``contexts.ParseContext``, ``grammars.Grammar``, and elsewhere to avoid the very long parameter lists that abounded. ``ParseContext`` also provides clean and clear ways of overridinga group of settings with another.
 
 
-`5.5.0`_ @ 2020
----------------
-.. _`5.5.0`: https://github.com/apalala/tatsu/compare/v5.0.0...master
+`5.6.1`_ @ 2021-03-22
+---------------------
+.. _`5.6.1`: https://github.com/apalala/tatsu/compare/v5.6.0...v5.6.1
 
-*  `#156`_   Clarify limitations of left-recursion in PEG (`@apalala`_).
-*  `#159`_   Clean up examples and tutorial, upgrade them to Python 3 (`@okomarov`_).
+*   Fix bug in which rule fields were forced on empty ``AST`` (`@Victorious3`_)
+
+`5.6.0`_ @ 2021-03-21
+---------------------
+.. _`5.6.0`: https://github.com/apalala/tatsu/compare/v5.5.0...v5.6.0
+
+*   Several important refactorings in ``contexts.ParseContext``
+*   Make ``ignorecase`` settings apply to defined ``@@keywords``
+*   Move checking of keywords used as names into ``ParseContext``
+*   Output of generated parsers again matches that of model parsers
+*   Improve *"expecting one of:"* messages so elements are in declaration order
+*   Stop code generation if there are closures over possibly empty expressions
+*   Preserve name declaration order in returned ``AST``
+*   Update the bootstrap parser (``tatsu/bootstrap.py``) to the generated parser
+*   Now generated parser's ``main()`` only outputs the JSON for the parse ``AST``
+*   Minor version bumped in case the many fixes break backwards-compatibility
+*   Minor documentation issues fixed
+*   All tests run with Python 3.8, 3.9, 3.10
+
+
+`5.5.0`_ @ 2020-01-26
+---------------------
+.. _`5.5.0`: https://github.com/apalala/tatsu/compare/v5.0.0...v5.5.0
+
+*  `#156`_   Clarify limitations of left-recursion in PEG (`@apalala`_)
+*  `#159`_   Clean up examples and tutorial, upgrade them to Python 3 (`@okomarov`_)
 
 .. _#156: https://github.com/neogeny/TatSu/issues/156
 .. _#159: https://github.com/neogeny/TatSu/pull/159
@@ -51,7 +76,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 *   Allow empty patterns (``//``) like Python does
 *  `#65`_ Allow initial, consecutive, and trailing ``@namechars``
 *  `#73`_ Allow ``@@whitespace :: None`` and ``@@whitespace :: False``
-*  `#75`_ Complete implemenation of left recursion(`@Victorious3`_)
+*  `#75`_ Complete implemenation of left recursion (`@Victorious3`_)
 *  `#77`_ Allow ``@keyword`` throughout the grammar
 *  `#89`_ Make all attributes defined in the rule present in the resulting ``AST`` or ``Node`` even if the associated expression was not parsed
 *  `#93`_ Fix trace colorization on Windows

@@ -1,5 +1,6 @@
-# -*- coding: utf-8 -*-
-__REGISTRY = vars()
+from typing import Any, Mapping
+
+__REGISTRY: Mapping[str, Any] = vars()
 
 
 class _Synthetic(object):

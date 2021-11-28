@@ -1,29 +1,35 @@
-[![license](https://img.shields.io/badge/license-BSD-blue.svg)](https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt) [![pyversions](https://img.shields.io/pypi/pyversions/tatsu.svg)](https://pypi.python.org/pypi/tatsu) [![fury](https://badge.fury.io/py/TatSu.svg)](https://badge.fury.io/py/TatSu) [![circleci](https://circleci.com/gh/neogeny/TatSu.svg?style=shield)](https://circleci.com/gh/neogeny/TatSu) [![docs](https://readthedocs.org/projects/tatsu/badge/?version=stable)](http://tatsu.readthedocs.io/en/stable/)
+[![license](https://img.shields.io/badge/license-BSD-blue.svg)](https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt) [![pyversions](https://img.shields.io/pypi/pyversions/tatsu.svg)](https://pypi.python.org/pypi/tatsu) [![fury](https://badge.fury.io/py/tatsu.svg)](https://badge.fury.io/py/TatSu) [![circleci](https://circleci.com/gh/neogeny/TatSu.svg?style=shield)](https://circleci.com/gh/neogeny/TatSu) [![docs](https://readthedocs.org/projects/tatsu/badge/?version=stable)](http://tatsu.readthedocs.io/en/stable/)
 
 > *At least for the people who send me mail about a new language that they're designing, the general advice is: do it to learn about how to write a compiler. Don't have any expectations that anyone will use it, unless you hook up with some sort of organization in a position to push it hard. It's a lottery, and some can buy a lot of the tickets. There are plenty of beautiful languages (more beautiful than C) that didn't catch on. But someone does win the lottery, and doing a language at least teaches you something.*
 >
 > [Dennis Ritchie](http://en.wikipedia.org/wiki/Dennis_Ritchie) (1941-2011) Creator of the [C](http://en.wikipedia.org/wiki/C_language) programming language and of [Unix](http://en.wikipedia.org/wiki/Unix)
+
+# 竜 **TatSu** Jobs
+
+> [ResQSoft](https://www.resqsoft.com) is hiring 竜 **TatSu** developers. Contact [Tom Bragg](mailto:tbragg@resqsoft.com) at <tbragg@resqsoft.com> for more information.
 
 # 竜 **TatSu**
 
 ``` python
 def WARNING():
     """
-    |TatSu|>=5.0.0 requires Python>=3.8
+    TatSu>=5.6 requires Python>=3.8
+    TatSu>=5.7 will require Python>=3.9
 
-    Python 3.8 introduced new language features that allow writing better programs
-    more clearly, and all code compatible with Python 3.7 should run fine on 3.8
-    with minor, or no changes.
+    Python 3.8 and 3.9 introduced new language features that allow
+    writing better programs more clearly. All code written for
+    Python 3.7 should run fine on Python 3.9 with minor, or no changes.
 
-    Python has adopted an anual release schedule (PEP-602).
+    Python has adopted an annual release schedule (PEP-602).
 
-    Python 3.9 is due to be released on June 2020
-    Python 3.7 will have bugfix releases only until mid 2020
-    Python 3.6 had its last bugfix release on December 2019
-    Python 3.5 entered "security fixes only" mode since August 2018
-    Python 2.7 reached its end of life on January 2020
+    Python 3.10 will be released in Oct 2021
+    Python 3.9  was released on Oct 2020
+    Python 3.8  bugfix releases final in May 2021
+    Python 3.7  bugfix releases final in mid 2020
+    Python 3.6  had its last bugfix release on Dec 2019
+    Python 2.7  reached its end of life on Jan 2020
 
-    There are compelling reasons to upgrade 3.x projects to Python 3.8
+    Compelling reasons to upgrade projects to the latest Python
     """
     pass
 ```
@@ -99,19 +105,12 @@ GRAMMAR = '''
 
 
 if __name__ == '__main__':
-    import pprint
     import json
     from tatsu import parse
     from tatsu.util import asjson
 
     ast = parse(GRAMMAR, '3 + 5 * ( 10 - 20 )')
-    print('# PPRINT')
-    pprint.pprint(ast, indent=2, width=20)
-    print()
-
-    print('# JSON')
     print(json.dumps(asjson(ast), indent=2))
-    print()
 ```
 
 竜 **TatSu** will use the first rule defined in the grammar as the *start* rule.
@@ -119,16 +118,6 @@ if __name__ == '__main__':
 This is the output:
 
 ``` console
-# PPRINT
-[ '3',
-  '+',
-  [ '5',
-    '*',
-    [ '10',
-      '-',
-      '20']]]
-
-# JSON
 [
   "3",
   "+",

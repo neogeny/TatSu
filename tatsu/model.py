@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-from __future__ import generator_stop
+from __future__ import annotations
 
 from tatsu.ast import AST                           # noqa: F401
 from tatsu.objectmodel import Node                  # noqa: F401

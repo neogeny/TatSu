@@ -1,11 +1,122 @@
-# -*- coding: utf-8 -*-
-from __future__ import generator_stop
+from __future__ import annotations
 
+import copy
 from collections import namedtuple
-from dataclasses import dataclass, field
-from typing import Any
+import dataclasses
+from typing import (
+    Any,
+    Mapping,
+    Optional,
+    Type,
+    Union,
+)
 
 from .ast import AST
+from .util.unicode_characters import C_DERIVE
+
+
+COMMENTS_RE = r'\(\*((?:.|\n)*?)\*\)'
+EOL_COMMENTS_RE = r'#([^\n]*?)$'
+
+
+@dataclasses.dataclass
+class ParserConfig:
+    owner: object = None
+    name: Optional[str] = 'Test'
+    filename: str = ''
+    encoding: str = 'utf-8'
+
+    start: Optional[str] = None  # FIXME
+    start_rule: Optional[str] = None  # FIXME
+
+    comments_re: Optional[str] = COMMENTS_RE
+    eol_comments_re: Optional[str] = EOL_COMMENTS_RE
+
+    tokenizercls: Optional[Type] = None  # FIXME
+    semantics: Optional[Type] = None
+
+    comment_recovery: bool = False
+    memoize_lookaheads: bool = True
+
+    colorize: bool = False
+    trace: bool = False
+    trace_filename: bool = False
+    trace_length: int = 72
+    trace_separator: str = C_DERIVE
+
+    # parser directives
+    grammar: Optional[str] = None
+    left_recursion: bool = True
+
+    comments: Optional[str] = None
+    eol_comments: Optional[str] = None
+    keywords: Union[list[str], set[str]] = dataclasses.field(default_factory=list)  # type: ignore
+
+    ignorecase: Optional[bool] = False
+    namechars: str = ''
+    nameguard: Optional[bool] = None  # implied by namechars
+    whitespace: Optional[str] = None
+
+    parseinfo: bool = False
+
+    def __post_init__(self):  # pylint: disable=W0235
+        if self.ignorecase:
+            self.keywords = [k.upper() for k in self.keywords]
+        if self.comments:
+            self.comments_re = self.comments
+        if self.eol_comments:
+            self.eol_comments_re = self.eol_comments
+
+    @classmethod
+    def new(cls, config: Optional[ParserConfig], owner: Any = None, **settings: Any) -> ParserConfig:
+        result = cls(owner=owner)
+        if config is not None:
+            result = config.replace_config(config)
+        return result.replace(**settings)
+
+    def effective_rule_name(self):
+        # note: there are legacy reasons for this mess
+        return (
+            self.start_rule or
+            self.start
+        )
+
+    def _find_common(self, **settings: Any) -> Mapping[str, Any]:
+        return {
+            name: value
+            for name, value in settings.items()
+            if value is not None and hasattr(self, name)
+        }
+
+    def replace_config(self, other: Optional[ParserConfig]) -> ParserConfig:
+        if other is None:
+            return self
+        elif not isinstance(other, ParserConfig):
+            raise TypeError(f'Unexpected type {type(other).__name__}')
+        else:
+            return self.replace(**vars(other))
+
+    def replace(self, **settings: Any) -> ParserConfig:
+        overrides = self._find_common(**settings)
+        result = dataclasses.replace(self, **overrides)
+        if 'grammar' in overrides:
+            result.name = result.grammar
+        return result
+
+    def merge(self, **settings: Any) -> ParserConfig:
+        overrides = self._find_common(**settings)
+        overrides = {
+            name: value for name, value in overrides.items()
+            if getattr(self, name, None) is None
+        }
+        return self.replace(**overrides)
+
+    def asdict(self):
+        # warning: it seems dataclasses.asdict does a deepcopy
+        # result = dataclasses.asdict(self)
+        result = copy.copy(vars(self))
+        result.pop('owner', None)
+        return result
 
 
 class PosLine(namedtuple('_PosLine', ['start', 'line', 'length'])):
@@ -120,8 +231,8 @@ RuleResult = namedtuple(
 )
 
 
-@dataclass
+@dataclasses.dataclass
 class ParseState(object):
     pos: int = 0
-    ast: AST = field(default_factory=AST)
+    ast: AST = dataclasses.field(default_factory=AST)
     cst: Any = None

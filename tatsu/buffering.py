@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 The Buffer class provides the functionality required by a parser-driven lexer.
 
@@ -6,10 +5,11 @@ Line analysis and caching are done so the parser can freely move with goto(p)
 to any position in the parsed text, and still recover accurate information
 about source lines and content.
 """
-from __future__ import generator_stop
+from __future__ import annotations
 
 import os
 from itertools import takewhile, repeat
+from typing import (Any,)
 
 from .tokenizing import Tokenizer
 from .util import identity
@@ -17,69 +17,52 @@ from .util import extend_list, contains_sublist
 from .util import re as regexp
 from .util import RETYPE, WHITESPACE_RE
 from .exceptions import ParseError
-from .infos import PosLine, LineIndexInfo, LineInfo, CommentInfo
+from .infos import (
+    ParserConfig,
+    PosLine, LineIndexInfo, LineInfo, CommentInfo,
+)
 
 # for backwards compatibility with existing parsers
 LineIndexEntry = LineIndexInfo
 
 
 class Buffer(Tokenizer):
-    def __init__(self,
-                 text,
-                 filename=None,
-                 whitespace=None,
-                 comments_re=None,
-                 eol_comments_re=None,
-                 ignorecase=False,
-                 nameguard=None,
-                 comment_recovery=False,
-                 namechars='',
-                 **kwargs):
+    def __init__(self, text, /, config: ParserConfig = None, **settings: Any):
+        config = ParserConfig.new(config=config, owner=self, **settings)
+        self.config = config
+
         text = str(text)
         self.text = self.original_text = text
-        self._filename = filename or ''
 
-        self.whitespace = whitespace
-
-        self.comments_re = comments_re
-        self.eol_comments_re = eol_comments_re
-        self._ignorecase = ignorecase
+        self.whitespace_re = self.build_whitespace_re(config.whitespace)
         self.nameguard = (
-            nameguard if nameguard is not None
-            else bool(self.whitespace_re) or bool(namechars)
+            config.nameguard if config.nameguard is not None
+            else bool(self.whitespace_re) or bool(config.namechars)
         )
-        self.comment_recovery = comment_recovery
-        self.namechars = namechars if namechars is not None else ''
-        self._namechar_set = set(self.namechars)
+        self._namechar_set = set(config.namechars)
 
         self._pos = 0
         self._len = 0
         self._linecount = 0
-        self._lines = []
-        self._line_index = []
-        self._line_cache = []
-        self._comment_index = []
-        self._re_cache = {}
+        self._lines: list[str] = []
+        self._line_index: list[LineIndexInfo] = []
+        self._line_cache: list[PosLine] = []
+        self._comment_index: list[CommentInfo] = []
 
         self._preprocess()
         self._postprocess()
 
     @property
     def filename(self):
-        return self._filename
+        return self.config.filename
 
     @property
     def ignorecase(self):
-        return self._ignorecase
+        return self.config.ignorecase
 
     @property
     def whitespace(self):
-        return self._whitespace
-
-    @whitespace.setter
-    def whitespace(self, value):
-        self._whitespace = value
-        self.whitespace_re = self.build_whitespace_re(value)
+        return self.config.whitespace
 
     @staticmethod
     def build_whitespace_re(whitespace):
@@ -220,7 +203,7 @@ class Buffer(Tokenizer):
         self.goto(self.pos + n)
 
     def comments(self, p, clear=False):
-        if not self.comment_recovery or not self._comment_index:
+        if not self.config.comment_recovery or not self._comment_index:
             return CommentInfo([], [])
 
         n = self.posline(p)
@@ -243,7 +226,7 @@ class Buffer(Tokenizer):
         return CommentInfo(cmm, eolcmm)
 
     def _index_comments(self, comments, selector):
-        if comments and self.comment_recovery:
+        if comments and self.config.comment_recovery:
             n = self.line
             extend_list(self._comment_index, n, default=CommentInfo.new_comment)
             previous = selector(self._comment_index[n])
@@ -258,11 +241,11 @@ class Buffer(Tokenizer):
         return self._eat_regex(self.whitespace_re)
 
     def eat_comments(self):
-        comments = self._eat_regex(self.comments_re)
+        comments = self._eat_regex(self.config.comments_re)
         self._index_comments(comments, lambda x: x.inline)
 
     def eat_eol_comments(self):
-        comments = self._eat_regex(self.eol_comments_re)
+        comments = self._eat_regex(self.config.eol_comments_re)
         self._index_comments(comments, lambda x: x.eol)
 
     def next_token(self):
@@ -335,11 +318,8 @@ class Buffer(Tokenizer):
     def _scanre(self, pattern, ignorecase=None, offset=0):
         if isinstance(pattern, RETYPE):
             re = pattern
-        elif pattern in self._re_cache:
-            re = self._re_cache[pattern]
         else:
             re = regexp.compile(pattern, regexp.MULTILINE | regexp.UNICODE)
-            self._re_cache[pattern] = re
         return re.match(self.text, self.pos + offset)
 
     @property

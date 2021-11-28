@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-from __future__ import generator_stop
+from __future__ import annotations
 
 from collections.abc import Mapping, MutableMapping
 
@@ -52,11 +51,13 @@ class Node(object):
 
     @property
     def line(self):
-        return self.parseinfo.line
+        if self.parseinfo:
+            return self.parseinfo.line
 
     @property
     def endline(self):
-        return self.parseinfo.endline
+        if self.parseinfo:
+            return self.parseinfo.endline
 
     def text_lines(self):
         return self.parseinfo.text_lines()
@@ -66,7 +67,7 @@ class Node(object):
 
     @property
     def col(self):
-        return self.line_info.col
+        return self.line_info.col if self.line_info else None
 
     @property
     def ctx(self):

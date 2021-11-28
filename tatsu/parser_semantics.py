@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-from __future__ import generator_stop
+from __future__ import annotations
 
 from collections.abc import Sequence
 
@@ -120,13 +119,14 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
 
     def grammar(self, ast, *args):
         directives = {d.name: d.value for d in flatten(ast.directives)}
-        keywords = set(flatten(ast.keywords) or [])
+        keywords = list(flatten(ast.keywords)) or []
 
         if directives.get('whitespace') in ('None', 'False'):
             directives['whitespace'] = ''
 
+        name = self.grammar_name if self.grammar_name else directives.get('grammar', None)
         return grammars.Grammar(
-            self.grammar_name,
+            name,
             list(self.rules.values()),
             directives=directives,
             keywords=keywords
