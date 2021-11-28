@@ -544,7 +544,7 @@ function or from the command line with ``tatsu --object-model calc_model.ebnf -G
 
 
     class ModelBase(Node):
-    pass
+        pass
 
 
     class CalcModelBuilderSemantics(ModelBuilderSemantics):
