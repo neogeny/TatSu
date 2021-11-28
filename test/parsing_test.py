@@ -53,11 +53,11 @@ class ParsingTests(unittest.TestCase):
         self.assertIsNotNone(model)
 
     def test_escape_sequences(self):
-        self.assertEqual(u'\n', eval_escapes(r'\n'))
-        self.assertEqual(u'this \xeds a test', eval_escapes(r'this \xeds a test'))
-        self.assertEqual(u'this ís a test', eval_escapes(r'this \xeds a test'))
-        self.assertEqual(u'\nañez', eval_escapes(r'\na\xf1ez'))
-        self.assertEqual(u'\nañez', eval_escapes(r'\nañez'))
+        self.assertEqual('\n', eval_escapes(r'\n'))
+        self.assertEqual('this \xeds a test', eval_escapes(r'this \xeds a test'))
+        self.assertEqual('this ís a test', eval_escapes(r'this \xeds a test'))
+        self.assertEqual('\nañez', eval_escapes(r'\na\xf1ez'))
+        self.assertEqual('\nañez', eval_escapes(r'\nañez'))
 
     def test_rule_name(self):
         grammar = '''

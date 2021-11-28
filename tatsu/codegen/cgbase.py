@@ -98,7 +98,7 @@ class CodeGenerator(object):
             self._renderers = self._find_module_renderers(modules)
 
     def _find_module_renderers(self, modules):
-        result = dict()
+        result = {}
 
         for module in modules:
             for name, dtype in vars(module).items():
