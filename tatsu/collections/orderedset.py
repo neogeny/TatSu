@@ -1,14 +1,15 @@
-# from https://github.com/LuminosoInsight/ordered-set/blob/master/ordered_set.py
-# removed Sequence behavior
+# NOTE: from https://github.com/LuminosoInsight/ordered-set/blob/master/ordered_set.py
 import itertools
 from typing import (
     Any,
     Dict,
     Iterable,
     Iterator,
+    Mapping,
     MutableSet,
     Optional,
     Sequence,
+    MutableSequence,
     Set,
     TypeVar,
 )
@@ -50,8 +51,8 @@ class OrderedSet(MutableSet[T], Sequence[T]):
     def __contains__(self, key: Any) -> bool:
         return key in self._map
 
-    def add(self, key: T):  # pylint: disable=W0221
-        self._map[key] = len(self._map)
+    def add(self, value: T):  # pylint: disable=W0221
+        self._map[value] = len(self._map)
         self._list_cache = None
 
     def update(self, sequence: Iterable[T]):
@@ -64,8 +65,8 @@ class OrderedSet(MutableSet[T], Sequence[T]):
         self._list_cache = None
         return key
 
-    def discard(self, key: T):  # pylint: disable=W0221
-        self._map.pop(key, None)
+    def discard(self, value: T):  # pylint: disable=W0221
+        self._map.pop(value, None)
         self._list_cache = None
 
     def clear(self):
@@ -82,7 +83,12 @@ class OrderedSet(MutableSet[T], Sequence[T]):
         return all(item in other for item in self)
 
     def union(self, *other: Iterable[T]) -> "OrderedSet[T]":
-        inner = itertools.chain([self], *other)  # type: ignore
+        # do not split `str`
+        outer = tuple(
+            [o] if not isinstance(o, (Set, Mapping, MutableSequence)) else o
+            for o in other
+        )
+        inner = itertools.chain([self], *outer)  # type: ignore
         items = itertools.chain.from_iterable(inner)  # type: ignore
         return type(self)(itertools.chain(items))
 

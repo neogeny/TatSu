@@ -804,7 +804,7 @@ class RuleRef(Model):
 
     def missing_rules(self, rules):
         if self.name not in rules:
-            return {self.name}
+            return oset({self.name})
         return oset()
 
     def _used_rule_names(self):
@@ -992,7 +992,7 @@ class Grammar(Model):
 
         self._adopt_children(rules)
 
-        missing = self.missing_rules({r.name for r in self.rules})
+        missing = self.missing_rules(oset(r.name for r in self.rules))
         if missing:
             msg = '\n'.join([''] + list(sorted(missing)))
             raise GrammarError('Unknown rules, no parser generated:' + msg)

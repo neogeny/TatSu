@@ -1,6 +1,6 @@
-from typing import Any
+from typing import Any, Mapping
 
-__REGISTRY: dict[str, Any] = vars()
+__REGISTRY: Mapping[str, Any] = vars()
 
 
 class _Synthetic(object):

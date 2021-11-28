@@ -4,6 +4,10 @@
 >
 > [Dennis Ritchie](http://en.wikipedia.org/wiki/Dennis_Ritchie) (1941-2011) Creator of the [C](http://en.wikipedia.org/wiki/C_language) programming language and of [Unix](http://en.wikipedia.org/wiki/Unix)
 
+# 竜 **TatSu** Jobs
+
+> [ResQSoft](https://www.resqsoft.com) is hiring 竜 **TatSu** developers. Contact [Tom Bragg](mailto:tbragg@resqsoft.com) at <tbragg@resqsoft.com> for more information.
+
 # 竜 **TatSu**
 
 ``` python
@@ -19,7 +23,7 @@ def WARNING():
     Python has adopted an annual release schedule (PEP-602).
 
     Python 3.10 will be released in Oct 2021
-    Python 3.9  was released on Oct 20220
+    Python 3.9  was released on Oct 2020
     Python 3.8  bugfix releases final in May 2021
     Python 3.7  bugfix releases final in mid 2020
     Python 3.6  had its last bugfix release on Dec 2019

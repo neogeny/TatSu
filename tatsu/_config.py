@@ -1,2 +1,3 @@
+from ._version import __version__  # noqa
+
 __toolname__ = 'TatSu'
-__version__ = '5.6.1'

@@ -145,6 +145,7 @@ confidence=
 #        comprehension-escape
 
 disable=C0102, C0103, C0111, C0122, C0123,
+        C0209, # not using f-string
         C0301, C0321, C0330,
         C0411, C0412, C0415,
         C1801,
@@ -155,7 +156,7 @@ disable=C0102, C0103, C0111, C0122, C0123,
         R0801,
         R0901, R0902, R0903,
         R0912, R0913, R0914, R0915,
-        R1702, R1705, R1710, R1711,
+        R1702, R1705, R1710, R1711, R1732,
         W0101, W0108,
         W0201, W0212,
         W0221, # Parameters differ from overridden 'parse' method (arguments-differ)
@@ -166,8 +167,10 @@ disable=C0102, C0103, C0111, C0122, C0123,
         W0621, W0622,
         W0702, W0703, W0706,
         W0707, # consider using `raise from`
+        W1116, # pylint doesn'get tuples of type for isinstance()
         W1201, W1202,
         W1401,
+        W1514,
         W1618
         # C, R, W
 
