@@ -35,7 +35,7 @@ class ModelBuilderSemantics(object):
         self.ctx = context
         self.base_type = base_type
 
-        self.constructors = dict()
+        self.constructors = {}
 
         for t in types or ():
             self._register_constructor(t)

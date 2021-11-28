@@ -145,6 +145,7 @@ confidence=
 #        comprehension-escape
 
 disable=C0102, C0103, C0111, C0122, C0123,
+        C0209, # not using f-string
         C0301, C0321, C0330,
         C0411, C0412, C0415,
         C1801,
@@ -169,6 +170,7 @@ disable=C0102, C0103, C0111, C0122, C0123,
         W1116, # pylint doesn'get tuples of type for isinstance()
         W1201, W1202,
         W1401,
+        W1514,
         W1618
         # C, R, W
 
