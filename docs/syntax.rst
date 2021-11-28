@@ -395,6 +395,23 @@ The expressions, in reverse order of operator precedence, can be:
 ^^^^^^^^^^
     Add the result of ``e`` to the `AST`_ using ``name`` as key. If ``name`` collides with any attribute or method of ``dict``, or is a `Python`_ keyword, an underscore (``_``) will be appended to the name.
 
+    When there are no named items in a rule, the `AST`_ consists of the
+    elements parsed by the rule, either a single item or a ``list``. This
+    default behavior makes it easier to write simple rules:
+
+.. code::
+
+        number = /[0-9]+/ ;
+
+    Without having to write:
+
+.. code::
+
+        number = number:/[0-9]+/ ;
+
+    When a rule has named elements, the unnamed ones are excluded from the
+    `AST`_ (they are ignored).
+
 
 ``name+:e``
 ^^^^^^^^^^^
@@ -438,25 +455,6 @@ The expressions, in reverse order of operator precedence, can be:
 ``$``
 ^^^^^
     The *end of text* symbol. Verify that the end of the input text has been reached.
-
-
-When there are no named items in a rule, the `AST`_ consists of the
-elements parsed by the rule, either a single item or a ``list``. This
-default behavior makes it easier to write simple rules:
-
-.. code::
-
-    number = /[0-9]+/ ;
-
-Without having to write:
-
-.. code::
-
-    number = number:/[0-9]+/ ;
-
-When a rule has named elements, the unnamed ones are excluded from the
-`AST`_ (they are ignored).
-
 
 ..
     Deprecated Expressions
