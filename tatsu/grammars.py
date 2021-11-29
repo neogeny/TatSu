@@ -130,6 +130,19 @@ class Model(Node):
     def defines(self):
         return []
 
+    def _add_defined_attributes(self, ctx, ast=None):
+        if ast is None:
+            return
+        if not hasattr(ast, '_define'):
+            return
+
+        defines = dict(compress_seq(self.defines()))
+
+        keys = [k for k, list in defines.items() if not list]
+        list_keys = [k for k, list in defines.items() if list]
+        ctx._define(keys, list_keys)
+        ast._define(keys, list_keys)
+
     def lookahead(self, k=1):
         if self._lookahead is None:
             self._lookahead = kdot(self.firstset(k), self.followset(k), k)
@@ -246,7 +259,7 @@ class EOF(Model):
 class Decorator(Model):
     def __init__(self, ast=None, exp=None, **kwargs):
         if exp is not None:
-            self.exp = exp
+            self.exp = ast = exp
         elif not isinstance(ast, AST):
             # Patch to avoid bad interactions with attribute setting in Model.
             # Also a shortcut for subexpressions that are not ASTs.
@@ -541,6 +554,13 @@ class Choice(Model):
         return self.options
 
 
+class Option(Decorator):
+    def parse(self, ctx):
+        result = super().parse(ctx)
+        self._add_defined_attributes(ctx, result)
+        return result
+
+
 class Closure(Decorator):
     def parse(self, ctx):
         return ctx._closure(lambda: self.exp.parse(ctx))
@@ -672,6 +692,7 @@ class EmptyClosure(Model):
 class Optional(Decorator):
     def parse(self, ctx):
         ctx.last_node = None
+        self._add_defined_attributes(ctx, ctx.ast)
         with ctx._optional():
             return self.exp.parse(ctx)
 
@@ -841,7 +862,6 @@ class Rule(Decorator):
 
     def parse(self, ctx):
         result = self._parse_rhs(ctx, self.exp)
-        self._add_defined_attributes(result)
         return result
 
     def _parse_rhs(self, ctx, exp):
@@ -855,14 +875,6 @@ class Rule(Decorator):
         )
         result = ctx._call(ruleinfo)
         return result
-
-    def _add_defined_attributes(self, ast):
-        defines = compress_seq(self.defines())
-        if not isinstance(ast, (AST, Node)):
-            return
-        for d, l in defines:
-            if not hasattr(ast, d):
-                setattr(ast, d, [] if l else None)
 
     # def firstset(self, k=1):
     #     return self.exp.firstset(k=k)
