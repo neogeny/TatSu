@@ -302,7 +302,7 @@ requires different licensing* please `email`_.
    :target: https://pypi.python.org/pypi/tatsu
 .. |travis| image:: https://secure.travis-ci.org/neogeny/TatSu.svg
    :target: http://travis-ci.org/neogeny/TatSu
-.. |actions| image:: https://github.com/neogeny/TatSu/workflows/test/badge.svg
+.. |actions| image:: https://github.com/neogeny/TatSu/workflows/tests/badge.svg
     :target: https://github.com/neogeny/TatSu/actions
 .. |circleci| image:: https://circleci.com/gh/neogeny/TatSu.svg?style=shield
     :target: https://circleci.com/gh/neogeny/TatSu
