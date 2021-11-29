@@ -4,8 +4,8 @@
 name: tests
 
 on:
-  # push:
-  #   branches: [ '*' ]
+  push:
+    branches: [ master ]
   pull_request:
     branches: [ '*' ]
 
