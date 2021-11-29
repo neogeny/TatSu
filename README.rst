@@ -38,9 +38,9 @@
         TatSu>=5.6 requires Python>=3.8
         TatSu>=5.7 will require Python>=3.10
 
-        Python 3.8 and 3.9 introduced new language features that allow
-        writing better programs more clearly. All code written for
-        Python 3.7 should run fine on Python 3.9 with minor, or no changes.
+        Python 3.8, 3.9, and 3.10 introduced new language features
+        that allow writing better programs more clearly. Code written
+        for Python 3.7 should run fine on Python up to 3.10 with no changes.
 
         Python has adopted an annual release schedule (PEP-602).
 
