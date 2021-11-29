@@ -54,6 +54,7 @@ class ANTLRSemantics(object):
         if len(options) == 1:
             return options[0]
         else:
+            options = [model.Option(o) for o in options]
             return model.Choice(options)
 
     def elements(self, ast):

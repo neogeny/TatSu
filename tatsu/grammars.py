@@ -259,7 +259,7 @@ class EOF(Model):
 class Decorator(Model):
     def __init__(self, ast=None, exp=None, **kwargs):
         if exp is not None:
-            self.exp = exp
+            self.exp = ast = exp
         elif not isinstance(ast, AST):
             # Patch to avoid bad interactions with attribute setting in Model.
             # Also a shortcut for subexpressions that are not ASTs.
