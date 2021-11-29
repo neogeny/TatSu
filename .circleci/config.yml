@@ -1,0 +1,79 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
+version: 2
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
+
+jobs:
+  test:  &test-template
+    docker:
+      - image: circleci/python:latest
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "requirements-test.txt" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            sudo apt update
+            sudo apt install -y python3-pip
+            sudo apt install -y virtualenv
+            sudo apt install -y pandoc
+            sudo apt install -y python3-sphinx
+            sudo apt install -y python3-docutils
+            sudo apt install -y tox
+            python3 -m venv venv || python3 -m virtualenv venv
+            . venv/bin/activate
+            pip install -U pip
+            pip install -Ur requirements-test.txt
+            mkdir -p tmp
+
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements-test.txt" }}
+
+      - run:
+          name: test
+          command: |
+            . venv/bin/activate
+            make clean
+            flake8
+            pylint --ignore=bootstrap.py,model.py tatsu test examples
+            mypy   --ignore-missing-imports tatsu test examples
+            py.test
+
+      - run:
+          name: examples
+          command: |
+            . venv/bin/activate
+            make examples
+
+      - run:
+          name: documentation
+          command: |
+            . venv/bin/activate
+            make documentation
+
+      - run:
+          name: package
+          command: |
+            make distributions
+
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports

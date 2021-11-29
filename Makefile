@@ -47,8 +47,10 @@ release_check: clean documentation
 
 distributions: clean sdist bdist_wheel
 
+
 sdist:
 	python setup.py sdist --formats=zip
+
 
 bdist_wheel:
 	python setup.py bdist_wheel --universal
