@@ -9,6 +9,7 @@ pytest-mypy
 pytest-pylint
 pyyaml
 regex
+rst2html5
 setuptools
 sphinx
 sphinx-rtd-theme
