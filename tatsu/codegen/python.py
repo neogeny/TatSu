@@ -39,6 +39,32 @@ class Base(ModelRenderer):
     def defines(self):
         return self.node.defines()
 
+    def make_defines_declaration(self):
+        defines = compress_seq(self.defines())
+        ldefs = set(safe_name(d) for d, l in defines if l)
+        sdefs = set(safe_name(d) for d, l in defines if not l and d not in ldefs)
+
+        if not (sdefs or ldefs):
+            return ''
+        else:
+            sdefs = '[%s]' % ', '.join(repr(d) for d in sorted(sdefs))
+            ldefs = '[%s]' % ', '.join(repr(d) for d in sorted(ldefs))
+            if not ldefs:
+                return '\n\n    self._define(%s, %s)' % (sdefs, ldefs)
+            else:
+                return indent(
+                    '\n' +
+                    trim(self.define_template % (sdefs, ldefs))
+                )
+
+    define_template = '''\
+            self._define(
+                %s,
+                %s
+            )\
+        '''
+
+
 
 class Void(Base):
     template = 'self._void()'
@@ -126,12 +152,6 @@ class Sequence(Base):
 
 class Choice(Base):
     def render_fields(self, fields):
-        template = trim(self.option_template)
-        options = [
-            template.format(
-                option=indent(self.rend(o))) for o in self.node.options
-        ]
-        options = '\n'.join(o for o in options)
         firstset = self.node.lookahead_str()
         if firstset:
             msglines = textwrap.wrap(firstset, width=40)
@@ -139,10 +159,11 @@ class Choice(Base):
         else:
             error = ['no available options']
         error = [repr(e) for e in error]
-        fields.update(n=self.counter(),
-                      options=indent(options),
-                      error=error,
-                      )
+        fields.update(
+            n=self.counter(),
+            error=error,
+        )
+        fields.update(options='\n'.join(self.rend(o) for o in self.node.options))
 
     def render(self, **fields):
         if len(self.node.options) == 1:
@@ -150,17 +171,24 @@ class Choice(Base):
         else:
             return super().render(**fields)
 
-    option_template = '''\
-                    with self._option():
-                    {option}\
-                    '''
-
     template = '''\
                 with self._choice():
-                {options}
+                {options:1::}
                     self._error(
                 {error:2:\\n:}
                     )\
+                '''
+
+
+class Option(_Decorator):
+    def render_fields(self, fields):
+        defines = self.make_defines_declaration()
+        fields.update(defines=defines)
+
+    template = '''\
+                with self._option():
+                {exp:1::}\
+                # {defines}\
                 '''
 
 
@@ -371,23 +399,7 @@ class Rule(_Decorator):
 
         fields.update(params=params)
 
-        defines = compress_seq(self.defines())
-        ldefs = set(safe_name(d) for d, l in defines if l)
-        sdefs = set(safe_name(d) for d, l in defines if not l and d not in ldefs)
-
-        if not (sdefs or ldefs):
-            sdefines = ''
-        else:
-            sdefs = '[%s]' % ', '.join(repr(d) for d in sorted(sdefs))
-            ldefs = '[%s]' % ', '.join(repr(d) for d in sorted(ldefs))
-            if not ldefs:
-                sdefines = '\n\n    self._define(%s, %s)' % (sdefs, ldefs)
-            else:
-                sdefines = indent(
-                    '\n' +
-                    trim(self.define_template % (sdefs, ldefs))
-                )
-
+        sdefines = self.make_defines_declaration()
         fields.update(defines=sdefines)
         leftrec = self.node.is_leftrec
         fields.update(leftrec='\n@leftrec' if leftrec else '')

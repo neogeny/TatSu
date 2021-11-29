@@ -541,6 +541,12 @@ class Choice(Model):
         return self.options
 
 
+class Option(Decorator):
+    def parse(self, ctx):
+        result = super().parse(ctx)
+        return result
+
+
 class Closure(Decorator):
     def parse(self, ctx):
         return ctx._closure(lambda: self.exp.parse(ctx))
