@@ -399,8 +399,7 @@ class Rule(_Decorator):
 
         fields.update(params=params)
 
-        sdefines = ''
-        # sdefines = self.make_defines_declaration()
+        sdefines = self.make_defines_declaration()
         fields.update(defines=sdefines)
         leftrec = self.node.is_leftrec
         fields.update(leftrec='\n@leftrec' if leftrec else '')
