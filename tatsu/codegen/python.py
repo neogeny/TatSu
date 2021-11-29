@@ -66,7 +66,6 @@ class Base(ModelRenderer):
         '''
 
 
-
 class Void(Base):
     template = 'self._void()'
 
