@@ -1,7 +1,7 @@
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
 .. |TatSu| replace:: |dragon| **TatSu**
 
-|license| |pyversions| |fury| |circleci| |docs|
+|license| |pyversions| |fury| |actions| |docs|
 
     *At least for the people who send me mail about a new language that
     they're designing, the general advice is: do it to learn about how
@@ -302,6 +302,8 @@ requires different licensing* please `email`_.
    :target: https://pypi.python.org/pypi/tatsu
 .. |travis| image:: https://secure.travis-ci.org/neogeny/TatSu.svg
    :target: http://travis-ci.org/neogeny/TatSu
+.. |actions| image:: https://github.com/neogeny/TatSu/workflows/test/badge.svg
+    :target: https://github.com/neogeny/TatSu/actions
 .. |circleci| image:: https://circleci.com/gh/neogeny/TatSu.svg?style=shield
     :target: https://circleci.com/gh/neogeny/TatSu
 .. |landscape| image:: https://landscape.io/github/apalala/TatSu/master/landscape.png
