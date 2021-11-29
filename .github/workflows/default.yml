@@ -43,6 +43,6 @@ jobs:
     - name: documentation
       run: |
         make documentation
-    - name: build
+    - name: distributions
       run: |
-        make distributions
+        make sdist
