@@ -31,9 +31,18 @@ jobs:
         sudo apt install -y python3-docutils
         python -m pip install --upgrade pip
         pip install -r requirements-test.txt
-    - name: make
+    - name: static tests
       run: |
-        make
+        make static_test
+    - name: pytest
+      run: |
+        make tatsu_test
+    - name: examples
+      run: |
+        make examples
+    - name: documentation
+      run: |
+        make documentation
     - name: build
       run: |
         make distributions
