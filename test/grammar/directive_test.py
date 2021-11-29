@@ -128,6 +128,7 @@ class DirectiveTests(unittest.TestCase):
         self.assertIsNotNone(ast.parseinfo)
 
         code = codegen(model)
+        print(code)
         self.assertTrue('parseinfo=True' in code)
         compile(code, 'test.py', EXEC)
 
