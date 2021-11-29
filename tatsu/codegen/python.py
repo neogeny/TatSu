@@ -514,6 +514,7 @@ class Grammar(Base):
                 from tatsu.parsing import Parser
                 from tatsu.parsing import tatsumasu
                 from tatsu.parsing import leftrec, nomemo, isname # noqa
+                from tatsu.infos import ParserConfig
                 from tatsu.util import re, generic_main  # noqa
 
 
@@ -521,59 +522,38 @@ class Grammar(Base):
 
 
                 class {name}Buffer(Buffer):
-                    def __init__(
-                        self,
-                        text,
-                        whitespace={whitespace},
-                        nameguard={nameguard},
-                        comments_re={comments_re},
-                        eol_comments_re={eol_comments_re},
-                        ignorecase={ignorecase},
-                        namechars={namechars},
-                        **kwargs
-                    ):
-                        super().__init__(
-                            text,
-                            whitespace=whitespace,
-                            nameguard=nameguard,
-                            comments_re=comments_re,
-                            eol_comments_re=eol_comments_re,
-                            ignorecase=ignorecase,
-                            namechars=namechars,
-                            **kwargs
+                    def __init__(self, text, /, config: ParserConfig = None, **settings):
+                        base_config = ParserConfig.new(
+                            owner=self,
+                            whitespace={whitespace},
+                            nameguard={nameguard},
+                            comments_re={comments_re},
+                            eol_comments_re={eol_comments_re},
+                            ignorecase={ignorecase},
+                            namechars={namechars},
+                            parseinfo={parseinfo},
                         )
+                        config = base_config.replace_config(config)
+                        config = config.merge(**settings)
+                        super().__init__(text, config=config)
 
 
                 class {name}Parser(Parser):
-                    def __init__(
-                        self,
-                        whitespace={whitespace},
-                        nameguard={nameguard},
-                        comments_re={comments_re},
-                        eol_comments_re={eol_comments_re},
-                        ignorecase={ignorecase},
-                        left_recursion={left_recursion},
-                        parseinfo={parseinfo},
-                        keywords=None,
-                        namechars={namechars},
-                        tokenizercls={name}Buffer,
-                        **kwargs
-                    ):
-                        if keywords is None:
-                            keywords = KEYWORDS
-                        super().__init__(
-                            whitespace=whitespace,
-                            nameguard=nameguard,
-                            comments_re=comments_re,
-                            eol_comments_re=eol_comments_re,
-                            ignorecase=ignorecase,
-                            left_recursion=left_recursion,
-                            parseinfo=parseinfo,
-                            keywords=keywords,
-                            namechars=namechars,
-                            tokenizercls=tokenizercls,
-                            **kwargs
+                    def __init__(self, config: ParserConfig = None, **settings):
+                        base_config = ParserConfig.new(
+                            owner=self,
+                            whitespace={whitespace},
+                            nameguard={nameguard},
+                            comments_re={comments_re},
+                            eol_comments_re={eol_comments_re},
+                            ignorecase={ignorecase},
+                            namechars={namechars},
+                            parseinfo={parseinfo},
+                            keywords=KEYWORDS,
                         )
+                        config = base_config.replace_config(config)
+                        config = config.merge(**settings)
+                        super().__init__(config=config)
 
                 {rules}
 
