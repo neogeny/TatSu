@@ -21,6 +21,7 @@ class Node:
     ctx: Any = None
     ast: AST|None = None
     parseinfo: ParseInfo|None = None
+    parent: Node = None
 
     def __init__(self, **kwargs):
         for name, value in kwargs.items():
@@ -160,13 +161,17 @@ class NodeFuncs:
         return self.node.children_list()
 
     def _children(self):
+        def with_parent(node):
+            node.parent = self
+            return node
+
         for child in self.node._pubdict().values():
             if isinstance(child, Node):
-                yield child
+                yield with_parent(child)
             elif isinstance(child, Mapping):
-                yield from (c for c in child.values() if isinstance(c, Node))
+                yield from (with_parent(c) for c in child.values() if isinstance(c, Node))
             elif isinstance(child, (list, tuple)):
-                yield from (c for c in child if isinstance(c, Node))
+                yield from (with_parent(c) for c in child if isinstance(c, Node))
 
     @cache
     def children_list(self):
