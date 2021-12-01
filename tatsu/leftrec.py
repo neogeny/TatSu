@@ -101,7 +101,7 @@ def resolve_nullability(grammar, rule_dict):
             return
         visited.add(model)
 
-        for child in nodefuncs(model).children:
+        for child in nodefuncs(model).children():
             child = follow(child, rule_dict)
             walk(child)
 
@@ -178,7 +178,7 @@ def find_left_recursion(grammar):
 
         state[model] = VISITED
 
-    for rule in nodefuncs(grammar).children:
+    for rule in nodefuncs(grammar).children():
         walk(rule)
 
     # print()

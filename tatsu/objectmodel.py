@@ -96,9 +96,8 @@ class Node:
     def comments(self):
         return nodefuncs(self).comments
 
-    @property
     def children(self):
-        return nodefuncs(self).children
+        return nodefuncs(self).children()
 
     def children_list(self):
         return nodefuncs(self).children_list()
@@ -157,7 +156,6 @@ class NodeFuncs:
             return self.node.parseinfo.tokenizer.comments(self.node.parseinfo.pos)
         return CommentInfo([], [])
 
-    @property
     def children(self):
         return self.node.children_list()
 
