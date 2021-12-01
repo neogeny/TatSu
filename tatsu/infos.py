@@ -181,6 +181,10 @@ class ParseInfo(_ParseInfo):
     def line_index(self):
         return self.tokenizer.line_index(self.line, self.endline)
 
+    @property
+    def buffer(self):
+        return self.tokenizer
+
 
 MemoKey = namedtuple(
     'MemoKey',
