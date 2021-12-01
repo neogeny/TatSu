@@ -19,6 +19,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 *   Parser configuration variables were moved into a ``config: ParserConfig`` attribute.This may impact code that accessed those variables directly. Now instead of ``model.configuration_var`` you should use ``model.config.configuration_var``
 *   All names defined in the successful choice in a rule are now defined in the resulting ``AST``. Names within optionals or closures that did not match will have their values set to ``None``.
 *   Moved build configuration from ``setup.py`` in favor of ``setup.cfg``  and ``pyproject.toml`` (`@KOLANICH`_)
+*   ``objectmodel.Node`` was simplified so the children hierarchy is not computed until needed. Other refactorings lead the way to generated models nodes be Python data classes.
 
 
 `5.6.1`_ @ 2021-03-22
