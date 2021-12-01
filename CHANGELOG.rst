@@ -15,7 +15,6 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.6.1...master
 
 *   Drop support for Python3.8 (security and source-code only releases since 2021/0503). Code in TatSu using new language features may not compile under that version of Python.
-* The AST for sequences and closures is now a ``tuple`` (it used to be a ``list``-derived ``closure``)
 *   Now ``config: ParserConfig`` is used in ``__init__()`` and ``parse()`` methods of ``contexts.ParseContext``, ``grammars.Grammar``, and elsewhere to avoid the very long parameter lists that abounded. ``ParseContext`` also provides clean and clear ways of overridinga group of settings with another.
 *   Parser configuration variables were moved into a ``config: ParserConfig`` attribute.This may impact code that accessed those variables directly. Now instead of ``model.configuration_var`` you should use ``model.config.configuration_var``
 *   All names defined in the successful choice in a rule are now defined in the resulting ``AST``. Names within optionals or closures that did not match will have their values set to ``None``.
@@ -67,6 +66,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 *  `#56`_   Include missing ``tatsu/g2e/antlr.ebnf`` in distribution
 *  `#138`_   Reimplement the calculation of ``FIRST``, ``FOLLOW``, and ``LOOKAHEAD`` sets using latest theories. For now, this should improve parser error reporting, but should eventually enable the simplification of parsing of leftrec grammars (`@apalala`_).
 *  `#153`_   Import ABCs from ``collections.abc`` (`@tirkarthi`_)
+* The AST for sequences is now a ``tuple`` (it used to be a ``list``-derived ``closure``)
+
 
 .. _#56: https://github.com/neogeny/TatSu/issues/56
 .. _#138: https://github.com/neogeny/TatSu/issues/138
