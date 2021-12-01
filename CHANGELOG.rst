@@ -66,6 +66,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 *  `#56`_   Include missing ``tatsu/g2e/antlr.ebnf`` in distribution
 *  `#138`_   Reimplement the calculation of ``FIRST``, ``FOLLOW``, and ``LOOKAHEAD`` sets using latest theories. For now, this should improve parser error reporting, but should eventually enable the simplification of parsing of leftrec grammars (`@apalala`_).
 *  `#153`_   Import ABCs from ``collections.abc`` (`@tirkarthi`_)
+* The AST for sequences is now a ``tuple`` (it used to be a ``list``-derived ``closure``)
+
 
 .. _#56: https://github.com/neogeny/TatSu/issues/56
 .. _#138: https://github.com/neogeny/TatSu/issues/138
