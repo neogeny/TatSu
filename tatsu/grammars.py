@@ -853,7 +853,6 @@ class Rule(Decorator):
         self.params = params
         self.kwparams = kwparams
         self.decorators = decorators or []
-        self._adopt_children([params, kwparams])
 
         self.is_name = 'name' in self.decorators
         self.base = None
@@ -986,8 +985,6 @@ class Grammar(Model):
         if name is None:
             name = Path(config.filename).stem
         self.name = name
-
-        self._adopt_children(rules)
 
         missing = self.missing_rules(oset(r.name for r in self.rules))
         if missing:

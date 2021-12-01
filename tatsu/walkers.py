@@ -67,7 +67,7 @@ class PreOrderWalker(NodeWalker):
     def walk(self, node, *args, **kwargs):
         result = super().walk(node, *args, **kwargs)
         if isinstance(node, Node):
-            for child in node.children_list():
+            for child in node.children:
                 self.walk(child)
         return result
 
@@ -76,7 +76,7 @@ class DepthFirstWalker(NodeWalker):
     def walk(self, node, *args, **kwargs):
         supers_walk = super().walk
         if isinstance(node, Node):
-            children = [self.walk(c, *args, **kwargs) for c in node.children()]
+            children = [self.walk(c, *args, **kwargs) for c in node.children]
             return supers_walk(node, children, *args, **kwargs)
         elif isinstance(node, Mapping):
             return {n: self.walk(e, *args, **kwargs) for n, e in node.items()}

@@ -100,7 +100,8 @@ def resolve_nullability(grammar, rule_dict):
             return
         visited.add(model)
 
-        for child in model.children_list():
+        print(type(model), model)
+        for child in model.children:
             child = follow(child, rule_dict)
             walk(child)
 
@@ -177,11 +178,11 @@ def find_left_recursion(grammar):
 
         state[model] = VISITED
 
-    for rule in grammar.children_list():
+    for rule in grammar.children:
         walk(rule)
 
     # print()
-    # for rule in grammar.children_list():
+    # for rule in grammar.children:
     #    print(rule)
     #    if rule.is_leftrec: print("-> Leftrec")
     #    if rule.is_nullable(): print("-> Nullable")
