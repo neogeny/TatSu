@@ -1,3 +1,3742 @@
+<class 'tatsu.grammars.Grammar'> @@comments :: //\*(?:.|\n)*?\*//
+@@eol_comments :: ///[^\n]*?\n/
+
+start
+    =
+    grammar
+    ;
+
+
+grammar
+    =
+    ['lexer' | 'parser']
+    'grammar'
+    name:name
+    ';'
+    [options]
+    [header]
+    [members]
+    [imports]
+    [tokens]
+    {scope}
+    {action}
+    rules:{rule}+
+    $
+    ;
+
+
+options
+    =
+    'options' '{' {option}+ '}' ~
+    ;
+
+
+option
+    =
+    id '=' (id | string | char | int | '*') ';' ~
+    ;
+
+
+imports
+    =
+    'import' name {',' name} ';'
+    ;
+
+
+header
+    =
+    '@header' block
+    ;
+
+
+members
+    =
+    '@members' block
+    ;
+
+
+tokens
+    =
+    'tokens' '{' {[','] token}+ '}'
+    ;
+
+
+token
+    =
+    name:token_name ['=' ~ exp:token_value] [';'] ~
+    ;
+
+
+token_value
+    =
+    literal
+    ;
+
+
+scope
+    =
+    'scope' ~ (block ['scope' id {',' id} ';'] | id {',' id} ';' | id block)
+    ;
+
+
+action
+    =
+    '@' ('lexer' | 'parser' | id) ['::' id] block
+    ;
+
+
+block
+    =
+    '{' {block | /[^{}]*/} '}'
+    ;
+
+
+rule
+    =
+    [
+    'protected' | 'public' | 'private' | fragment:'fragment'
+    ]
+
+    name:id
+    ['!']
+    [arg]
+    ['returns' arg]
+    ['trhows' id {',' id}]
+    [options]
+    [scope]
+    {action}
+    ':'
+    exp:alternatives
+    ';'
+    ~
+    [exceptions]
+    ;
+
+
+arg
+    =
+    '[' ~ {arg | /[^\]]*/} ']'
+    ;
+
+
+exceptions
+    =
+    {'catch' arg block} ['finally' block]
+    ;
+
+
+alternatives
+    =
+    '|'.{[annotation] options+:alternative}+
+    ;
+
+
+alternative
+    =
+    @:elements ['->' rewrite]
+    ;
+
+
+elements
+    =
+    {element}
+    ;
+
+
+element
+    =
+    | named
+    | predicate_or_action
+    | optional
+    | closure
+    | positive_closure
+    | atom
+    ;
+
+
+named
+    =
+    name:id (force_list:'+=' | '=') exp:atom
+    ;
+
+
+predicate_or_action
+    =
+    gated_predicate | semantic_predicate | semantic_action
+    ;
+
+
+gated_predicate
+    =
+    block '?=>' ~
+    ;
+
+
+semantic_predicate
+    =
+    block '?' ~
+    ;
+
+
+semantic_action
+    =
+    '{' {semantic_action | /[^}]/} '}'
+    ;
+
+
+syntactic_predicate
+    =
+    @:subexp '=>' ~
+    ;
+
+
+optional
+    =
+    ('(' @:alternatives ')' | @:(closure | positive_closure | atom)) '?' ~
+    ;
+
+
+closure
+    =
+    @:atom '*' ~
+    ;
+
+
+positive_closure
+    =
+    @:atom '+' ~
+    ;
+
+
+atom
+    =
+    @:(
+        | eof
+        | newranges
+        | negative
+        | regexp
+        | syntactic_predicate
+        | subexp
+        | terminal
+        | non_terminal
+    )
+    [
+    '^' | '!'
+    ]
+
+    [annotation]
+    ;
+
+
+annotation
+    =
+    '<' ','.{id ['=' id]}+ '>'
+    ;
+
+
+eof
+    =
+    'EOF'
+    ;
+
+
+regexp
+    =
+    {charset}+
+    ;
+
+
+charset
+    =
+    | charset_optional
+    | charset_closure
+    | charset_positive_closure
+    | charset_term
+    ;
+
+
+charset_optional
+    =
+    '(' @:charset ')' '?' ~
+    ;
+
+
+charset_closure
+    =
+    '(' @:charset ')' '*' ~
+    ;
+
+
+charset_positive_closure
+    =
+    '(' @:charset ')' '+' ~
+    ;
+
+
+charset_term
+    =
+    '(' @:charset ')' | charset_negative_or | charset_or
+    ;
+
+
+charset_or
+    =
+    | @+:charset_range {'|' @+:charset_atom}
+    | @+:charset_char {'|' @+:charset_atom}+
+    ;
+
+
+charset_negative_or
+    =
+    '~'
+    '('
+    (
+        | @+:charset_range {'|' @+:charset_atom}
+        | @+:charset_char {'|' @+:charset_atom}+
+    )
+    ')'
+    ;
+
+
+charset_atom
+    =
+    charset_range | char
+    ;
+
+
+charset_char
+    =
+    char
+    ;
+
+
+charset_range
+    =
+    first:charset_char '..' last:charset_char
+    ;
+
+
+newranges
+    =
+    {negative_newrange | newrange}+
+    ;
+
+
+newrange
+    =
+    '[' range:/([^\]]|\\u[a-fA-F0-9]{4}|\\.)+/ ']' repeat:[/[+*?][?]?/]
+    ;
+
+
+negative_newrange
+    =
+    '~' '[' range:/([^\]]|\\u[a-fA-F0-9]{4}|\\.)+/ ']' repeat:[/[+*?][?]?/]
+    ;
+
+
+subexp
+    =
+    '(' [options ':' ~] @:alternatives ')'
+    ;
+
+
+negative
+    =
+    '~' @:atom
+    ;
+
+
+non_terminal
+    =
+    @:(token_ref | rule_ref) [arg]
+    ;
+
+
+terminal
+    =
+    string | any
+    ;
+
+
+any
+    =
+    !'..' '.' ~
+    ;
+
+
+rewrite
+    =
+    {rewrite_term}
+    ;
+
+
+rewrite_term
+    =
+    '^(' {rewrite_term}+ ')' | /[^|;^)]*/
+    ;
+
+
+rule_ref
+    =
+    lower_name [annotation]
+    ;
+
+
+token_ref
+    =
+    upper_name
+    ;
+
+
+token_name
+    =
+    upper_name
+    ;
+
+
+literal
+    =
+    id | string | int
+    ;
+
+
+id
+    =
+    name
+    ;
+
+
+name
+    =
+    /[a-zA-Z][A-Za-z0-9_]*/
+    ;
+
+
+lower_name
+    =
+    /[a-z][A-Za-z0-9_]*/
+    ;
+
+
+upper_name
+    =
+    /[A-Z][A-Za-z0-9_]*/
+    ;
+
+
+char
+    =
+    "'" @:/[^'\n\\]|\\'|\\u[a-fA-F0-9]{4}|\\./ "'"
+    ;
+
+
+string
+    =
+    STRING
+    ;
+
+
+STRING
+    =
+    | '"' @:/([^"\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ '"'
+    | "'" @:/([^'\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ "'"
+    ;
+
+
+int
+    =
+    /[0-9]+/
+    ;
+
+
+ESC
+    =
+    /\\['"\\nrtbfv]/ | /\\u[a-fA-F0-9]{4}/
+    ;
+
+<class 'tatsu.grammars.Rule'> start
+    =
+    grammar
+    ;
+
+<class 'tatsu.grammars.Rule'> grammar
+    =
+    ['lexer' | 'parser']
+    'grammar'
+    name:name
+    ';'
+    [options]
+    [header]
+    [members]
+    [imports]
+    [tokens]
+    {scope}
+    {action}
+    rules:{rule}+
+    $
+    ;
+
+<class 'tatsu.grammars.Sequence'> ['lexer' | 'parser']
+'grammar'
+name:name
+';'
+[options]
+[header]
+[members]
+[imports]
+[tokens]
+{scope}
+{action}
+rules:{rule}+
+$
+<class 'tatsu.grammars.Optional'> ['lexer' | 'parser']
+<class 'tatsu.grammars.Group'> ('lexer' | 'parser')
+<class 'tatsu.grammars.Choice'> 'lexer' | 'parser'
+<class 'tatsu.grammars.Option'> 'lexer'
+<class 'tatsu.grammars.Token'> 'lexer'
+<class 'tatsu.grammars.Option'> 'parser'
+<class 'tatsu.grammars.Token'> 'parser'
+<class 'tatsu.grammars.Token'> 'grammar'
+<class 'tatsu.grammars.Named'> name:name
+<class 'tatsu.grammars.Rule'> name
+    =
+    /[a-zA-Z][A-Za-z0-9_]*/
+    ;
+
+<class 'tatsu.grammars.Pattern'> /[a-zA-Z][A-Za-z0-9_]*/
+<class 'tatsu.grammars.Token'> ';'
+<class 'tatsu.grammars.Optional'> [options]
+<class 'tatsu.grammars.Rule'> options
+    =
+    'options' '{' {option}+ '}' ~
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'options' '{' {option}+ '}' ~
+<class 'tatsu.grammars.Token'> 'options'
+<class 'tatsu.grammars.Token'> '{'
+<class 'tatsu.grammars.PositiveClosure'> {option}+
+<class 'tatsu.grammars.Rule'> option
+    =
+    id '=' (id | string | char | int | '*') ';' ~
+    ;
+
+<class 'tatsu.grammars.Sequence'> id '=' (id | string | char | int | '*') ';' ~
+<class 'tatsu.grammars.Rule'> id
+    =
+    name
+    ;
+
+<class 'tatsu.grammars.Token'> '='
+<class 'tatsu.grammars.Group'> (id | string | char | int | '*')
+<class 'tatsu.grammars.Choice'> id | string | char | int | '*'
+<class 'tatsu.grammars.Option'> id
+<class 'tatsu.grammars.Option'> string
+<class 'tatsu.grammars.Rule'> string
+    =
+    STRING
+    ;
+
+<class 'tatsu.grammars.Rule'> STRING
+    =
+    | '"' @:/([^"\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ '"'
+    | "'" @:/([^'\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ "'"
+    ;
+
+<class 'tatsu.grammars.Choice'> | '"' @:/([^"\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ '"'
+| "'" @:/([^'\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ "'"
+<class 'tatsu.grammars.Option'> '"' @:/([^"\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ '"'
+<class 'tatsu.grammars.Sequence'> '"' @:/([^"\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ '"'
+<class 'tatsu.grammars.Token'> '"'
+<class 'tatsu.grammars.Override'> @:/([^"\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/
+<class 'tatsu.grammars.Pattern'> /([^"\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/
+<class 'tatsu.grammars.Token'> '"'
+<class 'tatsu.grammars.Option'> "'" @:/([^'\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ "'"
+<class 'tatsu.grammars.Sequence'> "'" @:/([^'\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ "'"
+<class 'tatsu.grammars.Token'> "'"
+<class 'tatsu.grammars.Override'> @:/([^'\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/
+<class 'tatsu.grammars.Pattern'> /([^'\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/
+<class 'tatsu.grammars.Token'> "'"
+<class 'tatsu.grammars.Option'> char
+<class 'tatsu.grammars.Rule'> char
+    =
+    "'" @:/[^'\n\\]|\\'|\\u[a-fA-F0-9]{4}|\\./ "'"
+    ;
+
+<class 'tatsu.grammars.Sequence'> "'" @:/[^'\n\\]|\\'|\\u[a-fA-F0-9]{4}|\\./ "'"
+<class 'tatsu.grammars.Token'> "'"
+<class 'tatsu.grammars.Override'> @:/[^'\n\\]|\\'|\\u[a-fA-F0-9]{4}|\\./
+<class 'tatsu.grammars.Pattern'> /[^'\n\\]|\\'|\\u[a-fA-F0-9]{4}|\\./
+<class 'tatsu.grammars.Token'> "'"
+<class 'tatsu.grammars.Option'> int
+<class 'tatsu.grammars.Rule'> int
+    =
+    /[0-9]+/
+    ;
+
+<class 'tatsu.grammars.Pattern'> /[0-9]+/
+<class 'tatsu.grammars.Option'> '*'
+<class 'tatsu.grammars.Token'> '*'
+<class 'tatsu.grammars.Token'> ';'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Token'> '}'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Optional'> [header]
+<class 'tatsu.grammars.Rule'> header
+    =
+    '@header' block
+    ;
+
+<class 'tatsu.grammars.Sequence'> '@header' block
+<class 'tatsu.grammars.Token'> '@header'
+<class 'tatsu.grammars.Rule'> block
+    =
+    '{' {block | /[^{}]*/} '}'
+    ;
+
+<class 'tatsu.grammars.Sequence'> '{' {block | /[^{}]*/} '}'
+<class 'tatsu.grammars.Token'> '{'
+<class 'tatsu.grammars.Closure'> {block | /[^{}]*/}
+<class 'tatsu.grammars.Choice'> block | /[^{}]*/
+<class 'tatsu.grammars.Option'> block
+<class 'tatsu.grammars.Option'> /[^{}]*/
+<class 'tatsu.grammars.Pattern'> /[^{}]*/
+<class 'tatsu.grammars.Token'> '}'
+<class 'tatsu.grammars.Optional'> [members]
+<class 'tatsu.grammars.Rule'> members
+    =
+    '@members' block
+    ;
+
+<class 'tatsu.grammars.Sequence'> '@members' block
+<class 'tatsu.grammars.Token'> '@members'
+<class 'tatsu.grammars.Optional'> [imports]
+<class 'tatsu.grammars.Rule'> imports
+    =
+    'import' name {',' name} ';'
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'import' name {',' name} ';'
+<class 'tatsu.grammars.Token'> 'import'
+<class 'tatsu.grammars.Closure'> {',' name}
+<class 'tatsu.grammars.Sequence'> ',' name
+<class 'tatsu.grammars.Token'> ','
+<class 'tatsu.grammars.Token'> ';'
+<class 'tatsu.grammars.Optional'> [tokens]
+<class 'tatsu.grammars.Rule'> tokens
+    =
+    'tokens' '{' {[','] token}+ '}'
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'tokens' '{' {[','] token}+ '}'
+<class 'tatsu.grammars.Token'> 'tokens'
+<class 'tatsu.grammars.Token'> '{'
+<class 'tatsu.grammars.PositiveClosure'> {[','] token}+
+<class 'tatsu.grammars.Sequence'> [','] token
+<class 'tatsu.grammars.Optional'> [',']
+<class 'tatsu.grammars.Token'> ','
+<class 'tatsu.grammars.Rule'> token
+    =
+    name:token_name ['=' ~ exp:token_value] [';'] ~
+    ;
+
+<class 'tatsu.grammars.Sequence'> name:token_name ['=' ~ exp:token_value] [';'] ~
+<class 'tatsu.grammars.Named'> name:token_name
+<class 'tatsu.grammars.Rule'> token_name
+    =
+    upper_name
+    ;
+
+<class 'tatsu.grammars.Rule'> upper_name
+    =
+    /[A-Z][A-Za-z0-9_]*/
+    ;
+
+<class 'tatsu.grammars.Pattern'> /[A-Z][A-Za-z0-9_]*/
+<class 'tatsu.grammars.Optional'> ['=' ~ exp:token_value]
+<class 'tatsu.grammars.Sequence'> '=' ~ exp:token_value
+<class 'tatsu.grammars.Token'> '='
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Named'> exp:token_value
+<class 'tatsu.grammars.Rule'> token_value
+    =
+    literal
+    ;
+
+<class 'tatsu.grammars.Rule'> literal
+    =
+    id | string | int
+    ;
+
+<class 'tatsu.grammars.Choice'> id | string | int
+<class 'tatsu.grammars.Option'> id
+<class 'tatsu.grammars.Option'> string
+<class 'tatsu.grammars.Option'> int
+<class 'tatsu.grammars.Optional'> [';']
+<class 'tatsu.grammars.Token'> ';'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Token'> '}'
+<class 'tatsu.grammars.Closure'> {scope}
+<class 'tatsu.grammars.Rule'> scope
+    =
+    'scope' ~ (block ['scope' id {',' id} ';'] | id {',' id} ';' | id block)
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'scope' ~ (block ['scope' id {',' id} ';'] | id {',' id} ';' | id block)
+<class 'tatsu.grammars.Token'> 'scope'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Group'> (block ['scope' id {',' id} ';'] | id {',' id} ';' | id block)
+<class 'tatsu.grammars.Choice'> block ['scope' id {',' id} ';'] | id {',' id} ';' | id block
+<class 'tatsu.grammars.Option'> block ['scope' id {',' id} ';']
+<class 'tatsu.grammars.Sequence'> block ['scope' id {',' id} ';']
+<class 'tatsu.grammars.Optional'> ['scope' id {',' id} ';']
+<class 'tatsu.grammars.Sequence'> 'scope' id {',' id} ';'
+<class 'tatsu.grammars.Token'> 'scope'
+<class 'tatsu.grammars.Closure'> {',' id}
+<class 'tatsu.grammars.Sequence'> ',' id
+<class 'tatsu.grammars.Token'> ','
+<class 'tatsu.grammars.Token'> ';'
+<class 'tatsu.grammars.Option'> id {',' id} ';'
+<class 'tatsu.grammars.Sequence'> id {',' id} ';'
+<class 'tatsu.grammars.Closure'> {',' id}
+<class 'tatsu.grammars.Sequence'> ',' id
+<class 'tatsu.grammars.Token'> ','
+<class 'tatsu.grammars.Token'> ';'
+<class 'tatsu.grammars.Option'> id block
+<class 'tatsu.grammars.Sequence'> id block
+<class 'tatsu.grammars.Closure'> {action}
+<class 'tatsu.grammars.Rule'> action
+    =
+    '@' ('lexer' | 'parser' | id) ['::' id] block
+    ;
+
+<class 'tatsu.grammars.Sequence'> '@' ('lexer' | 'parser' | id) ['::' id] block
+<class 'tatsu.grammars.Token'> '@'
+<class 'tatsu.grammars.Group'> ('lexer' | 'parser' | id)
+<class 'tatsu.grammars.Choice'> 'lexer' | 'parser' | id
+<class 'tatsu.grammars.Option'> 'lexer'
+<class 'tatsu.grammars.Token'> 'lexer'
+<class 'tatsu.grammars.Option'> 'parser'
+<class 'tatsu.grammars.Token'> 'parser'
+<class 'tatsu.grammars.Option'> id
+<class 'tatsu.grammars.Optional'> ['::' id]
+<class 'tatsu.grammars.Sequence'> '::' id
+<class 'tatsu.grammars.Token'> '::'
+<class 'tatsu.grammars.Named'> rules:{rule}+
+<class 'tatsu.grammars.PositiveClosure'> {rule}+
+<class 'tatsu.grammars.Rule'> rule
+    =
+    [
+    'protected' | 'public' | 'private' | fragment:'fragment'
+    ]
+
+    name:id
+    ['!']
+    [arg]
+    ['returns' arg]
+    ['trhows' id {',' id}]
+    [options]
+    [scope]
+    {action}
+    ':'
+    exp:alternatives
+    ';'
+    ~
+    [exceptions]
+    ;
+
+<class 'tatsu.grammars.Sequence'> [
+'protected' | 'public' | 'private' | fragment:'fragment'
+]
+
+name:id
+['!']
+[arg]
+['returns' arg]
+['trhows' id {',' id}]
+[options]
+[scope]
+{action}
+':'
+exp:alternatives
+';'
+~
+[exceptions]
+<class 'tatsu.grammars.Optional'> [
+'protected' | 'public' | 'private' | fragment:'fragment'
+]
+
+<class 'tatsu.grammars.Choice'> 'protected' | 'public' | 'private' | fragment:'fragment'
+<class 'tatsu.grammars.Option'> 'protected'
+<class 'tatsu.grammars.Token'> 'protected'
+<class 'tatsu.grammars.Option'> 'public'
+<class 'tatsu.grammars.Token'> 'public'
+<class 'tatsu.grammars.Option'> 'private'
+<class 'tatsu.grammars.Token'> 'private'
+<class 'tatsu.grammars.Option'> fragment:'fragment'
+<class 'tatsu.grammars.Named'> fragment:'fragment'
+<class 'tatsu.grammars.Token'> 'fragment'
+<class 'tatsu.grammars.Named'> name:id
+<class 'tatsu.grammars.Optional'> ['!']
+<class 'tatsu.grammars.Token'> '!'
+<class 'tatsu.grammars.Optional'> [arg]
+<class 'tatsu.grammars.Rule'> arg
+    =
+    '[' ~ {arg | /[^\]]*/} ']'
+    ;
+
+<class 'tatsu.grammars.Sequence'> '[' ~ {arg | /[^\]]*/} ']'
+<class 'tatsu.grammars.Token'> '['
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Closure'> {arg | /[^\]]*/}
+<class 'tatsu.grammars.Choice'> arg | /[^\]]*/
+<class 'tatsu.grammars.Option'> arg
+<class 'tatsu.grammars.Option'> /[^\]]*/
+<class 'tatsu.grammars.Pattern'> /[^\]]*/
+<class 'tatsu.grammars.Token'> ']'
+<class 'tatsu.grammars.Optional'> ['returns' arg]
+<class 'tatsu.grammars.Sequence'> 'returns' arg
+<class 'tatsu.grammars.Token'> 'returns'
+<class 'tatsu.grammars.Optional'> ['trhows' id {',' id}]
+<class 'tatsu.grammars.Sequence'> 'trhows' id {',' id}
+<class 'tatsu.grammars.Token'> 'trhows'
+<class 'tatsu.grammars.Closure'> {',' id}
+<class 'tatsu.grammars.Sequence'> ',' id
+<class 'tatsu.grammars.Token'> ','
+<class 'tatsu.grammars.Optional'> [options]
+<class 'tatsu.grammars.Optional'> [scope]
+<class 'tatsu.grammars.Closure'> {action}
+<class 'tatsu.grammars.Token'> ':'
+<class 'tatsu.grammars.Named'> exp:alternatives
+<class 'tatsu.grammars.Rule'> alternatives
+    =
+    '|'.{[annotation] options+:alternative}+
+    ;
+
+<class 'tatsu.grammars.PositiveGather'> '|'.{[annotation] options+:alternative}+
+<class 'tatsu.grammars.Sequence'> [annotation] options+:alternative
+<class 'tatsu.grammars.Optional'> [annotation]
+<class 'tatsu.grammars.Rule'> annotation
+    =
+    '<' ','.{id ['=' id]}+ '>'
+    ;
+
+<class 'tatsu.grammars.Sequence'> '<' ','.{id ['=' id]}+ '>'
+<class 'tatsu.grammars.Token'> '<'
+<class 'tatsu.grammars.PositiveGather'> ','.{id ['=' id]}+
+<class 'tatsu.grammars.Sequence'> id ['=' id]
+<class 'tatsu.grammars.Optional'> ['=' id]
+<class 'tatsu.grammars.Sequence'> '=' id
+<class 'tatsu.grammars.Token'> '='
+<class 'tatsu.grammars.Token'> ','
+<class 'tatsu.grammars.Token'> '>'
+<class 'tatsu.grammars.NamedList'> options+:alternative
+<class 'tatsu.grammars.Rule'> alternative
+    =
+    @:elements ['->' rewrite]
+    ;
+
+<class 'tatsu.grammars.Sequence'> @:elements ['->' rewrite]
+<class 'tatsu.grammars.Override'> @:elements
+<class 'tatsu.grammars.Rule'> elements
+    =
+    {element}
+    ;
+
+<class 'tatsu.grammars.Closure'> {element}
+<class 'tatsu.grammars.Rule'> element
+    =
+    | named
+    | predicate_or_action
+    | optional
+    | closure
+    | positive_closure
+    | atom
+    ;
+
+<class 'tatsu.grammars.Choice'> | named
+| predicate_or_action
+| optional
+| closure
+| positive_closure
+| atom
+<class 'tatsu.grammars.Option'> named
+<class 'tatsu.grammars.Rule'> named
+    =
+    name:id (force_list:'+=' | '=') exp:atom
+    ;
+
+<class 'tatsu.grammars.Sequence'> name:id (force_list:'+=' | '=') exp:atom
+<class 'tatsu.grammars.Named'> name:id
+<class 'tatsu.grammars.Group'> (force_list:'+=' | '=')
+<class 'tatsu.grammars.Choice'> force_list:'+=' | '='
+<class 'tatsu.grammars.Option'> force_list:'+='
+<class 'tatsu.grammars.Named'> force_list:'+='
+<class 'tatsu.grammars.Token'> '+='
+<class 'tatsu.grammars.Option'> '='
+<class 'tatsu.grammars.Token'> '='
+<class 'tatsu.grammars.Named'> exp:atom
+<class 'tatsu.grammars.Rule'> atom
+    =
+    @:(
+        | eof
+        | newranges
+        | negative
+        | regexp
+        | syntactic_predicate
+        | subexp
+        | terminal
+        | non_terminal
+    )
+    [
+    '^' | '!'
+    ]
+
+    [annotation]
+    ;
+
+<class 'tatsu.grammars.Sequence'> @:(
+    | eof
+    | newranges
+    | negative
+    | regexp
+    | syntactic_predicate
+    | subexp
+    | terminal
+    | non_terminal
+)
+[
+'^' | '!'
+]
+
+[annotation]
+<class 'tatsu.grammars.Override'> @:(
+    | eof
+    | newranges
+    | negative
+    | regexp
+    | syntactic_predicate
+    | subexp
+    | terminal
+    | non_terminal
+)
+<class 'tatsu.grammars.Group'> (
+    | eof
+    | newranges
+    | negative
+    | regexp
+    | syntactic_predicate
+    | subexp
+    | terminal
+    | non_terminal
+)
+<class 'tatsu.grammars.Choice'> | eof
+| newranges
+| negative
+| regexp
+| syntactic_predicate
+| subexp
+| terminal
+| non_terminal
+<class 'tatsu.grammars.Option'> eof
+<class 'tatsu.grammars.Rule'> eof
+    =
+    'EOF'
+    ;
+
+<class 'tatsu.grammars.Token'> 'EOF'
+<class 'tatsu.grammars.Option'> newranges
+<class 'tatsu.grammars.Rule'> newranges
+    =
+    {negative_newrange | newrange}+
+    ;
+
+<class 'tatsu.grammars.PositiveClosure'> {negative_newrange | newrange}+
+<class 'tatsu.grammars.Choice'> negative_newrange | newrange
+<class 'tatsu.grammars.Option'> negative_newrange
+<class 'tatsu.grammars.Rule'> negative_newrange
+    =
+    '~' '[' range:/([^\]]|\\u[a-fA-F0-9]{4}|\\.)+/ ']' repeat:[/[+*?][?]?/]
+    ;
+
+<class 'tatsu.grammars.Sequence'> '~' '[' range:/([^\]]|\\u[a-fA-F0-9]{4}|\\.)+/ ']' repeat:[/[+*?][?]?/]
+<class 'tatsu.grammars.Token'> '~'
+<class 'tatsu.grammars.Token'> '['
+<class 'tatsu.grammars.Named'> range:/([^\]]|\\u[a-fA-F0-9]{4}|\\.)+/
+<class 'tatsu.grammars.Pattern'> /([^\]]|\\u[a-fA-F0-9]{4}|\\.)+/
+<class 'tatsu.grammars.Token'> ']'
+<class 'tatsu.grammars.Named'> repeat:[/[+*?][?]?/]
+<class 'tatsu.grammars.Optional'> [/[+*?][?]?/]
+<class 'tatsu.grammars.Pattern'> /[+*?][?]?/
+<class 'tatsu.grammars.Option'> newrange
+<class 'tatsu.grammars.Rule'> newrange
+    =
+    '[' range:/([^\]]|\\u[a-fA-F0-9]{4}|\\.)+/ ']' repeat:[/[+*?][?]?/]
+    ;
+
+<class 'tatsu.grammars.Sequence'> '[' range:/([^\]]|\\u[a-fA-F0-9]{4}|\\.)+/ ']' repeat:[/[+*?][?]?/]
+<class 'tatsu.grammars.Token'> '['
+<class 'tatsu.grammars.Named'> range:/([^\]]|\\u[a-fA-F0-9]{4}|\\.)+/
+<class 'tatsu.grammars.Pattern'> /([^\]]|\\u[a-fA-F0-9]{4}|\\.)+/
+<class 'tatsu.grammars.Token'> ']'
+<class 'tatsu.grammars.Named'> repeat:[/[+*?][?]?/]
+<class 'tatsu.grammars.Optional'> [/[+*?][?]?/]
+<class 'tatsu.grammars.Pattern'> /[+*?][?]?/
+<class 'tatsu.grammars.Option'> negative
+<class 'tatsu.grammars.Rule'> negative
+    =
+    '~' @:atom
+    ;
+
+<class 'tatsu.grammars.Sequence'> '~' @:atom
+<class 'tatsu.grammars.Token'> '~'
+<class 'tatsu.grammars.Override'> @:atom
+<class 'tatsu.grammars.Option'> regexp
+<class 'tatsu.grammars.Rule'> regexp
+    =
+    {charset}+
+    ;
+
+<class 'tatsu.grammars.PositiveClosure'> {charset}+
+<class 'tatsu.grammars.Rule'> charset
+    =
+    | charset_optional
+    | charset_closure
+    | charset_positive_closure
+    | charset_term
+    ;
+
+<class 'tatsu.grammars.Choice'> | charset_optional
+| charset_closure
+| charset_positive_closure
+| charset_term
+<class 'tatsu.grammars.Option'> charset_optional
+<class 'tatsu.grammars.Rule'> charset_optional
+    =
+    '(' @:charset ')' '?' ~
+    ;
+
+<class 'tatsu.grammars.Sequence'> '(' @:charset ')' '?' ~
+<class 'tatsu.grammars.Token'> '('
+<class 'tatsu.grammars.Override'> @:charset
+<class 'tatsu.grammars.Token'> ')'
+<class 'tatsu.grammars.Token'> '?'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Option'> charset_closure
+<class 'tatsu.grammars.Rule'> charset_closure
+    =
+    '(' @:charset ')' '*' ~
+    ;
+
+<class 'tatsu.grammars.Sequence'> '(' @:charset ')' '*' ~
+<class 'tatsu.grammars.Token'> '('
+<class 'tatsu.grammars.Override'> @:charset
+<class 'tatsu.grammars.Token'> ')'
+<class 'tatsu.grammars.Token'> '*'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Option'> charset_positive_closure
+<class 'tatsu.grammars.Rule'> charset_positive_closure
+    =
+    '(' @:charset ')' '+' ~
+    ;
+
+<class 'tatsu.grammars.Sequence'> '(' @:charset ')' '+' ~
+<class 'tatsu.grammars.Token'> '('
+<class 'tatsu.grammars.Override'> @:charset
+<class 'tatsu.grammars.Token'> ')'
+<class 'tatsu.grammars.Token'> '+'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Option'> charset_term
+<class 'tatsu.grammars.Rule'> charset_term
+    =
+    '(' @:charset ')' | charset_negative_or | charset_or
+    ;
+
+<class 'tatsu.grammars.Choice'> '(' @:charset ')' | charset_negative_or | charset_or
+<class 'tatsu.grammars.Option'> '(' @:charset ')'
+<class 'tatsu.grammars.Sequence'> '(' @:charset ')'
+<class 'tatsu.grammars.Token'> '('
+<class 'tatsu.grammars.Override'> @:charset
+<class 'tatsu.grammars.Token'> ')'
+<class 'tatsu.grammars.Option'> charset_negative_or
+<class 'tatsu.grammars.Rule'> charset_negative_or
+    =
+    '~'
+    '('
+    (
+        | @+:charset_range {'|' @+:charset_atom}
+        | @+:charset_char {'|' @+:charset_atom}+
+    )
+    ')'
+    ;
+
+<class 'tatsu.grammars.Sequence'> '~'
+'('
+(
+    | @+:charset_range {'|' @+:charset_atom}
+    | @+:charset_char {'|' @+:charset_atom}+
+)
+')'
+<class 'tatsu.grammars.Token'> '~'
+<class 'tatsu.grammars.Token'> '('
+<class 'tatsu.grammars.Group'> (
+    | @+:charset_range {'|' @+:charset_atom}
+    | @+:charset_char {'|' @+:charset_atom}+
+)
+<class 'tatsu.grammars.Choice'> | @+:charset_range {'|' @+:charset_atom}
+| @+:charset_char {'|' @+:charset_atom}+
+<class 'tatsu.grammars.Option'> @+:charset_range {'|' @+:charset_atom}
+<class 'tatsu.grammars.Sequence'> @+:charset_range {'|' @+:charset_atom}
+<class 'tatsu.grammars.OverrideList'> @+:charset_range
+<class 'tatsu.grammars.Rule'> charset_range
+    =
+    first:charset_char '..' last:charset_char
+    ;
+
+<class 'tatsu.grammars.Sequence'> first:charset_char '..' last:charset_char
+<class 'tatsu.grammars.Named'> first:charset_char
+<class 'tatsu.grammars.Rule'> charset_char
+    =
+    char
+    ;
+
+<class 'tatsu.grammars.Token'> '..'
+<class 'tatsu.grammars.Named'> last:charset_char
+<class 'tatsu.grammars.Closure'> {'|' @+:charset_atom}
+<class 'tatsu.grammars.Sequence'> '|' @+:charset_atom
+<class 'tatsu.grammars.Token'> '|'
+<class 'tatsu.grammars.OverrideList'> @+:charset_atom
+<class 'tatsu.grammars.Rule'> charset_atom
+    =
+    charset_range | char
+    ;
+
+<class 'tatsu.grammars.Choice'> charset_range | char
+<class 'tatsu.grammars.Option'> charset_range
+<class 'tatsu.grammars.Option'> char
+<class 'tatsu.grammars.Option'> @+:charset_char {'|' @+:charset_atom}+
+<class 'tatsu.grammars.Sequence'> @+:charset_char {'|' @+:charset_atom}+
+<class 'tatsu.grammars.OverrideList'> @+:charset_char
+<class 'tatsu.grammars.PositiveClosure'> {'|' @+:charset_atom}+
+<class 'tatsu.grammars.Sequence'> '|' @+:charset_atom
+<class 'tatsu.grammars.Token'> '|'
+<class 'tatsu.grammars.OverrideList'> @+:charset_atom
+<class 'tatsu.grammars.Token'> ')'
+<class 'tatsu.grammars.Option'> charset_or
+<class 'tatsu.grammars.Rule'> charset_or
+    =
+    | @+:charset_range {'|' @+:charset_atom}
+    | @+:charset_char {'|' @+:charset_atom}+
+    ;
+
+<class 'tatsu.grammars.Choice'> | @+:charset_range {'|' @+:charset_atom}
+| @+:charset_char {'|' @+:charset_atom}+
+<class 'tatsu.grammars.Option'> @+:charset_range {'|' @+:charset_atom}
+<class 'tatsu.grammars.Sequence'> @+:charset_range {'|' @+:charset_atom}
+<class 'tatsu.grammars.OverrideList'> @+:charset_range
+<class 'tatsu.grammars.Closure'> {'|' @+:charset_atom}
+<class 'tatsu.grammars.Sequence'> '|' @+:charset_atom
+<class 'tatsu.grammars.Token'> '|'
+<class 'tatsu.grammars.OverrideList'> @+:charset_atom
+<class 'tatsu.grammars.Option'> @+:charset_char {'|' @+:charset_atom}+
+<class 'tatsu.grammars.Sequence'> @+:charset_char {'|' @+:charset_atom}+
+<class 'tatsu.grammars.OverrideList'> @+:charset_char
+<class 'tatsu.grammars.PositiveClosure'> {'|' @+:charset_atom}+
+<class 'tatsu.grammars.Sequence'> '|' @+:charset_atom
+<class 'tatsu.grammars.Token'> '|'
+<class 'tatsu.grammars.OverrideList'> @+:charset_atom
+<class 'tatsu.grammars.Option'> syntactic_predicate
+<class 'tatsu.grammars.Rule'> syntactic_predicate
+    =
+    @:subexp '=>' ~
+    ;
+
+<class 'tatsu.grammars.Sequence'> @:subexp '=>' ~
+<class 'tatsu.grammars.Override'> @:subexp
+<class 'tatsu.grammars.Rule'> subexp
+    =
+    '(' [options ':' ~] @:alternatives ')'
+    ;
+
+<class 'tatsu.grammars.Sequence'> '(' [options ':' ~] @:alternatives ')'
+<class 'tatsu.grammars.Token'> '('
+<class 'tatsu.grammars.Optional'> [options ':' ~]
+<class 'tatsu.grammars.Sequence'> options ':' ~
+<class 'tatsu.grammars.Token'> ':'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Override'> @:alternatives
+<class 'tatsu.grammars.Token'> ')'
+<class 'tatsu.grammars.Token'> '=>'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Option'> subexp
+<class 'tatsu.grammars.Option'> terminal
+<class 'tatsu.grammars.Rule'> terminal
+    =
+    string | any
+    ;
+
+<class 'tatsu.grammars.Choice'> string | any
+<class 'tatsu.grammars.Option'> string
+<class 'tatsu.grammars.Option'> any
+<class 'tatsu.grammars.Rule'> any
+    =
+    !'..' '.' ~
+    ;
+
+<class 'tatsu.grammars.Sequence'> !'..' '.' ~
+<class 'tatsu.grammars.NegativeLookahead'> !'..'
+<class 'tatsu.grammars.Token'> '..'
+<class 'tatsu.grammars.Token'> '.'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Option'> non_terminal
+<class 'tatsu.grammars.Rule'> non_terminal
+    =
+    @:(token_ref | rule_ref) [arg]
+    ;
+
+<class 'tatsu.grammars.Sequence'> @:(token_ref | rule_ref) [arg]
+<class 'tatsu.grammars.Override'> @:(token_ref | rule_ref)
+<class 'tatsu.grammars.Group'> (token_ref | rule_ref)
+<class 'tatsu.grammars.Choice'> token_ref | rule_ref
+<class 'tatsu.grammars.Option'> token_ref
+<class 'tatsu.grammars.Rule'> token_ref
+    =
+    upper_name
+    ;
+
+<class 'tatsu.grammars.Option'> rule_ref
+<class 'tatsu.grammars.Rule'> rule_ref
+    =
+    lower_name [annotation]
+    ;
+
+<class 'tatsu.grammars.Sequence'> lower_name [annotation]
+<class 'tatsu.grammars.Rule'> lower_name
+    =
+    /[a-z][A-Za-z0-9_]*/
+    ;
+
+<class 'tatsu.grammars.Pattern'> /[a-z][A-Za-z0-9_]*/
+<class 'tatsu.grammars.Optional'> [annotation]
+<class 'tatsu.grammars.Optional'> [arg]
+<class 'tatsu.grammars.Optional'> [
+'^' | '!'
+]
+
+<class 'tatsu.grammars.Choice'> '^' | '!'
+<class 'tatsu.grammars.Option'> '^'
+<class 'tatsu.grammars.Token'> '^'
+<class 'tatsu.grammars.Option'> '!'
+<class 'tatsu.grammars.Token'> '!'
+<class 'tatsu.grammars.Optional'> [annotation]
+<class 'tatsu.grammars.Option'> predicate_or_action
+<class 'tatsu.grammars.Rule'> predicate_or_action
+    =
+    gated_predicate | semantic_predicate | semantic_action
+    ;
+
+<class 'tatsu.grammars.Choice'> gated_predicate | semantic_predicate | semantic_action
+<class 'tatsu.grammars.Option'> gated_predicate
+<class 'tatsu.grammars.Rule'> gated_predicate
+    =
+    block '?=>' ~
+    ;
+
+<class 'tatsu.grammars.Sequence'> block '?=>' ~
+<class 'tatsu.grammars.Token'> '?=>'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Option'> semantic_predicate
+<class 'tatsu.grammars.Rule'> semantic_predicate
+    =
+    block '?' ~
+    ;
+
+<class 'tatsu.grammars.Sequence'> block '?' ~
+<class 'tatsu.grammars.Token'> '?'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Option'> semantic_action
+<class 'tatsu.grammars.Rule'> semantic_action
+    =
+    '{' {semantic_action | /[^}]/} '}'
+    ;
+
+<class 'tatsu.grammars.Sequence'> '{' {semantic_action | /[^}]/} '}'
+<class 'tatsu.grammars.Token'> '{'
+<class 'tatsu.grammars.Closure'> {semantic_action | /[^}]/}
+<class 'tatsu.grammars.Choice'> semantic_action | /[^}]/
+<class 'tatsu.grammars.Option'> semantic_action
+<class 'tatsu.grammars.Option'> /[^}]/
+<class 'tatsu.grammars.Pattern'> /[^}]/
+<class 'tatsu.grammars.Token'> '}'
+<class 'tatsu.grammars.Option'> optional
+<class 'tatsu.grammars.Rule'> optional
+    =
+    ('(' @:alternatives ')' | @:(closure | positive_closure | atom)) '?' ~
+    ;
+
+<class 'tatsu.grammars.Sequence'> ('(' @:alternatives ')' | @:(closure | positive_closure | atom)) '?' ~
+<class 'tatsu.grammars.Group'> ('(' @:alternatives ')' | @:(closure | positive_closure | atom))
+<class 'tatsu.grammars.Choice'> '(' @:alternatives ')' | @:(closure | positive_closure | atom)
+<class 'tatsu.grammars.Option'> '(' @:alternatives ')'
+<class 'tatsu.grammars.Sequence'> '(' @:alternatives ')'
+<class 'tatsu.grammars.Token'> '('
+<class 'tatsu.grammars.Override'> @:alternatives
+<class 'tatsu.grammars.Token'> ')'
+<class 'tatsu.grammars.Option'> @:(closure | positive_closure | atom)
+<class 'tatsu.grammars.Override'> @:(closure | positive_closure | atom)
+<class 'tatsu.grammars.Group'> (closure | positive_closure | atom)
+<class 'tatsu.grammars.Choice'> closure | positive_closure | atom
+<class 'tatsu.grammars.Option'> closure
+<class 'tatsu.grammars.Rule'> closure
+    =
+    @:atom '*' ~
+    ;
+
+<class 'tatsu.grammars.Sequence'> @:atom '*' ~
+<class 'tatsu.grammars.Override'> @:atom
+<class 'tatsu.grammars.Token'> '*'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Option'> positive_closure
+<class 'tatsu.grammars.Rule'> positive_closure
+    =
+    @:atom '+' ~
+    ;
+
+<class 'tatsu.grammars.Sequence'> @:atom '+' ~
+<class 'tatsu.grammars.Override'> @:atom
+<class 'tatsu.grammars.Token'> '+'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Option'> atom
+<class 'tatsu.grammars.Token'> '?'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Option'> closure
+<class 'tatsu.grammars.Option'> positive_closure
+<class 'tatsu.grammars.Option'> atom
+<class 'tatsu.grammars.Optional'> ['->' rewrite]
+<class 'tatsu.grammars.Sequence'> '->' rewrite
+<class 'tatsu.grammars.Token'> '->'
+<class 'tatsu.grammars.Rule'> rewrite
+    =
+    {rewrite_term}
+    ;
+
+<class 'tatsu.grammars.Closure'> {rewrite_term}
+<class 'tatsu.grammars.Rule'> rewrite_term
+    =
+    '^(' {rewrite_term}+ ')' | /[^|;^)]*/
+    ;
+
+<class 'tatsu.grammars.Choice'> '^(' {rewrite_term}+ ')' | /[^|;^)]*/
+<class 'tatsu.grammars.Option'> '^(' {rewrite_term}+ ')'
+<class 'tatsu.grammars.Sequence'> '^(' {rewrite_term}+ ')'
+<class 'tatsu.grammars.Token'> '^('
+<class 'tatsu.grammars.PositiveClosure'> {rewrite_term}+
+<class 'tatsu.grammars.Token'> ')'
+<class 'tatsu.grammars.Option'> /[^|;^)]*/
+<class 'tatsu.grammars.Pattern'> /[^|;^)]*/
+<class 'tatsu.grammars.Token'> '|'
+<class 'tatsu.grammars.Token'> ';'
+<class 'tatsu.grammars.Cut'> ~
+<class 'tatsu.grammars.Optional'> [exceptions]
+<class 'tatsu.grammars.Rule'> exceptions
+    =
+    {'catch' arg block} ['finally' block]
+    ;
+
+<class 'tatsu.grammars.Sequence'> {'catch' arg block} ['finally' block]
+<class 'tatsu.grammars.Closure'> {'catch' arg block}
+<class 'tatsu.grammars.Sequence'> 'catch' arg block
+<class 'tatsu.grammars.Token'> 'catch'
+<class 'tatsu.grammars.Optional'> ['finally' block]
+<class 'tatsu.grammars.Sequence'> 'finally' block
+<class 'tatsu.grammars.Token'> 'finally'
+<class 'tatsu.grammars.EOF'> $
+<class 'tatsu.grammars.Rule'> ESC
+    =
+    /\\['"\\nrtbfv]/ | /\\u[a-fA-F0-9]{4}/
+    ;
+
+<class 'tatsu.grammars.Choice'> /\\['"\\nrtbfv]/ | /\\u[a-fA-F0-9]{4}/
+<class 'tatsu.grammars.Option'> /\\['"\\nrtbfv]/
+<class 'tatsu.grammars.Pattern'> /\\['"\\nrtbfv]/
+<class 'tatsu.grammars.Option'> /\\u[a-fA-F0-9]{4}/
+<class 'tatsu.grammars.Pattern'> /\\u[a-fA-F0-9]{4}/
+<class 'tatsu.grammars.Grammar'> single_input
+    =
+    newline | simple_stmt | compound_stmt newline
+    ;
+
+
+file_input
+    =
+    {newline | stmt}
+    ;
+
+
+eval_input
+    =
+    {newline} testlist {newline}
+    ;
+
+
+decorators
+    =
+    {decorator}+
+    ;
+
+
+decorator
+    =
+    '@' dotted_attr ['(' [arglist] ')'] newline
+    ;
+
+
+dotted_attr
+    =
+    name {'.' name}
+    ;
+
+
+funcdef
+    =
+    [decorators] 'def' name parameters ':' suite
+    ;
+
+
+parameters
+    =
+    '(' [varargslist] ')'
+    ;
+
+
+varargslist
+    =
+        defparameter
+        {',' defparameter}
+        [','
+        [
+        '*' name [',' '**' name] | '**' name
+        ]
+        ]
+    |
+        '*' name [',' '**' name]
+    |
+        '**' name
+    ;
+
+
+defparameter
+    =
+    fpdef ['=' test]
+    ;
+
+
+fpdef
+    =
+    name | '(' fplist ')'
+    ;
+
+
+fplist
+    =
+    fpdef {',' fpdef} [',']
+    ;
+
+
+stmt
+    =
+    simple_stmt | compound_stmt
+    ;
+
+
+simple_stmt
+    =
+    small_stmt {';' small_stmt} [';'] newline
+    ;
+
+
+small_stmt
+    =
+    | expr_stmt
+    | print_stmt
+    | del_stmt
+    | pass_stmt
+    | flow_stmt
+    | import_stmt
+    | global_stmt
+    | exec_stmt
+    | assert_stmt
+    ;
+
+
+expr_stmt
+    =
+    testlist
+    [
+    augassign yield_expr | augassign testlist | assigns
+    ]
+    ;
+
+
+assigns
+    =
+    {assign_testlist}+ | {assign_yield}+
+    ;
+
+
+assign_testlist
+    =
+    '=' testlist
+    ;
+
+
+assign_yield
+    =
+    '=' yield_expr
+    ;
+
+
+augassign
+    =
+    | '+='
+    | '-='
+    | '*='
+    | '/='
+    | '%='
+    | '&='
+    | '|='
+    | '^='
+    | '<<='
+    | '>>='
+    | '**='
+    | '//='
+    ;
+
+
+print_stmt
+    =
+    'print'
+    [
+    printlist | '>>' printlist
+    ]
+    ;
+
+
+printlist
+    =
+    test {',' test} [',']
+    ;
+
+
+del_stmt
+    =
+    'del' exprlist
+    ;
+
+
+pass_stmt
+    =
+    'pass'
+    ;
+
+
+flow_stmt
+    =
+    break_stmt | continue_stmt | return_stmt | raise_stmt | yield_stmt
+    ;
+
+
+break_stmt
+    =
+    'break'
+    ;
+
+
+continue_stmt
+    =
+    'continue'
+    ;
+
+
+return_stmt
+    =
+    'return' [testlist]
+    ;
+
+
+yield_stmt
+    =
+    yield_expr
+    ;
+
+
+raise_stmt
+    =
+    'raise' [test [',' test [',' test]]]
+    ;
+
+
+import_stmt
+    =
+    import_name | import_from
+    ;
+
+
+import_name
+    =
+    'import' dotted_as_names
+    ;
+
+
+import_from
+    =
+    'from'
+    ({'.'} dotted_name | {'.'}+)
+    'import'
+    ('*' | import_as_names | '(' import_as_names ')')
+    ;
+
+
+import_as_names
+    =
+    import_as_name {',' import_as_name} [',']
+    ;
+
+
+import_as_name
+    =
+    name ['as' name]
+    ;
+
+
+dotted_as_name
+    =
+    dotted_name ['as' name]
+    ;
+
+
+dotted_as_names
+    =
+    dotted_as_name {',' dotted_as_name}
+    ;
+
+
+dotted_name
+    =
+    name {'.' name}
+    ;
+
+
+global_stmt
+    =
+    'global' name {',' name}
+    ;
+
+
+exec_stmt
+    =
+    'exec' expr ['in' test [',' test]]
+    ;
+
+
+assert_stmt
+    =
+    'assert' test [',' test]
+    ;
+
+
+compound_stmt
+    =
+    | if_stmt
+    | while_stmt
+    | for_stmt
+    | try_stmt
+    | with_stmt
+    | funcdef
+    | classdef
+    ;
+
+
+if_stmt
+    =
+    'if' test ':' suite {elif_clause} ['else' ':' suite]
+    ;
+
+
+elif_clause
+    =
+    'elif' test ':' suite
+    ;
+
+
+while_stmt
+    =
+    'while' test ':' suite ['else' ':' suite]
+    ;
+
+
+for_stmt
+    =
+    'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
+    ;
+
+
+try_stmt
+    =
+    'try'
+    ':'
+    suite
+    (
+        | {except_clause}+ ['else' ':' suite] ['finally' ':' suite]
+        | 'finally' ':' suite
+    )
+    ;
+
+
+with_stmt
+    =
+    'with' test [with_var] ':' suite
+    ;
+
+
+with_var
+    =
+    ('as' | name) expr
+    ;
+
+
+except_clause
+    =
+    'except' [test [',' test]] ':' suite
+    ;
+
+
+suite
+    =
+    simple_stmt | newline indent {stmt}+ dedent
+    ;
+
+
+indent
+    =
+    ()
+    ;
+
+
+dedent
+    =
+    ()
+    ;
+
+
+test
+    =
+    or_test ['if' or_test 'else' test] | lambdef
+    ;
+
+
+or_test
+    =
+    and_test {'or' and_test}
+    ;
+
+
+and_test
+    =
+    not_test {'and' not_test}
+    ;
+
+
+not_test
+    =
+    'not' not_test | comparison
+    ;
+
+
+comparison
+    =
+    expr {comp_op expr}
+    ;
+
+
+comp_op
+    =
+    | '<'
+    | '>'
+    | '=='
+    | '>='
+    | '<='
+    | '<>'
+    | '!='
+    | 'in'
+    | 'not' 'in'
+    | 'is'
+    | 'is' 'not'
+    ;
+
+
+expr
+    =
+    xor_expr {'|' xor_expr}
+    ;
+
+
+xor_expr
+    =
+    and_expr {'^' and_expr}
+    ;
+
+
+and_expr
+    =
+    shift_expr {'&' shift_expr}
+    ;
+
+
+shift_expr
+    =
+    arith_expr {('<<' | '>>') arith_expr}
+    ;
+
+
+arith_expr
+    =
+    term {('+' | '-') term}
+    ;
+
+
+term
+    =
+    factor {('*' | '/' | '%' | '//') factor}
+    ;
+
+
+factor
+    =
+    '+' factor | '-' factor | '~' factor | power
+    ;
+
+
+power
+    =
+    atom {trailer} ['**' factor]
+    ;
+
+
+atom
+    =
+        '('
+        [
+        yield_expr | testlist_gexp
+        ]
+
+        ')'
+    |
+        '[' [listmaker] ']'
+    |
+        '{' [dictmaker] '}'
+    |
+        '`' testlist '`'
+    |
+        name
+    |
+        int
+    |
+        LONGINT
+    |
+        float
+    |
+        complex
+    |
+        {STRING}+
+    ;
+
+
+listmaker
+    =
+    test (list_for | {',' test}) [',']
+    ;
+
+
+testlist_gexp
+    =
+    test ({',' test} [','] | gen_for)
+    ;
+
+
+lambdef
+    =
+    'lambda' [varargslist] ':' test
+    ;
+
+
+trailer
+    =
+    '(' [arglist] ')' | '[' subscriptlist ']' | '.' name
+    ;
+
+
+subscriptlist
+    =
+    subscript {',' subscript} [',']
+    ;
+
+
+subscript
+    =
+    '.' '.' '.' | test [':' [test] [sliceop]] | ':' [test] [sliceop]
+    ;
+
+
+sliceop
+    =
+    ':' [test]
+    ;
+
+
+exprlist
+    =
+    expr {',' expr} [',']
+    ;
+
+
+testlist
+    =
+    test {',' test} [',']
+    ;
+
+
+dictmaker
+    =
+    test ':' test {',' test ':' test} [',']
+    ;
+
+
+classdef
+    =
+    'class' name ['(' [testlist] ')'] ':' suite
+    ;
+
+
+arglist
+    =
+        argument
+        {',' argument}
+        [','
+        [
+        '*' test [',' '**' test] | '**' test
+        ]
+        ]
+    |
+        '*' test [',' '**' test]
+    |
+        '**' test
+    ;
+
+
+argument
+    =
+    test
+    [
+    ('=' test) | gen_for
+    ]
+    ;
+
+
+list_iter
+    =
+    list_for | list_if
+    ;
+
+
+list_for
+    =
+    'for' exprlist 'in' testlist [list_iter]
+    ;
+
+
+list_if
+    =
+    'if' test [list_iter]
+    ;
+
+
+gen_iter
+    =
+    gen_for | gen_if
+    ;
+
+
+gen_for
+    =
+    'for' exprlist 'in' or_test [gen_iter]
+    ;
+
+
+gen_if
+    =
+    'if' test [gen_iter]
+    ;
+
+
+yield_expr
+    =
+    'yield' [testlist]
+    ;
+
+
+float
+    =
+    | '.' DIGITS [EXPONENT]
+    | DIGITS '.' EXPONENT
+    | DIGITS ('.' [DIGITS [EXPONENT]] | EXPONENT)
+    ;
+
+
+LONGINT
+    =
+    int /[lL]/
+    ;
+
+
+EXPONENT
+    =
+    /[eE][+-]?/ DIGITS
+    ;
+
+
+int
+    =
+    '0' /[xX][0-9a-fA-F]+/ | '0' {DIGITS} | /[1-9]/ {DIGITS}
+    ;
+
+
+complex
+    =
+    int /[jJ]/ | float /[jJ]/
+    ;
+
+
+DIGITS
+    =
+    /[0-9]+/
+    ;
+
+
+name
+    =
+    /[a-zA-Z_][a-zA-Z_0-9]*/
+    ;
+
+
+STRING
+    =
+    [
+    /[ru]/ | 'ur'
+    ]
+
+    (
+        | "\\'\\'\\'" {TRIAPOS} "\\'\\'\\'"
+        | '"""' {TRIQUOTE} '"""'
+        | '"' {ESC | !/[\\\n"]/ /./} /["\']/ {ESC | !/[\\\n\']/ /./} "\\'"
+    )
+    ;
+
+
+TRIQUOTE
+    =
+    ['"'] ['"'] {ESC | !/[\\"]/ /./}+
+    ;
+
+
+TRIAPOS
+    =
+    ["\\'"] ["\\'"] {ESC | !/[\\\']/ /./}+
+    ;
+
+
+ESC
+    =
+    '\\\\' /\w+|\S+/
+    ;
+
+
+CONTINUED_LINE
+    =
+    '\\\\' ['\\r'] '\\n' /[ \t]*/ (nl:newline | ())
+    ;
+
+
+newline
+    =
+    {['\\u000C'] ['\\r'] '\\n'}+
+    ;
+
+
+ws
+    =
+    /[ \t\u000C]+/
+    ;
+
+
+leading_ws
+    =
+    (/[ \t]+/ | {' ' | '\\t'}+ {['\\r'] '\\n'})
+    ;
+
+
+comment
+    =
+    /[ \t]*/ '#' {!'\\n' /./} {'\\n'}+ | '#' {!'\\n' /./}
+    ;
+
+
+INDENT
+    =
+    !()
+    ;
+
+
+DEDENT
+    =
+    !()
+    ;
+
+<class 'tatsu.grammars.Rule'> single_input
+    =
+    newline | simple_stmt | compound_stmt newline
+    ;
+
+<class 'tatsu.grammars.Choice'> newline | simple_stmt | compound_stmt newline
+<class 'tatsu.grammars.Option'> newline
+<class 'tatsu.grammars.Decorator'> newline
+<class 'tatsu.grammars.RuleRef'> NEWLINE
+<class 'tatsu.grammars.Rule'> newline
+    =
+    {['\\u000C'] ['\\r'] '\\n'}+
+    ;
+
+<class 'tatsu.grammars.PositiveClosure'> {['\\u000C'] ['\\r'] '\\n'}+
+<class 'tatsu.grammars.Sequence'> ['\\u000C'] ['\\r'] '\\n'
+<class 'tatsu.grammars.Optional'> ['\\u000C']
+<class 'tatsu.grammars.Token'> '\\u000C'
+<class 'tatsu.grammars.Optional'> ['\\r']
+<class 'tatsu.grammars.Token'> '\\r'
+<class 'tatsu.grammars.Token'> '\\n'
+<class 'tatsu.grammars.Option'> simple_stmt
+<class 'tatsu.grammars.Rule'> simple_stmt
+    =
+    small_stmt {';' small_stmt} [';'] newline
+    ;
+
+<class 'tatsu.grammars.Sequence'> small_stmt {';' small_stmt} [';'] newline
+<class 'tatsu.grammars.Rule'> small_stmt
+    =
+    | expr_stmt
+    | print_stmt
+    | del_stmt
+    | pass_stmt
+    | flow_stmt
+    | import_stmt
+    | global_stmt
+    | exec_stmt
+    | assert_stmt
+    ;
+
+<class 'tatsu.grammars.Choice'> | expr_stmt
+| print_stmt
+| del_stmt
+| pass_stmt
+| flow_stmt
+| import_stmt
+| global_stmt
+| exec_stmt
+| assert_stmt
+<class 'tatsu.grammars.Option'> expr_stmt
+<class 'tatsu.grammars.Rule'> expr_stmt
+    =
+    testlist
+    [
+    augassign yield_expr | augassign testlist | assigns
+    ]
+    ;
+
+<class 'tatsu.grammars.Sequence'> testlist
+[
+augassign yield_expr | augassign testlist | assigns
+]
+
+<class 'tatsu.grammars.Rule'> testlist
+    =
+    test {',' test} [',']
+    ;
+
+<class 'tatsu.grammars.Sequence'> test {',' test} [',']
+<class 'tatsu.grammars.Rule'> test
+    =
+    or_test ['if' or_test 'else' test] | lambdef
+    ;
+
+<class 'tatsu.grammars.Choice'> or_test ['if' or_test 'else' test] | lambdef
+<class 'tatsu.grammars.Option'> or_test ['if' or_test 'else' test]
+<class 'tatsu.grammars.Sequence'> or_test ['if' or_test 'else' test]
+<class 'tatsu.grammars.Rule'> or_test
+    =
+    and_test {'or' and_test}
+    ;
+
+<class 'tatsu.grammars.Sequence'> and_test {'or' and_test}
+<class 'tatsu.grammars.Rule'> and_test
+    =
+    not_test {'and' not_test}
+    ;
+
+<class 'tatsu.grammars.Sequence'> not_test {'and' not_test}
+<class 'tatsu.grammars.Rule'> not_test
+    =
+    'not' not_test | comparison
+    ;
+
+<class 'tatsu.grammars.Choice'> 'not' not_test | comparison
+<class 'tatsu.grammars.Option'> 'not' not_test
+<class 'tatsu.grammars.Sequence'> 'not' not_test
+<class 'tatsu.grammars.Decorator'> 'not'
+<class 'tatsu.grammars.RuleRef'> NOT
+<class 'tatsu.grammars.Token'> 'not'
+<class 'tatsu.grammars.Option'> comparison
+<class 'tatsu.grammars.Rule'> comparison
+    =
+    expr {comp_op expr}
+    ;
+
+<class 'tatsu.grammars.Sequence'> expr {comp_op expr}
+<class 'tatsu.grammars.Rule'> expr
+    =
+    xor_expr {'|' xor_expr}
+    ;
+
+<class 'tatsu.grammars.Sequence'> xor_expr {'|' xor_expr}
+<class 'tatsu.grammars.Rule'> xor_expr
+    =
+    and_expr {'^' and_expr}
+    ;
+
+<class 'tatsu.grammars.Sequence'> and_expr {'^' and_expr}
+<class 'tatsu.grammars.Rule'> and_expr
+    =
+    shift_expr {'&' shift_expr}
+    ;
+
+<class 'tatsu.grammars.Sequence'> shift_expr {'&' shift_expr}
+<class 'tatsu.grammars.Rule'> shift_expr
+    =
+    arith_expr {('<<' | '>>') arith_expr}
+    ;
+
+<class 'tatsu.grammars.Sequence'> arith_expr {('<<' | '>>') arith_expr}
+<class 'tatsu.grammars.Rule'> arith_expr
+    =
+    term {('+' | '-') term}
+    ;
+
+<class 'tatsu.grammars.Sequence'> term {('+' | '-') term}
+<class 'tatsu.grammars.Rule'> term
+    =
+    factor {('*' | '/' | '%' | '//') factor}
+    ;
+
+<class 'tatsu.grammars.Sequence'> factor {('*' | '/' | '%' | '//') factor}
+<class 'tatsu.grammars.Rule'> factor
+    =
+    '+' factor | '-' factor | '~' factor | power
+    ;
+
+<class 'tatsu.grammars.Choice'> '+' factor | '-' factor | '~' factor | power
+<class 'tatsu.grammars.Option'> '+' factor
+<class 'tatsu.grammars.Sequence'> '+' factor
+<class 'tatsu.grammars.Decorator'> '+'
+<class 'tatsu.grammars.RuleRef'> PLUS
+<class 'tatsu.grammars.Token'> '+'
+<class 'tatsu.grammars.Option'> '-' factor
+<class 'tatsu.grammars.Sequence'> '-' factor
+<class 'tatsu.grammars.Decorator'> '-'
+<class 'tatsu.grammars.RuleRef'> MINUS
+<class 'tatsu.grammars.Token'> '-'
+<class 'tatsu.grammars.Option'> '~' factor
+<class 'tatsu.grammars.Sequence'> '~' factor
+<class 'tatsu.grammars.Decorator'> '~'
+<class 'tatsu.grammars.RuleRef'> TILDE
+<class 'tatsu.grammars.Token'> '~'
+<class 'tatsu.grammars.Option'> power
+<class 'tatsu.grammars.Rule'> power
+    =
+    atom {trailer} ['**' factor]
+    ;
+
+<class 'tatsu.grammars.Sequence'> atom {trailer} ['**' factor]
+<class 'tatsu.grammars.Rule'> atom
+    =
+        '('
+        [
+        yield_expr | testlist_gexp
+        ]
+
+        ')'
+    |
+        '[' [listmaker] ']'
+    |
+        '{' [dictmaker] '}'
+    |
+        '`' testlist '`'
+    |
+        name
+    |
+        int
+    |
+        LONGINT
+    |
+        float
+    |
+        complex
+    |
+        {STRING}+
+    ;
+
+<class 'tatsu.grammars.Choice'>     '('
+    [
+    yield_expr | testlist_gexp
+    ]
+
+    ')'
+|
+    '[' [listmaker] ']'
+|
+    '{' [dictmaker] '}'
+|
+    '`' testlist '`'
+|
+    name
+|
+    int
+|
+    LONGINT
+|
+    float
+|
+    complex
+|
+    {STRING}+
+<class 'tatsu.grammars.Option'> '('
+[
+yield_expr | testlist_gexp
+]
+
+')'
+<class 'tatsu.grammars.Sequence'> '('
+[
+yield_expr | testlist_gexp
+]
+
+')'
+<class 'tatsu.grammars.Decorator'> '('
+<class 'tatsu.grammars.RuleRef'> LPAREN
+<class 'tatsu.grammars.Token'> '('
+<class 'tatsu.grammars.Optional'> [
+yield_expr | testlist_gexp
+]
+
+<class 'tatsu.grammars.Choice'> yield_expr | testlist_gexp
+<class 'tatsu.grammars.Option'> yield_expr
+<class 'tatsu.grammars.Rule'> yield_expr
+    =
+    'yield' [testlist]
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'yield' [testlist]
+<class 'tatsu.grammars.Token'> 'yield'
+<class 'tatsu.grammars.Optional'> [testlist]
+<class 'tatsu.grammars.Option'> testlist_gexp
+<class 'tatsu.grammars.Rule'> testlist_gexp
+    =
+    test ({',' test} [','] | gen_for)
+    ;
+
+<class 'tatsu.grammars.Sequence'> test ({',' test} [','] | gen_for)
+<class 'tatsu.grammars.Group'> ({',' test} [','] | gen_for)
+<class 'tatsu.grammars.Choice'> {',' test} [','] | gen_for
+<class 'tatsu.grammars.Option'> {',' test} [',']
+<class 'tatsu.grammars.Sequence'> {',' test} [',']
+<class 'tatsu.grammars.Closure'> {',' test}
+<class 'tatsu.grammars.Sequence'> ',' test
+<class 'tatsu.grammars.Decorator'> ','
+<class 'tatsu.grammars.RuleRef'> COMMA
+<class 'tatsu.grammars.Token'> ','
+<class 'tatsu.grammars.Optional'> [',']
+<class 'tatsu.grammars.Option'> gen_for
+<class 'tatsu.grammars.Rule'> gen_for
+    =
+    'for' exprlist 'in' or_test [gen_iter]
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'for' exprlist 'in' or_test [gen_iter]
+<class 'tatsu.grammars.Token'> 'for'
+<class 'tatsu.grammars.Rule'> exprlist
+    =
+    expr {',' expr} [',']
+    ;
+
+<class 'tatsu.grammars.Sequence'> expr {',' expr} [',']
+<class 'tatsu.grammars.Closure'> {',' expr}
+<class 'tatsu.grammars.Sequence'> ',' expr
+<class 'tatsu.grammars.Optional'> [',']
+<class 'tatsu.grammars.Token'> 'in'
+<class 'tatsu.grammars.Optional'> [gen_iter]
+<class 'tatsu.grammars.Rule'> gen_iter
+    =
+    gen_for | gen_if
+    ;
+
+<class 'tatsu.grammars.Choice'> gen_for | gen_if
+<class 'tatsu.grammars.Option'> gen_for
+<class 'tatsu.grammars.Option'> gen_if
+<class 'tatsu.grammars.Rule'> gen_if
+    =
+    'if' test [gen_iter]
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'if' test [gen_iter]
+<class 'tatsu.grammars.Token'> 'if'
+<class 'tatsu.grammars.Optional'> [gen_iter]
+<class 'tatsu.grammars.Decorator'> ')'
+<class 'tatsu.grammars.RuleRef'> RPAREN
+<class 'tatsu.grammars.Token'> ')'
+<class 'tatsu.grammars.Option'> '[' [listmaker] ']'
+<class 'tatsu.grammars.Sequence'> '[' [listmaker] ']'
+<class 'tatsu.grammars.Decorator'> '['
+<class 'tatsu.grammars.RuleRef'> LBRACK
+<class 'tatsu.grammars.Token'> '['
+<class 'tatsu.grammars.Optional'> [listmaker]
+<class 'tatsu.grammars.Rule'> listmaker
+    =
+    test (list_for | {',' test}) [',']
+    ;
+
+<class 'tatsu.grammars.Sequence'> test (list_for | {',' test}) [',']
+<class 'tatsu.grammars.Group'> (list_for | {',' test})
+<class 'tatsu.grammars.Choice'> list_for | {',' test}
+<class 'tatsu.grammars.Option'> list_for
+<class 'tatsu.grammars.Rule'> list_for
+    =
+    'for' exprlist 'in' testlist [list_iter]
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'for' exprlist 'in' testlist [list_iter]
+<class 'tatsu.grammars.Token'> 'for'
+<class 'tatsu.grammars.Token'> 'in'
+<class 'tatsu.grammars.Optional'> [list_iter]
+<class 'tatsu.grammars.Rule'> list_iter
+    =
+    list_for | list_if
+    ;
+
+<class 'tatsu.grammars.Choice'> list_for | list_if
+<class 'tatsu.grammars.Option'> list_for
+<class 'tatsu.grammars.Option'> list_if
+<class 'tatsu.grammars.Rule'> list_if
+    =
+    'if' test [list_iter]
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'if' test [list_iter]
+<class 'tatsu.grammars.Token'> 'if'
+<class 'tatsu.grammars.Optional'> [list_iter]
+<class 'tatsu.grammars.Option'> {',' test}
+<class 'tatsu.grammars.Closure'> {',' test}
+<class 'tatsu.grammars.Sequence'> ',' test
+<class 'tatsu.grammars.Optional'> [',']
+<class 'tatsu.grammars.Decorator'> ']'
+<class 'tatsu.grammars.RuleRef'> RBRACK
+<class 'tatsu.grammars.Token'> ']'
+<class 'tatsu.grammars.Option'> '{' [dictmaker] '}'
+<class 'tatsu.grammars.Sequence'> '{' [dictmaker] '}'
+<class 'tatsu.grammars.Decorator'> '{'
+<class 'tatsu.grammars.RuleRef'> LCURLY
+<class 'tatsu.grammars.Token'> '{'
+<class 'tatsu.grammars.Optional'> [dictmaker]
+<class 'tatsu.grammars.Rule'> dictmaker
+    =
+    test ':' test {',' test ':' test} [',']
+    ;
+
+<class 'tatsu.grammars.Sequence'> test ':' test {',' test ':' test} [',']
+<class 'tatsu.grammars.Decorator'> ':'
+<class 'tatsu.grammars.RuleRef'> COLON
+<class 'tatsu.grammars.Token'> ':'
+<class 'tatsu.grammars.Closure'> {',' test ':' test}
+<class 'tatsu.grammars.Sequence'> ',' test ':' test
+<class 'tatsu.grammars.Optional'> [',']
+<class 'tatsu.grammars.Decorator'> '}'
+<class 'tatsu.grammars.RuleRef'> RCURLY
+<class 'tatsu.grammars.Token'> '}'
+<class 'tatsu.grammars.Option'> '`' testlist '`'
+<class 'tatsu.grammars.Sequence'> '`' testlist '`'
+<class 'tatsu.grammars.Decorator'> '`'
+<class 'tatsu.grammars.RuleRef'> BACKQUOTE
+<class 'tatsu.grammars.Token'> '`'
+<class 'tatsu.grammars.Option'> name
+<class 'tatsu.grammars.Decorator'> name
+<class 'tatsu.grammars.RuleRef'> NAME
+<class 'tatsu.grammars.Rule'> name
+    =
+    /[a-zA-Z_][a-zA-Z_0-9]*/
+    ;
+
+<class 'tatsu.grammars.Pattern'> /[a-zA-Z_][a-zA-Z_0-9]*/
+<class 'tatsu.grammars.Option'> int
+<class 'tatsu.grammars.Decorator'> int
+<class 'tatsu.grammars.RuleRef'> INT
+<class 'tatsu.grammars.Rule'> int
+    =
+    '0' /[xX][0-9a-fA-F]+/ | '0' {DIGITS} | /[1-9]/ {DIGITS}
+    ;
+
+<class 'tatsu.grammars.Choice'> '0' /[xX][0-9a-fA-F]+/ | '0' {DIGITS} | /[1-9]/ {DIGITS}
+<class 'tatsu.grammars.Option'> '0' /[xX][0-9a-fA-F]+/
+<class 'tatsu.grammars.Sequence'> '0' /[xX][0-9a-fA-F]+/
+<class 'tatsu.grammars.Token'> '0'
+<class 'tatsu.grammars.Pattern'> /[xX][0-9a-fA-F]+/
+<class 'tatsu.grammars.Option'> '0' {DIGITS}
+<class 'tatsu.grammars.Sequence'> '0' {DIGITS}
+<class 'tatsu.grammars.Token'> '0'
+<class 'tatsu.grammars.Closure'> {DIGITS}
+<class 'tatsu.grammars.Decorator'> DIGITS
+<class 'tatsu.grammars.Rule'> DIGITS
+    =
+    /[0-9]+/
+    ;
+
+<class 'tatsu.grammars.Pattern'> /[0-9]+/
+<class 'tatsu.grammars.Option'> /[1-9]/ {DIGITS}
+<class 'tatsu.grammars.Sequence'> /[1-9]/ {DIGITS}
+<class 'tatsu.grammars.Pattern'> /[1-9]/
+<class 'tatsu.grammars.Closure'> {DIGITS}
+<class 'tatsu.grammars.Option'> LONGINT
+<class 'tatsu.grammars.Decorator'> LONGINT
+<class 'tatsu.grammars.Rule'> LONGINT
+    =
+    int /[lL]/
+    ;
+
+<class 'tatsu.grammars.Sequence'> int /[lL]/
+<class 'tatsu.grammars.Pattern'> /[lL]/
+<class 'tatsu.grammars.Option'> float
+<class 'tatsu.grammars.Decorator'> float
+<class 'tatsu.grammars.RuleRef'> FLOAT
+<class 'tatsu.grammars.Rule'> float
+    =
+    | '.' DIGITS [EXPONENT]
+    | DIGITS '.' EXPONENT
+    | DIGITS ('.' [DIGITS [EXPONENT]] | EXPONENT)
+    ;
+
+<class 'tatsu.grammars.Choice'> | '.' DIGITS [EXPONENT]
+| DIGITS '.' EXPONENT
+| DIGITS ('.' [DIGITS [EXPONENT]] | EXPONENT)
+<class 'tatsu.grammars.Option'> '.' DIGITS [EXPONENT]
+<class 'tatsu.grammars.Sequence'> '.' DIGITS [EXPONENT]
+<class 'tatsu.grammars.Token'> '.'
+<class 'tatsu.grammars.Optional'> [EXPONENT]
+<class 'tatsu.grammars.Decorator'> EXPONENT
+<class 'tatsu.grammars.Rule'> EXPONENT
+    =
+    /[eE][+-]?/ DIGITS
+    ;
+
+<class 'tatsu.grammars.Sequence'> /[eE][+-]?/ DIGITS
+<class 'tatsu.grammars.Pattern'> /[eE][+-]?/
+<class 'tatsu.grammars.Option'> DIGITS '.' EXPONENT
+<class 'tatsu.grammars.Sequence'> DIGITS '.' EXPONENT
+<class 'tatsu.grammars.Token'> '.'
+<class 'tatsu.grammars.Option'> DIGITS ('.' [DIGITS [EXPONENT]] | EXPONENT)
+<class 'tatsu.grammars.Sequence'> DIGITS ('.' [DIGITS [EXPONENT]] | EXPONENT)
+<class 'tatsu.grammars.Group'> ('.' [DIGITS [EXPONENT]] | EXPONENT)
+<class 'tatsu.grammars.Choice'> '.' [DIGITS [EXPONENT]] | EXPONENT
+<class 'tatsu.grammars.Option'> '.' [DIGITS [EXPONENT]]
+<class 'tatsu.grammars.Sequence'> '.' [DIGITS [EXPONENT]]
+<class 'tatsu.grammars.Token'> '.'
+<class 'tatsu.grammars.Optional'> [DIGITS [EXPONENT]]
+<class 'tatsu.grammars.Sequence'> DIGITS [EXPONENT]
+<class 'tatsu.grammars.Optional'> [EXPONENT]
+<class 'tatsu.grammars.Option'> EXPONENT
+<class 'tatsu.grammars.Option'> complex
+<class 'tatsu.grammars.Decorator'> complex
+<class 'tatsu.grammars.RuleRef'> COMPLEX
+<class 'tatsu.grammars.Rule'> complex
+    =
+    int /[jJ]/ | float /[jJ]/
+    ;
+
+<class 'tatsu.grammars.Choice'> int /[jJ]/ | float /[jJ]/
+<class 'tatsu.grammars.Option'> int /[jJ]/
+<class 'tatsu.grammars.Sequence'> int /[jJ]/
+<class 'tatsu.grammars.Pattern'> /[jJ]/
+<class 'tatsu.grammars.Option'> float /[jJ]/
+<class 'tatsu.grammars.Sequence'> float /[jJ]/
+<class 'tatsu.grammars.Pattern'> /[jJ]/
+<class 'tatsu.grammars.Option'> {STRING}+
+<class 'tatsu.grammars.PositiveClosure'> {STRING}+
+<class 'tatsu.grammars.Decorator'> STRING
+<class 'tatsu.grammars.Rule'> STRING
+    =
+    [
+    /[ru]/ | 'ur'
+    ]
+
+    (
+        | "\\'\\'\\'" {TRIAPOS} "\\'\\'\\'"
+        | '"""' {TRIQUOTE} '"""'
+        | '"' {ESC | !/[\\\n"]/ /./} /["\']/ {ESC | !/[\\\n\']/ /./} "\\'"
+    )
+    ;
+
+<class 'tatsu.grammars.Sequence'> [
+/[ru]/ | 'ur'
+]
+
+(
+    | "\\'\\'\\'" {TRIAPOS} "\\'\\'\\'"
+    | '"""' {TRIQUOTE} '"""'
+    | '"' {ESC | !/[\\\n"]/ /./} /["\']/ {ESC | !/[\\\n\']/ /./} "\\'"
+)
+<class 'tatsu.grammars.Optional'> [
+/[ru]/ | 'ur'
+]
+
+<class 'tatsu.grammars.Choice'> /[ru]/ | 'ur'
+<class 'tatsu.grammars.Option'> /[ru]/
+<class 'tatsu.grammars.Pattern'> /[ru]/
+<class 'tatsu.grammars.Option'> 'ur'
+<class 'tatsu.grammars.Token'> 'ur'
+<class 'tatsu.grammars.Group'> (
+    | "\\'\\'\\'" {TRIAPOS} "\\'\\'\\'"
+    | '"""' {TRIQUOTE} '"""'
+    | '"' {ESC | !/[\\\n"]/ /./} /["\']/ {ESC | !/[\\\n\']/ /./} "\\'"
+)
+<class 'tatsu.grammars.Choice'> | "\\'\\'\\'" {TRIAPOS} "\\'\\'\\'"
+| '"""' {TRIQUOTE} '"""'
+| '"' {ESC | !/[\\\n"]/ /./} /["\']/ {ESC | !/[\\\n\']/ /./} "\\'"
+<class 'tatsu.grammars.Option'> "\\'\\'\\'" {TRIAPOS} "\\'\\'\\'"
+<class 'tatsu.grammars.Sequence'> "\\'\\'\\'" {TRIAPOS} "\\'\\'\\'"
+<class 'tatsu.grammars.Token'> "\\'\\'\\'"
+<class 'tatsu.grammars.Closure'> {TRIAPOS}
+<class 'tatsu.grammars.Decorator'> TRIAPOS
+<class 'tatsu.grammars.Rule'> TRIAPOS
+    =
+    ["\\'"] ["\\'"] {ESC | !/[\\\']/ /./}+
+    ;
+
+<class 'tatsu.grammars.Sequence'> ["\\'"] ["\\'"] {ESC | !/[\\\']/ /./}+
+<class 'tatsu.grammars.Optional'> ["\\'"]
+<class 'tatsu.grammars.Token'> "\\'"
+<class 'tatsu.grammars.Optional'> ["\\'"]
+<class 'tatsu.grammars.Token'> "\\'"
+<class 'tatsu.grammars.PositiveClosure'> {ESC | !/[\\\']/ /./}+
+<class 'tatsu.grammars.Choice'> ESC | !/[\\\']/ /./
+<class 'tatsu.grammars.Option'> ESC
+<class 'tatsu.grammars.Decorator'> ESC
+<class 'tatsu.grammars.Rule'> ESC
+    =
+    '\\\\' /\w+|\S+/
+    ;
+
+<class 'tatsu.grammars.Sequence'> '\\\\' /\w+|\S+/
+<class 'tatsu.grammars.Token'> '\\\\'
+<class 'tatsu.grammars.Pattern'> /\w+|\S+/
+<class 'tatsu.grammars.Option'> !/[\\\']/ /./
+<class 'tatsu.grammars.Sequence'> !/[\\\']/ /./
+<class 'tatsu.grammars.NegativeLookahead'> !/[\\\']/
+<class 'tatsu.grammars.Pattern'> /[\\\']/
+<class 'tatsu.grammars.Pattern'> /./
+<class 'tatsu.grammars.Token'> "\\'\\'\\'"
+<class 'tatsu.grammars.Option'> '"""' {TRIQUOTE} '"""'
+<class 'tatsu.grammars.Sequence'> '"""' {TRIQUOTE} '"""'
+<class 'tatsu.grammars.Token'> '"""'
+<class 'tatsu.grammars.Closure'> {TRIQUOTE}
+<class 'tatsu.grammars.Decorator'> TRIQUOTE
+<class 'tatsu.grammars.Rule'> TRIQUOTE
+    =
+    ['"'] ['"'] {ESC | !/[\\"]/ /./}+
+    ;
+
+<class 'tatsu.grammars.Sequence'> ['"'] ['"'] {ESC | !/[\\"]/ /./}+
+<class 'tatsu.grammars.Optional'> ['"']
+<class 'tatsu.grammars.Token'> '"'
+<class 'tatsu.grammars.Optional'> ['"']
+<class 'tatsu.grammars.Token'> '"'
+<class 'tatsu.grammars.PositiveClosure'> {ESC | !/[\\"]/ /./}+
+<class 'tatsu.grammars.Choice'> ESC | !/[\\"]/ /./
+<class 'tatsu.grammars.Option'> ESC
+<class 'tatsu.grammars.Option'> !/[\\"]/ /./
+<class 'tatsu.grammars.Sequence'> !/[\\"]/ /./
+<class 'tatsu.grammars.NegativeLookahead'> !/[\\"]/
+<class 'tatsu.grammars.Pattern'> /[\\"]/
+<class 'tatsu.grammars.Pattern'> /./
+<class 'tatsu.grammars.Token'> '"""'
+<class 'tatsu.grammars.Option'> '"' {ESC | !/[\\\n"]/ /./} /["\']/ {ESC | !/[\\\n\']/ /./} "\\'"
+<class 'tatsu.grammars.Sequence'> '"' {ESC | !/[\\\n"]/ /./} /["\']/ {ESC | !/[\\\n\']/ /./} "\\'"
+<class 'tatsu.grammars.Token'> '"'
+<class 'tatsu.grammars.Closure'> {ESC | !/[\\\n"]/ /./}
+<class 'tatsu.grammars.Choice'> ESC | !/[\\\n"]/ /./
+<class 'tatsu.grammars.Option'> ESC
+<class 'tatsu.grammars.Option'> !/[\\\n"]/ /./
+<class 'tatsu.grammars.Sequence'> !/[\\\n"]/ /./
+<class 'tatsu.grammars.NegativeLookahead'> !/[\\\n"]/
+<class 'tatsu.grammars.Pattern'> /[\\\n"]/
+<class 'tatsu.grammars.Pattern'> /./
+<class 'tatsu.grammars.Pattern'> /["\']/
+<class 'tatsu.grammars.Closure'> {ESC | !/[\\\n\']/ /./}
+<class 'tatsu.grammars.Choice'> ESC | !/[\\\n\']/ /./
+<class 'tatsu.grammars.Option'> ESC
+<class 'tatsu.grammars.Option'> !/[\\\n\']/ /./
+<class 'tatsu.grammars.Sequence'> !/[\\\n\']/ /./
+<class 'tatsu.grammars.NegativeLookahead'> !/[\\\n\']/
+<class 'tatsu.grammars.Pattern'> /[\\\n\']/
+<class 'tatsu.grammars.Pattern'> /./
+<class 'tatsu.grammars.Token'> "\\'"
+<class 'tatsu.grammars.Closure'> {trailer}
+<class 'tatsu.grammars.Rule'> trailer
+    =
+    '(' [arglist] ')' | '[' subscriptlist ']' | '.' name
+    ;
+
+<class 'tatsu.grammars.Choice'> '(' [arglist] ')' | '[' subscriptlist ']' | '.' name
+<class 'tatsu.grammars.Option'> '(' [arglist] ')'
+<class 'tatsu.grammars.Sequence'> '(' [arglist] ')'
+<class 'tatsu.grammars.Optional'> [arglist]
+<class 'tatsu.grammars.Rule'> arglist
+    =
+        argument
+        {',' argument}
+        [','
+        [
+        '*' test [',' '**' test] | '**' test
+        ]
+        ]
+    |
+        '*' test [',' '**' test]
+    |
+        '**' test
+    ;
+
+<class 'tatsu.grammars.Choice'>     argument
+    {',' argument}
+    [','
+    [
+    '*' test [',' '**' test] | '**' test
+    ]
+    ]
+|
+    '*' test [',' '**' test]
+|
+    '**' test
+<class 'tatsu.grammars.Option'> argument
+{',' argument}
+[','
+[
+'*' test [',' '**' test] | '**' test
+]
+]
+<class 'tatsu.grammars.Sequence'> argument
+{',' argument}
+[','
+[
+'*' test [',' '**' test] | '**' test
+]
+]
+<class 'tatsu.grammars.Rule'> argument
+    =
+    test
+    [
+    ('=' test) | gen_for
+    ]
+    ;
+
+<class 'tatsu.grammars.Sequence'> test
+[
+('=' test) | gen_for
+]
+
+<class 'tatsu.grammars.Optional'> [
+('=' test) | gen_for
+]
+
+<class 'tatsu.grammars.Choice'> ('=' test) | gen_for
+<class 'tatsu.grammars.Option'> ('=' test)
+<class 'tatsu.grammars.Group'> ('=' test)
+<class 'tatsu.grammars.Sequence'> '=' test
+<class 'tatsu.grammars.Decorator'> '='
+<class 'tatsu.grammars.RuleRef'> ASSIGN
+<class 'tatsu.grammars.Token'> '='
+<class 'tatsu.grammars.Option'> gen_for
+<class 'tatsu.grammars.Closure'> {',' argument}
+<class 'tatsu.grammars.Sequence'> ',' argument
+<class 'tatsu.grammars.Optional'> [','
+[
+'*' test [',' '**' test] | '**' test
+]
+]
+<class 'tatsu.grammars.Sequence'> ','
+[
+'*' test [',' '**' test] | '**' test
+]
+
+<class 'tatsu.grammars.Optional'> [
+'*' test [',' '**' test] | '**' test
+]
+
+<class 'tatsu.grammars.Choice'> '*' test [',' '**' test] | '**' test
+<class 'tatsu.grammars.Option'> '*' test [',' '**' test]
+<class 'tatsu.grammars.Sequence'> '*' test [',' '**' test]
+<class 'tatsu.grammars.Decorator'> '*'
+<class 'tatsu.grammars.RuleRef'> STAR
+<class 'tatsu.grammars.Token'> '*'
+<class 'tatsu.grammars.Optional'> [',' '**' test]
+<class 'tatsu.grammars.Sequence'> ',' '**' test
+<class 'tatsu.grammars.Decorator'> '**'
+<class 'tatsu.grammars.RuleRef'> DOUBLESTAR
+<class 'tatsu.grammars.Token'> '**'
+<class 'tatsu.grammars.Option'> '**' test
+<class 'tatsu.grammars.Sequence'> '**' test
+<class 'tatsu.grammars.Option'> '*' test [',' '**' test]
+<class 'tatsu.grammars.Sequence'> '*' test [',' '**' test]
+<class 'tatsu.grammars.Optional'> [',' '**' test]
+<class 'tatsu.grammars.Sequence'> ',' '**' test
+<class 'tatsu.grammars.Option'> '**' test
+<class 'tatsu.grammars.Sequence'> '**' test
+<class 'tatsu.grammars.Option'> '[' subscriptlist ']'
+<class 'tatsu.grammars.Sequence'> '[' subscriptlist ']'
+<class 'tatsu.grammars.Rule'> subscriptlist
+    =
+    subscript {',' subscript} [',']
+    ;
+
+<class 'tatsu.grammars.Sequence'> subscript {',' subscript} [',']
+<class 'tatsu.grammars.Rule'> subscript
+    =
+    '.' '.' '.' | test [':' [test] [sliceop]] | ':' [test] [sliceop]
+    ;
+
+<class 'tatsu.grammars.Choice'> '.' '.' '.' | test [':' [test] [sliceop]] | ':' [test] [sliceop]
+<class 'tatsu.grammars.Option'> '.' '.' '.'
+<class 'tatsu.grammars.Sequence'> '.' '.' '.'
+<class 'tatsu.grammars.Decorator'> '.'
+<class 'tatsu.grammars.RuleRef'> DOT
+<class 'tatsu.grammars.Token'> '.'
+<class 'tatsu.grammars.Option'> test [':' [test] [sliceop]]
+<class 'tatsu.grammars.Sequence'> test [':' [test] [sliceop]]
+<class 'tatsu.grammars.Optional'> [':' [test] [sliceop]]
+<class 'tatsu.grammars.Sequence'> ':' [test] [sliceop]
+<class 'tatsu.grammars.Optional'> [test]
+<class 'tatsu.grammars.Optional'> [sliceop]
+<class 'tatsu.grammars.Rule'> sliceop
+    =
+    ':' [test]
+    ;
+
+<class 'tatsu.grammars.Sequence'> ':' [test]
+<class 'tatsu.grammars.Optional'> [test]
+<class 'tatsu.grammars.Option'> ':' [test] [sliceop]
+<class 'tatsu.grammars.Sequence'> ':' [test] [sliceop]
+<class 'tatsu.grammars.Optional'> [test]
+<class 'tatsu.grammars.Optional'> [sliceop]
+<class 'tatsu.grammars.Closure'> {',' subscript}
+<class 'tatsu.grammars.Sequence'> ',' subscript
+<class 'tatsu.grammars.Optional'> [',']
+<class 'tatsu.grammars.Option'> '.' name
+<class 'tatsu.grammars.Sequence'> '.' name
+<class 'tatsu.grammars.Optional'> ['**' factor]
+<class 'tatsu.grammars.Sequence'> '**' factor
+<class 'tatsu.grammars.Closure'> {('*' | '/' | '%' | '//') factor}
+<class 'tatsu.grammars.Sequence'> ('*' | '/' | '%' | '//') factor
+<class 'tatsu.grammars.Group'> ('*' | '/' | '%' | '//')
+<class 'tatsu.grammars.Choice'> '*' | '/' | '%' | '//'
+<class 'tatsu.grammars.Option'> '*'
+<class 'tatsu.grammars.Option'> '/'
+<class 'tatsu.grammars.Decorator'> '/'
+<class 'tatsu.grammars.RuleRef'> SLASH
+<class 'tatsu.grammars.Token'> '/'
+<class 'tatsu.grammars.Option'> '%'
+<class 'tatsu.grammars.Decorator'> '%'
+<class 'tatsu.grammars.RuleRef'> PERCENT
+<class 'tatsu.grammars.Token'> '%'
+<class 'tatsu.grammars.Option'> '//'
+<class 'tatsu.grammars.Decorator'> '//'
+<class 'tatsu.grammars.RuleRef'> DOUBLESLASH
+<class 'tatsu.grammars.Token'> '//'
+<class 'tatsu.grammars.Closure'> {('+' | '-') term}
+<class 'tatsu.grammars.Sequence'> ('+' | '-') term
+<class 'tatsu.grammars.Group'> ('+' | '-')
+<class 'tatsu.grammars.Choice'> '+' | '-'
+<class 'tatsu.grammars.Option'> '+'
+<class 'tatsu.grammars.Option'> '-'
+<class 'tatsu.grammars.Closure'> {('<<' | '>>') arith_expr}
+<class 'tatsu.grammars.Sequence'> ('<<' | '>>') arith_expr
+<class 'tatsu.grammars.Group'> ('<<' | '>>')
+<class 'tatsu.grammars.Choice'> '<<' | '>>'
+<class 'tatsu.grammars.Option'> '<<'
+<class 'tatsu.grammars.Decorator'> '<<'
+<class 'tatsu.grammars.RuleRef'> LEFTSHIFT
+<class 'tatsu.grammars.Token'> '<<'
+<class 'tatsu.grammars.Option'> '>>'
+<class 'tatsu.grammars.Decorator'> '>>'
+<class 'tatsu.grammars.RuleRef'> RIGHTSHIFT
+<class 'tatsu.grammars.Token'> '>>'
+<class 'tatsu.grammars.Closure'> {'&' shift_expr}
+<class 'tatsu.grammars.Sequence'> '&' shift_expr
+<class 'tatsu.grammars.Decorator'> '&'
+<class 'tatsu.grammars.RuleRef'> AMPER
+<class 'tatsu.grammars.Token'> '&'
+<class 'tatsu.grammars.Closure'> {'^' and_expr}
+<class 'tatsu.grammars.Sequence'> '^' and_expr
+<class 'tatsu.grammars.Decorator'> '^'
+<class 'tatsu.grammars.RuleRef'> CIRCUMFLEX
+<class 'tatsu.grammars.Token'> '^'
+<class 'tatsu.grammars.Closure'> {'|' xor_expr}
+<class 'tatsu.grammars.Sequence'> '|' xor_expr
+<class 'tatsu.grammars.Decorator'> '|'
+<class 'tatsu.grammars.RuleRef'> VBAR
+<class 'tatsu.grammars.Token'> '|'
+<class 'tatsu.grammars.Closure'> {comp_op expr}
+<class 'tatsu.grammars.Sequence'> comp_op expr
+<class 'tatsu.grammars.Rule'> comp_op
+    =
+    | '<'
+    | '>'
+    | '=='
+    | '>='
+    | '<='
+    | '<>'
+    | '!='
+    | 'in'
+    | 'not' 'in'
+    | 'is'
+    | 'is' 'not'
+    ;
+
+<class 'tatsu.grammars.Choice'> | '<'
+| '>'
+| '=='
+| '>='
+| '<='
+| '<>'
+| '!='
+| 'in'
+| 'not' 'in'
+| 'is'
+| 'is' 'not'
+<class 'tatsu.grammars.Option'> '<'
+<class 'tatsu.grammars.Decorator'> '<'
+<class 'tatsu.grammars.RuleRef'> LESS
+<class 'tatsu.grammars.Token'> '<'
+<class 'tatsu.grammars.Option'> '>'
+<class 'tatsu.grammars.Decorator'> '>'
+<class 'tatsu.grammars.RuleRef'> GREATER
+<class 'tatsu.grammars.Token'> '>'
+<class 'tatsu.grammars.Option'> '=='
+<class 'tatsu.grammars.Decorator'> '=='
+<class 'tatsu.grammars.RuleRef'> EQUAL
+<class 'tatsu.grammars.Token'> '=='
+<class 'tatsu.grammars.Option'> '>='
+<class 'tatsu.grammars.Decorator'> '>='
+<class 'tatsu.grammars.RuleRef'> GREATEREQUAL
+<class 'tatsu.grammars.Token'> '>='
+<class 'tatsu.grammars.Option'> '<='
+<class 'tatsu.grammars.Decorator'> '<='
+<class 'tatsu.grammars.RuleRef'> LESSEQUAL
+<class 'tatsu.grammars.Token'> '<='
+<class 'tatsu.grammars.Option'> '<>'
+<class 'tatsu.grammars.Decorator'> '<>'
+<class 'tatsu.grammars.RuleRef'> ALT_NOTEQUAL
+<class 'tatsu.grammars.Token'> '<>'
+<class 'tatsu.grammars.Option'> '!='
+<class 'tatsu.grammars.Decorator'> '!='
+<class 'tatsu.grammars.RuleRef'> NOTEQUAL
+<class 'tatsu.grammars.Token'> '!='
+<class 'tatsu.grammars.Option'> 'in'
+<class 'tatsu.grammars.Token'> 'in'
+<class 'tatsu.grammars.Option'> 'not' 'in'
+<class 'tatsu.grammars.Sequence'> 'not' 'in'
+<class 'tatsu.grammars.Token'> 'in'
+<class 'tatsu.grammars.Option'> 'is'
+<class 'tatsu.grammars.Token'> 'is'
+<class 'tatsu.grammars.Option'> 'is' 'not'
+<class 'tatsu.grammars.Sequence'> 'is' 'not'
+<class 'tatsu.grammars.Token'> 'is'
+<class 'tatsu.grammars.Closure'> {'and' not_test}
+<class 'tatsu.grammars.Sequence'> 'and' not_test
+<class 'tatsu.grammars.Decorator'> 'and'
+<class 'tatsu.grammars.RuleRef'> AND
+<class 'tatsu.grammars.Token'> 'and'
+<class 'tatsu.grammars.Closure'> {'or' and_test}
+<class 'tatsu.grammars.Sequence'> 'or' and_test
+<class 'tatsu.grammars.Decorator'> 'or'
+<class 'tatsu.grammars.RuleRef'> OR
+<class 'tatsu.grammars.Token'> 'or'
+<class 'tatsu.grammars.Optional'> ['if' or_test 'else' test]
+<class 'tatsu.grammars.Sequence'> 'if' or_test 'else' test
+<class 'tatsu.grammars.Token'> 'if'
+<class 'tatsu.grammars.Token'> 'else'
+<class 'tatsu.grammars.Option'> lambdef
+<class 'tatsu.grammars.Rule'> lambdef
+    =
+    'lambda' [varargslist] ':' test
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'lambda' [varargslist] ':' test
+<class 'tatsu.grammars.Token'> 'lambda'
+<class 'tatsu.grammars.Optional'> [varargslist]
+<class 'tatsu.grammars.Rule'> varargslist
+    =
+        defparameter
+        {',' defparameter}
+        [','
+        [
+        '*' name [',' '**' name] | '**' name
+        ]
+        ]
+    |
+        '*' name [',' '**' name]
+    |
+        '**' name
+    ;
+
+<class 'tatsu.grammars.Choice'>     defparameter
+    {',' defparameter}
+    [','
+    [
+    '*' name [',' '**' name] | '**' name
+    ]
+    ]
+|
+    '*' name [',' '**' name]
+|
+    '**' name
+<class 'tatsu.grammars.Option'> defparameter
+{',' defparameter}
+[','
+[
+'*' name [',' '**' name] | '**' name
+]
+]
+<class 'tatsu.grammars.Sequence'> defparameter
+{',' defparameter}
+[','
+[
+'*' name [',' '**' name] | '**' name
+]
+]
+<class 'tatsu.grammars.Rule'> defparameter
+    =
+    fpdef ['=' test]
+    ;
+
+<class 'tatsu.grammars.Sequence'> fpdef ['=' test]
+<class 'tatsu.grammars.Rule'> fpdef
+    =
+    name | '(' fplist ')'
+    ;
+
+<class 'tatsu.grammars.Choice'> name | '(' fplist ')'
+<class 'tatsu.grammars.Option'> name
+<class 'tatsu.grammars.Option'> '(' fplist ')'
+<class 'tatsu.grammars.Sequence'> '(' fplist ')'
+<class 'tatsu.grammars.Rule'> fplist
+    =
+    fpdef {',' fpdef} [',']
+    ;
+
+<class 'tatsu.grammars.Sequence'> fpdef {',' fpdef} [',']
+<class 'tatsu.grammars.Closure'> {',' fpdef}
+<class 'tatsu.grammars.Sequence'> ',' fpdef
+<class 'tatsu.grammars.Optional'> [',']
+<class 'tatsu.grammars.Optional'> ['=' test]
+<class 'tatsu.grammars.Sequence'> '=' test
+<class 'tatsu.grammars.Closure'> {',' defparameter}
+<class 'tatsu.grammars.Sequence'> ',' defparameter
+<class 'tatsu.grammars.Optional'> [','
+[
+'*' name [',' '**' name] | '**' name
+]
+]
+<class 'tatsu.grammars.Sequence'> ','
+[
+'*' name [',' '**' name] | '**' name
+]
+
+<class 'tatsu.grammars.Optional'> [
+'*' name [',' '**' name] | '**' name
+]
+
+<class 'tatsu.grammars.Choice'> '*' name [',' '**' name] | '**' name
+<class 'tatsu.grammars.Option'> '*' name [',' '**' name]
+<class 'tatsu.grammars.Sequence'> '*' name [',' '**' name]
+<class 'tatsu.grammars.Optional'> [',' '**' name]
+<class 'tatsu.grammars.Sequence'> ',' '**' name
+<class 'tatsu.grammars.Option'> '**' name
+<class 'tatsu.grammars.Sequence'> '**' name
+<class 'tatsu.grammars.Option'> '*' name [',' '**' name]
+<class 'tatsu.grammars.Sequence'> '*' name [',' '**' name]
+<class 'tatsu.grammars.Optional'> [',' '**' name]
+<class 'tatsu.grammars.Sequence'> ',' '**' name
+<class 'tatsu.grammars.Option'> '**' name
+<class 'tatsu.grammars.Sequence'> '**' name
+<class 'tatsu.grammars.Closure'> {',' test}
+<class 'tatsu.grammars.Sequence'> ',' test
+<class 'tatsu.grammars.Optional'> [',']
+<class 'tatsu.grammars.Optional'> [
+augassign yield_expr | augassign testlist | assigns
+]
+
+<class 'tatsu.grammars.Choice'> augassign yield_expr | augassign testlist | assigns
+<class 'tatsu.grammars.Option'> augassign yield_expr
+<class 'tatsu.grammars.Sequence'> augassign yield_expr
+<class 'tatsu.grammars.Rule'> augassign
+    =
+    | '+='
+    | '-='
+    | '*='
+    | '/='
+    | '%='
+    | '&='
+    | '|='
+    | '^='
+    | '<<='
+    | '>>='
+    | '**='
+    | '//='
+    ;
+
+<class 'tatsu.grammars.Choice'> | '+='
+| '-='
+| '*='
+| '/='
+| '%='
+| '&='
+| '|='
+| '^='
+| '<<='
+| '>>='
+| '**='
+| '//='
+<class 'tatsu.grammars.Option'> '+='
+<class 'tatsu.grammars.Decorator'> '+='
+<class 'tatsu.grammars.RuleRef'> PLUSEQUAL
+<class 'tatsu.grammars.Token'> '+='
+<class 'tatsu.grammars.Option'> '-='
+<class 'tatsu.grammars.Decorator'> '-='
+<class 'tatsu.grammars.RuleRef'> MINUSEQUAL
+<class 'tatsu.grammars.Token'> '-='
+<class 'tatsu.grammars.Option'> '*='
+<class 'tatsu.grammars.Decorator'> '*='
+<class 'tatsu.grammars.RuleRef'> STAREQUAL
+<class 'tatsu.grammars.Token'> '*='
+<class 'tatsu.grammars.Option'> '/='
+<class 'tatsu.grammars.Decorator'> '/='
+<class 'tatsu.grammars.RuleRef'> SLASHEQUAL
+<class 'tatsu.grammars.Token'> '/='
+<class 'tatsu.grammars.Option'> '%='
+<class 'tatsu.grammars.Decorator'> '%='
+<class 'tatsu.grammars.RuleRef'> PERCENTEQUAL
+<class 'tatsu.grammars.Token'> '%='
+<class 'tatsu.grammars.Option'> '&='
+<class 'tatsu.grammars.Decorator'> '&='
+<class 'tatsu.grammars.RuleRef'> AMPEREQUAL
+<class 'tatsu.grammars.Token'> '&='
+<class 'tatsu.grammars.Option'> '|='
+<class 'tatsu.grammars.Decorator'> '|='
+<class 'tatsu.grammars.RuleRef'> VBAREQUAL
+<class 'tatsu.grammars.Token'> '|='
+<class 'tatsu.grammars.Option'> '^='
+<class 'tatsu.grammars.Decorator'> '^='
+<class 'tatsu.grammars.RuleRef'> CIRCUMFLEXEQUAL
+<class 'tatsu.grammars.Token'> '^='
+<class 'tatsu.grammars.Option'> '<<='
+<class 'tatsu.grammars.Decorator'> '<<='
+<class 'tatsu.grammars.RuleRef'> LEFTSHIFTEQUAL
+<class 'tatsu.grammars.Token'> '<<='
+<class 'tatsu.grammars.Option'> '>>='
+<class 'tatsu.grammars.Decorator'> '>>='
+<class 'tatsu.grammars.RuleRef'> RIGHTSHIFTEQUAL
+<class 'tatsu.grammars.Token'> '>>='
+<class 'tatsu.grammars.Option'> '**='
+<class 'tatsu.grammars.Decorator'> '**='
+<class 'tatsu.grammars.RuleRef'> DOUBLESTAREQUAL
+<class 'tatsu.grammars.Token'> '**='
+<class 'tatsu.grammars.Option'> '//='
+<class 'tatsu.grammars.Decorator'> '//='
+<class 'tatsu.grammars.RuleRef'> DOUBLESLASHEQUAL
+<class 'tatsu.grammars.Token'> '//='
+<class 'tatsu.grammars.Option'> augassign testlist
+<class 'tatsu.grammars.Sequence'> augassign testlist
+<class 'tatsu.grammars.Option'> assigns
+<class 'tatsu.grammars.Rule'> assigns
+    =
+    {assign_testlist}+ | {assign_yield}+
+    ;
+
+<class 'tatsu.grammars.Choice'> {assign_testlist}+ | {assign_yield}+
+<class 'tatsu.grammars.Option'> {assign_testlist}+
+<class 'tatsu.grammars.PositiveClosure'> {assign_testlist}+
+<class 'tatsu.grammars.Rule'> assign_testlist
+    =
+    '=' testlist
+    ;
+
+<class 'tatsu.grammars.Sequence'> '=' testlist
+<class 'tatsu.grammars.Option'> {assign_yield}+
+<class 'tatsu.grammars.PositiveClosure'> {assign_yield}+
+<class 'tatsu.grammars.Rule'> assign_yield
+    =
+    '=' yield_expr
+    ;
+
+<class 'tatsu.grammars.Sequence'> '=' yield_expr
+<class 'tatsu.grammars.Option'> print_stmt
+<class 'tatsu.grammars.Rule'> print_stmt
+    =
+    'print'
+    [
+    printlist | '>>' printlist
+    ]
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'print'
+[
+printlist | '>>' printlist
+]
+
+<class 'tatsu.grammars.Token'> 'print'
+<class 'tatsu.grammars.Optional'> [
+printlist | '>>' printlist
+]
+
+<class 'tatsu.grammars.Choice'> printlist | '>>' printlist
+<class 'tatsu.grammars.Option'> printlist
+<class 'tatsu.grammars.Rule'> printlist
+    =
+    test {',' test} [',']
+    ;
+
+<class 'tatsu.grammars.Sequence'> test {',' test} [',']
+<class 'tatsu.grammars.Closure'> {',' test}
+<class 'tatsu.grammars.Sequence'> ',' test
+<class 'tatsu.grammars.Optional'> [',']
+<class 'tatsu.grammars.Option'> '>>' printlist
+<class 'tatsu.grammars.Sequence'> '>>' printlist
+<class 'tatsu.grammars.Option'> del_stmt
+<class 'tatsu.grammars.Rule'> del_stmt
+    =
+    'del' exprlist
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'del' exprlist
+<class 'tatsu.grammars.Token'> 'del'
+<class 'tatsu.grammars.Option'> pass_stmt
+<class 'tatsu.grammars.Rule'> pass_stmt
+    =
+    'pass'
+    ;
+
+<class 'tatsu.grammars.Token'> 'pass'
+<class 'tatsu.grammars.Option'> flow_stmt
+<class 'tatsu.grammars.Rule'> flow_stmt
+    =
+    break_stmt | continue_stmt | return_stmt | raise_stmt | yield_stmt
+    ;
+
+<class 'tatsu.grammars.Choice'> break_stmt | continue_stmt | return_stmt | raise_stmt | yield_stmt
+<class 'tatsu.grammars.Option'> break_stmt
+<class 'tatsu.grammars.Rule'> break_stmt
+    =
+    'break'
+    ;
+
+<class 'tatsu.grammars.Token'> 'break'
+<class 'tatsu.grammars.Option'> continue_stmt
+<class 'tatsu.grammars.Rule'> continue_stmt
+    =
+    'continue'
+    ;
+
+<class 'tatsu.grammars.Token'> 'continue'
+<class 'tatsu.grammars.Option'> return_stmt
+<class 'tatsu.grammars.Rule'> return_stmt
+    =
+    'return' [testlist]
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'return' [testlist]
+<class 'tatsu.grammars.Token'> 'return'
+<class 'tatsu.grammars.Optional'> [testlist]
+<class 'tatsu.grammars.Option'> raise_stmt
+<class 'tatsu.grammars.Rule'> raise_stmt
+    =
+    'raise' [test [',' test [',' test]]]
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'raise' [test [',' test [',' test]]]
+<class 'tatsu.grammars.Token'> 'raise'
+<class 'tatsu.grammars.Optional'> [test [',' test [',' test]]]
+<class 'tatsu.grammars.Sequence'> test [',' test [',' test]]
+<class 'tatsu.grammars.Optional'> [',' test [',' test]]
+<class 'tatsu.grammars.Sequence'> ',' test [',' test]
+<class 'tatsu.grammars.Optional'> [',' test]
+<class 'tatsu.grammars.Sequence'> ',' test
+<class 'tatsu.grammars.Option'> yield_stmt
+<class 'tatsu.grammars.Rule'> yield_stmt
+    =
+    yield_expr
+    ;
+
+<class 'tatsu.grammars.Option'> import_stmt
+<class 'tatsu.grammars.Rule'> import_stmt
+    =
+    import_name | import_from
+    ;
+
+<class 'tatsu.grammars.Choice'> import_name | import_from
+<class 'tatsu.grammars.Option'> import_name
+<class 'tatsu.grammars.Rule'> import_name
+    =
+    'import' dotted_as_names
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'import' dotted_as_names
+<class 'tatsu.grammars.Token'> 'import'
+<class 'tatsu.grammars.Rule'> dotted_as_names
+    =
+    dotted_as_name {',' dotted_as_name}
+    ;
+
+<class 'tatsu.grammars.Sequence'> dotted_as_name {',' dotted_as_name}
+<class 'tatsu.grammars.Rule'> dotted_as_name
+    =
+    dotted_name ['as' name]
+    ;
+
+<class 'tatsu.grammars.Sequence'> dotted_name ['as' name]
+<class 'tatsu.grammars.Rule'> dotted_name
+    =
+    name {'.' name}
+    ;
+
+<class 'tatsu.grammars.Sequence'> name {'.' name}
+<class 'tatsu.grammars.Closure'> {'.' name}
+<class 'tatsu.grammars.Sequence'> '.' name
+<class 'tatsu.grammars.Optional'> ['as' name]
+<class 'tatsu.grammars.Sequence'> 'as' name
+<class 'tatsu.grammars.Token'> 'as'
+<class 'tatsu.grammars.Closure'> {',' dotted_as_name}
+<class 'tatsu.grammars.Sequence'> ',' dotted_as_name
+<class 'tatsu.grammars.Option'> import_from
+<class 'tatsu.grammars.Rule'> import_from
+    =
+    'from'
+    ({'.'} dotted_name | {'.'}+)
+    'import'
+    ('*' | import_as_names | '(' import_as_names ')')
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'from'
+({'.'} dotted_name | {'.'}+)
+'import'
+('*' | import_as_names | '(' import_as_names ')')
+<class 'tatsu.grammars.Token'> 'from'
+<class 'tatsu.grammars.Group'> ({'.'} dotted_name | {'.'}+)
+<class 'tatsu.grammars.Choice'> {'.'} dotted_name | {'.'}+
+<class 'tatsu.grammars.Option'> {'.'} dotted_name
+<class 'tatsu.grammars.Sequence'> {'.'} dotted_name
+<class 'tatsu.grammars.Closure'> {'.'}
+<class 'tatsu.grammars.Option'> {'.'}+
+<class 'tatsu.grammars.PositiveClosure'> {'.'}+
+<class 'tatsu.grammars.Token'> 'import'
+<class 'tatsu.grammars.Group'> ('*' | import_as_names | '(' import_as_names ')')
+<class 'tatsu.grammars.Choice'> '*' | import_as_names | '(' import_as_names ')'
+<class 'tatsu.grammars.Option'> '*'
+<class 'tatsu.grammars.Option'> import_as_names
+<class 'tatsu.grammars.Rule'> import_as_names
+    =
+    import_as_name {',' import_as_name} [',']
+    ;
+
+<class 'tatsu.grammars.Sequence'> import_as_name {',' import_as_name} [',']
+<class 'tatsu.grammars.Rule'> import_as_name
+    =
+    name ['as' name]
+    ;
+
+<class 'tatsu.grammars.Sequence'> name ['as' name]
+<class 'tatsu.grammars.Optional'> ['as' name]
+<class 'tatsu.grammars.Sequence'> 'as' name
+<class 'tatsu.grammars.Token'> 'as'
+<class 'tatsu.grammars.Closure'> {',' import_as_name}
+<class 'tatsu.grammars.Sequence'> ',' import_as_name
+<class 'tatsu.grammars.Optional'> [',']
+<class 'tatsu.grammars.Option'> '(' import_as_names ')'
+<class 'tatsu.grammars.Sequence'> '(' import_as_names ')'
+<class 'tatsu.grammars.Option'> global_stmt
+<class 'tatsu.grammars.Rule'> global_stmt
+    =
+    'global' name {',' name}
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'global' name {',' name}
+<class 'tatsu.grammars.Token'> 'global'
+<class 'tatsu.grammars.Closure'> {',' name}
+<class 'tatsu.grammars.Sequence'> ',' name
+<class 'tatsu.grammars.Option'> exec_stmt
+<class 'tatsu.grammars.Rule'> exec_stmt
+    =
+    'exec' expr ['in' test [',' test]]
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'exec' expr ['in' test [',' test]]
+<class 'tatsu.grammars.Token'> 'exec'
+<class 'tatsu.grammars.Optional'> ['in' test [',' test]]
+<class 'tatsu.grammars.Sequence'> 'in' test [',' test]
+<class 'tatsu.grammars.Token'> 'in'
+<class 'tatsu.grammars.Optional'> [',' test]
+<class 'tatsu.grammars.Sequence'> ',' test
+<class 'tatsu.grammars.Option'> assert_stmt
+<class 'tatsu.grammars.Rule'> assert_stmt
+    =
+    'assert' test [',' test]
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'assert' test [',' test]
+<class 'tatsu.grammars.Token'> 'assert'
+<class 'tatsu.grammars.Optional'> [',' test]
+<class 'tatsu.grammars.Sequence'> ',' test
+<class 'tatsu.grammars.Closure'> {';' small_stmt}
+<class 'tatsu.grammars.Sequence'> ';' small_stmt
+<class 'tatsu.grammars.Decorator'> ';'
+<class 'tatsu.grammars.RuleRef'> SEMI
+<class 'tatsu.grammars.Token'> ';'
+<class 'tatsu.grammars.Optional'> [';']
+<class 'tatsu.grammars.Option'> compound_stmt newline
+<class 'tatsu.grammars.Sequence'> compound_stmt newline
+<class 'tatsu.grammars.Rule'> compound_stmt
+    =
+    | if_stmt
+    | while_stmt
+    | for_stmt
+    | try_stmt
+    | with_stmt
+    | funcdef
+    | classdef
+    ;
+
+<class 'tatsu.grammars.Choice'> | if_stmt
+| while_stmt
+| for_stmt
+| try_stmt
+| with_stmt
+| funcdef
+| classdef
+<class 'tatsu.grammars.Option'> if_stmt
+<class 'tatsu.grammars.Rule'> if_stmt
+    =
+    'if' test ':' suite {elif_clause} ['else' ':' suite]
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'if' test ':' suite {elif_clause} ['else' ':' suite]
+<class 'tatsu.grammars.Token'> 'if'
+<class 'tatsu.grammars.Rule'> suite
+    =
+    simple_stmt | newline indent {stmt}+ dedent
+    ;
+
+<class 'tatsu.grammars.Choice'> simple_stmt | newline indent {stmt}+ dedent
+<class 'tatsu.grammars.Option'> simple_stmt
+<class 'tatsu.grammars.Option'> newline indent {stmt}+ dedent
+<class 'tatsu.grammars.Sequence'> newline indent {stmt}+ dedent
+<class 'tatsu.grammars.Decorator'> indent
+<class 'tatsu.grammars.Rule'> INDENT
+    =
+    !()
+    ;
+
+<class 'tatsu.grammars.Fail'> !()
+<class 'tatsu.grammars.Rule'> indent
+    =
+    ()
+    ;
+
+<class 'tatsu.grammars.Void'> ()
+<class 'tatsu.grammars.PositiveClosure'> {stmt}+
+<class 'tatsu.grammars.Rule'> stmt
+    =
+    simple_stmt | compound_stmt
+    ;
+
+<class 'tatsu.grammars.Choice'> simple_stmt | compound_stmt
+<class 'tatsu.grammars.Option'> simple_stmt
+<class 'tatsu.grammars.Option'> compound_stmt
+<class 'tatsu.grammars.Decorator'> dedent
+<class 'tatsu.grammars.Rule'> DEDENT
+    =
+    !()
+    ;
+
+<class 'tatsu.grammars.Fail'> !()
+<class 'tatsu.grammars.Rule'> dedent
+    =
+    ()
+    ;
+
+<class 'tatsu.grammars.Void'> ()
+<class 'tatsu.grammars.Closure'> {elif_clause}
+<class 'tatsu.grammars.Rule'> elif_clause
+    =
+    'elif' test ':' suite
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'elif' test ':' suite
+<class 'tatsu.grammars.Token'> 'elif'
+<class 'tatsu.grammars.Optional'> ['else' ':' suite]
+<class 'tatsu.grammars.Sequence'> 'else' ':' suite
+<class 'tatsu.grammars.Token'> 'else'
+<class 'tatsu.grammars.Option'> while_stmt
+<class 'tatsu.grammars.Rule'> while_stmt
+    =
+    'while' test ':' suite ['else' ':' suite]
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'while' test ':' suite ['else' ':' suite]
+<class 'tatsu.grammars.Token'> 'while'
+<class 'tatsu.grammars.Optional'> ['else' ':' suite]
+<class 'tatsu.grammars.Sequence'> 'else' ':' suite
+<class 'tatsu.grammars.Token'> 'else'
+<class 'tatsu.grammars.Option'> for_stmt
+<class 'tatsu.grammars.Rule'> for_stmt
+    =
+    'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
+<class 'tatsu.grammars.Token'> 'for'
+<class 'tatsu.grammars.Token'> 'in'
+<class 'tatsu.grammars.Optional'> ['else' ':' suite]
+<class 'tatsu.grammars.Sequence'> 'else' ':' suite
+<class 'tatsu.grammars.Token'> 'else'
+<class 'tatsu.grammars.Option'> try_stmt
+<class 'tatsu.grammars.Rule'> try_stmt
+    =
+    'try'
+    ':'
+    suite
+    (
+        | {except_clause}+ ['else' ':' suite] ['finally' ':' suite]
+        | 'finally' ':' suite
+    )
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'try'
+':'
+suite
+(
+    | {except_clause}+ ['else' ':' suite] ['finally' ':' suite]
+    | 'finally' ':' suite
+)
+<class 'tatsu.grammars.Token'> 'try'
+<class 'tatsu.grammars.Group'> (
+    | {except_clause}+ ['else' ':' suite] ['finally' ':' suite]
+    | 'finally' ':' suite
+)
+<class 'tatsu.grammars.Choice'> | {except_clause}+ ['else' ':' suite] ['finally' ':' suite]
+| 'finally' ':' suite
+<class 'tatsu.grammars.Option'> {except_clause}+ ['else' ':' suite] ['finally' ':' suite]
+<class 'tatsu.grammars.Sequence'> {except_clause}+ ['else' ':' suite] ['finally' ':' suite]
+<class 'tatsu.grammars.PositiveClosure'> {except_clause}+
+<class 'tatsu.grammars.Rule'> except_clause
+    =
+    'except' [test [',' test]] ':' suite
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'except' [test [',' test]] ':' suite
+<class 'tatsu.grammars.Token'> 'except'
+<class 'tatsu.grammars.Optional'> [test [',' test]]
+<class 'tatsu.grammars.Sequence'> test [',' test]
+<class 'tatsu.grammars.Optional'> [',' test]
+<class 'tatsu.grammars.Sequence'> ',' test
+<class 'tatsu.grammars.Optional'> ['else' ':' suite]
+<class 'tatsu.grammars.Sequence'> 'else' ':' suite
+<class 'tatsu.grammars.Token'> 'else'
+<class 'tatsu.grammars.Optional'> ['finally' ':' suite]
+<class 'tatsu.grammars.Sequence'> 'finally' ':' suite
+<class 'tatsu.grammars.Token'> 'finally'
+<class 'tatsu.grammars.Option'> 'finally' ':' suite
+<class 'tatsu.grammars.Sequence'> 'finally' ':' suite
+<class 'tatsu.grammars.Token'> 'finally'
+<class 'tatsu.grammars.Option'> with_stmt
+<class 'tatsu.grammars.Rule'> with_stmt
+    =
+    'with' test [with_var] ':' suite
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'with' test [with_var] ':' suite
+<class 'tatsu.grammars.Token'> 'with'
+<class 'tatsu.grammars.Optional'> [with_var]
+<class 'tatsu.grammars.Rule'> with_var
+    =
+    ('as' | name) expr
+    ;
+
+<class 'tatsu.grammars.Sequence'> ('as' | name) expr
+<class 'tatsu.grammars.Group'> ('as' | name)
+<class 'tatsu.grammars.Choice'> 'as' | name
+<class 'tatsu.grammars.Option'> 'as'
+<class 'tatsu.grammars.Token'> 'as'
+<class 'tatsu.grammars.Option'> name
+<class 'tatsu.grammars.Option'> funcdef
+<class 'tatsu.grammars.Rule'> funcdef
+    =
+    [decorators] 'def' name parameters ':' suite
+    ;
+
+<class 'tatsu.grammars.Sequence'> [decorators] 'def' name parameters ':' suite
+<class 'tatsu.grammars.Optional'> [decorators]
+<class 'tatsu.grammars.Rule'> decorators
+    =
+    {decorator}+
+    ;
+
+<class 'tatsu.grammars.PositiveClosure'> {decorator}+
+<class 'tatsu.grammars.Rule'> decorator
+    =
+    '@' dotted_attr ['(' [arglist] ')'] newline
+    ;
+
+<class 'tatsu.grammars.Sequence'> '@' dotted_attr ['(' [arglist] ')'] newline
+<class 'tatsu.grammars.Decorator'> '@'
+<class 'tatsu.grammars.RuleRef'> AT
+<class 'tatsu.grammars.Token'> '@'
+<class 'tatsu.grammars.Rule'> dotted_attr
+    =
+    name {'.' name}
+    ;
+
+<class 'tatsu.grammars.Sequence'> name {'.' name}
+<class 'tatsu.grammars.Closure'> {'.' name}
+<class 'tatsu.grammars.Sequence'> '.' name
+<class 'tatsu.grammars.Optional'> ['(' [arglist] ')']
+<class 'tatsu.grammars.Sequence'> '(' [arglist] ')'
+<class 'tatsu.grammars.Optional'> [arglist]
+<class 'tatsu.grammars.Token'> 'def'
+<class 'tatsu.grammars.Rule'> parameters
+    =
+    '(' [varargslist] ')'
+    ;
+
+<class 'tatsu.grammars.Sequence'> '(' [varargslist] ')'
+<class 'tatsu.grammars.Optional'> [varargslist]
+<class 'tatsu.grammars.Option'> classdef
+<class 'tatsu.grammars.Rule'> classdef
+    =
+    'class' name ['(' [testlist] ')'] ':' suite
+    ;
+
+<class 'tatsu.grammars.Sequence'> 'class' name ['(' [testlist] ')'] ':' suite
+<class 'tatsu.grammars.Token'> 'class'
+<class 'tatsu.grammars.Optional'> ['(' [testlist] ')']
+<class 'tatsu.grammars.Sequence'> '(' [testlist] ')'
+<class 'tatsu.grammars.Optional'> [testlist]
+<class 'tatsu.grammars.Rule'> file_input
+    =
+    {newline | stmt}
+    ;
+
+<class 'tatsu.grammars.Closure'> {newline | stmt}
+<class 'tatsu.grammars.Choice'> newline | stmt
+<class 'tatsu.grammars.Option'> newline
+<class 'tatsu.grammars.Option'> stmt
+<class 'tatsu.grammars.Rule'> eval_input
+    =
+    {newline} testlist {newline}
+    ;
+
+<class 'tatsu.grammars.Sequence'> {newline} testlist {newline}
+<class 'tatsu.grammars.Closure'> {newline}
+<class 'tatsu.grammars.Closure'> {newline}
+<class 'tatsu.grammars.Rule'> CONTINUED_LINE
+    =
+    '\\\\' ['\\r'] '\\n' /[ \t]*/ (nl:newline | ())
+    ;
+
+<class 'tatsu.grammars.Sequence'> '\\\\' ['\\r'] '\\n' /[ \t]*/ (nl:newline | ())
+<class 'tatsu.grammars.Token'> '\\\\'
+<class 'tatsu.grammars.Optional'> ['\\r']
+<class 'tatsu.grammars.Token'> '\\r'
+<class 'tatsu.grammars.Token'> '\\n'
+<class 'tatsu.grammars.Pattern'> /[ \t]*/
+<class 'tatsu.grammars.Group'> (nl:newline | ())
+<class 'tatsu.grammars.Choice'> nl:newline | ()
+<class 'tatsu.grammars.Option'> nl:newline
+<class 'tatsu.grammars.Named'> nl:newline
+<class 'tatsu.grammars.Option'> ()
+<class 'tatsu.grammars.Void'> ()
+<class 'tatsu.grammars.Rule'> ws
+    =
+    /[ \t\u000C]+/
+    ;
+
+<class 'tatsu.grammars.Pattern'> /[ \t\u000C]+/
+<class 'tatsu.grammars.Rule'> leading_ws
+    =
+    (/[ \t]+/ | {' ' | '\\t'}+ {['\\r'] '\\n'})
+    ;
+
+<class 'tatsu.grammars.Group'> (/[ \t]+/ | {' ' | '\\t'}+ {['\\r'] '\\n'})
+<class 'tatsu.grammars.Choice'> /[ \t]+/ | {' ' | '\\t'}+ {['\\r'] '\\n'}
+<class 'tatsu.grammars.Option'> /[ \t]+/
+<class 'tatsu.grammars.Pattern'> /[ \t]+/
+<class 'tatsu.grammars.Option'> {' ' | '\\t'}+ {['\\r'] '\\n'}
+<class 'tatsu.grammars.Sequence'> {' ' | '\\t'}+ {['\\r'] '\\n'}
+<class 'tatsu.grammars.PositiveClosure'> {' ' | '\\t'}+
+<class 'tatsu.grammars.Choice'> ' ' | '\\t'
+<class 'tatsu.grammars.Option'> ' '
+<class 'tatsu.grammars.Token'> ' '
+<class 'tatsu.grammars.Option'> '\\t'
+<class 'tatsu.grammars.Token'> '\\t'
+<class 'tatsu.grammars.Closure'> {['\\r'] '\\n'}
+<class 'tatsu.grammars.Sequence'> ['\\r'] '\\n'
+<class 'tatsu.grammars.Optional'> ['\\r']
+<class 'tatsu.grammars.Token'> '\\r'
+<class 'tatsu.grammars.Token'> '\\n'
+<class 'tatsu.grammars.Rule'> comment
+    =
+    /[ \t]*/ '#' {!'\\n' /./} {'\\n'}+ | '#' {!'\\n' /./}
+    ;
+
+<class 'tatsu.grammars.Choice'> /[ \t]*/ '#' {!'\\n' /./} {'\\n'}+ | '#' {!'\\n' /./}
+<class 'tatsu.grammars.Option'> /[ \t]*/ '#' {!'\\n' /./} {'\\n'}+
+<class 'tatsu.grammars.Sequence'> /[ \t]*/ '#' {!'\\n' /./} {'\\n'}+
+<class 'tatsu.grammars.Pattern'> /[ \t]*/
+<class 'tatsu.grammars.Token'> '#'
+<class 'tatsu.grammars.Closure'> {!'\\n' /./}
+<class 'tatsu.grammars.Sequence'> !'\\n' /./
+<class 'tatsu.grammars.NegativeLookahead'> !'\\n'
+<class 'tatsu.grammars.Token'> '\\n'
+<class 'tatsu.grammars.Pattern'> /./
+<class 'tatsu.grammars.PositiveClosure'> {'\\n'}+
+<class 'tatsu.grammars.Token'> '\\n'
+<class 'tatsu.grammars.Option'> '#' {!'\\n' /./}
+<class 'tatsu.grammars.Sequence'> '#' {!'\\n' /./}
+<class 'tatsu.grammars.Token'> '#'
+<class 'tatsu.grammars.Closure'> {!'\\n' /./}
+<class 'tatsu.grammars.Sequence'> !'\\n' /./
+<class 'tatsu.grammars.NegativeLookahead'> !'\\n'
+<class 'tatsu.grammars.Token'> '\\n'
+<class 'tatsu.grammars.Pattern'> /./
 single_input
     =
     newline | simple_stmt | compound_stmt newline

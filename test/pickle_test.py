@@ -30,7 +30,7 @@ class PickleTest(unittest.TestCase):
         new_model = pickle.loads(p)
         self.assertEqual('ASeq', type(new_model).__name__)
 
-        self.assertEqual(model._ast, new_model._ast)
+        self.assertEqual(model.ast, new_model.ast)
 
     def test_nested_class_synth_model(self):
         grammar = '''
@@ -55,7 +55,7 @@ class PickleTest(unittest.TestCase):
         self.assertEqual('ASeq', type(new_model).__name__)
 
         # NOTE: Since we are unpickling an object which contains nested objects, we can't do
-        # self.assertEqual(model._ast, new_model._ast) as the memory locations will be different.
+        # self.assertEqual(model.ast, new_model.ast) as the memory locations will be different.
         # So either (1) we recursively walk the objects and compare fields or (2) we convert it into a
         # str()/repr() and compare that. Do the latter as it is easier.
-        self.assertEqual(str(model._ast), str(new_model._ast))
+        self.assertEqual(str(model.ast), str(new_model.ast))
