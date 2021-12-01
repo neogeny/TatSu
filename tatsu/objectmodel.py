@@ -45,11 +45,6 @@ class Node(object):
         return self._ast
 
     @property
-    def parent(self):
-        if self._parent is not None:
-            return self._parent
-
-    @property
     def line(self):
         if self.parseinfo:
             return self.parseinfo.line
@@ -151,7 +146,6 @@ class Node(object):
         if parent is None:
             parent = self
         if isinstance(node, Node):
-            node._parent = parent
             for c in node.children():
                 node._adopt_children(c, parent=node)
         elif isinstance(node, Mapping):
@@ -179,7 +173,6 @@ class Node(object):
 
     def __getstate__(self):
         state = self.__dict__.copy()
-        state.update(_parent=self.parent)
         return state
 
     def __setstate__(self, state):
