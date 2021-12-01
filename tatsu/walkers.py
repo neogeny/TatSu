@@ -1,8 +1,7 @@
 from collections.abc import Mapping
 from contextlib import contextmanager
 
-from tatsu.objectmodel import Node, wrapper
-from tatsu.util import is_list
+from tatsu.objectmodel import Node, nodefuncs
 from tatsu.util import re
 
 
@@ -67,7 +66,7 @@ class PreOrderWalker(NodeWalker):
     def walk(self, node, *args, **kwargs):
         result = super().walk(node, *args, **kwargs)
         if isinstance(node, Node):
-            for child in node.children:
+            for child in nodefuncs(node).children:
                 self.walk(child)
         return result
 
@@ -75,7 +74,7 @@ class PreOrderWalker(NodeWalker):
 class DepthFirstWalker(NodeWalker):
     def walk(self, node, *args, **kwargs):
         if isinstance(node, Node):
-            children = [self.walk(c, *args, **kwargs) for c in node.children]
+            children = [self.walk(c, *args, **kwargs) for c in nodefuncs(node).children]
             return super().walk(node, children, *args, **kwargs)
         elif isinstance(node, Mapping):
             return {n: self.walk(e, *args, **kwargs) for n, e in node.items()}

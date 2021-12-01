@@ -12,16 +12,12 @@ from tatsu.ast import AST
 BASE_CLASS_TOKEN = '::'
 
 
-class _Node:
-    pass
-
-
 @cache
-def wrapper(node: _Node) -> NodeWrapper:
-    return NodeWrapper(node)
+def nodefuncs(node: 'Node') -> NodeFuncs:
+    return NodeFuncs(node)
 
 
-class Node(_Node):
+class Node:
     ctx: Any = None
     ast: AST|None = None
     parseinfo: ParseInfo|None = None
@@ -72,52 +68,54 @@ class Node(_Node):
 
     @property
     def line(self):
-        return wrapper(self).line
+        return nodefuncs(self).line
 
     @property
     def endline(self):
-        return wrapper(self).endline
+        return nodefuncs(self).endline
 
     def text_lines(self):
-        return wrapper(self).text_lines()
+        return nodefuncs(self).text_lines()
 
     def line_index(self):
-        return wrapper(self).line_index()
+        return nodefuncs(self).line_index()
 
     @property
     def col(self):
-        return wrapper(self).col
+        return nodefuncs(self).col
 
     @property
     def line_info(self):
-        return wrapper(self).line_info
+        return nodefuncs(self).line_info
 
     @property
     def text(self):
-        return wrapper(self).text
+        return nodefuncs(self).text
 
     @property
     def comments(self):
-        return wrapper(self).comments
+        return nodefuncs(self).comments
 
     @property
     def children(self):
-        return wrapper(self).children
+        return nodefuncs(self).children
 
     def children_list(self):
-        return wrapper(self).children_list()
+        return nodefuncs(self).children_list()
 
     def children_set(self):
-        return wrapper(self).children_set()
+        return nodefuncs(self).children_set()
 
     def asjson(self):
-        return wrapper(self).asjson()
+        return nodefuncs(self).asjson()
 
 
 ParseModel = Node
 
 
-class NodeWrapper:
+class NodeFuncs:
+    __slots__ = ['node']
+
     def __init__(self, node):
         self.node = node
 
@@ -181,4 +179,4 @@ class NodeWrapper:
         return set(self.children_list())
 
     def asjson(self):
-        return asjson(self)
+        return asjson(self.node)

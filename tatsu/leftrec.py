@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from .objectmodel import wrapper
+from .objectmodel import nodefuncs
 import tatsu.grammars  # pylint: disable=R0401
 from typing import Callable
 
@@ -101,7 +101,7 @@ def resolve_nullability(grammar, rule_dict):
             return
         visited.add(model)
 
-        for child in wrapper(model).children:
+        for child in nodefuncs(model).children:
             child = follow(child, rule_dict)
             walk(child)
 
@@ -178,7 +178,7 @@ def find_left_recursion(grammar):
 
         state[model] = VISITED
 
-    for rule in wrapper(grammar).children:
+    for rule in nodefuncs(grammar).children:
         walk(rule)
 
     # print()
