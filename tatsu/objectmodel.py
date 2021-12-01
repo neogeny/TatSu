@@ -26,7 +26,6 @@ class Node(object):
         if isinstance(attributes, MutableMapping):
             attributes.update(kwargs)
 
-        self._parent = None  # will always be a ref or None
         self._adopt_children(attributes)
         self.__postinit__(attributes)
 
