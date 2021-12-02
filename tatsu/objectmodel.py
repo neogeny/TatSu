@@ -21,11 +21,12 @@ class Node:
     ctx: Any = None
     ast: AST|None = None
     parseinfo: ParseInfo|None = None
-    parent: Node = None
+    parent: Node|None = None
 
     def __init__(self, **kwargs):
         for name, value in kwargs.items():
-            setattr(self, name, value)
+            if hasattr(self, name):
+                setattr(self, name, value)
         self.__postinit__()
 
     def __postinit__(self):
@@ -37,7 +38,8 @@ class Node:
 
         for name in set(self.ast) - {'parseinfo'}:
             try:
-                setattr(self, name, self.ast[name])  # pylint: disable=E1136
+                if hasattr(self, name):
+                    setattr(self, name, self.ast[name])  # pylint: disable=E1136
             except AttributeError:
                 pass
 
