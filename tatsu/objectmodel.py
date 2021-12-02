@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from typing import Any
 from functools import cache
 from collections.abc import Mapping, MutableMapping
 
 from tatsu.util import asjson, asjsons
-from tatsu.infos import CommentInfo
+from tatsu.infos import CommentInfo, ParseInfo
 from tatsu.ast import AST
 # TODO: from tatsu.exceptions import NoParseInfo
 
@@ -12,20 +13,22 @@ from tatsu.ast import AST
 BASE_CLASS_TOKEN = '::'
 
 
-class Node(object):
-    def __init__(self, ctx=None, ast=None, parseinfo=None, **attributes):
-        super().__init__()
-        self._ctx = ctx
-        self._ast = ast
-        self.parseinfo = parseinfo
-        self._parent = None  # will always be a ref or None
+class Node:
+    _parent: Node|None = None
+    _ast: AST|None = None
+    ctx: Any = None
+    parseinfo: ParseInfo|None = None
 
+    def __init__(self, **attributes):
+        super().__init__()
+
+        self._ast = attributes.pop('ast', None)
         for name, value in attributes.items():
             setattr(self, name, value)
 
-        self.__postinit__()
+        self.__post_init__()
 
-    def __postinit__(self):
+    def __post_init__(self):
         ast = self.ast
 
         if not self.parseinfo and isinstance(ast, AST):
@@ -70,12 +73,8 @@ class Node(object):
         return self.line_info.col if self.line_info else None
 
     @property
-    def ctx(self):
-        return self._ctx
-
-    @property
     def context(self):
-        return self._ctx
+        return self.ctx
 
     @property
     def line_info(self):
@@ -100,9 +99,7 @@ class Node(object):
             node._parent = self
             return node
 
-        for childname, child in self._pubdict().items():
-            if childname in {'ast', 'ctx', 'parent'}:
-                continue
+        for child in self._pubdict().values():
             if isinstance(child, Node):
                 yield with_parent(child)
             elif isinstance(child, Mapping):

@@ -317,8 +317,8 @@ class Group(Decorator):
 
 
 class Token(Model):
-    def __postinit__(self):
-        super().__postinit__()
+    def __post_init__(self):
+        super().__post_init__()
         ast = self.ast
         self.token = ast
 
@@ -333,8 +333,8 @@ class Token(Model):
 
 
 class Constant(Model):
-    def __postinit__(self):
-        super().__postinit__()
+    def __post_init__(self):
+        super().__post_init__()
         self.literal = self.ast
 
     def parse(self, ctx):
@@ -351,8 +351,8 @@ class Constant(Model):
 
 
 class Pattern(Model):
-    def __postinit__(self):
-        super().__postinit__()
+    def __post_init__(self):
+        super().__post_init__()
         ast = self.ast
         if not isinstance(ast, list):
             ast = [ast]
@@ -797,8 +797,8 @@ class Special(Model):
 
 
 class RuleRef(Model):
-    def __postinit__(self):
-        super().__postinit__()
+    def __post_init__(self):
+        super().__post_init__()
         self.name = self.ast
 
     def parse(self, ctx):
