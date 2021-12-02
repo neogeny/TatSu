@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 from functools import cache
-from collections.abc import Mapping, MutableMapping
+from collections.abc import Mapping
 
 from tatsu.util import asjson, asjsons
 from tatsu.infos import CommentInfo, ParseInfo
@@ -19,10 +19,10 @@ class Node:
     ctx: Any = None
     parseinfo: ParseInfo|None = None
 
-    def __init__(self, **attributes):
+    def __init__(self, ast=None, **attributes):
+        self._ast = ast
         super().__init__()
 
-        self._ast = attributes.pop('ast', None)
         for name, value in attributes.items():
             setattr(self, name, value)
 
@@ -140,6 +140,7 @@ class Node:
     # FIXME
     # def __getstate__(self):
     #     state = self.__dict__.copy()
+    #     state.pop('ast', None)
     #     return state
     #
     # def __setstate__(self, state):
