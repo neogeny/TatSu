@@ -17,7 +17,7 @@ class Node(object):
         super().__init__()
         self._ctx = ctx
         self._ast = ast
-        self._parseinfo = parseinfo
+        self.parseinfo = parseinfo
         self._parent = None  # will always be a ref or None
 
         for name, value in attributes.items():
@@ -28,8 +28,8 @@ class Node(object):
     def __postinit__(self):
         ast = self.ast
 
-        if isinstance(ast, AST):
-            self._parseinfo = ast.parseinfo if not self._parseinfo else None
+        if not self.parseinfo and isinstance(ast, AST):
+            self.parseinfo = ast.parseinfo
 
         if not isinstance(ast, Mapping):
             return
@@ -77,17 +77,6 @@ class Node(object):
     def context(self):
         return self._ctx
 
-    def has_parseinfo(self):
-        return self._parseinfo is not None
-
-    @property
-    def parseinfo(self):
-        # TODO:
-        # if self._parseinfo is None:
-        #     raise NoParseInfo(type(self).__name__)
-
-        return self._parseinfo
-
     @property
     def line_info(self):
         if self.parseinfo:
@@ -111,7 +100,9 @@ class Node(object):
             node._parent = self
             return node
 
-        for child in self._pubdict().values():
+        for childname, child in self._pubdict().items():
+            if childname in {'ast', 'ctx', 'parent'}:
+                continue
             if isinstance(child, Node):
                 yield with_parent(child)
             elif isinstance(child, Mapping):
@@ -135,9 +126,9 @@ class Node(object):
 
     def _pubdict(self):
         return {
-            k: v
-            for k, v in vars(self).items()
-            if not k.startswith('_')
+            name: value
+            for name, value in vars(self).items()
+            if not name.startswith('_')
         }
 
     def __json__(self):
@@ -149,13 +140,13 @@ class Node(object):
     def __str__(self):
         return asjsons(self)
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        state.update(_parent=self.parent)
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
+    # FIXME
+    # def __getstate__(self):
+    #     state = self.__dict__.copy()
+    #     return state
+    #
+    # def __setstate__(self, state):
+    #     self.__dict__.update(state)
 
 
 ParseModel = Node
