@@ -60,12 +60,13 @@ class Node:
     def __str__(self):
         return asjsons(self)
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
+    # FIXME
+    # def __getstate__(self):
+    #     state = self.__dict__.copy()
+    #     return state
+    #
+    # def __setstate__(self, state):
+    #     self.__dict__.update(state)
 
     @property
     def line(self):
