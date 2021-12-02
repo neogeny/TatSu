@@ -13,24 +13,24 @@ BASE_CLASS_TOKEN = '::'
 
 
 class Node(object):
-    def __init__(self, ctx=None, ast=None, parseinfo=None, **kwargs):
+    def __init__(self, ctx=None, ast=None, parseinfo=None, **attributes):
         super().__init__()
         self._ctx = ctx
         self._ast = ast
+        self._parseinfo = parseinfo
+        self._parent = None  # will always be a ref or None
+
+        for name, value in attributes.items():
+            setattr(self, name, value)
+
+        self.__postinit__()
+
+    def __postinit__(self):
+        ast = self.ast
 
         if isinstance(ast, AST):
-            parseinfo = ast.parseinfo if not parseinfo else None
-        self._parseinfo = parseinfo
+            self._parseinfo = ast.parseinfo if not self._parseinfo else None
 
-        attributes = ast if ast is not None else {}
-        # assume that kwargs contains node attributes of interest
-        if isinstance(attributes, MutableMapping):
-            attributes.update(kwargs)
-
-        self._parent = None  # will always be a ref or None
-        self.__postinit__(attributes)
-
-    def __postinit__(self, ast):
         if not isinstance(ast, Mapping):
             return
 
