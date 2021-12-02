@@ -92,7 +92,8 @@ def isname(impl):
 
 
 class closure(list):
-    pass
+    def __hash__(self):
+        return hash(tuple(self))
 
 
 class ParseContext(object):
