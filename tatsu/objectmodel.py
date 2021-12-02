@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import cache
 from collections.abc import Mapping, MutableMapping
 
 from tatsu.util import asjson, asjsons
@@ -27,7 +28,6 @@ class Node(object):
             attributes.update(kwargs)
 
         self._parent = None  # will always be a ref or None
-        self._adopt_children(attributes)
         self.__postinit__(attributes)
 
     def __postinit__(self, ast):
@@ -106,60 +106,32 @@ class Node(object):
             return self.parseinfo.tokenizer.comments(self.parseinfo.pos)
         return CommentInfo([], [])
 
-    def __cn(self, add_child, child_collection, child, seen=None):
-        if seen is None:
-            seen = set()
-        if isinstance(child, Node) and id(child) not in seen:
-            add_child(child)
-            seen.add(id(child))
-        elif isinstance(child, Mapping):
-            # ordering for the values in mapping
-            for c in child.values():
-                self.__cn(add_child, child_collection, c, seen=seen)
-        elif isinstance(child, list):
-            for c in child:
-                self.__cn(add_child, child_collection, c, seen=seen)
+    def _children(self):
+        def with_parent(node):
+            node._parent = self
+            return node
 
+        for child in self._pubdict().values():
+            if isinstance(child, Node):
+                yield with_parent(child)
+            elif isinstance(child, Mapping):
+                yield from (with_parent(c) for c in child.values() if isinstance(c, Node))
+            elif isinstance(child, (list, tuple)):
+                yield from (with_parent(c) for c in child if isinstance(c, Node))
+
+    @cache
+    def children_list(self):
+        return list(self._children())
+
+    @cache
     def children_set(self):
-        childset = set()
+        return set(self.children_list())
 
-        def cn(child):
-            self.__cn(lambda x: childset.add(x), childset, child)
-
-        for k, c in vars(self).items():
-            if not k.startswith('_'):
-                cn(c)
-        return list(childset)
-
-    def children_list(self, vars_sort_key=None):
-        child_list = []
-
-        def cn(child):
-            self.__cn(lambda x: child_list.append(x), child_list, child)
-
-        for k, c in sorted(vars(self).items(), key=vars_sort_key):
-            if not k.startswith('_'):
-                cn(c)
-        return child_list
-
-    children = children_list
+    def children(self):
+        return self.children_list()
 
     def asjson(self):
         return asjson(self)
-
-    def _adopt_children(self, node, parent=None):
-        if parent is None:
-            parent = self
-        if isinstance(node, Node):
-            node._parent = parent
-            for c in node.children():
-                node._adopt_children(c, parent=node)
-        elif isinstance(node, Mapping):
-            for c in node.values():
-                self._adopt_children(c, parent=parent)
-        elif isinstance(node, list):
-            for c in node:
-                self._adopt_children(c, parent=parent)
 
     def _pubdict(self):
         return {
