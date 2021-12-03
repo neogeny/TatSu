@@ -14,7 +14,8 @@
 def WARNING():
     """
     TatSu>=5.6 requires Python>=3.8
-    TatSu>=5.7 will require Python>=3.10
+    TatSu>=5.7 requires Python>=3.9
+    TatSu>=6.0 will require Python>=3.10
 
     Python 3.8, 3.9, and 3.10 introduced new language features
     that allow writing better programs more clearly. Code written
