@@ -3,16 +3,17 @@ from __future__ import annotations
 from typing import Any
 from functools import cache
 from collections.abc import Mapping
+from dataclasses import dataclass
 
 from tatsu.util import asjson, asjsons
 from tatsu.infos import CommentInfo, ParseInfo
 from tatsu.ast import AST
-# TODO: from tatsu.exceptions import NoParseInfo
 
 
 BASE_CLASS_TOKEN = '::'
 
 
+@dataclass(eq=False)
 class Node:
     ast: AST|None = None
     ctx: Any = None

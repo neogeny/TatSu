@@ -115,6 +115,7 @@ class BaseClassRenderer(Renderer):
         self.base = spec.base
 
     template = '''
+        @dataclass(slots=True)
         class {class_name}({base}):
             pass\
         '''
@@ -138,7 +139,7 @@ class Rule(ModelRenderer):
         defs = list(sorted(set(defs)))
         spec = fields["spec"]
 
-        kwargs = '\n'.join('%s = None' % d for d in defs)
+        kwargs = '\n'.join('%s: Any = None' % d for d in defs)
         if kwargs:
             kwargs = indent(kwargs)
         else:
@@ -151,6 +152,7 @@ class Rule(ModelRenderer):
         )
 
     template = '''
+        @dataclass(slots=True)
         class {class_name}({base}):
         {kwargs}\
         '''
@@ -217,6 +219,9 @@ class Grammar(ModelRenderer):
                 # the file is generated.
 
                 from __future__ import annotations
+
+                from typing import Any
+                from dataclasses import dataclass
 
                 from tatsu.objectmodel import Node
                 from tatsu.semantics import ModelBuilderSemantics

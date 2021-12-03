@@ -67,7 +67,7 @@ class ParserConfig:
             self.eol_comments_re = self.eol_comments
 
     @classmethod
-    def new(cls, config: ParserConfig|None = None, owner: Optional[Any] = None, **settings: Any) -> ParserConfig:
+    def new(cls, config: ParserConfig|None = None, owner: Any|None = None, **settings: Any) -> ParserConfig:
         result = cls(owner=owner)
         if config is not None:
             result = config.replace_config(config)

@@ -21,6 +21,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 *   All names defined in the successful choice in a rule are now defined in the resulting ``AST``. Names within optionals or closures that did not match will have their values set to ``None``.
 *   Moved build configuration from ``setup.py`` in favor of ``setup.cfg``  and ``pyproject.toml`` (`@KOLANICH`_)
 *   ``Node.children()`` is now computed and cached only when required.
+*   Classes in generated object models are now ``@dataclass(slots=True)``
 
 
 `5.6.1`_ @ 2021-03-22
