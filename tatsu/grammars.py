@@ -264,7 +264,7 @@ class Decorator(Model):
             # Patch to avoid bad interactions with attribute setting in Model.
             # Also a shortcut for subexpressions that are not ASTs.
             ast = AST(exp=ast)
-        super().__init__(ast)
+        super().__init__(ast=ast)
         assert isinstance(self.exp, Model)
 
     def parse(self, ctx):
@@ -957,7 +957,7 @@ class BasedRule(Rule):
         self.base = base
         ast = AST(sequence=[self.base.exp, self.exp])
         ast.set_parseinfo(self.base.parseinfo)
-        self.rhs = Sequence(ast)
+        self.rhs = Sequence(ast=ast)
 
     def parse(self, ctx):
         return self._parse_rhs(ctx, self.rhs)

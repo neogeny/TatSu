@@ -14,21 +14,23 @@ BASE_CLASS_TOKEN = '::'
 
 
 class Node:
-    _parent: Node|None = None
-    _ast: AST|None = None
+    ast: AST|None = None
     ctx: Any = None
     parseinfo: ParseInfo|None = None
 
     def __init__(self, ast=None, **attributes):
-        self._ast = ast
         super().__init__()
+        self._ast = self.ast = ast
+        self._parent = None
 
         for name, value in attributes.items():
             setattr(self, name, value)
 
         self.__post_init__()
+        del self.ast
 
     def __post_init__(self):
+        self._ast = self.ast
         ast = self.ast
 
         if not self.parseinfo and isinstance(ast, AST):
@@ -43,14 +45,12 @@ class Node:
             except AttributeError:
                 raise AttributeError("'%s' is a reserved name" % name)
 
-    @property
-    def ast(self):
+    def _get_ast(self):
         return self._ast
 
     @property
     def parent(self):
-        if self._parent is not None:
-            return self._parent
+        return self._parent
 
     @property
     def line(self):
@@ -99,7 +99,9 @@ class Node:
             node._parent = self
             return node
 
-        for child in self._pubdict().values():
+        for childname, child in self._pubdict().items():
+            if childname in {'ast', 'parent'}:
+                continue
             if isinstance(child, Node):
                 yield with_parent(child)
             elif isinstance(child, Mapping):
@@ -125,7 +127,7 @@ class Node:
         return {
             name: value
             for name, value in vars(self).items()
-            if not name.startswith('_')
+            if not name.startswith('_') and name != 'ast'
         }
 
     def __json__(self):
@@ -139,12 +141,11 @@ class Node:
 
     # FIXME
     # def __getstate__(self):
-    #     state = self.__dict__.copy()
-    #     state.pop('ast', None)
+    #     state = self._pubdict()
     #     return state
     #
     # def __setstate__(self, state):
-    #     self.__dict__.update(state)
+    #     self.__dict__ = dict(state)
 
 
 ParseModel = Node

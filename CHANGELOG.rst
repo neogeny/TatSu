@@ -14,8 +14,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.6.1...master
 
-*   Simplified this CHANGELOG by not linking to issues and pull requests that can be queried on
-  Github.
+*   Simplified this CHANGELOG by not linking to issues and pull requests that can be queried on Github.
 *   Drop support for Python3.8 (security and source-code only releases since 2021/0503). Code in TatSu using new language features may not compile under that version of Python.
 *   Now ``config: ParserConfig`` is used in ``__init__()`` and ``parse()`` methods of ``contexts.ParseContext``, ``grammars.Grammar``, and elsewhere to avoid the very long parameter lists that abounded. ``ParseContext`` also provides clean and clear ways of overridinga group of settings with another.
 *   Parser configuration variables were moved into a ``config: ParserConfig`` attribute.This may impact code that accessed those variables directly. Now instead of ``model.configuration_var`` you should use ``model.config.configuration_var``
