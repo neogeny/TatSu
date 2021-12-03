@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import copy
-from collections import namedtuple
 import dataclasses
 from typing import (
     Any,
+    Callable,
     Mapping,
-    Optional,
+    NamedTuple,
     Type,
-    Union,
 )
 
 from .ast import AST
@@ -21,19 +20,19 @@ EOL_COMMENTS_RE = r'#([^\n]*?)$'
 
 @dataclasses.dataclass
 class ParserConfig:
-    owner: object = None
-    name: Optional[str] = 'Test'
+    owner: Any = None
+    name: str|None = 'Test'
     filename: str = ''
     encoding: str = 'utf-8'
 
-    start: Optional[str] = None  # FIXME
-    start_rule: Optional[str] = None  # FIXME
+    start: str|None = None  # FIXME
+    start_rule: str|None = None  # FIXME
 
-    comments_re: Optional[str] = COMMENTS_RE
-    eol_comments_re: Optional[str] = EOL_COMMENTS_RE
+    comments_re: str|None = COMMENTS_RE
+    eol_comments_re: str|None = EOL_COMMENTS_RE
 
-    tokenizercls: Optional[Type] = None  # FIXME
-    semantics: Optional[Type] = None
+    tokenizercls: Type|None = None  # FIXME
+    semantics: Type|None = None
 
     comment_recovery: bool = False
     memoize_lookaheads: bool = True
@@ -45,17 +44,17 @@ class ParserConfig:
     trace_separator: str = C_DERIVE
 
     # parser directives
-    grammar: Optional[str] = None
+    grammar: str|None = None
     left_recursion: bool = True
 
-    comments: Optional[str] = None
-    eol_comments: Optional[str] = None
-    keywords: Union[list[str], set[str]] = dataclasses.field(default_factory=list)  # type: ignore
+    comments: str|None = None
+    eol_comments: str|None = None
+    keywords: list[str]|set[str] = dataclasses.field(default_factory=list)  # type: ignore
 
-    ignorecase: Optional[bool] = False
+    ignorecase: bool|None = False
     namechars: str = ''
-    nameguard: Optional[bool] = None  # implied by namechars
-    whitespace: Optional[str] = None
+    nameguard: bool|None = None  # implied by namechars
+    whitespace: str|None = None
 
     parseinfo: bool = False
 
@@ -68,7 +67,7 @@ class ParserConfig:
             self.eol_comments_re = self.eol_comments
 
     @classmethod
-    def new(cls, config: Optional[ParserConfig] = None, owner: Optional[Any] = None, **settings: Any) -> ParserConfig:
+    def new(cls, config: ParserConfig|None = None, owner: Optional[Any] = None, **settings: Any) -> ParserConfig:
         result = cls(owner=owner)
         if config is not None:
             result = config.replace_config(config)
@@ -88,7 +87,7 @@ class ParserConfig:
             if value is not None and hasattr(self, name)
         }
 
-    def replace_config(self, other: Optional[ParserConfig] = None) -> ParserConfig:
+    def replace_config(self, other: ParserConfig|None = None) -> ParserConfig:
         if other is None:
             return self
         elif not isinstance(other, ParserConfig):
@@ -119,8 +118,10 @@ class ParserConfig:
         return result
 
 
-class PosLine(namedtuple('_PosLine', ['start', 'line', 'length'])):
-    __slots__ = ()
+class PosLine(NamedTuple):
+    start: int
+    line: int
+    length: int
 
     @staticmethod
     def build_line_cache(lines):
@@ -139,41 +140,40 @@ class PosLine(namedtuple('_PosLine', ['start', 'line', 'length'])):
         return cache, n
 
 
-class LineIndexInfo(namedtuple('_LineIndexInfoBase', ['filename', 'line'])):
-    __slots__ = ()
+class LineIndexInfo(NamedTuple):
+    filaneme: str
+    line: int
 
     @staticmethod
     def block_index(name, n):
         return list(LineIndexInfo(line, i) for line, i in zip(n * [name], range(n)))
 
 
-class LineInfo(namedtuple('_LineInfo', ['filename', 'line', 'col', 'start', 'end', 'text'])):
-    __slots__ = ()
+class LineInfo(NamedTuple):
+    filename: str
+    line: int
+    col: int
+    start: int
+    end: int
+    text: int
 
 
-class CommentInfo(namedtuple('_CommentInfo', ['inline', 'eol'])):
-    __slots__ = ()
+class CommentInfo(NamedTuple):
+    inline: list
+    eol: list
 
     @staticmethod
     def new_comment():
         return CommentInfo([], [])
 
 
-_ParseInfo = namedtuple(
-    '_ParseInfo',
-    [
-        'tokenizer',
-        'rule',
-        'pos',
-        'endpos',
-        'line',
-        'endline',
-    ]
-)
-
-
-class ParseInfo(_ParseInfo):
-    __slots__ = ()
+class ParseInfo(NamedTuple):
+    tokenizer: Any
+    rule: str
+    pos: int
+    endpos: int
+    line: int
+    endline: int
 
     def text_lines(self):
         return self.tokenizer.get_lines(self.line, self.endline)
@@ -186,32 +186,20 @@ class ParseInfo(_ParseInfo):
         return self.tokenizer
 
 
-MemoKey = namedtuple(
-    'MemoKey',
-    [
-        'pos',
-        'rule',
-        'state'
-    ]
-)
+class MemoKey(NamedTuple):
+    pos: int
+    rule: str
+    state: Any
 
 
-_RuleInfo = namedtuple(
-    '_RuleInfo',
-    [
-        'name',
-        'impl',
-        'is_leftrec',
-        'is_memoizable',
-        'is_name',
-        'params',
-        'kwparams',
-    ]
-)
-
-
-class RuleInfo(_RuleInfo):
-    __slots__ = ()
+class RuleInfo(NamedTuple):
+    name: str
+    impl: Callable
+    is_leftrec: bool
+    is_memoizable: bool
+    is_name: bool
+    params: list
+    kwparams: dict
 
     def __hash__(self):
         return hash(self.name)
@@ -225,18 +213,14 @@ class RuleInfo(_RuleInfo):
         return not self.__eq__(other)
 
 
-RuleResult = namedtuple(
-    'RuleResult',
-    [
-        'node',
-        'newpos',
-        'newstate',
-    ]
-)
+class RuleResult(NamedTuple):
+    node: Any
+    newpos: int
+    newstate: Any
 
 
 @dataclasses.dataclass
-class ParseState(object):
+class ParseState:
     pos: int = 0
     ast: AST = dataclasses.field(default_factory=AST)
     cst: Any = None
