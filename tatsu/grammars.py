@@ -411,7 +411,7 @@ class NegativeLookahead(Decorator):
             return super().parse(ctx)
 
     def _first(self, k, f):
-        return {()}
+        return {}
 
     def _to_str(self, lean=False):
         return '!' + str(self.exp._to_str(lean=lean))
