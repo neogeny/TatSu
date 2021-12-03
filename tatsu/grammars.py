@@ -264,7 +264,7 @@ class Decorator(Model):
             # Patch to avoid bad interactions with attribute setting in Model.
             # Also a shortcut for subexpressions that are not ASTs.
             ast = AST(exp=ast)
-        super().__init__(ast)
+        super().__init__(ast=ast)
         assert isinstance(self.exp, Model)
 
     def parse(self, ctx):
@@ -317,8 +317,9 @@ class Group(Decorator):
 
 
 class Token(Model):
-    def __postinit__(self, ast):
-        super().__postinit__(ast)
+    def __post_init__(self):
+        super().__post_init__()
+        ast = self.ast
         self.token = ast
 
     def parse(self, ctx):
@@ -332,9 +333,9 @@ class Token(Model):
 
 
 class Constant(Model):
-    def __postinit__(self, ast):
-        super().__postinit__(ast)
-        self.literal = ast
+    def __post_init__(self):
+        super().__post_init__()
+        self.literal = self.ast
 
     def parse(self, ctx):
         return self.literal
@@ -350,8 +351,9 @@ class Constant(Model):
 
 
 class Pattern(Model):
-    def __postinit__(self, ast):
-        super().__postinit__(ast)
+    def __post_init__(self):
+        super().__post_init__()
+        ast = self.ast
         if not isinstance(ast, list):
             ast = [ast]
         self.patterns = ast
@@ -409,7 +411,7 @@ class NegativeLookahead(Decorator):
             return super().parse(ctx)
 
     def _first(self, k, f):
-        return {()}
+        return {}
 
     def _to_str(self, lean=False):
         return '!' + str(self.exp._to_str(lean=lean))
@@ -795,9 +797,9 @@ class Special(Model):
 
 
 class RuleRef(Model):
-    def __postinit__(self, ast):
-        super().__postinit__(ast)
-        self.name = ast
+    def __post_init__(self):
+        super().__post_init__()
+        self.name = self.ast
 
     def parse(self, ctx):
         try:
@@ -955,7 +957,7 @@ class BasedRule(Rule):
         self.base = base
         ast = AST(sequence=[self.base.exp, self.exp])
         ast.set_parseinfo(self.base.parseinfo)
-        self.rhs = Sequence(ast)
+        self.rhs = Sequence(ast=ast)
 
     def parse(self, ctx):
         return self._parse_rhs(ctx, self.rhs)

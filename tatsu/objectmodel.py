@@ -1,36 +1,42 @@
 from __future__ import annotations
 
+from typing import Any
 from functools import cache
-from collections.abc import Mapping, MutableMapping
+from collections.abc import Mapping
+from dataclasses import dataclass
 
 from tatsu.util import asjson, asjsons
-from tatsu.infos import CommentInfo
+from tatsu.infos import CommentInfo, ParseInfo
 from tatsu.ast import AST
-# TODO: from tatsu.exceptions import NoParseInfo
 
 
 BASE_CLASS_TOKEN = '::'
 
 
-class Node(object):
-    def __init__(self, ctx=None, ast=None, parseinfo=None, **kwargs):
+@dataclass(eq=False)
+class Node:
+    ast: AST|None = None
+    ctx: Any = None
+    parseinfo: ParseInfo|None = None
+
+    def __init__(self, ast=None, **attributes):
         super().__init__()
-        self._ctx = ctx
-        self._ast = ast
+        self._ast = self.ast = ast
+        self._parent = None
 
-        if isinstance(ast, AST):
-            parseinfo = ast.parseinfo if not parseinfo else None
-        self._parseinfo = parseinfo
+        for name, value in attributes.items():
+            setattr(self, name, value)
 
-        attributes = ast if ast is not None else {}
-        # assume that kwargs contains node attributes of interest
-        if isinstance(attributes, MutableMapping):
-            attributes.update(kwargs)
+        self.__post_init__()
+        del self.ast
 
-        self._parent = None  # will always be a ref or None
-        self.__postinit__(attributes)
+    def __post_init__(self):
+        self._ast = self.ast
+        ast = self.ast
 
-    def __postinit__(self, ast):
+        if not self.parseinfo and isinstance(ast, AST):
+            self.parseinfo = ast.parseinfo
+
         if not isinstance(ast, Mapping):
             return
 
@@ -40,14 +46,12 @@ class Node(object):
             except AttributeError:
                 raise AttributeError("'%s' is a reserved name" % name)
 
-    @property
-    def ast(self):
+    def _get_ast(self):
         return self._ast
 
     @property
     def parent(self):
-        if self._parent is not None:
-            return self._parent
+        return self._parent
 
     @property
     def line(self):
@@ -70,23 +74,8 @@ class Node(object):
         return self.line_info.col if self.line_info else None
 
     @property
-    def ctx(self):
-        return self._ctx
-
-    @property
     def context(self):
-        return self._ctx
-
-    def has_parseinfo(self):
-        return self._parseinfo is not None
-
-    @property
-    def parseinfo(self):
-        # TODO:
-        # if self._parseinfo is None:
-        #     raise NoParseInfo(type(self).__name__)
-
-        return self._parseinfo
+        return self.ctx
 
     @property
     def line_info(self):
@@ -111,7 +100,9 @@ class Node(object):
             node._parent = self
             return node
 
-        for child in self._pubdict().values():
+        for childname, child in self._pubdict().items():
+            if childname in {'ast', 'parent'}:
+                continue
             if isinstance(child, Node):
                 yield with_parent(child)
             elif isinstance(child, Mapping):
@@ -135,9 +126,9 @@ class Node(object):
 
     def _pubdict(self):
         return {
-            k: v
-            for k, v in vars(self).items()
-            if not k.startswith('_')
+            name: value
+            for name, value in vars(self).items()
+            if not name.startswith('_') and name != 'ast'
         }
 
     def __json__(self):
@@ -149,13 +140,13 @@ class Node(object):
     def __str__(self):
         return asjsons(self)
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        state.update(_parent=self.parent)
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
+    # FIXME
+    # def __getstate__(self):
+    #     state = self._pubdict()
+    #     return state
+    #
+    # def __setstate__(self, state):
+    #     self.__dict__ = dict(state)
 
 
 ParseModel = Node
