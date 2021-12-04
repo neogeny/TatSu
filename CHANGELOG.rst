@@ -27,7 +27,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 *   ``Node.children()`` is now computed only when required, and cached
 *   Classes in generated object models are now ``@dataclass``
 *   Optimize and get rid of bugs and annoyances while keeping backwards compatibility.
-*   Drop support for Python3.8. It no longer has bugfix releases
+*   Drop support for Python3.8, as itt no longer has bugfix releases since May 2021
 
 
 `5.6.1`_ @ 2021-03-22
