@@ -16,18 +16,6 @@
     language and of Unix_
 
 
-|TatSu| Jobs
-============
-
-    ResQSoft_ is hiring |TatSu| developers. Contact `Tom Bragg`_ at `tbragg@resqsoft.com`_ for more information.
-
-
-.. _ResQSoft: https://www.resqsoft.com
-.. _Tom Bragg: mailto:tbragg@resqsoft.com
-.. _tbragg@resqsoft.com: mailto:tbragg@resqsoft.com
-
-
-
 |TatSu|
 =======
 
