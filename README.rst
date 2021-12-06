@@ -23,22 +23,19 @@
 
     def WARNING():
         """
-        TatSu>=5.6 requires Python>=3.8
-        TatSu>=5.7 requires Python>=3.9
-        TatSu>=6.0 will require Python>=3.10
+        TatSu>=5.7 requires Python>=3.10
 
         Python 3.8, 3.9, and 3.10 introduced new language features
         that allow writing better programs more clearly. Code written
-        for Python 3.7 should run fine on Python up to 3.10 with no changes.
+        for Python 3.7 should run fine on Python up to 3.1q with no changes.
 
         Python has adopted an annual release schedule (PEP-602).
 
-        Python 3.10 was released in Oct 2021
+        Python 3.11 will be released in Oct 2022
+        Python 3.10 was released     in Oct 2021
         Python 3.9  bugfix releases final in May 2022
         Python 3.8  bugfix releases final in May 2021
         Python 3.7  bugfix releases final in mid 2020
-        Python 3.6  bugfix releases final in Dec 2019
-        Python 2.7  reached end of life   in Jan 2020
 
         Compelling reasons to upgrade projects to the latest Python
         """
