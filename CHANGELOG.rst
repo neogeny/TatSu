@@ -21,13 +21,13 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _`5.7.0`: https://github.com/apalala/tatsu/compare/v5.6.1...v5.7.0
 
 *   Simplified this CHANGELOG by not linking to issues or and pull requests that can be queried on Github
-*   Now ``config: ParserConfig`` is used in ``__init__()`` and ``parse()`` methods of ``contexts.ParseContext``, ``grammars.Grammar``, and elsewhere to avoid the very long parameter lists that abounded. ``ParseContext`` also provides clean and clear ways of overridinga group of settings with another.
-*   All names defined in the successful choice in a rule are now defined in the resulting `AST`_. Names within optionals or closures that did not match will have their values set to ``None``.
+*   Now ``config: ParserConfig`` is used in ``__init__()`` and ``parse()`` methods of ``contexts.ParseContext``, ``grammars.Grammar``, and elsewhere to avoid the very long parameter lists that abounded. ``ParseContext`` also provides clean and clear ways of overridinga group of settings with another
+*   All names defined in the successful choice in a rule are now defined in the resulting `AST`_. Names within optionals that did not match will have their values set to ``None``, and closures that did not match will be set to ``[]``
 *   Moved build configuration from ``setup.py`` in favor of ``setup.cfg``  and ``pyproject.toml`` (`@KOLANICH`_)
 *   ``Node.children()`` is now computed only when required, and cached
 *   Classes in generated object models are now ``@dataclass``
-*   Optimize and get rid of bugs and annoyances while keeping backwards compatibility.
-*   Drop support for Python3.8, as itt no longer has bugfix releases since May 2021
+*   Optimize and get rid of bugs and annoyances while keeping backwards compatibility
+*   Drop support for Python3.8,
 
 
 `5.6.1`_ @ 2021-03-22
