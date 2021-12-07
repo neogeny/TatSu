@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from operator import xor
+import operator
 from functools import reduce
 
 from tatsu.util import asjson, is_list
@@ -130,7 +130,8 @@ class AST(dict):
 
     def __hash__(self):
         # NOTE: objects are actually mutable during creation
-        return sum(
+        return reduce(
+            operator.xor,
             (hash((name, id(value))) for name, value in self.items()),
             0
         )
