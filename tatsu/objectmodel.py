@@ -141,14 +141,17 @@ class Node:
         return asjsons(self)
 
     def __hash__(self):
-        return id(self)
+        if getattr(self, '_ast', None):
+            return hash(self._ast)
+        else:
+            return id(self)
 
     def __eq__(self, other):
         if id(self) == id(other):
             return True
-        elif not hasattr(self, '_ast'):
+        elif not getattr(self, '_ast', None):
             return False
-        elif not hasattr(other, '_ast'):
+        elif not getattr(other, '_ast', None):
             return False
         else:
             return self._ast == other._ast
