@@ -124,3 +124,7 @@ class AST(dict):
 
     def __str__(self):
         return str(self.asjson())
+
+    def __hash__(self):
+        # FIXME: this is probably inefficient
+        return hash(str(self))
