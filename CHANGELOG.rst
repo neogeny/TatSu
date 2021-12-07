@@ -13,12 +13,12 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2021
 ---------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.7.0...master
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.7.1...master
 
 
-`5.7.0`_ @ 2021-12-03
+`5.7.1`_ @ 2021-12-03
 ---------------
-.. _`5.7.0`: https://github.com/apalala/tatsu/compare/v5.6.1...v5.7.0
+.. _`5.7.1`: https://github.com/apalala/tatsu/compare/v5.6.1...v5.7.1
 
 *   Simplified this CHANGELOG by not linking to issues or and pull requests that can be queried on Github
 *   Now ``config: ParserConfig`` is used in ``__init__()`` and ``parse()`` methods of ``contexts.ParseContext``, ``grammars.Grammar``, and elsewhere to avoid long parameter lists. ``ParserConfig`` also provides clean and clear ways of overridinga group of settings
