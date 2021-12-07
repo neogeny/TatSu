@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from operator import xor
+from functools import reduce
+
 from tatsu.util import asjson, is_list
 
 
@@ -126,5 +129,8 @@ class AST(dict):
         return str(self.asjson())
 
     def __hash__(self):
-        # FIXME: this is probably inefficient
-        return hash(str(self))
+        # NOTE: objects are actually mutable during creation
+        return sum(
+            (hash((name, id(value))) for name, value in self.items()),
+            0
+        )
