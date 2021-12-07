@@ -28,11 +28,11 @@ class Node:
             setattr(self, name, value)
 
         self.__post_init__()
+        # FIXME: why is this needed?
         del self.ast
 
     def __post_init__(self):
-        self._ast = self.ast
-        ast = self.ast
+        ast = self._ast = self.ast
 
         if not self.parseinfo and isinstance(ast, AST):
             self.parseinfo = ast.parseinfo
@@ -139,6 +139,19 @@ class Node:
 
     def __str__(self):
         return asjsons(self)
+
+    def __hash__(self):
+        return id(self)
+
+    def __eq__(self, other):
+        if id(self) == id(other):
+            return True
+        elif not hasattr(self, '_ast'):
+            return False
+        elif not hasattr(other, '_ast'):
+            return False
+        else:
+            return self._ast == other._ast
 
     # FIXME
     # def __getstate__(self):
