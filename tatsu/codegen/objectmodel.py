@@ -18,12 +18,13 @@ from tatsu.rendering import Renderer
 from tatsu.codegen.cgbase import ModelRenderer, CodeGenerator
 
 
-NODE_NAME_PATTERN = r'(?!\d)\w+(' + BASE_CLASS_TOKEN + r'(?!\d)\w+)*'
+NODE_NAME_PATTERN = r'(?!\d)\w+(' + rf'{BASE_CLASS_TOKEN}' + r'(?!\d)\w+)*'
 
 
 TypeSpec = namedtuple('TypeSpec', ['class_name', 'base'])
 
 DEFAULT_BASE_TYPE = '''
+@dataclass(eq=False)
 class ModelBase(Node):
     pass
 '''
@@ -38,6 +39,8 @@ def _get_node_class_name(rule):
         return None
 
     typespec = rule.params[0]
+    if not isinstance(typespec, str):
+        return None
     if not re.match(NODE_NAME_PATTERN, typespec):
         return None
     if not typespec[0].isupper():
@@ -115,7 +118,7 @@ class BaseClassRenderer(Renderer):
         self.base = spec.base
 
     template = '''
-        @dataclass
+        @dataclass(eq=False)
         class {class_name}({base}):
             pass\
         '''
@@ -152,7 +155,7 @@ class Rule(ModelRenderer):
         )
 
     template = '''
-        @dataclass
+        @dataclass(eq=False)
         class {class_name}({base}):
         {kwargs}\
         '''
