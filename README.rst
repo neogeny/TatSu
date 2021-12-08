@@ -280,7 +280,7 @@ requires different licensing* please `email`_.
 .. _vinay.sajip: https://bitbucket.org/vinay.sajip
 .. _vmuriart: https://bitbucket.org/vmuriart
 
-.. |fury| image:: https://badge.fury.io/py/tatsu.svg
+.. |fury| image:: https://badge.fury.io/py/TatSu.svg
    :target: https://badge.fury.io/py/TatSu
 .. |license| image:: https://img.shields.io/badge/license-BSD-blue.svg
    :target: https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt
