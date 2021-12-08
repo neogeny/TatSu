@@ -24,6 +24,7 @@ NODE_NAME_PATTERN = r'(?!\d)\w+(' + rf'{BASE_CLASS_TOKEN}' + r'(?!\d)\w+)*'
 TypeSpec = namedtuple('TypeSpec', ['class_name', 'base'])
 
 DEFAULT_BASE_TYPE = '''
+@dataclass(eq=False)
 class ModelBase(Node):
     pass
 '''
@@ -117,7 +118,7 @@ class BaseClassRenderer(Renderer):
         self.base = spec.base
 
     template = '''
-        @dataclass
+        @dataclass(eq=False)
         class {class_name}({base}):
             pass\
         '''
@@ -154,7 +155,7 @@ class Rule(ModelRenderer):
         )
 
     template = '''
-        @dataclass
+        @dataclass(eq=False)
         class {class_name}({base}):
         {kwargs}\
         '''

@@ -14,7 +14,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 `X.Y.Z`_ @ 2021
 ---------------
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.7.1...master
-
+*   Make ``AST`` and ``Node`` hashable. Necessary for caching ``Node.children()``
+*   Implement ``Node.__eq__()`` in terms of identity or `Node._ast.__eq__()__`
 
 `5.7.1`_ @ 2021-12-03
 ---------------
