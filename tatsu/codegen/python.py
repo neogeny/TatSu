@@ -18,6 +18,7 @@ from tatsu.exceptions import CodegenError
 from tatsu.objectmodel import Node
 from tatsu.objectmodel import BASE_CLASS_TOKEN
 from tatsu.codegen.cgbase import ModelRenderer, CodeGenerator
+from tatsu.collections import OrderedSet as oset
 
 
 class PythonCodeGenerator(CodeGenerator):
@@ -42,14 +43,14 @@ class Base(ModelRenderer):
 
     def make_defines_declaration(self):
         defines = compress_seq(self.defines())
-        ldefs = set(safe_name(d) for d, l in defines if l)
-        sdefs = set(safe_name(d) for d, l in defines if not l and d not in ldefs)
+        ldefs = oset(safe_name(d) for d, l in defines if l)
+        sdefs = oset(safe_name(d) for d, l in defines if not l and d not in ldefs)
 
         if not (sdefs or ldefs):
             return ''
         else:
-            sdefs = '[%s]' % ', '.join(repr(d) for d in sorted(sdefs))
-            ldefs = '[%s]' % ', '.join(repr(d) for d in sorted(ldefs))
+            sdefs = '[%s]' % ', '.join(repr(d) for d in sdefs)
+            ldefs = '[%s]' % ', '.join(repr(d) for d in ldefs)
             if not ldefs:
                 return '\n\n    self._define(%s, %s)' % (sdefs, ldefs)
             else:
@@ -572,9 +573,9 @@ class Grammar(Base):
                             text = f.read()
                     parser = {name}Parser()
                     return parser.parse(
-                        text, 
-                        rule_name=start, 
-                        filename=filename, 
+                        text,
+                        rule_name=start,
+                        filename=filename,
                         **kwargs
                     )
 
@@ -584,6 +585,6 @@ class Grammar(Base):
                     from tatsu.util import asjson
 
                     ast = generic_main(main, {name}Parser, name='{name}')
-                    data = asjson(ast) 
+                    data = asjson(ast)
                     print(json.dumps(data, indent=2))
                 '''
