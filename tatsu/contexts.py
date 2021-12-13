@@ -92,7 +92,8 @@ def isname(impl):
 
 
 class closure(list):
-    pass
+    def __hash__(self):
+        return hash(tuple(self))
 
 
 class ParseContext(object):
@@ -251,8 +252,8 @@ class ParseContext(object):
         return self._tokenizer.pos
 
     def _clear_memoization_caches(self):
-        self._memos = dict()
-        self._results = dict()
+        self._memos = {}
+        self._results = {}
         self._recursion_depth = 0
 
     def _goto(self, pos):

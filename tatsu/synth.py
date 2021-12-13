@@ -3,7 +3,7 @@ from typing import Any, Mapping
 __REGISTRY: Mapping[str, Any] = vars()
 
 
-class _Synthetic(object):
+class _Synthetic:
     def __reduce__(self):
         return (
             synthesize(type(self).__name__, type(self).__bases__),

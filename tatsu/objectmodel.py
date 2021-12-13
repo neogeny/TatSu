@@ -1,36 +1,42 @@
 from __future__ import annotations
 
-from collections.abc import Mapping, MutableMapping
+from typing import Any
+from functools import cache
+from collections.abc import Mapping
+from dataclasses import dataclass
 
 from tatsu.util import asjson, asjsons
-from tatsu.infos import CommentInfo
+from tatsu.infos import CommentInfo, ParseInfo
 from tatsu.ast import AST
-# TODO: from tatsu.exceptions import NoParseInfo
 
 
 BASE_CLASS_TOKEN = '::'
 
 
-class Node(object):
-    def __init__(self, ctx=None, ast=None, parseinfo=None, **kwargs):
+@dataclass(eq=False)
+class Node:
+    ast: AST|None = None
+    ctx: Any = None
+    parseinfo: ParseInfo|None = None
+
+    def __init__(self, ast=None, **attributes):
         super().__init__()
-        self._ctx = ctx
-        self._ast = ast
+        self._ast = self.ast = ast
+        self._parent = None
 
-        if isinstance(ast, AST):
-            parseinfo = ast.parseinfo if not parseinfo else None
-        self._parseinfo = parseinfo
+        for name, value in attributes.items():
+            setattr(self, name, value)
 
-        attributes = ast if ast is not None else {}
-        # assume that kwargs contains node attributes of interest
-        if isinstance(attributes, MutableMapping):
-            attributes.update(kwargs)
+        self.__post_init__()
+        # FIXME: why is this needed?
+        del self.ast
 
-        self._parent = None  # will always be a ref or None
-        self._adopt_children(attributes)
-        self.__postinit__(attributes)
+    def __post_init__(self):
+        ast = self._ast = self.ast
 
-    def __postinit__(self, ast):
+        if not self.parseinfo and isinstance(ast, AST):
+            self.parseinfo = ast.parseinfo
+
         if not isinstance(ast, Mapping):
             return
 
@@ -40,14 +46,12 @@ class Node(object):
             except AttributeError:
                 raise AttributeError("'%s' is a reserved name" % name)
 
-    @property
-    def ast(self):
+    def _get_ast(self):
         return self._ast
 
     @property
     def parent(self):
-        if self._parent is not None:
-            return self._parent
+        return self._parent
 
     @property
     def line(self):
@@ -70,23 +74,8 @@ class Node(object):
         return self.line_info.col if self.line_info else None
 
     @property
-    def ctx(self):
-        return self._ctx
-
-    @property
     def context(self):
-        return self._ctx
-
-    def has_parseinfo(self):
-        return self._parseinfo is not None
-
-    @property
-    def parseinfo(self):
-        # TODO:
-        # if self._parseinfo is None:
-        #     raise NoParseInfo(type(self).__name__)
-
-        return self._parseinfo
+        return self.ctx
 
     @property
     def line_info(self):
@@ -106,66 +95,40 @@ class Node(object):
             return self.parseinfo.tokenizer.comments(self.parseinfo.pos)
         return CommentInfo([], [])
 
-    def __cn(self, add_child, child_collection, child, seen=None):
-        if seen is None:
-            seen = set()
-        if isinstance(child, Node) and id(child) not in seen:
-            add_child(child)
-            seen.add(id(child))
-        elif isinstance(child, Mapping):
-            # ordering for the values in mapping
-            for c in child.values():
-                self.__cn(add_child, child_collection, c, seen=seen)
-        elif isinstance(child, list):
-            for c in child:
-                self.__cn(add_child, child_collection, c, seen=seen)
+    def _children(self):
+        def with_parent(node):
+            node._parent = self
+            return node
 
+        for childname, child in self._pubdict().items():
+            if childname in {'ast', 'parent'}:
+                continue
+            if isinstance(child, Node):
+                yield with_parent(child)
+            elif isinstance(child, Mapping):
+                yield from (with_parent(c) for c in child.values() if isinstance(c, Node))
+            elif isinstance(child, (list, tuple)):
+                yield from (with_parent(c) for c in child if isinstance(c, Node))
+
+    @cache
+    def children_list(self):
+        return list(self._children())
+
+    @cache
     def children_set(self):
-        childset = set()
+        return set(self.children_list())
 
-        def cn(child):
-            self.__cn(lambda x: childset.add(x), childset, child)
-
-        for k, c in vars(self).items():
-            if not k.startswith('_'):
-                cn(c)
-        return list(childset)
-
-    def children_list(self, vars_sort_key=None):
-        child_list = []
-
-        def cn(child):
-            self.__cn(lambda x: child_list.append(x), child_list, child)
-
-        for k, c in sorted(vars(self).items(), key=vars_sort_key):
-            if not k.startswith('_'):
-                cn(c)
-        return child_list
-
-    children = children_list
+    def children(self):
+        return self.children_list()
 
     def asjson(self):
         return asjson(self)
 
-    def _adopt_children(self, node, parent=None):
-        if parent is None:
-            parent = self
-        if isinstance(node, Node):
-            node._parent = parent
-            for c in node.children():
-                node._adopt_children(c, parent=node)
-        elif isinstance(node, Mapping):
-            for c in node.values():
-                self._adopt_children(c, parent=parent)
-        elif isinstance(node, list):
-            for c in node:
-                self._adopt_children(c, parent=parent)
-
     def _pubdict(self):
         return {
-            k: v
-            for k, v in vars(self).items()
-            if not k.startswith('_')
+            name: value
+            for name, value in vars(self).items()
+            if not name.startswith('_') and name != 'ast'
         }
 
     def __json__(self):
@@ -177,13 +140,29 @@ class Node(object):
     def __str__(self):
         return asjsons(self)
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        state.update(_parent=self.parent)
-        return state
+    def __hash__(self):
+        if getattr(self, '_ast', None):
+            return hash(self._ast)
+        else:
+            return id(self)
 
-    def __setstate__(self, state):
-        self.__dict__.update(state)
+    def __eq__(self, other):
+        if id(self) == id(other):
+            return True
+        elif not getattr(self, '_ast', None):
+            return False
+        elif not getattr(other, '_ast', None):
+            return False
+        else:
+            return self._ast == other._ast
+
+    # FIXME
+    # def __getstate__(self):
+    #     state = self._pubdict()
+    #     return state
+    #
+    # def __setstate__(self, state):
+    #     self.__dict__ = dict(state)
 
 
 ParseModel = Node

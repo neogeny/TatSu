@@ -1,1 +1,1 @@
-from tatsu._config import __version__  # noqa
+__version__ = '5.8.0-beta1'

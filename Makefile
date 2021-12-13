@@ -5,9 +5,18 @@ tatsu_test: clean
 	pytest
 
 
-documentation: clean
+documentation: clean changelog readme sphinx
+
+
+changelog:
 	rst2html5 CHANGELOG.rst > /dev/null
+
+
+readme:
 	pandoc README.rst -t gfm --wrap=none > README.md
+
+
+sphinx:
 	cd docs; make -s html > /dev/null
 
 
@@ -45,8 +54,14 @@ release_check: clean documentation
 	@echo version `python -m tatsu --version`
 
 
-distributions: clean
+distributions: clean sdist bdist_wheel
+
+
+sdist:
 	python setup.py sdist --formats=zip
+
+
+bdist_wheel:
 	python setup.py bdist_wheel --universal
 
 

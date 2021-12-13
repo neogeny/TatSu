@@ -1,0 +1,48 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ '*' ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version: ['3.9', '3.10']
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: install dependencies
+      run: |
+        sudo apt install -y pandoc
+        sudo apt install -y python3-sphinx
+        sudo apt install -y python3-docutils
+        python -m pip install --upgrade pip
+        pip install --upgrade --requirement requirements-test.txt
+    - name: static tests
+      run: |
+        make static_test
+    - name: pytest
+      run: |
+        make tatsu_test
+    - name: examples
+      run: |
+        make examples
+    - name: documentation
+      run: |
+        make documentation
+    - name: distributions
+      run: |
+        make sdist

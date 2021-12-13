@@ -49,7 +49,10 @@ class NoParseInfo(ParseException):
 
 class FailedParse(ParseError):
     def __init__(self, tokenizer, stack, item):
-        super().__init__()
+        # note: pass all arguments to super() to avoid pickling problems
+        #   https://stackoverflow.com/questions/27993567/
+        super().__init__(tokenizer, stack, item)
+
         self.tokenizer = tokenizer
         self.stack = stack[:]
         self.pos = tokenizer.pos

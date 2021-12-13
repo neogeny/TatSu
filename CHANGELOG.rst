@@ -10,12 +10,25 @@ backwards incompatibilities in the software.
 
 The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
+
 `X.Y.Z`_ @ 2021
 ---------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.6.1...master
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.7.1...master
+*   Make ``AST`` and ``Node`` hashable. Necessary for caching ``Node.children()``
+*   Implement ``Node.__eq__()`` in terms of identity or `Node._ast.__eq__()__`
 
-*   Parser configuration variables were moved into a ``config: ParserConfig`` attribute.This may impact code that accessed those variables directly. Now instead of ``model.configuration_var`` you should use ``model.config.configuration_var``
-*   Now ``config: ParserConfig`` is used in ``__init__()`` and ``parse()`` methods of ``contexts.ParseContext``, ``grammars.Grammar``, and elsewhere to avoid the very long parameter lists that abounded. ``ParseContext`` also provides clean and clear ways of overridinga group of settings with another.
+`5.7.1`_ @ 2021-12-03
+---------------
+.. _`5.7.1`: https://github.com/apalala/tatsu/compare/v5.6.1...v5.7.1
+
+*   Simplified this CHANGELOG by not linking to issues or and pull requests that can be queried on Github
+*   Now ``config: ParserConfig`` is used in ``__init__()`` and ``parse()`` methods of ``contexts.ParseContext``, ``grammars.Grammar``, and elsewhere to avoid long parameter lists. ``ParserConfig`` also provides clean and clear ways of overridinga group of settings
+*   All names defined in the successful choice in a rule are now defined in the resulting `AST`_. Names within optionals that did not match will have their values set to ``None``, and closures that did not match will be set to ``[]``
+*   Moved build configuration from ``setup.py`` in favor of ``setup.cfg``  and ``pyproject.toml`` (`@KOLANICH`_)
+*   ``Node.children()`` is now computed only when required, and cached
+*   Classes in generated object models are now ``@dataclass``
+*   Optimize and get rid of bugs and annoyances while keeping backwards compatibility
+*   Drop support for Python < 3.10
 
 
 `5.6.1`_ @ 2021-03-22
@@ -63,6 +76,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 *  `#56`_   Include missing ``tatsu/g2e/antlr.ebnf`` in distribution
 *  `#138`_   Reimplement the calculation of ``FIRST``, ``FOLLOW``, and ``LOOKAHEAD`` sets using latest theories. For now, this should improve parser error reporting, but should eventually enable the simplification of parsing of leftrec grammars (`@apalala`_).
 *  `#153`_   Import ABCs from ``collections.abc`` (`@tirkarthi`_)
+* The AST for sequences is now a ``tuple`` (it used to be a ``list``-derived ``closure``)
+
 
 .. _#56: https://github.com/neogeny/TatSu/issues/56
 .. _#138: https://github.com/neogeny/TatSu/issues/138
@@ -358,6 +373,7 @@ Added
 .. _@gegenschall: https://bitbucket.org/gegenschall
 .. _@hariedo: https://github.com/hariedo
 .. _@heronils: https://github.com/heronils
+.. _@KOLANICH: https://github.com/KOLANICH
 .. _@manueljacob: https://github.com/manueljacob
 .. _@mjdominus: https://github.com/mjdominus
 .. _@paulhoule: https://github.com/paulhoule

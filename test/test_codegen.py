@@ -28,8 +28,8 @@ class Sub(Node):
 
 class Super(Node):
     def __init__(self, ctx):
-        super().__init__(ctx)
-        self.sub = Sub(self.ctx)
+        super().__init__(ctx=ctx)
+        self.sub = Sub(ctx=ctx)
 
 
 class TestCodegen(unittest.TestCase):

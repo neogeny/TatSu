@@ -1,7 +1,7 @@
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
 .. |TatSu| replace:: |dragon| **TatSu**
 
-|license| |pyversions| |fury| |circleci| |docs|
+|license| |pyversions| |fury| |actions| |docs|
 
     *At least for the people who send me mail about a new language that
     they're designing, the general advice is: do it to learn about how
@@ -16,18 +16,6 @@
     language and of Unix_
 
 
-|TatSu| Jobs
-============
-
-    ResQSoft_ is hiring |TatSu| developers. Contact `Tom Bragg`_ at `tbragg@resqsoft.com`_ for more information.
-
-
-.. _ResQSoft: https://www.resqsoft.com
-.. _Tom Bragg: mailto:tbragg@resqsoft.com
-.. _tbragg@resqsoft.com: mailto:tbragg@resqsoft.com
-
-
-
 |TatSu|
 =======
 
@@ -35,21 +23,19 @@
 
     def WARNING():
         """
-        TatSu>=5.6 requires Python>=3.8
-        TatSu>=5.7 will require Python>=3.9
+        TatSu>=5.7 requires Python>=3.10
 
-        Python 3.8 and 3.9 introduced new language features that allow
-        writing better programs more clearly. All code written for
-        Python 3.7 should run fine on Python 3.9 with minor, or no changes.
+        Python 3.8, 3.9, and 3.10 introduced new language features
+        that allow writing better programs more clearly. Code written
+        for Python 3.7 should run fine on Python up to 3.1q with no changes.
 
         Python has adopted an annual release schedule (PEP-602).
 
-        Python 3.10 will be released in Oct 2021
-        Python 3.9  was released on Oct 2020
+        Python 3.11 will be released in Oct 2022
+        Python 3.10 was released     in Oct 2021
+        Python 3.9  bugfix releases final in May 2022
         Python 3.8  bugfix releases final in May 2021
         Python 3.7  bugfix releases final in mid 2020
-        Python 3.6  had its last bugfix release on Dec 2019
-        Python 2.7  reached its end of life on Jan 2020
 
         Compelling reasons to upgrade projects to the latest Python
         """
@@ -294,7 +280,7 @@ requires different licensing* please `email`_.
 .. _vinay.sajip: https://bitbucket.org/vinay.sajip
 .. _vmuriart: https://bitbucket.org/vmuriart
 
-.. |fury| image:: https://badge.fury.io/py/tatsu.svg
+.. |fury| image:: https://badge.fury.io/py/TatSu.svg
    :target: https://badge.fury.io/py/TatSu
 .. |license| image:: https://img.shields.io/badge/license-BSD-blue.svg
    :target: https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt
@@ -302,6 +288,8 @@ requires different licensing* please `email`_.
    :target: https://pypi.python.org/pypi/tatsu
 .. |travis| image:: https://secure.travis-ci.org/neogeny/TatSu.svg
    :target: http://travis-ci.org/neogeny/TatSu
+.. |actions| image:: https://github.com/neogeny/TatSu/workflows/tests/badge.svg
+    :target: https://github.com/neogeny/TatSu/actions
 .. |circleci| image:: https://circleci.com/gh/neogeny/TatSu.svg?style=shield
     :target: https://circleci.com/gh/neogeny/TatSu
 .. |landscape| image:: https://landscape.io/github/apalala/TatSu/master/landscape.png

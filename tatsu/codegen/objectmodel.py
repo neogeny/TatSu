@@ -18,12 +18,13 @@ from tatsu.rendering import Renderer
 from tatsu.codegen.cgbase import ModelRenderer, CodeGenerator
 
 
-NODE_NAME_PATTERN = r'(?!\d)\w+(' + BASE_CLASS_TOKEN + r'(?!\d)\w+)*'
+NODE_NAME_PATTERN = r'(?!\d)\w+(' + rf'{BASE_CLASS_TOKEN}' + r'(?!\d)\w+)*'
 
 
 TypeSpec = namedtuple('TypeSpec', ['class_name', 'base'])
 
 DEFAULT_BASE_TYPE = '''
+@dataclass(eq=False)
 class ModelBase(Node):
     pass
 '''
@@ -38,6 +39,8 @@ def _get_node_class_name(rule):
         return None
 
     typespec = rule.params[0]
+    if not isinstance(typespec, str):
+        return None
     if not re.match(NODE_NAME_PATTERN, typespec):
         return None
     if not typespec[0].isupper():
@@ -115,6 +118,7 @@ class BaseClassRenderer(Renderer):
         self.base = spec.base
 
     template = '''
+        @dataclass(eq=False)
         class {class_name}({base}):
             pass\
         '''
@@ -138,7 +142,7 @@ class Rule(ModelRenderer):
         defs = list(sorted(set(defs)))
         spec = fields["spec"]
 
-        kwargs = '\n'.join('%s = None' % d for d in defs)
+        kwargs = '\n'.join('%s: Any = None' % d for d in defs)
         if kwargs:
             kwargs = indent(kwargs)
         else:
@@ -151,6 +155,7 @@ class Rule(ModelRenderer):
         )
 
     template = '''
+        @dataclass(eq=False)
         class {class_name}({base}):
         {kwargs}\
         '''
@@ -217,6 +222,9 @@ class Grammar(ModelRenderer):
                 # the file is generated.
 
                 from __future__ import annotations
+
+                from typing import Any
+                from dataclasses import dataclass
 
                 from tatsu.objectmodel import Node
                 from tatsu.semantics import ModelBuilderSemantics

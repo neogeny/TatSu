@@ -35,7 +35,7 @@ class ModelBuilderSemantics(object):
         self.ctx = context
         self.base_type = base_type
 
-        self.constructors = dict()
+        self.constructors = {}
 
         for t in types or ():
             self._register_constructor(t)
@@ -88,7 +88,7 @@ class ModelBuilderSemantics(object):
         constructor = self._get_constructor(typename, base)
         try:
             if type(constructor) is type and issubclass(constructor, Node):
-                return constructor(*args[1:], ast=ast, ctx=self.ctx, **kwargs)
+                return constructor(ast=ast, ctx=self.ctx, **kwargs)
             else:
                 return constructor(ast, *args[1:], **kwargs)
         except Exception as e:
