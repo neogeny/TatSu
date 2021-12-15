@@ -1,10 +1,11 @@
 [FORMAT]
 max-line-length=200
+max-module-lines = 1200
 
 [MESSAGES CONTROL]
 disable=
     invalid-name,  # C0103
-    # disallowed-name,  # C0104
+    disallowed-name,  # C0104
     # empty-docstring,  # C0112
     # unneeded-not,  # C0113
     missing-module-docstring,  # C0114
@@ -40,7 +41,7 @@ disable=
     ungrouped-imports,  # C0412
     # wrong-import-position,  # C0413
     # useless-import-alias,  # C0414
-    # import-outside-toplevel,  # C0415
+    import-outside-toplevel,  # C0415
     # use-implicit-booleaness-not-len,  # C1802
     # use-implicit-booleaness-not-comparison,  # C1803
     # syntax-error,  # E0001
@@ -164,23 +165,23 @@ disable=
     # c-extension-no-member,  # I1101
     # literal-comparison,  # R0123
     # comparison-with-itself,  # R0124
-    # no-self-use,  # R0201
+    no-self-use,  # R0201
     # no-classmethod-decorator,  # R0202
     # no-staticmethod-decorator,  # R0203
     # useless-object-inheritance,  # R0205
     # property-with-parameters,  # R0206
     # cyclic-import,  # R0401
     # consider-using-from-import,  # R0402
-    # duplicate-code,  # R0801
+    duplicate-code,  # R0801
     # too-many-ancestors,  # R0901
-    # too-many-instance-attributes,  # R0902
-    # too-few-public-methods,  # R0903
-    # too-many-public-methods,  # R0904
+    too-many-instance-attributes,  # R0902
+    too-few-public-methods,  # R0903
+    too-many-public-methods,  # R0904
     # too-many-return-statements,  # R0911
     # too-many-branches,  # R0912
-    # too-many-arguments,  # R0913
-    # too-many-locals,  # R0914
-    # too-many-statements,  # R0915
+    too-many-arguments,  # R0913
+    too-many-locals,  # R0914
+    too-many-statements,  # R0915
     # too-many-boolean-expressions,  # R0916
     # consider-merging-isinstance,  # R1701
     # too-many-nested-blocks,  # R1702
@@ -191,8 +192,8 @@ disable=
     # trailing-comma-tuple,  # R1707
     # stop-iteration-return,  # R1708
     # simplify-boolean-expression,  # R1709
-    # inconsistent-return-statements,  # R1710
-    # useless-return,  # R1711
+    inconsistent-return-statements,  # R1710
+    useless-return,  # R1711
     # consider-swap-variables,  # R1712
     # consider-using-join,  # R1713
     # consider-using-in,  # R1714
@@ -213,7 +214,7 @@ disable=
     # use-a-generator,  # R1729
     # consider-using-min-builtin,  # R1730
     # consider-using-max-builtin,  # R1731
-    # consider-using-with,  # R1732
+    consider-using-with,  # R1732
     # unnecessary-dict-index-lookup,  # R1733
     # use-list-literal,  # R1734
     # use-dict-literal,  # R1735
@@ -239,9 +240,9 @@ disable=
     # lost-exception,  # W0150
     # nan-comparison,  # W0177
     # assert-on-tuple,  # W0199
-    # attribute-defined-outside-init,  # W0201
+    attribute-defined-outside-init,  # W0201
     # bad-staticmethod-argument,  # W0211
-    # protected-access,  # W0212
+    protected-access,  # W0212
     # arguments-differ,  # W0221
     # signature-differs,  # W0222
     # abstract-method,  # W0223
@@ -262,27 +263,27 @@ disable=
     # import-self,  # W0406
     # preferred-module,  # W0407
     # misplaced-future,  # W0410
-    # fixme,  # W0511
+    fixme,  # W0511
     # global-variable-undefined,  # W0601
     # global-variable-not-assigned,  # W0602
     # global-statement,  # W0603
     # global-at-module-level,  # W0604
-    # unused-import,  # W0611
+    # uunused-importnused-import,  # W0611
     # unused-variable,  # W0612
-    # unused-argument,  # W0613
+    unused-argument,  # W0613
     # unused-wildcard-import,  # W0614
-    # redefined-outer-name,  # W0621
-    # redefined-builtin,  # W0622
+    redefined-outer-name,  # W0621
+    redefined-builtin,  # W0622
     # undefined-loop-variable,  # W0631
     # unbalanced-tuple-unpacking,  # W0632
     # cell-var-from-loop,  # W0640
     # possibly-unused-variable,  # W0641
     # self-cls-assignment,  # W0642
     # bare-except,  # W0702
-    # broad-except,  # W0703
+    broad-except,  # W0703
     # duplicate-except,  # W0705
-    # try-except-raise,  # W0706
-    # raise-missing-from,  # W0707
+    try-except-raise,  # W0706
+    raise-missing-from,  # W0707
     # binary-op-exception,  # W0711
     # raising-format-tuple,  # W0715
     # wrong-exception-operation,  # W0716
@@ -304,7 +305,7 @@ disable=
     # duplicate-string-formatting-argument,  # W1308
     # f-string-without-interpolation,  # W1309
     # format-string-without-interpolation,  # W1310
-    # anomalous-backslash-in-string,  # W1401
+    anomalous-backslash-in-string,  # W1401
     # anomalous-unicode-escape-in-string,  # W1402
     # implicit-str-concat,  # W1404
     # inconsistent-quotes,  # W1405
@@ -320,7 +321,7 @@ disable=
     # deprecated-argument,  # W1511
     # deprecated-class,  # W1512
     # deprecated-decorator,  # W1513
-    # unspecified-encoding,  # W1514
+    unspecified-encoding,  # W1514
     # forgotten-debug-statement,  # W1515
     # using-f-string-in-unsupported-version,  # W1601
     # using-final-decorator-in-unsupported-version,  # W1602
