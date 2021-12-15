@@ -21,18 +21,16 @@ class Node:
 
     def __init__(self, ast=None, **attributes):
         super().__init__()
-        self._ast = self.ast = ast
+        self.ast = ast
         self._parent = None
 
         for name, value in attributes.items():
             setattr(self, name, value)
 
         self.__post_init__()
-        # FIXME: why is this needed?
-        del self.ast
 
     def __post_init__(self):
-        ast = self._ast = self.ast
+        ast = self.ast
 
         if not self.parseinfo and isinstance(ast, AST):
             self.parseinfo = ast.parseinfo
@@ -141,20 +139,20 @@ class Node:
         return asjsons(self)
 
     def __hash__(self):
-        if getattr(self, '_ast', None):
-            return hash(self._ast)
+        if self.ast is not None:
+            return hash(self.ast)
         else:
             return id(self)
 
     def __eq__(self, other):
         if id(self) == id(other):
             return True
-        elif not getattr(self, '_ast', None):
+        elif self.ast is None:
             return False
-        elif not getattr(other, '_ast', None):
+        elif not getattr(other, 'ast', None):
             return False
         else:
-            return self._ast == other._ast
+            return self.ast == other.ast
 
     # FIXME
     # def __getstate__(self):
