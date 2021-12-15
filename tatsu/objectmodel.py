@@ -5,9 +5,9 @@ from functools import cache
 from collections.abc import Mapping
 from dataclasses import dataclass
 
-from tatsu.util import asjson, asjsons
-from tatsu.infos import CommentInfo, ParseInfo
-from tatsu.ast import AST
+from .util import asjson, asjsons
+from .infos import CommentInfo, ParseInfo
+from .ast import AST
 
 
 BASE_CLASS_TOKEN = '::'
@@ -98,15 +98,20 @@ class Node:
             node._parent = self
             return node
 
-        for childname, child in self._pubdict().items():
-            if childname in {'ast', 'parent'}:
-                continue
+        def children_of(child):
             if isinstance(child, Node):
                 yield with_parent(child)
             elif isinstance(child, Mapping):
                 yield from (with_parent(c) for c in child.values() if isinstance(c, Node))
             elif isinstance(child, (list, tuple)):
                 yield from (with_parent(c) for c in child if isinstance(c, Node))
+
+        children = list(self._pubdict().items())
+        if not children:
+            yield from children_of(self.ast)
+        else:
+            for _, child in children:
+                yield from children_of(child)
 
     @cache
     def children_list(self):
@@ -126,7 +131,7 @@ class Node:
         return {
             name: value
             for name, value in vars(self).items()
-            if not name.startswith('_') and name != 'ast'
+            if not name.startswith('_') and name not in {'ast', 'ctx', 'parent'}
         }
 
     def __json__(self):
@@ -140,7 +145,10 @@ class Node:
 
     def __hash__(self):
         if self.ast is not None:
-            return hash(self.ast)
+            if isinstance(self.ast, list):
+                return hash(tuple(self.ast))
+            else:
+                return hash(self.ast)
         else:
             return id(self)
 
