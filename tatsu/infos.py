@@ -130,7 +130,7 @@ class PosLine(NamedTuple):
         i = 0
         for n, line in enumerate(lines):
             pl = PosLine(i, n, len(line))
-            for c in line:
+            for _ in line:
                 cache.append(pl)
             i += len(line)
         n += 1

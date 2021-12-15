@@ -28,7 +28,7 @@ class StatefulTests(unittest.TestCase):
             ul_marker = () ;
             '''
 
-        class StatefulSemantics(object):
+        class StatefulSemantics:
             def __init__(self, parser):
                 self._context = parser
 

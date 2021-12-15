@@ -47,7 +47,7 @@ class ParameterTests(unittest.TestCase):
         def assert_equal(target, value):
             self.assertEqual(target, value)
 
-        class TC36Semantics(object):
+        class TC36Semantics:
 
             """Check all rule parameters for expected types and values"""
 
@@ -158,7 +158,7 @@ class ParameterTests(unittest.TestCase):
         def assert_equal(target, value):
             self.assertEqual(target, value)
 
-        class UnicharsSemantics(object):
+        class UnicharsSemantics:
             """Check all rule parameters for expected types and values"""
             def rule_positional(self, ast, p1):
                 assert_equal("ÄÖÜäöüß", p1)

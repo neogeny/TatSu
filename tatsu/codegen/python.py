@@ -559,7 +559,7 @@ class Grammar(Base):
                 {rules}
 
 
-                class {name}Semantics(object):
+                class {name}Semantics:
                 {abstract_rules}
 
 

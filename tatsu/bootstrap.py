@@ -1202,7 +1202,7 @@ class EBNFBootstrapParser(Parser):
         self._cut()
 
 
-class EBNFBootstrapSemantics(object):
+class EBNFBootstrapSemantics:
     def start(self, ast):  # noqa
         return ast
 

@@ -6,7 +6,7 @@ from tatsu.util import is_list
 from tatsu.util import re
 
 
-class NodeWalker(object):
+class NodeWalker:
     def __new__(cls, *args, **kwargs):
         cls._walker_cache = {}
         return super(NodeWalker, cls).__new__(cls)

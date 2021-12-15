@@ -8,7 +8,7 @@ from tatsu.objectmodel import BASE_CLASS_TOKEN
 from tatsu.synth import synthesize
 
 
-class ASTSemantics(object):
+class ASTSemantics:
 
     def group(self, ast, *args):
         return simplify_list(ast)
@@ -25,7 +25,7 @@ class ASTSemantics(object):
         return ast
 
 
-class ModelBuilderSemantics(object):
+class ModelBuilderSemantics:
     """ Intended as a semantic action for parsing, a ModelBuilderSemantics creates
         nodes using the class name given as first parameter to a grammar
         rule, and synthesizes the class/type if it's not known.
@@ -87,7 +87,7 @@ class ModelBuilderSemantics(object):
 
         constructor = self._get_constructor(typename, base)
         try:
-            if type(constructor) is type and issubclass(constructor, Node):
+            if isinstance(constructor, type) and issubclass(constructor, Node):
                 return constructor(ast=ast, ctx=self.ctx, **kwargs)
             else:
                 return constructor(ast, *args[1:], **kwargs)

@@ -45,7 +45,7 @@ def processing_loop(process, filenames, *args, verbose=False, exitfirst=False, *
     try:
         results = process_in_parallel(filenames, process, *args, **kwargs)
         results = results or []
-        for i, result in enumerate(results, start=1):
+        for _, result in enumerate(results, start=1):
             if result is None:
                 continue
             all_results.append(result)

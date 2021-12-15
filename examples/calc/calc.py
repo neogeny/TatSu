@@ -2,7 +2,6 @@
 from __future__ import generator_stop
 
 import json
-from codecs import open
 from pprint import pprint
 
 import tatsu
@@ -41,7 +40,7 @@ def annotated_parse():
     print()
 
 
-class CalcBasicSemantics(object):
+class CalcBasicSemantics:
     def number(self, ast):
         return int(ast)
 
@@ -82,7 +81,7 @@ def parse_with_basic_semantics():
     print()
 
 
-class CalcSemantics(object):
+class CalcSemantics:
     def number(self, ast):
         return int(ast)
 

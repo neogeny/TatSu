@@ -37,7 +37,7 @@ class SymbolTableError(ParseException):
     pass
 
 
-class Namespace(object):
+class Namespace:
     def __init__(self, ignorecase=False, duplicates=False, separator=DEFAULT_SEPARATOR):
         super().__init__()
         self.ignorecase = ignorecase

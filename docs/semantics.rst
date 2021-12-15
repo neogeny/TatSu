@@ -17,7 +17,7 @@ the rule:
 
 .. code:: python
 
-    class MySemantics(object):
+    class MySemantics:
         def some_rule_name(self, ast):
             return ''.join(ast)
 
@@ -42,7 +42,7 @@ transformation:
 
 .. code:: python
 
-    class MyLanguageSemantics(object):
+    class MyLanguageSemantics:
         def identifier(self, ast):
             if my_lange_module.is_keyword(ast):
                 raise FailedSemantics('"%s" is a keyword' % str(ast))

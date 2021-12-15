@@ -182,7 +182,7 @@ class Model(Node):
         return []
 
     def comments_str(self):
-        comments, eol = self.comments
+        comments, _eol = self.comments
         if not comments:
             return ''
 
@@ -1062,7 +1062,7 @@ class Grammar(Model):
         for rule in self.rules:
             rule._follow_set = fl[rule.name]
 
-    def parse(self, text: str, /, start=None, context=None, config: ParserConfig = None, **settings):  # type: ignore
+    def parse(self, text: str, /, start=None, context=None, config: ParserConfig = None, **settings):  # type: ignore # pylint: disable=arguments-differ
         config = self.config.replace_config(config)
         config = config.replace(**settings)
         config = config.replace(start=start)

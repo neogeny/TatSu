@@ -15,7 +15,7 @@ def camel2py(name):
     )
 
 
-class ANTLRSemantics(object):
+class ANTLRSemantics:
     def __init__(self, name):
         self.name = name
         self.tokens = {}

@@ -73,7 +73,7 @@ def identity(*args):
 
 
 def is_list(o):
-    return type(o) == list
+    return type(o) == list  # pylint: disable=unidiomatic-typecheck
 
 
 def to_list(o):
@@ -224,7 +224,7 @@ def asjson(obj, seen=None):
             return '__RECURSIVE__'
         seen.add(id(obj))
 
-    if hasattr(obj, '__json__') and type(obj) is not type:
+    if hasattr(obj, '__json__') and type(obj) is not type:  # pylint: disable=unidiomatic-typecheck
         return obj.__json__()
     elif isinstance(obj, Mapping):
         result = {}

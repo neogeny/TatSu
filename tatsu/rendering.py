@@ -61,7 +61,7 @@ class RenderingFormatter(string.Formatter):
             return indent(fmt % self.render(value), ind, mult)
 
 
-class Renderer(object):
+class Renderer:
     """ Renders the fileds in the current object using a template
         provided statically, on the constructor, or as a parameter
         to render().
@@ -115,7 +115,7 @@ class Renderer(object):
         fields.update(__class__=self.__class__.__name__)
         fields.update({k: v for k, v in vars(self).items() if not k.startswith('_')})
 
-        override = self.render_fields(fields)
+        override = self.render_fields(fields)  # pylint: disable=assignment-from-none
         if override is not None:
             template = override
         elif template is None:
