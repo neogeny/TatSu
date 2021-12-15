@@ -1,4 +1,4 @@
-test:  static_test tatsu_test documentation examples
+test:  lint tatsu_test documentation examples
 
 
 tatsu_test: clean
@@ -30,9 +30,15 @@ calc_test:
 	cd examples/calc; make -s clean; make -s test > /dev/null
 
 
-static_test:
+lint: flake8 pylint mypy
+
+flake8:
 	flake8
+
+pylint:
 	pylint --ignore=bootstrap.py,model.py tatsu test examples
+
+mypy:
 	mypy   --ignore-missing-imports .
 
 
