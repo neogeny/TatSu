@@ -20,7 +20,7 @@ T = TypeVar("T")
 class OrderedSet(MutableSet[T], Sequence[T]):
     def __init__(self, iterable: Optional[Iterable[T]] = None):
         if iterable is not None:
-            self._map = dict.fromkeys(iterable)  # type: Dict[T, int]
+            self._map = dict.fromkeys(iterable)
         else:
             self._map = {}
         self._list_cache: Optional[Sequence[T]] = None
