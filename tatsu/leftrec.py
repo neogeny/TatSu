@@ -15,7 +15,7 @@ def follow(node, rule_dict):
         return node
 
 
-class Nullable(object):
+class Nullable:
     def __init__(self, children, resolved=False, nullable=False):
         self.resolved = resolved
         self.nullable = nullable

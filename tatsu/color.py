@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 
-class _BF(object):
+class _BF:
     BLACK = ''
     BLUE = ''
     CYAN = ''
@@ -29,7 +29,7 @@ class _Back(_BF):
     pass
 
 
-class _Style(object):
+class _Style:
     BRIGHT = ''
     DIM = ''
     NORMAL = ''
@@ -48,7 +48,7 @@ def init():
     except ImportError:
         return
 
-    global Fore, Back, Style
+    global Fore, Back, Style  # pylint: disable=global-statement
     Fore = colorama.Fore
     Back = colorama.Back
     Style = colorama.Style

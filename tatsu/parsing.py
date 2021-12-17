@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import inspect
+
 from tatsu.exceptions import FailedRef
 from tatsu.contexts import ParseContext
-from tatsu.contexts import tatsumasu, leftrec, nomemo, isname  # noqa
+from tatsu.contexts import tatsumasu, leftrec, nomemo, isname  # noqa pylint: disable=unused-import
 
 
 class Parser(ParseContext):
@@ -17,7 +19,6 @@ class Parser(ParseContext):
 
     @classmethod
     def rule_list(cls):
-        import inspect
         methods = inspect.getmembers(cls, predicate=inspect.isroutine)
         result = []
         for m in methods:

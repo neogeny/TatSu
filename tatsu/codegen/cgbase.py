@@ -84,7 +84,7 @@ class NullModelRenderer(ModelRenderer):
     template = ''
 
 
-class CodeGenerator(object):
+class CodeGenerator:
     """
     A **CodeGenerator** is an abstract class that finds a
     ``ModelRenderer`` class with the same name as each model's node and

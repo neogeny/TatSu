@@ -13,9 +13,16 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2021
 ---------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.7.1...master
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.7.2...master
+
+
+`5.7.2`_ @ 2021-12-??
+---------------
+.. _`5.7.2`: https://github.com/apalala/tatsu/compare/v5.7.1...v5.7.2
+
 *   Make ``AST`` and ``Node`` hashable. Necessary for caching ``Node.children()``
 *   Implement ``Node.__eq__()`` in terms of identity or `Node._ast.__eq__()__`
+*   Fix regression in which rule order is lost in generated parsers (`@dtrckd`_)
 
 `5.7.1`_ @ 2021-12-03
 ---------------
@@ -368,6 +375,7 @@ Added
 .. _@apalala: https://github.com/apalala
 .. _@azazel75: https://github.com/azazel75
 .. _@davidchen: https://github.com/davidchen
+.. _@dtrckd: https://github.com/dtrckd
 .. _@fcoelho: https://github.com/fcoelho
 .. _@fpom: https://github.com/fpom
 .. _@gegenschall: https://bitbucket.org/gegenschall

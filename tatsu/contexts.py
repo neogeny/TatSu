@@ -26,7 +26,7 @@ from .infos import (
     ParseState,
     ParserConfig,
 )
-from tatsu.exceptions import (  # noqa
+from tatsu.exceptions import (  # noqa pylint:disable=unused-import
     FailedCut,
     FailedExpectingEndOfText,
     FailedLeftRecursion,
@@ -96,7 +96,7 @@ class closure(list):
         return hash(tuple(self))
 
 
-class ParseContext(object):
+class ParseContext:
     def __init__(self, config: ParserConfig = None, tokenizer=None, tokenizercls=None, **settings):
         super().__init__()
         config = ParserConfig.new(config, **settings)
@@ -698,8 +698,8 @@ class ParseContext(object):
         semantic_rule, postproc = self._find_semantic_action(rule.name)
         if semantic_rule:
             node = semantic_rule(node, *(rule.params or ()), **(rule.kwparams or {}))
-        if postproc is not None:
-            postproc(self, node)
+        if callable(postproc):
+            postproc(self, node)  # pylint: disable=not-callable
         if rule.is_name:
             self._check_name(node)
         return node

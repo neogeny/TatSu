@@ -136,11 +136,11 @@ class GraphvizWalker(NodeWalker):
             self.pop_graph()
         self.push_graph(g.name + '1')
         try:
+            pass
             # link all rule starting nodes with invisible edges
-            starts = [self.node(r.name, id=r.name) for r in g.rules]
-            for n1, n2 in zip(starts, starts[1:]):
-                # self.nedge(n1, n2)
-                pass
+            # starts = [self.node(r.name, id=r.name) for r in g.rules]
+            # for n1, n2 in zip(starts, starts[1:]):
+            #     self.nedge(n1, n2)
         finally:
             self.pop_graph()
         s, t = vrules[0][0], vrules[-1][1]
@@ -244,19 +244,19 @@ class GraphvizWalker(NodeWalker):
         return (i, e)
 
     def walk__lookahead(self, la):
-        i, e = self._walk_decorator(la)
+        _, e = self._walk_decorator(la)
         n = self.node('&')
         self.edge(n, e)
         return (n, e)
 
     def walk__negative_lookahead(self, la):
-        i, e = self._walk_decorator(la)
+        _, e = self._walk_decorator(la)
         n = self.node('!')
         self.edge(n, e)
         return (n, e)
 
     def walk__rule_include(self, la):
-        i, e = self._walk_decorator(la)
+        _, e = self._walk_decorator(la)
         n = self.node('>')
         self.edge(n, e)
         return (n, e)

@@ -36,7 +36,7 @@ class KeywordTests(unittest.TestCase):
         '''
         m = compile(grammar, 'Keywords')
 
-        class Semantics(object):
+        class Semantics:
             def __init__(self):
                 self.called = False
 

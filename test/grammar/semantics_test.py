@@ -10,7 +10,7 @@ from tatsu import synth
 from tatsu.model import Node
 
 
-class MyNode(object):
+class MyNode:
     def __init__(self, ast):
         pass
 

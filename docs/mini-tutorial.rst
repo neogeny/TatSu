@@ -276,7 +276,7 @@ Semantic actions for |TatSu| parsers are not specified in the grammar, but in a 
     from tatsu.ast import AST
 
 
-    class CalcBasicSemantics(object):
+    class CalcBasicSemantics:
         def number(self, ast):
             return int(ast)
 
@@ -404,7 +404,7 @@ Save the above in ``calc_refactored.ebnf``.
     import tatsu
 
 
-    class CalcSemantics(object):
+    class CalcSemantics:
         def number(self, ast):
             return int(ast)
 

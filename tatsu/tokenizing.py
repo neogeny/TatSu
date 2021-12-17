@@ -30,12 +30,12 @@ class Tokenizer:
         raise NotImplementedError
 
     @property
-    def token(self):
+    def current(self):
         raise NotImplementedError
 
     @property
-    def current(self):
-        return self.token
+    def token(self):
+        return self.current
 
     def next(self):
         raise NotImplementedError
