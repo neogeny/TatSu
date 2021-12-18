@@ -27,7 +27,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 *   Get ``Node.children()`` from ``Node.ast`` when there are no attributes defined for the ``Node``. This restores the desired behavior while developing a parse model.
 
 `5.7.1`_ @ 2021-12-03
----------------
+---------------------
 .. _`5.7.1`: https://github.com/apalala/tatsu/compare/v5.6.1...v5.7.1
 
 *   Simplified this CHANGELOG by not linking to issues or and pull requests that can be queried on Github
