@@ -43,11 +43,11 @@ mypy:
 
 
 clean:
-	find . -name "__pycache__" | xargs rm -rf
-	find . -name "*.pyc" | xargs rm -f
-	find . -name "*.pyd" | xargs rm -f
-	find . -name "*.pyo" | xargs rm -f
-	find . -name "*.orig" | xargs rm -f
+	find . -name "__pycache__" -delete
+	find . -name "*.pyc" -delete
+	find . -name "*.pyd" -delete
+	find . -name "*.pyo" -delete
+	find . -name "*.orig" -delete
 	rm -rf tatsu.egg-info
 	rm -rf dist
 	rm -rf build
