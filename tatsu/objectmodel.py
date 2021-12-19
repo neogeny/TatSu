@@ -59,7 +59,8 @@ class Node:
             return self.parseinfo.endline
 
     def text_lines(self):
-        return self.parseinfo.text_lines()
+        if self.parseinfo:
+            return self.parseinfo.text_lines()
 
     def line_index(self):
         return self.parseinfo.line_index()
