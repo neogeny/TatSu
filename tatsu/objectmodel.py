@@ -15,6 +15,7 @@ BASE_CLASS_TOKEN = '::'
 
 @dataclass(eq=False)
 class Node:
+    _parent: Node|None = None
     ast: AST|None = None
     ctx: Any = None
     parseinfo: ParseInfo|None = None
@@ -22,7 +23,6 @@ class Node:
     def __init__(self, ast=None, **attributes):
         super().__init__()
         self.ast = ast
-        self._parent = None
 
         for name, value in attributes.items():
             setattr(self, name, value)
