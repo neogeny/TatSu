@@ -126,64 +126,68 @@ class ParseContext:
         self._clear_memoization_caches()
 
     @property
+    def active_config(self):
+        return self._active_config
+
+    @property
     def semantics(self):
         return self._semantics
 
     @property
     def encoding(self):
-        return self._active_config.encoding
+        return self.active_config.encoding
 
     @property
     def parseinfo(self):
-        return self._active_config.parseinfo
+        return self.active_config.parseinfo
 
     @property
     def trace(self):
-        return self._active_config.trace
+        return self.active_config.trace
 
     @property
     def trace_length(self):
-        return self._active_config.trace_length
+        return self.active_config.trace_length
 
     @property
     def trace_separator(self):
-        return self._active_config.trace_separator
+        return self.active_config.trace_separator
 
     @property
     def trace_filename(self):
-        return self._active_config.trace_filename
+        return self.active_config.trace_filename
 
     @property
     def comments_re(self):
-        return self._active_config.comments_re
+        return self.active_config.comments_re
 
     @property
     def eol_comments_re(self):
-        return self._active_config.eol_comments_re
+        return self.active_config.eol_comments_re
 
     @property
     def whitespace(self):
-        return self._active_config.whitespace
+        return self.active_config.whitespace
 
     @property
     def ignorecase(self):
-        return self._active_config.ignorecase
+        return self.active_config.ignorecase
 
     @property
     def nameguard(self):
-        return self._active_config.nameguard
+        return self.active_config.nameguard
 
     @property
     def memoize_lookaheads(self):
-        return self._active_config.memoize_lookaheads
+        return self.active_config.memoize_lookaheads
 
     @property
     def left_recursion(self):
-        return self._active_config.left_recursion
+        return self.active_config.left_recursion
 
     @property
     def colorize(self):
-        return self._active_config.colorize
+        return self.active_config.colorize
 
     @property
     def keywords(self):
@@ -191,10 +195,10 @@ class ParseContext:
 
     @property
     def namechars(self):
-        return self._active_config.namechars
+        return self.active_config.namechars
 
     def _reset(self, config: ParserConfig):
-        if self._active_config.colorize:
+        if self.active_config.colorize:
             color.init()
         self._initialize_caches()
         self._keywords = oset(config.keywords)
@@ -222,7 +226,7 @@ class ParseContext:
         else:
             raise ParseError('No tokenizer or text')
         self._tokenizer = tokenizer
-        start = start or self._active_config.effective_rule_name()
+        start = start or self.active_config.effective_rule_name()
 
         try:
             rule = self._find_rule(start)
