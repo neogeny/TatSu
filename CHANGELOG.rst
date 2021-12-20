@@ -13,7 +13,15 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2022
 ---------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.7.2...master
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.7.3...master
+
+
+`5.7.3`_ @ 2021-12-20
+---------------------
+.. _`5.7.3`: https://github.com/apalala/tatsu/compare/v5.7.2...v5.7.3
+
+*   Fix that settings passed to ``Context.parse()`` were ignored. Add ``Context.active_config`` for the configuration active during a parse
+*   Define ``Node._parent`` as part of the ``@dataclass``
 
 
 `5.7.2`_ @ 2021-12-18
