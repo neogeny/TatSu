@@ -9,6 +9,7 @@ import keyword
 import functools
 import warnings
 import logging
+import weakref
 from io import StringIO
 from collections.abc import Mapping, Iterable, MutableSequence
 from itertools import zip_longest
@@ -224,7 +225,9 @@ def asjson(obj, seen=None):
             return '__RECURSIVE__'
         seen.add(id(obj))
 
-    if hasattr(obj, '__json__') and type(obj) is not type:  # pylint: disable=unidiomatic-typecheck
+    if isinstance(obj, (weakref.ReferenceType, weakref.ProxyType)):
+        return f'REF({id(obj)})'
+    elif hasattr(obj, '__json__') and type(obj) is not type:  # pylint: disable=unidiomatic-typecheck
         return obj.__json__()
     elif isinstance(obj, Mapping):
         result = {}
