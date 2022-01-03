@@ -4,6 +4,7 @@ from typing import Any
 from functools import cache
 from collections.abc import Mapping
 from dataclasses import dataclass
+import weakref
 
 from .util import asjson, asjsons
 from .infos import CommentInfo, ParseInfo
@@ -97,7 +98,9 @@ class Node:
             return node
 
         def children_of(child):
-            if isinstance(child, Node):
+            if isinstance(child, (weakref.ReferenceType, weakref.ProxyType)):
+               return
+            elif isinstance(child, Node):
                 yield with_parent(child)
             elif isinstance(child, Mapping):
                 yield from (with_parent(c) for c in child.values() if isinstance(c, Node))
