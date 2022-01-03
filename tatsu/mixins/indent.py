@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 from contextlib import contextmanager
 
 
@@ -15,6 +16,9 @@ class IndentPrintMixin:
         finally:
             self._indent_level -= 1
 
-    def print(self, text: str = ''):
+    def print(self, *args, **kwargs):
+        with io.StringIO() as output:
+            print(*args, file=output, **kwargs)
+            text = output.getvalue()
         indentation = ' ' * 4 * self._indent_level
         print((indentation + text).rstrip())
