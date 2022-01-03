@@ -227,7 +227,7 @@ def asjson(obj, seen=None):
 
     if isinstance(obj, (weakref.ReferenceType, weakref.ProxyType)):
         return f'REF({id(obj)})'
-    elif hasattr(obj, '__json__') and type(obj) is not type:  # pylint: disable=unidiomatic-typecheck
+    elif hasattr(obj, '__json__'):
         return obj.__json__()
     elif isinstance(obj, Mapping):
         result = {}
