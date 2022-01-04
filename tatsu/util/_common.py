@@ -10,6 +10,8 @@ import functools
 import warnings
 import logging
 import weakref
+import enum
+import uuid
 from io import StringIO
 from collections.abc import Mapping, Iterable, MutableSequence
 from itertools import zip_longest
@@ -238,6 +240,10 @@ def asjson(obj, seen=None):
                 debug('Unhashable key?', type(k), str(k))
                 raise
         return result
+    elif isinstance(obj, uuid.UUID):
+        return str(obj)
+    elif isinstance(obj, enum.Enum):
+        return obj.value
     elif isiter(obj):
         return [asjson(e, seen) for e in obj]
     else:
