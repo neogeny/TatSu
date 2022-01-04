@@ -92,6 +92,11 @@ class Node:
             return self.parseinfo.tokenizer.comments(self.parseinfo.pos)
         return CommentInfo([], [])
 
+    @property
+    def _deref(self):
+        # use this to get the actual object over weakref instances
+        return self
+
     def _children(self):
         def with_parent(node):
             node._parent = self
