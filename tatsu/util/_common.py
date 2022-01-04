@@ -250,6 +250,19 @@ def asjson(obj, seen=None):
         return obj
 
 
+def minjson(obj, typesfiltered=(str, list, dict)):
+    if isinstance(obj, Mapping):
+        return {
+            name: minjson(value)
+            for name, value in obj.items()
+            if value is not None and (value or not isinstance(value, typesfiltered))
+        }
+    elif isiter(obj):
+        return [minjson(e) for e in obj]
+    else:
+        return obj
+
+
 def asjsons(obj):
     return json.dumps(asjson(obj), indent=2)
 
