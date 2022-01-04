@@ -99,7 +99,7 @@ class Node:
 
         def children_of(child):
             if isinstance(child, (weakref.ReferenceType, weakref.ProxyType)):
-               return
+                return
             elif isinstance(child, Node):
                 yield with_parent(child)
             elif isinstance(child, Mapping):
