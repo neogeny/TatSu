@@ -66,7 +66,8 @@ class NodeWalker:
 class PreOrderWalker(NodeWalker):
     def walk(self, node, *args, **kwargs):
         result = super().walk(node, *args, **kwargs)
-        self._walk_children(node, *args, **kwargs)
+        if result is not None:
+            self._walk_children(node, *args, **kwargs)
         return result
 
     def _walk_children(self, node, *args, **kwargs):
