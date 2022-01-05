@@ -110,4 +110,4 @@ ENV/
 .vscode/*
 
 # generated files
-examples/g2e/python.ebnf
+examples/g2e/*.ebnf
