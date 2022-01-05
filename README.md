@@ -1,4 +1,4 @@
-[![license](https://img.shields.io/badge/license-BSD-blue.svg)](https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt) [![pyversions](https://img.shields.io/pypi/pyversions/tatsu.svg)](https://pypi.python.org/pypi/tatsu) [![fury](https://badge.fury.io/py/TatSu.svg)](https://badge.fury.io/py/TatSu) [![actions](https://github.com/neogeny/TatSu/workflows/tests/badge.svg)](https://github.com/neogeny/TatSu/actions) [![docs](https://readthedocs.org/projects/tatsu/badge/?version=stable)](http://tatsu.readthedocs.io/en/stable/)
+[![license](https://img.shields.io/badge/license-BSD-blue.svg)](https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt) [![pyversions](https://img.shields.io/pypi/pyversions/tatsu.svg)](https://pypi.python.org/pypi/tatsu) [![fury](https://badge.fury.io/py/TatSu.svg)](https://badge.fury.io/py/TatSu) [![downloads](https://img.shields.io/pypi/dm/TatSu.svg)](http://tatsu.readthedocs.io/en/stable/) [![actions](https://github.com/neogeny/TatSu/workflows/tests/badge.svg)](https://github.com/neogeny/TatSu/actions) [![docs](https://readthedocs.org/projects/tatsu/badge/?version=stable)](http://tatsu.readthedocs.io/en/stable/)
 
 > *At least for the people who send me mail about a new language that they're designing, the general advice is: do it to learn about how to write a compiler. Don't have any expectations that anyone will use it, unless you hook up with some sort of organization in a position to push it hard. It's a lottery, and some can buy a lot of the tickets. There are plenty of beautiful languages (more beautiful than C) that didn't catch on. But someone does win the lottery, and doing a language at least teaches you something.*
 >
@@ -13,7 +13,7 @@ def WARNING():
 
     Python 3.8, 3.9, and 3.10 introduced new language features
     that allow writing better programs more clearly. Code written
-    for Python 3.7 should run fine on Python up to 3.1q with no changes.
+    for Python 3.7 should run fine on Python up to 3.11 with no changes.
 
     Python has adopted an annual release schedule (PEP-602).
 

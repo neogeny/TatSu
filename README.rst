@@ -1,7 +1,7 @@
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
 .. |TatSu| replace:: |dragon| **TatSu**
 
-|license| |pyversions| |fury| |actions| |docs|
+|license| |pyversions| |fury| |downloads| |actions| |docs|
 
     *At least for the people who send me mail about a new language that
     they're designing, the general advice is: do it to learn about how
@@ -27,7 +27,7 @@
 
         Python 3.8, 3.9, and 3.10 introduced new language features
         that allow writing better programs more clearly. Code written
-        for Python 3.7 should run fine on Python up to 3.1q with no changes.
+        for Python 3.7 should run fine on Python up to 3.11 with no changes.
 
         Python has adopted an annual release schedule (PEP-602).
 
@@ -300,4 +300,6 @@ requires different licensing* please `email`_.
    :target: https://www.quantifiedcode.com/app/project/f60bbd94ae2d4bd5b2e04c241c9d47ff
    :alt: Code issues
 .. |docs| image:: https://readthedocs.org/projects/tatsu/badge/?version=stable
+   :target: http://tatsu.readthedocs.io/en/stable/
+.. |downloads| image:: https://img.shields.io/pypi/dm/TatSu.svg
    :target: http://tatsu.readthedocs.io/en/stable/
