@@ -10,6 +10,8 @@ import functools
 import warnings
 import logging
 import weakref
+import enum
+import uuid
 from io import StringIO
 from collections.abc import Mapping, Iterable, MutableSequence
 from itertools import zip_longest
@@ -216,7 +218,7 @@ def timestamp():
     return '.'.join('%2.2d' % t for t in datetime.datetime.utcnow().utctimetuple()[:-2])
 
 
-def asjson(obj, seen=None):
+def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements
     if isinstance(obj, Mapping) or isiter(obj):
         # prevent traversal of recursive structures
         if seen is None:
@@ -238,8 +240,25 @@ def asjson(obj, seen=None):
                 debug('Unhashable key?', type(k), str(k))
                 raise
         return result
+    elif isinstance(obj, uuid.UUID):
+        return str(obj)
+    elif isinstance(obj, enum.Enum):
+        return obj.value
     elif isiter(obj):
         return [asjson(e, seen) for e in obj]
+    else:
+        return obj
+
+
+def minjson(obj, typesfiltered=(str, list, dict)):
+    if isinstance(obj, Mapping):
+        return {
+            name: minjson(value)
+            for name, value in obj.items()
+            if value is not None and (value or not isinstance(value, typesfiltered))
+        }
+    elif isiter(obj):
+        return [minjson(e) for e in obj]
     else:
         return obj
 
