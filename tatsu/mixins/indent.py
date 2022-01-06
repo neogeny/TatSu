@@ -3,6 +3,8 @@ from __future__ import annotations
 import io
 from contextlib import contextmanager
 
+from ..util import trim
+
 
 class IndentPrintMixin:
     def __init__(self, indent=4):
@@ -29,7 +31,7 @@ class IndentPrintMixin:
         finally:
             self._indent_level -= 1
 
-    def _do_print(self, line):
+    def _do_print(self, line: str = ''):
         print((self.current_indentation + line).rstrip())
 
     def print(self, *args, **kwargs):
@@ -37,5 +39,10 @@ class IndentPrintMixin:
         with io.StringIO() as output:
             print(*args, file=output, **kwargs)
             text = output.getvalue()
-        for line in text.splitlines(keepends=True):
-            self._do_print(line)
+        text = trim(text)
+        lines = text.splitlines(keepends=True)
+        if not lines:
+            self._do_print()
+        else:
+            for line in lines:
+                self._do_print(line)
