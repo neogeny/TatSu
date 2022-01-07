@@ -228,7 +228,7 @@ def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements
         seen.add(id(obj))
 
     if isinstance(obj, (weakref.ReferenceType, weakref.ProxyType)):
-        return f'REF({id(obj)})'
+        return f'@{id(obj)}'
     elif hasattr(obj, '__json__'):
         return obj.__json__()
     elif isinstance(obj, Mapping):
