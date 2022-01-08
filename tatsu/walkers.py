@@ -13,8 +13,8 @@ class NodeWalker:
         cls._walker_cache = {}
         return super(NodeWalker, cls).__new__(cls)
 
-    def walk(self, node: Node|Iterable[Node], *args, **kwargs) -> Any:
-        if isinstance(node, Iterable):
+    def walk(self, node: Node|list[Node], *args, **kwargs) -> Any:
+        if isinstance(node, list):
             return [self.walk(n) for n in node]
 
         walker = self._find_walker(node)
