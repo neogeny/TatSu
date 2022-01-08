@@ -16,6 +16,11 @@ class NodeWalker:
         if callable(walker):
             return walker(node, *args, **kwargs)
 
+    def _walk_children(self, node, *args, **kwargs):
+        if isinstance(node, Node):
+            for child in node.children_list():
+                self.walk(child, *args, **kwargs)
+
     def _find_walker(self, node, prefix='walk_'):
         def pythonize_match(m):
             return '_' + m.group().lower()
@@ -55,7 +60,7 @@ class NodeWalker:
         else:
             walker = getattr(self, '_walk_default', None)
             if walker is None:
-                walker = getattr(self, 'walk_default', None)  # backwars compatibility
+                walker = getattr(self, 'walk_default', None)  # backwards compatibility
             if not callable(walker):
                 walker = None
 
@@ -69,11 +74,6 @@ class PreOrderWalker(NodeWalker):
         if result is not None:
             self._walk_children(node, *args, **kwargs)
         return result
-
-    def _walk_children(self, node, *args, **kwargs):
-        if isinstance(node, Node):
-            for child in node.children_list():
-                self.walk(child, *args, **kwargs)
 
 
 class DepthFirstWalker(NodeWalker):
