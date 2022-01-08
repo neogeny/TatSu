@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Iterable, Mapping
+from typing import Any, Mapping
 from contextlib import contextmanager
 
 from tatsu.objectmodel import Node
