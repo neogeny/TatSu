@@ -1,4 +1,6 @@
-from collections.abc import Mapping
+from __future__ import annotations
+
+from typing import Any, Iterable, Mapping
 from contextlib import contextmanager
 
 from tatsu.objectmodel import Node
@@ -11,17 +13,20 @@ class NodeWalker:
         cls._walker_cache = {}
         return super(NodeWalker, cls).__new__(cls)
 
-    def walk(self, node, *args, **kwargs):
+    def walk(self, node: Node|Iterable[Node], *args, **kwargs) -> Any:
+        if isinstance(node, Iterable):
+            return [self.walk(n) for n in node]
+
         walker = self._find_walker(node)
         if callable(walker):
             return walker(node, *args, **kwargs)
 
-    def _walk_children(self, node, *args, **kwargs):
+    def _walk_children(self, node: Node, *args, **kwargs):
         if isinstance(node, Node):
-            for child in node.children_list():
+            for child in node.children():
                 self.walk(child, *args, **kwargs)
 
-    def _find_walker(self, node, prefix='walk_'):
+    def _find_walker(self, node: Node, prefix='walk_'):
         def pythonize_match(m):
             return '_' + m.group().lower()
 
