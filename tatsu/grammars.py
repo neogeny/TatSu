@@ -395,9 +395,6 @@ class Lookahead(Decorator):
         with ctx._if():
             return super().parse(ctx)
 
-    def _first(self, k, f):
-        return {()}
-
     def _to_str(self, lean=False):
         return '&' + self.exp._to_str(lean=lean)
 
@@ -409,9 +406,6 @@ class NegativeLookahead(Decorator):
     def parse(self, ctx):
         with ctx._ifnot():
             return super().parse(ctx)
-
-    def _first(self, k, f):
-        return {}
 
     def _to_str(self, lean=False):
         return '!' + str(self.exp._to_str(lean=lean))
