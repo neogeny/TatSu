@@ -348,7 +348,7 @@ skip_to::SkipTo
 
 atom
     =
-    cut | cut_deprecated | token | constant | call | pattern | eof
+    cut |  token | constant | call | pattern | eof
     ;
 
 
