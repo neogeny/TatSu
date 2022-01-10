@@ -36,13 +36,14 @@ def first(iterable, default=_undefined):
         return default
 
 
-def findalliter(pattern, string, flags=0):
+def findalliter(pattern, string, pos=None, endpos=None, flags=0):
     '''
         like finditer(), but with return values like findall()
 
         implementation taken from cpython/Modules/_sre.c/findall()
     '''
-    for m in re.finditer(pattern, string, flags=flags):
+    r = re.compile(pattern, flags=flags)
+    for m in r.finditer(pattern, string, pos=pos, endpos=endpos):
         default = string[0:0]
         g = m.groups(default=default)
         if len(g) == 1:
@@ -53,8 +54,8 @@ def findalliter(pattern, string, flags=0):
             yield m.group()
 
 
-def findfirst(pattern, string, flags=0, default=_undefined):
+def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=_undefined):
     """
     Avoids using the inefficient findall(...)[0], or first(findall(...))
     """
-    return first(findalliter(pattern, string, flags=flags), default=default)
+    return first(findalliter(pattern, string, pos=pos, endpos=endpos, flags=flags), default=default)
