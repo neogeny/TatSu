@@ -16,6 +16,7 @@ from .util import identity
 from .util import extend_list, contains_sublist
 from .util import re as regexp
 from .util import RETYPE, WHITESPACE_RE
+from .util.misc import findfirst
 from .exceptions import ParseError
 from .infos import (
     ParserConfig,
@@ -272,10 +273,10 @@ class Buffer(Tokenizer):
     def skip_to_eol(self):
         return self.skip_to('\n')
 
-    def scan_space(self, offset=0):
+    def scan_space(self):
         return (
             self.whitespace_re and
-            self._scanre(self.whitespace_re, offset=offset) is not None
+            self._scanre(self.whitespace_re) is not None
         )
 
     def is_space(self):
@@ -308,19 +309,19 @@ class Buffer(Tokenizer):
                 return token
         self.goto(p)
 
-    def matchre(self, pattern, ignorecase=None):
-        matched = self._scanre(pattern, ignorecase=ignorecase)
+    def matchre(self, pattern):
+        matched = self._scanre(pattern)
         if matched:
             token = matched.group()
             self.move(len(token))
             return token
 
-    def _scanre(self, pattern, ignorecase=None, offset=0):
+    def _scanre(self, pattern):
         if isinstance(pattern, RETYPE):
             re = pattern
         else:
             re = regexp.compile(pattern, regexp.MULTILINE | regexp.UNICODE)
-        return re.match(self.text, self.pos + offset)
+        return re.match(self.text, self.pos)
 
     @property
     def linecount(self):
