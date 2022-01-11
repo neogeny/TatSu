@@ -892,9 +892,9 @@ class EBNFBootstrapParser(Parser):
                 self._pattern_()
             self._error(
                 'expecting one of: '
-                "'(' '/./' <any> <constant> <group>"
+                "'(' '/./' '`' <any> <constant> <group>"
                 '<pattern> <raw_string> <regexes>'
-                '<string> <token> `'
+                '<string> <token>'
             )
 
     @tatsumasu('PositiveClosure')
@@ -990,10 +990,10 @@ class EBNFBootstrapParser(Parser):
                 self._eof_()
             self._error(
                 'expecting one of: '
-                "'$' '>>' '~' <call> <constant> <cut>"
+                "'$' '>>' '`' '~' <call> <constant> <cut>"
                 '<cut_deprecated> <eof> <pattern>'
                 '<raw_string> <regexes> <string> <token>'
-                '<word> `'
+                '<word>'
             )
 
     @tatsumasu('RuleRef')
@@ -1026,11 +1026,26 @@ class EBNFBootstrapParser(Parser):
 
     @tatsumasu('Constant')
     def _constant_(self):  # noqa
-        self._pattern('`')
-        self._cut()
-        self._literal_()
-        self.name_last_node('@')
-        self._pattern('`')
+        with self._if():
+            self._token('`')
+        with self._group():
+            with self._choice():
+                with self._option():
+                    self._token('```')
+                    self._cut()
+                    self._pattern('(?ms)((?:.|\\n)*?)(?:```)')
+                    self.name_last_node('@')
+                with self._option():
+                    self._token('`')
+                    self._literal_()
+                    self.name_last_node('@')
+                    self._token('`')
+                with self._option():
+                    self._pattern('`(.*?)`')
+                self._error(
+                    'expecting one of: '
+                    "'`' '```' `(.*?)`"
+                )
 
     @tatsumasu('Token')
     def _token_(self):  # noqa

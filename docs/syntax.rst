@@ -352,6 +352,18 @@ The expressions, in reverse order of operator precedence, can be:
 
         boolean_option = name ['=' (boolean|`true`) ] ;
 
+    String interpolation in the style of ``str.format()`` over the names in the current AST_ is applied for *constant* elements. Occurrences of the ``{`` character must be scaped to ``\{`` if they are not intended for interpolation. A *constant* expression that hast type ``str`` is evaluated using:
+
+.. code:: python
+
+            eval(f'{repr(constant)}.format(**{ast})')
+
+`````constant`````
+^^^^^^^^^^^^^^^^^^
+
+    A multiline version of ```constant```.
+
+
 ``rulename``
 ^^^^^^^^^^^^
     Invoke the rule named ``rulename``. To help with lexical aspects of grammars, rules with names that begin with an uppercase letter will not advance the input over whitespace or comments.

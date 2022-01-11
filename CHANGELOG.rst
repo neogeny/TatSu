@@ -17,6 +17,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 * Make sure that the generated parser is the same as the bootstrap parser.
 * Honor grouping in pattern expressions with the semantics of ``re.findall(pattern, text)[0]``
+*   Allow ``{}`` interpolation in ```constant``` expressions with the semantics of ``str.format()``
+* Add `````constant````` as a multiline version of ```constant```.
 
 
 `5.7.3`_ @ 2021-12-20
