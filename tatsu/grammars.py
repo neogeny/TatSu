@@ -342,7 +342,7 @@ class Constant(Model):
             text = self.literal
             if '\n' in text:
                 text = trim(text)
-            return eval(f'{repr(text)}.format(**{ctx.ast})')
+            return eval(f'{repr(text)}.format(**{ctx.ast})')  # pylint: disable=eval-used
         else:
             return self.literal
 
