@@ -312,11 +312,11 @@ class Buffer(Tokenizer):
         if not match:
             return
 
+        matched = match.group()
         token = resolve_match(match)
-        # check = match.group()
-        # if token != check:
-        #     raise ValueError(f'No match for {pattern}: {token} != {check}')
-        self.move(len(token))
+        # if token != matched:
+        #     raise ValueError(f'No match for {pattern}: {token} != {matched}')
+        self.move(len(matched))
         return token
 
     def _scanre(self, pattern):
