@@ -16,6 +16,7 @@ from .tokenizing import Tokenizer
 from .util import identity
 from .util import extend_list, contains_sublist
 from .util import RETYPE, WHITESPACE_RE
+from .util.misc import resolve_match  # noqa, pylint: disable=unused-import
 from .exceptions import ParseError
 from .infos import (
     ParserConfig,
@@ -309,6 +310,7 @@ class Buffer(Tokenizer):
             return
 
         token = match.group()
+        # token = resolve_match(match)
         self.move(len(token))
         return token
 

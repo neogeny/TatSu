@@ -38,10 +38,10 @@ def first(iterable, default=_undefined):
         return default
 
 
-def resolve_match(m: re.Match, default):
+def resolve_match(m: re.Match):
     if m is None:
         return None
-    g = m.groups(default=default)
+    g = m.groups(default=m.string[0:0])
     if len(g) == 1:
         return g[0]
     elif g:
@@ -56,7 +56,6 @@ def findalliter(pattern, string, pos=None, endpos=None, flags=0):
 
         implementation taken from cpython/Modules/_sre.c/findall()
     '''
-    default = string[0:0]
     if isinstance(pattern, RETYPE):
         r = pattern
     else:
@@ -68,7 +67,7 @@ def findalliter(pattern, string, pos=None, endpos=None, flags=0):
     else:
         iterator = r.finditer(string)
     for m in iterator:
-        yield resolve_match(m, default)
+        yield resolve_match(m)
 
 
 def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=_undefined):
