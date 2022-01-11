@@ -97,17 +97,13 @@ class closure(list):
 
 
 class ParseContext:
-    def __init__(self, config: ParserConfig = None, tokenizer=None, tokenizercls=None, **settings):
+    def __init__(self, /, config: ParserConfig = None, **settings):
         super().__init__()
         config = ParserConfig.new(config, **settings)
-        config.replace(tokenizercls=tokenizercls)
         self.config = config
         self._active_config = self.config
 
-        if tokenizercls is None:
-            tokenizercls = buffering.Buffer
-        self.tokenizercls = tokenizercls
-        self._tokenizer = tokenizer
+        self._tokenizer = None
 
         self._semantics = config.semantics
 
@@ -211,7 +207,7 @@ class ParseContext:
         if not self._furthest_exception or e.pos > self._furthest_exception.pos:
             self._furthest_exception = e
 
-    def parse(self, text, /, start='start', config: ParserConfig = None, tokenizercls=None, **settings):
+    def parse(self, text, /, start='start', config: ParserConfig = None, **settings):
         config = self.config.replace_config(config)
         config = config.replace(**settings)
         config = config.replace(start=start)
@@ -221,8 +217,7 @@ class ParseContext:
         if isinstance(text, tokenizing.Tokenizer):
             tokenizer = text
         elif text is not None:
-            tokenizercls = tokenizercls or self.tokenizercls
-            tokenizer = tokenizercls(text, config=config)
+            tokenizer = self.tokenizercls(text, config=config)
         else:
             raise ParseError('No tokenizer or text')
         self._tokenizer = tokenizer
@@ -244,6 +239,13 @@ class ParseContext:
     @property
     def tokenizer(self):
         return self._tokenizer
+
+    @property
+    def tokenizercls(self):
+        if self.config.tokenizercls is None:
+            return buffering.Buffer
+        else:
+            return self.config.tokenizercls
 
     @property
     def last_node(self):
