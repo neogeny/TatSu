@@ -12,6 +12,7 @@ from typing import (
 
 from .ast import AST
 from .util.unicode_characters import C_DERIVE
+from .tokenizing import Tokenizer
 
 
 COMMENTS_RE = r'\(\*((?:.|\n)*?)\*\)'
@@ -31,7 +32,7 @@ class ParserConfig:
     comments_re: str|None = COMMENTS_RE
     eol_comments_re: str|None = EOL_COMMENTS_RE
 
-    tokenizercls: Type|None = None  # FIXME
+    tokenizercls: Type[Tokenizer]|None = None  # FIXME
     semantics: Type|None = None
 
     comment_recovery: bool = False

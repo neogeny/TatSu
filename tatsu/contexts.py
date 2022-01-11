@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from typing import Type
 import functools
 from contextlib import contextmanager
 from copy import copy
@@ -18,6 +19,7 @@ from .ast import AST
 from .collections import OrderedSet as oset
 from .util import prune_dict, is_list, info, safe_name
 from .util import left_assoc, right_assoc
+from .tokenizing import Tokenizer
 from .infos import (
     MemoKey,
     ParseInfo,
@@ -103,7 +105,7 @@ class ParseContext:
         self.config = config
         self._active_config = self.config
 
-        self._tokenizer = None
+        self._tokenizer: Tokenizer|None = None
 
         self._semantics = config.semantics
 
@@ -217,7 +219,8 @@ class ParseContext:
         if isinstance(text, tokenizing.Tokenizer):
             tokenizer = text
         elif text is not None:
-            tokenizer = self.tokenizercls(text, config=config)
+            cls = self.tokenizercls
+            tokenizer = cls(text, config=config)
         else:
             raise ParseError('No tokenizer or text')
         self._tokenizer = tokenizer
@@ -241,7 +244,7 @@ class ParseContext:
         return self._tokenizer
 
     @property
-    def tokenizercls(self):
+    def tokenizercls(self) -> Type[Tokenizer]:
         if self.config.tokenizercls is None:
             return buffering.Buffer
         else:

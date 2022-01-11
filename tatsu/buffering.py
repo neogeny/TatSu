@@ -30,6 +30,7 @@ class Buffer(Tokenizer):
     _pos: int = 0  # WARNING: FIXME: plckle does not work without this
 
     def __init__(self, text, /, config: ParserConfig = None, **settings: Any):
+        super().__init__()
         config = ParserConfig.new(config=config, owner=self, **settings)
         self.config = config
 
