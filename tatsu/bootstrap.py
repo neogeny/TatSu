@@ -33,8 +33,8 @@ class EBNFBootstrapBuffer(Buffer):
             owner=self,
             whitespace=None,
             nameguard=None,
-            comments_re='\\(\\*((?:.|\\n)*?)\\*\\)',
-            eol_comments_re='#([^\\n]*?)$',
+            comments_re='(?sm)[(][*](?:.|\\n)*?[*][)]',
+            eol_comments_re='#[^\\n]*$',
             ignorecase=False,
             namechars='',
             parseinfo=True,
@@ -50,8 +50,8 @@ class EBNFBootstrapParser(Parser):
             owner=self,
             whitespace=None,
             nameguard=None,
-            comments_re='\\(\\*((?:.|\\n)*?)\\*\\)',
-            eol_comments_re='#([^\\n]*?)$',
+            comments_re='(?sm)[(][*](?:.|\\n)*?[*][)]',
+            eol_comments_re='#[^\\n]*$',
             ignorecase=False,
             namechars='',
             parseinfo=True,
@@ -473,7 +473,7 @@ class EBNFBootstrapParser(Parser):
                 self._literal_()
             self._error(
                 'expecting one of: '
-                '(?!\\d)\\w+(::(?!\\d)\\w+)+ <boolean>'
+                '(?!\\d)\\w+(?:::(?!\\d)\\w+)+ <boolean>'
                 '<float> <hex> <int> <literal> <path>'
                 '<raw_string> <string> <word>'
             )
@@ -1064,7 +1064,7 @@ class EBNFBootstrapParser(Parser):
             self._error(
                 'expecting one of: '
                 "'False' 'True' 'r' (?!\\d)\\w+"
-                '0[xX](\\d|[a-fA-F])+ <STRING> <boolean>'
+                '0[xX](?:\\d|[a-fA-F])+ <STRING> <boolean>'
                 '<float> <hex> <int> <raw_string>'
                 '<string> <word> [-'
                 '+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-'
@@ -1087,14 +1087,14 @@ class EBNFBootstrapParser(Parser):
             with self._option():
                 self._token('"')
                 self._cut()
-                self._pattern('([^"\\n]|\\\\"|\\\\\\\\)*')
+                self._pattern('(?:[^"\\n]|\\\\"|\\\\\\\\)*')
                 self.name_last_node('@')
                 self._token('"')
                 self._cut()
             with self._option():
                 self._token("'")
                 self._cut()
-                self._pattern("([^'\\n]|\\\\'|\\\\\\\\)*")
+                self._pattern("(?:[^'\\n]|\\\\'|\\\\\\\\)*")
                 self.name_last_node('@')
                 self._token("'")
                 self._cut()
@@ -1105,7 +1105,7 @@ class EBNFBootstrapParser(Parser):
 
     @tatsumasu()
     def _hex_(self):  # noqa
-        self._pattern('0[xX](\\d|[a-fA-F])+')
+        self._pattern('0[xX](?:\\d|[a-fA-F])+')
 
     @tatsumasu()
     def _float_(self):  # noqa
@@ -1117,7 +1117,7 @@ class EBNFBootstrapParser(Parser):
 
     @tatsumasu()
     def _path_(self):  # noqa
-        self._pattern('(?!\\d)\\w+(::(?!\\d)\\w+)+')
+        self._pattern('(?!\\d)\\w+(?:::(?!\\d)\\w+)+')
 
     @tatsumasu()
     def _word_(self):  # noqa
@@ -1147,14 +1147,14 @@ class EBNFBootstrapParser(Parser):
             with self._option():
                 self._token('/')
                 self._cut()
-                self._pattern('([^/\\\\]|\\\\/|\\\\.)*')
+                self._pattern('(?:[^/\\\\]|\\\\/|\\\\.)*')
                 self.name_last_node('@')
                 self._token('/')
                 self._cut()
             with self._option():
                 self._token('?/')
                 self._cut()
-                self._pattern('(.|\\n)*?(?=/\\?)')
+                self._pattern('(?:.|\\n)*?(?=/\\?)')
                 self.name_last_node('@')
                 self._pattern('/\\?+')
                 self._cut()

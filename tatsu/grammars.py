@@ -376,11 +376,12 @@ class Pattern(Model):
     def _to_str(self, lean=False):
         parts = []
         for pat in (str(p) for p in self.patterns):
-            template = '/%s/'
             if '/' in pat:
-                template = '?"%s"'
                 pat = pat.replace('"', r'\"')
-            parts.append(template % pat)
+                regex = f'?"{pat}"'
+            else:
+                regex = f'/{pat}/'
+            parts.append(regex)
         return '\n+ '.join(parts)
 
     def _nullable(self):

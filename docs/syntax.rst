@@ -291,9 +291,9 @@ The expressions, in reverse order of operator precedence, can be:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     The *pattern* expression. Match the `Python`_ regular expression ``regexp`` at the current text position. Unlike other expressions, this one does not advance over whitespace or comments. For that, place the ``regexp`` as the only term in its own rule.
 
-    The *regex* is interpreted as a Python_'s `raw string literal`_ and passed with ``regexp.MULTILINE | regexp.UNICODE`` options to the Python_ re_ module (or to regex_, if available), using ``match()`` at the current position in the text. The matched text is the AST_ for the expression.
+    The *regex* is interpreted as a Python_'s `raw string literal`_ and passed the Python_ re_ module using ``match()`` at the current position in the text. The returned AST_ has the semantics of ``re.findall(pattern, text)[0]``, so use ``(?:)`` for groups that should not be in thre resulting AST_.
 
-    Consecutive patterns are concatenated to form a single one.
+    Consecutive *patterns* are concatenated to form a single one.
 
 ``/./``
 ^^^^^^^

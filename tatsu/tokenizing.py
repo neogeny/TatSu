@@ -46,10 +46,10 @@ class Tokenizer:
     def next_token(self):
         raise NotImplementedError
 
-    def match(self, token, ignorecase=False):
+    def match(self, token):
         raise NotImplementedError
 
-    def matchre(self, pattern, ignorecase=False):
+    def matchre(self, pattern):
         raise NotImplementedError
 
     def posline(self, pos):

@@ -8,14 +8,15 @@ about source lines and content.
 from __future__ import annotations
 
 import os
+import re
 from itertools import takewhile, repeat
 from typing import (Any,)
 
 from .tokenizing import Tokenizer
 from .util import identity
 from .util import extend_list, contains_sublist
-from .util import re as regexp
 from .util import RETYPE, WHITESPACE_RE
+from .util.misc import resolve_match  # noqa, pylint: disable=unused-import
 from .exceptions import ParseError
 from .infos import (
     ParserConfig,
@@ -77,10 +78,7 @@ class Buffer(Tokenizer):
             if not isinstance(whitespace, str):
                 # a list or a set?
                 whitespace = ''.join(c for c in whitespace)
-            return regexp.compile(
-                '[%s]+' % regexp.escape(whitespace),
-                regexp.MULTILINE | regexp.UNICODE
-            )
+            return re.compile(f'(?m)[{re.escape(whitespace)}]+')
         else:
             return None
 
@@ -275,10 +273,10 @@ class Buffer(Tokenizer):
     def skip_to_eol(self):
         return self.skip_to('\n')
 
-    def scan_space(self, offset=0):
+    def scan_space(self):
         return (
             self.whitespace_re and
-            self._scanre(self.whitespace_re, offset=offset) is not None
+            self._scanre(self.whitespace_re) is not None
         )
 
     def is_space(self):
@@ -287,14 +285,12 @@ class Buffer(Tokenizer):
     def is_name_char(self, c):
         return c is not None and (c.isalnum() or c in self._namechar_set)
 
-    def match(self, token, ignorecase=None):
-        ignorecase = ignorecase if ignorecase is not None else self.ignorecase
-
+    def match(self, token):
         if token is None:
             return self.atend()
 
         p = self.pos
-        if ignorecase:
+        if self.ignorecase:
             is_match = self.text[p:p + len(token)].lower() == token.lower()
         else:
             is_match = self.text[p:p + len(token)] == token
@@ -311,19 +307,24 @@ class Buffer(Tokenizer):
                 return token
         self.goto(p)
 
-    def matchre(self, pattern, ignorecase=None):
-        matched = self._scanre(pattern, ignorecase=ignorecase)
-        if matched:
-            token = matched.group()
-            self.move(len(token))
-            return token
+    def matchre(self, pattern):
+        match = self._scanre(pattern)
+        if not match:
+            return
 
-    def _scanre(self, pattern, ignorecase=None, offset=0):
+        token = resolve_match(match)
+        # check = match.group()
+        # if token != check:
+        #     raise ValueError(f'No match for {pattern}: {token} != {check}')
+        self.move(len(token))
+        return token
+
+    def _scanre(self, pattern):
         if isinstance(pattern, RETYPE):
-            re = pattern
+            cre = pattern
         else:
-            re = regexp.compile(pattern, regexp.MULTILINE | regexp.UNICODE)
-        return re.match(self.text, self.pos + offset)
+            cre = re.compile(pattern, re.MULTILINE)
+        return cre.match(self.text, self.pos)
 
     @property
     def linecount(self):

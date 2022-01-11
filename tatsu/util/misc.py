@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import re
 
+from ._common import RETYPE
+
 _undefined = object()  # unique object for when None is not a good default
 
 
@@ -36,25 +38,40 @@ def first(iterable, default=_undefined):
         return default
 
 
-def findalliter(pattern, string, flags=0):
+def resolve_match(m: re.Match):
+    if m is None:
+        return None
+    g = m.groups(default=m.string[0:0])
+    if len(g) == 1:
+        return g[0]
+    elif g:
+        return g
+    else:
+        return m.group()
+
+
+def findalliter(pattern, string, pos=None, endpos=None, flags=0):
     '''
         like finditer(), but with return values like findall()
 
         implementation taken from cpython/Modules/_sre.c/findall()
     '''
-    for m in re.finditer(pattern, string, flags=flags):
-        default = string[0:0]
-        g = m.groups(default=default)
-        if len(g) == 1:
-            yield g[0]
-        elif g:
-            yield g
-        else:
-            yield m.group()
+    if isinstance(pattern, RETYPE):
+        r = pattern
+    else:
+        r = re.compile(pattern, flags=flags)
+    if endpos is not None:
+        iterator = r.finditer(string, pos=pos, endpos=endpos)
+    elif pos is not None:
+        iterator = r.finditer(string, pos=pos)
+    else:
+        iterator = r.finditer(string)
+    for m in iterator:
+        yield resolve_match(m)
 
 
-def findfirst(pattern, string, flags=0, default=_undefined):
+def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=_undefined):
     """
     Avoids using the inefficient findall(...)[0], or first(findall(...))
     """
-    return first(findalliter(pattern, string, flags=flags), default=default)
+    return first(findalliter(pattern, string, pos=pos, endpos=endpos, flags=flags), default=default)
