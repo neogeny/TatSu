@@ -1026,21 +1026,25 @@ class EBNFBootstrapParser(Parser):
 
     @tatsumasu('Constant')
     def _constant_(self):  # noqa
-        self._token('`')
-        self._cut()
+        with self._if():
+            self._token('`')
         with self._group():
             with self._choice():
                 with self._option():
+                    self._token('```')
+                    self._cut()
+                    self._pattern('(?ms)((?:.|\\n)*?)(?:```)')
+                    self.name_last_node('@')
+                with self._option():
+                    self._token('`')
                     self._literal_()
                     self.name_last_node('@')
-                    self._pattern('`')
+                    self._token('`')
                 with self._option():
-                    self._pattern('(.*?)(?=`)')
-                    self.name_last_node('@')
-                    self._pattern('`')
+                    self._pattern('`(.*?)`')
                 self._error(
                     'expecting one of: '
-                    '(.*?)(?=`) <literal>'
+                    "'`' '```' `(.*?)`"
                 )
 
     @tatsumasu('Token')

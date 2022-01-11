@@ -358,6 +358,11 @@ The expressions, in reverse order of operator precedence, can be:
 
             eval(f'{repr(constant)}.format(**{ast})')
 
+`````constant`````
+^^^^^^^^^^^^^^^^^^
+
+    A multiline version of ```constant```.
+
 
 ``rulename``
 ^^^^^^^^^^^^

@@ -339,7 +339,10 @@ class Constant(Model):
 
     def parse(self, ctx):
         if isinstance(self.literal, str):
-            return eval(f'{repr(self.literal)}.format(**{ctx.ast})')
+            text = self.literal
+            if '\n' in text:
+                text = trim(text)
+            return eval(f'{repr(text)}.format(**{ctx.ast})')
         else:
             return self.literal
 
