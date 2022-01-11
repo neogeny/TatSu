@@ -1,6 +1,6 @@
 @@grammar :: Tatsu
-@@comments :: ?"\(\*(?:(?:.|\n)*?)\*\)"
-@@eol_comments :: ?"#(?:[^\n]*?)$"
+@@comments :: ?"(?sm)[(][*](?:.|\n)*?[*][)]"
+@@eol_comments :: ?"#[^\n]*?$"
 @@parseinfo :: True
 @@left_recursion :: False
 
@@ -348,7 +348,7 @@ skip_to::SkipTo
 
 atom
     =
-    cut |  token | constant | call | pattern | eof
+    cut | cut_deprecated | token | constant | call | pattern | eof
     ;
 
 
@@ -421,8 +421,8 @@ raw_string
 
 STRING
     =
-    | '"' ~ @:/(?:[^"\n]|\\"|\\\\)*/ '"' ~
-    | "'" ~ @:/(?:[^'\n]|\\'|\\\\)*/ "'" ~
+    | '"' ~ @:/(?:[^"\n]|\\"|\\\\)*?(?=")/ '"' ~
+    | "'" ~ @:/(?:[^'\n]|\\'|\\\\)*?(?=')/ "'" ~
     ;
 
 
@@ -477,7 +477,8 @@ regexes
 
 regex
     =
-    | '/' ~ @:?"(?:[^/]|\\)*" '/' ~
+    | '/' ~ @:?"(?:[^/\\]|\\/|\\.)*?(?=/)" '/' ~
+    | '?/' ~ @:?"(?:.|\n)*?(?=/\?)" ?"/\?+" ~
     | '?' @:STRING
     ;
 

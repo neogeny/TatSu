@@ -310,7 +310,9 @@ class Buffer(Tokenizer):
             return
 
         token = match.group()
-        # token = resolve_match(match)
+        resolved = resolve_match(match)
+        if token != resolved:
+            raise ValueError(f'No match for {pattern}: {token} != {resolved}')
         self.move(len(token))
         return token
 
