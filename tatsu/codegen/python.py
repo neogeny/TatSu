@@ -49,8 +49,8 @@ class Base(ModelRenderer):
         if not (sdefs or ldefs):
             return ''
         else:
-            sdefs = '[%s]' % ', '.join(repr(d) for d in sdefs)
-            ldefs = '[%s]' % ', '.join(repr(d) for d in ldefs)
+            sdefs = '[%s]' % ', '.join(sorted(repr(d) for d in sdefs))
+            ldefs = '[%s]' % ', '.join(sorted(repr(d) for d in ldefs))
             if not ldefs:
                 return '\n\n    self._define(%s, %s)' % (sdefs, ldefs)
             else:
@@ -524,7 +524,8 @@ class Grammar(Base):
 
                 class {name}Buffer(Buffer):
                     def __init__(self, text, /, config: ParserConfig = None, **settings):
-                        base_config = ParserConfig.new(
+                        config = ParserConfig.new(
+                            config,
                             owner=self,
                             whitespace={whitespace},
                             nameguard={nameguard},
@@ -534,14 +535,14 @@ class Grammar(Base):
                             namechars={namechars},
                             parseinfo={parseinfo},
                         )
-                        config = base_config.replace_config(config)
-                        config = config.merge(**settings)
+                        config = config.replace(**settings)
                         super().__init__(text, config=config)
 
 
                 class {name}Parser(Parser):
-                    def __init__(self, config: ParserConfig = None, **settings):
-                        base_config = ParserConfig.new(
+                    def __init__(self, /, config: ParserConfig = None, **settings):
+                        config = ParserConfig.new(
+                            config,
                             owner=self,
                             whitespace={whitespace},
                             nameguard={nameguard},
@@ -552,8 +553,7 @@ class Grammar(Base):
                             parseinfo={parseinfo},
                             keywords=KEYWORDS,
                         )
-                        config = base_config.replace_config(config)
-                        config = config.merge(**settings)
+                        config = config.replace(**settings)
                         super().__init__(config=config)
 
                 {rules}
