@@ -41,6 +41,20 @@ PY36 = _PY3 and sys.version_info[1] >= 6
 PY37 = _PY3 and sys.version_info[1] >= 7
 
 
+ESCAPE_SEQUENCE_RE = re.compile(
+    r'''
+    ( \\U........      # 8-digit Unicode escapes
+    | \\u....          # 4-digit Unicode escapes
+    | \\x..            # 2-digit Unicode escapes
+    | \\[0-7]{1,3}     # Octal character escapes
+    | \\N\{[^}]+\}     # Unicode characters by name
+    | \\[\\'"abfnrtv]  # Single-character escapes
+    )''',
+    re.UNICODE | re.VERBOSE
+)
+
+
+
 def is_posix():
     return os.name == 'posix'
 
@@ -143,22 +157,10 @@ def eval_escapes(s):
     """
     # by Rob Speer
 
-    escape_sequence_re = re.compile(
-        r'''
-        ( \\U........      # 8-digit Unicode escapes
-        | \\u....          # 4-digit Unicode escapes
-        | \\x..            # 2-digit Unicode escapes
-        | \\[0-7]{1,3}     # Octal character escapes
-        | \\N\{[^}]+\}     # Unicode characters by name
-        | \\[\\'"abfnrtv]  # Single-character escapes
-        )''',
-        re.UNICODE | re.VERBOSE
-    )
-
     def decode_match(match):
         return codecs.decode(match.group(0), 'unicode-escape')
 
-    return escape_sequence_re.sub(decode_match, s)
+    return ESCAPE_SEQUENCE_RE.sub(decode_match, s)
 
 
 def isiter(value):
