@@ -8,15 +8,14 @@ about source lines and content.
 from __future__ import annotations
 
 import os
+import re
 from itertools import takewhile, repeat
 from typing import (Any,)
 
 from .tokenizing import Tokenizer
 from .util import identity
 from .util import extend_list, contains_sublist
-from .util import re as regexp
 from .util import RETYPE, WHITESPACE_RE
-from .util.misc import findfirst
 from .exceptions import ParseError
 from .infos import (
     ParserConfig,
@@ -75,10 +74,7 @@ class Buffer(Tokenizer):
             if not isinstance(whitespace, str):
                 # a list or a set?
                 whitespace = ''.join(c for c in whitespace)
-            return regexp.compile(
-                '[%s]+' % regexp.escape(whitespace),
-                regexp.MULTILINE | regexp.UNICODE
-            )
+            return re.compile(f'(?m)[{re.escape(whitespace)}]+')
         else:
             return None
 
@@ -285,14 +281,12 @@ class Buffer(Tokenizer):
     def is_name_char(self, c):
         return c is not None and (c.isalnum() or c in self._namechar_set)
 
-    def match(self, token, ignorecase=None):
-        ignorecase = ignorecase if ignorecase is not None else self.ignorecase
-
+    def match(self, token):
         if token is None:
             return self.atend()
 
         p = self.pos
-        if ignorecase:
+        if self.ignorecase:
             is_match = self.text[p:p + len(token)].lower() == token.lower()
         else:
             is_match = self.text[p:p + len(token)] == token
@@ -318,10 +312,10 @@ class Buffer(Tokenizer):
 
     def _scanre(self, pattern):
         if isinstance(pattern, RETYPE):
-            re = pattern
+            cre = pattern
         else:
-            re = regexp.compile(pattern, regexp.MULTILINE | regexp.UNICODE)
-        return re.match(self.text, self.pos)
+            cre = re.compile(pattern, re.MULTILINE)
+        return cre.match(self.text, self.pos)
 
     @property
     def linecount(self):
