@@ -50,7 +50,6 @@ ESCAPE_SEQUENCE_RE = re.compile(
 )
 
 
-
 def is_posix():
     return os.name == 'posix'
 
