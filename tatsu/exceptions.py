@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from tatsu.util import re
+import re
 
 
 class ParseException(Exception):

@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+import re
 from typing import Any, Mapping
 from contextlib import contextmanager
 
 from tatsu.objectmodel import Node
 from tatsu.util import is_list
-from tatsu.util import re
 
 
 class NodeWalker:
