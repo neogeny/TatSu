@@ -338,7 +338,10 @@ class Constant(Model):
         self.literal = self.ast
 
     def parse(self, ctx):
-        return self.literal
+        if isinstance(self.literal, str):
+            return eval(f'{repr(self.literal)}.format(**{ctx.ast})')
+        else:
+            return self.literal
 
     def _first(self, k, f):
         return {()}

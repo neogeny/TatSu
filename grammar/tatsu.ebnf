@@ -391,7 +391,10 @@ name
 
 constant::Constant
     =
-    /`/ ~ @:literal /`/
+    '`' ~ (
+        | @:literal /`/
+        | @:/(.*?)`/
+    )
     ;
 
 
