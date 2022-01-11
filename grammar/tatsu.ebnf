@@ -1,6 +1,6 @@
 @@grammar :: Tatsu
 @@comments :: ?"(?sm)[(][*](?:.|\n)*?[*][)]"
-@@eol_comments :: ?"#[^\n]*?$"
+@@eol_comments :: ?"#[^\n]*$"
 @@parseinfo :: True
 @@left_recursion :: False
 

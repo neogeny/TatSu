@@ -5,6 +5,9 @@ from .exceptions import ParseError  # noqa
 
 
 class Tokenizer:
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
     def error(self, *args, **kwargs):
         raise ParseError(_prints(*args, **kwargs))
 

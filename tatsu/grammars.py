@@ -149,7 +149,7 @@ class Model(Node):
         return self._lookahead
 
     def lookahead_str(self):
-        return ' '.join(repr(f[0]) for f in self.lookahead() if f)
+        return ' '.join(sorted(repr(f[0]) for f in self.lookahead() if f))
 
     def firstset(self, k=1):
         if self._firstset is None:

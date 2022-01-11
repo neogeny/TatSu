@@ -137,7 +137,7 @@ class BootstrapTests(unittest.TestCase):
 
         print('-' * 20, 'phase 11 - Pickle the model and try again.')
         with open('./tmp/11.tatsu', 'wb') as f:
-            pickle.dump(g10, f, protocol=2)
+            pickle.dump(g10, f)
         with open('./tmp/11.tatsu', 'rb') as f:
             g11 = pickle.load(f)
         r11 = g11.parse(
