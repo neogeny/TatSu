@@ -12,6 +12,7 @@ import logging
 import weakref
 import enum
 import uuid
+import re
 from io import StringIO
 from collections.abc import Mapping, Iterable, MutableSequence
 from itertools import zip_longest
@@ -27,12 +28,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-try:
-    import regex as re
-    WHITESPACE_RE = re.compile(r'\p{IsPattern_White_Space}+')
-except ImportError:
-    import re  # type: ignore
-    WHITESPACE_RE = re.compile(r'(?s)\s+')
+WHITESPACE_RE = re.compile(r'(?s)\s+')
 RETYPE = type(re.compile('.'))
 
 
