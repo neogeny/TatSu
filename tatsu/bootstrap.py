@@ -33,7 +33,7 @@ class EBNFBootstrapBuffer(Buffer):
             owner=self,
             whitespace=None,
             nameguard=None,
-            comments_re='(?sm)[(][*](?:.|\n)*?[*][)]',
+            comments_re='(?sm)[(][*](?:.|\\n)*?[*][)]',
             eol_comments_re='#[^\\n]*$',
             ignorecase=False,
             namechars='',
@@ -50,8 +50,8 @@ class EBNFBootstrapParser(Parser):
             owner=self,
             whitespace=None,
             nameguard=None,
-            comments_re='(?sm)[(][*](?:.|\n)*?[*][)]',
-            eol_comments_re='#([^\\n]*?)$',
+            comments_re='(?sm)[(][*](?:.|\\n)*?[*][)]',
+            eol_comments_re='#[^\\n]*$',
             ignorecase=False,
             namechars='',
             parseinfo=True,
@@ -473,7 +473,7 @@ class EBNFBootstrapParser(Parser):
                 self._literal_()
             self._error(
                 'expecting one of: '
-                '(?!\\d)\\w+(::(?!\\d)\\w+)+ <boolean>'
+                '(?!\\d)\\w+(?:::(?!\\d)\\w+)+ <boolean>'
                 '<float> <hex> <int> <literal> <path>'
                 '<raw_string> <string> <word>'
             )
@@ -1064,7 +1064,7 @@ class EBNFBootstrapParser(Parser):
             self._error(
                 'expecting one of: '
                 "'False' 'True' 'r' (?!\\d)\\w+"
-                '0[xX](\\d|[a-fA-F])+ <STRING> <boolean>'
+                '0[xX](?:\\d|[a-fA-F])+ <STRING> <boolean>'
                 '<float> <hex> <int> <raw_string>'
                 '<string> <word> [-'
                 '+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-'
