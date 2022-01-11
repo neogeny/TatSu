@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import re
 
+from ._common import RETYPE
+
 _undefined = object()  # unique object for when None is not a good default
 
 
@@ -36,22 +38,37 @@ def first(iterable, default=_undefined):
         return default
 
 
+def resolve_match(m: re.Match, default):
+    if m is None:
+        return None
+    g = m.groups(default=default)
+    if len(g) == 1:
+        return g[0]
+    elif g:
+        return g
+    else:
+        return m.group()
+
+
 def findalliter(pattern, string, pos=None, endpos=None, flags=0):
     '''
         like finditer(), but with return values like findall()
 
         implementation taken from cpython/Modules/_sre.c/findall()
     '''
-    r = re.compile(pattern, flags=flags)
-    for m in r.finditer(pattern, string, pos=pos, endpos=endpos):
-        default = string[0:0]
-        g = m.groups(default=default)
-        if len(g) == 1:
-            yield g[0]
-        elif g:
-            yield g
-        else:
-            yield m.group()
+    default = string[0:0]
+    if isinstance(pattern, RETYPE):
+        r = pattern
+    else:
+        r = re.compile(pattern, flags=flags)
+    if endpos is not None:
+        iterator = r.finditer(string, pos=pos, endpos=endpos)
+    elif pos is not None:
+        iterator = r.finditer(string, pos=pos)
+    else:
+        iterator = r.finditer(string)
+    for m in iterator:
+        yield resolve_match(m, default)
 
 
 def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=_undefined):
