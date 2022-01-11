@@ -15,6 +15,9 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.7.3...master
 
+* Make sure that the generated parser is the same as the bootstrap parser.
+* Honor grouping in pattern expressions with the semantics of ``re.findall(pattern, text)[0]``
+
 
 `5.7.3`_ @ 2021-12-20
 ---------------------
