@@ -304,11 +304,13 @@ class Buffer(Tokenizer):
         self.goto(p)
 
     def matchre(self, pattern):
-        matched = self._scanre(pattern)
-        if matched:
-            token = matched.group()
-            self.move(len(token))
-            return token
+        match = self._scanre(pattern)
+        if not match:
+            return
+
+        token = match.group()
+        self.move(len(token))
+        return token
 
     def _scanre(self, pattern):
         if isinstance(pattern, RETYPE):
