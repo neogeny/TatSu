@@ -364,8 +364,8 @@ The expressions, in reverse order of operator precedence, can be:
     A multiline version of ```constant```.
 
 
-^```constant``` and ^`````constant`````
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^ ```constant``` and ^ `````constant`````
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     An alert. There will be no token returned by the parser, but an alert will be registed in the parse context and added to the current node's ``parseinfo``.
 
