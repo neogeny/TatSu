@@ -261,16 +261,16 @@ method:
     model = parser.parse(text, rule_name='start', semantics=MySemantics())
 
 If special lexical treatment is required (as in *80 column* languages),
-then a descendant of ``tatsu.buffering.Buffer`` can be passed instead of
+then a descendant of ``tatsu.tokenizing.Tokenizer`` can be passed instead of
 the text:
 
 .. code:: python
 
-    class MySpecialBuffer(MyLanguageBuffer):
+    class MySpecialTokenizer(Tokenizer):
         ...
 
-    buf = MySpecialBuffer(text)
-    model = parser.parse(buf, rule_name='start', semantics=MySemantics())
+    tokenizer = MySpecialTokenizer(text)
+    model = parser.parse(tokenizer, rule_name='start', semantics=MySemantics())
 
 The generated parser's module can also be invoked as a script:
 
