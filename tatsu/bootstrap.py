@@ -685,11 +685,12 @@ class EBNFBootstrapParser(Parser):
             self._error(
                 'expecting one of: '
                 "'!' '&' '(' '()' '->' '?(' '[' '{'"
-                '<atom> <call> <closure> <constant> <cut>'
-                '<cut_deprecated> <empty_closure> <eof>'
-                '<gather> <group> <join> <left_join>'
-                '<lookahead> <negative_lookahead>'
-                '<optional> <pattern> <positive_closure>'
+                '<alert> <atom> <call> <closure>'
+                '<constant> <cut> <cut_deprecated>'
+                '<empty_closure> <eof> <gather> <group>'
+                '<join> <left_join> <lookahead>'
+                '<negative_lookahead> <optional>'
+                '<pattern> <positive_closure>'
                 '<right_join> <separator> <skip_to>'
                 '<special> <token> <void>'
             )
@@ -981,6 +982,8 @@ class EBNFBootstrapParser(Parser):
             with self._option():
                 self._token_()
             with self._option():
+                self._alert_()
+            with self._option():
                 self._constant_()
             with self._option():
                 self._call_()
@@ -990,10 +993,10 @@ class EBNFBootstrapParser(Parser):
                 self._eof_()
             self._error(
                 'expecting one of: '
-                "'$' '>>' '`' '~' <call> <constant> <cut>"
-                '<cut_deprecated> <eof> <pattern>'
-                '<raw_string> <regexes> <string> <token>'
-                '<word>'
+                "'$' '>>' '`' '~' <alert> <call>"
+                '<constant> <cut> <cut_deprecated> <eof>'
+                '<pattern> <raw_string> <regexes>'
+                '<string> <token> <word> \\^+'
             )
 
     @tatsumasu('RuleRef')
@@ -1046,6 +1049,17 @@ class EBNFBootstrapParser(Parser):
                     'expecting one of: '
                     "'`' '```' `(.*?)`"
                 )
+
+    @tatsumasu('Alert')
+    def _alert_(self):  # noqa
+        self._pattern('\\^+')
+        self.name_last_node('level')
+        self._constant_()
+        self.name_last_node('message')
+        self._define(
+            ['level', 'message'],
+            []
+        )
 
     @tatsumasu('Token')
     def _token_(self):  # noqa
@@ -1355,6 +1369,9 @@ class EBNFBootstrapSemantics:
         return ast
 
     def constant(self, ast):  # noqa
+        return ast
+
+    def alert(self, ast):  # noqa
         return ast
 
     def token(self, ast):  # noqa

@@ -730,6 +730,11 @@ class ParseContext:
         self._append_cst(literal)
         return literal
 
+    def _alert(self, literal, level):
+        self._next_token()
+        self._trace_match(f'{"^" * level}`{literal}`')
+        return None
+
     def _pattern(self, pattern):
         token = self.tokenizer.matchre(pattern)
         if token is None:

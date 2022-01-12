@@ -117,9 +117,19 @@ class Token(Base):
 
 class Constant(Base):
     def render_fields(self, fields):
-        fields.update(literal=repr(self.node.literal))
+        fields.update(constant=repr(self.node.literal))
 
-    template = "self._constant({literal})"
+    template = "self._constant({constant})"
+
+
+class Alert(Base):
+    def render_fields(self, fields):
+        fields.update(
+            literal=repr(self.node.literal),
+            level=self.node.level,
+        )
+
+    template = "self._alert({literal}, {level})"
 
 
 class Pattern(Base):
