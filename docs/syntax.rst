@@ -356,12 +356,27 @@ The expressions, in reverse order of operator precedence, can be:
 
 .. code:: python
 
-            eval(f'{repr(constant)}.format(**{ast})')
+    eval(f'{repr(constant)}.format(**{ast})')
 
 `````constant`````
 ^^^^^^^^^^^^^^^^^^
 
     A multiline version of ```constant```.
+
+
+^```constant``` and ^`````constant`````
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    An alert. There will be no token returned by the parser, but an alert will be registed in the parse context and added to the current node's ``parseinfo``.
+
+    The ``^`` character may appear more than once to indicate the alert level.
+
+
+.. code::
+
+    assignment = identifier '=' (
+        | value
+        | ->'&; ^^^`could not parse value in assignment to {identifier}`
 
 
 ``rulename``
