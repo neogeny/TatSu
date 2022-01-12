@@ -45,6 +45,8 @@
 |TatSu| is a tool that takes grammars in a variation of `EBNF`_ as input, and
 outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_.
 
+Why use a PEG_ parser? Because `regularn languages`_ (those parsable with Python's ``re`` package) *"cannot count"*. Any language with nested structures or with balancing of demarcatiors requires more than regular expressions to be parsed.
+
 |TatSu| can compile a grammar stored in a string into a
 ``tatsu.grammars.Grammar`` object that can be used to parse any given
 input, much like the `re`_ module does with regular expressions, or it can generate a Python_ module that implements the parser.
@@ -271,6 +273,7 @@ requires different licensing* please `email`_.
 .. _r\_speer: https://bitbucket.org/r_speer
 .. _raw string literal: https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
 .. _re: https://docs.python.org/3.7/library/re.html
+.. _regular languages: https://en.wikipedia.org/wiki/Regular_language
 .. _regex: https://pypi.python.org/pypi/regex
 .. _siemer: https://bitbucket.org/siemer
 .. _sjbrownBitbucket: https://bitbucket.org/sjbrownBitbucket
