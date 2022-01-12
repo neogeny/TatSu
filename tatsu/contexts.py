@@ -21,6 +21,7 @@ from .util import prune_dict, is_list, info, safe_name
 from .util import left_assoc, right_assoc
 from .tokenizing import Tokenizer
 from .infos import (
+    Alert,
     MemoKey,
     ParseInfo,
     RuleInfo,
@@ -549,12 +550,13 @@ class ParseContext:
     def _get_parseinfo(self, name, pos):
         endpos = self._pos
         return ParseInfo(
-            self.tokenizer,
-            name,
-            pos,
-            endpos,
-            self.tokenizer.posline(pos),
-            self.tokenizer.posline(endpos),
+            tokenizer=self.tokenizer,
+            rule=name,
+            pos=pos,
+            endpos=endpos,
+            line=self.tokenizer.posline(pos),
+            endline=self.tokenizer.posline(endpos),
+            alerts=self.state.alerts,
         )
 
     @property
@@ -729,6 +731,12 @@ class ParseContext:
         self._trace_match(literal)
         self._append_cst(literal)
         return literal
+
+    def _alert(self, message, level):
+        self._next_token()
+        self._trace_match(f'{"^" * level}`{message}`', failed=True)
+        self.state.alerts.append(Alert(message=message, level=level))
+        return None
 
     def _pattern(self, pattern):
         token = self.tokenizer.matchre(pattern)

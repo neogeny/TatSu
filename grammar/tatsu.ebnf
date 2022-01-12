@@ -348,7 +348,7 @@ skip_to::SkipTo
 
 atom
     =
-    cut | cut_deprecated | token | constant | call | pattern | eof
+    cut | cut_deprecated | token | alert | constant | call | pattern | eof
     ;
 
 
@@ -397,6 +397,12 @@ constant::Constant
         | "`" @:literal "`"
         | /`(.*?)`/
     )
+    ;
+
+
+alert::Alert
+    =
+     level:/\^+/ message:constant
     ;
 
 

@@ -342,7 +342,7 @@ class Constant(Model):
             text = self.literal
             if '\n' in text:
                 text = trim(text)
-            return eval(f'{repr(text)}.format(**{ctx.ast})')  # pylint: disable=eval-used
+            return eval(f'{"f" + repr(text)}', {}, dict(ctx.ast))  # pylint: disable=eval-used
         else:
             return self.literal
 
@@ -350,10 +350,24 @@ class Constant(Model):
         return {()}
 
     def _to_str(self, lean=False):
-        return '`%s`' % repr(self.literal)
+        return f'`{repr(self.literal)}`'
 
     def _nullable(self):
         return True
+
+
+class Alert(Constant):
+    def __post_init__(self):
+        super().__post_init__()
+        self.literal = self.ast.message.literal
+        self.level = len(self.ast.level)
+
+    def parse(self, ctx):
+        message = super().parse(ctx)
+        return message
+
+    def _to_str(self, lean=False):
+        return f'{"^" * self.level}{super()._to_str()}'
 
 
 class Pattern(Model):
