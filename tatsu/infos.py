@@ -168,6 +168,11 @@ class CommentInfo(NamedTuple):
         return CommentInfo([], [])
 
 
+class Alert(NamedTuple):
+    level: int = 1
+    message: str = ''
+
+
 class ParseInfo(NamedTuple):
     tokenizer: Any
     rule: str
@@ -175,6 +180,7 @@ class ParseInfo(NamedTuple):
     endpos: int
     line: int
     endline: int
+    alerts: list[Alert] = []
 
     def text_lines(self):
         return self.tokenizer.get_lines(self.line, self.endline)
@@ -225,3 +231,4 @@ class ParseState:
     pos: int = 0
     ast: AST = dataclasses.field(default_factory=AST)
     cst: Any = None
+    alerts: list[Alert] = dataclasses.field(default_factory=list)
