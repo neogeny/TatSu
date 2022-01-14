@@ -20,6 +20,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 *   Allow ``{}`` interpolation in ```constant``` expressions with the semantics of ``str.format()``
 * Add `````constant````` as a multiline version of ```constant```.
 * Add ^`````constant````` and ^```constant``` as syntax for an `alert` expression. Alerts produce no tokens bug get registed in `parseinfo` records.
+* BUG: make the ``->`` skip expression always stop at EOF.
 
 
 `5.7.3`_ @ 2021-12-20

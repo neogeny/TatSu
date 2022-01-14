@@ -937,7 +937,7 @@ class ParseContext:
         return c
 
     def _skip_to(self, block):
-        while True:
+        while not self._eof():
             try:
                 with self._ifnot():
                     block()
