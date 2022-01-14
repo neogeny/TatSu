@@ -309,7 +309,7 @@ class Buffer(Tokenizer):
 
     def matchre(self, pattern):
         match = self._scanre(pattern)
-        if not match:
+        if match is None:
             return
 
         matched = match.group()
