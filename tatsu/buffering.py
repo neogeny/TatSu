@@ -16,7 +16,7 @@ from .tokenizing import Tokenizer
 from .util import identity
 from .util import extend_list, contains_sublist
 from .util import RETYPE, WHITESPACE_RE
-from .util.misc import resolve_match  # noqa, pylint: disable=unused-import
+from .util.misc import match_to_find  # noqa, pylint: disable=unused-import
 from .exceptions import ParseError
 from .infos import (
     ParserConfig,
@@ -313,9 +313,7 @@ class Buffer(Tokenizer):
             return
 
         matched = match.group()
-        token = resolve_match(match)
-        # if token != matched:
-        #     raise ValueError(f'No match for {pattern}: {token} != {matched}')
+        token = match_to_find(match)
         self.move(len(matched))
         return token
 
