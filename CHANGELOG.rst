@@ -21,6 +21,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 * Add `````constant````` as a multiline version of ```constant```.
 * Add ^`````constant````` and ^```constant``` as syntax for an `alert` expression. Alerts produce no tokens bug get registed in `parseinfo` records.
 * BUG: make the ``->`` skip expression always stop at EOF.
+* Make the ``->`` skip expression go over comments, and not log while skipping.
 
 
 `5.7.3`_ @ 2021-12-20

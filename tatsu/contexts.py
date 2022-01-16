@@ -939,9 +939,14 @@ class ParseContext:
     def _skip_to(self, block):
         while not self._eof():
             try:
-                with self._ifnot():
+                with self._if():
                     block()
-            except FailedLookahead:
+            except FailedParse:
+                pass
+            else:
                 break
-            self._next()
+            pos = self._pos
+            self._next_token()
+            if self._pos == pos:
+                self._next()
         block()
