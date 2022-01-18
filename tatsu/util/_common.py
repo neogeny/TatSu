@@ -252,10 +252,31 @@ def minjson(obj, typesfiltered=(str, list, dict)):
         return {
             name: minjson(value)
             for name, value in obj.items()
-            if value is not None and (value or not isinstance(value, typesfiltered))
+            if (
+                not name.startswith('_') and
+                value is not None and
+                (value or not isinstance(value, typesfiltered))
+            )
         }
     elif isiter(obj):
         return [minjson(e) for e in obj]
+    else:
+        return obj
+
+
+def plainjson(obj):
+    if isinstance(obj, Mapping):
+        return {
+            name: plainjson(value)
+            for name, value in obj.items()
+            if name not in {'__class__', 'parseinfo'}
+        }
+    elif isinstance(obj, (weakref.ReferenceType, weakref.ProxyType)):
+        return '@ref'
+    elif isinstance(obj, str) and obj.startswith('@'):
+        return '@ref'
+    elif isiter(obj):
+        return [plainjson(e) for e in obj]
     else:
         return obj
 
