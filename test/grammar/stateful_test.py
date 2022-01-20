@@ -61,8 +61,9 @@ class StatefulTests(unittest.TestCase):
         context = ModelContext(model.rules, whitespace='', nameguard=False)
 
         ast = model.parse(
-            '*abc', "document",
-            context=context,
+            '*abc',
+            start="document",
+            ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
             nameguard=False
@@ -71,8 +72,8 @@ class StatefulTests(unittest.TestCase):
 
         ast = model.parse(
             '*abc\n',
-            "document",
-            context=context,
+            start="document",
+            ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
             nameguard=False
@@ -81,8 +82,8 @@ class StatefulTests(unittest.TestCase):
 
         ast = model.parse(
             '*abc\n*def\n',
-            "document",
-            context=context,
+            start="document",
+            ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
             nameguard=False
@@ -91,8 +92,8 @@ class StatefulTests(unittest.TestCase):
 
         ast = model.parse(
             '**abc',
-            "document",
-            context=context,
+            start="document",
+            ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
             nameguard=False
@@ -101,8 +102,8 @@ class StatefulTests(unittest.TestCase):
 
         ast = model.parse(
             '*abc\n**def\n',
-            "document",
-            context=context,
+            start="document",
+            ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
             nameguard=False

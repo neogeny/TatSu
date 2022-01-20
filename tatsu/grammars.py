@@ -1077,17 +1077,18 @@ class Grammar(Model):
         for rule in self.rules:
             rule._follow_set = fl[rule.name]
 
-    def parse(self, text: str, /, start=None, context=None, config: ParserConfig = None, **settings):  # type: ignore # pylint: disable=arguments-differ
+    def parse(self, text: str, /, config: ParserConfig = None, ctx=None, **settings):  # type: ignore # pylint: disable=arguments-differ
         config = self.config.replace_config(config)
         config = config.replace(**settings)
-        config = config.replace(start=start)
 
-        start = start if start is not None else config.effective_rule_name()
-        start = start if start is not None else self.rules[0].name
-        config.replace(start=start)
+        start = config.effective_rule_name()
+        if start is None:
+            start = self.rules[0].name
+            config.start_rule = start
 
-        ctx = context if context else ModelContext(self.rules, config=config)
-        return ctx.parse(text, start, config=config)
+        if ctx is None:
+            ctx = ModelContext(self.rules, config=config)
+        return ctx.parse(text, config=config)
 
     def nodecount(self):
         return 1 + sum(r.nodecount() for r in self.rules)
