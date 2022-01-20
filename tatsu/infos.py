@@ -26,7 +26,7 @@ class ParserConfig:
     filename: str = ''
     encoding: str = 'utf-8'
 
-    start: str|None = None  # FIXME
+    start: str = 'start'  # FIXME
     start_rule: str|None = None  # FIXME
 
     comments_re: str|None = COMMENTS_RE

@@ -210,10 +210,9 @@ class ParseContext:
         if not self._furthest_exception or e.pos > self._furthest_exception.pos:
             self._furthest_exception = e
 
-    def parse(self, text, /, start='start', config: ParserConfig = None, **settings):
+    def parse(self, text, /, config: ParserConfig = None, **settings):
         config = self.config.replace_config(config)
         config = config.replace(**settings)
-        config = config.replace(start=start)
         self._active_config = config
 
         self._reset(config)
@@ -225,7 +224,7 @@ class ParseContext:
         else:
             raise ParseError('No tokenizer or text')
         self._tokenizer = tokenizer
-        start = start or self.active_config.effective_rule_name()
+        start = self.active_config.effective_rule_name() or 'start'
 
         try:
             rule = self._find_rule(start)
