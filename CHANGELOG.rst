@@ -16,7 +16,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.7.3...master
 
 * Make sure that the generated parser is the same as the bootstrap parser.
-* Honor grouping in pattern expressions with the semantics of ``re.findall(pattern, text)[0]``
+* Honor grouping in pattern expressions with the semantics of ``re.findall(pattern, text)[0]``.  Now groups that should not be returned when parsing should use the ``(?:)`` syntax. Now patterns align with Python_ ``re`` independently of the ``@@ignorecase`` setting for the grammar.
 *   Allow ``{}`` interpolation in ```constant``` expressions with the semantics of ``str.format()``
 * Add `````constant````` as a multiline version of ```constant```.
 * Add ^`````constant````` and ^```constant``` as syntax for an `alert` expression. Alerts produce no tokens bug get registed in `parseinfo` records.
