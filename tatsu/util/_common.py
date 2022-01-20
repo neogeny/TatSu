@@ -14,7 +14,7 @@ import enum
 import uuid
 import re
 from io import StringIO
-from collections.abc import Mapping, Iterable, MutableSequence
+from typing import Iterable, Mapping, MutableSequence
 from itertools import zip_longest
 from pathlib import Path
 import os.path
@@ -95,6 +95,16 @@ def to_list(o):
         return o
     else:
         return [o]
+
+
+def is_namedtuple(obj) -> bool:
+    return (
+        len(type(obj).__bases__) == 1 and
+        isinstance(obj, tuple) and
+        hasattr(obj, '_asdict') and
+        hasattr(obj, '_fields') and
+        all(isinstance(f, str) for f in getattr(obj, '_fields'))
+    )
 
 
 def simplify_list(x):
@@ -215,7 +225,7 @@ def timestamp():
     return '.'.join('%2.2d' % t for t in datetime.datetime.utcnow().utctimetuple()[:-2])
 
 
-def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements
+def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements,too-many-branches
     if isinstance(obj, Mapping) or isiter(obj):
         # prevent traversal of recursive structures
         if seen is None:
@@ -228,6 +238,8 @@ def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements
         return f'@0x{hex(id(obj)).upper()[2:]}'
     elif hasattr(obj, '__json__'):
         return obj.__json__()
+    elif is_namedtuple(obj):
+        return asjson(obj._asdict(), seen=seen)
     elif isinstance(obj, Mapping):
         result = {}
         for k, v in obj.items():
