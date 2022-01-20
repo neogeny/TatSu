@@ -26,7 +26,7 @@ class ParserConfig:
     filename: str = ''
     encoding: str = 'utf-8'
 
-    start: str = 'start'  # FIXME
+    start: str|None = None  # FIXME
     start_rule: str|None = None  # FIXME
 
     comments_re: str|None = COMMENTS_RE
@@ -142,7 +142,7 @@ class PosLine(NamedTuple):
 
 
 class LineIndexInfo(NamedTuple):
-    filaneme: str
+    filename: str
     line: int
 
     @staticmethod
