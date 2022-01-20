@@ -45,6 +45,11 @@ class Node:
             except AttributeError:
                 raise AttributeError("'%s' is a reserved name" % name)
 
+        self._adopt_children()
+
+    def _adopt_children(self):
+        self.children_list()
+
     @property
     def parent(self):
         return self._parent
