@@ -23,6 +23,8 @@ class Node:
 
     def __init__(self, ast=None, **attributes):
         super().__init__()
+        if isinstance(ast, dict):
+            ast = AST(ast)
         self.ast = ast
 
         for name, value in attributes.items():
@@ -158,6 +160,8 @@ class Node:
         if self.ast is not None:
             if isinstance(self.ast, list):
                 return hash(tuple(self.ast))
+            elif isinstance(self.ast, dict):
+                return hash(AST(self.ast))
             else:
                 return hash(self.ast)
         else:
