@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 import io
 from contextlib import contextmanager
 
@@ -8,31 +9,24 @@ from ..util import trim
 
 class IndentPrintMixin:
     def __init__(self, indent=4):
-        self._indent_amount = indent
-        self._indent_level = 0
-
-    @property
-    def indent_amount(self):
-        return self._indent_amount
-
-    @property
-    def indent_level(self):
-        return self._indent_level
+        self.indent_amount = indent
+        self.indent_level = 0
+        self.output_stream = sys.stdout
 
     @property
     def current_indentation(self):
-        return ' ' * self._indent_amount * self._indent_level
+        return ' ' * self.indent_amount * self.indent_level
 
     @contextmanager
     def indent(self):
-        self._indent_level += 1
+        self.indent_level += 1
         try:
             yield
         finally:
-            self._indent_level -= 1
+            self.indent_level -= 1
 
     def _do_print(self, line: str = ''):
-        print((self.current_indentation + line).rstrip())
+        print((self.current_indentation + line).rstrip(), file=self.output_stream)
 
     def print(self, *args, **kwargs):
         kwargs.pop('file', None)  # do not allow redirection of output
