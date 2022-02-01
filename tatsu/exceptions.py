@@ -119,6 +119,9 @@ class FailedCut(FailedParse):
     def message(self):
         return self.nested.message
 
+    def __reduce__(self):
+        return type(self), (self.nested,)
+
 
 class FailedChoice(FailedParse):
     @property
