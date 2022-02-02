@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 from collections.abc import Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import weakref
 
 from .util import asjson, asjsons
@@ -16,7 +16,7 @@ BASE_CLASS_TOKEN = '::'
 @dataclass(eq=False)
 class Node:
     _parent: Node|None = None
-    _children: list[Node] = field(default_factory=list)
+    _children: list[Node]|None = None
     ast: AST|None = None
     ctx: Any = None
     parseinfo: ParseInfo|None = None
