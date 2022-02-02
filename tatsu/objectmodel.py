@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Any
-from functools import cache
 from collections.abc import Mapping
 from dataclasses import dataclass
 import weakref
@@ -26,6 +25,7 @@ class Node:
         if isinstance(ast, dict):
             ast = AST(ast)
         self.ast = ast
+        self._children = None
 
         for name, value in attributes.items():
             setattr(self, name, value)
@@ -47,10 +47,7 @@ class Node:
             except AttributeError:
                 raise AttributeError("'%s' is a reserved name" % name)
 
-        self._adopt_children()
-
-    def _adopt_children(self):
-        self.children_list()
+        self._children = self.children_list()
 
     @property
     def parent(self):
@@ -104,7 +101,7 @@ class Node:
         # use this to get the actual object over weakref instances
         return self
 
-    def _children(self):
+    def _find_children(self):
         def with_parent(node):
             node._parent = self
             return node
@@ -115,7 +112,11 @@ class Node:
             elif isinstance(child, Node):
                 yield with_parent(child)
             elif isinstance(child, Mapping):
-                yield from (with_parent(c) for c in child.values() if isinstance(c, Node))
+                yield from (
+                    with_parent(value)
+                    for name, value in child.items()
+                    if isinstance(value, Node) and not name.startswith('_')
+                )
             elif isinstance(child, (list, tuple)):
                 yield from (with_parent(c) for c in child if isinstance(c, Node))
 
@@ -123,14 +124,16 @@ class Node:
         if not children:
             yield from children_of(self.ast)
         else:
-            for _, child in children:
+            for name, child in children:
+                if name.startswith('_'):
+                    continue
                 yield from children_of(child)
 
-    @cache
     def children_list(self):
-        return list(self._children())
+        if self._children is not None:
+            return self._children
+        return list(self._find_children())
 
-    @cache
     def children_set(self):
         return set(self.children_list())
 
