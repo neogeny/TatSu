@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import weakref
 
 from .util import asjson, asjsons
@@ -16,6 +16,7 @@ BASE_CLASS_TOKEN = '::'
 @dataclass(eq=False)
 class Node:
     _parent: Node|None = None
+    _children: list[Node] = field(default_factory=list)
     ast: AST|None = None
     ctx: Any = None
     parseinfo: ParseInfo|None = None
@@ -25,7 +26,6 @@ class Node:
         if isinstance(ast, dict):
             ast = AST(ast)
         self.ast = ast
-        self._children = None
 
         for name, value in attributes.items():
             setattr(self, name, value)
