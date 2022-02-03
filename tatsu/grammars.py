@@ -402,6 +402,10 @@ class Pattern(Model):
             else:
                 regex = f'/{pat}/'
             parts.append(regex)
+        parts = [
+            '\n'.join(s.lstrip() for s in p.splitlines(False))
+            for p in parts
+        ]
         return '\n+ '.join(parts)
 
     def _nullable(self):
