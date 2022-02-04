@@ -44,8 +44,7 @@ def processing_loop(process, filenames, *args, verbose=False, exitfirst=False, *
     start_time = time.time()
     try:
         results = process_in_parallel(filenames, process, *args, **kwargs)
-        results = results or []
-        for _, result in enumerate(results, start=1):
+        for result in results:
             if result is None:
                 continue
             all_results.append(result)
@@ -91,7 +90,7 @@ def process_payload(process, task, pickable=identity, **kwargs):
 
 
 def _executor_pmap(executor, process, tasks):
-    nworkers = max(1, cpu_count())
+    nworkers = max(1, cpu_count() - 1)
     n = nworkers * 8
     chunks = [tasks[i:i + n] for i in range(0, len(tasks), n)]
     for chunk in chunks:
@@ -110,7 +109,7 @@ def _process_pmap(process, tasks):
 
 
 def _imap_pmap(process, tasks):
-    nworkers = max(1, cpu_count())
+    nworkers = max(1, cpu_count() - 1)
 
     n = nworkers * 4
     chunks = [tasks[i:i + n] for i in range(0, len(tasks), n)]
@@ -126,7 +125,17 @@ def _imap_pmap(process, tasks):
                 raise
 
 
-_pmap = _imap_pmap
+def _imap_pmap_ng(process, tasks):
+    nworkers = max(1, cpu_count() - 1)
+    size = 16
+    with Pool(processes=nworkers, maxtasksperchild=size) as pool:
+        try:
+            yield from pool.imap_unordered(process, tasks, chunksize=2 * size)
+        except KeyboardInterrupt:
+            raise
+
+
+_pmap = _imap_pmap_ng
 
 
 def process_in_parallel(payloads, process, *args, **kwargs):
@@ -139,10 +148,10 @@ def process_in_parallel(payloads, process, *args, **kwargs):
 
     try:
         if len(tasks) == 1:
-            return [process(tasks[0])]
+            yield from [process(tasks[0])]
         else:
             pmap = _pmap if parallel else map
-            return pmap(process, tasks)
+            yield from pmap(process, tasks)
     except KeyboardInterrupt:
         raise
 
