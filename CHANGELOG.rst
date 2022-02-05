@@ -23,6 +23,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 * BUG: make the ``->`` skip expression always stop at EOF.
 * Make the ``->`` skip expression go over comments, and not log while skipping.
 * Patch problem with pickling ``FailedCut`` while running parsing in parallel.
+* Optimize model pickling and parallel processing detains to reduce runtime and memory use with ``parproc``
 
 
 `5.7.3`_ @ 2021-12-20
