@@ -37,6 +37,7 @@ class ParprocResult:
 
 
 def processing_loop(process, filenames, *args, verbose=False, exitfirst=False, **kwargs):
+    all_results = []
     results_count = 0
     success_count = 0
     total = len(filenames)
@@ -47,7 +48,8 @@ def processing_loop(process, filenames, *args, verbose=False, exitfirst=False, *
         for result in results:
             if result is None:
                 continue
-            results_count += 1
+            all_results.append(result)
+            results_count = len(all_results)
 
             total_time = time.time() - start_time
             file_process_progress(result, results_count, success_count, total, total_time, verbose=verbose)
