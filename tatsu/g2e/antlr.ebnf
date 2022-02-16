@@ -8,6 +8,7 @@
 
 @@comments :: ?'/\*(?:.|\n)*?\*/'
 @@eol_comments :: ?'//[^\n]*?\n'
+@@namechars:: '_'
 
 
 start
@@ -31,7 +32,7 @@ grammar
 
 options
     =
-    'options'  '{' {option}+ '}' ~
+    'options' ~ '{' ~ {option}+ '}' ~
     ;
 
 option
@@ -128,7 +129,7 @@ alternatives
 
 alternative
     =
-    @:elements ['->'  rewrite]
+    @:elements ['->' ~ rewrite]
     ;
 
 elements
@@ -138,7 +139,7 @@ elements
 
 element
     =
-      named
+    | named
     | predicate_or_action
     | optional
     | closure
@@ -148,13 +149,14 @@ element
 
 named
     =
-    name:id (force_list:'+='| '=')   exp:atom
+    name:id (force_list:'+='| '=') ~  exp:atom
     ;
 
 
 predicate_or_action
     =
-      gated_predicate
+    | syntactic_predicate
+    | gated_predicate
     | semantic_predicate
     | semantic_action
     ;
@@ -172,7 +174,7 @@ semantic_predicate
 
 semantic_action
     =
-    '{'
+    '{' ~
         {
             semantic_action
         |
@@ -188,12 +190,7 @@ syntactic_predicate
 
 optional
     =
-    (
-        '(' @:alternatives ')'
-    |
-        @:(closure|positive_closure|atom)
-    )
-    '?' ~
+    @:(closure|positive_closure|atom) '?' ~
     ;
 
 closure
@@ -209,12 +206,11 @@ positive_closure
 atom
     =
     @:(
+    | subexp
     | eof
     | newranges
     | negative
     | regexp
-    | syntactic_predicate
-    | subexp
     | terminal
     | non_terminal
     )
@@ -368,7 +364,7 @@ rewrite
 rewrite_term
     =
       '^(' {rewrite_term}+ ')'
-    | ?/[^|;^)]*/?
+    | /[^|;^]*/
     ;
 
 rule_ref
@@ -399,7 +395,7 @@ id
 
 name
     =
-    ?/[a-zA-Z][A-Za-z0-9_]*/?
+    /(?i)[a-z][\w_]*/
     ;
 
 lower_name
