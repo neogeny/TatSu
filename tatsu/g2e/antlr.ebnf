@@ -8,6 +8,7 @@
 
 @@comments :: ?'/\*(?:.|\n)*?\*/'
 @@eol_comments :: ?'//[^\n]*?\n'
+@@namechars:: '_'
 
 
 start
@@ -128,7 +129,7 @@ alternatives
 
 alternative
     =
-    @:elements ['->'  rewrite]
+    @:elements ['->' ~ rewrite]
     ;
 
 elements
@@ -148,7 +149,7 @@ element
 
 named
     =
-    name:id (force_list:'+='| '=')   exp:atom
+    name:id (force_list:'+='| '=') ~  exp:atom
     ;
 
 
@@ -172,7 +173,7 @@ semantic_predicate
 
 semantic_action
     =
-    '{'
+    '{' ~
         {
             semantic_action
         |
@@ -189,7 +190,7 @@ syntactic_predicate
 optional
     =
     (
-        '(' @:alternatives ')'
+        '(' ~ @:alternatives ')'
     |
         @:(closure|positive_closure|atom)
     )
@@ -368,7 +369,7 @@ rewrite
 rewrite_term
     =
       '^(' {rewrite_term}+ ')'
-    | ?/[^|;^)]*/?
+    | /[^|;^]*/
     ;
 
 rule_ref
@@ -399,7 +400,7 @@ id
 
 name
     =
-    ?/[a-zA-Z][A-Za-z0-9_]*/?
+    /(?i)[a-z][\w_]*/
     ;
 
 lower_name
