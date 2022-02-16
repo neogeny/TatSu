@@ -32,7 +32,8 @@ def translate(text=None, filename=None, name=None, encoding='utf-8', trace=False
         name=name,
         filename=filename,
         semantics=semantics,
-        trace=trace
+        trace=trace,
+        colorize=True,
     )
     print(model)
 

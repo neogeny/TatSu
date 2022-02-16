@@ -32,7 +32,7 @@ grammar
 
 options
     =
-    'options'  '{' {option}+ '}' ~
+    'options' ~ '{' ~ {option}+ '}' ~
     ;
 
 option
@@ -139,7 +139,7 @@ elements
 
 element
     =
-      named
+    | named
     | predicate_or_action
     | optional
     | closure
@@ -155,7 +155,8 @@ named
 
 predicate_or_action
     =
-      gated_predicate
+    | syntactic_predicate
+    | gated_predicate
     | semantic_predicate
     | semantic_action
     ;
@@ -189,12 +190,7 @@ syntactic_predicate
 
 optional
     =
-    (
-        '(' ~ @:alternatives ')'
-    |
-        @:(closure|positive_closure|atom)
-    )
-    '?' ~
+    @:(closure|positive_closure|atom) '?' ~
     ;
 
 closure
@@ -210,12 +206,11 @@ positive_closure
 atom
     =
     @:(
+    | subexp
     | eof
     | newranges
     | negative
     | regexp
-    | syntactic_predicate
-    | subexp
     | terminal
     | non_terminal
     )
