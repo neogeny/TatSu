@@ -118,6 +118,20 @@ The expressions, in reverse order of operator precedence, can be:
             | bool
             ;
 
+There are also options in optional statements, because ``[foo]`` is equivalent to
+``(foo|())``.
+
+There are options also in closures, because of similar equivalencies, so the following rule will fail if ``expression`` is not parsed after an ``=`` is parsed:
+
+.. code::
+
+        parameters
+            =
+            ','.{name '=' ~ expression}
+            ;
+
+The ``~`` expression applies only withn the rule in which it's present. It's effects will not escape to to the context of invoking rules.
+
 
 ``s%{ e }+``
 ^^^^^^^^^^^^

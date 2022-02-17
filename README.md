@@ -30,7 +30,7 @@ def WARNING():
 
 竜 **TatSu** is a tool that takes grammars in a variation of [EBNF](http://en.wikipedia.org/wiki/Ebnf) as input, and outputs [memoizing](http://en.wikipedia.org/wiki/Memoization) ([Packrat](http://bford.info/packrat/)) [PEG](http://en.wikipedia.org/wiki/Parsing_expression_grammar) parsers in [Python](http://python.org).
 
-Why use a [PEG](http://en.wikipedia.org/wiki/Parsing_expression_grammar) parser? Because [regularn languages]() (those parsable with Python's `re` package) *"cannot count"*. Any language with nested structures or with balancing of demarcatiors requires more than regular expressions to be parsed.
+Why use a [PEG](http://en.wikipedia.org/wiki/Parsing_expression_grammar) parser? Because [regular languages](https://en.wikipedia.org/wiki/Regular_language) (those parsable with Python's `re` package) *"cannot count"*. Any language with nested structures or with balancing of demarcatiors requires more than regular expressions to be parsed.
 
 竜 **TatSu** can compile a grammar stored in a string into a `tatsu.grammars.Grammar` object that can be used to parse any given input, much like the [re](https://docs.python.org/3.7/library/re.html) module does with regular expressions, or it can generate a [Python](http://python.org) module that implements the parser.
 

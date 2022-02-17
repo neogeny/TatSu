@@ -604,6 +604,7 @@ class ParseContext:
 
     def _call(self, ruleinfo):
         self._rule_stack += [ruleinfo]
+        self._cut_stack += [False]
         pos = self._pos
         try:
             self._trace_entry()
@@ -628,6 +629,7 @@ class ParseContext:
             self._trace_failure(e)
             raise
         finally:
+            self._cut_stack.pop()
             self._rule_stack.pop()
 
     def _clear_recursion_errors(self):
@@ -778,7 +780,7 @@ class ParseContext:
     @contextmanager
     def _option(self):
         self.last_node = None
-        self._cut_stack.append(False)
+        self._cut_stack += [False]
         try:
             with self._try():
                 yield
