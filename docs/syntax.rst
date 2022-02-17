@@ -121,7 +121,7 @@ The expressions, in reverse order of operator precedence, can be:
 There are also options in optional expressions, because ``[foo]`` is equivalent to
 ``(foo|())``.
 
-There are options also in closures, because of a similar equivalency, so the following rule will fail if ``expression`` is not parsed after an ``=`` is parsed, while the version without the ``~`` would succeed over a partial parse of all the ``name '=' expression``:
+There are options also in closures, because of a similar equivalency, so the following rule will fail if ``expression`` is not parsed after an ``=`` is parsed, while the version without the ``~`` would succeed over a partial parse of the ``name '=' expression`` ahead in the input:
 
 .. code::
 
