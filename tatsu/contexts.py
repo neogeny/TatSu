@@ -11,6 +11,7 @@ from tatsu.util.unicode_characters import (
     C_SUCCESS,
     C_FAILURE,
     C_RECURSION,
+    C_CUT,
 )
 from . import tokenizing
 from . import buffering
@@ -420,6 +421,7 @@ class ParseContext:
         return self._cut_stack[-1]
 
     def _cut(self):
+        self._trace_cut()
         self._cut_stack[-1] = True
 
         # Kota Mizushima et al say that we can throw away
@@ -510,6 +512,9 @@ class ParseContext:
     def _trace_recursion(self):
         self._trace_event(color.Fore.RED + color.Style.BRIGHT + C_RECURSION)
 
+    def _trace_cut(self):
+        self._trace_event(color.Fore.MAGENTA + color.Style.BRIGHT + C_CUT)
+
     def _trace_match(self, token, name=None, failed=False):
         if self.trace:
             fname = ''
@@ -599,6 +604,7 @@ class ParseContext:
 
     def _call(self, ruleinfo):
         self._rule_stack += [ruleinfo]
+        self._cut_stack += [False]
         pos = self._pos
         try:
             self._trace_entry()
@@ -623,6 +629,7 @@ class ParseContext:
             self._trace_failure(e)
             raise
         finally:
+            self._cut_stack.pop()
             self._rule_stack.pop()
 
     def _clear_recursion_errors(self):
@@ -773,7 +780,7 @@ class ParseContext:
     @contextmanager
     def _option(self):
         self.last_node = None
-        self._cut_stack.append(False)
+        self._cut_stack += [False]
         try:
             with self._try():
                 yield
