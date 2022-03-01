@@ -25,7 +25,6 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 * Patch problem with pickling ``FailedCut`` while running parsing in parallel.
 * Optimize model pickling and parallel processing to reduce runtime and memory use with ``parproc``
 * Add a representation of ``~`` cut expressions to parse traces
-* The effects of the ``~`` cut expression are now local to the rule in which they are present. Allowing cuts to escape a rule is sometimes useful, but may lead to grammar bugs that are difficult to resolve (`@gvanrossum`_)
 
 
 `5.7.3`_ @ 2021-12-20

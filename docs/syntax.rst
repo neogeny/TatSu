@@ -104,10 +104,9 @@ The expressions, in reverse order of operator precedence, can be:
 
 ``~``
 ^^^^^
-    The *cut* expression. Commit to the current option and prevent other options from being considered even if what follows fails to parse.
+    The *cut* expression. Commit to the current active option and prevent other options from being considered even if what follows fails to parse.
 
-    In this example, other options won't be considered if a
-    parenthesis is parsed:
+    In this example, other options won't be considered if a parenthesis is parsed:
 
 .. code::
 
@@ -129,8 +128,6 @@ There are options also in closures, because of a similar equivalency, so the fol
             =
             ','.{name '=' ~ expression}
             ;
-
-The ``~`` expression applies only withn the rule in which it's present. It's effects will not escape to to the context of invoking rules.
 
 
 ``s%{ e }+``
