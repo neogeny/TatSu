@@ -13,11 +13,16 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2022
 ---------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.7.3...master
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.8.0...master
+
+`5.8.0`_ @ 2022-03-12
+---------------------
+.. _`5.8.0`: https://github.com/apalala/tatsu/compare/v5.7.3...v5.8.0
 
 * Make sure that the generated parser is the same as the bootstrap parser.
-* Honor grouping in pattern expressions with the semantics of ``re.findall(pattern, text)[0]``.  Now groups that should not be returned when parsing should use the ``(?:)`` syntax. Now patterns align with Python_ ``re`` independently of the ``@@ignorecase`` setting for the grammar.
-*   Allow ``{}`` interpolation in ```constant``` expressions with the semantics of ``str.format()``
+* Honor grouping in pattern expressions with the semantics of ``re.findall(pattern, text)[0]``.  Now groups that should not be returned when parsing should use the ``(?:)`` syntax.
+* Now patterns align with Python_ ``re`` independently of the ``@@ignorecase`` setting for the grammar.
+* Allow ``{}`` interpolation in ```constant``` expressions with the semantics of ``str.format()``
 * Add `````constant````` as a multiline version of ```constant```.
 * Add ^`````constant````` and ^```constant``` as syntax for an `alert` expression. Alerts produce no tokens bug get registed in `parseinfo` records.
 * BUG: make the ``->`` skip expression always stop at EOF.
