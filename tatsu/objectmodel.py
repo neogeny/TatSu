@@ -48,6 +48,8 @@ class Node:
                 raise AttributeError("'%s' is a reserved name" % name)
 
         self._children = self.children_list()
+        if self.parseinfo is None:
+            del self.parseinfo
 
     @property
     def parent(self):
