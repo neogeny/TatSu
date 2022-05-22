@@ -1077,7 +1077,7 @@ class Grammar(Model):
         for rule in self.rules:
             rule._follow_set = fl[rule.name]
 
-    def parse(self, text: str, /, config: ParserConfig = None, ctx=None, **settings):  # type: ignore # pylint: disable=arguments-differ
+    def parse(self, text: str, /, config: ParserConfig = None, ctx=None, **settings):  # type: ignore # pylint: disable=arguments-differ,arguments-renamed
         config = self.config.replace_config(config)
         config = config.replace(**settings)
 
