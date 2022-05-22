@@ -4,7 +4,7 @@ Contributors
 ------------
 
 The following, among others, have contributed to |TatSu| with
-features, but reports, bug fixes, or suggestions:
+features, bug reports, bug fixes, or suggestions:
 
     `Alberto Berti`_,
     `Andy Wright`_,
