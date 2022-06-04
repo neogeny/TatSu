@@ -28,9 +28,6 @@ class AST(dict):
     def set_parseinfo(self, value):
         super().__setitem__('parseinfo', value)
 
-    def copy(self):
-        return self.__copy__()
-
     def asjson(self):
         return asjson(self)
 
@@ -54,6 +51,8 @@ class AST(dict):
 
     def __copy__(self):
         return AST(self)
+
+    copy = __copy__
 
     def __getitem__(self, key):
         if key in self:
