@@ -165,7 +165,7 @@ disable=
     # c-extension-no-member,  # I1101
     # literal-comparison,  # R0123
     # comparison-with-itself,  # R0124
-    no-self-use,  # R0201
+    # no-self-use,  # R0201
     # no-classmethod-decorator,  # R0202
     # no-staticmethod-decorator,  # R0203
     # useless-object-inheritance,  # R0205
