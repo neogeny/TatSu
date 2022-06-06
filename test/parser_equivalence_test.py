@@ -1,11 +1,9 @@
-
-import importlib
-from pathlib import Path
+import types
 
 import pytest  # noqa
 
+import tatsu
 from tatsu.exceptions import FailedParse
-from tatsu.tool import compile, gencode
 
 INPUT = """
     1d3
@@ -42,37 +40,19 @@ GRAMMAR = """
 
 
 def generate_and_load_parser(name, grammar):
-    init_filename = Path('./tmp/__init__')
-    init_filename.touch(exist_ok=True)
-
-    parser = gencode(name='Test', grammar=grammar)
-    parser_filename = Path(f'./tmp/{name}.py')
-    with open(parser_filename, 'wt') as f:
-        f.write(parser)
-    try:
-        importlib.invalidate_caches()
-        module = importlib.import_module(f'tmp.{name}', 'tmp')
-        importlib.reload(module)
-        try:
-            return module.UnknownParser()  # noqa
-        except (AttributeError, ImportError):
-            return module.TestParser()  # noqa
-    finally:
-        pass
-        # parser_filename.unlink()
+    code = tatsu.to_python_sourcecode(grammar, name='Test')
+    module = types.ModuleType(name)
+    module.__file__ = '<generated>'
+    exec(compile(code, module.__file__, 'exec'), module.__dict__)
+    return module.TestParser()  # noqa
 
 
 def test_model_parse():
-    model = compile(name='Test', grammar=GRAMMAR)
+    model = tatsu.compile(name='Test', grammar=GRAMMAR)
     assert OUTPUT == model.parse(INPUT)
 
 
 def test_codegen_parse():
-    tmp_dir = Path('./tmp')
-    tmp_dir.mkdir(parents=True, exist_ok=True)
-    init_filename = Path('./tmp/__init__.py')
-    init_filename.touch(exist_ok=True)
-
     parser = generate_and_load_parser('test_codegen_parse', GRAMMAR)
     output = parser.parse(INPUT, parseinfo=False)
     assert output == OUTPUT
@@ -91,7 +71,7 @@ def test_error_messages():
     input = 'a b'
 
     e1 = None
-    model = compile(grammar)
+    model = tatsu.compile(grammar)
     try:
         model.parse(input)
     except FailedParse as e:  # noqa
@@ -120,7 +100,7 @@ def test_name_checked():
         with pytest.raises(FailedParse):
             parser.parse('IF if 1', trace=False)
 
-    parser = compile(grammar, 'Test')
+    parser = tatsu.compile(grammar, 'Test')
     subtest(parser)
     parser = generate_and_load_parser('test_name_checked', grammar)
     subtest(parser)
