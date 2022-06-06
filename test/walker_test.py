@@ -1,5 +1,3 @@
-from __future__ import generator_stop
-
 import json
 from collections import defaultdict
 
