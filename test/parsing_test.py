@@ -59,22 +59,35 @@ class ParsingTests(unittest.TestCase):
         self.assertEqual('\nañez', eval_escapes(r'\na\xf1ez'))
         self.assertEqual('\nañez', eval_escapes(r'\nañez'))
 
-    def test_rule_name(self):
+    def test_start(self):
         grammar = '''
             @@grammar :: Test
 
-            start = test $;
-            test = "test";
+            true = "test" @:`True` $;
+            false = "test" @:`False` $;
+
         '''
         model = tatsu.compile(grammar=grammar)
         self.assertEqual('Test', model.directives.get('grammar'))
         self.assertEqual('Test', model.name)
 
+        # By default, parsing starts from the first rule in the grammar.
         ast = model.parse("test")
-        self.assertEqual(ast, "test")
+        self.assertEqual(ast, True)
 
-        ast = tatsu.parse(grammar, "test", rule_name='start')
-        self.assertEqual(ast, "test")
+        # The start rule can be passed explicitly.
+        ast = model.parse("test", start='true')
+        self.assertEqual(ast, True)
+        # Backward compatibility argument name.
+        ast = model.parse("test", rule_name='true')
+        self.assertEqual(ast, True)
+
+        # The default rule can be overwritten.
+        ast = tatsu.parse(grammar, "test", start='false')
+        self.assertEqual(ast, False)
+        # Backward compatibility argument name.
+        ast = tatsu.parse(grammar, "test", rule_name='false')
+        self.assertEqual(ast, False)
 
     def test_rule_capitalization(self):
         grammar = '''
