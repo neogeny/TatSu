@@ -1434,7 +1434,7 @@ def main(filename, start=None, **kwargs):
     parser = EBNFBootstrapParser()
     return parser.parse(
         text,
-        rule_name=start,
+        start=start,
         filename=filename,
         **kwargs
     )

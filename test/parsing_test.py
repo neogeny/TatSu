@@ -97,13 +97,13 @@ class ParsingTests(unittest.TestCase):
         test_string = 'test 12'
         lowercase_rule_names = ['nocaps', 'camelCase', 'tEST']
         uppercase_rule_names = ['Capitalized', 'CamelCase', 'TEST']
-        ref_lowercase_result = tatsu.parse(grammar.format(rulename='reflowercase'), test_string, rule_name='start')
-        ref_uppercase_result = tatsu.parse(grammar.format(rulename='Refuppercase'), test_string, rule_name='start')
+        ref_lowercase_result = tatsu.parse(grammar.format(rulename='reflowercase'), test_string)
+        ref_uppercase_result = tatsu.parse(grammar.format(rulename='Refuppercase'), test_string)
         for rulename in lowercase_rule_names:
-            result = tatsu.parse(grammar.format(rulename=rulename), test_string, rule_name='start')
+            result = tatsu.parse(grammar.format(rulename=rulename), test_string)
             self.assertEqual(result, ref_lowercase_result)
         for rulename in uppercase_rule_names:
-            result = tatsu.parse(grammar.format(rulename=rulename), test_string, rule_name='start')
+            result = tatsu.parse(grammar.format(rulename=rulename), test_string)
             self.assertEqual(result, ref_uppercase_result)
 
     def test_startrule_issue62(self):
