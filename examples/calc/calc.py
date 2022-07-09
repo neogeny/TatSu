@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import generator_stop
-
 import json
 from pprint import pprint
 
