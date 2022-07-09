@@ -237,7 +237,7 @@ class Grammar(ModelRenderer):
                             t for t in globals().values()
                             if type(t) is type and issubclass(t, ModelBase)
                         ] + (types or [])
-                        super({name}ModelBuilderSemantics, self).__init__(context=context, types=types)
+                        super().__init__(context=context, types=types)
 
                 {base_class_declarations}
                 {model_class_declarations}
