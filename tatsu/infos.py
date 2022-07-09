@@ -28,7 +28,7 @@ class ParserConfig:
 
     start: str|None = None  # FIXME
     start_rule: str|None = None  # FIXME
-    rule_name: str|None = None # Backward compatibility
+    rule_name: str|None = None  # Backward compatibility
 
     comments_re: str|None = COMMENTS_RE
     eol_comments_re: str|None = EOL_COMMENTS_RE

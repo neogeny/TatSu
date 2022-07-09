@@ -135,7 +135,7 @@ def test_first_rule():
     '''
     parser = compile(grammar, 'Test')
     ast = parser.parse('test')
-    assert ast == True
+    assert ast is True
     parser = generate_and_load_parser('test_first_rule', grammar)
     ast = parser.parse('test')
-    assert ast == True
+    assert ast is True
