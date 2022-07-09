@@ -113,7 +113,7 @@ def test_first_rule():
         true = 'test' @: `True` $ ;
         start = 'test' @: `False` $ ;
     '''
-    parser = compile(grammar, 'Test')
+    parser = tatsu.compile(grammar, 'Test')
     ast = parser.parse('test')
     assert ast is True
     parser = generate_and_load_parser('test_first_rule', grammar)
