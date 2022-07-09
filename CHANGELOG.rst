@@ -15,6 +15,8 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.8.0...master
 
+* A non-empty ``__init__`` method has been added to the ``NodeWalker`` class definition. Subclasses that define an ``__init__`` method should be updated to make sure they call the parent class ``__init__`` method.
+
 `5.8.0`_ @ 2022-03-12
 ---------------------
 .. _`5.8.0`: https://github.com/apalala/tatsu/compare/v5.7.3...v5.8.0

@@ -9,9 +9,8 @@ from tatsu.util import is_list
 
 
 class NodeWalker:
-    def __new__(cls, *args, **kwargs):
-        cls._walker_cache = {}
-        return super(NodeWalker, cls).__new__(cls)
+    def __init__(self):
+        self._walker_cache = {}
 
     def walk(self, node: Node|list[Node], *args, **kwargs) -> Any:
         if isinstance(node, list):
