@@ -8,10 +8,18 @@ from tatsu.objectmodel import Node
 from tatsu.util import is_list
 
 
-class NodeWalker:
-    def __new__(cls, *args, **kwargs):
-        cls._walker_cache = {}
-        return super(NodeWalker, cls).__new__(cls)
+class NodeWalkerMeta(type):
+    def __new__(cls, name, bases, dct):
+        class_ = super().__new__(cls, name, bases, dct)
+        class_._walker_cache = {}
+        return class_
+
+
+class NodeWalker(metaclass=NodeWalkerMeta):
+    def __init__(self):
+        super().__init__()
+        # copy the class attribute to avoid linter warnings
+        self._walker_cache = type(self)._walker_cache  # pylint: disable=no-member
 
     def walk(self, node: Node|list[Node], *args, **kwargs) -> Any:
         if isinstance(node, list):
@@ -30,7 +38,8 @@ class NodeWalker:
         def pythonize_match(m):
             return '_' + m.group().lower()
 
-        classid = id(node.__class__)
+        cls = node.__class__
+        classid = id(cls)
 
         if classid in self._walker_cache:
             return self._walker_cache[classid]
