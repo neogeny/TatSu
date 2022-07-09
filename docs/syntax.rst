@@ -59,7 +59,7 @@ The expressions, in reverse order of operator precedence, can be:
 
 Choice. Match either ``e1`` or ``e2``.
 
-A `|` be be used before the first option if desired::
+A `|` may be used before the first option if desired::
 
   choices
       =
