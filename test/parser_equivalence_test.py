@@ -43,8 +43,8 @@ def generate_and_load_parser(name, grammar):
     code = tatsu.to_python_sourcecode(grammar, name='Test')
     module = types.ModuleType(name)
     module.__file__ = '<generated>'
-    exec(compile(code, module.__file__, 'exec'), module.__dict__)
-    return module.TestParser()  # noqa
+    exec(compile(code, module.__file__, 'exec'), module.__dict__)  # pylint: disable=exec-used
+    return module.TestParser()  # noqa, pylint: disable=no-member
 
 
 def test_model_parse():

@@ -295,8 +295,8 @@ def plainjson(obj):
 
 class FallbackJSONEncoder(json.JSONEncoder):
     """A JSON Encoder that falls back to repr() for non-JSON-aware objects."""
-    def default(self, obj):
-        return repr(obj)
+    def default(self, o):
+        return repr(o)
 
 
 def asjsons(obj):
