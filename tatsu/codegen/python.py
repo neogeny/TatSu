@@ -54,10 +54,7 @@ class Base(ModelRenderer):
             if not ldefs:
                 return '\n\n    self._define(%s, %s)' % (sdefs, ldefs)
             else:
-                return indent(
-                    '\n' +
-                    trim(self.define_template % (sdefs, ldefs))
-                )
+                return '\n' + trim(self.define_template % (sdefs, ldefs))
 
     define_template = '''\
             self._define(
@@ -157,8 +154,12 @@ class NegativeLookahead(_Decorator):
 class Sequence(Base):
     def render_fields(self, fields):
         fields.update(seq='\n'.join(self.rend(s) for s in self.node.sequence))
+        defines = self.make_defines_declaration()
+        fields.update(defines=defines)
 
-    template = '{seq}'
+    template = '''{seq}
+                {defines}\
+                '''
 
 
 class Choice(Base):
@@ -199,7 +200,6 @@ class Option(_Decorator):
     template = '''\
                 with self._option():
                 {exp:1::}\
-                {defines}\
                 '''
 
 
@@ -425,7 +425,7 @@ class Rule(_Decorator):
         {nomemo}\
         {isname}
         def _{name}_(self):  # noqa
-        {exp:1::}{defines}
+        {exp:1::}
         '''
 
     define_template = '''\

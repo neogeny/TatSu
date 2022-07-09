@@ -41,6 +41,7 @@ GRAMMAR = """
 
 def generate_and_load_parser(name, grammar):
     code = tatsu.to_python_sourcecode(grammar, name='Test')
+    print(code)
     module = types.ModuleType(name)
     module.__file__ = '<generated>'
     exec(compile(code, module.__file__, 'exec'), module.__dict__)  # pylint: disable=exec-used
@@ -119,3 +120,25 @@ def test_first_rule():
     parser = generate_and_load_parser('test_first_rule', grammar)
     ast = parser.parse('test')
     assert ast is True
+
+
+def test_dynamic_compiled_ast():
+    grammar = '''
+        test::Test = 'TEST' ['A' a:number] ['B' b:number] ;
+        number::int = /\d+/ ;
+    '''
+
+    parser = tatsu.compile(grammar)
+
+    code = tatsu.to_python_sourcecode(grammar, name='Test', filename='test.py')
+    module = types.ModuleType('test')
+    module.__file__ = 'test.py'
+    exec(compile(code, module.__file__, 'exec'), module.__dict__)
+
+    dynamic_ast = parser.parse('TEST')
+    compiled_ast = module.TestParser().parse('TEST', start='test')
+    assert dynamic_ast == compiled_ast
+
+    dynamic_ast = parser.parse('TEST A 1')
+    compiled_ast = module.TestParser().parse('TEST A 1', start='test')
+    assert dynamic_ast == compiled_ast
