@@ -245,7 +245,7 @@ passing the grammar to parse and the starting rule's name as parameter:
     from myparser import MyParser
 
     parser = MyParser()
-    ast = parser.parse('text to parse', rule_name='start')
+    ast = parser.parse('text to parse', start='start')
     print(ast)
     print(json.dumps(asjson(ast), indent=2))
 
@@ -258,7 +258,7 @@ method:
 
 .. code:: python
 
-    model = parser.parse(text, rule_name='start', semantics=MySemantics())
+    model = parser.parse(text, start='start', semantics=MySemantics())
 
 If special lexical treatment is required (as in *80 column* languages),
 then a descendant of ``tatsu.tokenizing.Tokenizer`` can be passed instead of
@@ -270,7 +270,7 @@ the text:
         ...
 
     tokenizer = MySpecialTokenizer(text)
-    model = parser.parse(tokenizer, rule_name='start', semantics=MySemantics())
+    model = parser.parse(tokenizer, start='start', semantics=MySemantics())
 
 The generated parser's module can also be invoked as a script:
 

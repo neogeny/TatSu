@@ -1084,7 +1084,7 @@ class Grammar(Model):
         start = config.effective_rule_name()
         if start is None:
             start = self.rules[0].name
-            config.start_rule = start
+            config.start_rule = start # FIXME
 
         if ctx is None:
             ctx = ModelContext(self.rules, config=config)

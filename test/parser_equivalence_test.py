@@ -124,3 +124,18 @@ def test_name_checked():
     subtest(parser)
     parser = generate_and_load_parser('test_name_checked', grammar)
     subtest(parser)
+
+
+def test_first_rule():
+    grammar = '''
+        @@grammar :: Test
+
+        true = 'test' @: `True` $ ;
+        start = 'test' @: `False` $ ;
+    '''
+    parser = compile(grammar, 'Test')
+    ast = parser.parse('test')
+    assert ast == True
+    parser = generate_and_load_parser('test_first_rule', grammar)
+    ast = parser.parse('test')
+    assert ast == True

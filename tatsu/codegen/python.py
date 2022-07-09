@@ -562,6 +562,7 @@ class Grammar(Base):
                             namechars={namechars},
                             parseinfo={parseinfo},
                             keywords=KEYWORDS,
+                            start={start!r},
                         )
                         config = config.replace(**settings)
                         super().__init__(config=config)
@@ -573,9 +574,7 @@ class Grammar(Base):
                 {abstract_rules}
 
 
-                def main(filename, start=None, **kwargs):
-                    if start is None:
-                        start = '{start}'
+                def main(filename, **kwargs):
                     if not filename or filename == '-':
                         text = sys.stdin.read()
                     else:
@@ -584,7 +583,6 @@ class Grammar(Base):
                     parser = {name}Parser()
                     return parser.parse(
                         text,
-                        rule_name=start,
                         filename=filename,
                         **kwargs
                     )
