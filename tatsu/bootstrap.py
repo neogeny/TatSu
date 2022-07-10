@@ -56,6 +56,7 @@ class EBNFBootstrapParser(Parser):
             namechars='',
             parseinfo=True,
             keywords=KEYWORDS,
+            start='start',
         )
         config = config.replace(**settings)
         super().__init__(config=config)
@@ -74,17 +75,9 @@ class EBNFBootstrapParser(Parser):
                 with self._option():
                     self._directive_()
                     self.add_last_node_to_name('directives')
-                    self._define(
-                        [],
-                        ['directives']
-                    )
                 with self._option():
                     self._keyword_()
                     self.add_last_node_to_name('keywords')
-                    self._define(
-                        [],
-                        ['keywords']
-                    )
                 self._error(
                     'expecting one of: '
                     '<directive> <keyword>'
@@ -98,23 +91,16 @@ class EBNFBootstrapParser(Parser):
                 with self._option():
                     self._rule_()
                     self.add_last_node_to_name('rules')
-                    self._define(
-                        [],
-                        ['rules']
-                    )
                 with self._option():
                     self._keyword_()
                     self.add_last_node_to_name('keywords')
-                    self._define(
-                        [],
-                        ['keywords']
-                    )
                 self._error(
                     'expecting one of: '
                     '<keyword> <rule>'
                 )
         self._closure(block6)
         self._check_eof()
+
         self._define(
             ['title'],
             ['directives', 'keywords', 'rules']
@@ -146,6 +132,7 @@ class EBNFBootstrapParser(Parser):
                     self._cut()
                     self._regex_()
                     self.name_last_node('value')
+
                     self._define(
                         ['name', 'value'],
                         []
@@ -173,6 +160,7 @@ class EBNFBootstrapParser(Parser):
                                 "'False' 'None' <regex>"
                             )
                     self.name_last_node('value')
+
                     self._define(
                         ['name', 'value'],
                         []
@@ -202,6 +190,7 @@ class EBNFBootstrapParser(Parser):
                                 self._cut()
                                 self._boolean_()
                                 self.name_last_node('value')
+
                                 self._define(
                                     ['value'],
                                     []
@@ -209,14 +198,11 @@ class EBNFBootstrapParser(Parser):
                             with self._option():
                                 self._constant(True)
                                 self.name_last_node('value')
-                                self._define(
-                                    ['value'],
-                                    []
-                                )
                             self._error(
                                 'expecting one of: '
                                 "'::'"
                             )
+
                     self._define(
                         ['name', 'value'],
                         []
@@ -230,6 +216,7 @@ class EBNFBootstrapParser(Parser):
                     self._cut()
                     self._word_()
                     self.name_last_node('value')
+
                     self._define(
                         ['name', 'value'],
                         []
@@ -243,6 +230,7 @@ class EBNFBootstrapParser(Parser):
                     self._cut()
                     self._string_()
                     self.name_last_node('value')
+
                     self._define(
                         ['name', 'value'],
                         []
@@ -255,6 +243,7 @@ class EBNFBootstrapParser(Parser):
                     "'whitespace'"
                 )
         self._cut()
+
         self._define(
             ['name', 'value'],
             []
@@ -298,6 +287,7 @@ class EBNFBootstrapParser(Parser):
                 self._cut()
                 self._params_()
                 self.name_last_node('params')
+
                 self._define(
                     ['params'],
                     []
@@ -310,10 +300,6 @@ class EBNFBootstrapParser(Parser):
                         with self._option():
                             self._kwparams_()
                             self.name_last_node('kwparams')
-                            self._define(
-                                ['kwparams'],
-                                []
-                            )
                         with self._option():
                             self._params_()
                             self.name_last_node('params')
@@ -321,6 +307,7 @@ class EBNFBootstrapParser(Parser):
                             self._cut()
                             self._kwparams_()
                             self.name_last_node('kwparams')
+
                             self._define(
                                 ['kwparams', 'params'],
                                 []
@@ -328,15 +315,12 @@ class EBNFBootstrapParser(Parser):
                         with self._option():
                             self._params_()
                             self.name_last_node('params')
-                            self._define(
-                                ['params'],
-                                []
-                            )
                         self._error(
                             'expecting one of: '
                             '<kwparams> <params>'
                         )
                 self._token(')')
+
                 self._define(
                     ['kwparams', 'params'],
                     []
@@ -345,10 +329,6 @@ class EBNFBootstrapParser(Parser):
                 'expecting one of: '
                 "'(' '::'"
             )
-        self._define(
-            ['kwparams', 'params'],
-            []
-        )
 
     @tatsumasu('Rule')
     def _rule_(self):  # noqa
@@ -367,6 +347,7 @@ class EBNFBootstrapParser(Parser):
                     self._cut()
                     self._params_()
                     self.name_last_node('params')
+
                     self._define(
                         ['params'],
                         []
@@ -379,10 +360,6 @@ class EBNFBootstrapParser(Parser):
                             with self._option():
                                 self._kwparams_()
                                 self.name_last_node('kwparams')
-                                self._define(
-                                    ['kwparams'],
-                                    []
-                                )
                             with self._option():
                                 self._params_()
                                 self.name_last_node('params')
@@ -390,6 +367,7 @@ class EBNFBootstrapParser(Parser):
                                 self._cut()
                                 self._kwparams_()
                                 self.name_last_node('kwparams')
+
                                 self._define(
                                     ['kwparams', 'params'],
                                     []
@@ -397,15 +375,12 @@ class EBNFBootstrapParser(Parser):
                             with self._option():
                                 self._params_()
                                 self.name_last_node('params')
-                                self._define(
-                                    ['params'],
-                                    []
-                                )
                             self._error(
                                 'expecting one of: '
                                 '<kwparams> <params>'
                             )
                     self._token(')')
+
                     self._define(
                         ['kwparams', 'params'],
                         []
@@ -419,12 +394,18 @@ class EBNFBootstrapParser(Parser):
             self._cut()
             self._known_name_()
             self.name_last_node('base')
+
+            self._define(
+                ['base'],
+                []
+            )
         self._token('=')
         self._cut()
         self._expre_()
         self.name_last_node('exp')
         self._token(';')
         self._cut()
+
         self._define(
             ['base', 'decorators', 'exp', 'kwparams', 'name', 'params'],
             []
@@ -537,10 +518,6 @@ class EBNFBootstrapParser(Parser):
             self._element_()
         self._positive_closure(block1)
         self.name_last_node('sequence')
-        self._define(
-            ['sequence'],
-            []
-        )
 
     @tatsumasu()
     def _element_(self):  # noqa
@@ -594,6 +571,7 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._term_()
         self.name_last_node('exp')
+
         self._define(
             ['exp', 'name'],
             []
@@ -607,6 +585,7 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._term_()
         self.name_last_node('exp')
+
         self._define(
             ['exp', 'name'],
             []
@@ -703,6 +682,7 @@ class EBNFBootstrapParser(Parser):
         self.name_last_node('exp')
         self._token(')')
         self._cut()
+
         self._define(
             ['exp'],
             []
@@ -745,6 +725,7 @@ class EBNFBootstrapParser(Parser):
                     "'+' '-'"
                 )
         self._cut()
+
         self._define(
             ['exp', 'sep'],
             []
@@ -763,6 +744,7 @@ class EBNFBootstrapParser(Parser):
             self._token('*')
             self._cut()
         self._cut()
+
         self._define(
             ['exp', 'sep'],
             []
@@ -805,6 +787,7 @@ class EBNFBootstrapParser(Parser):
                     "'+' '-'"
                 )
         self._cut()
+
         self._define(
             ['exp', 'sep'],
             []
@@ -823,6 +806,7 @@ class EBNFBootstrapParser(Parser):
             self._token('*')
             self._cut()
         self._cut()
+
         self._define(
             ['exp', 'sep'],
             []
@@ -848,6 +832,7 @@ class EBNFBootstrapParser(Parser):
                     "'+' '-'"
                 )
         self._cut()
+
         self._define(
             ['exp', 'sep'],
             []
@@ -873,6 +858,7 @@ class EBNFBootstrapParser(Parser):
                     "'+' '-'"
                 )
         self._cut()
+
         self._define(
             ['exp', 'sep'],
             []
@@ -1056,6 +1042,7 @@ class EBNFBootstrapParser(Parser):
         self.name_last_node('level')
         self._constant_()
         self.name_last_node('message')
+
         self._define(
             ['level', 'message'],
             []
@@ -1423,9 +1410,7 @@ class EBNFBootstrapSemantics:
         return ast
 
 
-def main(filename, start=None, **kwargs):
-    if start is None:
-        start = 'start'
+def main(filename, **kwargs):
     if not filename or filename == '-':
         text = sys.stdin.read()
     else:
@@ -1434,7 +1419,6 @@ def main(filename, start=None, **kwargs):
     parser = EBNFBootstrapParser()
     return parser.parse(
         text,
-        start=start,
         filename=filename,
         **kwargs
     )
