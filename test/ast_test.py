@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
 import unittest
+import pickle
 
 from tatsu.ast import AST
+
+
+def test_ast_pickling():
+    a = AST(parseinfo=('Some parseinfo'))
+    b = pickle.loads(pickle.dumps(a))
+    assert a == b
 
 
 class ASTTests(unittest.TestCase):

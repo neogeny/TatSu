@@ -98,7 +98,7 @@ class AST(dict):
             return True
 
     def __reduce__(self):
-        return (AST, (), None, None, iter(self.items()))
+        return (AST, (list(self.items()),))
 
     def _safekey(self, key):
         while self.__hasattribute__(key):
