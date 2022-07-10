@@ -17,7 +17,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `5.8.1`_ @ 2022-07-10
 ---------------------
-.. _`5.8.0`: https://github.com/apalala/tatsu/compare/v5.8.0...v5.8.1
+.. _`5.8.1`: https://github.com/apalala/tatsu/compare/v5.8.0...v5.8.1
 
 * Fix pickling of AST. The change also affects parsing within multiprocessing (`@fizbin`_)
 * Fall back to ``repr()`` for types not handled by ``json`` (`@dnicolodi`_)
