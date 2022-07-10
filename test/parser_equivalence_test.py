@@ -133,12 +133,12 @@ def test_dynamic_compiled_ast():
     code = tatsu.to_python_sourcecode(grammar, name='Test', filename='test.py')
     module = types.ModuleType('test')
     module.__file__ = 'test.py'
-    exec(compile(code, module.__file__, 'exec'), module.__dict__)
+    exec(compile(code, module.__file__, 'exec'), module.__dict__)  # pylint: disable=exec-used
 
     dynamic_ast = parser.parse('TEST')
-    compiled_ast = module.TestParser().parse('TEST', start='test')
+    compiled_ast = module.TestParser().parse('TEST', start='test')  # pylint: disable=no-member
     assert dynamic_ast == compiled_ast
 
     dynamic_ast = parser.parse('TEST A 1')
-    compiled_ast = module.TestParser().parse('TEST A 1', start='test')
+    compiled_ast = module.TestParser().parse('TEST A 1', start='test')  # pylint: disable=no-member
     assert dynamic_ast == compiled_ast
