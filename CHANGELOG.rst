@@ -19,7 +19,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------------
 .. _`5.8.0`: https://github.com/apalala/tatsu/compare/v5.8.0...v5.8.1
 
-* Fix pickling of AST. The change allso affects parsing with multiprocessing (`@fizbin`_)
+* Fix pickling of AST. The change also affects parsing within multiprocessing (`@fizbin`_)
 * Fall back to ``repr()`` for types not handled by ``json`` (`@dnicolodi`_)
 * Ensure there is exactly one method cache per Walker class
 * Bug fixes, upgrades, and improvements by (`@dnicolodi`_)
