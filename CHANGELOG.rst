@@ -15,6 +15,16 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.8.0...master
 
+`5.8.1`_ @ 2022-07-10
+---------------------
+.. _`5.8.0`: https://github.com/apalala/tatsu/compare/v5.8.0...v5.8.1
+
+* Fix pickling of AST. The change allso affects parsing with multiprocessing (`@fizbin`_)
+* Fall back to ``repr()`` for types not handled by ``json`` (`@dnicolodi`)
+* Ensure there is exactly one method cache per Walker class
+* Bug fixes, upgrades, and improvements by (`@dnicolodi`_)
+
+
 `5.8.0`_ @ 2022-03-12
 ---------------------
 .. _`5.8.0`: https://github.com/apalala/tatsu/compare/v5.7.3...v5.8.0
@@ -421,6 +431,8 @@ Added
 .. _@tirkarthi: https://github.com/tirkarthi
 .. _@okomarov: https://github.com/okomarov
 .. _@gvanrossum: https://github.com/gvanrossum
+.. _@fizbin: https://github.com/fizbin
+.. _@dnicolodi: https://github.com/dnicolodi
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
