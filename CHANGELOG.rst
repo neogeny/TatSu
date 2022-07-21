@@ -15,6 +15,14 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 ---------------
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.8.0...master
 
+
+`5.8.2`_ @ 2022-07-22
+---------------------
+.. _`5.8.1`: https://github.com/apalala/tatsu/compare/v5.8.1...v5.8.2
+
+* Fix walker cache logic in ``NodeWalker`` (`@by-Exist`_)
+
+
 `5.8.1`_ @ 2022-07-10
 ---------------------
 .. _`5.8.1`: https://github.com/apalala/tatsu/compare/v5.8.0...v5.8.1
@@ -461,3 +469,4 @@ Added
 .. _neumond: https://bitbucket.org/neumond
 .. _pgebhard: https://bitbucket.org/pgebhard
 .. _siemer: https://bitbucket.org/siemer
+.. _by-Exist: https://github.com/by-Exist
