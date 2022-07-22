@@ -16,7 +16,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 .. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.8.2...master
 
 
-`5.8.w`_ @ 2022-07-22
+`5.8.2`_ @ 2022-07-22
 ---------------------
 .. _`5.8.2`: https://github.com/apalala/tatsu/compare/v5.8.1...v5.8.2
 
