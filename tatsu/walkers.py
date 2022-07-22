@@ -23,11 +23,11 @@ class NodeWalker(metaclass=NodeWalkerMeta):
 
     def walk(self, node: Node|list[Node], *args, **kwargs) -> Any:
         if isinstance(node, list):
-            return [self.walk(n) for n in node]
+            return [self.walk(n, *args, **kwargs) for n in node]
 
         walker = self._find_walker(node)
         if callable(walker):
-            return walker(node, *args, **kwargs)
+            return walker(self, node, *args, **kwargs)
 
     def _walk_children(self, node: Node, *args, **kwargs):
         if isinstance(node, Node):
@@ -38,25 +38,26 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         def pythonize_match(m):
             return '_' + m.group().lower()
 
-        cls = node.__class__
-        classid = id(cls)
+        cls = self.__class__
+        node_cls = node.__class__
+        node_cls_qualname = node_cls.__qualname__
 
-        if classid in self._walker_cache:
-            return self._walker_cache[classid]
+        if node_cls_qualname in self._walker_cache:
+            return self._walker_cache[node_cls_qualname]
 
-        classes = [node.__class__]
-        while classes:
-            cls = classes.pop(0)
+        node_classes = [node.__class__]
+        while node_classes:
+            node_cls = node_classes.pop(0)
 
-            cammelcase_name = cls.__name__
-            walker = getattr(self, prefix + cammelcase_name, None)
+            cammelcase_name = node_cls.__name__
+            walker = getattr(cls, prefix + cammelcase_name, None)
             if callable(walker):
                 break
 
             # walk__pythonic_name with double underscore after walk
-            pythonic_name = re.sub('[A-Z]+', pythonize_match, cls.__name__)
+            pythonic_name = re.sub('[A-Z]+', pythonize_match, node_cls.__name__)
             if pythonic_name != cammelcase_name:
-                walker = getattr(self, prefix + pythonic_name, None)
+                walker = getattr(cls, prefix + pythonic_name, None)
                 if callable(walker):
                     break
 
@@ -64,21 +65,21 @@ class NodeWalker(metaclass=NodeWalkerMeta):
 
             # pythonic_name = pythonic_name.lstrip('_')
             # if pythonic_name != cammelcase_name:
-            #     walker = getattr(self, prefix + pythonic_name, None)
+            #     walker = getattr(cls, prefix + pythonic_name, None)
             #     if callable(walker):
             #         break
 
-            for b in cls.__bases__:
-                if b not in classes:
-                    classes.append(b)
+            for b in node_cls.__bases__:
+                if b not in node_classes:
+                    node_classes.append(b)
         else:
-            walker = getattr(self, '_walk_default', None)
+            walker = getattr(cls, '_walk_default', None)
             if walker is None:
-                walker = getattr(self, 'walk_default', None)  # backwards compatibility
+                walker = getattr(cls, 'walk_default', None)  # backwards compatibility
             if not callable(walker):
                 walker = None
 
-        self._walker_cache[classid] = walker
+        self._walker_cache[node_cls_qualname] = walker
         return walker
 
 

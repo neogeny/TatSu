@@ -50,7 +50,8 @@ features, bug reports, bug fixes, or suggestions:
     `neumond`_,
     `pdw-mb`_,
     `pgebhard`_,
-    `siemer`_
+    `siemer`_,
+    `by-Exist`_
 
 .. _commits: https://bitbucket.org/neogeny/grako/commits/all
 .. _issues: https://bitbucket.org/neogeny/grako/issues
