@@ -13,12 +13,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2022
 ---------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.8.0...master
-
-
-`5.8.2`_ @ 2022-07-22
----------------------
-.. _`5.8.1`: https://github.com/apalala/tatsu/compare/v5.8.1...v5.8.2
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.8.1...master
 
 * Fix walker cache logic in ``NodeWalker`` (`@by-Exist`_)
 
@@ -441,6 +436,7 @@ Added
 .. _@gvanrossum: https://github.com/gvanrossum
 .. _@fizbin: https://github.com/fizbin
 .. _@dnicolodi: https://github.com/dnicolodi
+.. _@by-Exist: https://github.com/by-Exist
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
@@ -469,4 +465,3 @@ Added
 .. _neumond: https://bitbucket.org/neumond
 .. _pgebhard: https://bitbucket.org/pgebhard
 .. _siemer: https://bitbucket.org/siemer
-.. _by-Exist: https://github.com/by-Exist
