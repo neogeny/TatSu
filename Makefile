@@ -5,15 +5,11 @@ tatsu_test: clean
 	pytest
 
 
-documentation: clean changelog readme sphinx
+documentation: clean changelog sphinx
 
 
 changelog:
 	rst2html5 CHANGELOG.rst > /dev/null
-
-
-readme:
-	pandoc README.rst -t gfm --wrap=none > README.md
 
 
 sphinx:
