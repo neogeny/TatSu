@@ -70,3 +70,4 @@
 .. _tonico_strasser: https://bitbucket.org/tonico_strasser
 .. _vinay.sajip: https://bitbucket.org/vinay.sajip
 .. _vmuriart: https://bitbucket.org/vmuriart
+.. _by-Exist: https://github.com/by-Exist
