@@ -13,7 +13,15 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 `X.Y.Z`_ @ 2022
 ---------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.8.0...master
+.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.8.2...master
+
+
+`5.8.2`_ @ 2022-07-22
+---------------------
+.. _`5.8.2`: https://github.com/apalala/tatsu/compare/v5.8.1...v5.8.2
+
+* Fix walker cache logic in ``NodeWalker`` (`@by-Exist`_)
+
 
 `5.8.1`_ @ 2022-07-10
 ---------------------
@@ -22,7 +30,7 @@ The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 * Fix pickling of AST. The change also affects parsing within multiprocessing (`@fizbin`_)
 * Fall back to ``repr()`` for types not handled by ``json`` (`@dnicolodi`_)
 * Ensure there is exactly one method cache per Walker class
-* Bug fixes, upgrades, and improvements by (`@dnicolodi`_)
+* Bug fixes, upgrades, and improvements (`@dnicolodi`_)
 
 
 `5.8.0`_ @ 2022-03-12
@@ -433,6 +441,7 @@ Added
 .. _@gvanrossum: https://github.com/gvanrossum
 .. _@fizbin: https://github.com/fizbin
 .. _@dnicolodi: https://github.com/dnicolodi
+.. _@by-Exist: https://github.com/by-Exist
 
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _David Chen: https://github.com/davidchen
