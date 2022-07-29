@@ -11,9 +11,11 @@ backwards incompatibilities in the software.
 The format of this *Change Log* is inspired by `keeapachangelog.org`_.
 
 
-`X.Y.Z`_ @ 2022
----------------
-.. _`X.Y.Z`: https://github.com/apalala/tatsu/compare/v5.8.2...master
+`5.7.4`_ @ 2022-07-23
+---------------------
+.. _`5.7.4`: https://github.com/apalala/tatsu/compare/v5.7.3...v5.7.4
+
+* Equivalent to |TatSu| release 5.8.2 with compatibility for Python 3.8 and later.
 
 
 `5.8.2`_ @ 2022-07-22
