@@ -19,29 +19,6 @@
 |TatSu|
 =======
 
-.. code-block:: python
-
-    def WARNING():
-        """
-        TatSu>=5.7 requires Python>=3.10
-
-        Python 3.8, 3.9, and 3.10 introduced new language features
-        that allow writing better programs more clearly. Code written
-        for Python 3.7 should run fine on Python up to 3.11 with no changes.
-
-        Python has adopted an annual release schedule (PEP-602).
-
-        Python 3.11 will be released in Oct 2022
-        Python 3.10 was released     in Oct 2021
-        Python 3.9  bugfix releases final in May 2022
-        Python 3.8  bugfix releases final in May 2021
-        Python 3.7  bugfix releases final in mid 2020
-
-        Compelling reasons to upgrade projects to the latest Python
-        """
-        pass
-
-
 |TatSu| is a tool that takes grammars in a variation of `EBNF`_ as input, and
 outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_.
 
@@ -53,6 +30,20 @@ input, much like the `re`_ module does with regular expressions, or it can gener
 
 |TatSu| supports `left-recursive`_  rules in PEG_ grammars using the
 algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left associativity.
+
+Starting with version 5.8.0 |TatSu| requires Python 3.10 or later.
+While no code in |TatSu| yet depends on new language or standard library features,
+the authors don't want to be constrained by Python version comaptibility consideration
+when developing features that will be part future releases.
+Therefore, to simplify version pinning for users of the library,
+they decided to proactively bump the Python minimum required version to 3.10.
+
+|TatSu| releases in the 5.7 series closely track releases in the 5.8 series
+while maintaining compatibility with Python 3.8 and later.
+Bug fixes are back-ported from 5.8 releases.
+Features are back-ported from the 5.8 releases
+unless they depend on Python features not available on the supported Python versions.
+Refer to the `CHANGELOG`_ for details.
 
 .. _algorithm: http://norswap.com/pubs/sle2016.pdf
 
