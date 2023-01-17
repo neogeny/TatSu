@@ -101,7 +101,7 @@ class closure(list):
 
 
 class ParseContext:
-    def __init__(self, /, config: ParserConfig = None, **settings):
+    def __init__(self, /, config: ParserConfig|None = None, **settings):
         super().__init__()
         config = ParserConfig.new(config, **settings)
         self.config = config
@@ -211,7 +211,7 @@ class ParseContext:
         if not self._furthest_exception or e.pos > self._furthest_exception.pos:
             self._furthest_exception = e
 
-    def parse(self, text, /, config: ParserConfig = None, **settings):
+    def parse(self, text, /, config: ParserConfig|None = None, **settings):
         config = self.config.replace_config(config)
         config = config.replace(**settings)
         self._active_config = config

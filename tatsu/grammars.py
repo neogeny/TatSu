@@ -86,7 +86,7 @@ class EBNFBuffer(EBNFBootstrapBuffer):
 
 
 class ModelContext(ParseContext):
-    def __init__(self, rules, /, start=None, config: ParserConfig = None, **settings):
+    def __init__(self, rules, /, start=None, config: ParserConfig|None = None, **settings):
         config = ParserConfig.new(config, **settings)
         config = config.replace(start=start)
 
@@ -982,7 +982,7 @@ class BasedRule(Rule):
 
 
 class Grammar(Model):
-    def __init__(self, name, rules, /, config: ParserConfig = None, directives: dict = None, **settings):
+    def __init__(self, name, rules, /, config: ParserConfig|None = None, directives: dict|None = None, **settings):
         super().__init__()
         assert isinstance(rules, list), str(rules)
         directives = directives or {}
