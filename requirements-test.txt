@@ -1,3 +1,4 @@
+astroid>=3.0.0a9
 docutils
 flake8
 mypy
