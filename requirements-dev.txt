@@ -3,6 +3,5 @@ git-pylint-commit-hook
 ipython
 pip
 psutil
-pyyaml
 twine
 auto-changelog

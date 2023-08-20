@@ -85,7 +85,7 @@ def identity(*args):
 
 
 def is_list(o):
-    return type(o) == list  # pylint: disable=unidiomatic-typecheck
+    return type(o) is list  # pylint: disable=unidiomatic-typecheck
 
 
 def to_list(o):
