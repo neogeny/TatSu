@@ -77,3 +77,4 @@
 .. _re: https://docs.python.org/3.4/library/re.html
 .. _regex: https://pypi.python.org/pypi/regex
 .. _smc.mw: https://github.com/lambdafu/smc.mw
+.. _regular languages: https://en.wikipedia.org/wiki/Regular_language

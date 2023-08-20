@@ -46,6 +46,8 @@ input, much like the `re`_ module does with regular expressions, or it can gener
     ast
     semantics
     models
+    print_translation
+    templates_translation
     left_recursion
     mini-tutorial
     traces

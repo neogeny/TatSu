@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
 import sys
 
 from tatsu.model import Node
-from tatsu.walkers import DepthFirstWalker
+from tatsu.walkers import NodeWalker
 from tatsu.mixins.indent import IndentPrintMixin
 from tatsu.codegen import ModelRenderer
 
 THIS_MODULE = sys.modules[__name__]
 
 
-class PostfixCodeGenerator(DepthFirstWalker, IndentPrintMixin):
+class PostfixCodeGenerator(NodeWalker, IndentPrintMixin):
 
     def walk_Number(self, node: Node):
         self.print(f'PUSH {self.walk(node.value)}')
@@ -32,12 +31,12 @@ class PostfixCodeGenerator(DepthFirstWalker, IndentPrintMixin):
         self.walk(node.right)
         print('MUL')
 
+    def walk_Divide(self, node: Node, *args, **kwargs):
+        self.walk(node.left)
+        self.walk(node.right)
+        print('DIV')
 
     def walk_int(self, node:Node, *args, **kwargs):
-        print(node)
+        print('PUSH', node)
 
 
-    def walk_Divide(self, node: Node, *args, **kwargs):
-        print(node.left)
-        print(node.right)
-        print('DIV')

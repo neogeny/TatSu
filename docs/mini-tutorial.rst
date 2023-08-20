@@ -652,71 +652,46 @@ The following code generator translates input expressions to the postfix instruc
 
     import sys
 
+    from tatsu.model import Node
+    from tatsu.walkers import NodeWalker
+    from tatsu.mixins.indent import IndentPrintMixin
     from tatsu.codegen import ModelRenderer
-    from tatsu.codegen import CodeGenerator
 
-    THIS_MODULE =  sys.modules[__name__]
-
-
-    class PostfixCodeGenerator(CodeGenerator):
-        def __init__(self):
-            super().__init__(modules=[THIS_MODULE])
+    THIS_MODULE = sys.modules[__name__]
 
 
-    class Number(ModelRenderer):
-        template = '''\
-        PUSH {value}'''
+    class PostfixCodeGenerator(NodeWalker, IndentPrintMixin):
+
+        def walk_Number(self, node: Node):
+            self.print(f'PUSH {self.walk(node.value)}')
 
 
-    class Add(ModelRenderer):
-        template = '''\
-        {left}
-        {right}
-        ADD'''
+        def walk_Add(self, node: Node, *args, **kwargs):
+            self.walk(node.left)
+            self.walk(node.right)
+            print('ADD')
 
 
-    class Subtract(ModelRenderer):
-        template = '''\
-        {left}
-        {right}
-        SUB'''
+        def walk_Subtract(self, node: Node, *args, **kwargs):
+            self.walk(node.left)
+            self.walk(node.right)
+            print('SUB')
 
 
-    class Multiply(ModelRenderer):
-        template = '''\
-        {left}
-        {right}
-        MUL'''
+        def walk_Multiply(self, node: Node, *args, **kwargs):
+            self.walk(node.left)
+            self.walk(node.right)
+            print('MUL')
+
+        def walk_Divide(self, node: Node, *args, **kwargs):
+            self.walk(node.left)
+            self.walk(node.right)
+            print('DIV')
+
+        def walk_int(self, node:Node, *args, **kwargs):
+            print('PUSH', node)
 
 
-    class Divide(ModelRenderer):
-        template = '''\
-        {left}
-        {right}
-        DIV'''
-
-Save the above in ``codegen.py``.
-The code generator can be used as follows:
-
-.. code:: python
-
-    from codegen import PostfixCodeGenerator
-
-
-    def parse_and_translate():
-        with open('calc_model.ebnf') as f:
-            grammar = f.read()
-
-        parser = tatsu.compile(grammar, asmodel=True)
-        model = parser.parse('3 + 5 * ( 10 - 20 )')
-
-        postfix = PostfixCodeGenerator().render(model)
-
-        print('# TRANSLATED TO POSTFIX')
-        print(postfix)
-
-    if __name__ == '__main__':
-        parse_and_translate()
 
 Save the above program in ``calc_translate.py`` and execute it to get this result:
 
