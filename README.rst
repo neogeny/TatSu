@@ -31,7 +31,7 @@ input, much like the `re`_ module does with regular expressions, or it can gener
 |TatSu| supports `left-recursive`_  rules in PEG_ grammars using the
 algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left associativity.
 
-Starting with version 5.8.0 |TatSu| requires Python 3.10 or later.
+Starting with version 5.9.0 |TatSu| requires Python 3.11 or later.
 While no code in |TatSu| yet depends on new language or standard library features,
 the authors don't want to be constrained by Python version comaptibility consideration
 when developing features that will be part future releases.
