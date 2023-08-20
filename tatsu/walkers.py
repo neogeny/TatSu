@@ -9,8 +9,8 @@ from tatsu.util import is_list
 
 
 class NodeWalkerMeta(type):
-    def __new__(cls, name, bases, dct):
-        class_ = super().__new__(cls, name, bases, dct)
+    def __new__(mcs, name, bases, dct):
+        class_ = super().__new__(mcs, name, bases, dct)
         class_._walker_cache = {}
         return class_
 

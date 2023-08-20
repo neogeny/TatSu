@@ -29,7 +29,7 @@ calc_test:
 lint: flake8 pylint mypy
 
 flake8:
-	flake8
+	flake8 tatsu
 
 pylint:
 	pylint --ignore=bootstrap.py,model.py tatsu test examples

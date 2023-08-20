@@ -44,7 +44,7 @@ def generate_and_load_parser(name, grammar):
     print(code)
     module = types.ModuleType(name)
     module.__file__ = '<generated>'
-    exec(compile(code, module.__file__, 'exec'), module.__dict__)  # pylint: disable=exec-used
+    exec(compile(code, module.__file__, 'exec'), module.__dict__)  # pylint: disable=exec-used, no-member
     return module.TestParser()  # noqa, pylint: disable=no-member
 
 
@@ -133,7 +133,7 @@ def test_dynamic_compiled_ast():
     code = tatsu.to_python_sourcecode(grammar, name='Test', filename='test.py')
     module = types.ModuleType('test')
     module.__file__ = 'test.py'
-    exec(compile(code, module.__file__, 'exec'), module.__dict__)  # pylint: disable=exec-used
+    exec(compile(code, module.__file__, 'exec'), module.__dict__)  # pylint: disable=exec-used, no-member
 
     dynamic_ast = parser.parse('TEST')
     compiled_ast = module.TestParser().parse('TEST', start='test')  # pylint: disable=no-member

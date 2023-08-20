@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import inspect
 
 from datetime import datetime
@@ -11,11 +9,11 @@ from tatsu.util import (
     re,
     safe_name,
 )
-from tatsu.objectmodel import Node
-from tatsu.objectmodel import BASE_CLASS_TOKEN
-from tatsu.exceptions import CodegenError
-from tatsu.rendering import Renderer
-from tatsu.codegen.cgbase import ModelRenderer, CodeGenerator
+from ..objectmodel import Node
+from ..objectmodel import BASE_CLASS_TOKEN
+from ..exceptions import CodegenError
+from ..rendering import Renderer
+from ..codegen.cgbase import ModelRenderer, CodeGenerator
 
 
 NODE_NAME_PATTERN = r'(?!\d)\w+(' + rf'{BASE_CLASS_TOKEN}' + r'(?!\d)\w+)*'

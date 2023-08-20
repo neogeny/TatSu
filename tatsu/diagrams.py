@@ -123,7 +123,7 @@ class GraphvizWalker(NodeWalker):
         return self.walk(d.exp)
 
     def walk_default(self, node):
-        raise Exception('No walking for ', type(node).__name__)
+        raise NotImplementedError('No walking for ', type(node).__name__)
 
     def walk__decorator(self, d):
         return self.walk(d.exp)
