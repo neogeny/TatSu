@@ -160,7 +160,9 @@ def parse_and_translate():
     parser = tatsu.compile(grammar, asmodel=True)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
-    postfix = PostfixCodeGenerator().render(model)
+    codegen = PostfixCodeGenerator()
+    codegen.walk(model)
+    postfix = codegen.printed_text()
 
     print()
     print('# TRANSLATED TO POSTFIX')
