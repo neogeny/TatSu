@@ -50,7 +50,7 @@ class CalcBasicSemantics:
         elif ast.op == '/':
             return ast.left / ast.right
         else:
-            raise Exception('Unknown operator', ast.op)
+            raise ValueError('Unknown operator', ast.op)
 
     def expression(self, ast):
         if not isinstance(ast, AST):
@@ -60,7 +60,7 @@ class CalcBasicSemantics:
         elif ast.op == '-':
             return ast.left - ast.right
         else:
-            raise Exception('Unknown operator', ast.op)
+            raise ValueError('Unknown operator', ast.op)
 
 
 def parse_with_basic_semantics():

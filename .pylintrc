@@ -217,7 +217,7 @@ disable=
     consider-using-with,  # R1732
     # unnecessary-dict-index-lookup,  # R1733
     # use-list-literal,  # R1734
-    # use-dict-literal,  # R1735
+    use-dict-literal,  # R1735
     # unreachable,  # W0101
     # dangerous-default-value,  # W0102
     # pointless-statement,  # W0104

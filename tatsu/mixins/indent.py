@@ -45,7 +45,7 @@ class IndentPrintMixin:
             text = output.getvalue()
         return text
 
-    def _do_print_lines(self, lines: list[str] = None):
+    def _do_print_lines(self, lines: list[str]|None = None):
         if not lines:
             print(file=self.output_stream)
             return
