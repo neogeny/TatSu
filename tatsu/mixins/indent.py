@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import sys
 import io
 from contextlib import contextmanager
@@ -11,7 +9,10 @@ class IndentPrintMixin:
     def __init__(self, indent=4):
         self.indent_amount = indent
         self.indent_level = 0
-        self.output_stream = sys.stdout
+        self.output_stream = io.StringIO()
+
+    def printed_text(self):
+        return self.output_stream.getvalue()
 
     def print(self, *args, **kwargs):
         lines = self.as_printed_lines(*args, **kwargs)
