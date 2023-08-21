@@ -636,15 +636,9 @@ In translation, the output can often be as verbose as the input, so a systematic
 |TatSu| provides support for template-based code generation (translation) in the ``tatsu.codegen`` module.
 Code generation works by defining a translation class for each class in the model specified by the grammar.
 
-Adjust our previous ``calc_model.ebnf`` grammar and annotate the *number* rule
-like so:
 
-.. code::
+Nowadays the preferred code generation strategy is to walk down the AST and `print()` the desidred output, with the help of the ``NodWalker`` class, and the ``IndentPrintMixin`` mixin.
 
-    number::Number
-        =
-        value:/\d+/
-        ;
 
 The following code generator translates input expressions to the postfix instructions of a stack-based processor:
 
