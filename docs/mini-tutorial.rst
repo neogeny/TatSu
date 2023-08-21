@@ -656,10 +656,6 @@ The following code generator translates input expressions to the postfix instruc
 
     class PostfixCodeGenerator(NodeWalker, IndentPrintMixin):
 
-        def walk_Number(self, node: Node):
-            self.print(f'PUSH {self.walk(node.value)}')
-
-
         def walk_Add(self, node: Node, *args, **kwargs):
             self.walk(node.left)
             self.walk(node.right)

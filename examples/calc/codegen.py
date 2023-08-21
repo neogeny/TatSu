@@ -10,9 +10,6 @@ THIS_MODULE = sys.modules[__name__]
 
 class PostfixCodeGenerator(NodeWalker, IndentPrintMixin):
 
-    def walk_Number(self, node: Node):
-        self.print(f'PUSH {self.walk(node.value)}')  # type: ignore
-
     def walk_Add(self, node: Node, *args, **kwargs):
         self.walk(node.left)  # type: ignore
         self.walk(node.right)  # type: ignore
