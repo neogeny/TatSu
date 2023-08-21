@@ -166,7 +166,7 @@ Github issues to bugs, enhancement proposals, and feature requests.
 Changes
 -------
 
-See the `CHANGELOG`_ for details.
+See the `RELEASES`_ for details.
 
 
 License
