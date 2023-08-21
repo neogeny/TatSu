@@ -1,5 +1,8 @@
 .. include:: links.rst
 
+.. _pegen: https://github.com/we-like-parsers/pegen
+.. _PEG parser: https://peps.python.org/pep-0617/
+
 
 `Calc` Mini Tutorial
 --------------------
@@ -637,7 +640,7 @@ In translation, the output can often be as verbose as the input, so a systematic
 Code generation works by defining a translation class for each class in the model specified by the grammar.
 
 
-Nowadays the preferred code generation strategy is to walk down the AST and `print()` the desidred output, with the help of the ``NodWalker`` class, and the ``IndentPrintMixin`` mixin.
+Nowadays the preferred code generation strategy is to walk down the AST_ and `print()` the desired output, with the help of the ``NodWalker`` class, and the ``IndentPrintMixin`` mixin. That's the strategy used by pegen_, the precursor to the new `PEG parser`_ in Python_.
 
 
 The following code generator translates input expressions to the postfix instructions of a stack-based processor:
