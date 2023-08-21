@@ -5,11 +5,7 @@ tatsu_test: clean
 	pytest
 
 
-documentation: clean changelog sphinx
-
-
-changelog:
-	rst2html5 CHANGELOG.rst > /dev/null
+documentation: clean sphinx
 
 
 sphinx:

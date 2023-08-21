@@ -1,5 +1,6 @@
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
 .. |TatSu| replace:: |dragon| **TatSu**
+.. _RELEASES: https://github.com/neogeny/TatSu/releases
 
 |license| |pyversions| |fury| |downloads| |actions| |docs|
 
@@ -43,7 +44,7 @@ while maintaining compatibility with Python 3.8 and later.
 Bug fixes are back-ported from 5.8 releases.
 Features are back-ported from the 5.8 releases
 unless they depend on Python features not available on the supported Python versions.
-Refer to the `CHANGELOG`_ for details.
+Refer to  `RELEASES`_ for details.
 
 .. _algorithm: http://norswap.com/pubs/sle2016.pdf
 
