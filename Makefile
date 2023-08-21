@@ -34,8 +34,8 @@ flake8:
 
 
 pylint:
-	# pylint --ignore=bootstrap.py,model.py tatsu test examples
-	:
+	pylint --ignore=bootstrap.py,model.py tatsu test examples
+
 
 
 mypy:
