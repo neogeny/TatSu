@@ -1,17 +1,32 @@
 .. include:: links.rst
 
-Templates Translation
---------------------------
+.. _mini-tutorial: mini-tutorial.rst
 
+.. _pegen: https://github.com/we-like-parsers/pegen
+.. _PEG parser: https://peps.python.org/pep-0617/
+
+Declarative Translation
+-----------------------
+
+Translation is one of the most common tasks in language processing.
+Analysis often sumarizes the parsed input, and *walkers* are good for that.
+In translation, the output can often be as verbose as the input, so a systematic approach that avoids bookkeeping as much as possible is convenient.
+
+|TatSu| provides support for template-based code generation ("translation", see below)
+in the ``tatsu.codegen`` module.
+Code generation works by defining a translation class for each class in the model specified by the grammar.
+
+Nowadays the preferred code generation strategy is to walk down the AST_ and `print()` the desired output,
+with the help of the ``NodWalker`` class, and the ``IndentPrintMixin`` mixin. That's the strategy used
+by pegen_, the precursor to the new `PEG parser`_ in Python_. Please take a lookt at the
+`mini-tutorial`_ for an example.
+
+Basically, the code generation strategy changed from declarative with library support, to procedural,
+breadth or depth first, using only standard Python_. The procedural code must know the AST_ structure
+to navigate it, although other strategies are available with ``PreOrderWalker``, ``DepthFirstWalker``,
+and ``ContextWalker``.
 
 **deprecated**
-
-**note**
-    As of |TatSu| 3.2.0, code generation was separated from grammar
-    models through ``tatsu.codegen.CodeGenerator`` as to allow for code
-    generation targets different from `Python`_. Still, the use of
-    inline templates and ``rendering.Renderer`` hasn't changed. See the
-    *regex* example for merged modeling and code generation.
 
 |TatSu| doesn't impose a way to create translators with it, but it
 exposes the facilities it uses to generate the `Python`_ source code for
