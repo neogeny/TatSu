@@ -47,7 +47,7 @@ input, much like the `re`_ module does with regular expressions, or it can gener
     semantics
     models
     print_translation
-    templates_translation
+    translation
     left_recursion
     mini-tutorial
     traces
