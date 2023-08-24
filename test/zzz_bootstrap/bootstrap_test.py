@@ -155,6 +155,7 @@ class BootstrapTests(unittest.TestCase):
 
         class PrintNameWalker(DepthFirstWalker):
             def __init__(self):
+                super().__init__()
                 self.walked = []
 
             def walk_default(self, o, children):

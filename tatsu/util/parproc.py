@@ -38,20 +38,21 @@ class ParprocResult:
 
 def processing_loop(process, filenames, *args, verbose=False, exitfirst=False, **kwargs):
     all_results = []
-    successful_results = []
+    results_count = 0
+    success_count = 0
     total = len(filenames)
     total_time = 0
     start_time = time.time()
     try:
         results = process_in_parallel(filenames, process, *args, **kwargs)
-        results = results or []
-        for _, result in enumerate(results, start=1):
+        for result in results:
             if result is None:
                 continue
             all_results.append(result)
+            results_count = len(all_results)
 
             total_time = time.time() - start_time
-            file_process_progress(all_results, successful_results, total, total_time, verbose=verbose)
+            file_process_progress(result, results_count, success_count, total, total_time, verbose=verbose)
 
             if result.exception:
                 if verbose:
@@ -61,12 +62,12 @@ def processing_loop(process, filenames, *args, verbose=False, exitfirst=False, *
                 if exitfirst:
                     raise KeyboardInterrupt
             else:
-                successful_results.append(result)
+                success_count += 1
     except KeyboardInterrupt:
         pass
     finally:
         file_process_summary(filenames, total_time, all_results, verbose=verbose)
-    return all_results
+    return results_count
 
 
 def process_payload(process, task, pickable=identity, **kwargs):
@@ -91,7 +92,7 @@ def process_payload(process, task, pickable=identity, **kwargs):
 
 
 def _executor_pmap(executor, process, tasks):
-    nworkers = max(1, cpu_count())
+    nworkers = max(1, cpu_count() - 1)
     n = nworkers * 8
     chunks = [tasks[i:i + n] for i in range(0, len(tasks), n)]
     for chunk in chunks:
@@ -110,14 +111,14 @@ def _process_pmap(process, tasks):
 
 
 def _imap_pmap(process, tasks):
-    nworkers = max(1, cpu_count())
+    nworkers = max(1, cpu_count() - 1)
 
     n = nworkers * 4
     chunks = [tasks[i:i + n] for i in range(0, len(tasks), n)]
 
     count = sum(len(c) for c in chunks)
     if len(tasks) != count:
-        raise Exception('number of chunked tasks different %d != %d' % (len(tasks), count))
+        raise EnvironmentError('number of chunked tasks different %d != %d' % (len(tasks), count))
     for chunk in chunks:
         with Pool(processes=nworkers) as pool:
             try:
@@ -126,7 +127,17 @@ def _imap_pmap(process, tasks):
                 raise
 
 
-_pmap = _imap_pmap
+def _imap_pmap_ng(process, tasks):
+    nworkers = max(1, cpu_count() - 1)
+    size = 16
+    with Pool(processes=nworkers, maxtasksperchild=size) as pool:
+        try:
+            yield from pool.imap_unordered(process, tasks, chunksize=2 * size)
+        except KeyboardInterrupt:
+            raise
+
+
+_pmap = _imap_pmap_ng
 
 
 def process_in_parallel(payloads, process, *args, **kwargs):
@@ -139,21 +150,20 @@ def process_in_parallel(payloads, process, *args, **kwargs):
 
     try:
         if len(tasks) == 1:
-            return [process(tasks[0])]
+            yield from [process(tasks[0])]
         else:
             pmap = _pmap if parallel else map
-            return pmap(process, tasks)
+            yield from pmap(process, tasks)
     except KeyboardInterrupt:
         raise
 
 
-def file_process_progress(results, successful, total, total_time, verbose=False):
-    i = len(results)
-    latest_result = results[-1]
+def file_process_progress(latest_result, results_count, success_count, total, total_time, verbose=False):
+    i = results_count
     filename = latest_result.payload
 
     percent = i / total
-    success_percent = len(successful) / total
+    success_percent = success_count / total
     mb_memory = (latest_result.memory + memory_use()) // (1024 * 1024)
 
     eta = (total - i) * 0.8 * total_time / (0.2 * i)

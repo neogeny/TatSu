@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import generator_stop
-
 import sys
 import unittest
 import pytest

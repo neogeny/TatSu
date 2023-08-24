@@ -1,47 +1,34 @@
-# -*- coding: utf-8 -*-
-from __future__ import generator_stop
-
 import sys
 
-from tatsu.codegen import ModelRenderer
-from tatsu.codegen import CodeGenerator
+from tatsu.model import Node
+from tatsu.walkers import NodeWalker
+from tatsu.mixins.indent import IndentPrintMixin
+
 
 THIS_MODULE = sys.modules[__name__]
 
 
-class PostfixCodeGenerator(CodeGenerator):
-    def __init__(self):
-        super().__init__(modules=[THIS_MODULE])
+class PostfixCodeGenerator(NodeWalker, IndentPrintMixin):
 
+    def walk_Add(self, node: Node, *args, **kwargs):
+        self.walk(node.left)  # type: ignore
+        self.walk(node.right)  # type: ignore
+        print('ADD')
 
-class Number(ModelRenderer):
-    template = '''\
-    PUSH {value}'''
+    def walk_Subtract(self, node: Node, *args, **kwargs):
+        self.walk(node.left)  # type: ignore
+        self.walk(node.right)  # type: ignore
+        print('SUB')
 
+    def walk_Multiply(self, node: Node, *args, **kwargs):
+        self.walk(node.left)  # type: ignore
+        self.walk(node.right)  # type: ignore
+        print('MUL')
 
-class Add(ModelRenderer):
-    template = '''\
-    {left}
-    {right}
-    ADD'''
+    def walk_Divide(self, node: Node, *args, **kwargs):
+        self.walk(node.left)  # type: ignore
+        self.walk(node.right)  # type: ignore
+        print('DIV')
 
-
-class Subtract(ModelRenderer):
-    template = '''\
-    {left}
-    {right}
-    SUB'''
-
-
-class Multiply(ModelRenderer):
-    template = '''\
-    {left}
-    {right}
-    MUL'''
-
-
-class Divide(ModelRenderer):
-    template = '''\
-    {left}
-    {right}
-    DIV'''
+    def walk_int(self, node: Node, *args, **kwargs):
+        print('PUSH', node)

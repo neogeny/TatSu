@@ -29,7 +29,7 @@ class AST(dict):
         super().__setitem__('parseinfo', value)
 
     def copy(self):
-        return self.__copy__()
+        return self.__copy__()  # pylint: disable=unnecessary-dunder-call
 
     def asjson(self):
         return asjson(self)
@@ -98,7 +98,7 @@ class AST(dict):
             return True
 
     def __reduce__(self):
-        return (AST, (), None, None, iter(self.items()))
+        return (AST, (list(self.items()),))
 
     def _safekey(self, key):
         while self.__hasattribute__(key):

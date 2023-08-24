@@ -4,11 +4,13 @@ Contributors
 ------------
 
 The following, among others, have contributed to |TatSu| with
-features, but reports, bug fixes, or suggestions:
+features, bug reports, bug fixes, or suggestions:
 
     `Alberto Berti`_,
     `Andy Wright`_,
     `Basel Shishani`_,
+    `Daniel Martin`_,
+    `Daniele Nicolodi`_,
     `David Chen`_,
     `David Delassus`_,
     `David Röthlisberger`_,
@@ -48,7 +50,8 @@ features, but reports, bug fixes, or suggestions:
     `neumond`_,
     `pdw-mb`_,
     `pgebhard`_,
-    `siemer`_
+    `siemer`_,
+    `by-Exist`_
 
 .. _commits: https://bitbucket.org/neogeny/grako/commits/all
 .. _issues: https://bitbucket.org/neogeny/grako/issues

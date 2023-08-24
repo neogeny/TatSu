@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import generator_stop
-
 import unittest
-from typing import Any
 
 from tatsu.tool import compile
 from tatsu.semantics import ModelBuilderSemantics
@@ -44,7 +41,7 @@ class SemanticsTests(unittest.TestCase):
         self.assertEqual('5.4.3.2.1', ast)
 
     def test_builder_subclassing(self):
-        registry = getattr(synth, "__REGISTRY")  # type: dict[str, Any]
+        registry = getattr(synth, "__REGISTRY")
 
         grammar = '''
             @@grammar :: Test

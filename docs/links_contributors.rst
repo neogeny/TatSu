@@ -3,6 +3,8 @@
 .. _Andy Wright: https://github.com/acw1251
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
+.. _Daniel Martin: https://github.com/fizbin
+.. _Daniele Nicolodi: https://github.com/dnicolodi
 .. _David Chen: https://github.com/davidchen
 .. _David Delassus: https://bitbucket.org/linkdd
 .. _David Röthlisberger: https://bitbucket.org/drothlis/
@@ -68,3 +70,4 @@
 .. _tonico_strasser: https://bitbucket.org/tonico_strasser
 .. _vinay.sajip: https://bitbucket.org/vinay.sajip
 .. _vmuriart: https://bitbucket.org/vmuriart
+.. _by-Exist: https://github.com/by-Exist

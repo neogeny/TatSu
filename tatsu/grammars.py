@@ -86,7 +86,7 @@ class EBNFBuffer(EBNFBootstrapBuffer):
 
 
 class ModelContext(ParseContext):
-    def __init__(self, rules, /, start=None, config: ParserConfig = None, **settings):
+    def __init__(self, rules, /, start=None, config: ParserConfig|None = None, **settings):
         config = ParserConfig.new(config, **settings)
         config = config.replace(start=start)
 
@@ -986,7 +986,7 @@ class BasedRule(Rule):
 
 
 class Grammar(Model):
-    def __init__(self, name, rules, /, config: ParserConfig = None, directives: dict = None, **settings):
+    def __init__(self, name, rules, /, config: ParserConfig|None = None, directives: dict|None = None, **settings):
         super().__init__()
         assert isinstance(rules, list), str(rules)
         directives = directives or {}
@@ -1081,14 +1081,14 @@ class Grammar(Model):
         for rule in self.rules:
             rule._follow_set = fl[rule.name]
 
-    def parse(self, text: str, /, config: ParserConfig = None, ctx=None, **settings):  # type: ignore # pylint: disable=arguments-differ
+    def parse(self, text: str, /, config: ParserConfig = None, ctx=None, **settings):  # type: ignore # pylint: disable=arguments-differ,arguments-renamed
         config = self.config.replace_config(config)
         config = config.replace(**settings)
 
         start = config.effective_rule_name()
         if start is None:
             start = self.rules[0].name
-            config.start_rule = start
+            config.start_rule = start  # FIXME
 
         if ctx is None:
             ctx = ModelContext(self.rules, config=config)

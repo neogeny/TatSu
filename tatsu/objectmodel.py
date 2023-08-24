@@ -48,6 +48,8 @@ class Node:
                 raise AttributeError("'%s' is a reserved name" % name)
 
         self._children = self.children_list()
+        if self.parseinfo is None:
+            del self.parseinfo
 
     @property
     def parent(self):
@@ -103,7 +105,7 @@ class Node:
 
     def _find_children(self):
         def with_parent(node):
-            node._parent = self
+            node._parent = weakref.proxy(self)
             return node
 
         def children_of(child):
@@ -180,13 +182,24 @@ class Node:
         else:
             return self.ast == other.ast
 
-    # FIXME
-    # def __getstate__(self):
-    #     state = self._pubdict()
-    #     return state
-    #
-    # def __setstate__(self, state):
-    #     self.__dict__ = dict(state)
+    def _nonrefdict(self):
+        return {
+            name: value
+            for name, value in vars(self).items()
+            if (
+                name not in ('_parent', '_children') and
+                type(value) not in (weakref.ReferenceType, weakref.ProxyType)
+            )
+        }
+
+    # NOTE: pickling is important for parallel parsing
+    def __getstate__(self):
+        state = self._nonrefdict()
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.children_list()
 
 
 ParseModel = Node

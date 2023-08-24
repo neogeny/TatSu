@@ -85,7 +85,7 @@ def identity(*args):
 
 
 def is_list(o):
-    return type(o) == list  # pylint: disable=unidiomatic-typecheck
+    return type(o) is list  # pylint: disable=unidiomatic-typecheck
 
 
 def to_list(o):
@@ -293,8 +293,14 @@ def plainjson(obj):
         return obj
 
 
+class FallbackJSONEncoder(json.JSONEncoder):
+    """A JSON Encoder that falls back to repr() for non-JSON-aware objects."""
+    def default(self, o):
+        return repr(o)
+
+
 def asjsons(obj):
-    return json.dumps(asjson(obj), indent=2)
+    return json.dumps(asjson(obj), indent=2, cls=FallbackJSONEncoder)
 
 
 def prune_dict(d, predicate):

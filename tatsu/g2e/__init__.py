@@ -6,7 +6,7 @@ import sys
 import pkgutil
 from os import path
 
-from tatsu import parse
+from tatsu import compile
 from .semantics import ANTLRSemantics
 
 
@@ -26,13 +26,14 @@ def translate(text=None, filename=None, name=None, encoding='utf-8', trace=False
     name = name or 'Unknown'
 
     semantics = ANTLRSemantics(name)
-    model = parse(
-        antlr_grammar(),
+    grammar = compile(antlr_grammar())
+    model = grammar.parse(
         text,
         name=name,
         filename=filename,
         semantics=semantics,
-        trace=trace
+        trace=trace,
+        colorize=True,
     )
     print(model)
 

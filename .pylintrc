@@ -165,7 +165,7 @@ disable=
     # c-extension-no-member,  # I1101
     # literal-comparison,  # R0123
     # comparison-with-itself,  # R0124
-    no-self-use,  # R0201
+    # no-self-use,  # R0201 / moved to extension
     # no-classmethod-decorator,  # R0202
     # no-staticmethod-decorator,  # R0203
     # useless-object-inheritance,  # R0205
@@ -217,7 +217,7 @@ disable=
     consider-using-with,  # R1732
     # unnecessary-dict-index-lookup,  # R1733
     # use-list-literal,  # R1734
-    # use-dict-literal,  # R1735
+    use-dict-literal,  # R1735
     # unreachable,  # W0101
     # dangerous-default-value,  # W0102
     # pointless-statement,  # W0104

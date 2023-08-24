@@ -5,15 +5,7 @@ tatsu_test: clean
 	pytest
 
 
-documentation: clean changelog readme sphinx
-
-
-changelog:
-	rst2html5 CHANGELOG.rst > /dev/null
-
-
-readme:
-	pandoc README.rst -t gfm --wrap=none > README.md
+documentation: clean sphinx
 
 
 sphinx:
@@ -32,11 +24,15 @@ calc_test:
 
 lint: flake8 pylint mypy
 
+
 flake8:
-	flake8
+	flake8 tatsu
+
 
 pylint:
 	pylint --ignore=bootstrap.py,model.py tatsu test examples
+
+
 
 mypy:
 	mypy   --ignore-missing-imports .

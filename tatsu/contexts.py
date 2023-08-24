@@ -11,6 +11,7 @@ from tatsu.util.unicode_characters import (
     C_SUCCESS,
     C_FAILURE,
     C_RECURSION,
+    C_CUT,
 )
 from . import tokenizing
 from . import buffering
@@ -100,7 +101,7 @@ class closure(list):
 
 
 class ParseContext:
-    def __init__(self, /, config: ParserConfig = None, **settings):
+    def __init__(self, /, config: ParserConfig|None = None, **settings):
         super().__init__()
         config = ParserConfig.new(config, **settings)
         self.config = config
@@ -210,7 +211,7 @@ class ParseContext:
         if not self._furthest_exception or e.pos > self._furthest_exception.pos:
             self._furthest_exception = e
 
-    def parse(self, text, /, config: ParserConfig = None, **settings):
+    def parse(self, text, /, config: ParserConfig|None = None, **settings):
         config = self.config.replace_config(config)
         config = config.replace(**settings)
         self._active_config = config
@@ -278,11 +279,11 @@ class ParseContext:
             self._tokenizer.next_token()
 
     def _define(self, keys, list_keys=None):
-        if self.ast and isinstance(self.ast, AST):
-            ast = AST()
-            ast._define(keys, list_keys=list_keys)
-            ast.update(self.ast)
-            self.ast = ast
+        # if self.ast and isinstance(self.ast, AST):
+        ast = AST()
+        ast._define(keys, list_keys=list_keys)
+        ast.update(self.ast)
+        self.ast = ast
 
     @property
     def state(self):
@@ -420,6 +421,7 @@ class ParseContext:
         return self._cut_stack[-1]
 
     def _cut(self):
+        self._trace_cut()
         self._cut_stack[-1] = True
 
         # Kota Mizushima et al say that we can throw away
@@ -509,6 +511,9 @@ class ParseContext:
 
     def _trace_recursion(self):
         self._trace_event(color.Fore.RED + color.Style.BRIGHT + C_RECURSION)
+
+    def _trace_cut(self):
+        self._trace_event(color.Fore.MAGENTA + color.Style.BRIGHT + C_CUT)
 
     def _trace_match(self, token, name=None, failed=False):
         if self.trace:
@@ -773,7 +778,7 @@ class ParseContext:
     @contextmanager
     def _option(self):
         self.last_node = None
-        self._cut_stack.append(False)
+        self._cut_stack += [False]
         try:
             with self._try():
                 yield

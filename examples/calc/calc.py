@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import generator_stop
-
 import json
 from pprint import pprint
 
@@ -52,7 +50,7 @@ class CalcBasicSemantics:
         elif ast.op == '/':
             return ast.left / ast.right
         else:
-            raise Exception('Unknown operator', ast.op)
+            raise ValueError('Unknown operator', ast.op)
 
     def expression(self, ast):
         if not isinstance(ast, AST):
@@ -62,7 +60,7 @@ class CalcBasicSemantics:
         elif ast.op == '-':
             return ast.left - ast.right
         else:
-            raise Exception('Unknown operator', ast.op)
+            raise ValueError('Unknown operator', ast.op)
 
 
 def parse_with_basic_semantics():
@@ -162,7 +160,9 @@ def parse_and_translate():
     parser = tatsu.compile(grammar, asmodel=True)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
-    postfix = PostfixCodeGenerator().render(model)
+    codegen = PostfixCodeGenerator()
+    codegen.walk(model)
+    postfix = codegen.printed_text()
 
     print()
     print('# TRANSLATED TO POSTFIX')

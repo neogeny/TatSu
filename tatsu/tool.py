@@ -154,7 +154,7 @@ def parse_args():
 __compiled_grammar_cache = {}  # type: ignore
 
 
-def compile(grammar, name=None, semantics=None, asmodel=False, config: ParserConfig = None, **settings):
+def compile(grammar, name=None, semantics=None, asmodel=False, config: ParserConfig|None = None, **settings):
     cache = __compiled_grammar_cache
 
     key = (name, grammar, id(semantics))
@@ -172,30 +172,30 @@ def compile(grammar, name=None, semantics=None, asmodel=False, config: ParserCon
     return model
 
 
-def parse(grammar, input, start=None, name=None, semantics=None, asmodel=False, config: ParserConfig = None, **settings):
+def parse(grammar, input, start=None, name=None, semantics=None, asmodel=False, config: ParserConfig|None = None, **settings):
     model = compile(grammar, name=name, semantics=semantics, asmodel=asmodel, config=config, **settings)
     return model.parse(input, start=start, semantics=semantics, config=config, **settings)
 
 
-def to_python_sourcecode(grammar, name=None, filename=None, config: ParserConfig = None, **settings):
+def to_python_sourcecode(grammar, name=None, filename=None, config: ParserConfig|None = None, **settings):
     model = compile(grammar, name=name, filename=filename, config=config, **settings)
     return pythoncg(model)
 
 
-def to_python_model(grammar, name=None, filename=None, base_type=None, config: ParserConfig = None, **settings):
+def to_python_model(grammar, name=None, filename=None, base_type=None, config: ParserConfig|None = None, **settings):
     model = compile(grammar, name=name, filename=filename, config=config, **settings)
     return objectmodel.codegen(model, base_type=base_type)
 
 
 # for backwards compatibility. Use `compile()` instead
-def genmodel(name=None, grammar=None, semantics=None, config: ParserConfig = None, **settings):
+def genmodel(name=None, grammar=None, semantics=None, config: ParserConfig|None = None, **settings):
     if grammar is None:
         raise ParseException('grammar is None')
 
     return compile(grammar, name=name, semantics=semantics, config=config, **settings)
 
 
-def gencode(name=None, grammar=None, trace=False, filename=None, codegen=pythoncg, config: ParserConfig = None, **settings):
+def gencode(name=None, grammar=None, trace=False, filename=None, codegen=pythoncg, config: ParserConfig|None = None, **settings):
     model = compile(grammar, name=name, filename=filename, trace=trace, config=config, **settings)
     return codegen(model)
 

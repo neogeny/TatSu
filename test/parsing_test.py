@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import generator_stop
-
 import unittest
 import tempfile
 
@@ -59,22 +57,35 @@ class ParsingTests(unittest.TestCase):
         self.assertEqual('\nañez', eval_escapes(r'\na\xf1ez'))
         self.assertEqual('\nañez', eval_escapes(r'\nañez'))
 
-    def test_rule_name(self):
+    def test_start(self):
         grammar = '''
             @@grammar :: Test
 
-            start = test $;
-            test = "test";
+            true = "test" @:`True` $;
+            false = "test" @:`False` $;
+
         '''
         model = tatsu.compile(grammar=grammar)
         self.assertEqual('Test', model.directives.get('grammar'))
         self.assertEqual('Test', model.name)
 
+        # By default, parsing starts from the first rule in the grammar.
         ast = model.parse("test")
-        self.assertEqual(ast, "test")
+        self.assertEqual(ast, True)
 
-        ast = tatsu.parse(grammar, "test", rule_name='start')
-        self.assertEqual(ast, "test")
+        # The start rule can be passed explicitly.
+        ast = model.parse("test", start='true')
+        self.assertEqual(ast, True)
+        # Backward compatibility argument name.
+        ast = model.parse("test", rule_name='true')
+        self.assertEqual(ast, True)
+
+        # The default rule can be overwritten.
+        ast = tatsu.parse(grammar, "test", start='false')
+        self.assertEqual(ast, False)
+        # Backward compatibility argument name.
+        ast = tatsu.parse(grammar, "test", rule_name='false')
+        self.assertEqual(ast, False)
 
     def test_rule_capitalization(self):
         grammar = '''
@@ -84,13 +95,13 @@ class ParsingTests(unittest.TestCase):
         test_string = 'test 12'
         lowercase_rule_names = ['nocaps', 'camelCase', 'tEST']
         uppercase_rule_names = ['Capitalized', 'CamelCase', 'TEST']
-        ref_lowercase_result = tatsu.parse(grammar.format(rulename='reflowercase'), test_string, rule_name='start')
-        ref_uppercase_result = tatsu.parse(grammar.format(rulename='Refuppercase'), test_string, rule_name='start')
+        ref_lowercase_result = tatsu.parse(grammar.format(rulename='reflowercase'), test_string)
+        ref_uppercase_result = tatsu.parse(grammar.format(rulename='Refuppercase'), test_string)
         for rulename in lowercase_rule_names:
-            result = tatsu.parse(grammar.format(rulename=rulename), test_string, rule_name='start')
+            result = tatsu.parse(grammar.format(rulename=rulename), test_string)
             self.assertEqual(result, ref_lowercase_result)
         for rulename in uppercase_rule_names:
-            result = tatsu.parse(grammar.format(rulename=rulename), test_string, rule_name='start')
+            result = tatsu.parse(grammar.format(rulename=rulename), test_string)
             self.assertEqual(result, ref_uppercase_result)
 
     def test_startrule_issue62(self):
