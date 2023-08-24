@@ -30,7 +30,7 @@ the ``IndentPrintConstructor``:
 .. code:: python
 
         with self.indent*():
-            self.prtin(wal_expression(node.exp))
+            self.prtin(walk_expression(node.exp))
 
 The printed code can be retrieved using the ``printed_text()`` method. Other
 posibilities are available by assigning a text-like object to
