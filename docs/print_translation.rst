@@ -19,8 +19,9 @@ and should be used thus:
 
     class MyTranslationWalker(NodeWalker, IndentPrintMixin):
 
-        with self.indent*():
-            # ccontinue walking the tree
+        def walk_SomeNode(self, node):
+            with self.indent():
+                # ccontinue walking the tree
 
 
 The ``self.print()`` method takes note of the current level of indentation, so
@@ -29,8 +30,9 @@ the ``IndentPrintConstructor``:
 
 .. code:: python
 
-        with self.indent*():
-            self.prtin(walk_expression(node.exp))
+    def walk_SomeNode(self, node):
+        with self.indent():
+            self.print(walk_expression(node.exp))
 
 The printed code can be retrieved using the ``printed_text()`` method. Other
 posibilities are available by assigning a text-like object to

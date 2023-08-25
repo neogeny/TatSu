@@ -11,24 +11,28 @@ THIS_MODULE = sys.modules[__name__]
 class PostfixCodeGenerator(NodeWalker, IndentPrintMixin):
 
     def walk_Add(self, node: Node, *args, **kwargs):
-        self.walk(node.left)  # type: ignore
-        self.walk(node.right)  # type: ignore
-        print('ADD')
+        with self.indent():
+            self.walk(node.left)  # type: ignore
+            self.walk(node.right)  # type: ignore
+            self.print('ADD')
 
     def walk_Subtract(self, node: Node, *args, **kwargs):
-        self.walk(node.left)  # type: ignore
-        self.walk(node.right)  # type: ignore
-        print('SUB')
+        with self.indent():
+            self.walk(node.left)  # type: ignore
+            self.walk(node.right)  # type: ignore
+            self.print('SUB')
 
     def walk_Multiply(self, node: Node, *args, **kwargs):
-        self.walk(node.left)  # type: ignore
-        self.walk(node.right)  # type: ignore
-        print('MUL')
+        with self.indent():
+            self.walk(node.left)  # type: ignore
+            self.walk(node.right)  # type: ignore
+            self.print('MUL')
 
     def walk_Divide(self, node: Node, *args, **kwargs):
-        self.walk(node.left)  # type: ignore
-        self.walk(node.right)  # type: ignore
-        print('DIV')
+        with self.indent():
+            self.walk(node.left)  # type: ignore
+            self.walk(node.right)  # type: ignore
+            self.print('DIV')
 
     def walk_int(self, node: Node, *args, **kwargs):
-        print('PUSH', node)
+        self.print('PUSH', node)

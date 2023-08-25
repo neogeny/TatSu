@@ -660,29 +660,31 @@ The following code generator translates input expressions to the postfix instruc
     class PostfixCodeGenerator(NodeWalker, IndentPrintMixin):
 
         def walk_Add(self, node: Node, *args, **kwargs):
-            self.walk(node.left)
-            self.walk(node.right)
-            print('ADD')
-
+            with self.indent():
+                self.walk(node.left)  # type: ignore
+                self.walk(node.right)  # type: ignore
+                self.print('ADD')
 
         def walk_Subtract(self, node: Node, *args, **kwargs):
-            self.walk(node.left)
-            self.walk(node.right)
-            print('SUB')
-
+            with self.indent():
+                self.walk(node.left)  # type: ignore
+                self.walk(node.right)  # type: ignore
+                self.print('SUB')
 
         def walk_Multiply(self, node: Node, *args, **kwargs):
-            self.walk(node.left)
-            self.walk(node.right)
-            print('MUL')
+            with self.indent():
+                self.walk(node.left)  # type: ignore
+                self.walk(node.right)  # type: ignore
+                self.print('MUL')
 
         def walk_Divide(self, node: Node, *args, **kwargs):
-            self.walk(node.left)
-            self.walk(node.right)
-            print('DIV')
+            with self.indent():
+                self.walk(node.left)  # type: ignore
+                self.walk(node.right)  # type: ignore
+                self.print('DIV')
 
-        def walk_int(self, node:Node, *args, **kwargs):
-            print('PUSH', node)
+        def walk_int(self, node: Node, *args, **kwargs):
+            self.print('PUSH', node)
 
 
 
@@ -691,10 +693,10 @@ Save the above program in ``calc_translate.py`` and execute it to get this resul
 .. code:: python
 
     # TRANSLATED TO POSTFIX
-    PUSH 3
-    PUSH 5
-    PUSH 10
-    PUSH 20
-    SUB
-    MUL
-    ADD
+        PUSH 3
+            PUSH 5
+                PUSH 10
+                PUSH 20
+                SUB
+            MUL
+        ADD
