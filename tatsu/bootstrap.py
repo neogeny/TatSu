@@ -27,7 +27,7 @@ KEYWORDS = {
 
 
 class EBNFBootstrapBuffer(Buffer):
-    def __init__(self, text, /, config: ParserConfig|None = None, **settings):
+    def __init__(self, text, /, config: ParserConfig = None, **settings):
         config = ParserConfig.new(
             config,
             owner=self,
@@ -44,7 +44,7 @@ class EBNFBootstrapBuffer(Buffer):
 
 
 class EBNFBootstrapParser(Parser):
-    def __init__(self, /, config: ParserConfig|None = None, **settings):
+    def __init__(self, /, config: ParserConfig = None, **settings):
         config = ParserConfig.new(
             config,
             owner=self,
@@ -1057,7 +1057,7 @@ class EBNFBootstrapParser(Parser):
                 self._raw_string_()
             self._error(
                 'expecting one of: '
-                "'r' <STRING> <raw_string> <string>"
+                '<STRING> <raw_string> <string> r'
             )
 
     @tatsumasu()
@@ -1079,12 +1079,12 @@ class EBNFBootstrapParser(Parser):
                 self._int_()
             self._error(
                 'expecting one of: '
-                "'False' 'True' 'r' (?!\\d)\\w+"
+                "'False' 'True' (?!\\d)\\w+"
                 '0[xX](?:\\d|[a-fA-F])+ <STRING> <boolean>'
                 '<float> <hex> <int> <raw_string>'
                 '<string> <word> [-'
                 '+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-'
-                '+]?\\d+)? [-+]?\\d+'
+                '+]?\\d+)? [-+]?\\d+ r'
             )
 
     @tatsumasu()
@@ -1093,7 +1093,7 @@ class EBNFBootstrapParser(Parser):
 
     @tatsumasu()
     def _raw_string_(self):  # noqa
-        self._token('r')
+        self._pattern('r')
         self._STRING_()
         self.name_last_node('@')
 
@@ -1101,22 +1101,17 @@ class EBNFBootstrapParser(Parser):
     def _STRING_(self):  # noqa
         with self._choice():
             with self._option():
-                self._token('"')
-                self._cut()
-                self._pattern('(?:[^"\\n]|\\\\"|\\\\\\\\)*')
+                self._pattern('"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"')
                 self.name_last_node('@')
-                self._token('"')
                 self._cut()
             with self._option():
-                self._token("'")
-                self._cut()
-                self._pattern("(?:[^'\\n]|\\\\'|\\\\\\\\)*")
+                self._pattern("'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'")
                 self.name_last_node('@')
-                self._token("'")
                 self._cut()
             self._error(
                 'expecting one of: '
-                '"\'" \'"\''
+                '"((?:[^"\\n]|\\"|\\\\)*?)"'
+                "'((?:[^'\\n]|\\'|\\\\)*?)'"
             )
 
     @tatsumasu()
