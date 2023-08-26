@@ -343,11 +343,11 @@ class SyntaxTests(unittest.TestCase):
 
 def test_parse_hash():
     grammar = r'''
-        @@comments :: //
-        @@eol_comments :: //
+        @@comments :: /@@@@@@@/
+        @@eol_comments :: /@@@@@@@/
 
         start = '#' ;
     '''
 
-    parser = compile(grammar)
+    parser = compile(grammar, eol_comments_re='')
     parser.parse('#', trace=True)
