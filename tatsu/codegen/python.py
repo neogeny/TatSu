@@ -467,12 +467,11 @@ class Grammar(Base):
         else:
             nameguard = 'None'
 
-        comments_re = repr(self.node.config.comments)
-        eol_comments_re = repr(self.node.config.eol_comments)
         ignorecase = self.node.config.ignorecase
         left_recursion = self.node.config.left_recursion
         parseinfo = self.node.config.parseinfo
         namechars = repr(self.node.config.namechars or '')
+        eol_comments = eol_comments_re = self.config.eol_comments_re
 
         rules = '\n'.join([
             self.get_renderer(rule).render() for rule in self.node.rules
@@ -492,8 +491,6 @@ class Grammar(Base):
                       whitespace=whitespace,
                       nameguard=nameguard,
                       ignorecase=ignorecase,
-                      comments_re=comments_re,
-                      eol_comments_re=eol_comments_re,
                       left_recursion=left_recursion,
                       parseinfo=parseinfo,
                       keywords=keywords,
@@ -537,10 +534,7 @@ class Grammar(Base):
                         config = ParserConfig.new(
                             config,
                             owner=self,
-                            whitespace={whitespace},
                             nameguard={nameguard},
-                            comments_re={comments_re},
-                            eol_comments_re={eol_comments_re},
                             ignorecase={ignorecase},
                             namechars={namechars},
                             parseinfo={parseinfo},
@@ -554,10 +548,7 @@ class Grammar(Base):
                         config = ParserConfig.new(
                             config,
                             owner=self,
-                            whitespace={whitespace},
                             nameguard={nameguard},
-                            comments_re={comments_re},
-                            eol_comments_re={eol_comments_re},
                             ignorecase={ignorecase},
                             namechars={namechars},
                             parseinfo={parseinfo},

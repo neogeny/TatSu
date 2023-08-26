@@ -31,10 +31,7 @@ class EBNFBootstrapBuffer(Buffer):
         config = ParserConfig.new(
             config,
             owner=self,
-            whitespace=None,
             nameguard=None,
-            comments_re='(?sm)[(][*](?:.|\\n)*?[*][)]',
-            eol_comments_re='#[^\\n]*$',
             ignorecase=False,
             namechars='',
             parseinfo=True,
@@ -48,10 +45,7 @@ class EBNFBootstrapParser(Parser):
         config = ParserConfig.new(
             config,
             owner=self,
-            whitespace=None,
             nameguard=None,
-            comments_re='(?sm)[(][*](?:.|\\n)*?[*][)]',
-            eol_comments_re='#[^\\n]*$',
             ignorecase=False,
             namechars='',
             parseinfo=True,
