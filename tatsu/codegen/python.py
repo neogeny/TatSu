@@ -471,7 +471,6 @@ class Grammar(Base):
         left_recursion = self.node.config.left_recursion
         parseinfo = self.node.config.parseinfo
         namechars = repr(self.node.config.namechars or '')
-        eol_comments = eol_comments_re = self.config.eol_comments_re
 
         rules = '\n'.join([
             self.get_renderer(rule).render() for rule in self.node.rules
@@ -530,7 +529,7 @@ class Grammar(Base):
 
 
                 class {name}Buffer(Buffer):
-                    def __init__(self, text, /, config: ParserConfig = None, **settings):
+                    def __init__(self, text, /, config: ParserConfig | None = None, **settings):
                         config = ParserConfig.new(
                             config,
                             owner=self,
@@ -544,7 +543,7 @@ class Grammar(Base):
 
 
                 class {name}Parser(Parser):
-                    def __init__(self, /, config: ParserConfig = None, **settings):
+                    def __init__(self, /, config: ParserConfig | None = None, **settings):
                         config = ParserConfig.new(
                             config,
                             owner=self,
