@@ -341,6 +341,7 @@ class SyntaxTests(unittest.TestCase):
         self.assertEqual(ast._true, True)
         self.assertEqual(ast._false, False)
 
+
 def test_parse_hash():
     grammar = r'''
         @@comments :: /@@@@@@@/
