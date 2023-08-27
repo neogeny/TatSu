@@ -115,6 +115,19 @@ class ParsingTests(unittest.TestCase):
         model = tatsu.compile(grammar=grammar)
         model.parse('4 + 5')
 
+    def test_skip_whitespace(self):
+        grammar = '''
+            statement = 'FOO' subject $ ;
+            subject = name:id ;
+            id = /[a-z]+/ ;
+        '''
+        model = tatsu.compile(grammar=grammar)
+        ast = model.parse('FOO   bar', parseinfo=True)
+        subject = ast[1]
+        assert subject['name'] == 'bar'
+        parseinfo = subject['parseinfo']
+        assert parseinfo.pos == parseinfo.tokenizer.text.index('bar')
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ParsingTests)
