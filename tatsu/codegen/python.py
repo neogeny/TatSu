@@ -467,8 +467,6 @@ class Grammar(Base):
         else:
             nameguard = 'None'
 
-        comments_re = repr(self.node.config.comments)
-        eol_comments_re = repr(self.node.config.eol_comments)
         ignorecase = self.node.config.ignorecase
         left_recursion = self.node.config.left_recursion
         parseinfo = self.node.config.parseinfo
@@ -492,8 +490,6 @@ class Grammar(Base):
                       whitespace=whitespace,
                       nameguard=nameguard,
                       ignorecase=ignorecase,
-                      comments_re=comments_re,
-                      eol_comments_re=eol_comments_re,
                       left_recursion=left_recursion,
                       parseinfo=parseinfo,
                       keywords=keywords,
@@ -533,14 +529,11 @@ class Grammar(Base):
 
 
                 class {name}Buffer(Buffer):
-                    def __init__(self, text, /, config: ParserConfig = None, **settings):
+                    def __init__(self, text, /, config: ParserConfig | None = None, **settings):
                         config = ParserConfig.new(
                             config,
                             owner=self,
-                            whitespace={whitespace},
                             nameguard={nameguard},
-                            comments_re={comments_re},
-                            eol_comments_re={eol_comments_re},
                             ignorecase={ignorecase},
                             namechars={namechars},
                             parseinfo={parseinfo},
@@ -550,14 +543,11 @@ class Grammar(Base):
 
 
                 class {name}Parser(Parser):
-                    def __init__(self, /, config: ParserConfig = None, **settings):
+                    def __init__(self, /, config: ParserConfig | None = None, **settings):
                         config = ParserConfig.new(
                             config,
                             owner=self,
-                            whitespace={whitespace},
                             nameguard={nameguard},
-                            comments_re={comments_re},
-                            eol_comments_re={eol_comments_re},
                             ignorecase={ignorecase},
                             namechars={namechars},
                             parseinfo={parseinfo},

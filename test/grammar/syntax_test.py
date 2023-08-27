@@ -340,3 +340,14 @@ class SyntaxTests(unittest.TestCase):
         self.assertEqual(ast._string_space, "string space")
         self.assertEqual(ast._true, True)
         self.assertEqual(ast._false, False)
+
+def test_parse_hash():
+    grammar = r'''
+        @@comments :: /@@@@@@@/
+        @@eol_comments :: /@@@@@@@/
+
+        start = '#' ;
+    '''
+
+    parser = compile(grammar, eol_comments_re='')
+    parser.parse('#', trace=True)
