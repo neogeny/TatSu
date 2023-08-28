@@ -3,6 +3,7 @@ import unittest
 
 from tatsu.exceptions import FailedParse
 from tatsu.tool import compile
+from tatsu import tool
 from tatsu.util import trim
 from tatsu.codegen import codegen
 from tatsu.grammars import EBNFBuffer
@@ -352,3 +353,13 @@ def test_parse_hash():
 
     parser = compile(grammar, eol_comments_re='')
     parser.parse('#', trace=True)
+
+
+def test_parse_void():
+    grammar = r'''
+        start = () $ ;
+    '''
+
+    ast = tool.parse(grammar, '')
+    print(ast)
+    assert ast is None
