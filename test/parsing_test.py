@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+import json
 import unittest
 import tempfile
 
 import tatsu
-from tatsu.util import trim, eval_escapes
+from tatsu.util import trim, eval_escapes, asjson
 from tatsu.grammars import EBNFBuffer
 
 
@@ -122,7 +123,8 @@ class ParsingTests(unittest.TestCase):
             id = /[a-z]+/ ;
         '''
         model = tatsu.compile(grammar=grammar)
-        ast = model.parse('FOO   bar', parseinfo=True)
+        ast = model.parse('FOO' + ' ' * 3 + 'bar', parseinfo=True)
+        print(json.dumps(asjson(ast), indent=2))
         subject = ast[1]
         assert subject['name'] == 'bar'
         parseinfo = subject['parseinfo']
