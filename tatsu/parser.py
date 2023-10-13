@@ -1,7 +1,7 @@
-from __future__ import annotations
-
 import re
+from typing import Any
 
+from .infos import ParserConfig
 from .buffering import Buffer
 from .grammars import PRAGMA_RE
 from .semantics import ASTSemantics
@@ -10,17 +10,13 @@ from .bootstrap import EBNFBootstrapParser
 
 
 class EBNFBuffer(Buffer):
-    def __init__(
-            self, text, filename=None, comments_re=None, eol_comments_re=None, **kwargs):
-        super().__init__(
-            text,
+    def __init__(self, text, /, filename=None, config: ParserConfig|None = None, **settings: Any):
+        config = ParserConfig.new(
+            config=config,
+            owner=self,
             filename=filename,
-            memoize_lookaheads=False,
-            comment_recovery=True,
-            comments_re=comments_re,
-            eol_comments_re=eol_comments_re,
-            **kwargs
-        )
+            **settings)
+        super().__init__(text, config=config)
 
     def process_block(self, name, lines, index, **kwargs):
         i = 0
@@ -46,19 +42,26 @@ class EBNFBuffer(Buffer):
 
 
 class EBNFParser(EBNFBootstrapParser):
-    def __init__(self, semantics=None, **kwargs):
+    def __init__(self, name: str | None = None, config: ParserConfig|None = None, semantics=None, **settings: Any):
         if semantics is None:
             semantics = ASTSemantics()
-        super().__init__(semantics=semantics, **kwargs)
+        config = ParserConfig.new(
+            config=config,
+            name=name,
+            semantics=semantics,
+            **settings)
+        super().__init__(config)
 
 
 class GrammarGenerator(EBNFBootstrapParser):
-    def __init__(self, grammar_name=None, semantics=None, parseinfo=True, **kwargs):
+    def __init__(self, name: str | None = None, config: ParserConfig|None = None, semantics=None, **settings: Any):
         if semantics is None:
-            semantics = EBNFGrammarSemantics(grammar_name)
-        super().__init__(
+            semantics = EBNFGrammarSemantics(name)
+        config = ParserConfig.new(
+            config=config,
+            name=name,
             semantics=semantics,
-            parseinfo=parseinfo,
             tokenizercls=EBNFBuffer,
-            **kwargs
+            **settings,
         )
+        super().__init__(config)
