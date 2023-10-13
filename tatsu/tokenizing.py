@@ -40,6 +40,9 @@ class Tokenizer:
     def token(self):
         return self.current
 
+    def eat_whitespace(self):
+        raise NotImplementedError
+
     def next(self):
         raise NotImplementedError
 

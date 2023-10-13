@@ -569,6 +569,7 @@ class ParseContext:
 
     @property
     def memokey(self):
+        self.tokenizer.eat_whitespace()
         return MemoKey(self._pos, self.rule, self.substate)
 
     def _memoize(self, key, memo):
