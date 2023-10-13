@@ -5,7 +5,7 @@ import tempfile
 
 import tatsu
 from tatsu.util import trim, eval_escapes, asjson
-from tatsu.grammars import EBNFBuffer
+from tatsu.parser import EBNFBuffer
 
 
 class MockIncludeBuffer(EBNFBuffer):

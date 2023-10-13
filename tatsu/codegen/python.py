@@ -530,22 +530,6 @@ class Grammar(Base):
                 KEYWORDS = {{{keywords}}}  # type: ignore
 
 
-                class {name}Tokenizer(Buffer):
-                    def __init__(self, text, /, config: ParserConfig | None = None, **settings):
-                        config = ParserConfig.new(
-                            config,
-                            owner=self,
-                            nameguard={nameguard},
-                            ignorecase={ignorecase},
-                            namechars={namechars},
-                            parseinfo={parseinfo},
-                            comments_re={comments_re},
-                            eol_comments_re={eol_comments_re},
-                        )
-                        config = config.replace(**settings)
-                        super().__init__(text, config=config)
-
-
                 class {name}Parser(Parser):
                     def __init__(self, /, config: ParserConfig | None = None, **settings):
                         config = ParserConfig.new(

@@ -6,7 +6,7 @@ from tatsu.tool import compile
 from tatsu import tool
 from tatsu.util import trim
 from tatsu.codegen import codegen
-from tatsu.grammars import EBNFBuffer
+from tatsu.parser import EBNFBuffer
 
 
 class SyntaxTests(unittest.TestCase):
