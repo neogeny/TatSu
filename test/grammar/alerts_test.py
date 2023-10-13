@@ -5,7 +5,7 @@ from tatsu.tool import parse
 
 def test_alert_interpolation():
     input = '42 69'
-    grammar = '''
+    grammar = r'''
             start = a:number b: number i:^`"seen: {a}, {b}"` $ ;
             number = /\d+/ ;
     '''

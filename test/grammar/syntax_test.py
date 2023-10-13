@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import unittest
+import pytest
 
-from tatsu.exceptions import FailedParse
+from tatsu.exceptions import FailedParse, FailedToken
 from tatsu.tool import compile
 from tatsu import tool
 from tatsu.util import trim
 from tatsu.codegen import codegen
-from tatsu.grammars import EBNFBuffer
+from tatsu.parser import EBNFBuffer
 
 
 class SyntaxTests(unittest.TestCase):
@@ -363,3 +364,16 @@ def test_parse_void():
     ast = tool.parse(grammar, '')
     print(ast)
     assert ast is None
+
+
+def test_no_default_comments():
+    grammar = '''
+        start = 'a' $;
+    '''
+
+    text = '''
+        # no comments are valid
+        a
+    '''
+    with pytest.raises(FailedToken):
+        tool.parse(grammar, text)

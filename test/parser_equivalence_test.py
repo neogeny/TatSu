@@ -10,7 +10,7 @@ INPUT = """
 """
 OUTPUT = {'number_of_dice': '1', 'sides': '3'}
 
-GRAMMAR = """
+GRAMMAR = r"""
     start = expression $;
 
     int = /-?\d+/ ;
@@ -82,7 +82,7 @@ def test_error_messages():
 
 # @pytest.mark.skip('work in progress')
 def test_name_checked():
-    grammar = '''
+    grammar = r'''
         @@grammar :: Test
         @@ignorecase :: True
         @@keyword :: if
@@ -123,7 +123,7 @@ def test_first_rule():
 
 
 def test_dynamic_compiled_ast():
-    grammar = '''
+    grammar = r'''
         test::Test = 'TEST' ['A' a:number] ['B' b:number] ;
         number::int = /\d+/ ;
     '''

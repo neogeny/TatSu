@@ -471,6 +471,8 @@ class Grammar(Base):
         left_recursion = self.node.config.left_recursion
         parseinfo = self.node.config.parseinfo
         namechars = repr(self.node.config.namechars or '')
+        comments_re = repr(self.node.config.comments_re)
+        eol_comments_re = repr(self.node.config.eol_comments_re)
 
         rules = '\n'.join([
             self.get_renderer(rule).render() for rule in self.node.rules
@@ -494,6 +496,8 @@ class Grammar(Base):
                       parseinfo=parseinfo,
                       keywords=keywords,
                       namechars=namechars,
+                      comments_re=comments_re,
+                      eol_comments_re=eol_comments_re,
                       )
 
     abstract_rule_template = '''
@@ -513,11 +517,8 @@ class Grammar(Base):
                 # Any changes you make to it will be overwritten the next time
                 # the file is generated.
 
-                from __future__ import annotations
-
                 import sys
 
-                from tatsu.buffering import Buffer
                 from tatsu.parsing import Parser
                 from tatsu.parsing import tatsumasu
                 from tatsu.parsing import leftrec, nomemo, isname # noqa
@@ -526,20 +527,6 @@ class Grammar(Base):
 
 
                 KEYWORDS = {{{keywords}}}  # type: ignore
-
-
-                class {name}Buffer(Buffer):
-                    def __init__(self, text, /, config: ParserConfig | None = None, **settings):
-                        config = ParserConfig.new(
-                            config,
-                            owner=self,
-                            nameguard={nameguard},
-                            ignorecase={ignorecase},
-                            namechars={namechars},
-                            parseinfo={parseinfo},
-                        )
-                        config = config.replace(**settings)
-                        super().__init__(text, config=config)
 
 
                 class {name}Parser(Parser):
@@ -551,6 +538,8 @@ class Grammar(Base):
                             ignorecase={ignorecase},
                             namechars={namechars},
                             parseinfo={parseinfo},
+                            comments_re={comments_re},
+                            eol_comments_re={eol_comments_re},
                             keywords=KEYWORDS,
                             start={start!r},
                         )

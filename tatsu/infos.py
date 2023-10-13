@@ -15,10 +15,6 @@ from .util.unicode_characters import C_DERIVE
 from .tokenizing import Tokenizer
 
 
-COMMENTS_RE = r'\(\*((?:.|\n)*?)\*\)'
-EOL_COMMENTS_RE = r'#([^\n]*?)$'
-
-
 @dataclasses.dataclass
 class ParserConfig:
     owner: Any = None
@@ -30,8 +26,8 @@ class ParserConfig:
     start_rule: str|None = None  # FIXME
     rule_name: str|None = None  # Backward compatibility
 
-    comments_re: str|None = COMMENTS_RE
-    eol_comments_re: str|None = EOL_COMMENTS_RE
+    comments_re: str|None = None
+    eol_comments_re: str|None = None
 
     tokenizercls: Type[Tokenizer]|None = None  # FIXME
     semantics: Type|None = None

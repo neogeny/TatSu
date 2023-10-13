@@ -9,11 +9,8 @@
 # Any changes you make to it will be overwritten the next time
 # the file is generated.
 
-from __future__ import annotations
-
 import sys
 
-from tatsu.buffering import Buffer
 from tatsu.parsing import Parser
 from tatsu.parsing import tatsumasu
 from tatsu.parsing import leftrec, nomemo, isname # noqa
@@ -26,20 +23,6 @@ KEYWORDS = {
 }  # type: ignore
 
 
-class EBNFBootstrapBuffer(Buffer):
-    def __init__(self, text, /, config: ParserConfig | None = None, **settings):
-        config = ParserConfig.new(
-            config,
-            owner=self,
-            nameguard=None,
-            ignorecase=False,
-            namechars='',
-            parseinfo=True,
-        )
-        config = config.replace(**settings)
-        super().__init__(text, config=config)
-
-
 class EBNFBootstrapParser(Parser):
     def __init__(self, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(
@@ -49,6 +32,8 @@ class EBNFBootstrapParser(Parser):
             ignorecase=False,
             namechars='',
             parseinfo=True,
+            comments_re='(?sm)[(][*](?:.|\\n)*?[*][)]',
+            eol_comments_re='#[^\\n]*$',
             keywords=KEYWORDS,
             start='start',
         )
