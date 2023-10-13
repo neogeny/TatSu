@@ -519,7 +519,6 @@ class Grammar(Base):
 
                 import sys
 
-                from tatsu.buffering import Buffer
                 from tatsu.parsing import Parser
                 from tatsu.parsing import tatsumasu
                 from tatsu.parsing import leftrec, nomemo, isname # noqa

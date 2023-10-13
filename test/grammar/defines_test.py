@@ -6,7 +6,7 @@ from tatsu.tool import compile, gencode
 
 
 def test_name_in_option():
-    grammar = '''
+    grammar = r'''
         start = expr_range ;
 
         expr_range =
@@ -41,7 +41,7 @@ def test_name_in_option():
 
 
 def test_by_option():
-    grammar = '''
+    grammar = r'''
         start = expr_range ;
 
         expr_range =

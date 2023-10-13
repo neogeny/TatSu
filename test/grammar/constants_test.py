@@ -5,7 +5,7 @@ from tatsu.tool import parse
 
 def test_constant_interpolation():
     input = '42 69'
-    grammar = '''
+    grammar = r'''
             start = a:number b: number i:`"seen: {a}, {b}"` $ ;
             number = /\d+/ ;
     '''
@@ -14,7 +14,7 @@ def test_constant_interpolation():
 
 def test_constant_interpolation_free():
     input = '42 69'
-    grammar = '''
+    grammar = r'''
             start = a:number b: number i:`seen: {a}, {b}` $ ;
             number = /\d+/ ;
     '''
@@ -23,7 +23,7 @@ def test_constant_interpolation_free():
 
 def test_constant_interpolation_multiline():
     input = '42 69'
-    grammar = '''
+    grammar = r'''
             start = a:number b: number
             i:```
             seen:

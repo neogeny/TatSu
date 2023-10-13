@@ -127,7 +127,7 @@ class KeywordTests(unittest.TestCase):
                 self.assertTrue('"%s" is a reserved word' % k in str(e))
 
     def test_ignorecase_keywords(self):
-        grammar = '''
+        grammar = r'''
             @@ignorecase :: True
             @@keyword :: if
 
