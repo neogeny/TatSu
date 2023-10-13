@@ -377,4 +377,3 @@ def test_no_default_comments():
     '''
     with pytest.raises(FailedToken):
         tool.parse(grammar, text)
-
