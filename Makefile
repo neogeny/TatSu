@@ -51,25 +51,19 @@ clean:
 
 
 release_check: clean documentation
-	python setup.py sdist --formats=zip
 	tox
 	@echo version `python -m tatsu --version`
 
 
-distributions: clean sdist bdist_wheel
+build: clean
+	pip install -U build
+	python -m build
 
 
-sdist:
-	python setup.py sdist --formats=zip
-
-
-bdist_wheel:
-	python setup.py bdist_wheel --universal
-
-
-test_upload: distributions
+test_upload: build
+	pip install -U twine
 	twine upload --repository test dist/*
 
 
-upload: release_check distributions
+upload: release_check build
 	twine upload dist/*
