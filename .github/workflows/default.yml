@@ -48,4 +48,4 @@ jobs:
         make documentation
     - name: distributions
       run: |
-        make sdist
+        make build
