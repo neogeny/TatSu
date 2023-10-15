@@ -4,10 +4,9 @@ import weakref
 from copy import copy
 from collections import defaultdict
 
-from tatsu.util import asjson
-from tatsu.util import join_lists
-from tatsu.exceptions import ParseException
-from tatsu.infos import LineIndexInfo
+from .util import asjson, join_lists
+from .exceptions import ParseException
+from .infos import LineIndexInfo
 
 
 DEFAULT_SEPARATOR = '.'

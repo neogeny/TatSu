@@ -1,3 +1,44 @@
 [build-system]
 requires = ["setuptools>=46.4", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "TatSu"
+dynamic = ["version"]
+authors = [
+    {name = "Juancarlo Añez", email = "apalala@gmail.com"},
+]
+description = "TatSu takes a grammar in a variation of EBNF as input, and outputs a memoizing PEG/Packrat parser in Python."
+readme = "README.rst"
+requires-python = ">=3.11"
+keywords = []
+license = {file = "LICENSE.TXT"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Environment :: Console",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Software Development :: Compilers",
+    "Topic :: Software Development :: Interpreters",
+    "Topic :: Text Processing :: General",
+]
+dependencies = []
+
+[project.optional-dependencies]
+colorization = ["colorama"]
+
+[project.scripts]
+tatsu = "tatsu:main"
+g2e = "tatsu.g2e:main"
+
+[tool.setuptools]
+packages = ["tatsu"]
+
+[tool.setuptools.dynamic]
+version = {attr = "tatsu._version.__version__"}

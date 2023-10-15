@@ -6,7 +6,7 @@ import functools
 from contextlib import contextmanager
 from copy import copy
 
-from tatsu.util.unicode_characters import (
+from .util.unicode_characters import (
     C_ENTRY,
     C_SUCCESS,
     C_FAILURE,
@@ -30,7 +30,7 @@ from .infos import (
     ParseState,
     ParserConfig,
 )
-from tatsu.exceptions import (  # noqa pylint:disable=unused-import
+from .exceptions import (  # noqa pylint:disable=unused-import
     FailedCut,
     FailedExpectingEndOfText,
     FailedLeftRecursion,

@@ -7,7 +7,7 @@ from pathlib import Path
 from copy import copy
 from itertools import takewhile
 
-from tatsu.util import (
+from .util import (
     indent, trim, compress_seq, chunks,
     re,
 )

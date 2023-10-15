@@ -4,7 +4,7 @@ import itertools
 
 import pygraphviz as pgv  # pylint: disable=E0401
 
-from tatsu.walkers import NodeWalker
+from .walkers import NodeWalker
 
 
 __all__ = ['draw']

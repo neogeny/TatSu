@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from tatsu._config import __version__
-from tatsu._config import __toolname__
-from tatsu.tool import (  # pylint: disable=W0622
+from ._config import __version__
+from ._config import __toolname__
+from .tool import (  # pylint: disable=W0622
     main,
     compile,
     parse,

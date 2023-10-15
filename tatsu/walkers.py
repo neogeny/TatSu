@@ -4,8 +4,8 @@ import re
 from typing import Any, Mapping
 from contextlib import contextmanager
 
-from tatsu.objectmodel import Node
-from tatsu.util import is_list
+from .objectmodel import Node
+from .util import is_list
 
 
 class NodeWalkerMeta(type):

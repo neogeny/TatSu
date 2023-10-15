@@ -4,6 +4,7 @@ include *.ini
 include *.md
 include *.rst
 include *.txt
+include *.toml
 include *.yaml
 include Makefile
 

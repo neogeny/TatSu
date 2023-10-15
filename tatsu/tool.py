@@ -9,16 +9,16 @@ import os
 import sys
 import importlib
 
-from tatsu._version import __version__
-from tatsu.util import eval_escapes
-from tatsu.exceptions import ParseException
-from tatsu.parser import GrammarGenerator
-from tatsu.semantics import ModelBuilderSemantics
-from tatsu.infos import ParserConfig
+from ._version import __version__
+from .util import eval_escapes
+from .exceptions import ParseException
+from .parser import GrammarGenerator
+from .semantics import ModelBuilderSemantics
+from .infos import ParserConfig
 
 # we hook the tool to the Python code generator as the default
-from tatsu.codegen.python import codegen as pythoncg
-from tatsu.codegen import objectmodel
+from .codegen.python import codegen as pythoncg
+from .codegen import objectmodel
 
 DESCRIPTION = (
     'TatSu takes a grammar'
