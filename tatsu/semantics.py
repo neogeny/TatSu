@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import builtins
-from tatsu.util import simplify_list
-from tatsu.exceptions import SemanticError
-from tatsu.objectmodel import Node
-from tatsu.objectmodel import BASE_CLASS_TOKEN
-from tatsu.synth import synthesize
+from .util import simplify_list
+from .exceptions import SemanticError
+from .objectmodel import Node
+from .objectmodel import BASE_CLASS_TOKEN
+from .synth import synthesize
 
 
 class ASTSemantics:

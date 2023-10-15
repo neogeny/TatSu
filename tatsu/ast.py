@@ -3,7 +3,7 @@ from __future__ import annotations
 import operator
 from functools import reduce
 
-from tatsu.util import asjson, is_list
+from .util import asjson, is_list
 
 
 class AST(dict):
