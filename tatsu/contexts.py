@@ -569,7 +569,6 @@ class ParseContext:
 
     @property
     def memokey(self):
-        self.tokenizer.eat_whitespace()
         return MemoKey(self._pos, self.rule, self.substate)
 
     def _memoize(self, key, memo):
@@ -638,13 +637,13 @@ class ParseContext:
         prune_dict(self._memos, filter)
 
     def _recursive_call(self, ruleinfo):
-        if not ruleinfo.is_leftrec:
-            return self._invoke_rule(ruleinfo, self.memokey)
-        elif not self.left_recursion:
-            self._error('Left recursion detected', exclass=FailedLeftRecursion)
-
         self._next_token(ruleinfo)
         key = self.memokey
+
+        if not ruleinfo.is_leftrec:
+            return self._invoke_rule(ruleinfo, key)
+        elif not self.left_recursion:
+            self._error('Left recursion detected', exclass=FailedLeftRecursion)
 
         self._recursion_depth += 1
         if key in self._results:

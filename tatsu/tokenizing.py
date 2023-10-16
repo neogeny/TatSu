@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from .util._common import _prints
 from .exceptions import ParseError  # noqa
 
@@ -39,9 +37,6 @@ class Tokenizer:
     @property
     def token(self):
         return self.current
-
-    def eat_whitespace(self):
-        raise NotImplementedError
 
     def next(self):
         raise NotImplementedError
