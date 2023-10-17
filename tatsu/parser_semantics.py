@@ -54,6 +54,9 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
     def int(self, ast):
         return int(ast)
 
+    def null(self, ast):
+        return None
+
     def cut_deprecated(self, ast, *args):
         warning('The use of >> for cut is deprecated. Use the ~ symbol instead.')
         return grammars.Cut()

@@ -434,8 +434,8 @@ class EBNFBootstrapParser(Parser):
             self._error(
                 'expecting one of: '
                 '(?!\\d)\\w+(?:::(?!\\d)\\w+)+ <boolean>'
-                '<float> <hex> <int> <literal> <path>'
-                '<raw_string> <string> <word>'
+                '<float> <hex> <int> <literal> <null>'
+                '<path> <raw_string> <string> <word>'
             )
 
     @tatsumasu()
@@ -999,10 +999,7 @@ class EBNFBootstrapParser(Parser):
         with self._group():
             with self._choice():
                 with self._option():
-                    self._token('```')
-                    self._cut()
-                    self._pattern('(?ms)((?:.|\\n)*?)(?:```)')
-                    self.name_last_node('@')
+                    self._pattern('(?ms)```((?:.|\\n)*?)```')
                 with self._option():
                     self._token('`')
                     self._literal_()
@@ -1012,7 +1009,7 @@ class EBNFBootstrapParser(Parser):
                     self._pattern('`(.*?)`')
                 self._error(
                     'expecting one of: '
-                    "'`' '```' `(.*?)`"
+                    "'`' (?ms)```((?:.|\\n)*?)``` `(.*?)`"
                 )
 
     @tatsumasu('Alert')
@@ -1056,11 +1053,13 @@ class EBNFBootstrapParser(Parser):
                 self._float_()
             with self._option():
                 self._int_()
+            with self._option():
+                self._null_()
             self._error(
                 'expecting one of: '
-                "'False' 'True' (?!\\d)\\w+"
+                "'False' 'None' 'True' (?!\\d)\\w+"
                 '0[xX](?:\\d|[a-fA-F])+ <STRING> <boolean>'
-                '<float> <hex> <int> <raw_string>'
+                '<float> <hex> <int> <null> <raw_string>'
                 '<string> <word> [-'
                 '+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-'
                 '+]?\\d+)? [-+]?\\d+ r'
@@ -1168,6 +1167,10 @@ class EBNFBootstrapParser(Parser):
                 'expecting one of: '
                 "'False' 'True'"
             )
+
+    @tatsumasu()
+    def _null_(self):  # noqa
+        self._token('None')
 
     @tatsumasu('EOF')
     def _eof_(self):  # noqa
@@ -1378,6 +1381,9 @@ class EBNFBootstrapSemantics:
         return ast
 
     def boolean(self, ast):  # noqa
+        return ast
+
+    def null(self, ast):  # noqa
         return ast
 
     def eof(self, ast):  # noqa
