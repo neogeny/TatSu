@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import ast as stdlib_ast
 from typing import Type
 import functools
 from contextlib import contextmanager
@@ -19,7 +20,7 @@ from . import color
 from .ast import AST
 from .collections import OrderedSet as oset
 from .util import prune_dict, is_list, info, safe_name
-from .util import left_assoc, right_assoc
+from .util import left_assoc, right_assoc, trim
 from .tokenizing import Tokenizer
 from .infos import (
     Alert,
@@ -380,8 +381,6 @@ class ParseContext:
 
     def _append_cst(self, node):
         self.last_node = node
-        if node is None:
-            return
         previous = self.cst
         if previous is None:
             self.cst = self._copy_node(node)
@@ -733,6 +732,13 @@ class ParseContext:
     def _constant(self, literal):
         self._next_token()
         self._trace_match(literal)
+        if isinstance(literal, str):
+            try:
+                literal = stdlib_ast.literal_eval(literal.strip())
+            except (ValueError, SyntaxError):
+                if '\n' in literal:
+                    literal = trim(literal)
+                literal = eval(f'{"f" + repr(literal)}', {}, self.ast)  # pylint: disable=eval-used
         self._append_cst(literal)
         return literal
 

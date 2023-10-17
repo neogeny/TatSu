@@ -367,13 +367,15 @@ semantic action. For example::
 
   boolean_option = name ['=' (boolean|`true`) ] ;
 
-String interpolation in the style of ``str.format()`` over the names
-in the current `AST`_ is applied for *constant* elements. Occurrences of
-the ``{`` character must be scaped to ``\{`` if they are not intended
-for interpolation. A *constant* expression that hast type ``str`` is
-evaluated using::
 
-  eval(f'{repr(constant)}.format(**{ast})')
+If the text evaluates to a Python literal (with ``ast.literal_eval()``), that
+will be the returned value.  Otherwise, string interpolation in the style of
+``str.format()`` over the names in the current `AST`_ is applied for
+*constant* elements. Occurrences of the ``{`` character must be scaped to
+``\{`` if they are not intended for interpolation. A *constant* expression
+that hast type ``str`` is evaluated using::
+
+  eval(f'{"f" + repr(text)}', {}, ast)
 
 
 `````constant`````

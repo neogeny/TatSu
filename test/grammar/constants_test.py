@@ -36,3 +36,18 @@ def test_constant_interpolation_multiline():
     result = parse(grammar, input)
     print(result)
     assert result == {'a': '42', 'b': '69', 'i': 'seen:\n42\n69\n'}
+
+
+def test_evaluate_constant():
+    grammar = '''
+        @@grammar :: constants
+        start = int bool str null 'a' $;
+
+        int = `42` ;
+        bool = `True` ;
+        str = `Something` ;
+        null = `None` ;
+    '''
+
+    ast = parse(grammar, 'a')
+    assert ast == (42, True, 'Something', None, 'a')

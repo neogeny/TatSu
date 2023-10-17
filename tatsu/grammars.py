@@ -301,13 +301,7 @@ class Constant(Model):
         self.literal = self.ast
 
     def parse(self, ctx):
-        if isinstance(self.literal, str):
-            text = self.literal
-            if '\n' in text:
-                text = trim(text)
-            return eval(f'{"f" + repr(text)}', {}, dict(ctx.ast))  # pylint: disable=eval-used
-        else:
-            return self.literal
+        return ctx._constant(self.literal)
 
     def _first(self, k, f):
         return {()}

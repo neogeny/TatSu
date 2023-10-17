@@ -35,7 +35,7 @@ pylint:
 
 
 mypy:
-	mypy   --ignore-missing-imports .
+	mypy   --ignore-missing-imports . --exclude dist
 
 
 clean:

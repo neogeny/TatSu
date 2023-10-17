@@ -9,4 +9,5 @@ def test_alert_interpolation():
             start = a:number b: number i:^`"seen: {a}, {b}"` $ ;
             number = /\d+/ ;
     '''
-    assert parse(grammar, input) == {'a': '42', 'b': '69', 'i': 'seen: 42, 69'}
+    ast = parse(grammar, input)
+    assert ast == {'a': '42', 'b': '69', 'i': 'seen: 42, 69'}
