@@ -1,3 +1,5 @@
+import json  # noqa
+import tatsu
 from tatsu.objectmodel import Node
 
 
@@ -27,3 +29,82 @@ def test_node_kwargs():
 
     atom = Atom(ast={'bar': 1}, symbol='foo')
     assert atom.ast == {'bar': 1}
+
+
+def test_children():
+    grammar = r"""
+        @@grammar::Calc
+
+
+        start
+            =
+            expression $
+            ;
+
+
+        expression
+            =
+            | add:addition
+            | sub:subtraction
+            | term:term
+            ;
+
+
+        addition::Add
+            =
+            left:term op:'+' ~ right:expression
+            ;
+
+
+        subtraction::Subtract
+            =
+            left:term op:'-' ~ right:expression
+            ;
+
+
+        term
+            =
+            | mul:multiplication
+            | div:division
+            | factor:factor
+            ;
+
+
+        multiplication::Multiply
+            =
+            left:factor op:'*' ~ right:term
+            ;
+
+
+        division::Divide
+            =
+            left:factor '/' ~ right:term
+            ;
+
+
+        factor
+            =
+            | subexpression
+            | number
+            ;
+
+
+        subexpression
+            =
+            '(' ~ @:expression ')'
+            ;
+
+
+        number::int
+            =
+            /\d+/
+            ;
+    """
+
+    parser = tatsu.compile(grammar, asmodel=True)
+    assert parser
+    model = parser.parse('3 + 5 * ( 10 - 20 )', asmodel=True)
+    assert model
+    assert model['add']
+    assert model['add'].children()
+    assert type(model['add'].children()[0]).__name__ == 'Multiply'
