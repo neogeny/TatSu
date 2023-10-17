@@ -391,12 +391,8 @@ name
 
 constant::Constant
     =
-    &"`"
-    (
-        | "```" ~ @:/(?ms)((?:.|\n)*?)(?:```)/
-        | "`" @:literal "`"
-        | /`(.*?)`/
-    )
+    | /(?ms)```(.|\n)*?```/
+    | /`(.*?)`/
     ;
 
 
@@ -414,7 +410,7 @@ token::Token
 
 literal
     =
-    string | raw_string | boolean | word | hex | float | int
+    string | raw_string | boolean | word | hex | float | int | null
     ;
 
 
@@ -497,6 +493,12 @@ regex
 boolean
     =
     'True' | 'False'
+    ;
+
+
+ null
+    =
+    'None'
     ;
 
 
