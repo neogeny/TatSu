@@ -1,4 +1,4 @@
-import json  # noqa
+import json  # noqa, pylint: disable=unused-import
 import tatsu
 from tatsu.objectmodel import Node
 
