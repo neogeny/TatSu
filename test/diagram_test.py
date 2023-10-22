@@ -1,6 +1,4 @@
-import sys
 import unittest
-import pytest
 
 from tatsu.tool import compile
 from tatsu.util import PY37
