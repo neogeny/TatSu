@@ -90,7 +90,6 @@ class BufferingTests(unittest.TestCase):
         b = Buffer('\n')
         self.assertEqual(2, b.linecount)
 
-    @unittest.skip('not valid')
     def test_namechars(self):
         grammar = '''
             @@namechars :: '-'
@@ -100,7 +99,7 @@ class BufferingTests(unittest.TestCase):
                 "key-word-extra" ~ ";"
                 ;
         '''
-        self.assertEqual(['key-word-extra', ';'], parse(grammar, 'key-word-extra;'))
+        self.assertEqual(('key-word-extra', ';'), parse(grammar, 'key-word-extra;'))
 
 
 def suite():
