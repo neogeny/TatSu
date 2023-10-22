@@ -8,7 +8,6 @@ from tatsu.util import PY37
 
 class DiagramTests(unittest.TestCase):
 
-    @pytest.mark.skipif(sys.version_info >= (3, 7), reason="pygraphviz not yet updated")
     def test_dot(self):
         grammar = '''
             start = "foo\\nbar" $;
