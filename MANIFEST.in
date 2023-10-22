@@ -7,6 +7,9 @@ include *.txt
 include *.toml
 include *.yaml
 include Makefile
+include .pylintrc
+
+include grammar/*
 
 
 include docs/*
