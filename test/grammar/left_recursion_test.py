@@ -511,7 +511,6 @@ class LeftRecursionTests(unittest.TestCase):
 
         assert ('a', ('a', 'a')) == parse(right_grammar, 'aaa')
 
-    @unittest.skip('PEG associativity not implemented')
     def test_peg_associativity(self):
         left_grammar = '''
             @@left_recursion :: True
@@ -521,7 +520,7 @@ class LeftRecursionTests(unittest.TestCase):
             A = | A 'a' | 'a' A | 'a' ;
         '''
 
-        assert (('a', 'a'), 'a') == parse(left_grammar, 'aaa')
+        assert ('a', ('a', 'a')) == parse(left_grammar, 'aaa')
 
         right_grammar = '''
             @@left_recursion :: True
@@ -531,7 +530,7 @@ class LeftRecursionTests(unittest.TestCase):
             A = | 'a' A | A 'a' | 'a' ;
         '''
 
-        assert ['a', ['a', 'a']] == parse(right_grammar, 'aaa')
+        assert ('a', ('a', 'a')) == parse(right_grammar, 'aaa')
 
     def test_nullable_void(self):
         left_grammar = '''
