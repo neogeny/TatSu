@@ -521,7 +521,7 @@ class LeftRecursionTests(unittest.TestCase):
             A = | A 'a' | 'a' A | 'a' ;
         '''
 
-        assert [['a', 'a'], 'a'] == parse(left_grammar, 'aaa')
+        assert (('a', 'a'), 'a') == parse(left_grammar, 'aaa')
 
         right_grammar = '''
             @@left_recursion :: True
