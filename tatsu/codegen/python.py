@@ -460,7 +460,7 @@ class Grammar(Base):
         elif isinstance(whitespace, RETYPE):
             whitespace = repr(whitespace)
         else:
-            whitespace = 're.compile({0})'.format(repr(whitespace))
+            whitespace = f're.compile(r"{whitespace}")'
 
         if self.node.config.nameguard is not None:
             nameguard = repr(self.node.config.nameguard)
@@ -519,6 +519,7 @@ class Grammar(Base):
 
                 import sys
 
+                from tatsu.buffering import Buffer
                 from tatsu.parsing import Parser
                 from tatsu.parsing import tatsumasu
                 from tatsu.parsing import leftrec, nomemo, isname # noqa
@@ -529,11 +530,30 @@ class Grammar(Base):
                 KEYWORDS = {{{keywords}}}  # type: ignore
 
 
+                class {name}Buffer(Buffer):
+                    def __init__(self, text, /, config: ParserConfig = None, **settings):
+                        config = ParserConfig.new(
+                            config,
+                            owner=self,
+                            whitespace={whitespace},
+                            nameguard={nameguard},
+                            ignorecase={ignorecase},
+                            namechars={namechars},
+                            parseinfo={parseinfo},
+                            comments_re={comments_re},
+                            eol_comments_re={eol_comments_re},
+                            keywords=KEYWORDS,
+                            start={start!r},
+                        )
+                        config = config.replace(**settings)
+                        super().__init__(text, config=config)
+                        
                 class {name}Parser(Parser):
                     def __init__(self, /, config: ParserConfig | None = None, **settings):
                         config = ParserConfig.new(
                             config,
                             owner=self,
+                            whitespace={whitespace},
                             nameguard={nameguard},
                             ignorecase={ignorecase},
                             namechars={namechars},
