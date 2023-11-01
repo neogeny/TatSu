@@ -149,8 +149,8 @@ class Node:
             name: value
             for name, value in vars(self).items()
             if (
-                    not name.startswith('_') and
-                    name not in {'ast', 'ctx', 'parent', 'parseinfo'}
+                not name.startswith('_') and
+                name not in {'ast', 'ctx', 'parent', 'parseinfo'}
             )
         }
 

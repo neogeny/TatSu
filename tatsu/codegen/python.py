@@ -531,7 +531,7 @@ class Grammar(Base):
 
 
                 class {name}Buffer(Buffer):
-                    def __init__(self, text, /, config: ParserConfig = None, **settings):
+                    def __init__(self, text, /, config: ParserConfig | None = None, **settings):
                         config = ParserConfig.new(
                             config,
                             owner=self,
@@ -547,7 +547,8 @@ class Grammar(Base):
                         )
                         config = config.replace(**settings)
                         super().__init__(text, config=config)
-                        
+
+
                 class {name}Parser(Parser):
                     def __init__(self, /, config: ParserConfig | None = None, **settings):
                         config = ParserConfig.new(
