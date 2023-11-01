@@ -148,7 +148,10 @@ class Node:
         return {
             name: value
             for name, value in vars(self).items()
-            if not name.startswith('_') and name not in {'ast', 'ctx', 'parent'}
+            if (
+                    not name.startswith('_') and
+                    name not in {'ast', 'ctx', 'parent', 'parseinfo'}
+            )
         }
 
     def __json__(self):
