@@ -50,7 +50,7 @@ ESCAPE_SEQUENCE_RE = re.compile(
 )
 
 
-class ASJSONMixin:
+class AsJSONMixin:
     def __json__(self, seen=None):
         return asjson(
             {
