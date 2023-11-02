@@ -136,8 +136,11 @@ class Namespace:
     def __repr__(self):
         return '%s[]' % type(self).__name__
 
-    def __json__(self):
-        return {name: asjson(symbols) for name, symbols in self.entries.items()}
+    def __json__(self, seen=None):
+        return {
+            name: asjson(symbols, seen=seen)
+            for name, symbols in self.entries.items()
+        }
 
 
 class SymbolTable(Namespace):
@@ -247,11 +250,11 @@ class Symbol(Namespace):
     def __repr__(self):
         return '%s[]' % self.name
 
-    def __json__(self):
+    def __json__(self, seen=None):
         return dict([
             ('node', type(self.node).__name__),
-            ('entries', super().__json__()),
-            ('references', asjson(self._references)),
+            ('entries', super().__json__(seen=seen)),
+            ('references', asjson(self._references, seen=seen)),
         ])
 
     def __getstate__(self):
@@ -289,7 +292,7 @@ class BasedSymbol(Namespace):
                 return result
         return result
 
-    def __json__(self):
-        result = super().__json__()
-        result['bases'] = asjson([b.qualname() for b in self.bases])
+    def __json__(self, seen=None):
+        result = super().__json__(seen=seen)
+        result['bases'] = asjson([b.qualname() for b in self.bases], seen=seen)
         return result

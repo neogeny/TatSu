@@ -380,5 +380,5 @@ class Buffer(Tokenizer):
     def __repr__(self):
         return '%s@%d' % (type(self).__name__, self.pos)
 
-    def __json__(self):
+    def __json__(self, seen=None):
         return None
