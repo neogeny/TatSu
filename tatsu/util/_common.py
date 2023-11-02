@@ -249,14 +249,13 @@ def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements,too-ma
     if isinstance(obj, (int, float, str, bool)):
         return obj
 
+    if seen is None:
+        seen = set()
+    elif id(obj) in seen:
+        return f'{type(obj).__name__}@{id(obj)}'
+
     if isinstance(obj, Mapping) or isiter(obj):
-        # prevent traversal of recursive structures
-        if seen is None:
-            seen = set()
-        elif id(obj) in seen:
-            return f'{type(obj).__name__}@{id(obj)}'
-        else:
-            seen.add(id(obj))
+        seen.add(id(obj))
 
     if isinstance(obj, (weakref.ReferenceType, weakref.ProxyType)):
         return f'@0x{hex(id(obj)).upper()[2:]}'
