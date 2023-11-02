@@ -52,10 +52,13 @@ ESCAPE_SEQUENCE_RE = re.compile(
 
 class ASJSONMixin:
     def __json__(self, seen=None):
-        return {
-            '__class__': type(self).__name__,
-            **asjson(self._pubdict(), seen=seen)
-        }
+        return asjson(
+            {
+                '__class__': type(self).__name__,
+                **self._pubdict(),
+            },
+            seen=seen,
+        )
 
     def _pubdict(self):
         return {
@@ -241,11 +244,19 @@ def timestamp():
 
 
 def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements,too-many-branches
-    if seen is None:
-        seen = set()
-    elif id(obj) in seen:
-        return '__RECURSIVE__'
-    seen.add(id(obj))
+    if obj is None:
+        return obj
+    if isinstance(obj, (int, float, str, bool)):
+        return obj
+
+    if isinstance(obj, Mapping) or isiter(obj):
+        # prevent traversal of recursive structures
+        if seen is None:
+            seen = set()
+        elif id(obj) in seen:
+            return f'{type(obj).__name__}@{id(obj)}'
+        else:
+            seen.add(id(obj))
 
     if isinstance(obj, (weakref.ReferenceType, weakref.ProxyType)):
         return f'@0x{hex(id(obj)).upper()[2:]}'
@@ -268,8 +279,6 @@ def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements,too-ma
         return obj.value
     elif isiter(obj):
         return [asjson(e, seen=seen) for e in obj]
-    elif isinstance(obj, (int, float, str, bool)):
-        return obj
     else:
         return str(obj)
 
