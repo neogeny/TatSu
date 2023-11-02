@@ -50,6 +50,24 @@ ESCAPE_SEQUENCE_RE = re.compile(
 )
 
 
+class AsJSONMixin:
+    def __json__(self, seen=None):
+        return asjson(
+            {
+                '__class__': type(self).__name__,
+                **self._pubdict(),
+            },
+            seen=seen,
+        )
+
+    def _pubdict(self):
+        return {
+            name: value
+            for name, value in vars(self).items()
+            if not name.startswith('_')
+        }
+
+
 def is_posix():
     return os.name == 'posix'
 
@@ -226,25 +244,30 @@ def timestamp():
 
 
 def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements,too-many-branches
+    if obj is None:
+        return obj
+    if isinstance(obj, (int, float, str, bool)):
+        return obj
+
+    if seen is None:
+        seen = set()
+    elif id(obj) in seen:
+        return f'{type(obj).__name__}@{id(obj)}'
+
     if isinstance(obj, Mapping) or isiter(obj):
-        # prevent traversal of recursive structures
-        if seen is None:
-            seen = set()
-        elif id(obj) in seen:
-            return '__RECURSIVE__'
         seen.add(id(obj))
 
     if isinstance(obj, (weakref.ReferenceType, weakref.ProxyType)):
         return f'@0x{hex(id(obj)).upper()[2:]}'
     elif hasattr(obj, '__json__'):
-        return obj.__json__()
+        return obj.__json__(seen=seen)
     elif is_namedtuple(obj):
         return asjson(obj._asdict(), seen=seen)
     elif isinstance(obj, Mapping):
         result = {}
         for k, v in obj.items():
             try:
-                result[k] = asjson(v, seen)
+                result[k] = asjson(v, seen=seen)
             except TypeError:
                 debug('Unhashable key?', type(k), str(k))
                 raise
@@ -254,9 +277,9 @@ def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements,too-ma
     elif isinstance(obj, enum.Enum):
         return obj.value
     elif isiter(obj):
-        return [asjson(e, seen) for e in obj]
+        return [asjson(e, seen=seen) for e in obj]
     else:
-        return obj
+        return str(obj)
 
 
 def minjson(obj, typesfiltered=(str, list, dict)):

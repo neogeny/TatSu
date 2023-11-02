@@ -116,9 +116,9 @@ class AST(dict):
             if key not in self:
                 super().__setitem__(key, [])
 
-    def __json__(self):
+    def __json__(self, seen=None):
         return {
-            name: asjson(value)
+            name: asjson(value, seen=seen)
             for name, value in self.items()
         }
 

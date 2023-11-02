@@ -5,7 +5,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 import weakref
 
-from .util import asjson, asjsons
+from .util import asjson, asjsons, AsJSONMixin
 from .infos import CommentInfo, ParseInfo
 from .ast import AST
 
@@ -14,7 +14,7 @@ BASE_CLASS_TOKEN = '::'
 
 
 @dataclass(eq=False)
-class Node:
+class Node(AsJSONMixin):
     _parent: Node|None = None
     _children: list[Node]|None = None
     ast: AST|None = None
@@ -153,12 +153,6 @@ class Node:
                 name not in {'ast', 'ctx', 'parent', 'parseinfo'}
             )
         }
-
-    def __json__(self):
-        return asjson({
-            '__class__': type(self).__name__,
-            **self._pubdict()
-        })
 
     def __str__(self):
         return asjsons(self)
