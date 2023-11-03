@@ -244,9 +244,7 @@ def timestamp():
 
 
 def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements,too-many-branches
-    if obj is None:
-        return obj
-    if isinstance(obj, (int, float, str, bool)):
+    if obj is None or isinstance(obj, (int, float, str, bool)):
         return obj
 
     if seen is None:
@@ -254,32 +252,37 @@ def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements,too-ma
     elif id(obj) in seen:
         return f'{type(obj).__name__}@{id(obj)}'
 
-    if isinstance(obj, Mapping) or isiter(obj):
+    if isinstance(obj, (Mapping, AsJSONMixin)) or isiter(obj):
         seen.add(id(obj))
 
-    if isinstance(obj, (weakref.ReferenceType, weakref.ProxyType)):
-        return f'@0x{hex(id(obj)).upper()[2:]}'
-    elif hasattr(obj, '__json__'):
-        return obj.__json__(seen=seen)
-    elif is_namedtuple(obj):
-        return asjson(obj._asdict(), seen=seen)
-    elif isinstance(obj, Mapping):
-        result = {}
-        for k, v in obj.items():
-            try:
-                result[k] = asjson(v, seen=seen)
-            except TypeError:
-                debug('Unhashable key?', type(k), str(k))
-                raise
-        return result
-    elif isinstance(obj, uuid.UUID):
-        return str(obj)
-    elif isinstance(obj, enum.Enum):
-        return obj.value
-    elif isiter(obj):
-        return [asjson(e, seen=seen) for e in obj]
-    else:
-        return str(obj)
+    try:
+        if isinstance(obj, (weakref.ReferenceType, weakref.ProxyType)):
+            return f'@0x{hex(id(obj)).upper()[2:]}'
+        elif hasattr(obj, '__json__'):
+            return obj.__json__(seen=seen)
+        elif is_namedtuple(obj):
+            return asjson(obj._asdict(), seen=seen)
+        elif isinstance(obj, Mapping):
+            result = {}
+            for k, v in obj.items():
+                try:
+                    result[k] = asjson(v, seen=seen)
+                except TypeError:
+                    debug('Unhashable key?', type(k), str(k))
+                    raise
+            return result
+        elif isinstance(obj, uuid.UUID):
+            return str(obj)
+        elif isinstance(obj, enum.Enum):
+            return obj.value
+        elif isiter(obj):
+            return [asjson(e, seen=seen) for e in obj]
+        else:
+            return str(obj)
+    finally:
+        # NOTE: id()s may be reused
+        #   https://docs.python.org/3/library/functions.html#id
+        seen -= {id(obj)}
 
 
 def minjson(obj, typesfiltered=(str, list, dict)):
