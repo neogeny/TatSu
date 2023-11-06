@@ -11,7 +11,6 @@ import warnings
 import logging
 import weakref
 import enum
-import uuid
 import re
 from io import StringIO
 from typing import Iterable, Mapping, MutableSequence
@@ -271,12 +270,10 @@ def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements,too-ma
                     debug('Unhashable key?', type(k), str(k))
                     raise
             return result
-        elif isinstance(obj, uuid.UUID):
-            return str(obj)
-        elif isinstance(obj, enum.Enum):
-            return obj.value
         elif isiter(obj):
             return [asjson(e, seen=seen) for e in obj]
+        elif isinstance(obj, enum.Enum):
+            return asjson(obj.value)
         else:
             return str(obj)
     finally:
