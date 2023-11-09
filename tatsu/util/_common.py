@@ -275,7 +275,7 @@ def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements,too-ma
         elif isinstance(obj, enum.Enum):
             return asjson(obj.value)
         else:
-            return str(obj)
+            return repr(obj)
     finally:
         # NOTE: id()s may be reused
         #   https://docs.python.org/3/library/functions.html#id
