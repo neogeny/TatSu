@@ -188,7 +188,7 @@ def eval_escapes(s):
 def isiter(value):
     return (
         isinstance(value, Iterable) and
-        not isinstance(value, str)
+        not isinstance(value, (str, bytes, bytearray))
     )
 
 
