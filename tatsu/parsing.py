@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import inspect
 
-from .contexts import (  # noqa pylint: disable=unused-import
+from .contexts import (  # noqa: F401
     ParseContext,
     isname,
     leftrec,

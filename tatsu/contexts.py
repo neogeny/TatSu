@@ -9,10 +9,9 @@ from copy import copy
 from . import buffering, color, tokenizing
 from .ast import AST
 from .collections import OrderedSet as oset
-from .exceptions import (  # noqa pylint:disable=unused-import
+from .exceptions import (
     FailedCut,
     FailedExpectingEndOfText,
-    FailedKeyword,
     FailedKeywordSemantics,
     FailedLeftRecursion,
     FailedLookahead,
@@ -731,7 +730,7 @@ class ParseContext:
             except (ValueError, SyntaxError):
                 if '\n' in literal:
                     literal = trim(literal)
-                literal = eval(f'{"f" + repr(literal)}', {}, self.ast)  # noqa: S307
+                literal = eval(f'{"f" + repr(literal)}', {}, self.ast)  # noqa: S307, PGH001
         self._append_cst(literal)
         return literal
 

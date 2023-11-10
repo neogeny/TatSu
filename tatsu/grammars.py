@@ -1029,7 +1029,7 @@ class Grammar(Model):
         for rule in self.rules:
             rule._follow_set = fl[rule.name]
 
-    def parse(self, text: str, /, config: ParserConfig = None, ctx=None, **settings):  # type: ignore # pylint: disable=arguments-differ,arguments-renamed
+    def parse(self, text: str, /, config: ParserConfig | None = None, ctx=None, **settings):  # type: ignore[override]
         config = self.config.replace_config(config)
         config = config.replace(**settings)
 

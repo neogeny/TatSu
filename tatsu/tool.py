@@ -152,7 +152,7 @@ def parse_args():
     return args
 
 
-__compiled_grammar_cache = {}  # type: ignore
+__compiled_grammar_cache = {}  # type: ignore[var-annotated]
 
 
 def compile(grammar, name=None, semantics=None, asmodel=False, config: ParserConfig | None = None, **settings):
@@ -264,7 +264,7 @@ def main(codegen=pythoncg):
 
         print('-' * 72, file=sys.stderr)
         print(f'{len(grammar.split()):12,d}  lines in grammar', file=sys.stderr)
-        print('{:12,d}  rules in grammar'.format(len(model.rules)), file=sys.stderr)  # noqa
+        print(f'{len(model.rules):12,d}  rules in grammar', file=sys.stderr)
         print(f'{model.nodecount():12,d}  nodes in AST', file=sys.stderr)
     except ParseException as e:
         print(e, file=sys.stderr)

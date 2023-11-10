@@ -87,20 +87,20 @@ class OrderedSet(MutableSet[T], Sequence[T]):  # noqa: PLW1641
             [o] if not isinstance(o, set | Mapping | MutableSequence) else o
             for o in other
         )
-        inner = itertools.chain([self], *outer)  # type: ignore
-        items = itertools.chain.from_iterable(inner)  # type: ignore
+        inner = itertools.chain([self], *outer)
+        items = itertools.chain.from_iterable(inner)
         return type(self)(itertools.chain(items))
 
     def __and__(self, other: Iterable[Iterable[T]]) -> "OrderedSet[T]":
         return self.intersection(other)
 
     def intersection(self, *other: Iterable[Iterable[T]]) -> "OrderedSet[T]":
-        common = set.intersection(*other)  # type: ignore
+        common = set.intersection(*other)  # type: ignore[var-annotated, arg-type]
         items = (item for item in self if item in common)
         return type(self)(items)
 
     def difference(self, *other: Iterable[T]) -> "OrderedSet[T]":
-        other = set.union(*other)  # type: ignore
+        other = set.union(*other)  # type: ignore[assignment, arg-type]
         items = (item for item in self if item not in other)
         return type(self)(items)
 

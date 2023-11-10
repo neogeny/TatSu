@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ..exceptions import CodegenError
-from .cgbase import (  # noqa
+from .cgbase import (  # noqa: F401
     CodeGenerator,
     DelegatingRenderingFormatter,
     ModelRenderer,

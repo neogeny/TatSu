@@ -6,7 +6,7 @@ select = [
     'COM', 'C4', 'SIM',
     'PTH', 'TRY',
     'FLY', 'PERF', 'FURB', 'RUF',
-    'PL',
+    'PL', 'PGH',
 ]
 ignore = [
     'E501', 'E741', 'E402',

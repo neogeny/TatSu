@@ -46,7 +46,7 @@ class ParserConfig:
 
     comments: str | None = None
     eol_comments: str | None = None
-    keywords: list[str] | set[str] = dataclasses.field(default_factory=list)  # type: ignore
+    keywords: list[str] | set[str] = dataclasses.field(default_factory=list)
 
     ignorecase: bool | None = False
     namechars: str = ''
