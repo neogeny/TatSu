@@ -152,7 +152,7 @@ class Symbol(Namespace):
     def __init__(self, name, node, ignorecase=False, duplicates=False):
         super().__init__(ignorecase=ignorecase, duplicates=duplicates)
         if not isinstance(name, str):
-            raise ValueError('"%s" is not a valid symbol name' % name)
+            raise TypeError('"%s" is not a valid symbol name' % name)
         self.name = name
         self._node = node
         self._parent = None

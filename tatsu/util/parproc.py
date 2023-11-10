@@ -59,7 +59,7 @@ def processing_loop(process, filenames, *args, verbose=False, exitfirst=False, *
                         print(file=sys.stderr)
                         print(f'{result.exception.split()[0]:16} {result.payload}', file=sys.stderr)
                 if exitfirst:
-                    raise KeyboardInterrupt
+                    raise KeyboardInterrupt  # noqa: TRY301
             else:
                 success_count += 1
     except KeyboardInterrupt:
@@ -120,20 +120,14 @@ def _imap_pmap(process, tasks):
         raise OSError('number of chunked tasks different %d != %d' % (len(tasks), count))
     for chunk in chunks:
         with Pool(processes=nworkers) as pool:
-            try:
-                yield from pool.imap_unordered(process, chunk)
-            except KeyboardInterrupt:
-                raise
+            yield from pool.imap_unordered(process, chunk)
 
 
 def _imap_pmap_ng(process, tasks):
     nworkers = max(1, cpu_count() - 1)
     size = 16
     with Pool(processes=nworkers, maxtasksperchild=size) as pool:
-        try:
-            yield from pool.imap_unordered(process, tasks, chunksize=2 * size)
-        except KeyboardInterrupt:
-            raise
+        yield from pool.imap_unordered(process, tasks, chunksize=2 * size)
 
 
 _pmap = _imap_pmap_ng
@@ -147,14 +141,11 @@ def process_in_parallel(payloads, process, *args, **kwargs):
     process = partial(process_payload, process, pickable=pickable, verbose=verbose)
     tasks = [__Task(payload, args, kwargs) for payload in payloads]
 
-    try:
-        if len(tasks) == 1:
-            yield from [process(tasks[0])]
-        else:
-            pmap = _pmap if parallel else map
-            yield from pmap(process, tasks)
-    except KeyboardInterrupt:
-        raise
+    if len(tasks) == 1:
+        yield from [process(tasks[0])]
+    else:
+        pmap = _pmap if parallel else map
+        yield from pmap(process, tasks)
 
 
 def file_process_progress(latest_result, results_count, success_count, total, total_time, verbose=False):

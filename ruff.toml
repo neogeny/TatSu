@@ -4,7 +4,7 @@ select = [
     'F', 'E', 'W', 'UP',
     'I', 'YTT', 'S', 'B',
     'COM', 'C4', 'SIM',
-    'PTH',
+    'PTH', 'TRY',
 ]
 ignore = [
     'E501', 'E741', 'E402',
@@ -12,6 +12,7 @@ ignore = [
     'C408',
     'SIM115', 'SIM114',
     'PTH123',
+    'TRY003', 'TRY300',
 ]
 exclude = ['tatsu/bootstrap.py']
 
