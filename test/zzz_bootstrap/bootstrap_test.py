@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-This awkward set of tests tries to make the tool bang its head against iself.
-"""
-from __future__ import generator_stop
+from __future__ import annotations
 
 import json
 import os
@@ -165,10 +161,6 @@ class BootstrapTests(unittest.TestCase):
         v.walk(g11)
         with open('./tmp/12.txt', 'w') as f:
             f.write('\n'.join(v.walked))
-
-        # note: pygraphviz not yet updated
-        if sys.version_info >= (3, 7):
-            return
 
         print('-' * 20, 'phase 13 - Graphics')
         try:

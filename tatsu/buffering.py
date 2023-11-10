@@ -16,7 +16,7 @@ from .tokenizing import Tokenizer
 from .util import identity
 from .util import extend_list, contains_sublist
 from .util import RETYPE, WHITESPACE_RE
-from .util.misc import match_to_find  # noqa, pylint: disable=unused-import
+from .util.misc import match_to_find
 from .exceptions import ParseError
 from .infos import (
     ParserConfig,

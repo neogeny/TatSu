@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 
 from tatsu.tool import compile
@@ -27,7 +26,7 @@ class SemanticsTests(unittest.TestCase):
         self.assertEqual(15, ast)
 
         import functools
-        dotted = functools.partial(type('').join, '.')
+        dotted = functools.partial(str.join, '.')
         dotted.__name__ = 'dotted'
 
         grammar = r'''
@@ -88,7 +87,7 @@ class SemanticsTests(unittest.TestCase):
         self.assertTrue(hasattr(ast, "a"))
         self.assertTrue(hasattr(ast, "b"))
 
-        self.assertTrue(issubclass(D, (A, B, C)))
+        self.assertTrue(issubclass(D, A | B | C))
 
     def test_optional_attributes(self):
         grammar = r"""
