@@ -32,14 +32,14 @@ RETYPE = type(re.compile('.'))
 
 
 ESCAPE_SEQUENCE_RE = re.compile(
-    r'''
+    r"""
     ( \\U........      # 8-digit Unicode escapes
     | \\u....          # 4-digit Unicode escapes
     | \\x..            # 2-digit Unicode escapes
     | \\[0-7]{1,3}     # Octal character escapes
     | \\N\{[^}]+\}     # Unicode characters by name
     | \\[\\'"abfnrtv]  # Single-character escapes
-    )''',
+    )""",
     re.UNICODE | re.VERBOSE,
 )
 
@@ -47,11 +47,7 @@ ESCAPE_SEQUENCE_RE = re.compile(
 class AsJSONMixin:
     def __json__(self, seen=None):
         return asjson(
-            {
-                '__class__': type(self).__name__,
-                **self._pubdict(),
-            },
-            seen=seen,
+            {'__class__': type(self).__name__, **self._pubdict()}, seen=seen,
         )
 
     def _pubdict(self):
@@ -111,11 +107,11 @@ def to_list(o):
 
 def is_namedtuple(obj) -> bool:
     return (
-        len(type(obj).__bases__) == 1 and
-        isinstance(obj, tuple) and
-        hasattr(obj, '_asdict') and
-        hasattr(obj, '_fields') and
-        all(isinstance(f, str) for f in getattr(obj, '_fields', ()))
+        len(type(obj).__bases__) == 1
+        and isinstance(obj, tuple)
+        and hasattr(obj, '_asdict')
+        and hasattr(obj, '_fields')
+        and all(isinstance(f, str) for f in getattr(obj, '_fields', ()))
     )
 
 
@@ -128,6 +124,7 @@ def simplify_list(x):
 def extend_list(x, n, default=None):
     def _null():
         pass
+
     default = default or _null
 
     missing = max(0, 1 + n - len(x))
@@ -136,7 +133,7 @@ def extend_list(x, n, default=None):
 
 def contains_sublist(lst, sublst):
     n = len(sublst)
-    return any(sublst == lst[i:i + n] for i in range(1 + len(lst) - n))
+    return any(sublst == lst[i: i + n] for i in range(1 + len(lst) - n))
 
 
 def join_lists(lists):
@@ -181,9 +178,8 @@ def eval_escapes(s):
 
 
 def isiter(value):
-    return (
-        isinstance(value, Iterable) and
-        not isinstance(value, str | bytes | bytearray)
+    return isinstance(value, Iterable) and not isinstance(
+        value, str | bytes | bytearray,
     )
 
 
@@ -203,10 +199,9 @@ def trim(text, tabwidth=4):
         stripped = line.lstrip()
         if stripped:
             indent = min(indent, len(line) - len(stripped))
-    trimmed = (
-        [lines[0].strip()] +
-        [line[indent:].rstrip() for line in lines[1:]]
-    )
+    trimmed = [lines[0].strip()] + [
+        line[indent:].rstrip() for line in lines[1:]
+    ]
     i = 0
     while i < len(trimmed) and not trimmed[i]:
         i += 1
@@ -214,8 +209,7 @@ def trim(text, tabwidth=4):
 
 
 def indent(text, indent=1, multiplier=4):
-    """ Indent the given block of text by indent*4 spaces
-    """
+    """Indent the given block of text by indent*4 spaces"""
     if text is None:
         return ''
     text = str(text)
@@ -234,7 +228,9 @@ def notnone(value, default=None):
 
 
 def timestamp():
-    return '.'.join('%2.2d' % t for t in datetime.datetime.utcnow().utctimetuple()[:-2])
+    return '.'.join(
+        '%2.2d' % t for t in datetime.datetime.utcnow().utctimetuple()[:-2]
+    )
 
 
 def asjson(obj, seen=None):  # noqa: PLR0911, PLR0912
@@ -283,9 +279,9 @@ def minjson(obj, typesfiltered=(str, list, dict)):
             name: minjson(value)
             for name, value in obj.items()
             if (
-                not name.startswith('_') and
-                value is not None and
-                (value or not isinstance(value, typesfiltered))
+                not name.startswith('_')
+                and value is not None
+                and (value or not isinstance(value, typesfiltered))
             )
         }
     elif isiter(obj):
@@ -313,6 +309,7 @@ def plainjson(obj):
 
 class FallbackJSONEncoder(json.JSONEncoder):
     """A JSON Encoder that falls back to repr() for non-JSON-aware objects."""
+
     def default(self, o):
         return repr(o)
 
@@ -322,7 +319,7 @@ def asjsons(obj):
 
 
 def prune_dict(d, predicate):
-    """ Remove all items x where predicate(x, d[x]) """
+    """Remove all items x where predicate(x, d[x])"""
 
     keys = [k for k, v in d.items() if predicate(k, v)]
     for k in keys:
@@ -350,32 +347,53 @@ def generic_main(custom_main, parser_class, name='Unknown'):
             print()
             sys.exit(0)
 
-    argp = argparse.ArgumentParser(description="Simple parser for %s." % name)
+    argp = argparse.ArgumentParser(description='Simple parser for %s.' % name)
     addarg = argp.add_argument
 
-    addarg('-c', '--color',
-           help='use color in traces (requires the colorama library)',
-           action='store_true',
-           )
-    addarg('-l', '--list', action=ListRules, nargs=0,
-           help="list all rules and exit")
-    addarg('-n', '--no-nameguard', action='store_true',
-           dest='no_nameguard',
-           help="disable the 'nameguard' feature")
-    addarg('-t', '--trace', action='store_true',
-           help="output trace information")
-    addarg('-w', '--whitespace', type=str, default=None,
-           help="whitespace specification")
-    addarg('file',
-           metavar="FILE",
-           help="the input file to parse or '-' for standard input",
-           nargs='?',
-           default='-')
-    addarg('startrule',
-           metavar="STARTRULE",
-           nargs='?',
-           help="the start rule for parsing",
-           default=None)
+    addarg(
+        '-c',
+        '--color',
+        help='use color in traces (requires the colorama library)',
+        action='store_true',
+    )
+    addarg(
+        '-l',
+        '--list',
+        action=ListRules,
+        nargs=0,
+        help='list all rules and exit',
+    )
+    addarg(
+        '-n',
+        '--no-nameguard',
+        action='store_true',
+        dest='no_nameguard',
+        help="disable the 'nameguard' feature",
+    )
+    addarg(
+        '-t', '--trace', action='store_true', help='output trace information',
+    )
+    addarg(
+        '-w',
+        '--whitespace',
+        type=str,
+        default=None,
+        help='whitespace specification',
+    )
+    addarg(
+        'file',
+        metavar='FILE',
+        help="the input file to parse or '-' for standard input",
+        nargs='?',
+        default='-',
+    )
+    addarg(
+        'startrule',
+        metavar='STARTRULE',
+        nargs='?',
+        help='the start rule for parsing',
+        default=None,
+    )
 
     args = argp.parse_args()
     try:
@@ -396,11 +414,9 @@ def deprecated(fun):
     @functools.wraps(fun)
     def wrapper(*args, **kwargs):
         warnings.filterwarnings('default', category=DeprecationWarning)
-        msg = "Call to deprecated function {}."
+        msg = 'Call to deprecated function {}.'
         warnings.warn(
-            msg.format(fun.__name__),
-            category=DeprecationWarning,
-            stacklevel=2,
+            msg.format(fun.__name__), category=DeprecationWarning, stacklevel=2,
         )
         return fun(*args, **kwargs)
 
@@ -438,9 +454,12 @@ def right_assoc(elements):
 try:
     import psutil
 except ImportError:
+
     def memory_use():
         return 0
+
 else:
+
     def memory_use():
         process = psutil.Process(os.getpid())
         return process.memory_info().rss
@@ -473,7 +492,9 @@ def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
 
         parts = path.parts[1:] if path.is_absolute() else path.parts
         pattern = str(Path().joinpath(*parts))
-        filenames.update(p for p in Path(path.root).glob(pattern) if not p.is_dir())
+        filenames.update(
+            p for p in Path(path.root).glob(pattern) if not p.is_dir()
+        )
 
     filenames = list(filenames)
 
@@ -482,8 +503,7 @@ def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
             return True
 
         return any(
-            any(Path(part).match(ex) for ex in ignore)
-            for part in path.parts
+            any(Path(part).match(ex) for ex in ignore) for part in path.parts
         )
 
     if ignore:

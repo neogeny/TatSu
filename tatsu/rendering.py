@@ -11,8 +11,7 @@ from .util import indent, isiter, trim
 
 
 def render(item, join='', **fields):
-    """ Render the given item
-    """
+    """Render the given item"""
     if item is None:
         return ''
     elif isinstance(item, str):
@@ -20,7 +19,9 @@ def render(item, join='', **fields):
     elif isinstance(item, Renderer):
         return item.render(join=join, **fields)
     elif isiter(item):
-        return join.join(render(e, **fields) for e in iter(item) if e is not None)
+        return join.join(
+            render(e, **fields) for e in iter(item) if e is not None
+        )
     elif isinstance(item, int | float):
         return item
     else:
@@ -33,10 +34,7 @@ class RenderingFormatter(string.Formatter):
 
     def format_field(self, value, format_spec):
         if ':' not in format_spec:
-            return super().format_field(
-                self.render(value),
-                format_spec,
-            )
+            return super().format_field(self.render(value), format_spec)
 
         ind, sep, fmt = format_spec.split(':')
         if sep == '\\n':
@@ -56,20 +54,23 @@ class RenderingFormatter(string.Formatter):
             fmt = '%s'
 
         if isiter(value):
-            return indent(sep.join(fmt % self.render(v) for v in value), ind, mult)
+            return indent(
+                sep.join(fmt % self.render(v) for v in value), ind, mult,
+            )
         else:
             return indent(fmt % self.render(value), ind, mult)
 
 
 class Renderer:
-    """ Renders the fileds in the current object using a template
-        provided statically, on the constructor, or as a parameter
-        to render().
+    """Renders the fileds in the current object using a template
+    provided statically, on the constructor, or as a parameter
+    to render().
 
-        Fields with a leading underscore are not made available to
-        the template. Additional fields may be made available by
-        overriding render_fields().
+    Fields with a leading underscore are not made available to
+    the template. Additional fields may be made available by
+    overriding render_fields().
     """
+
     template = '{__class__}'
     _counter = itertools.count()
     _formatter = RenderingFormatter()
@@ -95,8 +96,7 @@ class Renderer:
         self._formatter = value
 
     def rend(self, item, join='', **fields):
-        """ A shortcut for self._formatter.render()
-        """
+        """A shortcut for self._formatter.render()"""
         return self._formatter.render(item, join=join, **fields)
 
     def indent(self, item, ind=1, multiplier=4):
@@ -106,16 +106,19 @@ class Renderer:
         return trim(self.rend(item), tabwidth=tabwidth)
 
     def render_fields(self, fields):
-        """ Pre-render fields before rendering the template.
-        """
+        """Pre-render fields before rendering the template."""
         return
 
     def render(self, **fields):
         template = fields.pop('template', None)
         fields.update(__class__=self.__class__.__name__)
-        fields.update({k: v for k, v in vars(self).items() if not k.startswith('_')})
+        fields.update(
+            {k: v for k, v in vars(self).items() if not k.startswith('_')},
+        )
 
-        override = self.render_fields(fields)  # pylint: disable=assignment-from-none
+        override = self.render_fields(
+            fields,
+        )  # pylint: disable=assignment-from-none
         if override is not None:
             template = override
         elif template is None:

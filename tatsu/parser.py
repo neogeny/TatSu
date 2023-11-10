@@ -10,12 +10,17 @@ from .semantics import ASTSemantics
 
 
 class EBNFBuffer(Buffer):
-    def __init__(self, text, /, filename=None, config: ParserConfig | None = None, **settings: Any):
+    def __init__(
+        self,
+        text,
+        /,
+        filename=None,
+        config: ParserConfig | None = None,
+        **settings: Any,
+    ):
         config = ParserConfig.new(
-            config=config,
-            owner=self,
-            filename=filename,
-            **settings)
+            config=config, owner=self, filename=filename, **settings,
+        )
         super().__init__(text, config=config)
 
     def process_block(self, name, lines, index, **kwargs):
@@ -42,7 +47,13 @@ class EBNFBuffer(Buffer):
 
 
 class EBNFParser(EBNFBootstrapParser):
-    def __init__(self, name: str | None = None, config: ParserConfig | None = None, semantics=None, **settings: Any):
+    def __init__(
+        self,
+        name: str | None = None,
+        config: ParserConfig | None = None,
+        semantics=None,
+        **settings: Any,
+    ):
         if semantics is None:
             semantics = ASTSemantics()
         config = ParserConfig.new(
@@ -50,12 +61,19 @@ class EBNFParser(EBNFBootstrapParser):
             name=name,
             semantics=semantics,
             tokenizercls=EBNFBuffer,
-            **settings)
+            **settings,
+        )
         super().__init__(config)
 
 
 class GrammarGenerator(EBNFBootstrapParser):
-    def __init__(self, name: str | None = None, config: ParserConfig | None = None, semantics=None, **settings: Any):
+    def __init__(
+        self,
+        name: str | None = None,
+        config: ParserConfig | None = None,
+        semantics=None,
+        **settings: Any,
+    ):
         if semantics is None:
             semantics = EBNFGrammarSemantics(name)
         config = ParserConfig.new(

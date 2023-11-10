@@ -19,10 +19,7 @@ class GraphvizWalker(NodeWalker):
     def __init__(self):
         super().__init__()
         self.top_graph = pgv.AGraph(
-            directed=True,
-            rankdir='LR',
-            packMode='clust',
-            splines='true',
+            directed=True, rankdir='LR', packMode='clust', splines='true',
         )
         self.stack = [self.top_graph]
         self.node_count = 0
@@ -59,7 +56,7 @@ class GraphvizWalker(NodeWalker):
         self.graph.add_node(id, **attr)
         n = self.graph.get_node(id)
         n.attr['label'] = name
-#        n.attr['shape'] = 'circle'
+        #        n.attr['shape'] = 'circle'
         return n
 
     def tnode(self, name, **attr):

@@ -5,25 +5,25 @@ from tatsu.tool import parse
 
 def test_constant_interpolation():
     input = '42 69'
-    grammar = r'''
+    grammar = r"""
             start = a:number b: number i:`"seen: {a}, {b}"` $ ;
             number = /\d+/ ;
-    '''
+    """
     assert parse(grammar, input) == {'a': '42', 'b': '69', 'i': 'seen: 42, 69'}
 
 
 def test_constant_interpolation_free():
     input = '42 69'
-    grammar = r'''
+    grammar = r"""
             start = a:number b: number i:`seen: {a}, {b}` $ ;
             number = /\d+/ ;
-    '''
+    """
     assert parse(grammar, input) == {'a': '42', 'b': '69', 'i': 'seen: 42, 69'}
 
 
 def test_constant_interpolation_multiline():
     input = '42 69'
-    grammar = r'''
+    grammar = r"""
             start = a:number b: number
             i:```
             seen:
@@ -31,7 +31,7 @@ def test_constant_interpolation_multiline():
             {b}
             ``` $ ;
             number = /\d+/ ;
-    '''
+    """
 
     result = parse(grammar, input)
     print(result)
@@ -39,7 +39,7 @@ def test_constant_interpolation_multiline():
 
 
 def test_evaluate_constant():
-    grammar = '''
+    grammar = """
         @@grammar :: constants
         start = int bool str null 'a' $;
 
@@ -47,7 +47,7 @@ def test_evaluate_constant():
         bool = `True` ;
         str = `Something` ;
         null = `None` ;
-    '''
+    """
 
     ast = parse(grammar, 'a')
     assert ast == (42, True, 'Something', None, 'a')

@@ -87,7 +87,9 @@ class _Single(Nullable):
 
 Nullable.all = _All     # Nullable if all children are nullable
 Nullable.any = _Any     # Nullable if one child is nullable
-Nullable.of = lambda child: _Single([child])       # Nullable if the only child is nullable
+Nullable.of = lambda child: _Single(
+    [child],
+)       # Nullable if the only child is nullable
 Nullable.no = lambda: Nullable(None, True, False)  # Not nullable
 Nullable.yes = lambda: Nullable(None, True, True)  # Nullable
 
@@ -115,19 +117,24 @@ def resolve_nullability(grammar, rule_dict):
                 for dependant in dependants[model]:
                     n = dependant._nullability
                     if not n.resolved:
-                        resolve(dependant)  # Resolve nodes that depend on this one
+                        resolve(
+                            dependant,
+                        )  # Resolve nodes that depend on this one
             else:
                 for n in nullability.children:
                     dependants[n].append(model)
 
     walk(grammar)
 
+
 # This breaks left recursive cycles by tagging
 # left recursive rules
 
 
 def find_left_recursion(grammar):
-    rule_dict = {rule.name: rule for rule in grammar.rules}  # Required to resolve rule references
+    rule_dict = {
+        rule.name: rule for rule in grammar.rules
+    }  # Required to resolve rule references
 
     # First we need to resolve nullable rules
     resolve_nullability(grammar, rule_dict)
@@ -160,7 +167,10 @@ def find_left_recursion(grammar):
             child = follow(child, rule_dict)
             walk(child)
             # afterEdge
-            if state[child] == CUTOFF and stack_positions[child] > lr_stack_positions[-1]:
+            if (
+                state[child] == CUTOFF
+                and stack_positions[child] > lr_stack_positions[-1]
+            ):
                 # turn off memoization for all rules that were involved in this cycle
                 for rule in stack_positions:
                     if isinstance(rule, grammars.Rule):
@@ -185,4 +195,3 @@ def find_left_recursion(grammar):
     #    print(rule)
     #    if rule.is_leftrec: print("-> Leftrec")
     #    if rule.is_nullable(): print("-> Nullable")
-

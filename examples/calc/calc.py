@@ -67,8 +67,7 @@ def parse_with_basic_semantics():
 
     parser = tatsu.compile(grammar)
     result = parser.parse(
-        '3 + 5 * ( 10 - 20 )',
-        semantics=CalcBasicSemantics(),
+        '3 + 5 * ( 10 - 20 )', semantics=CalcBasicSemantics(),
     )
 
     print()
@@ -99,10 +98,7 @@ def parse_factored():
     grammar = open('grammars/calc_factored.ebnf').read()
 
     parser = tatsu.compile(grammar)
-    ast = parser.parse(
-        '3 + 5 * ( 10 - 20 )',
-        semantics=CalcSemantics(),
-    )
+    ast = parser.parse('3 + 5 * ( 10 - 20 )', semantics=CalcSemantics())
 
     print()
     print('# FACTORED SEMANTICS RESULT')

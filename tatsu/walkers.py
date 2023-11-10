@@ -20,7 +20,9 @@ class NodeWalker(metaclass=NodeWalkerMeta):
     def __init__(self):
         super().__init__()
         # copy the class attribute to avoid linter warnings
-        self._walker_cache = type(self)._walker_cache  # pylint: disable=no-member
+        self._walker_cache = type(
+            self,
+        )._walker_cache  # pylint: disable=no-member
 
     def walk(self, node: Node | list[Node], *args, **kwargs) -> Any:
         if isinstance(node, list):
@@ -57,7 +59,9 @@ class NodeWalker(metaclass=NodeWalkerMeta):
                 break
 
             # walk__pythonic_name with double underscore after walk
-            pythonic_name = re.sub('[A-Z]+', pythonize_match, node_cls.__name__)
+            pythonic_name = re.sub(
+                '[A-Z]+', pythonize_match, node_cls.__name__,
+            )
             if pythonic_name != cammelcase_name:
                 walker = getattr(cls, prefix + pythonic_name, None)
                 if callable(walker):
@@ -77,7 +81,9 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         else:
             walker = getattr(cls, '_walk_default', None)
             if walker is None:
-                walker = getattr(cls, 'walk_default', None)  # backwards compatibility
+                walker = getattr(
+                    cls, 'walk_default', None,
+                )  # backwards compatibility
             if not callable(walker):
                 walker = None
 

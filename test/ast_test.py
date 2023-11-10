@@ -18,9 +18,9 @@ class ASTTests(unittest.TestCase):
 
     def test_init(self):
         ast = AST()
-        data = list(reversed(
-            [(0, 0), (1, 2), (2, 4), (3, 6), (4, 8), (5, 10)],
-        ))
+        data = list(
+            reversed([(0, 0), (1, 2), (2, 4), (3, 6), (4, 8), (5, 10)]),
+        )
         for k, v in data:
             ast[k] = v
         self.assertEqual(data, list(ast.items()))

@@ -9,7 +9,6 @@ from .util import simplify_list
 
 
 class ASTSemantics:
-
     def group(self, ast, *args):
         return simplify_list(ast)
 
@@ -26,9 +25,9 @@ class ASTSemantics:
 
 
 class ModelBuilderSemantics:
-    """ Intended as a semantic action for parsing, a ModelBuilderSemantics creates
-        nodes using the class name given as first parameter to a grammar
-        rule, and synthesizes the class/type if it's not known.
+    """Intended as a semantic action for parsing, a ModelBuilderSemantics creates
+    nodes using the class name given as first parameter to a grammar
+    rule, and synthesizes the class/type if it's not known.
     """
 
     def __init__(self, context=None, base_type=Node, types=None):

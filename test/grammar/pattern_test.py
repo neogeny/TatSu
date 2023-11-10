@@ -7,9 +7,8 @@ from tatsu.util import trim
 
 
 class PatternTests(unittest.TestCase):
-
     def test_patterns_with_newlines(self):
-        grammar = '''
+        grammar = """
             @@whitespace :: /[ \t]/
             start
                 =
@@ -25,14 +24,14 @@ class PatternTests(unittest.TestCase):
                 =
                 /^[^\\n]*\\n$/
                 ;
-        '''
+        """
 
-        model = compile(grammar, "test")
+        model = compile(grammar, 'test')
         ast = model.parse('\n\n')
         self.assertEqual(('\n', '\n'), ast)
 
     def test_pattern_concatenation(self):
-        grammar = '''
+        grammar = """
             start
                 =
                 {letters_digits}+
@@ -44,8 +43,8 @@ class PatternTests(unittest.TestCase):
                 ?"[a-z]+"
                 + ?'[0-9]+'
                 ;
-        '''
-        pretty = '''
+        """
+        pretty = """
             start
                 =
                 {letters_digits}+
@@ -57,7 +56,7 @@ class PatternTests(unittest.TestCase):
                 /[a-z]+/
                 + /[0-9]+/
                 ;
-        '''
+        """
         model = compile(grammar=grammar)
         ast = model.parse('abc123 def456')
         self.assertEqual(['abc123', 'def456'], ast)
@@ -65,7 +64,7 @@ class PatternTests(unittest.TestCase):
         self.assertEqual(trim(pretty), model.pretty())
 
     def test_ignorecase_not_for_pattern(self):
-        grammar = '''
+        grammar = """
             @@ignorecase
             start
                 =
@@ -76,7 +75,7 @@ class PatternTests(unittest.TestCase):
                 =
                 /[a-z]+/
                 ;
-        '''
+        """
 
         model = compile(grammar=grammar)
         try:
@@ -86,7 +85,7 @@ class PatternTests(unittest.TestCase):
             pass
 
     def test_ignorecase_pattern(self):
-        grammar = '''
+        grammar = """
             start
                 =
                 {word} $
@@ -96,20 +95,20 @@ class PatternTests(unittest.TestCase):
                 =
                 /(?i)[a-z]+/
                 ;
-        '''
+        """
 
         model = compile(grammar=grammar)
         ast = model.parse('ABcD xYZ')
         self.assertEqual(['ABcD', 'xYZ'], ast)
 
     def test_multiline_pattern(self):
-        grammar = r'''
+        grammar = r"""
             start =
             /(?x)
             foo
             bar
             / $ ;
-        '''
+        """
         model = compile(grammar=trim(grammar))
         print(codegen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
@@ -117,11 +116,11 @@ class PatternTests(unittest.TestCase):
             repr("self._pattern('(?x)\nfoo\nbar\n')").strip('"\''),
         )
 
-        grammar = r'''
+        grammar = r"""
             start =
             /(?x)foo\nbar
             blort/ $ ;
-        '''
+        """
         model = compile(grammar=trim(grammar))
         print(codegen(model.rules[0].exp.sequence[0]))
         self.assertEqual(

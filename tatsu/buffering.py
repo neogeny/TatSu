@@ -10,20 +10,18 @@ from __future__ import annotations
 import re
 from itertools import repeat, takewhile
 from pathlib import Path
-from typing import (
-    Any,
-)
+from typing import Any
 
 from .exceptions import ParseError
-from .infos import (
-    CommentInfo,
-    LineIndexInfo,
-    LineInfo,
-    ParserConfig,
-    PosLine,
-)
+from .infos import CommentInfo, LineIndexInfo, LineInfo, ParserConfig, PosLine
 from .tokenizing import Tokenizer
-from .util import RETYPE, WHITESPACE_RE, contains_sublist, extend_list, identity
+from .util import (
+    RETYPE,
+    WHITESPACE_RE,
+    contains_sublist,
+    extend_list,
+    identity,
+)
 from .util.misc import match_to_find
 
 # for backwards compatibility with existing parsers
@@ -33,7 +31,9 @@ LineIndexEntry = LineIndexInfo
 class Buffer(Tokenizer):
     _pos: int = 0  # WARNING: FIXME: plckle does not work without this
 
-    def __init__(self, text, /, config: ParserConfig | None = None, **settings: Any):
+    def __init__(
+        self, text, /, config: ParserConfig | None = None, **settings: Any,
+    ):
         super().__init__()
         config = ParserConfig.new(config=config, owner=self, **settings)
         self.config = config
@@ -43,7 +43,8 @@ class Buffer(Tokenizer):
 
         self.whitespace_re = self.build_whitespace_re(config.whitespace)
         self.nameguard = (
-            config.nameguard if config.nameguard is not None
+            config.nameguard
+            if config.nameguard is not None
             else bool(self.whitespace_re) or bool(config.namechars)
         )
         self._namechar_set = set(config.namechars)
@@ -143,7 +144,7 @@ class Buffer(Tokenizer):
         self._line_index = index
         self._postprocess()
 
-        newtext = self.join_block_lines(lines[j + 1:endline + 2])
+        newtext = self.join_block_lines(lines[j + 1: endline + 2])
         return endline, newtext
 
     @property
@@ -232,9 +233,13 @@ class Buffer(Tokenizer):
     def _index_comments(self, comments, selector):
         if comments and self.config.comment_recovery:
             n = self.line
-            extend_list(self._comment_index, n, default=CommentInfo.new_comment)
+            extend_list(
+                self._comment_index, n, default=CommentInfo.new_comment,
+            )
             previous = selector(self._comment_index[n])
-            if not contains_sublist(previous, comments):  # FIXME: will discard repeated comments
+            if not contains_sublist(
+                previous, comments,
+            ):  # FIXME: will discard repeated comments
                 previous.extend(comments)
 
     def _eat_regex(self, regex):
@@ -279,8 +284,7 @@ class Buffer(Tokenizer):
 
     def scan_space(self):
         return (
-            self.whitespace_re and
-            self._scanre(self.whitespace_re) is not None
+            self.whitespace_re and self._scanre(self.whitespace_re) is not None
         )
 
     def is_space(self):
@@ -295,17 +299,18 @@ class Buffer(Tokenizer):
 
         p = self.pos
         if self.ignorecase:
-            is_match = self.text[p:p + len(token)].lower() == token.lower()
+            is_match = self.text[p: p + len(token)].lower() == token.lower()
         else:
-            is_match = self.text[p:p + len(token)] == token
+            is_match = self.text[p: p + len(token)] == token
 
         if is_match:
             self.move(len(token))
             partial_match = (
-                self.nameguard and
-                token and token[0].isalpha() and
-                all(self.is_name_char(t) for t in token) and
-                self.is_name_char(self.current)
+                self.nameguard
+                and token
+                and token[0].isalpha()
+                and all(self.is_name_char(t) for t in token)
+                and self.is_name_char(self.current)
             )
             if not partial_match:
                 return token
@@ -361,7 +366,7 @@ class Buffer(Tokenizer):
         if self.atend():
             return ''
         info = self.line_info()
-        text = info.text[info.col:info.col + 1 + 80]
+        text = info.text[info.col: info.col + 1 + 80]
         text = self.split_block_lines(text)[0].rstrip()
         return '%s' % (text)
 
@@ -375,12 +380,12 @@ class Buffer(Tokenizer):
             start = 0
         if end is None:
             end = len(self._lines)
-        return self._lines[start:end + 1]
+        return self._lines[start: end + 1]
 
     def line_index(self, start=0, end=None):
         if end is None:
             end = len(self._line_index)
-        return self._line_index[start:1 + end]
+        return self._line_index[start: 1 + end]
 
     def __repr__(self):
         return '%s@%d' % (type(self).__name__, self.pos)

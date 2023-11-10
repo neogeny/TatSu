@@ -8,11 +8,7 @@ def test_node_kwargs():
     class Atom(Node):
         def __init__(self, arguments=None, symbol=None, **_kwargs_):
             self.symbol = None
-            super().__init__(
-                arguments=arguments,
-                symbol=symbol,
-                **_kwargs_,
-            )
+            super().__init__(arguments=arguments, symbol=symbol, **_kwargs_)
 
     atom = Atom(symbol='foo')
     assert atom.ast is None

@@ -6,7 +6,7 @@ from tatsu.util import asjson
 
 
 def test_synth_model():
-    grammar = '''
+    grammar = """
         start::ASeq
             =
             aseq
@@ -17,7 +17,7 @@ def test_synth_model():
             =
             {'a'}+
             ;
-    '''
+    """
 
     m = compile(grammar, 'ASeq')
     model = m.parse('a a a', semantics=ModelBuilderSemantics())
@@ -31,7 +31,7 @@ def test_synth_model():
 
 
 def test_nested_class_synth_model():
-    grammar = '''
+    grammar = """
         start::ASeq
             =
             seqs:aseq
@@ -42,7 +42,7 @@ def test_nested_class_synth_model():
             =
             values:{'a'}+
             ;
-    '''
+    """
 
     m = compile(grammar, 'ASeq')
     model = m.parse('a a a', semantics=ModelBuilderSemantics())

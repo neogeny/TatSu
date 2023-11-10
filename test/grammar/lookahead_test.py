@@ -5,7 +5,7 @@ from tatsu.tool import compile
 
 class LookaheadTests(unittest.TestCase):
     def test_skip_to(self, trace=False):
-        grammar = '''
+        grammar = """
             start = 'x' ab $ ;
 
             ab
@@ -13,12 +13,12 @@ class LookaheadTests(unittest.TestCase):
                 | 'a' 'b'
                 | ->'a' 'b'
                 ;
-        '''
+        """
         m = compile(grammar, trace=trace)
         ast = m.parse('x xx yyy a b')
         self.assertEqual(('x', ('a', 'b')), ast)
 
-        grammar = '''
+        grammar = """
             start = 'x' ab $ ;
 
             ab
@@ -26,7 +26,7 @@ class LookaheadTests(unittest.TestCase):
                 | 'a' 'b'
                 | ->&'a' 'a' 'b'
                 ;
-        '''
+        """
         m = compile(grammar, trace=trace)
         ast = m.parse('x xx yyy a b')
         self.assertEqual(('x', ('a', 'b')), ast)

@@ -64,20 +64,21 @@ class FailedParse(ParseError):
 
     def __str__(self):
         info = self.tokenizer.line_info(self.pos)
-        template = "{}({}:{}) {} :\n{}\n{}^\n{}"
+        template = '{}({}:{}) {} :\n{}\n{}^\n{}'
         text = info.text.rstrip()
-        leading = re.sub(r'[^\t]', ' ', text)[:info.col]
+        leading = re.sub(r'[^\t]', ' ', text)[: info.col]
 
         text = text.expandtabs()
         leading = leading.expandtabs()
         return template.format(
-           info.filename,
-           info.line + 1, info.col + 1,
-           self.message.rstrip(),
-           text,
-           leading,
-           '\n'.join(reversed(self.stack)),
-       )
+            info.filename,
+            info.line + 1,
+            info.col + 1,
+            self.message.rstrip(),
+            text,
+            leading,
+            '\n'.join(reversed(self.stack)),
+        )
 
 
 class FailedToken(FailedParse):
@@ -87,7 +88,7 @@ class FailedToken(FailedParse):
 
     @property
     def message(self):
-        return "expecting %s" % repr(self.token).lstrip('u')
+        return 'expecting %s' % repr(self.token).lstrip('u')
 
 
 class FailedPattern(FailedParse):
@@ -97,7 +98,7 @@ class FailedPattern(FailedParse):
 
     @property
     def message(self):
-        return "expecting /%s/" % self.pattern
+        return 'expecting /%s/' % self.pattern
 
 
 class FailedRef(FailedParse):

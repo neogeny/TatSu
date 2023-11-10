@@ -9,34 +9,33 @@ EXEC = 'exec'
 
 
 class DirectiveTests(unittest.TestCase):
-
     def test_whitespace_directive(self):
-        grammar = '''
+        grammar = """
             @@whitespace :: /[\t ]+/
 
             test = "test" $;
-        '''
-        model = tatsu.compile(grammar, "test")
+        """
+        model = tatsu.compile(grammar, 'test')
         code = codegen(model)
         compile('test.py', code, EXEC)
 
     def test_whitespace_none_directive(self):
         grammars = [
-            '''
+            """
                 @@whitespace :: None
                 @@nameguard :: False
 
                 test = {'x'}+ $;
-            ''',
-            '''
+            """,
+            """
                 @@whitespace :: False
                 @@nameguard :: False
 
                 test = {'x'}+ $;
-            ''',
+            """,
         ]
         for grammar in grammars:
-            model = tatsu.compile(grammar, "test")
+            model = tatsu.compile(grammar, 'test')
             self.assertEqual(['x', 'x'], model.parse('xx', trace=True))
             try:
                 self.assertEqual(['x', 'x'], model.parse('x x', trace=True))
@@ -46,22 +45,22 @@ class DirectiveTests(unittest.TestCase):
                 self.fail('parsed through non-whitespace')
 
     def test_eol_comments_re_directive(self):
-        grammar = '''
+        grammar = """
             @@eol_comments :: /#.*?$/
 
             test = "test" $;
-        '''
-        model = tatsu.compile(grammar, "test")
+        """
+        model = tatsu.compile(grammar, 'test')
         code = codegen(model)
         compile(code, 'test.py', EXEC)
 
     def test_left_recursion_directive(self):
-        grammar = '''
+        grammar = """
             @@left_recursion :: False
 
             test = "test" $;
-        '''
-        model = tatsu.compile(grammar, "test")
+        """
+        model = tatsu.compile(grammar, 'test')
         self.assertFalse(model.directives.get('left_recursion'))
         self.assertFalse(model.config.left_recursion)
 
@@ -80,29 +79,27 @@ class DirectiveTests(unittest.TestCase):
             # document is just list of this strings of tokens
             document = {@+:token2}* $;
         """
-        text = trim("""\
+        text = trim(
+            """\
             a b
             c d
             e f
-        """)
+        """,
+        )
 
-        expected = [
-            (["a", "b"], "\n"),
-            (["c", "d"], "\n"),
-            (["e", "f"], "\n"),
-        ]
+        expected = [(['a', 'b'], '\n'), (['c', 'd'], '\n'), (['e', 'f'], '\n')]
 
-        model = tatsu.compile(grammar, "document")
+        model = tatsu.compile(grammar, 'document')
         ast = model.parse(text, start='document')
         self.assertEqual(expected, ast)
 
     def test_grammar_directive(self):
-        grammar = '''
+        grammar = """
             @@grammar :: Test
 
             start = test $;
             test = "test";
-        '''
+        """
         model = tatsu.compile(grammar=grammar)
         self.assertEqual('Test', model.directives.get('grammar'))
         self.assertEqual('Test', model.name)
@@ -113,14 +110,14 @@ class DirectiveTests(unittest.TestCase):
         assert 'TestParser' in module.co_names
 
     def test_parseinfo_directive(self):
-        grammar = '''
+        grammar = """
             @@parseinfo
             @@parseinfo :: True
 
             test = value:"test" $;
-        '''
-        model = tatsu.compile(grammar, "test")
-        ast = model.parse("test")
+        """
+        model = tatsu.compile(grammar, 'test')
+        ast = model.parse('test')
         self.assertIsNotNone(ast.parseinfo)
 
         code = codegen(model)
@@ -128,13 +125,13 @@ class DirectiveTests(unittest.TestCase):
         self.assertTrue('parseinfo=True' in code)
         compile(code, 'test.py', EXEC)
 
-        grammar = '''
+        grammar = """
             @@parseinfo :: False
 
             test = value:"test" $;
-        '''
-        model = tatsu.compile(grammar, "test")
-        ast = model.parse("test")
+        """
+        model = tatsu.compile(grammar, 'test')
+        ast = model.parse('test')
         self.assertIsNone(ast.parseinfo)
 
         code = codegen(model)
@@ -142,7 +139,7 @@ class DirectiveTests(unittest.TestCase):
         compile(code, 'test.py', EXEC)
 
     def test_nameguard_directive(self):
-        grammar = '''
+        grammar = """
             @@grammar :: test
             @@nameguard :: False
             @@namechars :: ''
@@ -150,7 +147,7 @@ class DirectiveTests(unittest.TestCase):
             start = sequence $ ;
             sequence = {digit}+ ;
             digit = 'x' | '1' | '2' | '3' | '4' | '5' ;
-        '''
+        """
 
         model = tatsu.compile(grammar)
         self.assertFalse(model.config.nameguard)

@@ -11,8 +11,7 @@ from .util import eval_escapes, flatten, re, warning
 class EBNFGrammarSemantics(ModelBuilderSemantics):
     def __init__(self, grammar_name):
         super().__init__(
-            base_type=grammars.Model,
-            types=grammars.Model.classes(),
+            base_type=grammars.Model, types=grammars.Model.classes(),
         )
         self.grammar_name = grammar_name
         self.rules = {}
@@ -58,7 +57,9 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         return None
 
     def cut_deprecated(self, ast, *args):
-        warning('The use of >> for cut is deprecated. Use the ~ symbol instead.')
+        warning(
+            'The use of >> for cut is deprecated. Use the ~ symbol instead.',
+        )
         return grammars.Cut()
 
     def override_single_deprecated(self, ast, *args):
@@ -104,11 +105,21 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
             self.known_name(name)
 
         if not base:
-            rule = grammars.Rule(ast, name, exp, params, kwparams, decorators=decorators)
+            rule = grammars.Rule(
+                ast, name, exp, params, kwparams, decorators=decorators,
+            )
         else:
             self.known_name(base)
             base_rule = self.rules[base]
-            rule = grammars.BasedRule(ast, name, exp, base_rule, params, kwparams, decorators=decorators)
+            rule = grammars.BasedRule(
+                ast,
+                name,
+                exp,
+                base_rule,
+                params,
+                kwparams,
+                decorators=decorators,
+            )
 
         self.rules[name] = rule
         return rule
@@ -127,7 +138,11 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         if directives.get('whitespace') in {'None', 'False'}:
             directives['whitespace'] = ''
 
-        name = self.grammar_name if self.grammar_name else directives.get('grammar', None)
+        name = (
+            self.grammar_name
+            if self.grammar_name
+            else directives.get('grammar', None)
+        )
         return grammars.Grammar(
             name,
             list(self.rules.values()),

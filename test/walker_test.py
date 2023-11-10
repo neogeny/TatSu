@@ -7,7 +7,7 @@ from tatsu.walkers import DepthFirstWalker, NodeWalker
 
 
 def test_walk_node_ast():
-    GRAMMAR = r'''
+    GRAMMAR = r"""
         @@grammar::TLA
 
         #
@@ -24,7 +24,7 @@ def test_walk_node_ast():
 
         # tokens
         number::int = /\d+/;
-    '''
+    """
 
     parser = tatsu.compile(GRAMMAR, asmodel=True)
     model = parser.parse('Seq(1,1)')
@@ -47,12 +47,22 @@ def test_cache_per_class():
     class PW(DepthFirstWalker):
         pass
 
-    assert isinstance(NodeWalker._walker_cache, dict)  # pylint: disable=no-member
-    assert isinstance(DepthFirstWalker._walker_cache, dict)  # pylint: disable=no-member
-    assert isinstance(PW._walker_cache, dict)  # pylint: disable=no-member
+    assert isinstance(
+        NodeWalker._walker_cache, dict,
+    )
+    assert isinstance(
+        DepthFirstWalker._walker_cache, dict,
+    )
+    assert isinstance(PW._walker_cache, dict)
 
-    assert id(NodeWalker._walker_cache) != id(DepthFirstWalker._walker_cache)  # pylint: disable=no-member
-    assert id(PW._walker_cache) != id(DepthFirstWalker._walker_cache)  # pylint: disable=no-member
+    assert id(NodeWalker._walker_cache) != id(
+        DepthFirstWalker._walker_cache,
+    )
+    assert id(PW._walker_cache) != id(
+        DepthFirstWalker._walker_cache,
+    )
 
-    walker = PW()  # pylint: disable=no-member
-    assert id(walker._walker_cache) == id(PW._walker_cache)  # pylint: disable=no-member
+    walker = PW()
+    assert id(walker._walker_cache) == id(
+        PW._walker_cache,
+    )

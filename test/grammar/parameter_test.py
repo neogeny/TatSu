@@ -8,37 +8,36 @@ from tatsu.util import trim
 
 
 class ParameterTests(unittest.TestCase):
-
     def test_keyword_params(self):
-        grammar = '''
+        grammar = """
             start(k1=1, k2=2)
                 =
                 {'a'} $
                 ;
-        '''
+        """
         g = GrammarGenerator('Keywords')
         model = g.parse(grammar)
         code = codegen(model)
         self.assertEqual('#!/usr/bin/env python', code.splitlines()[0])
 
     def test_35_only_keyword_params(self):
-        grammar = '''
+        grammar = """
             rule(kwdA=A, kwdB=B)
                 =
                 'a'
                 ;
-        '''
-        model = compile(grammar, "test")
+        """
+        model = compile(grammar, 'test')
         self.assertEqual(trim(grammar), str(model))
 
     def test_36_params_and_keyword_params(self):
-        grammar = '''
+        grammar = """
             rule(A, kwdB=B)
                 =
                 'a'
                 ;
-        '''
-        model = compile(grammar, "test")
+        """
+        model = compile(grammar, 'test')
         self.assertEqual(trim(grammar), str(model))
 
     def test_36_param_combinations(self):
@@ -50,31 +49,31 @@ class ParameterTests(unittest.TestCase):
             """Check all rule parameters for expected types and values"""
 
             def rule_positional(self, ast, p1, p2, p3, p4):
-                assert_equal("ABC", p1)
+                assert_equal('ABC', p1)
                 assert_equal(123, p2)
                 assert_equal('=', p3)
-                assert_equal("+", p4)
+                assert_equal('+', p4)
                 return ast
 
             def rule_keyword(self, ast, k1, k2, k3, k4):
-                assert_equal("ABC", k1)
+                assert_equal('ABC', k1)
                 assert_equal(123, k2)
                 assert_equal('=', k3)
                 assert_equal('+', k4)
                 return ast
 
             def rule_all(self, ast, p1, p2, p3, p4, k1, k2, k3, k4):
-                assert_equal("DEF", p1)
+                assert_equal('DEF', p1)
                 assert_equal(456, p2)
                 assert_equal('=', p3)
-                assert_equal("+", p4)
-                assert_equal("HIJ", k1)
+                assert_equal('+', p4)
+                assert_equal('HIJ', k1)
                 assert_equal(789, k2)
                 assert_equal('=', k3)
                 assert_equal('+', k4)
                 return ast
 
-        grammar = '''
+        grammar = """
             @@ignorecase::False
             @@nameguard
 
@@ -86,9 +85,9 @@ class ParameterTests(unittest.TestCase):
                 = 'b' ;
             rule_all('DEF', 456, '=', '+', k1=HIJ, k3='=', k4='+', k2=789)
                 = 'c' ;
-        '''
+        """
 
-        pretty = '''
+        pretty = """
             @@ignorecase :: False
             @@nameguard :: True
 
@@ -114,21 +113,21 @@ class ParameterTests(unittest.TestCase):
                 =
                 'c'
                 ;
-        '''
+        """
 
         model = compile(grammar, 'RuleArguments')
         self.assertEqual(trim(pretty), str(model))
         model = compile(pretty, 'RuleArguments')
 
-        ast = model.parse("a b c")
+        ast = model.parse('a b c')
         self.assertEqual(['a', 'b', 'c'], ast)
         semantics = TC36Semantics()
-        ast = model.parse("a b c", semantics=semantics)
+        ast = model.parse('a b c', semantics=semantics)
         self.assertEqual(['a', 'b', 'c'], ast)
         codegen(model)
 
     def test_36_unichars(self):
-        grammar = '''
+        grammar = """
             start = { rule_positional | rule_keywords | rule_all }* $ ;
 
             rule_positional("ÄÖÜäöüß") = 'a' ;
@@ -136,56 +135,60 @@ class ParameterTests(unittest.TestCase):
             rule_keywords(k1='äöüÄÖÜß') = 'b' ;
 
             rule_all('ßÄÖÜäöü', k1="ßäöüÄÖÜ") = 'c' ;
-        '''
+        """
 
         def _trydelete(pymodule):
             import os
+
             with contextlib.suppress(OSError):
-                os.unlink(pymodule + ".py")  # noqa:PTH108
+                os.unlink(pymodule + '.py')  # noqa:PTH108
             with contextlib.suppress(OSError):
-                os.unlink(pymodule + ".pyc")  # noqa:PTH108
+                os.unlink(pymodule + '.pyc')  # noqa:PTH108
             with contextlib.suppress(OSError):
-                os.unlink(pymodule + ".pyo")  # noqa:PTH108
+                os.unlink(pymodule + '.pyo')  # noqa:PTH108
 
         def assert_equal(target, value):
             self.assertEqual(target, value)
 
         class UnicharsSemantics:
             """Check all rule parameters for expected types and values"""
+
             def rule_positional(self, ast, p1):
-                assert_equal("ÄÖÜäöüß", p1)
+                assert_equal('ÄÖÜäöüß', p1)
                 return ast
 
             def rule_keyword(self, ast, k1):
-                assert_equal("äöüÄÖÜß", k1)
+                assert_equal('äöüÄÖÜß', k1)
                 return ast
 
             def rule_all(self, ast, p1, k1):
-                assert_equal("ßÄÖÜäöü", p1)
-                assert_equal("ßäöüÄÖÜ", k1)
+                assert_equal('ßÄÖÜäöü', p1)
+                assert_equal('ßäöüÄÖÜ', k1)
                 return ast
 
-        m = compile(grammar, "UnicodeRuleArguments")
-        ast = m.parse("a b c")
+        m = compile(grammar, 'UnicodeRuleArguments')
+        ast = m.parse('a b c')
         self.assertEqual(['a', 'b', 'c'], ast)
 
         semantics = UnicharsSemantics()
-        ast = m.parse("a b c", semantics=semantics)
+        ast = m.parse('a b c', semantics=semantics)
         self.assertEqual(['a', 'b', 'c'], ast)
 
         code = codegen(m)
         import codecs
-        with codecs.open("tc36unicharstest.py", "w", "utf-8") as f:
+
+        with codecs.open('tc36unicharstest.py', 'w', 'utf-8') as f:
             f.write(code)
         try:
             import tc36unicharstest  # pylint: disable=E0401
+
             assert tc36unicharstest
-            _trydelete("tc36unicharstest")
+            _trydelete('tc36unicharstest')
         except Exception as e:
             self.fail(e)
 
     def test_numbers_and_unicode(self):
-        grammar = '''
+        grammar = """
             rúle(1, -23, 4.56, 7.89e-11, Añez)
                 =
                 'a'
@@ -196,7 +199,7 @@ class ParameterTests(unittest.TestCase):
                 =
                 'ñ'
                 ;
-        '''
+        """
 
-        model = compile(grammar, "test")
+        model = compile(grammar, 'test')
         self.assertEqual(trim(grammar), str(model))

@@ -25,7 +25,11 @@ class ANTLRSemantics:
     def grammar(self, ast):
         return model.Grammar(
             self.name,
-            [r for r in chain(ast.rules, self.synthetic_rules) if r is not None],
+            [
+                r
+                for r in chain(ast.rules, self.synthetic_rules)
+                if r is not None
+            ],
         )
 
     def rule(self, ast):
@@ -35,7 +39,9 @@ class ANTLRSemantics:
             name = name.upper()
             if isinstance(exp, model.Token):
                 if name in self.token_rules:
-                    self.token_rules[name].exp = exp  # it is a model._Decorator
+                    self.token_rules[
+                        name
+                    ].exp = exp  # it is a model._Decorator
                 else:
                     self.token_rules[name] = exp
                 return None

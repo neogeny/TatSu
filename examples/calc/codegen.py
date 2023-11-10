@@ -8,7 +8,6 @@ THIS_MODULE = sys.modules[__name__]
 
 
 class PostfixCodeGenerator(NodeWalker, IndentPrintMixin):
-
     def walk_Add(self, node: Node, *args, **kwargs):
         with self.indent():
             self.walk(node.left)  # type: ignore[attr-defined]

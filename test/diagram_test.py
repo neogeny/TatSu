@@ -4,11 +4,10 @@ from tatsu.tool import compile
 
 
 class DiagramTests(unittest.TestCase):
-
     def test_dot(self):
-        grammar = '''
+        grammar = """
             start = "foo\\nbar" $;
-        '''
+        """
         try:
             from tatsu.diagrams import draw
         except ImportError:

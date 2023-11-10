@@ -71,15 +71,21 @@ class ModelRenderer(Renderer):
     def render(self, **fields):
         template = fields.pop('template', None)
         if isinstance(self.node, Node):
-            fields.update({k: v for k, v in vars(self.node).items() if not k.startswith('_')})
+            fields.update(
+                {
+                    k: v
+                    for k, v in vars(self.node).items()
+                    if not k.startswith('_')
+                },
+            )
         else:
             fields.update(value=self.node)
         return super().render(template=template, **fields)
 
 
 class NullModelRenderer(ModelRenderer):
-    """A `ModelRenderer` that generates nothing.
-    """
+    """A `ModelRenderer` that generates nothing."""
+
     template = ''
 
 
@@ -137,7 +143,9 @@ class CodeGenerator:
 
         renderer_class = self._find_renderer_class(item)
         if renderer_class is None:
-            raise CodegenError('Renderer not found for %s' % type(item).__name__)
+            raise CodegenError(
+                'Renderer not found for %s' % type(item).__name__,
+            )
         try:
             assert issubclass(renderer_class, ModelRenderer)
             return renderer_class(self, item)
