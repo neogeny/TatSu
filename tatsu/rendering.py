@@ -21,7 +21,7 @@ def render(item, join='', **fields):
         return item.render(join=join, **fields)
     elif isiter(item):
         return join.join(render(e, **fields) for e in iter(item) if e is not None)
-    elif isinstance(item, (int, float)):
+    elif isinstance(item, int | float):
         return item
     else:
         return str(item)

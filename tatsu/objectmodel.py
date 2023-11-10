@@ -109,7 +109,7 @@ class Node(AsJSONMixin):
             return node
 
         def children_of(child):
-            if isinstance(child, (weakref.ReferenceType, weakref.ProxyType)):
+            if isinstance(child, weakref.ReferenceType | weakref.ProxyType):
                 return
             elif isinstance(child, Node):
                 yield with_parent(child)
@@ -118,7 +118,7 @@ class Node(AsJSONMixin):
                     if name.startswith('_'):
                         continue
                     yield from children_of(value)
-            elif isinstance(child, (list, tuple)):
+            elif isinstance(child, list | tuple):
                 yield from (with_parent(c) for c in child if isinstance(c, Node))
 
         children = list(self._pubdict().items())

@@ -598,9 +598,9 @@ class Join(Decorator):
         ssep = self.sep._to_str(lean=lean)
         sexp = str(self.exp._to_str(lean=lean))
         if len(sexp.splitlines()) <= 1:
-            return '%s%s{%s}' % (ssep, self.JOINOP, sexp)
+            return f'{ssep}{self.JOINOP}{{{sexp}}}'
         else:
-            return '%s%s{\n%s\n}' % (ssep, self.JOINOP, sexp)
+            return f'{ssep}{self.JOINOP}{{\n{sexp}\n}}'
 
     def _nullable(self):
         return True
@@ -723,7 +723,7 @@ class Named(Decorator):
     def _to_str(self, lean=False):
         if lean:
             return self.exp._to_str(lean=True)
-        return '%s:%s' % (self.name, self.exp._to_str(lean=lean))
+        return f'{self.name}:{self.exp._to_str(lean=lean)}'
 
 
 class NamedList(Named):
@@ -738,7 +738,7 @@ class NamedList(Named):
     def _to_str(self, lean=False):
         if lean:
             return self.exp._to_str(lean=True)
-        return '%s+:%s' % (self.name, str(self.exp._to_str(lean=lean)))
+        return f'{self.name}+:{str(self.exp._to_str(lean=lean))}'
 
 
 class Override(Named):
@@ -864,7 +864,7 @@ class Rule(Decorator):
 
     @staticmethod
     def param_repr(p):
-        if isinstance(p, (int, float)):
+        if isinstance(p, int | float):
             return str(p)
         elif isinstance(p, str) and p.isalnum():
             return str(p)
@@ -883,12 +883,12 @@ class Rule(Decorator):
             kwparams = ''
             if self.kwparams:
                 kwparams = ', '.join(
-                    '%s=%s' % (k, self.param_repr(v)) for (k, v)
+                    f'{k}={self.param_repr(v)}' for (k, v)
                     in self.kwparams.items()
                 )
 
             if params and kwparams:
-                params = '(%s, %s)' % (params, kwparams)
+                params = f'({params}, {kwparams})'
             elif kwparams:
                 params = '(%s)' % (kwparams)
             elif params:

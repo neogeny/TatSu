@@ -183,7 +183,7 @@ def file_process_progress(latest_result, results_count, success_count, total, to
         print(
             '%3d/%-3d' % (i, total),
             bar,
-            '%0.1f%%(%0.1f%%%s)' % (100 * percent, 100 * success_percent, SUCCESSCH),
+            f'{100 * percent:0.1f}%({100 * success_percent:0.1f}%{SUCCESSCH})',
             # format_hours(total_time),
             '%sETA' % format_hours(eta),
             format_minutes(latest_result),
@@ -197,11 +197,11 @@ def file_process_progress(latest_result, results_count, success_count, total, to
 
 
 def format_minutes(result):
-    return '%3.0f:%04.1f' % (result.time / 60, result.time % 60)
+    return f'{result.time / 60:3.0f}:{result.time % 60:04.1f}'
 
 
 def format_hours(time):
-    return '%2.0f:%02.0f:%02.0f' % (time // 3600, (time // 60) % 60, time % 60)
+    return f'{time // 3600:2.0f}:{(time // 60) % 60:02.0f}:{time % 60:02.0f}'
 
 
 def file_process_summary(filenames, total_time, results, verbose=False):

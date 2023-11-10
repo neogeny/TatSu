@@ -14,7 +14,7 @@ class _Synthetic:
 
 
 def synthesize(name, bases):
-    typename = '%s.%s' % (__name__, name)
+    typename = f'{__name__}.{name}'
 
     if not isinstance(bases, tuple):
         bases = (bases,)

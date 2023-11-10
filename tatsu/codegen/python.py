@@ -52,7 +52,7 @@ class Base(ModelRenderer):
             sdefs = '[%s]' % ', '.join(sorted(repr(d) for d in sdefs))
             ldefs = '[%s]' % ', '.join(sorted(repr(d) for d in ldefs))
             if not ldefs:
-                return '\n\n    self._define(%s, %s)' % (sdefs, ldefs)
+                return f'\n\n    self._define({sdefs}, {ldefs})'
             else:
                 return '\n' + trim(self.define_template % (sdefs, ldefs))
 
@@ -326,7 +326,7 @@ class Cut(Base):
 
 class Named(_Decorator):
     def __str__(self):
-        return '%s:%s' % (self.name, self.rend(self.exp))
+        return f'{self.name}:{self.rend(self.exp)}'
 
     def render_fields(self, fields):
         fields.update(n=self.counter(),
@@ -375,7 +375,7 @@ class RuleInclude(_Decorator):
 class Rule(_Decorator):
     @staticmethod
     def param_repr(p):
-        if isinstance(p, (int, float)):
+        if isinstance(p, int | float):
             return str(p)
         else:
             return repr(p.split(BASE_CLASS_TOKEN)[0])
@@ -397,9 +397,7 @@ class Rule(_Decorator):
             )
         if self.node.kwparams:
             kwparams = ', '.join(
-                '%s=%s'
-                %
-                (k, self.param_repr(self.rend(v)))
+                f'{k}={self.param_repr(self.rend(v))}'
                 for k, v in self.kwparams.items()
             )
 

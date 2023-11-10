@@ -2,7 +2,6 @@
 import itertools
 from typing import (
     Any,
-    Optional,
     TypeVar,
 )
 from collections.abc import Iterable, Iterator, Mapping, MutableSet, Sequence, MutableSequence
@@ -11,12 +10,12 @@ T = TypeVar("T")
 
 
 class OrderedSet(MutableSet[T], Sequence[T]):
-    def __init__(self, iterable: Optional[Iterable[T]] = None):
+    def __init__(self, iterable: Iterable[T] | None = None):
         if iterable is not None:
             self._map = dict.fromkeys(iterable)
         else:
             self._map = {}
-        self._list_cache: Optional[Sequence[T]] = None
+        self._list_cache: Sequence[T] | None = None
 
     def __len__(self):
         return len(self._map)
@@ -78,7 +77,7 @@ class OrderedSet(MutableSet[T], Sequence[T]):
     def union(self, *other: Iterable[T]) -> "OrderedSet[T]":
         # do not split `str`
         outer = tuple(
-            [o] if not isinstance(o, (set, Mapping, MutableSequence)) else o
+            [o] if not isinstance(o, set | Mapping | MutableSequence) else o
             for o in other
         )
         inner = itertools.chain([self], *outer)  # type: ignore
