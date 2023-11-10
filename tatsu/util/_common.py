@@ -30,11 +30,6 @@ WHITESPACE_RE = re.compile(r'(?s)\s+')
 RETYPE = type(re.compile('.'))
 
 
-_PY3 = sys.version_info[0] >= 3
-PY36 = _PY3 and sys.version_info[1] >= 6
-PY37 = _PY3 and sys.version_info[1] >= 7
-
-
 ESCAPE_SEQUENCE_RE = re.compile(
     r'''
     ( \\U........      # 8-digit Unicode escapes
