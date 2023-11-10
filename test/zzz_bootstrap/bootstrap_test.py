@@ -1,26 +1,21 @@
-# -*- coding: utf-8 -*-
-"""
-This awkward set of tests tries to make the tool bang its head against iself.
-"""
-from __future__ import generator_stop
+from __future__ import annotations
 
 import json
-import os
 import pickle
+import py_compile
 import shutil
 import sys
 import unittest
-import py_compile
+from pathlib import Path
 
-from tatsu.walkers import DepthFirstWalker
-from tatsu.parser import GrammarGenerator, EBNFParser
-from tatsu.parser_semantics import EBNFGrammarSemantics
-from tatsu.codegen import codegen
 from tatsu import util
+from tatsu.codegen import codegen
+from tatsu.parser import EBNFParser, GrammarGenerator
+from tatsu.parser_semantics import EBNFGrammarSemantics
 from tatsu.util import asjson
+from tatsu.walkers import DepthFirstWalker
 
-
-tmp = os.path.abspath('./tmp')
+tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
 
 
@@ -29,63 +24,63 @@ class BootstrapTests(unittest.TestCase):
     def test_bootstrap(self):
         print()
 
-        if os.path.isfile('./tmp/00.ast'):
+        tmp = Path('./tmp')
+        if (tmp / '00.ast').is_file():
             shutil.rmtree('./tmp')
-        if not os.path.isdir('./tmp'):
-            os.mkdir('./tmp')
+        tmp.mkdir(exist_ok=True)
         print('-' * 20, 'phase 00 - parse using the bootstrap grammar')
-        with open('grammar/tatsu.ebnf') as f:
+        with Path('grammar/tatsu.ebnf').open() as f:
             text = str(f.read())
         g = EBNFParser('EBNFBootstrap')
-        grammar0 = g.parse(text)
+        grammar0 = g.parse(text, parseinfo=False)
         ast0 = json.dumps(asjson(grammar0), indent=2)
         with open('./tmp/00.ast', 'w') as f:
             f.write(ast0)
 
         print('-' * 20, 'phase 01 - parse with parser generator')
-        with open('grammar/tatsu.ebnf') as f:
+        with Path('grammar/tatsu.ebnf').open() as f:
             text = str(f.read())
         g = GrammarGenerator('EBNFBootstrap')
         result = g.parse(text)
 
         generated_grammar1 = str(result)
-        with open('./tmp/01.ebnf', 'w') as f:
+        with Path('./tmp/01.ebnf').open('w') as f:
             f.write(generated_grammar1)
 
         print('-' * 20, 'phase 02 - parse previous output with the parser generator')
-        with open('./tmp/01.ebnf') as f:
+        with Path('./tmp/01.ebnf').open() as f:
             text = str(f.read())
         g = GrammarGenerator('EBNFBootstrap')
         result = g.parse(text)
         generated_grammar2 = str(result)
-        with open('./tmp/02.ebnf', 'w') as f:
+        with Path('./tmp/02.ebnf').open('w') as f:
             f.write(generated_grammar2)
         self.assertEqual(generated_grammar2, generated_grammar1)
 
         print('-' * 20, 'phase 03 - repeat')
-        with open('./tmp/02.ebnf') as f:
+        with Path('./tmp/02.ebnf').open() as f:
             text = f.read()
         g = EBNFParser('EBNFBootstrap')
         ast3 = g.parse(text)
-        with open('./tmp/03.ast', 'w') as f:
+        with Path('./tmp/03.ast').open('w') as f:
             f.write(json.dumps(asjson(ast3), indent=2))
 
         print('-' * 20, 'phase 04 - repeat')
-        with open('./tmp/02.ebnf') as f:
+        with Path('./tmp/02.ebnf').open() as f:
             text = f.read()
         g = GrammarGenerator('EBNFBootstrap')
         parser = g.parse(text)
     #    pprint(parser.first_sets, indent=2, depth=3)
         generated_grammar4 = str(parser)
-        with open('./tmp/04.ebnf', 'w') as f:
+        with Path('./tmp/04.ebnf').open('w') as f:
             f.write(generated_grammar4)
         self.assertEqual(generated_grammar4, generated_grammar2)
 
         print('-' * 20, 'phase 05 - parse using the grammar model')
-        with open('./tmp/04.ebnf') as f:
+        with Path('./tmp/04.ebnf').open() as f:
             text = f.read()
         ast5 = parser.parse(text)
-        with open('./tmp/05.ast', 'w') as f:
+        with Path('./tmp/05.ast').open('w') as f:
             f.write(json.dumps(asjson(ast5), indent=2))
 
         print('-' * 20, 'phase 06 - generate parser code')
@@ -97,23 +92,17 @@ class BootstrapTests(unittest.TestCase):
         py_compile.compile('./tmp/g06.py', doraise=True)
         # g06 = __import__('g06')
         # GenParser = g06.EBNFBootstrapParser
+        # assert GenParser
 
         # print('-' * 20, 'phase 08 - compile using generated code')
         # parser = GenParser(trace=False)
-        # result = parser.parse(
-        #     text,
-        #     'start',
-        #     comments_re=COMMENTS_RE,
-        #     eol_comments_re=EOL_COMMENTS_RE
-        # )
-        # self.assertEqual(result, parser.ast['start'])
-        # ast8 = parser.ast['start']
-        # json8 = json.dumps(asjson(ast8), indent=2)
-        # open('./tmp/08.ast', 'w').write(json8)
-        # self.assertEqual(ast5, ast8)
+        # result = parser.parse(original_grammar, semantics=ASTSemantics, parseinfo=False)
+        # ast8 = json.dumps(asjson(result), indent=2)
+        # open('./tmp/08.ast', 'w').write(ast8)
+        # self.assertEqual(ast0, ast8)
 
         print('-' * 20, 'phase 09 - Generate parser with semantics')
-        with open('grammar/tatsu.ebnf') as f:
+        with Path('grammar/tatsu.ebnf').open() as f:
             text = f.read()
         parser = GrammarGenerator('EBNFBootstrap')
         g9 = parser.parse(text)
@@ -126,7 +115,7 @@ class BootstrapTests(unittest.TestCase):
         g10 = g9.parse(
             text,
             start_rule='start',
-            semantics=EBNFGrammarSemantics('EBNFBootstrap')
+            semantics=EBNFGrammarSemantics('EBNFBootstrap'),
         )
         generated_grammar10 = str(g10)
         with open('./tmp/10.ebnf', 'w') as f:
@@ -143,7 +132,7 @@ class BootstrapTests(unittest.TestCase):
         r11 = g11.parse(
             text,
             start_rule='start',
-            semantics=EBNFGrammarSemantics('EBNFBootstrap')
+            semantics=EBNFGrammarSemantics('EBNFBootstrap'),
         )
         with open('./tmp/11.ebnf', 'w') as f:
             f.write(str(g11))
@@ -165,10 +154,6 @@ class BootstrapTests(unittest.TestCase):
         v.walk(g11)
         with open('./tmp/12.txt', 'w') as f:
             f.write('\n'.join(v.walked))
-
-        # note: pygraphviz not yet updated
-        if sys.version_info >= (3, 7):
-            return
 
         print('-' * 20, 'phase 13 - Graphics')
         try:

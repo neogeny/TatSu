@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 import json
-import unittest
 import tempfile
+import unittest
 
 import tatsu
-from tatsu.util import trim, eval_escapes, asjson
 from tatsu.parser import EBNFBuffer
+from tatsu.util import asjson, eval_escapes, trim
 
 
 class MockIncludeBuffer(EBNFBuffer):

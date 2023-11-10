@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 import unittest
 
-from tatsu.util import trim
 from tatsu.tool import compile
+from tatsu.util import trim
 
 
 class PrettyTests(unittest.TestCase):

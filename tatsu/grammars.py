@@ -1,24 +1,26 @@
 from __future__ import annotations
 
 import functools
-from collections.abc import Mapping
 from collections import defaultdict
-from pathlib import Path
+from collections.abc import Mapping
 from copy import copy
 from itertools import takewhile
+from pathlib import Path
 
-from .util import (
-    indent, trim, compress_seq, chunks,
-    re,
-)
-from .exceptions import FailedRef, GrammarError
 from .ast import AST
-from .contexts import ParseContext
-from .objectmodel import Node
-from .infos import RuleInfo, ParserConfig
-from .leftrec import Nullable, find_left_recursion
 from .collections import OrderedSet as oset
-
+from .contexts import ParseContext
+from .exceptions import FailedRef, GrammarError
+from .infos import ParserConfig, RuleInfo
+from .leftrec import Nullable, find_left_recursion
+from .objectmodel import Node
+from .util import (
+    chunks,
+    compress_seq,
+    indent,
+    re,
+    trim,
+)
 
 PEP8_LLEN = 72
 
@@ -49,7 +51,7 @@ def pythonize_name(name):
 
 
 class ModelContext(ParseContext):
-    def __init__(self, rules, /, start=None, config: ParserConfig|None = None, **settings):
+    def __init__(self, rules, /, start=None, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(config, **settings)
         config = config.replace(start=start)
 
@@ -88,7 +90,6 @@ class Model(Node):
 
     def parse(self, ctx):
         ctx.last_node = None
-        return None
 
     def defines(self):
         return []
@@ -307,7 +308,7 @@ class Constant(Model):
         return {()}
 
     def _to_str(self, lean=False):
-        return f'`{repr(self.literal)}`'
+        return f'`{self.literal!r}`'
 
     def _nullable(self):
         return True
@@ -320,8 +321,7 @@ class Alert(Constant):
         self.level = len(self.ast.level)
 
     def parse(self, ctx):
-        message = super().parse(ctx)
-        return message
+        return super().parse(ctx)
 
     def _to_str(self, lean=False):
         return f'{"^" * self.level}{super()._to_str()}'
@@ -483,6 +483,7 @@ class Choice(Model):
             if lookahead:
                 ctx._error('expecting one of: %s:' % lookahead)
             ctx._error('no available options')
+            return None
 
     def defines(self):
         return [d for o in self.options for d in o.defines()]
@@ -598,9 +599,9 @@ class Join(Decorator):
         ssep = self.sep._to_str(lean=lean)
         sexp = str(self.exp._to_str(lean=lean))
         if len(sexp.splitlines()) <= 1:
-            return '%s%s{%s}' % (ssep, self.JOINOP, sexp)
+            return f'{ssep}{self.JOINOP}{{{sexp}}}'
         else:
-            return '%s%s{\n%s\n}' % (ssep, self.JOINOP, sexp)
+            return f'{ssep}{self.JOINOP}{{\n{sexp}\n}}'
 
     def _nullable(self):
         return True
@@ -695,7 +696,6 @@ class Optional(Decorator):
 class Cut(Model):
     def parse(self, ctx):
         ctx._cut()
-        return None
 
     def _first(self, k, f):
         return {('~',)}
@@ -718,12 +718,12 @@ class Named(Decorator):
         return value
 
     def defines(self):
-        return [(self.name, False)] + super().defines()
+        return [(self.name, False), *super().defines()]
 
     def _to_str(self, lean=False):
         if lean:
             return self.exp._to_str(lean=True)
-        return '%s:%s' % (self.name, self.exp._to_str(lean=lean))
+        return f'{self.name}:{self.exp._to_str(lean=lean)}'
 
 
 class NamedList(Named):
@@ -733,12 +733,12 @@ class NamedList(Named):
         return value
 
     def defines(self):
-        return [(self.name, True)] + super().defines()
+        return [(self.name, True), *super().defines()]
 
     def _to_str(self, lean=False):
         if lean:
             return self.exp._to_str(lean=True)
-        return '%s+:%s' % (self.name, str(self.exp._to_str(lean=lean)))
+        return f'{self.name}+:{self.exp._to_str(lean=lean)!s}'
 
 
 class Override(Named):
@@ -834,8 +834,7 @@ class Rule(Decorator):
         self.is_memoizable = 'nomemo' not in self.decorators
 
     def parse(self, ctx):
-        result = self._parse_rhs(ctx, self.exp)
-        return result
+        return self._parse_rhs(ctx, self.exp)
 
     def _parse_rhs(self, ctx, exp):
         ruleinfo = RuleInfo(
@@ -844,10 +843,9 @@ class Rule(Decorator):
             self.is_memoizable,
             self.is_name,
             self.params,
-            self.kwparams
+            self.kwparams,
         )
-        result = ctx._call(ruleinfo)
-        return result
+        return ctx._call(ruleinfo)
 
     # def firstset(self, k=1):
     #     return self.exp.firstset(k=k)
@@ -864,9 +862,7 @@ class Rule(Decorator):
 
     @staticmethod
     def param_repr(p):
-        if isinstance(p, (int, float)):
-            return str(p)
-        elif isinstance(p, str) and p.isalnum():
+        if isinstance(p, int | float) or isinstance(p, str) and p.isalnum():
             return str(p)
         else:
             return repr(p)
@@ -883,19 +879,16 @@ class Rule(Decorator):
             kwparams = ''
             if self.kwparams:
                 kwparams = ', '.join(
-                    '%s=%s' % (k, self.param_repr(v)) for (k, v)
+                    f'{k}={self.param_repr(v)}' for (k, v)
                     in self.kwparams.items()
                 )
 
             if params and kwparams:
-                params = '(%s, %s)' % (params, kwparams)
+                params = f'({params}, {kwparams})'
             elif kwparams:
                 params = '(%s)' % (kwparams)
             elif params:
-                if len(self.params) == 1:
-                    params = '::%s' % params
-                else:
-                    params = '(%s)' % params
+                params = '::%s' % params if len(self.params) == 1 else '(%s)' % params
 
         base = ' < %s' % str(self.base.name) if self.base else ''
 
@@ -924,7 +917,7 @@ class BasedRule(Rule):
             exp,
             params or base.params,
             kwparams or base.kwparams,
-            decorators=decorators
+            decorators=decorators,
         )
         self.base = base
         ast = AST(sequence=[self.base.exp, self.exp])
@@ -939,7 +932,7 @@ class BasedRule(Rule):
 
 
 class Grammar(Model):
-    def __init__(self, name, rules, /, config: ParserConfig|None = None, directives: dict|None = None, **settings):
+    def __init__(self, name, rules, /, config: ParserConfig | None = None, directives: dict | None = None, **settings):
         super().__init__()
         assert isinstance(rules, list), str(rules)
         directives = directives or {}
@@ -962,7 +955,7 @@ class Grammar(Model):
 
         missing = self.missing_rules(oset(r.name for r in self.rules))
         if missing:
-            msg = '\n'.join([''] + list(sorted(missing)))
+            msg = '\n'.join(['', *sorted(missing)])
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
         self._calc_lookahead_sets()
@@ -1034,7 +1027,7 @@ class Grammar(Model):
         for rule in self.rules:
             rule._follow_set = fl[rule.name]
 
-    def parse(self, text: str, /, config: ParserConfig = None, ctx=None, **settings):  # type: ignore # pylint: disable=arguments-differ,arguments-renamed
+    def parse(self, text: str, /, config: ParserConfig | None = None, ctx=None, **settings):  # type: ignore[override]
         config = self.config.replace_config(config)
         config = config.replace(**settings)
 

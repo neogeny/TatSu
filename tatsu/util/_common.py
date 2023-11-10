@@ -1,39 +1,34 @@
 from __future__ import annotations
 
-import sys
-import os
-import json
-import datetime
 import codecs
-import keyword
-import functools
-import warnings
-import logging
-import weakref
+import datetime
 import enum
+import functools
+import json
+import keyword
+import logging
+import operator
+import os
+import os.path
 import re
+import sys
+import warnings
+import weakref
+from collections.abc import Iterable, Mapping, MutableSequence
 from io import StringIO
-from typing import Iterable, Mapping, MutableSequence
 from itertools import zip_longest
 from pathlib import Path
-import os.path
-
 
 logger = logging.getLogger('tatsu')
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
-formatter = logging.Formatter(str('%(message)s'))
+formatter = logging.Formatter('%(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
 WHITESPACE_RE = re.compile(r'(?s)\s+')
 RETYPE = type(re.compile('.'))
-
-
-_PY3 = sys.version_info[0] >= 3
-PY36 = _PY3 and sys.version_info[1] >= 6
-PY37 = _PY3 and sys.version_info[1] >= 7
 
 
 ESCAPE_SEQUENCE_RE = re.compile(
@@ -45,7 +40,7 @@ ESCAPE_SEQUENCE_RE = re.compile(
     | \\N\{[^}]+\}     # Unicode characters by name
     | \\[\\'"abfnrtv]  # Single-character escapes
     )''',
-    re.UNICODE | re.VERBOSE
+    re.UNICODE | re.VERBOSE,
 )
 
 
@@ -102,7 +97,7 @@ def identity(*args):
 
 
 def is_list(o):
-    return type(o) is list  # pylint: disable=unidiomatic-typecheck
+    return type(o) is list
 
 
 def to_list(o):
@@ -120,7 +115,7 @@ def is_namedtuple(obj) -> bool:
         isinstance(obj, tuple) and
         hasattr(obj, '_asdict') and
         hasattr(obj, '_fields') and
-        all(isinstance(f, str) for f in getattr(obj, '_fields'))
+        all(isinstance(f, str) for f in getattr(obj, '_fields', ()))
     )
 
 
@@ -145,7 +140,7 @@ def contains_sublist(lst, sublst):
 
 
 def join_lists(lists):
-    return sum(lists, [])
+    return functools.reduce(operator.iadd, lists, [])
 
 
 def flatten(o):
@@ -188,7 +183,7 @@ def eval_escapes(s):
 def isiter(value):
     return (
         isinstance(value, Iterable) and
-        not isinstance(value, (str, bytes, bytearray))
+        not isinstance(value, str | bytes | bytearray)
     )
 
 
@@ -242,8 +237,8 @@ def timestamp():
     return '.'.join('%2.2d' % t for t in datetime.datetime.utcnow().utctimetuple()[:-2])
 
 
-def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements,too-many-branches
-    if obj is None or isinstance(obj, (int, float, str, bool)):
+def asjson(obj, seen=None):  # noqa: PLR0911, PLR0912
+    if obj is None or isinstance(obj, int | float | str | bool):
         return obj
 
     if seen is None:
@@ -251,11 +246,11 @@ def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements,too-ma
     elif id(obj) in seen:
         return f'{type(obj).__name__}@{id(obj)}'
 
-    if isinstance(obj, (Mapping, AsJSONMixin)) or isiter(obj):
+    if isinstance(obj, Mapping | AsJSONMixin) or isiter(obj):
         seen.add(id(obj))
 
     try:
-        if isinstance(obj, (weakref.ReferenceType, weakref.ProxyType)):
+        if isinstance(obj, weakref.ReferenceType | weakref.ProxyType):
             return f'@0x{hex(id(obj)).upper()[2:]}'
         elif hasattr(obj, '__json__'):
             return obj.__json__(seen=seen)
@@ -306,7 +301,7 @@ def plainjson(obj):
             for name, value in obj.items()
             if name not in {'__class__', 'parseinfo'}
         }
-    elif isinstance(obj, (weakref.ReferenceType, weakref.ProxyType)):
+    elif isinstance(obj, weakref.ReferenceType | weakref.ProxyType):
         return '@ref'
     elif isinstance(obj, str) and obj.startswith('@'):
         return '@ref'
@@ -360,7 +355,7 @@ def generic_main(custom_main, parser_class, name='Unknown'):
 
     addarg('-c', '--color',
            help='use color in traces (requires the colorama library)',
-           action='store_true'
+           action='store_true',
            )
     addarg('-l', '--list', action=ListRules, nargs=0,
            help="list all rules and exit")
@@ -390,7 +385,7 @@ def generic_main(custom_main, parser_class, name='Unknown'):
             trace=args.trace,
             whitespace=args.whitespace,
             nameguard=not args.no_nameguard,
-            colorize=args.color
+            colorize=args.color,
         )
     except KeyboardInterrupt:
         pass
@@ -456,7 +451,7 @@ def try_read(filename):
         filename = str(filename)
     for e in ['utf-16', 'utf-8', 'latin-1', 'cp1252', 'ascii']:
         try:
-            with open(filename, 'r', encoding=e) as f:
+            with Path(filename).open(encoding=e) as f:
                 return f.read()
         except UnicodeError:
             pass
@@ -477,17 +472,19 @@ def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
             path += '/*'
 
         parts = path.parts[1:] if path.is_absolute() else path.parts
-        pattern = str(Path("").joinpath(*parts))
-        filenames.update((p for p in Path(path.root).glob(pattern) if not p.is_dir()))
+        pattern = str(Path().joinpath(*parts))
+        filenames.update(p for p in Path(path.root).glob(pattern) if not p.is_dir())
 
     filenames = list(filenames)
 
     def excluded(path):
         if any(path.match(ex) for ex in ignore):
             return True
-        for part in path.parts:
-            if any(Path(part).match(ex) for ex in ignore):
-                return True
+
+        return any(
+            any(Path(part).match(ex) for ex in ignore)
+            for part in path.parts
+        )
 
     if ignore:
         filenames = [path for path in filenames if not excluded(path)]
@@ -507,7 +504,7 @@ def short_relative_path(path, base='.'):
     elif common == Path.home():
         up = Path('~')
     elif common == base:
-        up = Path('.')
+        up = Path()
     else:
         n = len(base.parts) - len(common.parts)
         up = Path('../' * n)

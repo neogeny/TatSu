@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 
 from tatsu.exceptions import FailedParse
@@ -402,7 +401,7 @@ class LeftRecursionTests(unittest.TestCase):
 
         model = compile(grammar)
         ast = model.parse(input, trace=trace, colorize=True)
-        assert ('{', 'size', '}') == ast
+        assert ast == ('{', 'size', '}')
 
     def test_dropped_input_bug(self, trace=False):
         grammar = r'''
@@ -487,7 +486,7 @@ class LeftRecursionTests(unittest.TestCase):
         """
         self.assertEqual(
             {'type': {'id': 'int'}, 'name': 'x'},
-            parse(grammar, 'int x', start='decl').asjson()
+            parse(grammar, 'int x', start='decl').asjson(),
         )
 
     def test_associativity(self):
@@ -499,7 +498,7 @@ class LeftRecursionTests(unittest.TestCase):
             A = | A 'a' | 'a' ;
         '''
 
-        assert (('a', 'a'), 'a') == parse(left_grammar, 'aaa')
+        assert parse(left_grammar, 'aaa') == (('a', 'a'), 'a')
 
         right_grammar = '''
             @@left_recursion :: True
@@ -509,7 +508,7 @@ class LeftRecursionTests(unittest.TestCase):
             A = | 'a' A | 'a' ;
         '''
 
-        assert ('a', ('a', 'a')) == parse(right_grammar, 'aaa')
+        assert parse(right_grammar, 'aaa') == ('a', ('a', 'a'))
 
     def test_peg_associativity(self):
         left_grammar = '''
@@ -520,7 +519,7 @@ class LeftRecursionTests(unittest.TestCase):
             A = | A 'a' | 'a' A | 'a' ;
         '''
 
-        assert ('a', ('a', 'a')) == parse(left_grammar, 'aaa')
+        assert parse(left_grammar, 'aaa') == ('a', ('a', 'a'))
 
         right_grammar = '''
             @@left_recursion :: True
@@ -530,7 +529,7 @@ class LeftRecursionTests(unittest.TestCase):
             A = | 'a' A | A 'a' | 'a' ;
         '''
 
-        assert ('a', ('a', 'a')) == parse(right_grammar, 'aaa')
+        assert parse(right_grammar, 'aaa') == ('a', ('a', 'a'))
 
     def test_nullable_void(self):
         left_grammar = '''
@@ -541,7 +540,7 @@ class LeftRecursionTests(unittest.TestCase):
             A = | A 'a' | () ;
         '''
 
-        assert (('a', 'a'), 'a') == parse(left_grammar, 'aaa')
+        assert parse(left_grammar, 'aaa') == (('a', 'a'), 'a')
 
     def test_leftrec_with_void(self):
         left_grammar = '''
@@ -552,5 +551,5 @@ class LeftRecursionTests(unittest.TestCase):
             A = | A 'a' | 'a' ;
         '''
 
-        assert (('a', 'a'), 'a') == parse(left_grammar, 'aaa')
+        assert parse(left_grammar, 'aaa') == (('a', 'a'), 'a')
         assert parse(left_grammar, '') is None

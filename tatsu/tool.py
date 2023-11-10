@@ -3,22 +3,23 @@ Parse and translate an EBNF grammar into a Python parser for
 the described language.
 """
 from __future__ import annotations
-import codecs
+
 import argparse
-import os
-import sys
+import codecs
 import importlib
+import sys
+from pathlib import Path
 
 from ._version import __version__
-from .util import eval_escapes
-from .exceptions import ParseException
-from .parser import GrammarGenerator
-from .semantics import ModelBuilderSemantics
-from .infos import ParserConfig
+from .codegen import objectmodel
 
 # we hook the tool to the Python code generator as the default
 from .codegen.python import codegen as pythoncg
-from .codegen import objectmodel
+from .exceptions import ParseException
+from .infos import ParserConfig
+from .parser import GrammarGenerator
+from .semantics import ModelBuilderSemantics
+from .util import eval_escapes
 
 DESCRIPTION = (
     'TatSu takes a grammar'
@@ -36,44 +37,44 @@ def parse_args():
     main_mode.add_argument(
         '--generate-parser',
         help='generate parser code from the grammar (default)',
-        action='store_true'
+        action='store_true',
     )
     main_mode.add_argument(
         '--draw', '-d',
         help='generate a diagram of the grammar (requires --outfile)',
-        action='store_true'
+        action='store_true',
     )
     main_mode.add_argument(
         '--object-model', '-g',
         help='generate object model from the class names given as rule arguments',
-        action='store_true'
+        action='store_true',
     )
     main_mode.add_argument(
         '--pretty', '-p',
         help='generate a prettified version of the input grammar',
-        action='store_true'
+        action='store_true',
     )
     main_mode.add_argument(
         '--pretty-lean',
         help='like --pretty, but without name: or ::Parameter annotations',
-        action='store_true'
+        action='store_true',
     )
 
     ebnf_opts = argparser.add_argument_group('parse-time options')
     argparser.add_argument(
         'filename',
         metavar='GRAMMAR',
-        help='the filename of the TatSu grammar to parse'
+        help='the filename of the TatSu grammar to parse',
     )
     ebnf_opts.add_argument(
         '--color', '-c',
         help='use color in traces (requires the colorama library)',
-        action='store_true'
+        action='store_true',
     )
     ebnf_opts.add_argument(
         '--trace', '-t',
         help='produce verbose parsing output',
-        action='store_true'
+        action='store_true',
     )
 
     generation_opts = argparser.add_argument_group('generation options')
@@ -87,19 +88,19 @@ def parse_args():
     generation_opts.add_argument(
         '--name', '-m',
         metavar='NAME',
-        help='Name for the grammar (defaults to GRAMMAR base name)'
+        help='Name for the grammar (defaults to GRAMMAR base name)',
     )
     generation_opts.add_argument(
         '--no-nameguard', '-n',
         help='allow tokens that are prefixes of others',
         dest="nameguard",
         action='store_false',
-        default=None  # None allows grammar specified
+        default=None,  # None allows grammar specified
     )
     generation_opts.add_argument(
         '--outfile', '--output', '-o',
         metavar='FILE',
-        help='output file (default is stdout)'
+        help='output file (default is stdout)',
     )
     generation_opts.add_argument(
         '--object-model-outfile', '-G',
@@ -118,29 +119,29 @@ def parse_args():
             module = importlib.import_module(spath[0])
 
             return getattr(module, spath[1])
-        except Exception:
+        except Exception as e:
             raise argparse.ArgumentTypeError(
-                "Couldn't find class %s" % path
-            )
+                "Couldn't find class %s" % path,
+            ) from e
 
     generation_opts.add_argument(
         '--base-type',
         metavar='CLASSPATH',
         help='class to use as base type for the object model, for example "mymodule.MyNode"',
-        type=import_class
+        type=import_class,
     )
 
     std_args = argparser.add_argument_group('common options')
     std_args.add_argument(
         '--help', '-h',
         help='show this help message and exit',
-        action='help'
+        action='help',
     )
     std_args.add_argument(
         '--version', '-V',
         help='provide version information and exit',
         action='version',
-        version=__version__
+        version=__version__,
     )
 
     args = argparser.parse_args()
@@ -151,10 +152,10 @@ def parse_args():
     return args
 
 
-__compiled_grammar_cache = {}  # type: ignore
+__compiled_grammar_cache = {}  # type: ignore[var-annotated]
 
 
-def compile(grammar, name=None, semantics=None, asmodel=False, config: ParserConfig|None = None, **settings):
+def compile(grammar, name=None, semantics=None, asmodel=False, config: ParserConfig | None = None, **settings):
     cache = __compiled_grammar_cache
 
     key = (name, grammar, id(semantics))
@@ -172,41 +173,42 @@ def compile(grammar, name=None, semantics=None, asmodel=False, config: ParserCon
     return model
 
 
-def parse(grammar, input, start=None, name=None, semantics=None, asmodel=False, config: ParserConfig|None = None, **settings):
+def parse(grammar, input, start=None, name=None, semantics=None, asmodel=False, config: ParserConfig | None = None, **settings):
     model = compile(grammar, name=name, semantics=semantics, asmodel=asmodel, config=config, **settings)
     return model.parse(input, start=start, semantics=semantics, config=config, **settings)
 
 
-def to_python_sourcecode(grammar, name=None, filename=None, config: ParserConfig|None = None, **settings):
+def to_python_sourcecode(grammar, name=None, filename=None, config: ParserConfig | None = None, **settings):
     model = compile(grammar, name=name, filename=filename, config=config, **settings)
     return pythoncg(model)
 
 
-def to_python_model(grammar, name=None, filename=None, base_type=None, config: ParserConfig|None = None, **settings):
+def to_python_model(grammar, name=None, filename=None, base_type=None, config: ParserConfig | None = None, **settings):
     model = compile(grammar, name=name, filename=filename, config=config, **settings)
     return objectmodel.codegen(model, base_type=base_type)
 
 
 # for backwards compatibility. Use `compile()` instead
-def genmodel(name=None, grammar=None, semantics=None, config: ParserConfig|None = None, **settings):
+def genmodel(name=None, grammar=None, semantics=None, config: ParserConfig | None = None, **settings):
     if grammar is None:
         raise ParseException('grammar is None')
 
     return compile(grammar, name=name, semantics=semantics, config=config, **settings)
 
 
-def gencode(name=None, grammar=None, trace=False, filename=None, codegen=pythoncg, config: ParserConfig|None = None, **settings):
+def gencode(name=None, grammar=None, trace=False, filename=None, codegen=pythoncg, config: ParserConfig | None = None, **settings):
     model = compile(grammar, name=name, filename=filename, trace=trace, config=config, **settings)
     return codegen(model)
 
 
 def prepare_for_output(filename):
     if filename:
-        if os.path.isfile(filename):
-            os.unlink(filename)
-        dirname = os.path.dirname(filename)
-        if dirname and not os.path.isdir(dirname):
-            os.makedirs(dirname)
+        filename = Path(filename)
+        if filename.is_file():
+            filename.unlink()
+        dirname = filename.parent
+        if dirname.exists():
+            dirname.mkdir(parents=True, exist_ok=True)
 
 
 def save(filename, content):
@@ -232,7 +234,7 @@ def main(codegen=pythoncg):
             args.name,
             trace=args.trace,
             filename=args.filename,
-            colorize=args.color
+            colorize=args.color,
         )
         model.whitespace = args.whitespace
         model.nameguard = args.nameguard
@@ -261,9 +263,9 @@ def main(codegen=pythoncg):
             save(args.object_model_outfile, objectmodel.codegen(model, base_type=args.base_type))
 
         print('-' * 72, file=sys.stderr)
-        print('{:12,d}  lines in grammar'.format(len(grammar.split())), file=sys.stderr)
-        print('{:12,d}  rules in grammar'.format(len(model.rules)), file=sys.stderr)  # noqa
-        print('{:12,d}  nodes in AST'.format(model.nodecount()), file=sys.stderr)
+        print(f'{len(grammar.split()):12,d}  lines in grammar', file=sys.stderr)
+        print(f'{len(model.rules):12,d}  rules in grammar', file=sys.stderr)
+        print(f'{model.nodecount():12,d}  nodes in AST', file=sys.stderr)
     except ParseException as e:
         print(e, file=sys.stderr)
         sys.exit(1)

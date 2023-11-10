@@ -70,13 +70,14 @@ class FailedParse(ParseError):
 
         text = text.expandtabs()
         leading = leading.expandtabs()
-        return template.format(info.filename,
-                               info.line + 1, info.col + 1,
-                               self.message.rstrip(),
-                               text,
-                               leading,
-                               '\n'.join(reversed(self.stack))
-                               )
+        return template.format(
+           info.filename,
+           info.line + 1, info.col + 1,
+           self.message.rstrip(),
+           text,
+           leading,
+           '\n'.join(reversed(self.stack)),
+       )
 
 
 class FailedToken(FailedParse):

@@ -43,7 +43,7 @@ class AST(dict):
         elif previous is None:
             pass
         elif is_list(previous):
-            value = previous + [value]
+            value = [*previous, value]
         else:
             value = [previous, value]
 
@@ -61,6 +61,7 @@ class AST(dict):
         key = self._safekey(key)
         if key in self:
             return super().__getitem__(key)
+        return None
 
     def __setitem__(self, key, value):
         self._set(key, value)
@@ -73,7 +74,7 @@ class AST(dict):
         if self._frozen and name not in vars(self):
             raise AttributeError(
                 f'{type(self).__name__} attributes are fixed. '
-                f' Cannot set attribute "{name}".'
+                f' Cannot set attribute "{name}".',
             )
         super().__setattr__(name, value)
 
@@ -133,5 +134,5 @@ class AST(dict):
         return reduce(
             operator.xor,
             (hash((name, id(value))) for name, value in self.items()),
-            0
+            0,
         )

@@ -5,14 +5,14 @@ from collections.abc import Sequence
 from . import grammars
 from .exceptions import FailedSemantics
 from .semantics import ModelBuilderSemantics
-from .util import eval_escapes, re, warning, flatten
+from .util import eval_escapes, flatten, re, warning
 
 
 class EBNFGrammarSemantics(ModelBuilderSemantics):
     def __init__(self, grammar_name):
         super().__init__(
             base_type=grammars.Model,
-            types=grammars.Model.classes()
+            types=grammars.Model.classes(),
         )
         self.grammar_name = grammar_name
         self.rules = {}
@@ -31,7 +31,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         try:
             re.compile(pattern)
         except (TypeError, re.error) as e:
-            raise FailedSemantics('regexp error: ' + str(e))
+            raise FailedSemantics('regexp error: ' + str(e)) from e
         return ast
 
     def regex(self, ast, *args):
@@ -39,7 +39,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         try:
             re.compile(pattern)
         except (TypeError, re.error) as e:
-            raise FailedSemantics('regexp error: ' + str(e))
+            raise FailedSemantics('regexp error: ' + str(e)) from e
         return pattern
 
     def string(self, ast):
@@ -124,7 +124,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         directives = {d.name: d.value for d in flatten(ast.directives)}
         keywords = list(flatten(ast.keywords)) or []
 
-        if directives.get('whitespace') in ('None', 'False'):
+        if directives.get('whitespace') in {'None', 'False'}:
             directives['whitespace'] = ''
 
         name = self.grammar_name if self.grammar_name else directives.get('grammar', None)
@@ -132,5 +132,5 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
             name,
             list(self.rules.values()),
             directives=directives,
-            keywords=keywords
+            keywords=keywords,
         )

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Mapping
+from collections.abc import Mapping
 from contextlib import contextmanager
+from typing import Any
 
 from .objectmodel import Node
 from .util import is_list
@@ -21,13 +22,14 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         # copy the class attribute to avoid linter warnings
         self._walker_cache = type(self)._walker_cache  # pylint: disable=no-member
 
-    def walk(self, node: Node|list[Node], *args, **kwargs) -> Any:
+    def walk(self, node: Node | list[Node], *args, **kwargs) -> Any:
         if isinstance(node, list):
             return [self.walk(n, *args, **kwargs) for n in node]
 
         walker = self._find_walker(node)
         if callable(walker):
             return walker(self, node, *args, **kwargs)
+        return None
 
     def _walk_children(self, node: Node, *args, **kwargs):
         if isinstance(node, Node):

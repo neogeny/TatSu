@@ -1,16 +1,16 @@
 import re
 from typing import Any
 
-from .infos import ParserConfig
+from .bootstrap import EBNFBootstrapParser
 from .buffering import Buffer
 from .grammars import PRAGMA_RE
-from .semantics import ASTSemantics
+from .infos import ParserConfig
 from .parser_semantics import EBNFGrammarSemantics
-from .bootstrap import EBNFBootstrapParser
+from .semantics import ASTSemantics
 
 
 class EBNFBuffer(Buffer):
-    def __init__(self, text, /, filename=None, config: ParserConfig|None = None, **settings: Any):
+    def __init__(self, text, /, filename=None, config: ParserConfig | None = None, **settings: Any):
         config = ParserConfig.new(
             config=config,
             owner=self,
@@ -42,19 +42,20 @@ class EBNFBuffer(Buffer):
 
 
 class EBNFParser(EBNFBootstrapParser):
-    def __init__(self, name: str | None = None, config: ParserConfig|None = None, semantics=None, **settings: Any):
+    def __init__(self, name: str | None = None, config: ParserConfig | None = None, semantics=None, **settings: Any):
         if semantics is None:
             semantics = ASTSemantics()
         config = ParserConfig.new(
             config=config,
             name=name,
             semantics=semantics,
+            tokenizercls=EBNFBuffer,
             **settings)
         super().__init__(config)
 
 
 class GrammarGenerator(EBNFBootstrapParser):
-    def __init__(self, name: str | None = None, config: ParserConfig|None = None, semantics=None, **settings: Any):
+    def __init__(self, name: str | None = None, config: ParserConfig | None = None, semantics=None, **settings: Any):
         if semantics is None:
             semantics = EBNFGrammarSemantics(name)
         config = ParserConfig.new(

@@ -2,8 +2,8 @@ import json
 from collections import defaultdict
 
 import tatsu
-from tatsu.walkers import NodeWalker, DepthFirstWalker
 from tatsu.util import asjson
+from tatsu.walkers import DepthFirstWalker, NodeWalker
 
 
 def test_walk_node_ast():

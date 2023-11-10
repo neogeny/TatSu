@@ -21,11 +21,11 @@ def test_synth_model():
 
     m = compile(grammar, 'ASeq')
     model = m.parse('a a a', semantics=ModelBuilderSemantics())
-    assert 'ASeq' == type(model).__name__
+    assert type(model).__name__ == 'ASeq'
 
     p = pickle.dumps(model)
     new_model = pickle.loads(p)
-    assert 'ASeq' == type(new_model).__name__
+    assert type(new_model).__name__ == 'ASeq'
 
     assert model.ast == new_model.ast
 
@@ -46,11 +46,11 @@ def test_nested_class_synth_model():
 
     m = compile(grammar, 'ASeq')
     model = m.parse('a a a', semantics=ModelBuilderSemantics())
-    assert 'ASeq' == type(model).__name__
+    assert type(model).__name__ == 'ASeq'
 
     p = pickle.dumps(model)
     new_model = pickle.loads(p)
-    assert 'ASeq' == type(new_model).__name__
+    assert type(new_model).__name__ == 'ASeq'
 
     # NOTE: Since we are unpickling an object which contains nested objects, we can't do
     # self.assertEqual(model.ast, new_model.ast) as the memory locations will be different.

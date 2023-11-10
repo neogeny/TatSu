@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from tatsu.exceptions import CodegenError
-from tatsu.codegen.cgbase import (  # noqa
+from ..exceptions import CodegenError
+from .cgbase import (  # noqa: F401
+    CodeGenerator,
     DelegatingRenderingFormatter,
     ModelRenderer,
     NullModelRenderer,
-    CodeGenerator,
 )
 
 

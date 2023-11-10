@@ -1,13 +1,14 @@
 from __future__ import annotations
 
+import functools
+import operator
 import weakref
-from copy import copy
 from collections import defaultdict
+from copy import copy
 
-from .util import asjson, join_lists
 from .exceptions import ParseException
 from .infos import LineIndexInfo
-
+from .util import asjson, join_lists
 
 DEFAULT_SEPARATOR = '.'
 
@@ -119,13 +120,14 @@ class Namespace:
         return self.lookup(qualname)
 
     def filter(self, condition):
-        return sum((symbol.filter(condition) for symbol in self.symbols), [])
+        return functools.reduce(operator.iadd, (symbol.filter(condition) for symbol in self.symbols), [])
 
     def filter_first(self, condition):
         for symbol in self.symbols:
             result = symbol.filter_first(condition)
             if result:
                 return result
+        return None
 
     def all(self):
         return self.filter(lambda: True)
@@ -153,7 +155,7 @@ class Symbol(Namespace):
     def __init__(self, name, node, ignorecase=False, duplicates=False):
         super().__init__(ignorecase=ignorecase, duplicates=duplicates)
         if not isinstance(name, str):
-            raise ValueError('"%s" is not a valid symbol name' % name)
+            raise TypeError('"%s" is not a valid symbol name' % name)
         self.name = name
         self._node = node
         self._parent = None
@@ -175,6 +177,7 @@ class Symbol(Namespace):
     def parent(self):
         if self._parent is not None:
             return self._parent()
+        return None
 
     @property
     def references(self):
@@ -186,7 +189,7 @@ class Symbol(Namespace):
 
     def qualpath(self):
         if self.parent:
-            return self.parent.qualpath() + [self.name]
+            return [*self.parent.qualpath(), self.name]
         return [self.name]
 
     def qualname(self, sep=DEFAULT_SEPARATOR):
@@ -237,7 +240,7 @@ class Symbol(Namespace):
                 result.update(index)
         assert isinstance(result, set)
         assert all(isinstance(i, LineIndexInfo) for i in result)
-        return list(sorted(result))
+        return sorted(result)
 
     def reference_line_index(self):
         result = set()
@@ -251,11 +254,11 @@ class Symbol(Namespace):
         return '%s[]' % self.name
 
     def __json__(self, seen=None):
-        return dict([
+        return dict(
             ('node', type(self.node).__name__),
             ('entries', super().__json__(seen=seen)),
             ('references', asjson(self._references, seen=seen)),
-        ])
+        )
 
     def __getstate__(self):
         state = self.__dict__.copy()

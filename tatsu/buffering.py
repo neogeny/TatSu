@@ -7,21 +7,24 @@ about source lines and content.
 """
 from __future__ import annotations
 
-import os
 import re
-from itertools import takewhile, repeat
-from typing import (Any,)
+from itertools import repeat, takewhile
+from pathlib import Path
+from typing import (
+    Any,
+)
 
-from .tokenizing import Tokenizer
-from .util import identity
-from .util import extend_list, contains_sublist
-from .util import RETYPE, WHITESPACE_RE
-from .util.misc import match_to_find  # noqa, pylint: disable=unused-import
 from .exceptions import ParseError
 from .infos import (
+    CommentInfo,
+    LineIndexInfo,
+    LineInfo,
     ParserConfig,
-    PosLine, LineIndexInfo, LineInfo, CommentInfo,
+    PosLine,
 )
+from .tokenizing import Tokenizer
+from .util import RETYPE, WHITESPACE_RE, contains_sublist, extend_list, identity
+from .util.misc import match_to_find
 
 # for backwards compatibility with existing parsers
 LineIndexEntry = LineIndexInfo
@@ -30,7 +33,7 @@ LineIndexEntry = LineIndexInfo
 class Buffer(Tokenizer):
     _pos: int = 0  # WARNING: FIXME: plckle does not work without this
 
-    def __init__(self, text, /, config: ParserConfig|None = None, **settings: Any):
+    def __init__(self, text, /, config: ParserConfig | None = None, **settings: Any):
         super().__init__()
         config = ParserConfig.new(config=config, owner=self, **settings)
         self.config = config
@@ -121,13 +124,13 @@ class Buffer(Tokenizer):
         return self.include(lines, index, i, j, filename, text)
 
     def get_include(self, source, filename):
-        source = os.path.abspath(source)
-        base = os.path.dirname(source)
-        include = os.path.join(base, filename)
+        source = Path(source).resolve()
+        base = source.parent
+        include = base / filename
         try:
-            with open(include) as f:
+            with include.open() as f:
                 return f.read(), include
-        except IOError as e:
+        except OSError as e:
             raise ParseError('include not found: %s' % include) from e
 
     def replace_lines(self, i, j, name, block):
@@ -237,6 +240,7 @@ class Buffer(Tokenizer):
     def _eat_regex(self, regex):
         if regex is not None:
             return list(takewhile(identity, map(self.matchre, repeat(regex))))
+        return None
 
     def eat_whitespace(self):
         return self._eat_regex(self.whitespace_re)
@@ -306,11 +310,12 @@ class Buffer(Tokenizer):
             if not partial_match:
                 return token
         self.goto(p)
+        return None
 
     def matchre(self, pattern):
         match = self._scanre(pattern)
         if match is None:
-            return
+            return None
 
         matched = match.group()
         token = match_to_find(match)

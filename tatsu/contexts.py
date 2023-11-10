@@ -1,50 +1,45 @@
 from __future__ import annotations
 
-import sys
 import ast as stdlib_ast
-from typing import Type
 import functools
-from contextlib import contextmanager
+import sys
+from contextlib import contextmanager, suppress
 from copy import copy
 
-from .util.unicode_characters import (
-    C_ENTRY,
-    C_SUCCESS,
-    C_FAILURE,
-    C_RECURSION,
-    C_CUT,
-)
-from . import tokenizing
-from . import buffering
-from . import color
+from . import buffering, color, tokenizing
 from .ast import AST
 from .collections import OrderedSet as oset
-from .util import prune_dict, is_list, info, safe_name
-from .util import left_assoc, right_assoc, trim
-from .tokenizing import Tokenizer
-from .infos import (
-    Alert,
-    MemoKey,
-    ParseInfo,
-    RuleInfo,
-    RuleResult,
-    ParseState,
-    ParserConfig,
-)
-from .exceptions import (  # noqa pylint:disable=unused-import
+from .exceptions import (
     FailedCut,
     FailedExpectingEndOfText,
+    FailedKeywordSemantics,
     FailedLeftRecursion,
     FailedLookahead,
     FailedParse,
     FailedPattern,
     FailedRef,
     FailedSemantics,
-    FailedKeyword,
-    FailedKeywordSemantics,
     FailedToken,
     OptionSucceeded,
     ParseError,
+)
+from .infos import (
+    Alert,
+    MemoKey,
+    ParseInfo,
+    ParserConfig,
+    ParseState,
+    RuleInfo,
+    RuleResult,
+)
+from .tokenizing import Tokenizer
+from .util import info, is_list, left_assoc, prune_dict, right_assoc, safe_name, trim
+from .util.unicode_characters import (
+    C_CUT,
+    C_ENTRY,
+    C_FAILURE,
+    C_RECURSION,
+    C_SUCCESS,
 )
 
 __all__ = ['ParseContext', 'tatsumasu', 'leftrec', 'nomemo']
@@ -69,7 +64,7 @@ def tatsumasu(*params, **kwparams):
                 is_memoizable,
                 is_name,
                 params,
-                kwparams
+                kwparams,
             )
             return self._call(ruleinfo)
         return wrapper
@@ -102,13 +97,13 @@ class closure(list):
 
 
 class ParseContext:
-    def __init__(self, /, config: ParserConfig|None = None, **settings):
+    def __init__(self, /, config: ParserConfig | None = None, **settings):
         super().__init__()
         config = ParserConfig.new(config, **settings)
         self.config = config
         self._active_config = self.config
 
-        self._tokenizer: Tokenizer|None = None
+        self._tokenizer: Tokenizer | None = None
 
         self._semantics = config.semantics
 
@@ -212,7 +207,7 @@ class ParseContext:
         if not self._furthest_exception or e.pos > self._furthest_exception.pos:
             self._furthest_exception = e
 
-    def parse(self, text, /, config: ParserConfig|None = None, **settings):
+    def parse(self, text, /, config: ParserConfig | None = None, **settings):
         config = self.config.replace_config(config)
         config = config.replace(**settings)
         self._active_config = config
@@ -230,14 +225,13 @@ class ParseContext:
 
         try:
             rule = self._find_rule(start)
-            result = rule()
-            return result
+            return rule()
         except FailedCut as e:
             self._set_furthest_exception(e.nested)
-            raise self._furthest_exception
+            raise self._furthest_exception from e
         except FailedParse as e:
             self._set_furthest_exception(e)
-            raise self._furthest_exception
+            raise self._furthest_exception from e
         finally:
             self._clear_memoization_caches()
 
@@ -246,7 +240,7 @@ class ParseContext:
         return self._tokenizer
 
     @property
-    def tokenizercls(self) -> Type[Tokenizer]:
+    def tokenizercls(self) -> type[Tokenizer]:
         if self.config.tokenizercls is None:
             return buffering.Buffer
         else:
@@ -316,12 +310,9 @@ class ParseContext:
 
         previous = ast.get(name)
         if previous is None:
-            if as_list:
-                new_value = [value]
-            else:
-                new_value = value
+            new_value = [value] if as_list else value
         elif is_list(previous):
-            new_value = previous + [value]
+            new_value = [*previous, value]
         else:
             new_value = [previous, value]
 
@@ -338,7 +329,7 @@ class ParseContext:
             ParseState(
                 ast=ast,
                 pos=self._pos,
-            )
+            ),
         )
 
     def _pop_ast(self):
@@ -393,7 +384,7 @@ class ParseContext:
     def _extend_cst(self, node):
         self.last_node = node
         if node is None:
-            return
+            return None
         previous = self.cst
         if previous is None:
             self.cst = self._copy_node(node)
@@ -401,7 +392,7 @@ class ParseContext:
             if is_list(previous):
                 previous.extend(node)
             else:
-                self.cst = [previous] + node
+                self.cst = [previous, *node]
         elif is_list(previous):
             previous.append(node)
         else:
@@ -443,7 +434,7 @@ class ParseContext:
         return self.memoize_lookaheads or self._lookahead == 0
 
     def _rulestack(self):
-        rulestack = map(lambda r: r.name, reversed(self._rule_stack))
+        rulestack = [r.name for r in reversed(self._rule_stack)]
         stack = self.trace_separator.join(rulestack)
         if max(len(s) for s in stack.splitlines()) > self.trace_length:
             stack = stack[:self.trace_length]
@@ -493,7 +484,7 @@ class ParseContext:
                 color.Style.DIM + fname,
                 color.Style.NORMAL + lookahead +
                 color.Style.RESET_ALL,
-                end=''
+                end='',
             )
 
     def _trace_entry(self):
@@ -537,11 +528,11 @@ class ParseContext:
                 color.Style.DIM + fname,
                 color.Style.NORMAL + lookahead +
                 color.Style.RESET_ALL,
-                end=''
+                end='',
             )
 
     def _make_exception(self, item, exclass=FailedParse):
-        rulestack = list(map(lambda r: r.name, self._rule_stack))
+        rulestack = [r.name for r in self._rule_stack]
         return exclass(self.tokenizer, rulestack, item)
 
     def _error(self, item, exclass=FailedParse):
@@ -579,12 +570,11 @@ class ParseContext:
         self._memos.pop(key, None)
 
     def _memo_for(self, key):
-        memo = self._memos.get(key)
+        return self._memos.get(key)
 
         # if isinstance(memo, FailedLeftRecursion):
         #     memo = self._results.get(key, memo)
 
-        return memo
 
     def _mkresult(self, node):
         return RuleResult(node, self._pos, self.substate)
@@ -738,7 +728,7 @@ class ParseContext:
             except (ValueError, SyntaxError):
                 if '\n' in literal:
                     literal = trim(literal)
-                literal = eval(f'{"f" + repr(literal)}', {}, self.ast)  # pylint: disable=eval-used
+                literal = eval(f'{"f" + repr(literal)}', {}, self.ast)  # noqa: S307, PGH001
         self._append_cst(literal)
         return literal
 
@@ -746,7 +736,6 @@ class ParseContext:
         self._next_token()
         self._trace_match(f'{"^" * level}`{message}`', failed=True)
         self.state.alerts.append(Alert(message=message, level=level))
-        return None
 
     def _pattern(self, pattern):
         token = self.tokenizer.matchre(pattern)
@@ -793,24 +782,21 @@ class ParseContext:
             raise
         except FailedParse as e:
             if self._is_cut_set():
-                raise FailedCut(e)
+                raise FailedCut(e) from e
         finally:
             self._cut_stack.pop()
 
     @contextmanager
     def _choice(self):
         self.last_node = None
-        try:
+        with suppress(OptionSucceeded):
             yield
-        except OptionSucceeded:
-            pass
 
     @contextmanager
     def _optional(self):
         self.last_node = None
-        with self._choice():
-            with self._option():
-                yield
+        with self._choice(), self._option():
+            yield
 
     @contextmanager
     def _group(self):

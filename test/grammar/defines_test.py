@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pytest  # noqa, pylint: disable=unused-import
-
 from tatsu.tool import compile, gencode
 
 

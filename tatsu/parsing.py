@@ -2,9 +2,14 @@ from __future__ import annotations
 
 import inspect
 
+from .contexts import (  # noqa: F401
+    ParseContext,
+    isname,
+    leftrec,
+    nomemo,
+    tatsumasu,
+)
 from .exceptions import FailedRef
-from .contexts import ParseContext
-from .contexts import tatsumasu, leftrec, nomemo, isname  # noqa pylint: disable=unused-import
 
 
 class Parser(ParseContext):
@@ -16,6 +21,7 @@ class Parser(ParseContext):
         if isinstance(rule, type(self._find_rule)):
             return rule
         self._error(name, exclass=FailedRef)
+        return None
 
     @classmethod
     def rule_list(cls):

@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
+import contextlib
 import unittest
 
+from tatsu.codegen import codegen
 from tatsu.parser import GrammarGenerator
 from tatsu.tool import compile
 from tatsu.util import trim
-from tatsu.codegen import codegen
 
 
 class ParameterTests(unittest.TestCase):
@@ -140,18 +140,12 @@ class ParameterTests(unittest.TestCase):
 
         def _trydelete(pymodule):
             import os
-            try:
-                os.unlink(pymodule + ".py")
-            except EnvironmentError:
-                pass
-            try:
-                os.unlink(pymodule + ".pyc")
-            except EnvironmentError:
-                pass
-            try:
-                os.unlink(pymodule + ".pyo")
-            except EnvironmentError:
-                pass
+            with contextlib.suppress(OSError):
+                os.unlink(pymodule + ".py")  # noqa:PTH108
+            with contextlib.suppress(OSError):
+                os.unlink(pymodule + ".pyc")  # noqa:PTH108
+            with contextlib.suppress(OSError):
+                os.unlink(pymodule + ".pyo")  # noqa:PTH108
 
         def assert_equal(target, value):
             self.assertEqual(target, value)

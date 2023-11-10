@@ -22,19 +22,16 @@ calc_test:
 	cd examples/calc; make -s clean; make -s test > /dev/null
 
 
-lint: flake8 pylint mypy
+lint: ruff mypy
 
 
-flake8:
-	flake8 tatsu
-
-
-pylint:
-	pylint --ignore=bootstrap.py,model.py tatsu test examples
-
+ruff:
+	pip install -q -U ruff
+	ruff check --preview tatsu test examples
 
 
 mypy:
+	pip install -q -U mypy
 	mypy   --ignore-missing-imports . --exclude dist
 
 

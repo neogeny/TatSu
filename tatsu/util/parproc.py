@@ -1,16 +1,15 @@
 import sys
 import time
 from collections import namedtuple
-from multiprocessing import cpu_count, Pool, Lock
-from concurrent.futures import as_completed, ThreadPoolExecutor, ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
 from functools import partial
+from multiprocessing import Lock, Pool, cpu_count
 from pathlib import Path
 from statistics import mean
-from dataclasses import dataclass
 from typing import Any
 
-from .import identity, try_read, memory_use, short_relative_path
-
+from . import identity, memory_use, short_relative_path, try_read
 
 SUCCESSCH = '\u2705'
 FAILURECH = '\u274C'
@@ -60,7 +59,7 @@ def processing_loop(process, filenames, *args, verbose=False, exitfirst=False, *
                         print(file=sys.stderr)
                         print(f'{result.exception.split()[0]:16} {result.payload}', file=sys.stderr)
                 if exitfirst:
-                    raise KeyboardInterrupt
+                    raise KeyboardInterrupt  # noqa: TRY301
             else:
                 success_count += 1
     except KeyboardInterrupt:
@@ -84,7 +83,7 @@ def process_payload(process, task, pickable=identity, **kwargs):
     except KeyboardInterrupt:
         raise
     except Exception as e:
-        result.exception = f'{type(e).__name__}: {str(e)}'
+        result.exception = f'{type(e).__name__}: {e!s}'
     finally:
         result.time = time.process_time() - start_time
 
@@ -118,23 +117,17 @@ def _imap_pmap(process, tasks):
 
     count = sum(len(c) for c in chunks)
     if len(tasks) != count:
-        raise EnvironmentError('number of chunked tasks different %d != %d' % (len(tasks), count))
+        raise OSError('number of chunked tasks different %d != %d' % (len(tasks), count))
     for chunk in chunks:
         with Pool(processes=nworkers) as pool:
-            try:
-                yield from pool.imap_unordered(process, chunk)
-            except KeyboardInterrupt:
-                raise
+            yield from pool.imap_unordered(process, chunk)
 
 
 def _imap_pmap_ng(process, tasks):
     nworkers = max(1, cpu_count() - 1)
     size = 16
     with Pool(processes=nworkers, maxtasksperchild=size) as pool:
-        try:
-            yield from pool.imap_unordered(process, tasks, chunksize=2 * size)
-        except KeyboardInterrupt:
-            raise
+        yield from pool.imap_unordered(process, tasks, chunksize=2 * size)
 
 
 _pmap = _imap_pmap_ng
@@ -148,14 +141,11 @@ def process_in_parallel(payloads, process, *args, **kwargs):
     process = partial(process_payload, process, pickable=pickable, verbose=verbose)
     tasks = [__Task(payload, args, kwargs) for payload in payloads]
 
-    try:
-        if len(tasks) == 1:
-            yield from [process(tasks[0])]
-        else:
-            pmap = _pmap if parallel else map
-            yield from pmap(process, tasks)
-    except KeyboardInterrupt:
-        raise
+    if len(tasks) == 1:
+        yield from [process(tasks[0])]
+    else:
+        pmap = _pmap if parallel else map
+        yield from pmap(process, tasks)
 
 
 def file_process_progress(latest_result, results_count, success_count, total, total_time, verbose=False):
@@ -183,7 +173,7 @@ def file_process_progress(latest_result, results_count, success_count, total, to
         print(
             '%3d/%-3d' % (i, total),
             bar,
-            '%0.1f%%(%0.1f%%%s)' % (100 * percent, 100 * success_percent, SUCCESSCH),
+            f'{100 * percent:0.1f}%({100 * success_percent:0.1f}%{SUCCESSCH})',
             # format_hours(total_time),
             '%sETA' % format_hours(eta),
             format_minutes(latest_result),
@@ -191,17 +181,17 @@ def file_process_progress(latest_result, results_count, success_count, total, to
             SUCCESSCH if latest_result.success else FAILURECH,
             (Path(filename).name + ' ' * 80)[:32],
             end=EOLCH,
-            file=sys.stderr
+            file=sys.stderr,
         )
         sys.stderr.flush()
 
 
 def format_minutes(result):
-    return '%3.0f:%04.1f' % (result.time / 60, result.time % 60)
+    return f'{result.time / 60:3.0f}:{result.time % 60:04.1f}'
 
 
 def format_hours(time):
-    return '%2.0f:%02.0f:%02.0f' % (time // 3600, (time // 60) % 60, time % 60)
+    return f'{time // 3600:2.0f}:{(time // 60) % 60:02.0f}:{time % 60:02.0f}'
 
 
 def file_process_summary(filenames, total_time, results, verbose=False):

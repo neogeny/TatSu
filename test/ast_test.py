@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-import unittest
 import pickle
+import unittest
 
 from tatsu.ast import AST
 
@@ -20,7 +19,7 @@ class ASTTests(unittest.TestCase):
     def test_init(self):
         ast = AST()
         data = list(reversed(
-            [(0, 0), (1, 2), (2, 4), (3, 6), (4, 8), (5, 10)]
+            [(0, 0), (1, 2), (2, 4), (3, 6), (4, 8), (5, 10)],
         ))
         for k, v in data:
             ast[k] = v

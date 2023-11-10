@@ -1,4 +1,5 @@
-import json  # noqa, pylint: disable=unused-import
+import json  # noqa: F401
+
 import tatsu
 from tatsu.objectmodel import Node
 
@@ -10,7 +11,7 @@ def test_node_kwargs():
             super().__init__(
                 arguments=arguments,
                 symbol=symbol,
-                **_kwargs_
+                **_kwargs_,
             )
 
     atom = Atom(symbol='foo')

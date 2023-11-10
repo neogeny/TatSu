@@ -1,25 +1,24 @@
 from __future__ import annotations
 
-from typing import Any
+import weakref
 from collections.abc import Mapping
 from dataclasses import dataclass
-import weakref
+from typing import Any
 
-from .util import asjson, asjsons, AsJSONMixin
-from .infos import CommentInfo, ParseInfo
 from .ast import AST
-
+from .infos import CommentInfo, ParseInfo
+from .util import AsJSONMixin, asjson, asjsons
 
 BASE_CLASS_TOKEN = '::'
 
 
 @dataclass(eq=False)
 class Node(AsJSONMixin):
-    _parent: Node|None = None
-    _children: list[Node]|None = None
-    ast: AST|None = None
+    _parent: Node | None = None
+    _children: list[Node] | None = None
+    ast: AST | None = None
     ctx: Any = None
-    parseinfo: ParseInfo|None = None
+    parseinfo: ParseInfo | None = None
 
     def __init__(self, ast=None, **attributes):
         super().__init__()
@@ -44,8 +43,8 @@ class Node(AsJSONMixin):
         for name in set(ast) - {'parseinfo'}:
             try:
                 setattr(self, name, ast[name])
-            except AttributeError:
-                raise AttributeError("'%s' is a reserved name" % name)
+            except AttributeError as e:
+                raise AttributeError("'%s' is a reserved name" % name) from e
 
         self._children = self.children_list()
         if self.parseinfo is None:
@@ -59,15 +58,18 @@ class Node(AsJSONMixin):
     def line(self):
         if self.parseinfo:
             return self.parseinfo.line
+        return None
 
     @property
     def endline(self):
         if self.parseinfo:
             return self.parseinfo.endline
+        return None
 
     def text_lines(self):
         if self.parseinfo:
             return self.parseinfo.text_lines()
+        return None
 
     def line_index(self):
         return self.parseinfo.line_index()
@@ -84,6 +86,7 @@ class Node(AsJSONMixin):
     def line_info(self):
         if self.parseinfo:
             return self.parseinfo.tokenizer.line_info(self.parseinfo.pos)
+        return None
 
     @property
     def text(self):
@@ -109,7 +112,7 @@ class Node(AsJSONMixin):
             return node
 
         def children_of(child):
-            if isinstance(child, (weakref.ReferenceType, weakref.ProxyType)):
+            if isinstance(child, weakref.ReferenceType | weakref.ProxyType):
                 return
             elif isinstance(child, Node):
                 yield with_parent(child)
@@ -118,7 +121,7 @@ class Node(AsJSONMixin):
                     if name.startswith('_'):
                         continue
                     yield from children_of(value)
-            elif isinstance(child, (list, tuple)):
+            elif isinstance(child, list | tuple):
                 yield from (with_parent(c) for c in child if isinstance(c, Node))
 
         children = list(self._pubdict().items())
@@ -183,15 +186,14 @@ class Node(AsJSONMixin):
             name: value
             for name, value in vars(self).items()
             if (
-                name not in ('_parent', '_children') and
-                type(value) not in (weakref.ReferenceType, weakref.ProxyType)
+                name not in {'_parent', '_children'} and
+                type(value) not in {weakref.ReferenceType, weakref.ProxyType}
             )
         }
 
     # NOTE: pickling is important for parallel parsing
     def __getstate__(self):
-        state = self._nonrefdict()
-        return state
+        return self._nonrefdict()
 
     def __setstate__(self, state):
         self.__dict__.update(state)

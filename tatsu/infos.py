@@ -2,35 +2,34 @@ from __future__ import annotations
 
 import copy
 import dataclasses
+from collections.abc import Callable, Mapping
+from itertools import starmap
 from typing import (
     Any,
-    Callable,
-    Mapping,
     NamedTuple,
-    Type,
 )
 
 from .ast import AST
-from .util.unicode_characters import C_DERIVE
 from .tokenizing import Tokenizer
+from .util.unicode_characters import C_DERIVE
 
 
 @dataclasses.dataclass
 class ParserConfig:
     owner: Any = None
-    name: str|None = 'Test'
+    name: str | None = 'Test'
     filename: str = ''
     encoding: str = 'utf-8'
 
-    start: str|None = None  # FIXME
-    start_rule: str|None = None  # FIXME
-    rule_name: str|None = None  # Backward compatibility
+    start: str | None = None  # FIXME
+    start_rule: str | None = None  # FIXME
+    rule_name: str | None = None  # Backward compatibility
 
-    comments_re: str|None = None
-    eol_comments_re: str|None = None
+    comments_re: str | None = None
+    eol_comments_re: str | None = None
 
-    tokenizercls: Type[Tokenizer]|None = None  # FIXME
-    semantics: Type|None = None
+    tokenizercls: type[Tokenizer] | None = None  # FIXME
+    semantics: type | None = None
 
     comment_recovery: bool = False
     memoize_lookaheads: bool = True
@@ -42,17 +41,17 @@ class ParserConfig:
     trace_separator: str = C_DERIVE
 
     # parser directives
-    grammar: str|None = None
+    grammar: str | None = None
     left_recursion: bool = True
 
-    comments: str|None = None
-    eol_comments: str|None = None
-    keywords: list[str]|set[str] = dataclasses.field(default_factory=list)  # type: ignore
+    comments: str | None = None
+    eol_comments: str | None = None
+    keywords: list[str] | set[str] = dataclasses.field(default_factory=list)
 
-    ignorecase: bool|None = False
+    ignorecase: bool | None = False
     namechars: str = ''
-    nameguard: bool|None = None  # implied by namechars
-    whitespace: str|None = None
+    nameguard: bool | None = None  # implied by namechars
+    whitespace: str | None = None
 
     parseinfo: bool = False
 
@@ -65,7 +64,7 @@ class ParserConfig:
             self.eol_comments_re = self.eol_comments
 
     @classmethod
-    def new(cls, config: ParserConfig|None = None, owner: Any|None = None, **settings: Any) -> ParserConfig:
+    def new(cls, config: ParserConfig | None = None, owner: Any | None = None, **settings: Any) -> ParserConfig:
         result = cls(owner=owner)
         if config is not None:
             result = config.replace_config(config)
@@ -86,7 +85,7 @@ class ParserConfig:
             if value is not None and hasattr(self, name)
         }
 
-    def replace_config(self, other: ParserConfig|None = None) -> ParserConfig:
+    def replace_config(self, other: ParserConfig | None = None) -> ParserConfig:
         if other is None:
             return self
         elif not isinstance(other, ParserConfig):
@@ -130,7 +129,7 @@ class PosLine(NamedTuple):
         for n, line in enumerate(lines):
             pl = PosLine(i, n, len(line))
             for _ in line:
-                cache.append(pl)
+                cache.append(pl)  # noqa: PERF401
             i += len(line)
         n += 1
         if lines and lines[-1] and lines[-1][-1] in '\r\n':
@@ -145,7 +144,7 @@ class LineIndexInfo(NamedTuple):
 
     @staticmethod
     def block_index(name, n):
-        return list(LineIndexInfo(line, i) for line, i in zip(n * [name], range(n)))
+        return list(starmap(LineIndexInfo, zip(n * [name], range(n), strict=False)))
 
 
 class LineInfo(NamedTuple):
@@ -178,7 +177,7 @@ class ParseInfo(NamedTuple):
     endpos: int
     line: int
     endline: int
-    alerts: list[Alert] = []
+    alerts: list[Alert] = []  # noqa: RUF012
 
     def text_lines(self):
         return self.tokenizer.get_lines(self.line, self.endline)

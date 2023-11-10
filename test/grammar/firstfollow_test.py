@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 import unittest
 
-from tatsu.tool import compile
 from tatsu import grammars
 from tatsu.grammars import ref
+from tatsu.tool import compile
 
 
 class FirstFollowTests(unittest.TestCase):

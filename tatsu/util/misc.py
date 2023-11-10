@@ -27,14 +27,16 @@ def first(iterable, default=_undefined):
     # NOTE: https://more-itertools.readthedocs.io/en/stable/_modules/more_itertools/more.html#first
     try:
         return next(iter(iterable))
-    except StopIteration:
+    except StopIteration as e:
         # I'm on the edge about raising ValueError instead of StopIteration. At
         # the moment, ValueError wins, because the caller could conceivably
         # want to do something different with flow control when I raise the
         # exception, and it's weird to explicitly catch StopIteration.
         if default is _undefined:
-            raise ValueError('first() was called on an empty iterable, and no '
-                             'default value was provided.')
+            raise ValueError(
+                'first() was called on an empty iterable, and no '
+                'default value was provided.',
+            ) from e
         return default
 
 
@@ -56,10 +58,7 @@ def findalliter(pattern, string, pos=None, endpos=None, flags=0):
 
         implementation taken from cpython/Modules/_sre.c/findall()
     '''
-    if isinstance(pattern, RETYPE):
-        r = pattern
-    else:
-        r = re.compile(pattern, flags=flags)
+    r = pattern if isinstance(pattern, RETYPE) else re.compile(pattern, flags=flags)
     if endpos is not None:
         iterator = r.finditer(string, pos=pos, endpos=endpos)
     elif pos is not None:

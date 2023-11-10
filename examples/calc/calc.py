@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 import json
 from pprint import pprint
+
+from codegen import PostfixCodeGenerator
 
 import tatsu
 from tatsu.ast import AST
 from tatsu.walkers import NodeWalker
-
-from codegen import PostfixCodeGenerator  # pylint: disable= E0401 # noqa
 
 
 def simple_parse():
@@ -69,7 +68,7 @@ def parse_with_basic_semantics():
     parser = tatsu.compile(grammar)
     result = parser.parse(
         '3 + 5 * ( 10 - 20 )',
-        semantics=CalcBasicSemantics()
+        semantics=CalcBasicSemantics(),
     )
 
     print()
@@ -102,7 +101,7 @@ def parse_factored():
     parser = tatsu.compile(grammar)
     ast = parser.parse(
         '3 + 5 * ( 10 - 20 )',
-        semantics=CalcSemantics()
+        semantics=CalcSemantics(),
     )
 
     print()

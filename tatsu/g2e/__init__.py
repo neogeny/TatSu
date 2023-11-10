@@ -1,12 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import annotations
 
-import codecs
-import sys
 import pkgutil
-from os import path
+import sys
+from pathlib import Path
 
 from tatsu import compile
+
 from .semantics import ANTLRSemantics
 
 
@@ -17,10 +17,12 @@ def antlr_grammar():
 def translate(text=None, filename=None, name=None, encoding='utf-8', trace=False):
     if text is None and filename is None:
         raise ValueError('either `text` or `filename` must be provided')
+    if filename:
+        filename = Path(filename)
 
     if text is None:
-        name = name or path.splitext(path.basename(filename))[0].capitalize()
-        with codecs.open(filename, encoding=encoding) as f:
+        name = name or filename.stem
+        with filename.open(encoding=encoding) as f:
             text = f.read()
 
     name = name or 'Unknown'
@@ -40,14 +42,14 @@ def translate(text=None, filename=None, name=None, encoding='utf-8', trace=False
 
 def main():
     if len(sys.argv) < 2:
-        thisprog = path.basename(sys.argv[0])
+        thisprog = Path(sys.argv[0]).name
         print(thisprog)
         print('Usage:')
         print('\t', thisprog, 'FILENAME.g [--trace]')
         sys.exit(1)
     translate(
         filename=sys.argv[1],
-        trace='--trace' in sys.argv or '-t' in sys.argv
+        trace='--trace' in sys.argv or '-t' in sys.argv,
     )
 
 

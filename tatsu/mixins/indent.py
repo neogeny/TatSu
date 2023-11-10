@@ -1,5 +1,4 @@
 import io
-from typing import Optional
 from contextlib import contextmanager
 
 from ..util import trim
@@ -43,10 +42,9 @@ class IndentPrintMixin:
         kwargs.pop('file', None)  # do not allow redirection of output
         with io.StringIO() as output:
             print(*args, file=output, **kwargs)
-            text = output.getvalue()
-        return text
+            return output.getvalue()
 
-    def _do_print_lines(self, lines: Optional[list[str]] = None):
+    def _do_print_lines(self, lines: list[str] | None = None):
         if not lines:
             print(file=self.output_stream)
             return

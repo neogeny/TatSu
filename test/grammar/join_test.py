@@ -1,9 +1,9 @@
 import unittest
 from ast import parse
 
+from tatsu.codegen import codegen
 from tatsu.exceptions import FailedParse
 from tatsu.tool import compile
-from tatsu.codegen import codegen
 from tatsu.util import trim
 
 
@@ -173,13 +173,13 @@ class JoinTests(unittest.TestCase):
                     (
                         '+',
                         '1',
-                        '2'
+                        '2',
                     ),
-                    '3'
+                    '3',
                 ),
-                '4'
+                '4',
             ),
-            ast
+            ast,
         )
 
     def test_right_join(self):
@@ -218,9 +218,9 @@ class JoinTests(unittest.TestCase):
                     (
                         '+',
                         '3',
-                        '4'
-                    )
-                )
+                        '4',
+                    ),
+                ),
             ),
-            ast
+            ast,
         )

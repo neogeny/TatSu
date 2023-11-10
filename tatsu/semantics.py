@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import builtins
-from .util import simplify_list
+
 from .exceptions import SemanticError
-from .objectmodel import Node
-from .objectmodel import BASE_CLASS_TOKEN
+from .objectmodel import BASE_CLASS_TOKEN, Node
 from .synth import synthesize
+from .util import simplify_list
 
 
 class ASTSemantics:
@@ -51,9 +51,8 @@ class ModelBuilderSemantics:
                 context = vars(constructor)
             except Exception as e:
                 raise SemanticError(
-                    'Could not find constructor for %s (%s): %s'
-                    % (typename, type(constructor).__name__, str(e))
-                )
+                    f'Could not find constructor for {typename} ({type(constructor).__name__}): {e!s}',
+                ) from e
             if name in context:
                 constructor = context[name]
             else:
@@ -93,6 +92,5 @@ class ModelBuilderSemantics:
                 return constructor(ast, *args[1:], **kwargs)
         except Exception as e:
             raise SemanticError(
-                'Could not call constructor for %s: %s'
-                % (typename, str(e))
-            )
+                f'Could not call constructor for {typename}: {e!s}',
+            ) from e

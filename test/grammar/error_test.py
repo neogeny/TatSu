@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from tatsu.tool import parse
 from tatsu.exceptions import GrammarError
+from tatsu.tool import parse
 
 
 def test_missing_rule():

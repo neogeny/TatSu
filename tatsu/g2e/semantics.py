@@ -3,8 +3,8 @@ from __future__ import annotations
 import re
 from itertools import chain
 
-from tatsu.ast import AST
 from tatsu import grammars as model
+from tatsu.ast import AST
 
 
 def camel2py(name):
@@ -25,7 +25,7 @@ class ANTLRSemantics:
     def grammar(self, ast):
         return model.Grammar(
             self.name,
-            [r for r in chain(ast.rules, self.synthetic_rules) if r is not None]
+            [r for r in chain(ast.rules, self.synthetic_rules) if r is not None],
         )
 
     def rule(self, ast):
@@ -79,12 +79,12 @@ class ANTLRSemantics:
         return None
 
     def optional(self, ast):
-        if isinstance(ast, (model.Group, model.Optional, model.Closure)):
+        if isinstance(ast, model.Group | model.Optional | model.Closure):
             ast = ast.exp
         return model.Optional(ast)
 
     def closure(self, ast):
-        if isinstance(ast, (model.Group, model.Optional)):
+        if isinstance(ast, model.Group | model.Optional):
             ast = ast.exp
         return model.Closure(ast)
 
@@ -132,7 +132,7 @@ class ANTLRSemantics:
         return ast
 
     def charset_range(self, ast):
-        return '%s-%s' % (ast.first, ast.last)
+        return f'{ast.first}-{ast.last}'
 
     def newranges(self, ast):
         pattern = ''.join(ast)
@@ -140,12 +140,12 @@ class ANTLRSemantics:
         return model.Pattern(pattern)
 
     def newrange(self, ast):
-        pattern = '[%s]%s' % (ast.range, ast.repeat or '')
+        pattern = '[{}]{}'.format(ast.range, ast.repeat or '')
         re.compile(pattern)
         return pattern
 
     def negative_newrange(self, ast):
-        pattern = '[^%s]%s' % (ast.range, ast.repeat or '')
+        pattern = '[^{}]{}'.format(ast.range, ast.repeat or '')
         re.compile(pattern)
         return pattern
 

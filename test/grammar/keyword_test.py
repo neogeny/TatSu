@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 import unittest
 from ast import parse
 
+from tatsu.codegen import codegen
 from tatsu.exceptions import FailedParse
 from tatsu.tool import compile
-from tatsu.codegen import codegen
 
 
 class KeywordTests(unittest.TestCase):

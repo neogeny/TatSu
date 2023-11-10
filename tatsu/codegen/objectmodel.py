@@ -1,7 +1,6 @@
 import inspect
-
-from datetime import datetime
 from collections import namedtuple
+from datetime import datetime
 
 from tatsu.util import (
     compress_seq,
@@ -9,12 +8,11 @@ from tatsu.util import (
     re,
     safe_name,
 )
-from ..objectmodel import Node
-from ..objectmodel import BASE_CLASS_TOKEN
-from ..exceptions import CodegenError
-from ..rendering import Renderer
-from ..codegen.cgbase import ModelRenderer, CodeGenerator
 
+from ..codegen.cgbase import CodeGenerator, ModelRenderer
+from ..exceptions import CodegenError
+from ..objectmodel import BASE_CLASS_TOKEN, Node
+from ..rendering import Renderer
 
 NODE_NAME_PATTERN = r'(?!\d)\w+(' + rf'{BASE_CLASS_TOKEN}' + r'(?!\d)\w+)*'
 
@@ -79,8 +77,8 @@ def _get_full_name(cls):
             _cls = getattr(_cls, ident)
 
         assert _cls == cls
-    except AttributeError:
-        raise CodegenError("Couldn't find base type, it has to be importable")
+    except AttributeError as e:
+        raise CodegenError("Couldn't find base type, it has to be importable") from e
 
     return modulename, name
 
@@ -101,7 +99,7 @@ class BaseTypeRenderer(Renderer):
         fields.update(
             module=module,
             name=name,
-            lookup=lookup
+            lookup=lookup,
         )
 
     template = '''
@@ -136,15 +134,12 @@ class ObjectModelCodeGenerator(CodeGenerator):
 
 class Rule(ModelRenderer):
     def render_fields(self, fields):
-        defs = [safe_name(d) for d, l in compress_seq(self.defines())]
-        defs = list(sorted(set(defs)))
+        defs = [safe_name(d) for d, _ in compress_seq(self.defines())]
+        defs = sorted(set(defs))
         spec = fields["spec"]
 
         kwargs = '\n'.join('%s: Any = None' % d for d in defs)
-        if kwargs:
-            kwargs = indent(kwargs)
-        else:
-            kwargs = indent('pass')
+        kwargs = indent(kwargs) if kwargs else indent('pass')
 
         fields.update(
             class_name=spec.class_name,
@@ -204,7 +199,7 @@ class Grammar(ModelRenderer):
             base_class_declarations=base_class_declarations,
             model_class_declarations=model_class_declarations,
             version=version,
-            base_type=BaseTypeRenderer(base_type).render() if base_type else DEFAULT_BASE_TYPE
+            base_type=BaseTypeRenderer(base_type).render() if base_type else DEFAULT_BASE_TYPE,
         )
 
     template = '''\

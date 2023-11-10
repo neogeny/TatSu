@@ -6,7 +6,6 @@ import pygraphviz as pgv  # pylint: disable=E0401
 
 from .walkers import NodeWalker
 
-
 __all__ = ['draw']
 
 
@@ -19,11 +18,12 @@ def draw(filename, grammar):
 class GraphvizWalker(NodeWalker):
     def __init__(self):
         super().__init__()
-        self.top_graph = pgv.AGraph(directed=True,
-                                    rankdir='LR',
-                                    packMode='clust',
-                                    splines='true'
-                                    )
+        self.top_graph = pgv.AGraph(
+            directed=True,
+            rankdir='LR',
+            packMode='clust',
+            splines='true',
+        )
         self.stack = [self.top_graph]
         self.node_count = 0
 
@@ -104,8 +104,7 @@ class GraphvizWalker(NodeWalker):
         return edge
 
     def zedge(self, s, e):
-        edge = self.edge(s, e, len=0.000001)
-        return edge
+        return self.edge(s, e, len=0.000001)
 
     def nedge(self, s, e):
         return self.edge(s, e, style='invisible', dir='none')
@@ -237,8 +236,11 @@ class GraphvizWalker(NodeWalker):
         i, _ = vseq[0]
         _, e = vseq[-1]
         if i != e:
-            bunch = zip([a for _x, a in vseq[:-1]],
-                        [b for b, _y in vseq[1:]])
+            bunch = zip(
+                [a for _x, a in vseq[:-1]],
+                [b for b, _y in vseq[1:]],
+                strict=False,
+            )
             for n, n1 in bunch:
                 self.edge(n, n1)
         return (i, e)

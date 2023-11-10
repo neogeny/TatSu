@@ -1,5 +1,5 @@
+from .exceptions import ParseError
 from .util._common import _prints
-from .exceptions import ParseError  # noqa
 
 
 class Tokenizer:
