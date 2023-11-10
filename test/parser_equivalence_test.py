@@ -44,10 +44,8 @@ def generate_and_load_parser(name, grammar):
     print(code)
     module = types.ModuleType(name)
     module.__file__ = '<generated>'
-    exec(
-        compile(code, module.__file__, 'exec'), module.__dict__,
-    )  # pylint: disable=exec-used, no-member
-    return module.TestParser()  # noqa, pylint: disable=no-member
+    exec(compile(code, module.__file__, 'exec'), module.__dict__)
+    return module.TestParser()
 
 
 def test_model_parse():
