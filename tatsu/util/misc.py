@@ -35,7 +35,7 @@ def first(iterable, default=_undefined):
         if default is _undefined:
             raise ValueError(
                 'first() was called on an empty iterable, and no '
-                'default value was provided.'
+                'default value was provided.',
             ) from e
         return default
 

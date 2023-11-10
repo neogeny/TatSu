@@ -37,44 +37,44 @@ def parse_args():
     main_mode.add_argument(
         '--generate-parser',
         help='generate parser code from the grammar (default)',
-        action='store_true'
+        action='store_true',
     )
     main_mode.add_argument(
         '--draw', '-d',
         help='generate a diagram of the grammar (requires --outfile)',
-        action='store_true'
+        action='store_true',
     )
     main_mode.add_argument(
         '--object-model', '-g',
         help='generate object model from the class names given as rule arguments',
-        action='store_true'
+        action='store_true',
     )
     main_mode.add_argument(
         '--pretty', '-p',
         help='generate a prettified version of the input grammar',
-        action='store_true'
+        action='store_true',
     )
     main_mode.add_argument(
         '--pretty-lean',
         help='like --pretty, but without name: or ::Parameter annotations',
-        action='store_true'
+        action='store_true',
     )
 
     ebnf_opts = argparser.add_argument_group('parse-time options')
     argparser.add_argument(
         'filename',
         metavar='GRAMMAR',
-        help='the filename of the TatSu grammar to parse'
+        help='the filename of the TatSu grammar to parse',
     )
     ebnf_opts.add_argument(
         '--color', '-c',
         help='use color in traces (requires the colorama library)',
-        action='store_true'
+        action='store_true',
     )
     ebnf_opts.add_argument(
         '--trace', '-t',
         help='produce verbose parsing output',
-        action='store_true'
+        action='store_true',
     )
 
     generation_opts = argparser.add_argument_group('generation options')
@@ -88,19 +88,19 @@ def parse_args():
     generation_opts.add_argument(
         '--name', '-m',
         metavar='NAME',
-        help='Name for the grammar (defaults to GRAMMAR base name)'
+        help='Name for the grammar (defaults to GRAMMAR base name)',
     )
     generation_opts.add_argument(
         '--no-nameguard', '-n',
         help='allow tokens that are prefixes of others',
         dest="nameguard",
         action='store_false',
-        default=None  # None allows grammar specified
+        default=None,  # None allows grammar specified
     )
     generation_opts.add_argument(
         '--outfile', '--output', '-o',
         metavar='FILE',
-        help='output file (default is stdout)'
+        help='output file (default is stdout)',
     )
     generation_opts.add_argument(
         '--object-model-outfile', '-G',
@@ -121,27 +121,27 @@ def parse_args():
             return getattr(module, spath[1])
         except Exception as e:
             raise argparse.ArgumentTypeError(
-                "Couldn't find class %s" % path
+                "Couldn't find class %s" % path,
             ) from e
 
     generation_opts.add_argument(
         '--base-type',
         metavar='CLASSPATH',
         help='class to use as base type for the object model, for example "mymodule.MyNode"',
-        type=import_class
+        type=import_class,
     )
 
     std_args = argparser.add_argument_group('common options')
     std_args.add_argument(
         '--help', '-h',
         help='show this help message and exit',
-        action='help'
+        action='help',
     )
     std_args.add_argument(
         '--version', '-V',
         help='provide version information and exit',
         action='version',
-        version=__version__
+        version=__version__,
     )
 
     args = argparser.parse_args()
@@ -233,7 +233,7 @@ def main(codegen=pythoncg):
             args.name,
             trace=args.trace,
             filename=args.filename,
-            colorize=args.color
+            colorize=args.color,
         )
         model.whitespace = args.whitespace
         model.nameguard = args.nameguard

@@ -121,7 +121,7 @@ class BootstrapTests(unittest.TestCase):
         g10 = g9.parse(
             text,
             start_rule='start',
-            semantics=EBNFGrammarSemantics('EBNFBootstrap')
+            semantics=EBNFGrammarSemantics('EBNFBootstrap'),
         )
         generated_grammar10 = str(g10)
         with open('./tmp/10.ebnf', 'w') as f:
@@ -138,7 +138,7 @@ class BootstrapTests(unittest.TestCase):
         r11 = g11.parse(
             text,
             start_rule='start',
-            semantics=EBNFGrammarSemantics('EBNFBootstrap')
+            semantics=EBNFGrammarSemantics('EBNFBootstrap'),
         )
         with open('./tmp/11.ebnf', 'w') as f:
             f.write(str(g11))

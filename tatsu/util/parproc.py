@@ -190,7 +190,7 @@ def file_process_progress(latest_result, results_count, success_count, total, to
             SUCCESSCH if latest_result.success else FAILURECH,
             (Path(filename).name + ' ' * 80)[:32],
             end=EOLCH,
-            file=sys.stderr
+            file=sys.stderr,
         )
         sys.stderr.flush()
 

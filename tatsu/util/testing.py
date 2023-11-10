@@ -21,7 +21,7 @@ def parallel_test_run(parse, options):
         filenames = filelist_from_patterns(
             patterns,
             sizesort=options.sort,
-            ignore=options.ignore
+            ignore=options.ignore,
         )
 
         kwargs = vars(options)

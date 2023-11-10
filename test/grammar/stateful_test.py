@@ -63,7 +63,7 @@ class StatefulTests(unittest.TestCase):
             ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
-            nameguard=False
+            nameguard=False,
         )
         self.assertEqual(ast, "<ul><li>abc</li></ul>")
 
@@ -73,7 +73,7 @@ class StatefulTests(unittest.TestCase):
             ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
-            nameguard=False
+            nameguard=False,
         )
         self.assertEqual("<ul><li>abc</li></ul>", ast)
 
@@ -83,7 +83,7 @@ class StatefulTests(unittest.TestCase):
             ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
-            nameguard=False
+            nameguard=False,
         )
         self.assertEqual("<ul><li>abc</li><li>def</li></ul>", ast)
 
@@ -93,7 +93,7 @@ class StatefulTests(unittest.TestCase):
             ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
-            nameguard=False
+            nameguard=False,
         )
         self.assertEqual("<ul><li><ul><li>abc</li></ul></li></ul>", ast)
 
@@ -103,6 +103,6 @@ class StatefulTests(unittest.TestCase):
             ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
-            nameguard=False
+            nameguard=False,
         )
         self.assertEqual("<ul><li>abc<ul><li>def</li></ul></li></ul>", ast)

@@ -846,7 +846,7 @@ class Rule(Decorator):
             self.is_memoizable,
             self.is_name,
             self.params,
-            self.kwparams
+            self.kwparams,
         )
         result = ctx._call(ruleinfo)
         return result
@@ -926,7 +926,7 @@ class BasedRule(Rule):
             exp,
             params or base.params,
             kwparams or base.kwparams,
-            decorators=decorators
+            decorators=decorators,
         )
         self.base = base
         ast = AST(sequence=[self.base.exp, self.exp])

@@ -486,7 +486,7 @@ class LeftRecursionTests(unittest.TestCase):
         """
         self.assertEqual(
             {'type': {'id': 'int'}, 'name': 'x'},
-            parse(grammar, 'int x', start='decl').asjson()
+            parse(grammar, 'int x', start='decl').asjson(),
         )
 
     def test_associativity(self):

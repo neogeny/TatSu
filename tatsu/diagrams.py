@@ -18,11 +18,12 @@ def draw(filename, grammar):
 class GraphvizWalker(NodeWalker):
     def __init__(self):
         super().__init__()
-        self.top_graph = pgv.AGraph(directed=True,
-                                    rankdir='LR',
-                                    packMode='clust',
-                                    splines='true'
-                                    )
+        self.top_graph = pgv.AGraph(
+            directed=True,
+            rankdir='LR',
+            packMode='clust',
+            splines='true',
+        )
         self.stack = [self.top_graph]
         self.node_count = 0
 

@@ -35,7 +35,7 @@ class RenderingFormatter(string.Formatter):
         if ':' not in format_spec:
             return super().format_field(
                 self.render(value),
-                format_spec
+                format_spec,
             )
 
         ind, sep, fmt = format_spec.split(':')

@@ -12,7 +12,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
     def __init__(self, grammar_name):
         super().__init__(
             base_type=grammars.Model,
-            types=grammars.Model.classes()
+            types=grammars.Model.classes(),
         )
         self.grammar_name = grammar_name
         self.rules = {}
@@ -132,5 +132,5 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
             name,
             list(self.rules.values()),
             directives=directives,
-            keywords=keywords
+            keywords=keywords,
         )

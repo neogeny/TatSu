@@ -51,7 +51,7 @@ class ModelBuilderSemantics:
                 context = vars(constructor)
             except Exception as e:
                 raise SemanticError(
-                    f'Could not find constructor for {typename} ({type(constructor).__name__}): {str(e)}'
+                    f'Could not find constructor for {typename} ({type(constructor).__name__}): {str(e)}',
                 ) from e
             if name in context:
                 constructor = context[name]
@@ -92,5 +92,5 @@ class ModelBuilderSemantics:
                 return constructor(ast, *args[1:], **kwargs)
         except Exception as e:
             raise SemanticError(
-                f'Could not call constructor for {typename}: {str(e)}'
+                f'Could not call constructor for {typename}: {str(e)}',
             ) from e

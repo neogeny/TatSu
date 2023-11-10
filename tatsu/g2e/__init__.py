@@ -48,7 +48,7 @@ def main():
         sys.exit(1)
     translate(
         filename=sys.argv[1],
-        trace='--trace' in sys.argv or '-t' in sys.argv
+        trace='--trace' in sys.argv or '-t' in sys.argv,
     )
 
 

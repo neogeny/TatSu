@@ -321,9 +321,10 @@ class Named(_Decorator):
         return f'{self.name}:{self.rend(self.exp)}'
 
     def render_fields(self, fields):
-        fields.update(n=self.counter(),
-                      name=safe_name(self.node.name)
-                      )
+        fields.update(
+            n=self.counter(),
+            name=safe_name(self.node.name),
+        )
 
     template = '''
                 {exp}

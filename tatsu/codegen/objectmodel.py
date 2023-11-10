@@ -99,7 +99,7 @@ class BaseTypeRenderer(Renderer):
         fields.update(
             module=module,
             name=name,
-            lookup=lookup
+            lookup=lookup,
         )
 
     template = '''
@@ -202,7 +202,7 @@ class Grammar(ModelRenderer):
             base_class_declarations=base_class_declarations,
             model_class_declarations=model_class_declarations,
             version=version,
-            base_type=BaseTypeRenderer(base_type).render() if base_type else DEFAULT_BASE_TYPE
+            base_type=BaseTypeRenderer(base_type).render() if base_type else DEFAULT_BASE_TYPE,
         )
 
     template = '''\

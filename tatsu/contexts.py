@@ -65,7 +65,7 @@ def tatsumasu(*params, **kwparams):
                 is_memoizable,
                 is_name,
                 params,
-                kwparams
+                kwparams,
             )
             return self._call(ruleinfo)
         return wrapper
@@ -334,7 +334,7 @@ class ParseContext:
             ParseState(
                 ast=ast,
                 pos=self._pos,
-            )
+            ),
         )
 
     def _pop_ast(self):
@@ -489,7 +489,7 @@ class ParseContext:
                 color.Style.DIM + fname,
                 color.Style.NORMAL + lookahead +
                 color.Style.RESET_ALL,
-                end=''
+                end='',
             )
 
     def _trace_entry(self):
@@ -533,7 +533,7 @@ class ParseContext:
                 color.Style.DIM + fname,
                 color.Style.NORMAL + lookahead +
                 color.Style.RESET_ALL,
-                end=''
+                end='',
             )
 
     def _make_exception(self, item, exclass=FailedParse):

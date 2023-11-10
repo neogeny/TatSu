@@ -114,7 +114,7 @@ class PatternTests(unittest.TestCase):
         print(codegen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
             codegen(model.rules[0].exp.sequence[0]),
-            repr("self._pattern('(?x)\nfoo\nbar\n')").strip('"\'')
+            repr("self._pattern('(?x)\nfoo\nbar\n')").strip('"\''),
         )
 
         grammar = r'''
@@ -126,5 +126,5 @@ class PatternTests(unittest.TestCase):
         print(codegen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
             trim(codegen(model.rules[0].exp.sequence[0])),
-            repr("self._pattern('(?x)foo\\nbar\nblort')").strip(r'"\.')
+            repr("self._pattern('(?x)foo\\nbar\nblort')").strip(r'"\.'),
         )

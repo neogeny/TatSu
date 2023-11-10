@@ -39,7 +39,7 @@ ESCAPE_SEQUENCE_RE = re.compile(
     | \\N\{[^}]+\}     # Unicode characters by name
     | \\[\\'"abfnrtv]  # Single-character escapes
     )''',
-    re.UNICODE | re.VERBOSE
+    re.UNICODE | re.VERBOSE,
 )
 
 
@@ -354,7 +354,7 @@ def generic_main(custom_main, parser_class, name='Unknown'):
 
     addarg('-c', '--color',
            help='use color in traces (requires the colorama library)',
-           action='store_true'
+           action='store_true',
            )
     addarg('-l', '--list', action=ListRules, nargs=0,
            help="list all rules and exit")
@@ -384,7 +384,7 @@ def generic_main(custom_main, parser_class, name='Unknown'):
             trace=args.trace,
             whitespace=args.whitespace,
             nameguard=not args.no_nameguard,
-            colorize=args.color
+            colorize=args.color,
         )
     except KeyboardInterrupt:
         pass

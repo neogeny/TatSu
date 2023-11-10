@@ -11,7 +11,7 @@ def test_node_kwargs():
             super().__init__(
                 arguments=arguments,
                 symbol=symbol,
-                **_kwargs_
+                **_kwargs_,
             )
 
     atom = Atom(symbol='foo')
