@@ -49,6 +49,7 @@ class EBNFParser(EBNFBootstrapParser):
             config=config,
             name=name,
             semantics=semantics,
+            tokenizercls=EBNFBuffer,
             **settings)
         super().__init__(config)
 

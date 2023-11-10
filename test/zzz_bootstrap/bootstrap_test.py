@@ -32,7 +32,7 @@ class BootstrapTests(unittest.TestCase):
         with Path('grammar/tatsu.ebnf').open() as f:
             text = str(f.read())
         g = EBNFParser('EBNFBootstrap')
-        grammar0 = g.parse(text)
+        grammar0 = g.parse(text, parseinfo=False)
         ast0 = json.dumps(asjson(grammar0), indent=2)
         with open('./tmp/00.ast', 'w') as f:
             f.write(ast0)
@@ -90,22 +90,16 @@ class BootstrapTests(unittest.TestCase):
 
         print('-' * 20, 'phase 07 - import generated code')
         py_compile.compile('./tmp/g06.py', doraise=True)
-        # g06 = __import__('g06')
-        # GenParser = g06.EBNFBootstrapParser
+        g06 = __import__('g06')
+        GenParser = g06.EBNFBootstrapParser
+        assert GenParser
 
         # print('-' * 20, 'phase 08 - compile using generated code')
         # parser = GenParser(trace=False)
-        # result = parser.parse(
-        #     text,
-        #     'start',
-        #     comments_re=COMMENTS_RE,
-        #     eol_comments_re=EOL_COMMENTS_RE
-        # )
-        # self.assertEqual(result, parser.ast['start'])
-        # ast8 = parser.ast['start']
-        # json8 = json.dumps(asjson(ast8), indent=2)
-        # open('./tmp/08.ast', 'w').write(json8)
-        # self.assertEqual(ast5, ast8)
+        # result = parser.parse(original_grammar, semantics=ASTSemantics, parseinfo=False)
+        # ast8 = json.dumps(asjson(result), indent=2)
+        # open('./tmp/08.ast', 'w').write(ast8)
+        # self.assertEqual(ast0, ast8)
 
         print('-' * 20, 'phase 09 - Generate parser with semantics')
         with Path('grammar/tatsu.ebnf').open() as f:

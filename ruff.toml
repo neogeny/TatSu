@@ -7,6 +7,7 @@ select = [
     'PTH', 'TRY',
     'FLY', 'PERF', 'FURB', 'RUF',
     'PL', 'PGH',
+    # 'ERA', # commented out code
 ]
 ignore = [
     'E501', 'E741', 'E402',
