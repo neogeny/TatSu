@@ -127,6 +127,7 @@ class Namespace:
             result = symbol.filter_first(condition)
             if result:
                 return result
+        return None
 
     def all(self):
         return self.filter(lambda: True)
@@ -176,6 +177,7 @@ class Symbol(Namespace):
     def parent(self):
         if self._parent is not None:
             return self._parent()
+        return None
 
     @property
     def references(self):

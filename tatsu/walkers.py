@@ -29,6 +29,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         walker = self._find_walker(node)
         if callable(walker):
             return walker(self, node, *args, **kwargs)
+        return None
 
     def _walk_children(self, node: Node, *args, **kwargs):
         if isinstance(node, Node):

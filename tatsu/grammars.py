@@ -321,8 +321,7 @@ class Alert(Constant):
         self.level = len(self.ast.level)
 
     def parse(self, ctx):
-        message = super().parse(ctx)
-        return message
+        return super().parse(ctx)
 
     def _to_str(self, lean=False):
         return f'{"^" * self.level}{super()._to_str()}'
@@ -484,6 +483,7 @@ class Choice(Model):
             if lookahead:
                 ctx._error('expecting one of: %s:' % lookahead)
             ctx._error('no available options')
+            return None
 
     def defines(self):
         return [d for o in self.options for d in o.defines()]
@@ -834,8 +834,7 @@ class Rule(Decorator):
         self.is_memoizable = 'nomemo' not in self.decorators
 
     def parse(self, ctx):
-        result = self._parse_rhs(ctx, self.exp)
-        return result
+        return self._parse_rhs(ctx, self.exp)
 
     def _parse_rhs(self, ctx, exp):
         ruleinfo = RuleInfo(
@@ -846,8 +845,7 @@ class Rule(Decorator):
             self.params,
             self.kwparams,
         )
-        result = ctx._call(ruleinfo)
-        return result
+        return ctx._call(ruleinfo)
 
     # def firstset(self, k=1):
     #     return self.exp.firstset(k=k)

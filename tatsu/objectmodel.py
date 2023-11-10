@@ -58,15 +58,18 @@ class Node(AsJSONMixin):
     def line(self):
         if self.parseinfo:
             return self.parseinfo.line
+        return None
 
     @property
     def endline(self):
         if self.parseinfo:
             return self.parseinfo.endline
+        return None
 
     def text_lines(self):
         if self.parseinfo:
             return self.parseinfo.text_lines()
+        return None
 
     def line_index(self):
         return self.parseinfo.line_index()
@@ -83,6 +86,7 @@ class Node(AsJSONMixin):
     def line_info(self):
         if self.parseinfo:
             return self.parseinfo.tokenizer.line_info(self.parseinfo.pos)
+        return None
 
     @property
     def text(self):
@@ -189,8 +193,7 @@ class Node(AsJSONMixin):
 
     # NOTE: pickling is important for parallel parsing
     def __getstate__(self):
-        state = self._nonrefdict()
-        return state
+        return self._nonrefdict()
 
     def __setstate__(self, state):
         self.__dict__.update(state)

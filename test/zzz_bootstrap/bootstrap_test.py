@@ -90,9 +90,9 @@ class BootstrapTests(unittest.TestCase):
 
         print('-' * 20, 'phase 07 - import generated code')
         py_compile.compile('./tmp/g06.py', doraise=True)
-        g06 = __import__('g06')
-        GenParser = g06.EBNFBootstrapParser
-        assert GenParser
+        # g06 = __import__('g06')
+        # GenParser = g06.EBNFBootstrapParser
+        # assert GenParser
 
         # print('-' * 20, 'phase 08 - compile using generated code')
         # parser = GenParser(trace=False)

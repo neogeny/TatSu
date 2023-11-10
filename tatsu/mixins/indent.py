@@ -42,8 +42,7 @@ class IndentPrintMixin:
         kwargs.pop('file', None)  # do not allow redirection of output
         with io.StringIO() as output:
             print(*args, file=output, **kwargs)
-            text = output.getvalue()
-        return text
+            return output.getvalue()
 
     def _do_print_lines(self, lines: list[str] | None = None):
         if not lines:

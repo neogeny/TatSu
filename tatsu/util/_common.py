@@ -480,9 +480,11 @@ def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
     def excluded(path):
         if any(path.match(ex) for ex in ignore):
             return True
-        for part in path.parts:
-            if any(Path(part).match(ex) for ex in ignore):
-                return True
+
+        return any(
+            any(Path(part).match(ex) for ex in ignore)
+            for part in path.parts
+        )
 
     if ignore:
         filenames = [path for path in filenames if not excluded(path)]

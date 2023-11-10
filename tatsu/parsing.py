@@ -21,6 +21,7 @@ class Parser(ParseContext):
         if isinstance(rule, type(self._find_rule)):
             return rule
         self._error(name, exclass=FailedRef)
+        return None
 
     @classmethod
     def rule_list(cls):

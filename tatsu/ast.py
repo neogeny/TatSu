@@ -61,6 +61,7 @@ class AST(dict):
         key = self._safekey(key)
         if key in self:
             return super().__getitem__(key)
+        return None
 
     def __setitem__(self, key, value):
         self._set(key, value)

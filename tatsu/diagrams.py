@@ -104,8 +104,7 @@ class GraphvizWalker(NodeWalker):
         return edge
 
     def zedge(self, s, e):
-        edge = self.edge(s, e, len=0.000001)
-        return edge
+        return self.edge(s, e, len=0.000001)
 
     def nedge(self, s, e):
         return self.edge(s, e, style='invisible', dir='none')

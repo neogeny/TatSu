@@ -225,8 +225,7 @@ class ParseContext:
 
         try:
             rule = self._find_rule(start)
-            result = rule()
-            return result
+            return rule()
         except FailedCut as e:
             self._set_furthest_exception(e.nested)
             raise self._furthest_exception from e
@@ -385,7 +384,7 @@ class ParseContext:
     def _extend_cst(self, node):
         self.last_node = node
         if node is None:
-            return
+            return None
         previous = self.cst
         if previous is None:
             self.cst = self._copy_node(node)
@@ -571,12 +570,11 @@ class ParseContext:
         self._memos.pop(key, None)
 
     def _memo_for(self, key):
-        memo = self._memos.get(key)
+        return self._memos.get(key)
 
         # if isinstance(memo, FailedLeftRecursion):
         #     memo = self._results.get(key, memo)
 
-        return memo
 
     def _mkresult(self, node):
         return RuleResult(node, self._pos, self.substate)

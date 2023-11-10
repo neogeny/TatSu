@@ -240,6 +240,7 @@ class Buffer(Tokenizer):
     def _eat_regex(self, regex):
         if regex is not None:
             return list(takewhile(identity, map(self.matchre, repeat(regex))))
+        return None
 
     def eat_whitespace(self):
         return self._eat_regex(self.whitespace_re)
@@ -309,11 +310,12 @@ class Buffer(Tokenizer):
             if not partial_match:
                 return token
         self.goto(p)
+        return None
 
     def matchre(self, pattern):
         match = self._scanre(pattern)
         if match is None:
-            return
+            return None
 
         matched = match.group()
         token = match_to_find(match)
