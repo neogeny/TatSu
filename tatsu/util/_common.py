@@ -102,7 +102,7 @@ def identity(*args):
 
 
 def is_list(o):
-    return type(o) is list  # pylint: disable=unidiomatic-typecheck
+    return type(o) is list  # noqa: E721
 
 
 def to_list(o):

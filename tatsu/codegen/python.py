@@ -43,8 +43,8 @@ class Base(ModelRenderer):
 
     def make_defines_declaration(self):
         defines = compress_seq(self.defines())
-        ldefs = oset(safe_name(d) for d, l in defines if l)
-        sdefs = oset(safe_name(d) for d, l in defines if not l and d not in ldefs)
+        ldefs = oset(safe_name(d) for d, value in defines if value)
+        sdefs = oset(safe_name(d) for d, value in defines if not value and d not in ldefs)
 
         if not (sdefs or ldefs):
             return ''

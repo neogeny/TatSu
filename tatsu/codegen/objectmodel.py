@@ -136,7 +136,7 @@ class ObjectModelCodeGenerator(CodeGenerator):
 
 class Rule(ModelRenderer):
     def render_fields(self, fields):
-        defs = [safe_name(d) for d, l in compress_seq(self.defines())]
+        defs = [safe_name(d) for d, _ in compress_seq(self.defines())]
         defs = list(sorted(set(defs)))
         spec = fields["spec"]
 
