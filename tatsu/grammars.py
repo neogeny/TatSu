@@ -51,7 +51,7 @@ def pythonize_name(name):
 
 
 class ModelContext(ParseContext):
-    def __init__(self, rules, /, start=None, config: ParserConfig|None = None, **settings):
+    def __init__(self, rules, /, start=None, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(config, **settings)
         config = config.replace(start=start)
 
@@ -309,7 +309,7 @@ class Constant(Model):
         return {()}
 
     def _to_str(self, lean=False):
-        return f'`{repr(self.literal)}`'
+        return f'`{self.literal!r}`'
 
     def _nullable(self):
         return True
@@ -720,7 +720,7 @@ class Named(Decorator):
         return value
 
     def defines(self):
-        return [(self.name, False)] + super().defines()
+        return [(self.name, False), *super().defines()]
 
     def _to_str(self, lean=False):
         if lean:
@@ -735,12 +735,12 @@ class NamedList(Named):
         return value
 
     def defines(self):
-        return [(self.name, True)] + super().defines()
+        return [(self.name, True), *super().defines()]
 
     def _to_str(self, lean=False):
         if lean:
             return self.exp._to_str(lean=True)
-        return f'{self.name}+:{str(self.exp._to_str(lean=lean))}'
+        return f'{self.name}+:{self.exp._to_str(lean=lean)!s}'
 
 
 class Override(Named):
@@ -936,7 +936,7 @@ class BasedRule(Rule):
 
 
 class Grammar(Model):
-    def __init__(self, name, rules, /, config: ParserConfig|None = None, directives: dict|None = None, **settings):
+    def __init__(self, name, rules, /, config: ParserConfig | None = None, directives: dict | None = None, **settings):
         super().__init__()
         assert isinstance(rules, list), str(rules)
         directives = directives or {}
@@ -959,7 +959,7 @@ class Grammar(Model):
 
         missing = self.missing_rules(oset(r.name for r in self.rules))
         if missing:
-            msg = '\n'.join([''] + sorted(missing))
+            msg = '\n'.join(['', *sorted(missing)])
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
         self._calc_lookahead_sets()

@@ -1,6 +1,6 @@
 import types
 
-import pytest  # noqa
+import pytest
 
 import tatsu
 from tatsu.exceptions import FailedParse
@@ -75,7 +75,7 @@ def test_error_messages():
     model = tatsu.compile(grammar)
     try:
         model.parse(input)
-    except FailedParse as e:  # noqa
+    except FailedParse as e:
         e1 = str(e)
     assert "expecting one of: 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o'" in e1
 

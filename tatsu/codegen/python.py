@@ -159,7 +159,7 @@ class Choice(Base):
         firstset = self.node.lookahead_str()
         if firstset:
             msglines = textwrap.wrap(firstset, width=40)
-            error = ['expecting one of: '] + msglines
+            error = ['expecting one of: ', *msglines]
         else:
             error = ['no available options']
         error = [repr(e) for e in error]
@@ -201,7 +201,7 @@ class Closure(_Decorator):
 
     def render(self, **fields):
         if () in self.node.exp.lookahead():
-            raise CodegenError(f'{str(self.node)} may repeat empty sequence')
+            raise CodegenError(f'{self.node} may repeat empty sequence')
         return '\n' + super().render(**fields)
 
     template = '''\

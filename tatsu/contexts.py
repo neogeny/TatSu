@@ -98,13 +98,13 @@ class closure(list):
 
 
 class ParseContext:
-    def __init__(self, /, config: ParserConfig|None = None, **settings):
+    def __init__(self, /, config: ParserConfig | None = None, **settings):
         super().__init__()
         config = ParserConfig.new(config, **settings)
         self.config = config
         self._active_config = self.config
 
-        self._tokenizer: Tokenizer|None = None
+        self._tokenizer: Tokenizer | None = None
 
         self._semantics = config.semantics
 
@@ -208,7 +208,7 @@ class ParseContext:
         if not self._furthest_exception or e.pos > self._furthest_exception.pos:
             self._furthest_exception = e
 
-    def parse(self, text, /, config: ParserConfig|None = None, **settings):
+    def parse(self, text, /, config: ParserConfig | None = None, **settings):
         config = self.config.replace_config(config)
         config = config.replace(**settings)
         self._active_config = config
@@ -314,7 +314,7 @@ class ParseContext:
         if previous is None:
             new_value = [value] if as_list else value
         elif is_list(previous):
-            new_value = previous + [value]
+            new_value = [*previous, value]
         else:
             new_value = [previous, value]
 
@@ -394,7 +394,7 @@ class ParseContext:
             if is_list(previous):
                 previous.extend(node)
             else:
-                self.cst = [previous] + node
+                self.cst = [previous, *node]
         elif is_list(previous):
             previous.append(node)
         else:

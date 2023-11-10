@@ -83,7 +83,7 @@ def process_payload(process, task, pickable=identity, **kwargs):
     except KeyboardInterrupt:
         raise
     except Exception as e:
-        result.exception = f'{type(e).__name__}: {str(e)}'
+        result.exception = f'{type(e).__name__}: {e!s}'
     finally:
         result.time = time.process_time() - start_time
 

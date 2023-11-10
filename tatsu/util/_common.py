@@ -7,6 +7,7 @@ import functools
 import json
 import keyword
 import logging
+import operator
 import os
 import os.path
 import re
@@ -96,7 +97,7 @@ def identity(*args):
 
 
 def is_list(o):
-    return type(o) is list  # noqa: E721
+    return type(o) is list
 
 
 def to_list(o):
@@ -139,7 +140,7 @@ def contains_sublist(lst, sublst):
 
 
 def join_lists(lists):
-    return sum(lists, [])
+    return functools.reduce(operator.iadd, lists, [])
 
 
 def flatten(o):
@@ -450,7 +451,7 @@ def try_read(filename):
         filename = str(filename)
     for e in ['utf-16', 'utf-8', 'latin-1', 'cp1252', 'ascii']:
         try:
-            with open(filename, encoding=e) as f:
+            with Path(filename).open(encoding=e) as f:
                 return f.read()
         except UnicodeError:
             pass

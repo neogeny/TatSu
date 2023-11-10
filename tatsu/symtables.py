@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import functools
+import operator
 import weakref
 from collections import defaultdict
 from copy import copy
@@ -118,7 +120,7 @@ class Namespace:
         return self.lookup(qualname)
 
     def filter(self, condition):
-        return sum((symbol.filter(condition) for symbol in self.symbols), [])
+        return functools.reduce(operator.iadd, (symbol.filter(condition) for symbol in self.symbols), [])
 
     def filter_first(self, condition):
         for symbol in self.symbols:
@@ -185,7 +187,7 @@ class Symbol(Namespace):
 
     def qualpath(self):
         if self.parent:
-            return self.parent.qualpath() + [self.name]
+            return [*self.parent.qualpath(), self.name]
         return [self.name]
 
     def qualname(self, sep=DEFAULT_SEPARATOR):

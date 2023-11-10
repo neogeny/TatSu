@@ -14,11 +14,11 @@ BASE_CLASS_TOKEN = '::'
 
 @dataclass(eq=False)
 class Node(AsJSONMixin):
-    _parent: Node|None = None
-    _children: list[Node]|None = None
-    ast: AST|None = None
+    _parent: Node | None = None
+    _children: list[Node] | None = None
+    ast: AST | None = None
     ctx: Any = None
-    parseinfo: ParseInfo|None = None
+    parseinfo: ParseInfo | None = None
 
     def __init__(self, ast=None, **attributes):
         super().__init__()

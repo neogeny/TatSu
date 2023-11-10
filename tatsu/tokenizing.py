@@ -1,4 +1,4 @@
-from .exceptions import ParseError  # noqa
+from .exceptions import ParseError
 from .util._common import _prints
 
 

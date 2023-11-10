@@ -22,7 +22,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         # copy the class attribute to avoid linter warnings
         self._walker_cache = type(self)._walker_cache  # pylint: disable=no-member
 
-    def walk(self, node: Node|list[Node], *args, **kwargs) -> Any:
+    def walk(self, node: Node | list[Node], *args, **kwargs) -> Any:
         if isinstance(node, list):
             return [self.walk(n, *args, **kwargs) for n in node]
 

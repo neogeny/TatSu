@@ -43,7 +43,7 @@ class AST(dict):
         elif previous is None:
             pass
         elif is_list(previous):
-            value = previous + [value]
+            value = [*previous, value]
         else:
             value = [previous, value]
 

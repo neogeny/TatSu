@@ -1,7 +1,7 @@
 import json
 from pprint import pprint
 
-from codegen import PostfixCodeGenerator  # pylint: disable= E0401 # noqa
+from codegen import PostfixCodeGenerator
 
 import tatsu
 from tatsu.ast import AST
