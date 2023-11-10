@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import json
-import os
 import pickle
 import py_compile
 import shutil
 import sys
 import unittest
+from pathlib import Path
 
 from tatsu import util
 from tatsu.codegen import codegen
@@ -15,7 +15,7 @@ from tatsu.parser_semantics import EBNFGrammarSemantics
 from tatsu.util import asjson
 from tatsu.walkers import DepthFirstWalker
 
-tmp = os.path.abspath('./tmp')
+tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
 
 
@@ -24,10 +24,10 @@ class BootstrapTests(unittest.TestCase):
     def test_bootstrap(self):
         print()
 
-        if os.path.isfile('./tmp/00.ast'):
+        tmp = Path('./tmp')
+        if (tmp / '00.ast').is_file():
             shutil.rmtree('./tmp')
-        if not os.path.isdir('./tmp'):
-            os.mkdir('./tmp')
+        tmp.mkdir(exist_ok=True)
         print('-' * 20, 'phase 00 - parse using the bootstrap grammar')
         with open('grammar/tatsu.ebnf') as f:
             text = str(f.read())

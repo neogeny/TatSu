@@ -141,11 +141,11 @@ class ParameterTests(unittest.TestCase):
         def _trydelete(pymodule):
             import os
             with contextlib.suppress(OSError):
-                os.unlink(pymodule + ".py")
+                os.unlink(pymodule + ".py")  # noqa:PTH108
             with contextlib.suppress(OSError):
-                os.unlink(pymodule + ".pyc")
+                os.unlink(pymodule + ".pyc")  # noqa:PTH108
             with contextlib.suppress(OSError):
-                os.unlink(pymodule + ".pyo")
+                os.unlink(pymodule + ".pyo")  # noqa:PTH108
 
         def assert_equal(target, value):
             self.assertEqual(target, value)

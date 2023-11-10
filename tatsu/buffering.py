@@ -7,9 +7,9 @@ about source lines and content.
 """
 from __future__ import annotations
 
-import os
 import re
 from itertools import repeat, takewhile
+from pathlib import Path
 from typing import (
     Any,
 )
@@ -124,11 +124,11 @@ class Buffer(Tokenizer):
         return self.include(lines, index, i, j, filename, text)
 
     def get_include(self, source, filename):
-        source = os.path.abspath(source)
-        base = os.path.dirname(source)
-        include = os.path.join(base, filename)
+        source = Path(source).resolve()
+        base = source.parent
+        include = base / filename
         try:
-            with open(include) as f:
+            with include.open() as f:
                 return f.read(), include
         except OSError as e:
             raise ParseError('include not found: %s' % include) from e

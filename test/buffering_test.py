@@ -1,11 +1,6 @@
-"""
-Tests for consistency of the line information caches kept by
-tatsu.buffering.Buffer.
-"""
-import os
 import random
 import unittest
-from codecs import open
+from pathlib import Path
 
 from tatsu import parse
 from tatsu.buffering import Buffer
@@ -14,8 +9,8 @@ from tatsu.buffering import Buffer
 class BufferingTests(unittest.TestCase):
 
     def setUp(self):
-        testfile = os.path.splitext(__file__)[0] + '.py'
-        with open(testfile, encoding='utf-8') as f:
+        testfile = Path(__file__).with_suffix('.py')
+        with testfile.open() as f:
             self.text = str(f.read())
         self.buf = Buffer(self.text, whitespace='')
 

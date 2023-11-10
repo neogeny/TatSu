@@ -7,8 +7,8 @@ from __future__ import annotations
 import argparse
 import codecs
 import importlib
-import os
 import sys
+from pathlib import Path
 
 from ._version import __version__
 from .codegen import objectmodel
@@ -203,11 +203,12 @@ def gencode(name=None, grammar=None, trace=False, filename=None, codegen=pythonc
 
 def prepare_for_output(filename):
     if filename:
-        if os.path.isfile(filename):
-            os.unlink(filename)
-        dirname = os.path.dirname(filename)
-        if dirname and not os.path.isdir(dirname):
-            os.makedirs(dirname)
+        filename = Path(filename)
+        if filename.is_file():
+            filename.unlink()
+        dirname = filename.parent
+        if dirname.exists():
+            dirname.mkdir(parents=True, exist_ok=True)
 
 
 def save(filename, content):
