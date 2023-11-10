@@ -50,7 +50,7 @@ def generate_and_load_parser(name, grammar):
 
 def test_model_parse():
     model = tatsu.compile(name='Test', grammar=GRAMMAR)
-    assert OUTPUT == model.parse(INPUT)
+    assert model.parse(INPUT) == OUTPUT
 
 
 def test_codegen_parse():

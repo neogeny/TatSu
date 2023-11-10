@@ -866,9 +866,7 @@ class Rule(Decorator):
 
     @staticmethod
     def param_repr(p):
-        if isinstance(p, int | float):
-            return str(p)
-        elif isinstance(p, str) and p.isalnum():
+        if isinstance(p, int | float) or isinstance(p, str) and p.isalnum():
             return str(p)
         else:
             return repr(p)
@@ -894,10 +892,7 @@ class Rule(Decorator):
             elif kwparams:
                 params = '(%s)' % (kwparams)
             elif params:
-                if len(self.params) == 1:
-                    params = '::%s' % params
-                else:
-                    params = '(%s)' % params
+                params = '::%s' % params if len(self.params) == 1 else '(%s)' % params
 
         base = ' < %s' % str(self.base.name) if self.base else ''
 

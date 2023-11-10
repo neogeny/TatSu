@@ -58,10 +58,7 @@ def findalliter(pattern, string, pos=None, endpos=None, flags=0):
 
         implementation taken from cpython/Modules/_sre.c/findall()
     '''
-    if isinstance(pattern, RETYPE):
-        r = pattern
-    else:
-        r = re.compile(pattern, flags=flags)
+    r = pattern if isinstance(pattern, RETYPE) else re.compile(pattern, flags=flags)
     if endpos is not None:
         iterator = r.finditer(string, pos=pos, endpos=endpos)
     elif pos is not None:

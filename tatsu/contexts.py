@@ -3,7 +3,7 @@ from __future__ import annotations
 import ast as stdlib_ast
 import functools
 import sys
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from copy import copy
 
 from . import buffering, color, tokenizing
@@ -312,10 +312,7 @@ class ParseContext:
 
         previous = ast.get(name)
         if previous is None:
-            if as_list:
-                new_value = [value]
-            else:
-                new_value = value
+            new_value = [value] if as_list else value
         elif is_list(previous):
             new_value = previous + [value]
         else:
@@ -796,17 +793,14 @@ class ParseContext:
     @contextmanager
     def _choice(self):
         self.last_node = None
-        try:
+        with suppress(OptionSucceeded):
             yield
-        except OptionSucceeded:
-            pass
 
     @contextmanager
     def _optional(self):
         self.last_node = None
-        with self._choice():
-            with self._option():
-                yield
+        with self._choice(), self._option():
+            yield
 
     @contextmanager
     def _group(self):

@@ -1,3 +1,4 @@
+import contextlib
 import unittest
 
 from tatsu.codegen import codegen
@@ -139,18 +140,12 @@ class ParameterTests(unittest.TestCase):
 
         def _trydelete(pymodule):
             import os
-            try:
+            with contextlib.suppress(OSError):
                 os.unlink(pymodule + ".py")
-            except OSError:
-                pass
-            try:
+            with contextlib.suppress(OSError):
                 os.unlink(pymodule + ".pyc")
-            except OSError:
-                pass
-            try:
+            with contextlib.suppress(OSError):
                 os.unlink(pymodule + ".pyo")
-            except OSError:
-                pass
 
         def assert_equal(target, value):
             self.assertEqual(target, value)

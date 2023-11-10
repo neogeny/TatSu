@@ -139,10 +139,7 @@ class Rule(ModelRenderer):
         spec = fields["spec"]
 
         kwargs = '\n'.join('%s: Any = None' % d for d in defs)
-        if kwargs:
-            kwargs = indent(kwargs)
-        else:
-            kwargs = indent('pass')
+        kwargs = indent(kwargs) if kwargs else indent('pass')
 
         fields.update(
             class_name=spec.class_name,

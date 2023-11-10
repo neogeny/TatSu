@@ -160,14 +160,13 @@ def find_left_recursion(grammar):
             child = follow(child, rule_dict)
             walk(child)
             # afterEdge
-            if state[child] == CUTOFF:  # active cycle
-                if stack_positions[child] > lr_stack_positions[-1]:
-                    # turn off memoization for all rules that were involved in this cycle
-                    for rule in stack_positions:
-                        if isinstance(rule, grammars.Rule):
-                            rule.is_memoizable = False
+            if state[child] == CUTOFF and stack_positions[child] > lr_stack_positions[-1]:
+                # turn off memoization for all rules that were involved in this cycle
+                for rule in stack_positions:
+                    if isinstance(rule, grammars.Rule):
+                        rule.is_memoizable = False
 
-                    child.is_leftrec = True
+                child.is_leftrec = True
 
         # afterNode
         if leftrec:
