@@ -26,10 +26,12 @@ lint: ruff mypy
 
 
 ruff:
+	pip install -U ruff
 	ruff check tatsu test
 
 
 mypy:
+	pip install -U mypy
 	mypy   --ignore-missing-imports . --exclude dist
 
 
