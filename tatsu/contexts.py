@@ -439,7 +439,7 @@ class ParseContext:
         return self.memoize_lookaheads or self._lookahead == 0
 
     def _rulestack(self):
-        rulestack = map(lambda r: r.name, reversed(self._rule_stack))
+        rulestack = [r.name for r in reversed(self._rule_stack)]
         stack = self.trace_separator.join(rulestack)
         if max(len(s) for s in stack.splitlines()) > self.trace_length:
             stack = stack[:self.trace_length]
@@ -537,7 +537,7 @@ class ParseContext:
             )
 
     def _make_exception(self, item, exclass=FailedParse):
-        rulestack = list(map(lambda r: r.name, self._rule_stack))
+        rulestack = [r.name for r in self._rule_stack]
         return exclass(self.tokenizer, rulestack, item)
 
     def _error(self, item, exclass=FailedParse):

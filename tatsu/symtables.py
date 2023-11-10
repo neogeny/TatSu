@@ -236,7 +236,7 @@ class Symbol(Namespace):
                 result.update(index)
         assert isinstance(result, set)
         assert all(isinstance(i, LineIndexInfo) for i in result)
-        return list(sorted(result))
+        return sorted(result)
 
     def reference_line_index(self):
         result = set()
@@ -250,11 +250,11 @@ class Symbol(Namespace):
         return '%s[]' % self.name
 
     def __json__(self, seen=None):
-        return dict([
+        return dict(
             ('node', type(self.node).__name__),
             ('entries', super().__json__(seen=seen)),
             ('references', asjson(self._references, seen=seen)),
-        ])
+        )
 
     def __getstate__(self):
         state = self.__dict__.copy()

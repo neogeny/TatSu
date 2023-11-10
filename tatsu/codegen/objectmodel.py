@@ -135,7 +135,7 @@ class ObjectModelCodeGenerator(CodeGenerator):
 class Rule(ModelRenderer):
     def render_fields(self, fields):
         defs = [safe_name(d) for d, _ in compress_seq(self.defines())]
-        defs = list(sorted(set(defs)))
+        defs = sorted(set(defs))
         spec = fields["spec"]
 
         kwargs = '\n'.join('%s: Any = None' % d for d in defs)

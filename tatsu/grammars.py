@@ -964,7 +964,7 @@ class Grammar(Model):
 
         missing = self.missing_rules(oset(r.name for r in self.rules))
         if missing:
-            msg = '\n'.join([''] + list(sorted(missing)))
+            msg = '\n'.join([''] + sorted(missing))
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
         self._calc_lookahead_sets()
