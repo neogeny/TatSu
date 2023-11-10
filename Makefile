@@ -27,7 +27,7 @@ lint: ruff mypy
 
 ruff:
 	pip install -U ruff
-	ruff check tatsu test
+	ruff check tatsu test examples
 
 
 mypy:

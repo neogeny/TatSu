@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 import json
 from pprint import pprint
+
+from codegen import PostfixCodeGenerator  # pylint: disable= E0401 # noqa
 
 import tatsu
 from tatsu.ast import AST
 from tatsu.walkers import NodeWalker
-
-from codegen import PostfixCodeGenerator  # pylint: disable= E0401 # noqa
 
 
 def simple_parse():

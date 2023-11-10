@@ -1,9 +1,8 @@
 import sys
 
+from tatsu.mixins.indent import IndentPrintMixin
 from tatsu.model import Node
 from tatsu.walkers import NodeWalker
-from tatsu.mixins.indent import IndentPrintMixin
-
 
 THIS_MODULE = sys.modules[__name__]
 
