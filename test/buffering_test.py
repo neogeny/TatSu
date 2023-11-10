@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tests for consistency of the line information caches kept by
 tatsu.buffering.Buffer.

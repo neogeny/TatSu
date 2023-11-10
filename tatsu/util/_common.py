@@ -13,7 +13,7 @@ import weakref
 import enum
 import re
 from io import StringIO
-from typing import Iterable, Mapping, MutableSequence
+from collections.abc import Iterable, Mapping, MutableSequence
 from itertools import zip_longest
 from pathlib import Path
 import os.path
@@ -22,7 +22,7 @@ import os.path
 logger = logging.getLogger('tatsu')
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
-formatter = logging.Formatter(str('%(message)s'))
+formatter = logging.Formatter('%(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
@@ -456,7 +456,7 @@ def try_read(filename):
         filename = str(filename)
     for e in ['utf-16', 'utf-8', 'latin-1', 'cp1252', 'ascii']:
         try:
-            with open(filename, 'r', encoding=e) as f:
+            with open(filename, encoding=e) as f:
                 return f.read()
         except UnicodeError:
             pass
@@ -478,7 +478,7 @@ def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
 
         parts = path.parts[1:] if path.is_absolute() else path.parts
         pattern = str(Path("").joinpath(*parts))
-        filenames.update((p for p in Path(path.root).glob(pattern) if not p.is_dir()))
+        filenames.update(p for p in Path(path.root).glob(pattern) if not p.is_dir())
 
     filenames = list(filenames)
 

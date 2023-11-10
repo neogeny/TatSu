@@ -127,7 +127,7 @@ class Buffer(Tokenizer):
         try:
             with open(include) as f:
                 return f.read(), include
-        except IOError as e:
+        except OSError as e:
             raise ParseError('include not found: %s' % include) from e
 
     def replace_lines(self, i, j, name, block):

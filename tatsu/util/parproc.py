@@ -118,7 +118,7 @@ def _imap_pmap(process, tasks):
 
     count = sum(len(c) for c in chunks)
     if len(tasks) != count:
-        raise EnvironmentError('number of chunked tasks different %d != %d' % (len(tasks), count))
+        raise OSError('number of chunked tasks different %d != %d' % (len(tasks), count))
     for chunk in chunks:
         with Pool(processes=nworkers) as pool:
             try:

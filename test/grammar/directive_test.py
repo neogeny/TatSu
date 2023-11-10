@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 
 import tatsu
@@ -7,7 +6,7 @@ from tatsu.util import trim
 from tatsu.codegen import codegen
 
 
-EXEC = str('exec')
+EXEC = 'exec'
 
 
 class DirectiveTests(unittest.TestCase):

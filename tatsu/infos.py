@@ -4,11 +4,9 @@ import copy
 import dataclasses
 from typing import (
     Any,
-    Callable,
-    Mapping,
     NamedTuple,
-    Type,
 )
+from collections.abc import Callable, Mapping
 
 from .ast import AST
 from .util.unicode_characters import C_DERIVE
@@ -29,8 +27,8 @@ class ParserConfig:
     comments_re: str|None = None
     eol_comments_re: str|None = None
 
-    tokenizercls: Type[Tokenizer]|None = None  # FIXME
-    semantics: Type|None = None
+    tokenizercls: type[Tokenizer]|None = None  # FIXME
+    semantics: type|None = None
 
     comment_recovery: bool = False
     memoize_lookaheads: bool = True

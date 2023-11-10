@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 import tatsu.grammars  # pylint: disable=R0401
-from typing import Callable
+from collections.abc import Callable
 
 # Based on https://github.com/ncellar/autumn_v1/
 

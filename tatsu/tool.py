@@ -261,9 +261,9 @@ def main(codegen=pythoncg):
             save(args.object_model_outfile, objectmodel.codegen(model, base_type=args.base_type))
 
         print('-' * 72, file=sys.stderr)
-        print('{:12,d}  lines in grammar'.format(len(grammar.split())), file=sys.stderr)
+        print(f'{len(grammar.split()):12,d}  lines in grammar', file=sys.stderr)
         print('{:12,d}  rules in grammar'.format(len(model.rules)), file=sys.stderr)  # noqa
-        print('{:12,d}  nodes in AST'.format(model.nodecount()), file=sys.stderr)
+        print(f'{model.nodecount():12,d}  nodes in AST', file=sys.stderr)
     except ParseException as e:
         print(e, file=sys.stderr)
         sys.exit(1)

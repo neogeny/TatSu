@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import sys
 import ast as stdlib_ast
-from typing import Type
 import functools
 from contextlib import contextmanager
 from copy import copy
@@ -246,7 +245,7 @@ class ParseContext:
         return self._tokenizer
 
     @property
-    def tokenizercls(self) -> Type[Tokenizer]:
+    def tokenizercls(self) -> type[Tokenizer]:
         if self.config.tokenizercls is None:
             return buffering.Buffer
         else:

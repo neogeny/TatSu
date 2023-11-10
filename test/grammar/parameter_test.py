@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 
 from tatsu.parser import GrammarGenerator
@@ -142,15 +141,15 @@ class ParameterTests(unittest.TestCase):
             import os
             try:
                 os.unlink(pymodule + ".py")
-            except EnvironmentError:
+            except OSError:
                 pass
             try:
                 os.unlink(pymodule + ".pyc")
-            except EnvironmentError:
+            except OSError:
                 pass
             try:
                 os.unlink(pymodule + ".pyo")
-            except EnvironmentError:
+            except OSError:
                 pass
 
         def assert_equal(target, value):

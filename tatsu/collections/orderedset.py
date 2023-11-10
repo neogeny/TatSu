@@ -2,16 +2,10 @@
 import itertools
 from typing import (
     Any,
-    Iterable,
-    Iterator,
-    Mapping,
-    MutableSet,
     Optional,
-    Sequence,
-    MutableSequence,
-    Set,
     TypeVar,
 )
+from collections.abc import Iterable, Iterator, Mapping, MutableSet, Sequence, MutableSequence
 
 T = TypeVar("T")
 
@@ -84,7 +78,7 @@ class OrderedSet(MutableSet[T], Sequence[T]):
     def union(self, *other: Iterable[T]) -> "OrderedSet[T]":
         # do not split `str`
         outer = tuple(
-            [o] if not isinstance(o, (Set, Mapping, MutableSequence)) else o
+            [o] if not isinstance(o, (set, Mapping, MutableSequence)) else o
             for o in other
         )
         inner = itertools.chain([self], *outer)  # type: ignore
@@ -104,15 +98,15 @@ class OrderedSet(MutableSet[T], Sequence[T]):
         items = (item for item in self if item not in other)
         return type(self)(items)
 
-    def issubset(self, other: Set[T]) -> bool:
+    def issubset(self, other: set[T]) -> bool:
         return all(item in other for item in self)
 
-    def issuperset(self, other: Set[T]) -> bool:
+    def issuperset(self, other: set[T]) -> bool:
         if len(self) < len(other):  # Fast check for obvious cases
             return False
         return all(item in self for item in other)
 
-    def symmetric_difference(self, other: Set[T]) -> "OrderedSet[T]":
+    def symmetric_difference(self, other: set[T]) -> "OrderedSet[T]":
         cls = type(self)
         diff1 = cls(self).difference(other)
         diff2 = cls(other).difference(self)
