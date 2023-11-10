@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from ._config import __version__
-from ._config import __toolname__
+from ._config import __toolname__, __version__
 from .tool import (  # pylint: disable=W0622
-    main,
     compile,
+    main,
     parse,
-    to_python_sourcecode,
     to_python_model,
+    to_python_sourcecode,
 )
 
 assert __version__

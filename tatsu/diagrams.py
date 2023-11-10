@@ -6,7 +6,6 @@ import pygraphviz as pgv  # pylint: disable=E0401
 
 from .walkers import NodeWalker
 
-
 __all__ = ['draw']
 
 

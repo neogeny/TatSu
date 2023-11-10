@@ -1,10 +1,9 @@
 import unittest
 
 import tatsu
+from tatsu.codegen import codegen
 from tatsu.exceptions import FailedParse
 from tatsu.util import trim
-from tatsu.codegen import codegen
-
 
 EXEC = 'exec'
 

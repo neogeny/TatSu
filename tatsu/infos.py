@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import copy
 import dataclasses
+from collections.abc import Callable, Mapping
 from typing import (
     Any,
     NamedTuple,
 )
-from collections.abc import Callable, Mapping
 
 from .ast import AST
-from .util.unicode_characters import C_DERIVE
 from .tokenizing import Tokenizer
+from .util.unicode_characters import C_DERIVE
 
 
 @dataclasses.dataclass

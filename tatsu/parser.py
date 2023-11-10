@@ -1,12 +1,12 @@
 import re
 from typing import Any
 
-from .infos import ParserConfig
+from .bootstrap import EBNFBootstrapParser
 from .buffering import Buffer
 from .grammars import PRAGMA_RE
-from .semantics import ASTSemantics
+from .infos import ParserConfig
 from .parser_semantics import EBNFGrammarSemantics
-from .bootstrap import EBNFBootstrapParser
+from .semantics import ASTSemantics
 
 
 class EBNFBuffer(Buffer):

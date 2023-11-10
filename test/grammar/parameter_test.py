@@ -1,9 +1,9 @@
 import unittest
 
+from tatsu.codegen import codegen
 from tatsu.parser import GrammarGenerator
 from tatsu.tool import compile
 from tatsu.util import trim
-from tatsu.codegen import codegen
 
 
 class ParameterTests(unittest.TestCase):

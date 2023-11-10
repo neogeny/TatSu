@@ -9,19 +9,22 @@ from __future__ import annotations
 
 import os
 import re
-from itertools import takewhile, repeat
-from typing import (Any,)
+from itertools import repeat, takewhile
+from typing import (
+    Any,
+)
 
-from .tokenizing import Tokenizer
-from .util import identity
-from .util import extend_list, contains_sublist
-from .util import RETYPE, WHITESPACE_RE
-from .util.misc import match_to_find
 from .exceptions import ParseError
 from .infos import (
+    CommentInfo,
+    LineIndexInfo,
+    LineInfo,
     ParserConfig,
-    PosLine, LineIndexInfo, LineInfo, CommentInfo,
+    PosLine,
 )
+from .tokenizing import Tokenizer
+from .util import RETYPE, WHITESPACE_RE, contains_sublist, extend_list, identity
+from .util.misc import match_to_find
 
 # for backwards compatibility with existing parsers
 LineIndexEntry = LineIndexInfo

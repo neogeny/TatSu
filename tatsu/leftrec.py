@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 from collections import defaultdict
-import tatsu.grammars  # pylint: disable=R0401
 from collections.abc import Callable
+
+from . import grammars
 
 # Based on https://github.com/ncellar/autumn_v1/
 
 
 # Returns the correct Rule instance for a RuleRef
 def follow(node, rule_dict):
-    if isinstance(node, tatsu.grammars.RuleRef):
+    if isinstance(node, grammars.RuleRef):
         return rule_dict.get(node.name, node)
     else:
         return node
@@ -148,7 +149,7 @@ def find_left_recursion(grammar):
             return
 
         # beforeNode
-        leftrec = isinstance(model, tatsu.grammars.Rule) and model.is_leftrec
+        leftrec = isinstance(model, grammars.Rule) and model.is_leftrec
         if leftrec:
             lr_stack_positions.append(stack_depth[0])
 
@@ -163,7 +164,7 @@ def find_left_recursion(grammar):
                 if stack_positions[child] > lr_stack_positions[-1]:
                     # turn off memoization for all rules that were involved in this cycle
                     for rule in stack_positions:
-                        if isinstance(rule, tatsu.grammars.Rule):
+                        if isinstance(rule, grammars.Rule):
                             rule.is_memoizable = False
 
                     child.is_leftrec = True

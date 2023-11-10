@@ -1,12 +1,13 @@
 import unittest
+
 import pytest
 
-from tatsu.exceptions import FailedParse, FailedToken
-from tatsu.tool import compile
 from tatsu import tool
-from tatsu.util import trim
 from tatsu.codegen import codegen
+from tatsu.exceptions import FailedParse, FailedToken
 from tatsu.parser import EBNFBuffer
+from tatsu.tool import compile
+from tatsu.util import trim
 
 
 class SyntaxTests(unittest.TestCase):

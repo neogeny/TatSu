@@ -5,7 +5,7 @@ from collections.abc import Sequence
 from . import grammars
 from .exceptions import FailedSemantics
 from .semantics import ModelBuilderSemantics
-from .util import eval_escapes, re, warning, flatten
+from .util import eval_escapes, flatten, re, warning
 
 
 class EBNFGrammarSemantics(ModelBuilderSemantics):

@@ -1,9 +1,9 @@
 import unittest
 
-from tatsu.util import trim
-from tatsu.tool import compile
-from tatsu.exceptions import FailedParse
 from tatsu.codegen import codegen
+from tatsu.exceptions import FailedParse
+from tatsu.tool import compile
+from tatsu.util import trim
 
 
 class PatternTests(unittest.TestCase):

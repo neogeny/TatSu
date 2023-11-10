@@ -1,49 +1,46 @@
 from __future__ import annotations
 
-import sys
 import ast as stdlib_ast
 import functools
+import sys
 from contextlib import contextmanager
 from copy import copy
 
-from .util.unicode_characters import (
-    C_ENTRY,
-    C_SUCCESS,
-    C_FAILURE,
-    C_RECURSION,
-    C_CUT,
-)
-from . import tokenizing
-from . import buffering
-from . import color
+from . import buffering, color, tokenizing
 from .ast import AST
 from .collections import OrderedSet as oset
-from .util import prune_dict, is_list, info, safe_name
-from .util import left_assoc, right_assoc, trim
-from .tokenizing import Tokenizer
-from .infos import (
-    Alert,
-    MemoKey,
-    ParseInfo,
-    RuleInfo,
-    RuleResult,
-    ParseState,
-    ParserConfig,
-)
 from .exceptions import (  # noqa pylint:disable=unused-import
     FailedCut,
     FailedExpectingEndOfText,
+    FailedKeyword,
+    FailedKeywordSemantics,
     FailedLeftRecursion,
     FailedLookahead,
     FailedParse,
     FailedPattern,
     FailedRef,
     FailedSemantics,
-    FailedKeyword,
-    FailedKeywordSemantics,
     FailedToken,
     OptionSucceeded,
     ParseError,
+)
+from .infos import (
+    Alert,
+    MemoKey,
+    ParseInfo,
+    ParserConfig,
+    ParseState,
+    RuleInfo,
+    RuleResult,
+)
+from .tokenizing import Tokenizer
+from .util import info, is_list, left_assoc, prune_dict, right_assoc, safe_name, trim
+from .util.unicode_characters import (
+    C_CUT,
+    C_ENTRY,
+    C_FAILURE,
+    C_RECURSION,
+    C_SUCCESS,
 )
 
 __all__ = ['ParseContext', 'tatsumasu', 'leftrec', 'nomemo']

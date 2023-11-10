@@ -3,18 +3,17 @@ from __future__ import annotations
 import json
 import os
 import pickle
+import py_compile
 import shutil
 import sys
 import unittest
-import py_compile
 
-from tatsu.walkers import DepthFirstWalker
-from tatsu.parser import GrammarGenerator, EBNFParser
-from tatsu.parser_semantics import EBNFGrammarSemantics
-from tatsu.codegen import codegen
 from tatsu import util
+from tatsu.codegen import codegen
+from tatsu.parser import EBNFParser, GrammarGenerator
+from tatsu.parser_semantics import EBNFGrammarSemantics
 from tatsu.util import asjson
-
+from tatsu.walkers import DepthFirstWalker
 
 tmp = os.path.abspath('./tmp')
 sys.path.insert(0, str(tmp))

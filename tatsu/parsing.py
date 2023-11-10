@@ -2,9 +2,14 @@ from __future__ import annotations
 
 import inspect
 
+from .contexts import (  # noqa pylint: disable=unused-import
+    ParseContext,
+    isname,
+    leftrec,
+    nomemo,
+    tatsumasu,
+)
 from .exceptions import FailedRef
-from .contexts import ParseContext
-from .contexts import tatsumasu, leftrec, nomemo, isname  # noqa pylint: disable=unused-import
 
 
 class Parser(ParseContext):

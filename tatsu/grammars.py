@@ -1,24 +1,26 @@
 from __future__ import annotations
 
 import functools
-from collections.abc import Mapping
 from collections import defaultdict
-from pathlib import Path
+from collections.abc import Mapping
 from copy import copy
 from itertools import takewhile
+from pathlib import Path
 
-from .util import (
-    indent, trim, compress_seq, chunks,
-    re,
-)
-from .exceptions import FailedRef, GrammarError
 from .ast import AST
-from .contexts import ParseContext
-from .objectmodel import Node
-from .infos import RuleInfo, ParserConfig
-from .leftrec import Nullable, find_left_recursion
 from .collections import OrderedSet as oset
-
+from .contexts import ParseContext
+from .exceptions import FailedRef, GrammarError
+from .infos import ParserConfig, RuleInfo
+from .leftrec import Nullable, find_left_recursion
+from .objectmodel import Node
+from .util import (
+    chunks,
+    compress_seq,
+    indent,
+    re,
+    trim,
+)
 
 PEP8_LLEN = 72
 

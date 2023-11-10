@@ -5,20 +5,12 @@ from __future__ import annotations
 
 import textwrap
 
-from tatsu.util import (
-    indent,
-    safe_name,
-    trim,
-    timestamp,
-    compress_seq,
-    RETYPE
-)
-from tatsu import grammars
-from tatsu.exceptions import CodegenError
-from tatsu.objectmodel import Node
-from tatsu.objectmodel import BASE_CLASS_TOKEN
-from tatsu.codegen.cgbase import ModelRenderer, CodeGenerator
-from tatsu.collections import OrderedSet as oset
+from .. import grammars
+from ..collections import OrderedSet as oset
+from ..exceptions import CodegenError
+from ..objectmodel import BASE_CLASS_TOKEN, Node
+from ..util import RETYPE, compress_seq, indent, safe_name, timestamp, trim
+from .cgbase import CodeGenerator, ModelRenderer
 
 
 class PythonCodeGenerator(CodeGenerator):

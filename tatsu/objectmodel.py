@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from typing import Any
+import weakref
 from collections.abc import Mapping
 from dataclasses import dataclass
-import weakref
+from typing import Any
 
-from .util import asjson, asjsons, AsJSONMixin
-from .infos import CommentInfo, ParseInfo
 from .ast import AST
-
+from .infos import CommentInfo, ParseInfo
+from .util import AsJSONMixin, asjson, asjsons
 
 BASE_CLASS_TOKEN = '::'
 

@@ -3,8 +3,8 @@ from __future__ import annotations
 import re
 from itertools import chain
 
-from tatsu.ast import AST
 from tatsu import grammars as model
+from tatsu.ast import AST
 
 
 def camel2py(name):

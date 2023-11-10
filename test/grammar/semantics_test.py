@@ -1,9 +1,9 @@
 import unittest
 
-from tatsu.tool import compile
-from tatsu.semantics import ModelBuilderSemantics
 from tatsu import synth
 from tatsu.model import Node
+from tatsu.semantics import ModelBuilderSemantics
+from tatsu.tool import compile
 
 
 class MyNode:

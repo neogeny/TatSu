@@ -1,6 +1,6 @@
 import argparse
 
-from .import filelist_from_patterns
+from . import filelist_from_patterns
 from .parproc import processing_loop
 
 

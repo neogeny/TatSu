@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from tatsu.objectmodel import Node
-from tatsu.exceptions import CodegenError
-from tatsu.rendering import render, Renderer, RenderingFormatter
-
+from ..exceptions import CodegenError
+from ..objectmodel import Node
+from ..rendering import Renderer, RenderingFormatter, render
 
 __all__ = [
     'DelegatingRenderingFormatter',

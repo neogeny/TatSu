@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import builtins
-from .util import simplify_list
+
 from .exceptions import SemanticError
-from .objectmodel import Node
-from .objectmodel import BASE_CLASS_TOKEN
+from .objectmodel import BASE_CLASS_TOKEN, Node
 from .synth import synthesize
+from .util import simplify_list
 
 
 class ASTSemantics:

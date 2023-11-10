@@ -1,5 +1,5 @@
-from collections.abc import MutableSequence
 from collections import deque
+from collections.abc import MutableSequence
 
 
 class Tail(MutableSequence):

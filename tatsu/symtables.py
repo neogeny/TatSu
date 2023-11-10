@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import weakref
-from copy import copy
 from collections import defaultdict
+from copy import copy
 
-from .util import asjson, join_lists
 from .exceptions import ParseException
 from .infos import LineIndexInfo
-
+from .util import asjson, join_lists
 
 DEFAULT_SEPARATOR = '.'
 

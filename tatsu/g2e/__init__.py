@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 import codecs
-import sys
 import pkgutil
+import sys
 from os import path
 
 from tatsu import compile
+
 from .semantics import ANTLRSemantics
 
 

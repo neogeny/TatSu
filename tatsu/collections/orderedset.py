@@ -1,10 +1,17 @@
 # NOTE: from https://github.com/LuminosoInsight/ordered-set/blob/master/ordered_set.py
 import itertools
+from collections.abc import (
+    Iterable,
+    Iterator,
+    Mapping,
+    MutableSequence,
+    MutableSet,
+    Sequence,
+)
 from typing import (
     Any,
     TypeVar,
 )
-from collections.abc import Iterable, Iterator, Mapping, MutableSet, Sequence, MutableSequence
 
 T = TypeVar("T")
 

@@ -3,22 +3,23 @@ Parse and translate an EBNF grammar into a Python parser for
 the described language.
 """
 from __future__ import annotations
-import codecs
+
 import argparse
+import codecs
+import importlib
 import os
 import sys
-import importlib
 
 from ._version import __version__
-from .util import eval_escapes
-from .exceptions import ParseException
-from .parser import GrammarGenerator
-from .semantics import ModelBuilderSemantics
-from .infos import ParserConfig
+from .codegen import objectmodel
 
 # we hook the tool to the Python code generator as the default
 from .codegen.python import codegen as pythoncg
-from .codegen import objectmodel
+from .exceptions import ParseException
+from .infos import ParserConfig
+from .parser import GrammarGenerator
+from .semantics import ModelBuilderSemantics
+from .util import eval_escapes
 
 DESCRIPTION = (
     'TatSu takes a grammar'

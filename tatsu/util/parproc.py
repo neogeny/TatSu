@@ -1,16 +1,15 @@
 import sys
 import time
 from collections import namedtuple
-from multiprocessing import cpu_count, Pool, Lock
-from concurrent.futures import as_completed, ThreadPoolExecutor, ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
 from functools import partial
+from multiprocessing import Lock, Pool, cpu_count
 from pathlib import Path
 from statistics import mean
-from dataclasses import dataclass
 from typing import Any
 
-from .import identity, try_read, memory_use, short_relative_path
-
+from . import identity, memory_use, short_relative_path, try_read
 
 SUCCESSCH = '\u2705'
 FAILURECH = '\u274C'

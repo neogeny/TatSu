@@ -1,4 +1,5 @@
 import json  # noqa: F401
+
 import tatsu
 from tatsu.objectmodel import Node
 

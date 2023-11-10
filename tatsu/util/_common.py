@@ -1,23 +1,22 @@
 from __future__ import annotations
 
-import sys
-import os
-import json
-import datetime
 import codecs
-import keyword
-import functools
-import warnings
-import logging
-import weakref
+import datetime
 import enum
+import functools
+import json
+import keyword
+import logging
+import os
+import os.path
 import re
-from io import StringIO
+import sys
+import warnings
+import weakref
 from collections.abc import Iterable, Mapping, MutableSequence
+from io import StringIO
 from itertools import zip_longest
 from pathlib import Path
-import os.path
-
 
 logger = logging.getLogger('tatsu')
 logger.setLevel(logging.DEBUG)
