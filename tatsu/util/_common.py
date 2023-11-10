@@ -237,7 +237,7 @@ def timestamp():
     return '.'.join('%2.2d' % t for t in datetime.datetime.utcnow().utctimetuple()[:-2])
 
 
-def asjson(obj, seen=None):  # pylint: disable=too-many-return-statements,too-many-branches
+def asjson(obj, seen=None):  # noqa: PLR0911, PLR0912
     if obj is None or isinstance(obj, int | float | str | bool):
         return obj
 

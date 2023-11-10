@@ -739,7 +739,6 @@ class ParseContext:
         self._next_token()
         self._trace_match(f'{"^" * level}`{message}`', failed=True)
         self.state.alerts.append(Alert(message=message, level=level))
-        return None
 
     def _pattern(self, pattern):
         token = self.tokenizer.matchre(pattern)

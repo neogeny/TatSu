@@ -90,7 +90,6 @@ class Model(Node):
 
     def parse(self, ctx):
         ctx.last_node = None
-        return None
 
     def defines(self):
         return []
@@ -697,7 +696,6 @@ class Optional(Decorator):
 class Cut(Model):
     def parse(self, ctx):
         ctx._cut()
-        return None
 
     def _first(self, k, f):
         return {('~',)}

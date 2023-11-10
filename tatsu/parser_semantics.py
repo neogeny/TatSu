@@ -124,7 +124,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         directives = {d.name: d.value for d in flatten(ast.directives)}
         keywords = list(flatten(ast.keywords)) or []
 
-        if directives.get('whitespace') in ('None', 'False'):
+        if directives.get('whitespace') in {'None', 'False'}:
             directives['whitespace'] = ''
 
         name = self.grammar_name if self.grammar_name else directives.get('grammar', None)

@@ -186,4 +186,3 @@ def find_left_recursion(grammar):
     #    if rule.is_leftrec: print("-> Leftrec")
     #    if rule.is_nullable(): print("-> Nullable")
 
-    return

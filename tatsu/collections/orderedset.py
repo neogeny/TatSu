@@ -16,7 +16,7 @@ from typing import (
 T = TypeVar("T")
 
 
-class OrderedSet(MutableSet[T], Sequence[T]):
+class OrderedSet(MutableSet[T], Sequence[T]):  # noqa: PLW1641
     def __init__(self, iterable: Iterable[T] | None = None):
         if iterable is not None:
             self._map = dict.fromkeys(iterable)

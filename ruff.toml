@@ -5,8 +5,8 @@ select = [
     'I', 'YTT', 'S', 'B',
     'COM', 'C4', 'SIM',
     'PTH', 'TRY',
-    'FLY', 'PERF', 'FURB',
-    'RUF',
+    'FLY', 'PERF', 'FURB', 'RUF',
+    'PL',
 ]
 ignore = [
     'E501', 'E741', 'E402',
@@ -15,6 +15,10 @@ ignore = [
     'SIM115', 'SIM114',
     'PTH123',
     'TRY003', 'TRY300',
+    'PLW1514', 'PLR6301',
+    'PLC0415',
+    'PLR0913', 'PLR2004', 'PLR0904', 'PLR0915',
+    'PLW0603', 'PLW2901', 'PLW3201',
 ]
 exclude = ['tatsu/bootstrap.py']
 

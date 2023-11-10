@@ -182,8 +182,8 @@ class Node(AsJSONMixin):
             name: value
             for name, value in vars(self).items()
             if (
-                name not in ('_parent', '_children') and
-                type(value) not in (weakref.ReferenceType, weakref.ProxyType)
+                name not in {'_parent', '_children'} and
+                type(value) not in {weakref.ReferenceType, weakref.ProxyType}
             )
         }
 
