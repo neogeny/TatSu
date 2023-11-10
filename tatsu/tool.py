@@ -119,10 +119,10 @@ def parse_args():
             module = importlib.import_module(spath[0])
 
             return getattr(module, spath[1])
-        except Exception:
+        except Exception as e:
             raise argparse.ArgumentTypeError(
                 "Couldn't find class %s" % path
-            )
+            ) from e
 
     generation_opts.add_argument(
         '--base-type',

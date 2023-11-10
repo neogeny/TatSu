@@ -230,10 +230,10 @@ class ParseContext:
             return result
         except FailedCut as e:
             self._set_furthest_exception(e.nested)
-            raise self._furthest_exception
+            raise self._furthest_exception from e
         except FailedParse as e:
             self._set_furthest_exception(e)
-            raise self._furthest_exception
+            raise self._furthest_exception from e
         finally:
             self._clear_memoization_caches()
 
@@ -734,7 +734,7 @@ class ParseContext:
             except (ValueError, SyntaxError):
                 if '\n' in literal:
                     literal = trim(literal)
-                literal = eval(f'{"f" + repr(literal)}', {}, self.ast)  # pylint: disable=eval-used
+                literal = eval(f'{"f" + repr(literal)}', {}, self.ast)  # noqa: S307
         self._append_cst(literal)
         return literal
 
@@ -789,7 +789,7 @@ class ParseContext:
             raise
         except FailedParse as e:
             if self._is_cut_set():
-                raise FailedCut(e)
+                raise FailedCut(e) from e
         finally:
             self._cut_stack.pop()
 

@@ -77,8 +77,8 @@ def _get_full_name(cls):
             _cls = getattr(_cls, ident)
 
         assert _cls == cls
-    except AttributeError:
-        raise CodegenError("Couldn't find base type, it has to be importable")
+    except AttributeError as e:
+        raise CodegenError("Couldn't find base type, it has to be importable") from e
 
     return modulename, name
 

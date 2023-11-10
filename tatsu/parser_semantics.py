@@ -31,7 +31,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         try:
             re.compile(pattern)
         except (TypeError, re.error) as e:
-            raise FailedSemantics('regexp error: ' + str(e))
+            raise FailedSemantics('regexp error: ' + str(e)) from e
         return ast
 
     def regex(self, ast, *args):
@@ -39,7 +39,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         try:
             re.compile(pattern)
         except (TypeError, re.error) as e:
-            raise FailedSemantics('regexp error: ' + str(e))
+            raise FailedSemantics('regexp error: ' + str(e)) from e
         return pattern
 
     def string(self, ast):

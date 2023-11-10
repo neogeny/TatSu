@@ -114,7 +114,7 @@ def is_namedtuple(obj) -> bool:
         isinstance(obj, tuple) and
         hasattr(obj, '_asdict') and
         hasattr(obj, '_fields') and
-        all(isinstance(f, str) for f in getattr(obj, '_fields'))
+        all(isinstance(f, str) for f in getattr(obj, '_fields', ()))
     )
 
 

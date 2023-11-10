@@ -143,7 +143,10 @@ class LineIndexInfo(NamedTuple):
 
     @staticmethod
     def block_index(name, n):
-        return list(LineIndexInfo(line, i) for line, i in zip(n * [name], range(n)))
+        return list(
+            LineIndexInfo(line, i)
+            for line, i in zip(n * [name], range(n), strict=False)
+        )
 
 
 class LineInfo(NamedTuple):

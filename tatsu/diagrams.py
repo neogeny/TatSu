@@ -236,8 +236,11 @@ class GraphvizWalker(NodeWalker):
         i, _ = vseq[0]
         _, e = vseq[-1]
         if i != e:
-            bunch = zip([a for _x, a in vseq[:-1]],
-                        [b for b, _y in vseq[1:]])
+            bunch = zip(
+                [a for _x, a in vseq[:-1]],
+                [b for b, _y in vseq[1:]],
+                strict=False,
+            )
             for n, n1 in bunch:
                 self.edge(n, n1)
         return (i, e)

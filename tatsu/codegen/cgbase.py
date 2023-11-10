@@ -142,7 +142,7 @@ class CodeGenerator:
             assert issubclass(renderer_class, ModelRenderer)
             return renderer_class(self, item)
         except Exception as e:
-            raise type(e)(str(e), renderer_class.__name__)
+            raise type(e)(str(e), renderer_class.__name__) from e
 
     def render(self, item, join='', **fields):
         renderer = self.get_renderer(item)
