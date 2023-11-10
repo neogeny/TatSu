@@ -1,7 +1,11 @@
 import sys
 import time
 from collections import namedtuple
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from concurrent.futures import (
+    ProcessPoolExecutor,
+    ThreadPoolExecutor,
+    as_completed,
+)
 from dataclasses import dataclass
 from functools import partial
 from multiprocessing import Lock, Pool, cpu_count
@@ -35,7 +39,9 @@ class ParprocResult:
         return self.exception is None
 
 
-def processing_loop(process, filenames, *args, verbose=False, exitfirst=False, **kwargs):
+def processing_loop(
+    process, filenames, *args, verbose=False, exitfirst=False, **kwargs,
+):
     all_results = []
     results_count = 0
     success_count = 0
@@ -51,13 +57,23 @@ def processing_loop(process, filenames, *args, verbose=False, exitfirst=False, *
             results_count = len(all_results)
 
             total_time = time.time() - start_time
-            file_process_progress(result, results_count, success_count, total, total_time, verbose=verbose)
+            file_process_progress(
+                result,
+                results_count,
+                success_count,
+                total,
+                total_time,
+                verbose=verbose,
+            )
 
             if result.exception:
                 if verbose:
                     with console_lock:
                         print(file=sys.stderr)
-                        print(f'{result.exception.split()[0]:16} {result.payload}', file=sys.stderr)
+                        print(
+                            f'{result.exception.split()[0]:16} {result.payload}',
+                            file=sys.stderr,
+                        )
                 if exitfirst:
                     raise KeyboardInterrupt  # noqa: TRY301
             else:
@@ -65,7 +81,9 @@ def processing_loop(process, filenames, *args, verbose=False, exitfirst=False, *
     except KeyboardInterrupt:
         pass
     finally:
-        file_process_summary(filenames, total_time, all_results, verbose=verbose)
+        file_process_summary(
+            filenames, total_time, all_results, verbose=verbose,
+        )
     return results_count
 
 
@@ -93,7 +111,7 @@ def process_payload(process, task, pickable=identity, **kwargs):
 def _executor_pmap(executor, process, tasks):
     nworkers = max(1, cpu_count() - 1)
     n = nworkers * 8
-    chunks = [tasks[i:i + n] for i in range(0, len(tasks), n)]
+    chunks = [tasks[i: i + n] for i in range(0, len(tasks), n)]
     for chunk in chunks:
         with executor(max_workers=nworkers) as ex:
             futures = [ex.submit(process, task) for task in chunk]
@@ -113,11 +131,13 @@ def _imap_pmap(process, tasks):
     nworkers = max(1, cpu_count() - 1)
 
     n = nworkers * 4
-    chunks = [tasks[i:i + n] for i in range(0, len(tasks), n)]
+    chunks = [tasks[i: i + n] for i in range(0, len(tasks), n)]
 
     count = sum(len(c) for c in chunks)
     if len(tasks) != count:
-        raise OSError('number of chunked tasks different %d != %d' % (len(tasks), count))
+        raise OSError(
+            'number of chunked tasks different %d != %d' % (len(tasks), count),
+        )
     for chunk in chunks:
         with Pool(processes=nworkers) as pool:
             yield from pool.imap_unordered(process, chunk)
@@ -138,7 +158,9 @@ def process_in_parallel(payloads, process, *args, **kwargs):
     parallel = kwargs.pop('parallel', True)
     verbose = kwargs.pop('verbose', False)
 
-    process = partial(process_payload, process, pickable=pickable, verbose=verbose)
+    process = partial(
+        process_payload, process, pickable=pickable, verbose=verbose,
+    )
     tasks = [__Task(payload, args, kwargs) for payload in payloads]
 
     if len(tasks) == 1:
@@ -148,7 +170,14 @@ def process_in_parallel(payloads, process, *args, **kwargs):
         yield from pmap(process, tasks)
 
 
-def file_process_progress(latest_result, results_count, success_count, total, total_time, verbose=False):
+def file_process_progress(
+    latest_result,
+    results_count,
+    success_count,
+    total,
+    total_time,
+    verbose=False,
+):
     i = results_count
     filename = latest_result.payload
 
@@ -197,7 +226,9 @@ def format_hours(time):
 def file_process_summary(filenames, total_time, results, verbose=False):
     runtime = sum(r.time for r in results)
     filecount = len(filenames)
-    success_count = sum(1 for result in results if result.outcome and not result.exception)
+    success_count = sum(
+        1 for result in results if result.outcome and not result.exception
+    )
     failure_count = sum(1 for result in results if result.exception)
 
     line_counts = {
@@ -210,13 +241,14 @@ def file_process_summary(filenames, total_time, results, verbose=False):
 
     mb_memory = (
         max(result.memory // (1024 * 1024) for result in results)
-        if results else 0
+        if results
+        else 0
     )
 
     lines_sec = round(mean(r.linecount / r.time for r in results if r.time))
 
     dashes = '-' * 80
-    summary_text = '''\
+    summary_text = """\
         {:12,d}   files input
         {:12,d}   files parsed
         {:12,d}   lines input
@@ -228,8 +260,10 @@ def file_process_summary(filenames, total_time, results, verbose=False):
         {:>12s}   runtime
         {:>12d}   lines/sec
         {:>12d}   mib max memory
-    '''
-    summary_text = '\n'.join(line.strip() for line in summary_text.splitlines())
+    """
+    summary_text = '\n'.join(
+        line.strip() for line in summary_text.splitlines()
+    )
 
     summary = summary_text.format(
         filecount,

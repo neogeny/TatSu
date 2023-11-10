@@ -2,12 +2,7 @@ import inspect
 from collections import namedtuple
 from datetime import datetime
 
-from tatsu.util import (
-    compress_seq,
-    indent,
-    re,
-    safe_name,
-)
+from tatsu.util import compress_seq, indent, re, safe_name
 
 from ..codegen.cgbase import CodeGenerator, ModelRenderer
 from ..exceptions import CodegenError
@@ -19,11 +14,11 @@ NODE_NAME_PATTERN = r'(?!\d)\w+(' + rf'{BASE_CLASS_TOKEN}' + r'(?!\d)\w+)*'
 
 TypeSpec = namedtuple('TypeSpec', ['class_name', 'base'])
 
-DEFAULT_BASE_TYPE = '''
+DEFAULT_BASE_TYPE = """
 @dataclass(eq=False)
 class ModelBase(Node):
     pass
-'''
+"""
 
 
 def codegen(model, base_type=None):
@@ -61,10 +56,10 @@ def _typespec(rule):
 
 def _get_full_name(cls):
     if not inspect.isclass(cls):
-        raise CodegenError("Base type has to be a class")
+        raise CodegenError('Base type has to be a class')
     module = inspect.getmodule(cls)
     if not module:
-        raise CodegenError("Base type has to be inside a module")
+        raise CodegenError('Base type has to be inside a module')
     modulename = module.__name__
 
     name = cls.__qualname__
@@ -78,7 +73,9 @@ def _get_full_name(cls):
 
         assert _cls == cls
     except AttributeError as e:
-        raise CodegenError("Couldn't find base type, it has to be importable") from e
+        raise CodegenError(
+            "Couldn't find base type, it has to be importable",
+        ) from e
 
     return modulename, name
 
@@ -91,20 +88,16 @@ class BaseTypeRenderer(Renderer):
     def render_fields(self, fields):
         module, name = _get_full_name(self.base_type)
         if '.' in name:
-            lookup = "\nModelBase = %s" % name
+            lookup = '\nModelBase = %s' % name
             name = name.split('.')[0]
         else:
-            lookup = " as ModelBase"
+            lookup = ' as ModelBase'
 
-        fields.update(
-            module=module,
-            name=name,
-            lookup=lookup,
-        )
+        fields.update(module=module, name=name, lookup=lookup)
 
-    template = '''
+    template = """
         from {module} import {name}{lookup}\
-        '''
+        """
 
 
 class BaseClassRenderer(Renderer):
@@ -113,11 +106,11 @@ class BaseClassRenderer(Renderer):
         self.class_name = spec.class_name
         self.base = spec.base
 
-    template = '''
+    template = """
         @dataclass(eq=False)
         class {class_name}({base}):
             pass\
-        '''
+        """
 
 
 class ObjectModelCodeGenerator(CodeGenerator):
@@ -136,22 +129,20 @@ class Rule(ModelRenderer):
     def render_fields(self, fields):
         defs = [safe_name(d) for d, _ in compress_seq(self.defines())]
         defs = sorted(set(defs))
-        spec = fields["spec"]
+        spec = fields['spec']
 
         kwargs = '\n'.join('%s: Any = None' % d for d in defs)
         kwargs = indent(kwargs) if kwargs else indent('pass')
 
         fields.update(
-            class_name=spec.class_name,
-            base=spec.base,
-            kwargs=kwargs,
+            class_name=spec.class_name, base=spec.base, kwargs=kwargs,
         )
 
-    template = '''
+    template = """
         @dataclass(eq=False)
         class {class_name}({base}):
         {kwargs}\
-        '''
+        """
 
 
 class Grammar(ModelRenderer):
@@ -171,14 +162,16 @@ class Grammar(ModelRenderer):
             if node_spec.class_name not in node_class_names:
                 model_rules.append((rule, node_spec))
 
-            bases.extend(base for base in base_spec
-                         if base.class_name not in node_class_names)
+            bases.extend(
+                base
+                for base in base_spec
+                if base.class_name not in node_class_names
+            )
 
             node_class_names.update(s.class_name for s in specs)
 
         base_class_declarations = [
-            BaseClassRenderer(spec).render()
-            for spec in bases
+            BaseClassRenderer(spec).render() for spec in bases
         ]
 
         model_class_declarations = [
@@ -193,16 +186,18 @@ class Grammar(ModelRenderer):
 
         version = datetime.now().strftime('%Y.%m.%d.%H')
 
-        base_type = fields["base_type"]
+        base_type = fields['base_type']
 
         fields.update(
             base_class_declarations=base_class_declarations,
             model_class_declarations=model_class_declarations,
             version=version,
-            base_type=BaseTypeRenderer(base_type).render() if base_type else DEFAULT_BASE_TYPE,
+            base_type=BaseTypeRenderer(base_type).render()
+            if base_type
+            else DEFAULT_BASE_TYPE,
         )
 
-    template = '''\
+    template = """\
                 #!/usr/bin/env python
 
                 # CAVEAT UTILITOR
@@ -234,4 +229,4 @@ class Grammar(ModelRenderer):
 
                 {base_class_declarations}
                 {model_class_declarations}
-                '''
+                """

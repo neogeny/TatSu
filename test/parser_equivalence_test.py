@@ -44,7 +44,9 @@ def generate_and_load_parser(name, grammar):
     print(code)
     module = types.ModuleType(name)
     module.__file__ = '<generated>'
-    exec(compile(code, module.__file__, 'exec'), module.__dict__)  # pylint: disable=exec-used, no-member
+    exec(
+        compile(code, module.__file__, 'exec'), module.__dict__,
+    )  # pylint: disable=exec-used, no-member
     return module.TestParser()  # noqa, pylint: disable=no-member
 
 
@@ -61,14 +63,14 @@ def test_codegen_parse():
 
 # @pytest.mark.skip('work in progress')
 def test_error_messages():
-    grammar = '''
+    grammar = """
         @@grammar :: ORDER
         alphabet = a b others $ ;
 
         a = 'a' ;
         b = 'b' ;
         others = 'c' | 'd' | 'e' | 'f' |'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o';
-    '''
+    """
     input = 'a b'
 
     e1 = None
@@ -77,12 +79,15 @@ def test_error_messages():
         model.parse(input)
     except FailedParse as e:
         e1 = str(e)
-    assert "expecting one of: 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o'" in e1
+    assert (
+        "expecting one of: 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o'"
+        in e1
+    )
 
 
 # @pytest.mark.skip('work in progress')
 def test_name_checked():
-    grammar = r'''
+    grammar = r"""
         @@grammar :: Test
         @@ignorecase :: True
         @@keyword :: if
@@ -92,7 +97,7 @@ def test_name_checked():
         if_exp = 'if' digit ;
         @name word = /\w+/ ;
         digit = /\d/ ;
-    '''
+    """
 
     def subtest(parser):
         parser.parse('nonIF if 1', trace=False)
@@ -108,12 +113,12 @@ def test_name_checked():
 
 
 def test_first_rule():
-    grammar = '''
+    grammar = """
         @@grammar :: Test
 
         true = 'test' @: `True` $ ;
         start = 'test' @: `False` $ ;
-    '''
+    """
     parser = tatsu.compile(grammar, 'Test')
     ast = parser.parse('test')
     assert ast is True
@@ -123,22 +128,28 @@ def test_first_rule():
 
 
 def test_dynamic_compiled_ast():
-    grammar = r'''
+    grammar = r"""
         test::Test = 'TEST' ['A' a:number] ['B' b:number] ;
         number::int = /\d+/ ;
-    '''
+    """
 
     parser = tatsu.compile(grammar)
 
     code = tatsu.to_python_sourcecode(grammar, name='Test', filename='test.py')
     module = types.ModuleType('test')
     module.__file__ = 'test.py'
-    exec(compile(code, module.__file__, 'exec'), module.__dict__)  # pylint: disable=exec-used, no-member
+    exec(
+        compile(code, module.__file__, 'exec'), module.__dict__,
+    )  # pylint: disable=exec-used, no-member
 
     dynamic_ast = parser.parse('TEST')
-    compiled_ast = module.TestParser().parse('TEST', start='test')  # pylint: disable=no-member
+    compiled_ast = module.TestParser().parse(
+        'TEST', start='test',
+    )  # pylint: disable=no-member
     assert dynamic_ast == compiled_ast
 
     dynamic_ast = parser.parse('TEST A 1')
-    compiled_ast = module.TestParser().parse('TEST A 1', start='test')  # pylint: disable=no-member
+    compiled_ast = module.TestParser().parse(
+        'TEST A 1', start='test',
+    )  # pylint: disable=no-member
     assert dynamic_ast == compiled_ast

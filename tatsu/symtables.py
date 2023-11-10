@@ -38,7 +38,9 @@ class SymbolTableError(ParseException):
 
 
 class Namespace:
-    def __init__(self, ignorecase=False, duplicates=False, separator=DEFAULT_SEPARATOR):
+    def __init__(
+        self, ignorecase=False, duplicates=False, separator=DEFAULT_SEPARATOR,
+    ):
         super().__init__()
         self.ignorecase = ignorecase
         self.duplicates = duplicates
@@ -84,24 +86,32 @@ class Namespace:
         return self.entries.get(name, default)
 
     def insert(self, symbol):
-        assert isinstance(symbol.name, str), '"%s" is not a valid symbol name' % str(symbol.name)
+        assert isinstance(
+            symbol.name, str,
+        ), '"%s" is not a valid symbol name' % str(symbol.name)
         name = symbol.name
         if self.ignorecase:
             name = name.upper()
         if name in self._entries and not self.duplicates:
-            raise SymbolTableError('Symbol "%s" already in namespace' % str(symbol.name))
+            raise SymbolTableError(
+                'Symbol "%s" already in namespace' % str(symbol.name),
+            )
 
         self._entries[name].append(symbol)
 
     def lookup_all(self, qualname, drill=True):
         if self.ignorecase:
             qualname = qualname.upper()
-        return self._lookup_drilldown(qualname.split(self.separator), drill=drill)
+        return self._lookup_drilldown(
+            qualname.split(self.separator), drill=drill,
+        )
 
     def lookup(self, qualname, drill=True):
         if self.ignorecase:
             qualname = qualname.upper()
-        result = self._lookup_drilldown(qualname.split(self.separator), drill=drill, max=1)
+        result = self._lookup_drilldown(
+            qualname.split(self.separator), drill=drill, max=1,
+        )
         return result[0] if result else None
 
     def _lookup_drilldown(self, namelist, drill=True, max=None):
@@ -120,7 +130,11 @@ class Namespace:
         return self.lookup(qualname)
 
     def filter(self, condition):
-        return functools.reduce(operator.iadd, (symbol.filter(condition) for symbol in self.symbols), [])
+        return functools.reduce(
+            operator.iadd,
+            (symbol.filter(condition) for symbol in self.symbols),
+            [],
+        )
 
     def filter_first(self, condition):
         for symbol in self.symbols:
@@ -201,14 +215,20 @@ class Symbol(Namespace):
         elif not self.ignorecase and [self.name] == namelist:
             return [self]
         elif self.name == namelist[0]:
-            return super()._lookup_drilldown(namelist[1:], drill=drill, max=max)
+            return super()._lookup_drilldown(
+                namelist[1:], drill=drill, max=max,
+            )
         elif drill:
             return super()._lookup_drilldown(namelist, drill=drill, max=max)
         else:
             return []
 
     def resolve(self, qualname):
-        return self.lookup(qualname) or self.parent and self.parent.resolve(qualname)
+        return (
+            self.lookup(qualname)
+            or self.parent
+            and self.parent.resolve(qualname)
+        )
 
     def filter(self, condition):
         this_case = [self] if condition(self) else []

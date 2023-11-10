@@ -14,7 +14,9 @@ def antlr_grammar():
     return str(pkgutil.get_data(__name__, 'antlr.ebnf'), 'utf-8')
 
 
-def translate(text=None, filename=None, name=None, encoding='utf-8', trace=False):
+def translate(
+    text=None, filename=None, name=None, encoding='utf-8', trace=False,
+):
     if text is None and filename is None:
         raise ValueError('either `text` or `filename` must be provided')
     if filename:
@@ -48,8 +50,7 @@ def main():
         print('\t', thisprog, 'FILENAME.g [--trace]')
         sys.exit(1)
     translate(
-        filename=sys.argv[1],
-        trace='--trace' in sys.argv or '-t' in sys.argv,
+        filename=sys.argv[1], trace='--trace' in sys.argv or '-t' in sys.argv,
     )
 
 

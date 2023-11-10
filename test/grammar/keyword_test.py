@@ -7,9 +7,8 @@ from tatsu.tool import compile
 
 
 class KeywordTests(unittest.TestCase):
-
     def test_keywords_in_rule_names(self):
-        grammar = '''
+        grammar = """
             start
                 =
                 whitespace
@@ -19,7 +18,7 @@ class KeywordTests(unittest.TestCase):
                 =
                     {'x'}+
                 ;
-        '''
+        """
         m = compile(grammar, 'Keywords')
         m.parse('x')
 
@@ -28,9 +27,9 @@ class KeywordTests(unittest.TestCase):
         # https://bitbucket.org/neogeny/tatsu/issues/59
         # (semantic actions not called for rules with the same name as a python
         # keyword).
-        grammar = '''
+        grammar = """
             not = 'x' ;
-        '''
+        """
         m = compile(grammar, 'Keywords')
 
         class Semantics:
@@ -45,32 +44,32 @@ class KeywordTests(unittest.TestCase):
         assert semantics.called
 
     def test_define_keywords(self):
-        grammar = '''
+        grammar = """
             @@keyword :: B C
             @@keyword :: 'A'
 
             start = ('a' 'b').{'x'}+ ;
-        '''
-        model = compile(grammar, "test")
+        """
+        model = compile(grammar, 'test')
         c = codegen(model)
         parse(c)
 
         grammar2 = str(model)
-        model2 = compile(grammar2, "test")
+        model2 = compile(grammar2, 'test')
         c2 = codegen(model2)
         parse(c2)
 
         self.assertEqual(grammar2, str(model2))
 
     def test_check_keywords(self):
-        grammar = r'''
+        grammar = r"""
             @@keyword :: A
 
             start = {id}+ $ ;
 
             @name
             id = /\w+/ ;
-        '''
+        """
         model = compile(grammar, 'test')
         c = codegen(model)
         parse(c)
@@ -79,26 +78,26 @@ class KeywordTests(unittest.TestCase):
         self.assertEqual(['hello', 'world'], ast)
 
         try:
-            ast = model.parse("hello A world")
+            ast = model.parse('hello A world')
             self.assertEqual(['hello', 'A', 'world'], ast)
             self.fail('accepted keyword as name')
         except FailedParse as e:
             self.assertTrue('"A" is a reserved word' in str(e))
 
     def test_check_unicode_name(self):
-        grammar = r'''
+        grammar = r"""
             @@keyword :: A
 
             start = {id}+ $ ;
 
             @name
             id = /\w+/ ;
-        '''
+        """
         model = compile(grammar, 'test')
-        model.parse("hello Øresund")
+        model.parse('hello Øresund')
 
     def test_sparse_keywords(self):
-        grammar = r'''
+        grammar = r"""
             @@keyword :: A
 
             @@ignorecase :: False
@@ -109,7 +108,7 @@ class KeywordTests(unittest.TestCase):
 
             @name
             id = /\w+/ ;
-        '''
+        """
         model = compile(grammar, 'test', trace=False, colorize=True)
         c = codegen(model)
         parse(c)
@@ -119,14 +118,14 @@ class KeywordTests(unittest.TestCase):
 
         for k in ('A', 'B'):
             try:
-                ast = model.parse("hello %s world" % k)
+                ast = model.parse('hello %s world' % k)
                 self.assertEqual(['hello', k, 'world'], ast)
                 self.fail('accepted keyword "%s" as name' % k)
             except FailedParse as e:
                 self.assertTrue('"%s" is a reserved word' % k in str(e))
 
     def test_ignorecase_keywords(self):
-        grammar = r'''
+        grammar = r"""
             @@ignorecase :: True
             @@keyword :: if
 
@@ -139,7 +138,7 @@ class KeywordTests(unittest.TestCase):
 
             word = /\w+/ ;
             digit = /\d/ ;
-        '''
+        """
 
         model = compile(grammar, 'test')
 

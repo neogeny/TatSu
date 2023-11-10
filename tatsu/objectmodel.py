@@ -93,7 +93,7 @@ class Node(AsJSONMixin):
         if not self.parseinfo:
             return ''
         text = self.parseinfo.tokenizer.text
-        return text[self.parseinfo.pos:self.parseinfo.endpos]
+        return text[self.parseinfo.pos: self.parseinfo.endpos]
 
     @property
     def comments(self):
@@ -122,7 +122,9 @@ class Node(AsJSONMixin):
                         continue
                     yield from children_of(value)
             elif isinstance(child, list | tuple):
-                yield from (with_parent(c) for c in child if isinstance(c, Node))
+                yield from (
+                    with_parent(c) for c in child if isinstance(c, Node)
+                )
 
         children = list(self._pubdict().items())
         if not children:
@@ -152,8 +154,8 @@ class Node(AsJSONMixin):
             name: value
             for name, value in vars(self).items()
             if (
-                not name.startswith('_') and
-                name not in {'ast', 'ctx', 'parent', 'parseinfo'}
+                not name.startswith('_')
+                and name not in {'ast', 'ctx', 'parent', 'parseinfo'}
             )
         }
 
@@ -186,8 +188,9 @@ class Node(AsJSONMixin):
             name: value
             for name, value in vars(self).items()
             if (
-                name not in {'_parent', '_children'} and
-                type(value) not in {weakref.ReferenceType, weakref.ProxyType}
+                name not in {'_parent', '_children'}
+                and type(value)
+                not in {weakref.ReferenceType, weakref.ProxyType}
             )
         }
 

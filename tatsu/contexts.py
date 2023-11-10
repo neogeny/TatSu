@@ -33,7 +33,15 @@ from .infos import (
     RuleResult,
 )
 from .tokenizing import Tokenizer
-from .util import info, is_list, left_assoc, prune_dict, right_assoc, safe_name, trim
+from .util import (
+    info,
+    is_list,
+    left_assoc,
+    prune_dict,
+    right_assoc,
+    safe_name,
+    trim,
+)
 from .util.unicode_characters import (
     C_CUT,
     C_ENTRY,
@@ -54,8 +62,8 @@ def tatsumasu(*params, **kwparams):
             # remove the single leading and trailing underscore
             # that the parser generator added
             name = name[1:-1]
-            is_leftrec = getattr(impl, "is_leftrec", False)
-            is_memoizable = getattr(impl, "is_memoizable", True)
+            is_leftrec = getattr(impl, 'is_leftrec', False)
+            is_memoizable = getattr(impl, 'is_memoizable', True)
             is_name = getattr(impl, 'is_name', False)
             ruleinfo = RuleInfo(
                 name,
@@ -67,7 +75,9 @@ def tatsumasu(*params, **kwparams):
                 kwparams,
             )
             return self._call(ruleinfo)
+
         return wrapper
+
     return decorator
 
 
@@ -204,7 +214,10 @@ class ParseContext:
         return config
 
     def _set_furthest_exception(self, e):
-        if not self._furthest_exception or e.pos > self._furthest_exception.pos:
+        if (
+            not self._furthest_exception
+            or e.pos > self._furthest_exception.pos
+        ):
             self._furthest_exception = e
 
     def parse(self, text, /, config: ParserConfig | None = None, **settings):
@@ -325,12 +338,7 @@ class ParseContext:
     def _push_ast(self, copyast=False):
         ast = copy(self.ast) if copyast else AST()
         self.state.pos = self._pos
-        self._statestack.append(
-            ParseState(
-                ast=ast,
-                pos=self._pos,
-            ),
-        )
+        self._statestack.append(ParseState(ast=ast, pos=self._pos))
 
     def _pop_ast(self):
         self._statestack.pop()
@@ -437,7 +445,7 @@ class ParseContext:
         rulestack = [r.name for r in reversed(self._rule_stack)]
         stack = self.trace_separator.join(rulestack)
         if max(len(s) for s in stack.splitlines()) > self.trace_length:
-            stack = stack[:self.trace_length]
+            stack = stack[: self.trace_length]
             stack = stack.rsplit(self.trace_separator, 1)[0]
             stack += self.trace_separator
         return stack
@@ -482,8 +490,7 @@ class ParseContext:
                 event + self._rulestack(),
                 self._tokenizer.lookahead_pos(),
                 color.Style.DIM + fname,
-                color.Style.NORMAL + lookahead +
-                color.Style.RESET_ALL,
+                color.Style.NORMAL + lookahead + color.Style.RESET_ALL,
                 end='',
             )
 
@@ -526,8 +533,7 @@ class ParseContext:
                 token,
                 name,
                 color.Style.DIM + fname,
-                color.Style.NORMAL + lookahead +
-                color.Style.RESET_ALL,
+                color.Style.NORMAL + lookahead + color.Style.RESET_ALL,
                 end='',
             )
 
@@ -575,13 +581,14 @@ class ParseContext:
         # if isinstance(memo, FailedLeftRecursion):
         #     memo = self._results.get(key, memo)
 
-
     def _mkresult(self, node):
         return RuleResult(node, self._pos, self.substate)
 
     def _save_result(self, key, result):
         if is_list(result.node):
-            result = RuleResult(closure(result.node), result.newpos, result.newstate)
+            result = RuleResult(
+                closure(result.node), result.newpos, result.newstate,
+            )
         self._results[key] = result
 
     def _is_recursive(self, ruleinfo):
@@ -638,7 +645,9 @@ class ParseContext:
         if key in self._results:
             result = self._results[key]
         else:
-            result = self._make_exception(ruleinfo.name, exclass=FailedLeftRecursion)
+            result = self._make_exception(
+                ruleinfo.name, exclass=FailedLeftRecursion,
+            )
             self._results[key] = result
 
             initial = self._pos
@@ -703,7 +712,9 @@ class ParseContext:
     def _invoke_semantic_rule(self, rule, node):
         semantic_rule, postproc = self._find_semantic_action(rule.name)
         if semantic_rule:
-            node = semantic_rule(node, *(rule.params or ()), **(rule.kwparams or {}))
+            node = semantic_rule(
+                node, *(rule.params or ()), **(rule.kwparams or {}),
+            )
         if callable(postproc):
             postproc(self, node)  # pylint: disable=not-callable
         if rule.is_name:
@@ -728,7 +739,9 @@ class ParseContext:
             except (ValueError, SyntaxError):
                 if '\n' in literal:
                     literal = trim(literal)
-                literal = eval(f'{"f" + repr(literal)}', {}, self.ast)  # noqa: S307, PGH001
+                literal = eval(  # noqa: S307, PGH001
+                    f'{"f" + repr(literal)}', {}, self.ast,
+                )
         self._append_cst(literal)
         return literal
 
@@ -755,7 +768,9 @@ class ParseContext:
     def _check_eof(self):
         self._next_token()
         if not self.tokenizer.atend():
-            self._error('Expecting end of text', exclass=FailedExpectingEndOfText)
+            self._error(
+                'Expecting end of text', exclass=FailedExpectingEndOfText,
+            )
 
     @contextmanager
     def _try(self):

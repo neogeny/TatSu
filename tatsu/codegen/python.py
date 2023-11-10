@@ -36,7 +36,11 @@ class Base(ModelRenderer):
     def make_defines_declaration(self):
         defines = compress_seq(self.defines())
         ldefs = oset(safe_name(d) for d, value in defines if value)
-        sdefs = oset(safe_name(d) for d, value in defines if not value and d not in ldefs)
+        sdefs = oset(
+            safe_name(d)
+            for d, value in defines
+            if not value and d not in ldefs
+        )
 
         if not (sdefs or ldefs):
             return ''
@@ -48,12 +52,12 @@ class Base(ModelRenderer):
             else:
                 return '\n' + trim(self.define_template % (sdefs, ldefs))
 
-    define_template = '''\
+    define_template = """\
             self._define(
                 %s,
                 %s
             )\
-        '''
+        """
 
 
 class Void(Base):
@@ -91,34 +95,31 @@ class _Decorator(Base):
 
 
 class Group(_Decorator):
-    template = '''\
+    template = """\
                 with self._group():
                 {exp:1::}\
-                '''
+                """
 
 
 class Token(Base):
     def render_fields(self, fields):
         fields.update(token=repr(self.node.token))
 
-    template = "self._token({token})"
+    template = 'self._token({token})'
 
 
 class Constant(Base):
     def render_fields(self, fields):
         fields.update(constant=repr(self.node.literal))
 
-    template = "self._constant({constant})"
+    template = 'self._constant({constant})'
 
 
 class Alert(Base):
     def render_fields(self, fields):
-        fields.update(
-            literal=repr(self.node.literal),
-            level=self.node.level,
-        )
+        fields.update(literal=repr(self.node.literal), level=self.node.level)
 
-    template = "self._alert({literal}, {level})"
+    template = 'self._alert({literal}, {level})'
 
 
 class Pattern(Base):
@@ -130,17 +131,17 @@ class Pattern(Base):
 
 
 class Lookahead(_Decorator):
-    template = '''\
+    template = """\
                 with self._if():
                 {exp:1::}\
-                '''
+                """
 
 
 class NegativeLookahead(_Decorator):
-    template = '''\
+    template = """\
                 with self._ifnot():
                 {exp:1::}\
-                '''
+                """
 
 
 class Sequence(Base):
@@ -149,9 +150,9 @@ class Sequence(Base):
         defines = self.make_defines_declaration()
         fields.update(defines=defines)
 
-    template = '''{seq}
+    template = """{seq}
                 {defines}\
-                '''
+                """
 
 
 class Choice(Base):
@@ -163,11 +164,10 @@ class Choice(Base):
         else:
             error = ['no available options']
         error = [repr(e) for e in error]
+        fields.update(n=self.counter(), error=error)
         fields.update(
-            n=self.counter(),
-            error=error,
+            options='\n'.join(self.rend(o) for o in self.node.options),
         )
-        fields.update(options='\n'.join(self.rend(o) for o in self.node.options))
 
     def render(self, **fields):
         if len(self.node.options) == 1:
@@ -175,13 +175,13 @@ class Choice(Base):
         else:
             return super().render(**fields)
 
-    template = '''\
+    template = """\
                 with self._choice():
                 {options:1::}
                     self._error(
                 {error:2:\\n:}
                     )\
-                '''
+                """
 
 
 class Option(_Decorator):
@@ -189,10 +189,10 @@ class Option(_Decorator):
         defines = self.make_defines_declaration()
         fields.update(defines=defines)
 
-    template = '''\
+    template = """\
                 with self._option():
                 {exp:1::}\
-                '''
+                """
 
 
 class Closure(_Decorator):
@@ -204,19 +204,19 @@ class Closure(_Decorator):
             raise CodegenError(f'{self.node} may repeat empty sequence')
         return '\n' + super().render(**fields)
 
-    template = '''\
+    template = """\
                 def block{n}():
                 {exp:1::}
                 self._closure(block{n})\
-                '''
+                """
 
 
 class PositiveClosure(Closure):
-    template = '''\
+    template = """\
                 def block{n}():
                 {exp:1::}
                 self._positive_closure(block{n})\
-                '''
+                """
 
 
 class Join(_Decorator):
@@ -228,69 +228,69 @@ class Join(_Decorator):
             raise CodegenError('may repeat empty sequence')
         return '\n' + super().render(**fields)
 
-    template = '''\
+    template = """\
                 def sep{n}():
                 {sep:1::}
 
                 def block{n}():
                 {exp:1::}
                 self._join(block{n}, sep{n})\
-                '''
+                """
 
 
 class PositiveJoin(Join):
-    template = '''\
+    template = """\
                 def sep{n}():
                 {sep:1::}
 
                 def block{n}():
                 {exp:1::}
                 self._positive_join(block{n}, sep{n})\
-                '''
+                """
 
 
 class Gather(Join):
-    template = '''\
+    template = """\
                 def sep{n}():
                 {sep:1::}
 
                 def block{n}():
                 {exp:1::}
                 self._gather(block{n}, sep{n})\
-                '''
+                """
 
 
 class PositiveGather(Join):
-    template = '''\
+    template = """\
                 def sep{n}():
                 {sep:1::}
 
                 def block{n}():
                 {exp:1::}
                 self._positive_gather(block{n}, sep{n})\
-                '''
+                """
 
 
 class LeftJoin(PositiveJoin):
-    template = '''\
+    template = """\
                 def sep{n}():
                 {sep:1::}
 
                 def block{n}():
                 {exp:1::}
                 self._left_join(block{n}, sep{n})\
-                '''
+                """
 
 
 class RightJoin(PositiveJoin):
-    template = '''\
+    template = """\
                 def sep{n}():
                 {sep:1::}
 
                 def block{n}():
                 {exp:1::}
                 self._right_join(block{n}, sep{n})\
-                '''
+                """
 
 
 class EmptyClosure(Base):
@@ -298,18 +298,18 @@ class EmptyClosure(Base):
 
 
 class SkipTo(Closure):
-    template = '''\
+    template = """\
                 def block{n}():
                 {exp:1::}
                 self._skip_to(block{n})\
-    '''
+    """
 
 
 class Optional(_Decorator):
-    template = '''\
+    template = """\
                 with self._optional():
                 {exp:1::}\
-                '''
+                """
 
 
 class Cut(Base):
@@ -321,22 +321,19 @@ class Named(_Decorator):
         return f'{self.name}:{self.rend(self.exp)}'
 
     def render_fields(self, fields):
-        fields.update(
-            n=self.counter(),
-            name=safe_name(self.node.name),
-        )
+        fields.update(n=self.counter(), name=safe_name(self.node.name))
 
-    template = '''
+    template = """
                 {exp}
                 self.name_last_node('{name}')\
-                '''
+                """
 
 
 class NamedList(Named):
-    template = '''
+    template = """
                 {exp}
                 self.add_last_node_to_name('{name}')\
-                '''
+                """
 
 
 class Override(Named):
@@ -352,7 +349,7 @@ class Special(Base):
 
 
 class RuleRef(Base):
-    template = "self._{name}_()"
+    template = 'self._{name}_()'
 
 
 class RuleInclude(_Decorator):
@@ -360,9 +357,9 @@ class RuleInclude(_Decorator):
         super().render_fields(fields)
         fields.update(exp=self.rend(self.node.rule.exp))
 
-    template = '''
+    template = """
                 {exp}
-                '''
+                """
 
 
 class Rule(_Decorator):
@@ -385,8 +382,7 @@ class Rule(_Decorator):
         params = kwparams = ''
         if self.node.params:
             params = ', '.join(
-                self.param_repr(self.rend(p))
-                for p in self.node.params
+                self.param_repr(self.rend(p)) for p in self.node.params
             )
         if self.node.kwparams:
             kwparams = ', '.join(
@@ -407,24 +403,28 @@ class Rule(_Decorator):
         fields.update(defines=sdefines)
         leftrec = self.node.is_leftrec
         fields.update(leftrec='\n@leftrec' if leftrec else '')
-        fields.update(nomemo='\n@nomemo' if not self.node.is_memoizable and not leftrec else '')
+        fields.update(
+            nomemo='\n@nomemo'
+            if not self.node.is_memoizable and not leftrec
+            else '',
+        )
         fields.update(isname='\n@isname' if self.node.is_name else '')
 
-    template = '''
+    template = """
         @tatsumasu({params})\
         {leftrec}\
         {nomemo}\
         {isname}
         def _{name}_(self):  # noqa
         {exp:1::}
-        '''
+        """
 
-    define_template = '''\
+    define_template = """\
             self._define(
                 %s,
                 %s
             )\
-        '''
+        """
 
 
 class BasedRule(Rule):
@@ -465,38 +465,39 @@ class Grammar(Base):
         comments_re = repr(self.node.config.comments_re)
         eol_comments_re = repr(self.node.config.eol_comments_re)
 
-        rules = '\n'.join([
-            self.get_renderer(rule).render() for rule in self.node.rules
-        ])
+        rules = '\n'.join(
+            [self.get_renderer(rule).render() for rule in self.node.rules],
+        )
 
         version = str(tuple(int(n) for n in str(timestamp()).split('.')))
 
         keywords = [str(k) for k in self.keywords]
-        keywords = '\n'.join("    %s," % repr(k) for k in keywords)
+        keywords = '\n'.join('    %s,' % repr(k) for k in keywords)
         if keywords:
             keywords = '\n%s\n' % keywords
 
-        fields.update(rules=indent(rules),
-                      start=self.node.rules[0].name,
-                      abstract_rules=abstract_rules,
-                      version=version,
-                      whitespace=whitespace,
-                      nameguard=nameguard,
-                      ignorecase=ignorecase,
-                      left_recursion=left_recursion,
-                      parseinfo=parseinfo,
-                      keywords=keywords,
-                      namechars=namechars,
-                      comments_re=comments_re,
-                      eol_comments_re=eol_comments_re,
-                      )
+        fields.update(
+            rules=indent(rules),
+            start=self.node.rules[0].name,
+            abstract_rules=abstract_rules,
+            version=version,
+            whitespace=whitespace,
+            nameguard=nameguard,
+            ignorecase=ignorecase,
+            left_recursion=left_recursion,
+            parseinfo=parseinfo,
+            keywords=keywords,
+            namechars=namechars,
+            comments_re=comments_re,
+            eol_comments_re=eol_comments_re,
+        )
 
-    abstract_rule_template = '''
+    abstract_rule_template = """
             def {name}(self, ast):  # noqa
                 return ast
-            '''
+            """
 
-    template = '''\
+    template = """\
                 #!/usr/bin/env python
 
                 # CAVEAT UTILITOR
@@ -586,4 +587,4 @@ class Grammar(Base):
                     ast = generic_main(main, {name}Parser, name='{name}')
                     data = asjson(ast)
                     print(json.dumps(data, indent=2))
-                '''
+                """

@@ -12,6 +12,7 @@ from .cgbase import (  # noqa: F401
 def codegen(model, target='python'):
     if target.lower() == 'python':
         from tatsu.codegen import python
+
         return python.codegen(model)
     else:
         raise CodegenError('Unknown target language: %s' % target)

@@ -5,10 +5,10 @@ from tatsu.tool import parse
 
 
 def test_missing_rule():
-    grammar = '''
+    grammar = """
         @@grammar::TestGrammar
           block = test ;
-    '''
+    """
     try:
         parse(grammar, 'abc')
     except GrammarError as e:
@@ -16,10 +16,10 @@ def test_missing_rule():
 
 
 def test_missing_rules():
-    grammar = '''
+    grammar = """
         @@grammar::TestGrammar
           block = test | test2;
-    '''
+    """
     try:
         parse(grammar, 'abc')
     except GrammarError as e:

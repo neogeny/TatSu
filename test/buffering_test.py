@@ -7,7 +7,6 @@ from tatsu.buffering import Buffer
 
 
 class BufferingTests(unittest.TestCase):
-
     def setUp(self):
         testfile = Path(__file__).with_suffix('.py')
         with testfile.open() as f:
@@ -33,8 +32,8 @@ class BufferingTests(unittest.TestCase):
     def test_next_consisntency(self):
         while not self.buf.atend():
             bl, bc = self.buf.line_info()[1:3]
-#            print('li', bl, bc)
-#            print('bu', self.buf.line, self.buf.col)
+            #            print('li', bl, bc)
+            #            print('bu', self.buf.line, self.buf.col)
             self.assertEqual(bl, self.buf.line)
             self.assertEqual(bc, self.buf.col)
             self.buf.next()
@@ -43,8 +42,8 @@ class BufferingTests(unittest.TestCase):
         for _ in range(100):
             self.buf.goto(random.randrange(len(self.text)))
             bl, bc = self.buf.line_info()[1:3]
-#            print('li', bl, bc)
-#            print('bu', self.buf.line, self.buf.col)
+            #            print('li', bl, bc)
+            #            print('bu', self.buf.line, self.buf.col)
             self.assertEqual(bl, self.buf.line)
             self.assertEqual(bc, self.buf.col)
 
@@ -85,15 +84,17 @@ class BufferingTests(unittest.TestCase):
         self.assertEqual(2, b.linecount)
 
     def test_namechars(self):
-        grammar = '''
+        grammar = """
             @@namechars :: '-'
             start =
                 "key" ~ ";"  |
                 "key-word" ~ ";" |
                 "key-word-extra" ~ ";"
                 ;
-        '''
-        self.assertEqual(('key-word-extra', ';'), parse(grammar, 'key-word-extra;'))
+        """
+        self.assertEqual(
+            ('key-word-extra', ';'), parse(grammar, 'key-word-extra;'),
+        )
 
 
 def suite():

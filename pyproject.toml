@@ -45,3 +45,9 @@ version = {attr = 'tatsu._version.__version__'}
 
 [tool.setuptools.packages.find]
 include = ['tatsu*', 'test*', 'grammar*']
+
+
+[tool.blue]
+target-version = ['py310']
+line-length=79
+skip-magic-trailing-comma=true

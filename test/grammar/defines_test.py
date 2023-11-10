@@ -4,7 +4,7 @@ from tatsu.tool import compile, gencode
 
 
 def test_name_in_option():
-    grammar = r'''
+    grammar = r"""
         start = expr_range ;
 
         expr_range =
@@ -15,7 +15,7 @@ def test_name_in_option():
         expr =
             /[\d]+/
         ;
-    '''
+    """
 
     model = compile(grammar)
 
@@ -39,7 +39,7 @@ def test_name_in_option():
 
 
 def test_by_option():
-    grammar = r'''
+    grammar = r"""
         start = expr_range ;
 
         expr_range =
@@ -50,7 +50,7 @@ def test_by_option():
         expr =
             /[\d]+/
         ;
-    '''
+    """
 
     model = compile(grammar)
 
@@ -65,10 +65,10 @@ def test_by_option():
 
 
 def test_inner_options():
-    grammar = '''
+    grammar = """
         start = switch;
         switch = 'switch' [(on:'on'|off:'off')] ;
-    '''
+    """
 
     model = compile(grammar)
 

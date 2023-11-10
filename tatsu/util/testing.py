@@ -5,7 +5,6 @@ from .parproc import processing_loop
 
 
 def parallel_test_run(parse, options):
-
     def pysearch(pattern):
         if pattern.endswith('.py'):
             return pattern
@@ -19,9 +18,7 @@ def parallel_test_run(parse, options):
     try:
         patterns = [pysearch(p) for p in options.patterns]
         filenames = filelist_from_patterns(
-            patterns,
-            sizesort=options.sort,
-            ignore=options.ignore,
+            patterns, sizesort=options.sort, ignore=options.ignore,
         )
 
         kwargs = vars(options)
@@ -45,44 +42,39 @@ def parse_args():
     )
 
     argparser.add_argument(
-        'patterns',
-        nargs='+',
-        metavar='PATTERNS',
-        help='filename patterns',
+        'patterns', nargs='+', metavar='PATTERNS', help='filename patterns',
     )
     argparser.add_argument(
-        '--help', '-h',
-        help='show this help message and exit',
-        action='help',
+        '--help', '-h', help='show this help message and exit', action='help',
     )
     argparser.add_argument(
-        '--ignore', '-i',
+        '--ignore',
+        '-i',
         metavar='PATTERN',
         help='ignore these patterns',
         action='append',
     )
     argparser.add_argument(
-        '--sort', '-s',
-        help='sort files by size',
-        action='store_true',
+        '--sort', '-s', help='sort files by size', action='store_true',
     )
     argparser.add_argument(
-        '--serial', '-S',
-        help='do not run in parallel',
-        action='store_true',
+        '--serial', '-S', help='do not run in parallel', action='store_true',
     )
     argparser.add_argument(
-        '--trace', '-t',
+        '--trace',
+        '-t',
         help='produce verbose output for a parse',
         action='store_true',
     )
     argparser.add_argument(
-        '--verbose', '-v',
+        '--verbose',
+        '-v',
         help='output exceptions as they happen',
         action='store_true',
     )
     argparser.add_argument(
-        '--exitfirst', '-x',
+        '--exitfirst',
+        '-x',
         help='output exceptions as they happen',
         action='store_true',
     )

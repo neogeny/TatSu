@@ -118,10 +118,7 @@ class AST(dict):
                 super().__setitem__(key, [])
 
     def __json__(self, seen=None):
-        return {
-            name: asjson(value, seen=seen)
-            for name, value in self.items()
-        }
+        return {name: asjson(value, seen=seen) for name, value in self.items()}
 
     def __repr__(self):
         return repr(self.asjson())

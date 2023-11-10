@@ -14,13 +14,7 @@ from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
 from .leftrec import Nullable, find_left_recursion
 from .objectmodel import Node
-from .util import (
-    chunks,
-    compress_seq,
-    indent,
-    re,
-    trim,
-)
+from .util import chunks, compress_seq, indent, re, trim
 
 PEP8_LLEN = 72
 
@@ -51,7 +45,14 @@ def pythonize_name(name):
 
 
 class ModelContext(ParseContext):
-    def __init__(self, rules, /, start=None, config: ParserConfig | None = None, **settings):
+    def __init__(
+        self,
+        rules,
+        /,
+        start=None,
+        config: ParserConfig | None = None,
+        **settings,
+    ):
         config = ParserConfig.new(config, **settings)
         config = config.replace(start=start)
 
@@ -71,7 +72,8 @@ class Model(Node):
     @staticmethod
     def classes():
         return [
-            c for c in globals().values()
+            c
+            for c in globals().values()
             if isinstance(c, type) and issubclass(c, Model)
         ]
 
@@ -151,7 +153,8 @@ class Model(Node):
             return ''
 
         return '\n'.join(
-            '(* %s *)\n' % '\n'.join(c).replace('(*', '').replace('*)', '').strip()
+            '(* %s *)\n'
+            % '\n'.join(c).replace('(*', '').replace('*)', '').strip()
             for c in comments
         )
 
@@ -345,7 +348,7 @@ class Pattern(Model):
 
     def _first(self, k, f):
         x = self
-        if bool(self.regex.match("")):
+        if bool(self.regex.match('')):
             return oset([(), (x,)])
         else:
             return {(x,)}
@@ -362,7 +365,7 @@ class Pattern(Model):
         return '\n+ '.join(parts)
 
     def _nullable(self):
-        return bool(self.regex.match(""))
+        return bool(self.regex.match(''))
 
     def __repr__(self):
         return self.pattern.replace('\\\\', '\\')
@@ -683,11 +686,11 @@ class Optional(Decorator):
             exp = self.exp.exp
         return template % exp
 
-    str_template = '''
+    str_template = """
             [
             %s
             ]
-            '''
+            """
 
     def _nullable(self):
         return True
@@ -838,7 +841,8 @@ class Rule(Decorator):
 
     def _parse_rhs(self, ctx, exp):
         ruleinfo = RuleInfo(
-            self.name, exp.parse,
+            self.name,
+            exp.parse,
             self.is_leftrec,
             self.is_memoizable,
             self.is_name,
@@ -872,15 +876,17 @@ class Rule(Decorator):
         if lean:
             params = ''
         else:
-            params = ', '.join(
-                self.param_repr(p) for p in self.params
-            ) if self.params else ''
+            params = (
+                ', '.join(self.param_repr(p) for p in self.params)
+                if self.params
+                else ''
+            )
 
             kwparams = ''
             if self.kwparams:
                 kwparams = ', '.join(
-                    f'{k}={self.param_repr(v)}' for (k, v)
-                    in self.kwparams.items()
+                    f'{k}={self.param_repr(v)}'
+                    for (k, v) in self.kwparams.items()
                 )
 
             if params and kwparams:
@@ -888,7 +894,11 @@ class Rule(Decorator):
             elif kwparams:
                 params = '(%s)' % (kwparams)
             elif params:
-                params = '::%s' % params if len(self.params) == 1 else '(%s)' % params
+                params = (
+                    '::%s' % params
+                    if len(self.params) == 1
+                    else '(%s)' % params
+                )
 
         base = ' < %s' % str(self.base.name) if self.base else ''
 
@@ -901,16 +911,18 @@ class Rule(Decorator):
             is_name='@name\n' if self.is_name else '',
         )
 
-    str_template = '''\
+    str_template = """\
                 {is_name}{comments}{name}{base}{params}
                     =
                 {exp}
                     ;
-                '''
+                """
 
 
 class BasedRule(Rule):
-    def __init__(self, ast, name, exp, base, params, kwparams, decorators=None):
+    def __init__(
+        self, ast, name, exp, base, params, kwparams, decorators=None,
+    ):
         super().__init__(
             ast,
             name,
@@ -932,7 +944,15 @@ class BasedRule(Rule):
 
 
 class Grammar(Model):
-    def __init__(self, name, rules, /, config: ParserConfig | None = None, directives: dict | None = None, **settings):
+    def __init__(
+        self,
+        name,
+        rules,
+        /,
+        config: ParserConfig | None = None,
+        directives: dict | None = None,
+        **settings,
+    ):
         super().__init__()
         assert isinstance(rules, list), str(rules)
         directives = directives or {}
@@ -975,7 +995,9 @@ class Grammar(Model):
         self.config.semantics = value
 
     def missing_rules(self, rules):
-        return oset().union(*[rule.missing_rules(rules) for rule in self.rules])
+        return oset().union(
+            *[rule.missing_rules(rules) for rule in self.rules],
+        )
 
     def _used_rule_names(self):
         if not self.rules:
@@ -985,11 +1007,13 @@ class Grammar(Model):
         prev = {}
         while used != prev:
             prev = used
-            used |= oset().union(*[
-                rule._used_rule_names()
-                for rule in self.rules
-                if rule.name in used
-            ])
+            used |= oset().union(
+                *[
+                    rule._used_rule_names()
+                    for rule in self.rules
+                    if rule.name in used
+                ],
+            )
         return used
 
     def used_rules(self):
@@ -1054,8 +1078,10 @@ class Grammar(Model):
                 name=directive,
                 frame='/' if directive in regex_directives else '',
                 value=(
-                    repr(value) if directive in string_directives
-                    else str(value) if directive in ustr_directives
+                    repr(value)
+                    if directive in string_directives
+                    else str(value)
+                    if directive in ustr_directives
                     else value
                 ),
             )
@@ -1070,7 +1096,6 @@ class Grammar(Model):
         keywords = '\n\n' + keywords + '\n' if keywords else ''
 
         rules = (
-            '\n\n'.join(str(rule._to_str(lean=lean))
-                        for rule in self.rules)
+            '\n\n'.join(str(rule._to_str(lean=lean)) for rule in self.rules)
         ).rstrip() + '\n'
         return directives + keywords + rules

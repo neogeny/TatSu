@@ -4,10 +4,7 @@ import copy
 import dataclasses
 from collections.abc import Callable, Mapping
 from itertools import starmap
-from typing import (
-    Any,
-    NamedTuple,
-)
+from typing import Any, NamedTuple
 
 from .ast import AST
 from .tokenizing import Tokenizer
@@ -64,7 +61,12 @@ class ParserConfig:
             self.eol_comments_re = self.eol_comments
 
     @classmethod
-    def new(cls, config: ParserConfig | None = None, owner: Any | None = None, **settings: Any) -> ParserConfig:
+    def new(
+        cls,
+        config: ParserConfig | None = None,
+        owner: Any | None = None,
+        **settings: Any,
+    ) -> ParserConfig:
         result = cls(owner=owner)
         if config is not None:
             result = config.replace_config(config)
@@ -72,11 +74,7 @@ class ParserConfig:
 
     def effective_rule_name(self):
         # note: there are legacy reasons for this mess
-        return (
-            self.start_rule or
-            self.rule_name or
-            self.start
-        )
+        return self.start_rule or self.rule_name or self.start
 
     def _find_common(self, **settings: Any) -> Mapping[str, Any]:
         return {
@@ -85,7 +83,9 @@ class ParserConfig:
             if value is not None and hasattr(self, name)
         }
 
-    def replace_config(self, other: ParserConfig | None = None) -> ParserConfig:
+    def replace_config(
+        self, other: ParserConfig | None = None,
+    ) -> ParserConfig:
         if other is None:
             return self
         elif not isinstance(other, ParserConfig):
@@ -103,7 +103,8 @@ class ParserConfig:
     def merge(self, **settings: Any) -> ParserConfig:
         overrides = self._find_common(**settings)
         overrides = {
-            name: value for name, value in overrides.items()
+            name: value
+            for name, value in overrides.items()
             if getattr(self, name, None) is None
         }
         return self.replace(**overrides)
@@ -144,7 +145,9 @@ class LineIndexInfo(NamedTuple):
 
     @staticmethod
     def block_index(name, n):
-        return list(starmap(LineIndexInfo, zip(n * [name], range(n), strict=False)))
+        return list(
+            starmap(LineIndexInfo, zip(n * [name], range(n), strict=False)),
+        )
 
 
 class LineInfo(NamedTuple):

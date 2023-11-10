@@ -53,12 +53,16 @@ def match_to_find(m: re.Match):
 
 
 def findalliter(pattern, string, pos=None, endpos=None, flags=0):
-    '''
-        like finditer(), but with return values like findall()
+    """
+    like finditer(), but with return values like findall()
 
-        implementation taken from cpython/Modules/_sre.c/findall()
-    '''
-    r = pattern if isinstance(pattern, RETYPE) else re.compile(pattern, flags=flags)
+    implementation taken from cpython/Modules/_sre.c/findall()
+    """
+    r = (
+        pattern
+        if isinstance(pattern, RETYPE)
+        else re.compile(pattern, flags=flags)
+    )
     if endpos is not None:
         iterator = r.finditer(string, pos=pos, endpos=endpos)
     elif pos is not None:
@@ -69,8 +73,13 @@ def findalliter(pattern, string, pos=None, endpos=None, flags=0):
         yield match_to_find(m)
 
 
-def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=_undefined):
+def findfirst(
+    pattern, string, pos=None, endpos=None, flags=0, default=_undefined,
+):
     """
     Avoids using the inefficient findall(...)[0], or first(findall(...))
     """
-    return first(findalliter(pattern, string, pos=pos, endpos=endpos, flags=flags), default=default)
+    return first(
+        findalliter(pattern, string, pos=pos, endpos=endpos, flags=flags),
+        default=default,
+    )

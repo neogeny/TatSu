@@ -20,7 +20,6 @@ sys.path.insert(0, str(tmp))
 
 
 class BootstrapTests(unittest.TestCase):
-
     def test_bootstrap(self):
         print()
 
@@ -47,7 +46,10 @@ class BootstrapTests(unittest.TestCase):
         with Path('./tmp/01.ebnf').open('w') as f:
             f.write(generated_grammar1)
 
-        print('-' * 20, 'phase 02 - parse previous output with the parser generator')
+        print(
+            '-' * 20,
+            'phase 02 - parse previous output with the parser generator',
+        )
         with Path('./tmp/01.ebnf').open() as f:
             text = str(f.read())
         g = GrammarGenerator('EBNFBootstrap')
@@ -70,7 +72,6 @@ class BootstrapTests(unittest.TestCase):
             text = f.read()
         g = GrammarGenerator('EBNFBootstrap')
         parser = g.parse(text)
-    #    pprint(parser.first_sets, indent=2, depth=3)
         generated_grammar4 = str(parser)
         with Path('./tmp/04.ebnf').open('w') as f:
             f.write(generated_grammar4)

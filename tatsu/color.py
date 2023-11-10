@@ -44,6 +44,7 @@ Style = _Style
 def init():
     try:
         import colorama
+
         colorama.init()
     except ImportError:
         return

@@ -5,17 +5,17 @@ from tatsu.util import trim
 
 
 class PrettyTests(unittest.TestCase):
-
     def test_pretty(self):
-        grammar = r'''
+        grammar = r"""
             start = lisp ;
             lisp = sexp | list | symbol;
             sexp::SExp = '(' cons:lisp '.' ~ cdr:lisp ')' ;
             list::List = '(' elements:{sexp}* ')' ;
             symbol::Symbol = value:/[^\s().]+/ ;
-        '''
+        """
 
-        pretty = trim(r'''
+        pretty = trim(
+            r"""
             start
                 =
                 lisp
@@ -44,9 +44,11 @@ class PrettyTests(unittest.TestCase):
                 =
                 value:/[^\s().]+/
                 ;
-        ''')
+        """,
+        )
 
-        pretty_lean = trim(r'''
+        pretty_lean = trim(
+            r"""
             start
                 =
                 lisp
@@ -75,7 +77,8 @@ class PrettyTests(unittest.TestCase):
                 =
                 /[^\s().]+/
                 ;
-        ''')
+        """,
+        )
 
         model = compile(grammar=grammar)
 
@@ -85,12 +88,12 @@ class PrettyTests(unittest.TestCase):
         self.assertEqual(pretty_lean, model.pretty_lean())
 
     def test_slashed_pattern(self):
-        grammar = '''
+        grammar = """
             start
                 =
                 ?"[a-z]+/[0-9]+" $
                 ;
-        '''
+        """
         model = compile(grammar=grammar)
         ast = model.parse('abc/123')
         self.assertEqual('abc/123', ast)

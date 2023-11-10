@@ -6,10 +6,9 @@ from tatsu.tool import compile
 
 
 class StatefulTests(unittest.TestCase):
-
     def test_stateful(self):
         # Parser for mediawiki-style unordered lists.
-        grammar = r'''
+        grammar = r"""
             document = @:ul [ nl ] $ ;
             ul = "*" ul_start el+:li { nl el:li } * ul_end ;
             li = ul | li_text ;
@@ -23,7 +22,7 @@ class StatefulTests(unittest.TestCase):
             ul_end = () ;
             (* The following rules are placeholders for state validations and grammar rules. *)
             ul_marker = () ;
-            '''
+            """
 
         class StatefulSemantics:
             def __init__(self, parser):
@@ -36,73 +35,79 @@ class StatefulTests(unittest.TestCase):
 
             def ul_end(self, ast):
                 ctx = self._context
-                ctx.substate = None if ctx.substate is None or ctx.substate <= 1 else ctx.substate - 1
+                ctx.substate = (
+                    None
+                    if ctx.substate is None or ctx.substate <= 1
+                    else ctx.substate - 1
+                )
                 return ast
 
             def ul_marker(self, ast):
                 ctx = self._context
-                if ctx.substate is not None and not ctx.tokenizer.match("*" * ctx.substate):
-                    raise FailedSemantics("not at correct level")
+                if ctx.substate is not None and not ctx.tokenizer.match(
+                    '*' * ctx.substate,
+                ):
+                    raise FailedSemantics('not at correct level')
                 return ast
 
             def ul(self, ast):
-                return "<ul>" + "".join(ast.el) + "</ul>"
+                return '<ul>' + ''.join(ast.el) + '</ul>'
 
             def li(self, ast):
-                return "<li>" + ast + "</li>"
+                return '<li>' + ast + '</li>'
 
             def li_text(self, ast):
                 return ast.text if ast.ul is None else ast.text + ast.ul
 
-        model = compile(grammar, "test")
+        model = compile(grammar, 'test')
         context = ModelContext(model.rules, whitespace='', nameguard=False)
 
         ast = model.parse(
             '*abc',
-            start="document",
+            start='document',
             ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
             nameguard=False,
         )
-        self.assertEqual(ast, "<ul><li>abc</li></ul>")
+        self.assertEqual(ast, '<ul><li>abc</li></ul>')
 
         ast = model.parse(
             '*abc\n',
-            start="document",
+            start='document',
             ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
             nameguard=False,
         )
-        self.assertEqual("<ul><li>abc</li></ul>", ast)
+        self.assertEqual('<ul><li>abc</li></ul>', ast)
 
         ast = model.parse(
             '*abc\n*def\n',
-            start="document",
+            start='document',
             ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
             nameguard=False,
         )
-        self.assertEqual("<ul><li>abc</li><li>def</li></ul>", ast)
+        self.assertEqual('<ul><li>abc</li><li>def</li></ul>', ast)
 
         ast = model.parse(
             '**abc',
-            start="document",
+            start='document',
             ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
             nameguard=False,
         )
-        self.assertEqual("<ul><li><ul><li>abc</li></ul></li></ul>", ast)
+        self.assertEqual('<ul><li><ul><li>abc</li></ul></li></ul>', ast)
 
         ast = model.parse(
             '*abc\n**def\n',
-            start="document",
+            start='document',
             ctx=context,
             semantics=StatefulSemantics(context),
             whitespace='',
             nameguard=False,
         )
-        self.assertEqual("<ul><li>abc<ul><li>def</li></ul></li></ul>", ast)
+        self.assertEqual('<ul><li>abc<ul><li>def</li></ul></li></ul>', ast)

@@ -7,7 +7,7 @@ from tatsu.tool import compile
 
 class FirstFollowTests(unittest.TestCase):
     def test_direct_left_recursion(self, trace=False):
-        grammar = '''
+        grammar = """
             @@left_recursion :: True
             start
                 =
@@ -33,8 +33,8 @@ class FirstFollowTests(unittest.TestCase):
                 =
                 ?/[0-9]+/?
                 ;
-        '''
-        model = compile(grammar, "test")
+        """
+        model = compile(grammar, 'test')
         expre = model.rulemap['expre']
         factor = model.rulemap['factor']
         number = model.rulemap['number']
@@ -53,14 +53,14 @@ class FirstFollowTests(unittest.TestCase):
         assert ref('number') not in number.lookahead()
 
     def test_indirect_left_recursion(self, trace=False):
-        grammar = '''
+        grammar = """
             @@left_recursion :: True
             start = x $ ;
             x = expr ;
             expr = x '-' num | num;
             num = ?/[0-9]+/? ;
-        '''
-        model = compile(grammar, "test")
+        """
+        model = compile(grammar, 'test')
         x = model.rulemap['x']
         expr = model.rulemap['expr']
         num = model.rulemap['num']
@@ -80,13 +80,13 @@ class FirstFollowTests(unittest.TestCase):
         assert ref('expr') in expr.lookahead()
 
     def test_nullability(self):
-        grammar = '''
+        grammar = """
             start = e;
             e = p f;
             p = [e '+'] ;
             f = '0';
-        '''
-        model = compile(grammar, "test")
+        """
+        model = compile(grammar, 'test')
         e = model.rulemap['e']
         p = model.rulemap['p']
         f = model.rulemap['f']
