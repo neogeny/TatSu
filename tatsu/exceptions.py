@@ -54,7 +54,7 @@ class FailedParse(ParseError):
         super().__init__(tokenizer, stack, item)
 
         self.tokenizer = tokenizer
-        self.stack = stack[:]
+        self.stack = stack
         self.pos = tokenizer.pos
         self.item = item
 
@@ -77,7 +77,7 @@ class FailedParse(ParseError):
             self.message.rstrip(),
             text,
             leading,
-            '\n'.join(reversed(self.stack)),
+            '\n'.join(self.stack),
         )
 
 

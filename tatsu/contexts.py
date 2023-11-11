@@ -538,7 +538,7 @@ class ParseContext:
             )
 
     def _make_exception(self, item, exclass=FailedParse):
-        rulestack = [r.name for r in self._rule_stack]
+        rulestack = (r.name for r in self._rule_stack[::-1])
         return exclass(self.tokenizer, rulestack, item)
 
     def _error(self, item, exclass=FailedParse):
