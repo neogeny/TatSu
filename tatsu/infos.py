@@ -226,7 +226,7 @@ class RuleResult(NamedTuple):
     newstate: Any
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class ParseState:
     pos: int = 0
     ast: AST = dataclasses.field(default_factory=AST)
