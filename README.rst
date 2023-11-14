@@ -70,8 +70,8 @@ The result is equivalent to calling:
 
 .. code-block:: python
 
-    model = compile(grammar)
-    ast = model.parse(input)
+    parser = compile(grammar)
+    ast = parser.parse(input)
 
 Compiled grammars are cached for efficiency.
 
