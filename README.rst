@@ -52,11 +52,11 @@ Using the Tool
 
 |TatSu| can be used as a library, much like `Python`_'s ``re``, by embedding grammars as strings and generating grammar models instead of generating Python_ code.
 
--   ``tatsu.compile(grammar, name=None, **kwargs)``
+-   ``tatsu.compile(grammar)``
 
     Compiles the grammar and generates a *model* that can subsequently be used for parsing input with.
 
--   ``tatsu.parse(grammar, input, **kwargs)``
+-   ``tatsu.parse(grammar, input)``
 
     Compiles the grammar and parses the given input producing an AST_ as result. The result is equivalent to calling::
 
@@ -65,7 +65,7 @@ Using the Tool
 
     Compiled grammars are cached for efficiency.
 
--   ``tatsu.to_python_sourcecode(grammar, name=None, filename=None, **kwargs)``
+-   ``tatsu.to_python_sourcecode(grammar)``
 
     Compiles the grammar to the `Python`_ sourcecode that implements the parser.
 
