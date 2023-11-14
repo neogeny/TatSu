@@ -65,7 +65,7 @@ Using the Tool
 
     ast = tatsu.parse(grammar, input)
 
-The result is equivalent to calling::
+The result is equivalent to calling:
 
 
 .. code-block:: python
