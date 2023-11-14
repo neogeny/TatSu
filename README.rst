@@ -63,9 +63,9 @@ Using the Tool
 
 .. code-block:: python
 
-    tatsu.parse(grammar, input)
+    ast = tatsu.parse(grammar, input)
 
-    The result is equivalent to calling::
+The result is equivalent to calling::
 
 
 .. code-block:: python
@@ -73,7 +73,7 @@ Using the Tool
     model = compile(grammar)
     ast = model.parse(input)
 
-    Compiled grammars are cached for efficiency.
+Compiled grammars are cached for efficiency.
 
 -   Compiles the grammar to the `Python`_ sourcecode that implements the parser.
 
