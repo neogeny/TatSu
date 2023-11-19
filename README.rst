@@ -56,7 +56,7 @@ Using the Tool
 
 .. code-block:: python
 
-   parser = tatsu.compile(grammar)``
+   parser = tatsu.compile(grammar)
 
 
 - Compiles the grammar and parses the given input producing an AST_ as result.
