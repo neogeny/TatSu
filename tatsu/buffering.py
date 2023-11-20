@@ -309,19 +309,22 @@ class Buffer(Tokenizer):
         else:
             is_match = self.text[p: p + len(token)] == token
 
-        if is_match:
-            self.move(len(token))
-            partial_match = (
-                self.nameguard
-                and token
-                and token[0].isalpha()
-                and all(self.is_name_char(t) for t in token)
-                and self.is_name_char(self.current)
-            )
-            if not partial_match:
-                return token
-        self.goto(p)
-        return None
+        if not is_match:
+            return
+
+        self.move(len(token))
+        partial_match = (
+            self.nameguard
+            and token
+            and token[0].isalpha()
+            and self.is_name_char(self.current)
+            and all(self.is_name_char(t) for t in token)
+        )
+        if partial_match:
+            self.goto(p)
+            return
+
+        return token
 
     def _matchre_fast(self, pattern):
         if not (match := self._scanre(pattern)):
