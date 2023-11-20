@@ -243,19 +243,25 @@ class Buffer(Tokenizer):
                 previous.extend(comments)
 
     def _eat_regex(self, regex):
-        if regex is not None:
-            return list(takewhile(identity, map(self.matchre, repeat(regex))))
-        return None
+        if not regex:
+            return
+        while self._matchre_fast(regex):
+            pass
+
+    def _eat_regex_list(self, regex):
+        if not regex:
+            return []
+        return list(takewhile(identity, map(self.matchre, repeat(regex))))
 
     def eat_whitespace(self):
         return self._eat_regex(self.whitespace_re)
 
     def eat_comments(self):
-        comments = self._eat_regex(self.config.comments_re)
+        comments = self._eat_regex_list(self.config.comments_re)
         self._index_comments(comments, lambda x: x.inline)
 
     def eat_eol_comments(self):
-        comments = self._eat_regex(self.config.eol_comments_re)
+        comments = self._eat_regex_list(self.config.eol_comments_re)
         self._index_comments(comments, lambda x: x.eol)
 
     def next_token(self):
@@ -293,7 +299,7 @@ class Buffer(Tokenizer):
     def is_name_char(self, c):
         return c is not None and (c.isalnum() or c in self._namechar_set)
 
-    def match(self, token):
+    def match(self, token: str) -> str | None:
         if token is None:
             return self.atend()
 
@@ -303,23 +309,31 @@ class Buffer(Tokenizer):
         else:
             is_match = self.text[p: p + len(token)] == token
 
-        if is_match:
-            self.move(len(token))
-            partial_match = (
-                self.nameguard
-                and token
-                and token[0].isalpha()
-                and all(self.is_name_char(t) for t in token)
-                and self.is_name_char(self.current)
-            )
-            if not partial_match:
-                return token
-        self.goto(p)
-        return None
+        if not is_match:
+            return None
+
+        self.move(len(token))
+        partial_match = (
+            self.nameguard
+            and token
+            and token[0].isalpha()
+            and self.is_name_char(self.current)
+            and all(self.is_name_char(t) for t in token)
+        )
+        if partial_match:
+            self.goto(p)
+            return None
+
+        return token
+
+    def _matchre_fast(self, pattern):
+        if not (match := self._scanre(pattern)):
+            return
+
+        self.move(len(match.group()))
 
     def matchre(self, pattern):
-        match = self._scanre(pattern)
-        if match is None:
+        if not (match := self._scanre(pattern)):
             return None
 
         matched = match.group()

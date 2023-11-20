@@ -46,10 +46,8 @@ def match_to_find(m: re.Match):
     g = m.groups(default=m.string[0:0])
     if len(g) == 1:
         return g[0]
-    elif g:
-        return g
     else:
-        return m.group()
+        return g or m.group()
 
 
 def findalliter(pattern, string, pos=None, endpos=None, flags=0):
