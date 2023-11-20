@@ -245,7 +245,7 @@ class Buffer(Tokenizer):
     def _eat_regex(self, regex):
         if not regex:
             return
-        while self.matchre(regex):
+        while self._matchre_fast(regex):
             pass
 
     def _eat_regex_list(self, regex):
@@ -322,6 +322,12 @@ class Buffer(Tokenizer):
                 return token
         self.goto(p)
         return None
+
+    def _matchre_fast(self, pattern):
+        if not (match := self._scanre(pattern)):
+            return
+
+        self.move(len(match.group()))
 
     def matchre(self, pattern):
         if not (match := self._scanre(pattern)):
