@@ -243,19 +243,25 @@ class Buffer(Tokenizer):
                 previous.extend(comments)
 
     def _eat_regex(self, regex):
-        if regex is not None:
-            return list(takewhile(identity, map(self.matchre, repeat(regex))))
-        return None
+        if not regex:
+            return
+        while self.matchre(regex):
+            pass
+
+    def _eat_regex_list(self, regex):
+        if not regex:
+            return []
+        return list(takewhile(identity, map(self.matchre, repeat(regex))))
 
     def eat_whitespace(self):
         return self._eat_regex(self.whitespace_re)
 
     def eat_comments(self):
-        comments = self._eat_regex(self.config.comments_re)
+        comments = self._eat_regex_list(self.config.comments_re)
         self._index_comments(comments, lambda x: x.inline)
 
     def eat_eol_comments(self):
-        comments = self._eat_regex(self.config.eol_comments_re)
+        comments = self._eat_regex_list(self.config.eol_comments_re)
         self._index_comments(comments, lambda x: x.eol)
 
     def next_token(self):
@@ -318,8 +324,7 @@ class Buffer(Tokenizer):
         return None
 
     def matchre(self, pattern):
-        match = self._scanre(pattern)
-        if match is None:
+        if not (match := self._scanre(pattern)):
             return None
 
         matched = match.group()
