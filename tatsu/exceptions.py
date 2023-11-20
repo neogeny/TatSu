@@ -49,6 +49,7 @@ class NoParseInfo(ParseException):
 
 class FailedParse(ParseError):
     def __init__(self, tokenizer, stack, item):
+        stack = list(stack)  # NOTE: can't pass through multiprocessing if generator
         # note: pass all arguments to super() to avoid pickling problems
         #   https://stackoverflow.com/questions/27993567/
         super().__init__(tokenizer, stack, item)
