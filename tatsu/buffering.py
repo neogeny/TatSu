@@ -299,7 +299,7 @@ class Buffer(Tokenizer):
     def is_name_char(self, c):
         return c is not None and (c.isalnum() or c in self._namechar_set)
 
-    def match(self, token):
+    def match(self, token: str) -> str | None:
         if token is None:
             return self.atend()
 
@@ -310,7 +310,7 @@ class Buffer(Tokenizer):
             is_match = self.text[p: p + len(token)] == token
 
         if not is_match:
-            return
+            return None
 
         self.move(len(token))
         partial_match = (
@@ -322,7 +322,7 @@ class Buffer(Tokenizer):
         )
         if partial_match:
             self.goto(p)
-            return
+            return None
 
         return token
 
