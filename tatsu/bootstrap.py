@@ -22,9 +22,7 @@ from tatsu.infos import ParserConfig
 from tatsu.util import re, generic_main  # noqa: F401
 
 
-KEYWORDS: set[str] = {
-    'None',
-}
+KEYWORDS: set[str] = set()
 
 
 class EBNFBootstrapBuffer(Buffer):

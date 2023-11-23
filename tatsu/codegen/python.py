@@ -471,10 +471,10 @@ class Grammar(Base):
 
         version = str(tuple(int(n) for n in str(timestamp()).split('.')))
 
-        keywords = [str(k) for k in self.keywords]
+        keywords = [str(k) for k in self.keywords if k is not None]
         keywords = '\n'.join('    %s,' % repr(k) for k in keywords)
         if keywords:
-            keywords = '\n%s\n' % keywords
+            keywords = '(\n%s\n)' % keywords
 
         fields.update(
             rules=indent(rules),
