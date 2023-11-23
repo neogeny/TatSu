@@ -1,3 +1,4 @@
+# ruff: noqa: PLW2901
 from __future__ import annotations
 
 from collections import defaultdict

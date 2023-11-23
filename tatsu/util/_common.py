@@ -491,9 +491,9 @@ def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
             path += '/*'
 
         parts = path.parts[1:] if path.is_absolute() else path.parts
-        pattern = str(Path().joinpath(*parts))
+        joined_pattern = str(Path().joinpath(*parts))
         filenames.update(
-            p for p in Path(path.root).glob(pattern) if not p.is_dir()
+            p for p in Path(path.root).glob(joined_pattern) if not p.is_dir()
         )
 
     filenames = list(filenames)

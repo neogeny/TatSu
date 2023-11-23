@@ -1,3 +1,4 @@
+# ruff: noqa: PLW0603
 from __future__ import annotations
 
 

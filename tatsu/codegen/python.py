@@ -55,7 +55,7 @@ class Base(ModelRenderer):
     define_template = """\
             self._define(
                 %s,
-                %s
+                %s,
             )\
         """
 
@@ -179,7 +179,7 @@ class Choice(Base):
                 with self._choice():
                 {options:1::}
                     self._error(
-                {error:2:\\n:}
+                {error:2:\\n:}  # noqa: COM812
                     )\
                 """
 
@@ -415,7 +415,7 @@ class Rule(_Decorator):
         {leftrec}\
         {nomemo}\
         {isname}
-        def _{name}_(self):  # noqa
+        def _{name}_(self):
         {exp:1::}
         """
 
@@ -493,7 +493,7 @@ class Grammar(Base):
         )
 
     abstract_rule_template = """
-            def {name}(self, ast):  # noqa
+            def {name}(self, ast):
                 return ast
             """
 
@@ -509,17 +509,20 @@ class Grammar(Base):
                 # Any changes you make to it will be overwritten the next time
                 # the file is generated.
 
+                # ruff: noqa: I001, SIM117
+
                 import sys
+                from pathlib import Path
 
                 from tatsu.buffering import Buffer
                 from tatsu.parsing import Parser
                 from tatsu.parsing import tatsumasu
-                from tatsu.parsing import leftrec, nomemo, isname # noqa
+                from tatsu.parsing import leftrec, nomemo, isname  # noqa: F401
                 from tatsu.infos import ParserConfig
-                from tatsu.util import re, generic_main  # noqa
+                from tatsu.util import re, generic_main  # noqa: F401
 
 
-                KEYWORDS = {{{keywords}}}  # type: ignore
+                KEYWORDS: set[str] = {{{keywords}}}
 
 
                 class {name}Buffer(Buffer):
@@ -570,13 +573,12 @@ class Grammar(Base):
                     if not filename or filename == '-':
                         text = sys.stdin.read()
                     else:
-                        with open(filename) as f:
-                            text = f.read()
+                        text = Path(filename).read_text()
                     parser = {name}Parser()
                     return parser.parse(
                         text,
                         filename=filename,
-                        **kwargs
+                        **kwargs,
                     )
 
 
