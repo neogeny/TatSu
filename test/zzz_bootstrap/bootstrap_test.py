@@ -33,7 +33,7 @@ class BootstrapTests(unittest.TestCase):
         g = EBNFParser('EBNFBootstrap')
         grammar0 = g.parse(text, parseinfo=False)
         ast0 = json.dumps(asjson(grammar0), indent=2)
-        with open('./tmp/00.ast', 'w') as f:
+        with Path('./tmp/00.ast').open('w') as f:
             f.write(ast0)
 
         print('-' * 20, 'phase 01 - parse with parser generator')
@@ -86,7 +86,7 @@ class BootstrapTests(unittest.TestCase):
 
         print('-' * 20, 'phase 06 - generate parser code')
         gencode6 = codegen(parser)
-        with open('./tmp/g06.py', 'w') as f:
+        with Path('./tmp/g06.py').open('w') as f:
             f.write(gencode6)
 
         print('-' * 20, 'phase 07 - import generated code')
@@ -108,7 +108,7 @@ class BootstrapTests(unittest.TestCase):
         parser = GrammarGenerator('EBNFBootstrap')
         g9 = parser.parse(text)
         generated_grammar9 = str(g9)
-        with open('./tmp/09.ebnf', 'w') as f:
+        with Path('./tmp/09.ebnf').open('w') as f:
             f.write(generated_grammar9)
         self.assertEqual(generated_grammar9, generated_grammar1)
 
@@ -119,26 +119,26 @@ class BootstrapTests(unittest.TestCase):
             semantics=EBNFGrammarSemantics('EBNFBootstrap'),
         )
         generated_grammar10 = str(g10)
-        with open('./tmp/10.ebnf', 'w') as f:
+        with Path('./tmp/10.ebnf').open('w') as f:
             f.write(generated_grammar10)
         gencode10 = codegen(g10)
-        with open('./tmp/g10.py', 'w') as f:
+        with Path('./tmp/g10.py').open('w') as f:
             f.write(gencode10)
 
         print('-' * 20, 'phase 11 - Pickle the model and try again.')
-        with open('./tmp/11.tatsu', 'wb') as f:
+        with Path('./tmp/11.tatsu').open('wb') as f:
             pickle.dump(g10, f)
-        with open('./tmp/11.tatsu', 'rb') as f:
+        with Path('./tmp/11.tatsu').open('rb') as f:
             g11 = pickle.load(f)
         r11 = g11.parse(
             text,
             start_rule='start',
             semantics=EBNFGrammarSemantics('EBNFBootstrap'),
         )
-        with open('./tmp/11.ebnf', 'w') as f:
+        with Path('./tmp/11.ebnf').open('w') as f:
             f.write(str(g11))
         gencode11 = codegen(r11)
-        with open('./tmp/bootstrap_g11.py', 'w') as f:
+        with Path('./tmp/bootstrap_g11.py').open('w') as f:
             f.write(gencode11)
 
         print('-' * 20, 'phase 12 - Walker')
@@ -153,7 +153,7 @@ class BootstrapTests(unittest.TestCase):
 
         v = PrintNameWalker()
         v.walk(g11)
-        with open('./tmp/12.txt', 'w') as f:
+        with Path('./tmp/12.txt').open('w') as f:
             f.write('\n'.join(v.walked))
 
         print('-' * 20, 'phase 13 - Graphics')

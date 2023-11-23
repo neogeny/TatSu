@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from pathlib import Path
 
 import tatsu
 from tatsu.parser import EBNFBuffer
@@ -45,9 +46,9 @@ class ParsingTests(unittest.TestCase):
 
             start = a b;"""
 
-        with open(include_a, 'w') as fh:
+        with Path(include_a).open('w') as fh:
             fh.write("a = 'inclusion';")
-        with open(include_b, 'w') as fh:
+        with Path(include_b).open('w') as fh:
             fh.write("b = 'works';")
 
         model = tatsu.compile(

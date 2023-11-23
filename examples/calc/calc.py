@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from pprint import pprint
 
 from codegen import PostfixCodeGenerator
@@ -9,7 +10,7 @@ from tatsu.walkers import NodeWalker
 
 
 def simple_parse():
-    grammar = open('grammars/calc_cut.ebnf').read()
+    grammar = Path('grammars/calc_cut.ebnf').read_text()
 
     parser = tatsu.compile(grammar)
     ast = parser.parse('3 + 5 * ( 10 - 20 )', trace=False, colorize=True)
@@ -26,7 +27,7 @@ def simple_parse():
 
 
 def annotated_parse():
-    grammar = open('grammars/calc_annotated.ebnf').read()
+    grammar = Path('grammars/calc_annotated.ebnf').read_text()
 
     parser = tatsu.compile(grammar)
     ast = parser.parse('3 + 5 * ( 10 - 20 )')
@@ -63,7 +64,7 @@ class CalcBasicSemantics:
 
 
 def parse_with_basic_semantics():
-    grammar = open('grammars/calc_annotated.ebnf').read()
+    grammar = Path('grammars/calc_annotated.ebnf').read_text()
 
     parser = tatsu.compile(grammar)
     result = parser.parse(
@@ -95,7 +96,7 @@ class CalcSemantics:
 
 
 def parse_factored():
-    grammar = open('grammars/calc_factored.ebnf').read()
+    grammar = Path('grammars/calc_factored.ebnf').read_text()
 
     parser = tatsu.compile(grammar)
     ast = parser.parse('3 + 5 * ( 10 - 20 )', semantics=CalcSemantics())
@@ -107,7 +108,7 @@ def parse_factored():
 
 
 def parse_to_model():
-    grammar = open('grammars/calc_model.ebnf').read()
+    grammar = Path('grammars/calc_model.ebnf').read_text()
 
     parser = tatsu.compile(grammar, asmodel=True)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
@@ -136,7 +137,7 @@ class CalcWalker(NodeWalker):
 
 
 def parse_and_walk_model():
-    grammar = open('grammars/calc_model.ebnf').read()
+    grammar = Path('grammars/calc_model.ebnf').read_text()
 
     parser = tatsu.compile(grammar, asmodel=True)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
@@ -150,7 +151,7 @@ def parse_and_walk_model():
 
 
 def parse_and_translate():
-    grammar = open('grammars/calc_model.ebnf').read()
+    grammar = Path('grammars/calc_model.ebnf').read_text()
 
     parser = tatsu.compile(grammar, asmodel=True)
     model = parser.parse('3 + 5 * ( 10 - 20 )')

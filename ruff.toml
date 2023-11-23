@@ -25,7 +25,7 @@ ignore = [
 #    "PLW0603",  # global-statement
 #    "PLW2901",  # redefined-loop-name
     "PLW3201",  # bad-dunder-method-name
-    "PTH123",  # builtin-open
+#    "PTH123",  # builtin-open
     "RET505",  # superfluous-else-return
     "S102",  # exec-builtin
 #    "S105",  # hardcoded-password-string
