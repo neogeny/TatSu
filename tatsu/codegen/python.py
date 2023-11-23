@@ -522,7 +522,7 @@ class Grammar(Base):
                 from tatsu.util import re, generic_main  # noqa: F401
 
 
-                KEYWORDS: set[str] = {{{keywords}}}
+                KEYWORDS: set[str] = set({keywords})
 
 
                 class {name}Buffer(Buffer):
