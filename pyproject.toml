@@ -37,14 +37,6 @@ colorization = ['colorama']
 tatsu = 'tatsu:main'
 g2e = 'tatsu.g2e:main'
 
-[project.urls]
-Homepage = "https://github.com/neogeny/TatSu"
-Documentation = "https://tatsu.readthedocs.io/"
-Repository = "https://github.com/neogeny/TatSu"
-Issues = "https://github.com/neogeny/TatSu/issues"
-Changelog = "https://github.com/neogeny/TatSu/releases"
-Questions = "https://stackoverflow.com/questions/tagged/tatsu"
-
 [tool.setuptools]
 include-package-data = false
 
