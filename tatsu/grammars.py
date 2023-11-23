@@ -357,8 +357,8 @@ class Pattern(Model):
         parts = []
         for pat in (str(p) for p in self.patterns):
             if '/' in pat:
-                pat = pat.replace('"', r'\"')
-                regex = f'?"{pat}"'
+                newpat = pat.replace('"', r'\"')
+                regex = f'?"{newpat}"'
             else:
                 regex = f'/{pat}/'
             parts.append(regex)
@@ -1074,7 +1074,7 @@ class Grammar(Model):
 
         directives = ''
         for directive, value in self.directives.items():
-            fmt = dict(
+            fmt = dict(  # noqa: C408
                 name=directive,
                 frame='/' if directive in regex_directives else '',
                 value=(

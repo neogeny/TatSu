@@ -1,30 +1,44 @@
 line-length = 88
 
 select = [
-    'F', 'E', 'W', 'UP',
-    'I', 'YTT', 'S', 'B',
-    'COM', 'C4', 'SIM',
-    'PTH', 'TRY',
-    'FLY', 'PERF', 'FURB', 'RUF',
-    'PL', 'PGH', 'RET',
-    # 'ERA', # commented out code
+    "F", "E", "W", "UP",
+    "I", "YTT", "S", "B",
+    "COM", "C4", "SIM",
+    "PTH", "TRY",
+    "FLY", "PERF", "FURB", "RUF",
+    "PL", "PGH", "RET",
+    # "ERA", # commented out code
 ]
 ignore = [
-    'E501', 'E741', 'E402',
-    'S101', 'S102', 'S105', 'S301', 'S311',
-    'C408',
-    'SIM115', 'SIM114',
-    'PTH123',
-    'TRY003', 'TRY300',
-    'PLW1514', 'PLR6301',
-    'PLC0415',
-    'PLR0913', 'PLR2004', 'PLR0904', 'PLR0915',
-    'PLW0603', 'PLW2901', 'PLW3201',
-    'RET505',
+#    "C408",  # unnecessary-collection-call
+    "E501",  # line-too-long
+    "E741",  # ambiguous-variable-name
+    "E402",  # module-import-not-at-top-of-file
+    "S101",  # use of assert
+    "PLC0415",  # import-outside-top-level
+    "PLR6301",  # no-self-use
+    "PLR0904",  # too-many-public-methods
+    "PLR0913",  # too-many-arguments
+    "PLR0915",  # too-many-statements
+    "PLR2004",  # magic-value-comparison
+    "PLW1514",  # unspecified-encoding
+#    "PLW0603",  # global-statement
+#    "PLW2901",  # redefined-loop-name
+    "PLW3201",  # bad-dunder-method-name
+#    "PTH123",  # builtin-open
+    "RET505",  # superfluous-else-return
+    "S102",  # exec-builtin
+#    "S105",  # hardcoded-password-string
+    "S301",  # suspicious-pickle-usage
+#    "S311",  # suspicious-non-cryptographic-random-usage
+    "SIM115",  # open-file-with-context-handler
+    "SIM114",  # if-with-same-arms
+    "TRY003",  # raise-vanilla-args
+    "TRY300",  # try-consider-else
 ]
-exclude = ['tatsu/bootstrap.py']
+exclude = []
 
-target-version = 'py312'
+target-version = "py312"
 
 [per-file-ignores]
 
@@ -33,4 +47,4 @@ target-version = 'py312'
 max-complexity = 10
 
 [pydocstyle]
-convention = 'numpy'
+convention = "numpy"

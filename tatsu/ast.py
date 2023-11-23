@@ -107,13 +107,11 @@ class AST(dict):
         return key
 
     def _define(self, keys, list_keys=None):
-        for key in keys:
-            key = self._safekey(key)
+        for key in (self._safekey(k) for k in keys):
             if key not in self:
                 super().__setitem__(key, None)
 
-        for key in list_keys or []:
-            key = self._safekey(key)
+        for key in (self._safekey(k) for k in list_keys or []):
             if key not in self:
                 super().__setitem__(key, [])
 

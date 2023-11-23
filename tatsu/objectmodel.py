@@ -9,7 +9,7 @@ from .ast import AST
 from .infos import CommentInfo, ParseInfo
 from .util import AsJSONMixin, asjson, asjsons
 
-BASE_CLASS_TOKEN = '::'
+BASE_CLASS_TOKEN = '::'  # noqa: S105
 
 
 @dataclass(eq=False)

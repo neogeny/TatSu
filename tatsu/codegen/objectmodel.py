@@ -189,6 +189,7 @@ class Grammar(ModelRenderer):
         base_type = fields['base_type']
 
         fields.update(
+            name=self.node.name,
             base_class_declarations=base_class_declarations,
             model_class_declarations=model_class_declarations,
             version=version,

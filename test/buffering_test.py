@@ -40,7 +40,7 @@ class BufferingTests(unittest.TestCase):
 
     def test_goto_consistency(self):
         for _ in range(100):
-            self.buf.goto(random.randrange(len(self.text)))
+            self.buf.goto(random.randrange(len(self.text)))  # noqa: S311
             bl, bc = self.buf.line_info()[1:3]
             #            print('li', bl, bc)
             #            print('bu', self.buf.line, self.buf.col)
