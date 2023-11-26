@@ -9,7 +9,7 @@
 # Any changes you make to it will be overwritten the next time
 # the file is generated.
 
-# ruff: noqa: I001, SIM117
+# ruff: noqa: I001, F401, SIM117
 
 import sys
 from pathlib import Path
@@ -17,9 +17,9 @@ from pathlib import Path
 from tatsu.buffering import Buffer
 from tatsu.parsing import Parser
 from tatsu.parsing import tatsumasu
-from tatsu.parsing import leftrec, nomemo, isname  # noqa: F401
+from tatsu.parsing import leftrec, nomemo, isname
 from tatsu.infos import ParserConfig
-from tatsu.util import re, generic_main  # noqa: F401
+from tatsu.util import re, generic_main
 
 
 KEYWORDS: set[str] = set()

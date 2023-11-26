@@ -14,7 +14,12 @@ from typing import Any
 
 from .exceptions import ParseError
 from .infos import (
-    CommentInfo, LineIndexInfo, LineInfo, ParserConfig, PosLine, UndefinedStr,
+    CommentInfo,
+    LineIndexInfo,
+    LineInfo,
+    ParserConfig,
+    PosLine,
+    UndefinedStr,
 )
 from .tokenizing import Tokenizer
 from .util import (
@@ -84,6 +89,9 @@ class Buffer(Tokenizer):
             return whitespace
         elif whitespace:
             if not isinstance(whitespace, str):
+                # FIXME:
+                #   this feature is undocumented
+                #   only regular expressions should be supported
                 # a list or a set?
                 whitespace = f"[{''.join(c for c in whitespace)}]+"
             return re.compile(f'(?m){whitespace}')

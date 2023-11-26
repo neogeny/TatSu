@@ -15,6 +15,9 @@ class UndefinedStr(str):
     pass
 
 
+_undefined_str = UndefinedStr()
+
+
 @dataclasses.dataclass
 class ParserConfig:
     owner: Any = None
@@ -52,7 +55,7 @@ class ParserConfig:
     ignorecase: bool | None = False
     namechars: str = ''
     nameguard: bool | None = None  # implied by namechars
-    whitespace: str | None = UndefinedStr()
+    whitespace: str | None = _undefined_str
 
     parseinfo: bool = False
 
