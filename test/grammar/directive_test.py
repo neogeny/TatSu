@@ -1,4 +1,5 @@
 import unittest
+import pytest
 
 import tatsu
 from tatsu.codegen import codegen
@@ -43,6 +44,18 @@ class DirectiveTests(unittest.TestCase):
                 pass
             else:
                 self.fail('parsed through non-whitespace')
+
+    def test_whitespace_escaping(self):
+        grammar = r'''
+        @@grammar::Markdown
+        @@whitespace :: /[ ]/
+        start = pieces $ ;
+        text = text:/[a-z]+/ ;
+        pieces = {text}* ;
+        '''
+
+        with pytest.raises(FailedParse):
+            tatsu.parse(grammar, '[]')
 
     def test_default_whitespace(self):
         grammar = r"""

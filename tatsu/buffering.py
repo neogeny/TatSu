@@ -24,12 +24,14 @@ from .infos import (
 from .tokenizing import Tokenizer
 from .util import (
     RETYPE,
-    WHITESPACE_RE,
     contains_sublist,
     extend_list,
     identity,
 )
 from .util.misc import match_to_find
+
+
+DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 # for backwards compatibility with existing parsers
 LineIndexEntry = LineIndexInfo
@@ -84,7 +86,7 @@ class Buffer(Tokenizer):
     @staticmethod
     def build_whitespace_re(whitespace):
         if type(whitespace) is UndefinedStr:
-            return WHITESPACE_RE
+            return DEFAULT_WHITESPACE_RE
         if whitespace in {None, ''}:
             return None
         elif isinstance(whitespace, RETYPE):
