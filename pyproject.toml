@@ -32,6 +32,7 @@ dependencies = []
 
 [project.optional-dependencies]
 colorization = ["colorama"]
+parproc = ["rich"]
 
 [project.scripts]
 tatsu = "tatsu:main"
