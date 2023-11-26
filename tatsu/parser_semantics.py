@@ -136,6 +136,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         keywords = list(flatten(ast.keywords)) or []
 
         if directives.get('whitespace') in {'None', 'False'}:
+            # NOTE: use '' because None will _not_ override defaults in configuration
             directives['whitespace'] = ''
 
         name = (

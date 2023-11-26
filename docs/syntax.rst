@@ -699,6 +699,20 @@ overwrite the setting in the grammar::
 
   @@whitespace :: /[\t ]+/
 
+If no ``whitespace`` or ``@@whitespace`` is specified, |TatSu| will use
+``r'(?m)\s+'`` as a default. Use ``None`` to have *no whitespace definition*.
+
+
+.. code:: python
+
+   parser = MyParser(text, whitespace=None)
+
+or:
+
+.. code::
+
+    @@whitespace :: None
+
 Case Sensitivity
 ~~~~~~~~~~~~~~~~
 
