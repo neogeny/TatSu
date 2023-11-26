@@ -27,7 +27,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-WHITESPACE_RE = re.compile(r'(?s)\s+')
+WHITESPACE_RE = re.compile(r'(?m)\s+')
 RETYPE = type(re.compile('.'))
 
 

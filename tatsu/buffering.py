@@ -13,7 +13,14 @@ from pathlib import Path
 from typing import Any
 
 from .exceptions import ParseError
-from .infos import CommentInfo, LineIndexInfo, LineInfo, ParserConfig, PosLine
+from .infos import (
+    CommentInfo,
+    LineIndexInfo,
+    LineInfo,
+    ParserConfig,
+    PosLine,
+    UndefinedStr,
+)
 from .tokenizing import Tokenizer
 from .util import (
     RETYPE,
@@ -74,15 +81,20 @@ class Buffer(Tokenizer):
 
     @staticmethod
     def build_whitespace_re(whitespace):
-        if whitespace is None:
+        if type(whitespace) is UndefinedStr:
             return WHITESPACE_RE
+        if whitespace in {None, ''}:
+            return None
         elif isinstance(whitespace, RETYPE):
             return whitespace
         elif whitespace:
             if not isinstance(whitespace, str):
+                # FIXME:
+                #   this feature is undocumented
+                #   only regular expressions should be supported
                 # a list or a set?
-                whitespace = ''.join(c for c in whitespace)
-            return re.compile(f'(?m)[{re.escape(whitespace)}]+')
+                whitespace = f"[{''.join(c for c in whitespace)}]+"
+            return re.compile(f'(?m){whitespace}')
         else:
             return None
 
