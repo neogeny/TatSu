@@ -49,9 +49,7 @@ class Buffer(Tokenizer):
         text = str(text)
         self.text = self.original_text = text
 
-        print(repr(config.whitespace))
         self.whitespace_re = self.build_whitespace_re(config.whitespace)
-        print(self.whitespace_re)
         self.nameguard = (
             config.nameguard
             if config.nameguard is not None
