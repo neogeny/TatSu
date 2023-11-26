@@ -245,7 +245,9 @@ def file_process_summary(filenames, total_time, results, verbose=False):
         else 0
     )
 
-    lines_sec = round(mean(r.linecount / r.time for r in results if r.time))
+    lines_sec = 0
+    if results:
+        lines_sec = round(mean(r.linecount / r.time for r in results if r.time))
 
     dashes = '-' * 80
     summary_text = """\
