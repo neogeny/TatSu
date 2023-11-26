@@ -30,7 +30,7 @@ class EBNFBootstrapBuffer(Buffer):
         config = ParserConfig.new(
             config,
             owner=self,
-            whitespace=None,
+            whitespace=re.compile(r"\s+"),
             nameguard=None,
             ignorecase=False,
             namechars='',
@@ -49,7 +49,7 @@ class EBNFBootstrapParser(Parser):
         config = ParserConfig.new(
             config,
             owner=self,
-            whitespace=None,
+            whitespace=re.compile(r"\s+"),
             nameguard=None,
             ignorecase=False,
             namechars='',
