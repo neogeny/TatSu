@@ -5,7 +5,6 @@ Line analysis and caching are done so the parser can freely move with goto(p)
 to any position in the parsed text, and still recover accurate information
 about source lines and content.
 """
-# ruff: noqa: I001
 from __future__ import annotations
 
 import re
@@ -30,7 +29,6 @@ from .util import (
     identity,
 )
 from .util.misc import match_to_find
-
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
