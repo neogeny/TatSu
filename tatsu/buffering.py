@@ -37,7 +37,6 @@ LineIndexEntry = LineIndexInfo
 
 
 class Buffer(Tokenizer):
-    _pos: int = 0  # WARNING: FIXME: plckle does not work without this
 
     def __init__(
         self, text, /, config: ParserConfig | None = None, **settings: Any,
