@@ -44,6 +44,13 @@ class DirectiveTests(unittest.TestCase):
             else:
                 self.fail('parsed through non-whitespace')
 
+    def test_default_whitespace(self):
+        grammar = r"""
+            start = {'x'}+ $;
+        """
+
+        tatsu.parse(grammar, "x x x")
+
     def test_eol_comments_re_directive(self):
         grammar = """
             @@eol_comments :: /#.*?$/

@@ -13,7 +13,9 @@ from pathlib import Path
 from typing import Any
 
 from .exceptions import ParseError
-from .infos import CommentInfo, LineIndexInfo, LineInfo, ParserConfig, PosLine
+from .infos import (
+    CommentInfo, LineIndexInfo, LineInfo, ParserConfig, PosLine, UndefinedStr,
+)
 from .tokenizing import Tokenizer
 from .util import (
     RETYPE,
@@ -41,9 +43,7 @@ class Buffer(Tokenizer):
         text = str(text)
         self.text = self.original_text = text
 
-        print(repr(config.whitespace))
         self.whitespace_re = self.build_whitespace_re(config.whitespace)
-        print(self.whitespace_re)
         self.nameguard = (
             config.nameguard
             if config.nameguard is not None
@@ -76,8 +76,10 @@ class Buffer(Tokenizer):
 
     @staticmethod
     def build_whitespace_re(whitespace):
-        if whitespace is None:
+        if type(whitespace) is UndefinedStr:
             return WHITESPACE_RE
+        if whitespace in {None, ''}:
+            return None
         elif isinstance(whitespace, RETYPE):
             return whitespace
         elif whitespace:

@@ -109,8 +109,15 @@ Enabling ``@@parseinfo`` will allow precise reporting over the input source-code
 ``@@whitespace :: <regexp>``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Provides a regular expression for the whitespace to be ignored by the parser. It defaults to ``/(?s)\s+/``:
+Provides a regular expression for the whitespace to be ignored by the parser. If no definition is
+provided, then ``r'(?m)\s+'`` will be used as default:
 
 .. code::
 
     @@whitespace :: /[\t ]+/
+
+To disable any parsing of whitespace, use ``None`` for the definition:
+
+.. code::
+
+    @@whitespace :: None
