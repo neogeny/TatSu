@@ -41,7 +41,9 @@ class Buffer(Tokenizer):
         text = str(text)
         self.text = self.original_text = text
 
+        print(repr(config.whitespace))
         self.whitespace_re = self.build_whitespace_re(config.whitespace)
+        print(self.whitespace_re)
         self.nameguard = (
             config.nameguard
             if config.nameguard is not None
@@ -81,8 +83,8 @@ class Buffer(Tokenizer):
         elif whitespace:
             if not isinstance(whitespace, str):
                 # a list or a set?
-                whitespace = ''.join(c for c in whitespace)
-            return re.compile(f'(?m)[{re.escape(whitespace)}]+')
+                whitespace = f"[{''.join(c for c in whitespace)}]+"
+            return re.compile(f'(?m){whitespace}')
         else:
             return None
 
