@@ -509,7 +509,7 @@ class Grammar(Base):
                 # Any changes you make to it will be overwritten the next time
                 # the file is generated.
 
-                # ruff: noqa: I001, F401, SIM117
+                # ruff: noqa: C405, I001, F401, SIM117
 
                 import sys
                 from pathlib import Path
