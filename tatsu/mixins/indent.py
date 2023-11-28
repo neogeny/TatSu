@@ -5,9 +5,9 @@ from ..util import trim
 
 
 class IndentPrintMixin:
-    def __init__(self, indent=4):
+    def __init__(self, indent: int = 4):
         self.indent_amount = indent
-        self.indent_level = 0
+        self.indent_stack: list[int] = [0]
         self.output_stream = io.StringIO()
 
     def printed_text(self):
@@ -26,16 +26,20 @@ class IndentPrintMixin:
         return self.indented_lines(text)
 
     @contextmanager
-    def indent(self):
-        self.indent_level += 1
+    def indent(self, amount: int | None = None):
+        assert amount is None or amount >= 0
+        if amount is None:
+            amount = self.indent_amount
+
+        self.indent_stack.append(amount + self.indent_stack[-1])
         try:
             yield
         finally:
-            self.indent_level -= 1
+            self.indent_stack.pop()
 
     @property
     def current_indentation(self):
-        return ' ' * self.indent_amount * self.indent_level
+        return ' ' * self.indent_stack[-1]
 
     @staticmethod
     def io_print(*args, **kwargs):
