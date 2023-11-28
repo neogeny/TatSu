@@ -25,18 +25,27 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         )._walker_cache  # pylint: disable=no-member
 
     def walk(self, node: Node | list[Node], *args, **kwargs) -> Any:
-        if isinstance(node, list):
+        if isinstance(node, list | tuple):
             return [self.walk(n, *args, **kwargs) for n in node]
+
+        if isinstance(node, Mapping):
+            return {
+                name: self.walk(value, *args, **kwargs)
+                for name, value in node.items()
+            }
 
         walker = self._find_walker(node)
         if callable(walker):
             return walker(self, node, *args, **kwargs)
-        return None
+        else:
+            return node
 
     def _walk_children(self, node: Node, *args, **kwargs):
-        if isinstance(node, Node):
-            for child in node.children():
-                self.walk(child, *args, **kwargs)
+        if not isinstance(node, Node):
+            return ()
+
+        for child in node.children():
+            return self.walk(child, *args, **kwargs)
 
     def _find_walker(self, node: Node, prefix='walk_'):
         def pythonize_match(m):
