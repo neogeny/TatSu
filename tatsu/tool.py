@@ -15,6 +15,7 @@ from .codegen import objectmodel
 
 # we hook the tool to the Python code generator as the default
 from .codegen.python import codegen as pythoncg
+from .ngcodegen import codegen as ngpythoncg
 from .exceptions import ParseException
 from .infos import ParserConfig
 from .parser import GrammarGenerator
@@ -37,6 +38,12 @@ def parse_args():
     main_mode.add_argument(
         '--generate-parser',
         help='generate parser code from the grammar (default)',
+        action='store_true',
+    )
+    main_mode.add_argument(
+        '--ng-parser',
+        '-x',
+        help='generate parser code from the grammar with new code generator',
         action='store_true',
     )
     main_mode.add_argument(
@@ -292,7 +299,7 @@ def save(filename, content):
         f.write(content)
 
 
-def main(codegen=pythoncg):
+def main():
     args = parse_args()
 
     if args.whitespace:
@@ -327,8 +334,10 @@ def main(codegen=pythoncg):
                 result = model.pretty_lean()
             elif args.object_model:
                 result = objectmodel.codegen(model, base_type=args.base_type)
+            elif args.ng_parser:
+                result = ngpythoncg(model)
             else:
-                result = codegen(model)
+                result = pythoncg(model)
 
             if outfile:
                 save(outfile, result)
