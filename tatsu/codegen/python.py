@@ -556,6 +556,7 @@ class Grammar(Base):
                             parseinfo={parseinfo},
                             comments_re={comments_re},
                             eol_comments_re={eol_comments_re},
+                            left_recursion={left_recursion},
                             keywords=KEYWORDS,
                             start={start!r},
                         )
