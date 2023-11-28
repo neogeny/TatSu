@@ -15,13 +15,12 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-
 from tatsu.util.unicode_characters import (
     U_CHECK_MARK,
     U_CROSSED_SWORDS,
 )
 
-from .util import identity, memory_use, program_name, try_read
+from ..util import identity, memory_use, program_name, try_read
 
 __all__ = ['parallel_proc', 'processing_loop']
 

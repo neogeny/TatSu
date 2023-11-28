@@ -57,6 +57,13 @@ class AsJSONMixin:
         }
 
 
+def program_name():
+    import __main__ as main
+    if package := main.__package__:
+        return package
+    return Path(main.__file__).name
+
+
 def is_posix():
     return os.name == 'posix'
 
