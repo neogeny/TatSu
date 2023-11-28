@@ -40,7 +40,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         else:
             return node
 
-    def _walk_children(self, node: Node, *args, **kwargs):
+    def walk_children(self, node: Node, *args, **kwargs):
         if not isinstance(node, Node):
             return ()
 
@@ -106,7 +106,7 @@ class PreOrderWalker(NodeWalker):
     def walk(self, node, *args, **kwargs):
         result = super().walk(node, *args, **kwargs)
         if result is not None:
-            self._walk_children(node, *args, **kwargs)
+            self.walk_children(node, *args, **kwargs)
         return result
 
 
