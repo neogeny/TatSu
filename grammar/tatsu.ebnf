@@ -1,4 +1,4 @@
-@@grammar :: Tatsu
+@@grammar :: TatSu
 @@whitespace :: /\s+/
 @@comments :: ?"(?sm)[(][*](?:.|\n)*?[*][)]"
 @@eol_comments :: ?"#[^\n]*$"
