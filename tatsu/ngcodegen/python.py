@@ -45,9 +45,17 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print()
         self.print()
 
-        keywords = grammar.keywords
-        keywords = ['HERE']
-        keywords = [str(k) for k in keywords if k is not None]
+        self._gen_keywords(grammar)
+        self._gen_buffering(grammar)
+
+        self.print(
+            '''
+            ** AT GRAMMAR
+            '''
+        )
+
+    def _gen_keywords(self, grammar: grammars.Grammar):
+        keywords = [str(k) for k in grammar.keywords if k is not None]
         if not keywords:
             self.print('KEYWORDS: set[str] = set()')
         else:
@@ -57,14 +65,6 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
         self.print()
         self.print()
-
-        self._gen_buffering(grammar)
-
-        self.print(
-            '''
-            ** AT GRAMMAR
-            '''
-        )
 
     def _gen_buffering(self, grammar: grammars.Grammar):
         self.print(f'class {grammar.name}Buffer(Buffer):')
