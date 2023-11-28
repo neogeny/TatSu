@@ -15,6 +15,12 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
+
+from tatsu.util.unicode_characters import (
+    U_CHECK_MARK,
+    U_CROSSED_SWORDS,
+)
+
 from .util import identity, memory_use, program_name, try_read
 
 __all__ = ['parallel_proc', 'processing_loop']
@@ -155,7 +161,16 @@ def processing_loop(filenames, process, *args, reraise=False, **kwargs):  # pyli
 
                 total_time = time.time() - start_time
                 filename = Path(result.payload).name
-                progress.update(progress_task, advance=1, description=filename)
+                if result.exception:
+                    icon = f'[red]{U_CROSSED_SWORDS}'
+                else:
+                    icon = f'[green]{U_CHECK_MARK}'
+
+                progress.update(
+                    progress_task,
+                    advance=1,
+                    description=f'{icon} {filename}',
+                )
 
                 if result.exception:
                     print(file=log)
