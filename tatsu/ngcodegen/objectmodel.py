@@ -1,10 +1,9 @@
 from collections import namedtuple
+from typing import cast
 
 from .. import grammars, objectmodel
 from ..mixins.indent import IndentPrintMixin
-from ..util import safe_name, compress_seq
-from ..walkers import NodeWalker
-
+from ..util import compress_seq, safe_name
 
 HEADER = """\
     #!/usr/bin/env python3
@@ -42,12 +41,12 @@ HEADER = """\
 """
 
 
-BaseClassSpec = namedtuple('TypeSpec', ['class_name', 'base'])
+BaseClassSpec = namedtuple('BaseClassSpec', ['class_name', 'base'])
 
 
 def modelgen(model: grammars.Model, parser_name: str = '', base_type: type = objectmodel.Node) -> str:
     generator = PythonModelGenerator(parser_name=parser_name, base_type=base_type)
-    return generator.generate_model(model)
+    return generator.generate_model(cast(grammars.Grammar, model))
 
 
 class PythonModelGenerator(IndentPrintMixin):
@@ -58,8 +57,8 @@ class PythonModelGenerator(IndentPrintMixin):
         self.parser_name = parser_name or None
 
     def generate_model(self, grammar: grammars.Grammar):
-        base_type_qual = self.base_type.__module__
-        base_type_import = f'from {self.base_type.__module__} import {self.base_type.__name__.split('.')[-1]}'
+        base_type = self.base_type
+        base_type_import = f'from {base_type.__module__} import {base_type.__name__.split('.')[-1]}'
 
         self.parser_name = self.parser_name or grammar.name
         self.print(
@@ -67,7 +66,7 @@ class PythonModelGenerator(IndentPrintMixin):
                 name=self.parser_name,
                 base_type=self.base_type.__name__,
                 base_type_import=base_type_import,
-            )
+            ),
         )
         self.print()
         self.print()
@@ -95,10 +94,11 @@ class PythonModelGenerator(IndentPrintMixin):
 
         return self.printed_text()
 
-    def _gen_base_class(self, spec: BaseClassSpec):
+    def _gen_base_class(self, specs: list[BaseClassSpec]):
         self.print()
         self.print()
-        if spec.base:
+        spec = specs[0]
+        if specs[0].base:
             self.print(f'class {spec.class_name}({spec.base}):')
         else:
             self.print(f'class {spec.class_name}:')
@@ -121,34 +121,13 @@ class PythonModelGenerator(IndentPrintMixin):
             for arg in arguments:
                 self.print(f'{arg}: Any = None')
 
-    def walk_Rule(self, rule: grammars.Rule):
-        specs = self._base_class_specs(rule)
-        if not specs:
-            return
-
-        arguments = sorted({safe_name(d) for d, _ in compress_seq(rule.defines())})
-
-        self.print()
-        self.print()
-
-        node_spec = specs[0]
-        base_specs = list(reversed(specs[1:]))
-        base = base_specs and base_specs[0] or f'{self.parser_name}ModelBase'
-        self.print(f'class {node_spec.class_name}({base}):')
-
-        with self.indent():
-            if not arguments:
-                self.print('pass')
-            for arg in arguments:
-                self.print(f'{arg}: Any = None')
-
-    def _base_class_specs(self, rule: grammars.Rule) -> BaseClassSpec:
+    def _base_class_specs(self, rule: grammars.Rule) -> list[BaseClassSpec]:
         if not rule.params:
-            return ()
+            return []
 
         spec = rule.params[0].split('::')
         class_names = [safe_name(n) for n in spec] + [f'{self.parser_name}ModelBase']
-        return tuple(
+        return [
             BaseClassSpec(class_name, class_names[i + 1])
             for i, class_name in enumerate(class_names[:-1])
-        )
+        ]

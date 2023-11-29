@@ -9,7 +9,7 @@ from .. import grammars
 from ..collections import OrderedSet as oset
 from ..exceptions import CodegenError
 from ..mixins.indent import IndentPrintMixin
-from ..util import compress_seq, safe_name, trim
+from ..util import compress_seq, safe_name
 from ..walkers import NodeWalker
 
 HEADER = """\
@@ -379,7 +379,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
     def _gen_block(self, exp: grammars.Model, name='block'):
         if () in exp.lookahead():
-            raise CodegenError(f'{self.node} may repeat empty sequence')
+            raise CodegenError(f'{exp} may repeat empty sequence')
 
         n = self._next_n()
         self.print()
