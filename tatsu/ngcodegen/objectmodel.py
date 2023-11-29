@@ -58,7 +58,7 @@ class PythonModelGenerator(IndentPrintMixin):
 
     def generate_model(self, grammar: grammars.Grammar):
         base_type = self.base_type
-        base_type_import = f'from {base_type.__module__} import {base_type.__name__.split('.')[-1]}'
+        base_type_import = f"from {base_type.__module__} import {base_type.__name__.split('.')[-1]}"
 
         self.parser_name = self.parser_name or grammar.name
         self.print(

@@ -18,7 +18,7 @@ class ParameterTests(unittest.TestCase):
         g = GrammarGenerator('Keywords')
         model = g.parse(grammar)
         code = codegen(model)
-        self.assertEqual('#!/usr/bin/env python', code.splitlines()[0])
+        self.assertEqual('#!/usr/bin/env python3', code.splitlines()[0])
 
     def test_35_only_keyword_params(self):
         grammar = """
