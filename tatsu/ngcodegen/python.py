@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import itertools
+import textwrap
 from collections.abc import Iterator
 from typing import Any
 
@@ -76,7 +77,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         cls._counter = itertools.count()
 
     def print(self, *args, **kwargs):
-        args = [trim(str(arg)) for arg in args]
+        args = [trim(str(arg)) for arg in args if arg is not None]
         super().print(*args, **kwargs)
 
     def walk_default(self, node: Any):
@@ -118,9 +119,9 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         elif kwparams:
             params = kwparams
 
-        # sdefines = ''
-        # if not isinstance(rule.exp, grammars.Choice):
-        #     sdefines = self._make_defines_declaration(rule)
+        if not isinstance(rule.exp, grammars.Choice):
+            with self.indent():
+                self._gen_defines_declaration(rule)
 
         leftrec = '\n@leftrec' if rule.is_leftrec else ''
         nomemo = (
@@ -130,6 +131,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         )
         isname = '\n@isname' if rule.is_name else ''
 
+        self.print()
         self.print(
             f"""
             @tatsumasu({params})\
@@ -141,7 +143,6 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         )
         with self.indent():
             self.print(self.walk(rule.exp))
-        self.print()
 
     def walk_Void(self, void: grammars.Void):
         self.print('self._void()')
@@ -175,6 +176,45 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
     def walk_Alert(self, alert: grammars.Alert):
         self.print(f'self._alert({alert.literal!r}, {alert.level})')
+
+    def walk_Pattern(self, pattern: grammars.Pattern):
+        self.print(f'self._pattern({pattern.pattern!r})')
+
+    def walk_Lookahead(self, lookahead: grammars.Lookahead):
+        self.print('with self._if():')
+        with self.indent():
+            self.walk(lookahead.exp)
+
+    def walk_NegativeLookahead(self, lookahead: grammars.NegativeLookahead):
+        self.print('with self._ifnot():')
+        with self.indent():
+            self.walk(lookahead.exp)
+
+    def walk_Sequence(self, seq: grammars.Sequence):
+        self.walk(seq.sequence)
+        with self.indent():
+            self._gen_defines_declaration(seq)
+
+    def walk_Choice(self, choice: grammars.Choice):
+        if len(choice.options) == 1:
+            self.walk(choice.options[0])
+            return
+
+        firstset = choice.lookahead_str()
+        if firstset:
+            msglines = textwrap.wrap(firstset, width=40)
+            error = ['expecting one of: ', *msglines]
+        else:
+            error = ['no available options']
+        errors = '\n'.join(repr(e) for e in error)
+
+        self.print('with self._choice():')
+        with self.indent():
+            self.walk(choice.options)
+            self.print('self._error(')
+            with self.indent():
+                self.print(errors)
+            self.print(')')
 
     def _gen_keywords(self, grammar: grammars.Grammar):
         keywords = [str(k) for k in grammar.keywords if k is not None]
@@ -230,7 +270,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                 self._gen_init(grammar)
             self.walk(grammar.rules)
 
-    def _make_defines_declaration(self, node: grammars.Model):
+    def _gen_defines_declaration(self, node: grammars.Model):
         defines = compress_seq(node.defines())
         ldefs = oset(safe_name(d) for d, value in defines if value)
         sdefs = oset(
@@ -240,18 +280,16 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         )
 
         if not (sdefs or ldefs):
-            return ''
-        else:
-            sdefs_str = '[%s]' % ', '.join(sorted(repr(d) for d in sdefs))
-            ldefs_str = '[%s]' % ', '.join(sorted(repr(d) for d in ldefs))
-            if not ldefs:
-                return f'\n\n    self._define({sdefs_str}, {ldefs_str})'
-            else:
-                return '\n' + trim(self.define_template % (sdefs_str, ldefs_str))
+            return
 
-    define_template = """\
-            self._define(
-                %s,
-                %s,
-            )\
-        """
+        sdefs_str = ', '.join(sorted(repr(d) for d in sdefs))
+        ldefs_str = ', '.join(sorted(repr(d) for d in ldefs))
+
+        if not ldefs:
+            self.print(f'self._define([{sdefs_str}], [{ldefs_str}])')
+        else:
+            self.print('self._define(')
+            with self.indent():
+                self.print(f'[{sdefs_str}],')
+                self.print(f'[{ldefs_str}],')
+            self.print(')')
