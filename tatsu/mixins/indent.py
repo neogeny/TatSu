@@ -14,6 +14,7 @@ class IndentPrintMixin:
         return self.output_stream.getvalue()
 
     def print(self, *args, **kwargs):
+        args = [trim(str(arg)) for arg in args if arg is not None]
         lines = self.as_printed_lines(*args, **kwargs)
         self._do_print_lines(lines)
 
