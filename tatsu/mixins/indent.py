@@ -5,8 +5,8 @@ from ..util import trim
 
 
 class IndentPrintMixin:
-    def __init__(self, indent: int = 4):
-        self.indent_amount = indent
+    def __init__(self, default_indent: int = 4):
+        self.default_indent = default_indent
         self.indent_stack: list[int] = [0]
         self.output_stream = io.StringIO()
 
@@ -29,7 +29,7 @@ class IndentPrintMixin:
     def indent(self, amount: int | None = None):
         assert amount is None or amount >= 0
         if amount is None:
-            amount = self.indent_amount
+            amount = self.default_indent
 
         self.indent_stack.append(amount + self.indent_stack[-1])
         try:
