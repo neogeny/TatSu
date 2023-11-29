@@ -244,45 +244,45 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print('self._empty_closure()')
 
     def walk_Closure(self, closure: grammars.Closure):
-        n = self._gen_block(closure)
+        n = self._gen_block(closure.exp)
         self.print(f'self._closure(block{n})')
 
     def walk_PositiveClosure(self, closure: grammars.PositiveClosure):
-        n = self._gen_block(closure)
+        n = self._gen_block(closure.exp)
         self.print(f'self._positive_closure(block{n})')
 
     def walk_Join(self, join: grammars.Join):
-        n = self._gen_block(join, name='sep')
-        n = self._gen_block(join)
+        n = self._gen_block(join.sep, name='sep')
+        n = self._gen_block(join.exp)
         self.print(f'self._join(block{n}, sep{n})')
 
     def walk_PositiveJoin(self, join: grammars.PositiveJoin):
-        n = self._gen_block(join, name='sep')
-        n = self._gen_block(join)
+        n = self._gen_block(join.sep, name='sep')
+        n = self._gen_block(join.exp)
         self.print(f'self._positive_join(block{n}, sep{n})')
 
     def walk_LeftJoin(self, join: grammars.LeftJoin):
-        n = self._gen_block(join, name='sep')
-        n = self._gen_block(join)
+        n = self._gen_block(join.sep, name='sep')
+        n = self._gen_block(join.exp)
         self.print(f'self._left_join(block{n}, sep{n})')
 
     def walk_RightJoin(self, join: grammars.RightJoin):
-        n = self._gen_block(join, name='sep')
-        n = self._gen_block(join)
+        n = self._gen_block(join.sep, name='sep')
+        n = self._gen_block(join.exp)
         self.print(f'self._right_join(block{n}, sep{n})')
 
     def walk_Gather(self, gather: grammars.Gather):
-        m = self._gen_block(gather, name='sep')
-        n = self._gen_block(gather)
+        m = self._gen_block(gather.sep, name='sep')
+        n = self._gen_block(gather.exp)
         self.print(f'self._gather(block{n}, sep{m})')
 
     def walk_PositiveGather(self, gather: grammars.PositiveGather):
-        m = self._gen_block(gather, name='sep')
-        n = self._gen_block(gather)
+        m = self._gen_block(gather.sep, name='sep')
+        n = self._gen_block(gather.exp)
         self.print(f'self._positive_gather(block{n}, sep{m})')
 
     def walk_SkipTo(self, skipto: grammars.SkipTo):
-        n = self._gen_block(skipto)
+        n = self._gen_block(skipto.exp)
         self.print(f'self._skip_to(block{n})')
 
 
@@ -382,14 +382,14 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                 self.print(f'[{ldefs_str}],')
             self.print(')')
 
-    def _gen_block(self, node: grammars.Decorator, name='block'):
-        if () in node.exp.lookahead():
+    def _gen_block(self, exp: grammars.Model, name='block'):
+        if () in exp.lookahead():
             raise CodegenError(f'{self.node} may repeat empty sequence')
 
         n = self._next_n()
         self.print()
         self.print(f'def {name}{n}():')
         with self.indent():
-            self.walk(node.exp)
+            self.walk(exp)
 
         return n
