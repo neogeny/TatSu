@@ -121,10 +121,6 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         elif kwparams:
             params = kwparams
 
-        if not isinstance(rule.exp, grammars.Choice):
-            with self.indent():
-                self._gen_defines_declaration(rule)
-
         leftrec = '\n@leftrec' if rule.is_leftrec else ''
         nomemo = (
             '\n@nomemo'
@@ -145,6 +141,9 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         )
         with self.indent():
             self.print(self.walk(rule.exp))
+            if not isinstance(rule.exp, grammars.Choice):
+                self._gen_defines_declaration(rule)
+
 
     def walk_BasedRule(self, rule: grammars.BasedRule):
         # FIXME: the following override is to not alter the previous codegen
@@ -154,7 +153,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
     def walk_RuleRef(self, ref: grammars.RuleRef):
         self.print(f'self._{ref.name}_()')
 
-    def wal_RuleInclude(self, include: grammars.RuleInclude):
+    def walk_RuleInclude(self, include: grammars.RuleInclude):
         self.walk(include.rule.exp)
 
     def walk_Void(self, void: grammars.Void):
@@ -208,8 +207,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
     def walk_Sequence(self, seq: grammars.Sequence):
         self.walk(seq.sequence)
-        with self.indent():
-            self._gen_defines_declaration(seq)
+        self._gen_defines_declaration(seq)
 
     def walk_Choice(self, choice: grammars.Choice):
         if len(choice.options) == 1:
@@ -274,14 +272,14 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'self._right_join(block{n}, sep{n})')
 
     def walk_Gather(self, gather: grammars.Gather):
-        n = self._gen_block(gather, name='sep')
+        m = self._gen_block(gather, name='sep')
         n = self._gen_block(gather)
-        self.print(f'self._gather(block{n}, sep{n})')
+        self.print(f'self._gather(block{n}, sep{m})')
 
     def walk_PositiveGather(self, gather: grammars.PositiveGather):
-        n = self._gen_block(gather, name='sep')
+        m = self._gen_block(gather, name='sep')
         n = self._gen_block(gather)
-        self.print(f'self._positive_gather(block{n}, sep{n})')
+        self.print(f'self._positive_gather(block{n}, sep{m})')
 
     def walk_SkipTo(self, skipto: grammars.SkipTo):
         n = self._gen_block(skipto)
@@ -325,7 +323,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                     config = ParserConfig.new(
                         config,
                         owner=self,
-                        whitespace={grammar.config.whitespace},
+                        whitespace={grammar.config.whitespace!r},
                         nameguard={grammar.config.nameguard},
                         ignorecase={grammar.config.ignorecase},
                         namechars={grammar.config.namechars or None},
@@ -336,7 +334,6 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                         start={start!r},
                     )
                     config = config.replace(**settings)
-                    super().__init__(text, config=config)
                     ''',
         )
         self.print()
@@ -348,6 +345,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             self.print('def __init__(self, text, /, config: ParserConfig | None = None, **settings):')
             with self.indent():
                 self._gen_init(grammar)
+                self.print('super().__init__(text, config=config)')
         self.print()
 
 
@@ -357,6 +355,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             self.print('def __init__(self, /, config: ParserConfig | None = None, **settings):')
             with self.indent():
                 self._gen_init(grammar)
+                self.print('super().__init__(config=config)')
             self.walk(grammar.rules)
 
     def _gen_defines_declaration(self, node: grammars.Model):
