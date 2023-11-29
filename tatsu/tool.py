@@ -19,6 +19,7 @@ from .codegen.python import codegen as pythoncg
 from .exceptions import ParseException
 from .infos import ParserConfig
 from .ngcodegen import codegen as ngpythoncg
+from .ngcodegen import objectmodel as ngobjectmodel
 from .parser import GrammarGenerator
 from .semantics import ModelBuilderSemantics
 from .util import eval_escapes
@@ -44,7 +45,13 @@ def parse_args():
     main_mode.add_argument(
         '--ng-parser',
         '-x',
-        help='generate parser code from the grammar with new code generator',
+        help='generate parser code from the grammar using new code generator',
+        action='store_true',
+    )
+    main_mode.add_argument(
+        '--ng-model',
+        '-y',
+        help='generate parser model from the grammar using the new code generator',
         action='store_true',
     )
     main_mode.add_argument(
@@ -337,6 +344,8 @@ def main():
                 result = objectmodel.codegen(model, base_type=args.base_type)
             elif args.ng_parser:
                 result = ngpythoncg(model)
+            elif args.ng_model:
+                result = ngobjectmodel.codegen(model, parser_name=args.name)
             else:
                 result = pythoncg(model)
 

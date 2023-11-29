@@ -13,7 +13,7 @@ from ..util import compress_seq, safe_name, trim
 from ..walkers import NodeWalker
 
 HEADER = """\
-    #!/usr/bin/env python
+    #!/usr/bin/env python3
 
     # WARNING: CAVEAT UTILITOR
     #
@@ -61,7 +61,6 @@ if __name__ == '__main__':
 """
 
 
-
 class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
     _counter: Iterator[int] = itertools.count()
 
@@ -77,15 +76,11 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
     def _reset_counter(cls):
         cls._counter = itertools.count()
 
-    def print(self, *args, **kwargs):
-        args = [trim(str(arg)) for arg in args if arg is not None]
-        super().print(*args, **kwargs)
-
     def walk_default(self, node: Any):
         return node
 
     def walk_Grammar(self, grammar: grammars.Grammar):
-        self.parser_name = self.parser_name or grammar.name
+        parser_name = self.parser_name or grammar.name
         self.print(HEADER)
         self.print()
         self.print()
@@ -95,7 +90,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self._gen_parsing(grammar)
 
         self.print()
-        self.print(FOOTER.format(name=self.parser_name))
+        self.print(FOOTER.format(name=parser_name))
 
     def walk_Rule(self, rule: grammars.Rule):
         def param_repr(p):
