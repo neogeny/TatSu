@@ -4,10 +4,10 @@ import itertools
 from collections.abc import Iterator
 from typing import Any
 
-from ..collections import OrderedSet as oset
 from .. import grammars
+from ..collections import OrderedSet as oset
 from ..mixins.indent import IndentPrintMixin
-from ..util import trim, compress_seq, safe_name
+from ..util import compress_seq, safe_name, trim
 from ..walkers import NodeWalker
 
 HEADER = """\
@@ -110,7 +110,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         if rule.kwparams:
             kwparams = ', '.join(
                 f'{k}={param_repr(self.walk(v))}'
-                for k, v in self.kwparams.items()
+                for k, v in rule.kwparams.items()
             )
 
         if params and kwparams:
@@ -118,16 +118,17 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         elif kwparams:
             params = kwparams
 
-        sdefines = ''
-        if not isinstance(rule.exp, grammars.Choice):
-            sdefines = self._make_defines_declaration(rule)
+        # sdefines = ''
+        # if not isinstance(rule.exp, grammars.Choice):
+        #     sdefines = self._make_defines_declaration(rule)
+
         leftrec = '\n@leftrec' if rule.is_leftrec else ''
         nomemo = (
             '\n@nomemo'
             if not rule.is_memoizable and not leftrec
             else ''
         )
-        isname='\n@isname' if rule.is_name else ''
+        isname = '\n@isname' if rule.is_name else ''
 
         self.print(
             f"""
@@ -136,7 +137,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             {nomemo}\
             {isname}
             def _{rule.name}_(self):
-            """
+            """,
         )
         with self.indent():
             self.print(self.walk(rule.exp))
@@ -208,12 +209,12 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         if not (sdefs or ldefs):
             return ''
         else:
-            sdefs = '[%s]' % ', '.join(sorted(repr(d) for d in sdefs))
-            ldefs = '[%s]' % ', '.join(sorted(repr(d) for d in ldefs))
+            sdefs_str = '[%s]' % ', '.join(sorted(repr(d) for d in sdefs))
+            ldefs_str = '[%s]' % ', '.join(sorted(repr(d) for d in ldefs))
             if not ldefs:
-                return f'\n\n    self._define({sdefs}, {ldefs})'
+                return f'\n\n    self._define({sdefs_str}, {ldefs_str})'
             else:
-                return '\n' + trim(self.define_template % (sdefs, ldefs))
+                return '\n' + trim(self.define_template % (sdefs_str, ldefs_str))
 
     define_template = """\
             self._define(
