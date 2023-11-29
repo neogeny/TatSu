@@ -5,8 +5,7 @@ from ..mixins.indent import IndentPrintMixin
 from ..util import trim
 from ..walkers import NodeWalker
 
-
-HEADER= """\
+HEADER = """\
     #!/usr/bin/env python
 
     # WARNING:
@@ -51,7 +50,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print(
             '''
             ** AT GRAMMAR
-            '''
+            ''',
         )
 
     def _gen_keywords(self, grammar: grammars.Grammar):
@@ -59,9 +58,9 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         if not keywords:
             self.print('KEYWORDS: set[str] = set()')
         else:
-            keywords = '\n'.join(f'    {k!r},' for k in keywords)
-            keywords = '{\n%s\n}' % keywords
-            self.print(f'KEYWORDS: set[str] = {keywords}')
+            keywords_str = '\n'.join(f'    {k!r},' for k in keywords)
+            keywords_str = '{\n%s\n}' % keywords_str
+            self.print(f'KEYWORDS: set[str] = {keywords_str}')
 
         self.print()
         self.print()
@@ -90,6 +89,6 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                     )
                     config = config.replace(**settings)
                     super().__init__(text, config=config)
-                    '''
+                    ''',
                 )
 

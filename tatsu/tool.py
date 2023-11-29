@@ -2,6 +2,7 @@
 Parse and translate an EBNF grammar into a Python parser for
 the described language.
 """
+# ruff: noqa: PLR0912
 from __future__ import annotations
 
 import argparse
@@ -15,9 +16,9 @@ from .codegen import objectmodel
 
 # we hook the tool to the Python code generator as the default
 from .codegen.python import codegen as pythoncg
-from .ngcodegen import codegen as ngpythoncg
 from .exceptions import ParseException
 from .infos import ParserConfig
+from .ngcodegen import codegen as ngpythoncg
 from .parser import GrammarGenerator
 from .semantics import ModelBuilderSemantics
 from .util import eval_escapes

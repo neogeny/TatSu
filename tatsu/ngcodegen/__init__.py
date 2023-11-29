@@ -1,5 +1,4 @@
 from ..objectmodel import ParseModel
-
 from .python import PythonCodeGenerator
 
 
