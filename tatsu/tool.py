@@ -345,7 +345,7 @@ def main():
             elif args.ng_parser:
                 result = ngpythoncg(model)
             elif args.ng_model:
-                result = ngobjectmodel.codegen(model, parser_name=args.name)
+                result = ngobjectmodel.modelgen(model, parser_name=args.name)
             else:
                 result = pythoncg(model)
 
