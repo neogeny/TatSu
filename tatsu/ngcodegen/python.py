@@ -231,7 +231,19 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'def block{n}():')
         with self.indent():
             self.walk(closure.exp)
+        self.print()
         self.print(f'self._closure(block{n})')
+
+    def walk_PositiveClosure(self, closure: grammars.PositiveClosure):
+        if () in closure.exp.lookahead():
+            raise CodegenError(f'{self.node} may repeat empty sequence')
+
+        n = self._next_n()
+        self.print(f'def block{n}():')
+        with self.indent():
+            self.walk(closure.exp)
+        self.print()
+        self.print(f'self._positive_closure(block{n})')
 
     def _gen_keywords(self, grammar: grammars.Grammar):
         keywords = [str(k) for k in grammar.keywords if k is not None]
