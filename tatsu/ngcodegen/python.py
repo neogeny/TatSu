@@ -143,6 +143,39 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             self.print(self.walk(rule.exp))
         self.print()
 
+    def walk_Void(self, void: grammars.Void):
+        self.print('self._void()')
+
+    def walk_Any(self, any: grammars.Any):
+        self.print('self._any()')
+
+    def walk_Fail(self, fail: grammars.Fail):
+        self.print('self._fail()')
+
+    def walk_Comment(self, comment: grammars.Comment):
+        lines = '\n'.join(f'# {c!s}' for c in comment.comment.splitlines())
+        self.print(f'\n{lines}\n')
+
+    def walk_EOLComment(self, comment: grammars.EOLComment):
+        self.walk_Comment(comment)
+
+    def walk_EOF(self, eof: grammars.EOF):
+        self.print('self._check_eof()')
+
+    def walk_Group(self, group: grammars.Group):
+        self.print('with self._group():')
+        with self.indent():
+            self.walk(group.exp)
+
+    def walk_Token(self, token: grammars.Token):
+        self.print(f'self._token({token.token!r})')
+
+    def walk_Constant(self, constant: grammars.Constant):
+        self.print(f'self._constant({constant.literal!r})')
+
+    def walk_Alert(self, alert: grammars.Alert):
+        self.print(f'self._alert({alert.literal!r}, {alert.level})')
+
     def _gen_keywords(self, grammar: grammars.Grammar):
         keywords = [str(k) for k in grammar.keywords if k is not None]
         if not keywords:
