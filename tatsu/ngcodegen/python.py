@@ -7,6 +7,7 @@ from typing import Any
 
 from .. import grammars
 from ..collections import OrderedSet as oset
+from ..exceptions import CodegenError
 from ..mixins.indent import IndentPrintMixin
 from ..util import compress_seq, safe_name, trim
 from ..walkers import NodeWalker
@@ -69,11 +70,11 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.parser_name = parser_name
 
     @classmethod
-    def counter(cls):
+    def _next_n(cls):
         return next(cls._counter)
 
     @classmethod
-    def reset_counter(cls):
+    def _reset_counter(cls):
         cls._counter = itertools.count()
 
     def print(self, *args, **kwargs):
@@ -103,6 +104,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             else:
                 return repr(p.split('::')[0])
 
+        self._reset_counter()
         params = kwparams = ''
         if rule.params:
             params = ', '.join(
@@ -215,6 +217,21 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             with self.indent():
                 self.print(errors)
             self.print(')')
+
+    def walk_Option(self, option: grammars.Option):
+        self.print('with self._option():')
+        with self.indent():
+            self.walk(option.exp)
+
+    def walk_Closure(self, closure: grammars.Closure):
+        if () in closure.exp.lookahead():
+            raise CodegenError(f'{self.node} may repeat empty sequence')
+
+        n = self._next_n()
+        self.print(f'def block{n}():')
+        with self.indent():
+            self.walk(closure.exp)
+        self.print(f'self._closure(block{n})')
 
     def _gen_keywords(self, grammar: grammars.Grammar):
         keywords = [str(k) for k in grammar.keywords if k is not None]
