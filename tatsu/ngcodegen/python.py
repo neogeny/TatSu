@@ -95,7 +95,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self._gen_parsing(grammar)
 
         self.print()
-        self.print(FOOTER)
+        self.print(FOOTER.format(name=self.parser_name))
 
     def walk_Rule(self, rule: grammars.Rule):
         def param_repr(p):
@@ -146,6 +146,9 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         with self.indent():
             self.print(self.walk(rule.exp))
 
+    def walk_RuleRef(self, ref: grammars.RuleRef):
+        self.print(f'self._{ref.name}_()')
+
     def walk_Void(self, void: grammars.Void):
         self.print('self._void()')
 
@@ -154,6 +157,9 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
     def walk_Fail(self, fail: grammars.Fail):
         self.print('self._fail()')
+
+    def walk_Cut(self, cut: grammars.Cut):
+        self.print('self._cut()')
 
     def walk_Comment(self, comment: grammars.Comment):
         lines = '\n'.join(f'# {c!s}' for c in comment.comment.splitlines())
@@ -223,27 +229,73 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         with self.indent():
             self.walk(option.exp)
 
-    def walk_Closure(self, closure: grammars.Closure):
-        if () in closure.exp.lookahead():
-            raise CodegenError(f'{self.node} may repeat empty sequence')
-
-        n = self._next_n()
-        self.print(f'def block{n}():')
+    def walk_Optional(self, optional: grammars.Optional):
+        self.print('with self._optional():')
         with self.indent():
-            self.walk(closure.exp)
-        self.print()
+            self.walk(optional.exp)
+
+    def walk_EmptyClosure(self, closure: grammars.EmptyClosure):
+        self.print('self._empty_closure()')
+
+    def walk_Closure(self, closure: grammars.Closure):
+        n = self._gen_block(closure)
         self.print(f'self._closure(block{n})')
 
     def walk_PositiveClosure(self, closure: grammars.PositiveClosure):
-        if () in closure.exp.lookahead():
-            raise CodegenError(f'{self.node} may repeat empty sequence')
-
-        n = self._next_n()
-        self.print(f'def block{n}():')
-        with self.indent():
-            self.walk(closure.exp)
-        self.print()
+        n = self._gen_block(closure)
         self.print(f'self._positive_closure(block{n})')
+
+    def walk_Join(self, join: grammars.Join):
+        n = self._gen_block(join, name='sep')
+        n = self._gen_block(join)
+        self.print(f'self._join(block{n}, sep{n})')
+
+    def walk_PositiveJoin(self, join: grammars.PositiveJoin):
+        n = self._gen_block(join, name='sep')
+        n = self._gen_block(join)
+        self.print(f'self._positive_join(block{n}, sep{n})')
+
+    def walk_LeftJoin(self, join: grammars.LeftJoin):
+        n = self._gen_block(join, name='sep')
+        n = self._gen_block(join)
+        self.print(f'self._left_join(block{n}, sep{n})')
+
+    def walk_RightJoin(self, join: grammars.RightJoin):
+        n = self._gen_block(join, name='sep')
+        n = self._gen_block(join)
+        self.print(f'self._right_join(block{n}, sep{n})')
+
+    def walk_Gather(self, gather: grammars.Gather):
+        n = self._gen_block(gather, name='sep')
+        n = self._gen_block(gather)
+        self.print(f'self._gather(block{n}, sep{n})')
+
+    def walk_PositiveGather(self, gather: grammars.PositiveGather):
+        n = self._gen_block(gather, name='sep')
+        n = self._gen_block(gather)
+        self.print(f'self._positive_gather(block{n}, sep{n})')
+
+    def walk_SkipTo(self, skipto: grammars.SkipTo):
+        n = self._gen_block(skipto)
+        self.print(f'self._skip_to(block{n})')
+
+
+    def walk_Named(self, named: grammars.Named):
+        self.walk(named.exp)
+        self.print(f"self.name_last_node('{named.name}')")
+
+    def walk_NamedList(self, named: grammars.Named):
+        self.walk(named.exp)
+        self.print(f"self.add_last_node_to_name('{named.name}')")
+
+    def walk_Override(self, override: grammars.Override):
+        self.walk_Named(override)
+
+    def walk_OverrideList(self, override: grammars.OverrideList):
+        self.walk_NamedList(override)
+
+    def walk_Special(self, special: grammars.Special):
+        pass
 
     def _gen_keywords(self, grammar: grammars.Grammar):
         keywords = [str(k) for k in grammar.keywords if k is not None]
@@ -322,3 +374,15 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                 self.print(f'[{sdefs_str}],')
                 self.print(f'[{ldefs_str}],')
             self.print(')')
+
+    def _gen_block(self, node: grammars.Decorator, name='block'):
+        if () in node.exp.lookahead():
+            raise CodegenError(f'{self.node} may repeat empty sequence')
+
+        n = self._next_n()
+        self.print()
+        self.print(f'def {name}{n}():')
+        with self.indent():
+            self.walk(node.exp)
+
+        return n
