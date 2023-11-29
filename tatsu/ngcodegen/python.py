@@ -146,8 +146,16 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         with self.indent():
             self.print(self.walk(rule.exp))
 
+    def walk_BasedRule(self, rule: grammars.BasedRule):
+        # FIXME: the following override is to not alter the previous codegen
+        rule.exp = rule.rhs
+        self.walk_Rule(rule)
+
     def walk_RuleRef(self, ref: grammars.RuleRef):
         self.print(f'self._{ref.name}_()')
+
+    def wal_RuleInclude(self, include: grammars.RuleInclude):
+        self.walk(include.rule.exp)
 
     def walk_Void(self, void: grammars.Void):
         self.print('self._void()')
