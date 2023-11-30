@@ -16,7 +16,7 @@ class IndentPrintMixin:
     def print(self, *args, **kwargs):
         args = [trim(str(arg)) for arg in args if arg is not None]
         lines = self.as_printed_lines(*args, **kwargs)
-        self._do_print_lines(lines)
+        self._do_print_lines(lines, **kwargs)
 
     def as_printed(self, *args, **kwargs):
         lines = self.as_printed_lines(*args, **kwargs)
@@ -49,13 +49,13 @@ class IndentPrintMixin:
             print(*args, file=output, **kwargs)
             return output.getvalue()
 
-    def _do_print_lines(self, lines: list[str] | None = None):
+    def _do_print_lines(self, lines: list[str] | None = None, **kwargs):
         if not lines:
-            print(file=self.output_stream)
+            print(file=self.output_stream, **kwargs)
             return
 
         for line in lines:
-            print(line, file=self.output_stream)
+            print(line, file=self.output_stream, **kwargs)
 
     def indented_lines(self, text):
         text = trim(text)
