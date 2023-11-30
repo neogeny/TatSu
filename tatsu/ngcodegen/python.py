@@ -127,11 +127,11 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print()
         self.print(
             f"""
-            @tatsumasu({params})\
-            {leftrec}\
-            {nomemo}\
-            {isname}
-            def _{rule.name}_(self):
+                @tatsumasu({params})\
+                {leftrec}\
+                {nomemo}\
+                {isname}\
+                \ndef _{rule.name}_(self):
             """,
         )
         with self.indent():

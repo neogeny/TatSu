@@ -72,6 +72,7 @@ class KeywordTests(unittest.TestCase):
         """
         model = compile(grammar, 'test')
         c = codegen(model)
+        print(c)
         parse(c)
 
         ast = model.parse('hello world')
