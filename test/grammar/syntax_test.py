@@ -3,8 +3,8 @@ import unittest
 import pytest
 
 from tatsu import tool
-from tatsu.codegen import codegen
 from tatsu.exceptions import FailedParse, FailedToken
+from tatsu.ngcodegen import codegen
 from tatsu.parser import EBNFBuffer
 from tatsu.tool import compile
 from tatsu.util import trim

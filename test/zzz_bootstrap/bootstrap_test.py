@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 
 from tatsu import util
-from tatsu.codegen import codegen
+from tatsu.ngcodegen import codegen
 from tatsu.parser import EBNFParser, GrammarGenerator
 from tatsu.parser_semantics import EBNFGrammarSemantics
 from tatsu.util import asjson

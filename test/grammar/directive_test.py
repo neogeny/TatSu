@@ -1,8 +1,8 @@
 import pytest
 
 import tatsu
-from tatsu.codegen import codegen
 from tatsu.exceptions import FailedParse
+from tatsu.ngcodegen import codegen
 from tatsu.util import trim
 
 EXEC = 'exec'

@@ -139,7 +139,6 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             if not isinstance(rule.exp, grammars.Choice):
                 self._gen_defines_declaration(rule)
 
-
     def walk_BasedRule(self, rule: grammars.BasedRule):
         # FIXME: the following override is to not alter the previous codegen
         rule.exp = rule.rhs
