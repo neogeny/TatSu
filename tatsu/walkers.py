@@ -42,12 +42,12 @@ class NodeWalker(metaclass=NodeWalkerMeta):
 
     def walk_children(self, node: Node, *args, **kwargs):
         if not isinstance(node, Node):
-            return ()
+            return []
 
-        for child in node.children():
-            return self.walk(child, *args, **kwargs)
-
-        return None
+        return [
+            self.walk(child, *args, **kwargs)
+            for child in node.children()
+        ]
 
     def _find_walker(self, node: Node, prefix='walk_'):
         def pythonize_match(m):
