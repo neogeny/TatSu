@@ -142,7 +142,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         name = (
             self.grammar_name
             if self.grammar_name
-            else directives.get('grammar', None)
+            else directives.get('grammar')
         )
         return grammars.Grammar(
             name,

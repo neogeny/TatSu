@@ -20,6 +20,7 @@ ignore = [
     "PLR0904",  # too-many-public-methods
     "PLR0913",  # too-many-arguments
     "PLR0915",  # too-many-statements
+    "PLR0917",  # too many possitional arguments
     "PLR2004",  # magic-value-comparison
     "PLW1514",  # unspecified-encoding
 #    "PLW0603",  # global-statement
