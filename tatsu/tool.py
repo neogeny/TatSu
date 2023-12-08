@@ -44,14 +44,12 @@ def parse_args():
     )
     main_mode.add_argument(
         '--ng-parser',
-        '-x',
         help='generate parser code from the grammar using new code generator',
         action='store_true',
     )
     main_mode.add_argument(
         '--ng-model',
-        '-y',
-        help='generate parser model from the grammar using the new code generator',
+        help='generate a model from the grammar using the new code generator',
         action='store_true',
     )
     main_mode.add_argument(
