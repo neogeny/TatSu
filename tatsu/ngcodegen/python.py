@@ -309,26 +309,29 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print()
         self.print()
 
-
     def _gen_init(self, grammar: grammars.Grammar):
         start = grammar.config.start or grammar.rules[0].name
+
+        whitespace = grammar.config.whitespace
+        whitespace = repr(whitespace) if whitespace else None
+
         self.print(
             f'''
-                    config = ParserConfig.new(
-                        config,
-                        owner=self,
-                        whitespace={grammar.config.whitespace!r},
-                        nameguard={grammar.config.nameguard},
-                        ignorecase={grammar.config.ignorecase},
-                        namechars={grammar.config.namechars!r},
-                        parseinfo={grammar.config.parseinfo},
-                        comments_re={grammar.config.comments_re!r},
-                        eol_comments_re={grammar.config.eol_comments_re!r},
-                        keywords=KEYWORDS,
-                        start={start!r},
-                    )
-                    config = config.replace(**settings)
-                    ''',
+                config = ParserConfig.new(
+                    config,
+                    owner=self,
+                    whitespace={whitespace},
+                    nameguard={grammar.config.nameguard},
+                    ignorecase={grammar.config.ignorecase},
+                    namechars={grammar.config.namechars!r},
+                    parseinfo={grammar.config.parseinfo},
+                    comments_re={grammar.config.comments_re!r},
+                    eol_comments_re={grammar.config.eol_comments_re!r},
+                    keywords=KEYWORDS,
+                    start={start!r},
+                )
+                config = config.replace(**settings)
+            ''',
         )
         self.print()
 
