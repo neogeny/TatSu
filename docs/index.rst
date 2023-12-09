@@ -47,8 +47,8 @@ input, much like the `re`_ module does with regular expressions, or it can gener
     semantics
     models
     asjson
-    print_translation
     translation
+    declarative_translation
     left_recursion
     mini-tutorial
     traces
