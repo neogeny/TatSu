@@ -86,8 +86,8 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print()
 
         self._gen_keywords(grammar)
-        self._gen_buffering(grammar)
-        self._gen_parsing(grammar)
+        self._gen_buffering(grammar, parser_name)
+        self._gen_parsing(grammar, parser_name)
 
         self.print()
         self.print(FOOTER.format(name=parser_name))
@@ -320,7 +320,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                         whitespace={grammar.config.whitespace!r},
                         nameguard={grammar.config.nameguard},
                         ignorecase={grammar.config.ignorecase},
-                        namechars={grammar.config.namechars or None},
+                        namechars={grammar.config.namechars!r},
                         parseinfo={grammar.config.parseinfo},
                         comments_re={grammar.config.comments_re!r},
                         eol_comments_re={grammar.config.eol_comments_re!r},
@@ -332,8 +332,8 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         )
         self.print()
 
-    def _gen_buffering(self, grammar: grammars.Grammar):
-        self.print(f'class {self.parser_name}Buffer(Buffer):')
+    def _gen_buffering(self, grammar: grammars.Grammar, parser_name: str):
+        self.print(f'class {parser_name}Buffer(Buffer):')
 
         with self.indent():
             self.print('def __init__(self, text, /, config: ParserConfig | None = None, **settings):')
@@ -343,8 +343,8 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print()
 
 
-    def _gen_parsing(self, grammar: grammars.Grammar):
-        self.print(f'class {self.parser_name}Parser(Parser):')
+    def _gen_parsing(self, grammar: grammars.Gramma, parser_name: strr):
+        self.print(f'class {parser_name}Parser(Parser):')
         with self.indent():
             self.print('def __init__(self, /, config: ParserConfig | None = None, **settings):')
             with self.indent():

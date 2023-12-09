@@ -1,5 +1,4 @@
 from collections import namedtuple
-from typing import cast
 
 from .. import grammars, objectmodel
 from ..mixins.indent import IndentPrintMixin
@@ -44,9 +43,10 @@ HEADER = """\
 BaseClassSpec = namedtuple('BaseClassSpec', ['class_name', 'base'])
 
 
-def modelgen(model: grammars.Model, name: str = '', base_type: type = objectmodel.Node) -> str:
+def modelgen(model: grammars.Grammar, name: str = '', base_type: type = objectmodel.Node | None) -> str:
+    base_type = base_type or objectmodel.Node
     generator = PythonModelGenerator(name=name, base_type=base_type)
-    return generator.generate_model(cast(grammars.Grammar, model))
+    return generator.generate_model(model)
 
 
 class PythonModelGenerator(IndentPrintMixin):
