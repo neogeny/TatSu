@@ -57,8 +57,8 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         node_cls = node.__class__
         node_cls_qualname = node_cls.__qualname__
 
-        if node_cls_qualname in self._walker_cache:
-            return self._walker_cache[node_cls_qualname]
+        if walker := self._walker_cache.get(node_cls_qualname):
+            return walker
 
         node_classes = [node.__class__]
         while node_classes:
@@ -78,13 +78,12 @@ class NodeWalker(metaclass=NodeWalkerMeta):
                 if callable(walker):
                     break
 
-            # walk_pythonic_name with single underscore after walk
-
-            # pythonic_name = pythonic_name.lstrip('_')
-            # if pythonic_name != cammelcase_name:
-            #     walker = getattr(cls, prefix + pythonic_name, None)
-            #     if callable(walker):
-            #         break
+            # walk_pythonic_name with single underscore after prefix
+            pythonic_name = pythonic_name.lstrip('_')
+            if pythonic_name != cammelcase_name:
+                walker = getattr(cls, prefix + pythonic_name, None)
+                if callable(walker):
+                    break
 
             for b in node_cls.__bases__:
                 if b not in node_classes:
