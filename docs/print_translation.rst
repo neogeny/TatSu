@@ -21,7 +21,7 @@ and should be used thus:
 
         def walk_SomeNode(self, node):
             with self.indent():
-                # ccontinue walking the tree
+                # continue walking the tree
 
 
 The ``self.print()`` method takes note of the current level of indentation, so
