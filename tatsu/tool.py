@@ -12,10 +12,6 @@ import sys
 from pathlib import Path
 
 from ._version import __version__
-from .codegen import objectmodel
-
-# we hook the tool to the Python code generator as the default
-from .codegen.python import codegen as pythoncg
 from .exceptions import ParseException
 from .infos import ParserConfig
 from .ngcodegen import codegen as ngpythoncg
@@ -40,16 +36,6 @@ def parse_args():
     main_mode.add_argument(
         '--generate-parser',
         help='generate parser code from the grammar (default)',
-        action='store_true',
-    )
-    main_mode.add_argument(
-        '--ng-parser',
-        help='generate parser code from the grammar using new code generator',
-        action='store_true',
-    )
-    main_mode.add_argument(
-        '--ng-model',
-        help='generate a model from the grammar using the new code generator',
         action='store_true',
     )
     main_mode.add_argument(
@@ -237,7 +223,7 @@ def to_python_sourcecode(
     model = compile(
         grammar, name=name, filename=filename, config=config, **settings,
     )
-    return pythoncg(model)
+    return ngpythoncg(model)
 
 
 def to_python_model(
@@ -251,7 +237,7 @@ def to_python_model(
     model = compile(
         grammar, name=name, filename=filename, config=config, **settings,
     )
-    return objectmodel.codegen(model, base_type=base_type)
+    return ngobjectmodel.modelgen(model, base_type=base_type)
 
 
 # for backwards compatibility. Use `compile()` instead
@@ -275,7 +261,7 @@ def gencode(
     grammar=None,
     trace=False,
     filename=None,
-    codegen=pythoncg,
+    codegen=ngpythoncg,
     config: ParserConfig | None = None,
     **settings,
 ):
@@ -339,13 +325,9 @@ def main():
             elif args.pretty_lean:
                 result = model.pretty_lean()
             elif args.object_model:
-                result = objectmodel.codegen(model, base_type=args.base_type)
-            elif args.ng_parser:
-                result = ngpythoncg(model)
-            elif args.ng_model:
-                result = ngobjectmodel.modelgen(model, name=args.name)
+                result = ngobjectmodel.modelgen(model, base_type=args.base_type)
             else:
-                result = pythoncg(model)
+                result = ngpythoncg(model)
 
             if outfile:
                 save(outfile, result)
@@ -356,7 +338,7 @@ def main():
         if args.object_model_outfile:
             save(
                 args.object_model_outfile,
-                objectmodel.codegen(model, base_type=args.base_type),
+                ngobjectmodel.modelgen(model, base_type=args.base_type),
             )
 
         print('-' * 72, file=sys.stderr)
