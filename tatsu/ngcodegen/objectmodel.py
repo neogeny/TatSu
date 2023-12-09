@@ -20,21 +20,16 @@ HEADER = """\
 
     from typing import Any
     from dataclasses import dataclass
-
+    
     from tatsu.semantics import ModelBuilderSemantics
     {base_type_import}
-
-
-    @dataclass(eq=False)
-    class {name}ModelBase({base_type}):
-        pass
-
-
+    
+    
     class {name}ModelBuilderSemantics(ModelBuilderSemantics):
         def __init__(self, context=None, types=None):
             types = [
                 t for t in globals().values()
-                if type(t) is type and issubclass(t, {name}ModelBase)
+                if type(t) is type and issubclass(t, ModelBase)
             ] + (types or [])
             super().__init__(context=context, types=types)
 """
@@ -58,7 +53,8 @@ class PythonModelGenerator(IndentPrintMixin):
 
     def generate_model(self, grammar: grammars.Grammar):
         base_type = self.base_type
-        base_type_import = f"from {base_type.__module__} import {base_type.__name__.split('.')[-1]}"
+        base_type_name = base_type.__name__.split('.')[-1]
+        base_type_import = f"from {base_type.__module__} import {base_type_name}"
 
         self.name = self.name or grammar.name
         self.print(
@@ -68,35 +64,43 @@ class PythonModelGenerator(IndentPrintMixin):
                 base_type_import=base_type_import,
             ),
         )
-        self.print()
-        self.print()
 
         rule_index = {rule.name: rule for rule in grammar.rules}
         rule_specs = {
             rule.name: self._base_class_specs(rule)
             for rule in grammar.rules
         }
+        all_base_spec = {
+            s.class_name: s
+            for specs in rule_specs.values()
+            for s in specs
+        }
+        base = self._model_base_class_name()
+        all_base_spec[base] = BaseClassSpec(base, base_type_name)
 
-        model_classes = {s.class_name for spec in rule_specs.values() for s in spec}
-        base_classes = {s.base for spec in rule_specs.values() for s in spec}
-        base_classes -= model_classes
+        base_classes = []
+        for s in all_base_spec.values():
+            if s.base not in base_classes:
+                base_classes.append(s.base)
 
-        for base_name in base_classes:
-            if base_name in rule_specs:
-                self._gen_base_class(rule_specs[base_name][0])
+        for base_name in base_classes[:-1]:
+            self._gen_base_class(all_base_spec[base_name])
 
         for model_name, rule in rule_index.items():
-            if model_name in rule_index:
-                self._gen_rule_class(
-                    rule,
-                    rule_specs[model_name],
-                )
+            self._gen_rule_class(
+                rule,
+                rule_specs[model_name],
+            )
 
         return self.printed_text()
+
+    def _model_base_class_name(self):
+        return f'ModelBase'
 
     def _gen_base_class(self, spec: BaseClassSpec):
         self.print()
         self.print()
+        self.print('@dataclass(eq=False)')
         if spec.base:
             self.print(f'class {spec.class_name}({spec.base}):')
         else:
@@ -122,11 +126,9 @@ class PythonModelGenerator(IndentPrintMixin):
                 self.print(f'{arg}: Any = None')
 
     def _base_class_specs(self, rule: grammars.Rule) -> list[BaseClassSpec]:
-        if not rule.params:
-            return []
-
-        spec = rule.params[0].split('::')
-        class_names = [safe_name(n) for n in spec] + [f'{self.name}ModelBase']
+        spec = rule.params[0].split('::') if rule.params else []
+        base = [self._model_base_class_name()]
+        class_names = [safe_name(n) for n in spec] + base
         return [
             BaseClassSpec(class_name, class_names[i + 1])
             for i, class_name in enumerate(class_names[:-1])
