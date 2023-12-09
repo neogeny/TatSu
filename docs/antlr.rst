@@ -1,8 +1,8 @@
 .. include:: links.rst
 
 
-Using ANTLR Grammars
---------------------
+ANTLR Grammars
+--------------
 
 .. _grammars: https://github.com/antlr/grammars-v4
 

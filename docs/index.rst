@@ -46,13 +46,11 @@ input, much like the `re`_ module does with regular expressions, or it can gener
     ast
     semantics
     models
-    asjson
     translation
     declarative_translation
     left_recursion
     mini-tutorial
     traces
-    grako
     antlr
     examples
     support
