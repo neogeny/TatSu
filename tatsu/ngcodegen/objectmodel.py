@@ -44,26 +44,26 @@ HEADER = """\
 BaseClassSpec = namedtuple('BaseClassSpec', ['class_name', 'base'])
 
 
-def modelgen(model: grammars.Model, parser_name: str = '', base_type: type = objectmodel.Node) -> str:
-    generator = PythonModelGenerator(parser_name=parser_name, base_type=base_type)
+def modelgen(model: grammars.Model, name: str = '', base_type: type = objectmodel.Node) -> str:
+    generator = PythonModelGenerator(name=name, base_type=base_type)
     return generator.generate_model(cast(grammars.Grammar, model))
 
 
 class PythonModelGenerator(IndentPrintMixin):
 
-    def __init__(self, parser_name: str = '', base_type: type = objectmodel.Node):
+    def __init__(self, name: str = '', base_type: type = objectmodel.Node):
         super().__init__()
         self.base_type = base_type
-        self.parser_name = parser_name or None
+        self.name = name or None
 
     def generate_model(self, grammar: grammars.Grammar):
         base_type = self.base_type
         base_type_import = f"from {base_type.__module__} import {base_type.__name__.split('.')[-1]}"
 
-        self.parser_name = self.parser_name or grammar.name
+        self.name = self.name or grammar.name
         self.print(
             HEADER.format(
-                name=self.parser_name,
+                name=self.name,
                 base_type=self.base_type.__name__,
                 base_type_import=base_type_import,
             ),
@@ -83,7 +83,7 @@ class PythonModelGenerator(IndentPrintMixin):
 
         for base_name in base_classes:
             if base_name in rule_specs:
-                self._gen_base_class(rule_specs[base_name])
+                self._gen_base_class(rule_specs[base_name][0])
 
         for model_name, rule in rule_index.items():
             if model_name in rule_index:
@@ -94,13 +94,13 @@ class PythonModelGenerator(IndentPrintMixin):
 
         return self.printed_text()
 
-    def _gen_base_class(self, specs: list[BaseClassSpec]):
+    def _gen_base_class(self, spec: BaseClassSpec):
         self.print()
         self.print()
-        spec = specs[0]
-        if specs[0].base:
+        if spec.base:
             self.print(f'class {spec.class_name}({spec.base}):')
         else:
+            # FIXME: this cannot happen as base_type is the final base
             self.print(f'class {spec.class_name}:')
         with self.indent():
             self.print('pass')
@@ -126,7 +126,7 @@ class PythonModelGenerator(IndentPrintMixin):
             return []
 
         spec = rule.params[0].split('::')
-        class_names = [safe_name(n) for n in spec] + [f'{self.parser_name}ModelBase']
+        class_names = [safe_name(n) for n in spec] + [f'{self.name}ModelBase']
         return [
             BaseClassSpec(class_name, class_names[i + 1])
             for i, class_name in enumerate(class_names[:-1])
