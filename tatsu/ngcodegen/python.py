@@ -345,8 +345,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                 self.print('super().__init__(text, config=config)')
         self.print()
 
-
-    def _gen_parsing(self, grammar: grammars.Gramma, parser_name: strr):
+    def _gen_parsing(self, grammar: grammars.Grammar, parser_name: str):
         self.print(f'class {parser_name}Parser(Parser):')
         with self.indent():
             self.print('def __init__(self, /, config: ParserConfig | None = None, **settings):')

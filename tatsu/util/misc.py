@@ -1,10 +1,10 @@
 from __future__ import annotations
-from typing import Iterable, TypeVar
 
 import re
+from collections.abc import Iterable
+from typing import TypeVar
 
 from ._common import RETYPE
-
 
 _T = TypeVar('_T')
 
@@ -75,7 +75,7 @@ def findalliter(pattern, string, pos=None, endpos=None, flags=0):
         yield match_to_find(m)
 
 
-def findfirst( pattern, string, pos=None, endpos=None, flags=0, default=_undefined):
+def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=_undefined):
     """
     Avoids using the inefficient findall(...)[0], or first(findall(...))
     """
@@ -89,7 +89,7 @@ def topological_sort(nodes: Iterable[_T], order: Iterable[tuple[_T, _T]]) -> lis
     # https://en.wikipedia.org/wiki/Topological_sorting
 
     order = set(order)
-    result = []  # Empty list that will contain the sorted elements
+    result: list[_T] = []  # Empty list that will contain the sorted elements
 
     pending = [  # Set of all nodes with no incoming edge
         n for n in nodes
