@@ -111,7 +111,7 @@ class PythonModelGenerator(IndentPrintMixin):
         self.print()
         self.print('@dataclass(eq=False)')
         if base:
-            self.print(f'class {class_name}({base}):  # base')
+            self.print(f'class {class_name}({base}):')
         else:
             # FIXME: this cannot happen as base_type is the final base
             self.print(f'class {class_name}:')
