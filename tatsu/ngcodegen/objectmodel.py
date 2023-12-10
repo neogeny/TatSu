@@ -4,7 +4,7 @@ from collections import namedtuple
 from .. import grammars, objectmodel
 from ..mixins.indent import IndentPrintMixin
 from ..util import compress_seq, safe_name
-from ..util.misc import topological_sort
+from ..util.misc import topsort
 
 HEADER = """\
     #!/usr/bin/env python3
@@ -74,39 +74,39 @@ class PythonModelGenerator(IndentPrintMixin):
         }
         rule_specs = {name: specs for name, specs in rule_specs.items() if specs}
 
-        all_base_spec = {
+        specs_by_name = {
             s.class_name: s.base
             for specs in rule_specs.values()
             for s in specs
         }
-        base = self._model_base_class_name()
-        all_base_spec[base] = base_type_name
+        base = self._model_base_name()
+        specs_by_name[base] = base_type_name
 
-        all_model_names = list(reversed(all_base_spec.keys()))
         all_specs = {
             (s.class_name, s.base)
             for specs in rule_specs.values()
             for s in specs
         }
+        model_names = topsort(reversed(specs_by_name), all_specs)
 
-        all_model_names = topological_sort(all_model_names, all_specs)
         model_to_rule = {
             rule_specs[name][0].class_name: rule
             for name, rule in rule_index.items()
             if name in rule_specs
         }
 
-        for model_name in all_model_names:
-            if model_name in dir(builtins):
+        for model_name in model_names:
+            if model_name in vars(builtins):
                 continue
             if rule := model_to_rule.get(model_name):
                 self._gen_rule_class(rule, rule_specs[rule.name])
             else:
-                self._gen_base_class(model_name, all_base_spec.get(model_name))
+                self._gen_base_class(model_name, specs_by_name.get(model_name))
 
         return self.printed_text()
 
-    def _model_base_class_name(self):
+    @staticmethod
+    def _model_base_name():
         return 'ModelBase'
 
     def _gen_base_class(self, class_name: str, base: str | None):
@@ -139,7 +139,7 @@ class PythonModelGenerator(IndentPrintMixin):
 
     def _base_class_specs(self, rule: grammars.Rule) -> list[BaseClassSpec]:
         spec = rule.params[0].split('::') if rule.params else []
-        base = [self._model_base_class_name()]
+        base = [self._model_base_name()]
         class_names = [safe_name(n) for n in spec] + base
         return [
             BaseClassSpec(class_name, class_names[i + 1])

@@ -85,29 +85,28 @@ def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=_undefine
     )
 
 
-def topological_sort(nodes: Iterable[_T], order: Iterable[tuple[_T, _T]]) -> list[_T]:
+def topsort(nodes: Iterable[_T], order: Iterable[tuple[_T, _T]]) -> list[_T]:
     # https://en.wikipedia.org/wiki/Topological_sorting
 
     order = set(order)
     result: list[_T] = []  # Empty list that will contain the sorted elements
 
-    pending = [  # Set of all nodes with no incoming edge
-        n for n in nodes
-        if not any(x for (x, y) in order if y == n)
+    def with_incoming():
+        return {m for (_, m) in order}
+
+    pending = [  # Set of all nodes with no incoming edges
+        n for n in nodes if n not in with_incoming()
     ]
     while pending:
         n = pending.pop()
         result.insert(0, n)
 
+        # nodes m with an edge from n to m
         outgoing = {m for (x, m) in order if x == n}
-        # node m with an edge e from n to m
-        for m in outgoing:
-            order.remove((n, m))
-            if not any(x for x, y in order if y == m):
-                # m has no other incoming edges
-                pending.append(m)
+        order -= {(n, m) for m in outgoing}
+        pending.extend(outgoing - with_incoming())
 
     if order:
-        raise ValueError('There are cycles in the graph')
+        raise ValueError('There are cycles in the topological order')
 
     return result  # a topologically sorted list
