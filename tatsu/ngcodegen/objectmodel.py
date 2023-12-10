@@ -1,3 +1,4 @@
+import builtins
 from collections import namedtuple
 
 from .. import grammars, objectmodel
@@ -21,11 +22,11 @@ HEADER = """\
 
     from typing import Any
     from dataclasses import dataclass
-    
+
     from tatsu.semantics import ModelBuilderSemantics
     {base_type_import}
-    
-    
+
+
     class {name}ModelBuilderSemantics(ModelBuilderSemantics):
         def __init__(self, context=None, types=None):
             types = [
@@ -39,7 +40,7 @@ HEADER = """\
 BaseClassSpec = namedtuple('BaseClassSpec', ['class_name', 'base'])
 
 
-def modelgen(model: grammars.Grammar, name: str = '', base_type: type = objectmodel.Node | None) -> str:
+def modelgen(model: grammars.Grammar, name: str = '', base_type: type | None = objectmodel.Node) -> str:
     base_type = base_type or objectmodel.Node
     generator = PythonModelGenerator(name=name, base_type=base_type)
     return generator.generate_model(model)
@@ -96,6 +97,8 @@ class PythonModelGenerator(IndentPrintMixin):
         }
 
         for model_name in all_model_names:
+            if model_name in dir(builtins):
+                continue
             if rule := model_to_rule.get(model_name):
                 self._gen_rule_class(rule, rule_specs[rule.name])
             else:
@@ -104,7 +107,7 @@ class PythonModelGenerator(IndentPrintMixin):
         return self.printed_text()
 
     def _model_base_class_name(self):
-        return f'ModelBase'
+        return 'ModelBase'
 
     def _gen_base_class(self, class_name: str, base: str | None):
         self.print()
