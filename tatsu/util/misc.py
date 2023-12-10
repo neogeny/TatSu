@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TypeVar
+from typing import Iterable, TypeVar
 
 import re
 
@@ -85,7 +85,7 @@ def findfirst( pattern, string, pos=None, endpos=None, flags=0, default=_undefin
     )
 
 
-def topological_sort(nodes: list[_T], order: set[tuple[_T, _T]]) -> list[_T]:
+def topological_sort(nodes: Iterable[_T], order: Iterable[tuple[_T, _T]]) -> list[_T]:
     # https://en.wikipedia.org/wiki/Topological_sorting
 
     order = set(order)
@@ -98,11 +98,13 @@ def topological_sort(nodes: list[_T], order: set[tuple[_T, _T]]) -> list[_T]:
     while pending:
         n = pending.pop()
         result.insert(0, n)
+
         outgoing = {m for (x, m) in order if x == n}
+        # node m with an edge e from n to m
         for m in outgoing:
             order.remove((n, m))
             if not any(x for x, y in order if y == m):
-                # m has no other incoming edges then
+                # m has no other incoming edges
                 pending.append(m)
 
     if order:
