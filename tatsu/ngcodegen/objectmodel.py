@@ -88,10 +88,7 @@ class PythonModelGenerator(IndentPrintMixin):
             for s in specs
         }
 
-        self.print('#', all_specs)
-        self.print('#', all_model_names)
         all_model_names = topological_sort(all_model_names, all_specs)
-        self.print('#', all_model_names)
         model_to_rule = {
             rule_specs[name][0].class_name: rule
             for name, rule in rule_index.items()
