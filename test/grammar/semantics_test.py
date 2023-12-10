@@ -81,6 +81,7 @@ class SemanticsTests(unittest.TestCase):
         from tatsu.tool import to_python_model
 
         src = to_python_model(grammar, base_type=MyNode)
+        print(src)
 
         globals = {}
         exec(src, globals)  # pylint: disable=W0122

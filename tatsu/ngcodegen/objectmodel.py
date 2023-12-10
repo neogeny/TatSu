@@ -3,6 +3,7 @@ from collections import namedtuple
 from .. import grammars, objectmodel
 from ..mixins.indent import IndentPrintMixin
 from ..util import compress_seq, safe_name
+from ..util.misc import topological_sort
 
 HEADER = """\
     #!/usr/bin/env python3
@@ -70,42 +71,53 @@ class PythonModelGenerator(IndentPrintMixin):
             rule.name: self._base_class_specs(rule)
             for rule in grammar.rules
         }
+        rule_specs = {name: specs for name, specs in rule_specs.items() if specs}
+
         all_base_spec = {
-            s.class_name: s
+            s.class_name: s.base
             for specs in rule_specs.values()
             for s in specs
         }
         base = self._model_base_class_name()
-        all_base_spec[base] = BaseClassSpec(base, base_type_name)
+        all_base_spec[base] = base_type_name
 
-        base_classes = []
-        for s in all_base_spec.values():
-            if s.base not in base_classes:
-                base_classes.append(s.base)
+        all_model_names = list(reversed(all_base_spec.keys()))
+        all_specs = {
+            (s.class_name, s.base)
+            for specs in rule_specs.values()
+            for s in specs
+        }
 
-        for base_name in base_classes[:-1]:
-            self._gen_base_class(all_base_spec[base_name])
+        self.print('#', all_specs)
+        self.print('#', all_model_names)
+        all_model_names = topological_sort(all_model_names, all_specs)
+        self.print('#', all_model_names)
+        model_to_rule = {
+            rule_specs[name][0].class_name: rule
+            for name, rule in rule_index.items()
+            if name in rule_specs
+        }
 
-        for model_name, rule in rule_index.items():
-            self._gen_rule_class(
-                rule,
-                rule_specs[model_name],
-            )
+        for model_name in all_model_names:
+            if rule := model_to_rule.get(model_name):
+                self._gen_rule_class(rule, rule_specs[rule.name])
+            else:
+                self._gen_base_class(model_name, all_base_spec.get(model_name))
 
         return self.printed_text()
 
     def _model_base_class_name(self):
         return f'ModelBase'
 
-    def _gen_base_class(self, spec: BaseClassSpec):
+    def _gen_base_class(self, class_name: str, base: str | None):
         self.print()
         self.print()
         self.print('@dataclass(eq=False)')
-        if spec.base:
-            self.print(f'class {spec.class_name}({spec.base}):')
+        if base:
+            self.print(f'class {class_name}({base}):  # base')
         else:
             # FIXME: this cannot happen as base_type is the final base
-            self.print(f'class {spec.class_name}:')
+            self.print(f'class {class_name}:')
         with self.indent():
             self.print('pass')
 

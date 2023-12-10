@@ -1,8 +1,12 @@
 from __future__ import annotations
+from typing import TypeVar
 
 import re
 
 from ._common import RETYPE
+
+
+_T = TypeVar('_T')
 
 _undefined = object()  # unique object for when None is not a good default
 
@@ -71,9 +75,7 @@ def findalliter(pattern, string, pos=None, endpos=None, flags=0):
         yield match_to_find(m)
 
 
-def findfirst(
-    pattern, string, pos=None, endpos=None, flags=0, default=_undefined,
-):
+def findfirst( pattern, string, pos=None, endpos=None, flags=0, default=_undefined):
     """
     Avoids using the inefficient findall(...)[0], or first(findall(...))
     """
@@ -81,3 +83,29 @@ def findfirst(
         findalliter(pattern, string, pos=pos, endpos=endpos, flags=flags),
         default=default,
     )
+
+
+def topological_sort(nodes: list[_T], order: set[tuple[_T, _T]]) -> list[_T]:
+    # https://en.wikipedia.org/wiki/Topological_sorting
+
+    order = set(order)
+    result = []  # Empty list that will contain the sorted elements
+
+    pending = [  # Set of all nodes with no incoming edge
+        n for n in nodes
+        if not any(x for (x, y) in order if y == n)
+    ]
+    while pending:
+        n = pending.pop()
+        result.insert(0, n)
+        outgoing = {m for (x, m) in order if x == n}
+        for m in outgoing:
+            order.remove((n, m))
+            if not any(x for x, y in order if y == m):
+                # m has no other incoming edges then
+                pending.append(m)
+
+    if order:
+        raise ValueError('There are cycles in the graph')
+
+    return result  # a topologically sorted list
