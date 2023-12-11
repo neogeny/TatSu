@@ -138,7 +138,9 @@ class PythonModelGenerator(IndentPrintMixin):
                 self.print(f'{arg}: Any = None')
 
     def _base_class_specs(self, rule: grammars.Rule) -> list[BaseClassSpec]:
-        spec = rule.params[0].split('::') if rule.params else []
+        if not rule.params or not isinstance(rule.params[0], str):
+            return []
+        spec = rule.params[0].split('::')
         base = [self._model_base_name()]
         class_names = [safe_name(n) for n in spec] + base
         return [
