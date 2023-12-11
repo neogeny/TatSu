@@ -91,15 +91,14 @@ def topsort(nodes: Iterable[_T], order: Iterable[tuple[_T, _T]]) -> list[_T]:
     order = set(order)
     result: list[_T] = []  # Empty list that will contain the sorted elements
 
-    def with_incoming():
+    def with_incoming() -> set[_T]:
         return {m for (_, m) in order}
 
-    pending = [  # Set of all nodes with no incoming edges
-        n for n in nodes if n not in with_incoming()
-    ]
+    # Set of all nodes with no incoming edges
+    pending = list(set(nodes) - with_incoming())
     while pending:
         n = pending.pop()
-        result.insert(0, n)
+        result.append(n)
 
         # nodes m with an edge from n to m
         outgoing = {m for (x, m) in order if x == n}
@@ -109,4 +108,4 @@ def topsort(nodes: Iterable[_T], order: Iterable[tuple[_T, _T]]) -> list[_T]:
     if order:
         raise ValueError('There are cycles in the topological order')
 
-    return result  # a topologically sorted list
+    return list(reversed(result))  # a topologically sorted list
