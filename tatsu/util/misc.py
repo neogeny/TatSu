@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
+from typing import TypeVar
 
 from ._common import RETYPE
+
+_T = TypeVar('_T')
 
 _undefined = object()  # unique object for when None is not a good default
 
@@ -71,9 +75,7 @@ def findalliter(pattern, string, pos=None, endpos=None, flags=0):
         yield match_to_find(m)
 
 
-def findfirst(
-    pattern, string, pos=None, endpos=None, flags=0, default=_undefined,
-):
+def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=_undefined):
     """
     Avoids using the inefficient findall(...)[0], or first(findall(...))
     """
@@ -81,3 +83,30 @@ def findfirst(
         findalliter(pattern, string, pos=pos, endpos=endpos, flags=flags),
         default=default,
     )
+
+
+def topsort(nodes: Iterable[_T], order: Iterable[tuple[_T, _T]]) -> list[_T]:
+    # https://en.wikipedia.org/wiki/Topological_sorting
+
+    order = set(order)
+    result: list[_T] = []  # Empty list that will contain the sorted elements
+
+    def with_incoming():
+        return {m for (_, m) in order}
+
+    pending = [  # Set of all nodes with no incoming edges
+        n for n in nodes if n not in with_incoming()
+    ]
+    while pending:
+        n = pending.pop()
+        result.insert(0, n)
+
+        # nodes m with an edge from n to m
+        outgoing = {m for (x, m) in order if x == n}
+        order -= {(n, m) for m in outgoing}
+        pending.extend(outgoing - with_incoming())
+
+    if order:
+        raise ValueError('There are cycles in the topological order')
+
+    return result  # a topologically sorted list

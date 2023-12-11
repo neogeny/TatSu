@@ -1,7 +1,7 @@
 import unittest
 
-from tatsu.codegen import codegen
 from tatsu.exceptions import FailedParse
+from tatsu.ngcodegen import codegen
 from tatsu.tool import compile
 from tatsu.util import trim
 
@@ -112,7 +112,7 @@ class PatternTests(unittest.TestCase):
         model = compile(grammar=trim(grammar))
         print(codegen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
-            codegen(model.rules[0].exp.sequence[0]),
+            codegen(model.rules[0].exp.sequence[0]).strip(),
             repr("self._pattern('(?x)\nfoo\nbar\n')").strip('"\''),
         )
 

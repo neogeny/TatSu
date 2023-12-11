@@ -60,7 +60,7 @@ class ModelBuilderSemantics:
         return constructor
 
     def _get_constructor(self, typename, base):
-        typename = str(typename)  # cannot be unicode in Python 2.7
+        typename = str(typename)
 
         if typename in self.constructors:
             return self.constructors[typename]

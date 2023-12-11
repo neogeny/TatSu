@@ -5,17 +5,18 @@ from ..util import trim
 
 
 class IndentPrintMixin:
-    def __init__(self, indent=4):
-        self.indent_amount = indent
-        self.indent_level = 0
+    def __init__(self, default_indent: int = 4):
+        self.default_indent = default_indent
+        self.indent_stack: list[int] = [0]
         self.output_stream = io.StringIO()
 
     def printed_text(self):
         return self.output_stream.getvalue()
 
     def print(self, *args, **kwargs):
+        args = [trim(str(arg)) for arg in args if arg is not None]
         lines = self.as_printed_lines(*args, **kwargs)
-        self._do_print_lines(lines)
+        self._do_print_lines(lines, **kwargs)
 
     def as_printed(self, *args, **kwargs):
         lines = self.as_printed_lines(*args, **kwargs)
@@ -26,16 +27,20 @@ class IndentPrintMixin:
         return self.indented_lines(text)
 
     @contextmanager
-    def indent(self):
-        self.indent_level += 1
+    def indent(self, amount: int | None = None):
+        assert amount is None or amount >= 0
+        if amount is None:
+            amount = self.default_indent
+
+        self.indent_stack.append(amount + self.indent_stack[-1])
         try:
             yield
         finally:
-            self.indent_level -= 1
+            self.indent_stack.pop()
 
     @property
     def current_indentation(self):
-        return ' ' * self.indent_amount * self.indent_level
+        return ' ' * self.indent_stack[-1]
 
     @staticmethod
     def io_print(*args, **kwargs):
@@ -44,13 +49,13 @@ class IndentPrintMixin:
             print(*args, file=output, **kwargs)
             return output.getvalue()
 
-    def _do_print_lines(self, lines: list[str] | None = None):
+    def _do_print_lines(self, lines: list[str] | None = None, **kwargs):
         if not lines:
-            print(file=self.output_stream)
+            print(file=self.output_stream, **kwargs)
             return
 
         for line in lines:
-            print(line, file=self.output_stream)
+            print(line, file=self.output_stream, **kwargs)
 
     def indented_lines(self, text):
         text = trim(text)

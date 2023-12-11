@@ -1,8 +1,8 @@
 import unittest
 from ast import parse
 
-from tatsu.codegen import codegen
 from tatsu.exceptions import FailedParse
+from tatsu.ngcodegen import codegen
 from tatsu.tool import compile
 from tatsu.util import trim
 
