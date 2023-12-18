@@ -49,6 +49,9 @@ class NodeWalker(metaclass=NodeWalkerMeta):
             for child in node.children()
         ]
 
+    # note: backwards compatibility
+    _walk_children = walk_children
+
     def _find_walker(self, node: Node, prefix='walk_'):
         def pythonize_match(m):
             return '_' + m.group().lower()
