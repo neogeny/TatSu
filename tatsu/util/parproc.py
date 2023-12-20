@@ -6,6 +6,7 @@ from functools import partial
 from multiprocessing import Pool, cpu_count
 from pathlib import Path
 
+import rich
 from rich.progress import (
     BarColumn,
     Progress,
@@ -25,6 +26,7 @@ from ..util import identity, memory_use, program_name, try_read
 __all__ = ['parallel_proc', 'processing_loop']
 
 
+ERROR_LOG_FILENAME = 'ERROR.log'
 EOLCH = '\r' if sys.stderr.isatty() else '\n'
 sys.setrecursionlimit(2**16)
 
@@ -151,8 +153,13 @@ def processing_loop(filenames, process, *args, reraise=False, **kwargs):  # pyli
         success_count = 0
         success_linecount = 0
         progress, progress_task = _build_progressbar(total)
-        logname = f'{program_name().split(".")[0]}_error.log'
-        with progress, Path(logname).open('w') as log:
+
+        if total == 1:
+            log = sys.stderr
+        else:
+            log = Path(ERROR_LOG_FILENAME).open('w')
+
+        with progress:
             for result in results:
                 if result is None:
                     continue
@@ -191,9 +198,9 @@ def processing_loop(filenames, process, *args, reraise=False, **kwargs):  # pyli
 
             progress.update(progress_task, advance=0, description='')
             progress.stop()
-            file_process_summary(
-                filenames, total_time, run_time, success_count, success_linecount, log,
-            )
+        file_process_summary(
+            filenames, total_time, run_time, success_count, success_linecount, log,
+        )
     except KeyboardInterrupt:
         return
 
@@ -239,6 +246,8 @@ def file_process_summary(
         nlines = len(try_read(fname).splitlines())
         linecount += nlines
 
+    failures = filecount - success_count
+
     summary_text = '''\
         -----------------------------------------------------------------------
         {:12,d}   files input
@@ -257,7 +266,7 @@ def file_process_summary(
         linecount,
         success_linecount,
         success_count,
-        filecount - success_count,
+        failures,
         100 * success_count / filecount if filecount != 0 else 0,
         format_hours(total_time),
         format_hours(run_time),
@@ -265,4 +274,11 @@ def file_process_summary(
     print(EOLCH + 80 * ' ', file=log)
     print(summary, file=log)
     print(EOLCH + 80 * ' ', file=sys.stderr)
-    print(summary, file=sys.stderr)
+
+    if failures:
+        rich.print(f'[red bold]FAILURES logged to [green]{log.name}!')
+        print(file=sys.stderr)
+    if log != sys.stderr:
+        print(summary, file=sys.stderr)
+    if failures:
+        sys.exit(1)
