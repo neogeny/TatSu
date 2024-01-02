@@ -32,6 +32,7 @@ ignore = [
 #    "S105",  # hardcoded-password-string
     "S301",  # suspicious-pickle-usage
 #    "S311",  # suspicious-non-cryptographic-random-usage
+    "SIM108",  # use ternary instead of block
     "SIM115",  # open-file-with-context-handler
     "SIM114",  # if-with-same-arms
     "TRY003",  # raise-vanilla-args
