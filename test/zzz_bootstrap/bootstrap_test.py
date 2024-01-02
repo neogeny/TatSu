@@ -1,3 +1,4 @@
+# ruff: noqa: PLR0914
 from __future__ import annotations
 
 import json

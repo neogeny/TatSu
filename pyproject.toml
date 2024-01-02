@@ -51,7 +51,7 @@ include-package-data = false
 version = {attr = "tatsu._version.__version__"}
 
 [tool.setuptools.packages.find]
-include = ["tatsu*", "test*", "grammar*", "examples*"]
+include = ["tatsu*"]
 
 
 [tool.blue]

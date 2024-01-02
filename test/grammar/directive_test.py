@@ -35,7 +35,7 @@ def test_whitespace_none_directive():
     ]
     for grammar in grammars:
         model = tatsu.compile(grammar, 'test')
-        assert ['x', 'x'] == model.parse('xx', trace=True)
+        assert model.parse('xx', trace=True) == ['x', 'x']
         with pytest.raises(FailedParse):
             model.parse('x x', trace=True)
 
@@ -165,5 +165,5 @@ def test_nameguard_directive():
 
     model = tatsu.compile(grammar)
     assert not model.config.nameguard
-    assert ['2', '3'] == model.parse('23')
-    assert ['x', 'x'] == model.parse('xx')
+    assert model.parse('23') == ['2', '3']
+    assert model.parse('xx') == ['x', 'x']
