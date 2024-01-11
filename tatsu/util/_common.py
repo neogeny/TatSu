@@ -253,7 +253,7 @@ def asjson(obj, seen=None):  # noqa: PLR0911, PLR0912
 
     try:
         if isinstance(obj, weakref.ReferenceType | weakref.ProxyType):
-            return f'@0x{hex(id(obj)).upper()[2:]}'
+            return f'{obj.__class__.__name__}@0x{hex(id(obj)).upper()[2:]}'
         elif hasattr(obj, '__json__'):
             return obj.__json__(seen=seen)
         elif is_namedtuple(obj):
