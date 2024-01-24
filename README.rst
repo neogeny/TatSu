@@ -52,14 +52,14 @@ Using the Tool
 
 |TatSu| can be used as a library, much like `Python`_'s ``re``, by embedding grammars as strings and generating grammar models instead of generating Python_ code.
 
--  This compiles the grammar and generates an im-memory *parser* that can subsequently be used for parsing input with.
+This compiles the grammar and generates an in-memory *parser* that can subsequently be used for parsing input with.
 
 .. code-block:: python
 
    parser = tatsu.compile(grammar)
 
 
-- Compiles the grammar and parses the given input producing an AST_ as result.
+Compiles the grammar and parses the given input producing an AST_ as result.
 
 .. code-block:: python
 
@@ -75,7 +75,7 @@ The result is equivalent to calling:
 
 Compiled grammars are cached for efficiency.
 
--   Compiles the grammar to the `Python`_ sourcecode that implements the parser.
+This ompiles the grammar to the `Python`_ sourcecode that implements the parser.
 
 .. code-block:: python
 
