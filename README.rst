@@ -75,7 +75,7 @@ The result is equivalent to calling:
 
 Compiled grammars are cached for efficiency.
 
-This ompiles the grammar to the `Python`_ sourcecode that implements the parser.
+This compiles the grammar to the `Python`_ sourcecode that implements the parser.
 
 .. code-block:: python
 
