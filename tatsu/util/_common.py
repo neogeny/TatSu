@@ -45,9 +45,10 @@ ESCAPE_SEQUENCE_RE = re.compile(
 
 class AsJSONMixin:
     def __json__(self, seen=None):
-        return asjson(
-            {'__class__': type(self).__name__, **self._pubdict()}, seen=seen,
-        )
+        return {
+            '__class__': type(self).__name__,
+            **asjson(self._pubdict(), seen=seen),
+        }
 
     def _pubdict(self):
         return {

@@ -152,11 +152,8 @@ class Node(AsJSONMixin):
     def _pubdict(self):
         return {
             name: value
-            for name, value in vars(self).items()
-            if (
-                not name.startswith('_')
-                and name not in {'ast', 'ctx', 'parent', 'parseinfo'}
-            )
+            for name, value in super()._pubdict().items()
+            if name not in {'ast', 'ctx', 'parent', 'parseinfo'}
         }
 
     def __str__(self):
