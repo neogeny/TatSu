@@ -382,7 +382,7 @@ Having semantic actions determine what was parsed with ``isinstance()`` or query
 
     division
         =
-        left:term '/' ~ right:factor
+        left:term op:'/' ~ right:factor
         ;
 
 
@@ -511,7 +511,7 @@ The first step to create an object model is to annotate the rule names with the 
 
     division::Divide
         =
-        left:factor '/' ~ right:term
+        left:factor op:'/' ~ right:term
         ;
 
 

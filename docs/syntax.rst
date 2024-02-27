@@ -771,16 +771,16 @@ the language. Those reserved tokens are known as `Reserved Words`_ or
 `Keywords`_
 
 |TatSu| provides support for preventing the use of `keywords`_ as
-identifiers though the ``@@ keyword`` directive,and the ``@ name``
+identifiers though the ``@@keyword`` directive,and the ``@name``
 decorator.
 
 A grammar may specify reserved tokens providing a list of them in one or
-more ``@@ keyword`` directives::
+more ``@@keyword`` directives::
 
   @@keyword :: if endif
   @@keyword :: else elseif
 
-The ``@ name`` decorator checks that the result of a grammar rule does
+The ``@name`` decorator checks that the result of a grammar rule does
 not match a token defined as a `keyword`_::
 
   @name

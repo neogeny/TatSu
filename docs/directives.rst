@@ -71,7 +71,7 @@ Enables left-recursive rules in the grammar. See the `Left Recursion`_ sections 
 ``@@namechars :: <string>``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A list of (non-alfanumeric) characters that should be considered part of names when using the `@@nameguard`_ feature:
+A list of (non-alphanumeric) characters that should be considered part of names when using the `@@nameguard`_ feature:
 
 .. code::
 
@@ -83,7 +83,7 @@ A list of (non-alfanumeric) characters that should be considered part of names w
 ``@@nameguard :: <bool>``
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When set to ``True``, avoids matching tokens when the next character in the input sequence is alfarnumeric or a ``@@namechar``. Defaults to ``True``. See the `'text' expression`_ for an explanation.
+When set to ``True``, avoids matching tokens when the next character in the input sequence is alphanumeric or a ``@@namechar``. Defaults to ``True``. See the `'text' expression`_ for an explanation.
 
 .. code::
 
