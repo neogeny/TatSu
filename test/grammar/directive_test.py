@@ -18,6 +18,7 @@ def test_whitespace_directive():
     code = codegen(model)
     compile('test.py', code, EXEC)
 
+
 def test_whitespace_none_directive():
     grammars = [
         """
@@ -39,6 +40,7 @@ def test_whitespace_none_directive():
         with pytest.raises(FailedParse):
             model.parse('x x', trace=True)
 
+
 def test_whitespace_escaping():
     grammar = r'''
     @@grammar::Markdown
@@ -51,12 +53,14 @@ def test_whitespace_escaping():
     with pytest.raises(FailedParse):
         tatsu.parse(grammar, '[]')
 
+
 def test_default_whitespace():
     grammar = r"""
         start = {'x'}+ $;
     """
 
     tatsu.parse(grammar, "x x x")
+
 
 def test_eol_comments_re_directive():
     grammar = """
@@ -67,6 +71,7 @@ def test_eol_comments_re_directive():
     model = tatsu.compile(grammar, 'test')
     code = codegen(model)
     compile(code, 'test.py', EXEC)
+
 
 def test_left_recursion_directive():
     grammar = """
@@ -80,6 +85,7 @@ def test_left_recursion_directive():
 
     code = codegen(model)
     compile('test.py', code, EXEC)
+
 
 def test_whitespace_no_newlines():
     grammar = """
@@ -107,6 +113,7 @@ def test_whitespace_no_newlines():
     ast = model.parse(text, start='document')
     assert expected == ast
 
+
 def test_grammar_directive():
     grammar = """
         @@grammar :: Test
@@ -122,6 +129,7 @@ def test_grammar_directive():
     module = compile(code, 'test.py', EXEC)
 
     assert 'TestParser' in module.co_names
+
 
 def test_parseinfo_directive():
     grammar = """
@@ -151,6 +159,7 @@ def test_parseinfo_directive():
     code = codegen(model)
     assert 'parseinfo=False' in code
     compile(code, 'test.py', EXEC)
+
 
 def test_nameguard_directive():
     grammar = """

@@ -225,9 +225,8 @@ class Symbol(Namespace):
 
     def resolve(self, qualname):
         return (
-            self.lookup(qualname)
-            or self.parent
-            and self.parent.resolve(qualname)
+            self.lookup(qualname) or
+            (self.parent and self.parent.resolve(qualname))
         )
 
     def filter(self, condition):

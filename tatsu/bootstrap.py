@@ -9,7 +9,7 @@
 #  Any changes you make to it will be overwritten the next time
 #  the file is generated.
 
-# ruff: noqa: C405, COM812, I001, F401, SIM117
+# ruff: noqa: C405, COM812, I001, F401, PLR1702, PLC2801, SIM117
 
 import sys
 from pathlib import Path
@@ -44,6 +44,7 @@ class EBNFBootstrapBuffer(Buffer):
 
         super().__init__(text, config=config)
 
+
 class EBNFBootstrapParser(Parser):
     def __init__(self, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(
@@ -66,7 +67,6 @@ class EBNFBootstrapParser(Parser):
     @tatsumasu()
     def _start_(self):
         self._grammar_()
-
 
     @tatsumasu('Grammar')
     def _grammar_(self):
@@ -103,11 +103,6 @@ class EBNFBootstrapParser(Parser):
                 )
         self._closure(block1)
         self._check_eof()
-        self._define(
-            ['title'],
-            ['directives', 'keywords', 'rules'],
-        )
-
         self._define(
             ['title'],
             ['directives', 'keywords', 'rules'],
@@ -228,15 +223,12 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['name', 'value'], [])
 
-        self._define(['name', 'value'], [])
-
     @tatsumasu()
     def _keywords_(self):
 
         def block0():
             self._keywords_()
         self._positive_closure(block0)
-
 
     @tatsumasu()
     def _keyword_(self):
@@ -260,7 +252,6 @@ class EBNFBootstrapParser(Parser):
                             "':' '='"
                         )
         self._closure(block0)
-
 
     @tatsumasu()
     def _paramdef_(self):
@@ -300,7 +291,6 @@ class EBNFBootstrapParser(Parser):
                 'expecting one of: '
                 "'(' '::'"
             )
-
 
     @tatsumasu('Rule')
     def _rule_(self):
@@ -363,8 +353,6 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
 
-        self._define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
-
     @tatsumasu()
     def _decorator_(self):
         self._token('@')
@@ -385,7 +373,6 @@ class EBNFBootstrapParser(Parser):
                 )
         self.name_last_node('@')
 
-
     @tatsumasu()
     def _params_(self):
         self._first_param_()
@@ -399,7 +386,6 @@ class EBNFBootstrapParser(Parser):
                 self._token('=')
             self._cut()
         self._closure(block0)
-
 
     @tatsumasu()
     def _first_param_(self):
@@ -415,7 +401,6 @@ class EBNFBootstrapParser(Parser):
                 '<path> <raw_string> <string> <word>'
             )
 
-
     @tatsumasu()
     def _kwparams_(self):
 
@@ -426,7 +411,6 @@ class EBNFBootstrapParser(Parser):
             self._pair_()
         self._positive_gather(block1, sep0)
 
-
     @tatsumasu()
     def _pair_(self):
         self._word_()
@@ -435,7 +419,6 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._literal_()
         self.add_last_node_to_name('@')
-
 
     @tatsumasu()
     def _expre_(self):
@@ -449,7 +432,6 @@ class EBNFBootstrapParser(Parser):
                 "'|' <choice> <element> <option>"
                 '<sequence>'
             )
-
 
     @tatsumasu('Choice')
     def _choice_(self):
@@ -466,12 +448,10 @@ class EBNFBootstrapParser(Parser):
             self.add_last_node_to_name('@')
         self._positive_closure(block0)
 
-
     @tatsumasu('Option')
     def _option_(self):
         self._sequence_()
         self.name_last_node('@')
-
 
     @tatsumasu('Sequence')
     def _sequence_(self):
@@ -480,8 +460,6 @@ class EBNFBootstrapParser(Parser):
             self._element_()
         self._positive_closure(block0)
         self.name_last_node('sequence')
-
-        self._define(['sequence'], [])
 
     @tatsumasu()
     def _element_(self):
@@ -508,14 +486,12 @@ class EBNFBootstrapParser(Parser):
                 '<term> <void>'
             )
 
-
     @tatsumasu('RuleInclude')
     def _rule_include_(self):
         self._token('>')
         self._cut()
         self._known_name_()
         self.name_last_node('@')
-
 
     @tatsumasu()
     def _named_(self):
@@ -529,7 +505,6 @@ class EBNFBootstrapParser(Parser):
                 '<name> <named_list> <named_single>'
             )
 
-
     @tatsumasu('NamedList')
     def _named_list_(self):
         self._name_()
@@ -540,8 +515,6 @@ class EBNFBootstrapParser(Parser):
         self.name_last_node('exp')
         self._define(['exp', 'name'], [])
 
-        self._define(['exp', 'name'], [])
-
     @tatsumasu('Named')
     def _named_single_(self):
         self._name_()
@@ -550,8 +523,6 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._term_()
         self.name_last_node('exp')
-        self._define(['exp', 'name'], [])
-
         self._define(['exp', 'name'], [])
 
     @tatsumasu()
@@ -570,14 +541,12 @@ class EBNFBootstrapParser(Parser):
                 '<override_single_deprecated>'
             )
 
-
     @tatsumasu('OverrideList')
     def _override_list_(self):
         self._token('@+:')
         self._cut()
         self._term_()
         self.name_last_node('@')
-
 
     @tatsumasu('Override')
     def _override_single_(self):
@@ -586,14 +555,12 @@ class EBNFBootstrapParser(Parser):
         self._term_()
         self.name_last_node('@')
 
-
     @tatsumasu('Override')
     def _override_single_deprecated_(self):
         self._token('@')
         self._cut()
         self._term_()
         self.name_last_node('@')
-
 
     @tatsumasu()
     def _term_(self):
@@ -641,7 +608,6 @@ class EBNFBootstrapParser(Parser):
                 '<special> <token> <void>'
             )
 
-
     @tatsumasu('Group')
     def _group_(self):
         self._token('(')
@@ -650,8 +616,6 @@ class EBNFBootstrapParser(Parser):
         self.name_last_node('exp')
         self._token(')')
         self._cut()
-        self._define(['exp'], [])
-
         self._define(['exp'], [])
 
     @tatsumasu()
@@ -671,7 +635,6 @@ class EBNFBootstrapParser(Parser):
                     'expecting one of: '
                     '<normal_gather> <positive_gather>'
                 )
-
 
     @tatsumasu('PositiveGather')
     def _positive_gather_(self):
@@ -694,8 +657,6 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['exp', 'sep'], [])
 
-        self._define(['exp', 'sep'], [])
-
     @tatsumasu('Gather')
     def _normal_gather_(self):
         self._separator_()
@@ -709,8 +670,6 @@ class EBNFBootstrapParser(Parser):
             self._token('*')
             self._cut()
         self._cut()
-        self._define(['exp', 'sep'], [])
-
         self._define(['exp', 'sep'], [])
 
     @tatsumasu()
@@ -730,7 +689,6 @@ class EBNFBootstrapParser(Parser):
                     'expecting one of: '
                     '<normal_join> <positive_join>'
                 )
-
 
     @tatsumasu('PositiveJoin')
     def _positive_join_(self):
@@ -753,8 +711,6 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['exp', 'sep'], [])
 
-        self._define(['exp', 'sep'], [])
-
     @tatsumasu('Join')
     def _normal_join_(self):
         self._separator_()
@@ -768,8 +724,6 @@ class EBNFBootstrapParser(Parser):
             self._token('*')
             self._cut()
         self._cut()
-        self._define(['exp', 'sep'], [])
-
         self._define(['exp', 'sep'], [])
 
     @tatsumasu('LeftJoin')
@@ -794,8 +748,6 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['exp', 'sep'], [])
 
-        self._define(['exp', 'sep'], [])
-
     @tatsumasu('RightJoin')
     def _right_join_(self):
         self._separator_()
@@ -818,8 +770,6 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['exp', 'sep'], [])
 
-        self._define(['exp', 'sep'], [])
-
     @tatsumasu()
     def _separator_(self):
         with self._choice():
@@ -840,7 +790,6 @@ class EBNFBootstrapParser(Parser):
                 '<string> <token>'
             )
 
-
     @tatsumasu('PositiveClosure')
     def _positive_closure_(self):
         self._token('{')
@@ -859,7 +808,6 @@ class EBNFBootstrapParser(Parser):
                 )
         self._cut()
 
-
     @tatsumasu('Closure')
     def _closure_(self):
         self._token('{')
@@ -870,14 +818,12 @@ class EBNFBootstrapParser(Parser):
             self._token('*')
         self._cut()
 
-
     @tatsumasu('EmptyClosure')
     def _empty_closure_(self):
         self._token('{')
         self._void()
         self.name_last_node('@')
         self._token('}')
-
 
     @tatsumasu('Optional')
     def _optional_(self):
@@ -888,7 +834,6 @@ class EBNFBootstrapParser(Parser):
         self._token(']')
         self._cut()
 
-
     @tatsumasu('Special')
     def _special_(self):
         self._token('?(')
@@ -898,14 +843,12 @@ class EBNFBootstrapParser(Parser):
         self._token(')?')
         self._cut()
 
-
     @tatsumasu('Lookahead')
     def _lookahead_(self):
         self._token('&')
         self._cut()
         self._term_()
         self.name_last_node('@')
-
 
     @tatsumasu('NegativeLookahead')
     def _negative_lookahead_(self):
@@ -914,14 +857,12 @@ class EBNFBootstrapParser(Parser):
         self._term_()
         self.name_last_node('@')
 
-
     @tatsumasu('SkipTo')
     def _skip_to_(self):
         self._token('->')
         self._cut()
         self._term_()
         self.name_last_node('@')
-
 
     @tatsumasu()
     def _atom_(self):
@@ -950,40 +891,33 @@ class EBNFBootstrapParser(Parser):
                 '<string> <token> <word> \\^+'
             )
 
-
     @tatsumasu('RuleRef')
     def _call_(self):
         self._word_()
-
 
     @tatsumasu('Void')
     def _void_(self):
         self._token('()')
         self._cut()
 
-
     @tatsumasu('Cut')
     def _cut_(self):
         self._token('~')
         self._cut()
-
 
     @tatsumasu('Cut')
     def _cut_deprecated_(self):
         self._token('>>')
         self._cut()
 
-
     @tatsumasu()
     def _known_name_(self):
         self._name_()
         self._cut()
 
-
     @tatsumasu()
     def _name_(self):
         self._word_()
-
 
     @tatsumasu('Constant')
     def _constant_(self):
@@ -1005,15 +939,12 @@ class EBNFBootstrapParser(Parser):
                     "'`' (?ms)```((?:.|\\n)*?)``` `(.*?)`"
                 )
 
-
     @tatsumasu('Alert')
     def _alert_(self):
         self._pattern('\\^+')
         self.name_last_node('level')
         self._constant_()
         self.name_last_node('message')
-        self._define(['level', 'message'], [])
-
         self._define(['level', 'message'], [])
 
     @tatsumasu('Token')
@@ -1027,7 +958,6 @@ class EBNFBootstrapParser(Parser):
                 'expecting one of: '
                 '<STRING> <raw_string> <string> r'
             )
-
 
     @tatsumasu()
     def _literal_(self):
@@ -1058,18 +988,15 @@ class EBNFBootstrapParser(Parser):
                 '+]?\\d+)? [-+]?\\d+ r'
             )
 
-
     @tatsumasu()
     def _string_(self):
         self._STRING_()
-
 
     @tatsumasu()
     def _raw_string_(self):
         self._pattern('r')
         self._STRING_()
         self.name_last_node('@')
-
 
     @tatsumasu()
     def _STRING_(self):
@@ -1088,41 +1015,33 @@ class EBNFBootstrapParser(Parser):
                 "'((?:[^'\\n]|\\'|\\\\)*?)'"
             )
 
-
     @tatsumasu()
     def _hex_(self):
         self._pattern('0[xX](?:\\d|[a-fA-F])+')
-
 
     @tatsumasu()
     def _float_(self):
         self._pattern('[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?')
 
-
     @tatsumasu()
     def _int_(self):
         self._pattern('[-+]?\\d+')
-
 
     @tatsumasu()
     def _path_(self):
         self._pattern('(?!\\d)\\w+(?:::(?!\\d)\\w+)+')
 
-
     @tatsumasu()
     def _word_(self):
         self._pattern('(?!\\d)\\w+')
-
 
     @tatsumasu('Any')
     def _any_(self):
         self._token('/./')
 
-
     @tatsumasu('Pattern')
     def _pattern_(self):
         self._regexes_()
-
 
     @tatsumasu()
     def _regexes_(self):
@@ -1133,7 +1052,6 @@ class EBNFBootstrapParser(Parser):
         def block1():
             self._regex_()
         self._positive_gather(block1, sep0)
-
 
     @tatsumasu()
     def _regex_(self):
@@ -1161,7 +1079,6 @@ class EBNFBootstrapParser(Parser):
                 "'/' '?' '?/'"
             )
 
-
     @tatsumasu()
     def _boolean_(self):
         with self._choice():
@@ -1174,11 +1091,9 @@ class EBNFBootstrapParser(Parser):
                 "'False' 'True'"
             )
 
-
     @tatsumasu()
     def _null_(self):
         self._token('None')
-
 
     @tatsumasu('EOF')
     def _eof_(self):

@@ -866,7 +866,7 @@ class Rule(Decorator):
 
     @staticmethod
     def param_repr(p):
-        if isinstance(p, int | float) or isinstance(p, str) and p.isalnum():
+        if isinstance(p, int | float) or (isinstance(p, str) and p.isalnum()):
             return str(p)
         else:
             return repr(p)

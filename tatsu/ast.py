@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import operator
 from functools import reduce
 
@@ -29,7 +30,7 @@ class AST(dict):
         super().__setitem__('parseinfo', value)
 
     def copy(self):
-        return self.__copy__()  # pylint: disable=unnecessary-dunder-call
+        return copy.copy(self)
 
     def asjson(self):
         return asjson(self)

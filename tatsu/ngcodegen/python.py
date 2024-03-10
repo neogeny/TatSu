@@ -24,7 +24,7 @@ HEADER = """\
     #  Any changes you make to it will be overwritten the next time
     #  the file is generated.
 
-    # ruff: noqa: C405, COM812, I001, F401, SIM117
+    # ruff: noqa: C405, COM812, I001, F401, PLR1702, PLC2801, SIM117
 
     import sys
     from pathlib import Path
@@ -89,7 +89,6 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self._gen_buffering(grammar, parser_name)
         self._gen_parsing(grammar, parser_name)
 
-        self.print()
         self.print(FOOTER.format(name=parser_name))
 
     def walk_Rule(self, rule: grammars.Rule):
@@ -124,7 +123,6 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         )
         isname = '\n@isname' if rule.is_name else ''
 
-        self.print()
         self.print(
             f"""
                 @tatsumasu({params})\
@@ -136,8 +134,6 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         )
         with self.indent():
             self.print(self.walk(rule.exp))
-            if not isinstance(rule.exp, grammars.Choice):
-                self._gen_defines_declaration(rule)
 
     def walk_BasedRule(self, rule: grammars.BasedRule):
         # FIXME: the following override is to not alter the previous codegen
@@ -279,7 +275,6 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         n = self._gen_block(skipto.exp)
         self.print(f'self._skip_to(block{n})')
 
-
     def walk_Named(self, named: grammars.Named):
         self.walk(named.exp)
         self.print(f"self.name_last_node('{named.name}')")
@@ -346,13 +341,16 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print()
 
     def _gen_parsing(self, grammar: grammars.Grammar, parser_name: str):
+        self.print()
         self.print(f'class {parser_name}Parser(Parser):')
         with self.indent():
             self.print('def __init__(self, /, config: ParserConfig | None = None, **settings):')
             with self.indent():
                 self._gen_init(grammar)
                 self.print('super().__init__(config=config)')
+            self.print()
             self.walk(grammar.rules)
+        self.print()
 
     def _gen_defines_declaration(self, node: grammars.Model):
         defines = compress_seq(node.defines())
