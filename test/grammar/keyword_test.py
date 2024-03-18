@@ -156,3 +156,14 @@ def test_ignorecase_keywords():
 
     with pytest.raises(FailedParse):
         model.parse('IF if 1', trace=False)
+
+
+def test_keywords_are_str():
+    grammar = r"""
+        @@keyword :: True False
+
+        start = $ ;
+    """
+    model = compile(grammar, 'test')
+    assert model.keywords == ['True', 'False']
+    assert all(isinstance(k, str) for k in model.keywords)
