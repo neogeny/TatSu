@@ -238,7 +238,16 @@ class EBNFBootstrapParser(Parser):
         self._cut()
 
         def block0():
-            self._literal_()
+            with self._group():
+                with self._choice():
+                    with self._option():
+                        self._word_()
+                    with self._option():
+                        self._string_()
+                    self._error(
+                        'expecting one of: '
+                        '<string> <word>'
+                    )
             self.add_last_node_to_name('@')
             with self._ifnot():
                 with self._group():
