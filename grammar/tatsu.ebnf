@@ -65,7 +65,7 @@ keywords
 
 keyword
     =
-    '@@keyword' ~ '::' ~ {@+:literal !(':'|'=')}
+    '@@keyword' ~ '::' ~ {@+:(word|string) !(':'|'=')}
     ;
 
 
