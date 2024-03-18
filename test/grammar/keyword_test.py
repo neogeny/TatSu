@@ -1,152 +1,158 @@
-import unittest
 from ast import parse
+
+import pytest
 
 from tatsu.exceptions import FailedParse
 from tatsu.ngcodegen import codegen
 from tatsu.tool import compile
 
 
-class KeywordTests(unittest.TestCase):
-    def test_keywords_in_rule_names(self):
-        grammar = """
-            start
-                =
-                whitespace
-                ;
-
+def test_keywords_in_rule_names():
+    grammar = """
+        start
+            =
             whitespace
-                =
-                    {'x'}+
-                ;
-        """
-        m = compile(grammar, 'Keywords')
-        m.parse('x')
+            ;
 
-    def test_python_keywords_in_rule_names(self):
-        # This is a regression test for
-        # https://bitbucket.org/neogeny/tatsu/issues/59
-        # (semantic actions not called for rules with the same name as a python
-        # keyword).
-        grammar = """
-            not = 'x' ;
-        """
-        m = compile(grammar, 'Keywords')
+        whitespace
+            =
+                {'x'}+
+            ;
+    """
+    m = compile(grammar, 'Keywords')
+    m.parse('x')
 
-        class Semantics:
-            def __init__(self):
-                self.called = False
 
-            def not_(self, ast):
-                self.called = True
+def test_python_keywords_in_rule_names():
+    # This is a regression test for
+    # https://bitbucket.org/neogeny/tatsu/issues/59
+    # (semantic actions not called for rules with the same name as a python
+    # keyword).
+    grammar = """
+        not = 'x' ;
+    """
+    m = compile(grammar, 'Keywords')
 
-        semantics = Semantics()
-        m.parse('x', semantics=semantics)
-        assert semantics.called
+    class Semantics:
+        def __init__(self):
+            self.called = False
 
-    def test_define_keywords(self):
-        grammar = """
-            @@keyword :: B C
-            @@keyword :: 'A'
+        def not_(self, ast):
+            self.called = True
 
-            start = ('a' 'b').{'x'}+ ;
-        """
-        model = compile(grammar, 'test')
-        c = codegen(model)
-        parse(c)
+    semantics = Semantics()
+    m.parse('x', semantics=semantics)
+    assert semantics.called
 
-        grammar2 = str(model)
-        model2 = compile(grammar2, 'test')
-        c2 = codegen(model2)
-        parse(c2)
 
-        self.assertEqual(grammar2, str(model2))
+def test_define_keywords():
+    grammar = """
+        @@keyword :: B C
+        @@keyword :: 'A'
 
-    def test_check_keywords(self):
-        grammar = r"""
-            @@keyword :: A
+        start = ('a' 'b').{'x'}+ ;
+    """
+    model = compile(grammar, 'test')
+    c = codegen(model)
+    parse(c)
 
-            start = {id}+ $ ;
+    grammar2 = str(model)
+    model2 = compile(grammar2, 'test')
+    c2 = codegen(model2)
+    parse(c2)
 
-            @name
-            id = /\w+/ ;
-        """
-        model = compile(grammar, 'test')
-        c = codegen(model)
-        print(c)
-        parse(c)
+    assert grammar2 == str(model2)
 
-        ast = model.parse('hello world')
-        self.assertEqual(['hello', 'world'], ast)
 
+def test_check_keywords():
+    grammar = r"""
+        @@keyword :: A
+
+        start = {id}+ $ ;
+
+        @name
+        id = /\w+/ ;
+    """
+    model = compile(grammar, 'test')
+    c = codegen(model)
+    print(c)
+    parse(c)
+
+    ast = model.parse('hello world')
+    assert ast == ['hello', 'world']
+
+    try:
+        ast = model.parse('hello A world')
+        assert ast == ['hello', 'A', 'world']
+        pytest.fail('accepted keyword as name')
+    except FailedParse as e:
+        assert '"A" is a reserved word' in str(e)
+
+
+def test_check_unicode_name():
+    grammar = r"""
+        @@keyword :: A
+
+        start = {id}+ $ ;
+
+        @name
+        id = /\w+/ ;
+    """
+    model = compile(grammar, 'test')
+    model.parse('hello Øresund')
+
+
+def test_sparse_keywords():
+    grammar = r"""
+        @@keyword :: A
+
+        @@ignorecase :: False
+
+        start = {id}+ $ ;
+
+        @@keyword :: B
+
+        @name
+        id = /\w+/ ;
+    """
+    model = compile(grammar, 'test', trace=False, colorize=True)
+    c = codegen(model)
+    parse(c)
+
+    ast = model.parse('hello world')
+    assert ast == ['hello', 'world']
+
+    for k in ('A', 'B'):
         try:
-            ast = model.parse('hello A world')
-            self.assertEqual(['hello', 'A', 'world'], ast)
-            self.fail('accepted keyword as name')
+            ast = model.parse('hello %s world' % k)
+            assert ['hello', k, 'world'] == ast
+            pytest.fail('accepted keyword "%s" as name' % k)
         except FailedParse as e:
-            self.assertTrue('"A" is a reserved word' in str(e))
+            assert '"%s" is a reserved word' % k in str(e)
 
-    def test_check_unicode_name(self):
-        grammar = r"""
-            @@keyword :: A
 
-            start = {id}+ $ ;
+def test_ignorecase_keywords():
+    grammar = r"""
+        @@ignorecase :: True
+        @@keyword :: if
 
-            @name
-            id = /\w+/ ;
-        """
-        model = compile(grammar, 'test')
-        model.parse('hello Øresund')
+        start = rule ;
 
-    def test_sparse_keywords(self):
-        grammar = r"""
-            @@keyword :: A
+        @name
+        rule = @:word if_exp $ ;
 
-            @@ignorecase :: False
+        if_exp = 'if' digit ;
 
-            start = {id}+ $ ;
+        word = /\w+/ ;
+        digit = /\d/ ;
+    """
 
-            @@keyword :: B
+    model = compile(grammar, 'test')
 
-            @name
-            id = /\w+/ ;
-        """
-        model = compile(grammar, 'test', trace=False, colorize=True)
-        c = codegen(model)
-        parse(c)
+    model.parse('nonIF if 1', trace=False)
 
-        ast = model.parse('hello world')
-        self.assertEqual(['hello', 'world'], ast)
+    with pytest.raises(FailedParse):
+        model.parse('i rf if 1', trace=False)
 
-        for k in ('A', 'B'):
-            try:
-                ast = model.parse('hello %s world' % k)
-                self.assertEqual(['hello', k, 'world'], ast)
-                self.fail('accepted keyword "%s" as name' % k)
-            except FailedParse as e:
-                self.assertTrue('"%s" is a reserved word' % k in str(e))
-
-    def test_ignorecase_keywords(self):
-        grammar = r"""
-            @@ignorecase :: True
-            @@keyword :: if
-
-            start = rule ;
-
-            @name
-            rule = @:word if_exp $ ;
-
-            if_exp = 'if' digit ;
-
-            word = /\w+/ ;
-            digit = /\d/ ;
-        """
-
-        model = compile(grammar, 'test')
-
-        model.parse('nonIF if 1', trace=False)
-
-        with self.assertRaises(FailedParse):
-            model.parse('i rf if 1', trace=False)
-
-        with self.assertRaises(FailedParse):
-            model.parse('IF if 1', trace=False)
+    with pytest.raises(FailedParse):
+        model.parse('IF if 1', trace=False)
