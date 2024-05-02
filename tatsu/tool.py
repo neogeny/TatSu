@@ -132,7 +132,7 @@ def parse_args():
             return getattr(module, spath[1])
         except Exception as e:
             raise argparse.ArgumentTypeError(
-                "Couldn't find class %s" % path,
+                f"Couldn't find class {path}",
             ) from e
 
     generation_opts.add_argument(

@@ -298,7 +298,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             self.print('KEYWORDS: set[str] = set()')
         else:
             keywords_str = '\n'.join(f'    {k!r},' for k in keywords)
-            keywords_str = '{\n%s\n}' % keywords_str
+            keywords_str = f'{{\n{keywords_str}\n}}'
             self.print(f'KEYWORDS: set[str] = {keywords_str}')
 
         self.print()

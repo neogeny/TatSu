@@ -88,13 +88,13 @@ class Namespace:
     def insert(self, symbol):
         assert isinstance(
             symbol.name, str,
-        ), '"%s" is not a valid symbol name' % str(symbol.name)
+        ), f'"{symbol.name!s}" is not a valid symbol name'
         name = symbol.name
         if self.ignorecase:
             name = name.upper()
         if name in self._entries and not self.duplicates:
             raise SymbolTableError(
-                'Symbol "%s" already in namespace' % str(symbol.name),
+                f'Symbol "{symbol.name!s}" already in namespace',
             )
 
         self._entries[name].append(symbol)
@@ -150,7 +150,7 @@ class Namespace:
         return asjson(self)
 
     def __repr__(self):
-        return '%s[]' % type(self).__name__
+        return f'{type(self).__name__}[]'
 
     def __json__(self, seen=None):
         return {
@@ -169,7 +169,7 @@ class Symbol(Namespace):
     def __init__(self, name, node, ignorecase=False, duplicates=False):
         super().__init__(ignorecase=ignorecase, duplicates=duplicates)
         if not isinstance(name, str):
-            raise TypeError('"%s" is not a valid symbol name' % name)
+            raise TypeError(f'"{name}" is not a valid symbol name')
         self.name = name
         self._node = node
         self._parent = None
@@ -270,7 +270,7 @@ class Symbol(Namespace):
         return result
 
     def __repr__(self):
-        return '%s[]' % self.name
+        return f'{self.name}[]'
 
     def __json__(self, seen=None):
         return dict(

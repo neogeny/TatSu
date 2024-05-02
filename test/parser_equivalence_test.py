@@ -42,7 +42,7 @@ GRAMMAR = r"""
 
 def generate_and_load_parser(name, grammar):
     code = tatsu.to_python_sourcecode(grammar, name='Test')
-    print(code)
+    # print(code)
     module = types.ModuleType(name)
     module.__file__ = '<generated>'
     exec(compile(code, module.__file__, 'exec'), module.__dict__)
@@ -152,3 +152,18 @@ def test_dynamic_compiled_ast():
         'TEST A 1', start='test',
     )  # pylint: disable=no-member
     assert dynamic_ast == compiled_ast
+
+
+def test_none_whitespace():
+    grammar = """
+        @@whitespace:: None
+
+        start = "This is a" test;
+        test = " test";
+    """
+    input = 'This is a test'
+
+    parser = tatsu.compile(grammar)
+    output = parser.parse(input)
+    assert output == ('This is a', ' test')
+

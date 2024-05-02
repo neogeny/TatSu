@@ -273,7 +273,7 @@ class GraphvizWalker(NodeWalker):
         return (n, n)
 
     def walk__constant(self, t):
-        n = self.tnode('`%s`' % t.ast)
+        n = self.tnode(f'`{t.ast}`')
         return (n, n)
 
     def walk__eof(self, v):

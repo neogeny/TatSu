@@ -135,7 +135,7 @@ class CodeGenerator:
                 if base not in classes:
                     classes.append(base)
 
-        raise CodegenError('Renderer for %s not found' % node_class_name)
+        raise CodegenError(f'Renderer for {node_class_name} not found')
 
     def get_renderer(self, item):
         if not isinstance(item, Node):
@@ -144,7 +144,7 @@ class CodeGenerator:
         renderer_class = self._find_renderer_class(item)
         if renderer_class is None:
             raise CodegenError(
-                'Renderer not found for %s' % type(item).__name__,
+                f'Renderer not found for {type(item).__name__}',
             )
         try:
             assert issubclass(renderer_class, ModelRenderer)
