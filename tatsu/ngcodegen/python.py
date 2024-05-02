@@ -308,7 +308,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         start = grammar.config.start or grammar.rules[0].name
 
         whitespace = grammar.config.whitespace
-        whitespace = repr(whitespace) if whitespace else None
+        whitespace = repr(whitespace)
 
         self.print(
             f'''
