@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import copy
 import dataclasses
 from collections.abc import Callable, Mapping
@@ -29,8 +30,8 @@ class ParserConfig:
     start_rule: str | None = None  # FIXME
     rule_name: str | None = None  # Backward compatibility
 
-    comments_re: str | None = None
-    eol_comments_re: str | None = None
+    comments_re: re.Pattern | None = None
+    eol_comments_re: re.Pattern | None = None
 
     tokenizercls: type[Tokenizer] | None = None  # FIXME
     semantics: type | None = None
@@ -63,9 +64,9 @@ class ParserConfig:
         if self.ignorecase:
             self.keywords = [k.upper() for k in self.keywords]
         if self.comments:
-            self.comments_re = self.comments
+            self.comments_re = re.compile(self.comments)
         if self.eol_comments:
-            self.eol_comments_re = self.eol_comments
+            self.eol_comments_re = re.compile(self.eol_comments)
 
     @classmethod
     def new(
