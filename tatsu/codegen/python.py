@@ -21,7 +21,7 @@ class PythonCodeGenerator(CodeGenerator):
         name = node.__class__.__name__
         renderer = globals().get(name)
         if not renderer or not issubclass(renderer, Base):
-            raise CodegenError('Renderer for %s not found' % name)
+            raise CodegenError(f'Renderer for {name} not found')
         return renderer
 
 
@@ -45,8 +45,8 @@ class Base(ModelRenderer):
         if not (sdefs or ldefs):
             return ''
         else:
-            sdefs = '[%s]' % ', '.join(sorted(repr(d) for d in sdefs))
-            ldefs = '[%s]' % ', '.join(sorted(repr(d) for d in ldefs))
+            sdefs = '[{}]'.format(', '.join(sorted(repr(d) for d in sdefs)))
+            ldefs = '[{}]'.format(', '.join(sorted(repr(d) for d in ldefs)))
             if not ldefs:
                 return f'\n\n    self._define({sdefs}, {ldefs})'
             else:
@@ -75,7 +75,7 @@ class Fail(Base):
 class Comment(Base):
     def render_fields(self, fields):
         lines = '\n'.join(
-            '# %s' % str(c) for c in self.node.comment.splitlines()
+            f'# {c!s}' for c in self.node.comment.splitlines()
         )
         fields.update(lines=lines)
 
@@ -472,9 +472,9 @@ class Grammar(Base):
         version = str(tuple(int(n) for n in str(timestamp()).split('.')))
 
         keywords = [str(k) for k in self.keywords if k is not None]
-        keywords = '\n'.join('    %s,' % repr(k) for k in keywords)
+        keywords = '\n'.join(f'    {k!r},' for k in keywords)
         if keywords:
-            keywords = '(\n%s\n)' % keywords
+            keywords = f'(\n{keywords}\n)'
 
         fields.update(
             rules=indent(rules),

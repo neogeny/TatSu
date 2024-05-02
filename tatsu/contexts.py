@@ -517,7 +517,7 @@ class ParseContext:
             fname = ''
             if self.trace_filename:
                 fname = self._tokenizer.line_info().filename + '\n'
-            name = '/%s/' % name if name else ''
+            name = f'/{name}/' if name else ''
 
             if not failed:
                 fgcolor = color.Fore.GREEN + C_SUCCESS
@@ -617,7 +617,7 @@ class ParseContext:
 
             return node
         except FailedPattern:
-            self._error('Expecting <%s>' % ruleinfo.name)
+            self._error(f'Expecting <{ruleinfo.name}>')
         except FailedParse as e:
             self._goto(pos)
             self._set_furthest_exception(e)
@@ -933,7 +933,7 @@ class ParseContext:
         if self.ignorecase or self.tokenizer.ignorecase:
             name = name.upper()
         if name in self.keywords:
-            raise FailedKeywordSemantics('"%s" is a reserved word' % name)
+            raise FailedKeywordSemantics(f'"{name}" is a reserved word')
 
     def _void(self):
         self.last_node = None

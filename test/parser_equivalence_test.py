@@ -152,3 +152,21 @@ def test_dynamic_compiled_ast():
         'TEST A 1', start='test',
     )  # pylint: disable=no-member
     assert dynamic_ast == compiled_ast
+
+
+def test_none_whitespace():
+    grammar = """
+        @@whitespace:: None
+
+        start = "This is a" test;
+        test = " test";
+    """
+    input = 'This is a test'
+
+    parser = tatsu.compile(grammar)
+    output = parser.parse(input)
+    assert output == ('This is a', ' test')
+
+    parser = generate_and_load_parser('W', grammar)
+    output = parser.parse(input, parseinfo=False)
+    assert output == ('This is a', ' test')

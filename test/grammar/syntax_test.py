@@ -34,7 +34,7 @@ class SyntaxTests(unittest.TestCase):
         included_grammar = "plu = 'aaaa';"
 
         overridden = "%s@override\nplu = 'plu';"
-        inclusion = '#include :: %s.ebnf\n' % gr
+        inclusion = f'#include :: {gr}.ebnf\n'
 
         including_grammar = overridden % (inclusion)
         whole_grammar = overridden % (included_grammar)

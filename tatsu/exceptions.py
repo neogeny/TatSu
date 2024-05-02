@@ -89,7 +89,7 @@ class FailedToken(FailedParse):
 
     @property
     def message(self):
-        return 'expecting %s' % repr(self.token).lstrip('u')
+        return 'expecting {}'.format(repr(self.token).lstrip('u'))
 
 
 class FailedPattern(FailedParse):
@@ -99,7 +99,7 @@ class FailedPattern(FailedParse):
 
     @property
     def message(self):
-        return 'expecting /%s/' % self.pattern
+        return f'expecting /{self.pattern}/'
 
 
 class FailedRef(FailedParse):
@@ -109,7 +109,7 @@ class FailedRef(FailedParse):
 
     @property
     def message(self):
-        return "could not resolve reference to rule '%s'" % self.name
+        return f"could not resolve reference to rule '{self.name}'"
 
 
 class FailedCut(FailedParse):

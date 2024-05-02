@@ -80,12 +80,12 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
 
     def new_name(self, name):
         if name in self.rules:
-            raise FailedSemantics('rule "%s" already defined' % str(name))
+            raise FailedSemantics(f'rule "{name!s}" already defined')
         return name
 
     def known_name(self, name):
         if name not in self.rules:
-            raise FailedSemantics('rule "%s" not yet defined' % str(name))
+            raise FailedSemantics(f'rule "{name!s}" not yet defined')
         return name
 
     def boolean(self, ast):
@@ -139,11 +139,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
             # NOTE: use '' because None will _not_ override defaults in configuration
             directives['whitespace'] = ''
 
-        name = (
-            self.grammar_name
-            if self.grammar_name
-            else directives.get('grammar')
-        )
+        name = self.grammar_name or directives.get('grammar')
         return grammars.Grammar(
             name,
             list(self.rules.values()),

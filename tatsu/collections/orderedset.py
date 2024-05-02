@@ -73,7 +73,7 @@ class OrderedSet(MutableSet[T], Sequence[T]):  # noqa: PLW1641
         return iter(self._map.keys())
 
     def __repr__(self) -> str:
-        return '{%s}' % ', '.join(repr(e) for e in self)
+        return '{{{}}}'.format(', '.join(repr(e) for e in self))
 
     def __eq__(self, other: Any) -> bool:
         return all(item in other for item in self)

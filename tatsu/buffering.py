@@ -144,7 +144,7 @@ class Buffer(Tokenizer):
             with include.open() as f:
                 return f.read(), include
         except OSError as e:
-            raise ParseError('include not found: %s' % include) from e
+            raise ParseError(f'include not found: {include}') from e
 
     def replace_lines(self, i, j, name, block):
         lines = self.split_block_lines(self.text)
@@ -394,7 +394,7 @@ class Buffer(Tokenizer):
         info = self.line_info()
         text = info.text[info.col: info.col + 1 + 80]
         text = self.split_block_lines(text)[0].rstrip()
-        return '%s' % (text)
+        return f'{text}'
 
     def get_line(self, n=None):
         if n is None:

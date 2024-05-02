@@ -148,6 +148,8 @@ class EBNFBootstrapParser(Parser):
                             with self._option():
                                 self._regex_()
                             with self._option():
+                                self._string_()
+                            with self._option():
                                 self._token('None')
                             with self._option():
                                 self._token('False')
@@ -155,7 +157,7 @@ class EBNFBootstrapParser(Parser):
                                 self._constant('None')
                             self._error(
                                 'expecting one of: '
-                                "'False' 'None' <regex>"
+                                "'False' 'None' <regex> <string>"
                             )
                     self.name_last_node('value')
                     self._define(['name', 'value'], [])

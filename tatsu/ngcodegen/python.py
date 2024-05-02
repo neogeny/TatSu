@@ -8,6 +8,7 @@ from typing import Any
 from .. import grammars
 from ..collections import OrderedSet as oset
 from ..exceptions import CodegenError
+from ..infos import UndefinedStr
 from ..mixins.indent import IndentPrintMixin
 from ..util import compress_seq, safe_name
 from ..walkers import NodeWalker
@@ -298,7 +299,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             self.print('KEYWORDS: set[str] = set()')
         else:
             keywords_str = '\n'.join(f'    {k!r},' for k in keywords)
-            keywords_str = '{\n%s\n}' % keywords_str
+            keywords_str = f'{{\n{keywords_str}\n}}'
             self.print(f'KEYWORDS: set[str] = {keywords_str}')
 
         self.print()
@@ -308,7 +309,9 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         start = grammar.config.start or grammar.rules[0].name
 
         whitespace = grammar.config.whitespace
-        whitespace = repr(whitespace) if whitespace else None
+        if isinstance(whitespace, UndefinedStr):  # the default value
+            whitespace = None
+        whitespace = repr(whitespace)
 
         self.print(
             f'''

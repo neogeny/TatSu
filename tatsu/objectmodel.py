@@ -44,7 +44,7 @@ class Node(AsJSONMixin):
             try:
                 setattr(self, name, ast[name])
             except AttributeError as e:
-                raise AttributeError("'%s' is a reserved name" % name) from e
+                raise AttributeError(f"'{name}' is a reserved name") from e
 
         self._children = self.children_list()
         if self.parseinfo is None:

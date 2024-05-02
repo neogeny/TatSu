@@ -113,19 +113,19 @@ class ANTLRSemantics:
         return model.Pattern(pattern)
 
     def charset_optional(self, ast):
-        return '%s?' % ast
+        return f'{ast}?'
 
     def charset_closure(self, ast):
-        return '%s*' % ast
+        return f'{ast}*'
 
     def charset_positive_closure(self, ast):
-        return '%s+' % ast
+        return f'{ast}+'
 
     def charset_or(self, ast):
-        return '[%s]' % ''.join(ast)
+        return '[{}]'.format(''.join(ast))
 
     def charset_negative_or(self, ast):
-        return '[^%s]' % ''.join(ast)
+        return '[^{}]'.format(''.join(ast))
 
     @staticmethod
     def escape(s):

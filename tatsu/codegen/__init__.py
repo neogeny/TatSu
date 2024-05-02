@@ -15,4 +15,4 @@ def codegen(model, target='python'):
 
         return python.codegen(model)
     else:
-        raise CodegenError('Unknown target language: %s' % target)
+        raise CodegenError(f'Unknown target language: {target}')

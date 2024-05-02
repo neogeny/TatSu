@@ -18,12 +18,12 @@
 #
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('.'))
 del sys
 del os
 import tatsu
-
 
 # -- General configuration ------------------------------------------------
 
@@ -158,7 +158,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     (master_doc, '\u7ADC TatSu', '\u7ADC TatSu Documentation',
-     [author], 1)
+     [author], 1),
 ]
 
 
@@ -179,7 +179,7 @@ html_sidebars = {
         'globaltoc.html',
         'relations.html',
         'sourcelink.html',
-        'searchbox.html'
+        'searchbox.html',
     ],
 }
 

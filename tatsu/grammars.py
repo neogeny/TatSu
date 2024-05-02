@@ -153,8 +153,7 @@ class Model(Node):
             return ''
 
         return '\n'.join(
-            '(* %s *)\n'
-            % '\n'.join(c).replace('(*', '').replace('*)', '').strip()
+            '(* {} *)\n'.format('\n'.join(c).replace('(*', '').replace('*)', '').strip())
             for c in comments
         )
 
@@ -207,12 +206,12 @@ class Comment(Model):
         super().__init__(ast=AST(comment=ast))
 
     def _to_str(self, lean=False):
-        return '(* %s *)' % self.comment
+        return f'(* {self.comment} *)'
 
 
 class EOLComment(Comment):
     def _to_str(self, lean=False):
-        return '  # %s\n' % self.comment
+        return f'  # {self.comment}\n'
 
 
 class EOF(Model):
@@ -278,9 +277,9 @@ class Group(Decorator):
     def _to_str(self, lean=False):
         exp = self.exp._to_str(lean=lean)
         if len(exp.splitlines()) > 1:
-            return '(\n%s\n)' % indent(exp)
+            return f'(\n{indent(exp)}\n)'
         else:
-            return '(%s)' % trim(exp)
+            return f'({trim(exp)})'
 
 
 class Token(Model):
@@ -484,7 +483,7 @@ class Choice(Model):
 
             lookahead = self.lookahead_str()
             if lookahead:
-                ctx._error('expecting one of: %s:' % lookahead)
+                ctx._error(f'expecting one of: {lookahead}:')
             ctx._error('no available options')
             return None
 
@@ -553,9 +552,9 @@ class Closure(Decorator):
     def _to_str(self, lean=False):
         sexp = str(self.exp._to_str(lean=lean))
         if len(sexp.splitlines()) <= 1:
-            return '{%s}' % sexp
+            return f'{{{sexp}}}'
         else:
-            return '{\n%s\n}' % indent(sexp)
+            return f'{{\n{indent(sexp)}\n}}'
 
     def _nullable(self):
         return True
@@ -765,7 +764,7 @@ class Special(Model):
         return {(self.value,)}
 
     def _to_str(self, lean=False):
-        return '?%s?' % self.value
+        return f'?{self.value}?'
 
     def _nullable(self):
         return True
@@ -819,7 +818,7 @@ class RuleInclude(Decorator):
         self.rule = rule
 
     def _to_str(self, lean=False):
-        return '>%s' % (self.rule.name)
+        return f'>{self.rule.name}'
 
 
 class Rule(Decorator):
@@ -892,15 +891,15 @@ class Rule(Decorator):
             if params and kwparams:
                 params = f'({params}, {kwparams})'
             elif kwparams:
-                params = '(%s)' % (kwparams)
+                params = f'({kwparams})'
             elif params:
                 params = (
-                    '::%s' % params
+                    f'::{params}'
                     if len(self.params) == 1
-                    else '(%s)' % params
+                    else f'({params})'
                 )
 
-        base = ' < %s' % str(self.base.name) if self.base else ''
+        base = f' < {self.base.name!s}' if self.base else ''
 
         return trim(self.str_template).format(
             name=self.name,

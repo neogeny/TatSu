@@ -88,7 +88,7 @@ class BaseTypeRenderer(Renderer):
     def render_fields(self, fields):
         module, name = _get_full_name(self.base_type)
         if '.' in name:
-            lookup = '\nModelBase = %s' % name
+            lookup = f'\nModelBase = {name}'
             name = name.split('.')[0]
         else:
             lookup = ' as ModelBase'
@@ -121,7 +121,7 @@ class ObjectModelCodeGenerator(CodeGenerator):
         name = node.__class__.__name__
         renderer = globals().get(name)
         if not renderer or not issubclass(renderer, ModelRenderer):
-            raise CodegenError('Renderer for %s not found' % name)
+            raise CodegenError(f'Renderer for {name} not found')
         return renderer
 
 
@@ -131,7 +131,7 @@ class Rule(ModelRenderer):
         defs = sorted(set(defs))
         spec = fields['spec']
 
-        kwargs = '\n'.join('%s: Any = None' % d for d in defs)
+        kwargs = '\n'.join(f'{d}: Any = None' for d in defs)
         kwargs = indent(kwargs) if kwargs else indent('pass')
 
         fields.update(

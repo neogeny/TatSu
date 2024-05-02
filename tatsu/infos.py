@@ -15,7 +15,7 @@ class UndefinedStr(str):
     pass
 
 
-_undefined_str = UndefinedStr()
+_undefined_str = UndefinedStr('>>undefined<<')
 
 
 @dataclasses.dataclass

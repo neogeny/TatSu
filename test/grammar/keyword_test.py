@@ -124,11 +124,11 @@ def test_sparse_keywords():
 
     for k in ('A', 'B'):
         try:
-            ast = model.parse('hello %s world' % k)
+            ast = model.parse(f'hello {k} world')
             assert ['hello', k, 'world'] == ast
-            pytest.fail('accepted keyword "%s" as name' % k)
+            pytest.fail(f'accepted keyword "{k}" as name')
         except FailedParse as e:
-            assert '"%s" is a reserved word' % k in str(e)
+            assert f'"{k}" is a reserved word' in str(e)
 
 
 def test_ignorecase_keywords():

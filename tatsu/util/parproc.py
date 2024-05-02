@@ -219,7 +219,7 @@ def file_process_progress(latest_result, count, total, total_time):
         bar,
         '%3d%%' % (100 * percent),
         # format_hours(total_time),
-        '%sETA' % format_hours(eta),
+        f'{format_hours(eta)}ETA',
         format_minutes(latest_result),
         '%3dMiB' % mb_memory if mb_memory else '',
         (Path(filename).name + ' ' * 80)[:40],

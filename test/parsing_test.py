@@ -10,7 +10,7 @@ from tatsu.util import asjson, eval_escapes, trim
 
 class MockIncludeBuffer(EBNFBuffer):
     def get_include(self, source, filename):
-        return '\nINCLUDED "%s"\n' % filename, filename
+        return f'\nINCLUDED "{filename}"\n', filename
 
 
 class ParsingTests(unittest.TestCase):

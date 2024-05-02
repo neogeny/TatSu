@@ -354,7 +354,7 @@ def generic_main(custom_main, parser_class, name='Unknown'):
             print()
             sys.exit(0)
 
-    argp = argparse.ArgumentParser(description='Simple parser for %s.' % name)
+    argp = argparse.ArgumentParser(description=f'Simple parser for {name}.')
     addarg = argp.add_argument
 
     addarg(
@@ -481,7 +481,7 @@ def try_read(filename):
                 return f.read()
         except UnicodeError:
             pass
-    raise UnicodeDecodeError("cannot find the encoding for '%s'" % filename)
+    raise UnicodeDecodeError(f"cannot find the encoding for '{filename}'")
 
 
 def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
