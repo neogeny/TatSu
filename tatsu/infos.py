@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import re
 import copy
 import dataclasses
+import re
 from collections.abc import Callable, Mapping
 from itertools import starmap
 from typing import Any, NamedTuple
