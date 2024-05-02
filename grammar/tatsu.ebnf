@@ -40,7 +40,7 @@ directive
         |
             name:('whitespace') ~
             ~
-            '::' ~ value:(regex|'None'|'False'|`None`)
+            '::' ~ value:(regex|string|'None'|'False'|`None`)
         |
             name:('nameguard' | 'ignorecase' | 'left_recursion' | 'parseinfo')
             ~
