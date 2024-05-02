@@ -8,6 +8,7 @@ from typing import Any
 from .. import grammars
 from ..collections import OrderedSet as oset
 from ..exceptions import CodegenError
+from ..infos import UndefinedStr
 from ..mixins.indent import IndentPrintMixin
 from ..util import compress_seq, safe_name
 from ..walkers import NodeWalker
@@ -308,6 +309,8 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         start = grammar.config.start or grammar.rules[0].name
 
         whitespace = grammar.config.whitespace
+        if isinstance(whitespace, UndefinedStr):  # the default value
+            whitespace = None
         whitespace = repr(whitespace)
 
         self.print(
