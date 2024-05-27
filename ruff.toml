@@ -44,7 +44,7 @@ lint.ignore = [
 ]
 exclude = []
 
-target-version = "py312"
+target-version = "py38"
 
 [lint.per-file-ignores]
 
