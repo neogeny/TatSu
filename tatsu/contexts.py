@@ -739,7 +739,7 @@ class ParseContext:
             except (ValueError, SyntaxError):
                 if '\n' in literal:
                     literal = trim(literal)
-                literal = eval(  # noqa: S307, PGH001
+                literal = eval(  # noqa: S307
                     f'{"f" + repr(literal)}', {}, self.ast,
                 )
         self._append_cst(literal)

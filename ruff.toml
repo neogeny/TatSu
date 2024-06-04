@@ -15,6 +15,7 @@ lint.ignore = [
     "E741",  # ambiguous-variable-name
     "E402",  # module-import-not-at-top-of-file
     "S101",  # use of assert
+    "PERF203", # try-except within loop
     "PLC0415",  # import-outside-top-level
     "PLR6301",  # no-self-use
     "PLR0904",  # too-many-public-methods
