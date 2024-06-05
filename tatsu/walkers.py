@@ -25,7 +25,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         )._walker_cache  # pylint: disable=no-member
 
     def walk(self, node: Node | list[Node], *args, **kwargs) -> Any:
-        if isinstance(node, list | tuple):
+        if isinstance(node, (list, tuple)):
             return [self.walk(n, *args, **kwargs) for n in node]
 
         if isinstance(node, Mapping):

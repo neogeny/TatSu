@@ -11,6 +11,8 @@
 
 # ruff: noqa: C405, COM812, I001, F401, PLR1702, PLC2801, SIM117
 
+from __future__ import annotations
+
 import sys
 from pathlib import Path
 

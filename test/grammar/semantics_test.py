@@ -100,7 +100,7 @@ class SemanticsTests(unittest.TestCase):
         self.assertTrue(hasattr(ast, 'a'))
         self.assertTrue(hasattr(ast, 'b'))
 
-        self.assertTrue(issubclass(D, A | B | C))
+        self.assertTrue(issubclass(D, (A, B, C)))
 
     def test_optional_attributes(self):
         grammar = r"""

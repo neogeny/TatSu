@@ -15,6 +15,9 @@ jobs:
         python-version: [
           '3.12',
           '3.11',
+          '3.10',
+          '3.9',
+          '3.8',
         ]
 
     steps:
@@ -33,7 +36,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install --upgrade --requirement requirements-test.txt
     - name: lint
-      #      if: ${{ matrix.python-version == '3.12' }}
+      if: ${{ matrix.python-version == '3.12' }}
       run: |
         make lint
     - name: pytest
@@ -43,6 +46,7 @@ jobs:
       run: |
         make examples
     - name: documentation
+      if: ${{ matrix.python-version == '3.12' }}
       run: |
         make documentation
     - name: distributions

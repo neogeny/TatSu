@@ -1,14 +1,13 @@
 # NOTE: from https://github.com/LuminosoInsight/ordered-set/blob/master/ordered_set.py
+from __future__ import annotations
+
 import itertools
 from collections.abc import (
-    Iterable,
     Iterator,
     Mapping,
     MutableSequence,
-    MutableSet,
-    Sequence,
 )
-from typing import Any, TypeVar
+from typing import Any, Iterable, MutableSet, Sequence, TypeVar
 
 T = TypeVar('T')
 
@@ -29,7 +28,7 @@ class OrderedSet(MutableSet[T], Sequence[T]):  # noqa: PLW1641
             self._list_cache = list(self._map.keys())
         return self._list_cache[i]
 
-    def copy(self) -> 'OrderedSet[T]':
+    def copy(self) -> OrderedSet[T]:
         return self.__class__(self)
 
     def __getstate__(self):
@@ -78,25 +77,25 @@ class OrderedSet(MutableSet[T], Sequence[T]):  # noqa: PLW1641
     def __eq__(self, other: Any) -> bool:
         return all(item in other for item in self)
 
-    def union(self, *other: Iterable[T]) -> 'OrderedSet[T]':
+    def union(self, *other: Iterable[T]) -> OrderedSet[T]:
         # do not split `str`
         outer = tuple(
-            [o] if not isinstance(o, set | Mapping | MutableSequence) else o
+            [o] if not isinstance(o, (set, Mapping, MutableSequence)) else o
             for o in other
         )
         inner = itertools.chain([self], *outer)
         items = itertools.chain.from_iterable(inner)
         return type(self)(itertools.chain(items))
 
-    def __and__(self, other: Iterable[Iterable[T]]) -> 'OrderedSet[T]':
+    def __and__(self, other: Iterable[Iterable[T]]) -> OrderedSet[T]:
         return self.intersection(other)
 
-    def intersection(self, *other: Iterable[Iterable[T]]) -> 'OrderedSet[T]':
+    def intersection(self, *other: Iterable[Iterable[T]]) -> OrderedSet[T]:
         common = set.intersection(*other)  # type: ignore[var-annotated, arg-type]
         items = (item for item in self if item in common)
         return type(self)(items)
 
-    def difference(self, *other: Iterable[T]) -> 'OrderedSet[T]':
+    def difference(self, *other: Iterable[T]) -> OrderedSet[T]:
         other = set.union(*other)  # type: ignore[assignment, arg-type]
         items = (item for item in self if item not in other)
         return type(self)(items)
@@ -109,7 +108,7 @@ class OrderedSet(MutableSet[T], Sequence[T]):  # noqa: PLW1641
             return False
         return all(item in self for item in other)
 
-    def symmetric_difference(self, other: set[T]) -> 'OrderedSet[T]':
+    def symmetric_difference(self, other: set[T]) -> OrderedSet[T]:
         cls = type(self)
         diff1 = cls(self).difference(other)
         diff2 = cls(other).difference(self)
