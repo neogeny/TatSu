@@ -13,13 +13,16 @@ from typing import Any, TypeVar
 T = TypeVar('T')
 
 
-class OrderedSet(MutableSet[T], Sequence[T]):  # noqa: PLW1641
+class OrderedSet(MutableSet[T], Sequence[T]):
     def __init__(self, iterable: Iterable[T] | None = None):
         if iterable is not None:
             self._map = dict.fromkeys(iterable)
         else:
             self._map = {}
         self._list_cache: Sequence[T] | None = None
+
+    def __hash__(self):
+        return self._map.__hash__()
 
     def __len__(self):
         return len(self._map)
