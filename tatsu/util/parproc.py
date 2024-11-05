@@ -122,7 +122,7 @@ def parallel_proc(payloads, process, *args, **kwargs):
             pmap = _pmap if parallel else map
             yield from pmap(process, tasks)
     except KeyboardInterrupt:
-        return []
+        return
 
 
 def _build_progressbar(total):

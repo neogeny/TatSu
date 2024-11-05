@@ -41,6 +41,7 @@ lint.ignore = [
     "SIM114",  # if-with-same-arms
     "TRY003",  # raise-vanilla-args
     "TRY300",  # try-consider-else
+    "UP031",  # use of % formatting
 ]
 exclude = []
 

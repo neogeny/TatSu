@@ -1,4 +1,4 @@
-astroid>
+astroid
 docutils
 mypy
 pandoc
