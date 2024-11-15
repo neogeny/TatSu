@@ -7,7 +7,7 @@ from functools import reduce
 from .util import asjson, is_list
 
 
-class AST(dict):
+class AST(dict):  # noqa: FURB189
     _frozen = False
 
     def __init__(self, *args, **kwargs):

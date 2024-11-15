@@ -22,7 +22,7 @@ PEP8_LLEN = 72
 PRAGMA_RE = r'^\s*#include.*$'
 
 
-class _ref(str):
+class _ref(str):  # noqa: FURB189
     def __repr__(self):
         return f'<{self}>'
 
