@@ -243,24 +243,24 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'self._positive_closure(block{n})')
 
     def walk_Join(self, join: grammars.Join):
-        n = self._gen_block(join.sep, name='sep')
+        m = self._gen_block(join.sep, name='sep')
         n = self._gen_block(join.exp)
-        self.print(f'self._join(block{n}, sep{n})')
+        self.print(f'self._join(block{n}, sep{m})')
 
     def walk_PositiveJoin(self, join: grammars.PositiveJoin):
-        n = self._gen_block(join.sep, name='sep')
+        m = self._gen_block(join.sep, name='sep')
         n = self._gen_block(join.exp)
-        self.print(f'self._positive_join(block{n}, sep{n})')
+        self.print(f'self._positive_join(block{n}, sep{m})')
 
     def walk_LeftJoin(self, join: grammars.LeftJoin):
-        n = self._gen_block(join.sep, name='sep')
+        m = self._gen_block(join.sep, name='sep')
         n = self._gen_block(join.exp)
-        self.print(f'self._left_join(block{n}, sep{n})')
+        self.print(f'self._left_join(block{n}, sep{m})')
 
     def walk_RightJoin(self, join: grammars.RightJoin):
-        n = self._gen_block(join.sep, name='sep')
+        m = self._gen_block(join.sep, name='sep')
         n = self._gen_block(join.exp)
-        self.print(f'self._right_join(block{n}, sep{n})')
+        self.print(f'self._right_join(block{n}, sep{m})')
 
     def walk_Gather(self, gather: grammars.Gather):
         m = self._gen_block(gather.sep, name='sep')
