@@ -357,7 +357,7 @@ class Buffer(Tokenizer):
         if isinstance(pattern, RETYPE):
             cre = pattern
         else:
-            cre = re.compile(pattern, re.MULTILINE)
+            cre = re.compile(pattern)
         return cre.match(self.text, self.pos)
 
     @property
