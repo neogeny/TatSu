@@ -29,6 +29,8 @@ Specifies a regular expression to identify and exclude inline (bracketed) commen
 
     @@comments :: /\(\*((?:.|\n)*?)\*\)/
 
+.. note::
+   Prior to 5.12.1, comments implicitly had the `(?m) <https://docs.python.org/3/library/re.html#re.MULTILINE>`_ option defined. This is no longer the case.
 
 ``@@eol_comments :: <regexp>``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,6 +41,8 @@ Specifies a regular expression to identify and exclude end-of-line comments befo
 
     @@eol_comments :: /#([^\n]*?)$/
 
+.. note::
+   Prior to 5.12.1, eol_comments implicitly had the `(?m) <https://docs.python.org/3/library/re.html#re.MULTILINE>`_ option defined. This is no longer the case.
 
 ``@@ignorecase :: <bool>``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
