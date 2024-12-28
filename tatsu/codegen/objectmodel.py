@@ -67,11 +67,11 @@ def _get_full_name(cls):
     # Try to reference the class
     try:
         idents = name.split('.')
-        _cls = getattr(module, idents[0])
+        cls_ = getattr(module, idents[0])
         for ident in idents[1:]:
-            _cls = getattr(_cls, ident)
+            cls_ = getattr(cls_, ident)
 
-        assert _cls == cls
+        assert cls_ == cls
     except AttributeError as e:
         raise CodegenError(
             "Couldn't find base type, it has to be importable",
