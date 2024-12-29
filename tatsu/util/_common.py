@@ -27,9 +27,6 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-RETYPE = re.Pattern
-
-
 ESCAPE_SEQUENCE_RE = re.compile(
     r"""
     ( \\U........      # 8-digit Unicode escapes

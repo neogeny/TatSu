@@ -3,13 +3,14 @@ Python code generation for models defined with tatsu.model
 """
 from __future__ import annotations
 
+import re
 import textwrap
 
 from .. import grammars
 from ..collections import OrderedSet as oset
 from ..exceptions import CodegenError
 from ..objectmodel import BASE_CLASS_TOKEN, Node
-from ..util import RETYPE, compress_seq, indent, safe_name, timestamp, trim
+from ..util import compress_seq, indent, safe_name, timestamp, trim
 from .cgbase import CodeGenerator, ModelRenderer
 
 
@@ -448,7 +449,7 @@ class Grammar(Base):
         whitespace = self.node.config.whitespace
         if not whitespace:
             whitespace = 'None'
-        elif isinstance(whitespace, RETYPE):
+        elif isinstance(whitespace, re.Pattern):
             whitespace = repr(whitespace)
         else:
             whitespace = f're.compile(r"{whitespace}")'

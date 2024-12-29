@@ -4,8 +4,6 @@ import re
 from collections.abc import Iterable
 from typing import TypeVar
 
-from ._common import RETYPE
-
 _T = TypeVar('_T')
 
 _undefined = object()  # unique object for when None is not a good default
@@ -62,7 +60,7 @@ def findalliter(pattern, string, pos=None, endpos=None, flags=0):
     """
     r = (
         pattern
-        if isinstance(pattern, RETYPE)
+        if isinstance(pattern, re.Pattern)
         else re.compile(pattern, flags=flags)
     )
     if endpos is not None:

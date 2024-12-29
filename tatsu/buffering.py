@@ -23,7 +23,6 @@ from .infos import (
 )
 from .tokenizing import Tokenizer
 from .util import (
-    RETYPE,
     contains_sublist,
     extend_list,
     identity,
@@ -85,7 +84,7 @@ class Buffer(Tokenizer):
             return DEFAULT_WHITESPACE_RE
         if whitespace in {None, ''}:
             return None
-        elif isinstance(whitespace, RETYPE):
+        elif isinstance(whitespace, re.Pattern):
             return whitespace
         elif whitespace:
             if not isinstance(whitespace, str):
@@ -354,7 +353,7 @@ class Buffer(Tokenizer):
         return token
 
     def _scanre(self, pattern):
-        if isinstance(pattern, RETYPE):
+        if isinstance(pattern, re.Pattern):
             cre = pattern
         else:
             cre = re.compile(pattern)
