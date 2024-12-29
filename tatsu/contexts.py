@@ -101,7 +101,7 @@ def isname(impl):
     return impl
 
 
-class closure(list):  # noqa: FURB189
+class closure(list):
     def __hash__(self):
         return hash(tuple(self))
 

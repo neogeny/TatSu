@@ -22,7 +22,7 @@ PEP8_LLEN = 72
 PRAGMA_RE = r'^\s*#include.*$'
 
 
-class _ref(str):  # noqa: FURB189
+class _ref(str):
     def __repr__(self):
         return f'<{self}>'
 
@@ -519,7 +519,7 @@ class Choice(Model):
 
         if multi:
             return '\n|\n'.join(indent(o) for o in options)
-        elif len(options) and len(single) > PEP8_LLEN:
+        elif options and len(single) > PEP8_LLEN:
             return '| ' + '\n| '.join(o for o in options)
         else:
             return single

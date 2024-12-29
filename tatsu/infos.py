@@ -12,7 +12,7 @@ from .tokenizing import Tokenizer
 from .util.unicode_characters import C_DERIVE
 
 
-class UndefinedStr(str):  # noqa: FURB189
+class UndefinedStr(str):
     pass
 
 

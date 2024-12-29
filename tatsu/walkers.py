@@ -74,7 +74,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
 
             # walk__pythonic_name with double underscore after walk
             pythonic_name = re.sub(
-                '[A-Z]+', pythonize_match, node_cls.__name__,
+                r'[A-Z]+', pythonize_match, node_cls.__name__,
             )
             if pythonic_name != cammelcase_name:
                 walker = getattr(cls, prefix + pythonic_name, None)

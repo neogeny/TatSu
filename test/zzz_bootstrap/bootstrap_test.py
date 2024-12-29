@@ -9,7 +9,6 @@ import sys
 import unittest
 from pathlib import Path
 
-from tatsu import util
 from tatsu.ngcodegen import codegen
 from tatsu.parser import EBNFParser, GrammarGenerator
 from tatsu.parser_semantics import EBNFGrammarSemantics
@@ -163,8 +162,7 @@ class BootstrapTests(unittest.TestCase):
         except ImportError:
             print('PyGraphViz not found!')
         else:
-            if not util.PY37:
-                draw('./tmp/13.png', g11)
+            draw('./tmp/13.png', g11)
 
 
 def suite():

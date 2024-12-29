@@ -171,8 +171,9 @@ def test_none_whitespace():
     output = parser.parse(input, parseinfo=False)
     assert output == ('This is a', ' test')
 
+
 def test_sep_join():
-    grammar = """
+    grammar = r"""
     @@grammar::numbers
 
     start
@@ -186,6 +187,4 @@ def test_sep_join():
     digit = /\d+/ ;
     """
     parser = generate_and_load_parser('W', grammar)
-    ast = parser.parse('1,2,3,4', nameguard=False)
-
-
+    parser.parse('1,2,3,4', nameguard=False)
