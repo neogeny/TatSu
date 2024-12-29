@@ -173,7 +173,7 @@ def test_none_whitespace():
 
 
 def test_sep_join():
-    grammar = """
+    grammar = r"""
     @@grammar::numbers
 
     start
@@ -184,7 +184,7 @@ def test_sep_join():
         = ~ ( "," )%{ digit }+
         ;
 
-    digit = /\\d+/ ;
+    digit = /\d+/ ;
     """
     parser = generate_and_load_parser('W', grammar)
     parser.parse('1,2,3,4', nameguard=False)
