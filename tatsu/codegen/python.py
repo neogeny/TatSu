@@ -462,8 +462,8 @@ class Grammar(Base):
         left_recursion = self.node.config.left_recursion
         parseinfo = self.node.config.parseinfo
         namechars = repr(self.node.config.namechars or '')
-        comments_re = repr(self.node.config.comments_re)
-        eol_comments_re = repr(self.node.config.eol_comments_re)
+        comments = repr(self.node.config.comments)
+        eol_comments = repr(self.node.config.eol_comments)
 
         rules = '\n'.join(
             [self.get_renderer(rule).render() for rule in self.node.rules],
@@ -488,8 +488,8 @@ class Grammar(Base):
             parseinfo=parseinfo,
             keywords=keywords,
             namechars=namechars,
-            comments_re=comments_re,
-            eol_comments_re=eol_comments_re,
+            comments=comments,
+            eol_comments=eol_comments,
         )
 
     abstract_rule_template = """
@@ -535,8 +535,8 @@ class Grammar(Base):
                             ignorecase={ignorecase},
                             namechars={namechars},
                             parseinfo={parseinfo},
-                            comments_re={comments_re},
-                            eol_comments_re={eol_comments_re},
+                            comments={comments},
+                            eol_comments={eol_comments},
                             keywords=KEYWORDS,
                             start={start!r},
                         )
@@ -554,8 +554,8 @@ class Grammar(Base):
                             ignorecase={ignorecase},
                             namechars={namechars},
                             parseinfo={parseinfo},
-                            comments_re={comments_re},
-                            eol_comments_re={eol_comments_re},
+                            comments={comments},
+                            eol_comments={eol_comments},
                             left_recursion={left_recursion},
                             keywords=KEYWORDS,
                             start={start!r},

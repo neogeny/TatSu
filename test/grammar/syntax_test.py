@@ -352,7 +352,7 @@ def test_parse_hash():
         start = '#' ;
     """
 
-    parser = compile(grammar, eol_comments_re='')
+    parser = compile(grammar, eol_comments='')
     parser.parse('#', trace=True)
 
 

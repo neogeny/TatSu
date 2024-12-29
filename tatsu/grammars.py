@@ -519,7 +519,7 @@ class Choice(Model):
 
         if multi:
             return '\n|\n'.join(indent(o) for o in options)
-        elif len(options) and len(single) > PEP8_LLEN:
+        elif options and len(single) > PEP8_LLEN:
             return '| ' + '\n| '.join(o for o in options)
         else:
             return single

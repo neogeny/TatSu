@@ -27,7 +27,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-RETYPE = type(re.compile('.'))
+RETYPE = re.Pattern
 
 
 ESCAPE_SEQUENCE_RE = re.compile(

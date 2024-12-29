@@ -9,7 +9,7 @@ from tatsu.ast import AST
 
 def camel2py(name):
     return re.sub(
-        '([a-z0-9])([A-Z])',
+        r'([a-z0-9])([A-Z])',
         lambda m: m.group(1) + '_' + m.group(2).lower(),
         name,
     )

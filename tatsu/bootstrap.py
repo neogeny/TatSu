@@ -35,8 +35,8 @@ class EBNFBootstrapBuffer(Buffer):
             ignorecase=False,
             namechars='',
             parseinfo=True,
-            comments_re='(?sm)[(][*](?:.|\\n)*?[*][)]',
-            eol_comments_re='#[^\\n]*$',
+            comments='(?sm)[(][*](?:.|\\n)*?[*][)]',
+            eol_comments='(?m)#[^\\n]*$',
             keywords=KEYWORDS,
             start='start',
         )
@@ -55,8 +55,8 @@ class EBNFBootstrapParser(Parser):
             ignorecase=False,
             namechars='',
             parseinfo=True,
-            comments_re='(?sm)[(][*](?:.|\\n)*?[*][)]',
-            eol_comments_re='#[^\\n]*$',
+            comments='(?sm)[(][*](?:.|\\n)*?[*][)]',
+            eol_comments='(?m)#[^\\n]*$',
             keywords=KEYWORDS,
             start='start',
         )
