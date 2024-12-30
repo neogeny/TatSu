@@ -377,3 +377,90 @@ def test_no_default_comments():
     """
     with pytest.raises(FailedToken):
         tool.parse(grammar, text)
+
+
+import re
+
+
+@pytest.mark.parametrize(
+    "comment,option",
+    [
+        pytest.param(
+            "# This comment should be stripped",
+            {"eol_comments_re": r"(?m)#.*?$"},
+            id="eol_comments string override",
+        ),
+        pytest.param(
+            "# This comment should be stripped",
+            {"eol_comments_re": re.compile(r"(?m)#.*?$")},
+            id="eol_comments compiled regex override",
+        ),
+        pytest.param(
+            "(* This comment should be stripped *)",
+            {"comments_re": r"(?sm)[(][*](?:.|\n)*?[*][)]"},
+            id="comments string override",
+        ),
+        pytest.param(
+            "(* This comment should be stripped *)",
+            {"comments_re": re.compile(r"(?sm)[(][*](?:.|\n)*?[*][)]")},
+            id="comments compiled regex override",
+        ),
+    ],
+)
+def test_deprecated_comments_override(comment, option):
+    """
+    # TODO: remove this test after {eol_}comments_re are no longer supported
+    """
+    grammar = """
+        @@comments :: /@@@@@@/
+        @@eol_comments :: /@@@@@@/
+
+        start = 'a' $;
+    """
+
+    text = f"""
+        {comment}
+        a
+    """
+    with pytest.deprecated_call():
+        tool.parse(grammar, text, **option)
+
+
+@pytest.mark.parametrize(
+    "comment,option",
+    [
+        pytest.param(
+            "# This comment should be stripped",
+            {
+                "eol_comments_re": re.compile(r"(?m)#.*?$"),
+                "eol_comments": r"(?m)#.*?$",
+            },
+            id="eol_comments override",
+        ),
+        pytest.param(
+            "(* This comment should be stripped *)",
+            {
+                "comments_re": re.compile(r"(?sm)[(][*](?:.|\n)*?[*][)]"),
+                "comments": r"(?sm)[(][*](?:.|\n)*?[*][)]",
+            },
+            id="comments override",
+        ),
+    ],
+)
+def test_deprecated_comments_override_failures(comment, option):
+    """
+    # TODO: remove this test after {eol_}comments_re are no longer supported
+    """
+    grammar = """
+        @@comments :: /@@@@@@/
+        @@eol_comments :: /@@@@@@/
+
+        start = 'a' $;
+    """
+
+    text = f"""
+        {comment}
+        a
+    """
+    with pytest.raises(ValueError, match="Cannot specify"):
+        tool.parse(grammar, text, **option)
