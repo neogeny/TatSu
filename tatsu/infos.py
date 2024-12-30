@@ -30,8 +30,8 @@ class ParserConfig:
     start_rule: str | None = None  # FIXME
     rule_name: str | None = None  # Backward compatibility
 
-    _comments_re: re.Pattern | None = dataclasses.field(default=None, init=False, repr=False)
-    _eol_comments_re: re.Pattern | None = dataclasses.field(default=None, init=False, repr=False)
+    comments_re: re.Pattern | str | None = None
+    eol_comments_re: re.Pattern | str | None = None
 
     tokenizercls: type[Tokenizer] | None = None  # FIXME
     semantics: type | None = None
@@ -63,18 +63,27 @@ class ParserConfig:
     def __post_init__(self):  # pylint: disable=W0235
         if self.ignorecase:
             self.keywords = [k.upper() for k in self.keywords]
+
+        # FIXME: this check should work, but somehow both attributes seem to be always set
+        # if self.comments and self.comments_re:
+        #     raise AttributeError(
+        #         f'Both `comments` and `comments_re` defined: {self.comments!r} {self.comments_re!r}')
         if self.comments:
-            self._comments_re = re.compile(self.comments)
+            self.comments_re = re.compile(self.comments)
+        elif self.comments_re:
+            if not isinstance(self.comments_re, re.Pattern):
+                self.comments_re = re.compile(self.comments_re)
+            self.comments = self.comments_re.pattern
+
+        # FIXME: this check should work, but somehow both attributes seem to be always set
+        # if self.eol_comments and self.eol_comments_re:
+        #     raise AttributeError('Both `eol_comments` and `eol_comments_re` defined')
         if self.eol_comments:
-            self._eol_comments_re = re.compile(self.eol_comments)
-
-    @property
-    def comments_re(self) -> re.Pattern | None:
-        return self._comments_re
-
-    @property
-    def eol_comments_re(self) -> re.Pattern | None:
-        return self._eol_comments_re
+            self.eol_comments_re = re.compile(self.eol_comments)
+        elif self.eol_comments_re:
+            if not isinstance(self.eol_comments_re, re.Pattern):
+                self.eol_comments_re = re.compile(self.eol_comments_re)
+            self.eol_comments = self.eol_comments_re.pattern
 
     @classmethod
     def new(
