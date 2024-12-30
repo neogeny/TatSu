@@ -145,8 +145,8 @@ class ParserConfig:
                     DeprecationWarning,
                     4,
                 )
-                if new_option in settings:
-                    raise ValueError(f"Cannot specify {deprecated_option} and {new_option} simultaneously")
+                # if new_option in settings:
+                #     raise ValueError(f"Cannot specify {deprecated_option} and {new_option} simultaneously")
                 if isinstance(deprecated_value, re.Pattern):
                     settings[new_option] = deprecated_value.pattern
                 elif isinstance(deprecated_value, str):

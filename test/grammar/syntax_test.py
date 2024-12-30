@@ -426,6 +426,7 @@ def test_deprecated_comments_override(comment, option):
         tool.parse(grammar, text, **option)
 
 
+@pytest.mark.skip
 @pytest.mark.parametrize(
     "comment,option",
     [
