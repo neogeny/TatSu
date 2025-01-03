@@ -323,8 +323,8 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                     ignorecase={grammar.config.ignorecase},
                     namechars={grammar.config.namechars!r},
                     parseinfo={grammar.config.parseinfo},
-                    comments_re={grammar.config.comments_re!r},
-                    eol_comments_re={grammar.config.eol_comments_re!r},
+                    comments={grammar.config.comments!r},
+                    eol_comments={grammar.config.eol_comments!r},
                     keywords=KEYWORDS,
                     start={start!r},
                 )

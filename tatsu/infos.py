@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import dataclasses
 import re
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, MutableMapping
 from itertools import starmap
 from typing import Any, NamedTuple
 
@@ -30,8 +30,8 @@ class ParserConfig:
     start_rule: str | None = None  # FIXME
     rule_name: str | None = None  # Backward compatibility
 
-    comments_re: re.Pattern | None = None
-    eol_comments_re: re.Pattern | None = None
+    comments_re: re.Pattern | str | None = None
+    eol_comments_re: re.Pattern | str | None = None
 
     tokenizercls: type[Tokenizer] | None = None  # FIXME
     semantics: type | None = None
@@ -63,10 +63,14 @@ class ParserConfig:
     def __post_init__(self):  # pylint: disable=W0235
         if self.ignorecase:
             self.keywords = [k.upper() for k in self.keywords]
-        if self.comments:
-            self.comments_re = re.compile(self.comments)
-        if self.eol_comments:
-            self.eol_comments_re = re.compile(self.eol_comments)
+
+        if self.comments_re or self.eol_comments_re:
+            raise AttributeError("""\
+                Both `comments_re` and `eol_comments_re` have been removed from parser configuration.
+                Please use `comments` and/or `eol_comments` instead`.
+            """)
+        del self.comments_re
+        del self.eol_comments_re
 
     @classmethod
     def new(
@@ -84,7 +88,7 @@ class ParserConfig:
         # note: there are legacy reasons for this mess
         return self.start_rule or self.rule_name or self.start
 
-    def _find_common(self, **settings: Any) -> Mapping[str, Any]:
+    def _find_common(self, **settings: Any) -> MutableMapping[str, Any]:
         return {
             name: value
             for name, value in settings.items()
@@ -101,8 +105,20 @@ class ParserConfig:
         else:
             return self.replace(**vars(other))
 
+    # non-init fields cannot be used as arguments in `replace`, however
+    # they are values returned by `vars` and `dataclass.asdict` so they
+    # must be filtered out.
+    # If the `ParserConfig` dataclass drops these fields, then this filter can be removed
+    def _filter_non_init_fields(self, settings: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
+        for field in [
+            field.name for field in dataclasses.fields(self) if not field.init
+        ]:
+            if field in settings:
+                del settings[field]
+        return settings
+
     def replace(self, **settings: Any) -> ParserConfig:
-        overrides = self._find_common(**settings)
+        overrides = self._filter_non_init_fields(self._find_common(**settings))
         result = dataclasses.replace(self, **overrides)
         if 'grammar' in overrides:
             result.name = result.grammar

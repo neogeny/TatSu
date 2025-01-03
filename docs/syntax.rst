@@ -735,11 +735,11 @@ Comments
 ~~~~~~~~
 
 Parsers will skip over comments specified as a regular expression using
-the ``comments_re`` parameter:
+the ``comments`` parameter:
 
 .. code:: python
 
-   parser = MyParser(text, comments_re="\(\*.*?\*\)")
+   parser = MyParser(text, comments="\(\*.*?\*\)")
 
 For more complex comment handling, you can override the
 ``Buffer.eat_comments()`` method.
@@ -751,8 +751,8 @@ comments separately:
 
    parser = MyParser(
        text,
-       comments_re="\(\*.*?\*\)",
-       eol_comments_re="#.*?$"
+       comments="\(\*.*?\*\)",
+       eol_comments="#.*?$"
    )
 
 Both patterns may also be specified within a grammar using the

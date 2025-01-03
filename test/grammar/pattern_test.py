@@ -22,7 +22,7 @@ class PatternTests(unittest.TestCase):
 
             blankline
                 =
-                /^[^\\n]*\\n$/
+                /(?m)^[^\\n]*\\n$/
                 ;
         """
 
