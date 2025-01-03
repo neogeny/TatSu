@@ -1,5 +1,5 @@
 @@grammar :: TatSu
-@@whitespace :: /\s+/
+@@whitespace :: /(?m)\s+/
 @@comments :: ?"(?sm)[(][*](?:.|\n)*?[*][)]"
 @@eol_comments :: ?"(?m)#[^\n]*$"
 @@parseinfo :: True

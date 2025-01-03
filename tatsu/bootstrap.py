@@ -30,13 +30,13 @@ class EBNFBootstrapBuffer(Buffer):
         config = ParserConfig.new(
             config,
             owner=self,
-            whitespace='\\s+',
+            whitespace='(?m)\\s+',
             nameguard=None,
             ignorecase=False,
             namechars='',
             parseinfo=True,
             comments='(?sm)[(][*](?:.|\\n)*?[*][)]',
-            eol_comments='(?m)#[^\\n]*$',
+            eol_comments='(?sm)*#[^\\n]*$',
             keywords=KEYWORDS,
             start='start',
         )

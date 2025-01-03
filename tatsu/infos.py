@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import dataclasses
 import re
-import warnings
 from collections.abc import Callable, MutableMapping
 from itertools import starmap
 from typing import Any, NamedTuple
@@ -65,26 +64,13 @@ class ParserConfig:
         if self.ignorecase:
             self.keywords = [k.upper() for k in self.keywords]
 
-        # FIXME: this check should work, but somehow both attributes seem to be always set
-        # if self.comments and self.comments_re:
-        #     raise AttributeError(
-        #         f'Both `comments` and `comments_re` defined: {self.comments!r} {self.comments_re!r}')
-        if self.comments:
-            self.comments_re = re.compile(self.comments)
-        elif self.comments_re:
-            if not isinstance(self.comments_re, re.Pattern):
-                self.comments_re = re.compile(self.comments_re)
-            self.comments = self.comments_re.pattern
-
-        # FIXME: this check should work, but somehow both attributes seem to be always set
-        # if self.eol_comments and self.eol_comments_re:
-        #     raise AttributeError('Both `eol_comments` and `eol_comments_re` defined')
-        if self.eol_comments:
-            self.eol_comments_re = re.compile(self.eol_comments)
-        elif self.eol_comments_re:
-            if not isinstance(self.eol_comments_re, re.Pattern):
-                self.eol_comments_re = re.compile(self.eol_comments_re)
-            self.eol_comments = self.eol_comments_re.pattern
+        if self.comments_re or self.eol_comments_re:
+            raise AttributeError("""\
+                Both `comments_re` and `eol_comments_re` have been removed from parser configuration.
+                Please use `comments` and/or `eol_comments` instead`.
+            """)
+        del self.comments_re
+        del self.eol_comments_re
 
     @classmethod
     def new(
@@ -131,31 +117,7 @@ class ParserConfig:
                 del settings[field]
         return settings
 
-    def _sanitize_deprecated_options(self, settings: MutableMapping[str, Any]) -> None:
-        for deprecated_option, new_option in (
-            ("comments_re", "comments"),
-            ("eol_comments_re", "eol_comments"),
-        ):
-            if deprecated_option not in settings:
-                continue
-            deprecated_value = settings.pop(deprecated_option)
-            if deprecated_value is not None:
-                warnings.warn(
-                    f"{deprecated_option} is deprecated in favor of {new_option}",
-                    DeprecationWarning,
-                    4,
-                )
-                # if new_option in settings:
-                #     raise ValueError(f"Cannot specify {deprecated_option} and {new_option} simultaneously")
-                if isinstance(deprecated_value, re.Pattern):
-                    settings[new_option] = deprecated_value.pattern
-                elif isinstance(deprecated_value, str):
-                    settings[new_option] = deprecated_value
-                else:
-                    raise ValueError(f"Unsupported value type ({type(deprecated_value)} found for {deprecated_option}")
-
     def replace(self, **settings: Any) -> ParserConfig:
-        self._sanitize_deprecated_options(settings)
         overrides = self._filter_non_init_fields(self._find_common(**settings))
         result = dataclasses.replace(self, **overrides)
         if 'grammar' in overrides:
