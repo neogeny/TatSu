@@ -52,6 +52,8 @@ features, bug reports, bug fixes, or suggestions:
     `pgebhard`_,
     `siemer`_,
     `by-Exist`_
+    `commonism`_
+    `Vincent Fazio`_
 
 .. _commits: https://bitbucket.org/neogeny/grako/commits/all
 .. _issues: https://bitbucket.org/neogeny/grako/issues

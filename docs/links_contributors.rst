@@ -32,7 +32,6 @@
 .. _Paul Sargent: https://bitbucket.org/pauls
 .. _Philippe Sigaud: https://github.com/PhilippeSigaud
 .. _Robert Speer: https://bitbucket.org/r_speer
-.. _Robert Speer: https://bitbucket.org/r_speer
 .. _Ruth-Polymnia: https://github.com/Ruth-Polymnia
 .. _Ryan Gonzales: https://github.com/kirbyfan64
 .. _Ryan: https://github.com/r-chaves
@@ -71,3 +70,5 @@
 .. _vinay.sajip: https://bitbucket.org/vinay.sajip
 .. _vmuriart: https://bitbucket.org/vmuriart
 .. _by-Exist: https://github.com/by-Exist
+.. _commonism: https://github.com/commonism
+.. _Vincent Fazio: https://github.com/vfazio
