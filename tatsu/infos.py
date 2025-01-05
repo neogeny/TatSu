@@ -66,10 +66,10 @@ class ParserConfig:
             self.keywords = [k.upper() for k in self.keywords]
 
         if self.comments_re or self.eol_comments_re:
-            raise AttributeError("""\
-                Both `comments_re` and `eol_comments_re` have been removed from parser configuration.
-                Please use `comments` and/or `eol_comments` instead`.
-            """)
+            raise AttributeError(
+                "Both `comments_re` and `eol_comments_re` have been removed from parser configurations. " +
+                "Please use `comments` and/or `eol_comments` instead`.",
+            )
         del self.comments_re
         del self.eol_comments_re
 
