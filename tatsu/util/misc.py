@@ -112,4 +112,6 @@ def topsort(nodes: Iterable[_T], order: Iterable[tuple[_T, _T]]) -> list[_T]:
 
 @cache
 def cached_re_compile(regex) -> re.Pattern | None:
-    return re.compile(regex) if regex else None
+    if isinstance(regex, re.Pattern):
+        return regex
+    return re.compile(regex) if isinstance(regex, (str | bytes)) else None

@@ -27,7 +27,7 @@ from .util import (
     extend_list,
     identity,
 )
-from .util.misc import match_to_find
+from .util.misc import cached_re_compile, match_to_find
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -353,12 +353,7 @@ class Buffer(Tokenizer):
         return token
 
     def _scanre(self, pattern):
-        if isinstance(pattern, re.Pattern):
-            cre = pattern
-        elif isinstance(pattern, str):
-            cre = re.compile(pattern)
-        else:
-            return None
+        cre = cached_re_compile(pattern)
         return cre.match(self.text, self.pos)
 
     @property
