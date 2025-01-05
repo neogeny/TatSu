@@ -4,6 +4,7 @@ import copy
 import dataclasses
 import re
 from collections.abc import Callable, MutableMapping
+from functools import cache
 from itertools import starmap
 from typing import Any, NamedTuple
 
@@ -72,6 +73,13 @@ class ParserConfig:
         del self.comments_re
         del self.eol_comments_re
 
+        if self.comments:
+            re.compile(self.comments)
+        if self.eol_comments:
+            re.compile(self.eol_comments)
+        if self.whitespace:
+            re.compile(self.whitespace)
+
     @classmethod
     def new(
         cls,
@@ -83,6 +91,18 @@ class ParserConfig:
         if config is not None:
             result = config.replace_config(config)
         return result.replace(**settings)
+
+    @cache
+    def comments_pattern(self) -> re.Pattern:
+        return re.compile(self.comments)
+
+    @cache
+    def eol_comments_pattern(self) -> re.Pattern:
+        return re.compile(self.eol_comments)
+
+    @cache
+    def whitespace_pattern(self) -> re.Pattern:
+        return re.compile(self.whitespace)
 
     def effective_rule_name(self):
         # note: there are legacy reasons for this mess

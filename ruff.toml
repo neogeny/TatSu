@@ -10,6 +10,7 @@ lint.select = [
     # "ERA", # commented out code
 ]
 lint.ignore = [
+    "B019", # memory leaks possible with functools.cache
 #    "C408",  # unnecessary-collection-call
     "E501",  # line-too-long
     "E741",  # ambiguous-variable-name
