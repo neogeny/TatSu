@@ -30,7 +30,9 @@ Specifies a regular expression to identify and exclude inline (bracketed) commen
     @@comments :: /\(\*((?:.|\n)*?)\*\)/
 
 .. note::
-   Prior to 5.12.1, comments implicitly had the `(?m) <https://docs.python.org/3/library/re.html#re.MULTILINE>`_ option defined. This is no longer the case.
+    In previous versions of |TatSu|, the `re.MULTILINE <https://docs.python .org/3/library/re.html#re.MULTILINE>`_
+    option was enabled by default. This is no longer the case. Use ``(?m)`` at the start of your
+    regular expressions to make them multi-line.
 
 ``@@eol_comments :: <regexp>``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -42,7 +44,10 @@ Specifies a regular expression to identify and exclude end-of-line comments befo
     @@eol_comments :: /#([^\n]*?)$/
 
 .. note::
-   Prior to 5.12.1, eol_comments implicitly had the `(?m) <https://docs.python.org/3/library/re.html#re.MULTILINE>`_ option defined. This is no longer the case.
+    In previous versions of |TatSu|, the `re.MULTILINE <https://docs.python .org/3/library/re.html#re.MULTILINE>`_
+    option was enabled by default. This is no longer the case. Use ``(?m)`` at the start of your
+    regular expressions to make them multi-line.
+
 
 ``@@ignorecase :: <bool>``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
