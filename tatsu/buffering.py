@@ -87,13 +87,7 @@ class Buffer(Tokenizer):
         elif isinstance(whitespace, re.Pattern):
             return whitespace
         elif whitespace:
-            if not isinstance(whitespace, str):
-                # FIXME:
-                #   this feature is undocumented
-                #   only regular expressions should be supported
-                # a list or a set?
-                whitespace = f"[{''.join(c for c in whitespace)}]+"
-            return re.compile(f'(?m){whitespace}')
+            return cached_re_compile(whitespace)
         else:
             return None
 
@@ -262,17 +256,18 @@ class Buffer(Tokenizer):
     def _eat_regex_list(self, regex):
         if not regex:
             return []
+        regex = cached_re_compile(regex)
         return list(takewhile(identity, map(self.matchre, repeat(regex))))
 
     def eat_whitespace(self):
         return self._eat_regex(self.whitespace_re)
 
     def eat_comments(self):
-        comments = self._eat_regex_list(cached_re_compile(self.config.comments))
+        comments = self._eat_regex_list(self.config.comments)
         self._index_comments(comments, lambda x: x.inline)
 
     def eat_eol_comments(self):
-        comments = self._eat_regex_list(cached_re_compile(self.config.eol_comments))
+        comments = self._eat_regex_list(self.config.eol_comments)
         self._index_comments(comments, lambda x: x.eol)
 
     def next_token(self):

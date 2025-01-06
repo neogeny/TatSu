@@ -9,6 +9,7 @@ from typing import Any, NamedTuple
 
 from .ast import AST
 from .tokenizing import Tokenizer
+from .util.misc import cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
 
@@ -73,11 +74,11 @@ class ParserConfig:
         del self.eol_comments_re
 
         if self.comments:
-            re.compile(self.comments)
+            cached_re_compile(self.comments)
         if self.eol_comments:
-            re.compile(self.eol_comments)
+            cached_re_compile(self.eol_comments)
         if self.whitespace:
-            re.compile(self.whitespace)
+            cached_re_compile(self.whitespace)
 
     @classmethod
     def new(
