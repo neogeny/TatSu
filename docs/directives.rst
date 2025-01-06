@@ -130,3 +130,8 @@ To disable any parsing of whitespace, use ``None`` for the definition:
 .. code::
 
     @@whitespace :: None
+
+.. note::
+    In previous versions of |TatSu|, the `re.MULTILINE <https://docs.python .org/3/library/re.html#re.MULTILINE>`_
+    option was enabled by default. This is no longer the case. Use ``(?m)`` at the start of your
+    regular expressions to make them multi-line.
