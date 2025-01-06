@@ -268,11 +268,11 @@ class Buffer(Tokenizer):
         return self._eat_regex(self.whitespace_re)
 
     def eat_comments(self):
-        comments = self._eat_regex_list(self.config.comments_pattern)
+        comments = self._eat_regex_list(cached_re_compile(self.config.comments))
         self._index_comments(comments, lambda x: x.inline)
 
     def eat_eol_comments(self):
-        comments = self._eat_regex_list(self.config.eol_comments_pattern)
+        comments = self._eat_regex_list(cached_re_compile(self.config.eol_comments))
         self._index_comments(comments, lambda x: x.eol)
 
     def next_token(self):

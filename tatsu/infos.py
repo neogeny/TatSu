@@ -9,7 +9,6 @@ from typing import Any, NamedTuple
 
 from .ast import AST
 from .tokenizing import Tokenizer
-from .util.misc import cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
 
@@ -94,18 +93,6 @@ class ParserConfig:
 
     # NOTE:
     #    Using functools.cache directly makes objects of this class unhashable
-
-    @property
-    def comments_pattern(self) -> re.Pattern | None:
-        return cached_re_compile(self.comments)
-
-    @property
-    def eol_comments_pattern(self) -> re.Pattern | None:
-        return cached_re_compile(self.eol_comments)
-
-    @property
-    def whitespace_pattern(self) -> re.Pattern | None:
-        return cached_re_compile(self.whitespace)
 
     def effective_rule_name(self):
         # note: there are legacy reasons for this mess
