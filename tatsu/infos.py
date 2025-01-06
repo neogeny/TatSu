@@ -9,6 +9,7 @@ from typing import Any, NamedTuple
 
 from .ast import AST
 from .tokenizing import Tokenizer
+from .util.misc import cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
 
@@ -65,12 +66,19 @@ class ParserConfig:
             self.keywords = [k.upper() for k in self.keywords]
 
         if self.comments_re or self.eol_comments_re:
-            raise AttributeError("""\
-                Both `comments_re` and `eol_comments_re` have been removed from parser configuration.
-                Please use `comments` and/or `eol_comments` instead`.
-            """)
+            raise AttributeError(
+                "Both `comments_re` and `eol_comments_re` have been removed from parser configurations. " +
+                "Please use `comments` and/or `eol_comments` instead`.",
+            )
         del self.comments_re
         del self.eol_comments_re
+
+        if self.comments:
+            cached_re_compile(self.comments)
+        if self.eol_comments:
+            cached_re_compile(self.eol_comments)
+        if self.whitespace:
+            cached_re_compile(self.whitespace)
 
     @classmethod
     def new(
@@ -83,6 +91,9 @@ class ParserConfig:
         if config is not None:
             result = config.replace_config(config)
         return result.replace(**settings)
+
+    # NOTE:
+    #    Using functools.cache directly makes objects of this class unhashable
 
     def effective_rule_name(self):
         # note: there are legacy reasons for this mess

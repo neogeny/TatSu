@@ -27,7 +27,7 @@ from .util import (
     extend_list,
     identity,
 )
-from .util.misc import match_to_find
+from .util.misc import cached_re_compile, match_to_find
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -87,13 +87,7 @@ class Buffer(Tokenizer):
         elif isinstance(whitespace, re.Pattern):
             return whitespace
         elif whitespace:
-            if not isinstance(whitespace, str):
-                # FIXME:
-                #   this feature is undocumented
-                #   only regular expressions should be supported
-                # a list or a set?
-                whitespace = f"[{''.join(c for c in whitespace)}]+"
-            return re.compile(f'(?m){whitespace}')
+            return cached_re_compile(whitespace)
         else:
             return None
 
@@ -262,6 +256,7 @@ class Buffer(Tokenizer):
     def _eat_regex_list(self, regex):
         if not regex:
             return []
+        regex = cached_re_compile(regex)
         return list(takewhile(identity, map(self.matchre, repeat(regex))))
 
     def eat_whitespace(self):
@@ -353,10 +348,7 @@ class Buffer(Tokenizer):
         return token
 
     def _scanre(self, pattern):
-        if isinstance(pattern, re.Pattern):
-            cre = pattern
-        else:
-            cre = re.compile(pattern)
+        cre = cached_re_compile(pattern)
         return cre.match(self.text, self.pos)
 
     @property
