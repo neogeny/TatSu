@@ -10,7 +10,7 @@ authors = [
 ]
 description = "TatSu takes a grammar in a variation of EBNF as input, and outputs a memoizing PEG/Packrat parser in Python."
 readme = "README.rst"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 keywords = []
 license = {file = "LICENSE.TXT"}
 classifiers = [
