@@ -10,9 +10,9 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-    - name: lint
-      run: |
-        make lint
+    - run: python -m pip install mypy ruff
+    - run: ruff check --preview
+    - run: mypy .
 
   test:
     runs-on: ubuntu-latest
@@ -28,9 +28,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - run: python -m pip install pytest
-    - name: pytest
-      run: |
-        make tatsu_test
+    - run: pytest
     - name: examples
       run: |
         make examples
@@ -43,9 +41,7 @@ jobs:
       with:
         python-version: '3.12'
     - run: python -m pip install sphinx
-    - name: documentation
-      run: |
-        make documentation
+    - run: python -m sphinx docs/ docs/_build/
 
   build:
     runs-on: ubuntu-latest
@@ -54,6 +50,5 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-    - name: distributions
-      run: |
-        make build
+    - run: python -m pip install build
+    - run: python -m build
