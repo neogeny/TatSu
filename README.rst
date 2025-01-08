@@ -285,8 +285,8 @@ requires different licensing* please `email`_.
    :target: https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt
 .. |pyversions| image:: https://img.shields.io/pypi/pyversions/tatsu.svg
    :target: https://pypi.python.org/pypi/tatsu
-.. |actions| image:: https://github.com/neogeny/TatSu/workflows/tests/badge.svg
-    :target: https://github.com/neogeny/TatSu/actions
+.. |actions| image:: https://github.com/neogeny/TatSu/actions/workflows/default.yml/badge.svg
+   :target: https://github.com/neogeny/TatSu/actions/workflows/default.yml
 .. |docs| image:: https://readthedocs.org/projects/tatsu/badge/?version=stable
    :target: http://tatsu.readthedocs.io/en/stable/
 .. |downloads| image:: https://img.shields.io/pypi/dm/TatSu.svg
