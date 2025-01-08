@@ -285,19 +285,8 @@ requires different licensing* please `email`_.
    :target: https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt
 .. |pyversions| image:: https://img.shields.io/pypi/pyversions/tatsu.svg
    :target: https://pypi.python.org/pypi/tatsu
-.. |travis| image:: https://secure.travis-ci.org/neogeny/TatSu.svg
-   :target: http://travis-ci.org/neogeny/TatSu
 .. |actions| image:: https://github.com/neogeny/TatSu/workflows/tests/badge.svg
     :target: https://github.com/neogeny/TatSu/actions
-.. |circleci| image:: https://circleci.com/gh/neogeny/TatSu.svg?style=shield
-    :target: https://circleci.com/gh/neogeny/TatSu
-.. |landscape| image:: https://landscape.io/github/apalala/TatSu/master/landscape.png
-   :target: https://landscape.io/github/apalala/TatSu/master
-.. |donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif
-   :target: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=2TW56SV6WNJV6
-.. |quantifiedcode| image:: https://www.quantifiedcode.com/api/v1/project/f60bbd94ae2d4bd5b2e04c241c9d47ff/badge.svg
-   :target: https://www.quantifiedcode.com/app/project/f60bbd94ae2d4bd5b2e04c241c9d47ff
-   :alt: Code issues
 .. |docs| image:: https://readthedocs.org/projects/tatsu/badge/?version=stable
    :target: http://tatsu.readthedocs.io/en/stable/
 .. |downloads| image:: https://img.shields.io/pypi/dm/TatSu.svg
