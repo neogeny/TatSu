@@ -1,5 +1,6 @@
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
-.. |TatSu| replace:: |dragon| **TatSu**
+.. |nbsp| unicode:: 0xA0 .. non breakable space
+.. |TatSu| replace:: |dragon|\ |nbsp|\ **TatSu**
 .. _RELEASES: https://github.com/neogeny/TatSu/releases
 
 |license| |pyversions| |fury| |downloads| |actions| |docs|
