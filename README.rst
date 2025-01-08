@@ -290,4 +290,4 @@ requires different licensing* please `email`_.
 .. |docs| image:: https://readthedocs.org/projects/tatsu/badge/?version=stable
    :target: http://tatsu.readthedocs.io/en/stable/
 .. |downloads| image:: https://img.shields.io/pypi/dm/TatSu.svg
-   :target: http://tatsu.readthedocs.io/en/stable/
+   :target: https://pypistats.org/packages/tatsu
