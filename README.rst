@@ -1,6 +1,7 @@
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
 .. |nbsp| unicode:: 0xA0 .. non breakable space
 .. |TatSu| replace:: |dragon|\ |nbsp|\ **TatSu**
+.. |TatSu-LTS| replace:: |dragon|\ |nbsp|\ **TatSu-LTS**
 .. _RELEASES: https://github.com/neogeny/TatSu/releases
 
 |license| |pyversions| |fury| |downloads| |actions| |docs|
@@ -37,8 +38,11 @@ algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left ass
 in |TatSu| yet depends on new language or standard library features,
 the authors don't want to be constrained by Python version compatibility considerations
 when developing features that will be part of future releases.
+|TatSu-LTS|_ is a friendly fork of |TatSu| that that guarantees compatibility with all supported versions of Python.
+|TatSu-LTS| releases use the same version number as the |TatSu| release on which they are based and should be published shortly after the corresponding upstream release.
 
 .. _algorithm: http://norswap.com/pubs/sle2016.pdf
+.. _TatSu-LTS: https://pypi.org/project/TatSu-LTS/
 
 Installation
 ------------
