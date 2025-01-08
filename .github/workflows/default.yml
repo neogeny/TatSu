@@ -3,7 +3,18 @@ on:
   - pull_request
 
 jobs:
-  build:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: lint
+      run: |
+        make lint
+
+  test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -11,13 +22,29 @@ jobs:
         python-version:
           - '3.13'
           - '3.12'
-
     steps:
     - uses: actions/checkout@v4
-    - name: set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+    - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+    - name: install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install --upgrade --requirement requirements-test.txt
+    - name: pytest
+      run: |
+        make tatsu_test
+    - name: examples
+      run: |
+        make examples
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
     - name: install dependencies
       run: |
         sudo apt-get update
@@ -25,21 +52,17 @@ jobs:
         sudo apt-get install -y pandoc
         sudo apt-get install -y python3-sphinx
         sudo apt-get install -y python3-docutils
-        python -m pip install --upgrade pip
-        pip install --upgrade --requirement requirements-test.txt
-    - name: lint
-      #      if: ${{ matrix.python-version == '3.12' }}
-      run: |
-        make lint
-    - name: pytest
-      run: |
-        make tatsu_test
-    - name: examples
-      run: |
-        make examples
     - name: documentation
       run: |
         make documentation
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
     - name: distributions
       run: |
         make build
