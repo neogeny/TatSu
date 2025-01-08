@@ -1,5 +1,4 @@
 name: tests
-
 on:
   - pull_request
 
@@ -9,10 +8,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [
-          '3.13',
-          '3.12',
-        ]
+        python-version:
+          - '3.13'
+          - '3.12'
 
     steps:
     - uses: actions/checkout@v2
