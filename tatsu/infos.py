@@ -72,6 +72,8 @@ class ParserConfig:
             )
         del self.comments_re
         del self.eol_comments_re
+        del ParserConfig.comments_re
+        del ParserConfig.eol_comments_re
 
         if self.comments:
             cached_re_compile(self.comments)
