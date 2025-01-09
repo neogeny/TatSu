@@ -1,5 +1,7 @@
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
-.. |TatSu| replace:: |dragon| **TatSu**
+.. |nbsp| unicode:: 0xA0 .. non breakable space
+.. |TatSu| replace:: |dragon|\ |nbsp|\ **TatSu**
+.. |TatSu-LTS| replace:: |dragon|\ |nbsp|\ **TatSu-LTS**
 .. _RELEASES: https://github.com/neogeny/TatSu/releases
 
 |license| |pyversions| |fury| |downloads| |actions| |docs|
@@ -36,8 +38,11 @@ algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left ass
 in |TatSu| yet depends on new language or standard library features,
 the authors don't want to be constrained by Python version compatibility considerations
 when developing features that will be part of future releases.
+|TatSu-LTS|_ is a friendly fork of |TatSu| that that guarantees compatibility with all supported versions of Python.
+|TatSu-LTS| releases use the same version number as the |TatSu| release on which they are based and should be published shortly after the corresponding upstream release.
 
 .. _algorithm: http://norswap.com/pubs/sle2016.pdf
+.. _TatSu-LTS: https://pypi.org/project/TatSu-LTS/
 
 Installation
 ------------
@@ -285,20 +290,9 @@ requires different licensing* please `email`_.
    :target: https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt
 .. |pyversions| image:: https://img.shields.io/pypi/pyversions/tatsu.svg
    :target: https://pypi.python.org/pypi/tatsu
-.. |travis| image:: https://secure.travis-ci.org/neogeny/TatSu.svg
-   :target: http://travis-ci.org/neogeny/TatSu
-.. |actions| image:: https://github.com/neogeny/TatSu/workflows/tests/badge.svg
-    :target: https://github.com/neogeny/TatSu/actions
-.. |circleci| image:: https://circleci.com/gh/neogeny/TatSu.svg?style=shield
-    :target: https://circleci.com/gh/neogeny/TatSu
-.. |landscape| image:: https://landscape.io/github/apalala/TatSu/master/landscape.png
-   :target: https://landscape.io/github/apalala/TatSu/master
-.. |donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif
-   :target: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=2TW56SV6WNJV6
-.. |quantifiedcode| image:: https://www.quantifiedcode.com/api/v1/project/f60bbd94ae2d4bd5b2e04c241c9d47ff/badge.svg
-   :target: https://www.quantifiedcode.com/app/project/f60bbd94ae2d4bd5b2e04c241c9d47ff
-   :alt: Code issues
+.. |actions| image:: https://github.com/neogeny/TatSu/actions/workflows/default.yml/badge.svg
+   :target: https://github.com/neogeny/TatSu/actions/workflows/default.yml
 .. |docs| image:: https://readthedocs.org/projects/tatsu/badge/?version=stable
    :target: http://tatsu.readthedocs.io/en/stable/
 .. |downloads| image:: https://img.shields.io/pypi/dm/TatSu.svg
-   :target: http://tatsu.readthedocs.io/en/stable/
+   :target: https://pypistats.org/packages/tatsu
