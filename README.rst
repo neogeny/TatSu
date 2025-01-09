@@ -39,10 +39,10 @@ in |TatSu| yet depends on new language or standard library features,
 the authors don't want to be constrained by Python version compatibility considerations
 when developing features that will be part of future releases.
 
-If you need support for previous versions of Python, please consider `TatSu-LTS`_,
+*If you need support for previous versions of Python, please consider `TatSu-LTS`_,
 a  friendly fork of |TatSu| aimed at compatibility with other versions of Python still used by
 many projects. The developers of both projects work together to promote compatibility
-with most versions of Python.
+with most versions of Python.*
 
 .. _algorithm: http://norswap.com/pubs/sle2016.pdf
 .. _TatSu-LTS: https://pypi.org/project/TatSu-LTS/
