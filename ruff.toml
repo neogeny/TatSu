@@ -45,7 +45,9 @@ lint.ignore = [
     "TRY300",  # try-consider-else
     "UP031",  # use of % formatting
 ]
-exclude = []
+exclude = [
+    "docs",
+]
 
 target-version = "py312"
 
