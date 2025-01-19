@@ -51,8 +51,8 @@ features, bug reports, bug fixes, or suggestions:
     `pdw-mb`_,
     `pgebhard`_,
     `siemer`_,
-    `by-Exist`_
-    `commonism`_
+    `by-Exist`_,
+    `commonism`_,
     `Vincent Fazio`_
 
 .. _commits: https://bitbucket.org/neogeny/grako/commits/all
