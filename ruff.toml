@@ -10,6 +10,7 @@ lint.select = [
     # "ERA", # commented out code
 ]
 lint.ignore = [
+    "RUF100", # unuses ruff noqa directives
     "B019", # memory leaks possible with functools.cache
 #    "C408",  # unnecessary-collection-call
     "E501",  # line-too-long
