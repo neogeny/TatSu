@@ -11,6 +11,7 @@
 .. _David Röthlisberger: https://bitbucket.org/drothlis/
 .. _David Sanders: https://github.com/davesque
 .. _Dmytro Ivanov: https://bitbucket.org/jimon
+.. _Ehsan Kia: https://github.com/ehsankia
 .. _Felipe: https://github.com/fcoelho
 .. _Franck Pommereau: https://github.com/fpom
 .. _Franklin Lee: https://bitbucket.org/leewz
