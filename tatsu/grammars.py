@@ -73,7 +73,8 @@ class Model(Node):
     def classes():
         return [
             c
-            for c in globals().values()
+            # Copy globals() before iterating to be thread-safe.
+            for c in globals().copy().values()
             if isinstance(c, type) and issubclass(c, Model)
         ]
 

@@ -16,6 +16,7 @@ features, bug reports, bug fixes, or suggestions:
     `David Röthlisberger`_,
     `David Sanders`_,
     `Dmytro Ivanov`_,
+    `Ehsan Kia`_,
     `Felipe`_,
     `Franck Pommereau`_,
     `Franklin Lee`_,
