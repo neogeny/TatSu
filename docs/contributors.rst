@@ -9,6 +9,7 @@ features, bug reports, bug fixes, or suggestions:
     `Alberto Berti`_,
     `Andy Wright`_,
     `Basel Shishani`_,
+    `Benjamin Beasley`_,
     `Daniel Martin`_,
     `Daniele Nicolodi`_,
     `David Chen`_,

@@ -73,3 +73,4 @@
 .. _by-Exist: https://github.com/by-Exist
 .. _commonism: https://github.com/commonism
 .. _Vincent Fazio: https://github.com/vfazio
+.. _Benjamin Beasley: https://github.com/musicinmybrain
