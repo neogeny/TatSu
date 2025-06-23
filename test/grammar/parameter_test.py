@@ -1,4 +1,7 @@
 import contextlib
+import pathlib
+import sys
+import tempfile
 import unittest
 
 from tatsu.ngcodegen import codegen
@@ -137,15 +140,15 @@ class ParameterTests(unittest.TestCase):
             rule_all('ßÄÖÜäöü', k1="ßäöüÄÖÜ") = 'c' ;
         """
 
-        def _trydelete(pymodule):
-            import os
+        def _trydelete(pypath, pymodule):
+            module_with_path = pypath / pymodule
 
             with contextlib.suppress(OSError):
-                os.unlink(pymodule + '.py')  # noqa:PTH108
+                module_with_path.with_suffix('.py').unlink()
             with contextlib.suppress(OSError):
-                os.unlink(pymodule + '.pyc')  # noqa:PTH108
+                module_with_path.with_suffix('.pyc').unlink()
             with contextlib.suppress(OSError):
-                os.unlink(pymodule + '.pyo')  # noqa:PTH108
+                module_with_path.with_suffix('.pyo').unlink()
 
         def assert_equal(target, value):
             self.assertEqual(target, value)
@@ -176,14 +179,19 @@ class ParameterTests(unittest.TestCase):
 
         code = codegen(m)
         import codecs
+        module_name = 'tc36unicharstest'
+        temp_dir = pathlib.Path(tempfile.mkdtemp()) / module_name
+        temp_dir.mkdir(exist_ok=True)
+        py_file_path = temp_dir / f'{module_name}.py'
 
-        with codecs.open('tc36unicharstest.py', 'w', 'utf-8') as f:
+        with codecs.open(py_file_path, 'w', 'utf-8') as f:
             f.write(code)
         try:
+            sys.path.append(str(temp_dir))
             import tc36unicharstest  # pylint: disable=E0401
 
             assert tc36unicharstest
-            _trydelete('tc36unicharstest')
+            _trydelete(temp_dir, module_name)
         except Exception as e:
             self.fail(e)
 

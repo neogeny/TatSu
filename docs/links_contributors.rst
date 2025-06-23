@@ -1,5 +1,6 @@
 
 .. _Alberto Berti: https://github.com/azazel75
+.. _Andrzej Fiedukowicz: https://github.com/fiedukow
 .. _Andy Wright: https://github.com/acw1251
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
 .. _Basel Shishani: https://bitbucket.org/basel-shishani
