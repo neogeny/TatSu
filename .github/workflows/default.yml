@@ -9,7 +9,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: '3.13'
     - run: python -m pip install mypy ruff
     - run: ruff check --preview
     - run: mypy .
@@ -39,7 +39,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: '3.13'
     - run: python -m pip install sphinx
     - run: python -m sphinx docs/ docs/_build/
 
@@ -49,6 +49,6 @@ jobs:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: '3.13'
     - run: python -m pip install build
     - run: python -m build
