@@ -7,6 +7,7 @@ The following, among others, have contributed to |TatSu| with
 features, bug reports, bug fixes, or suggestions:
 
     `Alberto Berti`_,
+    `Andrzej Fiedukowicz`_,
     `Andy Wright`_,
     `Basel Shishani`_,
     `Benjamin Beasley`_,
