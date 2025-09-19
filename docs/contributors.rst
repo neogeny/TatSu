@@ -29,6 +29,7 @@ features, bug reports, bug fixes, or suggestions:
     `Karthikeyan Singaravelan`_,
     `Manuel Jacob`_,
     `Marcus Brinkmann`_,
+    `Matt Piekenbrock`_,
     `Mark Jason Dominus`_,
     `Max Liebkies`_,
     `Michael Noronha`_,
