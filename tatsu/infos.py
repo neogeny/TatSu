@@ -129,6 +129,9 @@ class ParserConfig:
         return settings
 
     def replace(self, **settings: Any) -> ParserConfig:
+        if settings.get('whitespace') is _undefined_str:
+            del settings['whitespace']
+        settings = dict(self._filter_non_init_fields(settings))
         overrides = self._filter_non_init_fields(self._find_common(**settings))
         result = dataclasses.replace(self, **overrides)
         if 'grammar' in overrides:
