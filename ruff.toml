@@ -16,6 +16,8 @@ lint.ignore = [
     "E501",  # line-too-long
     "E741",  # ambiguous-variable-name
     "E402",  # module-import-not-at-top-of-file
+    "FURB101", # use Path.read_text()
+    "FURB103", # use Path.write_text()
     "FURB189",  # subclassing str
     "S101",  # use of assert
     "PERF203", # try-except within loop
