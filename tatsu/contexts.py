@@ -54,7 +54,7 @@ from .util.unicode_characters import (
 __all__ = ['ParseContext', 'tatsumasu', 'leftrec', 'nomemo']
 
 
-MEMO_CACHE_SIZE = 16384
+MEMO_CACHE_SIZE = 65_536
 
 
 # decorator for rule implementation methods
@@ -425,6 +425,7 @@ class ParseContext:
     def _cut(self):
         self._trace_cut()
         self._cut_stack[-1] = True
+        print('MEMOS', len(self._memos))
 
     def _memoization(self):
         return self.memoize_lookaheads or self._lookahead == 0
