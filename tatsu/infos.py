@@ -12,7 +12,6 @@ from .tokenizing import Tokenizer
 from .util.misc import cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
-
 MEMO_CACHE_SIZE = 1024
 
 
