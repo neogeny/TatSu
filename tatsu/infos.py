@@ -12,6 +12,8 @@ from .tokenizing import Tokenizer
 from .util.misc import cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
+MEMO_CACHE_SIZE = 1024
+
 
 class UndefinedStr(str):
     pass
@@ -60,6 +62,7 @@ class ParserConfig:
     whitespace: str | None = _undefined_str
 
     parseinfo: bool = False
+    memo_cache_size: int = MEMO_CACHE_SIZE
 
     def __post_init__(self):  # pylint: disable=W0235
         if self.ignorecase:

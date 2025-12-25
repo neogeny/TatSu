@@ -42,6 +42,7 @@ from .util import (
     safe_name,
     trim,
 )
+from .util.boundeddict import BoundedDict
 from .util.unicode_characters import (
     C_CUT,
     C_ENTRY,
@@ -272,7 +273,7 @@ class ParseContext:
         return self._tokenizer.pos
 
     def _clear_memoization_caches(self):
-        self._memos = {}
+        self._memos = BoundedDict(self.config.memo_cache_size)
         self._results = {}
         self._recursion_depth = 0
 
@@ -421,22 +422,6 @@ class ParseContext:
     def _cut(self):
         self._trace_cut()
         self._cut_stack[-1] = True
-
-        # Kota Mizushima et al say that we can throw away
-        # memos for previous positions in the tokenizer under
-        # certain circumstances, without affecting the linearity
-        # of PEG parsing.
-        #   https://kmizu.github.io/papers/paste513-mizushima.pdf
-        #
-        # We adopt the heuristic of always dropping the cache for
-        # positions less than the current cut position. It remains to
-        # be proven if doing it this way affects linearity. Empirically,
-        # it hasn't.
-
-        def prune(cache, cutpos):
-            prune_dict(cache, lambda k, _: k[0] < cutpos)
-
-        prune(self._memos, self._pos)
 
     def _memoization(self):
         return self.memoize_lookaheads or self._lookahead == 0
