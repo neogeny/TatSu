@@ -145,6 +145,23 @@ class ParsingTests(unittest.TestCase):
         parseinfo = subject['parseinfo']
         assert parseinfo.pos == parseinfo.tokenizer.text.index('bar')
 
+    def test_cut_scope(self):
+        grammar = '''
+            start =
+                | one
+                | two
+                ;
+
+            one =
+                | ~ !()   # cut fail
+                | 'abc';
+
+            two = `something` ; # result is the quoted text
+        '''
+
+        ast = tatsu.parse(grammar, 'abc')
+        assert ast == 'something'
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(ParsingTests)
