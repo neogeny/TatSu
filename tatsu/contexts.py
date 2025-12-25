@@ -54,9 +54,6 @@ from .util.unicode_characters import (
 __all__ = ['ParseContext', 'tatsumasu', 'leftrec', 'nomemo']
 
 
-MEMO_CACHE_SIZE = 65_536
-
-
 # decorator for rule implementation methods
 def tatsumasu(*params, **kwparams):
     def decorator(impl):
@@ -276,7 +273,7 @@ class ParseContext:
         return self._tokenizer.pos
 
     def _clear_memoization_caches(self):
-        self._memos = BoundedDict(MEMO_CACHE_SIZE)
+        self._memos = BoundedDict(self.config.memo_cache_size)
         self._results = {}
         self._recursion_depth = 0
 
