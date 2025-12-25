@@ -15,6 +15,7 @@ from .util.unicode_characters import C_DERIVE
 
 MEMO_CACHE_SIZE = 1024
 
+
 class UndefinedStr(str):
     pass
 
