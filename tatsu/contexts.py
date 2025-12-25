@@ -790,7 +790,10 @@ class ParseContext:
     def _choice(self):
         self.last_node = None
         with suppress(OptionSucceeded):
-            yield
+            try:
+                yield
+            except FailedCut as e:
+                raise e.nested
 
     @contextmanager
     def _optional(self):
