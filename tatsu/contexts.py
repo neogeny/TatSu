@@ -793,7 +793,7 @@ class ParseContext:
             try:
                 yield
             except FailedCut as e:
-                raise e.nested
+                raise e.nested from e
 
     @contextmanager
     def _optional(self):
