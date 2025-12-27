@@ -783,6 +783,7 @@ class ParseContext:
         except FailedParse as e:
             if self._is_cut_set():
                 raise FailedCut(e) from e
+            # else: ignore, so next option is tried
         finally:
             self._cut_stack.pop()
 
