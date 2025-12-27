@@ -112,20 +112,6 @@ class FailedRef(FailedParse):
         return f"could not resolve reference to rule '{self.name}'"
 
 
-class FailedCut(FailedParse):
-    def __init__(self, nested):
-        super().__init__(nested.tokenizer, nested.stack, nested.item)
-        self.pos = nested.pos
-        self.nested = nested
-
-    @property
-    def message(self):
-        return self.nested.message
-
-    def __reduce__(self):
-        return type(self), (self.nested,)
-
-
 class FailedChoice(FailedParse):
     @property
     def message(self):

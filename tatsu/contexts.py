@@ -10,7 +10,6 @@ from . import buffering, color, tokenizing
 from .ast import AST
 from .collections import OrderedSet as oset
 from .exceptions import (
-    FailedCut,
     FailedExpectingEndOfText,
     FailedKeywordSemantics,
     FailedLeftRecursion,
@@ -240,9 +239,6 @@ class ParseContext:
         try:
             rule = self._find_rule(start)
             return rule()
-        except FailedCut as e:
-            self._set_furthest_exception(e.nested)
-            raise self._furthest_exception from e
         except FailedParse as e:
             self._set_furthest_exception(e)
             raise self._furthest_exception from e
@@ -778,11 +774,9 @@ class ParseContext:
             with self._try():
                 yield
             raise OptionSucceeded()
-        except FailedCut:
-            raise
-        except FailedParse as e:
+        except FailedParse:
             if self._is_cut_set():
-                raise FailedCut(e) from e
+                raise
             # else: ignore, so next option is tried
         finally:
             self._cut_stack.pop()
@@ -791,10 +785,7 @@ class ParseContext:
     def _choice(self):
         self.last_node = None
         with suppress(OptionSucceeded):
-            try:
-                yield
-            except FailedCut as e:
-                raise e.nested from e
+            yield
 
     @contextmanager
     def _optional(self):
