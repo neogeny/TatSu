@@ -420,7 +420,10 @@ class ParseContext:
         self._cut_stack[-1] = True
 
     def _memoization(self):
-        return self.memoize_lookaheads or self._lookahead == 0
+        return self.config.memoization and (
+                    self.memoize_lookaheads or
+                    self._lookahead == 0
+                )
 
     def _rulestack(self):
         rulestack = [r.name for r in reversed(self._rule_stack)]

@@ -1069,7 +1069,7 @@ class Grammar(Model):
 
     def _to_str(self, lean=False):
         regex_directives = {'comments', 'eol_comments', 'whitespace'}
-        ustr_directives = {'comments', 'grammar'}
+        str_directives = {'comments', 'grammar'}
         string_directives = {'namechars'}
 
         directives = ''
@@ -1081,7 +1081,7 @@ class Grammar(Model):
                     repr(value)
                     if directive in string_directives
                     else str(value)
-                    if directive in ustr_directives
+                    if directive in str_directives
                     else value
                 ),
             )
