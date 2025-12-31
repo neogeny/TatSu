@@ -40,7 +40,10 @@ class ParserConfig:
     semantics: type | None = None
 
     comment_recovery: bool = False
+
+    memoization: bool = True
     memoize_lookaheads: bool = True
+    memo_cache_size: int = MEMO_CACHE_SIZE
 
     colorize: bool = False
     trace: bool = False
@@ -62,7 +65,6 @@ class ParserConfig:
     whitespace: str | None = _undefined_str
 
     parseinfo: bool = False
-    memo_cache_size: int = MEMO_CACHE_SIZE
 
     def __post_init__(self):  # pylint: disable=W0235
         if self.ignorecase:
@@ -82,6 +84,9 @@ class ParserConfig:
             cached_re_compile(self.eol_comments)
         if self.whitespace:
             cached_re_compile(self.whitespace)
+
+        if not self.memoization:
+            self.left_recursion = False
 
     @classmethod
     def new(

@@ -42,7 +42,7 @@ directive
             ~
             '::' ~ value:(regex|string|'None'|'False'|`None`)
         |
-            name:('nameguard' | 'ignorecase' | 'left_recursion' | 'parseinfo')
+            name:('nameguard' | 'ignorecase' | 'left_recursion' | 'parseinfo' | 'memoization')
             ~
             ('::' ~ value:boolean|value:`True`)
         |
