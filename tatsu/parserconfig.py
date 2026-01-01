@@ -37,7 +37,7 @@ class ParserConfig:
     memoize_lookaheads: bool = True
     memo_cache_size: int = MEMO_CACHE_SIZE
 
-    colorize: bool = False  # INFO: requires the colorama library
+    colorize: bool = True  # INFO: requires the colorama library
     trace: bool = False
     trace_filename: bool = False
     trace_length: int = 72
@@ -53,7 +53,7 @@ class ParserConfig:
 
     ignorecase: bool | None = False
     namechars: str = ''
-    nameguard: bool = False  # implied by namechars
+    nameguard: bool | None = None  # implied by namechars
     whitespace: str | None = _undefined_str
 
     parseinfo: bool = False

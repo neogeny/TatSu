@@ -9,12 +9,12 @@ from pathlib import Path
 
 from .ast import AST
 from .collections import OrderedSet as oset
-from .parserconfig import ParserConfig
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import RuleInfo
 from .leftrec import Nullable, find_left_recursion
 from .objectmodel import Node
+from .parserconfig import ParserConfig
 from .util import chunks, compress_seq, indent, re, trim
 
 PEP8_LLEN = 72

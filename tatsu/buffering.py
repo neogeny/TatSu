@@ -12,7 +12,6 @@ from itertools import repeat, takewhile
 from pathlib import Path
 from typing import Any
 
-from .parserconfig import ParserConfig
 from .exceptions import ParseError
 from .infos import (
     CommentInfo,
@@ -21,6 +20,7 @@ from .infos import (
     PosLine,
     UndefinedStr,
 )
+from .parserconfig import ParserConfig
 from .tokenizing import Tokenizer
 from .util import (
     contains_sublist,
