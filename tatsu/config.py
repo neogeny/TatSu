@@ -7,10 +7,10 @@ from collections.abc import Collection, MutableMapping
 from dataclasses import dataclass, field
 from typing import Any
 
-from tatsu.infos import MEMO_CACHE_SIZE, _undefined_str
-from tatsu.tokenizing import Tokenizer
-from tatsu.util.misc import cached_re_compile
-from tatsu.util.unicode_characters import C_DERIVE
+from .infos import MEMO_CACHE_SIZE, _undefined_str
+from .tokenizing import Tokenizer
+from .util.misc import cached_re_compile
+from .util.unicode_characters import C_DERIVE
 
 
 @dataclass
@@ -23,8 +23,8 @@ class ParserConfig:
     start_rule: str | None = None  # FIXME
     rule_name: str | None = None  # Backward compatibility
 
-    comments_re: re.Pattern | str | None = None
-    eol_comments_re: re.Pattern | str | None = None
+    comments_re: re.Pattern | str | None = None  # WARNING: deprecated
+    eol_comments_re: re.Pattern | str | None = None  # WARNING: deprecated
 
     tokenizercls: type[Tokenizer] | None = None  # FIXME
     semantics: type | None = None
@@ -35,7 +35,7 @@ class ParserConfig:
     memoize_lookaheads: bool = True
     memo_cache_size: int = MEMO_CACHE_SIZE
 
-    colorize: bool = False
+    colorize: bool = False  # INFO: requires the colorama library
     trace: bool = False
     trace_filename: bool = False
     trace_length: int = 72
@@ -47,11 +47,11 @@ class ParserConfig:
 
     comments: str | None = None
     eol_comments: str | None = None
-    keywords: Collection[str] = field(default_factory=list)
+    keywords: Collection[str] = field(default_factory=set)
 
     ignorecase: bool | None = False
     namechars: str = ''
-    nameguard: bool | None = None  # implied by namechars
+    nameguard: bool = False  # implied by namechars
     whitespace: str | None = _undefined_str
 
     parseinfo: bool = False
@@ -78,6 +78,9 @@ class ParserConfig:
 
         if not self.memoization:
             self.left_recursion = False
+
+        if self.namechars:
+            self.nameguard = True
 
     @classmethod
     def new(
