@@ -971,7 +971,11 @@ class Grammar(Model):
         if name is None:
             name = self.directives.get('grammar')
         if name is None:
+            name = self.config.name
+        if name is None and config.filename is not None:
             name = Path(config.filename).stem
+        if name is None:
+            name = 'My'
         self.name = name
 
         missing = self.missing_rules(oset(r.name for r in self.rules))
