@@ -433,7 +433,7 @@ class ParseContext:
         def prune(cache, cut_pos):
             prune_dict(
               cache,
-              lambda k, v: k[0] < cut_pos and not isinstance(v, FailedLeftRecursion)
+              lambda k, v: k[0] < cut_pos and not isinstance(v, FailedLeftRecursion),
               )
 
         prune(self._memos, self._pos)
