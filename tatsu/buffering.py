@@ -12,12 +12,12 @@ from itertools import repeat, takewhile
 from pathlib import Path
 from typing import Any
 
+from .config import ParserConfig
 from .exceptions import ParseError
 from .infos import (
     CommentInfo,
     LineIndexInfo,
     LineInfo,
-    ParserConfig,
     PosLine,
     UndefinedStr,
 )

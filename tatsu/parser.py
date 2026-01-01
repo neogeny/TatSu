@@ -3,8 +3,8 @@ from typing import Any
 
 from .bootstrap import EBNFBootstrapParser
 from .buffering import Buffer
+from .config import ParserConfig
 from .grammars import PRAGMA_RE
-from .infos import ParserConfig
 from .parser_semantics import EBNFGrammarSemantics
 from .semantics import ASTSemantics
 
