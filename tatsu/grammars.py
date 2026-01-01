@@ -9,7 +9,7 @@ from pathlib import Path
 
 from .ast import AST
 from .collections import OrderedSet as oset
-from .config import ParserConfig
+from .parserconfig import ParserConfig
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import RuleInfo

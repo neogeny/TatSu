@@ -11,7 +11,7 @@ import importlib
 import sys
 from pathlib import Path
 
-from tatsu.config import ParserConfig
+from tatsu.parserconfig import ParserConfig
 
 from ._version import __version__
 from .exceptions import ParseException

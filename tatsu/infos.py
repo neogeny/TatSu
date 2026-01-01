@@ -7,8 +7,6 @@ from typing import Any, NamedTuple
 
 from .ast import AST
 
-MEMO_CACHE_SIZE = 1024
-
 
 class UndefinedStr(str):
     pass

@@ -7,10 +7,12 @@ from collections.abc import Collection, MutableMapping
 from dataclasses import dataclass, field
 from typing import Any
 
-from .infos import MEMO_CACHE_SIZE, _undefined_str
+from .infos import _undefined_str
 from .tokenizing import Tokenizer
 from .util.misc import cached_re_compile
 from .util.unicode_characters import C_DERIVE
+
+MEMO_CACHE_SIZE = 1024
 
 
 @dataclass

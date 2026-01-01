@@ -9,7 +9,7 @@ from copy import copy
 from . import buffering, color, tokenizing
 from .ast import AST
 from .collections import OrderedSet as oset
-from .config import ParserConfig
+from .parserconfig import ParserConfig
 from .exceptions import (
     FailedExpectingEndOfText,
     FailedKeywordSemantics,
