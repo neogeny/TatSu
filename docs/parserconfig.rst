@@ -194,7 +194,7 @@ colorize
 
 .. code:: Python
 
-    colorize: bool = False
+    colorize: bool = True
 
 Colorize trace output. Colorization requires that the ``colorama`` library
 is available.
@@ -206,7 +206,7 @@ trace
 
     trace: bool = False
 
-Produce a trace of the parsing process. See the `Traces <traces.html>`_.
+Produce a trace of the parsing process. See the `Traces <traces.html>`_
 section for more information.
 
 
@@ -217,7 +217,7 @@ trace_filename
 
     trace_filename: bool = False
 
-The filename to be used in trace output.
+Include the input textt's filename in trace output.
 
 trace_length
 ~~~~~~~~~~~~
@@ -244,7 +244,7 @@ grammar
 
     grammar: str | None = None
 
-An alias for the ``name`` option.
+An alias for the `name <#name>`_ option.
 
 left_recursion
 ~~~~~~~~~~~~~~
@@ -312,8 +312,8 @@ nameguard
     nameguard: bool = False  # implied by namechars
 
 When set to ``True``, avoids matching tokens when the next character in the input sequence is
-alphanumeric or a ``@@namechar``. Defaults to ``False``. See `text expression`_ for an
-explanation.
+alphanumeric or a ``@@namechar``. Defaults to ``False``.
+See `token expression <syntax.html#text-or-text>`_ for an explanation.
 
 whitespace
 ~~~~~~~~~~
