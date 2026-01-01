@@ -59,6 +59,9 @@ class Tokenizer:
     def get_lines(self, start=None, end=None):
         raise NotImplementedError
 
+    def line_index(self, start=0, end=None):
+        raise NotImplementedError
+
     def lookahead(self):
         raise NotImplementedError
 
