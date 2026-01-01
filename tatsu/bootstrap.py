@@ -18,7 +18,7 @@ from tatsu.buffering import Buffer
 from tatsu.parsing import Parser
 from tatsu.parsing import tatsumasu
 from tatsu.parsing import leftrec, nomemo, isname
-from tatsu.infos import ParserConfig
+from tatsu.parserconfig import ParserConfig
 from tatsu.util import re, generic_main
 
 
@@ -29,7 +29,6 @@ class EBNFBootstrapBuffer(Buffer):
     def __init__(self, text, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(
             config,
-            owner=self,
             whitespace='(?m)\\s+',
             nameguard=None,
             ignorecase=False,
@@ -49,7 +48,6 @@ class EBNFBootstrapParser(Parser):
     def __init__(self, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(
             config,
-            owner=self,
             whitespace='(?m)\\s+',
             nameguard=None,
             ignorecase=False,

@@ -5,7 +5,7 @@ tatsu_test: clean
 	pytest
 
 
-documentation: clean sphinx
+documentation: sphinx
 
 
 sphinx:

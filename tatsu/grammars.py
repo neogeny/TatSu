@@ -11,9 +11,10 @@ from .ast import AST
 from .collections import OrderedSet as oset
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
-from .infos import ParserConfig, RuleInfo
+from .infos import RuleInfo
 from .leftrec import Nullable, find_left_recursion
 from .objectmodel import Node
+from .parserconfig import ParserConfig
 from .util import chunks, compress_seq, indent, re, trim
 
 PEP8_LLEN = 72
@@ -958,7 +959,7 @@ class Grammar(Model):
         directives = directives or {}
         self.directives = directives
 
-        config = ParserConfig.new(config=config, owner=self, **directives)
+        config = ParserConfig.new(config=config, **directives)
         config = config.replace(**settings)
         self.config = config
 
@@ -970,7 +971,11 @@ class Grammar(Model):
         if name is None:
             name = self.directives.get('grammar')
         if name is None:
+            name = self.config.name
+        if name is None and config.filename is not None:
             name = Path(config.filename).stem
+        if name is None:
+            name = 'My'
         self.name = name
 
         missing = self.missing_rules(oset(r.name for r in self.rules))

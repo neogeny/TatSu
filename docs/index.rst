@@ -41,6 +41,7 @@ input, much like the `re`_ module does with regular expressions, or it can gener
     rationale
     install
     use
+    parserconfig
     syntax
     directives
     ast

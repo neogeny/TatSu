@@ -4,8 +4,8 @@ from typing import Any
 from .bootstrap import EBNFBootstrapParser
 from .buffering import Buffer
 from .grammars import PRAGMA_RE
-from .infos import ParserConfig
 from .parser_semantics import EBNFGrammarSemantics
+from .parserconfig import ParserConfig
 from .semantics import ASTSemantics
 
 
@@ -19,7 +19,7 @@ class EBNFBuffer(Buffer):
         **settings: Any,
     ):
         config = ParserConfig.new(
-            config=config, owner=self, filename=filename, **settings,
+            config=config, filename=filename, **settings,
         )
         super().__init__(text, config=config)
 

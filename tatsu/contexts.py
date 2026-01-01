@@ -26,11 +26,11 @@ from .infos import (
     Alert,
     MemoKey,
     ParseInfo,
-    ParserConfig,
     ParseState,
     RuleInfo,
     RuleResult,
 )
+from .parserconfig import ParserConfig
 from .tokenizing import Tokenizer
 from .util import (
     info,

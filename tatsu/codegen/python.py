@@ -519,7 +519,7 @@ class Grammar(Base):
                 from tatsu.parsing import Parser
                 from tatsu.parsing import tatsumasu
                 from tatsu.parsing import leftrec, nomemo, isname
-                from tatsu.infos import ParserConfig
+                from tatsu.parserconfig import ParserConfig
                 from tatsu.util import re, generic_main
 
 
@@ -530,7 +530,6 @@ class Grammar(Base):
                     def __init__(self, text, /, config: ParserConfig | None = None, **settings):
                         config = ParserConfig.new(
                             config,
-                            owner=self,
                             whitespace={whitespace},
                             nameguard={nameguard},
                             ignorecase={ignorecase},
@@ -549,7 +548,6 @@ class Grammar(Base):
                     def __init__(self, /, config: ParserConfig | None = None, **settings):
                         config = ParserConfig.new(
                             config,
-                            owner=self,
                             whitespace={whitespace},
                             nameguard={nameguard},
                             ignorecase={ignorecase},

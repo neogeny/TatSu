@@ -5,7 +5,13 @@
 Traces
 ------
 
-|TatSu| compiling and parsing actions have a ``trace=`` argument ( ``--trace`` on the command line). When used with the ``colorize=`` option ( ``--color`` on the command line), it produces trace like the following, in which colors mean :try:`try`, :succeed:`suceed`, and :fail:`fail`.
+|TatSu| compiling and parsing actions have a ``trace=`` argument. The option
+is also available in ``ParserConfig`` and as ``--trace`` on the command line.
+For colorization to be enabled the colorama_ library must be installed.
+
+When used with the ``colorize`` option (defaults to ``True``)
+( ``--color`` on the command line), it produces a trace like the following,
+in which colors mean :try:`try`, :succeed:`suceed`, and :fail:`fail`.
 
 
 | :try:`↙start ~1:1`

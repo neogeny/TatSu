@@ -17,10 +17,10 @@ from .infos import (
     CommentInfo,
     LineIndexInfo,
     LineInfo,
-    ParserConfig,
     PosLine,
     UndefinedStr,
 )
+from .parserconfig import ParserConfig
 from .tokenizing import Tokenizer
 from .util import (
     contains_sublist,
@@ -41,7 +41,7 @@ class Buffer(Tokenizer):
         self, text, /, config: ParserConfig | None = None, **settings: Any,
     ):
         super().__init__()
-        config = ParserConfig.new(config=config, owner=self, **settings)
+        config = ParserConfig.new(config=config, **settings)
         self.config = config
 
         text = str(text)

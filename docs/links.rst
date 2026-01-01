@@ -78,3 +78,5 @@
 .. _regex: https://pypi.python.org/pypi/regex
 .. _smc.mw: https://github.com/lambdafu/smc.mw
 .. _regular languages: https://en.wikipedia.org/wiki/Regular_language
+.. _Abstract Syntax Tree: http://en.wikipedia.org/wiki/Abstract_syntax_tree
+.. _AST: http://en.wikipedia.org/wiki/Abstract_syntax_tree

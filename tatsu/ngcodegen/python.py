@@ -34,7 +34,7 @@ HEADER = """\
     from tatsu.parsing import Parser
     from tatsu.parsing import tatsumasu
     from tatsu.parsing import leftrec, nomemo, isname
-    from tatsu.infos import ParserConfig
+    from tatsu.parserconfig import ParserConfig
     from tatsu.util import re, generic_main
 """
 
@@ -317,7 +317,6 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             f'''
                 config = ParserConfig.new(
                     config,
-                    owner=self,
                     whitespace={whitespace},
                     nameguard={grammar.config.nameguard},
                     ignorecase={grammar.config.ignorecase},
