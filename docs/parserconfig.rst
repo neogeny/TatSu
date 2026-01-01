@@ -5,7 +5,7 @@ Parser Configuration
 --------------------
 
 |TatSu| has many configuration options. They are all defined in
-``tatsu.config.ParserConfig``. With the introduction of ``ParserConfig``
+``tatsu.parserconfig.ParserConfig``. With the introduction of ``ParserConfig``
 there's no need to declare every configuration parameter as an optional named
 argument in entry points and internal methods. The defaults set in
 ``ParserConfig`` are suitable for most cases, and they are easy to override.
@@ -34,7 +34,7 @@ argument in entry points and internal methods. The defaults set in
         memoize_lookaheads: bool = True
         memo_cache_size: int = MEMO_CACHE_SIZE
 
-        colorize: bool = False  # INFO: requires the colorama library
+        colorize: bool = True  # INFO: requires the colorama library
         trace: bool = False
         trace_filename: bool = False
         trace_length: int = 72
@@ -49,7 +49,7 @@ argument in entry points and internal methods. The defaults set in
 
         ignorecase: bool | None = False
         namechars: str = ''
-        nameguard: bool = False  # implied by namechars
+        nameguard: bool | None = None  # implied by namechars
         whitespace: str | None = _undefined_str
 
         parseinfo: bool = False
@@ -77,11 +77,11 @@ These are several ways to apply a configuration setting:
 
 .. code:: Python
 
-    config = tatsu.config.ParserConfig()
+    config = tatsu.parserconfig.ParserConfig()
     config.left_recursion = False
     ast = tatsu.parse(grammar, text, config=config)
 
-    config = tatsu.config.ParserConfig(left_recursion=False)
+    config = tatsu.parserconfig.ParserConfig(left_recursion=False)
     ast = tatsu.parse(grammar, text, config=config)
 
     ast = tatsu.parse(grammar, text, left_recursion=False)
@@ -93,12 +93,19 @@ name
 
     name: str | None = 'Test'
 
+The name of the grammar. It's used in generated Python parsers and may be
+used in error reporting.
+
+
 filename
 ~~~~~~~~
 
 .. code:: Python
 
     filename: str = ''
+
+The file name from which the grammar was read. It may be used in error reporting.
+
 
 encoding
 ~~~~~~~~
@@ -107,12 +114,22 @@ encoding
 
     encoding: str = 'utf-8'
 
+The encoding for any text input or output performed by the librarry
+
+
 start
 ~~~~~
 
 .. code:: Python
 
     start: str | None = None  # FIXME
+
+The name of the rule on which to start parsing. It may be used to invoke
+only a specific part of the parser.
+
+.. code:: Python
+
+    ast = parse(grammar, '(2+2)*2', start='expression')
 
 
 tokenizercls
@@ -122,6 +139,12 @@ tokenizercls
 
     tokenizercls: type[Tokenizer] | None = None  # FIXME
 
+The class that implements tokenization for the parser. If it's not defined
+then the parsing modules will default to ``buffering.Buffer``.
+
+This option was applied in the prototype PEG parser for Python as to use
+the native Python tokenizer.
+
 
 semantics
 ~~~~~~~~~
@@ -130,12 +153,19 @@ semantics
 
     semantics: type | None = None
 
+The class implementing parser semantics. See other sections of the
+documentation for meaning, implementation and default and generated
+semantic classes and objects.
+
 memoization
 ~~~~~~~~~~~
 
 .. code:: Python
 
     memoization: bool = True
+
+Enable or disable memoization in the parser. Only very specific input languages
+require this to be ``False``.
 
 
 memoize_lookaheads
@@ -145,12 +175,19 @@ memoize_lookaheads
 
     memoize_lookaheads: bool = True
 
+Enables or disables memoization for lookaheads. Only very specific input languages
+require this to be ``False``.
+
 memo_cache_size
 ~~~~~~~~~~~~~~~
 
 .. code:: Python
 
     memo_cache_size: int = MEMO_CACHE_SIZE
+
+The size of the cache for memos. As parsing progresses, previous memos
+are rarely needed, so there's a bound to the number of memos saved
+(currently 1024).
 
 colorize
 ~~~~~~~~
@@ -159,12 +196,18 @@ colorize
 
     colorize: bool = False
 
+Colorize trace output. Colorization requires that the ``colorama`` library
+is available.
+
 trace
 ~~~~~
 
 .. code:: Python
 
     trace: bool = False
+
+Produce a trace of the parsing process. See the `Traces <traces.html>`_.
+section for more information.
 
 
 trace_filename
@@ -174,12 +217,16 @@ trace_filename
 
     trace_filename: bool = False
 
+The filename to be used in trace output.
+
 trace_length
 ~~~~~~~~~~~~
 
 .. code:: Python
 
     trace_length: int = 72
+
+The maximum width of a line in a trace.
 
 trace_separator
 ~~~~~~~~~~~~~~~
@@ -188,12 +235,16 @@ trace_separator
 
     trace_separator: str = C_DERIVE
 
+The separator to usee between lines in a trace.
+
 grammar
 ~~~~~~~
 
 .. code:: Python
 
     grammar: str | None = None
+
+An alias for the ``name`` option.
 
 left_recursion
 ~~~~~~~~~~~~~~
@@ -202,12 +253,17 @@ left_recursion
 
     left_recursion: bool = True
 
+Enable or disable left recursion in analysis and parsing.
+
 comments
 ~~~~~~~~
 
 .. code:: Python
 
     comments: str | None = None
+
+A regular expression describing comments in the input. Comments are skipped
+during parsing.
 
 eol_comments
 ~~~~~~~~~~~~
@@ -216,12 +272,20 @@ eol_comments
 
     eol_comments: str | None = None
 
+A regular expression describing end-of-line comments in the input.
+Comments are skipped during parsing.
+
+
 keywords
 ~~~~~~~~
 
 .. code:: Python
 
     keywords: Collection[str] = field(default_factory=set)
+
+The list of keywords in the input language. See
+`Reserved Words and Keywords <syntax.html#reserved-words-and-keywords>`_
+for more information.
 
 ignorecase
 ~~~~~~~~~~
@@ -237,12 +301,19 @@ namechars
 
     namechars: str = ''
 
+Additional characters that can be part of an identifier
+(for example ``namechars='$@'``').
+
 nameguard
 ~~~~~~~~~
 
 .. code:: Python
 
     nameguard: bool = False  # implied by namechars
+
+When set to ``True``, avoids matching tokens when the next character in the input sequence is
+alphanumeric or a ``@@namechar``. Defaults to ``False``. See `text expression`_ for an
+explanation.
 
 whitespace
 ~~~~~~~~~~
@@ -251,9 +322,41 @@ whitespace
 
     whitespace: str | None = _undefined_str
 
+Provides a regular expression for the whitespace to be ignored by the parser.
+See the `@@whitespace <directives.html#whitespace-regexp>`_ section for more
+information.
+
+
 parseinfo
 ~~~~~~~~~
 
 .. code:: Python
 
     parseinfo: bool = False
+
+When ``parseinfo==True``, a ``parseinfo`` entry is added to `AST`_ nodes
+that are dict-like. The entry provides information about what was parsed and
+where. See `Abstract Syntax Trees <ast.html>`_ for more information.
+
+
+.. code:: Python
+
+    class ParseInfo(NamedTuple):
+        tokenizer: Any
+        rule: str
+        pos: int
+        endpos: int
+        line: int
+        endline: int
+        alerts: list[Alert] = []  # noqa: RUF012
+
+        def text_lines(self):
+            return self.tokenizer.get_lines(self.line, self.endline)
+
+        def line_index(self):
+            return self.tokenizer.line_index(self.line, self.endline)
+
+        @property
+        def buffer(self):
+            return self.tokenizer
+

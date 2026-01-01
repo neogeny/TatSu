@@ -23,17 +23,24 @@ with the parse information for the node:
 
 .. code:: python
 
-    ParseInfo = namedtuple(
-        'ParseInfo',
-        [
-            'tokenizer',
-            'rule',
-            'pos',
-            'endpos',
-            'line',
-            'endline',
-        ]
-    )
+    class ParseInfo(NamedTuple):
+        tokenizer: Any
+        rule: str
+        pos: int
+        endpos: int
+        line: int
+        endline: int
+        alerts: list[Alert] = []  # noqa: RUF012
+
+        def text_lines(self):
+            return self.tokenizer.get_lines(self.line, self.endline)
+
+        def line_index(self):
+            return self.tokenizer.line_index(self.line, self.endline)
+
+        @property
+        def buffer(self):
+            return self.tokenizer
 
 With the help of the ``Tokenizer.line_info()`` method, it is possible to
 recover the line, column, and original text parsed for the node. Note
@@ -42,6 +49,3 @@ is kept in memory for the lifetime of the `AST`_.
 
 Generation of ``parseinfo`` can also be controlled using the
 ``@@parseinfo :: True`` grammar directive.
-
-.. _Abstract Syntax Tree: http://en.wikipedia.org/wiki/Abstract_syntax_tree
-.. _AST: http://en.wikipedia.org/wiki/Abstract_syntax_tree
