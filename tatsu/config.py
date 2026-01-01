@@ -3,7 +3,8 @@ from __future__ import annotations
 import copy
 import dataclasses
 import re
-from collections.abc import MutableMapping
+from collections.abc import Collection, MutableMapping
+from dataclasses import dataclass, field
 from typing import Any
 
 from tatsu.infos import MEMO_CACHE_SIZE, _undefined_str
@@ -12,7 +13,7 @@ from tatsu.util.misc import cached_re_compile
 from tatsu.util.unicode_characters import C_DERIVE
 
 
-@dataclasses.dataclass
+@dataclass
 class ParserConfig:
     owner: Any = None
     name: str | None = 'Test'
@@ -47,7 +48,7 @@ class ParserConfig:
 
     comments: str | None = None
     eol_comments: str | None = None
-    keywords: list[str] | set[str] = dataclasses.field(default_factory=list)
+    keywords: Collection[str] = field(default_factory=list)
 
     ignorecase: bool | None = False
     namechars: str = ''
@@ -62,7 +63,8 @@ class ParserConfig:
 
         if self.comments_re or self.eol_comments_re:
             raise AttributeError(
-                "Both `comments_re` and `eol_comments_re` have been removed from parser configurations. " +
+                "Both `comments_re` and `eol_comments_re` "
+                "have been removed from parser configuration. "
                 "Please use `comments` and/or `eol_comments` instead`.",
             )
         del self.comments_re
@@ -119,11 +121,11 @@ class ParserConfig:
     # must be filtered out.
     # If the `ParserConfig` dataclass drops these fields, then this filter can be removed
     def _filter_non_init_fields(self, settings: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
-        for field in [
-            field.name for field in dataclasses.fields(self) if not field.init
+        for dcfield in [
+            f.name for f in dataclasses.fields(self) if not f.init
         ]:
-            if field in settings:
-                del settings[field]
+            if dcfield in settings:
+                del settings[dcfield]
         return settings
 
     def replace(self, **settings: Any) -> ParserConfig:
