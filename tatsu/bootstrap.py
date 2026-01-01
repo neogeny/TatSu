@@ -29,7 +29,6 @@ class EBNFBootstrapBuffer(Buffer):
     def __init__(self, text, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(
             config,
-            owner=self,
             whitespace='(?m)\\s+',
             nameguard=None,
             ignorecase=False,
@@ -49,7 +48,6 @@ class EBNFBootstrapParser(Parser):
     def __init__(self, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(
             config,
-            owner=self,
             whitespace='(?m)\\s+',
             nameguard=None,
             ignorecase=False,

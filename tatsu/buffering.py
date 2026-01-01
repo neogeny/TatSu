@@ -41,7 +41,7 @@ class Buffer(Tokenizer):
         self, text, /, config: ParserConfig | None = None, **settings: Any,
     ):
         super().__init__()
-        config = ParserConfig.new(config=config, owner=self, **settings)
+        config = ParserConfig.new(config=config, **settings)
         self.config = config
 
         text = str(text)

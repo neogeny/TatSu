@@ -15,7 +15,6 @@ from tatsu.util.unicode_characters import C_DERIVE
 
 @dataclass
 class ParserConfig:
-    owner: Any = None
     name: str | None = 'Test'
     filename: str = ''
     encoding: str = 'utf-8'
@@ -84,10 +83,9 @@ class ParserConfig:
     def new(
         cls,
         config: ParserConfig | None = None,
-        owner: Any | None = None,
         **settings: Any,
     ) -> ParserConfig:
-        result = cls(owner=owner)
+        result = cls()
         if config is not None:
             result = config.replace_config(config)
         return result.replace(**settings)
@@ -150,6 +148,4 @@ class ParserConfig:
     def asdict(self):
         # warning: it seems dataclasses.asdict does a deepcopy
         # result = dataclasses.asdict(self)
-        result = copy.copy(vars(self))
-        result.pop('owner', None)
-        return result
+        return copy.copy(vars(self))

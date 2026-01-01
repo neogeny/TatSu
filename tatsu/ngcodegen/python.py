@@ -317,7 +317,6 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             f'''
                 config = ParserConfig.new(
                     config,
-                    owner=self,
                     whitespace={whitespace},
                     nameguard={grammar.config.nameguard},
                     ignorecase={grammar.config.ignorecase},

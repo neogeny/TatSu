@@ -19,7 +19,7 @@ class EBNFBuffer(Buffer):
         **settings: Any,
     ):
         config = ParserConfig.new(
-            config=config, owner=self, filename=filename, **settings,
+            config=config, filename=filename, **settings,
         )
         super().__init__(text, config=config)
 

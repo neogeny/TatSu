@@ -959,7 +959,7 @@ class Grammar(Model):
         directives = directives or {}
         self.directives = directives
 
-        config = ParserConfig.new(config=config, owner=self, **directives)
+        config = ParserConfig.new(config=config, **directives)
         config = config.replace(**settings)
         self.config = config
 

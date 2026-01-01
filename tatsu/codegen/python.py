@@ -530,7 +530,6 @@ class Grammar(Base):
                     def __init__(self, text, /, config: ParserConfig | None = None, **settings):
                         config = ParserConfig.new(
                             config,
-                            owner=self,
                             whitespace={whitespace},
                             nameguard={nameguard},
                             ignorecase={ignorecase},
@@ -549,7 +548,6 @@ class Grammar(Base):
                     def __init__(self, /, config: ParserConfig | None = None, **settings):
                         config = ParserConfig.new(
                             config,
-                            owner=self,
                             whitespace={whitespace},
                             nameguard={nameguard},
                             ignorecase={ignorecase},
