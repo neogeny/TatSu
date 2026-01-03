@@ -7,7 +7,7 @@ from tatsu.util import compress_seq, indent, re, safe_name
 from ..codegen.cgbase import CodeGenerator, ModelRenderer
 from ..exceptions import CodegenError
 from ..objectmodel import BASE_CLASS_TOKEN, Node
-from ..rendering import Renderer
+from .rendering import Renderer
 
 NODE_NAME_PATTERN = r'(?!\d)\w+(' + rf'{BASE_CLASS_TOKEN}' + r'(?!\d)\w+)*'
 

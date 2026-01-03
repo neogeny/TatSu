@@ -6,6 +6,8 @@ import sys
 from contextlib import contextmanager, suppress
 from copy import copy
 
+from tatsu.collections.boundeddict import BoundedDict
+
 from . import buffering, color, tokenizing
 from .ast import AST
 from .collections import OrderedSet as oset
@@ -41,7 +43,6 @@ from .util import (
     safe_name,
     trim,
 )
-from .util.boundeddict import BoundedDict
 from .util.unicode_characters import (
     C_CUT,
     C_ENTRY,

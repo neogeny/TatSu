@@ -2,6 +2,7 @@ astroid
 docutils
 mypy
 pytest
+pytest-cov
 pytest-flake8
 pytest-mypy
 rich
