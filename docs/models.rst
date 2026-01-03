@@ -64,7 +64,7 @@ representation for common types, and can handle any type using ``repr()``. There
 The ``model``, with richer semantics, remains unaltered.
 
 Conversion to a JSON-compatible structure relies on the protocol defined by
-``tatsu.utils.AsJSONMixin``.  The mixin defines a ``__json__(seen=None)``
+``tatsu.utils.asjson.AsJSONMixin``.  The mixin defines a ``__json__(seen=None)``
 method that allows classes to define their best translation. You can use ``AsJSONMixin``
 as a base class in your own models to take advantage of ``asjson()``, and you can
 specialize the conversion by overriding ``AsJSONMixin.__json__()``.

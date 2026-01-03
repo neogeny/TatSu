@@ -12,7 +12,7 @@ from pathlib import Path
 from tatsu.ngcodegen import codegen
 from tatsu.parser import EBNFParser, GrammarGenerator
 from tatsu.parser_semantics import EBNFGrammarSemantics
-from tatsu.util import asjson
+from tatsu.util.asjson import asjson
 from tatsu.walkers import DepthFirstWalker
 
 tmp = Path('./tmp').resolve()

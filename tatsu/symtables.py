@@ -6,9 +6,11 @@ import weakref
 from collections import defaultdict
 from copy import copy
 
+from tatsu.util.asjson import asjson
+
 from .exceptions import ParseException
 from .infos import LineIndexInfo
-from .util import asjson, join_lists
+from .util import join_lists
 
 DEFAULT_SEPARATOR = '.'
 
