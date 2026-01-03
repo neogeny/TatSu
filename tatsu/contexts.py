@@ -6,7 +6,7 @@ import sys
 from contextlib import contextmanager, suppress
 from copy import copy
 
-from tatsu.collections.boundeddict import BoundedDict
+from tatsu.collections import BoundedDict
 
 from . import buffering, color, tokenizing
 from .ast import AST
