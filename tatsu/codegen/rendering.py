@@ -7,7 +7,7 @@ from __future__ import annotations
 import itertools
 import string
 
-from .util import indent, isiter, trim
+from tatsu.util import indent, isiter, trim
 
 
 def render(item, join='', **fields):

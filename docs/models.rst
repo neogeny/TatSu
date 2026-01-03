@@ -162,8 +162,3 @@ generators*:
             op = self.walk(node.op)
 
             print(type(node).__name__, op, left, right)
-
-
-    class Operator(ModelRenderer):
-        template = '{left} {op} {right}'
-

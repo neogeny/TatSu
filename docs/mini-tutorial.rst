@@ -652,7 +652,6 @@ The following code generator translates input expressions to the postfix instruc
     from tatsu.model import Node
     from tatsu.walkers import NodeWalker
     from tatsu.mixins.indent import IndentPrintMixin
-    from tatsu.codegen import ModelRenderer
 
     THIS_MODULE = sys.modules[__name__]
 

@@ -113,7 +113,7 @@ modified by overriding the ``render_fields(fields)`` method. Fields
 themselves are *lazily rendered* before being expanded by the template,
 so a field may be an instance of a ``ModelRenderer`` descendant.
 
-The ``rendering`` module defines a ``Formatter`` enhanced to support the
+The ``tatsu.codegen.rendering`` module defines a ``Formatter`` enhanced to support the
 rendering of items in an *iterable* one by one. The syntax to achieve
 that is:
 
