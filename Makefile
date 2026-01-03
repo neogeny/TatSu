@@ -1,7 +1,7 @@
-test:  lint tatsu_test documentation examples
+test:  lint pytest documentation examples
 
 
-tatsu_test: clean
+pytest: clean
 	pytest --cov
 
 
