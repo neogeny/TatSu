@@ -19,7 +19,6 @@ class OrderedSet(MutableSet[T], Sequence[T]):
             self._map = dict.fromkeys(iterable)
         else:
             self._map = {}
-        self._list_cache: Sequence[T] | None = None
 
     def __hash__(self):
         return self._map.__hash__()
@@ -28,9 +27,7 @@ class OrderedSet(MutableSet[T], Sequence[T]):
         return len(self._map)
 
     def __getitem__(self, i):
-        if self._list_cache is None:
-            self._list_cache = list(self._map.keys())
-        return self._list_cache[i]
+        return list(self)[i]
 
     def copy(self) -> 'OrderedSet[T]':
         return self.__class__(self)
@@ -52,25 +49,20 @@ class OrderedSet(MutableSet[T], Sequence[T]):
 
     def add(self, value: T):  # pylint: disable=W0221
         self._map[value] = len(self._map)
-        self._list_cache = None
 
     def update(self, sequence: Iterable[T]):
         self._map.update(dict.fromkeys(sequence))
-        self._list_cache = None
 
     def pop(self) -> T:
         key = next(iter(self._map.keys()))
         self._map.pop(key)
-        self._list_cache = None
         return key
 
     def discard(self, value: T):  # pylint: disable=W0221
         self._map.pop(value, None)
-        self._list_cache = None
 
     def clear(self):
         self._map = {}
-        self._list_cache = None
 
     def __iter__(self) -> Iterator[T]:
         return iter(self._map.keys())

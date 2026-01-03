@@ -6,7 +6,6 @@ from collections.abc import Iterator
 from typing import Any
 
 from .. import grammars
-from ..collections import OrderedSet as oset
 from ..exceptions import CodegenError
 from ..infos import UndefinedStr
 from ..mixins.indent import IndentPrintMixin
@@ -356,12 +355,12 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
     def _gen_defines_declaration(self, node: grammars.Model):
         defines = compress_seq(node.defines())
-        ldefs = oset(safe_name(d) for d, value in defines if value)
-        sdefs = oset(
+        ldefs = {safe_name(d) for d, value in defines if value}
+        sdefs = {
             safe_name(d)
             for d, value in defines
             if not value and d not in ldefs
-        )
+        }
 
         if not (sdefs or ldefs):
             return

@@ -10,7 +10,6 @@ from tatsu.collections import BoundedDict
 
 from . import buffering, color, tokenizing
 from .ast import AST
-from .collections import OrderedSet as oset
 from .exceptions import (
     FailedExpectingEndOfText,
     FailedKeywordSemantics,
@@ -208,7 +207,7 @@ class ParseContext:
         if self.active_config.colorize:
             color.init()
         self._initialize_caches()
-        self._keywords = oset(config.keywords)
+        self._keywords = set(config.keywords)
         self._semantics = config.semantics
         if hasattr(self.semantics, 'set_context'):
             self.semantics.set_context(self)
