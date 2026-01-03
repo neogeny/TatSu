@@ -61,3 +61,10 @@ include = ["tatsu*"]
 target-version = ["py310"]
 line-length=79
 skip-magic-trailing-comma=true
+
+
+[tool.coverage.run]
+omit = [
+    "test/*",
+    "tatsu/diagrams.py",
+]
