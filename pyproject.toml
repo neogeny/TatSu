@@ -87,7 +87,6 @@ testpaths = [
     "test",
 ]
 [tool.mypy]
-runn = "mypy --install-types --exclude 'parsers|docs|tmp|build|dist' ."
 python_version = 3.14
 #ignore_missing_imports = true
 exclude = "parsers|docs|dist|build|tmp"
