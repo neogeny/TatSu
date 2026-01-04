@@ -1,6 +1,10 @@
-[build-system]
+[old-build-system]
 requires = ["setuptools>=46.4", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "TatSu"
@@ -47,6 +51,33 @@ Repository = "https://github.com/neogeny/TatSu"
 Documentation = "https://tatsu.readthedocs.io/en/stable/"
 Questions = "https://stackoverflow.com/questions/tagged/tatsu"
 
+[tool.hatch.version]
+path = "tatsu/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tatsu"]
+
+[tool.hatch.build.targets.sdist]
+packages = ["tatsu"]
+include = ["tatsu", "test", "grammar", "examples"]
+
+[tool.hatch.envs.hatch-test]
+default-args = ["test"]
+dependencies = [
+  "pytest",
+  "pytest-cov",
+  "pytest-xdist", # For parallel execution
+]
+
+# Set default arguments for the pytest command
+extra-args = ["-v"]
+
+# Enable built-in features
+randomize = false  # Randomize test order
+parallel = false   # Run tests in parallel
+retries = 0
+
+
 [tool.setuptools]
 include-package-data = false
 
@@ -58,7 +89,7 @@ include = ["tatsu*"]
 
 
 [tool.blue]
-target-version = ["py310"]
+target-version = ["py314"]
 line-length=79
 skip-magic-trailing-comma=true
 

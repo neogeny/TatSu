@@ -3,8 +3,8 @@ docutils
 mypy
 pytest
 pytest-cov
-pytest-flake8
 pytest-mypy
+pytest-xdist
 rich
 rst2html5
 ruff
