@@ -105,6 +105,9 @@ omit = [
     "test/*",
     "tatsu/diagrams.py",
 ]
+data_file = ".cache/coverage/.coverage"
+parallel = false
+
 [tool.hatch.envs.test]
 dependencies = ["pytest", "mypy", "ruff"]
 
