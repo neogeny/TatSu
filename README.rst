@@ -303,7 +303,7 @@ requires different licensing* please `email`_.
    :target: https://pypi.python.org/pypi/tatsu
 .. |actions| image:: https://github.com/neogeny/TatSu/actions/workflows/default.yml/badge.svg
    :target: https://github.com/neogeny/TatSu/actions/workflows/default.yml
-.. |docs| image:: https://readthedocs.org/projects/tatsu/badge/?version=stable
+.. |docs| image:: https://readthedocs.org/projects/tatsu/badge/?version=stable&logo=readthedocs
    :target: http://tatsu.readthedocs.io/en/stable/
 .. |installs| image:: https://img.shields.io/pypi/dm/tatsu.svg?label=installs&logo=pypi
    :target: https://pypistats.org/packages/tatsu
