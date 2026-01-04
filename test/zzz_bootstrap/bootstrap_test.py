@@ -28,16 +28,14 @@ class BootstrapTests(unittest.TestCase):
             shutil.rmtree('./tmp')
         tmp.mkdir(exist_ok=True)
         print('-' * 20, 'phase 00 - parse using the bootstrap grammar')
-        with Path('grammar/tatsu.ebnf').open() as f:
-            text = str(f.read())
+        text = Path('grammar/tatsu.ebnf').read_text()
         g = EBNFParser('EBNFBootstrap')
         grammar0 = g.parse(text, parseinfo=False)
         ast0 = json.dumps(asjson(grammar0), indent=2)
         Path('./tmp/00.ast').write_text(ast0)
 
         print('-' * 20, 'phase 01 - parse with parser generator')
-        with Path('grammar/tatsu.ebnf').open() as f:
-            text = str(f.read())
+        text = Path('grammar/tatsu.ebnf').read_text()
         g = GrammarGenerator('EBNFBootstrap')
         result = g.parse(text)
 
@@ -48,8 +46,7 @@ class BootstrapTests(unittest.TestCase):
             '-' * 20,
             'phase 02 - parse previous output with the parser generator',
         )
-        with Path('./tmp/01.ebnf').open() as f:
-            text = str(f.read())
+        text = Path('./tmp/01.ebnf').read_text()
         g = GrammarGenerator('EBNFBootstrap')
         result = g.parse(text)
         generated_grammar2 = str(result)
@@ -89,7 +86,7 @@ class BootstrapTests(unittest.TestCase):
         # parser = GenParser(trace=False)
         # result = parser.parse(original_grammar, semantics=ASTSemantics, parseinfo=False)
         # ast8 = json.dumps(asjson(result), indent=2)
-        # open('./tmp/08.ast', 'w').write(ast8)
+        # Path('./tmp/08.ast', 'w').write_text(ast8)
         # self.assertEqual(ast0, ast8)
 
         print('-' * 20, 'phase 09 - Generate parser with semantics')

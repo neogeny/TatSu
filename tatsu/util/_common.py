@@ -371,8 +371,7 @@ def try_read(filename):
         filename = str(filename)
     for e in ['utf-16', 'utf-8', 'latin-1', 'cp1252', 'ascii']:
         try:
-            with Path(filename).open(encoding=e) as f:
-                return f.read()
+            return Path(filename).read_text(encoding=e)
         except UnicodeError:
             pass
     raise UnicodeDecodeError(f"cannot find the encoding for '{filename}'")
