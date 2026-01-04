@@ -300,5 +300,7 @@ requires different licensing* please `email`_.
    :target: https://github.com/neogeny/TatSu/actions/workflows/default.yml
 .. |docs| image:: https://readthedocs.org/projects/tatsu/badge/?version=stable
    :target: http://tatsu.readthedocs.io/en/stable/
-.. |downloads| image:: https://img.shields.io/pypi/dm/TatSu.svg
+.. |installs| image:: https://img.shields.io/pypi/dm/tatsu.svg?label=installs&logo=pypi
+   :target: https://pypistats.org/packages/tatsu
+.. |downloads| image:: https://img.shields.io/github/downloads/neogeny/tatsu/total?label=downloads
    :target: https://pypistats.org/packages/tatsu
