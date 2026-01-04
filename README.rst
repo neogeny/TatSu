@@ -303,5 +303,4 @@ requires different licensing* please `email`_.
 .. |installs| image:: https://img.shields.io/pypi/dm/tatsu.svg?label=installs&logo=pypi
    :target: https://pypistats.org/packages/tatsu
 .. |downloads| image:: https://img.shields.io/github/downloads/neogeny/tatsu/total?label=downloads
-                       https://img.shields.io/github/downloads/neogeny/tatsu/total
    :target: https://pypistats.org/packages/tatsu
