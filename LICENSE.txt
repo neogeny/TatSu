@@ -1,6 +1,6 @@
 TATSU - A PEG/Packrat parser generator for Python
 
-Copyright (C) 2017-2023 Juancarlo Añez
+Copyright (C) 2017-2026 Juancarlo Añez
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
