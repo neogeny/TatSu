@@ -5,10 +5,15 @@
 .. _RELEASES: https://github.com/neogeny/TatSu/releases
 
 |license|
+
 |pyversions|
+
 |fury|
+
 |actions|
+
 |docs|
+
 |installs|
 
     *At least for the people who send me mail about a new language that
