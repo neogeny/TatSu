@@ -178,13 +178,12 @@ class ParameterTests(unittest.TestCase):
         self.assertEqual(['a', 'b', 'c'], ast)
 
         code = codegen(m)
-        import codecs
         module_name = 'tc36unicharstest'
         temp_dir = pathlib.Path(tempfile.mkdtemp()) / module_name
         temp_dir.mkdir(exist_ok=True)
         py_file_path = temp_dir / f'{module_name}.py'
 
-        with codecs.open(py_file_path, 'w', 'utf-8') as f:
+        with pathlib.Path(py_file_path).open('w') as f:
             f.write(code)
         try:
             sys.path.append(str(temp_dir))
