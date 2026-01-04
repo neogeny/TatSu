@@ -418,5 +418,5 @@ def test_deprecated_comments_override_failures(comment, option):
         {comment}
         a
     """
-    with pytest.raises(AttributeError, match=""):
+    with pytest.raises(AttributeError):
         tool.parse(grammar, text, **option)

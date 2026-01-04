@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=46.4", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "TatSu"
@@ -12,7 +12,7 @@ description = "TatSu takes a grammar in a variation of EBNF as input, and output
 readme = "README.rst"
 requires-python = ">=3.10"
 keywords = []
-license = {file = "LICENSE.TXT"}
+license = {file = "LICENSE.txt"}
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: BSD License",
@@ -47,24 +47,84 @@ Repository = "https://github.com/neogeny/TatSu"
 Documentation = "https://tatsu.readthedocs.io/en/stable/"
 Questions = "https://stackoverflow.com/questions/tagged/tatsu"
 
-[tool.setuptools]
-include-package-data = false
+[tool.hatch.version]
+path = "tatsu/_version.py"
 
-[tool.setuptools.dynamic]
-version = {attr = "tatsu._version.__version__"}
+[tool.hatch.build.targets.wheel]
+packages = ["tatsu"]
 
-[tool.setuptools.packages.find]
-include = ["tatsu*"]
+[tool.hatch.build.targets.sdist]
+include = [
+    "/tatsu",
+    "/test",
+    "/grammar",
+    "/examples",
+    "*.yaml",
+]
+excludee = ["deprecated"]
 
+[tool.hatch.envs.hatch-test]
+default-args = ["test"]
+dependencies = [
+  "pytest",
+  "pytest-cov",
+  "pytest-xdist", # For parallel execution
+]
 
-[tool.blue]
-target-version = ["py310"]
-line-length=79
-skip-magic-trailing-comma=true
+# Set default arguments for the pytest command
+extra-args = ["-v", "--cov"]
 
+# Enable built-in features
+randomize = false  # Randomize test order
+parallel = false   # Run tests in parallel
+retries = 0
+
+[tool.pytest.ini_options]
+# minversion = "6.0"
+#addopts = "-ra -q"
+addopts = "-q"
+testpaths = [
+    "test",
+]
+[tool.mypy]
+python_version = 3.14
+#ignore_missing_imports = true
+exclude = "parsers|docs|dist|build|tmp"
+
+[tool.ruff]
+line-length = 88
+
+# The minimum Python version to support
+# target-version = "py311"
+
+# Files or directories to exclude from linting/formatting
+exclude = [
+    ".git",
+    "__pycache__",
+    "dist",
+]
 
 [tool.coverage.run]
 omit = [
     "test/*",
     "tatsu/diagrams.py",
 ]
+data_file = ".cache/coverage/.coverage"
+parallel = false
+
+[tool.hatch.envs.test]
+dependencies = ["pytest", "mypy", "ruff"]
+
+[tool.hatch.envs.test.scripts]
+lint = "ruff check -q --preview tatsu test examples"
+types = "mypy --install-types --exclude 'parsers|docs|tmp|build|dist' ."
+tests = "pytest"
+
+checks = [
+    "lint",
+    "types",
+    "tests"
+]
+
+[[tool.hatch.envs.test.matrix]]
+python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
