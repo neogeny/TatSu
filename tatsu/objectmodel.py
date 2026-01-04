@@ -5,7 +5,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
-from tatsu.util.asjson import AsJSONMixin, asjson, asjsons
+from tatsu.util import AsJSONMixin, asjson, asjsons
 
 from .ast import AST
 from .infos import CommentInfo, ParseInfo

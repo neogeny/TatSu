@@ -6,7 +6,7 @@ import weakref
 from collections import defaultdict
 from copy import copy
 
-from tatsu.util.asjson import asjson
+from tatsu.util import asjson
 
 from .exceptions import ParseException
 from .infos import LineIndexInfo

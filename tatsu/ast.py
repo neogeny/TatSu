@@ -4,7 +4,7 @@ import copy
 import operator
 from functools import reduce
 
-from tatsu.util.asjson import asjson
+from tatsu.util import asjson
 
 from .util import is_list
 

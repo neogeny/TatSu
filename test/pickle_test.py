@@ -2,7 +2,7 @@ import pickle
 
 from tatsu.semantics import ModelBuilderSemantics
 from tatsu.tool import compile
-from tatsu.util.asjson import asjson
+from tatsu.util import asjson
 
 
 def test_synth_model():
