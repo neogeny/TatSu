@@ -786,6 +786,9 @@ not match a token defined as a `keyword`_::
   @name
   identifier = /(?!\d)\w+/ ;
 
+ Note that the rule decorated with ``@name`` must produce a single string as result
+(no named expressions that will produce a dict, and no rule arguments).
+
 There are situations in which a token is reserved only in a very
 specific context. In those cases, a negative lookahead will prevent the
 use of the token::
