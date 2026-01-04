@@ -292,16 +292,22 @@ requires different licensing* please `email`_.
 
 .. |fury| image:: https://badge.fury.io/py/TatSu.svg
    :target: https://badge.fury.io/py/TatSu
+   :align: right
 .. |license| image:: https://img.shields.io/badge/license-BSD-blue.svg
    :target: https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt
+   :align: right
 .. |pyversions| image:: https://img.shields.io/pypi/pyversions/tatsu.svg
    :target: https://pypi.python.org/pypi/tatsu
+   :align: right
 .. |actions| image:: https://github.com/neogeny/TatSu/actions/workflows/default.yml/badge.svg
    :target: https://github.com/neogeny/TatSu/actions/workflows/default.yml
 .. |docs| image:: https://readthedocs.org/projects/tatsu/badge/?version=stable&logo=readthedocs
    :target: http://tatsu.readthedocs.io/en/stable/
+   :align: right
+   :align: right
 .. |installs| image:: https://img.shields.io/pypi/dm/tatsu.svg?label=installs&logo=pypi
    :target: https://pypistats.org/packages/tatsu
 .. |downloads| image:: https://img.shields.io/github/downloads/neogeny/tatsu/total?label=downloads
                        https://img.shields.io/github/downloads/neogeny/tatsu/total
    :target: https://pypistats.org/packages/tatsu
+   :align: right
