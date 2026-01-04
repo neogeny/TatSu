@@ -5,4 +5,3 @@ hatch
 ipython
 pip
 psutil
-twine

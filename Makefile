@@ -1,8 +1,8 @@
-test:  lint pytest documentation examples
+test:  lint documentation examples pytest
 
 
 pytest: clean
-	pytest --cov
+	pytest -v --cov
 
 
 documentation: sphinx
@@ -47,20 +47,22 @@ clean:
 	rm -rf .tox
 
 
-release_check: clean documentation
-	tox
+checks: clean documentation
+	-@ pip install -qU hatch
+	hatch run --force-continue test:checks
 	@echo version `python -m tatsu --version`
 
 
-build: clean
-	pip install -U build
-	python -m build
+build: cleanhatch
+	-@ pip install -qU hatch
+	hatch build
 
 
-test_upload: build
-	pip install -U twine
-	twine upload --repository test dist/*
+test_publish: build
+	-@ pip install -qU hatch
+	hatch publish --repo test
 
 
-upload: release_check build
-	twine upload dist/*
+publish: checks build
+	pip install -U hatch
+	hatch publish

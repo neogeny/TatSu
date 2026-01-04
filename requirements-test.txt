@@ -11,4 +11,3 @@ ruff
 setuptools
 sphinx
 sphinx-rtd-theme
-tox
