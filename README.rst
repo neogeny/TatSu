@@ -7,6 +7,7 @@
 |license|
 |pyversions|
 |fury|
+|installs|
 |downloads|
 |actions|
 |docs|
