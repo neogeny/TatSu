@@ -26,21 +26,21 @@ lint: ruff mypy
 
 
 ruff:
-	-@ pip install -q -U ruff
+	-@ pip install -qU ruff
 	ruff check --preview tatsu test examples
 
 
 mypy:
-	-@ pip install -q -U mypy
+	-@ pip install -qU mypy
 	mypy --install-types --exclude dist .
 
 
 clean:
-	find . -name "__pycache__" | xargs rm -rf
-	find . -name "*.pyc" | xargs rm -f
-	find . -name "*.pyd" | xargs rm -f
-	find . -name "*.pyo" | xargs rm -f
-	find . -name "*.orig" | xargs rm -f
+	find . -name "__pycache__" -delete
+	find . -name "*.pyc" -delete
+	find . -name "*.pyd" -delete
+	find . -name "*.pyo" -delete
+	find . -name "*.orig" -delete
 	rm -rf tatsu.egg-info
 	rm -rf dist
 	rm -rf build
@@ -64,5 +64,5 @@ test_publish: build
 
 
 publish: checks build
-	pip install -U hatch
+	-@ pip install -U hatch
 	hatch publish
