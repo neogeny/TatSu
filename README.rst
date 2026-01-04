@@ -303,5 +303,5 @@ requires different licensing* please `email`_.
    :target: http://tatsu.readthedocs.io/en/stable/
 .. |installs| image:: https://img.shields.io/pypi/dm/tatsu.svg
    :target: https://pypistats.org/packages/tatsu?label=installs
-.. |downloads| image:: https://img.shields.io/github/downloads/pypa/tatsu/total?label=downloads
+.. |downloads| image:: https://img.shields.io/github/downloads/tatsu/total?label=downloads
    :target: https://pypistats.org/packages/tatsu
