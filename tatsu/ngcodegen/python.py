@@ -53,7 +53,7 @@ def main(filename, **kwargs):
 
 if __name__ == '__main__':
     import json
-    from tatsu.util.asjson import asjson
+    from tatsu.util import asjson
 
     ast = generic_main(main, {name}Parser, name='{name}')
     data = asjson(ast)

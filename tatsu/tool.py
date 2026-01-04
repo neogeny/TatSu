@@ -11,13 +11,12 @@ import importlib
 import sys
 from pathlib import Path
 
-from tatsu.parserconfig import ParserConfig
-
 from ._version import __version__
 from .exceptions import ParseException
 from .ngcodegen import codegen as ngpythoncg
 from .ngcodegen import objectmodel as ngobjectmodel
 from .parser import GrammarGenerator
+from .parserconfig import ParserConfig
 from .semantics import ModelBuilderSemantics
 from .util import eval_escapes
 

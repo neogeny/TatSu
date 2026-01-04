@@ -5,8 +5,7 @@ from pathlib import Path
 
 import tatsu
 from tatsu.parser import EBNFBuffer
-from tatsu.util import eval_escapes, trim
-from tatsu.util.asjson import asjson
+from tatsu.util import asjson, eval_escapes, trim
 
 
 class MockIncludeBuffer(EBNFBuffer):

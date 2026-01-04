@@ -2,7 +2,7 @@ import json
 from collections import defaultdict
 
 import tatsu
-from tatsu.util.asjson import asjson
+from tatsu.util import asjson
 from tatsu.walkers import DepthFirstWalker, NodeWalker
 
 
