@@ -24,8 +24,7 @@ def translate(
 
     if text is None:
         name = name or filename.stem
-        with filename.open(encoding=encoding) as f:
-            text = f.read()
+        text = filename.read_text(encoding=encoding)
 
     name = name or 'Unknown'
 

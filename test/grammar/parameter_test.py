@@ -183,8 +183,7 @@ class ParameterTests(unittest.TestCase):
         temp_dir.mkdir(exist_ok=True)
         py_file_path = temp_dir / f'{module_name}.py'
 
-        with pathlib.Path(py_file_path).open('w') as f:
-            f.write(code)
+        pathlib.Path(py_file_path).write_text(code)
         try:
             sys.path.append(str(temp_dir))
             import tc36unicharstest  # pylint: disable=E0401

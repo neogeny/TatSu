@@ -46,10 +46,8 @@ class ParsingTests(unittest.TestCase):
 
             start = a b;"""
 
-        with Path(include_a).open('w') as fh:
-            fh.write("a = 'inclusion';")
-        with Path(include_b).open('w') as fh:
-            fh.write("b = 'works';")
+        Path(include_a).write_text("a = 'inclusion';")
+        Path(include_b).write_text("b = 'works';")
 
         model = tatsu.compile(
             grammar=grammar.format(include_a=include_a, include_b=include_b),

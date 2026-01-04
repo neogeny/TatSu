@@ -33,8 +33,7 @@ class BootstrapTests(unittest.TestCase):
         g = EBNFParser('EBNFBootstrap')
         grammar0 = g.parse(text, parseinfo=False)
         ast0 = json.dumps(asjson(grammar0), indent=2)
-        with Path('./tmp/00.ast').open('w') as f:
-            f.write(ast0)
+        Path('./tmp/00.ast').write_text(ast0)
 
         print('-' * 20, 'phase 01 - parse with parser generator')
         with Path('grammar/tatsu.ebnf').open() as f:
@@ -43,8 +42,7 @@ class BootstrapTests(unittest.TestCase):
         result = g.parse(text)
 
         generated_grammar1 = str(result)
-        with Path('./tmp/01.ebnf').open('w') as f:
-            f.write(generated_grammar1)
+        Path('./tmp/01.ebnf').write_text(generated_grammar1)
 
         print(
             '-' * 20,
@@ -55,39 +53,31 @@ class BootstrapTests(unittest.TestCase):
         g = GrammarGenerator('EBNFBootstrap')
         result = g.parse(text)
         generated_grammar2 = str(result)
-        with Path('./tmp/02.ebnf').open('w') as f:
-            f.write(generated_grammar2)
+        Path('./tmp/02.ebnf').write_text(generated_grammar2)
         self.assertEqual(generated_grammar2, generated_grammar1)
 
         print('-' * 20, 'phase 03 - repeat')
-        with Path('./tmp/02.ebnf').open() as f:
-            text = f.read()
+        text = Path('./tmp/02.ebnf').read_text()
         g = EBNFParser('EBNFBootstrap')
         ast3 = g.parse(text)
-        with Path('./tmp/03.ast').open('w') as f:
-            f.write(json.dumps(asjson(ast3), indent=2))
+        Path('./tmp/03.ast').write_text(json.dumps(asjson(ast3), indent=2))
 
         print('-' * 20, 'phase 04 - repeat')
-        with Path('./tmp/02.ebnf').open() as f:
-            text = f.read()
+        text = Path('./tmp/02.ebnf').read_text()
         g = GrammarGenerator('EBNFBootstrap')
         parser = g.parse(text)
         generated_grammar4 = str(parser)
-        with Path('./tmp/04.ebnf').open('w') as f:
-            f.write(generated_grammar4)
+        Path('./tmp/04.ebnf').write_text(generated_grammar4)
         self.assertEqual(generated_grammar4, generated_grammar2)
 
         print('-' * 20, 'phase 05 - parse using the grammar model')
-        with Path('./tmp/04.ebnf').open() as f:
-            text = f.read()
+        text = Path('./tmp/04.ebnf').read_text()
         ast5 = parser.parse(text)
-        with Path('./tmp/05.ast').open('w') as f:
-            f.write(json.dumps(asjson(ast5), indent=2))
+        Path('./tmp/05.ast').write_text(json.dumps(asjson(ast5), indent=2))
 
         print('-' * 20, 'phase 06 - generate parser code')
         gencode6 = codegen(parser)
-        with Path('./tmp/g06.py').open('w') as f:
-            f.write(gencode6)
+        Path('./tmp/g06.py').write_text(gencode6)
 
         print('-' * 20, 'phase 07 - import generated code')
         py_compile.compile('./tmp/g06.py', doraise=True)
@@ -103,13 +93,11 @@ class BootstrapTests(unittest.TestCase):
         # self.assertEqual(ast0, ast8)
 
         print('-' * 20, 'phase 09 - Generate parser with semantics')
-        with Path('grammar/tatsu.ebnf').open() as f:
-            text = f.read()
+        text = Path('grammar/tatsu.ebnf').read_text()
         parser = GrammarGenerator('EBNFBootstrap')
         g9 = parser.parse(text)
         generated_grammar9 = str(g9)
-        with Path('./tmp/09.ebnf').open('w') as f:
-            f.write(generated_grammar9)
+        Path('./tmp/09.ebnf').write_text(generated_grammar9)
         self.assertEqual(generated_grammar9, generated_grammar1)
 
         print('-' * 20, 'phase 10 - Parse with a model using a semantics')
@@ -119,11 +107,9 @@ class BootstrapTests(unittest.TestCase):
             semantics=EBNFGrammarSemantics('EBNFBootstrap'),
         )
         generated_grammar10 = str(g10)
-        with Path('./tmp/10.ebnf').open('w') as f:
-            f.write(generated_grammar10)
+        Path('./tmp/10.ebnf').write_text(generated_grammar10)
         gencode10 = codegen(g10)
-        with Path('./tmp/g10.py').open('w') as f:
-            f.write(gencode10)
+        Path('./tmp/g10.py').write_text(gencode10)
 
         print('-' * 20, 'phase 11 - Pickle the model and try again.')
         with Path('./tmp/11.tatsu').open('wb') as f:
@@ -135,11 +121,9 @@ class BootstrapTests(unittest.TestCase):
             start_rule='start',
             semantics=EBNFGrammarSemantics('EBNFBootstrap'),
         )
-        with Path('./tmp/11.ebnf').open('w') as f:
-            f.write(str(g11))
+        Path('./tmp/11.ebnf').write_text(str(g11))
         gencode11 = codegen(r11)
-        with Path('./tmp/bootstrap_g11.py').open('w') as f:
-            f.write(gencode11)
+        Path('./tmp/bootstrap_g11.py').write_text(gencode11)
 
         print('-' * 20, 'phase 12 - Walker')
 
@@ -153,8 +137,7 @@ class BootstrapTests(unittest.TestCase):
 
         v = PrintNameWalker()
         v.walk(g11)
-        with Path('./tmp/12.txt').open('w') as f:
-            f.write('\n'.join(v.walked))
+        Path('./tmp/12.txt').write_text('\n'.join(v.walked))
 
         print('-' * 20, 'phase 13 - Graphics')
         try:
