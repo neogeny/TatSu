@@ -7,10 +7,9 @@
 |license|
 |pyversions|
 |fury|
-|installs|
-|downloads|
 |actions|
 |docs|
+|installs|
 
     *At least for the people who send me mail about a new language that
     they're designing, the general advice is: do it to learn about how
@@ -304,4 +303,5 @@ requires different licensing* please `email`_.
 .. |installs| image:: https://img.shields.io/pypi/dm/tatsu.svg?label=installs&logo=pypi
    :target: https://pypistats.org/packages/tatsu
 .. |downloads| image:: https://img.shields.io/github/downloads/neogeny/tatsu/total?label=downloads
+                       https://img.shields.io/github/downloads/neogeny/tatsu/total
    :target: https://pypistats.org/packages/tatsu
