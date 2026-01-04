@@ -8,7 +8,6 @@ from itertools import takewhile
 from pathlib import Path
 
 from .ast import AST
-from .collections import OrderedSet as oset
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import RuleInfo
@@ -34,11 +33,11 @@ def ref(name):
 
 def kdot(x, y, k):
     if not y:
-        return oset(a[:k] for a in x)
+        return {a[:k] for a in x}
     elif not x:
-        return oset(b[:k] for b in y)
+        return {b[:k] for b in y}
     else:
-        return oset((a + b)[:k] for a in x for b in y)
+        return {(a + b)[:k] for a in x for b in y}
 
 
 def pythonize_name(name):
@@ -83,7 +82,7 @@ class Model(Node):
         super().__init__(ast=ast, ctx=ctx)
         self._lookahead = None
         self._firstset = None
-        self._follow_set = oset()
+        self._follow_set = set()
         self.value = None
         self._nullability = self._nullable()
         if isinstance(self._nullability, int):  # Allow simple boolean values
@@ -121,20 +120,20 @@ class Model(Node):
 
     def firstset(self, k=1):
         if self._firstset is None:
-            self._firstset = self._first(k, defaultdict(oset))
+            self._firstset = self._first(k, defaultdict(set))
         return self._firstset
 
     def followset(self, k=1):
         return self._follow_set
 
     def missing_rules(self, rules):
-        return oset()
+        return set()
 
     def _used_rule_names(self):
-        return oset()
+        return set()
 
     def _first(self, k, f):
-        return oset()
+        return set()
 
     def _follow(self, k, fl, a):
         return a
@@ -350,7 +349,7 @@ class Pattern(Model):
     def _first(self, k, f):
         x = self
         if bool(self.regex.match('')):
-            return oset([(), (x,)])
+            return {(), (x,)}
         else:
             return {(x,)}
 
@@ -403,7 +402,7 @@ class SkipTo(Decorator):
 
     def _first(self, k, f):
         # use None to represent ANY
-        return oset({(None,)}) | super()._first(k, f)
+        return {(None,)} | super()._first(k, f)
 
     def _to_str(self, lean=False):
         return '->' + self.exp._to_str(lean=lean)
@@ -423,10 +422,10 @@ class Sequence(Model):
         return [d for s in self.sequence for d in s.defines()]
 
     def missing_rules(self, rules):
-        return oset().union(*[s.missing_rules(rules) for s in self.sequence])
+        return set().union(*[s.missing_rules(rules) for s in self.sequence])
 
     def _used_rule_names(self):
-        return oset().union(*[s._used_rule_names() for s in self.sequence])
+        return set().union(*[s._used_rule_names() for s in self.sequence])
 
     def _first(self, k, f):
         result = {()}
@@ -493,13 +492,13 @@ class Choice(Model):
         return [d for o in self.options for d in o.defines()]
 
     def missing_rules(self, rules):
-        return oset().union(*[o.missing_rules(rules) for o in self.options])
+        return set().union(*[o.missing_rules(rules) for o in self.options])
 
     def _used_rule_names(self):
-        return oset().union(*[o._used_rule_names() for o in self.options])
+        return set().union(*[o._used_rule_names() for o in self.options])
 
     def _first(self, k, f):
-        result = oset()
+        result = set()
         for o in self.options:
             result |= o._first(k, f)
         self._firstset = result
@@ -549,7 +548,7 @@ class Closure(Decorator):
         result = {()}
         for _i in range(k):
             result = kdot(result, efirst, k)
-        return oset({()}) | result
+        return set({()}) | result
 
     def _to_str(self, lean=False):
         sexp = str(self.exp._to_str(lean=lean))
@@ -676,7 +675,7 @@ class Optional(Decorator):
             return self.exp.parse(ctx)
 
     def _first(self, k, f):
-        return oset({()}) | self.exp._first(k, f)
+        return set({()}) | self.exp._first(k, f)
 
     def _to_str(self, lean=False):
         exp = str(self.exp._to_str(lean=lean))
@@ -787,19 +786,19 @@ class RuleRef(Model):
 
     def missing_rules(self, rules):
         if self.name not in rules:
-            return oset({self.name})
-        return oset()
+            return set({self.name})
+        return set()
 
     def _used_rule_names(self):
         return {self.name}
 
     def _first(self, k, f):
-        self._firstset = oset(f[self.name]) | {ref(self.name)}
+        self._firstset = set(f[self.name]) | {ref(self.name)}
         return self._firstset
 
     def _follow(self, k, fl, a):
         fl[self.name] |= a
-        return oset(a) | {self.name}
+        return set(a) | {self.name}
 
     def firstset(self, k=1):
         if self._firstset is None:
@@ -978,7 +977,7 @@ class Grammar(Model):
             name = 'My'
         self.name = name
 
-        missing = self.missing_rules(oset(r.name for r in self.rules))
+        missing = self.missing_rules({r.name for r in self.rules})
         if missing:
             msg = '\n'.join(['', *sorted(missing)])
             raise GrammarError('Unknown rules, no parser generated:' + msg)
@@ -1000,7 +999,7 @@ class Grammar(Model):
         self.config.semantics = value
 
     def missing_rules(self, rules):
-        return oset().union(
+        return set().union(
             *[rule.missing_rules(rules) for rule in self.rules],
         )
 
@@ -1012,7 +1011,7 @@ class Grammar(Model):
         prev = {}
         while used != prev:
             prev = used
-            used |= oset().union(
+            used |= set().union(
                 *[
                     rule._used_rule_names()
                     for rule in self.rules
@@ -1034,7 +1033,7 @@ class Grammar(Model):
         self._calc_follow_sets()
 
     def _calc_first_sets(self, k=1):
-        f = defaultdict(oset)
+        f = defaultdict(set)
         f1 = None
         while f1 != f:
             f1 = copy(f)
@@ -1046,12 +1045,12 @@ class Grammar(Model):
             rule._firstset = f[rule.name]
 
     def _calc_follow_sets(self, k=1):
-        fl = defaultdict(oset)
+        fl = defaultdict(set)
         fl1 = None
         while fl1 != fl:
             fl1 = copy(fl)
             for rule in self.rules:
-                rule._follow(k, fl, oset())
+                rule._follow(k, fl, set())
 
         for rule in self.rules:
             rule._follow_set = fl[rule.name]

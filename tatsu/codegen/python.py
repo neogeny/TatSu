@@ -7,7 +7,6 @@ import re
 import textwrap
 
 from .. import grammars
-from ..collections import OrderedSet as oset
 from ..exceptions import CodegenError
 from ..objectmodel import BASE_CLASS_TOKEN, Node
 from ..util import compress_seq, indent, safe_name, timestamp, trim
@@ -36,12 +35,12 @@ class Base(ModelRenderer):
 
     def make_defines_declaration(self):
         defines = compress_seq(self.defines())
-        ldefs = oset(safe_name(d) for d, value in defines if value)
-        sdefs = oset(
+        ldefs = {safe_name(d) for d, value in defines if value}
+        sdefs = {
             safe_name(d)
             for d, value in defines
             if not value and d not in ldefs
-        )
+        }
 
         if not (sdefs or ldefs):
             return ''
