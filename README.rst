@@ -291,23 +291,24 @@ requires different licensing* please `email`_.
 .. _vmuriart: https://bitbucket.org/vmuriart
 
 .. |fury| image:: https://badge.fury.io/py/TatSu.svg
+   :align: right
    :target: https://badge.fury.io/py/TatSu
-   :align: right
 .. |license| image:: https://img.shields.io/badge/license-BSD-blue.svg
+   :align: right
    :target: https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt
-   :align: right
 .. |pyversions| image:: https://img.shields.io/pypi/pyversions/tatsu.svg
-   :target: https://pypi.python.org/pypi/tatsu
    :align: right
+   :target: https://pypi.python.org/pypi/tatsu
 .. |actions| image:: https://github.com/neogeny/TatSu/actions/workflows/default.yml/badge.svg
+   :align: right
    :target: https://github.com/neogeny/TatSu/actions/workflows/default.yml
 .. |docs| image:: https://readthedocs.org/projects/tatsu/badge/?version=stable&logo=readthedocs
+   :align: right
    :target: http://tatsu.readthedocs.io/en/stable/
-   :align: right
-   :align: right
 .. |installs| image:: https://img.shields.io/pypi/dm/tatsu.svg?label=installs&logo=pypi
+   :align: right
    :target: https://pypistats.org/packages/tatsu
 .. |downloads| image:: https://img.shields.io/github/downloads/neogeny/tatsu/total?label=downloads
                        https://img.shields.io/github/downloads/neogeny/tatsu/total
-   :target: https://pypistats.org/packages/tatsu
    :align: right
+   :target: https://pypistats.org/packages/tatsu
