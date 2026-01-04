@@ -32,7 +32,7 @@ ruff:
 
 mypy:
 	-@ pip install -q -U mypy
-	mypy   --ignore-missing-imports . --exclude dist
+	mypy --install-types --exclude dist .
 
 
 clean:

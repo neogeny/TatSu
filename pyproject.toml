@@ -86,6 +86,11 @@ addopts = "-q"
 testpaths = [
     "test",
 ]
+[tool.mypy]
+runn = "mypy --install-types --exclude 'parsers|docs|tmp|build|dist' ."
+python_version = 3.14
+#ignore_missing_imports = true
+exclude = "parsers|docs|dist|build|tmp"
 
 [tool.ruff]
 line-length = 88
@@ -113,7 +118,7 @@ dependencies = ["pytest", "mypy", "ruff"]
 
 [tool.hatch.envs.test.scripts]
 lint = "ruff check -q --preview tatsu test examples"
-types = "mypy --exclude 'parsers|docs|tmp|build|dist' ."
+types = "mypy --install-types --exclude 'parsers|docs|tmp|build|dist' ."
 tests = "pytest"
 
 checks = [
