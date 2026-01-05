@@ -2,37 +2,36 @@ test:  lint documentation examples pytest
 
 
 pytest: clean
-	pytest -v --cov
+	uv run pytest -v --cov
 
 
 documentation: sphinx
 
 
 sphinx:
-	cd docs; make -s html > /dev/null
+	cd docs; uv run make -s html > /dev/null
 
 
 examples: clean g2e_test calc_test
 
 
 g2e_test:
-	cd examples/g2e; make -s clean; make -s test > /dev/null
+	cd examples/g2e; uv run make -s clean test > /dev/null
+
 
 calc_test:
-	cd examples/calc; make -s clean; make -s test > /dev/null
+	cd examples/calc; uv run make -s clean test > /dev/null
 
 
 lint: ruff mypy
 
 
 ruff:
-	-@ pip install -qU ruff
-	ruff check --preview tatsu test examples
+	uv run ruff check --preview tatsu test examples
 
 
 mypy:
-	-@ pip install -qU mypy
-	mypy --install-types --exclude dist .
+	uv run mypy --install-types --exclude dist .
 
 
 clean:
@@ -48,21 +47,17 @@ clean:
 
 
 checks: clean documentation
-	-@ pip install -qU hatch
 	hatch run --force-continue test:checks
 	@echo version `python -m tatsu --version`
 
 
-build: cleanhatch
-	-@ pip install -qU hatch
-	hatch build
+build: clean
+	uv run hatch build
 
 
 test_publish: build
-	-@ pip install -qU hatch
-	hatch publish --repo test
+	uv run hatch publish --repo test
 
 
 publish: checks build
-	-@ pip install -U hatch
-	hatch publish
+	uv run hatch publish
