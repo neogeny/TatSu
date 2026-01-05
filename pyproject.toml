@@ -37,6 +37,27 @@ dependencies = []
 colorization = ["colorama"]
 parproc = ["rich"]
 
+[dependency-groups]
+dev = [
+    "pip",
+    "docutils",
+    "colorama",
+    "hatch",
+    "ipython",
+    "mypy",
+    "psutil",
+    "pytest",
+    "pytest-cov",
+    "pytest-mypy",
+    "pytest-xdist",
+    "rich",
+    "rst2html5",
+    "ruff",
+    "sphinx",
+    "sphinx-rtd-theme",
+    "types-decorator",
+]
+
 [project.scripts]
 tatsu = "tatsu:main"
 g2e = "tatsu.g2e:main"
@@ -82,10 +103,19 @@ retries = 0
 [tool.pytest.ini_options]
 # minversion = "6.0"
 #addopts = "-ra -q"
-addopts = "-q"
+addopts = "-q --ignore=.venv"
 testpaths = [
     "test",
 ]
+norecursedirs = [
+    "*.egg",
+    ".git",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
+]
+
 [tool.mypy]
 python_version = 3.14
 #ignore_missing_imports = true
@@ -106,11 +136,16 @@ exclude = [
 
 [tool.coverage.run]
 omit = [
+    "/private/*",  # note: don't know how this gets into coverage
     "test/*",
     "tatsu/diagrams.py",
+    "**/test.py",
 ]
 data_file = ".cache/coverage/.coverage"
 parallel = false
+
+[tool.coverage.report]
+ignore_errors = true
 
 [tool.hatch.envs.test]
 dependencies = ["pytest", "mypy", "ruff"]

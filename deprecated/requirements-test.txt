@@ -1,4 +1,4 @@
-pip
+astroid
 docutils
 hatch
 mypy
