@@ -11,8 +11,6 @@
 | |docs|
 | |installs|
 |
-| |sponsor|
-|
 |
 
     *At least for the people who send me mail about a new language that
