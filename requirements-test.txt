@@ -1,5 +1,6 @@
-astroid
+pip
 docutils
+hatch
 mypy
 pytest
 pytest-cov
@@ -8,6 +9,5 @@ pytest-xdist
 rich
 rst2html5
 ruff
-setuptools
 sphinx
 sphinx-rtd-theme
