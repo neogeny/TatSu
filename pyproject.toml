@@ -75,14 +75,24 @@ path = "tatsu/_version.py"
 packages = ["tatsu"]
 
 [tool.hatch.build.targets.sdist]
-include = [
-    "/tatsu",
-    "/test",
-    "/grammar",
-    "/examples",
-    "*.yaml",
+#ignore-vcs = true
+#include = [
+#    "/tatsu",
+#    "/docs",
+#    "/test",
+#    "/grammar",
+#    "/examples",
+#    "*.yaml",
+#]
+exclude = [
+    "/parsers",
+    "/deprecated",
+    "/examples/markdown",
+    "req*.txt",
 ]
-excludee = ["deprecated"]
+
+[tool.hatch.build.targets.sdist.force-include]
+"./tatsu" = "tatsu"
 
 [tool.hatch.envs.hatch-test]
 default-args = ["test"]
