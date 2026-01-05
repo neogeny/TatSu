@@ -190,7 +190,7 @@ License
 -------
 
 You may use |TatSu| under the terms of the `BSD`_-style license
-described in the enclosed `LICENSE.txt`_ file. *If your project
+described in the enclosed `LICENSE`_ file. *If your project
 requires different licensing* please `email`_.
 
 
@@ -251,7 +251,7 @@ requires different licensing* please `email`_.
 .. _Warth et al: http://www.vpri.org/pdf/tr2007002_packrat.pdf
 .. _Well-known text: http://en.wikipedia.org/wiki/Well-known_text
 .. _Wirth: http://en.wikipedia.org/wiki/Niklaus_Wirth
-.. _`LICENSE.txt`: LICENSE.txt
+.. _`LICENSE`: LICENSE
 .. _basel-shishani: https://bitbucket.org/basel-shishani
 .. _blog post: http://dietbuddha.blogspot.com/2012/12/52python-encapsulating-exceptions-with.html
 .. _colorama: https://pypi.python.org/pypi/colorama/
@@ -295,7 +295,7 @@ requires different licensing* please `email`_.
 .. |fury| image:: https://badge.fury.io/py/TatSu.svg
    :target: https://badge.fury.io/py/TatSu
 .. |license| image:: https://img.shields.io/badge/license-BSD-blue.svg
-   :target: https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE.txt
+   :target: https://raw.githubusercontent.com/neogeny/tatsu/master/LICENSE
 .. |pyversions| image:: https://img.shields.io/pypi/pyversions/tatsu.svg
    :target: https://pypi.python.org/pypi/tatsu
 .. |actions| image:: https://github.com/neogeny/TatSu/actions/workflows/default.yml/badge.svg

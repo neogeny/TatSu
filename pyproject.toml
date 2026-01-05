@@ -12,7 +12,7 @@ description = "TatSu takes a grammar in a variation of EBNF as input, and output
 readme = "README.rst"
 requires-python = ">=3.10"
 keywords = []
-license = {file = "LICENSE.txt"}
+license = {file = "LICENSE"}
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: BSD License",

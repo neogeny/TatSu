@@ -25,7 +25,7 @@
 .. _KLOC: http://en.wikipedia.org/wiki/KLOC
 .. _Keywords: https://en.wikipedia.org/wiki/Reserved_word
 .. _`left-recursive`: https://en.wikipedia.org/wiki/Left_recursion
-.. _LICENSE.txt: LICENSE.txt
+.. _LICENSE: LICENSE
 .. _LL(1): http://en.wikipedia.org/wiki/LL(1)
 .. _MediaWiki: http://www.mediawiki.org/wiki/MediaWiki
 .. _Modula-2: http://en.wikipedia.org/wiki/Modula-2
