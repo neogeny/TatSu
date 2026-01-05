@@ -76,6 +76,9 @@ Enables left-recursive rules in the grammar. See the `Left Recursion`_ sections 
 
 .. _`Left Recursion`: left_recursion.html
 
+Left recursion is enabled by default. Yo may obtain faster parsing by disabling it when
+it's not needed.
+
 
 @@memoize :: <boolean>
 ~~~~~~~~~~~~~~~~~~~~~~

@@ -598,6 +598,8 @@ class ParseContext:
         return ruleinfo.is_leftrec
 
     def _set_left_recursion_guard(self, key):
+        if not self.left_recursion:
+            return
         ex = self._make_exception(key.rule.name, exclass=FailedLeftRecursion)
         self._memoize(key, ex)
 
