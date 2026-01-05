@@ -11,6 +11,15 @@
 | |docs|
 | |installs|
 
+.. raw:: html
+
+<iframe
+    src="https://github.com/sponsors/neogeny/card"
+    title="Sponsor neogeny"
+    height="225" width="600"
+    style="border: 0;">
+</iframe>
+
     *At least for the people who send me mail about a new language that
     they're designing, the general advice is: do it to learn about how
     to write a compiler. Don't have any expectations that anyone will
