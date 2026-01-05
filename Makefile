@@ -43,7 +43,7 @@ clean:
 
 
 checks: clean documentation
-	hatch run --force-continue test:checks
+	uv run hatch run --force-continue test:checks
 	@echo version `python -m tatsu --version`
 
 
