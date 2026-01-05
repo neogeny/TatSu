@@ -6,7 +6,6 @@ the described language.
 from __future__ import annotations
 
 import argparse
-import codecs
 import importlib
 import sys
 from pathlib import Path
@@ -287,8 +286,7 @@ def prepare_for_output(filename):
 
 
 def save(filename, content):
-    with codecs.open(filename, 'w', encoding='utf-8') as f:
-        f.write(content)
+    Path(filename).write_text(content, encoding='utf-8')
 
 
 def main():
@@ -301,7 +299,7 @@ def main():
     prepare_for_output(outfile)
     prepare_for_output(args.object_model_outfile)
 
-    grammar = codecs.open(args.filename, encoding='utf-8').read()
+    grammar = Path(args.filename).read_text()
 
     try:
         model = compile(
