@@ -1,0 +1,12 @@
+# Use 'uv' for lightning-fast environment creation (Recommended)
+[envs.default]
+installer = "uv"
+
+# Define where you want Hatch to store virtual environments
+# By default, they are in a global cache; set to "local" to put them in .venv
+[directories.envs]
+default = "local"
+
+# Configure your publishing repositories
+[publish.index.repos.test]
+url = "https://test.pypi.org/legacy/"

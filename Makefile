@@ -2,7 +2,7 @@ test:  lint documentation examples pytest
 
 
 pytest: clean
-	uv run pytest -v --cov
+	uv run pytest --cov -v
 
 
 documentation: sphinx
@@ -36,10 +36,6 @@ mypy:
 
 clean:
 	find . -name "__pycache__" -delete
-	find . -name "*.pyc" -delete
-	find . -name "*.pyd" -delete
-	find . -name "*.pyo" -delete
-	find . -name "*.orig" -delete
 	rm -rf tatsu.egg-info
 	rm -rf dist
 	rm -rf build
