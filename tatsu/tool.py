@@ -2,7 +2,6 @@
 Parse and translate an EBNF grammar into a Python parser for
 the described language.
 """
-# ruff: noqa: PLR0912
 from __future__ import annotations
 
 import argparse

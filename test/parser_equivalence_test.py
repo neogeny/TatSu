@@ -1,4 +1,3 @@
-# ruff: noqa: S102
 import types
 
 import pytest

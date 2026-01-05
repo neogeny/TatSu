@@ -27,7 +27,7 @@ lint: ruff mypy
 
 
 ruff:
-	uv run ruff check --preview tatsu test examples
+	uv run ruff check -q --preview tatsu test examples
 
 
 mypy:

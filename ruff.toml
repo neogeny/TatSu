@@ -10,11 +10,11 @@ lint.select = [
     # "ERA", # commented out code
 ]
 lint.ignore = [
-    "RUF100", # unuses ruff noqa directives
-    "B019", # memory leaks possible with functools.cache
+#    "RUF100", # unuses ruff noqa directives
+#    "B019", # memory leaks possible with functools.cache
 #    "C408",  # unnecessary-collection-call
     "E501",  # line-too-long
-    "E741",  # ambiguous-variable-name
+#    "E741",  # ambiguous-variable-name
     "E402",  # module-import-not-at-top-of-file
     "FURB189",  # subclassing str
     "S101",  # use of assert
@@ -40,7 +40,7 @@ lint.ignore = [
 #    "S311",  # suspicious-non-cryptographic-random-usage
     "S403",   # insecure modules
     "SIM108",   # use ternary instead of if=else
-    "SIM115",  # open-file-with-context-handler
+#    "SIM115",  # open-file-with-context-handler
     "SIM114",  # if-with-same-arms
     "TRY003",  # raise-vanilla-args
     "TRY300",  # try-consider-else

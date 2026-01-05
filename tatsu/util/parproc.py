@@ -157,7 +157,7 @@ def processing_loop(filenames, process, *args, reraise=False, **kwargs):  # pyli
         if total == 1:
             log = sys.stderr
         else:
-            log = Path(ERROR_LOG_FILENAME).open('w')
+            log = Path(ERROR_LOG_FILENAME).open('w')  # noqa: SIM115
 
         with progress:
             for result in results:

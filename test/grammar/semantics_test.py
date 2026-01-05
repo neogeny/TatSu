@@ -1,4 +1,3 @@
-# ruff: noqa: S102
 import unittest
 
 from tatsu import synth
