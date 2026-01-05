@@ -36,15 +36,12 @@ mypy:
 
 clean:
 	find . -name "__pycache__" -delete
-	rm -rf tatsu.egg-info
-	rm -rf dist
-	rm -rf build
-	rm -rf .tox
+	rm -rf tatsu.egg-info dist build .tox
 
 
 checks: clean documentation
 	uv run hatch run --force-continue test:checks
-	@echo version `python -m tatsu --version`
+	@echo version `uv run python -m tatsu --version`
 
 
 build: clean
