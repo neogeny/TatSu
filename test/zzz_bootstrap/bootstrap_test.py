@@ -1,4 +1,3 @@
-# ruff: noqa: PLR0914
 from __future__ import annotations
 
 import json
@@ -20,7 +19,7 @@ sys.path.insert(0, str(tmp))
 
 
 class BootstrapTests(unittest.TestCase):
-    def test_bootstrap(self):
+    def test_bootstrap(self):  # noqa: PLR0914
         print()
 
         tmp = Path('./tmp')
