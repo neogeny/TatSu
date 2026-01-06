@@ -541,7 +541,7 @@ class ParseContext:
             )
 
     def _make_exception(self, item, exclass=FailedParse):
-        if exclass is FailedLeftRecursion:
+        if issubclass(exclass, FailedLeftRecursion):
             rulestack = []
         else:
             rulestack = [r.name for r in reversed(self._rule_stack)]
