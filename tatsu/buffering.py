@@ -8,7 +8,6 @@ about source lines and content.
 from __future__ import annotations
 
 import re
-from itertools import repeat, takewhile
 from pathlib import Path
 from typing import Any
 
@@ -25,7 +24,6 @@ from .tokenizing import Tokenizer
 from .util import (
     contains_sublist,
     extend_list,
-    identity,
 )
 from .util.misc import cached_re_compile, match_to_find
 
@@ -258,11 +256,12 @@ class Buffer(Tokenizer):
             return []
 
         regex = cached_re_compile(regex)
+
         def takewhile_repeat_regex():
             while x := self.matchre(regex):
                 yield x
 
-        return [x for x in takewhile_repeat_regex()]
+        return list(takewhile_repeat_regex())
 
     def eat_whitespace(self):
         return self._eat_regex(self.whitespace_re)
