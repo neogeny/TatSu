@@ -256,8 +256,13 @@ class Buffer(Tokenizer):
     def _eat_regex_list(self, regex):
         if not regex:
             return []
+
         regex = cached_re_compile(regex)
-        return list(takewhile(identity, map(self.matchre, repeat(regex))))
+        def takewhile_repeat_regex():
+            while x := self.matchre(regex):
+                yield x
+
+        return [x for x in takewhile_repeat_regex()]
 
     def eat_whitespace(self):
         return self._eat_regex(self.whitespace_re)
