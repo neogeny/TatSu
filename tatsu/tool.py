@@ -7,7 +7,9 @@ from __future__ import annotations
 import argparse
 import importlib
 import sys
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 from ._version import __version__
 from .exceptions import ParseException
@@ -164,13 +166,13 @@ __compiled_grammar_cache = {}  # type: ignore[var-annotated]
 
 
 def compile(
-    grammar,
-    name=None,
+    grammar: str,
+    name: str | None = None,
     *,
-    semantics=None,
-    asmodel=False,
+    semantics: type | None = None,
+    asmodel: bool = False,
     config: ParserConfig | None = None,
-    **settings,
+    **settings: Any,
 ):
     cache = __compiled_grammar_cache
 
@@ -190,14 +192,14 @@ def compile(
 
 
 def parse(
-    grammar, /,
-    input, *,
-    start=None,
-    name=None,
-    semantics=None,
-    asmodel=False,
+    grammar: str, /,
+    input: str, *,
+    start: str | None = None,
+    name: str | None = None,
+    semantics: type | None = None,
+    asmodel: bool = False,
     config: ParserConfig | None = None,
-    **settings,
+    **settings: Any,
 ):
     model = compile(
         grammar,
@@ -213,11 +215,11 @@ def parse(
 
 
 def to_python_sourcecode(
-    grammar, /, *,
-    name=None,
-    filename=None,
+    grammar: str, /, *,
+    name: str | None = None,
+    filename: str | None = None,
     config: ParserConfig | None = None,
-    **settings,
+    **settings: Any,
 ):
     model = compile(
         grammar, name=name, filename=filename, config=config, **settings,
@@ -226,12 +228,12 @@ def to_python_sourcecode(
 
 
 def to_python_model(
-    grammar, /, *,
-    name=None,
-    filename=None,
-    base_type=None,
+    grammar: str, /, *,
+    name: str | None = None,
+    filename: str | None = None,
+    base_type: type | None = None,
     config: ParserConfig | None = None,
-    **settings,
+    **settings: Any,
 ):
     model = compile(
         grammar, name=name, filename=filename, config=config, **settings,
@@ -242,11 +244,11 @@ def to_python_model(
 # for backwards compatibility. Use `compile()` instead
 def genmodel(
     *,
-    name=None,
-    grammar=None,
-    semantics=None,
+    name: str | None = None,
+    grammar: str | None = None,
+    semantics: type | None = None,
     config: ParserConfig | None = None,
-    **settings,
+    **settings: Any,
 ):
     if grammar is None:
         raise ParseException('grammar is None')
@@ -258,13 +260,13 @@ def genmodel(
 
 def gencode(
     *,
-    name=None,
-    grammar=None,
-    trace=False,
-    filename=None,
-    codegen=ngpythoncg,
+    name: str | None = None,
+    grammar: str,
+    trace: bool = False,
+    filename: str | None = None,
+    codegen: Callable = ngpythoncg,
     config: ParserConfig | None = None,
-    **settings,
+    **settings: Any,
 ):
     model = compile(
         grammar,
@@ -277,17 +279,17 @@ def gencode(
     return codegen(model)
 
 
-def prepare_for_output(filename):
+def prepare_for_output(filename: str):
     if filename:
-        filename = Path(filename)
-        if filename.is_file():
-            filename.unlink()
-        dirname = filename.parent
+        f = Path(filename)
+        if f.is_file():
+            f.unlink()
+        dirname = f.parent
         if dirname.exists():
             dirname.mkdir(parents=True, exist_ok=True)
 
 
-def save(filename, content):
+def save(filename: str, content: str):
     Path(filename).write_text(content, encoding='utf-8')
 
 

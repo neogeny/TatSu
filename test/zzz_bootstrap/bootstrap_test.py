@@ -17,9 +17,11 @@ from tatsu.walkers import DepthFirstWalker
 tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
 
+# ruff: noqa: PLR0914
+
 
 class BootstrapTests(unittest.TestCase):
-    def test_bootstrap(self):  # noqa: PLR0914
+    def test_bootstrap(self):
         print()
 
         tmp = Path('./tmp')
