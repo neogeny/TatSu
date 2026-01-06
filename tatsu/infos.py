@@ -54,7 +54,7 @@ class LineInfo(NamedTuple):
     col: int
     start: int
     end: int
-    text: int
+    text: str
 
 
 class CommentInfo(NamedTuple):
