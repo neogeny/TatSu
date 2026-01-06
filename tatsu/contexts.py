@@ -541,7 +541,10 @@ class ParseContext:
             )
 
     def _make_exception(self, item, exclass=FailedParse):
-        rulestack = (r.name for r in self._rule_stack[::-1])
+        if exclass is FailedLeftRecursion:
+            rulestack = []
+        else:
+            rulestack = [r.name for r in reversed(self._rule_stack)]
         return exclass(self.tokenizer, rulestack, item)
 
     def _error(self, item, exclass=FailedParse):
