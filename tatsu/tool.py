@@ -166,6 +166,7 @@ __compiled_grammar_cache = {}  # type: ignore[var-annotated]
 def compile(
     grammar,
     name=None,
+    *,
     semantics=None,
     asmodel=False,
     config: ParserConfig | None = None,
@@ -189,8 +190,8 @@ def compile(
 
 
 def parse(
-    grammar,
-    input,
+    grammar, /,
+    input, *,
     start=None,
     name=None,
     semantics=None,
@@ -212,7 +213,7 @@ def parse(
 
 
 def to_python_sourcecode(
-    grammar,
+    grammar, /, *,
     name=None,
     filename=None,
     config: ParserConfig | None = None,
@@ -225,7 +226,7 @@ def to_python_sourcecode(
 
 
 def to_python_model(
-    grammar,
+    grammar, /, *,
     name=None,
     filename=None,
     base_type=None,
@@ -240,6 +241,7 @@ def to_python_model(
 
 # for backwards compatibility. Use `compile()` instead
 def genmodel(
+    *,
     name=None,
     grammar=None,
     semantics=None,
@@ -255,6 +257,7 @@ def genmodel(
 
 
 def gencode(
+    *,
     name=None,
     grammar=None,
     trace=False,

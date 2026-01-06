@@ -121,7 +121,7 @@ def test_grammar_directive():
         start = test $;
         test = "test";
     """
-    model = tatsu.compile(grammar=grammar)
+    model = tatsu.compile(grammar)
     assert model.directives.get('grammar') == 'Test'
     assert model.name == 'Test'
 
