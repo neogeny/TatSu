@@ -4,18 +4,19 @@ import enum
 import json
 import weakref
 from collections.abc import Mapping
+from typing import Any
 
 from tatsu.util import debug, is_namedtuple, isiter
 
 
 class AsJSONMixin:
-    def __json__(self, seen=None):
+    def __json__(self, seen: set[int] | None = None) -> Any:
         return {
             '__class__': type(self).__name__,
             **asjson(self._pubdict(), seen=seen),
         }
 
-    def _pubdict(self):
+    def _pubdict(self) -> dict[str, Any]:
         return {
             name: value
             for name, value in vars(self).items()
@@ -23,7 +24,7 @@ class AsJSONMixin:
         }
 
 
-def asjson(obj, seen=None):  # noqa: PLR0911, PLR0912
+def asjson(obj, seen: set[int] | None = None) -> Any:  # noqa: PLR0911, PLR0912
     if obj is None or isinstance(obj, int | float | str | bool):
         return obj
 
@@ -63,7 +64,7 @@ def asjson(obj, seen=None):  # noqa: PLR0911, PLR0912
         seen -= {id(obj)}
 
 
-def plainjson(obj):
+def plainjson(obj: Any) -> Any:
     if isinstance(obj, Mapping):
         return {
             name: plainjson(value)
@@ -83,26 +84,9 @@ def plainjson(obj):
 class FallbackJSONEncoder(json.JSONEncoder):
     """A JSON Encoder that falls back to repr() for non-JSON-aware objects."""
 
-    def default(self, o):
+    def default(self, o: Any) -> str:
         return repr(o)
 
 
-def asjsons(obj):
+def asjsons(obj: Any) -> str:
     return json.dumps(asjson(obj), indent=2, cls=FallbackJSONEncoder)
-
-
-def minjson(obj, typesfiltered=(str, list, dict)):
-    if isinstance(obj, Mapping):
-        return {
-            name: minjson(value)
-            for name, value in obj.items()
-            if (
-                not name.startswith('_')
-                and value is not None
-                and (value or not isinstance(value, typesfiltered))
-            )
-        }
-    elif isiter(obj):
-        return [minjson(e) for e in obj]
-    else:
-        return obj
