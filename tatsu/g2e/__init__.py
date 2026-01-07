@@ -10,7 +10,8 @@ from .semantics import ANTLRSemantics
 
 
 def antlr_grammar() -> str:
-    return (resources.files('tatsu.g2e') / 'antlr.ebnf').read_text()
+    path = resources.files('tatsu.g2e') / 'antlr.ebnf'
+    return path.read_text()
 
 
 def translate(
