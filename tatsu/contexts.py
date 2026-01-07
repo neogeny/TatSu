@@ -94,24 +94,30 @@ class RuleLike(Protocol):
     is_memoizable: bool = False
     is_name: bool = False
 
+    def call(self, *args: Any, **kwargs: Any) -> Any:
+        pass
+
 
 # This is used to mark left recursive rules
-def leftrec(impl: RuleLike) -> RuleLike:
-    impl.is_leftrec = True
-    impl.is_memoizable = False
+def leftrec(impl: Callable) -> Callable:
+    over: RuleLike = impl  # type: ignore
+    over.is_leftrec = True
+    over.is_memoizable = False
     return impl
 
 
 # Marks rules for which memoization has to be turned off
 # (has no effect when left recursion is turned off)
-def nomemo(impl: RuleLike) -> RuleLike:
-    impl.is_memoizable = False
+def nomemo(impl: Callable) -> Callable:
+    over: RuleLike = impl  # type: ignore
+    over.is_memoizable = False
     return impl
 
 
 # Marks rules marked as @name in the grammar
-def isname(impl: RuleLike) -> RuleLike:
-    impl.is_name = True
+def isname(impl: Callable) -> Callable:
+    over: RuleLike = impl  # type: ignore
+    over.is_name = True
 
     return impl
 
