@@ -1,4 +1,5 @@
 import io
+from collections.abc import Iterator
 from contextlib import contextmanager
 
 from ..util import trim
@@ -18,16 +19,16 @@ class IndentPrintMixin:
         lines = self.as_printed_lines(*args, **kwargs)
         self._do_print_lines(lines, **kwargs)
 
-    def as_printed(self, *args, **kwargs):
+    def as_printed(self, *args, **kwargs) -> str:
         lines = self.as_printed_lines(*args, **kwargs)
         return '\n'.join(lines)
 
-    def as_printed_lines(self, *args, **kwargs):
+    def as_printed_lines(self, *args, **kwargs) -> list[str]:
         text = self.io_print(*args, **kwargs)
         return self.indented_lines(text)
 
     @contextmanager
-    def indent(self, amount: int | None = None):
+    def indent(self, amount: int | None = None) -> Iterator:
         assert amount is None or amount >= 0
         if amount is None:
             amount = self.default_indent
@@ -39,11 +40,11 @@ class IndentPrintMixin:
             self.indent_stack.pop()
 
     @property
-    def current_indentation(self):
+    def current_indentation(self) -> str:
         return ' ' * self.indent_stack[-1]
 
     @staticmethod
-    def io_print(*args, **kwargs):
+    def io_print(*args, **kwargs) -> str:
         kwargs.pop('file', None)  # do not allow redirection of output
         with io.StringIO() as output:
             print(*args, file=output, **kwargs)
@@ -57,7 +58,7 @@ class IndentPrintMixin:
         for line in lines:
             print(line, file=self.output_stream, **kwargs)
 
-    def indented_lines(self, text):
+    def indented_lines(self, text: str) -> list[str]:
         text = trim(text)
         return [
             (self.current_indentation + line).rstrip()

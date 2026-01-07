@@ -7,7 +7,7 @@ import sys
 from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager, suppress
 from copy import copy
-from typing import Any, NoReturn, ParamSpec, Protocol, TypeVar, cast, override
+from typing import Any, NoReturn, ParamSpec, Protocol, TypeVar, cast
 
 from . import buffering, color, tokenizing
 from .ast import AST
@@ -122,7 +122,6 @@ def isname(impl: Callable) -> Callable:
 
 
 class closure(list[Any]):
-    @override
     def __hash__(self) -> int:  # type: ignore
         return hash(tuple(self))
 
@@ -201,7 +200,7 @@ class ParseContext:
         return self.active_config.ignorecase
 
     @property
-    def nameguard(self) -> bool:
+    def nameguard(self) -> bool | None:
         return self.active_config.nameguard
 
     @property

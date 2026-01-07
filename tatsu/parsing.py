@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+from collections.abc import Callable
 
 from .contexts import (  # noqa: F401
     ParseContext,
@@ -13,18 +14,17 @@ from .exceptions import FailedRef
 
 
 class Parser(ParseContext):
-    def _find_rule(self, name):
+    def _find_rule(self, name: str) -> Callable:
         rule = getattr(self, '_' + name + '_', None)
         if isinstance(rule, type(self._find_rule)):
             return rule
         rule = getattr(self, name, None)
         if isinstance(rule, type(self._find_rule)):
             return rule
-        self._error(name, exclass=FailedRef)
-        return None
+        return self._error(name, exclass=FailedRef)
 
     @classmethod
-    def rule_list(cls):
+    def rule_list(cls) -> list[str]:
         methods = inspect.getmembers(cls, predicate=inspect.isroutine)
         result = []
         for m in methods:
