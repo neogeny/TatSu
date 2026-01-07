@@ -7,7 +7,7 @@ import sys
 from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager, suppress
 from copy import copy
-from typing import Any, NoReturn, ParamSpec, Protocol, TypeVar, cast
+from typing import Any, NoReturn, ParamSpec, Protocol, TypeVar
 
 from tatsu.collections import BoundedDict
 
@@ -683,14 +683,14 @@ class ParseContext:
         if isinstance(result, Exception):
             raise result
 
-        return cast(RuleResult, result)
+        return result
 
     def _invoke_rule(self, ruleinfo: RuleInfo, key: MemoKey) -> RuleResult:
         memo = self._memo_for(key)
         if isinstance(memo, Exception):
             raise memo
         if memo:
-            return cast(RuleResult, memo)
+            return memo
         self._set_left_recursion_guard(key)
 
         self._push_ast()
@@ -710,6 +710,7 @@ class ParseContext:
             raise
         finally:
             self._pop_ast()
+        return None
 
     def _get_node(self, pos: int, ruleinfo: RuleInfo) -> Any:
         node: Any = self.ast
