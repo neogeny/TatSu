@@ -5,8 +5,6 @@ from collections.abc import Callable
 from itertools import starmap
 from typing import Any, NamedTuple
 
-from .ast import AST
-
 
 class UndefinedStr(str):
     pass
@@ -93,7 +91,7 @@ class ParseInfo(NamedTuple):
 
 class MemoKey(NamedTuple):
     pos: int
-    rule: str
+    rule: RuleInfo
     state: Any
 
 
@@ -103,7 +101,7 @@ class RuleInfo(NamedTuple):
     is_leftrec: bool
     is_memoizable: bool
     is_name: bool
-    params: list
+    params: list | tuple
     kwparams: dict
 
     def __hash__(self):
@@ -127,6 +125,6 @@ class RuleResult(NamedTuple):
 @dataclasses.dataclass(slots=True)
 class ParseState:
     pos: int = 0
-    ast: AST = dataclasses.field(default_factory=AST)
+    ast: Any = dataclasses.field(default_factory=dict)
     cst: Any = None
     alerts: list[Alert] = dataclasses.field(default_factory=list)
