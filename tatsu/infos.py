@@ -5,8 +5,6 @@ from collections.abc import Callable
 from itertools import starmap
 from typing import Any, NamedTuple
 
-from .ast import AST
-
 
 class UndefinedStr(str):
     pass
@@ -127,6 +125,6 @@ class RuleResult(NamedTuple):
 @dataclasses.dataclass(slots=True)
 class ParseState:
     pos: int = 0
-    ast: AST = dataclasses.field(default_factory=AST)
+    ast: Any = dataclasses.field(default_factory=dict)
     cst: Any = None
     alerts: list[Alert] = dataclasses.field(default_factory=list)
