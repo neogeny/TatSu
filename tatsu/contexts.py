@@ -262,7 +262,7 @@ class ParseContext:
             return rule()
         except FailedParse as e:
             self._set_furthest_exception(e)
-            raise self._furthest_exception from e
+            raise self._furthest_exception from e  # type: ignore
         finally:
             self._clear_memoization_caches()
 
