@@ -9,6 +9,8 @@ def main():
             continue
         if '->' in text:
             continue
+        if 'typing' in text:
+            continue
 
         print(p)
 
