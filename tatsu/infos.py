@@ -93,7 +93,7 @@ class ParseInfo(NamedTuple):
 
 class MemoKey(NamedTuple):
     pos: int
-    rule: str
+    rule: RuleInfo
     state: Any
 
 
@@ -103,7 +103,7 @@ class RuleInfo(NamedTuple):
     is_leftrec: bool
     is_memoizable: bool
     is_name: bool
-    params: list
+    params: list | tuple
     kwparams: dict
 
     def __hash__(self):

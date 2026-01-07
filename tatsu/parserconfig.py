@@ -39,7 +39,7 @@ class ParserConfig:
 
     colorize: bool = True  # INFO: requires the colorama library
     trace: bool = False
-    trace_filename: bool = False
+    trace_filename: str = ''
     trace_length: int = 72
     trace_separator: str = C_DERIVE
 
@@ -51,9 +51,9 @@ class ParserConfig:
     eol_comments: str | None = None
     keywords: Collection[str] = field(default_factory=set)
 
-    ignorecase: bool | None = False
+    ignorecase: bool = False
     namechars: str = ''
-    nameguard: bool | None = None  # implied by namechars
+    nameguard: bool = False  # implied by namechars
     whitespace: str | None = _undefined_str
 
     parseinfo: bool = False
