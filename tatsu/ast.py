@@ -2,45 +2,42 @@ from __future__ import annotations
 
 import copy
 import operator
-from collections.abc import Iterable
 from functools import reduce
-from typing import Any
 
-from .infos import ParseInfo
-from .util import asjson, is_list
+from tatsu.util import asjson
+
+from .util import is_list
 
 
-class AST(dict[str, Any]):
+class AST(dict):
     _frozen = False
 
-    def __init__(self, *args: Any, **kwargs: Any):
+    def __init__(self, *args, **kwargs):
         super().__init__()
         self.update(*args, **kwargs)
         self._frozen = True
 
     @property
-    def frozen(self) -> bool:
+    def frozen(self):
         return self._frozen
 
     @property
-    def parseinfo(self) -> ParseInfo | None:
+    def parseinfo(self):
         try:
             return super().__getitem__('parseinfo')
         except KeyError:
-            return None
+            pass
 
-    def set_parseinfo(self, value: ParseInfo | None) -> None:
-        if value is None:
-            return
+    def set_parseinfo(self, value):
         super().__setitem__('parseinfo', value)
 
-    def copy(self) -> AST:
+    def copy(self):
         return copy.copy(self)
 
-    def asjson(self) -> Any:
+    def asjson(self):
         return asjson(self)
 
-    def _set(self, key: str, value: Any, force_list: bool = False) -> None:
+    def _set(self, key, value, force_list=False):
         key = self._safekey(key)
         previous = self.get(key)
 
@@ -55,13 +52,13 @@ class AST(dict[str, Any]):
 
         super().__setitem__(key, value)
 
-    def _setlist(self, key: str, value: list[Any]) -> None:
-        self._set(key, value, force_list=True)
+    def _setlist(self, key, value):
+        return self._set(key, value, force_list=True)
 
-    def __copy__(self) -> AST:
+    def __copy__(self):
         return AST(self)
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key):
         if key in self:
             return super().__getitem__(key)
         key = self._safekey(key)
@@ -69,14 +66,14 @@ class AST(dict[str, Any]):
             return super().__getitem__(key)
         return None
 
-    def __setitem__(self, key: str, value: Any) -> None:
+    def __setitem__(self, key, value):
         self._set(key, value)
 
-    def __delitem__(self, key: str) -> None:
+    def __delitem__(self, key):
         key = self._safekey(key)
         super().__delitem__(key)
 
-    def __setattr__(self, name: str, value: Any) -> None:
+    def __setattr__(self, name, value):
         if self._frozen and name not in vars(self):
             raise AttributeError(
                 f'{type(self).__name__} attributes are fixed. '
@@ -84,7 +81,7 @@ class AST(dict[str, Any]):
             )
         super().__setattr__(name, value)
 
-    def __getattr__(self, name: str) -> Any:
+    def __getattr__(self, name):
         key = self._safekey(name)
         if key in self:
             return self[key]
@@ -96,7 +93,7 @@ class AST(dict[str, Any]):
         except AttributeError:
             return None
 
-    def __hasattribute__(self, name: str) -> bool:
+    def __hasattribute__(self, name):
         try:
             super().__getattribute__(name)
         except (TypeError, AttributeError):
@@ -104,15 +101,15 @@ class AST(dict[str, Any]):
         else:
             return True
 
-    def __reduce__(self) -> tuple[Any, Any]:
+    def __reduce__(self):
         return (AST, (list(self.items()),))
 
-    def _safekey(self, key: str) -> str:
+    def _safekey(self, key):
         while self.__hasattribute__(key):
             key += '_'
         return key
 
-    def _define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None):
+    def _define(self, keys, list_keys=None):
         for key in (self._safekey(k) for k in keys):
             if key not in self:
                 super().__setitem__(key, None)
@@ -121,20 +118,19 @@ class AST(dict[str, Any]):
             if key not in self:
                 super().__setitem__(key, [])
 
-    def __json__(self, seen: set[int] | None = None) -> Any:
+    def __json__(self, seen=None):
         return {name: asjson(value, seen=seen) for name, value in self.items()}
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return repr(self.asjson())
 
-    def __str__(self) -> str:
+    def __str__(self):
         return str(self.asjson())
 
-    def __hash__(self) -> int:  # type: ignore
-        return hash(
-            reduce(
-                operator.xor,
-                (hash((name, id(value))) for name, value in self.items()),
-                0,
-            ),
+    def __hash__(self):
+        # NOTE: objects are actually mutable during creation
+        return reduce(
+            operator.xor,
+            (hash((name, id(value))) for name, value in self.items()),
+            0,
         )

@@ -1,9 +1,13 @@
-from __future__ import annotations
+from .exceptions import ParseError
+from .util._common import _prints
 
 
 class Tokenizer:
     def __init__(self, *args, **kwargs):
         super().__init__()
+
+    def error(self, *args, **kwargs):
+        raise ParseError(_prints(*args, **kwargs))
 
     @property
     def filename(self):

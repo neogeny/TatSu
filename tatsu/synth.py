@@ -1,14 +1,11 @@
-from collections.abc import Callable, MutableMapping
+from collections.abc import Mapping
 from typing import Any
 
-# NOTE:
-#   __REGISTRY is an alias for the modules vars()/ __dict__.
-#   That allows for synthesized types to reside within this module.
-__REGISTRY: MutableMapping[str, Callable] = vars()
+__REGISTRY: Mapping[str, Any] = vars()
 
 
 class _Synthetic:
-    def __reduce__(self) -> tuple[Any, ...]:
+    def __reduce__(self):
         return (
             synthesize(type(self).__name__, type(self).__bases__),
             (),
@@ -16,7 +13,7 @@ class _Synthetic:
         )
 
 
-def synthesize(name: str, bases: tuple[type, ...]) -> Callable:
+def synthesize(name, bases):
     typename = f'{__name__}.{name}'
 
     if not isinstance(bases, tuple):
@@ -32,7 +29,3 @@ def synthesize(name: str, bases: tuple[type, ...]) -> Callable:
         __REGISTRY[typename] = constructor
 
     return constructor
-
-
-def registered_symthetics() -> dict[str, Callable]:
-    return dict(__REGISTRY)

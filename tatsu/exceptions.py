@@ -1,9 +1,6 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
-
-from .tokenizing import Tokenizer
 
 
 class ParseException(Exception):
@@ -51,7 +48,7 @@ class NoParseInfo(ParseException):
 
 
 class FailedParse(ParseError):
-    def __init__(self, tokenizer: Tokenizer, stack: Iterable[str], item: str):
+    def __init__(self, tokenizer, stack, item):
         stack = list(stack)  # NOTE: can't pass through multiprocessing if generator
         # note: pass all arguments to super() to avoid pickling problems
         #   https://stackoverflow.com/questions/27993567/

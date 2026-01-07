@@ -69,14 +69,14 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.parser_name = parser_name
 
     @classmethod
-    def _next_n(cls) -> int:
+    def _next_n(cls):
         return next(cls._counter)
 
     @classmethod
     def _reset_counter(cls):
         cls._counter = itertools.count()
 
-    def walk_default(self, node: Any) -> Any:
+    def walk_default(self, node: Any):
         return node
 
     def walk_Grammar(self, grammar: grammars.Grammar):

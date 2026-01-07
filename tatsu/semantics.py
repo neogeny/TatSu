@@ -1,27 +1,24 @@
 from __future__ import annotations
 
 import builtins
-from collections.abc import Callable, Iterator, Mapping, MutableMapping
-from typing import Any
 
-from .contexts import ParseContext
 from .exceptions import SemanticError
 from .objectmodel import BASE_CLASS_TOKEN, Node
-from .synth import registered_symthetics, synthesize
+from .synth import synthesize
 from .util import simplify_list
 
 
 class ASTSemantics:
-    def group(self, ast: Any, *args) -> Any:
+    def group(self, ast, *args):
         return simplify_list(ast)
 
-    def element(self, ast: Any, *args) -> Any:
+    def element(self, ast, *args):
         return simplify_list(ast)
 
-    def sequence(self, ast: Any, *args) -> Any:
+    def sequence(self, ast, *args):
         return simplify_list(ast)
 
-    def choice(self, ast: Any, *args) -> Any:
+    def choice(self, ast, *args):
         if len(ast) == 1:
             return simplify_list(ast[0])
         return ast
@@ -33,39 +30,33 @@ class ModelBuilderSemantics:
     rule, and synthesizes the class/type if it's not known.
     """
 
-    def __init__(
-            self,
-            context: ParseContext | None = None,
-            base_type: type[Node] = Node,
-            types: Iterator[Callable] | None = None):
+    def __init__(self, context=None, base_type=Node, types=None):
         self.ctx = context
         self.base_type = base_type
 
-        self.constructors: MutableMapping[str, Callable] = {}
+        self.constructors = {}
 
         for t in types or ():
             self._register_constructor(t)
 
-    def _register_constructor(self, constructor: Callable):
+    def _register_constructor(self, constructor):
         self.constructors[constructor.__name__] = constructor
         return constructor
 
-    def _find_existing_constructor(self, typename: str) -> Callable | None:
-        context: Mapping[Any, Any] = vars(builtins) | registered_symthetics()
-        constructor = context.get(typename)
-        if constructor is not None:
-            return constructor
-
+    def _find_existing_constructor(self, typename):
+        constructor = builtins
         for name in typename.split('.'):
-            if name not in context:
-                return None
-
-            constructor = context[name]
-            if hasattr(constructor, '__dict__'):
+            try:
                 context = vars(constructor)
+            except Exception as e:
+                raise SemanticError(
+                    f'Could not find constructor for {typename} ({type(constructor).__name__}): {e!s}',
+                ) from e
+            if name in context:
+                constructor = context[name]
             else:
-                context = {}
-
+                constructor = None
+                break
         return constructor
 
     def _get_constructor(self, typename, base):
