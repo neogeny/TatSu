@@ -1,36 +1,39 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import pkgutil
 import sys
+from importlib import resources
 from pathlib import Path
 
-from tatsu import compile
-
+from .. import compile, grammars
 from .semantics import ANTLRSemantics
 
 
-def antlr_grammar():
-    return str(pkgutil.get_data(__name__, 'antlr.ebnf'), 'utf-8')
+def antlr_grammar() -> str:
+    return (resources.files('tatsu.g2e') / 'antlr.ebnf').read_text()
 
 
 def translate(
-    text=None, filename=None, name=None, encoding='utf-8', trace=False,
-):
+        text: str | None = None,
+        filename: str | None = None,
+        name: str | None = None,
+        encoding: str = 'utf-8',
+        trace: bool = False,
+    ) -> grammars.Grammar:
     if text is None and filename is None:
         raise ValueError('either `text` or `filename` must be provided')
     if filename:
-        filename = Path(filename)
+        filepath = Path(filename)
 
     if text is None:
-        name = name or filename.stem
-        text = filename.read_text(encoding=encoding)
+        name = name or filepath.stem
+        text = filepath.read_text(encoding=encoding)
 
     name = name or 'Unknown'
 
     semantics = ANTLRSemantics(name)
     grammar = compile(antlr_grammar())
-    model = grammar.parse(
+    return grammar.parse(
         text,
         name=name,
         filename=filename,
@@ -38,7 +41,6 @@ def translate(
         trace=trace,
         colorize=True,
     )
-    print(model)
 
 
 def main():
@@ -48,9 +50,10 @@ def main():
         print('Usage:')
         print('\t', thisprog, 'FILENAME.g [--trace]')
         sys.exit(1)
-    translate(
+    model = translate(
         filename=sys.argv[1], trace='--trace' in sys.argv or '-t' in sys.argv,
     )
+    print(model)
 
 
 if __name__ == '__main__':

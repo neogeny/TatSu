@@ -11,6 +11,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from . import grammars
 from ._version import __version__
 from .exceptions import ParseException
 from .ngcodegen import codegen as ngpythoncg
@@ -166,14 +167,14 @@ __compiled_grammar_cache = {}  # type: ignore[var-annotated]
 
 
 def compile(
-    grammar: str,
-    name: str | None = None,
-    *,
-    semantics: type | None = None,
-    asmodel: bool = False,
-    config: ParserConfig | None = None,
-    **settings: Any,
-):
+        grammar: str,
+        name: str | None = None,
+        *,
+        semantics: type | None = None,
+        asmodel: bool = False,
+        config: ParserConfig | None = None,
+        **settings: Any,
+    ) -> grammars.Grammar:
     cache = __compiled_grammar_cache
 
     key = (name, grammar, id(semantics))
