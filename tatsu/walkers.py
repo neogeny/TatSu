@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Collection, Mapping
 from contextlib import contextmanager
 from typing import Any
 
@@ -24,7 +24,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
             self,
         )._walker_cache  # pylint: disable=no-member
 
-    def walk(self, node: Node | list[Node], *args, **kwargs) -> Any:
+    def walk(self, node: Node | Collection[Node], *args, **kwargs) -> Any:
         if isinstance(node, list | tuple):
             return [self.walk(n, *args, **kwargs) for n in node]
 
@@ -34,9 +34,13 @@ class NodeWalker(metaclass=NodeWalkerMeta):
                 for name, value in node.items()
             }
 
-        walker = self._find_walker(node)
-        if callable(walker):
-            return walker(self, node, *args, **kwargs)
+        if isinstance(node, Node):
+            anode: Node = node
+            walker = self._find_walker(anode)
+            if callable(walker):
+                return walker(self, node, *args, **kwargs)
+            else:
+                return node
         else:
             return node
 

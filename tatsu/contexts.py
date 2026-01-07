@@ -61,7 +61,8 @@ def tatsumasu(*params, **kwparams):
             name = impl.__name__
             # remove the single leading and trailing underscore
             # that the parser generator added
-            name = name[1:-1]
+            if name.startswith("_") and name.endswith("_"):
+                name = name[1:-1]
             is_leftrec = getattr(impl, 'is_leftrec', False)
             is_memoizable = getattr(impl, 'is_memoizable', True)
             is_name = getattr(impl, 'is_name', False)
@@ -113,7 +114,7 @@ class ParseContext:
         self.config = config
         self._active_config = self.config
 
-        self._tokenizer: Tokenizer | None = None
+        self._tokenizer: Tokenizer = Tokenizer('', config=config)
 
         self._semantics = config.semantics
 

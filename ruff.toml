@@ -45,6 +45,7 @@ lint.ignore = [
     "TRY003",  # raise-vanilla-args
     "TRY300",  # try-consider-else
     "UP031",  # use of % formatting
+    "UP040",  # TypeAlias insteadd of type
 ]
 exclude = [
     "docs",

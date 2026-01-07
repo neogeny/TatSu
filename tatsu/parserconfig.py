@@ -60,7 +60,7 @@ class ParserConfig:
 
     def __post_init__(self):  # pylint: disable=W0235
         if self.ignorecase:
-            self.keywords = [k.upper() for k in self.keywords]
+            self.keywords = {k.upper() for k in self.keywords}
 
         if self.comments_re or self.eol_comments_re:
             raise AttributeError(

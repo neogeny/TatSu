@@ -86,6 +86,7 @@ def test_check_keywords():
         assert ast == ['hello', 'A', 'world']
         pytest.fail('accepted keyword as name')
     except FailedParse as e:
+        print(str(e))
         assert '"A" is a reserved word' in str(e)
 
 
