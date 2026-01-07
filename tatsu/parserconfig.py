@@ -53,7 +53,7 @@ class ParserConfig:
 
     ignorecase: bool = False
     namechars: str = ''
-    nameguard: bool = True  # implied by namechars
+    nameguard: bool | None = None  # implied by namechars
     whitespace: str | None = _undefined_str
 
     parseinfo: bool = False
