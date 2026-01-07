@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import builtins
-from collections.abc import Callable, Iterator, Mapping, MutableMapping
+from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from typing import Any
 
 from .contexts import ParseContext
@@ -37,7 +37,7 @@ class ModelBuilderSemantics:
             self,
             context: ParseContext | None = None,
             base_type: type[Node] = Node,
-            types: Iterator[Callable] | None = None):
+            types: Iterable[Callable] | None = None):
         self.ctx = context
         self.base_type = base_type
 

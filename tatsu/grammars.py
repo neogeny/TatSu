@@ -79,7 +79,7 @@ class Model(Node):
             if isinstance(c, type) and issubclass(c, Model)
         ]
 
-    def __init__(self, ast: AST | Model | None = None, ctx: ParseContext | None = None):
+    def __init__(self, ast: AST | Model | str | None = None, ctx: ParseContext | None = None):
         super().__init__(ast=ast, ctx=ctx)
         self._lookahead: ffset = set()
         self._firstset: ffset = set()

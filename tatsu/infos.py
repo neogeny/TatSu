@@ -5,6 +5,8 @@ from collections.abc import Callable
 from itertools import starmap
 from typing import Any, NamedTuple
 
+from .tokenizing import Tokenizer
+
 
 class UndefinedStr(str):
     pass
@@ -70,7 +72,7 @@ class Alert(NamedTuple):
 
 
 class ParseInfo(NamedTuple):
-    tokenizer: Any
+    tokenizer: Tokenizer
     rule: str
     pos: int
     endpos: int
@@ -78,7 +80,7 @@ class ParseInfo(NamedTuple):
     endline: int
     alerts: list[Alert] = []  # noqa: RUF012
 
-    def text_lines(self):
+    def text_lines(self) -> list[str]:
         return self.tokenizer.get_lines(self.line, self.endline)
 
     def line_index(self):

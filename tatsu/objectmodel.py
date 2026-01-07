@@ -52,17 +52,17 @@ class Node(AsJSONMixin):
             del self.parseinfo
 
     @property
-    def parent(self):
+    def parent(self) -> Node | None:
         return self._parent
 
     @property
-    def line(self):
+    def line(self) -> int | None:
         if self.parseinfo:
             return self.parseinfo.line
         return None
 
     @property
-    def endline(self):
+    def endline(self) -> int | None:
         if self.parseinfo:
             return self.parseinfo.endline
         return None

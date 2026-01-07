@@ -20,9 +20,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
     def __init__(self):
         super().__init__()
         # copy the class attribute to avoid linter warnings
-        self._walker_cache = type(
-            self,
-        )._walker_cache  # pylint: disable=no-member
+        self._walker_cache = type(self)._walker_cache  # pylint: disable=no-member
 
     def walk(self, node: Node | Collection[Node], *args, **kwargs) -> Any:
         if isinstance(node, list | tuple):

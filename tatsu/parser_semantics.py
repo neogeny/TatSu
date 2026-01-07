@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from . import grammars
 from .exceptions import FailedSemantics
@@ -9,23 +10,24 @@ from .util import eval_escapes, flatten, re, warning
 
 
 class EBNFGrammarSemantics(ModelBuilderSemantics):
-    def __init__(self, grammar_name):
+    def __init__(self, grammar_name: str | None):
         super().__init__(
-            base_type=grammars.Model, types=grammars.Model.classes(),
+            base_type=grammars.Model,
+            types=grammars.Model.classes(),
         )
         self.grammar_name = grammar_name
-        self.rules = {}
+        self.rules: dict[str, grammars.Node] = {}
 
-    def token(self, ast, *args):
+    def token(self, ast: str, *args: Any) -> grammars.Token:
         token = ast
         if not token:
             raise FailedSemantics('empty token')
         return grammars.Token(token)
 
-    def pattern(self, ast, *args):
+    def pattern(self, ast: str, *args) -> grammars.Pattern:
         return grammars.Pattern(ast)
 
-    def regexes(self, ast, *args):
+    def regexes(self, ast: Iterable[str], *args) -> Iterable[str]:
         pattern = ''.join(ast)
         try:
             re.compile(pattern)
@@ -33,7 +35,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
             raise FailedSemantics('regexp error: ' + str(e)) from e
         return ast
 
-    def regex(self, ast, *args):
+    def regex(self, ast: str, *args) -> str:
         pattern = ast
         try:
             re.compile(pattern)
