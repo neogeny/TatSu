@@ -1,11 +1,11 @@
-from collections.abc import Mapping
+from collections.abc import MutableMapping
 from typing import Any
 
-__REGISTRY: Mapping[str, Any] = vars()
+__REGISTRY: MutableMapping[str, Any] = vars()
 
 
 class _Synthetic:
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[Any, ...]:
         return (
             synthesize(type(self).__name__, type(self).__bases__),
             (),
@@ -13,7 +13,7 @@ class _Synthetic:
         )
 
 
-def synthesize(name, bases):
+def synthesize(name: str, bases: tuple[type, ...]) -> type:
     typename = f'{__name__}.{name}'
 
     if not isinstance(bases, tuple):

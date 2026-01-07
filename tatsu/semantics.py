@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import builtins
+from collections.abc import Iterator
+from typing import Any, Callable
 
+from .contexts import ParseContext
 from .exceptions import SemanticError
 from .objectmodel import BASE_CLASS_TOKEN, Node
 from .synth import synthesize
@@ -9,16 +12,16 @@ from .util import simplify_list
 
 
 class ASTSemantics:
-    def group(self, ast, *args):
+    def group(self, ast: Any, *args) -> Any:
         return simplify_list(ast)
 
-    def element(self, ast, *args):
+    def element(self, ast: Any, *args) -> Any:
         return simplify_list(ast)
 
-    def sequence(self, ast, *args):
+    def sequence(self, ast: Any, *args) -> Any:
         return simplify_list(ast)
 
-    def choice(self, ast, *args):
+    def choice(self, ast: Any, *args) -> Any:
         if len(ast) == 1:
             return simplify_list(ast[0])
         return ast
@@ -30,7 +33,11 @@ class ModelBuilderSemantics:
     rule, and synthesizes the class/type if it's not known.
     """
 
-    def __init__(self, context=None, base_type=Node, types=None):
+    def __init__(
+            self,
+            context: ParseContext | None = None,
+            base_type: type[Node] = Node,
+            types: Iterator[Callable] | None = None):
         self.ctx = context
         self.base_type = base_type
 
@@ -39,11 +46,11 @@ class ModelBuilderSemantics:
         for t in types or ():
             self._register_constructor(t)
 
-    def _register_constructor(self, constructor):
+    def _register_constructor(self, constructor: Callable):
         self.constructors[constructor.__name__] = constructor
         return constructor
 
-    def _find_existing_constructor(self, typename):
+    def _find_existing_constructor(self, typename: str) -> Callable:
         constructor = builtins
         for name in typename.split('.'):
             try:
