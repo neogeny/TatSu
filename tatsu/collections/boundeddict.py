@@ -1,15 +1,18 @@
-from typing import Any, Generic, TypeVar
+class BoundedDict(dict):
+    """
+    A dictionary that inherits from the base dict class and
+    maintains a maximum size by evicting the oldest items.
+    """
 
-KT = TypeVar("KT")  # Key Type
-VT = TypeVar("VT")  # Value Type
-
-
-class BoundedDict(dict[KT, VT], Generic[KT, VT]):
-    def __init__(self, capacity: int, *args: Any, **kwargs: Any) -> None:
-        self.capacity: int = capacity
+    def __init__(self, capacity: int, *args, **kwargs):
+        if capacity <= 0:
+            raise ValueError("Capacity must be a positive integer.")
+        self.capacity = capacity
+        # Initialize the base dict with any provided arguments
         super().__init__(*args, **kwargs)
+        self._enforce_limit()
 
-    def __setitem__(self, key: KT, value: VT) -> None:
+    def __setitem__(self, key, value):
         # If the key exists, delete it first to update its position
         # to "most recent" (standard LRU/Bounded behavior)
         if key in self:
@@ -18,10 +21,10 @@ class BoundedDict(dict[KT, VT], Generic[KT, VT]):
         super().__setitem__(key, value)
         self._enforce_limit()
 
-    # The base update() doesn't always call __setitem__,
-    # so we override it to ensure limits are respected.
-    def update(self, e: Any = None, /, **f: VT):
-        super().update(e, **f)
+    def update(self, *args, **kwargs):
+        # The base update() doesn't always call __setitem__,
+        # so we override it to ensure limits are respected.
+        super().update(*args, **kwargs)
         self._enforce_limit()
 
     def _enforce_limit(self):
@@ -31,5 +34,5 @@ class BoundedDict(dict[KT, VT], Generic[KT, VT]):
             oldest_key = next(iter(self))
             del self[oldest_key]
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return f"{super().__repr__()}[{self.capacity}]"
