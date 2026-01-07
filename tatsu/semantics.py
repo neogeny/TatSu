@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import builtins
-from collections.abc import Iterator
-from typing import Any, Callable
+from collections.abc import Callable, Iterator, MutableMapping
+from typing import Any
 
 from .contexts import ParseContext
 from .exceptions import SemanticError
@@ -41,7 +41,7 @@ class ModelBuilderSemantics:
         self.ctx = context
         self.base_type = base_type
 
-        self.constructors = {}
+        self.constructors: MutableMapping[str, Callable] = {}
 
         for t in types or ():
             self._register_constructor(t)
@@ -50,20 +50,21 @@ class ModelBuilderSemantics:
         self.constructors[constructor.__name__] = constructor
         return constructor
 
-    def _find_existing_constructor(self, typename: str) -> Callable:
-        constructor = builtins
+    def _find_existing_constructor(self, typename: str) -> Callable | None:
+        context = vars(builtins)
+        constructor = None
+
         for name in typename.split('.'):
-            try:
-                context = vars(constructor)
-            except Exception as e:
-                raise SemanticError(
-                    f'Could not find constructor for {typename} ({type(constructor).__name__}): {e!s}',
-                ) from e
-            if name in context:
-                constructor = context[name]
-            else:
+            if name not in context:
                 constructor = None
                 break
+
+            constructor = context[name]
+            if hasattr(constructor, '__dict__'):
+                context = vars(constructor)
+            else:
+                context = {}
+
         return constructor
 
     def _get_constructor(self, typename, base):
