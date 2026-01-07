@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import builtins
-from collections.abc import Callable, Iterator, MutableMapping
+from collections.abc import Callable, Iterator, Mapping, MutableMapping
 from typing import Any
 
 from .contexts import ParseContext
 from .exceptions import SemanticError
 from .objectmodel import BASE_CLASS_TOKEN, Node
-from .synth import synthesize
+from .synth import registered_symthetics, synthesize
 from .util import simplify_list
 
 
@@ -51,13 +51,14 @@ class ModelBuilderSemantics:
         return constructor
 
     def _find_existing_constructor(self, typename: str) -> Callable | None:
-        context = vars(builtins)
-        constructor = None
+        context: Mapping[Any, Any] = vars(builtins) | registered_symthetics()
+        constructor = context.get(typename)
+        if constructor is not None:
+            return constructor
 
         for name in typename.split('.'):
             if name not in context:
-                constructor = None
-                break
+                return None
 
             constructor = context[name]
             if hasattr(constructor, '__dict__'):
