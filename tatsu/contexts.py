@@ -7,10 +7,9 @@ import sys
 from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager, suppress
 from copy import copy
-from typing import Any, NoReturn, ParamSpec, Protocol, TypeVar
+from typing import Any, NoReturn, ParamSpec, Protocol, TypeVar, cast
 
 from tatsu.collections import BoundedDict
-
 from . import buffering, color, tokenizing
 from .ast import AST
 from .exceptions import (
@@ -100,7 +99,7 @@ class RuleLike(Protocol):
 
 # This is used to mark left recursive rules
 def leftrec(impl: Callable) -> Callable:
-    over: RuleLike = impl  # type: ignore
+    over: RuleLike = cast(RuleLike, impl)
     over.is_leftrec = True
     over.is_memoizable = False
     return impl
@@ -109,14 +108,14 @@ def leftrec(impl: Callable) -> Callable:
 # Marks rules for which memoization has to be turned off
 # (has no effect when left recursion is turned off)
 def nomemo(impl: Callable) -> Callable:
-    over: RuleLike = impl  # type: ignore
+    over: RuleLike = cast(RuleLike, impl)
     over.is_memoizable = False
     return impl
 
 
 # Marks rules marked as @name in the grammar
 def isname(impl: Callable) -> Callable:
-    over: RuleLike = impl  # type: ignore
+    over: RuleLike = cast(RuleLike, impl)
     over.is_name = True
 
     return impl
