@@ -471,7 +471,7 @@ class Sequence(Model):
 
 
 class Choice(Model):
-    def __init__(self, ast: AST | None = None, **kwargs):
+    def __init__(self, ast: AST | list[Model] | None = None, **kwargs):
         self.options: list[Model] = []
         super().__init__(ast=AST(options=ast))
         assert isinstance(self.options, list), repr(self.options)
