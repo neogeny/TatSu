@@ -89,6 +89,8 @@ exclude = [
     "/examples/markdown",
     "req*.txt",
 ]
+[tool.hatch.envs.default]
+env-vars = {CFLAGS = "-I/opt/homebrew/include", LDFLAGS = "-L/opt/homebrew/lib"}
 
 [tool.hatch.build.targets.sdist.force-include]
 "./tatsu" = "tatsu"
