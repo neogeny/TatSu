@@ -39,7 +39,7 @@ class Buffer(Tokenizer):
         self.config = config
 
         text = str(text)
-        self.text = self.original_text = text
+        self._text = self.original_text = text
 
         self.whitespace_re = self.build_whitespace_re(config.whitespace)
         self.nameguard = (
@@ -59,6 +59,10 @@ class Buffer(Tokenizer):
 
         self._preprocess()
         self._postprocess()
+
+    @property
+    def text(self) -> str:
+        return self._text
 
     @property
     def filename(self) -> str:
@@ -89,7 +93,7 @@ class Buffer(Tokenizer):
         lines, index = self._preprocess_block(self.filename, self.text)
         self._lines = lines
         self._line_index = index
-        self.text = self.join_block_lines(lines)
+        self._text = self.join_block_lines(lines)
 
     def _postprocess(self):
         cache, count = PosLine.build_line_cache(self._lines)
@@ -155,7 +159,7 @@ class Buffer(Tokenizer):
 
         endline = self.include(lines, index, i, j, name, block)
 
-        self.text = self.join_block_lines(lines)
+        self._text = self.join_block_lines(lines)
         self._line_index = index
         self._postprocess()
 
@@ -222,7 +226,7 @@ class Buffer(Tokenizer):
     def move(self, n: int):
         self.goto(self.pos + n)
 
-    def comments(self, p, clear: bool = False) -> CommentInfo:
+    def comments(self, p: int, clear: bool = False) -> CommentInfo:
         if not self.config.comment_recovery or not self._comment_index:
             return CommentInfo([], [])
 
@@ -257,7 +261,7 @@ class Buffer(Tokenizer):
             ):  # FIXME: will discard repeated comments
                 previous.extend(comments)
 
-    def _eat_regex(self, regex: str | re.Pattern):
+    def _eat_regex(self, regex: str | re.Pattern) -> None:
         if not regex:
             return
         while self._matchre_fast(regex):
@@ -268,6 +272,8 @@ class Buffer(Tokenizer):
             return []
 
         r = cached_re_compile(regex)
+        if r is None:
+            return []
 
         def takewhile_repeat_regex():
             while x := self.matchre(r):
@@ -275,8 +281,9 @@ class Buffer(Tokenizer):
 
         return list(takewhile_repeat_regex())
 
-    def eat_whitespace(self):
-        return self._eat_regex(self.whitespace_re)
+    def eat_whitespace(self) -> str | None:
+        if self.whitespace_re:
+            self._eat_regex(self.whitespace_re)
 
     def eat_comments(self):
         comments = self._eat_regex_list(self.config.comments)
@@ -355,7 +362,7 @@ class Buffer(Tokenizer):
 
         self.move(len(match.group()))
 
-    def matchre(self, pattern: str) -> str | None:
+    def matchre(self, pattern: str | re.Pattern) -> str | None:
         if not (match := self._scanre(pattern)):
             return None
 

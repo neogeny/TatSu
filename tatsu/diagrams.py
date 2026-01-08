@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import itertools
 
-import pygraphviz as pgv  # pylint: disable=E0401
+import pygraphviz as pgv  # type: ignore
 
 from .walkers import NodeWalker
 

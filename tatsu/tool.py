@@ -84,12 +84,12 @@ def parse_args():
 
     generation_opts = argparser.add_argument_group('generation options')
     generation_opts.add_argument(
-        '--no-left-recursion',
+        '--left-recursion',
         '-l',
         help='turns left-recursion support off',
         dest='left_recursion',
         action='store_false',
-        default=True,
+        default=None,
     )
     generation_opts.add_argument(
         '--name',
@@ -98,7 +98,7 @@ def parse_args():
         help='Name for the grammar (defaults to GRAMMAR base name)',
     )
     generation_opts.add_argument(
-        '--no-nameguard',
+        '--nameguard',
         '-n',
         help='allow tokens that are prefixes of others',
         dest='nameguard',
@@ -313,10 +313,11 @@ def main():
             trace=args.trace,
             filename=args.filename,
             colorize=args.color,
+            left_recursion=args.left_recursion,
+            nameguard=args.nameguard,
+            whitespace=args.whitespace,
+
         )
-        model.whitespace = args.whitespace
-        model.nameguard = args.nameguard
-        model.left_recursion = args.left_recursion
 
         if args.draw:
             from tatsu import diagrams

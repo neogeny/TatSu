@@ -20,8 +20,8 @@ class BoundedDict(dict[KT, VT], Generic[KT, VT]):
 
     # The base update() doesn't always call __setitem__,
     # so we override it to ensure limits are respected.
-    def update(self, e: Any = None, /, **f: VT):
-        super().update(e, **f)
+    def update(self, other, /, **kwargs):  # type: ignore
+        super().update(other, **kwargs)
         self._enforce_limit()
 
     def _enforce_limit(self):

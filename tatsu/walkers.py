@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from collections.abc import Collection, Mapping
 from contextlib import contextmanager
-from typing import Any
+from typing import Any, cast
 
 from .objectmodel import Node
 from .util import is_list
@@ -20,16 +20,18 @@ class NodeWalker(metaclass=NodeWalkerMeta):
     def __init__(self):
         super().__init__()
         # copy the class attribute to avoid linter warnings
-        self._walker_cache = type(self)._walker_cache  # pylint: disable=no-member
+        self._walker_cache = self._walker_cache  # pylint: disable=no-member
 
     def walk(self, node: Node | Collection[Node], *args, **kwargs) -> Any:
         if isinstance(node, list | tuple):
-            return [self.walk(n, *args, **kwargs) for n in node]
+            actual = cast(tuple[Node] | list[Node], node)
+            return [self.walk(n, *args, **kwargs) for n in actual]
 
         if isinstance(node, Mapping):
+            actual = cast(Mapping[str, Any], node)
             return {
                 name: self.walk(value, *args, **kwargs)
-                for name, value in node.items()
+                for name, value in actual.items()
             }
 
         if isinstance(node, Node):

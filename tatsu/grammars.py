@@ -79,7 +79,7 @@ class Model(Node):
             if isinstance(c, type) and issubclass(c, Model)
         ]
 
-    def __init__(self, ast: AST | Model | str | None = None, ctx: ParseContext | None = None):
+    def __init__(self, ast: AST | Node | str | None = None, ctx: ParseContext | None = None):
         super().__init__(ast=ast, ctx=ctx)
         self._lookahead: ffset = set()
         self._firstset: ffset = set()
@@ -321,8 +321,9 @@ class Constant(Model):
 class Alert(Constant):
     def __post_init__(self):
         super().__post_init__()
-        self.literal = self.ast.message.literal
-        self.level = len(self.ast.level)
+        if isinstance(self.ast, AST):
+            self.literal = self.ast.message.literal
+            self.level = len(self.ast.level)
 
     def _parse(self, ctx):
         return super()._parse(ctx)
@@ -342,7 +343,7 @@ class Pattern(Model):
 
     @property
     def pattern(self):
-        return ''.join(self.patterns)
+        return ''.join(list(self.patterns))
 
     def _parse(self, ctx):
         return ctx._pattern(self.pattern)
@@ -777,7 +778,7 @@ class Special(Model):
 class RuleRef(Model):
     def __post_init__(self):
         super().__post_init__()
-        self.name = self.ast
+        self.name: str = self.ast or 'unnamed'
 
     def _parse(self, ctx):
         try:

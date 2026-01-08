@@ -47,7 +47,7 @@ class ModelRenderer(Renderer):
 
     def __getattr__(self, name):
         try:
-            super().__getattr__(name)
+            super().__getattribute__(name)
         except AttributeError:
             if name.startswith('_'):
                 raise

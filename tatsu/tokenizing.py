@@ -10,6 +10,10 @@ class Tokenizer(Protocol):
         ...
 
     @property
+    def text(self) -> str:
+        ...
+
+    @property
     def filename(self) -> str:
         ...
 
@@ -75,6 +79,10 @@ class Tokenizer(Protocol):
 class NullTokenizer(Tokenizer):
     def __init__(self, *ags: Any, **kwargs: Any):
         pass
+
+    @property
+    def text(self) -> str:
+        return ''
 
     @property
     def filename(self) -> str:

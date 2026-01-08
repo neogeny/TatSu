@@ -23,7 +23,7 @@ calc_test:
 	cd examples/calc; uv run make -s clean test > /dev/null
 
 
-lint: ruff mypy
+lint: ruff ty
 
 
 ruff:
@@ -32,6 +32,10 @@ ruff:
 
 mypy:
 	uv run mypy --install-types --exclude dist .
+
+
+ty:
+	uv run ty check tatsu
 
 
 clean:

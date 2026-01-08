@@ -92,7 +92,7 @@ def tatsumasu(*params: Any, **kwparams: Any) -> Callable[[Callable[..., Any]], C
     def decorator(impl: Callable[..., Any]) -> Callable[[ParseContext], Any]:
         @functools.wraps(impl)
         def wrapper(self: ParseContext) -> Any:
-            name = impl.__name__
+            name = impl.__name__  # type: ignore
             # remove the single leading and trailing underscore
             # that the parser generator added
             if name.startswith("_") and name.endswith("_"):
@@ -734,7 +734,6 @@ class ParseContext:
             raise
         finally:
             self._pop_ast()
-        return None
 
     def _get_node(self, pos: int, ruleinfo: RuleInfo) -> Any:
         node: Any = self.ast

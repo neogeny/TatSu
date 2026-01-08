@@ -16,7 +16,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
             types=grammars.Model.classes(),
         )
         self.grammar_name = grammar_name
-        self.rules: dict[str, grammars.Node] = {}
+        self.rules: dict[str, grammars.Rule] = {}
 
     def token(self, ast: str, *args: Any) -> grammars.Token:
         token = ast
@@ -99,7 +99,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         exp = ast.exp
         base = ast.base
         params = ast.params
-        kwparams = dict(ast.kwparams) if ast.kwparams else None
+        kwparams = dict(ast.kwparams) if ast.kwparams else {}
 
         if 'override' not in decorators and name in self.rules:
             self.new_name(name)

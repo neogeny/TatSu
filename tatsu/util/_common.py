@@ -37,11 +37,14 @@ ESCAPE_SEQUENCE_RE = re.compile(
 )
 
 
-def program_name():
+def program_name() -> str:
     import __main__ as main
     if package := main.__package__:
         return package
-    return Path(main.__file__).name
+    elif isinstance(main.__file__, str):
+        return Path(main.__file__).name
+    else:
+        return 'unknown'
 
 
 def is_posix():
@@ -215,7 +218,7 @@ def notnone(value, default=None):
 
 def timestamp():
     return '.'.join(
-        '%2.2d' % t for t in datetime.datetime.utcnow().utctimetuple()[:-2]
+        '%2.2d' % t for t in datetime.datetime.now(datetime.UTC).utctimetuple()[:-2]
     )
 
 
@@ -374,10 +377,11 @@ def try_read(filename):
             return Path(filename).read_text(encoding=e)
         except UnicodeError:
             pass
-    raise UnicodeDecodeError(f"cannot find the encoding for '{filename}'")
+    raise ValueError(f"cannot find the encoding for '{filename}'")
 
 
 def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
+    ignore = ignore or ()
     base = Path(base or '.').expanduser()
 
     filenames = set()
@@ -403,7 +407,7 @@ def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
             return True
 
         return any(
-            any(Path(part).match(ex) for ex in ignore) for part in path.parts
+            any(Path(part).match(ex) for ex in ignore or ()) for part in path.parts
         )
 
     if ignore:

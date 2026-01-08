@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import weakref
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 from tatsu.util import AsJSONMixin, asjson, asjsons
 
@@ -18,11 +18,11 @@ BASE_CLASS_TOKEN = '::'  # noqa: S105
 class Node(AsJSONMixin):
     _parent: Node | None = None
     _children: list[Node] | None = None
-    ast: AST | None = None
+    ast: AST | Node | str | None = None
     ctx: Any = None
     parseinfo: ParseInfo | None = None
 
-    def __init__(self, ast=None, **attributes):
+    def __init__(self, ast: AST | Node | str | None = None, **attributes: Any):
         super().__init__()
         if isinstance(ast, dict):
             ast = AST(ast)
@@ -74,7 +74,9 @@ class Node(AsJSONMixin):
         return None
 
     def line_index(self):
-        return self.parseinfo.line_index()
+        if self.parseinfo:
+            return self.parseinfo.line_index()
+        return None
 
     @property
     def col(self):
@@ -94,13 +96,16 @@ class Node(AsJSONMixin):
     def text(self):
         if not self.parseinfo:
             return ''
-        text = self.parseinfo.tokenizer.text
+        if not hasattr(self.parseinfo.tokenizer, 'text'):
+            return ''
+        text: str = self.parseinfo.tokenizer.text
         return text[self.parseinfo.pos: self.parseinfo.endpos]
 
     @property
     def comments(self):
-        if self.parseinfo:
-            return self.parseinfo.tokenizer.comments(self.parseinfo.pos)
+        if self.parseinfo and hasattr(self.parseinfo.tokenizer, 'comments'):
+            comments = cast(Callable, self.parseinfo.tokenizer.comments)
+            return comments(self.parseinfo.pos)
         return CommentInfo([], [])
 
     @property

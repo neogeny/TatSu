@@ -47,13 +47,13 @@ dev = [
     "psutil",
     "pytest",
     "pytest-cov",
-    "pytest-mypy",
     "pytest-xdist",
     "rich",
     "rst2html5",
     "ruff",
     "sphinx",
     "sphinx-rtd-theme",
+    "ty",
     "types-decorator",
 ]
 
@@ -157,12 +157,12 @@ parallel = false
 ignore_errors = true
 
 [tool.hatch.envs.test]
-dependencies = ["pytest", "mypy", "ruff"]
+dependencies = ["pytest", "ty", "ruff"]
 
 [tool.hatch.envs.test.scripts]
 version = "echo `python --version`"
 lint = "ruff check -q --preview tatsu test examples"
-types = "mypy --install-types --exclude 'parsers|docs|tmp|build|dist' ."
+types = "ty check"
 tests = "pytest"
 
 checks = [

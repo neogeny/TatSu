@@ -46,8 +46,9 @@ class ModelBuilderSemantics:
         for t in types or ():
             self._register_constructor(t)
 
-    def _register_constructor(self, constructor: Callable):
-        self.constructors[constructor.__name__] = constructor
+    def _register_constructor(self, constructor: Callable) -> Callable:
+        if hasattr(constructor, '__name__') and isinstance(constructor.__name__, str):
+            self.constructors[str(constructor.__name__)] = constructor
         return constructor
 
     def _find_existing_constructor(self, typename: str) -> Callable | None:

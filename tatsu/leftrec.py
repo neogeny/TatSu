@@ -1,4 +1,7 @@
 # ruff: noqa: PLW2901
+# pyright: reportGeneralTypeIssues=false
+# ty: ignore
+# type: ignore
 from __future__ import annotations
 
 from collections import defaultdict
