@@ -162,7 +162,7 @@ dependencies = ["pytest", "ty", "ruff"]
 [tool.hatch.envs.test.scripts]
 version = "echo `python --version`"
 lint = "ruff check -q --preview tatsu test examples"
-types = "ty check"
+types = "ty check tatsu"
 tests = "pytest"
 
 checks = [
