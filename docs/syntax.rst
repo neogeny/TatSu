@@ -396,7 +396,8 @@ level::
 
   assignment = identifier '=' (
       | value
-      | ->'&; ^^^`could not parse value in assignment to {identifier}`
+      | -> &';' ^^^`could not parse value in assignment to {identifier}`
+  )
 
 
 ``rulename``
