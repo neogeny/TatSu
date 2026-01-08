@@ -186,7 +186,7 @@ class ParameterTests(unittest.TestCase):
         pathlib.Path(py_file_path).write_text(code)
         try:
             sys.path.append(str(temp_dir))
-            import tc36unicharstest  # pylint: disable=E0401
+            import tc36unicharstest  # type: ignore
 
             assert tc36unicharstest
             _trydelete(temp_dir, module_name)

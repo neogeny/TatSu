@@ -27,7 +27,7 @@ class SemanticsTests(unittest.TestCase):
         import functools
 
         dotted = functools.partial(str.join, '.')
-        dotted.__name__ = 'dotted'
+        dotted.__name__ = 'dotted'  # type: ignore
 
         grammar = r"""
             start::dotted = {number}+ $ ;

@@ -12,9 +12,9 @@ from .semantics import ASTSemantics
 class EBNFBuffer(Buffer):
     def __init__(
         self,
-        text,
+        text: str,
         /,
-        filename=None,
+        filename: str | None = None,
         config: ParserConfig | None = None,
         **settings: Any,
     ):

@@ -77,10 +77,10 @@ def test_error_messages():
         model.parse(input)
     except FailedParse as e:
         e1 = str(e)
-    assert (
-        "expecting one of: 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o'"
-        in e1
-    )
+        assert (
+            "expecting one of: 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o'"
+            in e1
+        )
 
 
 # @pytest.mark.skip('work in progress')

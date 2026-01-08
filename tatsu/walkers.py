@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from collections.abc import Collection, Mapping
 from contextlib import contextmanager
-from typing import Any, cast
+from typing import Any, ClassVar, cast
 
 from .objectmodel import Node
 from .util import is_list
@@ -12,15 +12,19 @@ from .util import is_list
 class NodeWalkerMeta(type):
     def __new__(mcs, name, bases, dct):
         class_ = super().__new__(mcs, name, bases, dct)
-        class_._walker_cache = {}
+        class_._walker_cache: dict[str, Any] = {}
         return class_
 
 
 class NodeWalker(metaclass=NodeWalkerMeta):
+    _walker_cache: ClassVar[dict[str, Any]] = {}
+
     def __init__(self):
         super().__init__()
-        # copy the class attribute to avoid linter warnings
-        self._walker_cache = self._walker_cache  # pylint: disable=no-member
+
+    @property
+    def walker_cache(self):
+        return self._walker_cache
 
     def walk(self, node: Node | Collection[Node], *args, **kwargs) -> Any:
         if isinstance(node, list | tuple):

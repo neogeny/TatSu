@@ -11,10 +11,11 @@ import os.path
 import re
 import sys
 import warnings
-from collections.abc import Iterable, MutableSequence
+from collections.abc import Iterable
 from io import StringIO
 from itertools import zip_longest
 from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger('tatsu')
 logger.setLevel(logging.DEBUG)
@@ -24,7 +25,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-ESCAPE_SEQUENCE_RE = re.compile(
+ESCAPE_SEQUENCE_RE: re.Pattern = re.compile(
     r"""
     ( \\U........      # 8-digit Unicode escapes
     | \\u....          # 4-digit Unicode escapes
@@ -47,11 +48,11 @@ def program_name() -> str:
         return 'unknown'
 
 
-def is_posix():
+def is_posix() -> bool:
     return os.name == 'posix'
 
 
-def _prints(*args, **kwargs):
+def _prints(*args, **kwargs: Any) -> str:
     with StringIO() as f:
         kwargs['file'] = f
         kwargs['end'] = ''
@@ -59,33 +60,33 @@ def _prints(*args, **kwargs):
         return f.getvalue()
 
 
-def info(*args, **kwargs):
+def info(*args: Any, **kwargs: Any) -> None:
     logger.info(_prints(*args, **kwargs))
 
 
-def debug(*args, **kwargs):
+def debug(*args: Any, **kwargs: Any) -> None:
     logger.debug(_prints(*args, **kwargs))
 
 
-def warning(*args, **kwargs):
+def warning(*args: Any, **kwargs: Any) -> None:
     logger.warning(_prints(*args, **kwargs))
 
 
-def error(*args, **kwargs):
+def error(*args: Any, **kwargs: Any) -> None:
     logger.error(_prints(*args, **kwargs))
 
 
-def identity(*args):
+def identity(*args: Any) -> Any:
     if len(args) == 1:
         return args[0]
     return args
 
 
-def is_list(o):
+def is_list(o) -> bool:
     return type(o) is list
 
 
-def to_list(o):
+def to_list(o: Any) -> list[Any]:
     if o is None:
         return []
     elif isinstance(o, list):
@@ -104,13 +105,13 @@ def is_namedtuple(obj) -> bool:
     )
 
 
-def simplify_list(x):
+def simplify_list(x) -> list[Any] | Any:
     if isinstance(x, list) and len(x) == 1:
         return simplify_list(x[0])
     return x
 
 
-def extend_list(x, n, default=None):
+def extend_list(x: list[Any], n: int, default=None) -> None:
     def _null():
         pass
 
@@ -120,25 +121,28 @@ def extend_list(x, n, default=None):
     x.extend(default() for _ in range(missing))
 
 
-def contains_sublist(lst, sublst):
+def contains_sublist(lst: list[Any], sublst: list[Any]) -> bool:
     n = len(sublst)
     return any(sublst == lst[i: i + n] for i in range(1 + len(lst) - n))
 
 
-def join_lists(lists):
+def join_lists(lists: Iterable[list[Any]]) -> list[Any]:
     return functools.reduce(operator.iadd, lists, [])
 
 
-def flatten(o):
-    if not isinstance(o, MutableSequence):
-        yield o
-        return
+def flatten(o: Iterable[Any] | Any) -> list[Any]:
+    def iterate(x: Any) -> Iterable[Any]:
+        if not isinstance(o, list | tuple):
+            yield x
+            return
 
-    for item in o:
-        yield from flatten(item)
+        for item in x:
+            yield from flatten(item)
+
+    return list(iterate(o))
 
 
-def compress_seq(seq):
+def compress_seq(seq: Iterable[Any]) -> list[Any]:
     seen = set()
     result = []
     for x in seq:
@@ -148,7 +152,7 @@ def compress_seq(seq):
     return result
 
 
-def eval_escapes(s):
+def eval_escapes(s: str | bytes) -> str | bytes:
     """
     Given a string, evaluate escape sequences starting with backslashes as
     they would be evaluated in Python source code. For a list of these

@@ -35,7 +35,7 @@ mypy:
 
 
 ty:
-	uv run ty check tatsu
+	uv run ty check tatsu test
 
 
 clean:

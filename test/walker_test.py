@@ -56,13 +56,13 @@ def test_cache_per_class():
     assert isinstance(PW._walker_cache, dict)
 
     assert id(NodeWalker._walker_cache) != id(
-        DepthFirstWalker._walker_cache,
+        DepthFirstWalker.walker_cache,
     )
     assert id(PW._walker_cache) != id(
         DepthFirstWalker._walker_cache,
     )
 
     walker = PW()
-    assert id(walker._walker_cache) == id(
+    assert id(walker.walker_cache) == id(
         PW._walker_cache,
     )

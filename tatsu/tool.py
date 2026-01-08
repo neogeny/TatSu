@@ -11,6 +11,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from tatsu.tokenizing import Tokenizer
+
 from . import grammars
 from ._version import __version__
 from .exceptions import ParseException
@@ -167,7 +169,7 @@ __compiled_grammar_cache = {}  # type: ignore[var-annotated]
 
 
 def compile(
-        grammar: str,
+        grammar: str | Tokenizer,
         name: str | None = None,
         *,
         semantics: type | None = None,
