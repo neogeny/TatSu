@@ -281,11 +281,11 @@ class Buffer(Tokenizer):
 
         return list(takewhile_repeat_regex())
 
-    def eat_whitespace(self) -> str | None:
+    def eat_whitespace(self) -> None:
         if self.whitespace_re:
             self._eat_regex(self.whitespace_re)
 
-    def eat_comments(self):
+    def eat_comments(self) -> None:
         comments = self._eat_regex_list(self.config.comments)
         self._index_comments(comments, lambda x: x.inline)
 

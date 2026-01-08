@@ -23,7 +23,7 @@ calc_test:
 	cd examples/calc; uv run make -s clean test > /dev/null
 
 
-lint: ruff ty
+lint: ruff ty mypy
 
 
 ruff:
@@ -31,11 +31,11 @@ ruff:
 
 
 mypy:
-	uv run mypy --install-types --exclude dist .
+	uv run mypy --install-types --exclude dist --exclude parsers .
 
 
 ty:
-	uv run ty check --exclude parsers
+	uv run ty check -q --exclude parsers
 
 
 clean:

@@ -12,7 +12,7 @@ from .ast import AST
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import RuleInfo
-from .leftrec import Nullable, find_left_recursion
+from .leftrec import Nullable, find_left_recursion  # type: ignore
 from .objectmodel import Node
 from .parserconfig import ParserConfig
 from .util import chunks, compress_seq, indent, re, trim
@@ -776,9 +776,9 @@ class Special(Model):
 
 
 class RuleRef(Model):
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         super().__post_init__()
-        self.name: str = self.ast or 'unnamed'
+        self.name: str = self.ast or 'unnamed'  # type: ignore
 
     def _parse(self, ctx):
         try:

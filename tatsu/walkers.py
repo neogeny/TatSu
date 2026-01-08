@@ -10,9 +10,9 @@ from .util import is_list
 
 
 class NodeWalkerMeta(type):
-    def __new__(mcs, name, bases, dct):
+    def __new__(mcs, name, bases, dct):  # type: ignore
         class_ = super().__new__(mcs, name, bases, dct)
-        class_._walker_cache: dict[str, Any] = {}
+        class_._walker_cache: dict[str, Any] = {}  # type: ignore
         return class_
 
 
@@ -28,14 +28,14 @@ class NodeWalker(metaclass=NodeWalkerMeta):
 
     def walk(self, node: Node | Collection[Node], *args, **kwargs) -> Any:
         if isinstance(node, list | tuple):
-            actual = cast(tuple[Node] | list[Node], node)
-            return [self.walk(n, *args, **kwargs) for n in actual]
+            actual1 = cast(tuple[Node] | list[Node], node)
+            return [self.walk(n, *args, **kwargs) for n in actual1]
 
         if isinstance(node, Mapping):
-            actual = cast(Mapping[str, Any], node)
+            actual2 = cast(Mapping[str, Any], node)
             return {
                 name: self.walk(value, *args, **kwargs)
-                for name, value in actual.items()
+                for name, value in actual2.items()
             }
 
         if isinstance(node, Node):

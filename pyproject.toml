@@ -171,12 +171,14 @@ dependencies = [
 version = "echo `python --version`"
 lint = "ruff check -q --preview tatsu test examples"
 types = "ty check tatsu"
+more_types = "mypy --install-types --exclude dist --exclude parsers ."
 tests = "pytest"
 
 checks = [
     "version",
     "lint",
     "types",
+    "more_types",
     "tests"
 ]
 
