@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import dataclasses
 from collections.abc import Callable
-from itertools import starmap
-from typing import Any, NamedTuple
+from typing import NamedTuple
 
 from .tokenizing import Tokenizer
 
@@ -13,57 +11,6 @@ class UndefinedStr(str):
 
 
 _undefined_str = UndefinedStr('>>undefined<<')
-
-
-class PosLine(NamedTuple):
-    start: int
-    line: int
-    length: int
-
-    @staticmethod
-    def build_line_cache(lines):
-        cache = []
-        n = 0
-        i = 0
-        for n, line in enumerate(lines):
-            pl = PosLine(i, n, len(line))
-            for _ in line:
-                cache.append(pl)  # noqa: PERF401
-            i += len(line)
-        n += 1
-        if lines and lines[-1] and lines[-1][-1] in '\r\n':
-            n += 1
-        cache.append(PosLine(i, n, 0))
-        return cache, n
-
-
-class LineIndexInfo(NamedTuple):
-    filename: str
-    line: int
-
-    @staticmethod
-    def block_index(name, n):
-        return list(
-            starmap(LineIndexInfo, zip(n * [name], range(n), strict=False)),
-        )
-
-
-class LineInfo(NamedTuple):
-    filename: str
-    line: int
-    col: int
-    start: int
-    end: int
-    text: str
-
-
-class CommentInfo(NamedTuple):
-    inline: list
-    eol: list
-
-    @staticmethod
-    def new_comment():
-        return CommentInfo([], [])
 
 
 class Alert(NamedTuple):
@@ -91,12 +38,6 @@ class ParseInfo(NamedTuple):
         return self.tokenizer
 
 
-class MemoKey(NamedTuple):
-    pos: int
-    rule: RuleInfo
-    state: Any
-
-
 class RuleInfo(NamedTuple):
     name: str
     impl: Callable
@@ -116,17 +57,3 @@ class RuleInfo(NamedTuple):
 
     def __ne__(self, other):
         return not self.__eq__(other)
-
-
-class RuleResult(NamedTuple):
-    node: Any
-    newpos: int
-    newstate: Any
-
-
-@dataclasses.dataclass(slots=True)
-class ParseState:
-    pos: int = 0
-    ast: Any = dataclasses.field(default_factory=dict)
-    cst: Any = None
-    alerts: list[Alert] = dataclasses.field(default_factory=list)

@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .infos import _undefined_str
-from .tokenizing import Tokenizer
+from .tokenizing import NullTokenizer, Tokenizer
 from .util.misc import cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
@@ -28,7 +28,7 @@ class ParserConfig:
     comments_re: re.Pattern | str | None = None  # WARNING: deprecated
     eol_comments_re: re.Pattern | str | None = None  # WARNING: deprecated
 
-    tokenizercls: type[Tokenizer] | None = None  # FIXME
+    tokenizercls: type[Tokenizer] = NullTokenizer
     semantics: type | None = None
 
     comment_recovery: bool = False
@@ -54,7 +54,7 @@ class ParserConfig:
     ignorecase: bool = False
     namechars: str = ''
     nameguard: bool | None = None  # implied by namechars
-    whitespace: str | None = _undefined_str
+    whitespace: str | None = _undefined_str  # type: ignore
 
     parseinfo: bool = False
 
@@ -110,8 +110,8 @@ class ParserConfig:
         }
 
     def replace_config(
-        self, other: ParserConfig | None = None,
-    ) -> ParserConfig:
+            self, other: ParserConfig | None = None,
+        ) -> ParserConfig:
         if other is None:
             return self
         elif not isinstance(other, ParserConfig):

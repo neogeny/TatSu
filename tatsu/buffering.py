@@ -14,14 +14,10 @@ from typing import Any
 
 from .exceptions import ParseError
 from .infos import (
-    CommentInfo,
-    LineIndexInfo,
-    LineInfo,
-    PosLine,
     UndefinedStr,
 )
 from .parserconfig import ParserConfig
-from .tokenizing import Tokenizer
+from .tokenizing import CommentInfo, LineIndexInfo, LineInfo, PosLine, Tokenizer
 from .util import (
     contains_sublist,
     extend_list,
@@ -37,9 +33,8 @@ LineIndexEntry = LineIndexInfo
 class Buffer(Tokenizer):
 
     def __init__(
-        self, text: str, /, config: ParserConfig | None = None, **settings: Any,
+        self, text: str, *, config: ParserConfig | None = None, **settings: Any,
     ):
-        super().__init__()
         config = ParserConfig.new(config=config, **settings)
         self.config = config
 
@@ -291,7 +286,7 @@ class Buffer(Tokenizer):
         comments = self._eat_regex_list(self.config.eol_comments)
         self._index_comments(comments, lambda x: x.eol)
 
-    def next_token(self):
+    def next_token(self) -> None:
         p = None
         while self._pos != p:
             p = self._pos

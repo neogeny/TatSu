@@ -8,7 +8,8 @@ from typing import Any
 from tatsu.util import AsJSONMixin, asjson, asjsons
 
 from .ast import AST
-from .infos import CommentInfo, ParseInfo
+from .infos import ParseInfo
+from .tokenizing import CommentInfo
 
 BASE_CLASS_TOKEN = '::'  # noqa: S105
 

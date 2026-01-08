@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import ast as stdlib_ast
+import dataclasses
 import functools
 import re
 import sys
 from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager, suppress
 from copy import copy
-from typing import Any, NoReturn, ParamSpec, Protocol, TypeVar, cast
+from typing import Any, NamedTuple, NoReturn, ParamSpec, Protocol, TypeVar, cast
 
 from . import buffering, color, tokenizing
 from .ast import AST
+from .buffering import Buffer
 from .collections import BoundedDict
 from .exceptions import (
     FailedExpectingEndOfText,
@@ -27,14 +29,11 @@ from .exceptions import (
 )
 from .infos import (
     Alert,
-    MemoKey,
     ParseInfo,
-    ParseState,
     RuleInfo,
-    RuleResult,
 )
 from .parserconfig import ParserConfig
-from .tokenizing import Tokenizer
+from .tokenizing import NullTokenizer, Tokenizer
 from .util import (
     info,
     is_list,
@@ -57,6 +56,35 @@ __all__ = ['ParseContext', 'tatsumasu', 'leftrec', 'nomemo']
 P = ParamSpec("P")
 R = TypeVar("R")
 T = TypeVar("T", bound=Callable[..., Any])
+
+
+class MemoKey(NamedTuple):
+    pos: int
+    rule: RuleInfo
+    state: Any
+
+
+@dataclasses.dataclass(slots=True)
+class ParseState:
+    pos: int = 0
+    ast: Any = dataclasses.field(default_factory=dict)
+    cst: Any = None
+    alerts: list[Alert] = dataclasses.field(default_factory=list)
+
+
+class RuleResult(NamedTuple):
+    node: Any
+    newpos: int
+    newstate: Any
+
+
+class RuleLike(Protocol):
+    is_leftrec: bool = False
+    is_memoizable: bool = False
+    is_name: bool = False
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        pass
 
 
 # decorator for rule implementation methods
@@ -86,15 +114,6 @@ def tatsumasu(*params: Any, **kwparams: Any) -> Callable[[Callable[..., Any]], C
         return wrapper
 
     return decorator
-
-
-class RuleLike(Protocol):
-    is_leftrec: bool = False
-    is_memoizable: bool = False
-    is_name: bool = False
-
-    def call(self, *args: Any, **kwargs: Any) -> Any:
-        pass
 
 
 # This is used to mark left recursive rules
@@ -129,14 +148,15 @@ class closure(list[Any]):
 class ParseContext:
     def __init__(self, /, config: ParserConfig | None = None, **settings: Any) -> None:
         super().__init__()
+
         config = ParserConfig.new(config, **settings)
+        if config.tokenizercls is None:
+            config = config.replace(tokenizercls=Buffer)
         self.config: ParserConfig = config
         self._active_config: ParserConfig = self.config
 
-        self._tokenizer: Tokenizer = Tokenizer('', config=config)
-
-        self._semantics: Any = config.semantics
-
+        self._tokenizer: Tokenizer = NullTokenizer()
+        self._semantics: type | None = config.semantics
         self._initialize_caches()
 
     def _initialize_caches(self) -> None:
@@ -240,30 +260,35 @@ class ParseContext:
         ):
             self._furthest_exception = e
 
-    def parse(self, text: Any, /, config: ParserConfig | None = None, **settings: Any) -> Any:
+    def parse(self, text: str | Tokenizer, /, *, config: ParserConfig | None = None, **settings: Any) -> Any:
         config = self.config.replace_config(config)
         config = config.replace(**settings)
         self._active_config = config
-
-        self._reset(config)
-        if isinstance(text, tokenizing.Tokenizer):
-            tokenizer = text
-        elif text is not None:
-            cls = self.tokenizercls
-            tokenizer = cls(text, config=config)
-        else:
-            raise ParseError('No tokenizer or text')
-        self._tokenizer = tokenizer
-        start: str = self.active_config.effective_rule_name() or 'start'
-
         try:
-            rule = self._find_rule(start)
-            return rule()
-        except FailedParse as e:
-            self._set_furthest_exception(e)
-            raise self._furthest_exception from e  # type: ignore
+            self._reset(config)
+            if isinstance(text, tokenizing.Tokenizer):
+                tokenizer = text
+            elif issubclass(config.tokenizercls, NullTokenizer):
+                tokenizer = Buffer(text=text, config=config, **settings)
+            elif text is not None:
+                cls = self.tokenizercls
+                tokenizer = cls(text, config=config, **settings)
+            else:
+                raise ParseError('No tokenizer or text')
+
+            self._tokenizer = tokenizer
+            start: str = self.active_config.effective_rule_name() or 'start'
+
+            try:
+                rule = self._find_rule(start)
+                return rule()
+            except FailedParse as e:
+                self._set_furthest_exception(e)
+                raise self._furthest_exception from e  # type: ignore
+            finally:
+                self._clear_memoization_caches()
         finally:
-            self._clear_memoization_caches()
+            self._active_config = self.config
 
     @property
     def tokenizer(self) -> Tokenizer:
