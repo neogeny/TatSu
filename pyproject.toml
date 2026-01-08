@@ -157,8 +157,15 @@ parallel = false
 ignore_errors = true
 
 [tool.hatch.envs.test]
-# non-lint packages added for the benefit of `ty`
-dependencies = ["colorama", "psutil", "pytest", "rich", "ruff","ty" ]
+# non-lint packages included for the benefit of `ty`
+dependencies = [
+    "colorama",
+    "psutil",
+    "pytest",
+    "rich",
+    "ruff",
+    "ty",
+]
 
 [tool.hatch.envs.test.scripts]
 version = "echo `python --version`"

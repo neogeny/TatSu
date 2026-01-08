@@ -35,7 +35,7 @@ mypy:
 
 
 ty:
-	uv run ty check tatsu test
+	uv run ty check --exclude parsers
 
 
 clean:
