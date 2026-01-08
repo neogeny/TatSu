@@ -1,15 +1,18 @@
 import sys
 import time
-from collections import namedtuple
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
 from functools import partial
 from multiprocessing import Pool, cpu_count
 from pathlib import Path
+from typing import Any, NamedTuple
 
 import rich
 from rich.progress import (
     BarColumn,
     Progress,
+    TaskID,
     TaskProgressColumn,
     TextColumn,
     TimeElapsedColumn,
@@ -30,17 +33,21 @@ ERROR_LOG_FILENAME = 'ERROR.log'
 EOLCH = '\r' if sys.stderr.isatty() else '\n'
 sys.setrecursionlimit(2**16)
 
-__Task = namedtuple('__Task', 'payload args kwargs')
+
+class __Task(NamedTuple):
+    payload: Any
+    args: Iterable[Any]
+    kwargs: Mapping[str, Any]
 
 
+@dataclass
 class ParprocResult:
-    def __init__(self, payload):
-        self.payload = payload
-        self.outcome = None
-        self.exception = None
-        self.linecount = 0
-        self.time = 0
-        self.memory = 0
+    payload: Any
+    outcome: Any | None = None
+    exception: Any | None = None
+    linecount: int = 0
+    time: float = 0
+    memory: int = 0
 
     @property
     def success(self):
@@ -50,7 +57,12 @@ class ParprocResult:
         return str(self.__dict__)
 
 
-def process_payload(process, task, pickable=identity, reraise=False):
+def process_payload(
+        process: Callable,
+        task: Any,
+        pickable: Callable = identity,
+        reraise: bool = False,
+    ) -> ParprocResult | None:
     start_time = time.process_time()
     result = ParprocResult(task.payload)
     try:
@@ -71,7 +83,8 @@ def process_payload(process, task, pickable=identity, reraise=False):
     return result
 
 
-def _executor_pmap(executor, process, tasks):
+def _executor_pmap(executor: Callable, process: Callable, tasks: Sequence[Any]) -> Iterable[
+    ParprocResult]:
     nworkers = max(1, cpu_count())
     n = nworkers * 8
     chunks = [tasks[i:i + n] for i in range(0, len(tasks), n)]
@@ -82,15 +95,15 @@ def _executor_pmap(executor, process, tasks):
                 yield future.result()
 
 
-def _thread_pmap(process, tasks):
+def _thread_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocResult]:
     yield from _executor_pmap(ThreadPoolExecutor, process, tasks)
 
 
-def _process_pmap(process, tasks):
+def _process_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocResult]:
     yield from _executor_pmap(ProcessPoolExecutor, process, tasks)
 
 
-def _imap_pmap(process, tasks):
+def _imap_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocResult]:
     nworkers = max(1, cpu_count())
 
     n = nworkers * 4
@@ -107,7 +120,7 @@ def _imap_pmap(process, tasks):
 _pmap = _imap_pmap
 
 
-def parallel_proc(payloads, process, *args, **kwargs):
+def parallel_proc(payloads: Iterable[Any], process: Callable, *args: Any, **kwargs: Any):
     pickable = kwargs.pop('pickable', identity)
     parallel = kwargs.pop('parallel', True)
     reraise = kwargs.pop('reraise', False)
@@ -125,7 +138,7 @@ def parallel_proc(payloads, process, *args, **kwargs):
         return
 
 
-def _build_progressbar(total):
+def _build_progressbar(total: int) -> tuple[Progress, TaskID]:
     progress = Progress(
         TextColumn(f"[progress.description]{program_name()}"),
         BarColumn(),
@@ -141,11 +154,17 @@ def _build_progressbar(total):
     return progress, task
 
 
-def processing_loop(filenames, process, *args, reraise=False, **kwargs):  # pylint: disable=too-many-locals
+def processing_loop(
+        filenames: Sequence[str],
+        process: Callable,
+        *args: Any,
+        reraise: bool = False,
+        **kwargs: Any,
+    ) -> Iterable[ParprocResult]:
     try:
         total = len(filenames)
-        total_time = 0
-        run_time = 0
+        total_time = 0.0
+        run_time = 0.0
         start_time = time.time()
         results = parallel_proc(filenames, process, *args, **kwargs)
         results = results or []
@@ -205,7 +224,12 @@ def processing_loop(filenames, process, *args, reraise=False, **kwargs):  # pyli
         return
 
 
-def file_process_progress(latest_result, count, total, total_time):
+def file_process_progress(
+        latest_result: ParprocResult,
+        count: int,
+        total: int,
+        total_time: float,
+    ):
     filename = latest_result.payload
 
     percent = count / total
@@ -227,17 +251,22 @@ def file_process_progress(latest_result, count, total, total_time):
         end=EOLCH)
 
 
-def format_minutes(result):
+def format_minutes(result: ParprocResult) -> str:
     return f'{result.time / 60:3.0f}:{result.time % 60:04.1f}'
 
 
-def format_hours(time):
+def format_hours(time: float) -> str:
     return f'{time // 3600:2.0f}:{(time // 60) % 60:02.0f}:{time % 60:02.0f}'
 
 
 def file_process_summary(
-        filenames, total_time, run_time, success_count, success_linecount, log,
-):
+        filenames: Sequence[str],
+        total_time: float,
+        run_time: float,
+        success_count: int,
+        success_linecount: int,
+        log,
+    ):
     filecount = 0
     linecount = 0
     for fname in filenames:
