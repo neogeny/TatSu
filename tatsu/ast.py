@@ -112,7 +112,7 @@ class AST(dict[str, Any]):
             key += '_'
         return key
 
-    def _define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None):
+    def define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None):
         for key in (self._safekey(k) for k in keys):
             if key not in self:
                 super().__setitem__(key, None)

@@ -48,12 +48,12 @@ class Base(ModelRenderer):
             sdefs = '[{}]'.format(', '.join(sorted(repr(d) for d in sdefs)))
             ldefs = '[{}]'.format(', '.join(sorted(repr(d) for d in ldefs)))
             if not ldefs:
-                return f'\n\n    self._define({sdefs}, {ldefs})'
+                return f'\n\n    self.define({sdefs}, {ldefs})'
             else:
                 return '\n' + trim(self.define_template % (sdefs, ldefs))
 
     define_template = """\
-            self._define(
+            self.define(
                 %s,
                 %s,
             )\
@@ -420,7 +420,7 @@ class Rule(_Decorator):
         """
 
     define_template = """\
-            self._define(
+            self.define(
                 %s,
                 %s
             )\

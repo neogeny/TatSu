@@ -376,9 +376,9 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         ldefs_str = ', '.join(sorted(repr(d) for d in ldefs))
 
         if not ldefs:
-            self.print(f'self._define([{sdefs_str}], [{ldefs_str}])')
+            self.print(f'self.define([{sdefs_str}], [{ldefs_str}])')
         else:
-            self.print('self._define(')
+            self.print('self.define(')
             with self.indent():
                 self.print(f'[{sdefs_str}],')
                 self.print(f'[{ldefs_str}],')

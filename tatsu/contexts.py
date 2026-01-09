@@ -325,9 +325,9 @@ class ParseContext:
         if ruleinfo is None or not ruleinfo.name.lstrip('_')[:1].isupper():
             self._tokenizer.next_token()
 
-    def _define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None) -> None:
+    def define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None) -> None:
         ast = AST()
-        ast._define(keys, list_keys=list_keys)
+        ast.define(keys, list_keys=list_keys)
         ast.update(self.ast)
         self.ast = ast
 
