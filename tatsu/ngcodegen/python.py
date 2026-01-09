@@ -9,6 +9,7 @@ from .. import grammars
 from ..exceptions import CodegenError
 from ..infos import UndefinedStr
 from ..mixins.indent import IndentPrintMixin
+from ..objectmodel import ParseModel
 from ..util import compress_seq, safe_name
 from ..walkers import NodeWalker
 
@@ -59,6 +60,12 @@ if __name__ == '__main__':
     data = asjson(ast)
     print(json.dumps(data, indent=2))
 """
+
+
+def codegen(model: ParseModel, parser_name: str = '') -> str:
+    generator = PythonCodeGenerator(parser_name=parser_name)
+    generator.walk(model)
+    return generator.printed_text()
 
 
 class PythonCodeGenerator(IndentPrintMixin, NodeWalker):

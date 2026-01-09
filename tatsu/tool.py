@@ -16,8 +16,8 @@ from tatsu.tokenizing import Tokenizer
 from . import grammars
 from ._version import __version__
 from .exceptions import ParseException
-from .ngcodegen import codegen as ngpythoncg
-from .ngcodegen import objectmodel as ngobjectmodel
+from .ngcodegen.objectmodel import modelgen
+from .ngcodegen.python import codegen as ngpythoncg
 from .parser import GrammarGenerator
 from .parserconfig import ParserConfig
 from .semantics import ModelBuilderSemantics
@@ -241,7 +241,7 @@ def to_python_model(
     model = compile(
         grammar, name=name, filename=filename, config=config, **settings,
     )
-    return ngobjectmodel.modelgen(model, base_type=base_type)
+    return modelgen(model, base_type=base_type)
 
 
 # for backwards compatibility. Use `compile()` instead
@@ -331,7 +331,7 @@ def main():
             elif args.pretty_lean:
                 result = model.pretty_lean()
             elif args.object_model:
-                result = ngobjectmodel.modelgen(model, base_type=args.base_type)
+                result = modelgen(model, base_type=args.base_type)
             else:
                 result = ngpythoncg(model)
 
@@ -344,7 +344,7 @@ def main():
         if args.object_model_outfile:
             save(
                 args.object_model_outfile,
-                ngobjectmodel.modelgen(model, base_type=args.base_type),
+                modelgen(model, base_type=args.base_type),
             )
 
         print('-' * 72, file=sys.stderr)
