@@ -4,8 +4,8 @@ import sys
 from importlib import resources
 from pathlib import Path
 
-from .semantics import ANTLRSemantics
 from .. import compile, grammars
+from .semantics import ANTLRSemantics
 
 
 def antlr_grammar() -> str:
@@ -58,4 +58,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
