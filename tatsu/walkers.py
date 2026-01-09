@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from typing import Any, ClassVar, cast
 
 from .objectmodel import Node
-from .util import debug, is_list, pythonize_name
+from .util import is_list, pythonize_name
 
 
 class NodeWalkerMeta(type):
@@ -41,7 +41,6 @@ class NodeWalker(metaclass=NodeWalkerMeta):
             if callable(walker):
                 return walker(self, node, *args, **kwargs)
             else:
-                debug(node.__class__.__qualname__, walker)
                 return node
         else:
             return node
