@@ -2,10 +2,10 @@ from pathlib import Path
 
 
 def main():
-    paths = Path('.').glob('tatsu/**/*.py')
+    paths = Path().glob('tatsu/**/*.py')
     for p in paths:
         text = p.read_text()
-        if text == '':
+        if not text:
             continue
         if '->' in text:
             continue
