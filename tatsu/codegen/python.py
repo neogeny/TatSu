@@ -13,6 +13,10 @@ from ..util import compress_seq, indent, safe_name, timestamp, trim
 from .cgbase import CodeGenerator, ModelRenderer
 
 
+def codegen(model):
+    return PythonCodeGenerator().render(model)
+
+
 class PythonCodeGenerator(CodeGenerator):
     def _find_renderer_class(self, node):
         if not isinstance(node, Node):
@@ -23,10 +27,6 @@ class PythonCodeGenerator(CodeGenerator):
         if not renderer or not issubclass(renderer, Base):
             raise CodegenError(f'Renderer for {name} not found')
         return renderer
-
-
-def codegen(model):
-    return PythonCodeGenerator().render(model)
 
 
 class Base(ModelRenderer):

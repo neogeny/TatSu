@@ -21,7 +21,7 @@ class ModelBase(Node):
 """
 
 
-def codegen(model, base_type=None):
+def modelgen(model, base_type=None):
     return ObjectModelCodeGenerator().render(model, base_type=base_type)
 
 
