@@ -35,7 +35,7 @@ mypy:
 
 
 ty:
-	uv run ty check -q --exclude parsers
+	uv run ty check --exclude parsers
 
 
 clean:
