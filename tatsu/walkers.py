@@ -1,26 +1,22 @@
 from __future__ import annotations
 
-import re
-from collections.abc import Collection, Mapping
+from collections.abc import Callable, Collection, Mapping
 from contextlib import contextmanager
 from typing import Any, ClassVar, cast
 
 from .objectmodel import Node
-from .util import is_list
+from .util import debug, is_list, pythonize_name
 
 
 class NodeWalkerMeta(type):
     def __new__(mcs, name, bases, dct):  # type: ignore
-        class_ = super().__new__(mcs, name, bases, dct)
-        class_._walker_cache: dict[str, Any] = {}  # type: ignore
-        return class_
+        cls = super().__new__(mcs, name, bases, dct)
+        cls._walker_cache: dict[str, Any] = {}  # type: ignore
+        return cls
 
 
 class NodeWalker(metaclass=NodeWalkerMeta):
     _walker_cache: ClassVar[dict[str, Any]] = {}
-
-    def __init__(self):
-        super().__init__()
 
     @property
     def walker_cache(self):
@@ -39,16 +35,16 @@ class NodeWalker(metaclass=NodeWalkerMeta):
             }
 
         if isinstance(node, Node):
-            anode: Node = node
-            walker = self._find_walker(anode)
+            walker = self._find_walker(node)
             if callable(walker):
                 return walker(self, node, *args, **kwargs)
             else:
+                debug(node.__class__.__qualname__, walker)
                 return node
         else:
             return node
 
-    def walk_children(self, node: Node, *args, **kwargs):
+    def walk_children(self, node: Node, *args, **kwargs) -> list[Any]:
         if not isinstance(node, Node):
             return []
 
@@ -60,9 +56,11 @@ class NodeWalker(metaclass=NodeWalkerMeta):
     # note: backwards compatibility
     _walk_children = walk_children
 
-    def _find_walker(self, node: Node, prefix='walk_'):
-        def pythonize_match(m):
-            return '_' + m.group().lower()
+    def _find_walker(self, node: Node, prefix='walk_') -> Callable | None:
+
+        def get_callable(acls: type, name: str) -> Callable | None:
+            result = getattr(acls, name, None)
+            return result if callable(result) else None
 
         cls = self.__class__
         node_cls = node.__class__
@@ -71,42 +69,36 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         if walker := self._walker_cache.get(node_cls_qualname):
             return walker
 
-        node_classes = [node.__class__]
-        while node_classes:
-            node_cls = node_classes.pop(0)
+        class_stack: list[type] = [node.__class__]
+        walker = None
+        while class_stack and not walker:
+            node_cls = class_stack.pop()
 
             cammelcase_name = node_cls.__name__
-            walker = getattr(cls, prefix + cammelcase_name, None)
-            if callable(walker):
-                break
+            pythonic_name = pythonize_name(cammelcase_name)
 
-            # walk__pythonic_name with double underscore after walk
-            pythonic_name = re.sub(
-                r'[A-Z]+', pythonize_match, node_cls.__name__,
-            )
-            if pythonic_name != cammelcase_name:
-                walker = getattr(cls, prefix + pythonic_name, None)
-                if callable(walker):
+            possible_walker_names = [
+                cammelcase_name,
+                '_' + pythonic_name,  # double underscore before name
+                pythonic_name.lstrip('_'),  # single underscore before name
+            ]
+            for possible_name in possible_walker_names:
+                name = prefix + possible_name
+                if walker := get_callable(cls, name):
                     break
+            else:
+                # try to find a walker for any of the base classes
+                bases: list[type] = [
+                    b for b in node_cls.__bases__ if b not in class_stack
+                ]
+                class_stack = bases + class_stack
 
-            # walk_pythonic_name with single underscore after prefix
-            pythonic_name = pythonic_name.lstrip('_')
-            if pythonic_name != cammelcase_name:
-                walker = getattr(cls, prefix + pythonic_name, None)
-                if callable(walker):
-                    break
-
-            for b in node_cls.__bases__:
-                if b not in node_classes:
-                    node_classes.append(b)
-        else:
-            walker = getattr(cls, '_walk_default', None)
-            if walker is None:
-                walker = getattr(
-                    cls, 'walk_default', None,
-                )  # backwards compatibility
-            if not callable(walker):
-                walker = None
+        walker = (
+            walker or
+            get_callable(cls, '_walk__default') or
+            get_callable(cls, '_walk_default') or
+            get_callable(cls, 'walk_default')
+        )
 
         self._walker_cache[node_cls_qualname] = walker
         return walker

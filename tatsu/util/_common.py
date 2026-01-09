@@ -442,3 +442,11 @@ def short_relative_path(path, base='.'):
         return rel
     else:
         return str(path)
+
+
+def pythonize_name(name: str) -> str:
+    if not name:
+        return name
+    return name[0].lower() + ''.join(
+        '_' + c.lower() if c.isupper() else c for c in name[1:]
+    )

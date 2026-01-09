@@ -40,10 +40,6 @@ def kdot(x: ffset, y: ffset, k: int) -> ffset:
         return {(a + b)[:k] for a in x for b in y}
 
 
-def pythonize_name(name: str) -> str:
-    return ''.join('_' + c.lower() if c.isupper() else c for c in name)
-
-
 class ModelContext(ParseContext):
     def __init__(
         self,
