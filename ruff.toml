@@ -46,7 +46,7 @@ lint.ignore = [
     "TRY003",  # raise-vanilla-args
     "TRY300",  # try-consider-else
     "UP031",  # use of % formatting
-    "UP040",  # TypeAlias insteadd of type
+#    "UP040",  # TypeAlias insteadd of type
     "UP046",  # Generic class uses `Generic` subclass instead of type parameters
     "UP047",  # should use i> 3.12type parameters
 ]

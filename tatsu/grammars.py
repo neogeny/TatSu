@@ -6,7 +6,6 @@ from collections.abc import Callable, Collection, Mapping
 from copy import copy
 from itertools import takewhile
 from pathlib import Path
-from typing import TypeAlias
 
 from .ast import AST
 from .contexts import ParseContext
@@ -20,7 +19,7 @@ from .util import chunks, compress_seq, indent, re, trim
 PEP8_LLEN = 72
 PRAGMA_RE = r'^\s*#include.*$'
 
-ffset: TypeAlias = set[tuple[str, ...]]
+type ffset = set[tuple[str, ...]]
 
 
 class _ref(str):
