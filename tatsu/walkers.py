@@ -11,11 +11,13 @@ from .util import debug, is_list, pythonize_name
 class NodeWalkerMeta(type):
     def __new__(mcs, name, bases, dct):  # type: ignore
         cls = super().__new__(mcs, name, bases, dct)
+        # note: a different cache for each subclass
         cls._walker_cache: dict[str, Any] = {}  # type: ignore
         return cls
 
 
 class NodeWalker(metaclass=NodeWalkerMeta):
+    # note: this is shared among all instances of the same sublass of NodeWalker
     _walker_cache: ClassVar[dict[str, Any]] = {}
 
     @property
