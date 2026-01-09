@@ -45,6 +45,7 @@ from .util import (
 )
 from .util.unicode_characters import (
     C_CUT,
+    C_DOT,
     C_ENTRY,
     C_FAILURE,
     C_RECURSION,
@@ -504,26 +505,32 @@ class ParseContext:
         return action, postproc
 
     def _trace(self, msg: str, *params: Any, **kwargs: Any) -> None:
-        if self.trace:
-            msg %= params
-            info(str(msg), file=sys.stderr)
+        if not self.trace:
+            return
+
+        msg %= params
+        indent = C_DOT * (len(self._rule_stack) - 3)
+        info(indent, msg, file=sys.stderr)
 
     def _trace_event(self, event: str) -> None:
-        if self.trace:
-            fname = ''
-            if self.trace_filename:
-                fname = self._tokenizer.line_info().filename + '\n'
+        if not self.trace:
+            return
 
-            lookahead = self._tokenizer.lookahead().rstrip()
-            if lookahead:
-                lookahead = '\n' + lookahead
-            self._trace(
-                '%s %s%s%s',
-                event + self._rulestack(),
-                self._tokenizer.lookahead_pos(),
-                color.Style.DIM + fname,
-                color.Style.NORMAL + lookahead + color.Style.RESET_ALL,
-                )
+        fname = ''
+        if self.trace_filename:
+            fname = self._tokenizer.line_info().filename + '\n'
+
+        lookahead = self._tokenizer.lookahead().rstrip()
+        if lookahead:
+            lookahead = '\n' + ' ' * (len(self._rule_stack) - 3) + lookahead
+
+        self._trace(
+            '%s %s%s%s',
+            event + self._rulestack(),
+            self._tokenizer.lookahead_pos(),
+            color.Style.DIM + fname,
+            color.Style.RESET_ALL + lookahead + color.Style.RESET_ALL,
+            )
 
     def _trace_entry(self) -> None:
         self._trace_event(color.Fore.YELLOW + color.Style.BRIGHT + C_ENTRY)
@@ -544,28 +551,30 @@ class ParseContext:
         self._trace_event(color.Fore.MAGENTA + color.Style.BRIGHT + C_CUT)
 
     def _trace_match(self, token: Any, name: str | None = None, failed: bool = False) -> None:
-        if self.trace:
-            fname = ''
-            if self.trace_filename:
-                fname = self._tokenizer.line_info().filename + '\n'
-            name_str = f'/{name}/' if name else ''
+        if not self.trace:
+            return
 
-            if not failed:
-                fgcolor = color.Fore.GREEN + C_SUCCESS
-            else:
-                fgcolor = color.Fore.RED + C_FAILURE
+        fname = ''
+        if self.trace_filename:
+            fname = self._tokenizer.line_info().filename + '\n'
+        name_str = f'/{name}/' if name else ''
 
-            lookahead = self._tokenizer.lookahead().rstrip()
-            if lookahead:
-                lookahead = '\n' + lookahead
+        if not failed:
+            fgcolor = color.Fore.GREEN + C_SUCCESS
+        else:
+            fgcolor = color.Fore.RED + C_FAILURE
 
-            self._trace(
-                color.Style.BRIGHT + fgcolor + "'%s' %s%s%s",
-                token,
-                name_str,
-                color.Style.DIM + fname,
-                color.Style.NORMAL + lookahead + color.Style.RESET_ALL,
-                )
+        lookahead = self._tokenizer.lookahead().rstrip()
+        if lookahead:
+            lookahead = '\n' + ' ' * (len(self._rule_stack) - 3) + lookahead
+
+        self._trace(
+            color.Style.BRIGHT + fgcolor + "'%s' %s%s%s",
+            token,
+            name_str,
+            color.Style.DIM + fname,
+            color.Style.RESET_ALL + lookahead + color.Style.RESET_ALL,
+            )
 
     def _make_exception(self, item: Any, exclass: type[FailedParse] = FailedParse) -> FailedParse:
         if issubclass(exclass, FailedLeftRecursion):
