@@ -1,5 +1,6 @@
 test:
-	PYTHONPATH=../.. python calc.py
+	PYTHONPATH=../.. \
+		python calc.py
 
 
 clean:

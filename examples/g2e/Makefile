@@ -14,4 +14,4 @@ test: clean
 				2>&1 > python3_parser.py
 
 clean:
-	:
+	rm -rf python3_parser.py python3.ebnf

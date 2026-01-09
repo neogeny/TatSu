@@ -17,6 +17,7 @@ examples: clean g2e_test calc_test
 
 g2e_test:
 	cd examples/g2e; uv run make -s clean test > /dev/null
+	cd examples/g2e; uv run make -s clean > /dev/null
 
 
 calc_test:
