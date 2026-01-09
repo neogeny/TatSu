@@ -1,10 +1,11 @@
+import multiprocessing
 import sys
 import time
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from functools import partial
-from multiprocessing import Pool, cpu_count
+from itertools import batched
 from pathlib import Path
 from typing import Any, NamedTuple
 
@@ -26,7 +27,7 @@ from tatsu.util.unicode_characters import (
 
 from ..util import identity, memory_use, program_name, try_read
 
-__all__ = ['parallel_proc', 'processing_loop']
+__all__: list[str] = ['parallel_proc', 'processing_loop']
 
 
 ERROR_LOG_FILENAME = 'ERROR.log'
@@ -85,9 +86,9 @@ def process_payload(
 
 def _executor_pmap(executor: Callable, process: Callable, tasks: Sequence[Any]) -> Iterable[
     ParprocResult]:
-    nworkers = max(1, cpu_count())
+    nworkers = max(1, multiprocessing.cpu_count())
     n = nworkers * 8
-    chunks = [tasks[i:i + n] for i in range(0, len(tasks), n)]
+    chunks = batched(tasks, n)
     for chunk in chunks:
         with executor(max_workers=nworkers) as ex:
             futures = [ex.submit(process, task) for task in chunk]
@@ -104,20 +105,21 @@ def _process_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocRe
 
 
 def _imap_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocResult]:
-    nworkers = max(1, cpu_count())
+    nworkers = max(1, multiprocessing.cpu_count())
 
     n = nworkers * 4
-    chunks = [tasks[i:i + n] for i in range(0, len(tasks), n)]
+    chunks = batched(tasks, n)
 
-    count = sum(len(c) for c in chunks)
+    count = 0
+    for chunk in chunks:
+        count += len(chunk)
+        with multiprocessing.Pool(processes=nworkers) as pool:
+            yield from pool.imap_unordered(process, chunk)
     if len(tasks) != count:
         raise RuntimeError('number of chunked tasks different %d != %d' % (len(tasks), count))
-    for chunk in chunks:
-        with Pool(processes=nworkers) as pool:
-            yield from pool.imap_unordered(process, chunk)
 
 
-_pmap = _imap_pmap
+_active_pmap = _imap_pmap
 
 
 def parallel_proc(payloads: Iterable[Any], process: Callable, *args: Any, **kwargs: Any):
@@ -132,7 +134,7 @@ def parallel_proc(payloads: Iterable[Any], process: Callable, *args: Any, **kwar
         if len(tasks) == 1:
             yield process(tasks[0])
         else:
-            pmap = _pmap if parallel else map
+            pmap = _active_pmap if parallel else map
             yield from pmap(process, tasks)
     except KeyboardInterrupt:
         return
