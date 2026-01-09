@@ -107,8 +107,8 @@ class Model(Node):
 
         keys = [k for k, list in defines.items() if not list]
         list_keys = [k for k, list in defines.items() if list]
-        ctx.define(keys, list_keys)
-        ast.define(keys, list_keys)
+        ctx._define(keys, list_keys)
+        ast._define(keys, list_keys)
 
     def lookahead(self, k: int = 1) -> ffset:
         if not self._lookahead:
