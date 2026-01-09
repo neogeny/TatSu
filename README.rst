@@ -44,7 +44,8 @@ algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left ass
 |TatSu| expects a maintained version of Python (>=3.14 at the moment).  While no code
 in |TatSu| yet depends on new language or standard library features,
 the authors don't want to be constrained by Python version compatibility considerations
-when developing future releases. That said, currently all tests run in versions down to Python 3.11.
+when developing future releases. That said, currently all tests run in versions down to
+Python 3.12.
 
 *If you need support for previous versions of Python, please consider* `TatSu-LTS`_,
 *a  friendly fork of* |TatSu| *aimed at compatibility with other versions of Python still used by

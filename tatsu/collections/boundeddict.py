@@ -1,10 +1,7 @@
-from typing import Any, Generic, TypeVar
-
-KT = TypeVar("KT")  # Key Type
-VT = TypeVar("VT")  # Value Type
+from typing import Any
 
 
-class BoundedDict(dict[KT, VT], Generic[KT, VT]):
+class BoundedDict[KT, VT](dict[KT, VT]):
     def __init__(self, capacity: int, *args: Any, **kwargs: Any) -> None:
         self.capacity: int = capacity
         super().__init__(*args, **kwargs)

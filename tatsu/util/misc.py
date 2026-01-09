@@ -3,9 +3,6 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable
 from functools import cache
-from typing import TypeVar
-
-_T = TypeVar('_T')
 
 _undefined = object()  # unique object for when None is not a good default
 
@@ -84,13 +81,13 @@ def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=_undefine
     )
 
 
-def topsort(nodes: Iterable[_T], order: Iterable[tuple[_T, _T]]) -> list[_T]:
+def topsort[T](nodes: Iterable[T], order: Iterable[tuple[T, T]]) -> list[T]:
     # https://en.wikipedia.org/wiki/Topological_sorting
 
     order = set(order)
-    result: list[_T] = []  # Empty list that will contain the sorted elements
+    result: list[T] = []  # Empty list that will contain the sorted elements
 
-    def with_incoming() -> set[_T]:
+    def with_incoming() -> set[T]:
         return {m for (_, m) in order}
 
     # Set of all nodes with no incoming edges

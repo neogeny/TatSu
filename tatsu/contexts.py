@@ -8,7 +8,7 @@ import sys
 from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager, suppress
 from copy import copy
-from typing import Any, NamedTuple, NoReturn, ParamSpec, Protocol, TypeVar, cast
+from typing import Any, NamedTuple, NoReturn, Protocol, cast
 
 from . import buffering, color, tokenizing
 from .ast import AST
@@ -51,11 +51,7 @@ from .util.unicode_characters import (
     C_SUCCESS,
 )
 
-__all__ = ['ParseContext', 'tatsumasu', 'leftrec', 'nomemo']
-
-P = ParamSpec("P")
-R = TypeVar("R")
-T = TypeVar("T", bound=Callable[..., Any])
+__all__: list[str] = ['ParseContext', 'tatsumasu', 'leftrec', 'nomemo']
 
 
 class MemoKey(NamedTuple):

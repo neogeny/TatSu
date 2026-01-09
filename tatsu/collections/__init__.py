@@ -1,1 +1,3 @@
-from .boundeddict import BoundedDict  # noqa: F401
+from .boundeddict import BoundedDict
+
+__all__: list[str] = ['BoundedDict']
