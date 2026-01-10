@@ -2,23 +2,25 @@ from __future__ import annotations
 
 from collections.abc import Callable, Collection, Mapping
 from contextlib import contextmanager
-from typing import Any, ClassVar, cast
+from typing import Any, ClassVar, Concatenate, cast
 
 from .objectmodel import Node
 from .util import is_list, pythonize_name
+
+type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
 
 
 class NodeWalkerMeta(type):
     def __new__(mcs, name, bases, dct):  # type: ignore
         cls = super().__new__(mcs, name, bases, dct)
         # note: a different cache for each subclass
-        cls._walker_cache: dict[str, Any] = {}  # type: ignore
+        cls._walker_cache: dict[str, WalkerMethod | None] = {}  # type: ignore
         return cls
 
 
 class NodeWalker(metaclass=NodeWalkerMeta):
     # note: this is shared among all instances of the same sublass of NodeWalker
-    _walker_cache: ClassVar[dict[str, Any]] = {}
+    _walker_cache: ClassVar[dict[str, WalkerMethod | None]] = {}
 
     @property
     def walker_cache(self):
@@ -57,10 +59,10 @@ class NodeWalker(metaclass=NodeWalkerMeta):
     # note: backwards compatibility
     _walk_children = walk_children
 
-    def _find_walker(self, node: Node, prefix='walk_') -> Callable | None:
+    def _find_walker(self, node: Node, prefix: str = 'walk_') -> WalkerMethod | None:
 
-        def get_callable(acls: type, name: str) -> Callable | None:
-            result = getattr(acls, name, None)
+        def get_callable(acls: type, aname: str) -> WalkerMethod | None:
+            result = getattr(acls, aname, None)
             return result if callable(result) else None
 
         cls = self.__class__
@@ -71,7 +73,6 @@ class NodeWalker(metaclass=NodeWalkerMeta):
             return walker
 
         class_stack: list[type] = [node.__class__]
-        walker = None
         while class_stack and not walker:
             node_cls = class_stack.pop()
 
