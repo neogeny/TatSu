@@ -44,6 +44,7 @@ dev = [
     "hatch",
     "ipython",
     "mypy",
+    "progress",
     "psutil",
     "pytest",
     "pytest-cov",
