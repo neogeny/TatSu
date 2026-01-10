@@ -47,6 +47,7 @@ dev = [
     "psutil",
     "pytest",
     "pytest-cov",
+    "pytest-rerunfailures",
     "pytest-xdist",
     "rich",
     "rst2html5",
@@ -98,9 +99,13 @@ env-vars = {CFLAGS = "-I/opt/homebrew/include", LDFLAGS = "-L/opt/homebrew/lib"}
 [tool.hatch.envs.hatch-test]
 default-args = ["test"]
 dependencies = [
-  "pytest",
-  "pytest-cov",
-  "pytest-xdist", # For parallel execution
+    "mypy",
+    "pytest",
+    "pytest-cov",
+    "pytest-rerunfailures",
+    "pytest-xdist", # For parallel execution
+    "ruff",
+    "ty",
 ]
 
 # Set default arguments for the pytest command
@@ -177,6 +182,14 @@ more_types = "mypy --install-types --exclude dist --exclude parsers ."
 tests = "pytest"
 
 checks = [
+    "version",
+    "lint",
+    "types",
+    "more_types",
+    "tests"
+]
+
+run = [
     "version",
     "lint",
     "types",
