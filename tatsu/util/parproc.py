@@ -41,7 +41,7 @@ class __Task(NamedTuple):
     kwargs: Mapping[str, Any]
 
 
-@dataclass
+@dataclass(slots=True)
 class ParprocResult:
     payload: Any
     outcome: Any | None = None
