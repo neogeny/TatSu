@@ -32,4 +32,4 @@ class BoundedDict[KT, VT](dict[KT, VT]):
             del self[oldest_key]
 
     def __repr__(self) -> str:
-        return f"{super().__repr__()}[{self.capacity}]"
+        return f"{super().__repr__()}[{len(self)}/{self.capacity}]"
