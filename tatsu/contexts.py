@@ -605,7 +605,6 @@ class ParseContext:
     def rule(self) -> RuleInfo:
         return self._rule_stack[-1]
 
-    @property
     def memokey(self) -> MemoKey:
         return MemoKey(self._pos, self.rule, self.substate)
 
@@ -675,7 +674,7 @@ class ParseContext:
 
     def _recursive_call(self, ruleinfo: RuleInfo) -> RuleResult:
         self._next_token(ruleinfo)
-        key = self.memokey
+        key = self.memokey()
 
         if not ruleinfo.is_leftrec:
             return self._invoke_rule(ruleinfo, key)
