@@ -1,3 +1,4 @@
+
 test:  lint documentation examples pytest
 
 
@@ -28,7 +29,7 @@ lint: ruff ty mypy
 
 
 ruff:
-	uv run ruff check -q --preview --fix tatsu test examples
+	uv run ruff check -q --preview --fix tatsu tests examples
 
 
 mypy:

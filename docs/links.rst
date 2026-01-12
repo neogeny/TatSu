@@ -41,6 +41,7 @@
 .. _Packrat: http://bford.info/packrat/
 .. _Pascal: http://en.wikipedia.org/wiki/Pascal_programming_language
 .. _Perl: http://www.perl.org/
+.. _PyCharm: https://www.jetbrains.com/pycharm/
 .. _PyPy team: http://pypy.org/people.html
 .. _PyPy: http://pypy.org/
 .. _Python Weekly: http://www.pythonweekly.com/
@@ -56,6 +57,7 @@
 .. _USB: http://www.usb.ve/
 .. _Unix: http://en.wikipedia.org/wiki/Unix
 .. _VIM: http://www.vim.org/
+.. _VSCode: https://code.visualstudio.com
 .. _WTK: http://en.wikipedia.org/wiki/Well-known_text
 .. _Warth et al: http://www.vpri.org/pdf/tr2007002_packrat.pdf
 .. _Well-known text: http://en.wikipedia.org/wiki/Well-known_text
