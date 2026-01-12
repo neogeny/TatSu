@@ -50,6 +50,7 @@
 .. _Ruby: http://www.ruby-lang.org/
 .. _SQL: https://en.wikipedia.org/wiki/SQL
 .. _Semantic Graph: http://en.wikipedia.org/wiki/Abstract_semantic_graph
+.. _Sphinx: https://www.sphinx-doc.org/en/master/
 .. _StackOverflow: http://stackoverflow.com/tags/tatsu/info
 .. _Sublime Text: https://www.sublimetext.com
 .. _TatSu Forum: https://groups.google.com/forum/?fromgroups#!forum/tatsu
