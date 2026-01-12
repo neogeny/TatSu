@@ -3,8 +3,11 @@ from typing import Any
 
 class BoundedDict[KT, VT](dict[KT, VT]):
     def __init__(self, capacity: int, *args: Any, **kwargs: Any) -> None:
+        if capacity <= 0:
+            raise ValueError("capacity must be positive")
         self.capacity: int = capacity
         super().__init__(*args, **kwargs)
+        self._enforce_limit()
 
     def __setitem__(self, key: KT, value: VT) -> None:
         # If the key exists, delete it first to update its position
