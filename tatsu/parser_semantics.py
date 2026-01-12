@@ -5,6 +5,7 @@ from typing import Any
 
 from . import grammars
 from .exceptions import FailedSemantics
+from .ngleftrec import mark_recursive_rules
 from .semantics import ModelBuilderSemantics
 from .util import eval_escapes, flatten, re, warning
 
@@ -142,9 +143,11 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
             directives['whitespace'] = ''
 
         name = self.grammar_name or directives.get('grammar')
-        return grammars.Grammar(
+        grammar = grammars.Grammar(
             name,
             list(self.rules.values()),
             directives=directives,
             keywords=keywords,
         )
+        mark_recursive_rules(grammar)
+        return grammar

@@ -106,7 +106,7 @@ def tatsumasu(*params: Any, **kwparams: Any) -> Callable[[Callable[..., Any]], C
                 params,
                 kwparams,
             )
-            return self._call(ruleinfo)
+            return self.call(ruleinfo)
 
         return wrapper
 
@@ -154,6 +154,8 @@ class ParseContext:
 
         self._tokenizer: Tokenizer = NullTokenizer()
         self._semantics: type | None = config.semantics
+        self.substate: Any = None
+
         self._initialize_caches()
 
     def _initialize_caches(self) -> None:
@@ -162,7 +164,7 @@ class ParseContext:
         self._cut_stack: list[bool] = [False]
 
         self._last_node: Any = None
-        self.substate: Any = None
+        self.substate = None
         self._lookahead: int = 0
         self._furthest_exception: FailedParse | None = None
 
@@ -623,7 +625,7 @@ class ParseContext:
         ex = self._make_exception(key.rule.name, exclass=FailedLeftRecursion)
         self._memoize(key, ex)
 
-    def _call(self, ruleinfo: RuleInfo) -> Any:
+    def call(self, ruleinfo: RuleInfo) -> Any:
         self._rule_stack += [ruleinfo]
         pos = self._pos
         try:

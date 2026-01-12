@@ -11,7 +11,6 @@ from .ast import AST
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import RuleInfo
-from .leftrec import Nullable, find_left_recursion  # type: ignore
 from .objectmodel import Node
 from .parserconfig import ParserConfig
 from .util import chunks, compress_seq, indent, re, trim
@@ -74,18 +73,16 @@ class Model(Node):
             if isinstance(c, type) and issubclass(c, Model)
         ]
 
-    def __init__(self, ast: AST | Node | str | None = None, ctx: ParseContext | None = None):
+    def __init__(
+            self,
+            ast: AST | Node | str | None = None,
+            ctx: ParseContext | None = None,
+    ):
         super().__init__(ast=ast, ctx=ctx)
         self._lookahead: ffset = set()
         self._firstset: ffset = set()
         self._follow_set: ffset = set()
         self.value = None
-        self._nullability = self._nullable()
-        if isinstance(self._nullability, int):  # Allow simple boolean values
-            if self._nullability:
-                self._nullability = Nullable.yes()
-            else:
-                self._nullability = Nullable.no()
 
     def _parse(self, ctx: ModelContext):
         ctx.last_node = None
@@ -135,7 +132,7 @@ class Model(Node):
         return a
 
     def is_nullable(self, ctx: Mapping[str, Rule] | None = None):
-        return self._nullability.nullable
+        return self._nullable()
 
     def _nullable(self):
         return False
@@ -187,6 +184,9 @@ class Any(Model):
 
     def _to_str(self, lean=False):
         return '/./'
+
+    def _nullable(self):
+        return False
 
 
 class Fail(Model):
@@ -255,7 +255,7 @@ class Decorator(Model):
         return self.exp._to_str(lean=lean)
 
     def _nullable(self):
-        return Nullable.of(self.exp)
+        return self.exp._nullable()
 
     def at_same_pos(self, ctx):
         return [self.exp]
@@ -344,7 +344,7 @@ class Pattern(Model):
         return ctx._pattern(self.pattern)
 
     def _first(self, k, f):
-        x = self
+        x = self.patterns
         if bool(self.regex.match('')):
             return {(), (x,)}
         else:
@@ -408,7 +408,7 @@ class SkipTo(Decorator):
 class Sequence(Model):
     def __init__(self, ast, **kwargs):
         assert ast.sequence
-        self.sequence = ()
+        self.sequence: tuple[Model, ...] = ()
         super().__init__(ast=ast)
 
     def _parse(self, ctx):
@@ -457,7 +457,7 @@ class Sequence(Model):
             return comments + '\n'.join(seq)
 
     def _nullable(self):
-        return Nullable.all(self.sequence)
+        return any(e._nullable() for e in self.sequence)
 
     def at_same_pos(self, ctx):
         head = list(takewhile(lambda c: c.is_nullable(ctx), self.sequence))
@@ -523,7 +523,7 @@ class Choice(Model):
             return single
 
     def _nullable(self):
-        return Nullable.any(self.options)
+        return all(o._nullable() for o in self.options)
 
     def at_same_pos(self, ctx):
         return self.options
@@ -573,7 +573,7 @@ class PositiveClosure(Closure):
         return super()._to_str(lean=lean) + '+'
 
     def _nullable(self):
-        return Nullable.of(self.exp)
+        return self.exp._nullable()
 
 
 class Join(Decorator):
@@ -615,7 +615,7 @@ class PositiveJoin(Join):
         return super()._to_str(lean=lean) + '+'
 
     def _nullable(self):
-        return Nullable.of(self.exp)
+        return self.exp._nullable()
 
 
 class LeftJoin(PositiveJoin):
@@ -647,7 +647,7 @@ class PositiveGather(Gather):
         return super()._to_str(lean=lean) + '+'
 
     def _nullable(self):
-        return Nullable.of(self.exp)
+        return self.exp._nullable()
 
 
 class EmptyClosure(Model):
@@ -785,7 +785,7 @@ class RuleRef(Model):
 
     def missing_rules(self, rules: set[str]) -> set[str]:
         if self.name not in rules:
-            return set({self.name})
+            return {self.name}
         return set()
 
     def _used_rule_names(self) -> set[str]:
@@ -851,7 +851,7 @@ class Rule(Decorator):
             self.params,
             self.kwparams,
         )
-        return ctx._call(ruleinfo)
+        return ctx.call(ruleinfo)
 
     # def firstset(self, k=1):
     #     return self.exp.firstset(k=k)
@@ -864,7 +864,7 @@ class Rule(Decorator):
         return self.exp._follow(k, fl, fl[self.name])
 
     def _nullable(self):
-        return Nullable.of(self.exp)
+        return self.exp._nullable()
 
     @staticmethod
     def param_repr(p):
@@ -956,7 +956,7 @@ class Grammar(Model):
     def __init__(
         self,
         name,
-        rules,
+        rules: list[Rule],
         /,
         config: ParserConfig | None = None,
         directives: dict | None = None,
@@ -972,7 +972,7 @@ class Grammar(Model):
         self.config = config
 
         self.rules = rules
-        self.rulemap = {rule.name: rule for rule in rules}
+        self.rulemap: dict[str, Rule] = {rule.name: rule for rule in rules}
 
         config = config.merge(**directives)
 
@@ -992,8 +992,6 @@ class Grammar(Model):
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
         self._calc_lookahead_sets()
-        if config.left_recursion:
-            find_left_recursion(self)
 
     @property
     def keywords(self) -> Collection[str]:
