@@ -313,7 +313,6 @@ class ParseContext:
     def _clear_memoization_caches(self) -> None:
         self._memos: BoundedDict[MemoKey, RuleResult | Exception] = BoundedDict(self.config.memo_cache_size)
         self._results: dict[MemoKey, RuleResult | Exception] = {}
-        self._recursion_depth: int = 0
 
     def _goto(self, pos: int) -> None:
         self._tokenizer.goto(pos)
@@ -669,16 +668,18 @@ class ParseContext:
 
         prune_dict(self._memos, filter_func)
 
+    def _found_left_recursion(self, ruleinfo: RuleInfo) -> bool:
+        return any(ri.name == ruleinfo.name for ri in self._rule_stack)
+
     def _recursive_call(self, ruleinfo: RuleInfo) -> RuleResult:
         self._next_token(ruleinfo)
-        key = self.memokey()
+        key: MemoKey = self.memokey()
 
         if not ruleinfo.is_leftrec:
             return self._invoke_rule(ruleinfo, key)
         elif not self.left_recursion:
             self._error('Left recursion detected', exclass=FailedLeftRecursion)
 
-        self._recursion_depth += 1
         if key in self._results:
             result = self._results[key]
         else:
@@ -703,12 +704,21 @@ class ParseContext:
                     result = new_result
                 else:
                     break
-        self._recursion_depth -= 1
 
         if isinstance(result, Exception):
             raise result
 
         return result
+
+    def _actual_node_value(self, pos: int, ruleinfo: RuleInfo) -> Any:
+        node: Any = self.ast
+        if not node:
+            node = tuple(self.cst) if is_list(self.cst) else self.cst
+        elif '@' in node:
+            node = node['@']  # override the AST
+        elif self.parseinfo:
+            node.set_parseinfo(self._get_parseinfo(ruleinfo.name, pos))
+        return node
 
     def _invoke_rule(self, ruleinfo: RuleInfo, key: MemoKey) -> RuleResult:
         memo = self._memo_for(key)
@@ -716,14 +726,16 @@ class ParseContext:
             raise memo
         if memo:
             return memo
-        self._set_left_recursion_guard(key)
+
+        if self.left_recursion:
+            self._set_left_recursion_guard(key)
 
         self._push_ast()
         try:
             try:
                 self._next_token(ruleinfo)
                 ruleinfo.impl(self)
-                node = self._get_node(key.pos, ruleinfo)
+                node = self._actual_node_value(key.pos, ruleinfo)
                 node = self._invoke_semantic_rule(ruleinfo, node)
                 result = self._mkresult(node)
                 self._memoize(key, result)
@@ -735,16 +747,6 @@ class ParseContext:
             raise
         finally:
             self._pop_ast()
-
-    def _get_node(self, pos: int, ruleinfo: RuleInfo) -> Any:
-        node: Any = self.ast
-        if not node:
-            node = tuple(self.cst) if is_list(self.cst) else self.cst
-        elif '@' in node:
-            node = node['@']  # override the AST
-        elif self.parseinfo:
-            node.set_parseinfo(self._get_parseinfo(ruleinfo.name, pos))
-        return node
 
     def _invoke_semantic_rule(self, rule: RuleInfo, node: Any) -> Any:
         semantic_rule, postproc = self._find_semantic_action(rule.name)
