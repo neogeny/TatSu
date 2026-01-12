@@ -629,9 +629,6 @@ class ParseContext:
             )
         self._results[key] = result
 
-    def _is_recursive(self, ruleinfo: RuleInfo) -> bool:
-        return ruleinfo.is_leftrec
-
     def _set_left_recursion_guard(self, key: MemoKey) -> None:
         if not self.left_recursion:
             return
