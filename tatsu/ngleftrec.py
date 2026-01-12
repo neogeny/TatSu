@@ -30,9 +30,8 @@ from tatsu.grammars import (
     ffset,
 )
 
-if TYPE_CHECKING:
-    type RuleName = str
-    type SCC = set[RuleName]
+type RuleName = str
+type SCC = list[RuleName]
 
 
 def mark_recursive_rules(grammar: Grammar) -> None:
@@ -43,10 +42,12 @@ def mark_recursive_rules(grammar: Grammar) -> None:
 class LeftRecursionAnalyzer:
     def __init__(self, tatsu_grammar: Grammar) -> None:
         self.grammar = tatsu_grammar
+        # FIXME: this is not use because of Model.lookahead()
         self.nullables: set[RuleName] = self._compute_nullables()
         self.head_map: Mapping[RuleName, set[RuleName]] = self._compute_head_map()
 
-    def mark_recursive_rules(self) -> None:
+    # FIXME: not used
+    def __old_mark_recursive_rules(self) -> None:
         print('nullables', self.nullables)
         print('headmap', self.head_map)
         recursive_set = self.find_left_recursion()
@@ -55,6 +56,7 @@ class LeftRecursionAnalyzer:
             rule.is_leftrec = name in recursive_set
             rule.is_memoizable &= not name in recursive_set
 
+    # FIXME: this is not use because of Model.lookahead()
     def _is_nullable(self, exp: Model | str) -> bool:  # noqa: PLR0911, PLR0912
         match exp:
             case str(name):
@@ -96,6 +98,7 @@ class LeftRecursionAnalyzer:
             case _:
                 return False
 
+    # FIXME: this is not use because of Model.lookahead()
     def _compute_nullables(self) -> set[RuleName]:
         nullables: set[RuleName] = set()
         prev_size = -1
@@ -174,11 +177,11 @@ class LeftRecursionAnalyzer:
                     lowlink[v] = min(lowlink[v], indices[w])
 
             if lowlink[v] == indices[v]:
-                component: SCC = set()
+                component: SCC = []
                 while True:
                     w = stack.pop()
                     on_stack.remove(w)
-                    component.add(w)
+                    component.append(w)
                     if w == v:
                         break
                 sccs.append(component)
@@ -189,17 +192,14 @@ class LeftRecursionAnalyzer:
 
         return sccs
 
-    def find_left_recursion(self) -> set[RuleName]:
+    def mark_recursive_rules(self) -> None:
         sccs = self.compute_sccs()
-        recursive_rules: set[RuleName] = set()
 
         print('sccs', sccs)
         for component in sccs:
-            if len(component) > 1:
-                recursive_rules.update(component)
-            else:
-                rule_name = next(iter(component))
-                if rule_name in self.head_map.get(rule_name, []):
-                    recursive_rules.add(rule_name)
-
-        return {str(r) for r in recursive_rules}
+            for i, name in enumerate(component):
+                if not (rule := self.grammar.rulemap.get(name)):
+                    continue
+                rule.is_memoizable = False
+                if i == 0:
+                    rule.is_leftrec = True

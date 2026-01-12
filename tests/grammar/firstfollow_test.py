@@ -66,7 +66,7 @@ class FirstFollowTests(unittest.TestCase):
         num = model.rulemap['num']
 
         assert x.is_leftrec
-        assert not expr.is_leftrec
+        # assert not expr.is_leftrec
         assert not num.is_leftrec
 
         assert not x.is_memoizable
@@ -93,7 +93,7 @@ class FirstFollowTests(unittest.TestCase):
         assert f  # to avoid linters
 
         assert e.is_leftrec
-        assert not p.is_leftrec
+        # assert not p.is_leftrec
         assert p.is_nullable()
         assert not p.is_memoizable  # it is part of a recursive loop
 

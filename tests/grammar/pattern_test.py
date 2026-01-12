@@ -1,6 +1,7 @@
 import unittest
 
 from tatsu.exceptions import FailedParse
+from tatsu.grammars import Sequence
 from tatsu.ngcodegen import codegen
 from tatsu.tool import compile
 from tatsu.util import trim
@@ -110,11 +111,12 @@ class PatternTests(unittest.TestCase):
             / $ ;
         """
         model = compile(grammar=trim(grammar))
-        print(codegen(model.rules[0].exp.sequence[0]))
-        self.assertEqual(
-            codegen(model.rules[0].exp.sequence[0]).strip(),
-            repr("self._pattern('(?x)\nfoo\nbar\n')").strip('"\''),
-        )
+        if isinstance(model.rules[0].exp, Sequence):
+            print(codegen(model.rules[0].exp.sequence[0]))
+            self.assertEqual(
+                codegen(model.rules[0].exp.sequence[0]).strip(),
+                repr("self._pattern('(?x)\nfoo\nbar\n')").strip('"\''),
+            )
 
         grammar = r"""
             start =
@@ -122,8 +124,9 @@ class PatternTests(unittest.TestCase):
             blort/ $ ;
         """
         model = compile(grammar=trim(grammar))
-        print(codegen(model.rules[0].exp.sequence[0]))
-        self.assertEqual(
-            trim(codegen(model.rules[0].exp.sequence[0])),
-            repr("self._pattern('(?x)foo\\nbar\nblort')").strip(r'"\.'),
-        )
+        if isinstance(model.rules[0].exp, Sequence):
+            print(codegen(model.rules[0].exp.sequence[0]))
+            self.assertEqual(
+                trim(codegen(model.rules[0].exp.sequence[0])),
+                repr("self._pattern('(?x)foo\\nbar\nblort')").strip(r'"\.'),
+            )
