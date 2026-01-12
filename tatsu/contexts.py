@@ -612,20 +612,9 @@ class ParseContext:
             self._memos[key] = memo
         return memo
 
-    def _forget(self, key: MemoKey) -> None:
-        self._memos.pop(key, None)
-
-    def _memo_for(self, key: MemoKey) -> RuleResult | Exception | None:
-        return self._memos.get(key)
-
-    def _mkresult(self, node: Any) -> RuleResult:
-        return RuleResult(node, self._pos, self.substate)
-
     def _save_result(self, key: MemoKey, result: RuleResult) -> None:
         if is_list(result.node):
-            result = RuleResult(
-                closure(result.node), result.newpos, result.newstate,
-            )
+            result = result._replace(node=closure(result.node))
         self._results[key] = result
 
     def _set_left_recursion_guard(self, key: MemoKey) -> None:
@@ -639,19 +628,17 @@ class ParseContext:
         pos = self._pos
         try:
             self._trace_entry()
-
             self._last_node = None
 
             result = self._recursive_call(ruleinfo)
-            node, newpos, newstate = result
 
-            self._goto(newpos)
-            self.substate = newstate
-            self._append_cst(node)
+            self._goto(result.newpos)
+            self.substate = result.newstate
+            self._append_cst(result.node)
 
             self._trace_success()
 
-            return node
+            return result.node
         except FailedPattern:
             self._error(f'Expecting <{ruleinfo.name}>')
         except FailedParse as e:
@@ -680,30 +667,31 @@ class ParseContext:
         elif not self.left_recursion:
             self._error('Left recursion detected', exclass=FailedLeftRecursion)
 
-        if key in self._results:
-            result = self._results[key]
-        else:
-            result = self._make_exception(
-                ruleinfo.name, exclass=FailedLeftRecursion,
-            )
-            self._results[key] = result
+        result: RuleResult | Exception | None = self._results.get(key)
+        if isinstance(result, RuleResult):
+            return result
+        elif isinstance(result, Exception):
+            raise result
 
-            initial = self._pos
-            lastpos = initial - 1
-            while True:
-                try:
-                    self._clear_recursion_errors()
-                    new_result = self._invoke_rule(ruleinfo, key)
-                    self._goto(initial)
-                except FailedParse:
-                    break
+        result = FailedLeftRecursion(self.tokenizer, stack=[], item=ruleinfo.name)
+        self._results[key] = result
 
-                if new_result.newpos > lastpos:
-                    self._save_result(key, new_result)
-                    lastpos = new_result.newpos
-                    result = new_result
-                else:
-                    break
+        initial = self._pos
+        lastpos = -1
+        while True:
+            self._clear_recursion_errors()
+            try:
+                new_result = self._invoke_rule(ruleinfo, key)
+                self._goto(initial)
+            except FailedParse:
+                break
+
+            if new_result.newpos > lastpos:
+                self._save_result(key, new_result)
+                lastpos = new_result.newpos
+                result = new_result
+            else:
+                break
 
         if isinstance(result, Exception):
             raise result
@@ -721,14 +709,13 @@ class ParseContext:
         return node
 
     def _invoke_rule(self, ruleinfo: RuleInfo, key: MemoKey) -> RuleResult:
-        memo = self._memo_for(key)
-        if isinstance(memo, Exception):
-            raise memo
-        if memo:
-            return memo
+        result = self._memos.get(key)
+        if isinstance(result, Exception):
+            raise result
+        if isinstance(result, RuleResult):
+            return result
 
-        if self.left_recursion:
-            self._set_left_recursion_guard(key)
+        self._set_left_recursion_guard(key)
 
         self._push_ast()
         try:
@@ -737,8 +724,10 @@ class ParseContext:
                 ruleinfo.impl(self)
                 node = self._actual_node_value(key.pos, ruleinfo)
                 node = self._invoke_semantic_rule(ruleinfo, node)
-                result = self._mkresult(node)
+
+                result = RuleResult(node, self._pos, self.substate)
                 self._memoize(key, result)
+
                 return result
             except FailedSemantics as e:
                 self._error(str(e))
