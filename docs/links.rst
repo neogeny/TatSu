@@ -5,6 +5,8 @@
 
 .. _ANTLR: http://www.antlr.org/
 .. _AST: http://en.wikipedia.org/wiki/Abstract_syntax_tree
+.. _AST: http://en.wikipedia.org/wiki/Abstract_syntax_tree
+.. _Abstract Syntax Tree: http://en.wikipedia.org/wiki/Abstract_syntax_tree
 .. _Abstract Syntax Tree: http://en.wikipedia.org/wiki/Abstract_syntax_tree
 .. _Algol W: http://en.wikipedia.org/wiki/Algol_W
 .. _Algorithms + Data Structures = Programs: http://www.amazon.com/Algorithms-Structures-Prentice-Hall-Automatic-Computation/dp/0130224189/
@@ -24,7 +26,6 @@
 .. _Java: https://en.wikipedia.org/wiki/Java
 .. _KLOC: http://en.wikipedia.org/wiki/KLOC
 .. _Keywords: https://en.wikipedia.org/wiki/Reserved_word
-.. _`left-recursive`: https://en.wikipedia.org/wiki/Left_recursion
 .. _LICENSE: LICENSE
 .. _LL(1): http://en.wikipedia.org/wiki/LL(1)
 .. _MediaWiki: http://www.mediawiki.org/wiki/MediaWiki
@@ -46,8 +47,8 @@
 .. _Python: http://python.org
 .. _Reserved Words: https://en.wikipedia.org/wiki/Reserved_word
 .. _Ruby: http://www.ruby-lang.org/
-.. _Semantic Graph: http://en.wikipedia.org/wiki/Abstract_semantic_graph
 .. _SQL: https://en.wikipedia.org/wiki/SQL
+.. _Semantic Graph: http://en.wikipedia.org/wiki/Abstract_semantic_graph
 .. _StackOverflow: http://stackoverflow.com/tags/tatsu/info
 .. _Sublime Text: https://www.sublimetext.com
 .. _TatSu Forum: https://groups.google.com/forum/?fromgroups#!forum/tatsu
@@ -59,6 +60,8 @@
 .. _Warth et al: http://www.vpri.org/pdf/tr2007002_packrat.pdf
 .. _Well-known text: http://en.wikipedia.org/wiki/Well-known_text
 .. _Wirth: http://en.wikipedia.org/wiki/Niklaus_Wirth
+.. _`left-recursive`: https://en.wikipedia.org/wiki/Left_recursion
+.. _`make a donation`: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=2TW56SV6WNJV6
 .. _blog post: http://dietbuddha.blogspot.com/2012/12/52python-encapsulating-exceptions-with.html
 .. _colorama: https://pypi.python.org/pypi/colorama/
 .. _context managers: http://docs.python.org/2/library/contextlib.html
@@ -69,14 +72,13 @@
 .. _keyword: https://en.wikipedia.org/wiki/Reserved_word
 .. _keywords: https://en.wikipedia.org/wiki/Reserved_word
 .. _lambdafu: http://blog.marcus-brinkmann.de/
-.. _`make a donation`: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=2TW56SV6WNJV6
+.. _make: https://www.gnu.org/software/make/manual/make.html
 .. _memoizing: http://en.wikipedia.org/wiki/Memoization
 .. _parsewkt: https://github.com/cleder/parsewkt
 .. _pygraphviz: https://pypi.python.org/pypi/pygraphviz
 .. _raw string literal: https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
 .. _re: https://docs.python.org/3.4/library/re.html
 .. _regex: https://pypi.python.org/pypi/regex
-.. _smc.mw: https://github.com/lambdafu/smc.mw
 .. _regular languages: https://en.wikipedia.org/wiki/Regular_language
-.. _Abstract Syntax Tree: http://en.wikipedia.org/wiki/Abstract_syntax_tree
-.. _AST: http://en.wikipedia.org/wiki/Abstract_syntax_tree
+.. _smc.mw: https://github.com/lambdafu/smc.mw
+.. _uv: https://docs.astral.sh/uv/
