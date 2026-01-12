@@ -10,7 +10,7 @@
 | |actions|
 | |docs|
 | |installs|
-|
+| |sponsor|
 |
 
     *At least for the people who send me mail about a new language that
@@ -307,5 +307,5 @@ requires different licensing* please `email`_.
    :target: https://pypistats.org/packages/tatsu
 .. |downloads| image:: https://img.shields.io/github/downloads/neogeny/tatsu/total?label=downloads
    :target: https://pypistats.org/packages/tatsu
-.. |sponsor| image:: https://github.com/sponsors/neogeny/button
+.. |sponsor| image:: https://img.shields.io/badge/Sponsor-EA4AAA?label=TatSu
    :target: https://github.com/sponsors/neogeny
