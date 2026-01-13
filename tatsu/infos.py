@@ -3,7 +3,10 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import NamedTuple
 
+from .parserconfig import ParserConfig  # re-export from legacy package
 from .tokenizing import Tokenizer
+
+assert ParserConfig  # type: ignore
 
 
 class UndefinedStr(str):

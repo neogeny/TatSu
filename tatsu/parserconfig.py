@@ -7,7 +7,6 @@ from collections.abc import Collection, MutableMapping
 from dataclasses import dataclass, field
 from typing import Any
 
-from .infos import _undefined_str
 from .tokenizing import NullTokenizer, Tokenizer
 from .util.misc import cached_re_compile
 from .util.unicode_characters import C_DERIVE
@@ -54,7 +53,7 @@ class ParserConfig:
     ignorecase: bool = False
     namechars: str = ''
     nameguard: bool | None = None  # implied by namechars
-    whitespace: str | None = _undefined_str  # type: ignore
+    whitespace: str | None = None
 
     parseinfo: bool = False
 
@@ -132,8 +131,6 @@ class ParserConfig:
         return settings
 
     def replace(self, **settings: Any) -> ParserConfig:
-        if settings.get('whitespace') is _undefined_str:
-            del settings['whitespace']
         settings = dict(self._filter_non_init_fields(settings))
         overrides = self._filter_non_init_fields(self._find_common(**settings))
         result = dataclasses.replace(self, **overrides)
