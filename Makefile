@@ -41,7 +41,7 @@ ty:
 
 
 clean:
-	find . -name "__pycache__" -delete
+	find . -name "__pycache__" | xargs rm -rf
 	rm -rf tatsu.egg-info dist build .tox
 
 
