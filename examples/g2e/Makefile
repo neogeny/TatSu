@@ -6,7 +6,6 @@ test: clean
 		python -m tatsu.g2e grammar/Python3.g4  \
 				--name Python \
 				--color \
-				--trace \
 				2>&1 > python3.ebnf
 	PYTHONPATH=../.. \
 		python -m tatsu python3.ebnf  \
