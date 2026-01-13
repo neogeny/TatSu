@@ -30,9 +30,9 @@ from .exceptions import (
 from .infos import (
     Alert,
     ParseInfo,
+    ParserConfig,
     RuleInfo,
 )
-from .parserconfig import ParserConfig
 from .tokenizing import NullTokenizer, Tokenizer
 from .util import (
     info,

@@ -14,6 +14,13 @@ from .util.unicode_characters import C_DERIVE
 MEMO_CACHE_SIZE = 1024
 
 
+class UndefinedStr(str):
+    pass
+
+
+_undefined_str = UndefinedStr('>>undefined<<')
+
+
 @dataclass
 class ParserConfig:
     name: str | None = 'Test'
@@ -54,7 +61,7 @@ class ParserConfig:
     namechars: str = ''
     nameguard: bool | None = None  # implied by namechars
     whitespace: str | None = None
-
+    whitespace: str | None = _undefined_str  # type: ignore
     parseinfo: bool = False
 
     def __post_init__(self):  # pylint: disable=W0235
@@ -131,6 +138,8 @@ class ParserConfig:
         return settings
 
     def replace(self, **settings: Any) -> ParserConfig:
+        if settings.get('whitespace') is _undefined_str:
+            del settings['whitespace']
         settings = dict(self._filter_non_init_fields(settings))
         overrides = self._filter_non_init_fields(self._find_common(**settings))
         result = dataclasses.replace(self, **overrides)

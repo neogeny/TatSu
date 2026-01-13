@@ -10,10 +10,9 @@ from pathlib import Path
 from .ast import AST
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
-from .infos import RuleInfo
+from .infos import ParserConfig, RuleInfo
 from .leftrec import Nullable, find_left_recursion  # type: ignore
 from .objectmodel import Node
-from .parserconfig import ParserConfig
 from .util import chunks, compress_seq, indent, re, trim
 
 PEP8_LLEN = 72

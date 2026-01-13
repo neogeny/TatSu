@@ -3,17 +3,16 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import NamedTuple
 
-from .parserconfig import ParserConfig  # re-export from legacy package
+from .parserconfig import (  # re-export from legacy
+    ParserConfig,
+    UndefinedStr,
+    _undefined_str,
+)
+
+# package
 from .tokenizing import Tokenizer
 
-assert ParserConfig  # type: ignore
-
-
-class UndefinedStr(str):
-    pass
-
-
-_undefined_str = UndefinedStr('>>undefined<<')
+assert ParserConfig and UndefinedStr and _undefined_str  # type: ignore
 
 
 class Alert(NamedTuple):

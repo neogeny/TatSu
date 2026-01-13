@@ -16,10 +16,10 @@ from tatsu.tokenizing import Tokenizer
 from . import grammars
 from ._version import __version__
 from .exceptions import ParseException
+from .infos import ParserConfig
 from .ngcodegen.objectmodel import modelgen
 from .ngcodegen.python import codegen as ngpythoncg
 from .parser import GrammarGenerator
-from .parserconfig import ParserConfig
 from .semantics import ModelBuilderSemantics
 from .util import eval_escapes
 

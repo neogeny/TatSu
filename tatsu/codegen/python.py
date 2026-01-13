@@ -518,7 +518,7 @@ class Grammar(Base):
                 from tatsu.parsing import Parser
                 from tatsu.parsing import tatsumasu
                 from tatsu.parsing import leftrec, nomemo, isname
-                from tatsu.parserconfig import ParserConfig
+                from tatsu.infos import ParserConfig
                 from tatsu.util import re, generic_main
 
 

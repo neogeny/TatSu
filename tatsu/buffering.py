@@ -13,10 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from .exceptions import ParseError
-from .infos import (
-    UndefinedStr,
-)
-from .parserconfig import ParserConfig
+from .infos import ParserConfig, UndefinedStr
 from .tokenizing import CommentInfo, LineIndexInfo, LineInfo, PosLine, Tokenizer
 from .util import (
     contains_sublist,
