@@ -1,5 +1,9 @@
 name: test publish to test.pypi
 
+on:
+  # Setting it to an empty block removes all manual inputs
+  workflow_dispatch:
+
 jobs:
   publish:
     runs-on: ubuntu-latest
