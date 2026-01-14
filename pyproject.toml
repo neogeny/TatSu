@@ -132,6 +132,7 @@ norecursedirs = [
     ".venv",
     "build",
     "dist",
+    "tmp",
 ]
 
 [tool.mypy]
@@ -158,9 +159,12 @@ exclude = [
 [tool.coverage.run]
 omit = [
     "/private/*",  # note: don't know how this gets into coverage
-    "test/*",
+    "parsers/",
+    "tests/*",
     "tatsu/diagrams.py",
+    "tatsu/codegen/*",
     "**/test.py",
+    "tmp/*"
 ]
 data_file = ".cache/coverage/.coverage"
 parallel = false
