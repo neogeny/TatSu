@@ -124,7 +124,7 @@ class LeftRecursionTests(unittest.TestCase):
         globs = {}
         exec(src, globs)
         parser = globs["CALCParser"]()
-        print(parser.parse('1-1+1', trace=True))
+        print(parser.parse('1-1+1', trace=trace))
 
     def test_indirect_left_recursion(self, trace=False):
         grammar = """
@@ -317,7 +317,7 @@ class LeftRecursionTests(unittest.TestCase):
         """
 
         model = compile(grammar)
-        model.parse('nlm-n+(aaa)n', trace=True, colorize=True)
+        model.parse('nlm-n+(aaa)n', trace=trace, colorize=True)
 
     @unittest.skip('Similar to the one above')
     def test_mutual_left_recursion(self, trace=False):
