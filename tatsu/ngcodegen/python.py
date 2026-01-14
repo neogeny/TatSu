@@ -36,6 +36,13 @@ HEADER = """\
     from tatsu.parsing import leftrec, nomemo, isname
     from tatsu.infos import ParserConfig
     from tatsu.util import re, generic_main
+
+
+    __all__ = [
+        '{parser_name}Buffer',
+        '{parser_name}Parser',
+        'main',
+    ]
 """
 
 FOOTER = """\
@@ -88,7 +95,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
     def walk_Grammar(self, grammar: grammars.Grammar):
         parser_name = self.parser_name or grammar.name
-        self.print(HEADER)
+        self.print(HEADER.format(parser_name=parser_name))
         self.print()
         self.print()
 
