@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import pickle
 import py_compile
 import shutil
@@ -110,18 +111,30 @@ def test_06_generate_code():
     Path('./tmp/g06.py').write_text(gencode6)
 
 
-@pytest.mark.dependency('test_06_parse_with_model')
-def test_07_import_gerated_code():
+@pytest.mark.dependency('test_06_generate_code')
+def test_07_import_generated_code():
     print('-' * 20, 'phase 07 - import generated code')
-    py_compile.compile('./tmp/g06.py', doraise=True)
-    g06 = __import__('g06')
-    generated_parser = g06.EBNFBootstrapParser
-    assert generated_parser
+
+    text = Path('./tmp/02.ebnf').read_text()
+    g = GrammarGenerator('EBNFBootstrap')
+    parser = g.parse(text)
+    gencode6 = codegen(parser)
+    Path('./tmp/g06.py').write_text(gencode6)
+
+    origin = Path.cwd()
+    os.chdir(Path('./tmp'))
+    try:
+        py_compile.compile('g06.py', doraise=True)
+        g06 = __import__('g06')
+        generated_parser = g06.EBNFBootstrapParser
+        assert generated_parser
+    finally:
+        os.chdir(origin)
 
 
-@pytest.mark.dependency('test_07_parse_with_model')
+@pytest.mark.dependency('test_07_import_generated_code')
 @pytest.mark.skip(reason='unknown. It doesn\' work?')
-def test_08_import_gerated_code():
+def test_08_compile_with_generated():
     print('-' * 20, 'phase 08 - compile using generated code')
     g06 = __import__('g06')
     generated_parser = g06.EBNFBootstrapParser
@@ -140,7 +153,7 @@ def test_08_import_gerated_code():
     assert ast0 == ast8
 
 
-@pytest.mark.dependency('test_08_parse_with_model')
+@pytest.mark.dependency('test_08_compile_with_generated')
 def test_09_parser_with_semantics():
     print('-' * 20, 'phase 09 - Generate parser with semantics')
     text = Path('grammar/tatsu.ebnf').read_text()
