@@ -21,7 +21,7 @@ jobs:
           uv tool install hatch
 
       - name: build
-        run: uv hatch build
+        run: uvx hatch build
 
       - name: publish
         uses: pypa/gh-action-pypi-publish@release/v1
