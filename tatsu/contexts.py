@@ -748,7 +748,7 @@ class ParseContext:
                 )
             except TypeError:
                 node = semantic_rule(
-                    self.semantics, # self
+                    self.semantics,  # self
                     node,
                     *(rule.params or ()),
                     **(rule.kwparams or {}),
