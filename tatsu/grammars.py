@@ -835,7 +835,7 @@ class Rule(Decorator):
         self.is_name = 'name' in self.decorators
         self.base: Rule | None = None
         self.is_leftrec = False  # Starts a left recursive cycle
-        self.is_memoizable = 'nomemo' not in self.decorators
+        self.is_memoizable = True
 
     def _parse(self, ctx):
         return self._parse_rhs(ctx, self.exp)

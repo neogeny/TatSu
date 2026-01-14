@@ -6,7 +6,7 @@ from typing import Any
 from . import grammars
 from .exceptions import FailedSemantics
 from .semantics import ModelBuilderSemantics
-from .util import eval_escapes, flatten, re, warning
+from .util import debug, eval_escapes, flatten, re, warning
 
 
 class EBNFGrammarSemantics(ModelBuilderSemantics):
@@ -142,9 +142,16 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
             directives['whitespace'] = ''
 
         name = self.grammar_name or directives.get('grammar')
-        return grammars.Grammar(
+        grammar = grammars.Grammar(
             name,
             list(self.rules.values()),
             directives=directives,
             keywords=keywords,
         )
+        for rule in grammar.rules:
+            debug(
+                f'rule {rule.name:12}'
+                f'{rule.is_leftrec}',
+                f'{rule.is_memoizable}',
+            )
+        return grammar
