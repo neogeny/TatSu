@@ -3,7 +3,9 @@ test:  lint documentation examples pytest
 
 
 pytest: clean
-	uv run pytest --cov -v
+	#uv run pytest --cov -v tests/
+	@- echo `pwd`
+	uv run pytest -v tests/
 
 
 documentation: sphinx
@@ -51,7 +53,7 @@ checks: clean documentation
 
 
 build: clean
-	uv run hatch build
+	uvx hatch build
 
 
 need_gh:
