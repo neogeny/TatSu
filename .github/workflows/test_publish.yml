@@ -1,4 +1,4 @@
-name: publish to test.pypi
+name: test publish to test.pypi
 
 jobs:
   publish:
