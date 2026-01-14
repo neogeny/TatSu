@@ -55,7 +55,7 @@ build: clean
 
 
 need_gh:
-	gh --version | head -n 1
+	@- gh --version | head -n 1
 
 
 test_publish: need_gh build

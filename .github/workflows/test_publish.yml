@@ -15,11 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install uv and Hatch
+      - name: install uv and hatch
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           uv tool install hatch
 
-      - name: Build and Publish
-        # Hatch detects the OIDC environment and authenticates automatically
-        run: uvx hatch publish --repo test
+      - name: build
+        run: uv hatch build
+
+      - name: publish
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
