@@ -697,7 +697,7 @@ class Cut(Model):
         ctx._cut()
 
     def _first(self, k, f):
-        return {('~',)}
+        return {()}
 
     def _to_str(self, lean=False):
         return '~'
