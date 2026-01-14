@@ -8,6 +8,7 @@ from collections import defaultdict
 from collections.abc import Callable
 
 from . import grammars
+from .util import debug
 
 # Based on https://github.com/ncellar/autumn_v1/
 
@@ -149,11 +150,12 @@ def find_left_recursion(grammar):
     VISITED = 2
 
     state = defaultdict(lambda: FIRST)
-    stack_depth = [0]  # nonlocal workaround 2.7
-    stack_positions = {}
+    stack_depth = 0  # nonlocal workaround 2.7
+    stack_position = {}
     lr_stack_positions = [-1]
 
     def walk(model):
+        nonlocal stack_depth
         if state[model] == FIRST:
             state[model] = CUTOFF
         else:
@@ -162,10 +164,10 @@ def find_left_recursion(grammar):
         # beforeNode
         leftrec = isinstance(model, grammars.Rule) and model.is_leftrec
         if leftrec:
-            lr_stack_positions.append(stack_depth[0])
+            lr_stack_positions.append(stack_depth)
 
-        stack_positions[model] = stack_depth[0]
-        stack_depth[0] += 1
+        stack_position[model] = stack_depth
+        stack_depth += 1
 
         for child in model.at_same_pos(rule_dict):
             child = follow(child, rule_dict)
@@ -173,21 +175,22 @@ def find_left_recursion(grammar):
             # afterEdge
             if (
                 state[child] == CUTOFF
-                and stack_positions[child] > lr_stack_positions[-1]
+                and stack_position[child] > lr_stack_positions[-1]
             ):
                 # turn off memoization for all rules that were involved in this cycle
-                for rule in stack_positions:
+                for rule in stack_position:
                     if isinstance(rule, grammars.Rule):
                         rule.is_memoizable = False
 
                 child.is_leftrec = True
+                debug(child.name)
 
         # afterNode
         if leftrec:
             lr_stack_positions.pop()
 
-        del stack_positions[model]
-        stack_depth[0] -= 1
+        del stack_position[model]
+        stack_depth -= 1
 
         state[model] = VISITED
 
