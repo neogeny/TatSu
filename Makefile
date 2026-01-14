@@ -55,6 +55,7 @@ build: clean
 
 
 need_gh:
+	@- uv tool install gh
 	@- gh --version | head -n 1
 
 
