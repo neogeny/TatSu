@@ -60,8 +60,10 @@ need_gh:
 
 test_publish: need_gh
 	gh workflow run test_publish.yml
+	@- gh run list --workflow="test_publish.yml"
 
 
 publish: need_gh checks
 	# WARNING: now Trusted Publishers is enabled on PyPy
 	gh workflow run publish.yml
+	@- gh run list --workflow="publish.yml"
