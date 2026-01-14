@@ -119,12 +119,12 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model.parse('1+1-1', trace=trace, colorize=True)
         self.assertEqual((('1', '+', '1'), '-', '1'), ast)
 
-        # from tatsu.tool import to_python_sourcecode
-        # src = to_python_sourcecode(grammar)
-        # globals = {}
-        # exec(src, globals)
-        # parser = globals["CALCParser"]()
-        # print(parser.parse('1-1+1', trace=True))
+        from tatsu.tool import to_python_sourcecode
+        src = to_python_sourcecode(grammar)
+        globs = {}
+        exec(src, globs)
+        parser = globs["CALCParser"]()
+        print(parser.parse('1-1+1', trace=True))
 
     def test_indirect_left_recursion(self, trace=False):
         grammar = """
