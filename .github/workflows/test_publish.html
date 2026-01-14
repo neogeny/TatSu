@@ -1,0 +1,26 @@
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      # CRITICAL: This allows the runner to request the OIDC token
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv and Hatch
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          uv tool install hatch
+
+      - name: Build and Publish
+        # Hatch detects the OIDC environment and authenticates automatically
+        run: uvx hatch publish --repo test
