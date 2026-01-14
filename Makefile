@@ -55,16 +55,16 @@ build: clean
 
 
 need_gh:
-	@- uv tool install gh
+	@- uv tool install -q gh
 	@- gh --version | head -n 1
 
 
-test_publish: need_gh
+test_publish: need_gh build
 	gh workflow run test_publish.yml
 	@- gh run list --workflow="test_publish.yml"
 
 
-publish: need_gh checks
+publish: need_gh checks build
 	# WARNING: now Trusted Publishers is enabled on PyPy
 	gh workflow run publish.yml
 	@- gh run list --workflow="publish.yml"
