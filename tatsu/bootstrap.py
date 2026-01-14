@@ -22,6 +22,13 @@ from tatsu.infos import ParserConfig
 from tatsu.util import re, generic_main
 
 
+__all__ = [
+    'EBNFBootstrapBuffer',
+    'EBNFBootstrapParser',
+    'main',
+]
+
+
 KEYWORDS: set[str] = set()
 
 
