@@ -69,7 +69,7 @@ class PythonModelGenerator(IndentPrintMixin):
             ),
         )
 
-        rule_index = {rule.name: rule for rule in grammar.rules}
+        rule_index = grammar.rulemap
         rule_specs = {
             rule.name: self._base_class_specs(rule)
             for rule in grammar.rules
@@ -89,7 +89,7 @@ class PythonModelGenerator(IndentPrintMixin):
             for specs in rule_specs.values()
             for s in specs
         }
-        model_names = topsort(reversed(specs_by_name), all_specs)
+        model_names = list(reversed(topsort(specs_by_name, all_specs)))
 
         model_to_rule = {
             rule_specs[name][0].class_name: rule

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import re
+from collections import defaultdict
 from collections.abc import Iterable
 from functools import cache
+from graphlib import TopologicalSorter
 
 _undefined = object()  # unique object for when None is not a good default
 
@@ -81,30 +83,51 @@ def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=_undefine
     )
 
 
-def topsort[T](nodes: Iterable[T], order: Iterable[tuple[T, T]]) -> list[T]:
+def topsort[T](nodes: Iterable[T], edges: Iterable[tuple[T, T]]) -> list[T]:
     # https://en.wikipedia.org/wiki/Topological_sorting
 
-    order = set(order)
+    partial_order = set(edges)
     result: list[T] = []  # Empty list that will contain the sorted elements
 
+    # NOTE:
+    #   topsort uses a partial order relationship,
+    #   so results for the same arguments may be
+    #   different from one call to the other
+    #   _
+    #   use this to make results stable accross calls
+    #       topsort(n, e) == topsort(n, e)
+    nodes = list(nodes)
+    original_keys = {node: i for i, node in enumerate(nodes)}
+
+    def original_order(nl: Iterable[T]) -> list[T]:
+        return sorted(nl, key=lambda x: original_keys[x])
+
     def with_incoming() -> set[T]:
-        return {m for (_, m) in order}
+        return {m for (_, m) in partial_order}
 
     # Set of all nodes with no incoming edges
-    pending = list(set(nodes) - with_incoming())
+    pending = original_order(set(nodes) - with_incoming())
     while pending:
-        n = pending.pop()
+        n = pending.pop(0)
         result.append(n)
 
-        # nodes m with an edge from n to m
-        outgoing = {m for (x, m) in order if x == n}
-        order -= {(n, m) for m in outgoing}
-        pending.extend(outgoing - with_incoming())
+        outgoing = {m for (x, m) in partial_order if x == n}
+        partial_order -= {(n, m) for m in outgoing}
+        pending.extend(original_order(outgoing - with_incoming()))
 
-    if order:
+    if partial_order:
         raise ValueError('There are cycles in the topological order')
 
-    return list(reversed(result))  # a topologically sorted list
+    return list(result)
+
+
+def _graphlib_topsort[T](nodes: Iterable[T], edges: Iterable[tuple[T, T]]) -> list[T]:
+    graph: dict[T, list[T]] = defaultdict(list[T], {n: [] for n in nodes})
+    for (n, m) in edges:
+        graph[m].append(n)
+
+    sorter = TopologicalSorter(graph)
+    return list(sorter.static_order())
 
 
 @cache
