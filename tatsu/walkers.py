@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Collection, Mapping
-from contextlib import contextmanager
+from collections.abc import Callable, Mapping
 from typing import Any, ClassVar, Concatenate, cast
 
 from .ngmodel import nodeshell
 from .objectmodel import Node
-from .util import is_list, pythonize_name
+from .util import pythonize_name
 
 type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
 
@@ -27,11 +26,8 @@ class NodeWalker(metaclass=NodeWalkerMeta):
     def walker_cache(self):
         return self._walker_cache
 
-    def walk(self, node: Node | Mapping[Any, Node] | Collection[Node], *args, **kwargs) -> Any:
+    def walk(self, node: Any, *args, **kwargs) -> Any:
         node = nodeshell(node)
-        if isinstance(node, list | tuple):
-            actual1 = cast(tuple[Node] | list[Node], node)
-            return [self.walk(n, *args, **kwargs) for n in actual1]
 
         if isinstance(node, Mapping):
             actual2 = cast(Mapping[str, Any], node)
@@ -40,16 +36,21 @@ class NodeWalker(metaclass=NodeWalkerMeta):
                 for name, value in actual2.items()
             }
 
-        if isinstance(node, Node):
-            walker = self._find_walker(node)
-            if callable(walker):
-                return walker(self, node, *args, **kwargs)
-            else:
-                return node
+        if isinstance(node, list | tuple | set):
+            actual1 = cast(tuple[Node] | list[Node], node)
+            return type(node)(
+                self.walk(n, *args, **kwargs)
+                for n in actual1
+                if n != node
+            )
+
+        walker = self._find_walker(node)
+        if callable(walker):
+            return walker(self, node, *args, **kwargs)
         else:
             return node
 
-    def walk_children(self, node: Node, *args, **kwargs) -> list[Any]:
+    def walk_children(self, node: Any, *args, **kwargs) -> list[Any]:
         node = nodeshell(node)
         if not hasattr(node, 'children'):
             return []
@@ -62,7 +63,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
     # note: backwards compatibility
     _walk_children = walk_children
 
-    def _find_walker(self, node: Node, prefix: str = 'walk_') -> WalkerMethod | None:
+    def _find_walker(self, node: Any, prefix: str = 'walk_') -> WalkerMethod | None:
         node = nodeshell(node)
 
         def get_callable(acls: type, aname: str) -> WalkerMethod | None:
@@ -127,7 +128,7 @@ class DepthFirstWalker(NodeWalker):
             return super().walk(node, children, *args, **kwargs)
         elif isinstance(node, Mapping):
             return {n: self.walk(e, *args, **kwargs) for n, e in node.items()}
-        elif is_list(node):
+        elif isinstance(node, list | tuple):
             return [self.walk(e, *args, **kwargs) for e in iter(node)]
         else:
             return super().walk(node, [], *args, **kwargs)
