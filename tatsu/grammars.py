@@ -79,13 +79,6 @@ class Model(Node):
         self._firstset: ffset = set()
         self._follow_set: ffset = set()
         self.value = None
-        # FIXME
-        # self._nullability = self._nullable()
-        # if isinstance(self._nullability, int):  # Allow simple boolean values
-        #     if self._nullability:
-        #         self._nullability = Nullable.yes()
-        #     else:
-        #         self._nullability = Nullable.no()
 
     def _parse(self, ctx: ModelContext):
         ctx.last_node = None
@@ -255,7 +248,6 @@ class Decorator(Model):
         return self.exp._to_str(lean=lean)
 
     def _nullable(self):
-        # return Nullable.of(self.exp)
         return self.exp._nullable()
 
     def at_same_pos(self, ctx):
@@ -458,7 +450,6 @@ class Sequence(Model):
             return comments + '\n'.join(seq)
 
     def _nullable(self):
-        # return Nullable.all(self.sequence)
         return all(s._nullable() for s in self.sequence)
 
     def at_same_pos(self, ctx):
@@ -525,7 +516,6 @@ class Choice(Model):
             return single
 
     def _nullable(self):
-        # return Nullable.any(self.options)
         return any(o._nullable() for o in self.options)
 
     def at_same_pos(self, ctx):
@@ -576,7 +566,6 @@ class PositiveClosure(Closure):
         return super()._to_str(lean=lean) + '+'
 
     def _nullable(self):
-        # return Nullable.of(self.exp)
         return self.exp._nullable()
 
 
@@ -619,7 +608,6 @@ class PositiveJoin(Join):
         return super()._to_str(lean=lean) + '+'
 
     def _nullable(self):
-        # return Nullable.of(self.exp)
         return self.exp._nullable()
 
 
@@ -652,7 +640,6 @@ class PositiveGather(Gather):
         return super()._to_str(lean=lean) + '+'
 
     def _nullable(self):
-        # return Nullable.of(self.exp)
         return self.exp._nullable()
 
 
@@ -870,7 +857,6 @@ class Rule(Decorator):
         return self.exp._follow(k, fl, fl[self.name])
 
     def _nullable(self):
-        # return Nullable.of(self.exp)
         return self.exp._nullable()
 
     @staticmethod
