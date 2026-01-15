@@ -44,7 +44,7 @@ There will be at least these directores under the main project directory:
 * **./tatsu/** the top level package for the project
 * **./tests/** unit and integration tests
 * **./grammar/** grammars used by the project
-* **./docs/** the Sphinxs_ documentation
+* **./docs/** the Sphinx_ documentation
 * **./examples/** sample projects
 * **./etc/** various configuration file templates
 
