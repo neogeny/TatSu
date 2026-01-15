@@ -11,6 +11,8 @@ from ..ast import AST
 from ..infos import ParseInfo
 from ..tokenizing import CommentInfo, LineInfo
 
+BASE_CLASS_TOKEN = '::'  # noqa: S105
+
 
 @overload
 def nodeshell[T: Node](node: T) -> NodeShell[T]: ...
