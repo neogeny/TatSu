@@ -1,3 +1,3 @@
-from .nodes import Node, shell
+from .nodes import Node, nodeshell
 
-__all__ = ['Node', 'shell']
+__all__ = ['Node', 'nodeshell']

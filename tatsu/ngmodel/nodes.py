@@ -14,7 +14,7 @@ from ..tokenizing import CommentInfo, LineInfo
 # --- Module Level Entry Point ---
 
 
-def shell[T: Node](node: T) -> NodeShell[T]:
+def nodeshell[T: Node](node: T) -> NodeShell[T]:
     """Module-level entry point to get the logic shell for a node."""
     return NodeShell.shell(node)
 
@@ -74,16 +74,31 @@ class NodeShell[T: Node]:
         self._children: list[Node] | None = None
 
     def __getattr__(self, name: str) -> Any:
-        """Proxies access to the node's private _attributes."""
-        try:
+        """
+        Proxies attribute access with the following priority:
+        1. Explicit keys in node._attributes
+        2. Normal attributes/methods on the node instance (for subclasses)
+        """
+        # 1. Check the dynamic attributes dictionary
+        if name in self.node._attributes:
             return self.node._attributes[name]
-        except KeyError:
+
+        # 2. Check for real attributes on the Node instance itself
+        # We use getattr() on self.node to find subclass fields
+        try:
+            return getattr(self.node, name)
+        except AttributeError:
             raise AttributeError(
-                f"'{type(self).__name__}' has no attribute '{name}'",
+                f"'{type(self).__name__}' cannot find '{name}' in "
+                f"NodeShell, node._attributes, or {type(self.node).__name__}"
             ) from None
 
     def __dir__(self) -> list[str]:
-        return sorted(set(super().__dir__()) | set(self.node._attributes.keys()))
+        """Combines Shell methods, Node attributes, and dynamic keys for introspection."""
+        node_attrs = set(dir(self.node))
+        dynamic_attrs = set(self.node._attributes.keys())
+        shell_attrs = set(super().__dir__())
+        return sorted(shell_attrs | node_attrs | dynamic_attrs)
 
     # --- Hierarchy & Navigation ---
 
