@@ -1,10 +1,11 @@
+SHELL := /bin/bash
+
 
 test:  lint documentation examples pytest
 
 
 pytest: clean
-	#uv run pytest --cov -v tests/
-	@- echo `pwd`
+	echo `uv run which pytest`
 	uv run pytest -v tests/
 
 
@@ -25,12 +26,12 @@ examples: clean g2e_test calc_test
 
 
 g2e_test:
-	cd examples/g2e; uv run make -s clean test > /dev/null
-	cd examples/g2e; uv run make -s clean > /dev/null
+	cd examples/g2e && uv run make -s clean test > /dev/null
+	@- cd examples/g2e && uv run make -s clean > /dev/null
 
 
 calc_test:
-	cd examples/calc; uv run make -s clean test > /dev/null
+	cd examples/calc && uv run make -s clean test > /dev/null
 
 
 lint: ruff ty mypy
