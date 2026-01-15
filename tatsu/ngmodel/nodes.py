@@ -3,20 +3,37 @@ from __future__ import annotations
 import weakref
 from collections.abc import Callable, Iterator, Mapping
 from dataclasses import dataclass, field
-from typing import Any, cast
+from typing import Any, cast, overload
 
 from tatsu.util import AsJSONMixin, asjson, asjsons
 
 from ..ast import AST
 from ..infos import ParseInfo
+from ..objectmodel import Node as OldNode
 from ..tokenizing import CommentInfo, LineInfo
 
-# --- Module Level Entry Point ---
+type BothNodeTypes = Node | OldNode
 
 
-def nodeshell[T: Node](node: T) -> NodeShell[T]:
-    """Module-level entry point to get the logic shell for a node."""
-    return NodeShell.shell(node)
+@overload
+def nodeshell(node: OldNode) -> OldNode: ...
+
+@overload
+def nodeshell[T: Node](node: T) -> NodeShell[T]: ...
+
+
+def nodeshell(node: BothNodeTypes) -> BothNodeTypes | NodeShell[Any]:
+    """
+    Entry point: returns OldNodes as-is, and wraps new Nodes in a Shell.
+    The overloads ensure type-safety for the caller.
+    """
+    if isinstance(node, OldNode):
+        return node
+
+    if isinstance(node, Node):
+        return NodeShell.shell(node)
+
+    raise TypeError(f"Unknown node type: {type(node).__name__}")
 
 
 @dataclass(unsafe_hash=True)
@@ -48,7 +65,6 @@ class Node(AsJSONMixin):
     # NOTE: --- Serialization ---
     #   Since we removed _parent and _children from Node,
     #   default pickling now works perfectly without custom __getstate__.
-
 
 
 class NodeShell[T: Node]:
@@ -90,7 +106,7 @@ class NodeShell[T: Node]:
         except AttributeError:
             raise AttributeError(
                 f"'{type(self).__name__}' cannot find '{name}' in "
-                f"NodeShell, node._attributes, or {type(self.node).__name__}"
+                f"NodeShell, node._attributes, or {type(self.node).__name__}",
             ) from None
 
     def __dir__(self) -> list[str]:
