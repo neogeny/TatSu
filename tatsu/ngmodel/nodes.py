@@ -9,31 +9,21 @@ from tatsu.util import AsJSONMixin, asjson, asjsons
 
 from ..ast import AST
 from ..infos import ParseInfo
-from ..objectmodel import Node as OldNode
 from ..tokenizing import CommentInfo, LineInfo
 
-type BothNodeTypes = Node | OldNode
-
-
-@overload
-def nodeshell(node: OldNode) -> OldNode: ...
 
 @overload
 def nodeshell[T: Node](node: T) -> NodeShell[T]: ...
 
+@overload
+def nodeshell[T](node: T) -> T: ...
 
-def nodeshell(node: BothNodeTypes) -> BothNodeTypes | NodeShell[Any]:
-    """
-    Entry point: returns OldNodes as-is, and wraps new Nodes in a Shell.
-    The overloads ensure type-safety for the caller.
-    """
-    if isinstance(node, OldNode):
-        return node
 
+def nodeshell(node: Any) -> Any:
     if isinstance(node, Node):
         return NodeShell.shell(node)
-
-    raise TypeError(f"Unknown node type: {type(node).__name__}")
+    else:
+        return node
 
 
 @dataclass(unsafe_hash=True)
