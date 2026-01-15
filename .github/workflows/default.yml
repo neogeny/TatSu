@@ -37,10 +37,9 @@ jobs:
         uv tool install gh
         uv sync
 #    - run: python -m pip install pytest
-    - run: pytest
-    - name: examples
+    - name: test
       run: |
-        make examples
+        make test
 
   docs:
     runs-on: ubuntu-latest
