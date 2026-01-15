@@ -19,7 +19,7 @@ def shell[T: Node](node: T) -> NodeShell[T]:
     return NodeShell.shell(node)
 
 
-@dataclass(eq=False)
+@dataclass(unsafe_hash=True)
 class Node(AsJSONMixin):
     """
     Pure data container.
@@ -45,25 +45,10 @@ class Node(AsJSONMixin):
     def __str__(self) -> str:
         return asjsons(self)
 
-    # --- Serialization ---
-    # Since we removed _parent and _children from Node,
-    # default pickling now works perfectly without custom __getstate__.
+    # NOTE: --- Serialization ---
+    #   Since we removed _parent and _children from Node,
+    #   default pickling now works perfectly without custom __getstate__.
 
-    def __hash__(self) -> int:
-        if self._ast is not None:
-            if isinstance(self._ast, list):
-                return hash(tuple(self._ast))
-            return hash(self._ast)
-        return id(self)
-
-    def __eq__(self, other: object) -> bool:
-        if id(self) == id(other):
-            return True
-        return (
-            self._ast == getattr(other, "_ast", None)
-            if self._ast is not None
-            else False
-        )
 
 
 class NodeShell[T: Node]:
