@@ -4,6 +4,7 @@ from collections.abc import Callable, Collection, Mapping
 from contextlib import contextmanager
 from typing import Any, ClassVar, Concatenate, cast
 
+from .ngmodel import nodeshell
 from .objectmodel import Node
 from .util import is_list, pythonize_name
 
@@ -26,7 +27,8 @@ class NodeWalker(metaclass=NodeWalkerMeta):
     def walker_cache(self):
         return self._walker_cache
 
-    def walk(self, node: Node | Collection[Node], *args, **kwargs) -> Any:
+    def walk(self, node: Node | Mapping[Any, Node] | Collection[Node], *args, **kwargs) -> Any:
+        node = nodeshell(node)
         if isinstance(node, list | tuple):
             actual1 = cast(tuple[Node] | list[Node], node)
             return [self.walk(n, *args, **kwargs) for n in actual1]
@@ -48,7 +50,8 @@ class NodeWalker(metaclass=NodeWalkerMeta):
             return node
 
     def walk_children(self, node: Node, *args, **kwargs) -> list[Any]:
-        if not isinstance(node, Node):
+        node = nodeshell(node)
+        if not hasattr(node, 'children'):
             return []
 
         return [
@@ -60,6 +63,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
     _walk_children = walk_children
 
     def _find_walker(self, node: Node, prefix: str = 'walk_') -> WalkerMethod | None:
+        node = nodeshell(node)
 
         def get_callable(acls: type, aname: str) -> WalkerMethod | None:
             result = getattr(acls, aname, None)
@@ -108,6 +112,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
 
 class PreOrderWalker(NodeWalker):
     def walk(self, node, *args, **kwargs):
+        node = nodeshell(node)
         result = super().walk(node, *args, **kwargs)
         if result is not None:
             self.walk_children(node, *args, **kwargs)
@@ -116,6 +121,7 @@ class PreOrderWalker(NodeWalker):
 
 class DepthFirstWalker(NodeWalker):
     def walk(self, node, *args, **kwargs):
+        node = nodeshell(node)
         if isinstance(node, Node):
             children = [self.walk(c, *args, **kwargs) for c in node.children()]
             return super().walk(node, children, *args, **kwargs)
@@ -125,52 +131,3 @@ class DepthFirstWalker(NodeWalker):
             return [self.walk(e, *args, **kwargs) for e in iter(node)]
         else:
             return super().walk(node, [], *args, **kwargs)
-
-
-class ContextWalker(NodeWalker):
-    def __init__(self, initial_context):
-        super().__init__()
-        self._initial_context = initial_context
-        self._context_stack = [initial_context]
-
-    # abstract
-    def get_node_context(self, node, *args, **kwargs):
-        return node
-
-    # abstract
-    def enter_context(self, ctx):
-        pass
-
-    # abstract
-    def leave_context(self, ctx):
-        pass
-
-    def push_context(self, ctx):
-        self._context_stack.append(ctx)
-
-    def pop_context(self):
-        self._context_stack.pop()
-
-    @property
-    def initial_context(self):
-        return self._initial_context
-
-    @property
-    def context(self):
-        return self._context_stack[-1]
-
-    @contextmanager
-    def new_context(self, node, *args, **kwargs):
-        ctx = self.get_node_context(node, *args, **kwargs)
-        if ctx == self.context:
-            yield ctx
-        else:
-            self.enter_context(ctx)
-            try:
-                self.push_context(ctx)
-                try:
-                    yield ctx
-                finally:
-                    self.pop_context()
-            finally:
-                self.leave_context(ctx)

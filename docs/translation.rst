@@ -79,8 +79,8 @@ by pegen_, the precursor to the new `PEG parser`_ in Python_. Please take a look
 
 Basically, the code generation strategy changed from declarative with library support, to procedural,
 breadth or depth first, using only standard Python_. The procedural code must know the AST_ structure
-to navigate it, although other strategies are available with ``PreOrderWalker``, ``DepthFirstWalker``,
-and ``ContextWalker``.
+to navigate it, although other strategies are available with ``PreOrderWalker`` and
+``DepthFirstWalker``.
 
 |TatSu| doesn't impose a way to create translators with it, but it
 exposes the facilities it uses to generate the `Python`_ source code for
