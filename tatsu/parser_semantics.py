@@ -5,7 +5,7 @@ from typing import Any
 
 from . import grammars
 from .exceptions import FailedSemantics
-from .leftrec import set_left_recursion
+from .leftrec import mark_left_recursion
 from .semantics import ModelBuilderSemantics
 from .util import eval_escapes, flatten, re, warning
 
@@ -150,5 +150,5 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
             keywords=keywords,
         )
         if grammar.config.left_recursion:
-            set_left_recursion(grammar)
+            mark_left_recursion(grammar)
         return grammar

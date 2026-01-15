@@ -1,3 +1,3 @@
-from .setleftrec import set_left_recursion
+from .leftrecmarker import mark_left_recursion
 
-__all__ = ['set_left_recursion']
+__all__ = ['mark_left_recursion']

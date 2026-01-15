@@ -158,7 +158,6 @@ def test_08_compile_with_generated():
     for item in os.environ.items():
         print(item)
 
-
     print('-' * 20, 'phase 08 - compile using generated code')
     g07 = importlib.import_module('g07')
     generated_parser = g07.TatSuParser
