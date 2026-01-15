@@ -11,6 +11,12 @@ pytest: clean
 documentation: sphinx
 
 
+docs: documentation
+
+
+doc: documentation
+
+
 sphinx:
 	cd docs; uv run make -s html > /dev/null
 
