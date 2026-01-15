@@ -1,4 +1,8 @@
+from __future__ import annotations
+
 import unittest
+
+import pytest
 
 from tatsu.exceptions import FailedParse
 from tatsu.tool import compile, parse
@@ -298,7 +302,7 @@ class LeftRecursionTests(unittest.TestCase):
         ast = model_b.parse('(((1+2)))', trace=trace, colorize=True)
         self.assertEqual(('1', '+', '2'), ast)
 
-    @unittest.skip(
+    @pytest.mark.skip(
         'For this the seed growing during left recursion is too primitive',
     )
     def test_interlocking_cycles(self, trace=False):
@@ -319,7 +323,7 @@ class LeftRecursionTests(unittest.TestCase):
         model = compile(grammar)
         model.parse('nlm-n+(aaa)n', trace=trace, colorize=True)
 
-    @unittest.skip('Similar to the one above')
+    @pytest.mark.skip('Similar to the one above')
     def test_mutual_left_recursion(self, trace=False):
         # See https://github.com/PhilippeSigaud/Pegged/wiki/Left-Recursion
         grammar = """

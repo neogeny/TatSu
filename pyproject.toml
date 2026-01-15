@@ -186,7 +186,7 @@ dependencies = [
 
 [tool.hatch.envs.test.scripts]
 version = "echo `python --version`"
-lint = "ruff check -q --preview tatsu test examples"
+lint = "ruff check -q --preview tatsu tests examples"
 types = "ty check tatsu"
 more_types = "mypy --install-types --exclude dist --exclude parsers ."
 tests = "pytest"
