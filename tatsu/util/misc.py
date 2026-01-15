@@ -86,9 +86,6 @@ def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=_undefine
 def topsort[T](nodes: Iterable[T], edges: Iterable[tuple[T, T]]) -> list[T]:
     # https://en.wikipedia.org/wiki/Topological_sorting
 
-    partial_order = set(edges)
-    result: list[T] = []  # Empty list that will contain the sorted elements
-
     # NOTE:
     #   topsort uses a partial order relationship,
     #   so results for the same arguments may be
@@ -102,10 +99,12 @@ def topsort[T](nodes: Iterable[T], edges: Iterable[tuple[T, T]]) -> list[T]:
     def original_order(nl: Iterable[T]) -> list[T]:
         return sorted(nl, key=lambda x: original_keys[x])
 
+    partial_order = set(edges)
+
     def with_incoming() -> set[T]:
         return {m for (_, m) in partial_order}
 
-    # Set of all nodes with no incoming edges
+    result: list[T] = []
     pending = original_order(set(nodes) - with_incoming())
     while pending:
         n = pending.pop(0)
