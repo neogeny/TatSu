@@ -27,11 +27,12 @@ sys.path.insert(0, str(tmp))
 
 @pytest.mark.dependency()
 def test_00_with_boostrap_grammar():
+    print('-' * 20, 'phase 00 - parse using the bootstrap grammar')
+
     tmp = Path('./tmp')
     if (tmp / '00.ast').is_file():
         shutil.rmtree('./tmp')
     tmp.mkdir(exist_ok=True)
-    print('-' * 20, 'phase 00 - parse using the bootstrap grammar')
     text = Path('grammar/tatsu.ebnf').read_text()
     g = EBNFParser('EBNFBootstrap')
     grammar0 = g.parse(text, semantics=ASTSemantics, parseinfo=False)
@@ -116,7 +117,7 @@ def test_06_generate_code():
 
 
 @pytest.mark.dependency('test_06_generate_code')
-@pytest.mark.skipif(os.getenv('MAKE'), reason='FIXME: doesn\'t work from make')
+@pytest.mark.skipif('MAKELEVEL' in os.environ, reason='FIXME: doesn\'t work from make')
 def test_07_import_generated_code():
     print('-' * 20, 'phase 07 - import generated code')
 
@@ -152,7 +153,12 @@ def test_07_import_generated_code():
 
 
 @pytest.mark.dependency('test_07_import_generated_code')
+@pytest.mark.skipif('MAKELEVEL' in os.environ, reason='FIXME: doesn\'t work from make')
 def test_08_compile_with_generated():
+    for item in os.environ.items():
+        print(item)
+
+
     print('-' * 20, 'phase 08 - compile using generated code')
     g07 = importlib.import_module('g07')
     generated_parser = g07.TatSuParser
@@ -166,7 +172,7 @@ def test_08_compile_with_generated():
     ast8 = json.dumps(asjson(result), indent=2)
     Path('./tmp/08.ast').write_text(ast8)
     pprint.pprint(list(
-        difflib.unified_diff(ast0.splitlines(), ast8.splitlines())
+        difflib.unified_diff(ast0.splitlines(), ast8.splitlines()),
     ))
     assert ast0 == ast8
 
