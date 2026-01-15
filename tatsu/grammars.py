@@ -11,7 +11,6 @@ from .ast import AST
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
-from .leftrec import find_left_recursion  # type: ignore
 from .objectmodel import Node
 from .util import chunks, compress_seq, indent, re, trim
 
@@ -127,10 +126,10 @@ class Model(Node):
     def _follow(self, k, fl, a):
         return a
 
-    def is_nullable(self, ctx: Mapping[str, Rule] | None = None):
+    def is_nullable(self, ctx: Mapping[str, Rule] | None = None) -> bool:
         return self._nullable()
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return False
 
     # list of rules that can be invoked at the same position
@@ -170,7 +169,7 @@ class Void(Model):
     def _to_str(self, lean=False):
         return '()'
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return True
 
 
@@ -247,7 +246,7 @@ class Decorator(Model):
     def _to_str(self, lean=False):
         return self.exp._to_str(lean=lean)
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return self.exp._nullable()
 
     def at_same_pos(self, ctx):
@@ -302,7 +301,7 @@ class Constant(Model):
     def _to_str(self, lean=False):
         return f'`{self.literal!r}`'
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return True
 
 
@@ -354,7 +353,7 @@ class Pattern(Model):
             parts.append(regex)
         return '\n+ '.join(parts)
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return bool(self.regex.match(''))
 
     def __repr__(self):
@@ -369,7 +368,7 @@ class Lookahead(Decorator):
     def _to_str(self, lean=False):
         return '&' + self.exp._to_str(lean=lean)
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return True
 
 
@@ -381,7 +380,7 @@ class NegativeLookahead(Decorator):
     def _to_str(self, lean=False):
         return '!' + str(self.exp._to_str(lean=lean))
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return True
 
 
@@ -449,7 +448,7 @@ class Sequence(Model):
         else:
             return comments + '\n'.join(seq)
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return all(s._nullable() for s in self.sequence)
 
     def at_same_pos(self, ctx):
@@ -515,7 +514,7 @@ class Choice(Model):
         else:
             return single
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return any(o._nullable() for o in self.options)
 
     def at_same_pos(self, ctx):
@@ -547,7 +546,7 @@ class Closure(Decorator):
         else:
             return f'{{\n{indent(sexp)}\n}}'
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return True
 
 
@@ -565,7 +564,7 @@ class PositiveClosure(Closure):
     def _to_str(self, lean=False):
         return super()._to_str(lean=lean) + '+'
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return self.exp._nullable()
 
 
@@ -596,7 +595,7 @@ class Join(Decorator):
         else:
             return f'{ssep}{self.JOINOP}{{\n{sexp}\n}}'
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return True
 
 
@@ -607,7 +606,7 @@ class PositiveJoin(Join):
     def _to_str(self, lean=False):
         return super()._to_str(lean=lean) + '+'
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return self.exp._nullable()
 
 
@@ -639,7 +638,7 @@ class PositiveGather(Gather):
     def _to_str(self, lean=False):
         return super()._to_str(lean=lean) + '+'
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return self.exp._nullable()
 
 
@@ -653,7 +652,7 @@ class EmptyClosure(Model):
     def _to_str(self, lean=False):
         return '{}'
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return True
 
 
@@ -682,7 +681,7 @@ class Optional(Decorator):
             ]
             """
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return True
 
 
@@ -696,7 +695,7 @@ class Cut(Model):
     def _to_str(self, lean=False):
         return '~'
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return True
 
 
@@ -759,7 +758,7 @@ class Special(Model):
     def _to_str(self, lean=False):
         return f'?{self.value}?'
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return True
 
 
@@ -856,7 +855,7 @@ class Rule(Decorator):
     def _follow(self, k, fl, a):
         return self.exp._follow(k, fl, fl[self.name])
 
-    def _nullable(self):
+    def _nullable(self) -> bool:
         return self.exp._nullable()
 
     @staticmethod
@@ -985,8 +984,8 @@ class Grammar(Model):
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
         self._calc_lookahead_sets()
-        if config.left_recursion:
-            find_left_recursion(self)
+        # if config.left_recursion:
+        #     set_left_recursion(self)
 
     @property
     def keywords(self) -> Collection[str]:
