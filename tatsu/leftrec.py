@@ -142,7 +142,10 @@ def find_left_recursion(grammar):
     }  # Required to resolve rule references
 
     # First we need to resolve nullable rules
-    resolve_nullability(grammar, rule_dict)
+    # FIXME
+    #   the algorithm doesn't require resolve_nullabily()
+    #   Model.is_nullable() is enough
+    # resolve_nullability(grammar, rule_dict)
 
     # Traversable state
     FIRST = 0

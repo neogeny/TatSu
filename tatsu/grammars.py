@@ -11,7 +11,7 @@ from .ast import AST
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
-from .leftrec import Nullable, find_left_recursion  # type: ignore
+from .leftrec import find_left_recursion  # type: ignore
 from .objectmodel import Node
 from .util import chunks, compress_seq, indent, re, trim
 
@@ -79,12 +79,13 @@ class Model(Node):
         self._firstset: ffset = set()
         self._follow_set: ffset = set()
         self.value = None
-        self._nullability = self._nullable()
-        if isinstance(self._nullability, int):  # Allow simple boolean values
-            if self._nullability:
-                self._nullability = Nullable.yes()
-            else:
-                self._nullability = Nullable.no()
+        # FIXME
+        # self._nullability = self._nullable()
+        # if isinstance(self._nullability, int):  # Allow simple boolean values
+        #     if self._nullability:
+        #         self._nullability = Nullable.yes()
+        #     else:
+        #         self._nullability = Nullable.no()
 
     def _parse(self, ctx: ModelContext):
         ctx.last_node = None
@@ -134,7 +135,7 @@ class Model(Node):
         return a
 
     def is_nullable(self, ctx: Mapping[str, Rule] | None = None):
-        return self._nullability.nullable
+        return self._nullable()
 
     def _nullable(self):
         return False
@@ -254,7 +255,8 @@ class Decorator(Model):
         return self.exp._to_str(lean=lean)
 
     def _nullable(self):
-        return Nullable.of(self.exp)
+        # return Nullable.of(self.exp)
+        return self.exp._nullable()
 
     def at_same_pos(self, ctx):
         return [self.exp]
@@ -456,7 +458,8 @@ class Sequence(Model):
             return comments + '\n'.join(seq)
 
     def _nullable(self):
-        return Nullable.all(self.sequence)
+        # return Nullable.all(self.sequence)
+        return all(s._nullable() for s in self.sequence)
 
     def at_same_pos(self, ctx):
         head = list(takewhile(lambda c: c.is_nullable(ctx), self.sequence))
@@ -522,7 +525,8 @@ class Choice(Model):
             return single
 
     def _nullable(self):
-        return Nullable.any(self.options)
+        # return Nullable.any(self.options)
+        return any(o._nullable() for o in self.options)
 
     def at_same_pos(self, ctx):
         return self.options
@@ -572,7 +576,8 @@ class PositiveClosure(Closure):
         return super()._to_str(lean=lean) + '+'
 
     def _nullable(self):
-        return Nullable.of(self.exp)
+        # return Nullable.of(self.exp)
+        return self.exp._nullable()
 
 
 class Join(Decorator):
@@ -614,7 +619,8 @@ class PositiveJoin(Join):
         return super()._to_str(lean=lean) + '+'
 
     def _nullable(self):
-        return Nullable.of(self.exp)
+        # return Nullable.of(self.exp)
+        return self.exp._nullable()
 
 
 class LeftJoin(PositiveJoin):
@@ -646,7 +652,8 @@ class PositiveGather(Gather):
         return super()._to_str(lean=lean) + '+'
 
     def _nullable(self):
-        return Nullable.of(self.exp)
+        # return Nullable.of(self.exp)
+        return self.exp._nullable()
 
 
 class EmptyClosure(Model):
@@ -863,7 +870,8 @@ class Rule(Decorator):
         return self.exp._follow(k, fl, fl[self.name])
 
     def _nullable(self):
-        return Nullable.of(self.exp)
+        # return Nullable.of(self.exp)
+        return self.exp._nullable()
 
     @staticmethod
     def param_repr(p):
