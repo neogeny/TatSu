@@ -26,8 +26,13 @@ def nodeshell(node: Any) -> Any:
         return node
 
 
+@dataclass
+class NodeBase:
+    pass
+
+
 @dataclass(unsafe_hash=True)
-class Node(AsJSONMixin):
+class Node(AsJSONMixin, NodeBase):
     """
     Pure data container.
     All fields are private to ensure interaction only via NodeShell.
@@ -57,7 +62,7 @@ class Node(AsJSONMixin):
     #   default pickling now works perfectly without custom __getstate__.
 
 
-class NodeShell[T: Node]:
+class NodeShell[T: Node](NodeBase):
     """
     The 'Stateful View' of a Node.
     Manages tree hierarchy and provides public access to private Node data.
