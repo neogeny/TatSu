@@ -10,27 +10,19 @@ from .util import debug
 # Based on https://github.com/ncellar/autumn_v1/
 
 
-# Returns the correct Rule instance for a RuleRef
-def follow_ref(node, rulemap):
-    if isinstance(node, grammars.RuleRef):
-        return rulemap.get(node.name, node)
-    else:
-        return node
-
-
-def set_left_recursion(grammar):
+def set_left_recursion(grammar: grammars.Grammar) -> None:
     # Traversable state
     class State(IntEnum):
         FIRST = auto()
         CUTOFF = auto()
         VISITED = auto()
 
-    state: MutableMapping[grammar.Rule, State] = defaultdict(lambda: State.FIRST)
+    state: MutableMapping[grammars.Rule, State] = defaultdict(lambda: State.FIRST)
     stack_depth = 0  # nonlocal workaround 2.7
     stack_position = {}
     lr_stack_positions = [-1]
 
-    def walk(model):
+    def dfs(model: grammars.Rule):
         nonlocal stack_depth
 
         if state[model] == State.FIRST:
@@ -47,8 +39,8 @@ def set_left_recursion(grammar):
         stack_depth += 1
 
         for c in model.at_same_pos(grammar.rulemap):
-            child = follow_ref(c, grammar.rulemap)
-            walk(child)
+            child = c.follow_ref(grammar.rulemap)
+            dfs(child)
             # afterEdge
             if (
                 state[child] == State.CUTOFF
@@ -71,11 +63,5 @@ def set_left_recursion(grammar):
 
         state[model] = State.VISITED
 
-    for rule in grammar.children_list():
-        walk(rule)
-
-    # print()
-    # for rule in grammar.children_list():
-    #    print(rule)
-    #    if rule.is_leftrec: print("-> Leftrec")
-    #    if rule.is_nullable(): print("-> Nullable")
+    for rule in grammar.rules:
+        dfs(rule)

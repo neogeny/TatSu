@@ -79,6 +79,9 @@ class Model(Node):
         self._follow_set: ffset = set()
         self.value = None
 
+    def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
+        return self
+
     def _parse(self, ctx: ModelContext):
         ctx.last_node = None
 
@@ -766,6 +769,9 @@ class RuleRef(Model):
     def __post_init__(self) -> None:
         super().__post_init__()
         self.name: str = self.ast or 'unnamed'  # type: ignore
+
+    def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
+        return rulemap.get(self.name, self)
 
     def _parse(self, ctx):
         try:
