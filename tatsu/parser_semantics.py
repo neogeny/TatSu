@@ -5,7 +5,7 @@ from typing import Any
 
 from . import grammars
 from .exceptions import FailedSemantics
-from .leftrec import set_left_recursion  # type: ignore
+from .leftrec import set_left_recursion
 from .semantics import ModelBuilderSemantics
 from .util import debug, eval_escapes, flatten, re, warning
 

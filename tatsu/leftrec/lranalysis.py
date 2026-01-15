@@ -5,12 +5,13 @@ from collections.abc import MutableMapping
 from enum import IntEnum, auto
 from typing import cast
 
-from . import grammars
-from .util import debug
+from tatsu import grammars
+from tatsu.util import debug
 
-# Based on https://github.com/ncellar/autumn_v1/
+__all__ = ['set_left_recursion']
 
 
+# note: based on https://github.com/ncellar/autumn_v1/
 def set_left_recursion(grammar: grammars.Grammar) -> None:
     # Traversable state
     class State(IntEnum):
