@@ -6,7 +6,6 @@ from enum import IntEnum, auto
 from typing import cast
 
 from tatsu import grammars
-from tatsu.util import debug
 
 __all__ = ['set_left_recursion']
 
@@ -55,7 +54,6 @@ def set_left_recursion(grammar: grammars.Grammar) -> None:
                         rule.is_memoizable = False
 
                 child.is_leftrec = True
-                debug(child.name)
 
         # afterNode
         if leftrec:

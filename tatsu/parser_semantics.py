@@ -7,7 +7,7 @@ from . import grammars
 from .exceptions import FailedSemantics
 from .leftrec import set_left_recursion
 from .semantics import ModelBuilderSemantics
-from .util import debug, eval_escapes, flatten, re, warning
+from .util import eval_escapes, flatten, re, warning
 
 
 class EBNFGrammarSemantics(ModelBuilderSemantics):
@@ -151,10 +151,4 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
         )
         if grammar.config.left_recursion:
             set_left_recursion(grammar)
-        for rule in grammar.rules:
-            debug(
-                f'rule {rule.name:12}'
-                f'{rule.is_leftrec}',
-                f'{rule.is_memoizable}',
-            )
         return grammar
