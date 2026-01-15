@@ -9,13 +9,14 @@ from tatsu.util import AsJSONMixin, asjson, asjsons
 
 from .ast import AST
 from .infos import ParseInfo
+from .ngmodel import NodeBase
 from .tokenizing import CommentInfo, LineInfo
 
 BASE_CLASS_TOKEN = '::'  # noqa: S105
 
 
 @dataclass(eq=False)
-class Node(AsJSONMixin):
+class Node(AsJSONMixin, NodeBase):
     _parent: Node | None = None
     _children: list[Node] | None = None
     ast: AST | Node | str | None = None
