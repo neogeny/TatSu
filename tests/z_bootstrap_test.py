@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import difflib
+import importlib
 import json
 import os
 import pickle
+import pprint
 import py_compile
 import shutil
 import sys
@@ -31,7 +34,7 @@ def test_00_with_boostrap_grammar():
     print('-' * 20, 'phase 00 - parse using the bootstrap grammar')
     text = Path('grammar/tatsu.ebnf').read_text()
     g = EBNFParser('EBNFBootstrap')
-    grammar0 = g.parse(text, parseinfo=False)
+    grammar0 = g.parse(text, semantics=ASTSemantics, parseinfo=False)
     ast0 = json.dumps(asjson(grammar0), indent=2)
     Path('./tmp/00.ast').write_text(ast0)
 
@@ -113,7 +116,7 @@ def test_06_generate_code():
 
 
 @pytest.mark.dependency('test_06_generate_code')
-@pytest.mark.skip('FIXME: doesn\'t work from make')
+@pytest.mark.skipif(os.getenv('MAKE'), reason='FIXME: doesn\'t work from make')
 def test_07_import_generated_code():
     print('-' * 20, 'phase 07 - import generated code')
 
@@ -123,7 +126,6 @@ def test_07_import_generated_code():
     assert Path('./tmp/g07.py').is_file()
 
     origin = Path().absolute()
-    # os.chdir(Path('./tmp'))
     try:
         print('current', Path().absolute())
         compiled_path = py_compile.compile('./tmp/g07.py', doraise=True)
@@ -139,8 +141,9 @@ def test_07_import_generated_code():
         assert package_init.is_file()
         print('package_init', package_init)
 
-        # g07 = importlib.import_module('g07', package='tmp')
-        g07 = __import__('g07')
+        os.chdir(Path('./tmp'))
+        g07 = importlib.import_module('g07', package='tmp')
+        # g07 = __import__('g07')
         assert g07
         generated_parser = g07.TatSuParser
         assert generated_parser
@@ -149,23 +152,22 @@ def test_07_import_generated_code():
 
 
 @pytest.mark.dependency('test_07_import_generated_code')
-@pytest.mark.skip(reason='Unknown. Doesn\' work?')
 def test_08_compile_with_generated():
     print('-' * 20, 'phase 08 - compile using generated code')
-    g06 = __import__('g06')
-    generated_parser = g06.EBNFBootstrapParser
+    g07 = importlib.import_module('g07')
+    generated_parser = g07.TatSuParser
     assert generated_parser
 
-    text = Path('grammar/tatsu.ebnf').read_text()
-    g = EBNFParser('EBNFBootstrap')
-    grammar0 = g.parse(text, parseinfo=False)
-    ast0 = json.dumps(asjson(grammar0), indent=2)
+    ast0 = Path('./tmp/00.ast').read_text()
 
     parser = generated_parser(trace=False)
     text = Path('grammar/tatsu.ebnf').read_text()
     result = parser.parse(text, semantics=ASTSemantics, parseinfo=False)
     ast8 = json.dumps(asjson(result), indent=2)
     Path('./tmp/08.ast').write_text(ast8)
+    pprint.pprint(list(
+        difflib.unified_diff(ast0.splitlines(), ast8.splitlines())
+    ))
     assert ast0 == ast8
 
 
