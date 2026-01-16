@@ -6,9 +6,10 @@ from typing import Any
 
 from .contexts import ParseContext
 from .exceptions import SemanticError
-from .objectmodel import BASE_CLASS_TOKEN, Node
+from .ngmodel import BASE_CLASS_TOKEN, Node, NodeBase, nodeshell
 from .synth import registered_symthetics, synthesize
 from .util import simplify_list
+from .util.misc import first
 
 
 class ASTSemantics:
@@ -36,7 +37,7 @@ class ModelBuilderSemantics:
     def __init__(
             self,
             context: ParseContext | None = None,
-            base_type: type[Node] = Node,
+            base_type: type[NodeBase] = Node,
             types: Iterable[Callable] | None = None):
         self.ctx = context
         self.base_type = base_type
@@ -85,7 +86,10 @@ class ModelBuilderSemantics:
         if not args:
             return ast
 
-        typespec = args[0].split(BASE_CLASS_TOKEN)
+        first_str_arg = first(a for a in args if isinstance(a, str))
+        assert isinstance(first_str_arg, str), (f'{ast=}\n{args=}\n'
+                                                f'{[type(a).__name__ for a in args]}')
+        typespec = first_str_arg.split(BASE_CLASS_TOKEN)
         typename = typespec[0]
         bases = reversed(typespec)
 
@@ -95,11 +99,12 @@ class ModelBuilderSemantics:
 
         constructor = self._get_constructor(typename, base)
         try:
-            if isinstance(constructor, type) and issubclass(constructor, Node):
-                return constructor(ast=ast, ctx=self.ctx, **kwargs)
+            if isinstance(constructor, type) and issubclass(constructor, NodeBase):
+                obj = constructor(ast=ast, ctx=self.ctx, **kwargs)
             else:
-                return constructor(ast, *args[1:], **kwargs)
+                obj = constructor(ast, *args[1:], **kwargs)
         except Exception as e:
             raise SemanticError(
                 f'Could not call constructor for {typename}: {e!s}',
             ) from e
+        return nodeshell(obj)
