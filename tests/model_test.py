@@ -103,5 +103,5 @@ def test_children():
     model = parser.parse('3 + 5 * ( 10 - 20 )', asmodel=True)
     assert model
     assert model['add']
-    assert model['add'].children()
+    assert model['add'].children(), model['add']
     assert type(model['add'].children()[0]).__name__ == 'Multiply'
