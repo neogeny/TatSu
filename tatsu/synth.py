@@ -1,4 +1,5 @@
 from collections.abc import Callable, MutableMapping
+from dataclasses import dataclass
 from typing import Any
 
 # NOTE:
@@ -7,7 +8,11 @@ from typing import Any
 __REGISTRY: MutableMapping[str, Callable] = vars()
 
 
+@dataclass
 class _Synthetic:
+    def __hash__(self) -> int:
+        return hash(id(self))
+
     def __reduce__(self) -> tuple[Any, ...]:
         return (
             synthesize(type(self).__name__, type(self).__bases__),
@@ -16,18 +21,18 @@ class _Synthetic:
         )
 
 
-def synthesize(name: str, bases: tuple[type, ...]) -> Callable:
+def synthesize(name: str, bases: tuple[type, ...], *args: Any, **kwargs: Any) -> Callable:
     typename = f'{__name__}.{name}'
 
     if not isinstance(bases, tuple):
         bases = (bases,)
 
     if _Synthetic not in bases:
-        bases += (_Synthetic,)
+        bases = (*bases, _Synthetic)
 
     constructor = __REGISTRY.get(typename)
     if not constructor:
-        constructor = type(name, bases, {})
+        constructor = type(name, bases, kwargs)
         typename = constructor.__name__
         __REGISTRY[typename] = constructor
 

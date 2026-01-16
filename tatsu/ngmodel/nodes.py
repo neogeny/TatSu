@@ -81,7 +81,7 @@ class NodeShell[T: Node](NodeBase):
     )
 
     @staticmethod
-    def shell[U: Node](node: U) -> NodeShell[U] | NodeBase:
+    def shell[U: Node](node: U) -> NodeShell[U]:
         if node not in NodeShell._cache:
             NodeShell._cache[node] = NodeShell(node)
         return NodeShell._cache[node]
