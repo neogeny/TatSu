@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import weakref
 from collections.abc import Callable, Iterator, Mapping
-from dataclasses import InitVar, dataclass, field
+from dataclasses import dataclass, field
 from typing import Any, ClassVar, cast, overload
 
 from tatsu.util import AsJSONMixin, asjson, asjsons
@@ -33,7 +33,15 @@ def nodeshell(node: Any) -> Any:
 
 @dataclass
 class NodeBase:
-    pass
+    # NOTE: allows for compatibility with old Node
+    def __init__(
+            self,
+            ast: Any = None,
+            ctx: Any = None,
+            parseinfo: ParseInfo | None = None,
+            **attributes: Any,
+    ):
+        pass
 
 
 @dataclass(unsafe_hash=True)
@@ -43,19 +51,26 @@ class Node(AsJSONMixin, NodeBase):
     Stores the AST structure and attributes but remains unaware of its
     position within a larger tree to ensure easy serialization.
     """
-    ast: InitVar[Any] | None = None
-    ctx: InitVar[Any] | None = None
-
-    _ast: AST | Node | NodeBase | str | None = None
+    _ast: Any = None
     _ctx: Any = None
     _parseinfo: ParseInfo | None = None
     _attributes: dict[str, Any] = field(default_factory=dict, hash=False, compare=False)
 
-    def __post_init__(self, ast: Any, ctx: Any) -> None:  # type: ignore
+    def __init__(
+            self,
+            ast: Any = None,
+            ctx: Any = None,
+            parseinfo: ParseInfo | None = None,
+            **attributes: Any,
+    ):
+        super().__init__()
         self._ast = ast
         self._ctx = ctx
-        if isinstance(self._ast, dict):
-            self._ast = AST(self._ast)
+        self._parseinfo = parseinfo
+        self._attributes.update(attributes)
+        self.__post_init__()
+
+    def __post_init__(self) -> None:  # type: ignore
         if not self._parseinfo and isinstance(self._ast, AST):
             self._parseinfo = self._ast.parseinfo
         if isinstance(self._ast, Mapping):

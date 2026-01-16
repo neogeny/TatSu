@@ -23,11 +23,17 @@ class Node(AsJSONMixin, NodeBase):
     ctx: Any = None
     parseinfo: ParseInfo | None = None
 
-    def __init__(self, ast: AST | Node | str | None = None, **attributes: Any):
+    def __init__(
+            self,
+            ast: Any = None,
+            ctx: Any = None,
+            parseinfo: ParseInfo | None = None,
+            **attributes: Any,
+    ):
         super().__init__()
-        if isinstance(ast, dict):
-            ast = AST(ast)
         self.ast = ast
+        self.ctx = ctx
+        self.parseinfo = parseinfo
 
         for name, value in attributes.items():
             setattr(self, name, value)
@@ -40,18 +46,14 @@ class Node(AsJSONMixin, NodeBase):
         if not self.parseinfo and isinstance(ast, AST):
             self.parseinfo = ast.parseinfo
 
-        if not isinstance(ast, Mapping):
-            return
-
-        for name in set(ast) - {'parseinfo'}:
-            try:
-                setattr(self, name, ast[name])
-            except AttributeError as e:
-                raise AttributeError(f"'{name}' is a reserved name") from e
+        if isinstance(ast, Mapping):
+            for name in set(ast) - {'parseinfo'}:
+                try:
+                    setattr(self, name, ast[name])
+                except AttributeError as e:
+                    raise AttributeError(f"'{name}' is a reserved name") from e
 
         self._children = self.children_list()
-        if self.parseinfo is None:
-            del self.parseinfo
 
     @property
     def parent(self) -> Node | None:
