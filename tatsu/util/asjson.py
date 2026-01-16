@@ -53,7 +53,7 @@ def asjson(obj, seen: set[int] | None = None) -> Any:  # noqa: PLR0911, PLR0912
                     raise
             return result
         elif isiter(obj):
-            return type(obj)(asjson(e, seen=seen) for e in obj)
+            return [asjson(e, seen=seen) for e in obj]
         elif isinstance(obj, enum.Enum):
             return asjson(obj.value)
         else:
