@@ -38,10 +38,9 @@ class NodeWalker(metaclass=NodeWalkerMeta):
             }
 
         if isinstance(node, list | tuple | set):
-            actual1 = cast(tuple[Node] | list[Node], node)
             return type(node)(
                 self.walk(n, *args, **kwargs)
-                for n in actual1
+                for n in node
                 if n != node
             )
 

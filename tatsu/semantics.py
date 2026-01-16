@@ -81,13 +81,13 @@ class ModelBuilderSemantics:
 
         return self._register_constructor(constructor)
 
-    def _default(self, ast, *args, **kwargs):
+    def _default(self, ast, *args, **kwargs) -> Any:
         if not args:
             return ast
 
         typespec = args[0].split(BASE_CLASS_TOKEN)
         typename = typespec[0]
-        bases = typespec[-1:0:-1]
+        bases = reversed(typespec)
 
         base = self.base_type
         for base_ in bases:
