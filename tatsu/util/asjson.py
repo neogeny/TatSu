@@ -45,15 +45,15 @@ def asjson(obj, seen: set[int] | None = None) -> Any:  # noqa: PLR0911, PLR0912
             return asjson(obj._asdict(), seen=seen)
         elif isinstance(obj, Mapping):
             result = {}
-            for k, v in obj.items():
+            for key, value in obj.items():
                 try:
-                    result[k] = asjson(v, seen=seen)
+                    result[key] = asjson(value, seen=seen)
                 except TypeError:
-                    debug('Unhashable key?', type(k), str(k))
+                    debug('Unhashable key?', type(key), str(key))
                     raise
             return result
         elif isiter(obj):
-            return [asjson(e, seen=seen) for e in obj]
+            return type(obj)(asjson(e, seen=seen) for e in obj)
         elif isinstance(obj, enum.Enum):
             return asjson(obj.value)
         else:
