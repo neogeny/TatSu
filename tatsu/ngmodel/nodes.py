@@ -53,6 +53,7 @@ class Node(AsJSONMixin, NodeBase):
         self._ast = ast
 
         self._attributes.update(attributes)
+        self.__post_init__()
 
     def __post_init__(self):
         if isinstance(self._ast, dict):
