@@ -4,7 +4,7 @@ from collections.abc import Callable, Mapping
 from contextlib import contextmanager
 from typing import Any, ClassVar, Concatenate, cast
 
-from .ngmodel import nodeshell
+from .ngmodel import NodeBase, NodeShell, nodeshell, unwrap
 from .objectmodel import Node
 from .util import pythonize_name
 
@@ -28,16 +28,14 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         return self._walker_cache
 
     def walk(self, node: Any, *args, **kwargs) -> Any:
-        node = nodeshell(node)
-
+        node = unwrap(node)
         if isinstance(node, Mapping):
             actual2 = cast(Mapping[str, Any], node)
             return {
                 name: self.walk(value, *args, **kwargs)
                 for name, value in actual2.items()
             }
-
-        if isinstance(node, list | tuple | set):
+        elif isinstance(node, list | tuple | set):
             return type(node)(
                 self.walk(n, *args, **kwargs)
                 for n in node
@@ -46,9 +44,10 @@ class NodeWalker(metaclass=NodeWalkerMeta):
 
         walker = self._find_walker(node)
         if callable(walker):
-            return walker(self, node, *args, **kwargs)
+            result = walker(self, unwrap(node), *args, **kwargs)
         else:
-            return node
+            result = node
+        return result
 
     def walk_children(self, node: Any, *args, **kwargs) -> list[Any]:
         node = nodeshell(node)
@@ -64,7 +63,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
     _walk_children = walk_children
 
     def _find_walker(self, node: Any, prefix: str = 'walk_') -> WalkerMethod | None:
-        node = nodeshell(node)
+        node = unwrap(node)
 
         def get_callable(acls: type, aname: str) -> WalkerMethod | None:
             result = getattr(acls, aname, None)
@@ -122,14 +121,19 @@ class PreOrderWalker(NodeWalker):
 
 class DepthFirstWalker(NodeWalker):
     def walk(self, node, *args, **kwargs):
-        node = nodeshell(node)
-        if isinstance(node, Node):
-            children = [self.walk(c, *args, **kwargs) for c in node.children()]
-            return super().walk(node, children, *args, **kwargs)
+        node = unwrap(node)
+        if isinstance(node, Node | NodeShell | NodeBase):
+            return self.walk(nodeshell(node).children())
         elif isinstance(node, Mapping):
-            return {n: self.walk(e, *args, **kwargs) for n, e in node.items()}
+            return {
+                name: self.walk(value, *args, **kwargs)
+                for name, value in node.items()
+            }
         elif isinstance(node, list | tuple):
-            return [self.walk(e, *args, **kwargs) for e in iter(node)]
+            return [
+                self.walk(item, *args, **kwargs)
+                for item in iter(node)
+            ]
         else:
             return super().walk(node, [], *args, **kwargs)
 
