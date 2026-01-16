@@ -22,12 +22,21 @@ def nodeshell[T](node: T) -> T: ...
 
 
 def nodeshell(node: Any) -> Any:
-    """
-    Entry point to wrap a Node in its contextual Shell.
-    If the input is not a Node, it is returned unchanged.
-    """
     if isinstance(node, Node):
         return NodeShell.shell(node)
+    return node
+
+
+@overload
+def unwrap[T: Node](node: T) -> NodeShell[T]: ...
+
+@overload
+def unwrap[T](node: T) -> T: ...
+
+
+def unwrap(node: Any) -> Any:
+    if isinstance(node, NodeShell):
+        return node.unwrap()
     return node
 
 
@@ -67,18 +76,22 @@ class Node(AsJSONMixin, NodeBase):
         self._ast = ast
         self._ctx = ctx
         self._parseinfo = parseinfo
+        self._attributes = {}
         self._attributes.update(attributes)
         self.__post_init__()
 
-    def __post_init__(self) -> None:  # type: ignore
+    def __post_init__(self):
         if not self._parseinfo and isinstance(self._ast, AST):
             self._parseinfo = self._ast.parseinfo
         if isinstance(self._ast, Mapping):
             for name in set(self._ast) - {"parseinfo"}:
                 self._attributes[name] = self._ast[name]
 
+    def _pubdict(self) -> dict[str, Any]:
+        return super()._pubdict() | self._attributes
 
-class NodeShell[T: Node]:
+
+class NodeShell[T: Node](AsJSONMixin):
     """
     Stateful View of a Node.
     Manages bi-directional navigation and metadata access.
@@ -93,11 +106,14 @@ class NodeShell[T: Node]:
 
         return cls._cache[node]
 
+    def unwrap(self) -> Node:
+        return self.node
+
     def __init__(self, node: T):
         self.node: T = node
         # Weak reference to parent Node to prevent reference cycles
         self._parent_ref: weakref.ref[Node] | None = None
-        self._children: list[NodeShell[Any]] = self.find_children()
+        self._children: list[NodeShell[Any]] | None = None
 
     def __getattr__(self, name: str) -> Any:
         """Proxies to node attributes or dynamic AST data."""
@@ -134,27 +150,34 @@ class NodeShell[T: Node]:
             curr = curr.parent
         return ancestors[::-1]
 
-    def children(self) -> list[NodeShell[Any]]:
-        """Lazy-loads and returns child NodeShells."""
+    def children(self) -> list[Any]:
+        return self.children_list()
+
+    def children_list(self) -> list[Any]:
         if self._children is None:
             self._children = list(self._find_children())
-        return self._children
+        return [shell.unwrap() for shell in self._children]
 
     def _find_children(self) -> Iterator[NodeShell[Any]]:
         """Walks the AST data, yields shells, and sets parentage links."""
         def walk(obj: Any) -> Iterator[NodeShell[Any]]:
-            if isinstance(obj, Node):
-                child_shell = NodeShell.shell(obj)
-                # Link child shell back to this node via weak reference
-                child_shell._parent_ref = weakref.ref(self.node)
-                yield child_shell
-            elif isinstance(obj, Mapping):
-                for k, v in obj.items():
-                    if not k.startswith("_"):
-                        yield from walk(v)
-            elif isinstance(obj, (list, tuple)):
-                for item in obj:
-                    yield from walk(item)
+            match obj:
+                case Node():
+                    child_shell = NodeShell.shell(obj)
+                    # Link child shell back to this node via weak reference
+                    child_shell._parent_ref = weakref.ref(self.node)
+                    yield child_shell
+                case NodeShell() as shell:
+                    yield from walk(shell.unwrap())
+                case Mapping() as map:
+                    for name, value in map.items():
+                        if not name.startswith("_"):
+                            yield from walk(value)
+                case (list() | tuple()) as seq:
+                    for item in seq:
+                        yield from walk(item)
+                case _:
+                    pass  # only yield descendant of NodeBase
 
         source = self.node._attributes or self.node._ast
         yield from walk(source)
@@ -184,8 +207,11 @@ class NodeShell[T: Node]:
     def asjson(self) -> Any:
         return asjson(self.node)
 
+    def __json__(self, seen=None):
+        return asjson(self.node)
+
     def __str__(self) -> str:
-        return asjsons(self.node)
+        return asjsons(self)
 
     def __repr__(self) -> str:
         return f"nodeshell({self.node.__class__.__name__})"
