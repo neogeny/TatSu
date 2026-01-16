@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import weakref
 from collections.abc import Callable, Iterator, Mapping
-from dataclasses import dataclass, field
+from dataclasses import InitVar, dataclass, field
 from typing import Any, cast, overload
 
 from tatsu.util import AsJSONMixin, asjson, asjsons
@@ -28,9 +28,10 @@ def nodeshell(node: Any) -> Any:
         return node
 
 
-@dataclass
+@dataclass()
 class NodeBase:
-    pass
+    def __hash__(self) -> int:
+        return id(self)
 
 
 @dataclass(unsafe_hash=True)
@@ -40,22 +41,17 @@ class Node(AsJSONMixin, NodeBase):
     All fields are private to ensure interaction only via NodeShell.
     """
 
+    ast: InitVar[Any] | None = None
+    ctx: InitVar[Any] | None = None
+
     _ast: AST | NodeBase | str | None = None
     _ctx: Any = None
     _parseinfo: ParseInfo | None = None
-    _attributes: dict[str, Any] = field(default_factory=dict)
+    _attributes: dict[str, Any] = field(default_factory=dict, hash=False, compare=False)
 
-    # the same __init__ as in old Node
-    def __init__(self, ast: AST | NodeBase | str | None = None, **attributes: Any):
-        super().__init__()
-        if isinstance(ast, dict):
-            ast = AST(ast)
+    def __post_init__(self, ast, ctx):
         self._ast = ast
-
-        self._attributes.update(attributes)
-        self.__post_init__()
-
-    def __post_init__(self):
+        self._ctx = ctx
         if isinstance(self._ast, dict):
             self._ast = AST(self._ast)
 
@@ -85,7 +81,7 @@ class NodeShell[T: Node](NodeBase):
     )
 
     @staticmethod
-    def shell[U: Node](node: U) -> NodeShell[U]:
+    def shell[U: Node](node: U) -> NodeShell[U] | NodeBase:
         if node not in NodeShell._cache:
             NodeShell._cache[node] = NodeShell(node)
         return NodeShell._cache[node]
