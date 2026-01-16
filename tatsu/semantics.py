@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import builtins
+import keyword
 from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from typing import Any
 
 from .contexts import ParseContext
 from .exceptions import SemanticError
-from .ngmodel import BASE_CLASS_TOKEN, Node, NodeBase, nodeshell
+from .ngmodel import BASE_CLASS_TOKEN, Node, NodeBase
 from .synth import registered_symthetics, synthesize
 from .util import simplify_list
-from .util.misc import first
 
 
 class ASTSemantics:
@@ -86,10 +86,19 @@ class ModelBuilderSemantics:
         if not args:
             return ast
 
-        first_str_arg = first(a for a in args if isinstance(a, str))
-        assert isinstance(first_str_arg, str), (f'{ast=}\n{args=}\n'
-                                                f'{[type(a).__name__ for a in args]}')
-        typespec = first_str_arg.split(BASE_CLASS_TOKEN)
+        def is_reserved(name) -> bool:
+            return (
+                keyword.iskeyword(name) or
+                keyword.issoftkeyword(name) or
+                name in {'type', 'list', 'dict', 'set'}
+            )
+
+        def mangle(name: str) -> str:
+            while is_reserved(name):
+                name += '_'
+            return name
+
+        typespec = [mangle(s) for s in args[0].split(BASE_CLASS_TOKEN)]
         typename = typespec[0]
         bases = reversed(typespec)
 
@@ -107,4 +116,4 @@ class ModelBuilderSemantics:
             raise SemanticError(
                 f'Could not call constructor for {typename}: {e!s}',
             ) from e
-        return nodeshell(obj)
+        return obj
