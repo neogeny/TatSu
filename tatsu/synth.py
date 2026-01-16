@@ -2,6 +2,8 @@ from collections.abc import Callable, MutableMapping
 from dataclasses import dataclass
 from typing import Any
 
+from .ngmodel import NodeBase
+
 # NOTE:
 #   __REGISTRY is an alias for the modules vars()/ __dict__.
 #   That allows for synthesized types to reside within this module.
@@ -9,7 +11,7 @@ __REGISTRY: MutableMapping[str, Callable] = vars()
 
 
 @dataclass
-class _Synthetic:
+class _Synthetic(NodeBase):
     def __hash__(self) -> int:
         return hash(id(self))
 
