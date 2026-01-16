@@ -162,6 +162,10 @@ class NodeShell[T: Node](AsJSONMixin):
         return self.node._parseinfo
 
     @property
+    def attributes(self) -> dict[str, Any]:
+        return self.node._attributes
+
+    @property
     def parent(self) -> NodeShell[Any] | None:
         """Resolves the weak parent reference and returns its NodeShell."""
         if self._parent_ref is None:
@@ -192,7 +196,7 @@ class NodeShell[T: Node](AsJSONMixin):
             unwrap(shell) for shell in self._children_shell_tuple()
         )
 
-    def _children_shell_tuple(self) -> tuple[NodeShell[Any], ...]:
+    def _children_shell_tuple(self) -> tuple[NodeShell[Any], .../de]:
         if not self._children:
             self._children = tuple(self._find_children_shells())
         return self._children
