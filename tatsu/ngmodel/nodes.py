@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import weakref
-from collections.abc import Callable, Iterator, Mapping
+from collections.abc import Callable, Iterable, Iterator, Mapping
 from dataclasses import dataclass, field
 from typing import Any, ClassVar, cast, overload
 
@@ -37,6 +37,11 @@ def unwrap[T](node: T) -> T: ...
 def unwrap(node: Any) -> Any:
     if isinstance(node, NodeShell):
         return node.unwrap()
+    elif isinstance(node, list | tuple):
+        return type(node)(unwrap(elem) for elem in node)
+    elif isinstance(node, dict):
+        unwrapped = {name: unwrap(value) for name, value in node.items()}
+        return type(node)(unwrapped)
     return node
 
 
@@ -51,6 +56,9 @@ class NodeBase:
             **attributes: Any,
     ):
         pass
+
+    def _is_shell(self) -> bool:
+        return False
 
 
 @dataclass(unsafe_hash=True)
@@ -87,6 +95,14 @@ class Node(AsJSONMixin, NodeBase):
             for name in set(self._ast) - {"parseinfo"}:
                 self._attributes[name] = self._ast[name]
 
+    def __getattr__(self, name: str) -> Any:
+        if name in self._attributes:
+            return self._attributes[name]
+        raise AttributeError(
+            f"'{type(self).__name__}' cannot find '{name}' in "
+            f"NodeShell, node._attributes, or {type(self).__name__}",
+        )
+
     def _pubdict(self) -> dict[str, Any]:
         return super()._pubdict() | self._attributes
 
@@ -109,26 +125,41 @@ class NodeShell[T: Node](AsJSONMixin):
     def unwrap(self) -> Node:
         return self.node
 
+    def _is_shell(self) -> bool:
+        return True
+
     def __init__(self, node: T):
         self.node: T = node
         # Weak reference to parent Node to prevent reference cycles
         self._parent_ref: weakref.ref[Node] | None = None
-        self._children: list[NodeShell[Any]] | None = None
+        self._children: tuple[NodeShell[Any], ...] = ()
+
+        self.__original_class__ = self.__class__
 
     def __getattr__(self, name: str) -> Any:
-        """Proxies to node attributes or dynamic AST data."""
-        if name in self.node._attributes:
-            return self.node._attributes[name]
+        node = object.__getattribute__(self, 'node')
         try:
-            return getattr(self.node, name)
+            return getattr(node, name)
         except AttributeError:
             raise AttributeError(
                 f"'{type(self).__name__}' cannot find '{name}' in "
-                f"NodeShell, node._attributes, or {type(self.node).__name__}",
+                f"NodeShell, node._attributes, or {type(node).__name__}",
             ) from None
 
     def __dir__(self) -> list[str]:
         return sorted(set(super().__dir__()) | set(dir(self.node)) | set(self.node._attributes.keys()))
+
+    @property
+    def ast(self) -> Any:
+        return self.node._ast
+
+    @property
+    def ctx(self) -> Any:
+        return self.node._ctx
+
+    @property
+    def parseinfo(self) -> Any:
+        return self.node._parseinfo
 
     @property
     def parent(self) -> NodeShell[Any] | None:
@@ -150,15 +181,23 @@ class NodeShell[T: Node](AsJSONMixin):
             curr = curr.parent
         return ancestors[::-1]
 
-    def children(self) -> list[Any]:
-        return self.children_list()
+    def children(self) -> tuple[Any, ...]:
+        return self.children_tuple()
 
     def children_list(self) -> list[Any]:
-        if self._children is None:
-            self._children = list(self._find_children())
-        return [shell.unwrap() for shell in self._children]
+        return list(self.children_tuple())
 
-    def _find_children(self) -> Iterator[NodeShell[Any]]:
+    def children_tuple(self) -> tuple[Any, ...]:
+        return tuple(
+            unwrap(shell) for shell in self._children_shell_tuple()
+        )
+
+    def _children_shell_tuple(self) -> tuple[NodeShell[Any], ...]:
+        if not self._children:
+            self._children = tuple(self._find_children_shells())
+        return self._children
+
+    def _find_children_shells(self) -> Iterable[NodeShell[Any]]:
         """Walks the AST data, yields shells, and sets parentage links."""
         def walk(obj: Any) -> Iterator[NodeShell[Any]]:
             match obj:
@@ -205,10 +244,10 @@ class NodeShell[T: Node](AsJSONMixin):
         return CommentInfo([], [])
 
     def asjson(self) -> Any:
-        return asjson(self.node)
+        return asjson(self)
 
-    def __json__(self, seen=None):
-        return asjson(self.node)
+    def _pubdict(self) -> dict[str, Any]:
+        return super()._pubdict() | self.node._pubdict()
 
     def __str__(self) -> str:
         return asjsons(self)
