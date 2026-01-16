@@ -125,7 +125,7 @@ class AST(dict[str, Any]):
         return {name: asjson(value, seen=seen) for name, value in self.items()}
 
     def __repr__(self) -> str:
-        return repr(self.asjson())
+        return f'AST{self.asjson()!r}'
 
     def __str__(self) -> str:
         return str(self.asjson())
