@@ -1,5 +1,6 @@
 import pickle
 
+from tatsu.ngmodel import unwrap
 from tatsu.semantics import ModelBuilderSemantics
 from tatsu.tool import compile
 from tatsu.util import asjson
@@ -21,11 +22,11 @@ def test_synth_model():
 
     m = compile(grammar, 'ASeq')
     model = m.parse('a a a', semantics=ModelBuilderSemantics())
-    assert type(model).__name__ == 'ASeq'
+    assert type(unwrap(model)).__name__ == 'ASeq'
 
     p = pickle.dumps(model)
     new_model = pickle.loads(p)
-    assert type(new_model).__name__ == 'ASeq'
+    assert type(unwrap(new_model)).__name__ == 'ASeq'
 
     assert model.ast == new_model.ast
 
@@ -46,14 +47,19 @@ def test_nested_class_synth_model():
 
     m = compile(grammar, 'ASeq')
     model = m.parse('a a a', semantics=ModelBuilderSemantics())
-    assert type(model).__name__ == 'ASeq'
+    assert type(unwrap(model)).__name__ == 'ASeq'
 
     p = pickle.dumps(model)
     new_model = pickle.loads(p)
-    assert type(new_model).__name__ == 'ASeq'
+    assert type(unwrap(new_model)).__name__ == 'ASeq'
 
     # NOTE: Since we are unpickling an object which contains nested objects, we can't do
-    # self.assertEqual(model.ast, new_model.ast) as the memory locations will be different.
-    # So either (1) we recursively walk the objects and compare fields or (2) we convert it into a
-    # str()/repr()/JSON and compare that. The latter as it is easier.
-    assert asjson(model.ast) == asjson(new_model.ast)
+    #       self.assertEqual(model.ast, new_model.ast) as the memory locations will be different.
+    #       So either (1) we recursively walk the objects and compare fields or (2) we convert it into a
+    #       str()/repr()/JSON and compare that. The latter as it is easier.
+    print(f'{type(model)=}')
+    # if model._is_shell():
+    if model._is_shell():
+        print(f'{model.__original_class__=}')
+    print(f'{model._is_shell()=}')
+    assert asjson(model.ast) == asjson(new_model.ast), type(model)
