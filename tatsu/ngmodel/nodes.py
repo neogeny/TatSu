@@ -40,10 +40,19 @@ class Node(AsJSONMixin, NodeBase):
     All fields are private to ensure interaction only via NodeShell.
     """
 
-    _ast: AST | Node | str | None = None
+    _ast: AST | NodeBase | str | None = None
     _ctx: Any = None
     _parseinfo: ParseInfo | None = None
     _attributes: dict[str, Any] = field(default_factory=dict)
+
+    # the same __init__ as in old Node
+    def __init__(self, ast: AST | NodeBase | str | None = None, **attributes: Any):
+        super().__init__()
+        if isinstance(ast, dict):
+            ast = AST(ast)
+        self._ast = ast
+
+        self._attributes.update(attributes)
 
     def __post_init__(self):
         if isinstance(self._ast, dict):
