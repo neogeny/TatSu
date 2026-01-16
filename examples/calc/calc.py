@@ -73,7 +73,7 @@ def parse_with_basic_semantics():
 
     print()
     print('# BASIC SEMANTICS RESULT')
-    assert result == -47
+    assert result == -47, result
     print(result)
     print()
 
@@ -145,7 +145,7 @@ def parse_and_walk_model():
     print()
     print('# WALKER RESULT')
     result = CalcWalker().walk(model)
-    assert result == -47
+    assert result == -47, result
     print(result)
     print()
 
