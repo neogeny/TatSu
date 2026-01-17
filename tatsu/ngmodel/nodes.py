@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import weakref
 from collections.abc import Iterable, Iterator, Mapping
-from dataclasses import dataclass
+from contextlib import suppress
+from dataclasses import dataclass, field
 from typing import Any, ClassVar, Protocol, overload, runtime_checkable
 
 from ..ast import AST
@@ -64,19 +65,20 @@ class HasChildren(Protocol):
         ...
 
 
-@dataclass
+@dataclass(init=False)
 class NodeBase:
-    # NOTE: allows for compatibility with old Node
+    # NOTE: for compatibility with old objecmodel.Node
     def __init__(
             self,
             ast: Any = None,
             ctx: Any = None,
             parseinfo: ParseInfo | None = None,
-            **attributes: Any,
+            attributes: dict[str, Any] | None = None,
     ):
         pass
 
-    def _is_shell(self) -> bool:
+    @classmethod
+    def _is_shell(cls, self) -> bool:
         return False
 
     def __hash__(self) -> int:
@@ -85,56 +87,46 @@ class NodeBase:
 
 @dataclass
 class NGNode(AsJSONMixin, NodeBase):
-    def __init__(
-            self,
-            ast: Any = None,
-            ctx: Any = None,
-            parseinfo: ParseInfo | None = None,
-            **attributes: Any,
-    ):
-        super().__init__()
-        self._ast = ast
-        self._ctx = ctx
-        self._parseinfo = parseinfo
-        self._attributes = {}
-
-        for name, value in attributes.items():
-            if hasattr(self, name):
-                setattr(self, name, value)
-            else:
-                self._attributes[name] = value
-
-        self._attributes.update(attributes)
-        self.__post_init__()
+    # NOTE: these attribute will be deleted by __post_init__
+    ast: Any = None
+    ctx: Any = None
+    parseinfo: ParseInfo | None = None
+    attributes: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
-        if not self._parseinfo and isinstance(self._ast, AST):
+        self._ast = self.ast
+        self._ctx = self.ctx
+
+        self._attributes = self.attributes or {}
+        if self.attributes is not None:
+            for name, value in self.attributes.items():
+                if hasattr(self, name):
+                    setattr(self, name, value)
+                else:
+                    self._attributes[name] = value
+
+        self._parseinfo = self.parseinfo
+        if self._parseinfo is None and isinstance(self._ast, AST):
             self._parseinfo = self._ast.parseinfo
-        if isinstance(self._ast, Mapping):
-            for name in set(self._ast) - {"parseinfo"}:
-                self._attributes[name] = self._ast[name]
+
+        def erase_attr(name: str) -> None:
+            with suppress(AttributeError, KeyError):
+                delattr(self, name)
+                delattr(type(self), name)
+
+        erase_attr('ast')
+        erase_attr('ctx')
+        erase_attr('parseinfo')
+        erase_attr('attributes')
 
     def __getattr__(self, name: str) -> Any:
-        ast = self._ast
-        if name == 'ast':
-            return ast
-        if name == 'asjson':
-            return self._asjson_private
-        if name in self.__dict__:
-            return self.__dict__[name]
-        if isinstance(ast, dict) and name in ast:
-            return ast[name]
         if name in self._attributes:
             return self._attributes[name]
-        raise AttributeError(
-            f"'{type(self).__name__}' cannot find '{name}' in "
-            f"self._ast or self._attributes",
-        )
-
-    def __getattribute__(self, name) -> Any:
-        if name == 'symbol':
-            raise AttributeError(name)
-        return super().__getattribute__(name)
+        else:
+            raise AttributeError(
+                f"'{type(self).__name__}' cannot find '{name}' in "
+                f"self._ast or self._attributes",
+            )
 
     def _asjson_private(self) -> Any:
         return asjson(self)
@@ -181,7 +173,8 @@ class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
     def shelled(self) -> NGNode:
         return self.node
 
-    def _is_shell(self) -> bool:
+    @classmethod
+    def _is_shell(cls, self) -> bool:
         return True
 
     def __getattr__(self, name: str) -> Any:
@@ -303,7 +296,7 @@ class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
         return asjsons(self)
 
     def __repr__(self) -> str:
-        return f"nodeshell({self.node.__class__.__name__})"
+        return f"nodeshell({super().__repr__()})"
 
     def __hash__(self) -> int:
         return self.node.__hash__()
