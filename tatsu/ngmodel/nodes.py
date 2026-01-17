@@ -16,7 +16,7 @@ BASE_CLASS_TOKEN = '::'  # noqa: S105
 def nodeshell[T: Node](node: T) -> NodeShell[T]: ...
 
 @overload
-def nodeshell[T](node: T) -> T: ...
+def nodeshell[U](node: U) -> U: ...
 
 
 def nodeshell(node: Any) -> Any:
@@ -26,7 +26,7 @@ def nodeshell(node: Any) -> Any:
 
 
 @overload
-def unshell[T: Node](node: T) -> NodeShell[T]: ...
+def unshell[U: Node](node: NodeShell[U]) -> U: ...
 
 @overload
 def unshell[T](node: T) -> T: ...
@@ -34,7 +34,7 @@ def unshell[T](node: T) -> T: ...
 
 def unshell(node: Any) -> Any:
     if isinstance(node, NodeShell):
-        return node.unshell()
+        return node.shelled()
     elif isinstance(node, list | tuple):
         return type(node)(unshell(elem) for elem in node)
     elif isinstance(node, dict):
@@ -153,6 +153,14 @@ class NodeShell[T: Node](AsJSONMixin, HasChildren):
     # Multi-type cache: Maps Node types to their specific WeakKeyDictionaries
     _cache: ClassVar[weakref.WeakKeyDictionary[Node, NodeShell[Any]]] = weakref.WeakKeyDictionary()
 
+    def __init__(self, node: T):
+        self.node: T = node
+        # Weak reference to parent Node to prevent reference cycles
+        self._parent_ref: weakref.ref[Node] | None = None
+        self._children: tuple[NodeShell[Any], ...] = ()
+
+        self.__original_class__ = self.__class__
+
     @classmethod
     def shell(cls, node: T) -> NodeShell[T]:
         if not isinstance(node, Node):
@@ -162,24 +170,15 @@ class NodeShell[T: Node](AsJSONMixin, HasChildren):
         try:
             if node not in cls._cache:
                 cls._cache[node] = NodeShell(node)
-
             return cls._cache[node]
         except TypeError as e:
             raise TypeError(f'Problem with <{type(node).__name__}>: {e!s}') from e
 
-    def unshell(self) -> Node:
+    def shelled(self) -> Node:
         return self.node
 
     def _is_shell(self) -> bool:
         return True
-
-    def __init__(self, node: T):
-        self.node: T = node
-        # Weak reference to parent Node to prevent reference cycles
-        self._parent_ref: weakref.ref[Node] | None = None
-        self._children: tuple[NodeShell[Any], ...] = ()
-
-        self.__original_class__ = self.__class__
 
     def __getattr__(self, name: str) -> Any:
         node = object.__getattribute__(self, 'node')
@@ -251,7 +250,7 @@ class NodeShell[T: Node](AsJSONMixin, HasChildren):
             # no recursion
             match obj:
                 case NodeShell() as shell:
-                    yield from walk(shell.unshell())
+                    yield from walk(shell.shelled())
                 case Node() as node:
                     child_shell = nodeshell(node)
                     child_shell._parent_ref = weakref.ref(self.node)
