@@ -1,7 +1,8 @@
 import json  # noqa: F401
 
 import tatsu
-from tatsu.ngmodel import Node, children_of
+from tatsu.ngmodel import children_of
+from tatsu.objectmodel import Node
 
 
 def test_node_kwargs():
