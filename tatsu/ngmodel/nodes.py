@@ -9,8 +9,6 @@ from ..ast import AST
 from ..infos import ParseInfo
 from ..util import AsJSONMixin, asjson, asjsons
 
-BASE_CLASS_TOKEN = '::'  # noqa: S105
-
 
 @overload
 def nodeshell[T: Node](node: T) -> NodeShell[T]: ...

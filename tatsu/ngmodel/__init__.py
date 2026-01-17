@@ -1,5 +1,4 @@
 from .nodes import (
-    BASE_CLASS_TOKEN,
     HasChildren,
     Node,
     NodeBase,
@@ -10,7 +9,6 @@ from .nodes import (
 )
 
 __all__ = [
-    'BASE_CLASS_TOKEN',
     'HasChildren',
     'Node',
     'NodeBase',

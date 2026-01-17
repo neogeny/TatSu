@@ -7,7 +7,7 @@ from typing import Any
 
 from .contexts import ParseContext
 from .exceptions import SemanticError
-from .ngmodel import BASE_CLASS_TOKEN, Node, NodeBase
+from .ngmodel import Node, NodeBase
 from .synth import registered_symthetics, synthesize
 from .util import simplify_list
 
@@ -98,7 +98,7 @@ class ModelBuilderSemantics:
                 name += '_'
             return name
 
-        typespec = [mangle(s) for s in args[0].split(BASE_CLASS_TOKEN)]
+        typespec = [mangle(s) for s in args[0].split('::')]
         typename = typespec[0]
         bases = reversed(typespec)
 
