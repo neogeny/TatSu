@@ -44,6 +44,19 @@ def unshell(node: Any) -> Any:
     return node
 
 
+@overload
+def children_of(node: Node) -> tuple[Node, ...]: ...
+
+@overload
+def children_of[U](node: U) -> tuple[NodeBase, ...]: ...
+
+
+def children_of(node: Any) -> tuple[Any, ...]:
+    if not isinstance(node, Node):
+        return ()
+    return nodeshell(node).children()
+
+
 @runtime_checkable
 class HasChildren(Protocol):
     def children(self) -> Iterable[Any]:

@@ -1,7 +1,7 @@
 import json  # noqa: F401
 
 import tatsu
-from tatsu.ngmodel import Node, nodeshell
+from tatsu.ngmodel import Node, children_of
 
 
 def test_node_kwargs():
@@ -104,5 +104,5 @@ def test_children():
     model = parser.parse('3 + 5 * ( 10 - 20 )', asmodel=True)
     assert model
     assert model['add']
-    assert type(nodeshell(model['add']).children()[0]).__name__ == 'Multiply'
-    assert nodeshell(model['add']).children(), model['add']
+    assert children_of(model['add'])
+    assert type(children_of(model['add'])[0]).__name__ == 'Multiply'

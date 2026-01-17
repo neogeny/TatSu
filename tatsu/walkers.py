@@ -4,7 +4,7 @@ from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
 from typing import Any, ClassVar, Concatenate
 
-from .ngmodel import HasChildren, NodeBase, nodeshell
+from .ngmodel import NodeBase, children_of
 from .objectmodel import Node
 from .util import pythonize_name
 
@@ -48,10 +48,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         return result
 
     def walk_children(self, node: Any, *args, **kwargs) -> Iterable[Any]:
-        node = nodeshell(node)
-        if not isinstance(node, HasChildren):
-            return ()
-        children = node.children()
+        children = children_of(node)
         return [
             self.walk(child, *args, **kwargs)
             for child in children
@@ -158,7 +155,6 @@ class ContextWalker(NodeWalker):
 
     @contextmanager
     def new_context(self, node, *args, **kwargs):
-        node = nodeshell(node)
         ctx = self.get_node_context(node, *args, **kwargs)
         if ctx == self.context:
             yield ctx

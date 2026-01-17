@@ -9,7 +9,7 @@ from .. import grammars
 from ..exceptions import CodegenError
 from ..infos import UndefinedStr
 from ..mixins.indent import IndentPrintMixin
-from ..ngmodel import NodeBase, nodeshell
+from ..ngmodel import NodeBase
 from ..util import compress_seq, safe_name
 from ..walkers import NodeWalker
 
@@ -70,7 +70,6 @@ if __name__ == '__main__':
 
 
 def codegen(model: NodeBase, parser_name: str = '') -> str:
-    model = nodeshell(model)
     generator = PythonCodeGenerator(parser_name=parser_name)
     generator.walk(model)
     return generator.printed_text()

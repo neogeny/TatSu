@@ -4,6 +4,7 @@ from .nodes import (
     Node,
     NodeBase,
     NodeShell,
+    children_of,
     nodeshell,
     unshell,
 )
@@ -14,6 +15,7 @@ __all__ = [
     'Node',
     'NodeBase',
     'NodeShell',
+    'children_of',
     'nodeshell',
     'unshell',
 ]
