@@ -465,7 +465,7 @@ class ParseContext:
                 lambda k, v: k[0] < cut_pos and not isinstance(v, FailedLeftRecursion),
             )
 
-        prune(self._memos, self._pos)
+        # prune(self._memos, self._pos)
 
     def _memoization(self) -> bool:
         return self.config.memoization and (
