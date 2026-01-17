@@ -73,7 +73,7 @@ def parse_with_basic_semantics():
 
     print()
     print('# BASIC SEMANTICS RESULT')
-    assert result == -47, result
+    assert result == -47
     print(result)
     print()
 
