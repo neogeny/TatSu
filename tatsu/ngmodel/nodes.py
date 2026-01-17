@@ -5,10 +5,9 @@ from collections.abc import Iterable, Iterator, Mapping
 from dataclasses import dataclass, field
 from typing import Any, ClassVar, Protocol, overload, runtime_checkable
 
-from tatsu.util import AsJSONMixin, asjson, asjsons
-
 from ..ast import AST
 from ..infos import ParseInfo
+from ..util import AsJSONMixin, asjson, asjsons
 
 BASE_CLASS_TOKEN = '::'  # noqa: S105
 
