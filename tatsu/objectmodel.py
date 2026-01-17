@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import weakref
 from collections.abc import Callable, Iterator, Mapping
+from dataclasses import dataclass
 from typing import Any, Self, cast
 
 from tatsu.util import AsJSONMixin, asjson, asjsons
@@ -12,6 +13,7 @@ from .ngmodel import NodeBase
 from .tokenizing import CommentInfo, LineInfo
 
 
+@dataclass
 class Node(AsJSONMixin, NodeBase):
     _parent: Node | None = None
     _children: list[Node] | None = None

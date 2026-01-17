@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import weakref
 from collections.abc import Iterable, Iterator, Mapping
+from dataclasses import dataclass
 from typing import Any, ClassVar, Protocol, overload, runtime_checkable
 
 from ..ast import AST
@@ -63,6 +64,7 @@ class HasChildren(Protocol):
         ...
 
 
+@dataclass
 class NodeBase:
     # NOTE: allows for compatibility with old Node
     def __init__(
@@ -81,6 +83,7 @@ class NodeBase:
         return hash(asjsons(self))
 
 
+@dataclass
 class Node(AsJSONMixin, NodeBase):
     def __init__(
             self,
