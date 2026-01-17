@@ -162,27 +162,30 @@ class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
 
     def _children_shell_tuple(self) -> tuple[Any, ...]:
         if not self._children:
-            self._children = tuple(self._find_children_shells())
+            self._children = tuple(self._get_children())
         return self._children
 
-    def _find_children_shells(self) -> Iterable[Any]:
+    def _get_children(self) -> Iterable[Any]:
 
         def walk(obj: Any) -> Iterable[NGNode]:
-            if isinstance(shell := obj, NodeShell):
-                yield from walk(shell.node)
-            elif isinstance(node := obj, NGNode):
-                node._parent_ref = weakref.ref(self.node)
-                yield node
-            elif isinstance(map := obj, Mapping):
-                for name, value in map.items():
-                    if name.startswith("_"):
-                        continue
-                    if value is None:
-                        continue
-                    yield from walk(value)
-            elif isinstance(seq := obj, list | tuple):
-                for item in seq:
-                    yield from walk(item)
+            match obj:
+                case NodeShell() as shell:
+                    yield from walk(shell.node)
+                case NGNode() as node:
+                    node._parent_ref = weakref.ref(self.node)
+                    yield node
+                case Mapping() as map:
+                    for name, value in map.items():
+                        if name.startswith("_"):
+                            continue
+                        if value is None:
+                            continue
+                        yield from walk(value)
+                case (list() | tuple()) as seq:
+                    for item in seq:
+                        yield from walk(item)
+                case _:
+                    pass
 
         return tuple(walk(self.node._pubdict()))
 
