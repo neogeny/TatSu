@@ -49,9 +49,12 @@ def children_of[U](node: U) -> tuple[NodeBase, ...]: ...
 
 
 def children_of(node: Any) -> tuple[Any, ...]:
-    if not isinstance(node, Node):
+    if isinstance(node, HasChildren):
+        return tuple(node.children())
+    elif isinstance(node, Node):
+        return nodeshell(node).children()
+    else:
         return ()
-    return nodeshell(node).children()
 
 
 @runtime_checkable
