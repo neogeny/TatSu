@@ -7,7 +7,8 @@ from typing import Any
 
 from .contexts import ParseContext
 from .exceptions import SemanticError
-from .ngmodel import Node, NodeBase
+from .ngmodel import NodeBase
+from .objectmodel import Node
 from .synth import registered_symthetics, synthesize
 from .util import simplify_list
 

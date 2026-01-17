@@ -3,8 +3,9 @@ from __future__ import annotations
 import builtins
 from collections import namedtuple
 
-from .. import grammars, ngmodel
+from .. import grammars
 from ..mixins.indent import IndentPrintMixin
+from ..objectmodel import Node
 from ..util import compress_seq, safe_name
 from ..util.misc import topsort
 
@@ -42,15 +43,15 @@ HEADER = """\
 BaseClassSpec = namedtuple('BaseClassSpec', ['class_name', 'base'])
 
 
-def modelgen(model: grammars.Grammar, name: str = '', base_type: type | None = ngmodel.Node) -> str:
-    base_type = base_type or ngmodel.Node
+def modelgen(model: grammars.Grammar, name: str = '', base_type: type | None = Node) -> str:
+    base_type = base_type or Node
     generator = PythonModelGenerator(name=name, base_type=base_type)
     return generator.generate_model(model)
 
 
 class PythonModelGenerator(IndentPrintMixin):
 
-    def __init__(self, name: str = '', base_type: type = ngmodel.Node):
+    def __init__(self, name: str = '', base_type: type = Node):
         super().__init__()
         self.base_type = base_type
         self.name = name or None
