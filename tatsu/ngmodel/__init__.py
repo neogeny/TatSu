@@ -1,6 +1,6 @@
 from .nodes import (
     HasChildren,
-    Node,
+    NGNode,
     NodeBase,
     NodeShell,
     children_of,
@@ -10,7 +10,7 @@ from .nodes import (
 
 __all__ = [
     'HasChildren',
-    'Node',
+    'NGNode',
     'NodeBase',
     'NodeShell',
     'children_of',

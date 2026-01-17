@@ -11,20 +11,20 @@ from ..util import AsJSONMixin, asjson, asjsons
 
 
 @overload
-def nodeshell[T: Node](node: T) -> NodeShell[T]: ...
+def nodeshell[T: NGNode](node: T) -> NodeShell[T]: ...
 
 @overload
 def nodeshell[U](node: U) -> U: ...
 
 
 def nodeshell(node: Any) -> Any:
-    if isinstance(node, Node):
+    if isinstance(node, NGNode):
         return NodeShell.shell(node)
     return node
 
 
 @overload
-def unshell[U: Node](node: NodeShell[U]) -> U: ...
+def unshell[U: NGNode](node: NodeShell[U]) -> U: ...
 
 @overload
 def unshell[T](node: T) -> T: ...
@@ -43,7 +43,7 @@ def unshell(node: Any) -> Any:
 
 
 @overload
-def children_of(node: Node) -> tuple[Node, ...]: ...
+def children_of(node: NGNode) -> tuple[NGNode, ...]: ...
 
 @overload
 def children_of[U](node: U) -> tuple[NodeBase, ...]: ...
@@ -52,7 +52,7 @@ def children_of[U](node: U) -> tuple[NodeBase, ...]: ...
 def children_of(node: Any) -> tuple[Any, ...]:
     if isinstance(node, HasChildren):
         return tuple(node.children())
-    elif isinstance(node, Node):
+    elif isinstance(node, NGNode):
         return nodeshell(node).children()
     else:
         return ()
@@ -84,7 +84,7 @@ class NodeBase:
 
 
 @dataclass
-class Node(AsJSONMixin, NodeBase):
+class NGNode(AsJSONMixin, NodeBase):
     def __init__(
             self,
             ast: Any = None,
@@ -149,25 +149,25 @@ class Node(AsJSONMixin, NodeBase):
         return hash(asjsons(self))
 
 
-class NodeShell[T: Node](AsJSONMixin, HasChildren):
+class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
     """
     Stateful View of a Node.
     Manages bi-directional navigation and metadata access.
     """
     # Multi-type cache: Maps Node types to their specific WeakKeyDictionaries
-    _cache: ClassVar[weakref.WeakKeyDictionary[Node, NodeShell[Any]]] = weakref.WeakKeyDictionary()
+    _cache: ClassVar[weakref.WeakKeyDictionary[NGNode, NodeShell[Any]]] = weakref.WeakKeyDictionary()
 
     def __init__(self, node: T):
         self.node: T = node
         # Weak reference to parent Node to prevent reference cycles
-        self._parent_ref: weakref.ref[Node] | None = None
+        self._parent_ref: weakref.ref[NGNode] | None = None
         self._children: tuple[NodeShell[Any], ...] = ()
 
         self.__original_class__ = self.__class__
 
     @classmethod
     def shell(cls, node: T) -> NodeShell[T]:
-        if not isinstance(node, Node):
+        if not isinstance(node, NGNode):
             raise TypeError(f'<{type(node).__name__}> is not a Node')
         if isinstance(node, (weakref.ReferenceType, *weakref.ProxyTypes)):
             raise TypeError(f'<{type(node).__name__}> is a weak reference')
@@ -178,7 +178,7 @@ class NodeShell[T: Node](AsJSONMixin, HasChildren):
         except TypeError as e:
             raise TypeError(f'Problem with <{type(node).__name__}>: {e!s}') from e
 
-    def shelled(self) -> Node:
+    def shelled(self) -> NGNode:
         return self.node
 
     def _is_shell(self) -> bool:
@@ -255,7 +255,7 @@ class NodeShell[T: Node](AsJSONMixin, HasChildren):
             match obj:
                 case NodeShell() as shell:
                     yield from walk(shell.shelled())
-                case Node() as node:
+                case NGNode() as node:
                     child_shell = nodeshell(node)
                     child_shell._parent_ref = weakref.ref(self.node)
                     yield child_shell
