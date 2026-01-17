@@ -1,6 +1,7 @@
 import json  # noqa: F401
 
 import tatsu
+from tatsu.ngmodel import children_of
 from tatsu.objectmodel import Node
 
 
@@ -11,6 +12,7 @@ def test_node_kwargs():
             super().__init__(arguments=arguments, symbol=symbol, **_kwargs_)
 
     atom = Atom(symbol='foo')
+    assert type(atom).__name__ == 'Atom'
     assert atom.ast is None
     assert atom.symbol == 'foo'
 
@@ -103,5 +105,5 @@ def test_children():
     model = parser.parse('3 + 5 * ( 10 - 20 )', asmodel=True)
     assert model
     assert model['add']
-    assert model['add'].children()
-    assert type(model['add'].children()[0]).__name__ == 'Multiply'
+    assert children_of(model['add'])
+    assert type(children_of(model['add'])[0]).__name__ == 'Multiply'

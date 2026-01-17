@@ -6,10 +6,10 @@ from tatsu.util import compress_seq, indent, re, safe_name
 
 from ..codegen.cgbase import CodeGenerator, ModelRenderer
 from ..exceptions import CodegenError
-from ..objectmodel import BASE_CLASS_TOKEN, Node
+from ..objectmodel import Node
 from .rendering import Renderer
 
-NODE_NAME_PATTERN = r'(?!\d)\w+(' + rf'{BASE_CLASS_TOKEN}' + r'(?!\d)\w+)*'
+NODE_NAME_PATTERN = r'(?!\d)\w+(' + rf'{'::'}' + r'(?!\d)\w+)*'
 
 
 TypeSpec = namedtuple('TypeSpec', ['class_name', 'base'])
@@ -43,7 +43,7 @@ def _typespec(rule):
     if not _get_node_class_name(rule):
         return []
 
-    spec = rule.params[0].split(BASE_CLASS_TOKEN)
+    spec = rule.params[0].split('::')
     class_names = [safe_name(n) for n in spec] + ['ModelBase']
 
     typespec = []

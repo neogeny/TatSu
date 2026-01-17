@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import builtins
+import keyword
 from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from typing import Any
 
 from .contexts import ParseContext
 from .exceptions import SemanticError
-from .objectmodel import BASE_CLASS_TOKEN, Node
+from .ngmodel import NodeBase
+from .objectmodel import Node
 from .synth import registered_symthetics, synthesize
 from .util import simplify_list
 
@@ -36,7 +38,7 @@ class ModelBuilderSemantics:
     def __init__(
             self,
             context: ParseContext | None = None,
-            base_type: type[Node] = Node,
+            base_type: type[NodeBase] = Node,
             types: Iterable[Callable] | None = None):
         self.ctx = context
         self.base_type = base_type
@@ -81,13 +83,25 @@ class ModelBuilderSemantics:
 
         return self._register_constructor(constructor)
 
-    def _default(self, ast, *args, **kwargs):
+    def _default(self, ast, *args, **kwargs) -> Any:
         if not args:
             return ast
 
-        typespec = args[0].split(BASE_CLASS_TOKEN)
+        def is_reserved(name) -> bool:
+            return (
+                keyword.iskeyword(name) or
+                keyword.issoftkeyword(name) or
+                name in {'type', 'list', 'dict', 'set'}
+            )
+
+        def mangle(name: str) -> str:
+            while is_reserved(name):
+                name += '_'
+            return name
+
+        typespec = [mangle(s) for s in args[0].split('::')]
         typename = typespec[0]
-        bases = typespec[-1:0:-1]
+        bases = reversed(typespec)
 
         base = self.base_type
         for base_ in bases:
@@ -95,11 +109,12 @@ class ModelBuilderSemantics:
 
         constructor = self._get_constructor(typename, base)
         try:
-            if isinstance(constructor, type) and issubclass(constructor, Node):
-                return constructor(ast=ast, ctx=self.ctx, **kwargs)
+            if isinstance(constructor, type) and issubclass(constructor, NodeBase):
+                obj = constructor(ast=ast, ctx=self.ctx, **kwargs)
             else:
-                return constructor(ast, *args[1:], **kwargs)
+                obj = constructor(ast, *args[1:], **kwargs)
         except Exception as e:
             raise SemanticError(
                 f'Could not call constructor for {typename}: {e!s}',
             ) from e
+        return obj

@@ -8,7 +8,7 @@ import textwrap
 
 from .. import grammars
 from ..exceptions import CodegenError
-from ..objectmodel import BASE_CLASS_TOKEN, Node
+from ..objectmodel import Node
 from ..util import compress_seq, indent, safe_name, timestamp, trim
 from .cgbase import CodeGenerator, ModelRenderer
 
@@ -368,7 +368,7 @@ class Rule(_Decorator):
         if isinstance(p, int | float):
             return str(p)
         else:
-            return repr(p.split(BASE_CLASS_TOKEN)[0])
+            return repr(p.split('::')[0])
 
     def render(self, **fields):
         try:

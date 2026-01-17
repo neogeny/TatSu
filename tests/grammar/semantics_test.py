@@ -1,7 +1,7 @@
 import unittest
 
 from tatsu import synth
-from tatsu.model import Node
+from tatsu.ngmodel import NodeBase
 from tatsu.semantics import ModelBuilderSemantics
 from tatsu.tool import compile
 
@@ -58,15 +58,15 @@ class SemanticsTests(unittest.TestCase):
         self.assertTrue(
             issubclass(A, B)
             and issubclass(A, synth._Synthetic)
-            and issubclass(A, Node),
+            and issubclass(A, NodeBase),
         )
         self.assertTrue(
             issubclass(B, C)
             and issubclass(B, synth._Synthetic)
-            and issubclass(A, Node),
+            and issubclass(A, NodeBase),
         )
         self.assertTrue(
-            issubclass(C, synth._Synthetic) and issubclass(C, Node),
+            issubclass(C, synth._Synthetic) and issubclass(C, NodeBase),
         )
 
     def test_builder_basetype_codegen(self):

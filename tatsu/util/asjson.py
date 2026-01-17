@@ -6,7 +6,7 @@ import weakref
 from collections.abc import Mapping
 from typing import Any
 
-from tatsu.util import debug, is_namedtuple, isiter
+from tatsu.util import is_namedtuple, isiter
 
 
 class AsJSONMixin:
@@ -45,12 +45,8 @@ def asjson(obj, seen: set[int] | None = None) -> Any:  # noqa: PLR0911, PLR0912
             return asjson(obj._asdict(), seen=seen)
         elif isinstance(obj, Mapping):
             result = {}
-            for k, v in obj.items():
-                try:
-                    result[k] = asjson(v, seen=seen)
-                except TypeError:
-                    debug('Unhashable key?', type(k), str(k))
-                    raise
+            for key, value in obj.items():
+                result[key] = asjson(value, seen=seen)
             return result
         elif isiter(obj):
             return [asjson(e, seen=seen) for e in obj]

@@ -1,175 +1,309 @@
 from __future__ import annotations
 
 import weakref
-from collections.abc import Callable, Iterator, Mapping
-from dataclasses import dataclass, field
-from typing import Any, cast, overload
-
-from tatsu.util import AsJSONMixin, asjson, asjsons
+from collections.abc import Iterable, Iterator, Mapping
+from dataclasses import dataclass
+from typing import Any, ClassVar, Protocol, overload, runtime_checkable
 
 from ..ast import AST
 from ..infos import ParseInfo
-from ..tokenizing import CommentInfo, LineInfo
+from ..util import AsJSONMixin, asjson, asjsons
 
 
 @overload
-def nodeshell[T: Node](node: T) -> NodeShell[T]: ...
+def nodeshell[T: NGNode](node: T) -> NodeShell[T]: ...
 
 @overload
-def nodeshell[T](node: T) -> T: ...
+def nodeshell[U](node: U) -> U: ...
 
 
 def nodeshell(node: Any) -> Any:
-    if isinstance(node, Node):
+    if isinstance(node, NGNode):
         return NodeShell.shell(node)
+    return node
+
+
+@overload
+def unshell[U: NGNode](node: NodeShell[U]) -> U: ...
+
+@overload
+def unshell[T](node: T) -> T: ...
+
+
+def unshell(node: Any) -> Any:
+    if isinstance(node, NodeShell):
+        return node.shelled()
+    elif isinstance(node, list | tuple):
+        return type(node)(unshell(elem) for elem in node)
+    elif isinstance(node, dict):
+        return type(node)(
+            {name: unshell(value) for name, value in node.items()},
+        )
+    return node
+
+
+@overload
+def children_of(node: NGNode) -> tuple[NGNode, ...]: ...
+
+@overload
+def children_of[U](node: U) -> tuple[NodeBase, ...]: ...
+
+
+def children_of(node: Any) -> tuple[Any, ...]:
+    if isinstance(node, HasChildren):
+        return tuple(node.children())
+    elif isinstance(node, NGNode):
+        return nodeshell(node).children()
     else:
-        return node
+        return ()
 
 
-@dataclass(unsafe_hash=True)
-class Node(AsJSONMixin):
-    """
-    Pure data container.
-    All fields are private to ensure interaction only via NodeShell.
-    """
+@runtime_checkable
+class HasChildren(Protocol):
+    def children(self) -> Iterable[Any]:
+        ...
 
-    _ast: AST | Node | str | None = None
-    _ctx: Any = None
-    _parseinfo: ParseInfo | None = None
-    _attributes: dict[str, Any] = field(default_factory=dict)
+
+@dataclass
+class NodeBase:
+    # NOTE: allows for compatibility with old Node
+    def __init__(
+            self,
+            ast: Any = None,
+            ctx: Any = None,
+            parseinfo: ParseInfo | None = None,
+            **attributes: Any,
+    ):
+        pass
+
+    def _is_shell(self) -> bool:
+        return False
+
+    def __hash__(self) -> int:
+        return hash(asjsons(self))
+
+
+@dataclass
+class NGNode(AsJSONMixin, NodeBase):
+    def __init__(
+            self,
+            ast: Any = None,
+            ctx: Any = None,
+            parseinfo: ParseInfo | None = None,
+            **attributes: Any,
+    ):
+        super().__init__()
+        self._ast = ast
+        self._ctx = ctx
+        self._parseinfo = parseinfo
+        self._attributes = {}
+
+        for name, value in attributes.items():
+            if hasattr(self, name):
+                setattr(self, name, value)
+            else:
+                self._attributes[name] = value
+
+        self._attributes.update(attributes)
+        self.__post_init__()
 
     def __post_init__(self):
-        if isinstance(self._ast, dict):
-            self._ast = AST(self._ast)
-
         if not self._parseinfo and isinstance(self._ast, AST):
             self._parseinfo = self._ast.parseinfo
-
         if isinstance(self._ast, Mapping):
             for name in set(self._ast) - {"parseinfo"}:
                 self._attributes[name] = self._ast[name]
 
-    def __str__(self) -> str:
-        return asjsons(self)
+    def __getattr__(self, name: str) -> Any:
+        ast = self._ast
+        if name == 'ast':
+            return ast
+        if name == 'asjson':
+            return self._asjson_private
+        if name in self.__dict__:
+            return self.__dict__[name]
+        if isinstance(ast, dict) and name in ast:
+            return ast[name]
+        if name in self._attributes:
+            return self._attributes[name]
+        raise AttributeError(
+            f"'{type(self).__name__}' cannot find '{name}' in "
+            f"self._ast or self._attributes",
+        )
 
-    # NOTE: --- Serialization ---
-    #   Since we removed _parent and _children from Node,
-    #   default pickling now works perfectly without custom __getstate__.
+    def __getattribute__(self, name) -> Any:
+        if name == 'symbol':
+            raise AttributeError(name)
+        return super().__getattribute__(name)
+
+    def _asjson_private(self) -> Any:
+        return asjson(self)
+
+    def _pubdict(self) -> dict[str, Any]:
+        result = super()._pubdict() | self._attributes
+        if isinstance(self._ast, dict):
+            result |= self._ast
+        return result
+
+    def __hash__(self) -> int:
+        return hash(asjsons(self))
 
 
-class NodeShell[T: Node]:
+class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
     """
-    The 'Stateful View' of a Node.
-    Manages tree hierarchy and provides public access to private Node data.
+    Stateful View of a Node.
+    Manages bi-directional navigation and metadata access.
     """
-
-    _cache: weakref.WeakKeyDictionary[Node, NodeShell[Any]] = (
-        weakref.WeakKeyDictionary()
-    )
-
-    @staticmethod
-    def shell[U: Node](node: U) -> NodeShell[U]:
-        if node not in NodeShell._cache:
-            NodeShell._cache[node] = NodeShell(node)
-        return NodeShell._cache[node]
+    # Multi-type cache: Maps Node types to their specific WeakKeyDictionaries
+    _cache: ClassVar[weakref.WeakKeyDictionary[NGNode, NodeShell[Any]]] = weakref.WeakKeyDictionary()
 
     def __init__(self, node: T):
         self.node: T = node
-        # Hierarchy state moved from Node to NodeShell
-        self._parent: Node | None = None
-        self._children: list[Node] | None = None
+        # Weak reference to parent Node to prevent reference cycles
+        self._parent_ref: weakref.ref[NGNode] | None = None
+        self._children: tuple[NodeShell[Any], ...] = ()
+
+        self.__original_class__ = self.__class__
+
+    @classmethod
+    def shell(cls, node: T) -> NodeShell[T]:
+        if not isinstance(node, NGNode):
+            raise TypeError(f'<{type(node).__name__}> is not a Node')
+        if isinstance(node, (weakref.ReferenceType, *weakref.ProxyTypes)):
+            raise TypeError(f'<{type(node).__name__}> is a weak reference')
+        try:
+            if node not in cls._cache:
+                cls._cache[node] = NodeShell(node)
+            return cls._cache[node]
+        except TypeError as e:
+            raise TypeError(f'Problem with <{type(node).__name__}>: {e!s}') from e
+
+    def shelled(self) -> NGNode:
+        return self.node
+
+    def _is_shell(self) -> bool:
+        return True
 
     def __getattr__(self, name: str) -> Any:
-        """
-        Proxies attribute access with the following priority:
-        1. Explicit keys in node._attributes
-        2. Normal attributes/methods on the node instance (for subclasses)
-        """
-        # 1. Check the dynamic attributes dictionary
-        if name in self.node._attributes:
-            return self.node._attributes[name]
-
-        # 2. Check for real attributes on the Node instance itself
-        # We use getattr() on self.node to find subclass fields
+        node = object.__getattribute__(self, 'node')
         try:
-            return getattr(self.node, name)
-        except AttributeError:
+            return getattr(node, name)
+        except AttributeError as e:
             raise AttributeError(
                 f"'{type(self).__name__}' cannot find '{name}' in "
-                f"NodeShell, node._attributes, or {type(self.node).__name__}",
-            ) from None
+                f"NodeShell, node._attributes, or {type(node).__name__}",
+            ) from e
 
     def __dir__(self) -> list[str]:
-        """Combines Shell methods, Node attributes, and dynamic keys for introspection."""
-        node_attrs = set(dir(self.node))
-        dynamic_attrs = set(self.node._attributes.keys())
-        shell_attrs = set(super().__dir__())
-        return sorted(shell_attrs | node_attrs | dynamic_attrs)
-
-    # --- Hierarchy & Navigation ---
+        return sorted(set(super().__dir__()) | set(dir(self.node)) | set(self.node._attributes.keys()))
 
     @property
-    def parent(self) -> Node | None:
-        return self._parent
+    def ast(self) -> Any:
+        return self.node._ast
 
     @property
-    def context(self) -> Any:
+    def ctx(self) -> Any:
         return self.node._ctx
 
-    def children(self) -> list[Node]:
-        """Lazy-loads children and establishes self as the source of their parentage."""
-        if self._children is None:
-            self._children = list(self._find_children())
+    @property
+    def parseinfo(self) -> Any:
+        return self.node._parseinfo
+
+    @property
+    def attributes(self) -> dict[str, Any]:
+        return self.node._attributes
+
+    @property
+    def parent(self) -> NodeShell[Any] | None:
+        """Resolves the weak parent reference and returns its NodeShell."""
+        if self._parent_ref is None:
+            return None
+        parent_node = self._parent_ref()
+        if parent_node is not None:
+            return nodeshell(parent_node)
+        return None
+
+    @property
+    def path(self) -> list[NodeShell[Any]]:
+        """Returns the list of ancestor shells from root down to this shell's parent."""
+        ancestors: list[NodeShell[Any]] = []
+        curr = self.parent
+        while curr is not None:
+            ancestors.append(curr)
+            curr = curr.parent
+        return ancestors[::-1]
+
+    def children(self) -> tuple[Any, ...]:
+        return self.children_tuple()
+
+    def children_list(self) -> list[Any]:
+        return list(self.children_tuple())
+
+    def children_tuple(self) -> tuple[Any, ...]:
+        return tuple(
+            unshell(shell) for shell in self._children_shell_tuple()
+        )
+
+    def _children_shell_tuple(self) -> tuple[Any, ...]:
+        if not self._children:
+            self._children = tuple(self._find_children_shells())
         return self._children
 
-    def _find_children(self) -> Iterator[Node]:
-        def walk(obj: Any) -> Iterator[Node]:
-            if isinstance(obj, Node):
-                # We get the shell for the child to set its parent locally
-                child_shell = NodeShell.shell(obj)
-                child_shell._parent = self.node
-                yield obj
-            elif isinstance(obj, Mapping):
-                for k, v in obj.items():
-                    if not k.startswith("_"):
-                        yield from walk(v)
-            elif isinstance(obj, (list, tuple)):
-                for item in obj:
-                    yield from walk(item)
+    def _find_children_shells(self) -> Iterable[Any]:
+        def walk(obj: Any) -> Iterator[NodeShell[Any]]:
+            # no recursion
+            match obj:
+                case NodeShell() as shell:
+                    yield from walk(shell.shelled())
+                case NGNode() as node:
+                    child_shell = nodeshell(node)
+                    child_shell._parent_ref = weakref.ref(self.node)
+                    yield child_shell
+                case Mapping() as map:
+                    for name, value in map.items():
+                        if name.startswith("_"):
+                            continue
+                        if not name.startswith("_"):
+                            yield from walk(value)
+                case (list() | tuple()) as seq:
+                    for item in seq:
+                        yield from walk(item)
+                case NodeBase() as node:
+                    yield nodeshell(node)
+                case _:
+                    pass  # only yield descendant of NodeBase
 
-        source = self.node._attributes or self.node._ast
-        yield from walk(source)
-
-    # --- Metadata Accessors ---
+        yield from walk([self.ast, self.attributes])
 
     @property
     def text(self) -> str:
         pi = self.node._parseinfo
-        if not pi or not hasattr(pi.tokenizer, "text"):
-            return ""
-        text: str = pi.tokenizer.text
-        return text[pi.pos : pi.endpos]
+        if pi and hasattr(pi.tokenizer, "text"):
+            return pi.tokenizer.text[pi.pos : pi.endpos]
+        return ''
 
     @property
     def line(self) -> int | None:
         return self.node._parseinfo.line if self.node._parseinfo else None
 
     @property
-    def line_info(self) -> LineInfo | None:
-        pi = self.node._parseinfo
-        if pi:
-            return pi.tokenizer.line_info(pi.pos)
-        return None
-
-    @property
-    def comments(self) -> CommentInfo:
-        pi = self.node._parseinfo
-        if pi and hasattr(pi.tokenizer, "comments"):
-            return cast(Callable, pi.tokenizer.comments)(pi.pos)
-        return CommentInfo([], [])
+    def context(self) -> Any:
+        return self.node._ctx
 
     def asjson(self) -> Any:
         return asjson(self.node)
 
+    def _pubdict(self) -> dict[str, Any]:
+        return self.node._pubdict()
+
+    def __json__(self, seen: set[int] | None = None) -> Any:
+        return self.node.__json__(seen)
+
     def __str__(self) -> str:
-        return asjsons(self.node)
+        return asjsons(self)
+
+    def __repr__(self) -> str:
+        return f"nodeshell({self.node.__class__.__name__})"
+
+    def __hash__(self) -> int:
+        return self.node.__hash__()

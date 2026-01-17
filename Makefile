@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 
-test:  lint documentation examples pytest
+test:  lint pytest documentation examples
 
 
 pytest: clean

@@ -242,7 +242,7 @@ def test_12_walker():
             super().__init__()
             self.walked = []
 
-        def walk_default(self, o, children):
+        def walk_default(self, o):
             self.walked.append(o.__class__.__name__)
 
     with Path('./tmp/11.tatsu').open('rb') as f:

@@ -53,7 +53,12 @@ def test_nested_class_synth_model():
     assert type(new_model).__name__ == 'ASeq'
 
     # NOTE: Since we are unpickling an object which contains nested objects, we can't do
-    # self.assertEqual(model.ast, new_model.ast) as the memory locations will be different.
-    # So either (1) we recursively walk the objects and compare fields or (2) we convert it into a
-    # str()/repr()/JSON and compare that. The latter as it is easier.
-    assert asjson(model.ast) == asjson(new_model.ast)
+    #       self.assertEqual(model.ast, new_model.ast) as the memory locations will be different.
+    #       So either (1) we recursively walk the objects and compare fields or (2) we convert it into a
+    #       str()/repr()/JSON and compare that. The latter as it is easier.
+    print(f'{type(model)=}')
+    # if model._is_shell():
+    if model._is_shell():
+        print(f'{model.__original_class__=}')
+    print(f'{model._is_shell()=}')
+    assert asjson(model.ast) == asjson(new_model.ast), type(model)

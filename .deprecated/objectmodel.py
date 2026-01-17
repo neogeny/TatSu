@@ -13,7 +13,7 @@ from .ngmodel import NodeBase
 from .tokenizing import CommentInfo, LineInfo
 
 
-@dataclass
+@dataclass(eq=False)
 class Node(AsJSONMixin, NodeBase):
     _parent: Node | None = None
     _children: list[Node] | None = None
