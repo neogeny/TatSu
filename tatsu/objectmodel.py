@@ -12,8 +12,6 @@ from .infos import ParseInfo
 from .ngmodel import NodeBase
 from .tokenizing import CommentInfo, LineInfo
 
-BASE_CLASS_TOKEN = '::'  # noqa: S105
-
 
 @dataclass(eq=False)
 class Node(AsJSONMixin, NodeBase):
