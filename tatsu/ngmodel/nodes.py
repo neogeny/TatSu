@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import weakref
-from collections.abc import Iterable, Iterator, Mapping
-from contextlib import suppress
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import Any, ClassVar, Protocol, overload, runtime_checkable
 
@@ -65,80 +64,20 @@ class HasChildren(Protocol):
         ...
 
 
-@dataclass(init=False)
-class NodeBase:
-    # NOTE: for compatibility with old objecmodel.Node
-    def __init__(
-            self,
-            ast: Any = None,
-            ctx: Any = None,
-            parseinfo: ParseInfo | None = None,
-            attributes: dict[str, Any] | None = None,
-    ):
-        pass
-
-    @classmethod
-    def _is_shell(cls, self) -> bool:
-        return False
-
-    def __hash__(self) -> int:
-        return hash(asjsons(self))
-
-
 @dataclass
-class NGNode(AsJSONMixin, NodeBase):
-    # NOTE: these attribute will be deleted by __post_init__
+class NodeBase:
     ast: Any = None
     ctx: Any = None
-    parseinfo: ParseInfo | None = None
-    attributes: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(unsafe_hash=True)
+class NGNode(AsJSONMixin, NodeBase):
+    _parseinfo: ParseInfo | None = field(init=False, default=None)
+    _parent_ref: weakref.ref[NGNode] | None = field(init=False, default=None)
 
     def __post_init__(self):
-        self._ast = self.ast
-        self._ctx = self.ctx
-
-        self._attributes = self.attributes or {}
-        if self.attributes is not None:
-            for name, value in self.attributes.items():
-                if hasattr(self, name):
-                    setattr(self, name, value)
-                else:
-                    self._attributes[name] = value
-
-        self._parseinfo = self.parseinfo
-        if self._parseinfo is None and isinstance(self._ast, AST):
-            self._parseinfo = self._ast.parseinfo
-
-        def erase_attr(name: str) -> None:
-            with suppress(AttributeError, KeyError):
-                delattr(self, name)
-                delattr(type(self), name)
-
-        erase_attr('ast')
-        erase_attr('ctx')
-        erase_attr('parseinfo')
-        erase_attr('attributes')
-
-    def __getattr__(self, name: str) -> Any:
-        if name in self._attributes:
-            return self._attributes[name]
-        else:
-            raise AttributeError(
-                f"'{type(self).__name__}' cannot find '{name}' in "
-                f"self._ast or self._attributes",
-            )
-
-    def _asjson_private(self) -> Any:
-        return asjson(self)
-
-    def _pubdict(self) -> dict[str, Any]:
-        result = super()._pubdict() | self._attributes
-        if isinstance(self._ast, dict):
-            result |= self._ast
-        return result
-
-    def __hash__(self) -> int:
-        return hash(asjsons(self))
+        if self._parseinfo is None and isinstance(self.ast, AST):
+            self._parseinfo = self.ast.parseinfo
 
 
 class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
@@ -152,7 +91,6 @@ class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
     def __init__(self, node: T):
         self.node: T = node
         # Weak reference to parent Node to prevent reference cycles
-        self._parent_ref: weakref.ref[NGNode] | None = None
         self._children: tuple[NodeShell[Any], ...] = ()
 
         self.__original_class__ = self.__class__
@@ -173,14 +111,10 @@ class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
     def shelled(self) -> NGNode:
         return self.node
 
-    @classmethod
-    def _is_shell(cls, self) -> bool:
-        return True
-
     def __getattr__(self, name: str) -> Any:
         node = object.__getattribute__(self, 'node')
         try:
-            return getattr(node, name)
+            return getattr(self.node, name)
         except AttributeError as e:
             raise AttributeError(
                 f"'{type(self).__name__}' cannot find '{name}' in "
@@ -188,43 +122,32 @@ class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
             ) from e
 
     def __dir__(self) -> list[str]:
-        return sorted(set(super().__dir__()) | set(dir(self.node)) | set(self.node._attributes.keys()))
+        return sorted(set(super().__dir__()) | set(dir(self.node)))
 
     @property
     def ast(self) -> Any:
-        return self.node._ast
-
-    @property
-    def ctx(self) -> Any:
-        return self.node._ctx
+        return self.node.ast
 
     @property
     def parseinfo(self) -> Any:
         return self.node._parseinfo
 
     @property
-    def attributes(self) -> dict[str, Any]:
-        return self.node._attributes
-
-    @property
-    def parent(self) -> NodeShell[Any] | None:
-        """Resolves the weak parent reference and returns its NodeShell."""
-        if self._parent_ref is None:
+    def parent(self) -> NGNode | None:
+        ref = self.node._parent_ref
+        if ref is None:
             return None
-        parent_node = self._parent_ref()
-        if parent_node is not None:
-            return nodeshell(parent_node)
-        return None
+        else:
+            return ref()
 
     @property
-    def path(self) -> list[NodeShell[Any]]:
-        """Returns the list of ancestor shells from root down to this shell's parent."""
-        ancestors: list[NodeShell[Any]] = []
-        curr = self.parent
-        while curr is not None:
-            ancestors.append(curr)
-            curr = curr.parent
-        return ancestors[::-1]
+    def path(self) -> tuple[NGNode, ...]:
+        ancestors: list[NGNode] = []
+        parent = self.parent
+        while parent is not None:
+            ancestors.append(parent)
+            parent = nodeshell(parent).parent
+        return tuple(reversed(ancestors))
 
     def children(self) -> tuple[Any, ...]:
         return self.children_tuple()
@@ -243,30 +166,25 @@ class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
         return self._children
 
     def _find_children_shells(self) -> Iterable[Any]:
-        def walk(obj: Any) -> Iterator[NodeShell[Any]]:
-            # no recursion
-            match obj:
-                case NodeShell() as shell:
-                    yield from walk(shell.shelled())
-                case NGNode() as node:
-                    child_shell = nodeshell(node)
-                    child_shell._parent_ref = weakref.ref(self.node)
-                    yield child_shell
-                case Mapping() as map:
-                    for name, value in map.items():
-                        if name.startswith("_"):
-                            continue
-                        if not name.startswith("_"):
-                            yield from walk(value)
-                case (list() | tuple()) as seq:
-                    for item in seq:
-                        yield from walk(item)
-                case NodeBase() as node:
-                    yield nodeshell(node)
-                case _:
-                    pass  # only yield descendant of NodeBase
 
-        yield from walk([self.ast, self.attributes])
+        def walk(obj: Any) -> Iterable[NGNode]:
+            if isinstance(shell := obj, NodeShell):
+                yield from walk(shell.node)
+            elif isinstance(node := obj, NGNode):
+                node._parent_ref = weakref.ref(self.node)
+                yield node
+            elif isinstance(map := obj, Mapping):
+                for name, value in map.items():
+                    if name.startswith("_"):
+                        continue
+                    if value is None:
+                        continue
+                    yield from walk(value)
+            elif isinstance(seq := obj, list | tuple):
+                for item in seq:
+                    yield from walk(item)
+
+        return tuple(walk(self.node._pubdict()))
 
     @property
     def text(self) -> str:
@@ -278,10 +196,6 @@ class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
     @property
     def line(self) -> int | None:
         return self.node._parseinfo.line if self.node._parseinfo else None
-
-    @property
-    def context(self) -> Any:
-        return self.node._ctx
 
     def asjson(self) -> Any:
         return asjson(self.node)

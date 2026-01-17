@@ -1,34 +1,60 @@
-from tatsu import ngmodel
+from dataclasses import dataclass
+
+import pytest
+
+from tatsu.ngmodel import NGNode, children_of, nodeshell
 
 
-def test_init_attributes_deleted():
-    node = ngmodel.NGNode()
-    assert not hasattr(node, 'ast')
-    assert not hasattr(node, 'ctx')
-    assert not hasattr(node, 'parseinfo')
-    assert not hasattr(node, 'attributes')
-
-    assert hasattr(node, '_ast')
-    assert hasattr(node, '_ctx')
+def test_init_attributes():
+    node = NGNode()
+    assert hasattr(node, 'ast')
     assert hasattr(node, '_parseinfo')
-    assert hasattr(node, '_attributes')
 
 
 def test_init_attributes_transferred():
-    node = ngmodel.NGNode(ast='Hello')
-    assert node._ast
+    node = NGNode(ast='Hello!')
+    assert node.ast == 'Hello!'
 
-    node = ngmodel.NGNode(ctx=object(), ast='Hello')
-    assert node._ast
-    assert node._ctx
+    node = NGNode(ctx=object(), ast='Hello!')  # type: ignore
+    assert node.ast == 'Hello!'
+    assert node.ctx
 
 
 def test_attributes_through_shell():
-    node = ngmodel.NGNode(ast='Hello')
-    shell = ngmodel.nodeshell(node)
+    node = NGNode(ast='Hello')
+    shell = nodeshell(node)
 
     assert hasattr(shell, 'ast')
-    assert hasattr(shell, 'ctx')
     assert hasattr(shell, 'parseinfo')
-    assert hasattr(shell, 'attributes')
 
+
+@dataclass(kw_only=True, unsafe_hash=True)
+class Inner(NGNode):
+    id: str
+
+
+@dataclass(kw_only=True, unsafe_hash=True)
+class Outer(NGNode):
+    left: Inner
+    right: Inner
+
+
+def test_children():
+    with pytest.raises(TypeError):
+        outer = Outer()  # type: ignore
+        pytest.fail('Should have raised TypeError')
+
+    with pytest.raises(TypeError):
+        Inner()  # type: ignore
+
+    with pytest.raises(TypeError):
+        Inner('x')  # type: ignore
+
+    a_inner = Inner(id='a')
+    b_inner = Inner(id='b')
+    outer = Outer(left=a_inner, right=b_inner)
+    assert outer
+    assert isinstance(outer.left, Inner)
+    assert isinstance(outer.right, Inner)
+    children = children_of(outer)
+    assert children == (a_inner, b_inner)
