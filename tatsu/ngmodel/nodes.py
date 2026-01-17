@@ -5,7 +5,7 @@ from collections.abc import Iterable, Iterator, Mapping
 from dataclasses import dataclass, field
 from typing import Any, ClassVar, Protocol, overload, runtime_checkable
 
-from tatsu.util import AsJSONMixin, asjson, asjsons, debug
+from tatsu.util import AsJSONMixin, asjson, asjsons
 
 from ..ast import AST
 from ..infos import ParseInfo
@@ -271,9 +271,7 @@ class NodeShell[T: Node](AsJSONMixin, HasChildren):
                 case _:
                     pass  # only yield descendant of NodeBase
 
-        sources = [self.ast, self.attributes]
-        debug('SOURCES', type(self).__name__, sources)
-        yield from walk(sources)
+        yield from walk([self.ast, self.attributes])
 
     @property
     def text(self) -> str:
