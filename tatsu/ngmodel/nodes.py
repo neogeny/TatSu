@@ -66,8 +66,11 @@ class NodeBase:
     def _is_shell(self) -> bool:
         return False
 
+    def __hash__(self) -> int:
+        return hash(asjsons(self))
 
-@dataclass(unsafe_hash=True)
+
+@dataclass
 class Node(AsJSONMixin, NodeBase):
     """
     Pure data container.
@@ -77,7 +80,7 @@ class Node(AsJSONMixin, NodeBase):
     _ast: Any = None
     _ctx: Any = None
     _parseinfo: ParseInfo | None = None
-    _attributes: dict[str, Any] = field(default_factory=dict, hash=False, compare=False)
+    _attributes: dict[str, Any] = field(default_factory=dict, compare=False)
 
     def __init__(
             self,
@@ -139,6 +142,9 @@ class Node(AsJSONMixin, NodeBase):
             result |= self._ast
         return result
 
+    def __hash__(self) -> int:
+        return hash(asjsons(self))
+
 
 class NodeShell[T: Node](AsJSONMixin, HasChildren):
     """
@@ -150,10 +156,17 @@ class NodeShell[T: Node](AsJSONMixin, HasChildren):
 
     @classmethod
     def shell(cls, node: T) -> NodeShell[T]:
-        if node not in cls._cache:
-            cls._cache[node] = NodeShell(node)
+        if not isinstance(node, Node):
+            raise TypeError(f'<{type(node).__name__}> is not a Node')
+        if isinstance(node, (weakref.ReferenceType, *weakref.ProxyTypes)):
+            raise TypeError(f'<{type(node).__name__}> is a weak reference')
+        try:
+            if node not in cls._cache:
+                cls._cache[node] = NodeShell(node)
 
-        return cls._cache[node]
+            return cls._cache[node]
+        except TypeError as e:
+            raise TypeError(f'Problem with <{type(node).__name__}>: {e!s}') from e
 
     def unshell(self) -> Node:
         return self.node
@@ -246,6 +259,8 @@ class NodeShell[T: Node](AsJSONMixin, HasChildren):
                     yield child_shell
                 case Mapping() as map:
                     for name, value in map.items():
+                        if name.startswith("_"):
+                            continue
                         if not name.startswith("_"):
                             yield from walk(value)
                 case (list() | tuple()) as seq:
@@ -256,8 +271,8 @@ class NodeShell[T: Node](AsJSONMixin, HasChildren):
                 case _:
                     pass  # only yield descendant of NodeBase
 
-        sources = self._pubdict()
-        debug('sources:', type(self).__name__, sources, self.ast)
+        sources = [self.ast, self.attributes]
+        debug('SOURCES', type(self).__name__, sources)
         yield from walk(sources)
 
     @property
@@ -289,3 +304,6 @@ class NodeShell[T: Node](AsJSONMixin, HasChildren):
 
     def __repr__(self) -> str:
         return f"nodeshell({self.node.__class__.__name__})"
+
+    def __hash__(self) -> int:
+        return self.node.__hash__()
