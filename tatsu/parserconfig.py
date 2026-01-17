@@ -11,7 +11,7 @@ from .tokenizing import NullTokenizer, Tokenizer
 from .util.misc import cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
-MEMO_CACHE_SIZE = 1024
+MEMO_CACHE_SIZE = 4 * 1024
 
 
 class UndefinedStr(str):
