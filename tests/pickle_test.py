@@ -57,8 +57,4 @@ def test_nested_class_synth_model():
     #       So either (1) we recursively walk the objects and compare fields or (2) we convert it into a
     #       str()/repr()/JSON and compare that. The latter as it is easier.
     print(f'{type(model)=}')
-    # if model._is_shell():
-    if model._is_shell():
-        print(f'{model.__original_class__=}')
-    print(f'{model._is_shell()=}')
     assert asjson(model.ast) == asjson(new_model.ast), type(model)

@@ -15,11 +15,11 @@ from .tokenizing import CommentInfo, LineInfo
 
 @dataclass
 class Node(AsJSONMixin, NodeBase):
-    _parent: Node | None = None
-    _children: list[Node] | None = None
     ast: AST | Node | str | None = None
     ctx: Any = None
     parseinfo: ParseInfo | None = None
+    _parent: Node | None = None
+    _children: list[Node] | None = None
 
     def __init__(
             self,
@@ -168,15 +168,14 @@ class Node(AsJSONMixin, NodeBase):
         return asjsons(self)
 
     def __hash__(self) -> int:
-        if self.ast is not None:
-            if isinstance(self.ast, list):
-                return hash(tuple(self.ast))
-            elif isinstance(self.ast, dict):
-                return hash(AST(self.ast))
-            else:
-                return hash(self.ast)
-        else:
+        if self.ast is None:
             return id(self)
+        elif isinstance(self.ast, list):
+            return hash(tuple(self.ast))
+        elif isinstance(self.ast, dict):
+            return hash(AST(self.ast))
+        else:
+            return hash(self.ast)
 
     def __eq__(self, other) -> bool:
         if id(self) == id(other):
