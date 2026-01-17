@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import weakref
 from collections.abc import Iterable, Iterator, Mapping
-from dataclasses import dataclass, field
 from typing import Any, ClassVar, Protocol, overload, runtime_checkable
 
 from ..ast import AST
@@ -61,7 +60,6 @@ class HasChildren(Protocol):
         ...
 
 
-@dataclass
 class NodeBase:
     # NOTE: allows for compatibility with old Node
     def __init__(
@@ -80,18 +78,7 @@ class NodeBase:
         return hash(asjsons(self))
 
 
-@dataclass
 class Node(AsJSONMixin, NodeBase):
-    """
-    Pure data container.
-    Stores the AST structure and attributes but remains unaware of its
-    position within a larger tree to ensure easy serialization.
-    """
-    _ast: Any = None
-    _ctx: Any = None
-    _parseinfo: ParseInfo | None = None
-    _attributes: dict[str, Any] = field(default_factory=dict, compare=False)
-
     def __init__(
             self,
             ast: Any = None,
