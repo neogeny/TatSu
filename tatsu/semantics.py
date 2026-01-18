@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import builtins
+import inspect
 import keyword
 from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from typing import Any
@@ -82,6 +83,35 @@ class ModelBuilderSemantics:
 
         return self._register_constructor(constructor)
 
+    def _find_actual_params(self, fun: Callable, ast, args, kwargs) -> tuple[list, dict]:
+        if hasattr(fun, '__name__') and fun.__name__ in vars(builtins):
+            return [ast], {}
+
+        declared = inspect.signature(fun).parameters
+        params = []
+        kwparams = kwargs
+        known_params = {
+            'ast': ast,
+            'ctx': self.ctx,
+            'exp': ast,
+            'kwargs': {},
+        }
+        for name, var in known_params.items():
+            if name not in declared:
+                continue
+            param = declared[name]
+            match param.kind:
+                case inspect.Parameter.POSITIONAL_ONLY:
+                    params.append(var)
+                case inspect.Parameter.VAR_KEYWORD:
+                    kwparams |= kwargs
+                case _:
+                    kwparams[name] = var
+        params.extend(args)
+        if not (params or kwparams):
+            params = [ast]
+        return params, kwparams
+
     def _default(self, ast, *args, **kwargs) -> Any:
         if not args:
             return ast
@@ -107,13 +137,6 @@ class ModelBuilderSemantics:
             base = self._get_constructor(base_, base)
 
         constructor = self._get_constructor(typename, base)
-        # try:
-        if isinstance(constructor, type) and issubclass(constructor, Node):
-            obj = constructor(ast=ast, ctx=self.ctx, **kwargs)
-        else:
-            obj = constructor(ast, *args[1:], **kwargs)
-        # except Exception as e:
-        #     raise SemanticError(
-        #         f'Could not call constructor for {typename}: {e!s}',
-        #     ) from e
-        return obj
+        params, kwparams = self._find_actual_params(constructor, ast, args[1:], kwargs)
+
+        return constructor(*params, **kwparams)
