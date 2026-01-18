@@ -817,6 +817,10 @@ class RuleInclude(Decorator):
 
 
 class Rule(Model):
+    # NOTE: declare at the class level in case __init__ is not called
+    is_leftrec = False  # Starts a left recursive cycle
+    is_memoizable = True
+
     def __init__(
             self,
             ast: AST,

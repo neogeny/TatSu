@@ -30,6 +30,10 @@ def unshell(node: Any) -> Any:
 
 
 class NodeBase(AsJSONMixin):
+    # NOTE: declare at the class level in case __init__ is not called
+    ast: Any = None
+    ctx: Any = None
+
     def __init__(self, ast: Any = None, ctx: Any = None):
         self.ast: Any = ast
         self.ctx: Any = ctx
@@ -49,6 +53,11 @@ class NodeBase(AsJSONMixin):
 
 
 class NGNode(NodeBase):
+    # NOTE: declare at the class level in case __init__ is not called
+    _parseinfo: ParseInfo | None = None
+    _attributes: dict[str, Any] | None = None
+    _parent_ref: weakref.ref[NGNode] | None = None
+
     def __init__(
             self,
             ast: Any = None,
@@ -71,6 +80,7 @@ class NGNode(NodeBase):
     def __getattr__(self, name: str) -> Any:
         # note: here only if normal attribute search failed
         try:
+            assert isinstance(self._attributes, dict)
             return self._attributes[name]
         except KeyError as e:
             raise TypeError(
