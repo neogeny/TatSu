@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import weakref
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
-from typing import Any, ClassVar, Protocol, overload, runtime_checkable
+from typing import Any, ClassVar, Protocol, cast, overload, runtime_checkable
 
 from ..ast import AST
 from ..infos import ParseInfo
+from ..tokenizing import CommentInfo
 from ..util import AsJSONMixin, asjson, asjsons
 
 
@@ -79,6 +80,10 @@ class NGNode(AsJSONMixin, NodeBase):
         if self._parseinfo is None and isinstance(self.ast, AST):
             self._parseinfo = self.ast.parseinfo
 
+    @property
+    def parseinfo(self) -> Any:
+        return self._parseinfo
+
 
 class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
     """
@@ -148,6 +153,13 @@ class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
             ancestors.append(parent)
             parent = nodeshell(parent).parent
         return tuple(reversed(ancestors))
+
+    @property
+    def comments(self) -> CommentInfo:
+        if self.parseinfo and hasattr(self.parseinfo.tokenizer, 'comments'):
+            comments = cast(Callable, self.parseinfo.tokenizer.comments)
+            return comments(self.parseinfo.pos)
+        return CommentInfo([], [])
 
     def children(self) -> tuple[Any, ...]:
         return self.children_tuple()
