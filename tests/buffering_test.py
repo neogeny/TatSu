@@ -93,10 +93,10 @@ def test_namechars():
     grammar = """
         @@namechars :: '-'
         start =
-            "key" ~ ";"  |
-            "key-word" ~ ";" |
-            "key-word-extra" ~ ";"
+            | "key" ~ ";"
+            | "key-word" ~ ";"
+            | "key-word-extra" ~ ";"
             ;
     """
-    ast = parse(grammar)
+    ast = parse(grammar, 'key-word-extra;')
     assert ast == ('key-word-extra', ';')
