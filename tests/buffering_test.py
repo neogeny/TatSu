@@ -1,5 +1,4 @@
 import random
-import unittest
 from pathlib import Path
 
 import pytest
@@ -35,6 +34,7 @@ def test_pos_consistency(text, buf):
         else:
             col += 1
 
+
 def test_next_consisntency(buf):
     while not buf.atend():
         bl, bc = buf.line_info()[1:3]
@@ -43,6 +43,7 @@ def test_next_consisntency(buf):
         assert buf.line == bl
         assert buf.col == bc
         buf.next()
+
 
 def test_goto_consistency(text, buf):
     for _ in range(100):
@@ -53,10 +54,12 @@ def test_goto_consistency(text, buf):
         assert buf.line == bl
         assert buf.col == bc
 
+
 def test_line_consistency(text, buf):
     lines = buf.split_block_lines(text)
     for n, line in enumerate(lines):
         assert buf.get_line(n) == line
+
 
 def test_line_info_consistency(text, buf):
     lines = buf.split_block_lines(text)
@@ -79,6 +82,7 @@ def test_line_info_consistency(text, buf):
     assert len(text.splitlines()) - 1 == info.line
     assert text_len == info.end
 
+
 def test_linecount():
     b = Buffer('')
     assert b.linecount == 1
@@ -88,6 +92,7 @@ def test_linecount():
 
     b = Buffer('\n')
     assert b.linecount == 2
+
 
 def test_namechars():
     grammar = """

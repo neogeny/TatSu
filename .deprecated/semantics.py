@@ -3,6 +3,7 @@ from __future__ import annotations
 import builtins
 import inspect
 import keyword
+import pprint
 from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from typing import Any
 
@@ -10,7 +11,7 @@ from .contexts import ParseContext
 from .ngmodel import NodeBase
 from .objectmodel import Node
 from .synth import registered_synthetics, synthesize
-from .util import simplify_list
+from .util import debug, simplify_list
 
 
 class ASTSemantics:
@@ -104,7 +105,7 @@ class ModelBuilderSemantics:
                 case inspect.Parameter.POSITIONAL_ONLY:
                     params.append(var)
                 case inspect.Parameter.VAR_KEYWORD:
-                    kwparams |= kwargs
+                    kwparams = kwargs
                 case _:
                     kwparams[name] = var
         params.extend(args)
@@ -128,6 +129,12 @@ class ModelBuilderSemantics:
                 name += '_'
             return name
 
+        debug(f'AST {pprint.pformat(ast)}')
+        debug(f'ARGS {pprint.pformat(args)}')
+
+        if not args or not isinstance(args[0], str):
+            debug('RETURNING', pprint.pformat(args[0]))
+            return args[0]
         typespec = [mangle(s) for s in args[0].split('::')]
         typename = typespec[0]
         bases = reversed(typespec)
@@ -137,6 +144,19 @@ class ModelBuilderSemantics:
             base = self._get_constructor(base_, base)
 
         constructor = self._get_constructor(typename, base)
+        if typename == 'dotted':
+            debug('DOTTED', constructor)
         params, kwparams = self._find_actual_params(constructor, ast, args[1:], kwargs)
-
+        if typename == 'dotted':
+            debug('DOTTED', constructor, params, kwparams)
         return constructor(*params, **kwparams)
+        # try:
+        # if isinstance(constructor, type) and issubclass(constructor, Node):
+        #     obj = constructor(ast=ast, ctx=self.ctx, **kwargs)
+        # else:
+        #     obj = constructor(ast, *args[1:], **kwargs)
+        # except Exception as e:
+        #     raise SemanticError(
+        #         f'Could not call constructor for {typename}: {e!s}',
+        #     ) from e
+        # return obj
