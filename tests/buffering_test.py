@@ -2,108 +2,101 @@ import random
 import unittest
 from pathlib import Path
 
+import pytest
+
 from tatsu import parse
 from tatsu.buffering import Buffer
 
 
-class BufferingTests(unittest.TestCase):
-    def setUp(self):
-        testfile = Path(__file__).with_suffix('.py')
-        with testfile.open() as f:
-            self.text = str(f.read())
-        self.buf = Buffer(self.text, whitespace='')
+@pytest.fixture
+def text():
+    testfile = Path(__file__).with_suffix('.py')
+    return testfile.read_text()
 
-    def test_pos_consistency(self):
-        line = col = 0
-        for p, c in enumerate(self.text):
-            bl, bc = self.buf.line_info(p)[1:3]
-            d = self.buf.next()
-            # print('tx', line, col, repr(c))
-            # print('bu', bl, bc, repr(d))
-            self.assertEqual(bl, line)
-            self.assertEqual(bc, col)
-            self.assertEqual(d, c)
-            if c == '\n':
-                col = 0
-                line += 1
-            else:
-                col += 1
 
-    def test_next_consisntency(self):
-        while not self.buf.atend():
-            bl, bc = self.buf.line_info()[1:3]
-            #            print('li', bl, bc)
-            #            print('bu', self.buf.line, self.buf.col)
-            self.assertEqual(bl, self.buf.line)
-            self.assertEqual(bc, self.buf.col)
-            self.buf.next()
+@pytest.fixture
+def buf(text):
+    return Buffer(text, whitespace='')
 
-    def test_goto_consistency(self):
-        for _ in range(100):
-            self.buf.goto(random.randrange(len(self.text)))  # noqa: S311
-            bl, bc = self.buf.line_info()[1:3]
-            #            print('li', bl, bc)
-            #            print('bu', self.buf.line, self.buf.col)
-            self.assertEqual(bl, self.buf.line)
-            self.assertEqual(bc, self.buf.col)
 
-    def test_line_consistency(self):
-        lines = self.buf.split_block_lines(self.text)
-        for n, line in enumerate(lines):
-            self.assertEqual(line, self.buf.get_line(n))
-
-    def test_line_info_consistency(self):
-        lines = self.buf.split_block_lines(self.text)
-        line = 0
-        col = 0
-        start = 0
-        for n, char in enumerate(self.text):
-            info = self.buf.line_info(n)
-            self.assertEqual(info.line, line)
-            self.assertEqual(info.col, col)
-            self.assertEqual(info.start, start)
-            self.assertEqual(info.text, lines[line])
+def test_pos_consistency(text, buf):
+    line = col = 0
+    for p, c in enumerate(text):
+        bl, bc = buf.line_info(p)[1:3]
+        d = buf.next()
+        # print('tx', line, col, repr(c))
+        # print('bu', bl, bc, repr(d))
+        assert line == bl
+        assert col == bc
+        assert c == d
+        if c == '\n':
+            col = 0
+            line += 1
+        else:
             col += 1
-            if char == '\n':
-                line += 1
-                col = 0
-                start = n + 1
-        text_len = len(self.text)
-        info = self.buf.line_info(1 + text_len)
-        self.assertEqual(info.line, len(self.text.splitlines()) - 1)
-        self.assertEqual(info.end, text_len)
 
-    def test_linecount(self):
-        b = Buffer('')
-        self.assertEqual(1, b.linecount)
+def test_next_consisntency(buf):
+    while not buf.atend():
+        bl, bc = buf.line_info()[1:3]
+        #            print('li', bl, bc)
+        #            print('bu', buf.line, buf.col)
+        assert buf.line == bl
+        assert buf.col == bc
+        buf.next()
 
-        b = Buffer('Hello World!')
-        self.assertEqual(1, b.linecount)
+def test_goto_consistency(text, buf):
+    for _ in range(100):
+        buf.goto(random.randrange(len(text)))  # noqa: S311
+        bl, bc = buf.line_info()[1:3]
+        #            print('li', bl, bc)
+        #            print('bu', buf.line, buf.col)
+        assert buf.line == bl
+        assert buf.col == bc
 
-        b = Buffer('\n')
-        self.assertEqual(2, b.linecount)
+def test_line_consistency(text, buf):
+    lines = buf.split_block_lines(text)
+    for n, line in enumerate(lines):
+        assert buf.get_line(n) == line
 
-    def test_namechars(self):
-        grammar = """
-            @@namechars :: '-'
-            start =
-                "key" ~ ";"  |
-                "key-word" ~ ";" |
-                "key-word-extra" ~ ";"
-                ;
-        """
-        self.assertEqual(
-            ('key-word-extra', ';'), parse(grammar, 'key-word-extra;'),
-        )
+def test_line_info_consistency(text, buf):
+    lines = buf.split_block_lines(text)
+    line = 0
+    col = 0
+    start = 0
+    for n, char in enumerate(text):
+        info = buf.line_info(n)
+        assert line == info.line
+        assert col == info.col
+        assert start == info.start
+        assert lines[line] == info.text
+        col += 1
+        if char == '\n':
+            line += 1
+            col = 0
+            start = n + 1
+    text_len = len(text)
+    info = buf.line_info(1 + text_len)
+    assert len(text.splitlines()) - 1 == info.line
+    assert text_len == info.end
 
+def test_linecount():
+    b = Buffer('')
+    assert b.linecount == 1
 
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(BufferingTests)
+    b = Buffer('Hello World!')
+    assert b.linecount == 1
 
+    b = Buffer('\n')
+    assert b.linecount == 2
 
-def main():
-    unittest.TextTestRunner(verbosity=2).run(suite())
-
-
-if __name__ == '__main__':
-    main()
+def test_namechars():
+    grammar = """
+        @@namechars :: '-'
+        start =
+            "key" ~ ";"  |
+            "key-word" ~ ";" |
+            "key-word-extra" ~ ";"
+            ;
+    """
+    ast = parse(grammar)
+    assert ast == ('key-word-extra', ';')
