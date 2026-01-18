@@ -112,3 +112,4 @@ ENV/
 
 # generated files
 examples/g2e/*.ebnf
+./.deprecated
