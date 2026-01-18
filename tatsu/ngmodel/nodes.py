@@ -2,25 +2,11 @@ from __future__ import annotations
 
 import weakref
 from collections.abc import Callable, Iterable, Mapping
-from typing import Any, ClassVar, Protocol, cast, overload, runtime_checkable
 
 from ..ast import AST
 from ..infos import ParseInfo
 from ..tokenizing import CommentInfo
 from ..util import AsJSONMixin, asjson, asjsons
-
-
-@overload
-def nodeshell[T: NGNode](node: T) -> NodeShell[T]: ...
-
-@overload
-def nodeshell[U](node: U) -> U: ...
-
-
-def nodeshell(node: Any) -> Any:
-    if isinstance(node, NGNode):
-        return NodeShell.shell(node)
-    return node
 
 
 @overload
@@ -40,37 +26,6 @@ def unshell(node: Any) -> Any:
             {name: unshell(value) for name, value in node.items()},
         )
     return node
-
-
-@overload
-def children_of(node: NGNode) -> tuple[NGNode, ...]: ...
-
-@overload
-def children_of[U](node: U) -> tuple[NodeBase, ...]: ...
-
-
-def children_of(node: Any) -> tuple[Any, ...]:
-    if isinstance(node, HasChildren):
-        return tuple(node.children())
-    elif isinstance(node, NGNode):
-        return nodeshell(node).children()
-    else:
-        return ()
-
-
-def comments_for(node: Any) -> CommentInfo:
-    if isinstance(node, NGNode):
-        return nodeshell(node).comments
-    elif isinstance(node, NodeShell):
-        return node.comments
-    else:
-        return CommentInfo([], [])
-
-
-@runtime_checkable
-class HasChildren(Protocol):
-    def children(self) -> Iterable[Any]:
-        ...
 
 
 class NodeBase(AsJSONMixin):
@@ -122,7 +77,7 @@ class NGNode(NodeBase):
             ) from e
 
 
-class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
+class NodeShell[T: NGNode](AsJSONMixin):
     """
     Stateful View of a Node.
     Manages bi-directional navigation and metadata access.
@@ -188,7 +143,7 @@ class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
         parent = self.parent
         while parent is not None:
             ancestors.append(parent)
-            parent = nodeshell(parent).parent
+            parent = NodeShell.shell(parent).parent
         return tuple(reversed(ancestors))
 
     @property
