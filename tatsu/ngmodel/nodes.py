@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import weakref
 from collections.abc import Callable, Iterable, Mapping
+from typing import Any, ClassVar, cast, overload
 
 from ..ast import AST
 from ..infos import ParseInfo

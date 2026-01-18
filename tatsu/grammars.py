@@ -81,9 +81,6 @@ class Model(Node):
             if isinstance(c, type) and issubclass(c, Model)
         ]
 
-    def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
-        return self
-
     def _parse(self, ctx: ModelContext) -> Any | None:
         ctx.last_node = None
         return None
@@ -770,9 +767,6 @@ class RuleRef(Model):
         super().__init__(ast=ast)
         self.name = ast
 
-    def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
-        return rulemap.get(self.name, self)
-
     def _parse(self, ctx):
         try:
             rule = ctx._find_rule(self.name)
@@ -822,22 +816,22 @@ class RuleInclude(Decorator):
         return f'>{self.rule.name}'
 
 
-class Rule(Decorator):
-    __hash__ = Model.__hash__
-
+class Rule(Model):
     def __init__(
             self,
-            ast: Model,
+            ast: AST,
             name: str,
-            params: list[str] | None = None,
+            exp: Model,
+            params: list[str] | tuple[str] | None = None,
             kwparams: dict[str, Any] | None = None,
             decorators: list[str] | None = None,
     ):
         assert kwparams is None or isinstance(kwparams, Mapping), kwparams
         super().__init__(ast=ast)
+        self.exp = exp
         self.name = name
-        self.params = params
-        self.kwparams = kwparams
+        self.params = params or []
+        self.kwparams = kwparams or {}
         self.decorators = decorators or []
 
         self.is_name = 'name' in self.decorators
@@ -928,8 +922,9 @@ class Rule(Decorator):
 class BasedRule(Rule):
     def __init__(
         self,
-        ast: Model,
+        ast: AST,
         name: str,
+        exp: Model,
         base: Rule,
         params: list[Any],
         kwparams: dict[str, Any],
@@ -938,15 +933,16 @@ class BasedRule(Rule):
         super().__init__(
             ast,
             name,
-            ast,
+            exp,
             params or base.params,
             kwparams or base.kwparams,
             decorators=decorators,
         )
         self.base: Rule = base
-        ast = AST(sequence=[self.base.exp, self.exp])
+        new_exp = [self.base.exp, self.exp]
+        ast = AST(sequence=new_exp)
         ast.set_parseinfo(self.base.parseinfo)
-        self.rhs = Sequence(ast=ast)
+        self.rhs = Sequence(ast=new_exp)
 
     def _parse(self, ctx):
         return self._parse_rhs(ctx, self.rhs)

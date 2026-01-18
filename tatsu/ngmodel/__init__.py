@@ -1,18 +1,13 @@
 from .api import (
     HasChildren,
     children_of,
+    comments_for,
     nodeshell,
 )
 from .nodes import (
     NGNode,
     NodeBase,
     NodeShell,
-<<<<<<< HEAD
-    children_of,
-    comments_for,
-    nodeshell,
-=======
->>>>>>> master
     unshell,
 )
 

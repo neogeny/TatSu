@@ -1,7 +1,14 @@
 from collections.abc import Iterable
 from typing import Any, Protocol, overload, runtime_checkable
 
+from ..tokenizing import CommentInfo
 from .nodes import NGNode, NodeBase, NodeShell
+
+
+@runtime_checkable
+class HasChildren(Protocol):
+    def children(self) -> Iterable[Any]:
+        ...
 
 
 @overload
@@ -33,7 +40,14 @@ def children_of(node: Any) -> tuple[Any, ...]:
         return ()
 
 
-@runtime_checkable
-class HasChildren(Protocol):
-    def children(self) -> Iterable[Any]:
-        ...
+@overload
+def comments_for(node: NGNode) -> CommentInfo: ...
+
+@overload
+def comments_for[U](node: U) -> CommentInfo: ...
+
+
+def comments_for(node: Any) -> CommentInfo:
+    if isinstance(node, NGNode):
+        return nodeshell(node).comments
+    return CommentInfo([], [])

@@ -34,7 +34,7 @@ class ANTLRSemantics:
             ],
         )
 
-    def rule(self, ast: Model) -> model.Rule | None:
+    def rule(self, ast: AST) -> model.Rule | None:
         name = camel2py(ast.name)
         exp = ast.exp
         if name[0].isupper():
@@ -75,7 +75,7 @@ class ANTLRSemantics:
     def predicate_or_action(self, ast: Any) -> None:
         return None
 
-    def named(self, ast: Model) -> model.Named:
+    def named(self, ast: AST) -> model.Named:
         if ast.force_list:
             return model.NamedList(ast)
         else:
@@ -179,7 +179,7 @@ class ANTLRSemantics:
             self.tokens[name] = exp
         else:
             exp = model.Fail()
-            rule = model.Rule(exp, name, [])
+            rule = model.Rule(ast, name, exp)
             self.synthetic_rules.append(rule)
         return exp
 

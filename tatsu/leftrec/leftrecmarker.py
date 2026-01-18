@@ -22,6 +22,11 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
     node_depth: dict[grammars.Model, int] = {}
     node_state: dict[grammars.Model, State] = defaultdict(lambda: State.FIRST)
 
+    def follow_ref(ref: grammars.Model) -> grammars.Rule:
+        if isinstance(ref, grammars.RuleRef):
+            return ref.rule
+        return cast(grammars.Rule, ref)
+
     def dfs(node: grammars.Model):
         nonlocal depth
 
@@ -44,7 +49,7 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
         depth += 1
 
         callable_children = (
-            c.follow_ref(grammar.rulemap)
+            follow_ref(c)
             for c in node.callable_at_same_pos(grammar.rulemap)
         )
         for child in callable_children:
@@ -55,7 +60,6 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
                 node_depth[child] > depth_stack[-1]
             ):
                 # turn off memoization for all rules that were involved in this cycle
-                child = cast(grammars.Rule, child)
                 child_rules = (n for n in node_depth if isinstance(n, grammars.Rule))
                 for childrule in child_rules:
                     childrule.is_memoizable = False
