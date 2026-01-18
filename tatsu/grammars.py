@@ -221,6 +221,7 @@ class Decorator(Model):
         elif not isinstance(ast, AST):
             # Patch to avoid bad interactions with attribute setting in Model.
             # Also a shortcut for subexpressions that are not ASTs.
+            self.exp = ast
             ast = AST(exp=ast)
         super().__init__(ast=ast)
         assert isinstance(self.exp, Model)
