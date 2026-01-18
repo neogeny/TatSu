@@ -9,7 +9,7 @@ from .contexts import ParseContext
 from .exceptions import SemanticError
 from .ngmodel import NodeBase
 from .objectmodel import Node
-from .synth import registered_symthetics, synthesize
+from .synth import registered_synthetics, synthesize
 from .util import simplify_list
 
 
@@ -54,7 +54,7 @@ class ModelBuilderSemantics:
         return constructor
 
     def _find_existing_constructor(self, typename: str) -> Callable | None:
-        context: Mapping[Any, Any] = vars(builtins) | registered_symthetics()
+        context: Mapping[Any, Any] = vars(builtins) | registered_synthetics()
         constructor = context.get(typename)
         if constructor is not None:
             return constructor
@@ -108,13 +108,13 @@ class ModelBuilderSemantics:
             base = self._get_constructor(base_, base)
 
         constructor = self._get_constructor(typename, base)
-        try:
-            if isinstance(constructor, type) and issubclass(constructor, NodeBase):
-                obj = constructor(ast=ast, ctx=self.ctx, **kwargs)
-            else:
-                obj = constructor(ast, *args[1:], **kwargs)
-        except Exception as e:
-            raise SemanticError(
-                f'Could not call constructor for {typename}: {e!s}',
-            ) from e
+        # try:
+        if isinstance(constructor, type) and issubclass(constructor, Node):
+            obj = constructor(ast=ast, ctx=self.ctx, **kwargs)
+        else:
+            obj = constructor(ast, *args[1:], **kwargs)
+        # except Exception as e:
+        #     raise SemanticError(
+        #         f'Could not call constructor for {typename}: {e!s}',
+        #     ) from e
         return obj
