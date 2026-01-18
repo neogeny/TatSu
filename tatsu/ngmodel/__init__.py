@@ -1,10 +1,12 @@
-from .nodes import (
+from .api import (
     HasChildren,
+    children_of,
+    nodeshell,
+)
+from .nodes import (
     NGNode,
     NodeBase,
     NodeShell,
-    children_of,
-    nodeshell,
     unshell,
 )
 
