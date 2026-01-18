@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import re
 from itertools import chain
-from typing import Any
+from typing import Any, cast
 
 from tatsu import grammars as model
 from tatsu.ast import AST
+from tatsu.grammars import Model
 
 
 def camel2py(name: Any) -> str:
@@ -33,7 +34,7 @@ class ANTLRSemantics:
             ],
         )
 
-    def rule(self, ast: AST) -> model.Rule | None:
+    def rule(self, ast: Model) -> model.Rule | None:
         name = camel2py(ast.name)
         exp = ast.exp
         if name[0].isupper():
@@ -74,7 +75,7 @@ class ANTLRSemantics:
     def predicate_or_action(self, ast: Any) -> None:
         return None
 
-    def named(self, ast: AST) -> model.Named:
+    def named(self, ast: Model) -> model.Named:
         if ast.force_list:
             return model.NamedList(ast)
         else:
@@ -83,27 +84,27 @@ class ANTLRSemantics:
     def syntactic_predicate(self, ast: Any) -> None:
         return None
 
-    def optional(self, ast: AST) -> model.Optional:
+    def optional(self, ast: Model) -> model.Optional:
         if isinstance(ast, model.Group | model.Optional | model.Closure):
-            ast = ast.exp
+            ast = cast(Model, ast.exp)
         return model.Optional(ast)
 
-    def closure(self, ast: AST) -> model.Closure:
+    def closure(self, ast: Model) -> model.Closure:
         if isinstance(ast, model.Group | model.Optional):
-            ast = ast.exp
+            ast = cast(Model, ast.exp)
         return model.Closure(ast)
 
-    def positive_closure(self, ast: AST) -> model.Closure:
+    def positive_closure(self, ast: Model) -> model.Closure:
         if isinstance(ast, model.Group):
             ast = ast.exp
-        return model.PositiveClosure(ast)
+        return model.PositiveClosure(cast(Model, ast))
 
-    def negative(self, ast: AST) -> model.Sequence:
+    def negative(self, ast: Model) -> model.Sequence:
         neg = model.NegativeLookahead(ast)
         any = model.Pattern('.')
         return model.Sequence(AST(sequence=[neg, any]))
 
-    def subexp(self, ast: AST) -> model.Group:
+    def subexp(self, ast: Model) -> model.Group:
         return model.Group(ast)
 
     def regexp(self, ast: AST) -> model.Pattern:
@@ -162,7 +163,7 @@ class ANTLRSemantics:
         return model.Pattern(r'\w+|\S+')
 
     def string(self, ast: AST) -> model.Token:
-        text = ast
+        text = str(ast)
         if isinstance(text, list):
             text = ''.join(text)
         return model.Token(text)
@@ -178,7 +179,7 @@ class ANTLRSemantics:
             self.tokens[name] = exp
         else:
             exp = model.Fail()
-            rule = model.Rule(ast, name, exp, [], {})
+            rule = model.Rule(exp, name, [])
             self.synthetic_rules.append(rule)
         return exp
 

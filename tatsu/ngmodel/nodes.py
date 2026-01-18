@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import weakref
 from collections.abc import Callable, Iterable, Mapping
-from dataclasses import dataclass, field
 from typing import Any, ClassVar, Protocol, cast, overload, runtime_checkable
 
 from ..ast import AST
@@ -59,30 +58,68 @@ def children_of(node: Any) -> tuple[Any, ...]:
         return ()
 
 
+def comments_for(node: Any) -> CommentInfo:
+    if isinstance(node, NGNode):
+        return nodeshell(node).comments
+    elif isinstance(node, NodeShell):
+        return node.comments
+    else:
+        return CommentInfo([], [])
+
+
 @runtime_checkable
 class HasChildren(Protocol):
     def children(self) -> Iterable[Any]:
         ...
 
 
-@dataclass
-class NodeBase:
-    ast: Any = None
-    ctx: Any = None
+class NodeBase(AsJSONMixin):
+    def __init__(self, ast: Any = None, ctx: Any = None):
+        self.ast: Any = ast
+        self.ctx: Any = ctx
+
+    def __hash__(self) -> int:
+        def tweak(value: Any):
+            if isinstance(value, list):
+                return tuple(value)
+            else:
+                return value
+
+        signature = (
+            (name, tweak(value))
+            for name, value in vars(self).items()
+        )
+        return hash(signature)
 
 
-@dataclass(unsafe_hash=True)
-class NGNode(AsJSONMixin, NodeBase):
-    _parseinfo: ParseInfo | None = field(init=False, default=None)
-    _parent_ref: weakref.ref[NGNode] | None = field(init=False, default=None)
+class NGNode(NodeBase):
+    def __init__(
+            self,
+            ast: Any = None,
+            ctx: Any = None,
+            parseinfo: ParseInfo | None = None,
+            **kwargs: Any,
+    ):
+        super().__init__(ast=ast, ctx=ctx)
+        self._parseinfo: ParseInfo | None = parseinfo
+        self._attributes: dict[str, Any] = kwargs
+        self._parent_ref: weakref.ref[NGNode] | None = None
 
-    def __post_init__(self):
-        if self._parseinfo is None and isinstance(self.ast, AST):
+        if not self._parseinfo and isinstance(self.ast, AST):
             self._parseinfo = self.ast.parseinfo
 
     @property
     def parseinfo(self) -> Any:
         return self._parseinfo
+
+    def __getattr__(self, name: str) -> Any:
+        # note: here only if normal attribute search failed
+        try:
+            return self._attributes[name]
+        except KeyError as e:
+            raise TypeError(
+                f'"{name}" is not a valid attribute in {type(self).__name__}',
+            ) from e
 
 
 class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
@@ -228,4 +265,4 @@ class NodeShell[T: NGNode](AsJSONMixin, HasChildren):
         return f"nodeshell({super().__repr__()})"
 
     def __hash__(self) -> int:
-        return self.node.__hash__()
+        return hash(self.node) + 42

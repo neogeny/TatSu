@@ -25,6 +25,11 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
     def dfs(node: grammars.Model):
         nonlocal depth
 
+        if node is None:
+            raise ValueError('A None got here')
+        depth += 1
+        depth_stack.append(depth)
+
         if node_state[node] == State.FIRST:
             node_state[node] = State.CUTOFF
         else:

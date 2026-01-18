@@ -83,7 +83,14 @@ class ModelBuilderSemantics:
 
         return self._register_constructor(constructor)
 
-    def _find_actual_params(self, fun: Callable, ast, args, kwargs) -> tuple[list, dict]:
+    def _find_actual_params(
+            self,
+            fun: Callable,
+            ast: Any,
+            args: tuple[Any] | list[Any],
+            kwargs: dict[str, Any],
+    ) -> tuple[list[Any], dict]:
+
         if hasattr(fun, '__name__') and fun.__name__ in vars(builtins):
             return [ast], {}
 

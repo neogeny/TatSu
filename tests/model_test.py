@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json  # noqa: F401
-from dataclasses import dataclass
 from typing import Any
 
 import pytest  # noqa: F401
@@ -12,8 +11,9 @@ from tatsu.objectmodel import Node
 
 
 def test_node_kwargs() -> None:
-    @dataclass
     class Atom(Node):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
         arguments: Any = None
         symbol: Any = None
 

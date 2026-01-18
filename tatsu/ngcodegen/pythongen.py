@@ -163,7 +163,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
     def walk_Void(self, void: grammars.Void):
         self.print('self._void()')
 
-    def walk_Any(self, any: grammars.Any):
+    def walk_Any(self, any: grammars.Dot):
         self.print('self._any()')
 
     def walk_Fail(self, fail: grammars.Fail):

@@ -6,12 +6,13 @@ from collections.abc import Callable, Collection, Mapping
 from copy import copy
 from itertools import takewhile
 from pathlib import Path
+from typing import Any
 
 from .ast import AST
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
-from .objectmodel import Node
+from .objectmodel import Node, comments_for
 from .util import chunks, compress_seq, indent, re, trim
 
 PEP8_LLEN = 72
@@ -63,6 +64,14 @@ class ModelContext(ParseContext):
 
 
 class Model(Node):
+    __hash__ = Node.__hash__
+
+    def __init__(self, ast: Any | None = None, **kwargs):
+        super().__init__(ast=ast, **kwargs)
+        self._lookahead: ffset = set()
+        self._firstset: ffset = set()
+        self._follow_set: ffset = set()
+
     @staticmethod
     def classes() -> list[type]:
         return [
@@ -72,23 +81,17 @@ class Model(Node):
             if isinstance(c, type) and issubclass(c, Model)
         ]
 
-    def __init__(self, ast: AST | Node | str | None = None, ctx: ParseContext | None = None):
-        super().__init__(ast=ast, ctx=ctx)
-        self._lookahead: ffset = set()
-        self._firstset: ffset = set()
-        self._follow_set: ffset = set()
-        self.value = None
-
     def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
         return self
 
-    def _parse(self, ctx: ModelContext):
+    def _parse(self, ctx: ModelContext) -> Any | None:
         ctx.last_node = None
+        return None
 
     def defines(self):
         return []
 
-    def _add_defined_attributes(self, ctx: ModelContext, ast: AST | None = None):
+    def _add_defined_attributes(self, ctx: ModelContext, ast: Any | None = None):
         if ast is None:
             return
         if not hasattr(ast, '_define'):
@@ -99,7 +102,8 @@ class Model(Node):
         keys = [k for k, list in defines.items() if not list]
         list_keys = [k for k, list in defines.items() if list]
         ctx._define(keys, list_keys)
-        ast._define(keys, list_keys)
+        if isinstance(ast, AST):
+            ast._define(keys, list_keys)
 
     def lookahead(self, k: int = 1) -> ffset:
         if not self._lookahead:
@@ -140,7 +144,7 @@ class Model(Node):
         return []
 
     def comments_str(self):
-        comments, _eol = self.comments
+        comments, _eol = comments_for(self)
         if not comments:
             return ''
 
@@ -176,7 +180,7 @@ class Void(Model):
         return True
 
 
-class Any(Model):
+class Dot(Model):
     def _parse(self, ctx):
         return ctx._any()
 
@@ -193,9 +197,9 @@ class Fail(Model):
 
 
 class Comment(Model):
-    def __init__(self, ast: AST | None = None, **kwargs):
-        self.comment: str = ''
-        super().__init__(ast=AST(comment=ast))
+    def __init__(self, ast: str):
+        super().__init__(ast=ast)
+        self.comment = ast
 
     def _to_str(self, lean: bool = False):
         return f'(* {self.comment} *)'
@@ -215,19 +219,16 @@ class EOF(Model):
 
 
 class Decorator(Model):
-    def __init__(self, ast: AST | Model | None = None, exp: Model | None = None, **kwargs):
-        if exp is not None:
-            self.exp = ast = exp
-        elif not isinstance(ast, AST):
-            # Patch to avoid bad interactions with attribute setting in Model.
-            # Also a shortcut for subexpressions that are not ASTs.
-            self.exp = ast
-            ast = AST(exp=ast)
+    def __init__(self, ast: Model):
         super().__init__(ast=ast)
+        self.exp = ast
         assert isinstance(self.exp, Model)
 
-    def _parse(self, ctx):
-        return self.exp._parse(ctx)
+    def _parse(self, ctx) -> Any | None:
+        if isinstance(self.exp, Model):
+            return self.exp._parse(ctx)
+        else:
+            return None
 
     def defines(self):
         return self.exp.defines()
@@ -276,9 +277,8 @@ class Group(Decorator):
 
 
 class Token(Model):
-    def __post_init__(self):
-        super().__post_init__()
-        ast = self.ast
+    def __init__(self, ast: str):
+        super().__init__(ast=ast)
         self.token = ast
 
     def _parse(self, ctx):
@@ -292,9 +292,9 @@ class Token(Model):
 
 
 class Constant(Model):
-    def __post_init__(self):
-        super().__post_init__()
-        self.literal = self.ast
+    def __init__(self, ast: str):
+        super().__init__(ast=ast)
+        self.literal = ast
 
     def _parse(self, ctx):
         return ctx._constant(self.literal)
@@ -310,11 +310,10 @@ class Constant(Model):
 
 
 class Alert(Constant):
-    def __post_init__(self):
-        super().__post_init__()
-        if isinstance(self.ast, AST):
-            self.literal = self.ast.message.literal
-            self.level = len(self.ast.level)
+    def __init__(self, ast: str):
+        super().__init__(ast=ast)
+        self.literal = self.ast.message.literal
+        self.level = len(self.ast.level)
 
     def _parse(self, ctx):
         return super()._parse(ctx)
@@ -324,8 +323,8 @@ class Alert(Constant):
 
 
 class Pattern(Model):
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, ast: list[str] | str):
+        super().__init__(ast=ast)
         ast = self.ast
         if not isinstance(ast, list):
             ast = [ast]
@@ -402,7 +401,7 @@ class SkipTo(Decorator):
 
 
 class Sequence(Model):
-    def __init__(self, ast, **kwargs):
+    def __init__(self, ast):
         assert ast.sequence
         self.sequence = ()
         super().__init__(ast=ast)
@@ -463,7 +462,7 @@ class Sequence(Model):
 
 
 class Choice(Model):
-    def __init__(self, ast: AST | list[Model] | None = None, **kwargs):
+    def __init__(self, ast: AST | list[Model] | None = None):
         self.options: list[Model] = []
         super().__init__(ast=AST(options=ast))
         assert isinstance(self.options, list), repr(self.options)
@@ -575,7 +574,7 @@ class PositiveClosure(Closure):
 class Join(Decorator):
     JOINOP = '%'
 
-    def __init__(self, ast: AST, **kwargs):
+    def __init__(self, ast: AST):
         super().__init__(ast.exp)
         self.sep = ast['sep']
 
@@ -704,10 +703,10 @@ class Cut(Model):
 
 
 class Named(Decorator):
-    def __init__(self, ast: AST | None = None, **kwargs):
+    def __init__(self, ast: AST):
         if ast is None:
             raise GrammarError('ast in Named cannot be None')
-        super().__init__(ast['exp'])
+        super().__init__(ast=ast['exp'])
         self.name = ast['name']
 
     def _parse(self, ctx):
@@ -740,7 +739,7 @@ class NamedList(Named):
 
 
 class Override(Named):
-    def __init__(self, ast: AST | None = None, **kwargs):
+    def __init__(self, ast: Model):
         super().__init__(ast=AST(name='@', exp=ast))
 
     def defines(self):
@@ -748,7 +747,7 @@ class Override(Named):
 
 
 class OverrideList(NamedList):
-    def __init__(self, ast: AST | None = None, **kwargs):
+    def __init__(self, ast: list[Model]):
         super().__init__(ast=AST(name='@', exp=ast))
 
     def defines(self):
@@ -757,19 +756,19 @@ class OverrideList(NamedList):
 
 class Special(Model):
     def _first(self, k, f):
-        return {(self.value,)}
+        return {(self.ast,)}
 
     def _to_str(self, lean=False):
-        return f'?{self.value}?'
+        return f'?{self.ast}?'
 
     def _nullable(self) -> bool:
         return True
 
 
 class RuleRef(Model):
-    def __post_init__(self) -> None:
-        super().__post_init__()
-        self.name: str = self.ast or 'unnamed'  # type: ignore
+    def __init__(self, ast: str):
+        super().__init__(ast=ast)
+        self.name = ast
 
     def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
         return rulemap.get(self.name, self)
@@ -814,19 +813,28 @@ class RuleRef(Model):
 
 
 class RuleInclude(Decorator):
-    def __init__(self, rule):
-        assert isinstance(rule, Rule), str(rule.name)
-        super().__init__(rule.exp)
-        self.rule = rule
+    def __init__(self, ast: Rule):
+        assert isinstance(ast, Rule), str(ast.name)
+        super().__init__(ast=ast.exp)
+        self.rule = ast
 
     def _to_str(self, lean=False):
         return f'>{self.rule.name}'
 
 
 class Rule(Decorator):
-    def __init__(self, ast, name, exp, params, kwparams, decorators: list[str] | None = None):
+    __hash__ = Model.__hash__
+
+    def __init__(
+            self,
+            ast: Model,
+            name: str,
+            params: list[str] | None = None,
+            kwparams: dict[str, Any] | None = None,
+            decorators: list[str] | None = None,
+    ):
         assert kwparams is None or isinstance(kwparams, Mapping), kwparams
-        super().__init__(exp=exp, ast=ast)
+        super().__init__(ast=ast)
         self.name = name
         self.params = params
         self.kwparams = kwparams
@@ -852,9 +860,6 @@ class Rule(Decorator):
         )
         return ctx._call(ruleinfo)
 
-    # def firstset(self, k=1):
-    #     return self.exp.firstset(k=k)
-
     def _first(self, k, f):
         self._firstset = self.exp._first(k, f) | f[self.name]
         return self._firstset
@@ -873,6 +878,13 @@ class Rule(Decorator):
             return repr(p)
 
     def _to_str(self, lean=False):
+        str_template = """\
+                {is_name}{comments}{name}{base}{params}
+                    =
+                {exp}
+                    ;
+                """
+
         comments = self.comments_str()
         if lean:
             params = ''
@@ -903,7 +915,7 @@ class Rule(Decorator):
 
         base = f' < {self.base.name!s}' if self.base else ''
 
-        return trim(self.str_template).format(
+        return trim(str_template).format(
             name=self.name,
             base=base,
             params=params,
@@ -912,20 +924,12 @@ class Rule(Decorator):
             is_name='@name\n' if self.is_name else '',
         )
 
-    str_template = """\
-                {is_name}{comments}{name}{base}{params}
-                    =
-                {exp}
-                    ;
-                """
-
 
 class BasedRule(Rule):
     def __init__(
         self,
-        ast: AST | None,
+        ast: Model,
         name: str,
-        exp: Model,
         base: Rule,
         params: list[Any],
         kwparams: dict[str, Any],
@@ -934,7 +938,7 @@ class BasedRule(Rule):
         super().__init__(
             ast,
             name,
-            exp,
+            ast,
             params or base.params,
             kwparams or base.kwparams,
             decorators=decorators,
