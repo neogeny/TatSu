@@ -41,5 +41,5 @@ def synthesize(name: str, bases: tuple[type, ...], *args: Any, **kwargs: Any) ->
     return constructor
 
 
-def registered_symthetics() -> dict[str, Callable]:
+def registered_synthetics() -> dict[str, Callable]:
     return dict(__REGISTRY)

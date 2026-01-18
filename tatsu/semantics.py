@@ -9,7 +9,7 @@ from .contexts import ParseContext
 from .exceptions import SemanticError
 from .ngmodel import NodeBase
 from .objectmodel import Node
-from .synth import registered_symthetics, synthesize
+from .synth import registered_synthetics, synthesize
 from .util import simplify_list
 
 
@@ -54,7 +54,7 @@ class ModelBuilderSemantics:
         return constructor
 
     def _find_existing_constructor(self, typename: str) -> Callable | None:
-        context: Mapping[Any, Any] = vars(builtins) | registered_symthetics()
+        context: Mapping[Any, Any] = vars(builtins) | registered_synthetics()
         constructor = context.get(typename)
         if constructor is not None:
             return constructor
