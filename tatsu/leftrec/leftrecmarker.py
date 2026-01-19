@@ -22,9 +22,9 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
     node_depth: dict[grammars.Model, int] = {}
     node_state: dict[grammars.Model, State] = defaultdict(lambda: State.FIRST)
 
-    def follow_ref(ref: grammars.Model) -> grammars.Rule:
+    def follow_ref(ref: grammars.Model | grammars.Rule) -> grammars.Rule:
         if isinstance(ref, grammars.RuleRef):
-            return ref.rule
+            return grammar.rulemap[ref]
         return cast(grammars.Rule, ref)
 
     def dfs(node: grammars.Model):
