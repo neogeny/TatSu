@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import functools
-import weakref
 from collections import defaultdict
 from collections.abc import Callable, Collection, Mapping
 from copy import copy
 from itertools import takewhile
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from .ast import AST
 from .contexts import ParseContext
@@ -54,7 +53,11 @@ class ModelContext(ParseContext):
 
         super().__init__(config=config)
 
-        self.rulemap = {rule.name: rule for rule in rules}
+        self._rulemap = {rule.name: rule for rule in rules}
+
+    @property
+    def rulemap(self) -> Mapping[str, RuleInfo]:
+        return self._rulemap
 
     @property
     def pos(self) -> int:
@@ -987,8 +990,8 @@ class Grammar(Model):
         self.config = config
 
         self.rules: list[Rule] = rules
-        self.rulemap: dict[str, Rule] = {
-            rule.name: cast(Rule, weakref.proxy(rule))
+        self._rulemap: dict[str, Rule] = {
+            rule.name: rule
             for rule in rules
         }
 
@@ -1004,12 +1007,16 @@ class Grammar(Model):
             name = 'My'
         self.name = name
 
-        missing: set[str] = self.missing_rules(set(self.rulemap))
+        missing: set[str] = self.missing_rules(set(self._rulemap))
         if missing:
             msg = '\n'.join(['', *sorted(missing)])
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
         self._calc_lookahead_sets()
+
+    @property
+    def rulemap(self) -> Mapping[str, RuleInfo]:
+        return self._rulemap
 
     @property
     def keywords(self) -> Collection[str]:
