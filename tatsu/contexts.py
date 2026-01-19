@@ -86,7 +86,9 @@ class RuleLike(Protocol):
 
 # decorator for rule implementation methods
 def tatsumasu(*params: Any, **kwparams: Any) -> Callable[[Callable[..., Any]], Callable[[ParseContext], Any]]:
+
     def decorator(impl: Callable[..., Any]) -> Callable[[ParseContext], Any]:
+
         @functools.wraps(impl)
         def wrapper(self: ParseContext) -> Any:
             name = impl.__name__  # type: ignore
