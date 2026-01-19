@@ -773,10 +773,9 @@ class Call(Model):
     def _parse(self, ctx):
         try:
             rule = ctx._find_rule(self.name)
+            return rule()
         except KeyError:
             ctx._error(self.name, exclass=FailedRef)
-        else:
-            return rule()
 
     def missing_rules(self, rules: set[str]) -> set[str]:
         if self.name not in rules:
