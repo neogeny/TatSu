@@ -129,7 +129,7 @@ class Model(Node):
     def _follow(self, k, fl, a):
         return a
 
-    def is_nullable(self, ctx: Mapping[str, Rule] | None = None) -> bool:
+    def is_nullable(self, rulemap: Mapping[str, Rule] | None = None) -> bool:
         return self._nullable()
 
     def _nullable(self) -> bool:
@@ -801,11 +801,11 @@ class Call(Model):
     def _to_str(self, lean=False):
         return self.name
 
-    def is_nullable(self, ctx: Mapping[str, Rule] | None = None) -> bool:
-        if ctx is None:
+    def is_nullable(self, rulemap: Mapping[str, Rule] | None = None) -> bool:
+        if rulemap is None:
             return False
         else:
-            return ctx[self.name].is_nullable(ctx)
+            return rulemap[self.name].is_nullable(rulemap)
 
 
 class RuleInclude(Decorator):
