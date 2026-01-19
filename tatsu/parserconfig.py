@@ -43,6 +43,7 @@ class ParserConfig:
     memoization: bool = True
     memoize_lookaheads: bool = True
     memo_cache_size: int = MEMO_CACHE_SIZE
+    prune_memos_on_cut: bool = True
 
     colorize: bool = True  # INFO: requires the colorama library
     trace: bool = False

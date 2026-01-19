@@ -355,7 +355,7 @@ class Call(Base):
 class RuleInclude(_Decorator):
     def render_fields(self, fields):
         super().render_fields(fields)
-        fields.update(exp=self.rend(self.node.rule.exp))
+        fields.update(exp=self.rend(self.node.ruleinfo.exp))
 
     template = """
                 {exp}
