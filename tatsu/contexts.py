@@ -3,7 +3,6 @@ from __future__ import annotations
 import ast as stdlib_ast
 import dataclasses
 import functools
-import re
 import sys
 from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager, suppress
@@ -151,8 +150,8 @@ class ParseContext:
         config = ParserConfig.new(config, **settings)
         if config.tokenizercls is None:
             config = config.replace(tokenizercls=Buffer)
-        self.config: ParserConfig = config
-        self._active_config: ParserConfig = self.config
+        self._config: ParserConfig = config
+        self._active_config: ParserConfig = self._config
 
         self._tokenizer: Tokenizer = NullTokenizer()
         self._semantics: type | None = config.semantics
@@ -171,79 +170,27 @@ class ParseContext:
         self._clear_memoization_caches()
 
     @property
+    def config(self):
+        return self._active_config
+
+    @property
     def active_config(self) -> ParserConfig:
         return self._active_config
+
+    @property
+    def self_config(self) -> ParserConfig:
+        return self._config
 
     @property
     def semantics(self) -> Any:
         return self._semantics
 
     @property
-    def encoding(self) -> str | None:
-        return self.active_config.encoding
-
-    @property
-    def parseinfo(self) -> bool:
-        return self.active_config.parseinfo
-
-    @property
-    def trace(self) -> bool:
-        return self.active_config.trace
-
-    @property
-    def trace_length(self) -> int:
-        return self.active_config.trace_length
-
-    @property
-    def trace_separator(self) -> str:
-        return self.active_config.trace_separator
-
-    @property
-    def trace_filename(self) -> str:
-        return self.active_config.trace_filename
-
-    @property
-    def comments_re(self) -> re.Pattern | str | None:
-        return self.active_config.comments_re
-
-    @property
-    def eol_comments_re(self) -> re.Pattern | str | None:
-        return self.active_config.eol_comments_re
-
-    @property
-    def whitespace(self) -> str | None:
-        return self.active_config.whitespace
-
-    @property
-    def ignorecase(self) -> bool:
-        return self.active_config.ignorecase
-
-    @property
-    def nameguard(self) -> bool | None:
-        return self.active_config.nameguard
-
-    @property
-    def memoize_lookaheads(self) -> bool:
-        return self.active_config.memoize_lookaheads
-
-    @property
-    def left_recursion(self) -> bool:
-        return self.active_config.left_recursion
-
-    @property
-    def colorize(self) -> bool:
-        return self.active_config.colorize
-
-    @property
     def keywords(self) -> set[str]:
         return self._keywords
 
-    @property
-    def namechars(self) -> str | None:
-        return self.active_config.namechars
-
     def _reset(self, config: ParserConfig) -> ParserConfig:
-        if self.active_config.colorize:
+        if self.config.colorize:
             color.init()
         self._initialize_caches()
         self._keywords: set[str] = set(config.keywords)
@@ -276,7 +223,7 @@ class ParseContext:
                 raise ParseError('No tokenizer or text')
 
             self._tokenizer = tokenizer
-            start: str = self.active_config.effective_rule_name() or 'start'
+            start: str = self.config.effective_rule_name() or 'start'
 
             try:
                 rule = self._find_rule(start)
@@ -287,7 +234,7 @@ class ParseContext:
             finally:
                 self._clear_memoization_caches()
         finally:
-            self._active_config = self.config
+            self._active_config = self._config
 
     @property
     def tokenizer(self) -> Tokenizer:
@@ -467,21 +414,22 @@ class ParseContext:
                 lambda k, v: k[0] < cut_pos and not isinstance(v, FailedLeftRecursion),
             )
 
-        # prune(self._memos, self._pos)
+        if self.config.prune_memos_on_cut:
+            prune(self._memos, self._pos)
 
     def _memoization(self) -> bool:
         return self.config.memoization and (
-                self.memoize_lookaheads or
+                self.config.memoize_lookaheads or
                 self._lookahead == 0
         )
 
     def _rulestack(self) -> str:
         rulestack = [r.name for r in reversed(self._rule_stack)]
-        stack = self.trace_separator.join(rulestack)
-        if max((len(s) for s in stack.splitlines()), default=0) > self.trace_length:
-            stack = stack[: self.trace_length]
-            stack = stack.rsplit(self.trace_separator, 1)[0]
-            stack += self.trace_separator
+        stack = self.config.trace_separator.join(rulestack)
+        if max((len(s) for s in stack.splitlines()), default=0) > self.config.trace_length:
+            stack = stack[:self.config.trace_length]
+            stack = stack.rsplit(self.config.trace_separator, 1)[0]
+            stack += self.config.trace_separator
         return stack
 
     def _find_rule(self, name: str) -> Callable[[], Any]:
@@ -506,7 +454,7 @@ class ParseContext:
         return action, postproc
 
     def _trace(self, msg: str, *params: Any, **kwargs: Any) -> None:
-        if not self.trace:
+        if not self.config.trace:
             return
 
         msg %= params
@@ -514,14 +462,14 @@ class ParseContext:
         info(indent, msg, file=sys.stderr)
 
     def _trace_event(self, event: str) -> None:
-        if not self.trace:
+        if not self.config.trace:
             return
 
         fname = ''
-        if self.trace_filename:
-            fname = self._tokenizer.line_info().filename + '\n'
+        if self.config.trace_filename:
+            fname = self.tokenizer.line_info().filename + '\n'
 
-        lookahead = self._tokenizer.lookahead().rstrip()
+        lookahead = self.tokenizer.lookahead().rstrip()
         if lookahead:
             lookahead = '\n' + ' ' * (len(self._rule_stack) - 3) + lookahead
 
@@ -552,11 +500,11 @@ class ParseContext:
         self._trace_event(color.Fore.MAGENTA + color.Style.BRIGHT + C_CUT)
 
     def _trace_match(self, token: Any, name: str | None = None, failed: bool = False) -> None:
-        if not self.trace:
+        if not self.config.trace:
             return
 
         fname = ''
-        if self.trace_filename:
+        if self.config.trace_filename:
             fname = self._tokenizer.line_info().filename + '\n'
         name_str = f'/{name}/' if name else ''
 
@@ -620,7 +568,7 @@ class ParseContext:
         self._results[key] = result
 
     def _set_left_recursion_guard(self, key: MemoKey) -> None:
-        if not self.left_recursion:
+        if not self.config.left_recursion:
             return
         ex = self._make_exception(key.ruleinfo.name, exclass=FailedLeftRecursion)
         self._memoize(key, ex)
@@ -666,7 +614,7 @@ class ParseContext:
 
         if not ruleinfo.is_leftrec:
             return self._invoke_rule(ruleinfo, key)
-        elif not self.left_recursion:
+        elif not self.config.left_recursion:
             self._error('Left recursion detected', exclass=FailedLeftRecursion)
 
         result: RuleResult | Exception | None = self._results.get(key)
@@ -706,7 +654,7 @@ class ParseContext:
             node = tuple(self.cst) if is_list(self.cst) else self.cst
         elif '@' in node:
             node = node['@']  # override the AST
-        elif self.parseinfo:
+        elif self.config.parseinfo:
             node.set_parseinfo(self._get_parseinfo(ruleinfo.name, pos))
         return node
 
@@ -971,7 +919,7 @@ class ParseContext:
 
     def _check_name(self, name: Any) -> None:
         name_str = str(name)
-        if self.ignorecase or self.tokenizer.ignorecase:
+        if self.config.ignorecase or self.tokenizer.ignorecase:
             name_str = name_str.upper()
         if name_str in self.keywords:
             raise FailedKeywordSemantics(f'"{name_str}" is a reserved word')
