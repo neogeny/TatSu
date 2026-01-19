@@ -38,15 +38,22 @@ lint: ruff ty mypy
 
 
 ruff:
-	uv run ruff check -q --preview --fix tatsu tests examples
+	@- echo ruff
+	@- uv run ruff check -q --preview --fix tatsu tests examples
 
 
 mypy:
-	uv run mypy --install-types --exclude dist --exclude parsers .
+	@- echo mypy
+	@- uv run mypy . \
+		--install-types \
+		--exclude dist \
+		--exclude parsers \
+		--exclude backup
 
 
 ty:
-	uv run ty check --exclude parsers --exclude backups
+	@- echo ty
+	@- uv run ty check --exclude parsers --exclude backups
 
 
 clean:

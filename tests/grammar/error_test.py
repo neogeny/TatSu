@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from tatsu.exceptions import GrammarError
-from tatsu.tool import parse
+from tatsu.tool import compile
+from tatsu.util.asjson import asjsons
 
 
 def test_missing_rule():
@@ -10,7 +11,9 @@ def test_missing_rule():
           block = test ;
     """
     try:
-        parse(grammar, 'abc')
+        model = compile(grammar)
+        print('MODEL', asjsons(model))
+        model.parse('abc')
     except GrammarError as e:
         assert str(e) == 'Unknown rules, no parser generated:\ntest'
 
@@ -21,6 +24,8 @@ def test_missing_rules():
           block = test | test2;
     """
     try:
-        parse(grammar, 'abc')
+        model = compile(grammar)
+        print('MODEL', asjsons(model))
+        model.parse('abc')
     except GrammarError as e:
         assert str(e) == 'Unknown rules, no parser generated:\ntest\ntest2'

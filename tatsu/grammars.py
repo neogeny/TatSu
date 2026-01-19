@@ -1,19 +1,20 @@
 from __future__ import annotations
 
 import functools
+import weakref
 from collections import defaultdict
 from collections.abc import Callable, Collection, Mapping
 from copy import copy
 from itertools import takewhile
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from .ast import AST
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
-from .objectmodel import Node, comments_for
-from .util import chunks, compress_seq, indent, re, trim
+from .objectmodel import Node
+from .util import chunks, compress_seq, debug, indent, re, trim
 
 PEP8_LLEN = 72
 PRAGMA_RE = r'^\s*#include.*$'
@@ -53,14 +54,14 @@ class ModelContext(ParseContext):
 
         super().__init__(config=config)
 
-        self.rules = {rule.name: rule for rule in rules}
+        self.rulemap = {rule.name: rule for rule in rules}
 
     @property
     def pos(self) -> int:
         return self._tokenizer.pos
 
     def _find_rule(self, name: str) -> Callable:
-        return functools.partial(self.rules[name]._parse, self)
+        return functools.partial(self.rulemap[name]._parse, self)
 
 
 class Model(Node):
@@ -71,6 +72,8 @@ class Model(Node):
         self._lookahead: ffset = set()
         self._firstset: ffset = set()
         self._follow_set: ffset = set()
+        self.is_leftrec = False  # Starts a left recursive cycle
+        self.is_memoizable = True
 
     @staticmethod
     def classes() -> list[type]:
@@ -80,6 +83,9 @@ class Model(Node):
             for c in globals().copy().values()
             if isinstance(c, type) and issubclass(c, Model)
         ]
+
+    def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
+        return self
 
     def _parse(self, ctx: ModelContext) -> Any | None:
         ctx.last_node = None
@@ -118,7 +124,7 @@ class Model(Node):
     def followset(self, k: int = 1) -> ffset:
         return self._follow_set
 
-    def missing_rules(self, rules: set[str]) -> set[str]:
+    def missing_rules(self, rulenames: set[str]) -> set[str]:
         return set()
 
     def _used_rule_names(self):
@@ -141,7 +147,7 @@ class Model(Node):
         return []
 
     def comments_str(self):
-        comments, _eol = comments_for(self)
+        comments, _eol = self.comments
         if not comments:
             return ''
 
@@ -218,8 +224,11 @@ class EOF(Model):
 class Decorator(Model):
     def __init__(self, ast: Model):
         super().__init__(ast=ast)
-        self.exp = ast
-        assert isinstance(self.exp, Model)
+        if isinstance(ast, AST):
+            self.exp: Model = ast.exp
+        else:
+            self.exp = ast
+        assert isinstance(self.exp, Model), self.exp
 
     def _parse(self, ctx) -> Any | None:
         if isinstance(self.exp, Model):
@@ -230,8 +239,8 @@ class Decorator(Model):
     def defines(self):
         return self.exp.defines()
 
-    def missing_rules(self, rules: set[str]) -> set[str]:
-        return self.exp.missing_rules(rules)
+    def missing_rules(self, rulenames: set[str]) -> set[str]:
+        return self.exp.missing_rules(rulenames)
 
     def _used_rule_names(self):
         return self.exp._used_rule_names()
@@ -398,10 +407,12 @@ class SkipTo(Decorator):
 
 
 class Sequence(Model):
-    def __init__(self, ast):
-        assert ast.sequence
-        self.sequence = ()
+    def __init__(self, ast: AST | list[Model]):
         super().__init__(ast=ast)
+        self.sequence: list[Model] = (
+            ast.sequence if isinstance(ast, AST) else ast
+        )
+        assert isinstance(self.sequence, list), self.sequence
 
     def _parse(self, ctx):
         ctx.last_node = [s._parse(ctx) for s in self.sequence]
@@ -410,8 +421,10 @@ class Sequence(Model):
     def defines(self):
         return [d for s in self.sequence for d in s.defines()]
 
-    def missing_rules(self, rules: set[str]) -> set[str]:
-        return set().union(*[s.missing_rules(rules) for s in self.sequence])
+    def missing_rules(self, rulenames: set[str]) -> set[str]:
+        return set().union(
+            *[s.missing_rules(rulenames) for s in self.sequence],
+        )
 
     def _used_rule_names(self):
         return set().union(*[s._used_rule_names() for s in self.sequence])
@@ -477,8 +490,10 @@ class Choice(Model):
     def defines(self):
         return [d for o in self.options for d in o.defines()]
 
-    def missing_rules(self, rules: set[str]) -> set[str]:
-        return set().union(*[o.missing_rules(rules) for o in self.options])
+    def missing_rules(self, rulenames: set[str]) -> set[str]:
+        return set().union(
+            *[o.missing_rules(rulenames) for o in self.options],
+        )
 
     def _used_rule_names(self):
         return set().union(*[o._used_rule_names() for o in self.options])
@@ -760,23 +775,22 @@ class Special(Model):
 
 
 class Call(Model):
-    def __post_init__(self) -> None:
-        super().__post_init__()
-        self.name: str = self.ast or 'unnamed'  # type: ignore
+    def __init__(self, ast: str) -> None:
+        super().__init__(ast=ast)
+        self.name: str = ast
+        assert isinstance(self.name, str), self.name
 
     def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
         return rulemap.get(self.name, self)
 
     def _parse(self, ctx):
         try:
-            rule = ctx._find_rule(self.name)
+            return ctx._find_rule(self.name)
         except KeyError:
             ctx._error(self.name, exclass=FailedRef)
-        else:
-            return rule()
 
-    def missing_rules(self, rules: set[str]) -> set[str]:
-        if self.name not in rules:
+    def missing_rules(self, rulenames: set[str]) -> set[str]:
+        if self.name not in rulenames:
             return set({self.name})
         return set()
 
@@ -817,10 +831,6 @@ class RuleInclude(Decorator):
 
 
 class Rule(Model):
-    # NOTE: declare at the class level in case __init__ is not called
-    is_leftrec = False  # Starts a left recursive cycle
-    is_memoizable = True
-
     def __init__(
             self,
             ast: AST,
@@ -840,8 +850,9 @@ class Rule(Model):
 
         self.is_name = 'name' in self.decorators
         self.base: Rule | None = None
-        self.is_leftrec = False  # Starts a left recursive cycle
-        self.is_memoizable = True
+
+    def missing_rules(self, rulenames: set[str]) -> set[str]:
+        return self.exp.missing_rules(rulenames)
 
     def _parse(self, ctx):
         return self._parse_rhs(ctx, self.exp)
@@ -930,8 +941,8 @@ class BasedRule(Rule):
         name: str,
         exp: Model,
         base: Rule,
-        params: list[Dot],
-        kwparams: dict[str, Dot],
+        params: list[str],
+        kwparams: dict[str, Any],
         decorators: list[str] | None = None,
     ):
         super().__init__(
@@ -974,8 +985,11 @@ class Grammar(Model):
         config = config.replace(**settings)
         self.config = config
 
-        self.rules = rules
-        self.rulemap = {rule.name: rule for rule in rules}
+        self.rules: list[Rule] = rules
+        self.rulemap: dict[str, Rule] = {
+            rule.name: cast(Rule, weakref.proxy(rule))
+            for rule in rules
+        }
 
         config = config.merge(**directives)
 
@@ -989,14 +1003,13 @@ class Grammar(Model):
             name = 'My'
         self.name = name
 
-        missing: set[str] = self.missing_rules({r.name for r in self.rules})
+        missing: set[str] = self.missing_rules(set(self.rulemap))
         if missing:
             msg = '\n'.join(['', *sorted(missing)])
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
+        debug(f'MISSING {missing}')
         self._calc_lookahead_sets()
-        # if config.left_recursion:
-        #     set_left_recursion(self)
 
     @property
     def keywords(self) -> Collection[str]:
@@ -1010,9 +1023,9 @@ class Grammar(Model):
     def semantics(self, value: type[object]):
         self.config.semantics = value
 
-    def missing_rules(self, rules: set[str]) -> set[str]:
+    def missing_rules(self, rulenames: set[str]) -> set[str]:
         return set().union(
-            *[rule.missing_rules(rules) for rule in self.rules],
+            *[rule.missing_rules(rulenames) for rule in self.rules],
         )
 
     def _used_rule_names(self) -> set[str]:

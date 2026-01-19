@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from collections import defaultdict
 from enum import IntEnum, auto
-from typing import cast
 
 from tatsu import grammars
 
@@ -22,10 +21,11 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
     node_depth: dict[grammars.Model, int] = {}
     node_state: dict[grammars.Model, State] = defaultdict(lambda: State.FIRST)
 
-    def follow_ref(ref: grammars.Model | grammars.Rule) -> grammars.Rule:
-        if isinstance(ref, grammars.RuleRef):
-            return grammar.rulemap[ref]
-        return cast(grammars.Rule, ref)
+    # FIXME
+    # def follow_ref(ref: grammars.Model | grammars.Rule) -> grammars.Rule:
+    #     if isinstance(ref, grammars.Call):
+    #         return grammar.rulemap[ref]
+    #     return cast(grammars.Rule, ref)
 
     def dfs(node: grammars.Model):
         nonlocal depth
@@ -49,7 +49,7 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
         depth += 1
 
         callable_children = (
-            follow_ref(c)
+            c.follow_ref(grammar.rulemap)
             for c in node.callable_at_same_pos(grammar.rulemap)
         )
         for child in callable_children:

@@ -151,7 +151,7 @@ class Grammar(ModelRenderer):
 
         bases = []
         model_rules = []
-        for rule in self.node.rules:
+        for rule in self.node.rulemap:
             specs = _typespec(rule)
             if not specs:
                 continue

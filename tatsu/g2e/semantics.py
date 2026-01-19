@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from itertools import chain
-from typing import Any, cast
+from typing import Any
 
 from tatsu import grammars as model
 from tatsu.ast import AST
@@ -85,19 +85,19 @@ class ANTLRSemantics:
         return None
 
     def optional(self, ast: Model) -> model.Optional:
-        if isinstance(ast, model.Group | model.Optional | model.Closure):
-            ast = cast(Model, ast.exp)
+        if isinstance(ast, model.Group | model.Optional):
+            ast = ast.exp
         return model.Optional(ast)
 
     def closure(self, ast: Model) -> model.Closure:
         if isinstance(ast, model.Group | model.Optional):
-            ast = cast(Model, ast.exp)
+            ast = ast.exp
         return model.Closure(ast)
 
     def positive_closure(self, ast: Model) -> model.Closure:
         if isinstance(ast, model.Group):
             ast = ast.exp
-        return model.PositiveClosure(cast(Model, ast))
+        return model.PositiveClosure(ast)
 
     def negative(self, ast: Model) -> model.Sequence:
         neg = model.NegativeLookahead(ast)
@@ -154,10 +154,6 @@ class ANTLRSemantics:
         pattern = '[^{}]{}'.format(ast.range, ast.repeat or '')
         re.compile(pattern)
         return pattern
-
-    def rule_ref(self, ast: str) -> model.Call:  # FIXME
-        assert ast[0].islower()
-        return model.Call(camel2py(ast))
 
     def call(self, ast: str) -> model.Call:
         assert ast[0].islower()
