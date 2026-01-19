@@ -1,6 +1,7 @@
 from .api import (
     HasChildren,
     children_of,
+    comments_for,
     nodeshell,
 )
 from .nodes import (
@@ -16,6 +17,7 @@ __all__ = [
     'NodeBase',
     'NodeShell',
     'children_of',
+    'comments_for',
     'nodeshell',
     'unshell',
 ]
