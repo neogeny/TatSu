@@ -353,7 +353,7 @@ atom
     ;
 
 
-call::RuleRef
+call::Call
     =
     word
     ;

@@ -909,7 +909,7 @@ class EBNFBootstrapParser(Parser):
                 '<string> <token> <word> \\^+'
             )
 
-    @tatsumasu('RuleRef')
+    @tatsumasu('Call')
     def _call_(self):
         self._word_()
 

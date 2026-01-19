@@ -423,9 +423,6 @@ class Sequence(Model):
         result = {()}
         for s in self.sequence:
             x = s._first(k, f)
-            # FIXME:
-            # if isinstance(x, RuleRef):
-            #     x |= f[x.name]
             result = kdot(result, x, k)
         self._firstset = result
         return result
@@ -433,7 +430,7 @@ class Sequence(Model):
     def _follow(self, k, fl, a):
         fs = a
         for x in reversed(self.sequence):
-            if isinstance(x, RuleRef):
+            if isinstance(x, Call):
                 fl[x.name] |= fs
             x._follow(k, fl, fs)
             fs = kdot(x.firstset(k=k), fs, k)
@@ -765,7 +762,7 @@ class Special(Model):
         return True
 
 
-class RuleRef(Model):
+class Call(Model):
     def __post_init__(self) -> None:
         super().__post_init__()
         self.name: str = self.ast or 'unnamed'  # type: ignore

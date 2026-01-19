@@ -45,7 +45,7 @@ class ANTLRSemantics:
                     self.token_rules[name] = exp
                 return None
             elif not ast.fragment and not isinstance(exp, model.Sequence):
-                ref = model.RuleRef(name.lower())
+                ref = model.Call(name.lower())
                 if name in self.token_rules:
                     self.token_rules[name].exp = ref
                 else:
@@ -154,9 +154,13 @@ class ANTLRSemantics:
         re.compile(pattern)
         return pattern
 
-    def rule_ref(self, ast: str) -> model.RuleRef:
+    def rule_ref(self, ast: str) -> model.Call:  # FIXME
         assert ast[0].islower()
-        return model.RuleRef(camel2py(ast))
+        return model.Call(camel2py(ast))
+
+    def call(self, ast: str) -> model.Call:
+        assert ast[0].islower()
+        return model.Call(camel2py(ast))
 
     def any(self, ast: AST) -> model.Pattern:
         return model.Pattern(r'\w+|\S+')
@@ -192,6 +196,6 @@ class ANTLRSemantics:
         if name in self.token_rules:
             exp = self.token_rules[name]
         else:
-            exp = model.Decorator(model.RuleRef(name))
+            exp = model.Decorator(model.Call(name))
             self.token_rules[name] = exp
         return exp

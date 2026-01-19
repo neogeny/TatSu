@@ -348,7 +348,7 @@ class Special(Base):
     pass
 
 
-class RuleRef(Base):
+class Call(Base):
     template = 'self._{name}_()'
 
 

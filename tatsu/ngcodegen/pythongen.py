@@ -154,8 +154,11 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         rule.exp = rule.rhs
         self.walk_Rule(rule)
 
-    def walk_RuleRef(self, ref: grammars.RuleRef):
+    def walk_RuleRef(self, ref: grammars.Call):
         self.print(f'self._{ref.name}_()')
+
+    def walk_Call(self, call: grammars.Call):
+        self.print(f'self._{call.name}_()')
 
     def walk_RuleInclude(self, include: grammars.RuleInclude):
         self.walk(include.rule.exp)

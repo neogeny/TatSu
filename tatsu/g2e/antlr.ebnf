@@ -339,7 +339,7 @@ non_terminal
     =
     @:(
       token_ref
-    | rule_ref
+    | call
     )
     [arg]
     ;
@@ -367,7 +367,7 @@ rewrite_term
     | /[^|;^]*/
     ;
 
-rule_ref
+call
     =
     lower_name [annotation]
     ;
