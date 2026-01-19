@@ -1,5 +1,4 @@
 from collections.abc import Callable, MutableMapping
-from dataclasses import dataclass
 from typing import Any
 
 from .ngmodel import NodeBase
@@ -10,7 +9,6 @@ from .ngmodel import NodeBase
 __REGISTRY: MutableMapping[str, Callable] = vars()
 
 
-@dataclass
 class _Synthetic(NodeBase):
     def __hash__(self) -> int:
         return hash(id(self))
