@@ -154,8 +154,8 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         rule.exp = rule.rhs
         self.walk_Rule(rule)
 
-    def walk_RuleRef(self, ref: grammars.RuleRef):
-        self.print(f'self._{ref.name}_()')
+    def walk_Call(self, call: grammars.Call):
+        self.print(f'self._{call.name}_()')
 
     def walk_RuleInclude(self, include: grammars.RuleInclude):
         self.walk(include.rule.exp)
@@ -163,8 +163,8 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
     def walk_Void(self, void: grammars.Void):
         self.print('self._void()')
 
-    def walk_Any(self, any: grammars.Dot):
-        self.print('self._any()')
+    def walk_Dot(self, _dot: grammars.Dot):
+        self.print('self._dot()')
 
     def walk_Fail(self, fail: grammars.Fail):
         self.print('self._fail()')

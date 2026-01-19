@@ -977,7 +977,7 @@ class ParseContext:
     def _void(self) -> None:
         self.last_node = None
 
-    def _any(self) -> Any:
+    def _dot(self) -> Any:
         c = self._next()
         if c is None:
             self._trace_match(c, failed=True)

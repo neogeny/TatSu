@@ -179,7 +179,7 @@ class Void(Model):
 
 class Dot(Model):
     def _parse(self, ctx):
-        return ctx._any()
+        return ctx._dot()
 
     def _to_str(self, lean=False):
         return '/./'
@@ -420,9 +420,6 @@ class Sequence(Model):
         result = {()}
         for s in self.sequence:
             x = s._first(k, f)
-            # FIXME:
-            # if isinstance(x, RuleRef):
-            #     x |= f[x.name]
             result = kdot(result, x, k)
         self._firstset = result
         return result
@@ -430,7 +427,7 @@ class Sequence(Model):
     def _follow(self, k, fl, a):
         fs = a
         for x in reversed(self.sequence):
-            if isinstance(x, RuleRef):
+            if isinstance(x, Call):
                 fl[x.name] |= fs
             x._follow(k, fl, fs)
             fs = kdot(x.firstset(k=k), fs, k)
@@ -762,10 +759,13 @@ class Special(Model):
         return True
 
 
-class RuleRef(Model):
-    def __init__(self, ast: str):
-        super().__init__(ast=ast)
-        self.name = ast
+class Call(Model):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.name: str = self.ast or 'unnamed'  # type: ignore
+
+    def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
+        return rulemap.get(self.name, self)
 
     def _parse(self, ctx):
         try:
@@ -930,8 +930,8 @@ class BasedRule(Rule):
         name: str,
         exp: Model,
         base: Rule,
-        params: list[Any],
-        kwparams: dict[str, Any],
+        params: list[Dot],
+        kwparams: dict[str, Dot],
         decorators: list[str] | None = None,
     ):
         super().__init__(
