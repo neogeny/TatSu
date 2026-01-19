@@ -785,7 +785,8 @@ class Call(Model):
 
     def _parse(self, ctx):
         try:
-            return ctx._find_rule(self.name)
+            rule = ctx._find_rule(self.name)
+            return rule()
         except KeyError:
             ctx._error(self.name, exclass=FailedRef)
 
