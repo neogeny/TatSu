@@ -14,7 +14,7 @@ from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
 from .objectmodel import Node
-from .util import chunks, compress_seq, debug, indent, re, trim
+from .util import chunks, compress_seq, indent, re, trim
 
 PEP8_LLEN = 72
 PRAGMA_RE = r'^\s*#include.*$'
