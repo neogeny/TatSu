@@ -798,12 +798,12 @@ class EBNFBootstrapParser(Parser):
             with self._option():
                 self._constant_()
             with self._option():
-                self._any_()
+                self._dot_()
             with self._option():
                 self._pattern_()
             self._error(
                 'expecting one of: '
-                "'(' '/./' '`' <any> <constant> <group>"
+                "'(' '/./' '`' <constant> <dot> <group>"
                 '<pattern> <raw_string> <regexes>'
                 '<string> <token>'
             )
@@ -1053,8 +1053,8 @@ class EBNFBootstrapParser(Parser):
     def _word_(self):
         self._pattern('(?!\\d)\\w+')
 
-    @tatsumasu('Any')
-    def _any_(self):
+    @tatsumasu('Dot')
+    def _dot_(self):
         self._token('/./')
 
     @tatsumasu('Pattern')

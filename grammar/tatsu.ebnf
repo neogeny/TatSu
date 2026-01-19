@@ -295,7 +295,7 @@ right_join::RightJoin
 
 separator
     =
-    group | token | constant |  any | pattern
+    group | token | constant |  dot | pattern
     ;
 
 
@@ -468,7 +468,7 @@ word
     ;
 
 
-any::Any
+dot::Dot
     =
     '/./'
     ;

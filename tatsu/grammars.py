@@ -176,9 +176,9 @@ class Void(Model):
         return True
 
 
-class Any(Model):
+class Dot(Model):
     def _parse(self, ctx):
-        return ctx._any()
+        return ctx._dot()
 
     def _to_str(self, lean=False):
         return '/./'
@@ -923,8 +923,8 @@ class BasedRule(Rule):
         name: str,
         exp: Model,
         base: Rule,
-        params: list[Any],
-        kwparams: dict[str, Any],
+        params: list[Dot],
+        kwparams: dict[str, Dot],
         decorators: list[str] | None = None,
     ):
         super().__init__(
