@@ -42,7 +42,11 @@ ruff:
 
 
 mypy:
-	uv run mypy --install-types --exclude dist --exclude parsers .
+	uv run mypy . \
+		--install-types \
+		--exclude dist \
+		--exclude parsers \
+		--exclude backup
 
 
 ty:
