@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import weakref
 from collections.abc import Callable, Iterator, Mapping
-from dataclasses import dataclass
 from typing import Any, Self, cast
 
-from tatsu.util import AsJSONMixin, asjson, asjsons
+from tatsu.util import asjson, asjsons
 
 from .ast import AST
 from .infos import ParseInfo
@@ -13,9 +12,11 @@ from .ngmodel import NodeBase
 from .tokenizing import CommentInfo, LineInfo
 
 
-@dataclass
-class Node(AsJSONMixin, NodeBase):
-    ast: AST | Node | str | None = None
+class Node(NodeBase):
+    # NOTE:
+    #   declare at class level in case __init__ is not called
+    #   in the interaction with dataclass
+    ast: Any = None
     ctx: Any = None
     parseinfo: ParseInfo | None = None
     _parent: Node | None = None
@@ -32,6 +33,8 @@ class Node(AsJSONMixin, NodeBase):
         self.ast = ast
         self.ctx = ctx
         self.parseinfo = parseinfo
+        self._parent = None
+        self._children = None
 
         for name, value in attributes.items():
             setattr(self, name, value)
