@@ -1,4 +1,3 @@
-import unittest
 
 from tatsu import synth
 from tatsu.ngmodel import NodeBase
@@ -11,108 +10,111 @@ class MyNode:
         pass
 
 
-class SemanticsTests(unittest.TestCase):
-    def test_builder_semantics(self):
-        grammar = r"""
-            start::sum = {number}+ $ ;
-            number::int = /\d+/ ;
-        """
-        text = '5 4 3 2 1'
+def test_builder_semantics():
+    grammar = r"""
+        start::sum = {number}+ $ ;
+        number::int = /\d+/ ;
+    """
+    text = '5 4 3 2 1'
 
-        semantics = ModelBuilderSemantics()
-        model = compile(grammar, 'test')
-        ast = model.parse(text, semantics=semantics)
-        self.assertEqual(15, ast)
+    semantics = ModelBuilderSemantics()
+    model = compile(grammar, 'test')
+    ast = model.parse(text, semantics=semantics)
+    assert ast == 15
 
-        import functools
+    import functools
 
-        dotted = functools.partial(str.join, '.')
-        dotted.__name__ = 'dotted'  # type: ignore
+    dotted = functools.partial(str.join, '.')
+    dotted.__name__ = 'dotted'  # type: ignore
 
-        grammar = r"""
-            start::dotted = {number}+ $ ;
-            number = /\d+/ ;
-        """
+    grammar = r"""
+        start::dotted = {number}+ $ ;
+        number = /\d+/ ;
+    """
 
-        semantics = ModelBuilderSemantics(types=[dotted])
-        model = compile(grammar, 'test')
-        ast = model.parse(text, semantics=semantics)
-        self.assertEqual('5.4.3.2.1', ast)
+    semantics = ModelBuilderSemantics(types=[dotted])
+    model = compile(grammar, 'test')
+    ast = model.parse(text, semantics=semantics)
+    assert ast == '5.4.3.2.1'
 
-    def test_builder_subclassing(self):
-        registry = getattr(synth, '__REGISTRY')
 
-        grammar = """
-            @@grammar :: Test
-            start::A::B::C = $ ;
-        """
+def test_builder_subclassing():
+    registry = getattr(synth, '__REGISTRY')
 
-        model = compile(grammar, asmodel=True)
-        model.parse('')
+    grammar = """
+        @@grammar :: Test
+        start::A::B::C = $ ;
+    """
 
-        print(f'{registry=}')
-        A = registry['A']
-        B = registry['B']
-        C = registry['C']
+    model = compile(grammar, asmodel=True)
+    model.parse('')
 
-        self.assertTrue(
-            issubclass(A, B)
-            and issubclass(A, synth._Synthetic)
-            and issubclass(A, NodeBase),
-        )
-        self.assertTrue(
-            issubclass(B, C)
-            and issubclass(B, synth._Synthetic)
-            and issubclass(A, NodeBase),
-        )
-        self.assertTrue(
-            issubclass(C, synth._Synthetic) and issubclass(C, NodeBase),
-        )
+    print(f'{registry=}')
+    A = registry['A']
+    B = registry['B']
+    C = registry['C']
 
-    def test_builder_basetype_codegen(self):
-        grammar = """
-            @@grammar :: Test
-            start::A::B::C = a:() b:() $ ;
-            second::D::A = ();
-            third = ();
-        """
+    assert (
+        issubclass(A, B) and
+        issubclass(A, synth._Synthetic) and
+        issubclass(A, NodeBase)
+    )
+    assert (
+        issubclass(B, C) and
+        issubclass(B, synth._Synthetic) and
+        issubclass(A, NodeBase)
+    )
+    assert (
+        issubclass(C, synth._Synthetic) and
+        issubclass(C, NodeBase)
+    )
 
-        from tatsu.tool import to_python_model
 
-        src = to_python_model(grammar, base_type=MyNode)
-        print(src)
+def test_builder_basetype_codegen():
+    grammar = """
+        @@grammar :: Test
+        start::A::B::C = a:() b:() $ ;
+        second::D::A = ();
+        third = ();
+    """
 
-        globals = {}
-        exec(src, globals)  # pylint: disable=W0122
-        semantics = globals['TestModelBuilderSemantics']()
+    from tatsu.tool import to_python_model
 
-        A = globals['A']
-        B = globals['B']
-        C = globals['C']
-        D = globals['D']
+    src = to_python_model(grammar, base_type=MyNode)
+    print(src)
 
-        model = compile(grammar, semantics=semantics)
-        ast = model.parse('', semantics=semantics)
+    globals = {}
+    exec(src, globals)  # pylint: disable=W0122
+    semantics = globals['TestModelBuilderSemantics']()
 
-        self.assertIsInstance(ast, MyNode)
-        self.assertIsInstance(ast, (A, B, C))
-        self.assertTrue(hasattr(ast, 'a'))
-        self.assertTrue(hasattr(ast, 'b'))
+    A = globals['A']
+    B = globals['B']
+    C = globals['C']
+    D = globals['D']
 
-        self.assertTrue(issubclass(D, A | B | C))
+    model = compile(grammar, semantics=semantics)
+    ast = model.parse('', semantics=semantics)
 
-    def test_optional_attributes(self):
-        grammar = r"""
-            foo::Foo = left:identifier [ ':' right:identifier ] $ ;
-            identifier = /\w+/ ;
-        """
+    assert isinstance(ast, MyNode)
+    assert isinstance(ast, (A, B, C))
+    assert hasattr(ast, 'a')
+    assert hasattr(ast, 'b')
 
-        grammar = compile(grammar)
+    assert issubclass(D, A | B | C)
 
-        a = grammar.parse('foo : bar', semantics=ModelBuilderSemantics())
-        assert a.left == 'foo'
-        assert a.right == 'bar'
 
-        b = grammar.parse('foo', semantics=ModelBuilderSemantics())
-        self.assertEqual(b.left, 'foo')
-        self.assertIsNone(b.right)
+def test_optional_attributes():
+    grammar = r"""
+        foo::Foo = left:identifier [ ':' right:identifier ] $ ;
+        identifier = /\w+/ ;
+    """
+
+    grammar = compile(grammar)
+
+    a = grammar.parse('foo : bar', semantics=ModelBuilderSemantics())
+    assert a.left == 'foo'
+    assert a.right == 'bar'
+
+    b = grammar.parse('foo', semantics=ModelBuilderSemantics())
+    assert b.left == 'foo'
+    assert b.right is None
