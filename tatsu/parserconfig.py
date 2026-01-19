@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .tokenizing import NullTokenizer, Tokenizer
+from .util import asjson
 from .util.misc import cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
@@ -160,3 +161,6 @@ class ParserConfig:
         # warning: it seems dataclasses.asdict does a deepcopy
         # result = dataclasses.asdict(self)
         return copy.copy(vars(self))
+
+    def __json__(self, seen=None):
+        return asjson(self.asdict(), seen=seen)
