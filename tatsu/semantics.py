@@ -4,6 +4,7 @@ import builtins
 import inspect
 import keyword
 from collections.abc import Callable, Iterable, Mapping, MutableMapping
+from dataclasses import dataclass, field
 from typing import Any
 
 from .contexts import ParseContext
@@ -11,6 +12,33 @@ from .ngmodel import NodeBase
 from .objectmodel import Node
 from .synth import registered_synthetics, synthesize
 from .util import simplify_list
+
+
+@dataclass
+class ActualParameters:
+    params: list[Any] = field(default_factory=list)
+    param_names: dict[str, Any] = field(default_factory=dict)
+    kwparams: dict[str, Any] = field(default_factory=dict)
+    has_args: bool = False
+    has_kwargs: bool = False
+
+    def has_any_params(self) -> bool:
+        return bool(self.params) or bool(self.kwparams)
+
+    def add_param(self, name: str, var: Any):
+        self.param_names[name] = var
+        self.params.append(var)
+
+    def add_kwparam(self, name: str, var: Any):
+        self.kwparams[name] = var
+
+    def add_args(self, args: list[Any]):
+        self.params.extend(args)
+        self.has_args = True
+
+    def add_kwargs(self, kwargs: dict[str, Any]):
+        self.kwparams.update(kwargs)
+        self.has_kwargs = True
 
 
 class ASTSemantics:
@@ -83,34 +111,52 @@ class ModelBuilderSemantics:
 
         return self._register_constructor(constructor)
 
-    def _find_actual_params(self, fun: Callable, ast, args, kwargs) -> tuple[list, dict]:
-        if hasattr(fun, '__name__') and fun.__name__ in vars(builtins):
-            return [ast], {}
+    def _find_actual_params(self, fun: Callable, ast, args, kwargs) -> ActualParameters:
+        fun_name = ''
+        if hasattr(fun, '__name__'):
+            fun_name = fun.__name__
+        if fun_name and fun_name in vars(builtins):
+            return ActualParameters(params=[ast])
 
-        declared = inspect.signature(fun).parameters
-        params = []
-        kwparams = kwargs
         known_params = {
             'ast': ast,
             'ctx': self.ctx,
             'exp': ast,
             'kwargs': {},
         }
-        for name, var in known_params.items():
+        actual = ActualParameters()
+        declared = inspect.signature(fun).parameters
+
+        for name, value in known_params.items():
             if name not in declared:
                 continue
             param = declared[name]
             match param.kind:
-                case inspect.Parameter.POSITIONAL_ONLY:
-                    params.append(var)
-                case inspect.Parameter.VAR_KEYWORD:
-                    kwparams |= kwargs
+                case inspect.Parameter.POSITIONAL_ONLY | inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                    actual.add_param(name, value)
+                case inspect.Parameter.KEYWORD_ONLY:
+                    actual.add_kwparam(name, value)
                 case _:
-                    kwparams[name] = var
-        params.extend(args)
-        if not (params or kwparams):
-            params = [ast]
-        return params, kwparams
+                    pass
+
+        for param in declared.values():
+            match param.kind:
+                case inspect.Parameter.VAR_POSITIONAL:
+                    actual.add_args(args)
+                case inspect.Parameter.VAR_KEYWORD:
+                    actual.add_kwargs(kwargs)
+                case _:
+                    pass
+
+        # debug(
+        #     f'CALLING {fun_name}'
+        #     f'\nwith {tuple(actual.param_names)!r}'
+        #     f'\nand {tuple(actual.kwparams)!r}',
+        # )
+        if not actual.has_any_params() and len(declared) == 1:
+            actual.params = [ast]
+        # else: No parameters
+        return actual
 
     def _default(self, ast, *args, **kwargs) -> Any:
         if not args:
@@ -137,6 +183,6 @@ class ModelBuilderSemantics:
             base = self._get_constructor(base_, base)
 
         constructor = self._get_constructor(typename, base)
-        params, kwparams = self._find_actual_params(constructor, ast, args[1:], kwargs)
 
-        return constructor(*params, **kwparams)
+        actual = self._find_actual_params(constructor, ast, args[1:], kwargs)
+        return constructor(*actual.params, **actual.kwparams)
