@@ -53,10 +53,10 @@ class ModelContext(ParseContext):
 
         super().__init__(config=config)
 
-        self._rulemap = {rule.name: rule for rule in rules}
+        self._rulemap: dict[str, Rule] = {rule.name: rule for rule in rules}
 
     @property
-    def rulemap(self) -> Mapping[str, RuleInfo]:
+    def rulemap(self) -> dict[str, Rule]:
         return self._rulemap
 
     @property
@@ -75,8 +75,6 @@ class Model(Node):
         self._lookahead: ffset = set()
         self._firstset: ffset = set()
         self._follow_set: ffset = set()
-        self.is_leftrec = False  # Starts a left recursive cycle
-        self.is_memoizable = True
 
     @staticmethod
     def classes() -> list[type]:
@@ -855,6 +853,9 @@ class Rule(Model):
         self.is_name = 'name' in self.decorators
         self.base: Rule | None = None
 
+        self.is_leftrec = False  # Starts a left recursive cycle
+        self.is_memoizable = True
+
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return self.exp.missing_rules(rulenames)
 
@@ -1015,7 +1016,7 @@ class Grammar(Model):
         self._calc_lookahead_sets()
 
     @property
-    def rulemap(self) -> Mapping[str, RuleInfo]:
+    def rulemap(self) -> dict[str, Rule]:
         return self._rulemap
 
     @property
