@@ -97,11 +97,9 @@ class Node(NodeBase):
         return None
 
     @property
-    def text(self) -> str:
-        if not self.parseinfo:
-            return ''
-        if not hasattr(self.parseinfo.tokenizer, 'text'):
-            return ''
+    def text(self) -> str | None:
+        if not self.parseinfo or not hasattr(self.parseinfo.tokenizer, 'text'):
+            return None
         text: str = self.parseinfo.tokenizer.text
         return text[self.parseinfo.pos: self.parseinfo.endpos]
 
