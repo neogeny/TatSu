@@ -1008,7 +1008,6 @@ class Grammar(Model):
             msg = '\n'.join(['', *sorted(missing)])
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
-        debug(f'MISSING {missing}')
         self._calc_lookahead_sets()
 
     @property
