@@ -57,7 +57,7 @@ __all__: list[str] = ['ParseContext', 'tatsumasu', 'leftrec', 'nomemo']
 
 class MemoKey(NamedTuple):
     pos: int
-    rule: RuleInfo
+    ruleinfo: RuleInfo
     state: Any
 
 
@@ -601,14 +601,14 @@ class ParseContext:
         )
 
     @property
-    def rule(self) -> RuleInfo:
+    def ruleinfo(self) -> RuleInfo:
         return self._rule_stack[-1]
 
     def memokey(self) -> MemoKey:
-        return MemoKey(self._pos, self.rule, self.substate)
+        return MemoKey(self._pos, self.ruleinfo, self.substate)
 
     def _memoize(self, key: MemoKey, memo: RuleResult | Exception) -> RuleResult | Exception:
-        if self._memoization() and key.rule.is_memoizable:
+        if self._memoization() and key.ruleinfo.is_memoizable:
             self._memos[key] = memo
         return memo
 
@@ -620,7 +620,7 @@ class ParseContext:
     def _set_left_recursion_guard(self, key: MemoKey) -> None:
         if not self.left_recursion:
             return
-        ex = self._make_exception(key.rule.name, exclass=FailedLeftRecursion)
+        ex = self._make_exception(key.ruleinfo.name, exclass=FailedLeftRecursion)
         self._memoize(key, ex)
 
     def _call(self, ruleinfo: RuleInfo) -> Any:
