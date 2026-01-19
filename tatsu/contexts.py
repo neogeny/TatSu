@@ -690,19 +690,11 @@ class ParseContext:
     def _invoke_semantic_rule(self, rule: RuleInfo, node: Any) -> Any:
         semantic_rule, postproc = self._find_semantic_action(rule.name)
         if semantic_rule:
-            # try:
             node = semantic_rule(
                 node,
                 *(rule.params or ()),
                 **(rule.kwparams or {}),
             )
-            # except TypeError:
-            #     node = semantic_rule(  # method call
-            #         self.semantics,  # self
-            #         node,
-            #         *(rule.params or ()),
-            #         **(rule.kwparams or {}),
-            #     )
 
         if callable(postproc):
             postproc(self, node)
