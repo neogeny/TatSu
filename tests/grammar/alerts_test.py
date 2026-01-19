@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from tatsu.tool import parse
+from tatsu.tool import compile
 
 
 def test_alert_interpolation():
@@ -9,5 +9,7 @@ def test_alert_interpolation():
             start = a:number b: number i:^`"seen: {a}, {b}"` $ ;
             number = /\d+/ ;
     """
-    ast = parse(grammar, input)
+    model = compile(grammar)
+    print(model)
+    ast = model.parse(input)
     assert ast == {'a': '42', 'b': '69', 'i': 'seen: 42, 69'}
