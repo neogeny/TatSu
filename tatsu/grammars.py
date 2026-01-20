@@ -6,7 +6,7 @@ from collections.abc import Callable, Collection, Mapping
 from copy import copy
 from itertools import takewhile
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from .ast import AST
 from .contexts import ParseContext
@@ -200,7 +200,7 @@ class Fail(Model):
 
 class Comment(Model):
     def __init__(self, ast: str):
-        super().__init__(ast=ast)
+        super().__init__(ast=AST(comment=ast))
         self.comment = ast
 
     def _to_str(self, lean: bool = False):
@@ -221,12 +221,18 @@ class EOF(Model):
 
 
 class Decorator(Model):
-    def __init__(self, ast: Model):
-        super().__init__(ast=ast)
-        if isinstance(ast, AST):
-            self.exp: Model = ast.exp
-        else:
+    def __init__(self, ast: Model | AST | None = None, exp: Model | None = None):
+        self.exp: Model = Model()
+        if exp is not None:
+            self.exp = ast = exp
+        elif isinstance(ast, Model):
+            # Patch to avoid bad interactions with attribute setting in Node.
+            # Also a shortcut for subexpressions that are not ASTs.
             self.exp = ast
+            ast = AST(exp=ast)  # FIXME: this relies on Node setting attributes from ast
+        else:
+            self.exp = cast(Model, ast.exp)
+        super().__init__(ast=ast)
         assert isinstance(self.exp, Model), self.exp
 
     def _parse(self, ctx) -> Any | None:
