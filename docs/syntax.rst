@@ -329,7 +329,7 @@ The "*skip to*" expression; useful for writing *recovery* rules.
 The parser will advance over input, one character at time, until ``e``
 matches. Whitespace and comments will be skipped at each
 step. Advancing over input is done efficiently, with no regular
-expressions are involved.
+expressions involved.
 
 The expression is equivalent to::
 
