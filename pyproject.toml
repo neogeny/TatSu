@@ -142,9 +142,13 @@ exclude = "parsers|docs|dist|build|tmp"
 
 [tool.ty.rules]
 unused-ignore-comment = "ignore"  # needed for mypy
+#invalid-argument-type = "ignore"  # it seems wrong
 
 [tool.ruff]
 line-length = 88
+
+[tool.ruff.analyze.type-check]
+disable = ["invalid-argument-type"]
 
 # The minimum Python version to support
 # target-version = "py311"

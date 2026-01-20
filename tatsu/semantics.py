@@ -8,8 +8,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .contexts import ParseContext
-from .ngmodel import NodeBase
-from .objectmodel import Node
+from .ngmodel import Node, NodeBase
 from .synth import registered_synthetics, synthesize
 from .util import simplify_list
 

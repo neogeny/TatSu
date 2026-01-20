@@ -8,7 +8,7 @@ import textwrap
 
 from .. import grammars
 from ..exceptions import CodegenError
-from ..objectmodel import Node
+from ..ngmodel import Node
 from ..util import compress_seq, indent, safe_name, timestamp, trim
 from .cgbase import CodeGenerator, ModelRenderer
 
@@ -441,7 +441,7 @@ class Grammar(Base):
         abstract_template = trim(self.abstract_rule_template)
         abstract_rules = [
             abstract_template.format(name=safe_name(rule.name))
-            for rule in self.node.rules
+            for rule in self.node.rulemap
         ]
         abstract_rules = indent('\n'.join(abstract_rules))
 
@@ -466,7 +466,7 @@ class Grammar(Base):
         eol_comments = repr(self.node.config.eol_comments)
 
         rules = '\n'.join(
-            [self.get_renderer(rule).render() for rule in self.node.rules],
+            [self.get_renderer(rule).render() for rule in self.node.rulemap],
         )
 
         version = str(tuple(int(n) for n in str(timestamp()).split('.')))
@@ -478,7 +478,7 @@ class Grammar(Base):
 
         fields.update(
             rules=indent(rules),
-            start=self.node.rules[0].name,
+            start=self.node.rulemap[0].name,
             abstract_rules=abstract_rules,
             version=version,
             whitespace=whitespace,

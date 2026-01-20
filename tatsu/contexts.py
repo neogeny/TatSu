@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast as stdlib_ast
 import dataclasses
 import functools
+import inspect
 import sys
 from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager, suppress
@@ -654,8 +655,10 @@ class ParseContext:
             node = tuple(self.cst) if is_list(self.cst) else self.cst
         elif '@' in node:
             node = node['@']  # override the AST
-        elif self.config.parseinfo:
-            node.set_parseinfo(self._get_parseinfo(ruleinfo.name, pos))
+        elif self.config.parseinfo and hasattr(node, 'set_parseinfo'):
+            parseinfo = self._get_parseinfo(ruleinfo.name, pos)
+            node.set_parseinfo(parseinfo)
+
         return node
 
     def _invoke_rule(self, ruleinfo: RuleInfo, key: MemoKey) -> RuleResult:
@@ -687,26 +690,19 @@ class ParseContext:
         finally:
             self._pop_ast()
 
-    def _invoke_semantic_rule(self, rule: RuleInfo, node: Any) -> Any:
-        semantic_rule, postproc = self._find_semantic_action(rule.name)
-        if semantic_rule:
-            try:
-                node = semantic_rule(
-                    node,
-                    *(rule.params or ()),
-                    **(rule.kwparams or {}),
-                )
-            except TypeError:
-                node = semantic_rule(
-                    self.semantics,  # self
-                    node,
-                    *(rule.params or ()),
-                    **(rule.kwparams or {}),
-                )
+    def _invoke_semantic_rule(self, ruleinfo: RuleInfo, node: Any) -> Any:
+        params = ruleinfo.params or ()
+        kwparams = ruleinfo.kwparams or {}
+        semantic, postproc = self._find_semantic_action(ruleinfo.name)
+        if semantic:
+            if inspect.ismethod(semantic):
+                node = semantic(node, *params, **kwparams)
+            else:
+                node = semantic(self.semantics, node, *params, **kwparams)
 
         if callable(postproc):
             postproc(self, node)
-        if rule.is_name:
+        if ruleinfo.is_name:
             self._check_name(node)
         return node
 

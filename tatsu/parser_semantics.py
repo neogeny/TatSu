@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from typing import Any
 
 from . import grammars
@@ -71,7 +71,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
 
     def sequence(self, ast, *args):
         seq = ast.sequence
-        assert isinstance(seq, Sequence), str(seq)
+        assert isinstance(seq, list), str(seq)
         if len(seq) == 1:
             return seq[0]
         return grammars.Sequence(ast)

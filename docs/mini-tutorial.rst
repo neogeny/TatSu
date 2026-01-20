@@ -535,14 +535,15 @@ The first step to create an object model is to annotate the rule names with the 
 
 Save the grammar in a file name ``calc_model.ebnf``.
 
-The ``tatsu.objectmodel.Node`` descendants are synthetized at runtime using ``tatsu.semantics.ModelBuilderSemantics``.
+The ``tatsu.ngmodel.Node`` descendants are synthetized at runtime using ``tatsu.semantics
+.ModelBuilderSemantics``.
 
 This is how the model looks like when generated with the ``tatsu.to_python_model()``
 function or from the command line with ``tatsu --object-model calc_model.ebnf -G calc_semantics_model.py``:
 
 .. code:: python
 
-    from tatsu.objectmodel import Node
+    from tatsu.ngmodel import Node
     from tatsu.semantics import ModelBuilderSemantics
 
 

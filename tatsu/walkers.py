@@ -4,8 +4,7 @@ from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
 from typing import Any, ClassVar, Concatenate
 
-from .ngmodel import NodeBase, children_of
-from .objectmodel import Node
+from .ngmodel import Node, NodeBase, children_of
 from .util import pythonize_name
 
 type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
@@ -105,6 +104,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
 
 
 class PreOrderWalker(NodeWalker):
+    # FIXME: this doesn't look correct
     def walk(self, node: Any, *args, **kwargs) -> Any:
         result = super().walk(node, *args, **kwargs)
         if result is not None:
@@ -115,8 +115,9 @@ class PreOrderWalker(NodeWalker):
 class DepthFirstWalker(NodeWalker):
     def walk(self, node, *args, **kwargs):
         if isinstance(node, Node | NodeBase):
+            result = super().walk(node, *args, **kwargs)
             self.walk_children(node, *args, **kwargs)
-            return super().walk(node, *args, **kwargs)
+            return result
         else:
             return super().walk(node, [], *args, **kwargs)
 

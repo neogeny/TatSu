@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 from .parserconfig import (  # re-export from legacy
     ParserConfig,
@@ -46,8 +46,8 @@ class RuleInfo(NamedTuple):
     is_leftrec: bool
     is_memoizable: bool
     is_name: bool
-    params: list | tuple
-    kwparams: dict
+    params: list[Any] | tuple[Any]
+    kwparams: dict[str, Any]
 
     def __hash__(self):
         return hash(self.name)

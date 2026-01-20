@@ -127,7 +127,7 @@ class GraphvizWalker(NodeWalker):
     def walk__grammar(self, g):
         self.push_graph(g.name + '0')
         try:
-            vrules = [self.walk(r) for r in reversed(g.rules)]
+            vrules = [self.walk(r) for r in reversed(g.rulemap)]
         finally:
             self.pop_graph()
         self.push_graph(g.name + '1')
