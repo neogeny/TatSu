@@ -110,6 +110,8 @@ class PatternTests(unittest.TestCase):
             / $ ;
         """
         model = compile(grammar=trim(grammar))
+        from tatsu import grammars
+        assert isinstance(model.rules[0].exp, grammars.Sequence)
         print(codegen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
             codegen(model.rules[0].exp.sequence[0]).strip(),
@@ -122,6 +124,7 @@ class PatternTests(unittest.TestCase):
             blort/ $ ;
         """
         model = compile(grammar=trim(grammar))
+        assert isinstance(model.rules[0].exp, grammars.Sequence)
         print(codegen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
             trim(codegen(model.rules[0].exp.sequence[0])),

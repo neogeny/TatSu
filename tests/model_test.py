@@ -1,15 +1,21 @@
+from __future__ import annotations
+
 import json  # noqa: F401
+from typing import Any
+
+import pytest  # noqa: F401
 
 import tatsu
 from tatsu.ngmodel import children_of
 from tatsu.objectmodel import Node
 
 
-def test_node_kwargs():
+def test_node_kwargs() -> None:
     class Atom(Node):
-        def __init__(self, arguments=None, symbol=None, **_kwargs_):
-            self.symbol = None
-            super().__init__(arguments=arguments, symbol=symbol, **_kwargs_)
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+        arguments: Any = None
+        symbol: Any = None
 
     atom = Atom(symbol='foo')
     assert type(atom).__name__ == 'Atom'
