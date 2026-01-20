@@ -70,6 +70,10 @@ class NGNode(NodeBase):
         self._attributes: dict[str, Any] = kwargs
         self._parent_ref: weakref.ref[NGNode] | None = None
 
+        if isinstance(self.ast, AST):
+            # NOTE: objectmodel.Node set object attributes from the AST
+            self._attributes = ast | self._attributes
+
         if not self._parseinfo and isinstance(self.ast, AST):
             self._parseinfo = self.ast.parseinfo
 
