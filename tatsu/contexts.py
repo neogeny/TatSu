@@ -698,7 +698,6 @@ class ParseContext:
             else:
                 node = semantic(self.semantics, node, *params, **kwparams)
 
-
         if callable(postproc):
             postproc(self, node)
         if ruleinfo.is_name:
