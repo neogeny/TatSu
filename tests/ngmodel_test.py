@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from tatsu.ngmodel import Node, children_of, nodeshell
+from tatsu.objectmodel import Node
 
 
 def test_init_attributes():
@@ -22,10 +22,9 @@ def test_init_attributes_transferred():
 
 def test_attributes_through_shell():
     node = Node(ast='Hello')
-    shell = nodeshell(node)
 
-    assert hasattr(shell, 'ast')
-    assert hasattr(shell, 'parseinfo')
+    assert hasattr(node, 'ast')
+    assert hasattr(node, 'parseinfo')
 
 
 @dataclass(kw_only=True, unsafe_hash=True)
@@ -56,5 +55,5 @@ def test_children():
     assert outer
     assert isinstance(outer.left, Inner)
     assert isinstance(outer.right, Inner)
-    children = children_of(outer)
+    children = outer.children()
     assert children == (a_inner, b_inner)

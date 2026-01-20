@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ..exceptions import CodegenError
-from ..ngmodel import Node
+from ..objectmodel import Node
 from .rendering import Renderer, RenderingFormatter, render
 
 __all__ = [

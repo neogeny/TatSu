@@ -1,7 +1,7 @@
 import unittest
 
 from tatsu.codegen import CodeGenerator, ModelRenderer
-from tatsu.ngmodel import Node
+from tatsu.objectmodel import Node
 
 
 class Generator(CodeGenerator):

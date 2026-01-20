@@ -4,7 +4,7 @@ from datetime import datetime
 
 from ..codegen.cgbase import CodeGenerator, ModelRenderer
 from ..exceptions import CodegenError
-from ..ngmodel import Node
+from ..objectmodel import Node
 from ..util import compress_seq, indent, re, safe_name
 from .rendering import Renderer
 

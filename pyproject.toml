@@ -87,6 +87,7 @@ packages = ["tatsu"]
 #    "*.yaml",
 #]
 exclude = [
+    "/backup",
     "/parsers",
     "/deprecated",
     "/examples/markdown",
@@ -138,7 +139,7 @@ norecursedirs = [
 [tool.mypy]
 python_version = 3.14
 #ignore_missing_imports = true
-exclude = "parsers|docs|dist|build|tmp"
+exclude = "backup|parsers|docs|dist|build|tmp"
 
 [tool.ty.rules]
 unused-ignore-comment = "ignore"  # needed for mypy
@@ -163,6 +164,7 @@ exclude = [
 [tool.coverage.run]
 omit = [
     "/private/*",  # note: don't know how this gets into coverage
+    "backup/",
     "parsers/",
     "tests/*",
     "tatsu/diagrams.py",
@@ -192,7 +194,7 @@ dependencies = [
 version = "echo `python --version`"
 lint = "ruff check -q --preview tatsu tests examples"
 types = "ty check tatsu"
-more_types = "mypy --install-types --exclude dist --exclude parsers ."
+more_types = "mypy --install-types --exclude dist --exclude parsers --exclude backup."
 tests = "pytest"
 
 checks = [

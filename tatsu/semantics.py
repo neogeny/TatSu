@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .contexts import ParseContext
-from .ngmodel import Node, NodeBase
+from .objectmodel import Node
 from .synth import registered_synthetics, synthesize
 from .util import simplify_list
 
@@ -65,7 +65,7 @@ class ModelBuilderSemantics:
     def __init__(
             self,
             context: ParseContext | None = None,
-            base_type: type[NodeBase] = Node,
+            base_type: type[Node] = Node,
             types: Iterable[Callable] | None = None):
         self.ctx = context
         self.base_type = base_type

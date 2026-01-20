@@ -12,7 +12,7 @@ from .ast import AST
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
-from .ngmodel import Node, comments_for
+from .objectmodel import Node
 from .util import chunks, compress_seq, indent, re, trim
 
 PEP8_LLEN = 72
@@ -146,7 +146,7 @@ class Model(Node):
         return []
 
     def comments_str(self):
-        comments, _eol = comments_for(self)
+        comments, _eol = self.comments
         if not comments:
             return ''
 
