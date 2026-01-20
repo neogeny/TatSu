@@ -230,8 +230,8 @@ class Decorator(Model):
             # Also a shortcut for subexpressions that are not ASTs.
             self.exp = ast
             ast = AST(exp=ast)  # FIXME: this relies on Node setting attributes from ast
-        else:
-            self.exp = cast(Model, ast.exp)
+        elif isinstance(ast, AST):
+            self.exp = cast(Model, ast.get('exp', self.exp))
         super().__init__(ast=ast)
         assert isinstance(self.exp, Model), self.exp
 
