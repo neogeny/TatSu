@@ -827,7 +827,7 @@ class RuleInclude(Decorator):
         return f'>{self.rule.name}'
 
 
-class Rule(Model):
+class Rule(Decorator):
     def __init__(
             self,
             ast: AST,
@@ -838,7 +838,7 @@ class Rule(Model):
             decorators: list[str] | None = None,
     ):
         assert kwparams is None or isinstance(kwparams, Mapping), kwparams
-        super().__init__(ast=ast)
+        super().__init__(ast=exp)
         self.exp = exp
         self.name = name
         self.params = params or []
