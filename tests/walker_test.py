@@ -1,8 +1,7 @@
-import json
 from collections import defaultdict
 
 import tatsu
-from tatsu.util import asjson
+from tatsu.util import asjsons
 from tatsu.walkers import DepthFirstWalker, NodeWalker
 
 
@@ -38,9 +37,9 @@ def test_walk_node_ast():
             print(f'node {t}')
             seen[t] += 1
 
-    print(json.dumps(asjson(model), indent=2))
+    print(asjsons(model))
     PW().walk(model)
-    assert seen == {'SampleExpression': 2, 'TemporalSeq': 1}
+    assert dict(seen) == {'SampleExpression': 2, 'TemporalSeq': 1}
 
 
 def test_cache_per_class():

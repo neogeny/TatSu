@@ -2,26 +2,26 @@ from dataclasses import dataclass
 
 import pytest
 
-from tatsu.ngmodel import NGNode, children_of, nodeshell
+from tatsu.ngmodel import Node, children_of, nodeshell
 
 
 def test_init_attributes():
-    node = NGNode()
+    node = Node()
     assert hasattr(node, 'ast')
-    assert hasattr(node, '_parseinfo')
+    assert hasattr(node, 'parseinfo')
 
 
 def test_init_attributes_transferred():
-    node = NGNode(ast='Hello!')
+    node = Node(ast='Hello!')
     assert node.ast == 'Hello!'
 
-    node = NGNode(ctx=object(), ast='Hello!')  # type: ignore
+    node = Node(ctx=object(), ast='Hello!')  # type: ignore
     assert node.ast == 'Hello!'
     assert node.ctx
 
 
 def test_attributes_through_shell():
-    node = NGNode(ast='Hello')
+    node = Node(ast='Hello')
     shell = nodeshell(node)
 
     assert hasattr(shell, 'ast')
@@ -29,12 +29,12 @@ def test_attributes_through_shell():
 
 
 @dataclass(kw_only=True, unsafe_hash=True)
-class Inner(NGNode):
+class Inner(Node):
     id: str
 
 
 @dataclass(kw_only=True, unsafe_hash=True)
-class Outer(NGNode):
+class Outer(Node):
     left: Inner
     right: Inner
 
