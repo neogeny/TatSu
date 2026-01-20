@@ -38,7 +38,7 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
         node_depth[node] = depth
         depth += 1
 
-        callable_children = (
+        callable_children = tuple(
             c.follow_ref(grammar.rulemap)
             for c in node.callable_at_same_pos(grammar.rulemap)
         )

@@ -68,8 +68,6 @@ class ModelContext(ParseContext):
 
 
 class Model(Node):
-    __hash__ = Node.__hash__
-
     def __init__(self, ast: Any | None = None, **kwargs):
         super().__init__(ast=ast, **kwargs)
         self._lookahead: ffset = set()
@@ -232,10 +230,7 @@ class Decorator(Model):
         assert isinstance(self.exp, Model), self.exp
 
     def _parse(self, ctx) -> Any | None:
-        if isinstance(self.exp, Model):
-            return self.exp._parse(ctx)
-        else:
-            return None
+        return self.exp._parse(ctx)
 
     def defines(self):
         return self.exp.defines()
