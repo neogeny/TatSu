@@ -10,8 +10,15 @@ from ..tokenizing import CommentInfo
 from ..util import AsJSONMixin, asjson, asjsons
 
 
+def _hasattr(obj, name: str) -> bool:
+    try:
+        return name in vars(obj) or hasattr(obj, name)
+    except TypeError:
+        return False
+
+
 @overload
-def unshell[U: NGNode](node: NodeShell[U]) -> U: ...
+def unshell[U: Node](node: NodeShell[U]) -> U: ...
 
 @overload
 def unshell[T](node: T) -> T: ...
@@ -52,11 +59,12 @@ class NodeBase(AsJSONMixin):
         return hash(signature)
 
 
-class NGNode(NodeBase):
+class Node(NodeBase):
     # NOTE: declare at the class level in case __init__ is not called
-    _parseinfo: ParseInfo | None = None
+    parseinfo: ParseInfo | None = None
+
     _attributes: dict[str, Any] | None = None
-    _parent_ref: weakref.ref[NGNode] | None = None
+    _parent_ref: weakref.ref[Node] | None = None
 
     def __init__(
             self,
@@ -66,20 +74,20 @@ class NGNode(NodeBase):
             **kwargs: Any,
     ):
         super().__init__(ast=ast, ctx=ctx)
-        self._parseinfo: ParseInfo | None = parseinfo
-        self._attributes: dict[str, Any] = kwargs
-        self._parent_ref: weakref.ref[NGNode] | None = None
+        self.parseinfo: ParseInfo | None = parseinfo
+        self._attributes: dict[str, Any] = {}
+        self._parent_ref: weakref.ref[Node] | None = None
 
-        if isinstance(self.ast, AST):
-            # NOTE: objectmodel.Node set object attributes from the AST
-            self._attributes = ast | self._attributes
+        if not self.parseinfo and isinstance(self.ast, AST):
+            self.parseinfo = self.ast.parseinfo
 
-        if not self._parseinfo and isinstance(self.ast, AST):
-            self._parseinfo = self.ast.parseinfo
-
-    @property
-    def parseinfo(self) -> Any:
-        return self._parseinfo
+        # NOTE: objectmodel.Node sets self attributes from ast: AST
+        allargs = ast | kwargs if isinstance(self.ast, AST) else kwargs
+        for name, value in allargs.items():
+            if _hasattr(self, name):
+                setattr(self, name, value)
+            else:
+                self._attributes[name] = value
 
     # FIXME: declared here to ease transition from objectmodel
     @property
@@ -95,18 +103,36 @@ class NGNode(NodeBase):
             assert isinstance(self._attributes, dict)
             return self._attributes[name]
         except KeyError as e:
-            raise TypeError(
+            # NOTE: signals hasattr() and the likes that the name was not found
+            raise AttributeError(
                 f'"{name}" is not a valid attribute in {type(self).__name__}',
             ) from e
 
+    def _nonrefdict(self) -> Mapping[str, Any]:
+        return {
+            name: value
+            for name, value in vars(self).items()
+            if (
+                    name not in {'_parent', '_children'}
+                    and type(value) not in {weakref.ReferenceType, weakref.ProxyTypes}
+            )
+        }
 
-class NodeShell[T: NGNode](AsJSONMixin):
+    # NOTE: pickling is important for parallel parsing
+    def __getstate__(self) -> Any:
+        return self._nonrefdict()
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+
+
+class NodeShell[T: Node](AsJSONMixin):
     """
     Stateful View of a Node.
     Manages bi-directional navigation and metadata access.
     """
     # Multi-type cache: Maps Node types to their specific WeakKeyDictionaries
-    _cache: ClassVar[weakref.WeakKeyDictionary[NGNode, NodeShell[Any]]] = weakref.WeakKeyDictionary()
+    _cache: ClassVar[weakref.WeakKeyDictionary[Node, NodeShell[Any]]] = weakref.WeakKeyDictionary()
 
     def __init__(self, node: T):
         self.node: T = node
@@ -117,7 +143,7 @@ class NodeShell[T: NGNode](AsJSONMixin):
 
     @classmethod
     def shell(cls, node: T) -> NodeShell[T]:
-        if not isinstance(node, NGNode):
+        if not isinstance(node, Node):
             raise TypeError(f'<{type(node).__name__}> is not a Node')
         if isinstance(node, (weakref.ReferenceType, *weakref.ProxyTypes)):
             raise TypeError(f'<{type(node).__name__}> is a weak reference')
@@ -128,7 +154,7 @@ class NodeShell[T: NGNode](AsJSONMixin):
         except TypeError as e:
             raise TypeError(f'Problem with <{type(node).__name__}>: {e!s}') from e
 
-    def shelled(self) -> NGNode:
+    def shelled(self) -> Node:
         return self.node
 
     def __getattr__(self, name: str) -> Any:
@@ -150,10 +176,10 @@ class NodeShell[T: NGNode](AsJSONMixin):
 
     @property
     def parseinfo(self) -> Any:
-        return self.node._parseinfo
+        return self.node.parseinfo
 
     @property
-    def parent(self) -> NGNode | None:
+    def parent(self) -> Node | None:
         ref = self.node._parent_ref
         if ref is None:
             return None
@@ -161,8 +187,8 @@ class NodeShell[T: NGNode](AsJSONMixin):
             return ref()
 
     @property
-    def path(self) -> tuple[NGNode, ...]:
-        ancestors: list[NGNode] = []
+    def path(self) -> tuple[Node, ...]:
+        ancestors: list[Node] = []
         parent = self.parent
         while parent is not None:
             ancestors.append(parent)
@@ -194,11 +220,11 @@ class NodeShell[T: NGNode](AsJSONMixin):
 
     def _get_children(self) -> Iterable[Any]:
 
-        def walk(obj: Any) -> Iterable[NGNode]:
+        def walk(obj: Any) -> Iterable[Node]:
             match obj:
                 case NodeShell() as shell:
                     yield from walk(shell.node)
-                case NGNode() as node:
+                case Node() as node:
                     node._parent_ref = weakref.ref(self.node)
                     yield node
                 case Mapping() as map:
@@ -218,14 +244,14 @@ class NodeShell[T: NGNode](AsJSONMixin):
 
     @property
     def text(self) -> str:
-        pi = self.node._parseinfo
+        pi = self.node.parseinfo
         if pi and hasattr(pi.tokenizer, "text"):
             return pi.tokenizer.text[pi.pos : pi.endpos]
         return ''
 
     @property
     def line(self) -> int | None:
-        return self.node._parseinfo.line if self.node._parseinfo else None
+        return self.node.parseinfo.line if self.node.parseinfo else None
 
     def asjson(self) -> Any:
         return asjson(self.node)

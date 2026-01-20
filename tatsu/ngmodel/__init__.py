@@ -5,15 +5,15 @@ from .api import (
     nodeshell,
 )
 from .nodes import (
-    NGNode,
+    Node,
     NodeBase,
     NodeShell,
     unshell,
 )
 
-__all__ = [
+__all__: list[str] = [
     'HasChildren',
-    'NGNode',
+    'Node',
     'NodeBase',
     'NodeShell',
     'children_of',
