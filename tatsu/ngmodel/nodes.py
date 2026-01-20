@@ -45,18 +45,25 @@ class NodeBase(AsJSONMixin):
         self.ast: Any = ast
         self.ctx: Any = ctx
 
-    def __hash__(self) -> int:
-        def tweak(value: Any):
-            if isinstance(value, list):
-                return tuple(value)
-            else:
-                return value
+    def __eq__(self, other) -> bool:
+        if id(self) == id(other):
+            return True
+        elif self.ast is None:
+            return False
+        elif not getattr(other, 'ast', None):
+            return False
+        else:
+            return self.ast == other.ast
 
-        signature = (
-            (name, tweak(value))
-            for name, value in vars(self).items()
-        )
-        return hash(signature)
+    def __hash__(self) -> int:
+        if self.ast is None:
+            return id(self)
+        elif isinstance(self.ast, list):
+            return hash(tuple(self.ast))
+        elif isinstance(self.ast, dict):
+            return hash(AST(self.ast))
+        else:
+            return hash(self.ast)
 
 
 class Node(NodeBase):
