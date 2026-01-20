@@ -153,11 +153,8 @@ class Node(AsJSONMixin):
 
     def _nonrefdict(self) -> Mapping[str, Any]:
         return {
-            name: value
+            name: value if (
+                    type(value) not in {weakref.ReferenceType, weakref.ProxyType}
+            ) else None
             for name, value in vars(self).items()
-            if (
-                    name not in {'_parent', '_children'}
-                    and type(value)
-                    not in {weakref.ReferenceType, weakref.ProxyType}
-            )
         }
