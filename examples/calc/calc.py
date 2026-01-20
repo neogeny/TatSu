@@ -6,6 +6,7 @@ from codegen import PostfixCodeGenerator
 
 import tatsu
 from tatsu.ast import AST
+from tatsu.util import asjsons
 from tatsu.walkers import NodeWalker
 
 
@@ -115,7 +116,7 @@ def parse_to_model():
 
     print()
     print('# MODEL TYPE IS:', type(model).__name__)
-    print(json.dumps(model.asjson(), indent=4))
+    print(asjsons(model))
     print()
 
 
