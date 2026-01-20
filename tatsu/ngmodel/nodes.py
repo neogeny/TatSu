@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import weakref
 from collections.abc import Callable, Iterable, Mapping
-from typing import Any, ClassVar, cast, overload
+from typing import Any, ClassVar, Self, cast, overload
 
 from ..ast import AST
 from ..infos import ParseInfo
@@ -76,7 +76,6 @@ class Node(NodeBase):
     # NOTE: declare at the class level in case __init__ is not called
     parseinfo: ParseInfo | None = None
     _attributes: dict[str, Any] = {}  # noqa: RUF012
-    _parent_ref: weakref.ref[Node] | None = None
 
     def __init__(self, ast: Any = None, ctx: Any = None, **kwargs: Any):
         super().__init__(ast=ast, ctx=ctx)
@@ -103,6 +102,9 @@ class Node(NodeBase):
                 f'"{name}" is not a valid attribute in {type(self).__name__}',
             ) from e
 
+    def shell(self) -> NodeShell[Self]:
+        return NodeShell.shell(self)
+
     def set_parseinfo(self, value: ParseInfo | None) -> None:
         self.parseinfo = value
 
@@ -128,7 +130,7 @@ class Node(NodeBase):
             name: value
             for name, value in vars(self).items()
             if (
-                    name not in {'_parent', '_children'}
+                    name not in {'_parent', '_parent_ref', '_children'}
                     and type(value) not in {weakref.ReferenceType, *weakref.ProxyTypes}
             )
         }
@@ -153,6 +155,7 @@ class NodeShell[T: Node](AsJSONMixin):
         self.node: T = node
         # Weak reference to parent Node to prevent reference cycles
         self._children: tuple[NodeShell[Any], ...] = ()
+        self._parent_ref: weakref.ref[Node] | None = None
 
         self.__original_class__ = self.__class__
 
@@ -195,7 +198,7 @@ class NodeShell[T: Node](AsJSONMixin):
 
     @property
     def parent(self) -> Node | None:
-        ref = self.node._parent_ref
+        ref = self._parent_ref
         if ref is None:
             return None
         else:
@@ -242,7 +245,7 @@ class NodeShell[T: Node](AsJSONMixin):
                 case NodeShell() as shell:
                     yield from walk(shell.node)
                 case Node() as node:
-                    node._parent_ref = weakref.ref(self.node)
+                    nodeshell(node)._parent_ref = weakref.ref(self.node)
                     yield node
                 case Mapping() as map:
                     for name, value in map.items():
