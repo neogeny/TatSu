@@ -6,8 +6,7 @@ from typing import Any
 import pytest  # noqa: F401
 
 import tatsu
-from tatsu.ngmodel import children_of
-from tatsu.objectmodel import Node
+from tatsu.ngmodel import Node, children_of
 
 
 def test_node_kwargs() -> None:

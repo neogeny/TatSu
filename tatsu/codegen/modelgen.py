@@ -2,11 +2,10 @@ import inspect
 from collections import namedtuple
 from datetime import datetime
 
-from tatsu.util import compress_seq, indent, re, safe_name
-
 from ..codegen.cgbase import CodeGenerator, ModelRenderer
 from ..exceptions import CodegenError
-from ..objectmodel import Node
+from ..ngmodel import Node
+from ..util import compress_seq, indent, re, safe_name
 from .rendering import Renderer
 
 NODE_NAME_PATTERN = r'(?!\d)\w+(' + rf'{'::'}' + r'(?!\d)\w+)*'

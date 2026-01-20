@@ -12,7 +12,7 @@ from .ast import AST
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
-from .objectmodel import Node, comments_for
+from .ngmodel import Node, comments_for
 from .util import chunks, compress_seq, indent, re, trim
 
 PEP8_LLEN = 72

@@ -1,3 +1,4 @@
+# WARNING: THIS LEGACY MODULE IS KEPT ONLY FOR BACKWARDS COMPATIBILITY
 from __future__ import annotations
 
 from ..exceptions import CodegenError

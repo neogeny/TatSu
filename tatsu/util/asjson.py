@@ -37,7 +37,7 @@ def asjson(obj, seen: set[int] | None = None) -> Any:  # noqa: PLR0911, PLR0912
         seen.add(id(obj))
 
     try:
-        if isinstance(obj, weakref.ReferenceType | weakref.ProxyType):
+        if isinstance(obj, (weakref.ReferenceType, *weakref.ProxyTypes)):
             return f'{obj.__class__.__name__}@0x{hex(id(obj)).upper()[2:]}'
         elif hasattr(obj, '__json__'):
             return obj.__json__(seen=seen)

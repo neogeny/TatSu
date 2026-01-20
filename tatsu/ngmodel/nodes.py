@@ -81,7 +81,7 @@ class Node(NodeBase):
         if not self.parseinfo and isinstance(self.ast, AST):
             self.parseinfo = self.ast.parseinfo
 
-        # NOTE: objectmodel.Node sets self attributes from ast: AST
+        # NOTE: objectmodel.Node set attributes in self from values in ast: AST
         allargs = ast | kwargs if isinstance(self.ast, AST) else kwargs
         for name, value in allargs.items():
             if _hasattr(self, name):
