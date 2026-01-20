@@ -75,26 +75,16 @@ class NodeBase(AsJSONMixin):
 class Node(NodeBase):
     # NOTE: declare at the class level in case __init__ is not called
     parseinfo: ParseInfo | None = None
-
     _attributes: dict[str, Any] = {}  # noqa: RUF012
     _parent_ref: weakref.ref[Node] | None = None
 
-    def __init__(
-            self,
-            ast: Any = None,
-            ctx: Any = None,
-            parseinfo: ParseInfo | None = None,
-            **kwargs: Any,
-    ):
+    def __init__(self, ast: Any = None, ctx: Any = None, **kwargs: Any):
         super().__init__(ast=ast, ctx=ctx)
-        self.parseinfo: ParseInfo | None = parseinfo
+        self.parseinfo: ParseInfo | None = None
         self._attributes: dict[str, Any] = {}
         self._parent_ref: weakref.ref[Node] | None = None
 
-        if not self.parseinfo and isinstance(self.ast, AST):
-            self.parseinfo = self.ast.parseinfo
-
-        # NOTE: objectmodel.Node set attributes in self from values in ast: AST
+        # NOTE: objectmodel.Node set attributes in the object from values in ast: AST
         allargs = ast | kwargs if isinstance(self.ast, AST) else kwargs
         for name, value in allargs.items():
             if hasattr(self, name):
@@ -112,6 +102,9 @@ class Node(NodeBase):
             raise AttributeError(
                 f'"{name}" is not a valid attribute in {type(self).__name__}',
             ) from e
+
+    def set_parseinfo(self, value: ParseInfo | None) -> None:
+        self.parseinfo = value
 
     @property
     def text(self) -> str:

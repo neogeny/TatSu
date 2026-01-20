@@ -655,8 +655,10 @@ class ParseContext:
             node = tuple(self.cst) if is_list(self.cst) else self.cst
         elif '@' in node:
             node = node['@']  # override the AST
-        elif self.config.parseinfo:
-            node.set_parseinfo(self._get_parseinfo(ruleinfo.name, pos))
+        elif self.config.parseinfo and hasattr(node, 'set_parseinfo'):
+            parseinfo = self._get_parseinfo(ruleinfo.name, pos)
+            node.set_parseinfo(parseinfo)
+
         return node
 
     def _invoke_rule(self, ruleinfo: RuleInfo, key: MemoKey) -> RuleResult:

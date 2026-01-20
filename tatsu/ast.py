@@ -30,8 +30,6 @@ class AST(dict[str, Any]):
             return None
 
     def set_parseinfo(self, value: ParseInfo | None) -> None:
-        if value is None:
-            return
         super().__setitem__('parseinfo', value)
 
     def copy(self) -> AST:
