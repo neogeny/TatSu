@@ -1,6 +1,6 @@
 
 from tatsu import synth
-from tatsu.ngmodel import NodeBase
+from tatsu.objectmodel import Node
 from tatsu.semantics import ModelBuilderSemantics
 from tatsu.tool import compile
 
@@ -57,16 +57,16 @@ def test_builder_subclassing():
     assert (
         issubclass(A, B) and
         issubclass(A, synth._Synthetic) and
-        issubclass(A, NodeBase)
+        issubclass(A, Node)
     )
     assert (
         issubclass(B, C) and
         issubclass(B, synth._Synthetic) and
-        issubclass(A, NodeBase)
+        issubclass(A, Node)
     )
     assert (
         issubclass(C, synth._Synthetic) and
-        issubclass(C, NodeBase)
+        issubclass(C, Node)
     )
 
 

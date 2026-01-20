@@ -8,7 +8,7 @@ import textwrap
 
 from .. import grammars
 from ..exceptions import CodegenError
-from ..ngmodel import Node
+from ..objectmodel import Node
 from ..util import compress_seq, indent, safe_name, timestamp, trim
 from .cgbase import CodeGenerator, ModelRenderer
 
