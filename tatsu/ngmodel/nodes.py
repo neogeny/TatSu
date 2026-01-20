@@ -10,11 +10,17 @@ from ..tokenizing import CommentInfo
 from ..util import AsJSONMixin, asjson, asjsons
 
 
-def _hasattr(obj, name: str) -> bool:
-    try:
-        return name in vars(obj) or hasattr(obj, name)
-    except TypeError:
-        return False
+@overload
+def nodeshell[T: Node](node: T) -> NodeShell[T]: ...
+
+@overload
+def nodeshell[U](node: U) -> U: ...
+
+
+def nodeshell(node: Any) -> Any:
+    if isinstance(node, Node):
+        return NodeShell.shell(node)
+    return node
 
 
 @overload
@@ -70,7 +76,7 @@ class Node(NodeBase):
     # NOTE: declare at the class level in case __init__ is not called
     parseinfo: ParseInfo | None = None
 
-    _attributes: dict[str, Any] | None = None
+    _attributes: dict[str, Any] = {}  # noqa: RUF012
     _parent_ref: weakref.ref[Node] | None = None
 
     def __init__(
@@ -91,7 +97,7 @@ class Node(NodeBase):
         # NOTE: objectmodel.Node set attributes in self from values in ast: AST
         allargs = ast | kwargs if isinstance(self.ast, AST) else kwargs
         for name, value in allargs.items():
-            if _hasattr(self, name):
+            if hasattr(self, name):
                 setattr(self, name, value)
             else:
                 self._attributes[name] = value
@@ -107,13 +113,27 @@ class Node(NodeBase):
                 f'"{name}" is not a valid attribute in {type(self).__name__}',
             ) from e
 
+    @property
+    def text(self) -> str:
+        return nodeshell(self).text
+
+    @property
+    def comments(self) -> CommentInfo:
+        return nodeshell(self).comments
+
+    def children(self) -> tuple[Any, ...]:
+        return nodeshell(self).children()
+
+    def children_list(self) -> list[Any]:
+        return nodeshell(self).children_list()
+
     def _nonrefdict(self) -> Mapping[str, Any]:
         return {
             name: value
             for name, value in vars(self).items()
             if (
                     name not in {'_parent', '_children'}
-                    and type(value) not in {weakref.ReferenceType, weakref.ProxyTypes}
+                    and type(value) not in {weakref.ReferenceType, *weakref.ProxyTypes}
             )
         }
 
@@ -214,7 +234,9 @@ class NodeShell[T: Node](AsJSONMixin):
 
     def _children_shell_tuple(self) -> tuple[Any, ...]:
         if not self._children:
-            self._children = tuple(self._get_children())
+            self._children = tuple(
+                unshell(obj) for obj in self._get_children()
+            )
         return self._children
 
     def _get_children(self) -> Iterable[Any]:
