@@ -105,6 +105,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
 
 
 class PreOrderWalker(NodeWalker):
+    # FIXME: this doesn't look correct
     def walk(self, node: Any, *args, **kwargs) -> Any:
         result = super().walk(node, *args, **kwargs)
         if result is not None:
@@ -113,7 +114,6 @@ class PreOrderWalker(NodeWalker):
 
 
 class DepthFirstWalker(NodeWalker):
-    # FIXME: this doesn't look correct
     def walk(self, node, *args, **kwargs):
         if isinstance(node, Node | NodeBase):
             result = super().walk(node, *args, **kwargs)
