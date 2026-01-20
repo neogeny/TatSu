@@ -150,7 +150,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             self.print(self.walk(rule.exp))
 
     def walk_BasedRule(self, rule: grammars.BasedRule):
-        # FIXME: the following override is to not alter the previous codegen
+        # HACK: the following override is to not alter the previous codegen
         rule.exp = rule.rhs
         self.walk_Rule(rule)
 

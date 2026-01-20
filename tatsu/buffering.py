@@ -255,7 +255,7 @@ class Buffer(Tokenizer):
             previous = selector(self._comment_index[n])
             if not contains_sublist(
                 previous, comments,
-            ):  # FIXME: will discard repeated comments
+            ):  # NOTE: will discard repeated comments
                 previous.extend(comments)
 
     def _eat_regex(self, regex: str | re.Pattern) -> None:
