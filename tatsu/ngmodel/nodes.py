@@ -89,14 +89,6 @@ class Node(NodeBase):
             else:
                 self._attributes[name] = value
 
-    # FIXME: declared here to ease transition from objectmodel
-    @property
-    def comments(self) -> CommentInfo:
-        if self.parseinfo and hasattr(self.parseinfo.tokenizer, 'comments'):
-            comments = cast(Callable, self.parseinfo.tokenizer.comments)
-            return comments(self.parseinfo.pos)
-        return CommentInfo([], [])
-
     def __getattr__(self, name: str) -> Any:
         # note: here only if normal attribute search failed
         try:
