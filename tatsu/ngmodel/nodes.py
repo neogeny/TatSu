@@ -106,6 +106,9 @@ class Node(NodeBase):
     def set_parseinfo(self, value: ParseInfo | None) -> None:
         self.parseinfo = value
 
+    def asjson(self) -> Any:
+        return asjson(self)
+
     @property
     def text(self) -> str:
         return nodeshell(self).text
