@@ -78,7 +78,8 @@ class GraphvizWalker(NodeWalker):
 
     def ref_node(self, name):
         n = self.node(name)
-        n.attr['shape'] = 'box'
+        n.attr['shape'] = 'parallelogram'
+        # n.attr['shape'] = 'box'
         return n
 
     def rule_node(self, name, **attr):
@@ -123,7 +124,7 @@ class GraphvizWalker(NodeWalker):
         return self.walk(d.exp)
 
     def walk_default(self, node):
-        raise NotImplementedError('No walking for ', type(node).__name__)
+        pass
 
     def walk__decorator(self, d):
         return self.walk(d.exp)
@@ -131,7 +132,7 @@ class GraphvizWalker(NodeWalker):
     def walk__grammar(self, g):
         self.push_graph(g.name + '0')
         try:
-            vrules = [self.walk(r) for r in reversed(g.rulemap)]
+            vrules = [self.walk(r) for r in reversed(g.rules)]
         finally:
             self.pop_graph()
         self.push_graph(g.name + '1')
