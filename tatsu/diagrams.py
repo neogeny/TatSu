@@ -23,7 +23,10 @@ class GraphvizWalker(NodeWalker):
     def __init__(self):
         super().__init__()
         self.top_graph = pgv.AGraph(
-            directed=True, rankdir='LR', packMode='clust', splines='true',
+            directed=True,
+            rankdir='LR',
+            packMode='clust',
+            splines='true',  # true | line | ortho | polyline
         )
         self.stack = [self.top_graph]
         self.node_count = 0
