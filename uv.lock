@@ -898,6 +898,18 @@ wheels = [
 ]
 
 [[package]]
+name = "phart"
+version = "1.1.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "networkx" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/14/f4/ab90e7d22b38cc1bad5a72683f8739137fa42f9e2336c92b82dee4cea87e/phart-1.1.4.tar.gz", hash = "sha256:2691e31152a938f48d51d5236715811ede80142a5c8b59d24568435f11ba9f2c", size = 264815, upload-time = "2025-01-25T12:59:36.687Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c5/20/dc20da33dd3f3fffa5584d35bdfe0dd31847d4f0443495dba6b2cd4ae70a/phart-1.1.4-py3-none-any.whl", hash = "sha256:b34fd91dfb61fc60a2704d9ee2e12bc89a95291efe6e114c7b191244bc5ad8f1", size = 19542, upload-time = "2025-01-25T12:59:35.107Z" },
+]
+
+[[package]]
 name = "pip"
 version = "25.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1374,6 +1386,7 @@ dev = [
     { name = "ipython" },
     { name = "mypy" },
     { name = "networkx" },
+    { name = "phart" },
     { name = "pip" },
     { name = "progress" },
     { name = "psutil" },
@@ -1408,6 +1421,8 @@ dev = [
     { name = "ipython" },
     { name = "mypy" },
     { name = "networkx" },
+    { name = "phart" },
+    { name = "phart", extras = ["extras"] },
     { name = "pip" },
     { name = "progress" },
     { name = "psutil" },

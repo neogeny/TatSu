@@ -46,6 +46,8 @@ dev = [
     "ipython",
     "mypy",
     "networkx",
+    "phart",
+    "phart[extras]",
     "progress",
     "psutil",
     "pydot",

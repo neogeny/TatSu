@@ -9,6 +9,10 @@ from .walkers import NodeWalker
 __all__ = ['draw']
 
 
+# NOTE:
+#  https://gemini.google.com/share/a48fd819122c
+
+
 def draw(filename, grammar):
     traverser = GraphvizWalker()
     traverser.walk(grammar)
