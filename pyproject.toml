@@ -72,10 +72,16 @@ Repository = "https://github.com/neogeny/TatSu"
 Documentation = "https://tatsu.readthedocs.io/en/stable/"
 Questions = "https://stackoverflow.com/questions/tagged/tatsu"
 
-[tool.uv.extra-build-variables.pygraphviz]
-# for MacOS + Homebrew
+[[tool.uv.sources.pygraphviz]]
+marker = "sys_platform == 'darwin'"
+
+[tool.uv.sources.pygraphviz.env]
 CFLAGS = "-I/opt/homebrew/include"
 LDFLAGS = "-L/opt/homebrew/lib"
+
+[[tool.uv.sources.pygraphviz]]
+marker = "sys_platform != 'darwin'"
+
 
 [tool.hatch.version]
 path = "tatsu/_version.py"

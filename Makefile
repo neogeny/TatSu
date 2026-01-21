@@ -1,5 +1,11 @@
 SHELL := /bin/bash
 
+ifeq ($(OS), Windows_NT)
+    PLATFORM := Windows
+else
+    PLATFORM := $(shell uname -s)
+endif
+
 
 test:  lint pytest documentation examples
 
@@ -86,6 +92,8 @@ publish: need_gh checks build
 	@- gh run list --workflow="publish.yml"
 
 
+ifeq ($(PLATFORM), Darwin)
+
 pygraphviz: graphviz pygraphviz_mac
 
 graphviz:
@@ -104,3 +112,4 @@ pygraphviz_mac_other: graphviz
 	LDFLAGS="-L$$(brew --prefix graphviz)/lib" \
 	uv pip install pygraphviz --no-cache-dir
 
+endif
