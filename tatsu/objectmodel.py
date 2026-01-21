@@ -36,20 +36,15 @@ class Node(AsJSONMixin):
             if hasattr(self, name) and not inspect.ismethod(getattr(self, name)):
                 setattr(self, name, value)
             else:
-                # may shadow a predefined heree
+                # may shadow a predefined
                 self._attributes[name] = value
 
     def __getattr__(self, name: str) -> Any:
-        # note: here only if normal attribute search failed
-        try:
+        # note: here only if normal attribute search faile:
             assert isinstance(self._attributes, dict)
             return self._attributes[name]
         except KeyError:
             return super().__getattribute__(name)
-            # # NOTE: signals hasattr() and the likes that the name was not found
-            # raise AttributeError(
-            #     f'"{name}" is not a valid attribute in {type(self).__name__}',
-            # ) from e
 
     def set_parseinfo(self, value: ParseInfo | None) -> None:
         self.parseinfo = value
@@ -99,7 +94,7 @@ class Node(AsJSONMixin):
         def walk(obj: Any) -> Iterable[Node]:
             match obj:
                 case Node() as node:
-                    self._parent_ref = weakref.ref(self)
+                    node._parent_ref = weakref.ref(self)
                     yield node
                 case Mapping() as map:
                     for name, value in map.items():
