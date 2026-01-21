@@ -407,15 +407,6 @@ wheels = [
 ]
 
 [[package]]
-name = "graphviz"
-version = "0.21"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f8/b3/3ac91e9be6b761a4b30d66ff165e54439dcd48b83f4e20d644867215f6ca/graphviz-0.21.tar.gz", hash = "sha256:20743e7183be82aaaa8ad6c93f8893c923bd6658a04c32ee115edb3c8a835f78", size = 200434, upload-time = "2025-06-15T09:35:05.824Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/91/4c/e0ce1ef95d4000ebc1c11801f9b944fa5910ecc15b5e351865763d8657f8/graphviz-0.21-py3-none-any.whl", hash = "sha256:54f33de9f4f911d7e84e4191749cac8cc5653f815b06738c54db9a15ab8b1e42", size = 47300, upload-time = "2025-06-15T09:35:04.433Z" },
-]
-
-[[package]]
 name = "h11"
 version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
@@ -898,18 +889,6 @@ wheels = [
 ]
 
 [[package]]
-name = "phart"
-version = "1.1.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "networkx" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/14/f4/ab90e7d22b38cc1bad5a72683f8739137fa42f9e2336c92b82dee4cea87e/phart-1.1.4.tar.gz", hash = "sha256:2691e31152a938f48d51d5236715811ede80142a5c8b59d24568435f11ba9f2c", size = 264815, upload-time = "2025-01-25T12:59:36.687Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/c5/20/dc20da33dd3f3fffa5584d35bdfe0dd31847d4f0443495dba6b2cd4ae70a/phart-1.1.4-py3-none-any.whl", hash = "sha256:b34fd91dfb61fc60a2704d9ee2e12bc89a95291efe6e114c7b191244bc5ad8f1", size = 19542, upload-time = "2025-01-25T12:59:35.107Z" },
-]
-
-[[package]]
 name = "pip"
 version = "25.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1013,18 +992,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pydot"
-version = "4.0.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pyparsing" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/50/35/b17cb89ff865484c6a20ef46bf9d95a5f07328292578de0b295f4a6beec2/pydot-4.0.1.tar.gz", hash = "sha256:c2148f681c4a33e08bf0e26a9e5f8e4099a82e0e2a068098f32ce86577364ad5", size = 162594, upload-time = "2025-06-17T20:09:56.454Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7e/32/a7125fb28c4261a627f999d5fb4afff25b523800faed2c30979949d6facd/pydot-4.0.1-py3-none-any.whl", hash = "sha256:869c0efadd2708c0be1f916eb669f3d664ca684bc57ffb7ecc08e70d5e93fee6", size = 37087, upload-time = "2025-06-17T20:09:55.25Z" },
-]
-
-[[package]]
 name = "pygments"
 version = "2.19.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1034,13 +1001,10 @@ wheels = [
 ]
 
 [[package]]
-name = "pyparsing"
-version = "3.3.2"
+name = "pygraphviz"
+version = "1.14"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f3/91/9c6ee907786a473bf81c5f53cf703ba0957b23ab84c264080fb5a450416f/pyparsing-3.3.2.tar.gz", hash = "sha256:c777f4d763f140633dcb6d8a3eda953bf7a214dc4eff598413c070bcdc117cbc", size = 6851574, upload-time = "2026-01-21T03:57:59.36Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/bd/c038d7cc38edc1aa5bf91ab8068b63d4308c66c4c8bb3cbba7dfbc049f9c/pyparsing-3.3.2-py3-none-any.whl", hash = "sha256:850ba148bd908d7e2411587e247a1e4f0327839c40e2e5e6d05a007ecc69911d", size = 122781, upload-time = "2026-01-21T03:57:55.912Z" },
-]
+sdist = { url = "https://files.pythonhosted.org/packages/66/ca/823d5c74a73d6b8b08e1f5aea12468ef334f0732c65cbb18df2a7f285c87/pygraphviz-1.14.tar.gz", hash = "sha256:c10df02377f4e39b00ae17c862f4ee7e5767317f1c6b2dfd04cea6acc7fc2bea", size = 106003, upload-time = "2024-09-29T18:31:12.471Z" }
 
 [[package]]
 name = "pyproject-hooks"
@@ -1381,16 +1345,14 @@ parproc = [
 dev = [
     { name = "colorama" },
     { name = "docutils" },
-    { name = "graphviz" },
     { name = "hatch" },
     { name = "ipython" },
     { name = "mypy" },
     { name = "networkx" },
-    { name = "phart" },
     { name = "pip" },
     { name = "progress" },
     { name = "psutil" },
-    { name = "pydot" },
+    { name = "pygraphviz" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-dependency" },
@@ -1416,17 +1378,14 @@ provides-extras = ["colorization", "parproc"]
 dev = [
     { name = "colorama" },
     { name = "docutils" },
-    { name = "graphviz" },
     { name = "hatch" },
     { name = "ipython" },
     { name = "mypy" },
     { name = "networkx" },
-    { name = "phart" },
-    { name = "phart", extras = ["extras"] },
     { name = "pip" },
     { name = "progress" },
     { name = "psutil" },
-    { name = "pydot" },
+    { name = "pygraphviz" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-dependency" },

@@ -44,7 +44,11 @@ def parse_args():
     main_mode.add_argument(
         '--draw',
         '-d',
-        help='generate a diagram of the grammar (requires --outfile)',
+        help=(
+            'generate a diagram of the grammar'
+            ' (.svg, .png, .jpeg, .dot, ...'
+             ' / requres --outfile)'
+        ),
         action='store_true',
     )
     main_mode.add_argument(
