@@ -41,6 +41,7 @@ class Node(AsJSONMixin):
 
     def __getattr__(self, name: str) -> Any:
         # note: here only if normal attribute search faile:
+        try:
             assert isinstance(self._attributes, dict)
             return self._attributes[name]
         except KeyError:
