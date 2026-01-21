@@ -85,10 +85,22 @@ publish: need_gh checks build
 	gh workflow run publish.yml
 	@- gh run list --workflow="publish.yml"
 
-pygraphviz:
-	# for MacOS with Homebrew
+
+pygraphviz: graphviz pygraphviz_mac
+
+graphviz:
 	brew install -q graphviz
-	uv pip install pygraphviz \
-	  --config-settings="--global-option=build_ext" \
-	  --config-settings="--global-option=-I$(brew --prefix graphviz)/include" \
-	  --config-settings="--global-option=-L$(brew --prefix graphviz)/lib"
+
+pygraphviz_mac: graphviz
+	uv pip install \
+		--no-cache-dir \
+		--config-settings="--global-option=build_ext" \
+		--config-settings="--global-option=-I$(brew --prefix graphviz)/include/" \
+		--config-settings="--global-option=-L$(brew --prefix graphviz)/lib/" \
+		pygraphviz
+
+pygraphviz_mac_other: graphviz
+	CFLAGS="-I$$(brew --prefix graphviz)/include" \
+	LDFLAGS="-L$$(brew --prefix graphviz)/lib" \
+	uv pip install pygraphviz --no-cache-dir
+
