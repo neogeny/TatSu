@@ -84,3 +84,11 @@ publish: need_gh checks build
 	# WARNING: now Trusted Publishers is enabled on PyPy
 	gh workflow run publish.yml
 	@- gh run list --workflow="publish.yml"
+
+pygraphviz:
+	# for MacOS with Homebrew
+	brew install -q graphviz
+	uv pip install pygraphviz \
+	  --config-settings="--global-option=build_ext" \
+	  --config-settings="--global-option=-I$(brew --prefix graphviz)/include" \
+	  --config-settings="--global-option=-L$(brew --prefix graphviz)/lib"
