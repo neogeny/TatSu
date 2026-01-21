@@ -183,7 +183,7 @@ class ParseContext:
         return self._config
 
     @property
-    def semantics(self) -> Any:
+    def semantics(self) -> type | None:
         return self._semantics
 
     @property
