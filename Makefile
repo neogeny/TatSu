@@ -94,13 +94,21 @@ publish: need_gh checks build
 
 
 ifeq ($(PLATFORM), Darwin)
-
-pygraphviz: graphviz pygraphviz_mac
+pygraphviz: pygraphviz_mac
 
 graphviz:
 	brew install -q graphviz
+else
+ifeq ($(PLATFORM), Linux)
+pygraphviz: pygraphviz_linux
+
+graphviz:
+	sudo apt install graphviz graphviz-dev
+endif
+endif
 
 pygraphviz_mac: graphviz
+	brew install -q graphviz
 	uv pip install \
 		--no-cache-dir \
 		--config-settings="--global-option=build_ext" \
@@ -109,8 +117,16 @@ pygraphviz_mac: graphviz
 		pygraphviz
 
 pygraphviz_mac_other: graphviz
+	brew install -q graphviz
 	CFLAGS="-I$$(brew --prefix graphviz)/include" \
 	LDFLAGS="-L$$(brew --prefix graphviz)/lib" \
 	uv pip install pygraphviz --no-cache-dir
 
-endif
+
+pygraphviz_linux: graphviz
+	uv pip install \
+		--no-cache-dir \
+		--config-settings="--global-option=build_ext" \
+		--config-settings="--global-option=-I-I/usr/include" \
+		--config-settings="--global-option=-L-L/usr/lib/x86_64-linux-gnu" \
+		pygraphviz
