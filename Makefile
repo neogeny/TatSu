@@ -63,7 +63,7 @@ ty:
 	@- uv run ty check --exclude parsers --exclude backups
 
 
-clean:
+clean: requirements
 	find . -name "__pycache__" | xargs /bin/rm -rf
 	/bin/rm -rf tatsu.egg-info dist tmp build .tox
 
@@ -85,6 +85,11 @@ need_gh:
 test_publish: need_gh build
 	gh workflow run test_publish.yml
 	@- gh run list --workflow="test_publish.yml"
+
+
+requirements:
+	uv sync
+	uv export --format requirements-txt > requirements.txt
 
 
 publish: need_gh checks build
