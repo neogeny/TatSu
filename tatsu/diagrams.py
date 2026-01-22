@@ -9,6 +9,44 @@ from .walkers import NodeWalker
 
 __all__ = ['draw']
 
+# SHAPE           DESCRIPTION
+# box             Standard rectangle
+# circle          Basic circle
+# ellipse         Default shape; an oval
+# point           Microscopic filled circle (junctions)
+# egg             Asymmetric oval
+# triangle        Upward pointing triangle
+# plaintext       Text with no border
+# diamond         Rhombus (decision points)
+# trapezium       Trapezoid
+# parallelogram   Slanted rectangle (I/O or rules)
+# house           Polygon shaped like a house
+# pentagon        Five-sided polygon
+# hexagon         Six-sided polygon
+# septagon        Seven-sided polygon
+# octagon         Eight-sided polygon
+# doublecircle    Circle with an inner ring
+# doubleoctagon   Octagon with an inner border
+# tripleoctagon   Octagon with two inner borders
+# invtriangle     Upside-down triangle
+# invtrapezium    Upside-down trapezoid
+# invhouse        Upside-down house shape
+# rect            Alias for box
+# rectangle       Alias for box
+# square          Box with equal sides
+# star            Multi-pointed star
+# cylinder        3D-style tube (databases)
+# note            Paper with a folded corner
+# tab             Folder-style tab
+# folder          Classic file folder shape
+# box3d           Rectangle with 3D depth
+# component       Box with "plug protrusions"
+# larrow          Arrow pointing left
+# rarrow          Arrow pointing right
+# record          Box for structured data fields
+# Mrecord         Record with rounded corners
+# none            No shape and no label space
+
 
 def draw(filename, grammar):
     traverser = DiagramNodeWalker()
@@ -27,6 +65,7 @@ class DiagramNodeWalker(NodeWalker):
         # ortho    All lines are strictly horizontal or vertical (manhattan routing).
         # curved   Smooth Bezier curves (default behavior for splines=true).
         self.top_graph = graphviz.Digraph(
+            engine='dot',
             graph_attr={
                 'rankdir': 'LR',
                 'packMode': 'clust',
@@ -80,7 +119,7 @@ class DiagramNodeWalker(NodeWalker):
         return id  # We return the ID string to be used for edges
 
     def tnode(self, name, **attr):
-        return self.node(name, **attr)
+        return self.node(name, shape='hexagon', **attr)
 
     def dot(self):
         return self.node('', shape='point', width='0.01')
@@ -89,11 +128,13 @@ class DiagramNodeWalker(NodeWalker):
         return self.dot()
 
     def ref_node(self, name):
-        return self.node(name, shape='parallelogram')
+        return self.node(name, shape='box', style='rounded')
 
     def rule_node(self, name, **attr):
         # Using the name as the ID for rules as per original logic
-        return self.node(name, id=name, shape='parallelogram', **attr)
+        return self.node(
+            name, id=name, shape='box', style='bold', **attr
+        )
 
     def end_node(self):
         return self.node('', shape='point', width='0.1')
@@ -160,13 +201,12 @@ class DiagramNodeWalker(NodeWalker):
         return ni, ne
 
     def walk_closure(self, r):
-        # graphviz uses a dict for attributes in subgraphs
         self.push_graph(rankdir='TB')
         try:
             i, e = self.walk_decorator(r)
             ni = self.dot()
-            self.edge(ni, i)
-            self.edge(e, ni)
+            self.zedge(ni, i)
+            self.zedge(e, ni)
             return ni, ni
         finally:
             self.pop_graph()
@@ -212,3 +252,15 @@ class DiagramNodeWalker(NodeWalker):
     def walk_eof(self, v):
         n = self.node('$EOF')
         return n, n
+
+    def walk_lookahead(self, v):
+        i, e = self.walk(v.exp)
+        s = self.node('&', shape='diamond')
+        self.zedge(s, i)
+        return s, e
+
+    def walk_negative_lookahead(self, v):
+        i, e = self.walk(v.exp)
+        s = self.node('!', shape='diamond')
+        self.zedge(s, i)
+        return s, e
