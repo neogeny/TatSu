@@ -17,12 +17,12 @@ from itertools import zip_longest
 from pathlib import Path
 from typing import Any
 
-logger = logging.getLogger('tatsu')
+logger = logging.getLogger('TatSu')
 logger.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
+handler = logging.StreamHandler(sys.stderr)
 formatter = logging.Formatter('%(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 ESCAPE_SEQUENCE_RE: re.Pattern = re.compile(

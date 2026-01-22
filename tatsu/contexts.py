@@ -464,7 +464,8 @@ class ParseContext:
             return
 
         msg %= params
-        indent = C_DOT * (len(self._rule_stack) - 3)
+        # indent = ' ' * (len(self._rule_stack) - 3)
+        indent = ''
         info(indent, msg, file=sys.stderr)
 
     def _trace_event(self, event: str) -> None:
