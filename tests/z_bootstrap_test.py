@@ -117,7 +117,6 @@ def test_06_generate_code():
 
 
 @pytest.mark.dependency('test_06_generate_code')
-@pytest.mark.skipif('MAKELEVEL' in os.environ, reason='FIXME: doesn\'t work from make')
 def test_07_import_generated_code():
     print('-' * 20, 'phase 07 - import generated code')
 
@@ -153,7 +152,6 @@ def test_07_import_generated_code():
 
 
 @pytest.mark.dependency('test_07_import_generated_code')
-@pytest.mark.skipif('MAKELEVEL' in os.environ, reason='FIXME: doesn\'t work from make')
 def test_08_compile_with_generated():
     for item in os.environ.items():
         print(item)
