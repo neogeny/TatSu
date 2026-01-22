@@ -34,6 +34,10 @@ def test_node_kwargs() -> None:
     atom = Atom(ast={'bar': 1}, symbol='foo')
     assert atom.ast == {'bar': 1}
 
+    with pytest.warns(UserWarning, match='"children" in keyword arguments will shadow Atom.children'):
+        atom = Atom(children=[])
+        assert atom
+
 
 def test_children():
     grammar = r"""
