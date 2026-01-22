@@ -100,10 +100,11 @@ graphviz:
 	brew install -q graphviz
 else
 ifeq ($(PLATFORM), Linux)
-pygraphviz: pygraphviz_linux
+pygraphviz: graphviz
+	sudo uv run apt-get install -y python3-pygraphviz
 
 graphviz:
-	sudo apt install graphviz graphviz-dev
+	sudo apt-get install -y graphviz libgraphviz-dev pkg-config
 endif
 endif
 
