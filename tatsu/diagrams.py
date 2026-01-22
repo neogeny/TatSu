@@ -118,13 +118,13 @@ class DiagramNodeWalker(NodeWalker):
 
     # --- Walker Logic (Mostly identical, utilizing new wrapper methods) ---
 
-    def walk__decorator(self, d):
+    def walk_decorator(self, d):
         return self.walk(d.exp)
 
     def walk_default(self, node):
         pass
 
-    def walk__grammar(self, g):
+    def walk_grammar(self, g):
         # Creating clusters for organization
         self.push_graph(name=f"{g.name}_0")
         try:
@@ -138,7 +138,7 @@ class DiagramNodeWalker(NodeWalker):
         s, t = vrules[0][0], vrules[-1][1]
         return (s, t)
 
-    def walk__rule(self, r):
+    def walk_rule(self, r):
         self.push_graph(name=r.name)
         try:
             i, e = self.walk(r.exp)
@@ -150,8 +150,8 @@ class DiagramNodeWalker(NodeWalker):
         finally:
             self.pop_graph()
 
-    def walk__optional(self, o):
-        i, e = self.walk__decorator(o)
+    def walk_optional(self, o):
+        i, e = self.walk_decorator(o)
         ni = self.dot()
         ne = self.dot()
         self.zedge(ni, i)
@@ -159,11 +159,11 @@ class DiagramNodeWalker(NodeWalker):
         self.zedge(e, ne)
         return (ni, ne)
 
-    def walk__closure(self, r):
+    def walk_closure(self, r):
         # graphviz uses a dict for attributes in subgraphs
         self.push_graph(rankdir='TB')
         try:
-            i, e = self.walk__decorator(r)
+            i, e = self.walk_decorator(r)
             ni = self.dot()
             self.edge(ni, i)
             self.edge(e, ni)
@@ -171,7 +171,7 @@ class DiagramNodeWalker(NodeWalker):
         finally:
             self.pop_graph()
 
-    def walk__choice(self, c):
+    def walk_choice(self, c):
         vopt = [self.walk(o) for o in c.options]
         vopt = [o for o in vopt if o is not None]
         ni = self.dot()
@@ -181,7 +181,7 @@ class DiagramNodeWalker(NodeWalker):
             self.edge(e, ne)
         return (ni, ne)
 
-    def walk__sequence(self, s):
+    def walk_sequence(self, s):
         vseq = [self.walk(x) for x in s.sequence if x is not None]
         vseq = [x for x in vseq if x is not None]
 
@@ -197,18 +197,18 @@ class DiagramNodeWalker(NodeWalker):
         return (first, last)
 
     # Simplified remaining walkers for brevity
-    def walk__call(self, rr):
+    def walk_call(self, rr):
         n = self.ref_node(rr.name)
         return (n, n)
 
-    def walk__pattern(self, p):
+    def walk_pattern(self, p):
         n = self.tnode(p.pattern)
         return (n, n)
 
-    def walk__token(self, t):
+    def walk_token(self, t):
         n = self.tnode(t.token)
         return (n, n)
 
-    def walk__eof(self, v):
+    def walk_eof(self, v):
         n = self.node('$EOF')
         return (n, n)
