@@ -10,7 +10,7 @@ from contextlib import contextmanager, suppress
 from copy import copy
 from typing import Any, NamedTuple, NoReturn, Protocol, cast
 
-from . import buffering, color, tokenizing
+from . import buffering, tokenizing
 from .ast import AST
 from .buffering import Buffer
 from .collections import BoundedDict
@@ -35,6 +35,7 @@ from .infos import (
 )
 from .tokenizing import NullTokenizer, Tokenizer
 from .util import (
+    color,
     info,
     is_list,
     left_assoc,
@@ -43,6 +44,7 @@ from .util import (
     safe_name,
     trim,
 )
+from .util.color import Color
 from .util.unicode_characters import (
     C_CUT,
     C_DOT,
@@ -53,6 +55,9 @@ from .util.unicode_characters import (
 )
 
 __all__: list[str] = ['ParseContext', 'tatsumasu', 'leftrec', 'nomemo']
+
+
+C = Color()
 
 
 class MemoKey(NamedTuple):
@@ -478,27 +483,27 @@ class ParseContext:
             '%s %s%s%s',
             event + self._rulestack(),
             self._tokenizer.lookahead_pos(),
-            color.Style.DIM + fname,
-            color.Style.RESET_ALL + lookahead + color.Style.RESET_ALL,
+            f'{C.DIM}{fname}',
+            f'{C.RESET_ALL}{lookahead}{C.RESET_ALL}',
             )
 
     def _trace_entry(self) -> None:
-        self._trace_event(color.Fore.YELLOW + color.Style.BRIGHT + C_ENTRY)
+        self._trace_event(f'{C.YELLOW}{C.BRIGHT}{C_ENTRY}')
 
     def _trace_success(self) -> None:
-        self._trace_event(color.Fore.GREEN + color.Style.BRIGHT + C_SUCCESS)
+        self._trace_event(f'{C.GREEN}{C.BRIGHT}{C_SUCCESS}')
 
     def _trace_failure(self, ex: Exception | None = None) -> None:
         if isinstance(ex, FailedLeftRecursion):
             self._trace_recursion()
         else:
-            self._trace_event(color.Fore.RED + color.Style.BRIGHT + C_FAILURE)
+            self._trace_event(f'{C.RED}{C.BRIGHT}{C_FAILURE}')
 
     def _trace_recursion(self) -> None:
-        self._trace_event(color.Fore.RED + color.Style.BRIGHT + C_RECURSION)
+        self._trace_event(f'{C.RED}{C.BRIGHT}{C_RECURSION}')
 
     def _trace_cut(self) -> None:
-        self._trace_event(color.Fore.MAGENTA + color.Style.BRIGHT + C_CUT)
+        self._trace_event(f'{C.MAGENTA}{C.BRIGHT}{C_CUT}')
 
     def _trace_match(self, token: Any, name: str | None = None, failed: bool = False) -> None:
         if not self.config.trace:
@@ -510,20 +515,20 @@ class ParseContext:
         name_str = f'/{name}/' if name else ''
 
         if not failed:
-            fgcolor = color.Fore.GREEN + C_SUCCESS
+            fgcolor = f'{C.GREEN}{C_SUCCESS}'
         else:
-            fgcolor = color.Fore.RED + C_FAILURE
+            fgcolor = f'{C.RED}{C_FAILURE}'
 
         lookahead = self._tokenizer.lookahead().rstrip()
         if lookahead:
             lookahead = '\n' + ' ' * (len(self._rule_stack) - 3) + lookahead
 
         self._trace(
-            color.Style.BRIGHT + fgcolor + "'%s' %s%s%s",
+            f'{C.BRIGHT}{fgcolor}' + "'%s' %s%s%s",
             token,
             name_str,
-            color.Style.DIM + fname,
-            color.Style.RESET_ALL + lookahead + color.Style.RESET_ALL,
+            f'{C.DIM}{fname}',
+            f'{C.RESET_ALL}{lookahead}{C.RESET_ALL}',
             )
 
     def _make_exception(self, item: Any, exclass: type[FailedParse] = FailedParse) -> FailedParse:
