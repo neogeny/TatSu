@@ -90,6 +90,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
                 bases: list[type] = [
                     b for b in node_cls.__bases__ if b not in class_stack
                 ]
+                # breadth first
                 class_stack = [*bases, *class_stack]
 
         walker = (
