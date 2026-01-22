@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+import warnings
 import weakref
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any, cast
@@ -10,33 +11,86 @@ from .infos import ParseInfo
 from .tokenizing import CommentInfo
 from .util import AsJSONMixin, asjson, asjsons
 
-__all__ = ['Node']
+__all__ = ['BaseNode', 'Node']
 
 
-class Node(AsJSONMixin):
+class BaseNode(AsJSONMixin):
     # NOTE: declare at the class level in case __init__ is not called
     ast: Any = None
     ctx: Any = None
+
+    def __init__(self, ast: Any = None, ctx: Any = None):
+        self.ast: Any = ast
+        self.ctx: Any = ctx
+
+    def __str__(self) -> str:
+        return asjsons(self)
+
+    def __repr__(self) -> str:
+        return (
+            f"{type(self).__name__}"
+            f"({', '.join(self._pubdict())})"
+        )
+
+    def __eq__(self, other) -> bool:
+        if id(self) == id(other):
+            return True
+        elif self.ast is None:
+            return False
+        elif not getattr(other, 'ast', None):
+            return False
+        else:
+            return self.ast == other.ast
+
+    def __hash__(self) -> int:
+        if self.ast is None:
+            return id(self)
+        elif isinstance(self.ast, list):
+            return hash(tuple(self.ast))
+        elif isinstance(self.ast, dict):
+            return hash(AST(self.ast))
+        else:
+            return hash(self.ast)
+
+    def __getstate__(self) -> Any:
+        return self._nonrefdict()
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+
+    def _nonrefdict(self) -> Mapping[str, Any]:
+        return {
+            name: value if (
+                    type(value) not in {weakref.ReferenceType, weakref.ProxyType}
+            ) else None
+            for name, value in vars(self).items()
+        }
+
+
+class Node(BaseNode):
+    # NOTE: declare at the class level in case __init__ is not called
     parseinfo: ParseInfo | None = None
 
     _attributes: dict[str, Any] = {}  # noqa: RUF012
     _parent_ref: weakref.ref | None = None
 
     def __init__(self, ast: Any = None, ctx: Any = None, **kwargs: Any):
-        super().__init__()
-        self.ast: Any = ast
-        self.ctx: Any = ctx
+        super().__init__(ast=ast, ctx=ctx)
         self.parseinfo: ParseInfo | None = None
         self._attributes: dict[str, Any] = {}
         self._parent_ref: weakref.ref[Node] | None = None
 
-        # NOTE: objectmodel.Node would create new attributes
+        # NOTE: the old objectmodel.Node would addd new attributes to self
         allargs = ast | kwargs if isinstance(self.ast, AST) else kwargs
         for name, value in allargs.items():
             if hasattr(self, name) and not inspect.ismethod(getattr(self, name)):
                 setattr(self, name, value)
             else:
-                # may shadow a predefined
+                if hasattr(self, name):
+                    warnings.warn(
+                        f'"{name}" in keyword arguments will shadow'
+                        f' {type(self).__name__}.{name}'
+                    )
                 self._attributes[name] = value
 
     def __getattr__(self, name: str) -> Any:
@@ -111,46 +165,3 @@ class Node(AsJSONMixin):
                     pass
 
         return tuple(walk(self._pubdict()))
-
-    def __str__(self) -> str:
-        return asjsons(self)
-
-    def __repr__(self) -> str:
-        return (
-            f"{type(self).__name__}"
-            f"({', '.join(self._pubdict())})"
-        )
-
-    def __eq__(self, other) -> bool:
-        if id(self) == id(other):
-            return True
-        elif self.ast is None:
-            return False
-        elif not getattr(other, 'ast', None):
-            return False
-        else:
-            return self.ast == other.ast
-
-    def __hash__(self) -> int:
-        if self.ast is None:
-            return id(self)
-        elif isinstance(self.ast, list):
-            return hash(tuple(self.ast))
-        elif isinstance(self.ast, dict):
-            return hash(AST(self.ast))
-        else:
-            return hash(self.ast)
-
-    def __getstate__(self) -> Any:
-        return self._nonrefdict()
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-
-    def _nonrefdict(self) -> Mapping[str, Any]:
-        return {
-            name: value if (
-                    type(value) not in {weakref.ReferenceType, weakref.ProxyType}
-            ) else None
-            for name, value in vars(self).items()
-        }
