@@ -17,11 +17,10 @@ __all__ = ['BaseNode', 'Node']
 class BaseNode(AsJSONMixin):
     # NOTE: declare at the class level in case __init__ is not called
     ast: Any = None
-    ctx: Any = None
 
-    def __init__(self, ast: Any = None, ctx: Any = None):
+    def __init__(self, ast: Any = None):
+        super().__init__()
         self.ast: Any = ast
-        self.ctx: Any = ctx
 
     def __str__(self) -> str:
         return asjsons(self)
@@ -69,13 +68,16 @@ class BaseNode(AsJSONMixin):
 
 class Node(BaseNode):
     # NOTE: declare at the class level in case __init__ is not called
+    ctx: Any = None
     parseinfo: ParseInfo | None = None
 
     _attributes: dict[str, Any] = {}  # noqa: RUF012
     _parent_ref: weakref.ref | None = None
 
     def __init__(self, ast: Any = None, ctx: Any = None, **kwargs: Any):
-        super().__init__(ast=ast, ctx=ctx)
+        super().__init__(ast=ast)
+        self.ast: Any = ast
+        self.ctx: Any = ctx
         self.parseinfo: ParseInfo | None = None
         self._attributes: dict[str, Any] = {}
         self._parent_ref: weakref.ref[Node] | None = None
@@ -89,7 +91,8 @@ class Node(BaseNode):
                 if hasattr(self, name):
                     warnings.warn(
                         f'"{name}" in keyword arguments will shadow'
-                        f' {type(self).__name__}.{name}'
+                        f' {type(self).__name__}.{name}',
+                        stacklevel=2,
                     )
                 self._attributes[name] = value
 
