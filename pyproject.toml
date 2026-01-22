@@ -47,7 +47,7 @@ dev = [
     "networkx",
     "progress",
     "psutil",
-    "pygraphviz",
+    "pygraphviz; sys_platform == 'darwin'",
     "pytest",
     "pytest-cov",
     "pytest-dependency",
