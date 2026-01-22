@@ -52,7 +52,7 @@ def init():
     except ImportError:
         return
 
-    global Fore, Back, Style  # pylint: disable=global-statement
+    global Fore, Back, Style
     Fore = colorama.Fore
     Back = colorama.Back
     Style = colorama.Style

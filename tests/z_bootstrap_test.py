@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from tatsu.diagrams import draw
 from tatsu.ngcodegen import codegen
 from tatsu.parser import EBNFParser, GrammarGenerator
 from tatsu.parser_semantics import EBNFGrammarSemantics
@@ -253,11 +254,6 @@ def test_12_walker():
 @pytest.mark.dependency('test_12_walker')
 def test_13_graphics():
     print('-' * 20, 'phase 13 - Graphics')
-    try:
-        from tatsu.diagrams import draw
-    except ImportError:
-        print('PyGraphViz not found!')
-    else:
-        with Path('./tmp/11.tatsu').open('rb') as f:
-            g11 = pickle.load(f)
-        draw('./tmp/13.png', g11)
+    with Path('./tmp/11.tatsu').open('rb') as f:
+        g11 = pickle.load(f)
+    draw('./tmp/13.png', g11)

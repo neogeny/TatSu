@@ -326,8 +326,7 @@ def main():
         )
 
         if args.draw:
-            from tatsu import diagrams
-
+            from . import diagrams
             diagrams.draw(outfile, model)
         else:
             if args.pretty:

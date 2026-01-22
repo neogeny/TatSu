@@ -41,14 +41,12 @@ dev = [
     "pip",
     "docutils",
     "colorama",
+    "graphviz",
     "hatch",
     "ipython",
     "mypy",
-    "networkx",
     "progress",
     "psutil",
-    "pydot",
-    "pygraphviz; sys_platform == 'darwin'",
     "pytest",
     "pytest-cov",
     "pytest-dependency",
@@ -72,12 +70,6 @@ Homepage = "https://github.com/neogeny/TatSu"
 Repository = "https://github.com/neogeny/TatSu"
 Documentation = "https://tatsu.readthedocs.io/en/stable/"
 Questions = "https://stackoverflow.com/questions/tagged/tatsu"
-
-[tool.uv.extra-build-variables.pygraphviz]
-marker = "sys_platform == 'darwin'"
-CFLAGS = "-I/opt/homebrew/include"
-LDFLAGS = "-L/opt/homebrew/lib"
-
 
 [tool.hatch.version]
 path = "tatsu/_version.py"

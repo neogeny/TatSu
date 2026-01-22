@@ -59,7 +59,6 @@ def test_codegen_parse():
     assert output == OUTPUT
 
 
-# @pytest.mark.skip('work in progress')
 def test_error_messages():
     grammar = """
         @@grammar :: ORDER
@@ -83,7 +82,6 @@ def test_error_messages():
         )
 
 
-# @pytest.mark.skip('work in progress')
 def test_name_checked():
     grammar = r"""
         @@grammar :: Test
