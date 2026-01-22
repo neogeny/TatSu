@@ -31,8 +31,8 @@ session.
 
 The only dependencies are on the `Python`_ standard library, yet the
 `regex`_ library will be used if installed, and `colorama`_ will be used
-on trace output if available. `pygraphviz`_ is required for generating
-diagrams.
+on trace output if available. `graphviz`_ is required for generating
+diagrams of the grammars.
 
 |TatSu| is feature-complete and currently being used with complex
 grammars to parse, analyze, and translate hundreds of thousands of lines

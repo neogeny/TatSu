@@ -78,7 +78,7 @@
 .. _make: https://www.gnu.org/software/make/manual/make.html
 .. _memoizing: http://en.wikipedia.org/wiki/Memoization
 .. _parsewkt: https://github.com/cleder/parsewkt
-.. _pygraphviz: https://pypi.python.org/pypi/pygraphviz
+.. _graphviz: https://pypi.python.org/pypi/graphviz
 .. _raw string literal: https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
 .. _re: https://docs.python.org/3.4/library/re.html
 .. _regex: https://pypi.python.org/pypi/regex

@@ -279,7 +279,6 @@ requires different licensing* please `email`_.
 .. _parsewkt: https://github.com/cleder/parsewkt
 .. _pauls: https://bitbucket.org/pauls
 .. _pgebhard: https://bitbucket.org/pgebhard
-.. _pygraphviz: https://pypi.python.org/pypi/pygraphviz
 .. _r\_speer: https://bitbucket.org/r_speer
 .. _raw string literal: https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
 .. _re: https://docs.python.org/3.7/library/re.html

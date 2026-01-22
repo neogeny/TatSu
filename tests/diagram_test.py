@@ -6,7 +6,7 @@ def test_dot():
         start = "foo\\nbar" $;
     """
     try:
-        from tatsu.pygraphviz_diagrams import draw
+        from tatsu.diagrams import draw
     except ImportError:
         return
 

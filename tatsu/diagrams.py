@@ -3,7 +3,7 @@ from __future__ import annotations
 import itertools
 from pathlib import Path
 
-import graphviz  # Replaced pygraphviz
+import graphviz
 
 from .walkers import NodeWalker
 
