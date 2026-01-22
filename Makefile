@@ -65,6 +65,7 @@ ty:
 clean:
 	find . -name "__pycache__" | xargs /bin/rm -rf
 	/bin/rm -rf tatsu.egg-info dist tmp build .tox
+	mkdir tmp
 
 
 checks: clean documentation
