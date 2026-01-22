@@ -130,7 +130,10 @@ retries = 0
 [tool.pytest.ini_options]
 # minversion = "6.0"
 #addopts = "-ra -q"
-addopts = "-q --ignore=.venv"
+log_cli = "true"
+log_cli_level = "ERROR"
+log_cli_format = "%(message)s"
+addopts = "-q --ignore=.venv -p no:logging"
 testpaths = [
     "tests",
 ]
