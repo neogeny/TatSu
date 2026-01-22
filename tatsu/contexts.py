@@ -464,7 +464,7 @@ class ParseContext:
             return
 
         msg %= params
-        # indent = ' ' * (len(self._rule_stack) - 3)
+        indent = C_DOT * (len(self._rule_stack) - 3)
         indent = ''
         info(indent, msg, file=sys.stderr)
 
