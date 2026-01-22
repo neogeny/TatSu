@@ -136,7 +136,7 @@ class DiagramNodeWalker(NodeWalker):
             return None
 
         s, t = vrules[0][0], vrules[-1][1]
-        return (s, t)
+        return s, t
 
     def walk_rule(self, r):
         self.push_graph(name=r.name)
@@ -146,7 +146,7 @@ class DiagramNodeWalker(NodeWalker):
             self.edge(s, i)
             t = self.end_node()
             self.edge(e, t)
-            return (s, t)
+            return s, t
         finally:
             self.pop_graph()
 
@@ -157,7 +157,7 @@ class DiagramNodeWalker(NodeWalker):
         self.zedge(ni, i)
         self.edge(ni, ne)
         self.zedge(e, ne)
-        return (ni, ne)
+        return ni, ne
 
     def walk_closure(self, r):
         # graphviz uses a dict for attributes in subgraphs
@@ -167,7 +167,7 @@ class DiagramNodeWalker(NodeWalker):
             ni = self.dot()
             self.edge(ni, i)
             self.edge(e, ni)
-            return (ni, ni)
+            return ni, ni
         finally:
             self.pop_graph()
 
@@ -179,7 +179,7 @@ class DiagramNodeWalker(NodeWalker):
         for i, e in vopt:
             self.edge(ni, i)
             self.edge(e, ne)
-        return (ni, ne)
+        return ni, ne
 
     def walk_sequence(self, s):
         vseq = [self.walk(x) for x in s.sequence if x is not None]
@@ -194,21 +194,21 @@ class DiagramNodeWalker(NodeWalker):
         for (_, e), (i, _) in itertools.pairwise(vseq):
             self.edge(e, i)
 
-        return (first, last)
+        return first, last
 
     # Simplified remaining walkers for brevity
     def walk_call(self, rr):
         n = self.ref_node(rr.name)
-        return (n, n)
+        return n, n
 
     def walk_pattern(self, p):
         n = self.tnode(p.pattern)
-        return (n, n)
+        return n, n
 
     def walk_token(self, t):
         n = self.tnode(t.token)
-        return (n, n)
+        return n, n
 
     def walk_eof(self, v):
         n = self.node('$EOF')
-        return (n, n)
+        return n, n
