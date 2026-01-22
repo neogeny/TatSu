@@ -3,7 +3,7 @@ from __future__ import annotations
 import json  # noqa: F401
 from typing import Any
 
-import pytest  # noqa: F401
+import pytest
 
 import tatsu
 from tatsu.objectmodel import Node
