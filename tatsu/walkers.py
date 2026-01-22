@@ -90,12 +90,13 @@ class NodeWalker(metaclass=NodeWalkerMeta):
                 bases: list[type] = [
                     b for b in node_cls.__bases__ if b not in class_stack
                 ]
-                class_stack = bases + class_stack
+                class_stack = [*bases, *class_stack]
 
         walker = (
             walker or
             get_callable(cls, '_walk__default') or
             get_callable(cls, '_walk_default') or
+            get_callable(cls, 'walk__default') or
             get_callable(cls, 'walk_default')
         )
 

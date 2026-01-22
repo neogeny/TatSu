@@ -133,7 +133,7 @@ class DiagramNodeWalker(NodeWalker):
     def rule_node(self, name, **attr):
         # Using the name as the ID for rules as per original logic
         return self.node(
-            name, id=name, shape='box', style='bold', **attr
+            name, id=name, shape='box', style='bold', **attr,
         )
 
     def end_node(self):
