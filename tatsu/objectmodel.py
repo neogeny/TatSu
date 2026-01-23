@@ -17,16 +17,24 @@ __all__ = ['BaseNode', 'Node']
 class BaseNode(AsJSONMixin):
     # NOTE: declare at the class level in case __init__ is not called
     ast: Any = None
+    parseinfo: ParseInfo | None = None
     __attributes: dict[str, Any] = {}  # noqa: RUF012
 
     def __init__(self, ast: Any = None, **kwargs: Any):
         super().__init__()
         self.ast: Any = ast
+        self.parseinfo: ParseInfo | None = None
         self.__attributes: dict[str, Any] = {}
 
-        # NOTE: the old objectmodel.Node would addd new attributes to self
+        if isinstance(ast, AST) and 'parseinfo' in ast:
+            self.parseinfo = ast['parseinfo']
+
+        # NOTE: the old objectmodel.Node would add new setattr(self, ...)
         allargs = ast | kwargs if isinstance(self.ast, AST) else kwargs
         self.__set_attributes(**allargs)
+
+    def set_parseinfo(self, value: ParseInfo | None) -> None:
+        self.parseinfo = value
 
     def __set_attributes(self, **attrs) -> None:
         for name, value in attrs.items():
@@ -83,19 +91,12 @@ class BaseNode(AsJSONMixin):
 class Node(BaseNode):
     # NOTE: declare at the class level in case __init__ is not called
     ctx: Any = None
-    parseinfo: ParseInfo | None = None
-
     __parent_ref: weakref.ref | None = None
 
     def __init__(self, ast: Any = None, ctx: Any = None, **kwargs: Any):
         super().__init__(ast=ast, **kwargs)
-        self.ast: Any = ast
         self.ctx: Any = ctx
-        self.parseinfo: ParseInfo | None = None
         self.__parent_ref: weakref.ref[Node] | None = None
-
-    def set_parseinfo(self, value: ParseInfo | None) -> None:
-        self.parseinfo = value
 
     @property
     def parent(self) -> Node | None:
