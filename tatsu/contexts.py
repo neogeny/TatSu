@@ -44,7 +44,6 @@ from .util import (
     safe_name,
     trim,
 )
-from .util.color import Color
 from .util.unicode_characters import (
     C_CUT,
     C_DOT,
@@ -57,7 +56,16 @@ from .util.unicode_characters import (
 __all__: list[str] = ['ParseContext', 'tatsumasu', 'leftrec', 'nomemo']
 
 
-C = Color()
+class EventColor(color.Color):
+    def __init__(self):
+        self.ENTRY = self.YELLOW + self.BRIGHT
+        self.SUCCESS = self.GREEN + self.BRIGHT
+        self.FAILURE = self.RED + self.BRIGHT
+        self.RECURSION = self.RED + self.BRIGHT
+        self.CUT = self.MAGENTA + self.BRIGHT
+
+
+C = EventColor()
 
 
 class MemoKey(NamedTuple):
@@ -198,6 +206,10 @@ class ParseContext:
     def _reset(self, config: ParserConfig) -> ParserConfig:
         if self.config.colorize:
             color.init()
+            global C
+            # new instance after color.init()
+            C = EventColor()
+
         self._initialize_caches()
         self._keywords: set[str] = set(config.keywords)
         self._semantics = config.semantics
@@ -478,7 +490,7 @@ class ParseContext:
 
         lookahead = self.tokenizer.lookahead().rstrip()
         if lookahead:
-            lookahead = '\n' + ' ' * (len(self._rule_stack) - 3) + lookahead
+            lookahead = '\n' + lookahead
 
         self._trace(
             '%s %s%s%s',
@@ -489,22 +501,22 @@ class ParseContext:
             )
 
     def _trace_entry(self) -> None:
-        self._trace_event(f'{C.YELLOW}{C.BRIGHT}{C_ENTRY}')
+        self._trace_event(f'{C.ENTRY}{C_ENTRY}')
 
     def _trace_success(self) -> None:
-        self._trace_event(f'{C.GREEN}{C.BRIGHT}{C_SUCCESS}')
+        self._trace_event(f'{C.SUCCESS}{C_SUCCESS}')
 
     def _trace_failure(self, ex: Exception | None = None) -> None:
         if isinstance(ex, FailedLeftRecursion):
             self._trace_recursion()
         else:
-            self._trace_event(f'{C.RED}{C.BRIGHT}{C_FAILURE}')
+            self._trace_event(f'{C.FAILURE}{C_FAILURE}')
 
     def _trace_recursion(self) -> None:
-        self._trace_event(f'{C.RED}{C.BRIGHT}{C_RECURSION}')
+        self._trace_event(f'{C.RECURSION}{C_RECURSION}')
 
     def _trace_cut(self) -> None:
-        self._trace_event(f'{C.MAGENTA}{C.BRIGHT}{C_CUT}')
+        self._trace_event(f'{C.CUT}{C_CUT}')
 
     def _trace_match(self, token: Any, name: str | None = None, failed: bool = False) -> None:
         if not self.config.trace:
