@@ -129,7 +129,7 @@ class Node(BaseNode):
 
     @property
     def path(self) -> tuple[Node, ...]:
-        ancestors: list[Node] = []
+        ancestors: list[Node] = [self]
         parent = self.parent
         while parent is not None:
             ancestors.append(parent)
