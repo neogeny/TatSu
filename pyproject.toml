@@ -185,6 +185,7 @@ ignore_errors = true
 [tool.hatch.envs.test]
 # non-lint packages included for the benefit of `ty`
 dependencies = [
+    "graphviz",
     "colorama",
     "psutil",
     "pytest",

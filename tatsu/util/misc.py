@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import re
+import shutil
 from collections import defaultdict
 from collections.abc import Iterable
 from functools import cache
@@ -137,5 +138,13 @@ def cached_re_compile(regex: re.Pattern | str | bytes) -> re.Pattern | None:
     return re.compile(regex) if isinstance(regex, (str | bytes)) else None
 
 
+def module_available(name):
+    return importlib.util.find_spec(name) is not None
+
+
 def module_missing(name):
-    return importlib.util.find_spec(name) is None
+    return not module_available(name)
+
+
+def platform_has_command(name) -> bool:
+    return shutil.which(name) is not None

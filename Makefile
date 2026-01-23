@@ -19,6 +19,7 @@ prepare:
 
 pytest: clean
 	mkdir -p ./tmp
+	touch ./tmp/__init__.py
 	uv run pytest -v tests/
 
 
@@ -74,7 +75,7 @@ clean:
 	/bin/rm -rf tatsu.egg-info dist tmp build .tox
 
 
-checks: clean documentation
+checks: clean
 	time uv run hatch run --force-continue test:checks
 	@echo version `uv run python -m tatsu --version`
 

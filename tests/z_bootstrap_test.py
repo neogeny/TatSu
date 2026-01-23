@@ -3,7 +3,6 @@ from __future__ import annotations
 import difflib
 import importlib
 import json
-import os
 import pickle
 import pprint
 import py_compile
@@ -13,14 +12,13 @@ from pathlib import Path
 
 import pytest
 
-from tatsu.diagrams import draw
+from tatsu import diagrams
 from tatsu.ngcodegen import codegen
 from tatsu.parser import EBNFParser, GrammarGenerator
 from tatsu.parser_semantics import EBNFGrammarSemantics
 from tatsu.semantics import ASTSemantics
 from tatsu.tool import to_python_sourcecode
 from tatsu.util import asjson
-from tatsu.util.misc import module_missing
 from tatsu.walkers import DepthFirstWalker
 
 tmp = Path('./tmp').resolve()
@@ -127,39 +125,35 @@ def test_07_import_generated_code():
     Path('./tmp/g07.py').write_text(gencode7)
     assert Path('./tmp/g07.py').is_file()
 
-    origin = Path().absolute()
-    try:
-        print('current', Path().absolute())
-        compiled_path = py_compile.compile('./tmp/g07.py', doraise=True)
-        if compiled_path is None:
-            pytest.fail('Could not compile module')
-        assert compiled_path is not None
-        compiled_path = Path(compiled_path)
-        print('compiled', compiled_path)
+    compiled_path = py_compile.compile('./tmp/g07.py', doraise=True)
+    if compiled_path is None:
+        pytest.fail('Could not compile module')
+    assert compiled_path is not None
+    compiled_path = Path(compiled_path)
+    print('COMPILED', compiled_path)
 
-        assert Path('./tmp/g07.py').is_file()
-        package_init = Path('./tmp/__init__.py')
-        package_init.touch()
-        assert package_init.is_file()
-        print('package_init', package_init)
+    tmpdir = Path('./tmp')
+    tmpdir.mkdir(parents=True, exist_ok=True)
+    assert tmpdir.is_dir()
+    Path('./tmp/__init__.py').touch()
+    Path('./tmp/__init__.pyc').touch()
+    print('CURRENT', Path.cwd())
+    importlib.invalidate_caches()
+    g07 = importlib.import_module('g07', package='tmp')
 
-        os.chdir(Path('./tmp'))
-        g07 = importlib.import_module('g07', package='tmp')
-        # g07 = __import__('g07')
-        assert g07
-        generated_parser = g07.TatSuParser
-        assert generated_parser
-    finally:
-        os.chdir(origin)
+    # g07 = __import__('g07')
+    assert g07
+    generated_parser = g07.TatSuParser
+    assert generated_parser
 
 
 @pytest.mark.dependency('test_07_import_generated_code')
 def test_08_compile_with_generated():
-    for item in os.environ.items():
-        print(item)
-
     print('-' * 20, 'phase 08 - compile using generated code')
-    g07 = importlib.import_module('g07')
+    Path('./tmp').mkdir(parents=True, exist_ok=True)
+    Path('./tmp/__init__.py').touch()
+    importlib.invalidate_caches()
+    g07 = importlib.import_module('g07', package='tmp')
     generated_parser = g07.TatSuParser
     assert generated_parser
 
@@ -253,9 +247,9 @@ def test_12_walker():
 
 
 @pytest.mark.dependency('test_12_walker')
-@pytest.mark.skipif(module_missing('graphviz'), reason='graphviz is not available')
+@pytest.mark.skipif(not diagrams.available(), reason='graphviz is not available')
 def test_13_graphics():
     print('-' * 20, 'phase 13 - Graphics')
     with Path('./tmp/11.tatsu').open('rb') as f:
         g11 = pickle.load(f)
-    draw('./tmp/13.png', g11)
+    diagrams.draw('./tmp/13.png', g11)
