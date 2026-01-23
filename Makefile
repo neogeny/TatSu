@@ -7,11 +7,14 @@ else
 endif
 
 
-test:  lint pytest documentation examples
+test:  prepare lint pytest documentation examples build requirements
+
+
+prepare:
+	uv sync -q
 
 
 pytest: clean
-	echo `uv run which pytest`
 	mkdir -p ./tmp
 	uv run pytest -v tests/
 
@@ -63,7 +66,7 @@ ty:
 	@- uv run ty check --exclude parsers --exclude backups
 
 
-clean: requirements
+clean:
 	find . -name "__pycache__" | xargs /bin/rm -rf
 	/bin/rm -rf tatsu.egg-info dist tmp build .tox
 
@@ -77,6 +80,10 @@ build: clean
 	uvx hatch build
 
 
+requirements:
+	uv export -q --format requirements-txt > requirements.txt
+
+
 need_gh:
 	@- uv tool install -q gh
 	@- gh --version | head -n 1
@@ -85,11 +92,6 @@ need_gh:
 test_publish: need_gh build
 	gh workflow run test_publish.yml
 	@- gh run list --workflow="test_publish.yml"
-
-
-requirements:
-	uv sync
-	uv export --format requirements-txt > requirements.txt
 
 
 publish: need_gh checks build
