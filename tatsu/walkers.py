@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable
 from contextlib import contextmanager
 from typing import Any, ClassVar, Concatenate
 
@@ -27,24 +27,22 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         return self._walker_cache
 
     def walk(self, node: Any, *args, **kwargs) -> Any:
-        if isinstance(node, Mapping):
-            return {
+        if isinstance(node, dict):
+            return type(node)({
                 name: self.walk(value, *args, **kwargs)
                 for name, value in node.items()
-            }
+                if value != node
+            })
         elif isinstance(node, list | tuple | set):
             return type(node)(
                 self.walk(n, *args, **kwargs)
                 for n in node
                 if n != node
             )
-
-        walker = self._find_walker(node)
-        if callable(walker):
-            result = walker(self, node, *args, **kwargs)
+        elif (walker := self._find_walker(node)) and callable(walker):
+            return walker(self, node, *args, **kwargs)  # walkers are unbound, provide self
         else:
-            result = node
-        return result
+            return node
 
     def walk_children(self, node: Any, *args, **kwargs) -> Iterable[Any]:
         children = node.children()
