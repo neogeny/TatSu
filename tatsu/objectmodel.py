@@ -17,10 +17,34 @@ __all__ = ['BaseNode', 'Node']
 class BaseNode(AsJSONMixin):
     # NOTE: declare at the class level in case __init__ is not called
     ast: Any = None
+    _attributes: dict[str, Any] = {}  # noqa: RUF012
 
-    def __init__(self, ast: Any = None):
+    def __init__(self, ast: Any = None, **kwargs: Any):
         super().__init__()
         self.ast: Any = ast
+        self._attributes: dict[str, Any] = {}
+
+        # NOTE: the old objectmodel.Node would addd new attributes to self
+        allargs = ast | kwargs if isinstance(self.ast, AST) else kwargs
+        for name, value in allargs.items():
+            if hasattr(self, name) and not inspect.ismethod(getattr(self, name)):
+                setattr(self, name, value)
+            else:
+                if hasattr(self, name):
+                    warnings.warn(
+                        f'"{name}" in keyword arguments will shadow'
+                        f' {type(self).__name__}.{name}',
+                        stacklevel=2,
+                    )
+                self._attributes[name] = value
+
+    def __getattr__(self, name: str) -> Any:
+        # note: here only if normal attribute search failed
+        try:
+            assert isinstance(self._attributes, dict)
+            return self._attributes[name]
+        except KeyError:
+            return super().__getattribute__(name)
 
     def __str__(self) -> str:
         return asjsons(self)
@@ -71,38 +95,14 @@ class Node(BaseNode):
     ctx: Any = None
     parseinfo: ParseInfo | None = None
 
-    _attributes: dict[str, Any] = {}  # noqa: RUF012
     _parent_ref: weakref.ref | None = None
 
     def __init__(self, ast: Any = None, ctx: Any = None, **kwargs: Any):
-        super().__init__(ast=ast)
+        super().__init__(ast=ast, **kwargs)
         self.ast: Any = ast
         self.ctx: Any = ctx
         self.parseinfo: ParseInfo | None = None
-        self._attributes: dict[str, Any] = {}
         self._parent_ref: weakref.ref[Node] | None = None
-
-        # NOTE: the old objectmodel.Node would addd new attributes to self
-        allargs = ast | kwargs if isinstance(self.ast, AST) else kwargs
-        for name, value in allargs.items():
-            if hasattr(self, name) and not inspect.ismethod(getattr(self, name)):
-                setattr(self, name, value)
-            else:
-                if hasattr(self, name):
-                    warnings.warn(
-                        f'"{name}" in keyword arguments will shadow'
-                        f' {type(self).__name__}.{name}',
-                        stacklevel=2,
-                    )
-                self._attributes[name] = value
-
-    def __getattr__(self, name: str) -> Any:
-        # note: here only if normal attribute search faile:
-        try:
-            assert isinstance(self._attributes, dict)
-            return self._attributes[name]
-        except KeyError:
-            return super().__getattribute__(name)
 
     def set_parseinfo(self, value: ParseInfo | None) -> None:
         self.parseinfo = value
