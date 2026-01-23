@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import deque
 from collections.abc import Callable, Iterable
 from contextlib import contextmanager
 from typing import Any, ClassVar, Concatenate
@@ -44,12 +45,16 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         else:
             return node
 
-    def walk_children(self, node: Any, *args, **kwargs) -> Iterable[Any]:
-        children = node.children()
-        return [
+    def children_of(self, node: Any) -> Iterable[Any]:
+        if not hasattr(node, 'children') or not callable(node.children):
+            return ()
+        return node.children()
+
+    def walk_children(self, node: Any, *args, **kwargs) -> tuple[Any, ...]:
+        return tuple(
             self.walk(child, *args, **kwargs)
-            for child in children
-        ]
+            for child in self.children_of(node)
+        )
 
     # note: backwards compatibility
     _walk_children = walk_children
@@ -103,13 +108,45 @@ class NodeWalker(metaclass=NodeWalkerMeta):
         return walker
 
 
-class PreOrderWalker(NodeWalker):
-    # FIXME: this doesn't look correct
-    def walk(self, node: Any, *args, **kwargs) -> Any:
-        result = super().walk(node, *args, **kwargs)
-        if result is not None:
-            self.walk_children(node, *args, **kwargs)
-        return result
+class BreadthFirstWalker(NodeWalker):
+    """
+    A generator-based Breadth-First Search traversal.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.queue: deque[Any] | None = None
+
+    def walk(self, node: Any, *args, **kwargs) -> tuple[Any, ...]:
+        """Flattens the bfs_walk generator into a tuple of results."""
+        return tuple(self.walk_breadthfirst(node, *args, **kwargs))
+
+    def walk_breadthfirst(self, node: Any, *args, **kwargs) -> Iterable[Any]:
+        if self.queue is not None:
+            raise RuntimeError(
+                f'{type(self).__name__}.walk_breadthfirst() called recursively',
+            )
+
+        self.queue = deque([node])
+        try:
+            while self.queue:
+                nd = self.queue.popleft()
+                yield super().walk(nd, *args, **kwargs)
+                self.queue.extend(self.children_of(nd))
+        finally:
+            self.queue = None
+
+    def walk_children(self, node: Any, *args, **kwargs) -> Any:
+        """
+        An error during a BFS walk
+        """
+        raise RuntimeError(
+            f'{type(self).__name__}.walk_children() is not allowed in BFS mode',
+        )
+
+
+# note: for backwars compatibility
+PreOrderWalker = BreadthFirstWalker
 
 
 class DepthFirstWalker(NodeWalker):
