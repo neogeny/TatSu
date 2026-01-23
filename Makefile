@@ -77,7 +77,6 @@ clean:
 
 checks: clean
 	time uv run hatch run --force-continue test:checks
-	@echo version `uv run python -m tatsu --version`
 
 
 build: clean

@@ -158,7 +158,7 @@ def parse_args():
         '-V',
         help='provide version information and exit',
         action='version',
-        version=__version__,
+        version=f'TatSu {__version__}',
     )
 
     args = argparser.parse_args()
