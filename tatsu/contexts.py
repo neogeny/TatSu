@@ -170,8 +170,8 @@ class ParseContext:
         self._initialize_caches()
 
     def _initialize_caches(self) -> None:
-        self._statestack: list[ParseState] = [ParseState()]
-        self._rule_stack: list[RuleInfo] = []
+        self._state_stack: list[ParseState] = [ParseState()]
+        self._ruleinfo_stack: list[RuleInfo] = []
         self._cut_stack: list[bool] = [False]
 
         self._last_node: Any = None
@@ -297,7 +297,7 @@ class ParseContext:
 
     @property
     def state(self) -> ParseState:
-        return self._statestack[-1]
+        return self._state_stack[-1]
 
     @property
     def ast(self) -> AST:
@@ -340,17 +340,17 @@ class ParseContext:
     def _push_ast(self, copyast: bool = False) -> None:
         ast = copy(self.ast) if copyast else AST()
         self.state.pos = self._pos
-        self._statestack.append(ParseState(ast=ast, pos=self._pos))
+        self._state_stack.append(ParseState(ast=ast, pos=self._pos))
 
     def _pop_ast(self) -> None:
-        self._statestack.pop()
+        self._state_stack.pop()
         self.tokenizer.goto(self.state.pos)
 
     def _merge_ast(self) -> None:
         pos = self._pos
         ast = self.ast
         cst = self.cst
-        self._statestack.pop()
+        self._state_stack.pop()
         self.ast = ast
         self._extend_cst(cst)
         self.tokenizer.goto(pos)
@@ -364,11 +364,11 @@ class ParseContext:
         self.state.cst = value
 
     def _push_cst(self) -> None:
-        self._statestack.append(ParseState(ast=self.ast))
+        self._state_stack.append(ParseState(ast=self.ast))
 
     def _pop_cst(self) -> None:
         ast = self.ast
-        self._statestack.pop()
+        self._state_stack.pop()
         self.ast = ast
 
     def _merge_cst(self, extend: bool = True) -> Any:
@@ -440,7 +440,7 @@ class ParseContext:
         )
 
     def _rulestack(self) -> str:
-        rulestack = [r.name for r in reversed(self._rule_stack)]
+        rulestack = [r.name for r in reversed(self._ruleinfo_stack)]
         stack = self.config.trace_separator.join(rulestack)
         if max((len(s) for s in stack.splitlines()), default=0) > self.config.trace_length:
             stack = stack[:self.config.trace_length]
@@ -544,7 +544,7 @@ class ParseContext:
         if issubclass(exclass, FailedLeftRecursion):
             rulestack: list[str] = []
         else:
-            rulestack = [r.name for r in reversed(self._rule_stack)]
+            rulestack = [r.name for r in reversed(self._ruleinfo_stack)]
         return exclass(self.tokenizer, rulestack, item)
 
     def _error(self, item: Any, exclass: type[FailedParse] = FailedParse) -> NoReturn:
@@ -567,7 +567,7 @@ class ParseContext:
 
     @property
     def ruleinfo(self) -> RuleInfo:
-        return self._rule_stack[-1]
+        return self._ruleinfo_stack[-1]
 
     def memokey(self) -> MemoKey:
         return MemoKey(self._pos, self.ruleinfo, self.substate)
@@ -589,7 +589,7 @@ class ParseContext:
         self._memoize(key, ex)
 
     def _call(self, ruleinfo: RuleInfo) -> Any:
-        self._rule_stack += [ruleinfo]
+        self._ruleinfo_stack += [ruleinfo]
         pos = self._pos
         try:
             self._trace_entry()
@@ -612,7 +612,7 @@ class ParseContext:
             self._trace_failure(e)
             raise
         finally:
-            self._rule_stack.pop()
+            self._ruleinfo_stack.pop()
 
     def _clear_recursion_errors(self) -> None:
         def filter_func(key: MemoKey, value: Any) -> bool:
@@ -621,7 +621,7 @@ class ParseContext:
         prune_dict(self._memos, filter_func)
 
     def _found_left_recursion(self, ruleinfo: RuleInfo) -> bool:
-        return any(ri.name == ruleinfo.name for ri in self._rule_stack)
+        return any(ri.name == ruleinfo.name for ri in self._ruleinfo_stack)
 
     def _recursive_call(self, ruleinfo: RuleInfo) -> RuleResult:
         self._next_token(ruleinfo)
