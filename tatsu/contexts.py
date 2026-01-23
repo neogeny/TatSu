@@ -4,7 +4,6 @@ import ast as stdlib_ast
 import dataclasses
 import functools
 import inspect
-import sys
 from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager, suppress
 from copy import copy
@@ -46,7 +45,6 @@ from .util import (
 )
 from .util.unicode_characters import (
     C_CUT,
-    C_DOT,
     C_ENTRY,
     C_FAILURE,
     C_RECURSION,
@@ -206,7 +204,7 @@ class ParseContext:
     def _reset(self, config: ParserConfig) -> ParserConfig:
         if self.config.colorize:
             color.init()
-            global C
+            global C  # noqa: PLW0603
             # new instance after color.init()
             C = EventColor()
 
@@ -471,14 +469,11 @@ class ParseContext:
 
         return action, postproc
 
-    def _trace(self, msg: str, *params: Any, **kwargs: Any) -> None:
+    def _trace(self, msg: str, *args: Any, **kwargs: Any) -> None:
         if not self.config.trace:
             return
 
-        msg %= params
-        indent = C_DOT * (len(self._rule_stack) - 3)
-        indent = ''
-        info(indent, msg, file=sys.stderr)
+        info(msg, *args, **kwargs)
 
     def _trace_event(self, event: str) -> None:
         if not self.config.trace:
@@ -486,19 +481,20 @@ class ParseContext:
 
         fname = ''
         if self.config.trace_filename:
-            fname = self.tokenizer.line_info().filename + '\n'
+            fname = self.tokenizer.line_info().filename
+        if fname:
+            fname += '\n'
 
         lookahead = self.tokenizer.lookahead().rstrip()
-        if lookahead:
-            lookahead = '\n' + lookahead
+        lookahead = '\n' + lookahead if lookahead else ''
 
-        self._trace(
-            '%s %s%s%s',
-            event + self._rulestack(),
-            self._tokenizer.lookahead_pos(),
-            f'{C.DIM}{fname}',
-            f'{C.RESET_ALL}{lookahead}{C.RESET_ALL}',
-            )
+        message = (
+            f'{event}{self._rulestack()}'
+            f' {C.DIM}{fname}'
+            f'{self._tokenizer.lookahead_pos()}{C.RESET}'
+            f'{C.RESET_ALL}{lookahead}{C.RESET_ALL}'
+        )
+        self._trace(message)
 
     def _trace_entry(self) -> None:
         self._trace_event(f'{C.ENTRY}{C_ENTRY}')
@@ -522,27 +518,27 @@ class ParseContext:
         if not self.config.trace:
             return
 
-        fname = ''
+        name_str = f'/{name}/' if name else ''
         if self.config.trace_filename:
             fname = self._tokenizer.line_info().filename + '\n'
-        name_str = f'/{name}/' if name else ''
-
-        if not failed:
-            fgcolor = f'{C.GREEN}{C_SUCCESS}'
         else:
-            fgcolor = f'{C.RED}{C_FAILURE}'
+            fname = ''
+
+        if failed:
+            mark = f'{C.FAILURE}{C_FAILURE}'
+        else:
+            mark = f'{C.SUCCESS}{C_SUCCESS}'
 
         lookahead = self._tokenizer.lookahead().rstrip()
-        if lookahead:
-            lookahead = '\n' + ' ' * (len(self._rule_stack) - 3) + lookahead
+        lookahead = '\n' + lookahead if lookahead else lookahead
 
-        self._trace(
-            f'{C.BRIGHT}{fgcolor}' + "'%s' %s%s%s",
-            token,
-            name_str,
-            f'{C.DIM}{fname}',
-            f'{C.RESET_ALL}{lookahead}{C.RESET_ALL}',
-            )
+        message = (
+            f'{mark}'
+            f"'{token}{name_str}"
+            f'{C.DIM}{fname}'
+            f'{C.RESET_ALL}{lookahead}{C.RESET_ALL}'
+        )
+        self._trace(message)
 
     def _make_exception(self, item: Any, exclass: type[FailedParse] = FailedParse) -> FailedParse:
         if issubclass(exclass, FailedLeftRecursion):

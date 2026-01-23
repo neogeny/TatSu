@@ -7,7 +7,10 @@ else
 endif
 
 
-test:  prepare lint pytest documentation examples build requirements
+all:  prepare test build requirements
+
+
+test:  prepare lint pytest documentation examples
 
 
 prepare:

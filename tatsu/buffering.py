@@ -401,7 +401,7 @@ class Buffer(Tokenizer):
         if self.atend():
             return ''
         info = self.line_info()
-        return '~%d:%d' % (info.line + 1, info.col + 1)
+        return '@%d:%d' % (info.line + 1, info.col + 1)
 
     def lookahead(self) -> str:
         if self.atend():
