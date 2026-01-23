@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import importlib
 import itertools
 from pathlib import Path
 
+from .util import misc
 from .walkers import NodeWalker
 
 __all__ = ['draw']
@@ -46,6 +48,10 @@ __all__ = ['draw']
 # none            No shape and no label space
 
 
+def available() -> bool:
+    return misc.module_available('graphviz') and misc.platform_has_command('dot')
+
+
 def draw(filename, grammar):
     traverser = DiagramNodeWalker()
     traverser.walk(grammar)
@@ -62,8 +68,7 @@ class DiagramNodeWalker(NodeWalker):
         # polyline Straight segments that can change direction at internal points.
         # ortho    All lines are strictly horizontal or vertical (manhattan routing).
         # curved   Smooth Bezier curves (default behavior for splines=true).
-        import graphviz
-        self.graphviz = graphviz
+        self.graphviz = importlib.import_module('graphviz')
 
         self.top_graph = self.graphviz.Digraph(
             engine='dot',
