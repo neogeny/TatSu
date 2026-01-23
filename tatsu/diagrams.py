@@ -3,8 +3,6 @@ from __future__ import annotations
 import itertools
 from pathlib import Path
 
-import graphviz
-
 from .walkers import NodeWalker
 
 __all__ = ['draw']
@@ -64,7 +62,10 @@ class DiagramNodeWalker(NodeWalker):
         # polyline Straight segments that can change direction at internal points.
         # ortho    All lines are strictly horizontal or vertical (manhattan routing).
         # curved   Smooth Bezier curves (default behavior for splines=true).
-        self.top_graph = graphviz.Digraph(
+        import graphviz
+        self.graphviz = graphviz
+
+        self.top_graph = self.graphviz.Digraph(
             engine='dot',
             graph_attr={
                 'rankdir': 'LR',
@@ -100,7 +101,7 @@ class DiagramNodeWalker(NodeWalker):
 
         # In graphviz, subgraphs are created as new objects
         attr['style'] = 'invis'
-        new_subgraph = graphviz.Digraph(name=name, graph_attr=attr)
+        new_subgraph = self.graphviz.Digraph(name=name, graph_attr=attr)
         self.stack.append(new_subgraph)
         return new_subgraph
 

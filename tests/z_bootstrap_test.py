@@ -20,6 +20,7 @@ from tatsu.parser_semantics import EBNFGrammarSemantics
 from tatsu.semantics import ASTSemantics
 from tatsu.tool import to_python_sourcecode
 from tatsu.util import asjson
+from tatsu.util.misc import module_missing
 from tatsu.walkers import DepthFirstWalker
 
 tmp = Path('./tmp').resolve()
@@ -252,6 +253,7 @@ def test_12_walker():
 
 
 @pytest.mark.dependency('test_12_walker')
+@pytest.mark.skipif(module_missing('graphviz'), reason='graphviz is not available')
 def test_13_graphics():
     print('-' * 20, 'phase 13 - Graphics')
     with Path('./tmp/11.tatsu').open('rb') as f:

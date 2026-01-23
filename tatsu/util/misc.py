@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import re
 from collections import defaultdict
 from collections.abc import Iterable
@@ -134,3 +135,7 @@ def cached_re_compile(regex: re.Pattern | str | bytes) -> re.Pattern | None:
     if isinstance(regex, re.Pattern):
         return regex
     return re.compile(regex) if isinstance(regex, (str | bytes)) else None
+
+
+def module_missing(name):
+    return importlib.util.find_spec(name) is None
