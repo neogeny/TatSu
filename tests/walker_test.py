@@ -2,7 +2,11 @@ from collections import defaultdict
 
 import tatsu
 from tatsu.util import asjsons
-from tatsu.walkers import BreadthFirstWalker, DepthFirstWalker, NodeWalker
+from tatsu.walkers import (
+    BreadthFirstWalker,
+    DepthFirstWalker,
+    NodeWalker,
+)
 
 
 def test_walk_node_ast():
@@ -19,7 +23,7 @@ def test_walk_node_ast():
         temporal_expression =    temporal_atom;
         temporal_atom(TemporalSeq) = ['Seq'] '(' @:temporal_arg_list ')';
         temporal_arg_list = "," .{@+:expression}+;
-        nontemporal_expression =  number ;
+        nontemporal_expression(Number) =  number ;
 
         # tokens
         number::int = /\d+/;
@@ -39,14 +43,26 @@ def test_walk_node_ast():
 
     print(asjsons(model))
     PW().walk(model)
-    assert dict(seen) == {'SampleExpression': 2, 'TemporalSeq': 1}
+    assert dict(seen) == {'SampleExpression': 2, 'TemporalSeq': 1, 'Number': 2}
 
     walker = BreadthFirstWalker()
-    bfs_result = tuple(type(n).__name__ for n in walker.walk(model))
-    assert bfs_result == (
+    result = tuple(type(n).__name__ for n in walker.walk(model))
+    assert result == (
         'TemporalSeq',
         'SampleExpression',
         'SampleExpression',
+        'Number',
+        'Number',
+    )
+
+    walker = DepthFirstWalker()
+    result = tuple(type(n).__name__ for n in walker.walk(model))
+    assert result == (
+        'TemporalSeq',
+        'SampleExpression',
+        'Number',
+        'SampleExpression',
+        'Number',
     )
 
 

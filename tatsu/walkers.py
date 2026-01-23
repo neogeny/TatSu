@@ -5,7 +5,6 @@ from collections.abc import Callable, Iterable
 from contextlib import contextmanager
 from typing import Any, ClassVar, Concatenate
 
-from .objectmodel import Node
 from .util import pythonize_name
 
 type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
@@ -27,6 +26,9 @@ class NodeWalker(metaclass=NodeWalkerMeta):
     def walker_cache(self):
         return self._walker_cache
 
+    # warning:
+    #  in general: do not override this mehod
+    #  instead: define walk_xyz() methods
     def walk(self, node: Any, *args, **kwargs) -> Any:
         if isinstance(node, dict):
             return type(node)({
@@ -41,7 +43,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
                 if n != node
             )
         elif (walker := self._find_walker(node)) and callable(walker):
-            return walker(self, node, *args, **kwargs)  # walkers are unbound, provide self
+            return walker(self, node, *args, **kwargs)  # walkers are unbound, define self
         else:
             return node
 
@@ -117,6 +119,9 @@ class BreadthFirstWalker(NodeWalker):
         super().__init__()
         self.queue: deque[Any] | None = None
 
+    # warning:
+    #  in general: do not override this mehod
+    #  instead: define walk_xyz() methods
     def walk(self, node: Any, *args, **kwargs) -> tuple[Any, ...]:
         """Flattens the bfs_walk generator into a tuple of results."""
         return tuple(self.walk_breadthfirst(node, *args, **kwargs))
@@ -150,13 +155,16 @@ PreOrderWalker = BreadthFirstWalker
 
 
 class DepthFirstWalker(NodeWalker):
-    def walk(self, node, *args, **kwargs):
-        if isinstance(node, Node):
-            result = super().walk(node, *args, **kwargs)
-            self.walk_children(node, *args, **kwargs)
-            return result
-        else:
-            return super().walk(node, [], *args, **kwargs)
+    # warning:
+    #  in general: do not override this mehod
+    #  instead: define walk_xyz() methods
+    def walk(self, node, *args, **kwargs) -> tuple[Any, ...]:
+        return tuple(self.walk_depthfirst(node, *args, **kwargs))
+
+    def walk_depthfirst(self, node, *args, **kwargs) -> Iterable[Any]:
+        yield super().walk(node, *args, **kwargs)
+        for child in self.children_of(node):
+            yield from self.walk_depthfirst(child)
 
 
 class ContextWalker(NodeWalker):
