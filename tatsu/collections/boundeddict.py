@@ -20,14 +20,26 @@ class BoundedDict[KT, VT](dict[KT, VT]):
 
     # The base update() doesn't always call __setitem__,
     # so we override it to ensure limits are respected.
-    def update(self, other, /, **kwargs):  # type: ignore
-        super().update(other, **kwargs)
+    def update(self, *args, **kwargs) -> None:
+        """
+        Use dict.update(), then reinsert keys so ordering and eviction
+        behave consistently with self.__setitem__.
+        """
+        incoming = dict(*args, **kwargs)
+
+        # Fast C-level update
+        super().update(incoming)
+
+        # copilot:
+        #   Reinsert keys so self.__setitem__ semantics are applied
+        for k, v in incoming.items():
+            super().__delitem__(k)  # the above call to update() ensures k exists
+            super().__setitem__(k, v)
+
         self._enforce_limit()
 
     def _enforce_limit(self):
         while len(self) > self.capacity:
-            # iter(self) returns keys in insertion order.
-            # next() gets the first (oldest) key.
             oldest_key = next(iter(self))
             del self[oldest_key]
 
