@@ -37,7 +37,7 @@ class DiagramNodeWalker(NodeWalker):
 
     def draw(self, filename):
         self.graph.layout(prog='dot')
-        # WARNING: neato generated graphics hang my GPU
+        # CAVEAT: neato generated graphics hang my GPU
         # self.graph.layout(prog='neato')
         self.graph.draw(filename)
 

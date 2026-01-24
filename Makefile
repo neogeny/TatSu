@@ -98,6 +98,6 @@ test_publish: need_gh build
 
 
 publish: need_gh checks build
-	# WARNING: now Trusted Publishers is enabled on PyPy
+	# CAVEAT: Trusted Publishers are now enabled in pypi.org
 	gh workflow run publish.yml
 	@- gh run list --workflow="publish.yml"

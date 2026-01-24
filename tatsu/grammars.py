@@ -229,7 +229,7 @@ class Decorator(Model):
             # Patch to avoid bad interactions with attribute setting in Node.
             # Also a shortcut for subexpressions that are not ASTs.
             self.exp = ast
-            ast = AST(exp=ast)  # FIXME: this relies on Node setting attributes from ast
+            ast = AST(exp=ast)
         elif isinstance(ast, AST):
             self.exp = cast(Model, ast.get('exp', self.exp))
         super().__init__(ast=ast)

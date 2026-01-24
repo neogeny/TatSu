@@ -26,7 +26,7 @@ class NodeWalker(metaclass=NodeWalkerMeta):
     def walker_cache(self):
         return self._walker_cache
 
-    # warning:
+    # CAVEAT:
     #  in general: do not override this mehod
     #  instead: define walk_xyz() methods
     def walk(self, node: Any, *args, **kwargs) -> Any:
@@ -119,7 +119,7 @@ class BreadthFirstWalker(NodeWalker):
         super().__init__()
         self.queue: deque[Any] | None = None
 
-    # warning:
+    # CAVEAT:
     #  in general: do not override this mehod
     #  instead: define walk_xyz() methods
     def walk(self, node: Any, *args, **kwargs) -> tuple[Any, ...]:
@@ -155,7 +155,7 @@ PreOrderWalker = BreadthFirstWalker
 
 
 class DepthFirstWalker(NodeWalker):
-    # warning:
+    # CAVEAT:
     #  in general: do not override this mehod
     #  instead: define walk_xyz() methods
     def walk(self, node, *args, **kwargs) -> tuple[Any, ...]:

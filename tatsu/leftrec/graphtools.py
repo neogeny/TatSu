@@ -94,7 +94,7 @@ class GrammarAnalysis:
 
         return sccs
 
-    # WARNING: this does not work in all leftrec cases
+    # CAVEAT: this does not work in all leftrec cases
     def find_leaders_in_scc(self, scc: SCC) -> set[RuleName]:
         leaders = set(scc)
         for start in scc:
