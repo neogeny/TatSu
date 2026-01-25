@@ -15,6 +15,13 @@ class SecurityError(RuntimeError):
     pass
 
 
+class Undefined:
+    pass
+
+
+_undefined = Undefined()
+
+
 def hashable(obj: Any) -> bool:
     try:
         hash(obj)
@@ -29,7 +36,10 @@ def safe_builtins() -> dict[str, Any]:
     return {
         name: value
         for name, value in vars(builtins).items()
-        if not name.startswith('_')
+        if (
+            not name.startswith('_') and
+            (not isinstance(value, type) or not issubclass(value, BaseException))
+        )
     }
 
 
@@ -48,11 +58,11 @@ def make_dict_hashable(pairs: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
 
 
 @lru_cache(maxsize=1024)
-def parse_expression(expression: str) -> ast.AST | None:
+def parse_expression(expression: str) -> ast.AST | Undefined:
     try:
         return ast.parse(expression, mode='eval')
     except (ValueError, SyntaxError):
-        return None
+        return _undefined
 
 
 def is_eval_safe(expression: str, context: dict[str, Any]) -> bool:
@@ -97,7 +107,7 @@ def _check_eval_safe_cached(expression: str, context_items: tuple[tuple[str, Any
     check_eval_context(context)
     allowed_names = set(context.keys())
 
-    if (tree := parse_expression(expression)) is None:
+    if isinstance(tree := parse_expression(expression), Undefined):
         raise SecurityError(f"Invalid expression syntax: {expression!r}")
 
     for node in ast.walk(tree):
