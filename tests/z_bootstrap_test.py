@@ -168,7 +168,7 @@ def test_08_compile_with_generated():
     pprint.pprint(
         list(
             difflib.unified_diff(ast0.splitlines(), ast8.splitlines()),
-        )
+        ),
     )
     assert ast0 == ast8
 
