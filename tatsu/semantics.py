@@ -73,6 +73,9 @@ class ModelBuilderSemantics:
         self.constructors: MutableMapping[str, Callable] = {}
 
         for t in types or ():
+            if not callable(t):
+                raise TypeError(f'Expected callable in types, got: {type(t)!r}')
+            # note: allow standalone functions
             self._register_constructor(t)
 
     def _register_constructor(self, constructor: Callable) -> Callable:
