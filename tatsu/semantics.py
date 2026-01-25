@@ -3,7 +3,7 @@ from __future__ import annotations
 import builtins
 import inspect
 import keyword
-from collections.abc import Callable, Iterable, Mapping, MutableMapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -40,7 +40,12 @@ class ActualParameters:
         self.has_kwargs = True
 
 
-class ASTSemantics:
+class AbstractSemantics:
+    def safe_context(self) -> Mapping[str, Any]:
+        return vars(builtins)
+
+
+class ASTSemantics(AbstractSemantics):
     def group(self, ast: Any, *args) -> Any:
         return simplify_list(ast)
 
@@ -56,7 +61,7 @@ class ASTSemantics:
         return ast
 
 
-class ModelBuilderSemantics:
+class ModelBuilderSemantics(AbstractSemantics):
     """Intended as a semantic action for parsing, a ModelBuilderSemantics creates
     nodes using the class name given as first parameter to a grammar
     rule, and synthesizes the class/type if it's not known.
@@ -70,13 +75,25 @@ class ModelBuilderSemantics:
         self.ctx = context
         self.base_type = base_type
 
-        self.constructors: MutableMapping[str, Callable] = {}
+        self.constructors: dict[str, Callable] = {}
 
         for t in types or ():
             if not callable(t):
                 raise TypeError(f'Expected callable in types, got: {type(t)!r}')
+            if not hasattr(t, '__name__'):
+                raise TypeError(f'Expected __name__ in callable, got: {t!r}')
             # note: allow standalone functions
             self._register_constructor(t)
+
+    def safe_context(self) -> Mapping[str, Any]:
+        return {
+            name: value
+            for name, value in (
+                # vars(builtins) | registered_synthetics() | self.constructors
+                self.constructors
+            ).items()
+            if callable(value) and not name.startswith('_')
+        }
 
     def _register_constructor(self, constructor: Callable) -> Callable:
         if hasattr(constructor, '__name__') and isinstance(constructor.__name__, str):
