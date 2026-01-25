@@ -79,7 +79,7 @@ The class ``tatsu.walkers.NodeWalker`` allows for the easy traversal
 
 .. code:: python
 
-    from tatsu.model import NodeWalker
+    from tatsu.walkers import NodeWalker
 
     class MyNodeWalker(NodeWalker):
 
