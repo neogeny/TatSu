@@ -128,6 +128,16 @@ html_context = {
 # further.  For a list of options available for each theme, see the
 # documentation.
 # html_theme_options = {}
+html_theme_options = {
+    # Controls how deep the sidebar navigation goes
+    'navigation_depth': 5,
+
+    # If True, the sidebar will only show document titles, not subheadings
+    'titles_only': False,
+
+    # If True, headings will collapse as you navigate
+    'collapse_navigation': True,
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # Add path to the RTD explicitly to robustify builds (otherwise might
@@ -140,11 +150,11 @@ html_theme_path = []
 #
 # html_theme_options = {}
 html_theme_options = {
-    # "logo": {
-    #     "text": "My Project Name",
-    #     "image_light": "_static/logo-light.svg",
-    #     "image_dark": "_static/logo-dark.svg",
-    # },
+    "logo": {
+        "text": "TatSu",
+        "image_light": "_static/tatsu_logo.svg",
+        "image_dark": "_static/tatsu_logo.svg",
+    },
     "icon_links": [
         {
             "name": "GitHub",

@@ -35,7 +35,7 @@ input, much like the `re`_ module does with regular expressions, or it can gener
 |TatSu| supports `left-recursive`_  rules in PEG_ grammars, and it honors *left-associativity* in the resulting parse trees.
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 4
 
     intro
     rationale
