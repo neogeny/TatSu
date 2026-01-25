@@ -739,7 +739,7 @@ class ParseContext:
         result = unknown
         with suppress(ValueError, SyntaxError):
             result = stdlib_ast.literal_eval(literal.strip())
-            assert result is None
+            assert result is not unknown
 
         if result is unknown:
             expression: str = literal
@@ -754,6 +754,9 @@ class ParseContext:
                 context |= self.ast
             if is_eval_safe(expression, context):
                 result = safe_eval(expression, context)
+
+        if result is unknown:
+            result = literal
 
         self._append_cst(result)
         return result
