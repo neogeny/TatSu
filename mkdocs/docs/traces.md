@@ -5,8 +5,9 @@ available in `ParserConfig` and as `--trace` on the command line. For colorizati
 When used with the `colorize` option (defaults to `True`) ( `--color` on the command line), it 
 produces a trace like the following, in which colors mean {{try}}try{{end}}, {{succeed}}succeed {{end}}, and {{fail}}fail{{end}}.
 
+---
 <code>
-<br/> {{try}}↙start ~1:1{{end}}
+{{try}}↙start ~1:1{{end}}
 <br/> {{console}}3 + 5 * ( 10 - 20 ){{end}}
 <br/> {{try}}↙expression↙start ~1:1{{end}}
 <br/> {{console}}3 + 5 * ( 10 - 20 ){{end}}
@@ -259,6 +260,5 @@ produces a trace like the following, in which colors mean {{try}}try{{end}}, {{s
 <br/> {{succeed}}≡expression↙start{{end}}
 <br/> {{succeed}}≡start{{end}}
 </code>
-----
-..
-------------------------------------------------------------------------
+
+---

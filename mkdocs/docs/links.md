@@ -1,3 +1,5 @@
+{% include "links_contributors.md" %}
+
 [ANTLR]: http://www.antlr.org/
 [AST]: http://en.wikipedia.org/wiki/Abstract_syntax_tree
 [AST]: http://en.wikipedia.org/wiki/Abstract_syntax_tree

@@ -102,6 +102,7 @@ extra:
   fail: '<span style="color:red">'
 
 nav:
+  - Home: index.md
   - Introduction: intro.md
   - Rationale: rationale.md
   - Installation: install.md
