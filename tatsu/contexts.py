@@ -56,11 +56,11 @@ __all__: list[str] = ['ParseContext', 'tatsumasu', 'leftrec', 'nomemo']
 
 class EventColor(color.Color):
     def __init__(self):
-        self.ENTRY = self.YELLOW + self.BRIGHT
-        self.SUCCESS = self.GREEN + self.BRIGHT
-        self.FAILURE = self.RED + self.BRIGHT
-        self.RECURSION = self.RED + self.BRIGHT
-        self.CUT = self.MAGENTA + self.BRIGHT
+        self.ENTRY = self.YELLOW + self.BRIGHT + C_ENTRY
+        self.SUCCESS = self.GREEN + self.BRIGHT + C_SUCCESS
+        self.FAILURE = self.RED + self.BRIGHT + C_FAILURE
+        self.RECURSION = self.RED + self.BRIGHT + C_RECURSION
+        self.CUT = self.MAGENTA + self.BRIGHT + C_CUT
 
 
 C = EventColor()
@@ -497,22 +497,22 @@ class ParseContext:
         self._trace(message)
 
     def _trace_entry(self) -> None:
-        self._trace_event(f'{C.ENTRY}{C_ENTRY}')
+        self._trace_event(f'{C.ENTRY}')
 
     def _trace_success(self) -> None:
-        self._trace_event(f'{C.SUCCESS}{C_SUCCESS}')
+        self._trace_event(f'{C.SUCCESS}')
 
     def _trace_failure(self, ex: Exception | None = None) -> None:
         if isinstance(ex, FailedLeftRecursion):
             self._trace_recursion()
         else:
-            self._trace_event(f'{C.FAILURE}{C_FAILURE}')
+            self._trace_event(f'{C.FAILURE}')
 
     def _trace_recursion(self) -> None:
-        self._trace_event(f'{C.RECURSION}{C_RECURSION}')
+        self._trace_event(f'{C.RECURSION}')
 
     def _trace_cut(self) -> None:
-        self._trace_event(f'{C.CUT}{C_CUT}')
+        self._trace_event(f'{C.CUT}')
 
     def _trace_match(self, token: Any, name: str | None = None, failed: bool = False) -> None:
         if not self.config.trace:
@@ -524,10 +524,7 @@ class ParseContext:
         else:
             fname = ''
 
-        if failed:
-            mark = f'{C.FAILURE}{C_FAILURE}'
-        else:
-            mark = f'{C.SUCCESS}{C_SUCCESS}'
+        mark = f'{C.FAILURE}' if failed else f'{C.SUCCESS}'
 
         lookahead = self._tokenizer.lookahead().rstrip()
         lookahead = '\n' + lookahead if lookahead else lookahead
