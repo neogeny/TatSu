@@ -41,27 +41,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
-
-    "myst_parser",
-    "sphinx_copybutton",  # Recommended for "Copy" icons on code blocks
 ]
-
-# MyST-Parser Settings
-myst_enable_extensions = [
-    "colon_fence",     # Allows using ::: for notes/admonitions
-    "deflist",         # Allows definition lists (Term : Definition)
-    "dollarmath",      # Allows LaTeX math via $$ ... $$
-    "fieldlist",       # Allows GitHub-style metadata fields
-    "tasklist",        # Allows - [ ] checkbox lists
-    "html_image",      # Allows using standard <img src="..."> tags
-]
-
-# Auto-generate anchors for headers (so you can link to #my-header)
-myst_heading_anchors = 4  # Generates anchors for H1, H2, H3, ...
-
-copybutton_prompt_text = r">>> |\$ "
-copybutton_only_copy_prompt_lines = True
-copybutton_use_regexp = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -70,11 +50,7 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-# source_suffix = '.rst'
-source_suffix = {
-    '.rst': 'restructuredtext',
-    '.md': 'markdown',
-}
+source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
@@ -117,12 +93,7 @@ todo_include_todos = True
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 # html_theme = 'sphinx_rtd_theme'
-# html_theme = 'alabaster'
-html_theme = "pydata_sphinx_theme"
-
-html_context = {
-   "default_mode": "auto"  # Options: "light", "dark", or "auto"
-}
+html_theme = 'alabaster'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -139,23 +110,6 @@ html_theme_path = []
 # documentation.
 #
 # html_theme_options = {}
-html_theme_options = {
-    # "logo": {
-    #     "text": "My Project Name",
-    #     "image_light": "_static/logo-light.svg",
-    #     "image_dark": "_static/logo-dark.svg",
-    # },
-    "icon_links": [
-        {
-            "name": "GitHub",
-            "url": "https://github.com/neogeny/TatSu",
-            "icon": "fa-brands fa-github",
-        },
-    ],
-    "header_links_before_dropdown": 4,  # How many nav links to show before "More"
-    "show_prev_next": True,             # Previous/Next buttons at the bottom
-    "navbar_align": "content",          # Align the top nav with the text content
-}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
