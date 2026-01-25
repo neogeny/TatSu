@@ -114,3 +114,10 @@ ENV/
 examples/g2e/*.ebnf
 .deprecated/
 backups/
+
+# gemini-cli settings
+.gemini/
+# GitHub App credentials
+gha-creds-*.json
+.github/commands/gemini*
+.github/workflows/gemini*
