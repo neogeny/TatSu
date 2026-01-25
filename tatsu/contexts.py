@@ -43,6 +43,7 @@ from .util import (
     safe_name,
     trim,
 )
+from .util.safeval import is_eval_safe, safe_builtins, safe_eval
 from .util.unicode_characters import (
     C_CUT,
     C_ENTRY,
@@ -729,17 +730,33 @@ class ParseContext:
     def _constant(self, literal: Any) -> Any:
         self._next_token()
         self._trace_match(literal)
-        if isinstance(literal, str):
-            try:
-                literal = stdlib_ast.literal_eval(literal.strip())
-            except (ValueError, SyntaxError):
-                if '\n' in literal:
-                    literal = trim(literal)
-                literal = eval(  # noqa: S307
-                    f'{"f" + repr(literal)}', {}, self.ast,
-                )
-        self._append_cst(literal)
-        return literal
+
+        if not isinstance(literal, str):
+            self._append_cst(literal)
+            return literal
+
+        unknown = object()
+        result = unknown
+        with suppress(ValueError, SyntaxError):
+            result = stdlib_ast.literal_eval(literal.strip())
+            assert result is None
+
+        if result is unknown:
+            expression: str = literal
+            if '\n' in expression:
+                expression = trim(expression)
+            expression = f'{"f" + repr(expression)}'
+
+            context: dict[str, Any] = safe_builtins()
+            if hasattr(self.semantics, 'safe_context'):
+                context |= self.semantics.safe_context()
+            if isinstance(self.ast, AST):
+                context |= self.ast
+            if is_eval_safe(expression, context):
+                result = safe_eval(expression, context)
+
+        self._append_cst(result)
+        return result
 
     def _alert(self, message: str, level: int) -> None:
         self._next_token()
