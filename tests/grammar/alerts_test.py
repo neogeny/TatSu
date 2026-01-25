@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from tatsu.tool import compile
-from tatsu.util import asjsons
+from tatsu.util import asjsons  # noqa: F401
 
 
 def test_alert_interpolation(trace=True):
@@ -11,6 +11,6 @@ def test_alert_interpolation(trace=True):
             number = /\d+/ ;
     """
     model = compile(grammar)
-    print(asjsons(model))
+    # print(asjsons(model))
     ast = model.parse(input, trace=trace)
     assert ast == {'a': '42', 'b': '69', 'i': 'seen: 42, 69'}
