@@ -50,6 +50,12 @@ def test_dunder_block():
 
 
 def test_name_mismatch():
-    def real_fn(): pass
     with pytest.raises(SecurityError, match="Context name mismatch"):
         check_eval_safe("fake_fn()", {"fake_fn": abs})  # abs.__name__ is 'abs'
+
+def test_no_excetions_for_eval():
+    class MyException(BaseException):
+        pass
+    context = {"MyException": MyException}
+    with pytest.raises(SecurityError, match="Exception classes are not allowed in context"):
+        check_eval_safe("1 + 1", context)
