@@ -22,7 +22,7 @@ colorama==0.4.6
     #   click
     #   ipython
     #   pytest
-coverage==7.13.1
+coverage==7.13.2
     # via pytest-cov
 cryptography==46.0.3 ; sys_platform == 'linux'
     # via secretstorage
@@ -182,5 +182,5 @@ uv==0.9.26
     # via hatch
 virtualenv==20.36.1
     # via hatch
-wcwidth==0.3.4
+wcwidth==0.3.5
     # via prompt-toolkit
