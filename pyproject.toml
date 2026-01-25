@@ -78,6 +78,15 @@ dev = [
     "mkdocs-macros-plugin",         # Optional: For advanced templating in markdown
 ]
 
+doc = [
+    "sphinx>=8.1.0",                # Support for modern Python and Sphinx 9.x
+    "sphinx-autodoc2>=0.5.0",       # Static analysis for Markdown docstrings
+    "sphinx-copybutton>=0.5.2",     # Latest stable with Sphinx 8+ support
+    "sphinx-rtd-theme>=3.1.0",      # Major v3 release with Docutils 0.22 support
+    "pydata-sphinx-theme>=0.16.0",  # The current gold standard theme
+    "myst-parser>=5.0.0",           # Breaking v5.0 release for Sphinx 8/9 compat
+]
+
 [project.scripts]
 tatsu = "tatsu:main"
 g2e = "tatsu.g2e:main"

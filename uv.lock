@@ -1828,6 +1828,14 @@ dev = [
     { name = "ty" },
     { name = "types-decorator" },
 ]
+doc = [
+    { name = "myst-parser" },
+    { name = "pydata-sphinx-theme" },
+    { name = "sphinx" },
+    { name = "sphinx-autodoc2" },
+    { name = "sphinx-copybutton" },
+    { name = "sphinx-rtd-theme" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -1871,6 +1879,14 @@ dev = [
     { name = "sphinx-rtd-theme", specifier = ">=3.1.0" },
     { name = "ty" },
     { name = "types-decorator" },
+]
+doc = [
+    { name = "myst-parser", specifier = ">=5.0.0" },
+    { name = "pydata-sphinx-theme", specifier = ">=0.16.0" },
+    { name = "sphinx", specifier = ">=8.1.0" },
+    { name = "sphinx-autodoc2", specifier = ">=0.5.0" },
+    { name = "sphinx-copybutton", specifier = ">=0.5.2" },
+    { name = "sphinx-rtd-theme", specifier = ">=3.1.0" },
 ]
 
 [[package]]
