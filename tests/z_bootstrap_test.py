@@ -35,7 +35,7 @@ def test_00_with_boostrap_grammar():
     tmp.mkdir(exist_ok=True)
     text = Path('grammar/tatsu.ebnf').read_text()
     g = EBNFParser('EBNFBootstrap')
-    grammar0 = g.parse(text, semantics=ASTSemantics, parseinfo=False)
+    grammar0 = g.parse(text, semantics=ASTSemantics(), parseinfo=False)
     ast0 = json.dumps(asjson(grammar0), indent=2)
     Path('./tmp/00.ast').write_text(ast0)
 
@@ -161,7 +161,7 @@ def test_08_compile_with_generated():
 
     parser = generated_parser(trace=False)
     text = Path('grammar/tatsu.ebnf').read_text()
-    result = parser.parse(text, semantics=ASTSemantics, parseinfo=False)
+    result = parser.parse(text, semantics=ASTSemantics(), parseinfo=False)
     ast8 = json.dumps(asjson(result), indent=2)
     Path('./tmp/08.ast').write_text(ast8)
     pprint.pprint(list(
