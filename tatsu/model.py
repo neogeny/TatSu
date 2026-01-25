@@ -2,13 +2,16 @@
 from __future__ import annotations
 
 from .ast import AST
-from .objectmodel import Node
+from .objectmodel import BaseNode, Node
 from .objectmodel import Node as ParseModel
 from .semantics import ModelBuilderSemantics
-from .walkers import DepthFirstWalker, NodeWalker
+from .walkers import BreadthFirstWalker, DepthFirstWalker, NodeWalker, PreOrderWalker
 
 __all__ = [
     'AST',
+    'BaseNode',
+    'BreadthFirstWalker',
+    'PreOrderWalker',
     'Node',
     'ParseModel',
     'ModelBuilderSemantics',
