@@ -164,9 +164,12 @@ def test_08_compile_with_generated():
     result = parser.parse(text, semantics=ASTSemantics(), parseinfo=False)
     ast8 = json.dumps(asjson(result), indent=2)
     Path('./tmp/08.ast').write_text(ast8)
-    pprint.pprint(list(
-        difflib.unified_diff(ast0.splitlines(), ast8.splitlines()),
-    ))
+    print('DIFF')
+    pprint.pprint(
+        list(
+            difflib.unified_diff(ast0.splitlines(), ast8.splitlines()),
+        )
+    )
     assert ast0 == ast8
 
 
