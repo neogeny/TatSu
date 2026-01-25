@@ -152,6 +152,9 @@ def check_eval_context(context: dict[str, Any]) -> None:
         if name.startswith('__'):
             raise SecurityError(f"Unsafe context key: {name}")
 
+        if isinstance(obj, type) and issubclass(obj, BaseException):
+            raise SecurityError(f"Exception classes are not allowed in context: '{name}'")
+
         if not callable(obj):
             continue
 
