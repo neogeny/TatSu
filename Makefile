@@ -85,7 +85,8 @@ build: clean
 
 requirements: uv.lock
 	uv export -q --format requirements-txt --no-hashes \
-		> requirements.txt
+		--dev \
+		> requirements-dev.txt
 	uv export -q --format requirements-txt --no-hashes \
 		--group doc --no-group dev \
 		> requirements-doc.txt
