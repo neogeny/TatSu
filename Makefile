@@ -83,7 +83,7 @@ build: clean
 	uvx hatch build
 
 
-requirements:
+requirements: uv.lock
 	uv export -q --format requirements-txt > requirements.txt
 
 
