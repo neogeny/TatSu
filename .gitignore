@@ -115,6 +115,11 @@ examples/g2e/*.ebnf
 .deprecated/
 backups/
 
+# mkdocs
+mkdocs/docs/_build
+mkdocs/site
+mkdocs/tmp
+
 # gemini-cli settings
 .gemini/
 # GitHub App credentials

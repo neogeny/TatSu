@@ -1,0 +1,36 @@
+# Abstract Syntax Trees (ASTs)
+
+By default, an [AST](http://en.wikipedia.org/wiki/Abstract_syntax_tree) is either:
+
+- a *value*, for simple elements such as *token*, *pattern*, or *constant*
+- a `tuple`, for *closures*, *gatherings*, and the right-hand-side of rules with more than one element but without named elements
+- a `dict`-derived object (`AST`) that contains one item for every named element in the grammar rule, with items can be accessed through the standard `dict` syntax (`ast['key']`), or as attributes (`ast.key`).
+
+[AST](http://en.wikipedia.org/wiki/Abstract_syntax_tree) entries are single values if only one item was associated with a name, or `tuple` if more than one item was matched. There's a provision in the grammar syntax (the `+:` operator) to force an [AST](http://en.wikipedia.org/wiki/Abstract_syntax_tree) entry to be a `tuple` even if only one element was matched. The value for named elements that were not found during the parse (perhaps because they are optional) is `None`.
+
+When the `parseinfo=True` keyword argument has been passed to the `Parser` constructor or enabled with the `@@parseinfo` directive, a `parseinfo` item is added to [AST](http://en.wikipedia.org/wiki/Abstract_syntax_tree) nodes that are *dict*-like. The item contains a `collections.namedtuple` with the parse information for the node:
+
+``` python
+class ParseInfo(NamedTuple):
+    tokenizer: Any
+    rule: str
+    pos: int
+    endpos: int
+    line: int
+    endline: int
+    alerts: list[Alert] = []  # noqa: RUF012
+
+    def text_lines(self):
+        return self.tokenizer.get_lines(self.line, self.endline)
+
+    def line_index(self):
+        return self.tokenizer.line_index(self.line, self.endline)
+
+    @property
+    def buffer(self):
+        return self.tokenizer
+```
+
+With the help of the `Tokenizer.line_info()` method, it is possible to recover the line, column, and original text parsed for the node. Note that when `ParseInfo` is generated, the `Tokenizer` used during parsing is kept in memory for the lifetime of the [AST](http://en.wikipedia.org/wiki/Abstract_syntax_tree).
+
+Generation of `parseinfo` can also be controlled using the `@@parseinfo :: True` grammar directive.

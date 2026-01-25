@@ -1,0 +1,18 @@
+.succeed {
+    color: green;
+    font-family: monospace;
+}
+
+.fail {
+    color: red;
+    font-family: monospace;
+}
+
+.try {
+    color: orange;
+    font-family: monospace;
+}
+
+.console {
+    font-family: monospace;
+}
