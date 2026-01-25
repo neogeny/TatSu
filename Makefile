@@ -84,7 +84,7 @@ build: clean
 
 
 requirements: uv.lock
-	uv export -q --format requirements-txt > requirements.txt
+	uv export -q --format requirements-txt --no-hashes > requirements.txt
 
 
 need_gh:
