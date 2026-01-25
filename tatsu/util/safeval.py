@@ -33,7 +33,6 @@ def safe_builtins() -> dict[str, Any]:
     }
 
 
-
 def make_dict_hashable(pairs: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
     def make_pairs_hashable(items: Iterable[tuple[str, Any]]) -> Iterable[tuple[str, Any]]:
         for name, obj in items:
@@ -150,7 +149,6 @@ def check_eval_context(context: dict[str, Any]) -> None:
 
         if real_name == "<lambda>":
             raise SecurityError(f"Anonymous lambdas are not allowed in context: '{name}'")
-
 
         if real_name and real_name != name:
             raise SecurityError(f"Context name mismatch: '{name}' refers to '{real_name}'")
