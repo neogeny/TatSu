@@ -361,6 +361,12 @@ hatchling==1.28.0 \
     --hash=sha256:4d50b02aece6892b8cd0b3ce6c82cb218594d3ec5836dbde75bf41a21ab004c8 \
     --hash=sha256:dc48722b68b3f4bbfa3ff618ca07cdea6750e7d03481289ffa8be1521d18a961
     # via hatch
+hjson==3.1.0 \
+    --hash=sha256:55af475a27cf83a7969c808399d7bccdec8fb836a07ddbd574587593b9cdcf75 \
+    --hash=sha256:65713cdcf13214fb554eb8b4ef803419733f4f5e551047c9b711098ab7186b89
+    # via
+    #   mkdocs-macros-plugin
+    #   super-collections
 httpcore==1.0.9 \
     --hash=sha256:2d400746a40668fc9dec9810239072b40b4484b640a8c38fd654a024c7a1bf55 \
     --hash=sha256:6e34463af53fd2ab5d807f399a9b45ea31c3dfa2276f15a2c3f00afff6e176e8
@@ -423,6 +429,7 @@ jinja2==3.1.6 \
     --hash=sha256:85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67
     # via
     #   mkdocs
+    #   mkdocs-macros-plugin
     #   mkdocs-material
     #   mkdocstrings
     #   myst-parser
@@ -581,6 +588,7 @@ mkdocs==1.6.1 \
     #   mkdocs-autorefs
     #   mkdocs-gen-files
     #   mkdocs-literate-nav
+    #   mkdocs-macros-plugin
     #   mkdocs-material
     #   mkdocstrings
 mkdocs-autorefs==1.4.3 \
@@ -599,6 +607,9 @@ mkdocs-get-deps==0.2.0 \
 mkdocs-literate-nav==0.6.2 \
     --hash=sha256:0a6489a26ec7598477b56fa112056a5e3a6c15729f0214bea8a4dbc55bd5f630 \
     --hash=sha256:760e1708aa4be86af81a2b56e82c739d5a8388a0eab1517ecfd8e5aa40810a75
+mkdocs-macros-plugin==1.5.0 \
+    --hash=sha256:12aa45ce7ecb7a445c66b9f649f3dd05e9b92e8af6bc65e4acd91d26f878c01f \
+    --hash=sha256:c10fabd812bf50f9170609d0ed518e54f1f0e12c334ac29141723a83c881dd6f
 mkdocs-material==9.7.1 \
     --hash=sha256:3f6100937d7d731f87f1e3e3b021c97f7239666b9ba1151ab476cabb96c60d5c \
     --hash=sha256:89601b8f2c3e6c6ee0a918cc3566cb201d40bf37c3cd3c2067e26fadb8cce2b8
@@ -655,6 +666,7 @@ packaging==26.0 \
     #   hatch
     #   hatchling
     #   mkdocs
+    #   mkdocs-macros-plugin
     #   pytest
     #   pytest-rerunfailures
     #   sphinx
@@ -672,6 +684,7 @@ pathspec==1.0.3 \
     # via
     #   hatchling
     #   mkdocs
+    #   mkdocs-macros-plugin
     #   mypy
 pexpect==4.9.0 \
     --hash=sha256:7236d1e080e4936be2dc3e326cec0af72acf9212a7e1d060210e70a47e253523 \
@@ -785,7 +798,9 @@ pytest-xdist==3.8.0 \
 python-dateutil==2.9.0.post0 \
     --hash=sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3 \
     --hash=sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427
-    # via ghp-import
+    # via
+    #   ghp-import
+    #   mkdocs-macros-plugin
 pywin32-ctypes==0.2.3 ; sys_platform == 'win32' \
     --hash=sha256:8a1513379d709975552d202d942d9837758905c8d01eb82b8bcc30918929e7b8 \
     --hash=sha256:d162dc04946d704503b2edc4d55f3dba5c1d539ead017afa00142c38b9885755
@@ -833,6 +848,7 @@ pyyaml==6.0.3 \
     # via
     #   mkdocs
     #   mkdocs-get-deps
+    #   mkdocs-macros-plugin
     #   myst-parser
     #   pymdown-extensions
     #   pyyaml-env-tag
@@ -844,6 +860,7 @@ requests==2.32.5 \
     --hash=sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6 \
     --hash=sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf
     # via
+    #   mkdocs-macros-plugin
     #   mkdocs-material
     #   sphinx
 rich==14.3.1 \
@@ -951,6 +968,14 @@ stack-data==0.6.3 \
     --hash=sha256:836a778de4fec4dcd1dcd89ed8abff8a221f58308462e1c4aa2a3cf30148f0b9 \
     --hash=sha256:d5558e0c25a4cb0853cddad3d77da9891a08cb85dd9f9f91b9f8cd66e511e695
     # via ipython
+super-collections==0.6.2 \
+    --hash=sha256:0c8d8abacd9fad2c7c1c715f036c29f5db213f8cac65f24d45ecba12b4da187a \
+    --hash=sha256:291b74d26299e9051d69ad9d89e61b07b6646f86a57a2f5ab3063d206eee9c56
+    # via mkdocs-macros-plugin
+termcolor==3.3.0 \
+    --hash=sha256:348871ca648ec6a9a983a13ab626c0acce02f515b9e1983332b17af7979521c5 \
+    --hash=sha256:cf642efadaf0a8ebbbf4bc7a31cec2f9b5f21a9f726f4ccbb08192c9c26f43a5
+    # via mkdocs-macros-plugin
 tomli-w==1.2.0 \
     --hash=sha256:188306098d013b691fcadc011abd66727d3c414c571bb01b1a174ba8c983cf90 \
     --hash=sha256:2dd14fac5a47c27be9cd4c976af5a12d87fb1f0b4512f81d69cce3b35ae25021
