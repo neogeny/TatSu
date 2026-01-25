@@ -57,25 +57,6 @@ dev = [
     "ruff",
     "ty",
     "types-decorator",
-
-    # documentation
-    "sphinx>=8.1.0",                # Support for modern Python and Sphinx 9.x
-    "sphinx-autodoc2>=0.5.0",       # Static analysis for Markdown docstrings
-    "sphinx-copybutton>=0.5.2",     # Latest stable with Sphinx 8+ support
-    "sphinx-rtd-theme>=3.1.0",      # Major v3 release with Docutils 0.22 support
-    "pydata-sphinx-theme>=0.16.0",  # The current gold standard theme
-    "myst-parser>=5.0.0",           # Breaking v5.0 release for Sphinx 8/9 compat
-    #  "rst-to-myst",               # Utility to convert old .rst to .md
-
-    # documentation with MkDocs
-    "mkdocs>=1.6.0",                # The core documentation engine
-    "mkdocs-material>=9.5.0",       # The premium-feel theme with dark mode
-    "mkdocstrings[python]>=0.25.0", # Automatic docstring extraction (replaces autodoc)
-    "mkdocs-autorefs>=1.0.1",       # Cross-links between different markdown files
-    "pymdown-extensions>=10.7",     # Essential for tables, task lists, and code fences
-    "mkdocs-gen-files>=0.5.0",      # Optional: Useful if you want to generate pages from code
-    "mkdocs-literate-nav>=0.6.1",   # Optional: If you prefer to keep nav in separate files
-    "mkdocs-macros-plugin",         # Optional: For advanced templating in markdown
 ]
 
 doc = [
@@ -85,6 +66,17 @@ doc = [
     "sphinx-rtd-theme>=3.1.0",      # Major v3 release with Docutils 0.22 support
     "pydata-sphinx-theme>=0.16.0",  # The current gold standard theme
     "myst-parser>=5.0.0",           # Breaking v5.0 release for Sphinx 8/9 compat
+]
+
+mkdocs = [
+    "mkdocs>=1.6.0",                # The core documentation engine
+    "mkdocs-material>=9.5.0",       # The premium-feel theme with dark mode
+    "mkdocstrings[python]>=0.25.0", # Automatic docstring extraction (replaces autodoc)
+    "mkdocs-autorefs>=1.0.1",       # Cross-links between different markdown files
+    "pymdown-extensions>=10.7",     # Essential for tables, task lists, and code fences
+    "mkdocs-gen-files>=0.5.0",      # Optional: Useful if you want to generate pages from code
+    "mkdocs-literate-nav>=0.6.1",   # Optional: If you prefer to keep nav in separate files
+    "mkdocs-macros-plugin",         # Optional: For advanced templating in markdown
 ]
 
 [project.scripts]

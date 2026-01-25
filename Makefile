@@ -33,6 +33,7 @@ doc: documentation
 
 
 sphinx:
+	@-uv sync -q --group doc
 	cd docs; uv run make -s html > /dev/null
 
 
