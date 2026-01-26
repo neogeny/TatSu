@@ -133,23 +133,11 @@ html_theme_options = {
     'navigation_depth': 5,
 
     # If True, the sidebar will only show document titles, not subheadings
-    'titles_only': False,
+    # 'titles_only': False,
 
     # If True, headings will collapse as you navigate
     'collapse_navigation': True,
-}
 
-# Add any paths that contain custom themes here, relative to this directory.
-# Add path to the RTD explicitly to robustify builds (otherwise might
-# fail in a clean Debian build env)
-html_theme_path = []
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#
-# html_theme_options = {}
-html_theme_options = {
     "logo": {
         "text": "TatSu",
         "image_light": "_static/tatsu_logo.svg",
@@ -166,6 +154,11 @@ html_theme_options = {
     "show_prev_next": True,             # Previous/Next buttons at the bottom
     "navbar_align": "content",          # Align the top nav with the text content
 }
+
+# Add any paths that contain custom themes here, relative to this directory.
+# Add path to the RTD explicitly to robustify builds (otherwise might
+# fail in a clean Debian build env)
+html_theme_path = []
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
