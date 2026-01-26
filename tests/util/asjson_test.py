@@ -79,7 +79,7 @@ class TestAsJSON:
         # Identity is preserved in the resulting Python structure
         assert result["left"] is result["right"]
 
-    def test_circular_reference(self):
+    def test_circular_reference(self) -> None:
         """Tests that the 'seen' set catches infinite loops."""
         node: dict[str, Any] = {}
         node["loop"] = node
