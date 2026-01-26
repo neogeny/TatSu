@@ -1,6 +1,7 @@
 import pytest
 
 from tatsu import synth
+from tatsu.exceptions import FailedParse
 from tatsu.objectmodel import Node
 from tatsu.semantics import ModelBuilderSemantics
 from tatsu.tool import compile
@@ -121,12 +122,29 @@ def test_optional_attributes():
     assert b.right is None
 
 
-@pytest.mark.skip(reason='Not finished yer')
-def test_constant_failure():
+def test_constant_math():
     grammar = r"""
         start =
             a:A b:B
-            c:```{a} / {b}```
+            @:```{a} / {b}```
+            $
+        ;
+
+        A = number @:`7` ;
+        B = number @:`2` ;
+        number::int = /\d+/ ;
+    """
+    model = compile(grammar)
+    result = model.parse('42 84', trace=True)
+    assert model
+    assert result == 3.5
+
+
+def test_constant_deep_eval():
+    grammar = r"""
+        start =
+            a:A b:B
+            @:```{a} / {b}```
             $
         ;
 
@@ -134,12 +152,8 @@ def test_constant_failure():
         B = number @:`0` ;
         number::int = /\d+/ ;
     """
-    try:
-        model = compile(grammar)
-        result = model.parse('42 84', trace=True)
-    except Exception as e:
-        print(e)
-        raise
-    assert model
-    assert result == []
-    pytest.fail('should not have reached here')
+    model = compile(grammar)
+
+    with pytest.raises(FailedParse, match=r'Error evaluating constant.*ZeroDivisionError'):
+        # NOTE: only with multiple evaluation passes on constants
+        model.parse('42 84', trace=True)
