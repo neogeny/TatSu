@@ -88,13 +88,13 @@ requirements: uv.lock requirements-dev.txt requirements-doc.txt
 
 
 requirements-dev.txt: uv.lock
-	@echo $@
+	@echo "->" $@
 	@- uv export -q --format requirements-txt --no-hashes \
 		--dev \
 		> requirements-dev.txt
 
 requirements-doc.txt: uv.lock
-	@echo $@
+	@echo "->" $@
 	@- uv export -q --format requirements-txt --no-hashes \
 		--group doc --no-group dev \
 		> requirements-doc.txt

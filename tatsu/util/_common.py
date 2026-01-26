@@ -11,11 +11,11 @@ import os.path
 import re
 import sys
 import warnings
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from io import StringIO
 from itertools import zip_longest
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 logger = logging.getLogger('TatSu')
 logger.setLevel(logging.DEBUG)
@@ -105,6 +105,13 @@ def is_namedtuple(obj) -> bool:
     )
 
 
+def as_namedtuple(obj: Any) -> NamedTuple | None:
+    if is_namedtuple(obj):
+        return obj
+    else:
+        return None
+
+
 def simplify_list(x) -> list[Any] | Any:
     if isinstance(x, list) and len(x) == 1:
         return simplify_list(x[0])
@@ -170,10 +177,19 @@ def eval_escapes(s: str | bytes) -> str | bytes:
     return ESCAPE_SEQUENCE_RE.sub(decode_match, s)
 
 
-def isiter(value):
-    return isinstance(value, Iterable) and not isinstance(
-        value, str | bytes | bytearray,
-    )
+def isiter(obj: Any) -> bool:
+    """
+    Check if an object is a non-string-like iterable suitable for JSON array conversion.
+    # by Gemini (2026-01-26)
+    # by [apalala@gmail.com](https://github.com/apalala)
+    """
+    if isinstance(obj, str | bytes | bytearray | Mapping):
+        return False
+    try:
+        iter(obj)
+        return True
+    except (TypeError, AttributeError):
+        return False
 
 
 def trim(text, tabwidth=4):

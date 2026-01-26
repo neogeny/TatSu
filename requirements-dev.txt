@@ -154,7 +154,7 @@ rst2html5==2.0.1
 ruff==0.14.14
 secretstorage==3.5.0 ; sys_platform == 'linux'
     # via keyring
-setuptools==80.10.1
+setuptools==80.10.2
     # via pytest-dependency
 shellingham==1.5.4
     # via hatch
@@ -182,5 +182,5 @@ uv==0.9.26
     # via hatch
 virtualenv==20.36.1
     # via hatch
-wcwidth==0.3.5
+wcwidth==0.4.0
     # via prompt-toolkit

@@ -6,7 +6,14 @@ import weakref
 from collections.abc import Mapping
 from typing import Any
 
-from tatsu.util import is_namedtuple, isiter
+from tatsu.util import as_namedtuple, isiter
+
+__all__ = [
+    'AsJSONMixin',
+    'asjson',
+    'asjsons',
+    'plainjson',
+]
 
 
 class AsJSONMixin:
@@ -24,40 +31,47 @@ class AsJSONMixin:
         }
 
 
-def asjson(obj, seen: set[int] | None = None) -> Any:  # noqa: PLR0911, PLR0912
-    if obj is None or isinstance(obj, int | float | str | bool):
-        return obj
+def asjson(obj: Any, seen: set[int] | None = None) -> Any:
+    """
+    Produce a JSON-serializable version of the input structure.
+    # by Gemini (2026-01-26)
+    # by [apalala@gmail.com](https://github.com/apalala)
+    """
+    memo: dict[int, Any] = {}
+    seen = seen if seen is not None else set()
 
-    if seen is None:
-        seen = set()
-    elif id(obj) in seen:
-        return f'{type(obj).__name__}@{id(obj)}'
-
-    if isinstance(obj, Mapping | AsJSONMixin) or isiter(obj):
-        seen.add(id(obj))
-
-    try:
-        if isinstance(obj, (weakref.ReferenceType, *weakref.ProxyTypes)):
-            return f'{obj.__class__.__name__}@0x{hex(id(obj)).upper()[2:]}'
-        elif hasattr(obj, '__json__'):
-            return obj.__json__(seen=seen)
-        elif is_namedtuple(obj):
-            return asjson(obj._asdict(), seen=seen)
-        elif isinstance(obj, Mapping):
-            result = {}
-            for key, value in obj.items():
-                result[key] = asjson(value, seen=seen)
+    def dfs(node: Any) -> Any:
+        if node is None or isinstance(node, int | float | str | bool):
+            return node
+        node_id = id(node)
+        if node_id in seen:
+            return f"{type(node).__name__}@{node_id}"
+        if node_id in memo:
+            return memo[node_id]
+        seen.add(node_id)
+        try:
+            match node:
+                case _ if hasattr(node, '__json__'):
+                    result = node.__json__(seen=seen)
+                case enum.Enum() as en:
+                    result = dfs(en.value)
+                case _ if isinstance(node, (weakref.ReferenceType, *weakref.ProxyTypes)):
+                    result = f"{type(node).__name__}@0x{hex(node_id).upper()[2:]}"
+                case _ if (nt := as_namedtuple(node)):
+                    result = dfs(nt._asdict())
+                case Mapping() as mapping:
+                    result = {str(k): dfs(v) for k, v in mapping.items()}
+                case list() | tuple() | set() as seq:
+                    result = [dfs(e) for e in seq]
+                case _ if isiter(node):
+                    result = [dfs(e) for e in node]
+                case _:
+                    result = repr(node)
+            memo[node_id] = result
             return result
-        elif isiter(obj):
-            return [asjson(e, seen=seen) for e in obj]
-        elif isinstance(obj, enum.Enum):
-            return asjson(obj.value)
-        else:
-            return repr(obj)
-    finally:
-        # NOTE: id()s may be reused
-        #   https://docs.python.org/3/library/functions.html#id
-        seen -= {id(obj)}
+        finally:
+            seen.discard(node_id)
+    return dfs(obj)
 
 
 def plainjson(obj: Any) -> Any:
