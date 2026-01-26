@@ -737,11 +737,11 @@ class ParseContext:
             return literal
         literal = str(literal)  # for type linters
 
-        context: dict[str, Any] = safe_builtins()
-        if hasattr(self.semantics, 'safe_context'):
-            context |= self.semantics.safe_context()
-        if isinstance(self.ast, AST):
-            context |= self.ast
+        context: dict[str, Any] = (
+            safe_builtins() |
+            getattr(self.semantics, 'safe_context', lambda: {})() |
+            self.ast if isinstance(self.ast, AST) else {}
+        )
 
         expression = Undefined
         result = literal
@@ -762,9 +762,6 @@ class ParseContext:
                     result = safe_eval(exp_to_eval, context)
             except BaseException as e:
                 raise FailedSemantics(f'Error evaluating constant: {e}') from e
-
-        if result is Undefined:
-            result = literal
 
         self._append_cst(result)
         return result
