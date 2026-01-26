@@ -4,16 +4,22 @@ import enum
 import json
 import weakref
 from collections.abc import Mapping
-from typing import Any
+from typing import Any, Protocol, runtime_checkable
 
 from tatsu.util import as_namedtuple, isiter
 
 __all__ = [
     'AsJSONMixin',
+    'JSONSerializable',
     'asjson',
     'asjsons',
     'plainjson',
 ]
+
+
+@runtime_checkable
+class JSONSerializable(Protocol):
+    def __json__(self, seen: set[int] | None = None) -> Any: ...
 
 
 class AsJSONMixin:
@@ -43,16 +49,18 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
     def dfs(node: Any) -> Any:
         if node is None or isinstance(node, int | float | str | bool):
             return node
+
         node_id = id(node)
         if node_id in seen:
-            return f"{type(node).__name__}@{node_id}"
+            return f"{type(node).__name__}@0x{hex(node_id).upper()[2:]}"
         if node_id in memo:
             return memo[node_id]
+
         seen.add(node_id)
         try:
             match node:
-                case _ if hasattr(node, '__json__'):
-                    result = node.__json__(seen=seen)
+                case JSONSerializable() as serializable:
+                    result = serializable.__json__(seen=seen)
                 case enum.Enum() as en:
                     result = dfs(en.value)
                 case _ if isinstance(node, (weakref.ReferenceType, *weakref.ProxyTypes)):
@@ -67,10 +75,12 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
                     result = [dfs(e) for e in node]
                 case _:
                     result = repr(node)
+
             memo[node_id] = result
             return result
         finally:
             seen.discard(node_id)
+
     return dfs(obj)
 
 
