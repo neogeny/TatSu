@@ -3,7 +3,6 @@ from __future__ import annotations
 import inspect
 import warnings
 import weakref
-from collections.abc import Mapping
 from typing import Any
 
 from ..ast import AST
@@ -75,15 +74,12 @@ class BaseNode(AsJSONMixin):
         return hash(id(self))
 
     def __getstate__(self) -> Any:
-        return self.__nonrefdict()
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-
-    def __nonrefdict(self) -> Mapping[str, Any]:
         return {
             name: value if (
-                    type(value) not in {weakref.ReferenceType, weakref.ProxyType}
+                not isinstance(value, (weakref.ReferenceType, *weakref.ProxyTypes))
             ) else None
             for name, value in vars(self).items()
         }
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
