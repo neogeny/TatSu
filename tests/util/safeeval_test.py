@@ -7,7 +7,7 @@ import ast
 
 import pytest
 
-from tatsu.util.safeval import SecurityError, check_safe_eval, safe_eval
+from tatsu.util.safeeval import SecurityError, check_safe_eval, safe_eval
 
 
 class MockObj:

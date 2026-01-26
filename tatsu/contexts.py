@@ -44,7 +44,7 @@ from .util import (
     safe_name,
     trim,
 )
-from .util.safeval import is_eval_safe, safe_builtins, safe_eval
+from .util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from .util.unicode_characters import (
     C_CUT,
     C_ENTRY,
