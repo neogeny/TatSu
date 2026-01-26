@@ -8,7 +8,7 @@ def test_alert_interpolation(trace=True):
     input = '42 69'
     grammar = r"""
             start = a:number b: number i:^`"seen: {a}, {b}"` $ ;
-            number = /\d+/ ;
+            number::int = /\d+/ ;
     """
     model = compile(grammar)
     # print(asjsons(model))

@@ -35,7 +35,7 @@ def test_constant_interpolation_multiline():
 
     result = parse(grammar, input)
     print(result)
-    assert result == {'a': '42', 'b': '69', 'i': 'seen:\n42\n69\n'}
+    assert result == {'a': '42', 'b': '69', 'i': 'seen:\n42\n69'}
 
 
 def test_evaluate_constant():

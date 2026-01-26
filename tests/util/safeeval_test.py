@@ -20,7 +20,7 @@ def test_simple_context_eval():
     expression = 'seen: {a} {b}'
     expected = "seen: 1 2"
 
-    with pytest.raises(SyntaxError, match='invalid syntax'):
+    with pytest.raises(SecurityError, match='Invalid expression syntax'):
         safe_eval(expression, context)
         check_eval_safe(expression, context)
         result = safe_eval(expression, context)
