@@ -1,3 +1,4 @@
+# isnotnone.py
 from __future__ import annotations
 
 from typing import Any, cast
@@ -9,8 +10,9 @@ class UndefinedType[T]:
     __undefined: Any = None
 
     def __init__(self):
-        if not isinstance(self.__undefined, UndefinedType):
-            type(self).__undefined = self
+        if isinstance(self.__undefined, UndefinedType):
+            return
+        type(self).__undefined = self
 
     @classmethod
     def undefined(cls) -> UndefinedType[T]:
