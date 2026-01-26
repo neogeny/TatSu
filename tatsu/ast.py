@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import copy
-import operator
 from collections.abc import Iterable
-from functools import reduce
 from typing import Any
 
 from .infos import ParseInfo
 from .util import asjson, is_list
+from .util.safeeval import make_hashable
 
 
 class AST(dict[str, Any]):
@@ -129,10 +128,4 @@ class AST(dict[str, Any]):
         return str(self.asjson())
 
     def __hash__(self) -> int:  # type: ignore
-        return hash(
-            reduce(
-                operator.xor,
-                (hash((name, id(value))) for name, value in self.items()),
-                0,
-            ),
-        )
+        return hash(make_hashable(self))

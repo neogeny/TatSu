@@ -17,6 +17,7 @@ __all__ = [
     'is_eval_safe',
     'safe_eval',
     'check_safe_eval',
+    'hashable',
     'make_hashable',
 ]
 

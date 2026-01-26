@@ -71,6 +71,7 @@ class BaseNode(AsJSONMixin):
         return id(self) == id(other)
 
     def __hash__(self) -> int:
+        # note: no use case for structural equality
         return hash(id(self))
 
     def __getstate__(self) -> Any:
