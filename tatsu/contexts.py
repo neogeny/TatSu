@@ -757,9 +757,14 @@ class ParseContext:
                 continue
 
             try:
-                exp_to_eval = f'{"f" + repr(expression)}'
-                if is_eval_safe(exp_to_eval, context):
-                    result = safe_eval(exp_to_eval, context)
+                fstr_expression = f'f{expression!r}'
+
+                if is_eval_safe(fstr_expression, context):
+                    result = safe_eval(fstr_expression, context)
+
+                if result == expression and is_eval_safe(expression, context):
+                    # NOTE: No f'{xyz}' evaluations occurred
+                    result = safe_eval(expression, context)
             except Exception as e:
                 raise FailedSemantics(
                     f'Error evaluating constant {literal!r}: {e}',
