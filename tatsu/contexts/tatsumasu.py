@@ -1,0 +1,56 @@
+from __future__ import annotations
+
+import functools
+from collections.abc import Callable
+from typing import Any, cast
+
+from tatsu.contexts import ParseContext
+from tatsu.contexts.infos import RuleLike
+from tatsu.infos import RuleInfo
+
+
+def leftrec(impl: Callable) -> Callable:
+    over: RuleLike = cast(RuleLike, impl)
+    over.is_leftrec = True
+    over.is_memoizable = False
+    return impl
+
+
+def nomemo(impl: Callable) -> Callable:
+    over: RuleLike = cast(RuleLike, impl)
+    over.is_memoizable = False
+    return impl
+
+
+def isname(impl: Callable) -> Callable:
+    over: RuleLike = cast(RuleLike, impl)
+    over.is_name = True
+
+    return impl
+
+
+def tatsumasu(*params: Any, **kwparams: Any) -> Callable[[Callable[..., Any]], Callable[[ParseContext], Any]]:
+    def decorator(impl: Callable[..., Any]) -> Callable[[ParseContext], Any]:
+        @functools.wraps(impl)
+        def wrapper(self: ParseContext) -> Any:
+            name = impl.__name__  # type: ignore
+            # remove the single leading and trailing underscore
+            # that the parser generator added
+            if name.startswith("_") and name.endswith("_"):
+                name = name[1:-1]
+            is_leftrec = getattr(impl, 'is_leftrec', False)
+            is_memoizable = getattr(impl, 'is_memoizable', True)
+            is_name = getattr(impl, 'is_name', False)
+            ruleinfo = RuleInfo(
+                name,
+                impl,
+                is_leftrec,
+                is_memoizable,
+                is_name,
+                params,
+                kwparams,
+            )
+            return self._call(ruleinfo)
+        return wrapper
+
+    return decorator

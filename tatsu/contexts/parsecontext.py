@@ -1,19 +1,17 @@
 from __future__ import annotations
 
 import ast as stdlib_ast
-import dataclasses
-import functools
 import inspect
 from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager, suppress
 from copy import copy
-from typing import Any, NamedTuple, NoReturn, Protocol, cast
+from typing import Any, NoReturn
 
-from . import buffering, tokenizing
-from .ast import AST
-from .buffering import Buffer
-from .collections import BoundedDict
-from .exceptions import (
+from .. import buffering, tokenizing
+from ..ast import AST
+from ..buffering import Buffer
+from ..collections import BoundedDict
+from ..exceptions import (
     FailedExpectingEndOfText,
     FailedKeywordSemantics,
     FailedLeftRecursion,
@@ -26,17 +24,15 @@ from .exceptions import (
     OptionSucceeded,
     ParseError,
 )
-from .infos import (
+from ..infos import (
     Alert,
     ParseInfo,
     ParserConfig,
     RuleInfo,
 )
-from .tokenizing import NullTokenizer, Tokenizer
-from .util import (
+from ..tokenizing import NullTokenizer, Tokenizer
+from ..util import (
     Undefined,
-    color,
-    info,
     is_list,
     left_assoc,
     prune_dict,
@@ -44,117 +40,12 @@ from .util import (
     safe_name,
     trim,
 )
-from .util.safeeval import is_eval_safe, safe_builtins, safe_eval
-from .util.unicode_characters import (
-    C_CUT,
-    C_ENTRY,
-    C_FAILURE,
-    C_RECURSION,
-    C_SUCCESS,
-)
+from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
+from .infos import MemoKey, RuleResult, closure
+from .parsestate import ParseState, ParseStateStack
+from .tracing import EventTracer
 
-__all__: list[str] = ['ParseContext', 'tatsumasu', 'leftrec', 'nomemo']
-
-
-class EventColor(color.Color):
-    def __init__(self):
-        self.ENTRY = self.YELLOW + self.BRIGHT + C_ENTRY
-        self.SUCCESS = self.GREEN + self.BRIGHT + C_SUCCESS
-        self.FAILURE = self.RED + self.BRIGHT + C_FAILURE
-        self.RECURSION = self.RED + self.BRIGHT + C_RECURSION
-        self.CUT = self.MAGENTA + self.BRIGHT + C_CUT
-
-
-C = EventColor()
-
-
-class MemoKey(NamedTuple):
-    pos: int
-    ruleinfo: RuleInfo
-    state: Any
-
-
-@dataclasses.dataclass(slots=True)
-class ParseState:
-    pos: int = 0
-    ast: Any = dataclasses.field(default_factory=dict)
-    cst: Any = None
-    alerts: list[Alert] = dataclasses.field(default_factory=list)
-
-
-class RuleResult(NamedTuple):
-    node: Any
-    newpos: int
-    newstate: Any
-
-
-class RuleLike(Protocol):
-    is_leftrec: bool = False
-    is_memoizable: bool = False
-    is_name: bool = False
-
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        pass
-
-
-# decorator for rule implementation methods
-def tatsumasu(*params: Any, **kwparams: Any) -> Callable[[Callable[..., Any]], Callable[[ParseContext], Any]]:
-
-    def decorator(impl: Callable[..., Any]) -> Callable[[ParseContext], Any]:
-
-        @functools.wraps(impl)
-        def wrapper(self: ParseContext) -> Any:
-            name = impl.__name__  # type: ignore
-            # remove the single leading and trailing underscore
-            # that the parser generator added
-            if name.startswith("_") and name.endswith("_"):
-                name = name[1:-1]
-            is_leftrec = getattr(impl, 'is_leftrec', False)
-            is_memoizable = getattr(impl, 'is_memoizable', True)
-            is_name = getattr(impl, 'is_name', False)
-            ruleinfo = RuleInfo(
-                name,
-                impl,
-                is_leftrec,
-                is_memoizable,
-                is_name,
-                params,
-                kwparams,
-            )
-            return self._call(ruleinfo)
-
-        return wrapper
-
-    return decorator
-
-
-# This is used to mark left recursive rules
-def leftrec(impl: Callable) -> Callable:
-    over: RuleLike = cast(RuleLike, impl)
-    over.is_leftrec = True
-    over.is_memoizable = False
-    return impl
-
-
-# Marks rules for which memoization has to be turned off
-# (has no effect when left recursion is turned off)
-def nomemo(impl: Callable) -> Callable:
-    over: RuleLike = cast(RuleLike, impl)
-    over.is_memoizable = False
-    return impl
-
-
-# Marks rules marked as @name in the grammar
-def isname(impl: Callable) -> Callable:
-    over: RuleLike = cast(RuleLike, impl)
-    over.is_name = True
-
-    return impl
-
-
-class closure(list[Any]):
-    def __hash__(self) -> int:  # type: ignore
-        return hash(tuple(self))
+__all__: list[str] = ['ParseContext']
 
 
 class ParseContext:
@@ -170,9 +61,10 @@ class ParseContext:
         self._tokenizer: Tokenizer = NullTokenizer()
         self._semantics: type | None = config.semantics
         self._initialize_caches()
+        self._tracer = self.new_tracer()
 
     def _initialize_caches(self) -> None:
-        self._state_stack: list[ParseState] = [ParseState()]
+        self._states = ParseStateStack()
         self._ruleinfo_stack: list[RuleInfo] = []
         self._cut_stack: list[bool] = [False]
 
@@ -186,6 +78,17 @@ class ParseContext:
     @property
     def config(self):
         return self._active_config
+
+    @property
+    def tracer(self):
+        return self._tracer
+
+    def new_tracer(self) -> Any:
+        return EventTracer(
+            self._tokenizer,
+            self._ruleinfo_stack,
+            config=self.config,
+        )
 
     @property
     def active_config(self) -> ParserConfig:
@@ -204,12 +107,6 @@ class ParseContext:
         return self._keywords
 
     def _reset(self, config: ParserConfig) -> ParserConfig:
-        if self.config.colorize:
-            color.init()
-            global C  # noqa: PLW0603
-            # new instance after color.init()
-            C = EventColor()
-
         self._initialize_caches()
         self._keywords: set[str] = set(config.keywords)
         self._semantics = config.semantics
@@ -228,6 +125,7 @@ class ParseContext:
         config = self.config.replace_config(config)
         config = config.replace(**settings)
         self._active_config = config
+        self._tracer = self.new_tracer()
         try:
             self._reset(config)
             if isinstance(text, tokenizing.Tokenizer):
@@ -253,6 +151,7 @@ class ParseContext:
                 self._clear_memoization_caches()
         finally:
             self._active_config = self._config
+            self._tracer = self.new_tracer()
 
     @property
     def tokenizer(self) -> Tokenizer:
@@ -299,7 +198,7 @@ class ParseContext:
 
     @property
     def state(self) -> ParseState:
-        return self._state_stack[-1]
+        return self._states.top()
 
     @property
     def ast(self) -> AST:
@@ -321,38 +220,20 @@ class ParseContext:
             name += '_'
         return name
 
-    def ast_set(self, name: str, value: Any, as_list: bool = False) -> None:
-        ast = self.ast
-        name = self._safe_name(name, ast)
-
-        previous = ast.get(name)
-        if previous is None:
-            new_value = [value] if as_list else value
-        elif is_list(previous):
-            new_value = [*previous, value]
-        else:
-            new_value = [previous, value]
-
-        ast = AST(ast, name=new_value)
-        self.ast = ast
-
-    def ast_append(self, name: str, value: Any) -> None:
-        self.ast_set(name, value, as_list=True)
-
     def _push_ast(self, copyast: bool = False) -> None:
         ast = copy(self.ast) if copyast else AST()
         self.state.pos = self._pos
-        self._state_stack.append(ParseState(ast=ast, pos=self._pos))
+        self._states.push(ast=ast, pos=self._pos)
 
     def _pop_ast(self) -> None:
-        self._state_stack.pop()
+        self._states.pop()
         self.tokenizer.goto(self.state.pos)
 
     def _merge_ast(self) -> None:
         pos = self._pos
         ast = self.ast
         cst = self.cst
-        self._state_stack.pop()
+        self._states.pop()
         self.ast = ast
         self._extend_cst(cst)
         self.tokenizer.goto(pos)
@@ -366,11 +247,11 @@ class ParseContext:
         self.state.cst = value
 
     def _push_cst(self) -> None:
-        self._state_stack.append(ParseState(ast=self.ast))
+        self._states.push(ast=self.ast)
 
     def _pop_cst(self) -> None:
         ast = self.ast
-        self._state_stack.pop()
+        self._states.pop()
         self.ast = ast
 
     def _merge_cst(self, extend: bool = True) -> Any:
@@ -423,7 +304,7 @@ class ParseContext:
         return self._cut_stack[-1]
 
     def _cut(self) -> None:
-        self._trace_cut()
+        self.tracer.trace_cut()
         self._cut_stack[-1] = True
 
         def prune(cache: dict[Any, Any], cut_pos: int) -> None:
@@ -440,15 +321,6 @@ class ParseContext:
                 self.config.memoize_lookaheads or
                 self._lookahead == 0
         )
-
-    def _rulestack(self) -> str:
-        rulestack = [r.name for r in reversed(self._ruleinfo_stack)]
-        stack = self.config.trace_separator.join(rulestack)
-        if max((len(s) for s in stack.splitlines()), default=0) > self.config.trace_length:
-            stack = stack[:self.config.trace_length]
-            stack = stack.rsplit(self.config.trace_separator, 1)[0]
-            stack += self.config.trace_separator
-        return stack
 
     def _find_rule(self, name: str) -> Callable[[], Any]:
         self._error(name, exclass=FailedRef)
@@ -470,74 +342,6 @@ class ParseContext:
             postproc = None
 
         return action, postproc
-
-    def _trace(self, msg: str, *args: Any, **kwargs: Any) -> None:
-        if not self.config.trace:
-            return
-
-        info(msg, *args, **kwargs)
-
-    def _trace_event(self, event: str) -> None:
-        if not self.config.trace:
-            return
-
-        fname = ''
-        if self.config.trace_filename:
-            fname = self.tokenizer.line_info().filename
-        if fname:
-            fname += '\n'
-
-        lookahead = self.tokenizer.lookahead().rstrip()
-        lookahead = '\n' + lookahead if lookahead else ''
-
-        message = (
-            f'{event}{self._rulestack()}'
-            f' {C.DIM}{fname}'
-            f'{self._tokenizer.lookahead_pos()}{C.RESET}'
-            f'{C.RESET_ALL}{lookahead}{C.RESET_ALL}'
-        )
-        self._trace(message)
-
-    def _trace_entry(self) -> None:
-        self._trace_event(f'{C.ENTRY}')
-
-    def _trace_success(self) -> None:
-        self._trace_event(f'{C.SUCCESS}')
-
-    def _trace_failure(self, ex: Exception | None = None) -> None:
-        if isinstance(ex, FailedLeftRecursion):
-            self._trace_recursion()
-        else:
-            self._trace_event(f'{C.FAILURE}')
-
-    def _trace_recursion(self) -> None:
-        self._trace_event(f'{C.RECURSION}')
-
-    def _trace_cut(self) -> None:
-        self._trace_event(f'{C.CUT}')
-
-    def _trace_match(self, token: Any, name: str | None = None, failed: bool = False) -> None:
-        if not self.config.trace:
-            return
-
-        name_str = f'/{name}/' if name else ''
-        if self.config.trace_filename:
-            fname = self._tokenizer.line_info().filename + '\n'
-        else:
-            fname = ''
-
-        mark = f'{C.FAILURE}' if failed else f'{C.SUCCESS}'
-
-        lookahead = self._tokenizer.lookahead().rstrip()
-        lookahead = '\n' + lookahead if lookahead else lookahead
-
-        message = (
-            f'{mark}'
-            f"'{token}{name_str}"
-            f'{C.DIM}{fname}'
-            f'{C.RESET_ALL}{lookahead}{C.RESET_ALL}'
-        )
-        self._trace(message)
 
     def _make_exception(self, item: Any, exclass: type[FailedParse] = FailedParse) -> FailedParse:
         if issubclass(exclass, FailedLeftRecursion):
@@ -591,7 +395,7 @@ class ParseContext:
         self._ruleinfo_stack += [ruleinfo]
         pos = self._pos
         try:
-            self._trace_entry()
+            self.tracer.trace_entry()
             self._last_node = None
 
             result = self._recursive_call(ruleinfo)
@@ -600,7 +404,7 @@ class ParseContext:
             self.substate = result.newstate
             self._append_cst(result.node)
 
-            self._trace_success()
+            self.tracer.trace_success()
 
             return result.node
         except FailedPattern:
@@ -608,7 +412,7 @@ class ParseContext:
         except FailedParse as e:
             self._goto(pos)
             self._set_furthest_exception(e)
-            self._trace_failure(e)
+            self.tracer.trace_failure(e)
             raise
         finally:
             self._ruleinfo_stack.pop()
@@ -722,15 +526,15 @@ class ParseContext:
     def _token(self, token: str) -> str:
         self._next_token()
         if self.tokenizer.match(token) is None:
-            self._trace_match(token, failed=True)
+            self.tracer.trace_match(token, failed=True)
             self._error(token, exclass=FailedToken)
-        self._trace_match(token)
+        self.tracer.trace_match(token)
         self._append_cst(token)
         return token
 
     def _constant(self, literal: Any) -> Any:
         self._next_token()
-        self._trace_match(literal)
+        self.tracer.trace_match(literal)
 
         if not isinstance(literal, str):
             self._append_cst(literal)
@@ -775,15 +579,15 @@ class ParseContext:
 
     def _alert(self, message: str, level: int) -> None:
         self._next_token()
-        self._trace_match(f'{"^" * level}`{message}`', failed=True)
+        self.tracer.trace_match(f'{"^" * level}`{message}`', failed=True)
         self.state.alerts.append(Alert(message=message, level=level))
 
     def _pattern(self, pattern: str) -> Any:
         token = self.tokenizer.matchre(pattern)
         if token is None:
-            self._trace_match('', pattern, failed=True)
+            self.tracer.trace_match('', pattern, failed=True)
             self._error(pattern, exclass=FailedPattern)
-        self._trace_match(token, pattern)
+        self.tracer.trace_match(token, pattern)
         self._append_cst(token)
         return token
 
@@ -969,9 +773,9 @@ class ParseContext:
     def _dot(self) -> Any:
         c = self._next()
         if c is None:
-            self._trace_match(c, failed=True)
+            self.tracer.trace_match(c, failed=True)
             self._error(c, exclass=FailedToken)
-        self._trace_match(c)
+        self.tracer.trace_match(c)
         self._append_cst(c)
         return c
 
