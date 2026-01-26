@@ -43,6 +43,7 @@ from .util import (
     safe_name,
     trim,
 )
+from .util.isnotnone import Undefined
 from .util.safeval import is_eval_safe, safe_builtins, safe_eval
 from .util.unicode_characters import (
     C_CUT,
@@ -734,28 +735,35 @@ class ParseContext:
         if not isinstance(literal, str):
             self._append_cst(literal)
             return literal
+        literal = str(literal)  # for type linters
 
-        unknown = object()
-        result = unknown
-        with suppress(ValueError, SyntaxError):
-            result = stdlib_ast.literal_eval(literal.strip())
-            assert result is not unknown
+        context: dict[str, Any] = safe_builtins()
+        if hasattr(self.semantics, 'safe_context'):
+            context |= self.semantics.safe_context()
+        if isinstance(self.ast, AST):
+            context |= self.ast
 
-        if result is unknown:
-            expression: str = literal
-            if '\n' in expression:
-                expression = trim(expression)
-            expression = f'{"f" + repr(expression)}'
+        expression = Undefined
+        result = literal
+        while result != expression:
+            expression = result
+            if not isinstance(expression, str):
+                break
 
-            context: dict[str, Any] = safe_builtins()
-            if hasattr(self.semantics, 'safe_context'):
-                context |= self.semantics.safe_context()
-            if isinstance(self.ast, AST):
-                context |= self.ast
-            if is_eval_safe(expression, context):
-                result = safe_eval(expression, context)
+            expression = trim(expression)
+            with suppress(ValueError, SyntaxError):
+                result = stdlib_ast.literal_eval(expression.strip())
+                assert result is not Undefined
+                continue
 
-        if result is unknown:
+            try:
+                exp_to_eval = f'{"f" + repr(expression)}'
+                if is_eval_safe(exp_to_eval, context):
+                    result = safe_eval(exp_to_eval, context)
+            except BaseException as e:
+                raise FailedSemantics(f'Error evaluating constant: {e}') from e
+
+        if result is Undefined:
             result = literal
 
         self._append_cst(result)
