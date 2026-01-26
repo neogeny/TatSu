@@ -8,7 +8,7 @@ from collections.abc import Iterable
 from functools import cache
 from graphlib import TopologicalSorter
 
-from tatsu.util.isnotnone import Undefined
+from tatsu.util import Undefined
 
 
 def first(iterable, default=Undefined):

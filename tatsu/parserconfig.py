@@ -8,8 +8,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .tokenizing import NullTokenizer, Tokenizer
-from .util import asjson
-from .util.isnotnone import Undefined
+from .util import Undefined, asjson
 from .util.misc import cached_re_compile
 from .util.unicode_characters import C_DERIVE
 

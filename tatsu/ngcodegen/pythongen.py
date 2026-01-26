@@ -9,8 +9,7 @@ from .. import grammars
 from ..exceptions import CodegenError
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
-from ..util import compress_seq, safe_name
-from ..util.isnotnone import Undefined
+from ..util import Undefined, compress_seq, safe_name
 from ..walkers import NodeWalker
 
 HEADER = """\

@@ -16,10 +16,10 @@ from .exceptions import ParseError
 from .infos import ParserConfig
 from .tokenizing import CommentInfo, LineIndexInfo, LineInfo, PosLine, Tokenizer
 from .util import (
+    Undefined,
     contains_sublist,
     extend_list,
 )
-from .util.isnotnone import Undefined
 from .util.misc import cached_re_compile, match_to_find
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')

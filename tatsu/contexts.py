@@ -34,6 +34,7 @@ from .infos import (
 )
 from .tokenizing import NullTokenizer, Tokenizer
 from .util import (
+    Undefined,
     color,
     info,
     is_list,
@@ -43,7 +44,6 @@ from .util import (
     safe_name,
     trim,
 )
-from .util.isnotnone import Undefined
 from .util.safeval import is_eval_safe, safe_builtins, safe_eval
 from .util.unicode_characters import (
     C_CUT,

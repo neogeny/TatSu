@@ -1,22 +1,22 @@
-# isnotnone.py
+# notnone.py
 from __future__ import annotations
 
 from typing import Any, cast
 
-__all__ = ['Undefined']
+__all__ = ['NotNone', 'Undefined']
 
 
-class UndefinedType[T]:
-    __undefined: Any = None
+class NotNoneType[T]:
+    __notnone: Any = None
 
     def __init__(self):
-        if isinstance(self.__undefined, UndefinedType):
+        if isinstance(self.__notnone, NotNoneType):
             return
-        type(self).__undefined = self
+        type(self).__notnone = self
 
     @classmethod
-    def undefined(cls) -> UndefinedType[T]:
-        return cast(UndefinedType[T], cls.__undefined)
+    def notnone(cls) -> NotNoneType[T]:
+        return cast(NotNoneType[T], cls.__notnone)
 
     def __eq__(self, other: Any) -> bool:
         if self is not Undefined:
@@ -35,4 +35,5 @@ class UndefinedType[T]:
         return hash(id(self))
 
 
-Undefined: UndefinedType[Any] = UndefinedType()
+NotNone: NotNoneType[Any] = NotNoneType()
+Undefined = NotNone
