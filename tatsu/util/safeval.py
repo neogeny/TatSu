@@ -41,7 +41,9 @@ def safe_builtins() -> dict[str, Any]:
 
 
 def make_dict_hashable(pairs: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
-    def make_pairs_hashable(items: Iterable[tuple[str, Any]], seen: set[int]) -> Iterable[tuple[str, Any]]:
+    def make_pairs_hashable(
+            items: Iterable[tuple[str, Any]], seen: set[int],
+    ) -> Iterable[tuple[str, Any]]:
         for name, obj in items:
             obj_id = id(obj)
             if obj_id in seen:
@@ -78,7 +80,7 @@ def is_eval_safe(expression: str, context: dict[str, Any]) -> bool:
     # by https://github.com/apalala (apalala@gmail.com)
     """
     try:
-        check_eval_safe(expression, context)
+        check_safe_eval(expression, context)
         return True
     except SecurityError:
         return False
@@ -90,22 +92,29 @@ def safe_eval(expression: str, context: dict[str, Any]) -> Any:
     # by Gemini (2026-01-25)
     # by https://github.com/apalala (apalala@gmail.com)
     """
-    check_eval_safe(expression, context)
-    return eval(expression, {'__builtins__': {}}, context)  # noqa: S307
+    check_safe_eval(expression, context)
+    try:
+        return eval(expression, {'__builtins__': {}}, context)  # noqa: S307
+    except (ValueError, SyntaxError, TypeError, AttributeError):
+        raise
+    except BaseException as e:
+        raise SecurityError(
+            f'Unexpected exception type {type(e).__name__}: {e}',
+        ) from e
 
 
-def check_eval_safe(expression: str, context: dict[str, Any]) -> None:
+def check_safe_eval(expression: str, context: dict[str, Any]) -> None:
     """
     Public entry point that translates dict to hashable tuple for caching.
     # by Gemini (2026-01-25)
     # by https://github.com/apalala (apalala@gmail.com)
     """
     context_items = make_dict_hashable(context)
-    _check_eval_safe_cached(expression, context_items)
+    _check_safe_eval_cached(expression, context_items)
 
 
 @lru_cache(maxsize=1024)
-def _check_eval_safe_cached(expression: str, context_items: tuple[tuple[str, Any], ...]) -> None:
+def _check_safe_eval_cached(expression: str, context_items: tuple[tuple[str, Any], ...]) -> None:
     """
     Internal cached function that performs the actual AST validation.
     # by Gemini (2026-01-25)
