@@ -41,8 +41,16 @@ class ActualParameters:
 
 
 class AbstractSemantics:
-    def safe_context(self) -> Mapping[str, Any]:
-        return vars(builtins)
+    def safe_context(self, /, *other: dict[str, Any]) -> Mapping[str, Any]:
+        context: dict[str, Any] = {}
+        for ctx in other:
+            context |= ctx
+
+        return {
+            name: value
+            for name, value in context.items()
+            if callable(value) and not name.startswith('_')
+        }
 
 
 class ASTSemantics(AbstractSemantics):
@@ -85,15 +93,8 @@ class ModelBuilderSemantics(AbstractSemantics):
             # note: allow standalone functions
             self._register_constructor(t)
 
-    def safe_context(self) -> Mapping[str, Any]:
-        return {
-            name: value
-            for name, value in (
-                # vars(builtins) | registered_synthetics() | self.constructors
-                self.constructors
-            ).items()
-            if callable(value) and not name.startswith('_')
-        }
+    def safe_context(self, /, *other: dict[str, Any]) -> Mapping[str, Any]:
+        return super().safe_context(self.constructors, *other)
 
     def _register_constructor(self, constructor: Callable) -> Callable:
         if hasattr(constructor, '__name__') and isinstance(constructor.__name__, str):
