@@ -41,7 +41,7 @@ class ParserConfig:
     ignorecase: bool | None = False
     namechars: str = ''
     nameguard: bool | None = None  # implied by namechars
-    whitespace: str | None = _undefined_str
+    whitespace: str | None = undefined
 
     parseinfo: bool = False
 ```
@@ -259,7 +259,7 @@ When set to `True`, avoids matching tokens when the next character in the input 
 ## whitespace
 
 ``` Python
-whitespace: str | None = _undefined_str
+whitespace: str | None = undefined
 ```
 
 Provides a regular expression for the whitespace to be ignored by the parser. See the [@@whitespace](directives.md#whitespace-regexp) section for more information.

@@ -7,10 +7,10 @@ from typing import Any
 
 from .. import grammars
 from ..exceptions import CodegenError
-from ..infos import UndefinedStr
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..util import compress_seq, safe_name
+from ..util.misc import UNDEFINED
 from ..walkers import NodeWalker
 
 HEADER = """\
@@ -322,7 +322,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         start = grammar.config.start or grammar.rules[0].name
 
         whitespace = grammar.config.whitespace
-        if isinstance(whitespace, UndefinedStr):  # the default value
+        if whitespace is UNDEFINED:  # the default value
             whitespace = None
         whitespace = repr(whitespace)
 

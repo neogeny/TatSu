@@ -7,11 +7,27 @@ from collections import defaultdict
 from collections.abc import Iterable
 from functools import cache
 from graphlib import TopologicalSorter
+from typing import Any, cast
 
-_undefined = object()  # unique object for when None is not a good default
+
+class UndefinedClass[T]:
+    _undefined: UndefinedClass[T] | None = None
+
+    def __init__(self) -> None:
+        type(self)._undefined = UndefinedClass[T]()
+
+    @classmethod
+    def undefined(cls) -> UndefinedClass[T]:
+        return cast(UndefinedClass[T], cls._undefined)
+
+    def __hash__(self) -> int:
+        return hash(id(self))
 
 
-def first(iterable, default=_undefined):
+UNDEFINED: UndefinedClass[Any] = UndefinedClass.undefined()
+
+
+def first(iterable, default=UNDEFINED):
     """Return the first item of *iterable*, or *default* if *iterable* is
     empty.
 
@@ -36,7 +52,7 @@ def first(iterable, default=_undefined):
         # the moment, ValueError wins, because the caller could conceivably
         # want to do something different with flow control when I raise the
         # exception, and it's weird to explicitly catch StopIteration.
-        if default is _undefined:
+        if default is UNDEFINED:
             raise ValueError(
                 'first() was called on an empty iterable, and no '
                 'default value was provided.',
@@ -75,7 +91,7 @@ def findalliter(pattern, string, pos=None, endpos=None, flags=0):
         yield match_to_find(m)
 
 
-def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=_undefined):
+def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=UNDEFINED):
     """
     Avoids using the inefficient findall(...)[0], or first(findall(...))
     """

@@ -13,13 +13,13 @@ from pathlib import Path
 from typing import Any
 
 from .exceptions import ParseError
-from .infos import ParserConfig, UndefinedStr
+from .infos import ParserConfig
 from .tokenizing import CommentInfo, LineIndexInfo, LineInfo, PosLine, Tokenizer
 from .util import (
     contains_sublist,
     extend_list,
 )
-from .util.misc import cached_re_compile, match_to_find
+from .util.misc import UNDEFINED, cached_re_compile, match_to_find
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -75,7 +75,7 @@ class Buffer(Tokenizer):
 
     @staticmethod
     def build_whitespace_re(whitespace: Any) -> re.Pattern | None:
-        if type(whitespace) is UndefinedStr:
+        if whitespace is UNDEFINED:
             return DEFAULT_WHITESPACE_RE
         if whitespace in {None, ''}:
             return None
@@ -382,6 +382,15 @@ class Buffer(Tokenizer):
     def line_info(self, pos: int | None = None) -> LineInfo:
         if pos is None:
             pos = self._pos
+        if not self._line_cache or not self._line_index:
+            return LineInfo(
+                filename=self.filename,
+                line=0,
+                col=0,
+                start=0,
+                end=len(self.text),
+                text=self.text,
+            )
 
         # -2 to skip over sentinel
         pos = min(pos, len(self._line_cache) - 2)

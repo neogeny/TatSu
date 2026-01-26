@@ -50,7 +50,7 @@ argument in entry points and internal methods. The defaults set in
         ignorecase: bool | None = False
         namechars: str = ''
         nameguard: bool | None = None  # implied by namechars
-        whitespace: str | None = _undefined_str
+        whitespace: str | None = undefined
 
         parseinfo: bool = False
 
@@ -320,7 +320,7 @@ whitespace
 
 .. code:: Python
 
-    whitespace: str | None = _undefined_str
+    whitespace: str | None = undefined
 
 Provides a regular expression for the whitespace to be ignored by the parser.
 See the `@@whitespace <directives.html#whitespace-regexp>`_ section for more

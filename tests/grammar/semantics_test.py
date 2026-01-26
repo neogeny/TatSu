@@ -1,3 +1,4 @@
+import pytest
 
 from tatsu import synth
 from tatsu.objectmodel import Node
@@ -118,3 +119,27 @@ def test_optional_attributes():
     b = grammar.parse('foo', semantics=ModelBuilderSemantics())
     assert b.left == 'foo'
     assert b.right is None
+
+
+@pytest.mark.skip(reason='Not finished yer')
+def test_constant_failure():
+    grammar = r"""
+        start =
+            a:A b:B
+            c:```{a} / {b}```
+            $
+        ;
+
+        A = number @:`7` ;
+        B = number @:`0` ;
+        number::int = /\d+/ ;
+    """
+    try:
+        model = compile(grammar)
+        result = model.parse('42 84', trace=True)
+    except Exception as e:
+        print(e)
+        raise
+    assert model
+    assert result == []
+    pytest.fail('should not have reached here')

@@ -10,17 +10,12 @@ from collections.abc import Iterable, Mapping
 from functools import lru_cache
 from typing import Any
 
+from ..util.misc import UNDEFINED, UndefinedClass
+
 
 class SecurityError(RuntimeError):
     """Raised when an expression or context contains unauthorized patterns."""
     pass
-
-
-class Undefined:
-    pass
-
-
-_undefined = Undefined()
 
 
 def hashable(obj: Any) -> bool:
@@ -69,11 +64,11 @@ def make_dict_hashable(pairs: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
 
 
 @lru_cache(maxsize=1024)
-def parse_expression(expression: str) -> ast.AST | Undefined:
+def parse_expression(expression: str) -> ast.AST | UndefinedClass:
     try:
         return ast.parse(expression, mode='eval')
     except (ValueError, SyntaxError):
-        return _undefined
+        return UNDEFINED
 
 
 def is_eval_safe(expression: str, context: dict[str, Any]) -> bool:
@@ -96,7 +91,7 @@ def safe_eval(expression: str, context: dict[str, Any]) -> Any:
     # by https://github.com/apalala (apalala@gmail.com)
     """
     check_eval_safe(expression, context)
-    return eval(expression, {"__builtins__": {}}, context)  # noqa: S307
+    return eval(expression, {'__builtins__': {}}, context)  # noqa: S307
 
 
 def check_eval_safe(expression: str, context: dict[str, Any]) -> None:
@@ -121,8 +116,11 @@ def _check_eval_safe_cached(expression: str, context_items: tuple[tuple[str, Any
     allowed_names = set(context.keys())
 
     tree = parse_expression(expression)
-    if isinstance(tree, Undefined):
+    if isinstance(tree, UndefinedClass):
         raise SecurityError(f"Invalid expression syntax: {expression!r}")
+
+    if tree is None:
+        return
 
     for node in ast.walk(tree):
         if isinstance(node, (ast.Raise, ast.Try, ast.ExceptHandler)):

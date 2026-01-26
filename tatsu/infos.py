@@ -3,16 +3,10 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any, NamedTuple
 
-from .parserconfig import (  # re-export from legacy
-    ParserConfig,
-    UndefinedStr,
-    _undefined_str,
-)
-
-# package
+from .parserconfig import ParserConfig
 from .tokenizing import Tokenizer
 
-assert ParserConfig and UndefinedStr and _undefined_str  # type: ignore
+__all__ = ['Alert', 'ParserConfig', 'ParseInfo', 'RuleInfo']
 
 
 class Alert(NamedTuple):
