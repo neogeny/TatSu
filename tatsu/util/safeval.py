@@ -40,29 +40,29 @@ def safe_builtins() -> dict[str, Any]:
     }
 
 
-def make_dict_hashable(pairs: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
-    def make_pairs_hashable(
-            items: Iterable[tuple[str, Any]], seen: set[int],
-    ) -> Iterable[tuple[str, Any]]:
-        for name, obj in items:
-            obj_id = id(obj)
-            if obj_id in seen:
-                yield name, f"<circular_ref_{obj_id}>"
-                continue
+def make_hashable(source: Any) -> Any:
+    def dfs(obj: Any, seen: set[int]) -> Any:
+        obj_id = id(obj)
+        if obj_id in seen:
+            return (f"<circular_ref_{obj_id}>",)
 
-            if isinstance(obj, (dict, list, set, tuple)):
-                seen.add(obj_id)
-                if isinstance(obj, dict):
-                    yield name, tuple(make_pairs_hashable(obj.items(), seen))
-                else:
-                    yield name, tuple(make_pairs_hashable(((str(i), elem) for i, elem in enumerate(obj)), seen))
-                seen.remove(obj_id)
-            elif not hashable(obj):
-                yield name, obj_id
-            else:
-                yield name, obj
+        if isinstance(obj, (dict, list, set, tuple)):
+            seen.add(obj_id)
 
-    return tuple(make_pairs_hashable(pairs.items(), set()))
+        match obj:
+            case (list(), set(), tuple()) as sequence:
+                return tuple(dfs(e, seen) for e in sequence)
+            case dict() as mapping:
+                return tuple(
+                    (name, dfs(value, seen))
+                    for name, value in mapping.items()
+                )
+            case node if not hashable(node):
+                return (obj_id,)
+            case _:
+                return obj
+
+    return dfs(source, set())
 
 
 @lru_cache(maxsize=1024)
@@ -109,7 +109,7 @@ def check_safe_eval(expression: str, context: dict[str, Any]) -> None:
     # by Gemini (2026-01-25)
     # by https://github.com/apalala (apalala@gmail.com)
     """
-    context_items = make_dict_hashable(context)
+    context_items = make_hashable(context)
     _check_safe_eval_cached(expression, context_items)
 
 
