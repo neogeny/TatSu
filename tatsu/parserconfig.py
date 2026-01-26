@@ -9,7 +9,8 @@ from typing import Any
 
 from .tokenizing import NullTokenizer, Tokenizer
 from .util import asjson
-from .util.misc import UNDEFINED, cached_re_compile
+from .util.isnotnone import Undefined
+from .util.misc import cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
 MEMO_CACHE_SIZE = 4 * 1024
@@ -56,7 +57,7 @@ class ParserConfig:
     namechars: str = ''
     nameguard: bool | None = None  # implied by namechars
     whitespace: str | None = None
-    whitespace: str | None = UNDEFINED  # type: ignore
+    whitespace: str | None = Undefined  # type: ignore
     parseinfo: bool = False
 
     def __post_init__(self):  # pylint: disable=W0235

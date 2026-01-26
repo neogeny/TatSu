@@ -10,7 +10,7 @@ from collections.abc import Iterable, Mapping
 from functools import lru_cache
 from typing import Any
 
-from ..util.misc import UNDEFINED, UndefinedClass
+from .isnotnone import Undefined, UndefinedType
 
 
 class SecurityError(RuntimeError):
@@ -64,11 +64,11 @@ def make_dict_hashable(pairs: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
 
 
 @lru_cache(maxsize=1024)
-def parse_expression(expression: str) -> ast.AST | UndefinedClass:
+def parse_expression(expression: str) -> ast.AST | UndefinedType:
     try:
         return ast.parse(expression, mode='eval')
     except (ValueError, SyntaxError):
-        return UNDEFINED
+        return Undefined
 
 
 def is_eval_safe(expression: str, context: dict[str, Any]) -> bool:
@@ -116,7 +116,7 @@ def _check_eval_safe_cached(expression: str, context_items: tuple[tuple[str, Any
     allowed_names = set(context.keys())
 
     tree = parse_expression(expression)
-    if isinstance(tree, UndefinedClass):
+    if isinstance(tree, UndefinedType):
         raise SecurityError(f"Invalid expression syntax: {expression!r}")
 
     if tree is None:

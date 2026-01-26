@@ -19,7 +19,8 @@ from .util import (
     contains_sublist,
     extend_list,
 )
-from .util.misc import UNDEFINED, cached_re_compile, match_to_find
+from .util.isnotnone import Undefined
+from .util.misc import cached_re_compile, match_to_find
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -75,7 +76,7 @@ class Buffer(Tokenizer):
 
     @staticmethod
     def build_whitespace_re(whitespace: Any) -> re.Pattern | None:
-        if whitespace is UNDEFINED:
+        if whitespace is Undefined:
             return DEFAULT_WHITESPACE_RE
         if whitespace in {None, ''}:
             return None
