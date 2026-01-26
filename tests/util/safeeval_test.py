@@ -7,7 +7,7 @@ import ast
 
 import pytest
 
-from tatsu.util.safeval import SecurityError, check_eval_safe, safe_eval
+from tatsu.util.safeval import SecurityError, check_safe_eval, safe_eval
 
 
 class MockObj:
@@ -22,7 +22,7 @@ def test_simple_context_eval():
 
     with pytest.raises(SecurityError, match='Invalid expression syntax'):
         safe_eval(expression, context)
-        check_eval_safe(expression, context)
+        check_safe_eval(expression, context)
         result = safe_eval(expression, context)
         assert result == expected
 
@@ -42,22 +42,24 @@ def test_safe_eval_flow():
 
 def test_unauthorized_call():
     with pytest.raises(SecurityError, match="Unauthorized function call"):
-        check_eval_safe("open('file.txt')", {"x": 1})
+        check_safe_eval("open('file.txt')", {"x": 1})
 
 
 def test_dunder_block():
     with pytest.raises(SecurityError, match="Dunder access prohibited"):
-        check_eval_safe("x.__class__", {"x": 1})
+        check_safe_eval("x.__class__", {"x": 1})
 
 
 def test_name_mismatch():
     with pytest.raises(SecurityError, match="Context name mismatch"):
-        check_eval_safe("fake_fn()", {"fake_fn": abs})  # abs.__name__ is 'abs'
+        check_safe_eval("fake_fn()", {"fake_fn": abs})  # abs.__name__ is 'abs'
 
 
 def test_no_excetions_for_eval():
     class MyException(BaseException):
         pass
+
     context = {"MyException": MyException}
     with pytest.raises(SecurityError, match="Exception class forbidden at context"):
-        check_eval_safe("1 + 1", context)
+        check_safe_eval("1 + 1", context)
+        safe_eval("1 + 1", context)
