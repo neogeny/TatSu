@@ -10,23 +10,20 @@ from .util.safeeval import make_hashable
 
 
 class AST(dict[str, Any]):
-    _frozen = False
-
+    """
+    A dictionary that allows attribute-style access to its keys.
+    # by Gemini (2026-01-26)
+    # by [apalala@gmail.com](https://github.com/apalala)
+    """
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__()
+        self.__dict__['_frozen'] = False
         self.update(*args, **kwargs)
-        self._frozen = True
-
-    @property
-    def frozen(self) -> bool:
-        return self._frozen
+        self.__dict__['_frozen'] = True
 
     @property
     def parseinfo(self) -> ParseInfo | None:
-        try:
-            return super().__getitem__('parseinfo')
-        except KeyError:
-            return None
+        return self.get('parseinfo')
 
     def set_parseinfo(self, value: ParseInfo | None) -> None:
         super().__setitem__('parseinfo', value)
@@ -40,17 +37,12 @@ class AST(dict[str, Any]):
     def _set(self, key: str, value: Any, force_list: bool = False) -> None:
         key = self._safekey(key)
         previous = self.get(key)
-
-        if previous is None and force_list:
-            value = [value]
-        elif previous is None:
-            pass
+        if previous is None:
+            super().__setitem__(key, [value] if force_list else value)
         elif is_list(previous):
-            value = [*previous, value]
+            super().__setitem__(key, [*previous, value])
         else:
-            value = [previous, value]
-
-        super().__setitem__(key, value)
+            super().__setitem__(key, [previous, value])
 
     def _setlist(self, key: str, value: list[Any]) -> None:
         self._set(key, value, force_list=True)
@@ -61,51 +53,30 @@ class AST(dict[str, Any]):
     def __getitem__(self, key: str) -> Any:
         if key in self:
             return super().__getitem__(key)
-        key = self._safekey(key)
-        if key in self:
-            return super().__getitem__(key)
-        return None
+        return super().get(self._safekey(key))
 
     def __setitem__(self, key: str, value: Any) -> None:
         self._set(key, value)
 
     def __delitem__(self, key: str) -> None:
-        key = self._safekey(key)
-        super().__delitem__(key)
+        super().__delitem__(self._safekey(key))
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if self._frozen and name not in vars(self):
-            raise AttributeError(
-                f'{type(self).__name__} attributes are fixed. '
-                f' Cannot set attribute "{name}".',
-            )
-        super().__setattr__(name, value)
+        if name.startswith('_'):
+            self.__dict__[name] = value
+            return
+        if self.__dict__.get('_frozen'):
+            raise AttributeError(f'AST attributes are fixed. Cannot set "{name}".')
+        self[name] = value
 
     def __getattr__(self, name: str) -> Any:
-        key = self._safekey(name)
-        if key in self:
-            return self[key]
-        elif name in self:
-            return self[name]
-
-        try:
-            return super().__getattribute__(name)
-        except AttributeError:
-            return None
-
-    def __hasattribute__(self, name: str) -> bool:
-        try:
-            super().__getattribute__(name)
-        except (TypeError, AttributeError):
-            return False
-        else:
-            return True
+        return self[name]
 
     def __reduce__(self) -> tuple[Any, Any]:
-        return (AST, (list(self.items()),))
+        return AST, (tuple(self.items()),)
 
     def _safekey(self, key: str) -> str:
-        while self.__hasattribute__(key):
+        while key in dir(self):
             key += '_'
         return key
 
@@ -113,16 +84,12 @@ class AST(dict[str, Any]):
         for key in (self._safekey(k) for k in keys):
             if key not in self:
                 super().__setitem__(key, None)
-
         for key in (self._safekey(k) for k in list_keys or []):
             if key not in self:
                 super().__setitem__(key, [])
 
-    def __json__(self, seen: set[int] | None = None) -> Any:
-        return {name: asjson(value, seen=seen) for name, value in self.items()}
-
     def __repr__(self) -> str:
-        return f'AST{self.asjson()!r}'
+        return f'AST({super().__repr__()})'
 
     def __str__(self) -> str:
         return str(self.asjson())
