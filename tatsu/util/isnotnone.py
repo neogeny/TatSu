@@ -6,14 +6,15 @@ __all__ = ['Undefined']
 
 
 class UndefinedType[T]:
-    _undefined: UndefinedType[T] | None = None
+    __undefined: Any = None
 
-    def __init__(self) -> None:
-        type(self)._undefined = UndefinedType[T]()
+    def __init__(self):
+        if not isinstance(self.__undefined, UndefinedType):
+            type(self).__undefined = self
 
     @classmethod
     def undefined(cls) -> UndefinedType[T]:
-        return cast(UndefinedType[T], cls._undefined)
+        return cast(UndefinedType[T], cls.__undefined)
 
     def __eq__(self, other: Any) -> bool:
         if self is not Undefined:
@@ -22,8 +23,14 @@ class UndefinedType[T]:
             return False
         return other is self
 
+    def __repr__(self) -> str:
+        return 'Undefined'
+
+    def __str__(self) -> str:
+        return 'Undefined'
+
     def __hash__(self) -> int:
         return hash(id(self))
 
 
-Undefined: UndefinedType[Any] = UndefinedType.undefined()
+Undefined: UndefinedType[Any] = UndefinedType()
