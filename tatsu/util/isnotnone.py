@@ -15,6 +15,13 @@ class UndefinedType[T]:
     def undefined(cls) -> UndefinedType[T]:
         return cast(UndefinedType[T], cls._undefined)
 
+    def __eq__(self, other: Any) -> bool:
+        if self is not Undefined:
+            return False
+        if other is not Undefined:
+            return False
+        return other is self
+
     def __hash__(self) -> int:
         return hash(id(self))
 
