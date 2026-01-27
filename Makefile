@@ -20,6 +20,7 @@ prepare:
 pytest: clean
 	mkdir -p ./tmp
 	touch ./tmp/__init__.py
+	#uv run pytest -v --cov=tatsu tests/
 	uv run pytest -v tests/
 
 
