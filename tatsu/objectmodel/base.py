@@ -75,9 +75,12 @@ class BaseNode(AsJSONMixin):
 
     def __getstate__(self) -> Any:
         return {
-            name: value if (
-                not isinstance(value, (weakref.ReferenceType, *weakref.ProxyTypes))
-            ) else None
+            name: value
+            if not isinstance(
+                value,
+                (weakref.ReferenceType, *weakref.ProxyTypes),
+            )
+            else None
             for name, value in vars(self).items()
         }
 
