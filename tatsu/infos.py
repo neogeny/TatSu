@@ -43,6 +43,9 @@ class RuleInfo(NamedTuple):
     params: list[Any] | tuple[Any]
     kwparams: dict[str, Any]
 
+    def is_token_rule(self):
+        return self.name.lstrip('_')[:1].isupper()
+
     def __hash__(self):
         return hash(self.name)
 

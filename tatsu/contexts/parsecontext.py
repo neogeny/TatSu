@@ -1,10 +1,10 @@
+
 from __future__ import annotations
 
 import ast as stdlib_ast
 import inspect
 from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager, suppress
-from copy import copy
 from typing import Any, NoReturn
 
 from .. import buffering, tokenizing
@@ -61,14 +61,14 @@ class ParseContext:
         self._tokenizer: Tokenizer = NullTokenizer()
         self._semantics: type | None = config.semantics
         self._initialize_caches()
-        self._tracer = self.new_tracer()
+
+        self._tracer = self.update_tracer()  # FIXME
 
     def _initialize_caches(self) -> None:
         self._states = ParseStateStack()
         self._ruleinfo_stack: list[RuleInfo] = []
         self._cut_stack: list[bool] = [False]
 
-        self._last_node: Any = None
         self.substate: Any = None
         self._lookahead: int = 0
         self._furthest_exception: FailedParse | None = None
@@ -78,17 +78,6 @@ class ParseContext:
     @property
     def config(self):
         return self._active_config
-
-    @property
-    def tracer(self):
-        return self._tracer
-
-    def new_tracer(self) -> Any:
-        return EventTracer(
-            self._tokenizer,
-            self._ruleinfo_stack,
-            config=self.config,
-        )
 
     @property
     def active_config(self) -> ParserConfig:
@@ -106,6 +95,20 @@ class ParseContext:
     def keywords(self) -> set[str]:
         return self._keywords
 
+    @property
+    def tracer(self):
+        return self._tracer
+
+    def update_tracer(self) -> EventTracer:
+        tracer = EventTracer(
+            self._tokenizer,
+            self._ruleinfo_stack,
+            config=self.config,
+        )
+        self._tracer = tracer
+        self.states.tracer = tracer
+        return self.tracer
+
     def _reset(self, config: ParserConfig) -> ParserConfig:
         self._initialize_caches()
         self._keywords: set[str] = set(config.keywords)
@@ -113,6 +116,10 @@ class ParseContext:
         if hasattr(self.semantics, 'set_context'):
             self.semantics.set_context(self)
         return config
+
+    def _clear_memoization_caches(self) -> None:
+        self._memos: BoundedDict[MemoKey, RuleResult | Exception] = BoundedDict(self.config.memo_cache_size)
+        self._results: dict[MemoKey, RuleResult | Exception] = {}
 
     def _set_furthest_exception(self, e: FailedParse) -> None:
         if (
@@ -125,7 +132,7 @@ class ParseContext:
         config = self.config.replace_config(config)
         config = config.replace(**settings)
         self._active_config = config
-        self._tracer = self.new_tracer()
+        self.update_tracer()
         try:
             self._reset(config)
             if isinstance(text, tokenizing.Tokenizer):
@@ -151,7 +158,7 @@ class ParseContext:
                 self._clear_memoization_caches()
         finally:
             self._active_config = self._config
-            self._tracer = self.new_tracer()
+            self.update_tracer()
 
     @property
     def tokenizer(self) -> Tokenizer:
@@ -166,39 +173,37 @@ class ParseContext:
 
     @property
     def last_node(self) -> Any:
-        return self._last_node
+        return self.states.last_node
 
     @last_node.setter
     def last_node(self, value: Any) -> None:
-        self._last_node = value
+        self.states.last_node = value
 
     @property
-    def _pos(self) -> int:
+    def pos(self) -> int:
         return self._tokenizer.pos
 
-    def _clear_memoization_caches(self) -> None:
-        self._memos: BoundedDict[MemoKey, RuleResult | Exception] = BoundedDict(self.config.memo_cache_size)
-        self._results: dict[MemoKey, RuleResult | Exception] = {}
-
-    def _goto(self, pos: int) -> None:
+    def goto(self, pos: int) -> None:
         self._tokenizer.goto(pos)
 
     def _next(self) -> Any:
         return self._tokenizer.next()
 
     def _next_token(self, ruleinfo: RuleInfo | None = None) -> None:
-        if ruleinfo is None or not ruleinfo.name.lstrip('_')[:1].isupper():
+        if not (ruleinfo and ruleinfo.is_token_rule()):
             self._tokenizer.next_token()
 
     def _define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None) -> None:
-        ast = AST()
-        ast._define(keys, list_keys=list_keys)
-        ast.update(self.ast)
-        self.ast = ast
+        # NOTE: called by generated parsers
+        return self.states.define(keys, list_keys)
+
+    @property
+    def states(self) -> ParseStateStack:
+        return self._states
 
     @property
     def state(self) -> ParseState:
-        return self._states.top()
+        return self.states.top
 
     @property
     def ast(self) -> AST:
@@ -208,36 +213,6 @@ class ParseContext:
     def ast(self, value: AST) -> None:
         self.state.ast = value
 
-    def name_last_node(self, name: str) -> None:
-        self.ast[name] = self.last_node
-
-    def add_last_node_to_name(self, name: str) -> None:
-        self.ast._setlist(name, self.last_node)
-
-    @staticmethod
-    def _safe_name(name: str, ast: AST) -> str:
-        while name in ast:
-            name += '_'
-        return name
-
-    def _push_ast(self, copyast: bool = False) -> None:
-        ast = copy(self.ast) if copyast else AST()
-        self.state.pos = self._pos
-        self._states.push(ast=ast, pos=self._pos)
-
-    def _pop_ast(self) -> None:
-        self._states.pop()
-        self.tokenizer.goto(self.state.pos)
-
-    def _merge_ast(self) -> None:
-        pos = self._pos
-        ast = self.ast
-        cst = self.cst
-        self._states.pop()
-        self.ast = ast
-        self._extend_cst(cst)
-        self.tokenizer.goto(pos)
-
     @property
     def cst(self) -> Any:
         return self.state.cst
@@ -246,59 +221,21 @@ class ParseContext:
     def cst(self, value: Any) -> None:
         self.state.cst = value
 
-    def _push_cst(self) -> None:
-        self._states.push(ast=self.ast)
+    def name_last_node(self, name: str) -> None:
+        # NOTE: called by generated parsers
+        self.states.name_last_node(name)
 
-    def _pop_cst(self) -> None:
-        ast = self.ast
-        self._states.pop()
-        self.ast = ast
+    def add_last_node_to_name(self, name: str) -> None:
+        # NOTE: called by generated parsers
+        self.states.add_last_node_to_name(name)
 
-    def _merge_cst(self, extend: bool = True) -> Any:
-        cst = self.cst
-        self._pop_cst()
-        if extend:
-            self._extend_cst(cst)
-        else:
-            self._append_cst(cst)
-        return cst
+    def _push_ast(self, copyast: bool = False) -> Any:
+        return self.states.push_ast(pos=self.pos, copyast=copyast)
 
-    def _append_cst(self, node: Any) -> Any:
-        self.last_node = node
-        previous = self.cst
-        if previous is None:
-            self.cst = self._copy_node(node)
-        elif is_list(previous):
-            previous.append(node)
-        else:
-            self.cst = [previous, node]
-        return node
-
-    def _extend_cst(self, node: Any) -> Any:
-        self.last_node = node
-        if node is None:
-            return None
-        previous = self.cst
-        if previous is None:
-            self.cst = self._copy_node(node)
-        elif is_list(node):
-            if is_list(previous):
-                previous.extend(node)
-            else:
-                self.cst = [previous, *node]
-        elif is_list(previous):
-            previous.append(node)
-        else:
-            self.cst = [previous, node]
-        return node
-
-    def _copy_node(self, node: Any) -> Any:
-        if node is None:
-            return None
-        elif is_list(node):
-            return node[:]
-        else:
-            return node
+    def _pop_ast(self) -> Any:
+        ast = self.states.pop_ast()
+        self.tokenizer.goto(self.state.pos)
+        return ast
 
     def _is_cut_set(self) -> bool:
         return self._cut_stack[-1]
@@ -314,7 +251,7 @@ class ParseContext:
             )
 
         if self.config.prune_memos_on_cut:
-            prune(self._memos, self._pos)
+            prune(self._memos, self.pos)
 
     def _memoization(self) -> bool:
         return self.config.memoization and (
@@ -357,7 +294,7 @@ class ParseContext:
         self._error('fail')
 
     def _get_parseinfo(self, name: str, pos: int) -> ParseInfo:
-        endpos = self._pos
+        endpos = self.pos
         return ParseInfo(
             tokenizer=self.tokenizer,
             rule=name,
@@ -373,7 +310,7 @@ class ParseContext:
         return self._ruleinfo_stack[-1]
 
     def memokey(self) -> MemoKey:
-        return MemoKey(self._pos, self.ruleinfo, self.substate)
+        return MemoKey(self.pos, self.ruleinfo, self.substate)
 
     def _memoize(self, key: MemoKey, memo: RuleResult | Exception) -> RuleResult | Exception:
         if self._memoization() and key.ruleinfo.is_memoizable:
@@ -393,16 +330,16 @@ class ParseContext:
 
     def _call(self, ruleinfo: RuleInfo) -> Any:
         self._ruleinfo_stack += [ruleinfo]
-        pos = self._pos
+        pos = self.pos
         try:
             self.tracer.trace_entry()
-            self._last_node = None
+            self.last_node = None
 
             result = self._recursive_call(ruleinfo)
 
-            self._goto(result.newpos)
+            self.goto(result.newpos)
             self.substate = result.newstate
-            self._append_cst(result.node)
+            self.states.append_cst(result.node)
 
             self.tracer.trace_success()
 
@@ -410,7 +347,7 @@ class ParseContext:
         except FailedPattern:
             self._error(f'Expecting <{ruleinfo.name}>')
         except FailedParse as e:
-            self._goto(pos)
+            self.goto(pos)
             self._set_furthest_exception(e)
             self.tracer.trace_failure(e)
             raise
@@ -444,13 +381,13 @@ class ParseContext:
         result = FailedLeftRecursion(self.tokenizer, stack=[], item=ruleinfo.name)
         self._results[key] = result
 
-        initial = self._pos
+        initial = self.pos
         lastpos = -1
         while True:
             self._clear_recursion_errors()
             try:
                 new_result = self._invoke_rule(ruleinfo, key)
-                self._goto(initial)
+                self.goto(initial)
             except FailedParse:
                 break
 
@@ -495,7 +432,7 @@ class ParseContext:
                 node = self._actual_node_value(key.pos, ruleinfo)
                 node = self._invoke_semantic_rule(ruleinfo, node)
 
-                result = RuleResult(node, self._pos, self.substate)
+                result = RuleResult(node, self.pos, self.substate)
                 self._memoize(key, result)
 
                 return result
@@ -529,7 +466,7 @@ class ParseContext:
             self.tracer.trace_match(token, failed=True)
             self._error(token, exclass=FailedToken)
         self.tracer.trace_match(token)
-        self._append_cst(token)
+        self.states.append_cst(token)
         return token
 
     def _constant(self, literal: Any) -> Any:
@@ -537,7 +474,7 @@ class ParseContext:
         self.tracer.trace_match(literal)
 
         if not isinstance(literal, str):
-            self._append_cst(literal)
+            self.states.append_cst(literal)
             return literal
         literal = str(literal)  # for type linters
 
@@ -574,7 +511,7 @@ class ParseContext:
                     f'Error evaluating constant {literal!r}: {e}',
                 ) from e
 
-        self._append_cst(result)
+        self.states.append_cst(result)
         return result
 
     def _alert(self, message: str, level: int) -> None:
@@ -588,7 +525,7 @@ class ParseContext:
             self.tracer.trace_match('', pattern, failed=True)
             self._error(pattern, exclass=FailedPattern)
         self.tracer.trace_match(token, pattern)
-        self._append_cst(token)
+        self.states.append_cst(token)
         return token
 
     def _eof(self) -> bool:
@@ -611,7 +548,7 @@ class ParseContext:
         self.last_node = None
         try:
             yield
-            self._merge_ast()
+            self.states.merge_ast()
         except FailedParse:
             self._pop_ast()
             self.substate = s
@@ -647,12 +584,12 @@ class ParseContext:
 
     @contextmanager
     def _group(self) -> Generator[None, None, None]:
-        self._push_cst()
+        self.states.push_cst()
         try:
             yield
-            self._merge_cst(extend=True)
+            self.states.merge_cst(extend=True)
         except Exception:
-            self._pop_cst()
+            self.states.pop_cst()
             raise
 
     @contextmanager
@@ -678,24 +615,24 @@ class ParseContext:
             self._error('', exclass=FailedLookahead)
 
     def _isolate(self, block: Callable[[], Any], drop: bool = False) -> Any:
-        self._push_cst()
+        self.states.push_cst()
         try:
             block()
             cst = self.cst
         finally:
-            self._pop_cst()
+            self.states.pop_cst()
 
         if is_list(cst):
             cst = closure(cst)
         if not drop:
-            self._append_cst(cst)
+            self.states.append_cst(cst)
         return cst
 
     def _repeat(self, block: Callable[[], Any], prefix: Callable[[], Any] | None = None, dropprefix: bool = False) -> None:
         while True:
             with self._choice():
                 with self._option():
-                    p = self._pos
+                    p = self.pos
 
                     if prefix:
                         self._isolate(prefix, drop=dropprefix)
@@ -703,12 +640,12 @@ class ParseContext:
 
                     self._isolate(block)
 
-                    if self._pos == p:
+                    if self.pos == p:
                         self._error('empty closure')
                 return
 
     def _closure(self, block: Callable[[], Any], sep: Callable[[], Any] | None = None, omitsep: bool = False) -> Any:
-        self._push_cst()
+        self.states.push_cst()
         try:
             self.cst = []
             with self._optional():
@@ -716,26 +653,26 @@ class ParseContext:
                 self.cst = [self.cst]
             self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
-            return self._merge_cst()
+            return self.states.merge_cst()
         except Exception:
-            self._pop_cst()
+            self.states.pop_cst()
             raise
 
     def _positive_closure(self, block: Callable[[], Any], sep: Callable[[], Any] | None = None, omitsep: bool = False) -> Any:
-        self._push_cst()
+        self.states.push_cst()
         try:
             block()
             self.cst = [self.cst]
             self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
-            return self._merge_cst()
+            return self.states.merge_cst()
         except Exception:
-            self._pop_cst()
+            self.states.pop_cst()
             raise
 
     def _empty_closure(self) -> closure:
         cst = closure([])
-        self._append_cst(cst)
+        self.states.append_cst(cst)
         return cst
 
     def _gather(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
@@ -776,7 +713,7 @@ class ParseContext:
             self.tracer.trace_match(c, failed=True)
             self._error(c, exclass=FailedToken)
         self.tracer.trace_match(c)
-        self._append_cst(c)
+        self.states.append_cst(c)
         return c
 
     def _skip_to(self, block: Callable[[], Any]) -> None:
@@ -788,8 +725,8 @@ class ParseContext:
                 pass
             else:
                 break
-            pos = self._pos
+            pos = self.pos
             self._next_token()
-            if self._pos == pos:
+            if self.pos == pos:
                 self._next()
         block()
