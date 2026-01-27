@@ -74,6 +74,10 @@ class GrammarGenerator(EBNFBootstrapParser):
         semantics=None,
         **settings: Any,
     ):
+        if isinstance(semantics, type):
+            raise TypeError(
+                f'semantics must be an object instance or None, not class {semantics!r}',
+            )
         if semantics is None:
             semantics = EBNFGrammarSemantics(name)
         config = ParserConfig.new(

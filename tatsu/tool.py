@@ -173,6 +173,7 @@ __compiled_grammar_cache = {}  # type: ignore[var-annotated]
 
 
 def compile(
+
         grammar: str | Tokenizer,
         name: str | None = None,
         *,
@@ -181,6 +182,11 @@ def compile(
         config: ParserConfig | None = None,
         **settings: Any,
     ) -> grammars.Grammar:
+
+    if isinstance(semantics, type):
+        raise TypeError(
+            f'semantics must be an object instance or None, not class {semantics!r}',
+        )
     cache = __compiled_grammar_cache
 
     key = (name, grammar, id(semantics))
@@ -200,7 +206,7 @@ def compile(
 
 def parse(
     grammar: str, /,
-    input: str, *,
+    text: str, *,
     start: str | None = None,
     name: str | None = None,
     semantics: Any | None = None,
@@ -218,7 +224,7 @@ def parse(
     )
     semantics = semantics or model.semantics
     return model.parse(
-        input, start=start, semantics=semantics, config=config, **settings,
+        text, start=start, semantics=semantics, config=config, **settings,
     )
 
 

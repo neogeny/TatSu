@@ -1100,6 +1100,12 @@ class Grammar(Model):
         config = self.config.replace_config(config)
         config = config.replace(**settings)
 
+        if isinstance(config.semantics, type):
+            raise TypeError(
+                'semantics must be an object instance or None, '
+                f'not class {config.semantics!r}',
+            )
+
         start = config.effective_rule_name()
         if start is None:
             start = self.rules[0].name
