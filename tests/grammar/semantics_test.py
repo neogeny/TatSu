@@ -1,17 +1,36 @@
-import functools
-
 import pytest
 
 from tatsu import synth
 from tatsu.exceptions import FailedParse
 from tatsu.objectmodel import Node
 from tatsu.semantics import ModelBuilderSemantics
-from tatsu.tool import compile, to_python_model
+from tatsu.tool import compile
 
 
 class MyNode:
     def __init__(self, ast):
         pass
+
+
+def test_semantics_not_class():
+    grammar = r"""
+        start::sum = {number}+ $ ;
+        number::int = /\d+/ ;
+    """
+    text = '5 4 3 2 1'
+    bad_semantics = ModelBuilderSemantics  # NOTE: the class
+    semantics = ModelBuilderSemantics()  # NOTE: the class
+
+    with pytest.raises(TypeError, match=r'semantics must be an object instance or None.*'):
+        compile(grammar, semantics=bad_semantics)
+        compile(grammar, semantics=bad_semantics)
+
+    model = compile(grammar, 'test')
+    with pytest.raises(TypeError, match=r'semantics must be an object instance or None.*'):
+        model.parse(text, semantics=bad_semantics)
+
+    ast = model.parse(text, semantics=semantics)
+    assert ast == 15
 
 
 def test_builder_semantics():
@@ -25,6 +44,8 @@ def test_builder_semantics():
     model = compile(grammar, 'test')
     ast = model.parse(text, semantics=semantics)
     assert ast == 15
+
+    import functools
 
     dotted = functools.partial(str.join, '.')
     dotted.__name__ = 'dotted'  # type: ignore
@@ -49,7 +70,7 @@ def test_builder_subclassing():
     """
 
     model = compile(grammar, asmodel=True)
-    model.parse('', parseinfo=True)
+    model.parse('')
 
     print(f'{registry=}')
     A = registry['A']
@@ -80,17 +101,19 @@ def test_builder_basetype_codegen():
         third = ();
     """
 
+    from tatsu.tool import to_python_model
+
     src = to_python_model(grammar, base_type=MyNode)
     print(src)
 
-    context = {}
-    exec(src, context)  # pylint: disable=W0122
-    semantics = context['TestModelBuilderSemantics']()
+    globals = {}
+    exec(src, globals)  # pylint: disable=W0122
+    semantics = globals['TestModelBuilderSemantics']()
 
-    A = context['A']
-    B = context['B']
-    C = context['C']
-    D = context['D']
+    A = globals['A']
+    B = globals['B']
+    C = globals['C']
+    D = globals['D']
 
     model = compile(grammar, semantics=semantics)
     ast = model.parse('', semantics=semantics)
