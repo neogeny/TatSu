@@ -43,7 +43,7 @@ from ..util import (
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from .infos import MemoKey, RuleResult, closure
 from .parsestate import ParseState, ParseStateStack
-from .tracing import EventTracer
+from .tracing import EventTracer, EventTracerImpl
 
 __all__: list[str] = ['ParseContext']
 
@@ -62,12 +62,12 @@ class ParseContext:
         self._semantics: type | None = config.semantics
         self._initialize_caches()
 
-        self._tracer = self.update_tracer()  # FIXME
+        self._tracer: EventTracer = EventTracer()
+        self.update_tracer()
 
     def _initialize_caches(self) -> None:
         self._states = ParseStateStack()
         self._ruleinfo_stack: list[RuleInfo] = []
-        self._cut_stack: list[bool] = [False]
 
         self.substate: Any = None
         self._lookahead: int = 0
@@ -100,13 +100,12 @@ class ParseContext:
         return self._tracer
 
     def update_tracer(self) -> EventTracer:
-        tracer = EventTracer(
+        tracer = EventTracerImpl(
             self._tokenizer,
             self._ruleinfo_stack,
             config=self.config,
         )
         self._tracer = tracer
-        self.states.tracer = tracer
         return self.tracer
 
     def _reset(self, config: ParserConfig) -> ParserConfig:
@@ -237,12 +236,9 @@ class ParseContext:
         self.tokenizer.goto(self.state.pos)
         return ast
 
-    def _is_cut_set(self) -> bool:
-        return self._cut_stack[-1]
-
     def _cut(self) -> None:
+        self.states.set_cut_seen()
         self.tracer.trace_cut()
-        self._cut_stack[-1] = True
 
         def prune(cache: dict[Any, Any], cut_pos: int) -> None:
             prune_dict(
@@ -557,18 +553,18 @@ class ParseContext:
     @contextmanager
     def _option(self) -> Generator[None, None, None]:
         self.last_node = None
-        self._cut_stack += [False]
+        self.states.push_cut()
         try:
             with self._try():
                 yield
             raise OptionSucceeded()
         except FailedParse:
-            if self._is_cut_set():
+            if self.states.is_cut_set():
                 raise
             else:
                 pass  # ignore, so next option is tried
         finally:
-            self._cut_stack.pop()
+            self.states.pop_cut()
 
     @contextmanager
     def _choice(self) -> Generator[None, None, None]:

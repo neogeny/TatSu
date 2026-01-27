@@ -6,7 +6,6 @@ from typing import Any, Self
 
 from ..ast import AST
 from ..infos import Alert
-from .tracing import EventTracer
 
 __all__ = [
     'ParseState',
@@ -30,7 +29,7 @@ class ParseStateStack:
     def __init__(self: Self) -> None:
         self._state_stack: list[ParseState] = [ParseState()]
         self._last_node: Any = None
-        self._tracer: EventTracer | None = None
+        self._cut_stack: list[bool] = [False]
 
     @property
     def top(self) -> ParseState:
@@ -68,14 +67,6 @@ class ParseStateStack:
     @last_node.setter
     def last_node(self, value: Any) -> None:
         self._last_node = value
-
-    @property
-    def tracer(self) -> EventTracer | None:
-        return self._tracer
-
-    @tracer.setter
-    def tracer(self, value: EventTracer) -> None:
-        self._tracer = value
 
     def pop(self) -> ParseState:
         return self._state_stack.pop()
@@ -173,3 +164,15 @@ class ParseStateStack:
         ast.update(self.ast)
         self.ast = ast
         return self.ast
+
+    def is_cut_set(self) -> bool:
+        return self._cut_stack[-1]
+
+    def push_cut(self):
+        self._cut_stack.append(False)
+
+    def pop_cut(self) -> bool:
+        return self._cut_stack.pop()
+
+    def set_cut_seen(self, prune: bool = True) -> None:
+        self._cut_stack[-1] = True
