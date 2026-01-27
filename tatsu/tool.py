@@ -176,7 +176,7 @@ def compile(
         grammar: str | Tokenizer,
         name: str | None = None,
         *,
-        semantics: type | None = None,
+        semantics: Any = None,
         asmodel: bool = False,
         config: ParserConfig | None = None,
         **settings: Any,
@@ -203,7 +203,7 @@ def parse(
     input: str, *,
     start: str | None = None,
     name: str | None = None,
-    semantics: type | None = None,
+    semantics: Any | None = None,
     asmodel: bool = False,
     config: ParserConfig | None = None,
     **settings: Any,
@@ -216,6 +216,7 @@ def parse(
         config=config,
         **settings,
     )
+    semantics = semantics or model.semantics
     return model.parse(
         input, start=start, semantics=semantics, config=config, **settings,
     )
