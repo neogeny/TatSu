@@ -102,14 +102,18 @@ class ModelBuilderSemantics(AbstractSemantics):
         return constructor
 
     def _find_existing_constructor(self, typename: str) -> Callable | None:
-        context: Mapping[Any, Any] = vars(builtins) | registered_synthetics()
+        context: Mapping[str, Any] = (
+                self.constructors |
+                vars(builtins) |
+                registered_synthetics()
+        )
         constructor = context.get(typename)
         if constructor is not None:
             return constructor
 
-        for name in typename.split('.'):
+        for name in reversed(typename.split('.')[:-1]):
             if name not in context:
-                return None
+                break
 
             constructor = context[name]
             if hasattr(constructor, '__dict__'):
