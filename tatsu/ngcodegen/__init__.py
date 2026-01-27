@@ -1,4 +1,4 @@
 from .modelgen import modelgen
-from .pythongen import codegen
+from .pythongen import pythongen
 
-__all__ = ['codegen', 'modelgen']
+__all__ = ['pythongen', 'modelgen']

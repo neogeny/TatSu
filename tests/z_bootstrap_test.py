@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 from tatsu import diagrams
-from tatsu.ngcodegen import codegen
+from tatsu.ngcodegen import pythongen
 from tatsu.parser import EBNFParser, GrammarGenerator
 from tatsu.parser_semantics import EBNFGrammarSemantics
 from tatsu.semantics import ASTSemantics
@@ -112,7 +112,7 @@ def test_06_generate_code():
     text = Path('./tmp/02.ebnf').read_text()
     g = GrammarGenerator('EBNFBootstrap')
     parser = g.parse(text)
-    gencode6 = codegen(parser)
+    gencode6 = pythongen(parser)
     Path('./tmp/g06.py').write_text(gencode6)
 
 
@@ -201,7 +201,7 @@ def test_10_with_model_and_semantics():
     )
     generated_grammar10 = str(g10)
     Path('./tmp/10.ebnf').write_text(generated_grammar10)
-    gencode10 = codegen(g10)
+    gencode10 = pythongen(g10)
     Path('./tmp/g10.py').write_text(gencode10)
 
 
@@ -226,7 +226,7 @@ def test_11_with_pickle_and_retry():
         semantics=EBNFGrammarSemantics('EBNFBootstrap'),
     )
     Path('./tmp/11.ebnf').write_text(str(g11))
-    gencode11 = codegen(r11)
+    gencode11 = pythongen(r11)
     Path('./tmp/bootstrap_g11.py').write_text(gencode11)
 
 

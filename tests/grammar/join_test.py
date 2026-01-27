@@ -2,7 +2,7 @@ import unittest
 from ast import parse
 
 from tatsu.exceptions import FailedParse
-from tatsu.ngcodegen import codegen
+from tatsu.ngcodegen import pythongen
 from tatsu.tool import compile
 from tatsu.util import trim
 
@@ -22,7 +22,7 @@ class JoinTests(unittest.TestCase):
         """
 
         model = compile(grammar, 'test')
-        codegen(model)
+        pythongen(model)
         ast = model.parse('x y, x y', nameguard=False)
         self.assertEqual([['x', 'y'], ',', ['x', 'y']], ast)
         ast = model.parse('x y x y', nameguard=False)
@@ -51,7 +51,7 @@ class JoinTests(unittest.TestCase):
         """
 
         model = compile(grammar, 'test')
-        codegen(model)
+        pythongen(model)
 
         ast = model.parse('x y, x y z', nameguard=False)
         self.assertEqual(([['x', 'y'], ',', ['x', 'y']], 'z'), ast)
@@ -67,7 +67,7 @@ class JoinTests(unittest.TestCase):
             start = ('a' 'b')%{'x'}+ ;
         """
         model = compile(grammar, 'test')
-        c = codegen(model)
+        c = pythongen(model)
         parse(c)
 
         ast = model.parse('x a b x', nameguard=False)
@@ -87,7 +87,7 @@ class JoinTests(unittest.TestCase):
         """
 
         model = compile(grammar, 'test')
-        codegen(model)
+        pythongen(model)
         ast = model.parse('x y, x y', nameguard=False)
         self.assertEqual([['x', 'y'], ['x', 'y']], ast)
         ast = model.parse('x y x y', nameguard=False)
@@ -116,7 +116,7 @@ class JoinTests(unittest.TestCase):
         """
 
         model = compile(grammar, 'test')
-        codegen(model)
+        pythongen(model)
 
         ast = model.parse('x y, x y z', nameguard=False)
         self.assertEqual(([['x', 'y'], ['x', 'y']], 'z'), ast)
@@ -132,7 +132,7 @@ class JoinTests(unittest.TestCase):
             start = ('a' 'b').{'x'}+ ;
         """
         model = compile(grammar, 'test')
-        c = codegen(model)
+        c = pythongen(model)
         parse(c)
 
         ast = model.parse('x a b x', nameguard=False)
@@ -161,7 +161,7 @@ class JoinTests(unittest.TestCase):
 
         model = compile(grammar, 'test')
         self.assertEqual(trim(grammar).strip(), str(model).strip())
-        codegen(model)
+        pythongen(model)
 
         ast = model.parse(text)
         self.assertEqual(('+', ('-', ('+', '1', '2'), '3'), '4'), ast)
@@ -189,7 +189,7 @@ class JoinTests(unittest.TestCase):
 
         model = compile(grammar, 'test')
         self.assertEqual(trim(grammar).strip(), str(model).strip())
-        codegen(model)
+        pythongen(model)
 
         ast = model.parse(text)
         self.assertEqual(('+', '1', ('-', '2', ('+', '3', '4'))), ast)
