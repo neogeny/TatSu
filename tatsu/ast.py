@@ -25,6 +25,7 @@ class AST(dict[str, Any]):
     def parseinfo(self) -> ParseInfo | None:
         return self.get('parseinfo')
 
+    # NOTE: required to bypass '_frozen'
     def set_parseinfo(self, value: ParseInfo | None) -> None:
         super().__setitem__('parseinfo', value)
 

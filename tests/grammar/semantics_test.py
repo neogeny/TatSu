@@ -1,10 +1,12 @@
+import functools
+
 import pytest
 
 from tatsu import synth
 from tatsu.exceptions import FailedParse
 from tatsu.objectmodel import Node
 from tatsu.semantics import ModelBuilderSemantics
-from tatsu.tool import compile
+from tatsu.tool import compile, to_python_model
 
 
 class MyNode:
@@ -23,8 +25,6 @@ def test_builder_semantics():
     model = compile(grammar, 'test')
     ast = model.parse(text, semantics=semantics)
     assert ast == 15
-
-    import functools
 
     dotted = functools.partial(str.join, '.')
     dotted.__name__ = 'dotted'  # type: ignore
@@ -49,7 +49,7 @@ def test_builder_subclassing():
     """
 
     model = compile(grammar, asmodel=True)
-    model.parse('')
+    model.parse('', parseinfo=True)
 
     print(f'{registry=}')
     A = registry['A']
@@ -80,19 +80,17 @@ def test_builder_basetype_codegen():
         third = ();
     """
 
-    from tatsu.tool import to_python_model
-
     src = to_python_model(grammar, base_type=MyNode)
     print(src)
 
-    globals = {}
-    exec(src, globals)  # pylint: disable=W0122
-    semantics = globals['TestModelBuilderSemantics']()
+    context = {}
+    exec(src, context)  # pylint: disable=W0122
+    semantics = context['TestModelBuilderSemantics']()
 
-    A = globals['A']
-    B = globals['B']
-    C = globals['C']
-    D = globals['D']
+    A = context['A']
+    B = context['B']
+    C = context['C']
+    D = context['D']
 
     model = compile(grammar, semantics=semantics)
     ast = model.parse('', semantics=semantics)

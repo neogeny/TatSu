@@ -25,7 +25,6 @@ class BaseNode(AsJSONMixin):
         if isinstance(ast, AST) and 'parseinfo' in ast:
             self.parseinfo = ast['parseinfo']
 
-        # NOTE: the old objectmodel.Node would add new setattr(self, ...)
         allargs = ast | kwargs if isinstance(self.ast, AST) else kwargs
         self.__set_attributes(**allargs)
 

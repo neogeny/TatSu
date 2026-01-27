@@ -160,14 +160,33 @@ class ParsingTests(unittest.TestCase):
         ast = tatsu.parse(grammar, 'abc')
         assert ast == 'something'
 
+    def test_node_parseinfo(self):
+        grammar = """
+            @@grammar :: Test
 
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(ParsingTests)
+            start::Test = true | false ;
 
+            true = "test" @:`True` $;
+            false = "test" @:`False` $;
+        """
 
-def main():
-    unittest.TextTestRunner(verbosity=2).run(suite())
+        text = 'test'
+        node = tatsu.parse(
+            grammar,
+            text,
+            asmodel=True,
+            parseinfo=True,
+        )
+        assert type(node).__name__ == 'Test'
+        assert node.ast is True
+        assert node.parseinfo is not None
+        assert node.parseinfo.pos == 0
+        assert node.parseinfo.endpos == len(text)
 
-
-if __name__ == '__main__':
-    main()
+        node = tatsu.parse(
+            grammar,
+            text,
+            asmodel=True,
+        )
+        assert type(node).__name__ == 'Test'
+        assert node.parseinfo is None
