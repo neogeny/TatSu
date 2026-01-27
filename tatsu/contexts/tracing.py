@@ -29,6 +29,32 @@ C = EventColor()
 
 
 class EventTracer:
+    def trace(self, msg: str, *args: Any, **kwargs: Any) -> None:
+        ...
+
+    def trace_event(self, event: str) -> None:
+        ...
+
+    def trace_entry(self) -> None:
+        ...
+
+    def trace_success(self) -> None:
+        ...
+
+    def trace_failure(self, ex: Exception | None = None) -> None:
+        ...
+
+    def trace_recursion(self) -> None:
+        ...
+
+    def trace_cut(self) -> None:
+        ...
+
+    def trace_match(self, token: Any, name: str | None = None, failed: bool = False) -> None:
+        ...
+
+
+class EventTracerImpl(EventTracer):
     def __init__(
             self,
             tokenizer: Tokenizer,
