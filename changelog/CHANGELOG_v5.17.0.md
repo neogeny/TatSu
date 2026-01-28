@@ -22,30 +22,30 @@ For the details about the many changes please take a look at the [commit log][].
 	- `DepthFirstWalker` was reimplemented to ensure DFS semantics
 	- `PreOrderWalker` was broken and crazy. It was rewritten as a `BreadthFirstWalker` with the correct semantics
 - Constant expressions in a grammar are now evaluated deeply with  multiple passes of `eval()` to produce results more as expected
-```python
-def test_constant_math():
-    grammar = r"""
-        start = a:`7` b:`2` @:```{a} / {b}``` $ ;
-    """
-    result = parse(grammar, '', trace=True)
-    assert result == 3.5
-
-```
+	```python
+	def test_constant_math():
+	    grammar = r"""
+	        start = a:`7` b:`2` @:```{a} / {b}``` $ ;
+	    """
+	    result = parse(grammar, '', trace=True)
+	    assert result == 3.5
+	
+	```
 - Evaluation of Python expressions by the parsing engine now use `safe_eval()`, a hardened firewall around most security attacks targeting `eval()` (see the [safeeval][] module for details)
 - Because `None` is a valid initial value for attributes and a frequent return value for callables, the required logic for undefined values was moved to the `notnone` module, which declares `Undefined` as an alias for `notnone.NotNone`
-```python
-In [1]: from tatsu.util.notnone import Undefined
-In [2]: u = Undefined
-In [3]: u is None
-Out[3]: False
-In [4]: u is Undefined
-Out[4]: True
-In [5]: Undefined is None
-Out[5]: False
-In [6]: d = u or 'ok'
-In [7]: d
-Out[7]: 'ok'
-```
+	```python
+	In [1]: from tatsu.util.notnone import Undefined
+	In [2]: u = Undefined
+	In [3]: u is None
+	Out[3]: False
+	In [4]: u is Undefined
+	Out[4]: True
+	In [5]: Undefined is None
+	Out[5]: False
+	In [6]: d = u or 'ok'
+	In [7]: d
+	Out[7]: 'ok'
+	```
 - `objectmodel.Node` was rewritten to give it clear semantics and efficiency
 	- No Python attributes are created with `setattr()`, .  No new attributes may be defined on a `Node` after initialization
 	- `Node.children()` has the expected semantics now, it was made much more efficient, and is now recalculated on each call in consistency with the mutability of `Node`
@@ -58,7 +58,6 @@ Out[7]: 'ok'
             true = "test" @:`True` $;
             false = "test" @:`False` $;
         """
-
         text = 'test'
         node = tatsu.parse(grammar, text, asmodel=True, parseinfo=True, )
         assert type(node).__name__ == 'Test'
@@ -68,7 +67,8 @@ Out[7]: 'ok'
         assert node.parseinfo.endpos == len(text)
 
 ```
-- Synthetic classes created by `synth.synthetize()` during parsing with `semantics.ModeleBuilderSemantics` behave more consistently, and now have a base class of `class SynthNode(BaseNode):` 
+- Synthetic classes created by `synth.synthetize()` during parsing with `semantics.ModeleBuilderSemantics` behave more consistently, and now have a base class of `class SynthNode(BaseNode)`
+- The API and other entry now check that the value provided for `semantics=` is an object instance and not a `type/class`
 
 [TatSu]: https://github.com/neogeny/TatSu
 [commit log]: https://github.com/neogeny/TatSu/commits/

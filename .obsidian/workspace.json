@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "f822ae11e3e98776",
+        "id": "bce1803461f1cba6",
         "type": "tabs",
         "children": [
           {
-            "id": "2c5b139d06da00e6",
+            "id": "51c2e92d6ae32c51",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -20,16 +20,16 @@
               "icon": "lucide-file",
               "title": "CHANGELOG_v5.17.0"
             },
-            "group": "e33112227a7451f9"
+            "group": "1ea955dd3f96e636"
           }
         ]
       },
       {
-        "id": "60cbbbab1f4bc9f2",
+        "id": "b819df2cedc0b26c",
         "type": "tabs",
         "children": [
           {
-            "id": "d887c2ec1df13df1",
+            "id": "5c65af52e3bca67b",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -41,7 +41,7 @@
               "icon": "lucide-file",
               "title": "CHANGELOG_v5.17.0"
             },
-            "group": "e33112227a7451f9"
+            "group": "1ea955dd3f96e636"
           }
         ]
       }
@@ -218,6 +218,10 @@
       "bases:Create new base": false
     }
   },
-  "active": "2c5b139d06da00e6",
-  "lastOpenFiles": []
+  "active": "5c65af52e3bca67b",
+  "lastOpenFiles": [
+    "scripts/parselog.py",
+    "changelog/CHANGELOG_v5.17.0.md",
+    "changelog"
+  ]
 }
