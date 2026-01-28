@@ -20,6 +20,7 @@ Every effort has been made to preserve backwards compatibility by keeping mosts 
 
 #### User-Facing Changes
 
+- Now `tatsu.parse(...., asmodel=True)` produces the same model result as `tatsu.to_python_model()` 	
 - `walkers.NodeWalker` now handles all known types of input. Also: 
 	- `DepthFirstWalker` was reimplemented to ensure DFS semantics
 	- `PreOrderWalker` was broken and crazy. It was rewritten as a `BreadthFirstWalker` with the correct semantics
@@ -51,7 +52,7 @@ Out[7]: 'ok'
 - `objectmodel.Node` was rewritten to give it clear semantics and efficiency
 	- No Python attributes are created with `setattr()`, .  No new attributes may be defined on a `Node` after initialization
 	- `Node.children()` has the expected semantics now, it was made much more efficient, and is now recalculated on each call in consistency with the mutability of `Node`
-- `Node.parseinfo` is honored by the parsing engine, when previously only results of type `AST` had a `parseinfo`
+- `Node.parseinfo` is honored by the parsing engine, when previously only results of type `AST` could have a `parseinfo`. Generation of `parseinfo` is disabled by default. Pass `pareseinfo=True` to the API entry points to enable it.
 ```python
       def test_node_parseinfo(self):
         grammar = """
@@ -70,7 +71,22 @@ Out[7]: 'ok'
         assert node.parseinfo.endpos == len(text)
 
 ```
-- Synthetic classes created by `synth.synthetize()` during parsing with `semantics.ModeleBuilderSemantics` behave more consistently, and now have a base class of `class SynthNode(BaseNode):` 
+- Synthetic classes created by `synth.synthetize()` during parsing with `ModeleBuilderSemantics` behave more consistently, and now have a base class of `class SynthNode(BaseNode)`
+- `ast.AST` now has consistent semantics of a `dict` that allows access to contents using an attributes interface
+- `asjson()` and friends now cover all cases with improved consistency and efficiency, and less demands over users of the API
+- Documentation has a better look and improved navigation thanks to using `MyST-Parser` with `Sphinx`
+- [TatSu][] still has no library dependencies for its core functionality, but several libraries are used during its development and testing. [TatSu][] configuration uses `uv` and `hatch`, but several `requirements-xyz.txt` files are generated in favor of those using `pip` with `pyenv`, `virtualenvwrapper`, or `virtualenv`
+- Many of the functions that [TatSu][] defines for its own use are useful in other contexts. Examples are:
+```python
+	from tatsu.notnone import Undefined
+	from tatsu.safeeval import is_eval_safe()
+	from tatsu.safeeval import hasshable()
+	from tatsu.safeeval import make_hashable()
+	from tatsu.util import safe_name()
+	from tatsu.util.misc import find_from_rematch()
+	from tatsu.util.misc import topsort()
+	# ... and many more
+```
 
 [TatSu]: https://github.com/neogeny/TatSu
 [commit log]: https://github.com/neogeny/TatSu/commits/
