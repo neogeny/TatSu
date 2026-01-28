@@ -18,8 +18,6 @@ class ActualParameters:
     params: list[Any] = field(default_factory=list)
     param_names: dict[str, Any] = field(default_factory=dict)
     kwparams: dict[str, Any] = field(default_factory=dict)
-    has_args: bool = False
-    has_kwargs: bool = False
 
     def has_any_params(self) -> bool:
         return bool(self.params) or bool(self.kwparams)
@@ -33,11 +31,9 @@ class ActualParameters:
 
     def add_args(self, args: Iterable[Any]):
         self.params.extend(args)
-        self.has_args = True
 
     def add_kwargs(self, kwargs: Mapping[str, Any]):
         self.kwparams.update(kwargs)
-        self.has_kwargs = True
 
 
 class AbstractSemantics:
@@ -178,11 +174,6 @@ class ModelBuilderSemantics(AbstractSemantics):
                 case _:
                     pass
 
-        # debug(
-        #     f'CALLING {fun_name}'
-        #     f'\nwith {tuple(actual.param_names)!r}'
-        #     f'\nand {tuple(actual.kwparams)!r}',
-        # )
         if not actual.has_any_params() and len(declared) == 1:
             actual.params = [ast]
         # else: No parameters
