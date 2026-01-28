@@ -92,20 +92,26 @@ build: clean
 	uvx hatch build
 
 
-requirements: uv.lock requirements-dev.txt requirements-doc.txt
+requirements: uv.lock requirements.txt requirements-dev.txt requirements-doc.txt
 
+
+requirements.txt: uv.lock
+	@echo "->" $@
+	@- uv export -q --format requirements-txt --no-hashes \
+		--no-group dev \
+		> $@
 
 requirements-dev.txt: uv.lock
 	@echo "->" $@
 	@- uv export -q --format requirements-txt --no-hashes \
 		--dev \
-		> requirements-dev.txt
+		> $@
 
 requirements-doc.txt: uv.lock
 	@echo "->" $@
 	@- uv export -q --format requirements-txt --no-hashes \
 		--group doc --no-group dev \
-		> requirements-doc.txt
+		> requirements-dev.txt
 
 
 need_gh:
