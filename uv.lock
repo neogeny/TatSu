@@ -525,6 +525,15 @@ wheels = [
 ]
 
 [[package]]
+name = "hatch-uv"
+version = "0.0.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9f/36/e31e1b956db9d27ac128bc5f950de07ce6e54c1310ca443acdf968f82b6e/hatch_uv-0.0.5.tar.gz", hash = "sha256:8cfeef6d81722a893ef72f1ddc6cd45222107eb499522aa414f66d805f1e0e37", size = 2650, upload-time = "2024-03-21T05:13:32.444Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/dc/ec/3b7f5b55d49b1776c806442f47853587487fcc2a87946a59f362896aa841/hatch_uv-0.0.5-py3-none-any.whl", hash = "sha256:9f039df7651f0ddcad61b34343ec90edfb554e58507abeb06fa41dc9920a1052", size = 3639, upload-time = "2024-03-21T05:13:30.05Z" },
+]
+
+[[package]]
 name = "hatchling"
 version = "1.28.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1788,6 +1797,7 @@ dev = [
     { name = "colorama" },
     { name = "graphviz" },
     { name = "hatch" },
+    { name = "hatch-uv" },
     { name = "ipython" },
     { name = "progress" },
     { name = "psutil" },
@@ -1816,6 +1826,8 @@ mkdocs = [
 test = [
     { name = "colorama" },
     { name = "graphviz" },
+    { name = "hatch" },
+    { name = "hatch-uv" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -1839,6 +1851,7 @@ dev = [
     { name = "colorama" },
     { name = "graphviz" },
     { name = "hatch" },
+    { name = "hatch-uv" },
     { name = "ipython" },
     { name = "progress" },
     { name = "psutil" },
@@ -1867,6 +1880,8 @@ mkdocs = [
 test = [
     { name = "colorama" },
     { name = "graphviz" },
+    { name = "hatch" },
+    { name = "hatch-uv" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "pytest-cov" },

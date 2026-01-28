@@ -41,6 +41,7 @@ dev = [
     "colorama",
     "graphviz",
     "hatch",
+    "hatch-uv",
     "ipython",
     "progress",
     "psutil",
@@ -51,6 +52,8 @@ dev = [
 test = [
     "colorama",
     "graphviz",
+    "hatch",
+    "hatch-uv",
     "mypy",
     "pytest",
     "pytest-cov",
@@ -219,15 +222,13 @@ dependencies = [
 ]
 
 [tool.hatch.envs.test.scripts]
-prepare = "uv sync --group test"
 version = "echo `python --version` && echo `tatsu --version`"
 lint = "ruff check -q --preview tatsu tests examples"
 types = "ty check tatsu tests examples"
-more_types = "mypy --install-types --exclude dist --exclude parsers --exclude backup."
+more_types = "mypy --install-types --exclude dist --exclude parsers --exclude backup ."
 tests = "pytest"
 
 checks = [
-    "prepare"
     "version",
     "lint",
     "types",
@@ -236,7 +237,6 @@ checks = [
 ]
 
 run = [
-    "prepare"
     "version",
     "lint",
     "types",

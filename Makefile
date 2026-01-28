@@ -12,12 +12,14 @@ all:  prepare_for_tests test build requirements
 
 test:  prepare_for_tests lint pytest documentation examples
 
+test_plus: clean_plus test
+
 
 prepare_for_tests: clean
 	@-uv sync -q --group test
 
 
-pytest: clean prepare_for_tests
+pytest: prepare_for_tests
 	mkdir -p ./tmp
 	touch ./tmp/__init__.py
 	#uv run pytest -v --cov=tatsu tests/
@@ -84,7 +86,12 @@ clean:
 	/bin/rm -rf tatsu.egg-info dist tmp build .tox
 
 
-checks: prepare_for_tests
+clean_plus: clean
+	# NOTE: keep the complicated .mypy_cache
+	/bin/rm -rf .cache .pytest_cache .ruff_cache
+
+
+checks: clean_plus prepare_for_tests
 	time uv run hatch run --force-continue test:checks
 
 
@@ -122,7 +129,7 @@ requirements-doc.txt: uv.lock
 	@echo "->" $@
 	@- uv export -q --format requirements-txt --no-hashes \
 		--group doc --no-group dev \
-		> requirements-dev.txt
+		> $@
 
 
 need_gh:
