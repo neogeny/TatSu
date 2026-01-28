@@ -8,19 +8,21 @@ from .objectmodel import BaseNode
 #   That allows for synthesized types to reside within this module.
 __REGISTRY: MutableMapping[str, Callable] = vars()
 
+__all__ = ['SynthNode', 'registered_synthetics', 'synthesize']
 
-class _Synthetic(BaseNode):
+
+class SynthNode(BaseNode):
     pass
 
 
-def synthesize(name: str, bases: tuple[type, ...], *args: Any, **kwargs: Any) -> Callable:
+def synthesize(name: str, bases: tuple[type, ...], **kwargs: Any) -> Callable:
     typename = f'{__name__}.{name}'
 
     if not isinstance(bases, tuple):
         bases = (bases,)
 
-    if _Synthetic not in bases:
-        bases = (*bases, _Synthetic)
+    if SynthNode not in bases:
+        bases = (*bases, SynthNode)
 
     constructor = __REGISTRY.get(typename)
     if not constructor:

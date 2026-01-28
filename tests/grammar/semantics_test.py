@@ -78,18 +78,18 @@ def test_builder_subclassing():
     C = registry['C']
 
     assert (
-        issubclass(A, B) and
-        issubclass(A, synth._Synthetic) and
-        issubclass(A, Node)
+            issubclass(A, B) and
+            issubclass(A, synth.SynthNode) and
+            issubclass(A, Node)
     )
     assert (
-        issubclass(B, C) and
-        issubclass(B, synth._Synthetic) and
-        issubclass(A, Node)
+            issubclass(B, C) and
+            issubclass(B, synth.SynthNode) and
+            issubclass(A, Node)
     )
     assert (
-        issubclass(C, synth._Synthetic) and
-        issubclass(C, Node)
+            issubclass(C, synth.SynthNode) and
+            issubclass(C, Node)
     )
 
 
