@@ -20,7 +20,7 @@ from .util import (
     contains_sublist,
     extend_list,
 )
-from .util.misc import cached_re_compile, match_to_find
+from .util.misc import cached_re_compile, find_from_rematch
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -364,7 +364,7 @@ class Buffer(Tokenizer):
             return None
 
         matched = match.group()
-        token = match_to_find(match)
+        token = find_from_rematch(match)
         self.move(len(matched))
         return token
 

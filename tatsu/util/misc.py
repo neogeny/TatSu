@@ -44,7 +44,7 @@ def first(iterable, default=Undefined):
         return default
 
 
-def match_to_find(m: re.Match):
+def find_from_rematch(m: re.Match):
     if m is None:
         return None
     g = m.groups(default=m.string[0:0])
@@ -72,7 +72,7 @@ def findalliter(pattern, string, pos=None, endpos=None, flags=0):
     else:
         iterator = r.finditer(string)
     for m in iterator:
-        yield match_to_find(m)
+        yield find_from_rematch(m)
 
 
 def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=Undefined):

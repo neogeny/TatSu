@@ -30,8 +30,7 @@ jobs:
         curl -LsSf https://astral.sh/uv/install.sh | sh
         uv tool install hatch
         uv tool install gh
-        uv sync
-#    - run: python -m pip install pytest
+        uv sync --group test
     - name: test
       run: |
         make test

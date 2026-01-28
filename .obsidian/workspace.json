@@ -218,10 +218,31 @@
       "bases:Create new base": false
     }
   },
+<<<<<<< HEAD
   "active": "5c65af52e3bca67b",
   "lastOpenFiles": [
     "scripts/parselog.py",
     "changelog/CHANGELOG_v5.17.0.md",
     "changelog"
+=======
+  "active": "51c2e92d6ae32c51",
+  "lastOpenFiles": [
+    "tatsu/__pycache__/model.cpython-314.pyc",
+    "examples/calc/__pycache__/codegen.cpython-314.pyc",
+    "examples/calc/__pycache__",
+    "tatsu/__pycache__/__main__.cpython-314.pyc",
+    "examples/g2e/python3_parser.py",
+    "tatsu/g2e/__pycache__/tool.cpython-314.pyc",
+    "tatsu/g2e/__pycache__/semantics.cpython-314.pyc",
+    "tatsu/g2e/__pycache__/__main__.cpython-314.pyc",
+    "tatsu/g2e/__pycache__/__init__.cpython-314.pyc",
+    "tatsu/g2e/__pycache__",
+    "examples/g2e/python3.ebnf",
+    "mkdocs/site/_static/images/btn_donate_SM.gif",
+    "mkdocs/site/assets/images/favicon.png",
+    "tmp/13.png",
+    "tmp/diagram.svg",
+    "changelog/CHANGELOG_v5.17.0.md"
+>>>>>>> master
   ]
 }

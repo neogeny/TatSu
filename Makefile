@@ -7,17 +7,19 @@ else
 endif
 
 
-all:  prepare test build requirements
+all:  prepare_for_tests test build requirements
 
 
-test:  prepare lint pytest documentation examples
+test:  prepare_for_tests lint pytest documentation examples
+
+test_plus: clean_plus test
 
 
-prepare:
-	uv sync -q
+prepare_for_tests: clean
+	@-uv sync -q --group test
 
 
-pytest: clean
+pytest: prepare_for_tests
 	mkdir -p ./tmp
 	touch ./tmp/__init__.py
 	#uv run pytest -v --cov=tatsu tests/
@@ -60,13 +62,13 @@ calc_test:
 lint: ruff ty mypy
 
 
-ruff:
-	@- echo ruff
+ruff: prepare_for_tests
+	@- echo $@
 	@- uv run ruff check -q --preview --fix tatsu tests examples
 
 
-mypy:
-	@- echo mypy
+mypy: prepare_for_tests
+	@- echo $@
 	@- uv run mypy tatsu tests examples \
 		--install-types \
 		--exclude dist \
@@ -74,8 +76,8 @@ mypy:
 		--exclude backup
 
 
-ty:
-	@- echo ty
+ty: prepare_for_tests
+	@- echo $@
 	@- uv run ty check --exclude parsers --exclude backups
 
 
@@ -84,7 +86,12 @@ clean:
 	/bin/rm -rf tatsu.egg-info dist tmp build .tox
 
 
-checks: clean
+clean_plus: clean
+	# NOTE: keep the complicated .mypy_cache
+	/bin/rm -rf .cache .pytest_cache .ruff_cache
+
+
+checks: clean_plus prepare_for_tests
 	time uv run hatch run --force-continue test:checks
 
 
@@ -92,20 +99,37 @@ build: clean
 	uvx hatch build
 
 
-requirements: uv.lock requirements-dev.txt requirements-doc.txt
+requirements: \
+	uv.lock \
+	requirements.txt \
+	requirements-dev.txt \
+	requirements-test.txt \
+	requirements-doc.txt
 
+
+requirements.txt: uv.lock
+	@echo "->" $@
+	@- uv export -q --format requirements-txt --no-hashes \
+		--no-group dev \
+		> $@
 
 requirements-dev.txt: uv.lock
 	@echo "->" $@
 	@- uv export -q --format requirements-txt --no-hashes \
 		--dev \
-		> requirements-dev.txt
+		> $@
+
+requirements-test.txt: uv.lock
+	@echo "->" $@
+	@- uv export -q --format requirements-txt --no-hashes \
+		--group test --no-group dev \
+		> $@
 
 requirements-doc.txt: uv.lock
 	@echo "->" $@
 	@- uv export -q --format requirements-txt --no-hashes \
 		--group doc --no-group dev \
-		> requirements-doc.txt
+		> $@
 
 
 need_gh:
