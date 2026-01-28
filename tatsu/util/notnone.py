@@ -25,6 +25,30 @@ class NotNoneType[T]:
             return False
         return other is self
 
+    def __bool__(self):
+        return False
+
+    def __and__(self, other):
+        return self
+
+    def __rand__(self, other):
+        return self.__and__(other)
+
+    def __or__(self, other):
+        return other
+
+    def __ror__(self, other):
+        return self.__or__(other)
+
+    def __xor__(self, other):
+        return (self or other) and not (self and other)
+
+    def __rxor__(self, other):
+        return self.__xor__(other)
+
+    def __invert__(self):
+        return not None
+
     def __repr__(self) -> str:
         return 'Undefined'
 

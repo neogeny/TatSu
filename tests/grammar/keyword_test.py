@@ -3,7 +3,7 @@ from ast import parse
 import pytest
 
 from tatsu.exceptions import FailedParse
-from tatsu.ngcodegen import codegen
+from tatsu.ngcodegen import pythongen
 from tatsu.tool import compile
 
 
@@ -53,12 +53,12 @@ def test_define_keywords():
         start = ('a' 'b').{'x'}+ ;
     """
     model = compile(grammar, 'test')
-    c = codegen(model)
+    c = pythongen(model)
     parse(c)
 
     grammar2 = str(model)
     model2 = compile(grammar2, 'test')
-    c2 = codegen(model2)
+    c2 = pythongen(model2)
     parse(c2)
 
     assert grammar2 == str(model2)
@@ -74,7 +74,7 @@ def test_check_keywords():
         id = /\w+/ ;
     """
     model = compile(grammar, 'test')
-    c = codegen(model)
+    c = pythongen(model)
     print(c)
     parse(c)
 
@@ -117,7 +117,7 @@ def test_sparse_keywords():
         id = /\w+/ ;
     """
     model = compile(grammar, 'test', trace=False, colorize=True)
-    c = codegen(model)
+    c = pythongen(model)
     parse(c)
 
     ast = model.parse('hello world')

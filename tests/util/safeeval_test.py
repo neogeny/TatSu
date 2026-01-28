@@ -63,3 +63,9 @@ def test_no_excetions_for_eval():
     with pytest.raises(SecurityError, match="Exception class forbidden at context"):
         check_safe_eval("1 + 1", context)
         safe_eval("1 + 1", context)
+
+
+def test_bad_argcount():
+    context = {'object': object, 'type': type}
+    with pytest.raises(SecurityError, match="Bad argument count"):
+        safe_eval("type('Evil', (object,), {})", context)

@@ -68,7 +68,7 @@ if __name__ == '__main__':
 """
 
 
-def codegen(model: Node, parser_name: str = '') -> str:
+def pythongen(model: Node, parser_name: str = '') -> str:
     generator = PythonCodeGenerator(parser_name=parser_name)
     generator.walk(model)
     return generator.printed_text()

@@ -4,7 +4,7 @@ import pytest
 
 from tatsu import tool
 from tatsu.exceptions import FailedParse, FailedToken
-from tatsu.ngcodegen import codegen
+from tatsu.ngcodegen import pythongen
 from tatsu.parser import EBNFBuffer
 from tatsu.tool import compile
 from tatsu.util import trim
@@ -263,7 +263,7 @@ class SyntaxTests(unittest.TestCase):
         """
 
         model = compile(grammar, 'final')
-        codegen(model)
+        pythongen(model)
         model.parse('(sometype){boolean = true}')
 
     def test_empty_match_token(self):
@@ -283,7 +283,7 @@ class SyntaxTests(unittest.TestCase):
             start = {'x'}+ {} 'y'$;
         """
         model = compile(grammar, 'test')
-        codegen(model)
+        pythongen(model)
         ast = model.parse('xxxy', nameguard=False)
         self.assertEqual((['x', 'x', 'x'], [], 'y'), ast)
 

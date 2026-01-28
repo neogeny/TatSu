@@ -4,7 +4,7 @@ import sys
 import tempfile
 import unittest
 
-from tatsu.ngcodegen import codegen
+from tatsu.ngcodegen import pythongen
 from tatsu.parser import GrammarGenerator
 from tatsu.tool import compile
 from tatsu.util import trim
@@ -20,7 +20,7 @@ class ParameterTests(unittest.TestCase):
         """
         g = GrammarGenerator('Keywords')
         model = g.parse(grammar)
-        code = codegen(model)
+        code = pythongen(model)
         self.assertEqual('#!/usr/bin/env python3', code.splitlines()[0])
 
     def test_35_only_keyword_params(self):
@@ -127,7 +127,7 @@ class ParameterTests(unittest.TestCase):
         semantics = TC36Semantics()
         ast = model.parse('a b c', semantics=semantics)
         self.assertEqual(['a', 'b', 'c'], ast)
-        codegen(model)
+        pythongen(model)
 
     def test_36_unichars(self):
         grammar = """
@@ -177,7 +177,7 @@ class ParameterTests(unittest.TestCase):
         ast = m.parse('a b c', semantics=semantics)
         self.assertEqual(['a', 'b', 'c'], ast)
 
-        code = codegen(m)
+        code = pythongen(m)
         module_name = 'tc36unicharstest'
         temp_dir = pathlib.Path(tempfile.mkdtemp()) / module_name
         temp_dir.mkdir(exist_ok=True)

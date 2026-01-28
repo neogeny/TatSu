@@ -21,6 +21,47 @@ __all__ = [
     'make_hashable',
 ]
 
+argcounts: dict[str, int] = {
+    'type': 1,
+}
+
+
+unsafe_builtins = {
+    'breakpoint',   # Remote code execution and interactive shell access
+
+    'getattr',      # Attribute-based sandbox escapes and manipulation
+    'hasattr',
+    'setattr',
+
+    'dir',          # Introspection and environment mapping
+    'globals',
+    'id',
+    'locals',
+    'vars',
+
+    'object',       # Type system and MRO navigation (accessing __subclasses__)
+    'property',
+    'staticmethod',
+    'super',
+    'type',
+
+    'isinstance',   # Class hierarchy discovery
+    'issubclass',
+
+    'aiter',        # Asynchronous complexity and execution control
+    'anext',
+
+    'bytearray',    # Mutable memory/buffer access
+    'memoryview',
+
+    'copyright',    # Unnecessary side effects and environment-specific helpers
+    'credits',
+    'display',
+    'license',
+
+    'dict',          # Constructor-based type escapes
+}
+
 
 class SecurityError(RuntimeError):
     """Raised when an expression or context contains unauthorized patterns."""
@@ -39,15 +80,22 @@ def hashable(obj: Any) -> bool:
 @lru_cache(maxsize=1)
 def safe_builtins() -> dict[str, Any]:
     """Returns a subset of builtins that are not exceptions or private."""
-    return {
-        name: value
-        for name, value in builtins.__dict__.items()
-        if (
-                not name.startswith('_') and
-                not (isinstance(value, type) and issubclass(value, BaseException)) and
-                not isinstance(value, BaseException)
+
+    def is_unsafe_builtin_entry(entry: tuple[str, Any]) -> bool:
+        name, value = entry
+        return (
+            name in unsafe_builtins
+            or name.startswith('_')
+            or name.endswith('Error')
+            or name.endswith('Warning')
+            or isinstance(value, type | BaseException)
         )
-    }
+
+    return dict(
+        entry
+        for entry in vars(builtins).items()
+        if not is_unsafe_builtin_entry(entry)
+    )
 
 
 def make_hashable(source: Any) -> Any:
@@ -154,7 +202,6 @@ def _check_safe_eval_cached(expression: str, context_items: tuple[tuple[str, Any
     """
     context = dict(context_items)
     check_eval_context(context)
-    allowed_names = set(context.keys())
 
     tree = parse_expression(expression)
     if isinstance(tree, NotNoneType):
@@ -171,17 +218,27 @@ def _check_safe_eval_cached(expression: str, context_items: tuple[tuple[str, Any
             raise SecurityError(f"Dunder access prohibited: .{node.attr}")
 
         if isinstance(node, ast.Name):
-            if isinstance(node.ctx, ast.Load) and node.id not in allowed_names:
+            if isinstance(node.ctx, ast.Load) and node.id not in context:
                 raise SecurityError(f"Unauthorized name access: {node.id}")
             continue
 
-        if isinstance(node, ast.Call):
-            func = node.func
-            if not isinstance(func, (ast.Name, ast.Attribute)):
-                raise SecurityError("Only direct name or method calls are permitted.")
+        if not isinstance(node, ast.Call):
+            continue
 
-            if isinstance(func, ast.Name) and func.id not in allowed_names:
-                raise SecurityError(f"Unauthorized function call: {func.id}")
+        func = node.func
+        if not isinstance(func, (ast.Name, ast.Attribute)):
+            raise SecurityError("Only direct name or method calls are permitted.")
+
+        if not isinstance(func, ast.Name):
+            continue
+
+        if func.id not in context:
+            raise SecurityError(f"Unauthorized function call: {func.id}")
+
+        if func.id in argcounts and len(node.args) != argcounts[func.id]:
+            raise SecurityError(
+                f'Bad argument count of {len(node.args)} for {func.id}().',
+            )
 
 
 def scan_for_exceptions(obj: Any, seen: set[int], path: str = "context") -> None:
@@ -196,7 +253,7 @@ def scan_for_exceptions(obj: Any, seen: set[int], path: str = "context") -> None
     if isinstance(obj, BaseException):
         raise SecurityError(f"Exception instance forbidden at {path}: {type(obj)}")
 
-    if isinstance(obj, Mapping | Iterable) and not isinstance(obj, str | bytes):
+    if isinstance(obj, str | bytes | Mapping | Iterable):
         seen.add(obj_id)
         if isinstance(obj, Mapping):
             for k, v in obj.items():

@@ -2,7 +2,7 @@ import pytest
 
 import tatsu
 from tatsu.exceptions import FailedParse
-from tatsu.ngcodegen import codegen
+from tatsu.ngcodegen import pythongen
 from tatsu.util import trim
 
 EXEC = 'exec'
@@ -15,7 +15,7 @@ def test_whitespace_directive():
         test = "test" $;
     """
     model = tatsu.compile(grammar, 'test')
-    code = codegen(model)
+    code = pythongen(model)
     compile('test.py', code, EXEC)
 
 
@@ -69,7 +69,7 @@ def test_eol_comments_re_directive():
         test = "test" $;
     """
     model = tatsu.compile(grammar, 'test')
-    code = codegen(model)
+    code = pythongen(model)
     compile(code, 'test.py', EXEC)
 
 
@@ -83,7 +83,7 @@ def test_left_recursion_directive():
     assert not model.directives.get('left_recursion')
     assert not model.config.left_recursion
 
-    code = codegen(model)
+    code = pythongen(model)
     compile('test.py', code, EXEC)
 
 
@@ -125,7 +125,7 @@ def test_grammar_directive():
     assert model.directives.get('grammar') == 'Test'
     assert model.name == 'Test'
 
-    code = codegen(model)
+    code = pythongen(model)
     module = compile(code, 'test.py', EXEC)
 
     assert 'TestParser' in module.co_names
@@ -142,7 +142,7 @@ def test_parseinfo_directive():
     ast = model.parse('test')
     assert ast.parseinfo is not None
 
-    code = codegen(model)
+    code = pythongen(model)
     print(code)
     assert 'parseinfo=True' in code
     compile(code, 'test.py', EXEC)
@@ -156,7 +156,7 @@ def test_parseinfo_directive():
     ast = model.parse('test')
     assert ast.parseinfo is None
 
-    code = codegen(model)
+    code = pythongen(model)
     assert 'parseinfo=False' in code
     compile(code, 'test.py', EXEC)
 

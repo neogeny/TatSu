@@ -6,30 +6,29 @@ from .objectmodel import BaseNode
 # NOTE:
 #   __REGISTRY is an alias for the modules vars()/ __dict__.
 #   That allows for synthesized types to reside within this module.
-__REGISTRY: MutableMapping[str, Callable] = vars()
+__registry: MutableMapping[str, Callable] = vars()
+
+__all__ = ['SynthNode', 'registered_synthetics', 'synthesize']
 
 
-class _Synthetic(BaseNode):
+class SynthNode(BaseNode):
     pass
 
 
-def synthesize(name: str, bases: tuple[type, ...], *args: Any, **kwargs: Any) -> Callable:
-    typename = f'{__name__}.{name}'
-
+def synthesize(name: str, bases: tuple[type, ...], **kwargs: Any) -> Callable:
     if not isinstance(bases, tuple):
-        bases = (bases,)
+        raise TypeError(f'bases must be a tuple, not {type(bases)}')
 
-    if _Synthetic not in bases:
-        bases = (*bases, _Synthetic)
+    if SynthNode not in bases:
+        bases = (*bases, SynthNode)
 
-    constructor = __REGISTRY.get(typename)
+    constructor = __registry.get(name)
     if not constructor:
         constructor = type(name, bases, kwargs)
-        typename = constructor.__name__
-        __REGISTRY[typename] = constructor
+        __registry[name] = constructor
 
     return constructor
 
 
 def registered_synthetics() -> dict[str, Callable]:
-    return dict(__REGISTRY)
+    return dict(__registry)

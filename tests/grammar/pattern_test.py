@@ -1,7 +1,7 @@
 import unittest
 
 from tatsu.exceptions import FailedParse
-from tatsu.ngcodegen import codegen
+from tatsu.ngcodegen import pythongen
 from tatsu.tool import compile
 from tatsu.util import trim
 
@@ -112,9 +112,9 @@ class PatternTests(unittest.TestCase):
         model = compile(grammar=trim(grammar))
         from tatsu import grammars
         assert isinstance(model.rules[0].exp, grammars.Sequence)
-        print(codegen(model.rules[0].exp.sequence[0]))
+        print(pythongen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
-            codegen(model.rules[0].exp.sequence[0]).strip(),
+            pythongen(model.rules[0].exp.sequence[0]).strip(),
             repr("self._pattern('(?x)\nfoo\nbar\n')").strip('"\''),
         )
 
@@ -125,8 +125,8 @@ class PatternTests(unittest.TestCase):
         """
         model = compile(grammar=trim(grammar))
         assert isinstance(model.rules[0].exp, grammars.Sequence)
-        print(codegen(model.rules[0].exp.sequence[0]))
+        print(pythongen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
-            trim(codegen(model.rules[0].exp.sequence[0])),
+            trim(pythongen(model.rules[0].exp.sequence[0])),
             repr("self._pattern('(?x)foo\\nbar\nblort')").strip(r'"\.'),
         )

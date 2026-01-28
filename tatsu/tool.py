@@ -18,7 +18,7 @@ from ._version import __version__
 from .exceptions import ParseException
 from .infos import ParserConfig
 from .ngcodegen.modelgen import modelgen
-from .ngcodegen.pythongen import codegen as ngpythoncg
+from .ngcodegen.pythongen import pythongen
 from .parser import GrammarGenerator
 from .semantics import ModelBuilderSemantics
 from .util import eval_escapes
@@ -238,7 +238,7 @@ def to_python_sourcecode(
     model = compile(
         grammar, name=name, filename=filename, config=config, **settings,
     )
-    return ngpythoncg(model)
+    return pythongen(model)
 
 
 def to_python_model(
@@ -278,7 +278,7 @@ def gencode(
     grammar: str,
     trace: bool = False,
     filename: str | None = None,
-    codegen: Callable = ngpythoncg,
+    codegen: Callable = pythongen,
     config: ParserConfig | None = None,
     **settings: Any,
 ):
@@ -343,7 +343,7 @@ def main():
             elif args.object_model:
                 result = modelgen(model, base_type=args.base_type)
             else:
-                result = ngpythoncg(model)
+                result = pythongen(model)
 
             if outfile:
                 save(outfile, result)
