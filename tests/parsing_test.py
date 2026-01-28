@@ -171,7 +171,7 @@ class ParsingTests(unittest.TestCase):
         """
 
         text = 'test'
-        node = tatsu.parse(grammar, text, asmodel=True, parseinfo=True, )
+        node = tatsu.parse(grammar, text, asmodel=True, parseinfo=True)
         assert type(node).__name__ == 'Test'
         assert node.ast is True
         assert node.parseinfo is not None
