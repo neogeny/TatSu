@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "f822ae11e3e98776",
+        "id": "bce1803461f1cba6",
         "type": "tabs",
         "children": [
           {
-            "id": "2c5b139d06da00e6",
+            "id": "51c2e92d6ae32c51",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -20,16 +20,16 @@
               "icon": "lucide-file",
               "title": "CHANGELOG_v5.17.0"
             },
-            "group": "e33112227a7451f9"
+            "group": "1ea955dd3f96e636"
           }
         ]
       },
       {
-        "id": "60cbbbab1f4bc9f2",
+        "id": "b819df2cedc0b26c",
         "type": "tabs",
         "children": [
           {
-            "id": "d887c2ec1df13df1",
+            "id": "5c65af52e3bca67b",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -41,7 +41,7 @@
               "icon": "lucide-file",
               "title": "CHANGELOG_v5.17.0"
             },
-            "group": "e33112227a7451f9"
+            "group": "1ea955dd3f96e636"
           }
         ]
       }
@@ -218,6 +218,23 @@
       "bases:Create new base": false
     }
   },
-  "active": "2c5b139d06da00e6",
-  "lastOpenFiles": []
+  "active": "51c2e92d6ae32c51",
+  "lastOpenFiles": [
+    "tatsu/__pycache__/model.cpython-314.opt-1.pyc",
+    "tatsu/util/__pycache__/parproc.cpython-314.opt-1.pyc",
+    "tatsu/tool/__pycache__/cli.cpython-314.opt-1.pyc",
+    "tatsu/__pycache__/synth.cpython-314.opt-1.pyc",
+    "tatsu/__pycache__/semantics.cpython-314.opt-1.pyc",
+    "tatsu/leftrec/__pycache__/leftrecmarker.cpython-314.opt-1.pyc",
+    "tatsu/leftrec/__pycache__/__init__.cpython-314.opt-1.pyc",
+    "tatsu/__pycache__/parser_semantics.cpython-314.opt-1.pyc",
+    "tatsu/__pycache__/parsing.cpython-314.opt-1.pyc",
+    "tatsu/__pycache__/bootstrap.cpython-314.opt-1.pyc",
+    "tatsu/__pycache__/parser.cpython-314.opt-1.pyc",
+    "mkdocs/site/_static/images/btn_donate_SM.gif",
+    "mkdocs/site/assets/images/favicon.png",
+    "tmp/13.png",
+    "tmp/diagram.svg",
+    "changelog/CHANGELOG_v5.17.0.md"
+  ]
 }

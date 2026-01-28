@@ -1,7 +1,4 @@
-from __future__ import annotations
-
-from ._config import __toolname__, __version__
-from .tool import (  # pylint: disable=W0622
+from .api import (
     compile,
     gencode,
     genmodel,
@@ -9,13 +6,13 @@ from .tool import (  # pylint: disable=W0622
     to_python_model,
     to_python_sourcecode,
 )
+from .cli import tatsu_main
 
 __all__ = [
-    '__toolname__',
-    '__version__',
-    "compile",
+    'compile',
     'gencode',
     'genmodel',
+    'tatsu_main',
     'parse',
     'to_python_model',
     'to_python_sourcecode',

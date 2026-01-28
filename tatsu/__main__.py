@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import tatsu
+from .tool import tatsu_main
 
 if __name__ == '__main__':
-    tatsu.main()
+    tatsu_main()
