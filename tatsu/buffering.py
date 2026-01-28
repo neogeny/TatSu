@@ -332,10 +332,9 @@ class Buffer(Tokenizer):
             return self.atend()
 
         p = self.pos
-        if self.ignorecase:
-            is_match = self.text[p: p + len(token)].lower() == token.lower()
-        else:
-            is_match = self.text[p: p + len(token)] == token
+        flags = re.IGNORECASE if self.ignorecase else 0
+        token_re = cached_re_compile(token, escape=True, flags=flags)
+        is_match = token_re.match(self.text, pos=p) is not None
 
         if not is_match:
             return None
