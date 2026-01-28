@@ -19,7 +19,7 @@ def synthesize(name: str, bases: tuple[type, ...], **kwargs: Any) -> Callable:
     typename = f'{__name__}.{name}'
 
     if not isinstance(bases, tuple):
-        bases = (bases,)
+        raise TypeError(f'bases must be a tuple, not {type(bases)}')
 
     if SynthNode not in bases:
         bases = (*bases, SynthNode)

@@ -31,17 +31,17 @@ class ActualParameters:
     def add_kwparam(self, name: str, var: Any):
         self.kwparams[name] = var
 
-    def add_args(self, args: list[Any]):
+    def add_args(self, args: Iterable[Any]):
         self.params.extend(args)
         self.has_args = True
 
-    def add_kwargs(self, kwargs: dict[str, Any]):
+    def add_kwargs(self, kwargs: Mapping[str, Any]):
         self.kwparams.update(kwargs)
         self.has_kwargs = True
 
 
 class AbstractSemantics:
-    def safe_context(self, /, *other: dict[str, Any]) -> Mapping[str, Any]:
+    def safe_context(self, /, *other: Mapping[str, Any]) -> Mapping[str, Any]:
         context: dict[str, Any] = {}
         for ctx in other:
             context |= ctx
@@ -93,7 +93,7 @@ class ModelBuilderSemantics(AbstractSemantics):
             # note: allow standalone functions
             self._register_constructor(t)
 
-    def safe_context(self, /, *other: dict[str, Any]) -> Mapping[str, Any]:
+    def safe_context(self, /, *other: Mapping[str, Any]) -> Mapping[str, Any]:
         return super().safe_context(self.constructors, *other)
 
     def _register_constructor(self, constructor: Callable) -> Callable:
@@ -131,11 +131,17 @@ class ModelBuilderSemantics(AbstractSemantics):
 
         constructor = self._find_existing_constructor(typename)
         if not constructor:
-            constructor = synthesize(typename, base)
+            constructor = synthesize(typename, (base,))
 
         return self._register_constructor(constructor)
 
-    def _find_actual_params(self, fun: Callable, ast, args, kwargs) -> ActualParameters:
+    def _find_actual_params(
+            self,
+            fun: Callable,
+            ast: Any,
+            args: Iterable[Any],
+            kwargs: Mapping[str, Any],
+    ) -> ActualParameters:
         fun_name = ''
         if hasattr(fun, '__name__'):
             fun_name = fun.__name__
@@ -182,7 +188,7 @@ class ModelBuilderSemantics(AbstractSemantics):
         # else: No parameters
         return actual
 
-    def _default(self, ast, *args, **kwargs) -> Any:
+    def _default(self, ast: Any, *args: Any, **kwargs: Any) -> Any:
         if not args:
             return ast
 
