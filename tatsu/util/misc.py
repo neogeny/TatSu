@@ -132,10 +132,10 @@ def _graphlib_topsort[T](nodes: Iterable[T], edges: Iterable[tuple[T, T]]) -> li
 
 
 @cache
-def cached_re_compile(regex: re.Pattern | str | bytes) -> re.Pattern | None:
-    if isinstance(regex, re.Pattern):
-        return regex
-    return re.compile(regex) if isinstance(regex, (str | bytes)) else None
+def cached_re_compile(pattern: str | bytes | re.Pattern, flags: int = 0) -> re.Pattern:
+    if isinstance(pattern, re.Pattern):
+        return pattern
+    return re.compile(pattern, flags=flags)
 
 
 def module_available(name):
