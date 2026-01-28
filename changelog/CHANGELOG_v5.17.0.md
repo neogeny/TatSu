@@ -18,7 +18,7 @@ For the details about the many changes please take a look at the [commit log][].
 
 Every effort has been made to preserve backwards compatibility by keeping mosts unit tests intact and running projects with large grammars and complex processing. If something escaped, there will be a minor release with the fixes.
 
-#### User-Facing Changes
+### User-Facing Changes
 
 - Now `tatsu.parse(...., asmodel=True)` produces the same model result as `tatsu.to_python_model()` 	
 - `walkers.NodeWalker` now handles all known types of input. Also: 
@@ -52,7 +52,7 @@ Out[7]: 'ok'
 - `objectmodel.Node` was rewritten to give it clear semantics and efficiency
 	- No Python attributes are created with `setattr()`, .  No new attributes may be defined on a `Node` after initialization
 	- `Node.children()` has the expected semantics now, it was made much more efficient, and is now recalculated on each call in consistency with the mutability of `Node`
-- `Node.parseinfo` is honored by the parsing engine, when previously only results of type `AST` could have a `parseinfo`. Generation of `parseinfo` is disabled by default. Pass `pareseinfo=True` to the API entry points to enable it.
+- `Node.parseinfo` is honored by the parsing engine, when previously only results of type `AST` could have a `parseinfo`. Generation of `parseinfo` is disabled by defaulti, so pass `pareseinfo=True` to the API entry points to enable it.
 ```python
       def test_node_parseinfo(self):
         grammar = """
