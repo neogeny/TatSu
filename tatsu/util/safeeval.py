@@ -30,20 +30,20 @@ unsafe_builtins = {
     'breakpoint',   # Remote code execution and interactive shell access
 
     'getattr',      # Attribute-based sandbox escapes and manipulation
-    'setattr',
     'hasattr',
+    'setattr',
 
-    'globals',      # Introspection and environment mapping
+    'dir',          # Introspection and environment mapping
+    'globals',
+    'id',
     'locals',
     'vars',
-    'dir',
-    'id',
 
     'object',       # Type system and MRO navigation (accessing __subclasses__)
-    'type',
-    'super',
     'property',
     'staticmethod',
+    'super',
+    'type',
 
     'isinstance',   # Class hierarchy discovery
     'issubclass',
@@ -56,8 +56,8 @@ unsafe_builtins = {
 
     'copyright',    # Unnecessary side effects and environment-specific helpers
     'credits',
-    'license',
     'display',
+    'license',
 
     'dict',          # Constructor-based type escapes
 }
