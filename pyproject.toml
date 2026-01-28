@@ -209,6 +209,7 @@ ignore_errors = true
 dependencies = [
     "graphviz",
     "colorama",
+    "mypy",
     "psutil",
     "pytest",
     "pytest-dependency",
@@ -218,6 +219,7 @@ dependencies = [
 ]
 
 [tool.hatch.envs.test.scripts]
+prepare = "uv sync --group test"
 version = "echo `python --version` && echo `tatsu --version`"
 lint = "ruff check -q --preview tatsu tests examples"
 types = "ty check tatsu tests examples"
@@ -225,6 +227,7 @@ more_types = "mypy --install-types --exclude dist --exclude parsers --exclude ba
 tests = "pytest"
 
 checks = [
+    "prepare"
     "version",
     "lint",
     "types",
@@ -233,6 +236,7 @@ checks = [
 ]
 
 run = [
+    "prepare"
     "version",
     "lint",
     "types",
