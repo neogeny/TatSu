@@ -253,7 +253,7 @@ def scan_for_exceptions(obj: Any, seen: set[int], path: str = "context") -> None
     if isinstance(obj, BaseException):
         raise SecurityError(f"Exception instance forbidden at {path}: {type(obj)}")
 
-    if isinstance(obj, str | bytes | Mapping | Iterable):
+    if isinstance(obj, Mapping | Iterable):
         seen.add(obj_id)
         if isinstance(obj, Mapping):
             for k, v in obj.items():
