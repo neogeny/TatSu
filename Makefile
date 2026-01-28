@@ -13,7 +13,7 @@ all:  prepare_for_tests test build requirements
 test:  prepare_for_tests lint pytest documentation examples
 
 
-prepare_for_tests:
+prepare_for_tests: clean
 	@-uv sync -q --group test
 
 
