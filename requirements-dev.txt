@@ -39,6 +39,7 @@ graphviz==0.21
 h11==0.16.0
     # via httpcore
 hatch==1.16.3
+hatch-uv==0.0.5
 hatchling==1.28.0
     # via hatch
 httpcore==1.0.9
