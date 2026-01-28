@@ -16,7 +16,9 @@ This release is a major refactoring of the code in **[TatSu][]**.
 
 For the details about the many changes please take a look at the [commit log][].
 
-## User-Facing Changes
+Every effort has been made to preserve backwards compatibility by keeping mosts unit tests intact and running projects with large grammars and complex processing. If something escaped, there will be a minor release with the fixes.
+
+#### User-Facing Changes
 
 - `walkers.NodeWalker` now handles all known types of input. Also: 
 	- `DepthFirstWalker` was reimplemented to ensure DFS semantics
