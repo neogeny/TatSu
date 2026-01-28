@@ -7,17 +7,17 @@ else
 endif
 
 
-all:  prepare test build requirements
+all:  prepare_for_tests test build requirements
 
 
-test:  prepare lint pytest documentation examples
+test:  prepare_for_tests lint pytest documentation examples
 
 
-prepare:
-	uv sync -q
+prepare_for_tests:
+	@-uv sync -q --group test
 
 
-pytest: clean
+pytest: clean prepare_for_tests
 	mkdir -p ./tmp
 	touch ./tmp/__init__.py
 	#uv run pytest -v --cov=tatsu tests/
@@ -60,12 +60,12 @@ calc_test:
 lint: ruff ty mypy
 
 
-ruff:
+ruff: prepare_for_tests
 	@- echo ruff
 	@- uv run ruff check -q --preview --fix tatsu tests examples
 
 
-mypy:
+mypy: prepare_for_tests
 	@- echo mypy
 	@- uv run mypy tatsu tests examples \
 		--install-types \
@@ -74,7 +74,7 @@ mypy:
 		--exclude backup
 
 
-ty:
+ty: prepare_for_tests
 	@- echo ty
 	@- uv run ty check --exclude parsers --exclude backups
 
@@ -92,7 +92,12 @@ build: clean
 	uvx hatch build
 
 
-requirements: uv.lock requirements.txt requirements-dev.txt requirements-doc.txt
+requirements: \
+	uv.lock \
+	requirements.txt \
+	requirements-dev.txt \
+	requirements-test.txt \
+	requirements-doc.txt
 
 
 requirements.txt: uv.lock
@@ -105,6 +110,12 @@ requirements-dev.txt: uv.lock
 	@echo "->" $@
 	@- uv export -q --format requirements-txt --no-hashes \
 		--dev \
+		> $@
+
+requirements-test.txt: uv.lock
+	@echo "->" $@
+	@- uv export -q --format requirements-txt --no-hashes \
+		--group test --no-group dev \
 		> $@
 
 requirements-doc.txt: uv.lock

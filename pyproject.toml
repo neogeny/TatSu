@@ -38,28 +38,32 @@ parproc = ["rich"]
 
 [dependency-groups]
 dev = [
-    "pip",
-    "docutils",
     "colorama",
     "graphviz",
     "hatch",
     "ipython",
-    "mypy",
     "progress",
     "psutil",
+    "rich",
+    "rst2html5",
+]
+
+test = [
+    "colorama",
+    "graphviz",
+    "mypy",
     "pytest",
     "pytest-cov",
     "pytest-dependency",
     "pytest-rerunfailures",
     "pytest-xdist",
-    "rich",
-    "rst2html5",
     "ruff",
     "ty",
     "types-decorator",
 ]
 
 doc = [
+    "docutils",
     "sphinx>=8.1.0",                # Support for modern Python and Sphinx 9.x
     "sphinx-autodoc2>=0.5.0",       # Static analysis for Markdown docstrings
     "sphinx-copybutton>=0.5.2",     # Latest stable with Sphinx 8+ support
