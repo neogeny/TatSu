@@ -61,12 +61,12 @@ lint: ruff ty mypy
 
 
 ruff: prepare_for_tests
-	@- echo ruff
+	@- echo $@
 	@- uv run ruff check -q --preview --fix tatsu tests examples
 
 
 mypy: prepare_for_tests
-	@- echo mypy
+	@- echo $@
 	@- uv run mypy tatsu tests examples \
 		--install-types \
 		--exclude dist \
@@ -75,7 +75,7 @@ mypy: prepare_for_tests
 
 
 ty: prepare_for_tests
-	@- echo ty
+	@- echo $@
 	@- uv run ty check --exclude parsers --exclude backups
 
 
@@ -84,7 +84,7 @@ clean:
 	/bin/rm -rf tatsu.egg-info dist tmp build .tox
 
 
-checks: clean
+checks: prepare_for_tests
 	time uv run hatch run --force-continue test:checks
 
 
