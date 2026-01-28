@@ -4,7 +4,7 @@ from tatsu import synth
 from tatsu.exceptions import FailedParse
 from tatsu.objectmodel import Node
 from tatsu.semantics import ModelBuilderSemantics
-from tatsu.tool import compile
+from tatsu.tool import compile, parse
 
 
 class MyNode:
@@ -145,19 +145,9 @@ def test_optional_attributes():
 
 def test_constant_math():
     grammar = r"""
-        start =
-            a:A b:B
-            @:```{a} / {b}```
-            $
-        ;
-
-        A = number @:`7` ;
-        B = number @:`2` ;
-        number::int = /\d+/ ;
+        start = a:`7` b:`2` @:```{a} / {b}``` $ ;
     """
-    model = compile(grammar)
-    result = model.parse('42 84', trace=True)
-    assert model
+    result = parse(grammar, '', trace=True)
     assert result == 3.5
 
 
