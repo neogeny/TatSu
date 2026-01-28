@@ -67,7 +67,7 @@ ruff:
 
 mypy:
 	@- echo mypy
-	@- uv run mypy . \
+	@- uv run mypy tatsu tests examples \
 		--install-types \
 		--exclude dist \
 		--exclude parsers \
