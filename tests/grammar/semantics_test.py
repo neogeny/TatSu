@@ -62,7 +62,7 @@ def test_builder_semantics():
 
 
 def test_builder_subclassing():
-    registry = getattr(synth, '__REGISTRY')
+    registry = getattr(synth, '__registry')
 
     grammar = """
         @@grammar :: Test
