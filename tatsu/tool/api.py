@@ -20,7 +20,6 @@ __compiled_grammar_cache = {}  # type: ignore[var-annotated]
 
 
 def compile(
-
         grammar: str | Tokenizer,
         name: str | None = None,
         *,
