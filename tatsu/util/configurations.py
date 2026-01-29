@@ -60,7 +60,13 @@ class Config:
             if name not in noninit
         }
 
+    def check_unknowns(self, **settings: Any) -> None:
+        unknown = {name for name in settings if not hasattr(self, name)}
+        if unknown:
+            raise ValueError(f'Unknown settings for {type(self).__name__}: {unknown!r}')
+
     def replace(self, **settings: Any) -> Self:
+        self.check_unknowns(**settings)
         settings = self._filter_non_init_fields(settings)
         overrides = self._find_common(**settings)
         assert dataclasses.is_dataclass(self)
@@ -70,6 +76,7 @@ class Config:
         return self.replace(**settings)
 
     def merge(self, **settings: Any) -> Self:
+        self.check_unknowns(**settings)
         overrides = self._find_common(**settings)
         overrides = {
             name: value
