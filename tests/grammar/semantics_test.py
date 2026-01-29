@@ -7,7 +7,7 @@ from tatsu.semantics import ModelBuilderSemantics
 from tatsu.tool import compile, parse
 
 
-class MyNode:
+class MyNode(Node):
     def __init__(self, ast):
         pass
 
@@ -104,7 +104,7 @@ def test_builder_basetype_codegen():
     from tatsu.tool import to_python_model
 
     src = to_python_model(grammar, base_type=MyNode)
-    print(src)
+    # print(src)
 
     globals = {}
     exec(src, globals)  # pylint: disable=W0122
