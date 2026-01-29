@@ -7,14 +7,13 @@ import functools
 import inspect
 import warnings
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import Any
 
-# TypeVar helps preserve the signature of the decorated function
-F = TypeVar('F', bound=Callable[..., Any])
+type Decorator = Callable[[Callable[..., Any]], Callable[..., Any]]
 
 
-def deprecated_params(**params_map: str | None) -> Callable[[F], F]:
-    def decorator(func: F) -> F:
+def deprecated_params(**params_map: str | None) -> Decorator:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             if not params_map:
@@ -24,8 +23,8 @@ def deprecated_params(**params_map: str | None) -> Callable[[F], F]:
             bound_args = sig.bind_partial(*args, **kwargs)
             actual_args = bound_args.arguments
 
-            # Get name safely for the linter
-            func_name = getattr(func, '__name__', str(func))
+            # Access __name__ safely to satisfy the linter
+            func_name = getattr(func, "__name__", str(func))
 
             for old_p, new_p in params_map.items():
                 if old_p not in actual_args:
@@ -34,7 +33,6 @@ def deprecated_params(**params_map: str | None) -> Callable[[F], F]:
                 msg = f"Parameter '{old_p}' is deprecated."
                 if new_p:
                     msg += f" Use '{new_p}' instead."
-
                 warnings.warn(
                     f"{msg} (in {func_name})",
                     category=DeprecationWarning,
@@ -56,5 +54,5 @@ def deprecated_params(**params_map: str | None) -> Callable[[F], F]:
                 )
 
             return func(*args, **kwargs)
-        return wrapper  # type: ignore
+        return wrapper
     return decorator
