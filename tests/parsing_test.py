@@ -49,10 +49,10 @@ class ParsingTests(unittest.TestCase):
         Path(include_a).write_text("a = 'inclusion';")
         Path(include_b).write_text("b = 'works';")
 
-        model = tatsu.compile(
-            grammar=grammar.format(include_a=include_a, include_b=include_b),
-        )
-        self.assertIsNotNone(model)
+        grammar = grammar.format(include_a=include_a, include_b=include_b)
+        print(grammar)
+        model = tatsu.compile(grammar=grammar)
+        assert model is not None
 
     def test_escape_sequences(self):
         self.assertEqual('\n', eval_escapes(r'\n'))

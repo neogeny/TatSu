@@ -5,7 +5,7 @@ import pytest
 from tatsu import synth
 from tatsu.exceptions import FailedParse
 from tatsu.objectmodel import Node
-from tatsu.semantics import ModelBuilderSemantics
+from tatsu.semantics import BuilderConfig, ModelBuilderSemantics
 from tatsu.tool import compile, parse
 
 
@@ -113,7 +113,7 @@ def test_builder_basetype_codegen():
 
     from tatsu.tool import to_python_model
 
-    src = to_python_model(grammar, base_type=MyNode)
+    src = to_python_model(grammar, nodebase=MyNode)
     print(src)
 
     globals = {}
@@ -187,13 +187,15 @@ def test_builder_types():
         start::AType::BType = $ ;
     """
 
-    ast = parse(grammar, '', constructors=[AType, BType])
+    builderconfig = BuilderConfig(constructors=[AType, BType])
+    ast = parse(grammar, '', builderconfig=builderconfig)
     assert type(ast) is AType
     assert isinstance(ast, BType)
     assert not isinstance(ast, synth.SynthNode)
 
     thismodule = sys.modules[__name__]
-    ast = parse(grammar, '', base_type=BType, nodedefs=thismodule, nosynth=True)
+    builderconfig = BuilderConfig(nodebase=BType, nodedefs=thismodule, nosynth=True)
+    ast = parse(grammar, '', builderconfig=builderconfig)
     assert type(ast) is AType
     assert isinstance(ast, BType)
     assert not isinstance(ast, synth.SynthNode)

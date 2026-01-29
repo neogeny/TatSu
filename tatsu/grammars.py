@@ -987,8 +987,8 @@ class Grammar(Model):
         directives = directives or {}
         self.directives = directives
 
-        config = ParserConfig.new(config=config, **directives)
-        config = config.replace(**settings)
+        config = ParserConfig.new(config=config, **settings)
+        config = config.hard_replace(**directives)
         self.config = config
 
         self.rules: list[Rule] = rules
@@ -996,8 +996,6 @@ class Grammar(Model):
             rule.name: rule
             for rule in rules
         }
-
-        config = config.merge(**directives)
 
         if name is None:
             name = self.directives.get('grammar')
@@ -1098,6 +1096,8 @@ class Grammar(Model):
             **settings):
         # type: ignore[override]
         config = self.config.replace_config(config)
+        config = config.hard_replace(**self.directives)
+        # note: bw-comp: allow overriding directives
         config = config.replace(**settings)
 
         if isinstance(config.semantics, type):
