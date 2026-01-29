@@ -101,14 +101,14 @@ class Config:
         for key, value in state.items():
             if key.endswith('__mod__'):
                 real_name = key.replace('__mod__', '')
-                setattr(self, real_name, importlib.import_module(value))
+                object.__setattr__(self, real_name, importlib.import_module(value))
                 continue
 
             if key.endswith('__cls__'):
                 real_name = key.replace('__cls__', '')
                 mod_name, cls_name = value.rsplit('.', 1)
                 mod = importlib.import_module(mod_name)
-                setattr(self, real_name, getattr(mod, cls_name))
+                object.__setattr__(self, real_name, getattr(mod, cls_name))
                 continue
 
-            setattr(self, key, value)
+            object.__setattr__(self, key, value)

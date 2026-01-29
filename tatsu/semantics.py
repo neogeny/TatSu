@@ -8,9 +8,11 @@ from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
+from . import synth
 from .objectmodel import Node
 from .synth import registered_synthetics, synthesize
 from .util import simplify_list
+from .util.configurations import Config
 from .util.deprecation import deprecated_params
 
 __all__ = [
@@ -24,6 +26,28 @@ type NodesModuleType = types.ModuleType
 
 def node_subclasses_in(container: Any, *, nodebase: type[Node] = Node) -> list[type]:
     return AbstractSemantics.node_subclasses_in(container, nodebase=nodebase)
+
+
+@dataclass
+class BuilderConfig(Config):
+    nodebase: type = Node
+    nodedefs: NodesModuleType = synth
+    nosynth: bool = False
+    constructors: Iterable[Callable] = field(default_factory=list)
+
+    # def __getstate__(self) -> dict[str, Any]:
+    #     # NOTE: ModuleType cannot be pickled
+    #     state = self.asdict()
+    #     state['nodedefs__'] = getattr(self.nodedefs, '__name__', None)
+    #     del state['nodedefs']
+    #     return state
+    #
+    # def __setstate__(self, state: dict[str, Any]) -> None:
+    #     name = state.pop('nodedefs__', None)
+    #     if name:
+    #         state['nodedefs'] = importlib.import_module(name)
+    #     for key, value in state.items():
+    #         setattr(self, key, value)
 
 
 @dataclass
@@ -100,10 +124,10 @@ class ModelBuilderSemantics(AbstractSemantics):
     nodes using the class name given as first parameter to a grammar
     rule, and synthesizes the class/type if it's not known.
     """
-
     @deprecated_params(base_type='nodebase', types='constructors')
     def __init__(
             self,
+            config: BuilderConfig | None = None,
             nodebase: type = Node,
             base_type: type | None = None,
             nodedefs: NodesModuleType | None = None,
@@ -111,21 +135,23 @@ class ModelBuilderSemantics(AbstractSemantics):
             constructors: Iterable[Callable] | None = None,
             types: Iterable[Callable] | None = None,  # for bw compatibility
     ) -> None:
+        config = BuilderConfig.new(config)
         if isinstance(base_type, type):
             nodebase = base_type
-
         if constructors is None:
             constructors = []
         if types is not None:
             constructors = [*constructors, *types]
 
-        self.nodebase: type = nodebase
-        self.nodedefs = nodedefs
-        self.nosynth = nosynth
-
         if nodedefs:
             constructors = [*constructors, *self.node_subclasses_in(nodedefs, nodebase=nodebase)]
-        self.nodetypes = constructors
+
+        self.config = config.merge(
+            nodebase=nodebase,
+            nodedefs=nodedefs,
+            nosynth=nosynth,
+            constructors=constructors,
+        )
 
         self._constructors: dict[str, Callable] = {}
         for t in constructors:
@@ -245,7 +271,7 @@ class ModelBuilderSemantics(AbstractSemantics):
         typename = typespec[0]
         bases = reversed(typespec)
 
-        nodebase: type = self.nodebase
+        nodebase: type = self.config.nodebase
         for base_ in bases:
             defined = self._get_constructor(base_, base=nodebase)
             if isinstance(defined, type):
