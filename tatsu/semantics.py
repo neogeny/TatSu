@@ -5,12 +5,22 @@ import inspect
 import keyword
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
+from types import ModuleType
 from typing import Any
 
 from .contexts import ParseContext
 from .objectmodel import Node
 from .synth import registered_synthetics, synthesize
 from .util import simplify_list
+
+__all__ = [
+    'ASTSemantics',
+    'ModelBuilderSemantics',
+]
+
+
+def node_subclasses_in(container: Any) -> list[type[Node]]:
+    return AbstractSemantics.node_subclasses_in(container)
 
 
 @dataclass
@@ -47,6 +57,23 @@ class AbstractSemantics:
             for name, value in context.items()
             if callable(value) and not name.startswith('_')
         }
+
+    @staticmethod
+    def node_subclasses_in(container: Any) -> list[type[Node]]:
+        contents: dict[str, Any] = {}
+        if isinstance(container, ModuleType):
+            contents.update(vars(container))
+        elif isinstance(container, Mapping):
+            contents.update(container)
+        elif hasattr(container, '__dict__'):
+            contents.update(vars(container))
+        else:
+            return []
+
+        return [
+            t for t in contents.values()
+            if isinstance(t, type) and issubclass(t, Node)
+        ]
 
 
 class ASTSemantics(AbstractSemantics):
