@@ -19,8 +19,8 @@ __all__ = [
 ]
 
 
-def node_subclasses_in(container: Any) -> list[type[Node]]:
-    return AbstractSemantics.node_subclasses_in(container)
+def node_subclasses_in(container: Any, *, base: type[Node] = Node) -> list[type[Node]]:
+    return AbstractSemantics.node_subclasses_in(container, base=base)
 
 
 @dataclass
@@ -59,7 +59,7 @@ class AbstractSemantics:
         }
 
     @staticmethod
-    def node_subclasses_in(container: Any) -> list[type[Node]]:
+    def node_subclasses_in(container: Any, *, base: type[Node] = Node) -> list[type[Node]]:
         contents: dict[str, Any] = {}
         if isinstance(container, ModuleType):
             contents.update(vars(container))
@@ -72,7 +72,7 @@ class AbstractSemantics:
 
         return [
             t for t in contents.values()
-            if isinstance(t, type) and issubclass(t, Node)
+            if isinstance(t, type) and issubclass(t, base)
         ]
 
 
@@ -102,18 +102,26 @@ class ModelBuilderSemantics(AbstractSemantics):
             self,
             context: ParseContext | None = None,
             base_type: type[Node] = Node,
-            types: Iterable[Callable] | None = None):
+            types: Iterable[Callable] | None = None,
+            module: ModuleType | None = None,
+    ) -> None:
         self.ctx = context
         self.base_type = base_type
+        self.module = module
+
+        if types is None:
+            types = []
+        if module:
+            types = [*types, *self.node_subclasses_in(module)]
+        self.types = types
 
         self.constructors: dict[str, Callable] = {}
-
-        for t in types or ():
+        for t in types:
             if not callable(t):
                 raise TypeError(f'Expected callable in types, got: {type(t)!r}')
             if not hasattr(t, '__name__'):
                 raise TypeError(f'Expected __name__ in callable, got: {t!r}')
-            # note: allow standalone functions
+            # note: this allows for standalone functions as constructors
             self._register_constructor(t)
 
     def safe_context(self, /, *other: Mapping[str, Any]) -> Mapping[str, Any]:
