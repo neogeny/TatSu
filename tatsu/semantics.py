@@ -120,7 +120,11 @@ class ModelBuilderSemantics(AbstractSemantics):
         if constructors is None:
             constructors = []
         if types is not None:
-            warnings.warn('The types= parameter is deprecated, use constructors=!', DeprecationWarning)
+            warnings.warn(
+                'The types= parameter is deprecated, use constructors=!',
+                DeprecationWarning,
+                stacklevel=2,
+            )
             constructors = [*constructors, *types]
 
         if nodedefs:
