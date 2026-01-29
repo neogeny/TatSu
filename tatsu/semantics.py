@@ -3,9 +3,10 @@ from __future__ import annotations
 import builtins
 import inspect
 import keyword
+import types
+import warnings
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
-from types import ModuleType
 from typing import Any
 
 from .contexts import ParseContext
@@ -16,10 +17,13 @@ from .util import simplify_list
 __all__ = [
     'ASTSemantics',
     'ModelBuilderSemantics',
+    'NodesModuleType',
 ]
 
+type NodesModuleType = types.ModuleType
 
-def node_subclasses_in(container: Any, *, base: type[Node] = Node) -> list[type[Node]]:
+
+def node_subclasses_in(container: Any, *, base: type[Node] = Node) -> list[type]:
     return AbstractSemantics.node_subclasses_in(container, base=base)
 
 
@@ -59,9 +63,9 @@ class AbstractSemantics:
         }
 
     @staticmethod
-    def node_subclasses_in(container: Any, *, base: type[Node] = Node) -> list[type[Node]]:
+    def node_subclasses_in(container: Any, *, base: type = Node) -> list[type]:
         contents: dict[str, Any] = {}
-        if isinstance(container, ModuleType):
+        if isinstance(container, types.ModuleType):
             contents.update(vars(container))
         elif isinstance(container, Mapping):
             contents.update(container)
@@ -101,22 +105,30 @@ class ModelBuilderSemantics(AbstractSemantics):
     def __init__(
             self,
             context: ParseContext | None = None,
-            base_type: type[Node] = Node,
-            types: Iterable[Callable] | None = None,
-            module: ModuleType | None = None,
+            base_type: type = Node,
+            constructors: Iterable[Callable] | None = None,
+            nodedefs: NodesModuleType | None = None,
+            nosynth: bool = False,
+            types: Iterable[Callable] | None = None,  # for bw compatibility
+            **settings: Any,
     ) -> None:
         self.ctx = context
         self.base_type = base_type
-        self.module = module
+        self.nodedefs = nodedefs
+        self.nosynth = nosynth
 
-        if types is None:
-            types = []
-        if module:
-            types = [*types, *self.node_subclasses_in(module)]
-        self.types = types
+        if constructors is None:
+            constructors = []
+        if types is not None:
+            warnings.warn('The types= parameter is deprecated, use constructors=!', DeprecationWarning)
+            constructors = [*constructors, *types]
 
-        self.constructors: dict[str, Callable] = {}
-        for t in types:
+        if nodedefs:
+            constructors = [*constructors, *self.node_subclasses_in(nodedefs, base=base_type)]
+        self.nodetypes = constructors
+
+        self._constructors: dict[str, Callable] = {}
+        for t in constructors:
             if not callable(t):
                 raise TypeError(f'Expected callable in types, got: {type(t)!r}')
             if not hasattr(t, '__name__'):
@@ -125,16 +137,16 @@ class ModelBuilderSemantics(AbstractSemantics):
             self._register_constructor(t)
 
     def safe_context(self, /, *other: Mapping[str, Any]) -> Mapping[str, Any]:
-        return super().safe_context(self.constructors, *other)
+        return super().safe_context(self._constructors, *other)
 
     def _register_constructor(self, constructor: Callable) -> Callable:
         if hasattr(constructor, '__name__') and isinstance(constructor.__name__, str):
-            self.constructors[str(constructor.__name__)] = constructor
+            self._constructors[str(constructor.__name__)] = constructor
         return constructor
 
     def _find_existing_constructor(self, typename: str) -> Callable | None:
         context: Mapping[str, Any] = (
-                self.constructors |
+                self._constructors |
                 vars(builtins) |
                 registered_synthetics()
         )
@@ -157,8 +169,8 @@ class ModelBuilderSemantics(AbstractSemantics):
     def _get_constructor(self, typename, base):
         typename = str(typename)
 
-        if typename in self.constructors:
-            return self.constructors[typename]
+        if typename in self._constructors:
+            return self._constructors[typename]
 
         constructor = self._find_existing_constructor(typename)
         if not constructor:
