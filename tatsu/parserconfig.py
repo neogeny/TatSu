@@ -86,7 +86,7 @@ class ParserConfig(Config):
 
         if isinstance(self.semantics, type):
             raise TypeError(
-                f'semantics must be an object instance or None, not class {semantics!r}',
+                f'semantics must be an object instance or None, not class {self.semantics!r}',
             )
 
     def effective_rule_name(self):
