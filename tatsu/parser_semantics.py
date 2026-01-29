@@ -14,7 +14,7 @@ class EBNFGrammarSemantics(ModelBuilderSemantics):
     def __init__(self, grammar_name: str | None):
         super().__init__(
             base_type=grammars.Model,
-            types=grammars.Model.classes(),
+            constructors=grammars.Model.classes(),
         )
         self.grammar_name = grammar_name
         self.rules: dict[str, grammars.Rule] = {}

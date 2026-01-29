@@ -31,19 +31,17 @@ HEADER = """\
 
 
     class {name}ModelBuilderSemantics(ModelBuilderSemantics):
-        def __init__(self, context=None, types=None):
-            types = [
-                t for t in globals().values()
-                if type(t) is type and issubclass(t, ModelBase)
-            ] + (types or [])
-            super().__init__(context=context, types=types)
+        def __init__(self, constructors=None, **kwargs):
+            constructors = constructors or []
+            constructors += self.node_subclasses_in(globals(), base={base_type})
+            super().__init__(base_type={base_type}, constructors=constructors, **kwargs)
 """
 
 
 BaseClassSpec = namedtuple('BaseClassSpec', ['class_name', 'base'])
 
 
-def modelgen(model: grammars.Grammar, name: str = '', base_type: type | None = Node) -> str:
+def modelgen(model: grammars.Grammar, name: str = '', base_type: type = Node) -> str:
     base_type = base_type or Node
     generator = PythonModelGenerator(name=name, base_type=base_type)
     return generator.generate_model(model)

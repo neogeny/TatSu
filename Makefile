@@ -11,8 +11,10 @@ all:  prepare_for_tests test build requirements
 
 
 test:  prepare_for_tests lint pytest documentation examples
+	@-uv sync -q
 
-test_plus: clean_plus test
+test_plus: prepare_for_tests clean_plus test
+	@-uv sync -q
 
 
 prepare_for_tests: clean
@@ -39,12 +41,14 @@ sphinx_make:
 	@-uv sync -q --group doc
 	@echo "-> docs"
 	@-cd docs; uv run make -s html > /dev/null
+	@-uv sync -q
 
 
 mkdocs_build:
 	@-uv sync -q --group mkdocs
 	@echo "-> mkdocs"
 	@-cd mkdocs; uv run mkdocs build -q 2>&1 > /dev/null
+	@-uv sync -q
 
 
 examples: clean g2e_test calc_test

@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 from tatsu import synth
@@ -10,6 +12,14 @@ from tatsu.tool import compile, parse
 class MyNode:
     def __init__(self, ast):
         pass
+
+
+class BType:
+    pass
+
+
+class AType(BType):
+    pass
 
 
 def test_semantics_not_class():
@@ -55,7 +65,7 @@ def test_builder_semantics():
         number = /\d+/ ;
     """
 
-    semantics = ModelBuilderSemantics(types=[dotted])
+    semantics = ModelBuilderSemantics(constructors=[dotted])
     model = compile(grammar, 'test')
     ast = model.parse(text, semantics=semantics)
     assert ast == '5.4.3.2.1'
@@ -78,18 +88,18 @@ def test_builder_subclassing():
     C = registry['C']
 
     assert (
-            issubclass(A, B) and
-            issubclass(A, synth.SynthNode) and
-            issubclass(A, Node)
+        issubclass(A, B) and
+        issubclass(A, synth.SynthNode) and
+        issubclass(A, Node)
     )
     assert (
-            issubclass(B, C) and
-            issubclass(B, synth.SynthNode) and
-            issubclass(A, Node)
+        issubclass(B, C) and
+        issubclass(B, synth.SynthNode) and
+        issubclass(A, Node)
     )
     assert (
-            issubclass(C, synth.SynthNode) and
-            issubclass(C, Node)
+        issubclass(C, synth.SynthNode) and
+        issubclass(C, Node)
     )
 
 
@@ -117,6 +127,7 @@ def test_builder_basetype_codegen():
 
     model = compile(grammar, semantics=semantics)
     ast = model.parse('', semantics=semantics)
+    print(f'AST({type(ast)}=', ast)
 
     assert isinstance(ast, MyNode)
     assert isinstance(ast, (A, B, C))
@@ -168,3 +179,21 @@ def test_constant_deep_eval():
     with pytest.raises(FailedParse, match=r'Error evaluating constant.*ZeroDivisionError'):
         # NOTE: only with multiple evaluation passes on constants
         model.parse('42 84', trace=True)
+
+
+def test_builder_types():
+    grammar = """
+        @@grammar :: Test
+        start::AType::BType = $ ;
+    """
+
+    ast = parse(grammar, '', constructors=[AType, BType])
+    assert type(ast) is AType
+    assert isinstance(ast, BType)
+    assert not isinstance(ast, synth.SynthNode)
+
+    thismodule = sys.modules[__name__]
+    ast = parse(grammar, '', base_type=BType, nodedefs=thismodule, nosynth=True)
+    assert type(ast) is AType
+    assert isinstance(ast, BType)
+    assert not isinstance(ast, synth.SynthNode)

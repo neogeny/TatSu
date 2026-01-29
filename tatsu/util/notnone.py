@@ -40,12 +40,6 @@ class NotNoneType[T]:
     def __ror__(self, other):
         return self.__or__(other)
 
-    def __xor__(self, other):
-        return (self or other) and not (self and other)
-
-    def __rxor__(self, other):
-        return self.__xor__(other)
-
     def __invert__(self):
         return not None
 
