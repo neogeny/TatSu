@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import copy
 import dataclasses
+import importlib
+import types
 from typing import Any, Self
 
 from ..util import Undefined, asjson
@@ -67,8 +68,47 @@ class Config:
         return self.replace(**overrides)
 
     def asdict(self):
-        # warning: it seems dataclasses.asdict does a deepcopy
-        return copy.copy(vars(self))
+        return {
+            f.name: getattr(self, f.name)
+            for f in dataclasses.fields(self) if f.name != 'temp_cache'
+        }
 
     def __json__(self, seen=None):
         return asjson(self.asdict(), seen=seen)
+
+    # by [apalala@gmail.com](https://github.com/apalala)
+    # by Gemini (2026-01-29)
+    def __getstate__(self) -> dict[str, Any]:
+        state = self.asdict()
+        for name, value in tuple(state.items()):
+            if isinstance(value, types.ModuleType) or type(value).__name__ == 'module':
+                state[f'{name}__mod__'] = value.__name__
+                del state[name]
+                continue
+
+            if isinstance(value, type):
+                state[f'{name}__cls__'] = f"{value.__module__}.{value.__name__}"
+                del state[name]
+                continue
+
+            # NOTE
+            #   If we get here, it's something else (like a lambda or socket)
+            #   The vars(value) idea could go here as a last resort,
+            #   but be wary of the recursive PicklingError.
+        return state
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        for key, value in state.items():
+            if key.endswith('__mod__'):
+                real_name = key.replace('__mod__', '')
+                setattr(self, real_name, importlib.import_module(value))
+                continue
+
+            if key.endswith('__cls__'):
+                real_name = key.replace('__cls__', '')
+                mod_name, cls_name = value.rsplit('.', 1)
+                mod = importlib.import_module(mod_name)
+                setattr(self, real_name, getattr(mod, cls_name))
+                continue
+
+            setattr(self, key, value)
