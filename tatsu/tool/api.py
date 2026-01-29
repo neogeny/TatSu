@@ -5,7 +5,6 @@ the described language.
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
-from types import ModuleType
 from typing import Any
 
 from .. import grammars
@@ -13,24 +12,26 @@ from ..exceptions import ParseException
 from ..infos import ParserConfig
 from ..ngcodegen.modelgen import modelgen
 from ..ngcodegen.pythongen import pythongen
+from ..objectmodel import Node
 from ..parser import GrammarGenerator
-from ..semantics import ModelBuilderSemantics
+from ..semantics import ModelBuilderSemantics, NodesModuleType
 from ..tokenizing import Tokenizer
 
 __compiled_grammar_cache = {}  # type: ignore[var-annotated]
 
 
 def compile(
-        grammar: str | Tokenizer,
-        name: str | None = None,
-        *,
-        semantics: Any = None,
-        asmodel: bool = False,
-        config: ParserConfig | None = None,
-        types: Iterable[Callable] | None = None,
-        module: ModuleType | None = None,
-        **settings: Any,
-    ) -> grammars.Grammar:
+    grammar: str | Tokenizer,
+    name: str | None = None,
+    *,
+    config: ParserConfig | None = None,
+    semantics: Any = None,
+    asmodel: bool = False,
+    base_type: type = Node,
+    constructors: Iterable[Callable] | None = None,
+    nodedefs: NodesModuleType | None = None,
+    **settings: Any,
+) -> grammars.Grammar:
 
     if isinstance(semantics, type):
         raise TypeError(
@@ -47,22 +48,29 @@ def compile(
 
     if semantics is not None:
         model.semantics = semantics
-    elif asmodel or types or module:
-        model.semantics = ModelBuilderSemantics(types=types, module=module)
+    elif asmodel or constructors or nodedefs:
+        model.semantics = ModelBuilderSemantics(
+            base_type=base_type,
+            constructors=constructors,
+            nodedefs=nodedefs,
+            **settings,
+        )
 
     return model
 
 
 def parse(
-    grammar: str, /,
-    text: str, *,
+    grammar: str,
+    text: str,
+    /, *,
+    config: ParserConfig | None = None,
     start: str | None = None,
     name: str | None = None,
     semantics: Any | None = None,
     asmodel: bool = False,
-    types: Iterable[Callable] | None = None,
-    module: ModuleType | None = None,
-    config: ParserConfig | None = None,
+    base_type: type = Node,
+    constructors: Iterable[Callable] | None = None,
+    nodedefs: NodesModuleType | None = None,
     **settings: Any,
 ):
     model = compile(
@@ -74,8 +82,12 @@ def parse(
         **settings,
     )
     semantics = semantics or model.semantics
-    if not semantics and (asmodel or types or module):
-        semantics = ModelBuilderSemantics(types=types, module=module)
+    if not semantics and (asmodel or constructors or nodedefs):
+        semantics = ModelBuilderSemantics(
+            base_type=base_type,
+            constructors=constructors,
+            nodedefs=nodedefs,
+        )
     return model.parse(
         text, start=start, semantics=semantics, config=config, **settings,
     )
@@ -98,7 +110,7 @@ def to_python_model(
     grammar: str, /, *,
     name: str | None = None,
     filename: str | None = None,
-    base_type: type | None = None,
+    base_type: type = Node,
     config: ParserConfig | None = None,
     **settings: Any,
 ):
