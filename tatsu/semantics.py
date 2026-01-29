@@ -11,7 +11,7 @@ from typing import Any
 from .objectmodel import Node
 from .synth import registered_synthetics, synthesize
 from .util import simplify_list
-from .util.configurations import Config
+from .util.configs import Config
 from .util.deprecation import deprecated_params
 
 __all__ = [

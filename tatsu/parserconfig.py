@@ -7,7 +7,7 @@ from typing import Any, override
 
 from .tokenizing import NullTokenizer, Tokenizer
 from .util import Undefined
-from .util.configurations import Config
+from .util.configs import Config
 from .util.misc import cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
