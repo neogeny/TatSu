@@ -5,7 +5,8 @@ import importlib
 import types
 from typing import Any, Self
 
-from ..util import Undefined, asjson
+from ..util import asjson
+from . import Undefined
 
 
 @dataclasses.dataclass
@@ -14,22 +15,21 @@ class Config:
         pass
 
     @classmethod
-    def new(cls, config: Self | None, **settings: Any) -> Self:
+    def new(cls, config: Self | None = None, **settings: Any) -> Self:
         result = cls()
-        if config is not None:
-            result = config.replace_config(config)
+        result = result.replace_config(config)
         result = result.replace(**settings)
         assert isinstance(result, cls) and dataclasses.is_dataclass(result)
         return result
 
     def _find_common(self, **settings: Any) -> dict[str, Any]:
+        hard = settings.pop('hard', False)
         return {
             name: value
             for name, value in settings.items()
             if (
                 hasattr(self, name)
-                and value is not None
-                and value is not Undefined
+                and (hard or (value is not None and value is not Undefined))
             )
         }
 
@@ -39,7 +39,15 @@ class Config:
         elif not isinstance(other, type(self)):
             raise TypeError(f'Unexpected type {type(other).__name__}')
         else:
-            return self.replace(**vars(other))
+            return self.replace(**other.asdict())
+
+    def merge_config(self, other: Config | None = None) -> Self:
+        if other is None:
+            return self
+        elif not isinstance(other, type(self)):
+            raise TypeError(f'Unexpected type {type(other).__name__}')
+        else:
+            return self.merge(**other.asdict())
 
     # non-init fields cannot be used as arguments in `replace`, however
     # they are values returned by `vars` and `dataclass.asdict` so they
@@ -58,12 +66,15 @@ class Config:
         assert dataclasses.is_dataclass(self)
         return dataclasses.replace(self, **overrides)
 
+    def hard_replace(self, **settings: Any) -> Self:
+        return self.replace(**settings)
+
     def merge(self, **settings: Any) -> Self:
         overrides = self._find_common(**settings)
         overrides = {
             name: value
             for name, value in overrides.items()
-            if (oldvalue := getattr(self, name, None)) is None or oldvalue is Undefined
+            if getattr(self, name, None) is None
         }
         return self.replace(**overrides)
 
@@ -72,6 +83,23 @@ class Config:
             f.name: getattr(self, f.name)
             for f in dataclasses.fields(self) if f.name != 'temp_cache'
         }
+
+    def diff(self, other: Self | None) -> list[tuple[str, Any, Any]]:
+        if other is None:
+            return []
+
+        result: list[tuple[str, Any, Any]] = []
+        for name, value in self.asdict().items():
+            ovalue = getattr(other, name, Undefined)
+            if value != ovalue:
+                result.append((name, value, ovalue))
+        return result
+
+    def diffs(self, other: Self | None) -> str:
+        return '\n'.join(
+            f'{name} {value!r} {ovalue!r}'
+            for name, value, ovalue in self.diff(other)
+        )
 
     def __json__(self, seen=None):
         return asjson(self.asdict(), seen=seen)
