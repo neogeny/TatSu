@@ -48,6 +48,19 @@ class AST(dict[str, Any]):
     def _setlist(self, key: str, value: list[Any]) -> None:
         self._set(key, value, force_list=True)
 
+    def _safekey(self, key: str) -> str:
+        while key in dir(self):
+            key += '_'
+        return key
+
+    def _define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None):
+        for key in (self._safekey(k) for k in keys):
+            if key not in self:
+                super().__setitem__(key, None)
+        for key in (self._safekey(k) for k in list_keys or []):
+            if key not in self:
+                super().__setitem__(key, [])
+
     def __copy__(self) -> AST:
         return AST(self)
 
@@ -75,19 +88,6 @@ class AST(dict[str, Any]):
 
     def __reduce__(self) -> tuple[Any, Any]:
         return AST, (tuple(self.items()),)
-
-    def _safekey(self, key: str) -> str:
-        while key in dir(self):
-            key += '_'
-        return key
-
-    def _define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None):
-        for key in (self._safekey(k) for k in keys):
-            if key not in self:
-                super().__setitem__(key, None)
-        for key in (self._safekey(k) for k in list_keys or []):
-            if key not in self:
-                super().__setitem__(key, [])
 
     def __repr__(self) -> str:
         return f'AST({super().__repr__()})'
