@@ -27,7 +27,7 @@ def compile(
     config: ParserConfig | None = None,
     semantics: Any = None,
     asmodel: bool = False,
-    base_type: type = Node,
+    nodebase: type = Node,
     constructors: Iterable[Callable] | None = None,
     nodedefs: NodesModuleType | None = None,
     **settings: Any,
@@ -50,10 +50,9 @@ def compile(
         model.semantics = semantics
     elif asmodel or constructors or nodedefs:
         model.semantics = ModelBuilderSemantics(
-            base_type=base_type,
+            nodebase=nodebase,
             constructors=constructors,
             nodedefs=nodedefs,
-            **settings,
         )
 
     return model
@@ -68,7 +67,7 @@ def parse(
     name: str | None = None,
     semantics: Any | None = None,
     asmodel: bool = False,
-    base_type: type = Node,
+    nodebase: type = Node,
     constructors: Iterable[Callable] | None = None,
     nodedefs: NodesModuleType | None = None,
     **settings: Any,
@@ -84,7 +83,7 @@ def parse(
     semantics = semantics or model.semantics
     if not semantics and (asmodel or constructors or nodedefs):
         semantics = ModelBuilderSemantics(
-            base_type=base_type,
+            nodebase=nodebase,
             constructors=constructors,
             nodedefs=nodedefs,
         )
@@ -110,14 +109,14 @@ def to_python_model(
     grammar: str, /, *,
     name: str | None = None,
     filename: str | None = None,
-    base_type: type = Node,
+    nodebase: type = Node,
     config: ParserConfig | None = None,
     **settings: Any,
 ):
     model = compile(
         grammar, name=name, filename=filename, config=config, **settings,
     )
-    return modelgen(model, base_type=base_type)
+    return modelgen(model, nodebase=nodebase)
 
 
 # for backwards compatibility. Use `compile()` instead

@@ -208,7 +208,7 @@ def tatsu_main():
             elif args.pretty_lean:
                 result = model.pretty_lean()
             elif args.object_model:
-                result = modelgen(model, base_type=args.base_type)
+                result = modelgen(model, nodebase=args.nodebase)
             else:
                 result = pythongen(model)
 
@@ -221,7 +221,7 @@ def tatsu_main():
         if args.object_model_outfile:
             save(
                 args.object_model_outfile,
-                modelgen(model, base_type=args.base_type),
+                modelgen(model, nodebase=args.nodebase),
             )
 
         print('-' * 72, file=sys.stderr)

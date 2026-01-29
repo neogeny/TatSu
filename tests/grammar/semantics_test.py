@@ -113,7 +113,7 @@ def test_builder_basetype_codegen():
 
     from tatsu.tool import to_python_model
 
-    src = to_python_model(grammar, base_type=MyNode)
+    src = to_python_model(grammar, nodebase=MyNode)
     print(src)
 
     globals = {}
@@ -193,7 +193,7 @@ def test_builder_types():
     assert not isinstance(ast, synth.SynthNode)
 
     thismodule = sys.modules[__name__]
-    ast = parse(grammar, '', base_type=BType, nodedefs=thismodule, nosynth=True)
+    ast = parse(grammar, '', nodebase=BType, nodedefs=thismodule, nosynth=True)
     assert type(ast) is AType
     assert isinstance(ast, BType)
     assert not isinstance(ast, synth.SynthNode)

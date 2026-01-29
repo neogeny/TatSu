@@ -109,7 +109,7 @@ def test_children():
             ;
     """
 
-    parser = tatsu.compile(grammar, asmodel=True, trace=True)
+    parser = tatsu.compile(grammar, asmodel=True, trace=False)
     assert parser
     model = parser.parse('3 + 5 * ( 10 - 20 )', asmodel=True)
     assert model

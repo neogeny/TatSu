@@ -13,7 +13,7 @@ from .util import eval_escapes, flatten, re, warning
 class EBNFGrammarSemantics(ModelBuilderSemantics):
     def __init__(self, grammar_name: str | None):
         super().__init__(
-            base_type=grammars.Model,
+            nodebase=grammars.Model,
             constructors=grammars.Model.classes(),
         )
         self.grammar_name = grammar_name

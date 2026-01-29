@@ -4,15 +4,14 @@ import builtins
 import inspect
 import keyword
 import types
-import warnings
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
-from .contexts import ParseContext
 from .objectmodel import Node
 from .synth import registered_synthetics, synthesize
 from .util import simplify_list
+from .util.deprecation import deprecated_params
 
 __all__ = [
     'ASTSemantics',
@@ -23,8 +22,8 @@ __all__ = [
 type NodesModuleType = types.ModuleType
 
 
-def node_subclasses_in(container: Any, *, base: type[Node] = Node) -> list[type]:
-    return AbstractSemantics.node_subclasses_in(container, base=base)
+def node_subclasses_in(container: Any, *, nodebase: type[Node] = Node) -> list[type]:
+    return AbstractSemantics.node_subclasses_in(container, nodebase=nodebase)
 
 
 @dataclass
@@ -63,7 +62,7 @@ class AbstractSemantics:
         }
 
     @staticmethod
-    def node_subclasses_in(container: Any, *, base: type = Node) -> list[type]:
+    def node_subclasses_in(container: Any, *, nodebase: type = Node) -> list[type]:
         contents: dict[str, Any] = {}
         if isinstance(container, types.ModuleType):
             contents.update(vars(container))
@@ -76,7 +75,7 @@ class AbstractSemantics:
 
         return [
             t for t in contents.values()
-            if isinstance(t, type) and issubclass(t, base)
+            if isinstance(t, type) and issubclass(t, nodebase)
         ]
 
 
@@ -102,33 +101,30 @@ class ModelBuilderSemantics(AbstractSemantics):
     rule, and synthesizes the class/type if it's not known.
     """
 
+    @deprecated_params(base_type='nodebase', types='constructors')
     def __init__(
             self,
-            context: ParseContext | None = None,
-            base_type: type = Node,
-            constructors: Iterable[Callable] | None = None,
+            nodebase: type = Node,
+            base_type: type | None = None,
             nodedefs: NodesModuleType | None = None,
             nosynth: bool = False,
+            constructors: Iterable[Callable] | None = None,
             types: Iterable[Callable] | None = None,  # for bw compatibility
-            **settings: Any,
     ) -> None:
-        self.ctx = context
-        self.base_type = base_type
-        self.nodedefs = nodedefs
-        self.nosynth = nosynth
+        if isinstance(base_type, type):
+            nodebase = base_type
 
         if constructors is None:
             constructors = []
         if types is not None:
-            warnings.warn(
-                'The types= parameter is deprecated, use constructors=!',
-                DeprecationWarning,
-                stacklevel=2,
-            )
             constructors = [*constructors, *types]
 
+        self.nodebase: type = nodebase
+        self.nodedefs = nodedefs
+        self.nosynth = nosynth
+
         if nodedefs:
-            constructors = [*constructors, *self.node_subclasses_in(nodedefs, base=base_type)]
+            constructors = [*constructors, *self.node_subclasses_in(nodedefs, nodebase=nodebase)]
         self.nodetypes = constructors
 
         self._constructors: dict[str, Callable] = {}
@@ -170,14 +166,14 @@ class ModelBuilderSemantics(AbstractSemantics):
 
         return constructor
 
-    def _get_constructor(self, typename, base):
+    def _get_constructor(self, typename: str, base: type) -> type | Callable:
         typename = str(typename)
 
         if typename in self._constructors:
             return self._constructors[typename]
 
         constructor = self._find_existing_constructor(typename)
-        if not constructor:
+        if not constructor and isinstance(base, type):
             constructor = synthesize(typename, (base,))
 
         return self._register_constructor(constructor)
@@ -197,7 +193,6 @@ class ModelBuilderSemantics(AbstractSemantics):
 
         known_params = {
             'ast': ast,
-            'ctx': self.ctx,
             'exp': ast,
             'kwargs': {},
         }
@@ -250,11 +245,13 @@ class ModelBuilderSemantics(AbstractSemantics):
         typename = typespec[0]
         bases = reversed(typespec)
 
-        base = self.base_type
+        nodebase: type = self.nodebase
         for base_ in bases:
-            base = self._get_constructor(base_, base)
+            defined = self._get_constructor(base_, base=nodebase)
+            if isinstance(defined, type):
+                nodebase = defined
 
-        constructor = self._get_constructor(typename, base)
+        constructor = self._get_constructor(typename, base=nodebase)
 
         actual = self._find_actual_params(constructor, ast, args[1:], kwargs)
         return constructor(*actual.params, **actual.kwparams)

@@ -7,6 +7,7 @@ from .. import grammars
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..util import compress_seq, safe_name
+from ..util.deprecation import deprecated_params
 from ..util.misc import topsort
 
 HEADER = """\
@@ -27,44 +28,54 @@ HEADER = """\
     from dataclasses import dataclass
 
     from tatsu.semantics import ModelBuilderSemantics
-    {base_type_import}
+    {nodebase_import}
 
 
     class {name}ModelBuilderSemantics(ModelBuilderSemantics):
         def __init__(self, constructors=None, **kwargs):
             constructors = constructors or []
-            constructors += self.node_subclasses_in(globals(), base={base_type})
-            super().__init__(base_type={base_type}, constructors=constructors, **kwargs)
+            constructors += self.node_subclasses_in(globals(), nodebase={nodebase})
+            super().__init__(nodebase={nodebase}, constructors=constructors, **kwargs)
 """
 
 
 BaseClassSpec = namedtuple('BaseClassSpec', ['class_name', 'base'])
 
 
-def modelgen(model: grammars.Grammar, name: str = '', base_type: type = Node) -> str:
-    base_type = base_type or Node
-    generator = PythonModelGenerator(name=name, base_type=base_type)
+@deprecated_params(base_type='nodebase')
+def modelgen(
+        model: grammars.Grammar,
+        name: str = '',
+        nodebase: type = Node,
+        base_type: type | None = None,
+) -> str:
+    if isinstance(base_type, type):
+        nodebase = base_type
+
+    generator = PythonModelGenerator(name=name, nodebase=nodebase)
     return generator.generate_model(model)
 
 
 class PythonModelGenerator(IndentPrintMixin):
 
-    def __init__(self, name: str = '', base_type: type = Node):
+    def __init__(self, name: str = '', nodebase: type = Node, base_type: type | None = None):
+        if isinstance(base_type, type):
+            nodebase = base_type
         super().__init__()
-        self.base_type = base_type
+        self.nodebase = nodebase
         self.name = name or None
 
     def generate_model(self, grammar: grammars.Grammar):
-        base_type = self.base_type
-        base_type_name = base_type.__name__.split('.')[-1]
-        base_type_import = f"from {base_type.__module__} import {base_type_name}"
+        nodebase = self.nodebase
+        nodebase_name = nodebase.__name__.split('.')[-1]
+        nodebase_import = f"from {nodebase.__module__} import {nodebase_name}"
 
         self.name = self.name or grammar.name
         self.print(
             HEADER.format(
                 name=self.name,
-                base_type=self.base_type.__name__,
-                base_type_import=base_type_import,
+                nodebase=self.nodebase.__name__,
+                nodebase_import=nodebase_import,
             ),
         )
 
@@ -81,7 +92,7 @@ class PythonModelGenerator(IndentPrintMixin):
             for s in specs
         }
         base = self._model_base_name()
-        specs_by_name[base] = base_type_name
+        specs_by_name[base] = nodebase_name
 
         all_specs = {
             (s.class_name, s.base)
