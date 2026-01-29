@@ -4,7 +4,7 @@ the described language.
 """
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
+from collections.abc import Callable
 from typing import Any
 
 from .. import grammars
@@ -14,7 +14,7 @@ from ..ngcodegen.modelgen import modelgen
 from ..ngcodegen.pythongen import pythongen
 from ..objectmodel import Node
 from ..parser import GrammarGenerator
-from ..semantics import ModelBuilderSemantics, NodesModuleType
+from ..semantics import BuilderConfig, ModelBuilderSemantics
 from ..tokenizing import Tokenizer
 
 __compiled_grammar_cache = {}  # type: ignore[var-annotated]
@@ -25,14 +25,11 @@ def compile(
     name: str | None = None,
     *,
     config: ParserConfig | None = None,
+    builderconfig: BuilderConfig | None = None,
     semantics: Any = None,
     asmodel: bool = False,
-    nodebase: type = Node,
-    constructors: Iterable[Callable] | None = None,
-    nodedefs: NodesModuleType | None = None,
     **settings: Any,
 ) -> grammars.Grammar:
-
     if isinstance(semantics, type):
         raise TypeError(
             f'semantics must be an object instance or None, not class {semantics!r}',
@@ -43,17 +40,13 @@ def compile(
     if key in cache:
         model = cache[key]
     else:
-        gen = GrammarGenerator(name, config=config, **settings)
-        model = cache[key] = gen.parse(grammar, config=config, **settings)
+        gen = GrammarGenerator(name, **settings)
+        model = cache[key] = gen.parse(grammar, **settings)
 
     if semantics is not None:
         model.semantics = semantics
-    elif asmodel or constructors or nodedefs:
-        model.semantics = ModelBuilderSemantics(
-            nodebase=nodebase,
-            constructors=constructors,
-            nodedefs=nodedefs,
-        )
+    elif asmodel:
+        model.semantics = ModelBuilderSemantics(config=builderconfig)
 
     return model
 
@@ -63,33 +56,25 @@ def parse(
     text: str,
     /, *,
     config: ParserConfig | None = None,
+    builderconfig: BuilderConfig | None = None,
     start: str | None = None,
     name: str | None = None,
     semantics: Any | None = None,
     asmodel: bool = False,
-    nodebase: type = Node,
-    constructors: Iterable[Callable] | None = None,
-    nodedefs: NodesModuleType | None = None,
     **settings: Any,
 ):
-    model = compile(
-        grammar,
+    config = ParserConfig.new(
+        config=config,
+        start=start,
         name=name,
         semantics=semantics,
-        asmodel=asmodel,
-        config=config,
         **settings,
     )
-    semantics = semantics or model.semantics
-    if not semantics and (asmodel or constructors or nodedefs):
-        semantics = ModelBuilderSemantics(
-            nodebase=nodebase,
-            constructors=constructors,
-            nodedefs=nodedefs,
-        )
-    return model.parse(
-        text, start=start, semantics=semantics, config=config, **settings,
-    )
+    model = compile(grammar, config=config, asmodel=asmodel)
+    config.semantics = semantics or model.semantics
+    if not config.semantics and (asmodel or isinstance(builderconfig, BuilderConfig)):
+        config.semantics = ModelBuilderSemantics(config=builderconfig)
+    return model.parse(text, start=start, semantics=semantics, config=config)
 
 
 def to_python_sourcecode(
@@ -99,9 +84,13 @@ def to_python_sourcecode(
     config: ParserConfig | None = None,
     **settings: Any,
 ):
-    model = compile(
-        grammar, name=name, filename=filename, config=config, **settings,
+    config = ParserConfig.new(
+        config=config,
+        name=name,
+        filename=filename,
+        **settings,
     )
+    model = compile(grammar, name=name, filename=filename, config=config)
     return pythongen(model)
 
 
@@ -113,9 +102,13 @@ def to_python_model(
     config: ParserConfig | None = None,
     **settings: Any,
 ):
-    model = compile(
-        grammar, name=name, filename=filename, config=config, **settings,
+    config = ParserConfig.new(
+        config=config,
+        name=name,
+        filename=filename,
+        **settings,
     )
+    model = compile(grammar, name=name, filename=filename, config=config)
     return modelgen(model, nodebase=nodebase)
 
 
