@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .tool import main
+from .g2etool import main
 
 if __name__ == '__main__':
     main()
