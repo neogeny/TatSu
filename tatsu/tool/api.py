@@ -4,7 +4,8 @@ the described language.
 """
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
+from types import ModuleType
 from typing import Any
 
 from .. import grammars
@@ -26,6 +27,8 @@ def compile(
         semantics: Any = None,
         asmodel: bool = False,
         config: ParserConfig | None = None,
+        types: Iterable[Callable] | None = None,
+        module: ModuleType | None = None,
         **settings: Any,
     ) -> grammars.Grammar:
 
@@ -44,8 +47,8 @@ def compile(
 
     if semantics is not None:
         model.semantics = semantics
-    elif asmodel:
-        model.semantics = ModelBuilderSemantics()
+    elif asmodel or types or module:
+        model.semantics = ModelBuilderSemantics(types=types, module=module)
 
     return model
 
@@ -57,6 +60,8 @@ def parse(
     name: str | None = None,
     semantics: Any | None = None,
     asmodel: bool = False,
+    types: Iterable[Callable] | None = None,
+    module: ModuleType | None = None,
     config: ParserConfig | None = None,
     **settings: Any,
 ):
@@ -69,6 +74,8 @@ def parse(
         **settings,
     )
     semantics = semantics or model.semantics
+    if not semantics and (asmodel or types or module):
+        semantics = ModelBuilderSemantics(types=types, module=module)
     return model.parse(
         text, start=start, semantics=semantics, config=config, **settings,
     )
