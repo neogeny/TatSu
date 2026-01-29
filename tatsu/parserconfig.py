@@ -28,7 +28,7 @@ class ParserConfig(Config):
     eol_comments_re: re.Pattern | str | None = None  # WARNING: deprecated
 
     tokenizercls: type[Tokenizer] = NullTokenizer
-    semantics: type | None = None
+    semantics: Any = None
 
     comment_recovery: bool = False
 
@@ -83,6 +83,11 @@ class ParserConfig(Config):
 
         if self.namechars:
             self.nameguard = True
+
+        if isinstance(self.semantics, type):
+            raise TypeError(
+                f'semantics must be an object instance or None, not class {semantics!r}',
+            )
 
     def effective_rule_name(self):
         # note: there are legacy reasons for this mess
