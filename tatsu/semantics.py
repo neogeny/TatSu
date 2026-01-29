@@ -8,7 +8,6 @@ from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
-from . import synth
 from .objectmodel import Node
 from .synth import registered_synthetics, synthesize
 from .util import simplify_list
@@ -31,7 +30,7 @@ def node_subclasses_in(container: Any, *, nodebase: type[Node] = Node) -> list[t
 @dataclass
 class BuilderConfig(Config):
     nodebase: type = Node
-    nodedefs: NodesModuleType = synth
+    nodedefs: NodesModuleType | None = None
     nosynth: bool = False
     constructors: Iterable[Callable] = field(default_factory=list)
 
@@ -128,33 +127,39 @@ class ModelBuilderSemantics(AbstractSemantics):
     def __init__(
             self,
             config: BuilderConfig | None = None,
-            nodebase: type = Node,
+            nodebase: type | None = None,
             base_type: type | None = None,
             nodedefs: NodesModuleType | None = None,
             nosynth: bool = False,
             constructors: Iterable[Callable] | None = None,
             types: Iterable[Callable] | None = None,  # for bw compatibility
     ) -> None:
-        config = BuilderConfig.new(config)
-        if isinstance(base_type, type):
-            nodebase = base_type
-        if constructors is None:
-            constructors = []
-        if types is not None:
-            constructors = [*constructors, *types]
-
-        if nodedefs:
-            constructors = [*constructors, *self.node_subclasses_in(nodedefs, nodebase=nodebase)]
-
-        self.config = config.merge(
+        config = BuilderConfig.new(
+            config,
             nodebase=nodebase,
             nodedefs=nodedefs,
             nosynth=nosynth,
             constructors=constructors,
         )
+        if isinstance(base_type, type):
+            config = config.replace(nodebase=base_type)
+        if types is not None:
+            config = config.replace(constructors=[*(config.constructors or []), *types])
+        if config.nodedefs:
+            config = config.replace(
+                constructors=[
+                    *(config.constructors or []),
+                    *self.node_subclasses_in(
+                        config.nodedefs,
+                        nodebase=config.nodebase,
+                    ),
+                ],
+            )
+
+        self.config = config
 
         self._constructors: dict[str, Callable] = {}
-        for t in constructors:
+        for t in config.constructors:
             if not callable(t):
                 raise TypeError(f'Expected callable in types, got: {type(t)!r}')
             if not hasattr(t, '__name__'):
@@ -199,7 +204,9 @@ class ModelBuilderSemantics(AbstractSemantics):
             return self._constructors[typename]
 
         constructor = self._find_existing_constructor(typename)
-        if not constructor and isinstance(base, type):
+        # FIXME
+        # if not constructor and isinstance(base, type):
+        if not constructor:
             constructor = synthesize(typename, (base,))
 
         return self._register_constructor(constructor)
