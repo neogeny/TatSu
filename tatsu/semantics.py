@@ -142,11 +142,11 @@ class ModelBuilderSemantics(AbstractSemantics):
             constructors=constructors,
         )
         if isinstance(base_type, type):
-            config = config.replace(nodebase=base_type)
+            config = config.override(nodebase=base_type)
         if types is not None:
-            config = config.replace(constructors=[*(config.constructors or []), *types])
+            config = config.override(constructors=[*(config.constructors or []), *types])
         if config.nodedefs:
-            config = config.replace(
+            config = config.override(
                 constructors=[
                     *(config.constructors or []),
                     *self.node_subclasses_in(

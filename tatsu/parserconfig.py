@@ -94,8 +94,8 @@ class ParserConfig(Config):
         return self.start_rule or self.rule_name or self.start
 
     @override
-    def replace(self, **settings: Any) -> ParserConfig:
-        result = super().replace(**settings)
+    def override(self, **settings: Any) -> ParserConfig:
+        result = super().override(**settings)
         if 'grammar' in settings:
             result.name = result.grammar
         return result

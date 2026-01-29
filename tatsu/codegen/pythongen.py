@@ -539,7 +539,7 @@ class Grammar(Base):
                             keywords=KEYWORDS,
                             start={start!r},
                         )
-                        config = config.replace(**settings)
+                        config = config.override(**settings)
                         super().__init__(text, config=config)
 
 
@@ -558,7 +558,7 @@ class Grammar(Base):
                             keywords=KEYWORDS,
                             start={start!r},
                         )
-                        config = config.replace(**settings)
+                        config = config.override(**settings)
                         super().__init__(config=config)
 
                 {rules}

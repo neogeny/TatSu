@@ -54,7 +54,7 @@ class ParseContext:
 
         config = ParserConfig.new(config, **settings)
         if config.tokenizercls is None:
-            config = config.replace(tokenizercls=Buffer)
+            config = config.override(tokenizercls=Buffer)
         self._config: ParserConfig = config
         self._active_config: ParserConfig = self._config
 
@@ -128,8 +128,8 @@ class ParseContext:
             self._furthest_exception = e
 
     def parse(self, text: str | Tokenizer, /, *, config: ParserConfig | None = None, **settings: Any) -> Any:
-        config = self.config.replace_config(config)
-        config = config.replace(**settings)
+        config = self.config.override_config(config)
+        config = config.override(**settings)
         self._active_config = config
         self.update_tracer()
         try:

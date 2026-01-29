@@ -339,7 +339,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                     keywords=KEYWORDS,
                     start={start!r},
                 )
-                config = config.replace(**settings)
+                config = config.override(**settings)
             ''',
         )
         self.print()

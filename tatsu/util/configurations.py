@@ -17,8 +17,8 @@ class Config:
     @classmethod
     def new(cls, config: Self | None = None, **settings: Any) -> Self:
         result = cls()
-        result = result.replace_config(config)
-        result = result.replace(**settings)
+        result = result.override_config(config)
+        result = result.override(**settings)
         assert isinstance(result, cls) and dataclasses.is_dataclass(result)
         return result
 
@@ -33,13 +33,13 @@ class Config:
             )
         }
 
-    def replace_config(self, other: Config | None = None) -> Self:
+    def override_config(self, other: Config | None = None) -> Self:
         if other is None:
             return self
         elif not isinstance(other, type(self)):
             raise TypeError(f'Unexpected type {type(other).__name__}')
         else:
-            return self.replace(**other.asdict())
+            return self.override(**other.asdict())
 
     def merge_config(self, other: Config | None = None) -> Self:
         if other is None:
@@ -49,41 +49,25 @@ class Config:
         else:
             return self.merge(**other.asdict())
 
-    # non-init fields cannot be used as arguments in `replace`, however
-    # they are values returned by `vars` and `dataclass.asdict` so they
-    # must be filtered out.
-    # If the `ParserConfig` dataclass drops these fields, then this filter can be removed
-    def _filter_non_init_fields(self, settings: dict[str, Any]) -> dict[str, Any]:
-        noninit = [f.name for f in dataclasses.fields(self) if not f.init]
-        return {
-            name: value for name, value in settings.items()
-            if name not in noninit
-        }
-
-    def check_unknowns(self, **settings: Any) -> None:
-        unknown = {name for name in settings if not hasattr(self, name)}
-        if unknown:
-            raise ValueError(f'Unknown settings for {type(self).__name__}: {unknown!r}')
-
-    def replace(self, **settings: Any) -> Self:
-        self.check_unknowns(**settings)
+    def override(self, **settings: Any) -> Self:
+        self._check_unknowns(**settings)
         settings = self._filter_non_init_fields(settings)
         overrides = self._find_common(**settings)
         assert dataclasses.is_dataclass(self)
         return dataclasses.replace(self, **overrides)
 
-    def hard_replace(self, **settings: Any) -> Self:
-        return self.replace(**settings)
+    def hard_override(self, **settings: Any) -> Self:
+        return self.override(**settings)
 
     def merge(self, **settings: Any) -> Self:
-        self.check_unknowns(**settings)
+        self._check_unknowns(**settings)
         overrides = self._find_common(**settings)
         overrides = {
             name: value
             for name, value in overrides.items()
             if getattr(self, name, None) is None
         }
-        return self.replace(**overrides)
+        return self.override(**overrides)
 
     def asdict(self):
         return {
@@ -107,6 +91,22 @@ class Config:
             f'{name} {value!r} {ovalue!r}'
             for name, value, ovalue in self.diff(other)
         )
+
+    # non-init fields cannot be used as arguments in `replace`, however
+    # they are values returned by `vars` and `dataclass.asdict` so they
+    # must be filtered out.
+    # If the `ParserConfig` dataclass drops these fields, then this filter can be removed
+    def _filter_non_init_fields(self, settings: dict[str, Any]) -> dict[str, Any]:
+        noninit = [f.name for f in dataclasses.fields(self) if not f.init]
+        return {
+            name: value for name, value in settings.items()
+            if name not in noninit
+        }
+
+    def _check_unknowns(self, **settings: Any) -> None:
+        unknown = {name for name in settings if not hasattr(self, name)}
+        if unknown:
+            raise ValueError(f'Unknown settings for {type(self).__name__}: {unknown!r}')
 
     def __json__(self, seen=None):
         return asjson(self.asdict(), seen=seen)

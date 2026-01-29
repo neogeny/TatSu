@@ -49,7 +49,7 @@ class ModelContext(ParseContext):
         **settings,
     ):
         config = ParserConfig.new(config, **settings)
-        config = config.replace(start=start)
+        config = config.override(start=start)
 
         super().__init__(config=config)
 
@@ -988,7 +988,7 @@ class Grammar(Model):
         self.directives = directives
 
         config = ParserConfig.new(config=config, **settings)
-        config = config.hard_replace(**directives)
+        config = config.hard_override(**directives)
         self.config = config
 
         self.rules: list[Rule] = rules
@@ -1095,10 +1095,10 @@ class Grammar(Model):
             config: ParserConfig | None = None,
             **settings):
         # type: ignore[override]
-        config = self.config.replace_config(config)
-        config = config.hard_replace(**self.directives)
+        config = self.config.override_config(config)
+        config = config.hard_override(**self.directives)
         # note: bw-comp: allow overriding directives
-        config = config.replace(**settings)
+        config = config.override(**settings)
 
         if isinstance(config.semantics, type):
             raise TypeError(
