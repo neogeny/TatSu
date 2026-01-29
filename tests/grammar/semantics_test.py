@@ -7,7 +7,7 @@ from tatsu.semantics import ModelBuilderSemantics
 from tatsu.tool import compile, parse
 
 
-class MyNode(Node):
+class MyNode:
     def __init__(self, ast):
         pass
 
