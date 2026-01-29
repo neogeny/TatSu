@@ -218,6 +218,13 @@
       "bases:Create new base": false
     }
   },
+<<<<<<< HEAD
+  "active": "5c65af52e3bca67b",
+  "lastOpenFiles": [
+    "scripts/parselog.py",
+    "changelog/CHANGELOG_v5.17.0.md",
+    "changelog"
+=======
   "active": "51c2e92d6ae32c51",
   "lastOpenFiles": [
     "tatsu/__pycache__/model.cpython-314.pyc",
@@ -236,5 +243,6 @@
     "tmp/13.png",
     "tmp/diagram.svg",
     "changelog/CHANGELOG_v5.17.0.md"
+>>>>>>> master
   ]
 }
