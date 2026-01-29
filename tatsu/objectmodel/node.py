@@ -15,9 +15,8 @@ class Node(BaseNode):
     ctx: Any = None
     __parent_ref: weakref.ref | None = None
 
-    def __init__(self, ast: Any = None, ctx: Any = None, **kwargs: Any):
+    def __init__(self, ast: Any = None, **kwargs: Any):
         super().__init__(ast=ast, **kwargs)
-        self.ctx: Any = ctx
         self.__parent_ref: weakref.ref[Node] | None = None
 
     @property
