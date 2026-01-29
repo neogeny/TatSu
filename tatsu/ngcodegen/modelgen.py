@@ -32,10 +32,7 @@ HEADER = """\
 
     class {name}ModelBuilderSemantics(ModelBuilderSemantics):
         def __init__(self, context=None, types=None):
-            types = [
-                t for t in globals().values()
-                if type(t) is type and issubclass(t, ModelBase)
-            ] + (types or [])
+            types = self.node_subclasses_in(globals()) + (types or [])
             super().__init__(context=context, types=types)
 """
 
