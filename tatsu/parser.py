@@ -70,7 +70,6 @@ class GrammarGenerator(EBNFBootstrapParser):
     def __init__(
         self,
         name: str | None = None,
-        config: ParserConfig | None = None,
         semantics=None,
         **settings: Any,
     ):
@@ -78,13 +77,11 @@ class GrammarGenerator(EBNFBootstrapParser):
             raise TypeError(
                 f'semantics must be an object instance or None, not class {semantics!r}',
             )
-        if semantics is None:
-            semantics = EBNFGrammarSemantics(name)
         config = ParserConfig.new(
-            config=config,
             name=name,
             semantics=semantics,
             tokenizercls=EBNFBuffer,
             **settings,
         )
+        config.semantics = EBNFGrammarSemantics(name)
         super().__init__(config)
