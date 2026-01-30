@@ -76,8 +76,8 @@ def test_constant_math():
 - `asjson()` and friends now cover all known cases with improved consistency and efficiency, so there are less demands over clients of the API
 - Entry points no longer lists a subset of the configuration options defined in `ParserConfig`, but 
   accepts them through `**settings` keyword arguments. Now `ParserConfig` verifies that 
-  settings passed to it are vaild, eliminating the frustration of passing an incorrect setting 
-  name and hoping it has the intended effect. 
+  settings passed to it are vaild, eliminating the frustration of passing an incorrect setting
+  (a typo) name and hoping it has the intended effect. 
 - Documentation has a better look and improved navigation thanks to `MyST-Parser` with `Sphinx`
 - [TatSu][] still has no library dependencies for its core functionality, but several libraries are used during its development and testing. [TatSu][] configuration uses `uv` and `hatch`, but several `requirements-xyz.txt` files are generated in favor of those using `pip` with `pyenv`, `virtualenvwrapper`, or `virtualenv`
 - Many of the functions that [TatSu][] defines for its own use are useful in other contexts. Some examples are:
