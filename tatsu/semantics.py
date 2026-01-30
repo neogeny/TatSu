@@ -13,7 +13,7 @@ from .synth import registered_synthetics, synthesize
 from .util import simplify_list
 from .util.configs import Config
 from .util.deprecation import deprecated_params
-from .util.misc import type_MCD
+from .util.misc import least_upper_bound_type
 
 __all__ = [
     'ASTSemantics',
@@ -143,8 +143,8 @@ class ModelBuilderSemantics(AbstractSemantics):
             types_in_module = self.types_defined_in(config.nodedefs)
             all_constructors = [*(config.constructors or []), *types_in_module]
             config = config.override(constructors=all_constructors)
-        if config.nodebase is None:
-            nodebase = type_MCD(config.constructors) or Node
+        if config.nodebase is None or config.nodebase is object:
+            nodebase = least_upper_bound_type(config.constructors)
             config = config.override(nodebase=nodebase)
 
         self.config = config
