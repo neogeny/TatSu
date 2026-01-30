@@ -24,7 +24,7 @@ def synthesize(name: str, bases: tuple[type, ...], **kwargs: Any) -> Callable:
 
     constructor = __registry.get(name)
     if not constructor:
-        constructor = type(name, bases, kwargs)
+        constructor = type(name, bases, {"__module__": __name__} | kwargs)
         __registry[name] = constructor
 
     return constructor
