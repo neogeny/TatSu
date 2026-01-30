@@ -8,14 +8,15 @@ from pathlib import Path
 from .._version import __version__
 from ..exceptions import ParseException
 from ..ngcodegen import modelgen, pythongen
+from ..parserconfig import ParserConfig
 from ..util import eval_escapes
-from .api import compile
+from . import api
 
 __all__ = ['tatsu_main']
 
 
 DESCRIPTION = (
-    'TatSu takes a grammar'
+    '竜TatSu takes a grammar'
     ' in a variation of EBNF as input, and outputs a memoizing'
     ' PEG/Packrat parser in Python.'
 )
@@ -83,9 +84,9 @@ def parse_args():
     generation_opts.add_argument(
         '--left-recursion',
         '-l',
-        help='turns left-recursion support off',
+        help='turns left-recursion support on',
         dest='left_recursion',
-        action='store_false',
+        action='store_true',
         default=None,
     )
     generation_opts.add_argument(
@@ -161,13 +162,17 @@ def parse_args():
 
 
 def prepare_for_output(filename: str):
-    if filename:
-        f = Path(filename)
-        if f.is_file():
-            f.unlink()
-        dirname = f.parent
-        if dirname.exists():
-            dirname.mkdir(parents=True, exist_ok=True)
+    if not filename:
+        return
+
+    path = Path(filename)
+
+    dirname = path.parent
+    if not dirname.exists():
+        dirname.mkdir(parents=True, exist_ok=True)
+
+    if path.is_file():
+        path.unlink()
 
 
 def save(filename: str, content: str):
@@ -187,9 +192,7 @@ def tatsu_main():
     grammar = Path(args.filename).read_text()
 
     try:
-        model = compile(
-            grammar,
-            args.name,
+        config = ParserConfig(
             trace=args.trace,
             filename=args.filename,
             colorize=args.color,
@@ -197,6 +200,12 @@ def tatsu_main():
             nameguard=args.nameguard,
             whitespace=args.whitespace,
 
+        )
+        model = api.compile(
+            grammar,
+            args.name,
+            asmodel=True,
+            config=config,
         )
 
         if args.draw:
@@ -208,7 +217,7 @@ def tatsu_main():
             elif args.pretty_lean:
                 result = model.pretty_lean()
             elif args.object_model:
-                result = modelgen(model, nodebase=args.nodebase)
+                result = modelgen(model, nodebase=args.base_type)
             else:
                 result = pythongen(model)
 
@@ -217,12 +226,12 @@ def tatsu_main():
             else:
                 print(result)
 
-        # if requested, always save it
-        if args.object_model_outfile:
-            save(
-                args.object_model_outfile,
-                modelgen(model, nodebase=args.nodebase),
-            )
+            # if requested, always save it
+            if args.object_model_outfile:
+                save(
+                    args.object_model_outfile,
+                    modelgen(model, nodebase=args.base_type),
+                )
 
         print('-' * 72, file=sys.stderr)
         print(

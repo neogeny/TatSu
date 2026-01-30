@@ -11,10 +11,16 @@ from ..util.asjson import AsJSONMixin, asjson, asjsons
 
 
 class BaseNode(AsJSONMixin):
-    # NOTE: declare at the class level in case __init__ is not called
-    ast: Any = None
-    parseinfo: ParseInfo | None = None
-    __attributes: dict[str, Any] = {}  # noqa: RUF012
+    ast: Any
+    parseinfo: ParseInfo | None
+    __attributes: dict[str, Any]
+
+    def __new__(cls, *args: Any, **kwargs: Any) -> Any:
+        obj = super().__new__(cls)
+        obj.ast = None
+        obj.parseinfo = None
+        obj.__attributes = {}
+        return obj
 
     def __init__(self, ast: Any = None, **kwargs: Any):
         super().__init__()

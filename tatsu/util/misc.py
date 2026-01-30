@@ -7,11 +7,12 @@ from collections import defaultdict
 from collections.abc import Iterable
 from functools import cache
 from graphlib import TopologicalSorter
+from typing import Any
 
 from tatsu.util import Undefined
 
 
-def first(iterable, default=Undefined):
+def first(iterable: Iterable[Any], default=Undefined) -> Any:
     """Return the first item of *iterable*, or *default* if *iterable* is
     empty.
 
@@ -54,7 +55,7 @@ def find_from_rematch(m: re.Match):
         return g or m.group()
 
 
-def findalliter(pattern, string, pos=None, endpos=None, flags=0):
+def iter_findall(pattern, string, pos=None, endpos=None, flags=0):
     """
     like finditer(), but with return values like findall()
 
@@ -75,12 +76,12 @@ def findalliter(pattern, string, pos=None, endpos=None, flags=0):
         yield find_from_rematch(m)
 
 
-def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=Undefined):
+def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=Undefined) -> str:
     """
     Avoids using the inefficient findall(...)[0], or first(findall(...))
     """
     return first(
-        findalliter(pattern, string, pos=pos, endpos=endpos, flags=flags),
+        iter_findall(pattern, string, pos=pos, endpos=endpos, flags=flags),
         default=default,
     )
 
@@ -155,3 +156,20 @@ def module_missing(name):
 
 def platform_has_command(name) -> bool:
     return shutil.which(name) is not None
+
+
+def fqn(obj: Any) -> str:
+    # by [apalala@gmail.com](https://github.com/apalala)
+    # by Gemini (2026-01-30)
+
+    """Helper to safely retrieve the fully qualified name of a callable."""
+    module = getattr(obj, "__module__", None)
+    qualname = getattr(obj, "__qualname__", None)
+
+    if module and qualname and module != "builtins":
+        return f"{module}.{qualname}"
+    return qualname or str(obj)
+
+
+def typename(obj: Any) -> str:
+    return type(obj).__name__

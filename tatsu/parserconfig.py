@@ -7,7 +7,7 @@ from typing import Any, override
 
 from .tokenizing import NullTokenizer, Tokenizer
 from .util import Undefined
-from .util.configurations import Config
+from .util.configs import Config
 from .util.misc import cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
@@ -94,8 +94,8 @@ class ParserConfig(Config):
         return self.start_rule or self.rule_name or self.start
 
     @override
-    def replace(self, **settings: Any) -> ParserConfig:
-        result = super().replace(**settings)
+    def override(self, **settings: Any) -> ParserConfig:
+        result = super().override(**settings)
         if 'grammar' in settings:
             result.name = result.grammar
         return result

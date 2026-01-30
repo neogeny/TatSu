@@ -11,7 +11,7 @@ from typing import Any
 from .objectmodel import Node
 from .synth import registered_synthetics, synthesize
 from .util import simplify_list
-from .util.configurations import Config
+from .util.configs import Config
 from .util.deprecation import deprecated_params
 
 __all__ = [
@@ -33,20 +33,6 @@ class BuilderConfig(Config):
     nodedefs: NodesModuleType | None = None
     nosynth: bool = False
     constructors: Iterable[Callable] = field(default_factory=list)
-
-    # def __getstate__(self) -> dict[str, Any]:
-    #     # NOTE: ModuleType cannot be pickled
-    #     state = self.asdict()
-    #     state['nodedefs__'] = getattr(self.nodedefs, '__name__', None)
-    #     del state['nodedefs']
-    #     return state
-    #
-    # def __setstate__(self, state: dict[str, Any]) -> None:
-    #     name = state.pop('nodedefs__', None)
-    #     if name:
-    #         state['nodedefs'] = importlib.import_module(name)
-    #     for key, value in state.items():
-    #         setattr(self, key, value)
 
 
 @dataclass
@@ -123,7 +109,11 @@ class ModelBuilderSemantics(AbstractSemantics):
     nodes using the class name given as first parameter to a grammar
     rule, and synthesizes the class/type if it's not known.
     """
-    @deprecated_params(base_type='nodebase', types='constructors')
+    @deprecated_params(
+        base_type='nodebase',
+        types='constructors',
+        context=None,
+    )
     def __init__(
             self,
             config: BuilderConfig | None = None,
@@ -132,8 +122,10 @@ class ModelBuilderSemantics(AbstractSemantics):
             nodedefs: NodesModuleType | None = None,
             nosynth: bool = False,
             constructors: Iterable[Callable] | None = None,
+            context: Any | None = None,
             types: Iterable[Callable] | None = None,  # for bw compatibility
     ) -> None:
+        assert context is None
         config = BuilderConfig.new(
             config,
             nodebase=nodebase,
@@ -142,11 +134,11 @@ class ModelBuilderSemantics(AbstractSemantics):
             constructors=constructors,
         )
         if isinstance(base_type, type):
-            config = config.replace(nodebase=base_type)
+            config = config.override(nodebase=base_type)
         if types is not None:
-            config = config.replace(constructors=[*(config.constructors or []), *types])
+            config = config.override(constructors=[*(config.constructors or []), *types])
         if config.nodedefs:
-            config = config.replace(
+            config = config.override(
                 constructors=[
                     *(config.constructors or []),
                     *self.node_subclasses_in(

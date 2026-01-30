@@ -46,7 +46,7 @@ class EBNFBootstrapBuffer(Buffer):
             keywords=KEYWORDS,
             start='start',
         )
-        config = config.replace(**settings)
+        config = config.override(**settings)
 
         super().__init__(text, config=config)
 
@@ -65,7 +65,7 @@ class EBNFBootstrapParser(Parser):
             keywords=KEYWORDS,
             start='start',
         )
-        config = config.replace(**settings)
+        config = config.override(**settings)
 
         super().__init__(config=config)
 

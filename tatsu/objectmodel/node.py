@@ -11,9 +11,12 @@ __all__ = ['Node']
 
 
 class Node(BaseNode):
-    # NOTE: declare at the class level in case __init__ is not called
-    ctx: Any = None
-    __parent_ref: weakref.ref | None = None
+    __parent_ref: weakref.ref | None
+
+    def no__new__(cls, *args: Any, **kwargs: Any) -> Any:
+        obj = super().__new__(cls, *args, **kwargs)  # type: ignore
+        obj.__parent_ref = weakref.ref(obj)
+        return obj
 
     def __init__(self, ast: Any = None, **kwargs: Any):
         super().__init__(ast=ast, **kwargs)
@@ -54,10 +57,13 @@ class Node(BaseNode):
             parent = parent.parent
         return tuple(reversed(ancestors))
 
-    def children_list(self) -> list[Node]:
-        return list(self.children())
+    def children(self) -> tuple[Node, ...]:
+        return tuple(self.iter_children())
 
-    def children(self) -> Iterable[Any]:
+    def children_list(self) -> list[Node]:
+        return list(self.iter_children())
+
+    def iter_children(self) -> Iterable[Any]:
         def dfs(obj: Any) -> Iterable[Node]:
             match obj:
                 case Node() as node:

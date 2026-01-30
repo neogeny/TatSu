@@ -6,13 +6,15 @@ from __future__ import annotations
 import re
 import textwrap
 
-from .. import grammars
+from .. import grammars, ngcodegen
 from ..exceptions import CodegenError
 from ..objectmodel import Node
 from ..util import compress_seq, indent, safe_name, timestamp, trim
+from ..util.deprecation import deprecated
 from .cgbase import CodeGenerator, ModelRenderer
 
 
+@deprecated(replacement=ngcodegen.codegen)
 def codegen(model):
     return PythonCodeGenerator().render(model)
 
@@ -539,7 +541,7 @@ class Grammar(Base):
                             keywords=KEYWORDS,
                             start={start!r},
                         )
-                        config = config.replace(**settings)
+                        config = config.override(**settings)
                         super().__init__(text, config=config)
 
 
@@ -558,7 +560,7 @@ class Grammar(Base):
                             keywords=KEYWORDS,
                             start={start!r},
                         )
-                        config = config.replace(**settings)
+                        config = config.override(**settings)
                         super().__init__(config=config)
 
                 {rules}
