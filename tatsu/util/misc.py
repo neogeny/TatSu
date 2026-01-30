@@ -7,6 +7,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from functools import cache
 from graphlib import TopologicalSorter
+from typing import Any
 
 from tatsu.util import Undefined
 
@@ -155,3 +156,16 @@ def module_missing(name):
 
 def platform_has_command(name) -> bool:
     return shutil.which(name) is not None
+
+
+def fqn(obj: Any) -> str:
+    # by [apalala@gmail.com](https://github.com/apalala)
+    # by Gemini (2026-01-30)
+
+    """Helper to safely retrieve the fully qualified name of a callable."""
+    module = getattr(obj, "__module__", None)
+    qualname = getattr(obj, "__qualname__", None)
+
+    if module and qualname and module != "builtins":
+        return f"{module}.{qualname}"
+    return qualname or str(obj)
