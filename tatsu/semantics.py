@@ -34,20 +34,6 @@ class BuilderConfig(Config):
     nosynth: bool = False
     constructors: Iterable[Callable] = field(default_factory=list)
 
-    # def __getstate__(self) -> dict[str, Any]:
-    #     # NOTE: ModuleType cannot be pickled
-    #     state = self.asdict()
-    #     state['nodedefs__'] = getattr(self.nodedefs, '__name__', None)
-    #     del state['nodedefs']
-    #     return state
-    #
-    # def __setstate__(self, state: dict[str, Any]) -> None:
-    #     name = state.pop('nodedefs__', None)
-    #     if name:
-    #         state['nodedefs'] = importlib.import_module(name)
-    #     for key, value in state.items():
-    #         setattr(self, key, value)
-
 
 @dataclass
 class ActualParameters:
@@ -123,7 +109,11 @@ class ModelBuilderSemantics(AbstractSemantics):
     nodes using the class name given as first parameter to a grammar
     rule, and synthesizes the class/type if it's not known.
     """
-    @deprecated_params(base_type='nodebase', types='constructors')
+    @deprecated_params(
+        base_type='nodebase',
+        types='constructors',
+        context=None,
+    )
     def __init__(
             self,
             config: BuilderConfig | None = None,
@@ -132,8 +122,10 @@ class ModelBuilderSemantics(AbstractSemantics):
             nodedefs: NodesModuleType | None = None,
             nosynth: bool = False,
             constructors: Iterable[Callable] | None = None,
+            context: Any | None = None,
             types: Iterable[Callable] | None = None,  # for bw compatibility
     ) -> None:
+        assert context is not None
         config = BuilderConfig.new(
             config,
             nodebase=nodebase,
