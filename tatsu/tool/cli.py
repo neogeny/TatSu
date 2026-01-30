@@ -5,11 +5,11 @@ import importlib
 import sys
 from pathlib import Path
 
-from .api import compile
 from .._version import __version__
 from ..exceptions import ParseException
 from ..ngcodegen import modelgen, pythongen
 from ..util import eval_escapes
+from .api import compile
 
 __all__ = ['tatsu_main']
 
@@ -222,7 +222,7 @@ def tatsu_main():
         if args.object_model_outfile:
             save(
                 args.object_model_outfile,
-                modelgen(model)
+                modelgen(model),
             )
 
         print('-' * 72, file=sys.stderr)
