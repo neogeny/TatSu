@@ -125,7 +125,7 @@ class ModelBuilderSemantics(AbstractSemantics):
             context: Any | None = None,
             types: Iterable[Callable] | None = None,  # for bw compatibility
     ) -> None:
-        assert context is not None
+        assert context is None
         config = BuilderConfig.new(
             config,
             nodebase=nodebase,
