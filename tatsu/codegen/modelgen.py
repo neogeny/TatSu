@@ -2,11 +2,12 @@ import inspect
 from collections import namedtuple
 from datetime import datetime
 
+from .. import ngcodegen
 from ..codegen.cgbase import CodeGenerator, ModelRenderer
 from ..exceptions import CodegenError
 from ..objectmodel import Node
 from ..util import compress_seq, indent, re, safe_name
-from ..util.deprecation import deprecated_params
+from ..util.deprecation import deprecated, deprecated_params
 from .rendering import Renderer
 
 NODE_NAME_PATTERN = r'(?!\d)\w+(' + rf'{'::'}' + r'(?!\d)\w+)*'
@@ -22,6 +23,7 @@ class ModelBase(Node):
 
 
 @deprecated_params(base_type='nodebase')
+@deprecated(replacement=ngcodegen.modelgen)
 def modelgen(model, nodebase: type | None = None, base_type: type | None = None):
     if isinstance(base_type, type):
         nodebase = base_type

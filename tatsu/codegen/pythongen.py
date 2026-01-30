@@ -6,13 +6,15 @@ from __future__ import annotations
 import re
 import textwrap
 
-from .. import grammars
+from .. import grammars, ngcodegen
 from ..exceptions import CodegenError
 from ..objectmodel import Node
 from ..util import compress_seq, indent, safe_name, timestamp, trim
+from ..util.deprecation import deprecated
 from .cgbase import CodeGenerator, ModelRenderer
 
 
+@deprecated(replacement=ngcodegen.codegen)
 def codegen(model):
     return PythonCodeGenerator().render(model)
 
