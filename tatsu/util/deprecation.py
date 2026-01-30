@@ -10,6 +10,33 @@ from collections.abc import Callable
 from typing import Any
 
 type Decorator = Callable[[Callable[..., Any]], Callable[..., Any]]
+type AnyCallable = Callable[..., Any]
+
+
+def deprecated(replacement: AnyCallable | None = None) -> Callable[[AnyCallable], AnyCallable]:
+    # by [apalala@gmail.com](https://github.com/apalala)
+    # by Gemini (2026-01-30)
+    def decorator(func: AnyCallable) -> AnyCallable:
+        # We extract names safely before the wrapper to satisfy the linter
+        # and avoid doing it on every single function call.
+        func_name = getattr(func, "__name__", str(func))
+
+        if replacement is not None:
+            repl_name = getattr(replacement, "__name__", str(replacement))
+            msg = f"{func_name}() is deprecated; use {repl_name}() instead."
+        else:
+            msg = f"{func_name}() is deprecated and will be removed in a future version."
+
+        @functools.wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            warnings.warn(
+                msg,
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
 
 
 def deprecated_params(**params_map: str | None) -> Decorator:

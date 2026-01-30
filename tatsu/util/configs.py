@@ -7,6 +7,7 @@ from typing import Any, Self
 
 from ..util import asjson
 from . import Undefined
+from .deprecation import deprecated
 
 
 @dataclasses.dataclass
@@ -41,7 +42,9 @@ class Config:
         else:
             return self.override(**other.asdict())
 
-    replace_config = override_config
+    @deprecated(replacement=override_config)
+    def replace_config(self, *args, **kwargs):
+        return self.override_config(*args, **kwargs)
 
     def merge_config(self, other: Config | None = None) -> Self:
         if other is None:
@@ -58,12 +61,16 @@ class Config:
         assert dataclasses.is_dataclass(self)
         return dataclasses.replace(self, **overrides)
 
-    replace = override
+    @deprecated(replacement=override)
+    def replace(self, *args, **kwargs):
+        return self.override(*args, **kwargs)
 
     def hard_override(self, **settings: Any) -> Self:
         return self.override(**settings)
 
-    hard_replace = hard_override
+    @deprecated(replacement=hard_override)
+    def hard_replace(self, *args, **kwargs):
+        return self.hard_override(*args, **kwargs)
 
     def merge(self, **settings: Any) -> Self:
         self._check_unknowns(**settings)
