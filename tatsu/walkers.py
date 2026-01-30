@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from typing import Any, ClassVar, Concatenate
 
 from .util import pythonize_name
+from .util.deprecation import deprecated
 
 type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
 
@@ -148,7 +149,9 @@ class BreadthFirstWalker(NodeWalker):
 
 
 # note: for backwars compatibility
-PreOrderWalker = BreadthFirstWalker
+@deprecated(replacement=BreadthFirstWalker)
+class PreOrderWalker(BreadthFirstWalker):
+    pass
 
 
 class DepthFirstWalker(NodeWalker):
