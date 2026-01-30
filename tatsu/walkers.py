@@ -10,17 +10,14 @@ from .util import pythonize_name
 type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
 
 
-class NodeWalkerMeta(type):
-    def __new__(mcs, name, bases, dct):  # type: ignore
-        cls = super().__new__(mcs, name, bases, dct)
-        # note: a different cache for each subclass
-        cls._walker_cache: dict[str, WalkerMethod | None] = {}  # type: ignore
-        return cls
-
-
-class NodeWalker(metaclass=NodeWalkerMeta):
+class NodeWalker:
     # note: this is shared among all instances of the same sublass of NodeWalker
     _walker_cache: ClassVar[dict[str, WalkerMethod | None]] = {}
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # note: a different cache for each subclass
+        cls._walker_cache: dict[str, WalkerMethod | None] = {}  # type: ignore
 
     @property
     def walker_cache(self):
