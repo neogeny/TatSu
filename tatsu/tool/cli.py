@@ -5,11 +5,11 @@ import importlib
 import sys
 from pathlib import Path
 
+from .api import compile
 from .._version import __version__
 from ..exceptions import ParseException
 from ..ngcodegen import modelgen, pythongen
 from ..util import eval_escapes
-from .api import compile
 
 __all__ = ['tatsu_main']
 
@@ -190,6 +190,7 @@ def tatsu_main():
         model = compile(
             grammar,
             args.name,
+            asmodel=True,
             trace=args.trace,
             filename=args.filename,
             colorize=args.color,
@@ -208,7 +209,7 @@ def tatsu_main():
             elif args.pretty_lean:
                 result = model.pretty_lean()
             elif args.object_model:
-                result = modelgen(model, nodebase=args.nodebase)
+                result = modelgen(model)
             else:
                 result = pythongen(model)
 
@@ -221,7 +222,7 @@ def tatsu_main():
         if args.object_model_outfile:
             save(
                 args.object_model_outfile,
-                modelgen(model, nodebase=args.nodebase),
+                modelgen(model)
             )
 
         print('-' * 72, file=sys.stderr)
