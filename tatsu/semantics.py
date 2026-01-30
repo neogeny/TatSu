@@ -13,6 +13,7 @@ from .synth import registered_synthetics, synthesize
 from .util import simplify_list
 from .util.configs import Config
 from .util.deprecation import deprecated_params
+from .util.misc import type_MCD
 
 __all__ = [
     'ASTSemantics',
@@ -23,8 +24,8 @@ __all__ = [
 type NodesModuleType = types.ModuleType
 
 
-def node_subclasses_in(container: Any, *, nodebase: type[Node] = Node) -> list[type]:
-    return AbstractSemantics.node_subclasses_in(container, nodebase=nodebase)
+def types_defined_in(container: Any) -> list[type]:
+    return AbstractSemantics.types_defined_in(container)
 
 
 @dataclass
@@ -32,7 +33,7 @@ class BuilderConfig(Config):
     nodebase: type = Node
     nodedefs: NodesModuleType | None = None
     nosynth: bool = False
-    constructors: Iterable[Callable] = field(default_factory=list)
+    constructors: list[Callable] = field(default_factory=list)
 
 
 @dataclass
@@ -67,11 +68,11 @@ class AbstractSemantics:
         return {
             name: value
             for name, value in context.items()
-            if callable(value) and not name.startswith('_')
+            if callable(value)
         }
 
     @staticmethod
-    def node_subclasses_in(container: Any, *, nodebase: type = Node) -> list[type]:
+    def types_defined_in(container: Any) -> list[type]:
         contents: dict[str, Any] = {}
         if isinstance(container, types.ModuleType):
             contents.update(vars(container))
@@ -84,7 +85,7 @@ class AbstractSemantics:
 
         return [
             t for t in contents.values()
-            if isinstance(t, type) and issubclass(t, nodebase)
+            if isinstance(t, type)
         ]
 
 
@@ -121,13 +122,13 @@ class ModelBuilderSemantics(AbstractSemantics):
             base_type: type | None = None,
             nodedefs: NodesModuleType | None = None,
             nosynth: bool = False,
-            constructors: Iterable[Callable] | None = None,
+            constructors: list[Callable] | None = None,
             context: Any | None = None,
-            types: Iterable[Callable] | None = None,  # for bw compatibility
+            types: list[Callable] | None = None,  # for bw compatibility
     ) -> None:
         assert context is None
         config = BuilderConfig.new(
-            config,
+            config=config,
             nodebase=nodebase,
             nodedefs=nodedefs,
             nosynth=nosynth,
@@ -137,18 +138,17 @@ class ModelBuilderSemantics(AbstractSemantics):
             config = config.override(nodebase=base_type)
         if types is not None:
             config = config.override(constructors=[*(config.constructors or []), *types])
+
         if config.nodedefs:
-            config = config.override(
-                constructors=[
-                    *(config.constructors or []),
-                    *self.node_subclasses_in(
-                        config.nodedefs,
-                        nodebase=config.nodebase,
-                    ),
-                ],
-            )
+            types_in_module = self.types_defined_in(config.nodedefs)
+            all_constructors = [*(config.constructors or []), *types_in_module]
+            config = config.override(constructors=all_constructors)
+        if config.nodebase is None:
+            nodebase = type_MCD(config.constructors) or Node
+            config = config.override(nodebase=nodebase)
 
         self.config = config
+        assert config.nodebase is not None
 
         self._constructors: dict[str, Callable] = {}
         for t in config.constructors:
@@ -270,7 +270,7 @@ class ModelBuilderSemantics(AbstractSemantics):
         typename = typespec[0]
         bases = reversed(typespec)
 
-        nodebase: type = self.config.nodebase
+        nodebase = self.config.nodebase
         for base_ in bases:
             defined = self._get_constructor(base_, base=nodebase)
             if isinstance(defined, type):

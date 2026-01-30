@@ -187,14 +187,21 @@ def test_builder_types():
         start::AType::BType = $ ;
     """
 
-    builderconfig = BuilderConfig(constructors=[AType, BType])
+    builderconfig = BuilderConfig(nodebase=BType, constructors=[AType, BType])
     ast = parse(grammar, '', builderconfig=builderconfig)
     assert type(ast) is AType
     assert isinstance(ast, BType)
     assert not isinstance(ast, synth.SynthNode)
 
+
+def test_builder_nodedefs():
+    grammar = """
+        @@grammar :: Test
+        start::AType::BType = $ ;
+    """
+
     thismodule = sys.modules[__name__]
-    builderconfig = BuilderConfig(nodebase=BType, nodedefs=thismodule, nosynth=True)
+    builderconfig = BuilderConfig(nodedefs=thismodule, nosynth=True)
     ast = parse(grammar, '', builderconfig=builderconfig)
     assert type(ast) is AType
     assert isinstance(ast, BType)

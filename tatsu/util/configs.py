@@ -5,7 +5,7 @@ import importlib
 import types
 from typing import Any, Self
 
-from ..util import asjson
+from ..util import asjson, asjsons
 from . import Undefined
 from .deprecation import deprecated
 
@@ -30,7 +30,10 @@ class Config:
             for name, value in settings.items()
             if (
                 hasattr(self, name)
-                and (hard or (value is not None and value is not Undefined))
+                and (
+                    hard
+                    or not (value is None or value is Undefined)
+                )
             )
         }
 
@@ -123,6 +126,9 @@ class Config:
 
     def __json__(self, seen=None):
         return asjson(self.asdict(), seen=seen)
+
+    def __str__(self) -> str:
+        return asjsons(self)
 
     # by [apalala@gmail.com](https://github.com/apalala)
     # by Gemini (2026-01-29)

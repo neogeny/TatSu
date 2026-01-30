@@ -34,7 +34,7 @@ HEADER = """\
     class {name}ModelBuilderSemantics(ModelBuilderSemantics):
         def __init__(self, constructors=None, **kwargs):
             constructors = constructors or []
-            constructors += self.node_subclasses_in(globals(), nodebase={nodebase})
+            constructors += self.types_defined_in(globals())
             super().__init__(nodebase={nodebase}, constructors=constructors, **kwargs)
 """
 

@@ -96,6 +96,7 @@ def topsort[T](nodes: Iterable[T], edges: Iterable[tuple[T, T]]) -> list[T]:
     #   _
     #   use this to make results stable accross calls
     #       topsort(n, e) == topsort(n, e)
+
     nodes = list(nodes)
     original_keys = {node: i for i, node in enumerate(nodes)}
 
@@ -173,3 +174,25 @@ def fqn(obj: Any) -> str:
 
 def typename(obj: Any) -> str:
     return type(obj).__name__
+
+
+def type_MCD(constructors: list[type]) -> type:
+    if not constructors:
+        return object
+
+    types_ = [t for t in constructors if isinstance(t, type)]
+    if not types_:
+        return object
+    elif len(types_) == 1:
+        return types_[0]
+
+    edges: list[tuple[Any, Any]] = []
+    for i, a in enumerate(types_):
+        for b in types_[i + 1:]:
+            if issubclass(a, b):
+                edges.append((a, b))
+            elif issubclass(b, a):
+                edges.append((b, a))
+
+    topsorted = topsort(types_, edges)
+    return topsorted[-1]

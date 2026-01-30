@@ -14,7 +14,7 @@ from ..ngcodegen.modelgen import modelgen
 from ..ngcodegen.pythongen import pythongen
 from ..objectmodel import Node
 from ..parser import GrammarGenerator
-from ..semantics import BuilderConfig, ModelBuilderSemantics
+from ..semantics import BuilderConfig, ModelBuilderSemantics, NodesModuleType
 from ..tokenizing import Tokenizer
 
 __all__ = [
@@ -38,10 +38,18 @@ def compile(
     *,
     config: ParserConfig | None = None,
     builderconfig: BuilderConfig | None = None,
+    nodebase: type | None = None,
+    nodedefs: NodesModuleType | None = None,
     semantics: Any = None,
     asmodel: bool = False,
     **settings: Any,
 ) -> grammars.Grammar:
+    config = ParserConfig.new(
+        config=config,
+        semantics=semantics,
+        name=name,
+        **settings,
+    )
     if isinstance(semantics, type):
         raise TypeError(
             f'semantics must be an object instance or None, not class {semantics!r}',
@@ -58,6 +66,11 @@ def compile(
     if semantics is not None:
         model.semantics = semantics
     elif asmodel:
+        builderconfig = BuilderConfig.new(
+            config=builderconfig,
+            nodebase=nodebase,
+            nodedefs=nodedefs,
+        )
         model.semantics = ModelBuilderSemantics(config=builderconfig)
 
     return model
@@ -68,11 +81,13 @@ def parse(
     text: str,
     /, *,
     config: ParserConfig | None = None,
-    builderconfig: BuilderConfig | None = None,
     start: str | None = None,
     name: str | None = None,
     semantics: Any | None = None,
     asmodel: bool = False,
+    builderconfig: BuilderConfig | None = None,
+    nodedefs: NodesModuleType | None = None,
+    nodebase: type | None = None,
     **settings: Any,
 ):
     config = ParserConfig.new(
@@ -84,7 +99,19 @@ def parse(
     )
     model = compile(grammar, config=config, asmodel=asmodel)
     config.semantics = semantics or model.semantics
-    if not config.semantics and (asmodel or isinstance(builderconfig, BuilderConfig)):
+
+    asmodel = not config.semantics and (
+        asmodel
+        or isinstance(builderconfig, BuilderConfig)
+        or nodebase is not None
+        or nodedefs is not None
+    )
+    if asmodel:
+        builderconfig = BuilderConfig.new(
+            config=builderconfig,
+            nodebase=nodebase,
+            nodedefs=nodedefs,
+        )
         config.semantics = ModelBuilderSemantics(config=builderconfig)
     return model.parse(text, start=start, semantics=semantics, config=config)
 
