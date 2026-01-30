@@ -23,6 +23,8 @@ class JSONSerializable(Protocol):
 
 
 class AsJSONMixin:
+    __slots__ = ()
+
     def __json__(self, seen: set[int] | None = None) -> Any:
         return {
             '__class__': type(self).__name__,
