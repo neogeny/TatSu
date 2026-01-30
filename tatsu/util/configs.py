@@ -41,6 +41,8 @@ class Config:
         else:
             return self.override(**other.asdict())
 
+    replace_config = override_config
+
     def merge_config(self, other: Config | None = None) -> Self:
         if other is None:
             return self
@@ -56,8 +58,12 @@ class Config:
         assert dataclasses.is_dataclass(self)
         return dataclasses.replace(self, **overrides)
 
+    replace = override
+
     def hard_override(self, **settings: Any) -> Self:
         return self.override(**settings)
+
+    hard_replace = hard_override
 
     def merge(self, **settings: Any) -> Self:
         self._check_unknowns(**settings)
