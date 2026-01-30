@@ -4,12 +4,18 @@ import importlib.util
 import re
 import shutil
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable, Sequence
 from functools import cache
 from graphlib import TopologicalSorter
 from typing import Any
 
 from tatsu.util import Undefined
+
+type Constructor = Callable[..., Any]
+
+
+class CycleError(ValueError):
+    pass
 
 
 def first(iterable: Iterable[Any], default=Undefined) -> Any:
@@ -98,28 +104,30 @@ def topsort[T](nodes: Iterable[T], edges: Iterable[tuple[T, T]]) -> list[T]:
     #       topsort(n, e) == topsort(n, e)
 
     nodes = list(nodes)
-    original_keys = {node: i for i, node in enumerate(nodes)}
+    original_key = {node: i for i, node in enumerate(nodes)}
 
-    def original_order(nl: Iterable[T]) -> list[T]:
-        return sorted(nl, key=lambda x: original_keys[x])
+    def order_key(node: T) -> int:
+        return original_key[node]
 
     partial_order = set(edges)
 
     def with_incoming() -> set[T]:
+        nonlocal partial_order
         return {m for (_, m) in partial_order}
 
     result: list[T] = []
-    pending = original_order(set(nodes) - with_incoming())
+    pending = sorted(set(nodes) - with_incoming(), key=order_key, reverse=True)
     while pending:
-        n = pending.pop(0)
+        n = pending.pop()
         result.append(n)
 
         outgoing = {m for (x, m) in partial_order if x == n}
         partial_order -= {(n, m) for m in outgoing}
-        pending.extend(original_order(outgoing - with_incoming()))
+        pending.extend(outgoing - with_incoming())
+        pending.sort(key=order_key, reverse=True)
 
     if partial_order:
-        raise ValueError('There are cycles in the topological order')
+        raise CycleError(f'There are cycles in {partial_order=!r}')
 
     return list(result)
 
@@ -176,23 +184,27 @@ def typename(obj: Any) -> str:
     return type(obj).__name__
 
 
-def type_MCD(constructors: list[type]) -> type:
+def least_upper_bound_type(constructors: Sequence[Constructor]) -> type:
     if not constructors:
         return object
 
     types_ = [t for t in constructors if isinstance(t, type)]
+
     if not types_:
         return object
-    elif len(types_) == 1:
+    if len(types_) == 1:
         return types_[0]
 
-    edges: list[tuple[Any, Any]] = []
+    edges: list[tuple[type, type]] = []
     for i, a in enumerate(types_):
         for b in types_[i + 1:]:
             if issubclass(a, b):
                 edges.append((a, b))
             elif issubclass(b, a):
                 edges.append((b, a))
-
-    topsorted = topsort(types_, edges)
-    return topsorted[-1]
+    try:
+        topsorted = topsort(types_, edges)
+    except CycleError:
+        return object
+    else:
+        return topsorted[-1]
