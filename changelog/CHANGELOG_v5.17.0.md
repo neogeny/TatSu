@@ -4,15 +4,15 @@
 Maintenance and contributions to **[TatSu][]** have been more difficult than necessary because of the way the code evolved through the years while adding features.
 
 - Very long modules and classes that try to do too much
-- Algorithms difficult to understand or incorrect semantics
-- Basic features missing because the above made them hard to implement
+- Algorithms difficult to understand or with incorrect semantics
+- Basic features missing, because the above made them hard to implement
 
 This release is a major refactoring of the code in **[TatSu][]**.
 
-- Complex modules were partitioned into sub-modules and classes with well defined purpose
-- Algorithms were rewritten to make their semantics clear and evident
+- Complex modules were partitioned into sub-modules and classes with well-defined purpose
+- Several algorithms were rewritten to make their semantics clear and evident
 - Many unit tests were added to assert the semantics of complex algorithms
-- Some user-facing features were added as they became easy to implement
+- Several user-facing features were added as they became easy to implement
 
 For the details about the many changes please take a look at the [commit log][].
 
@@ -24,7 +24,7 @@ Every effort has been made to preserve backwards compatibility by keeping mosts 
 - `walkers.NodeWalker` now handles all known types of input. Also: 
 	- `DepthFirstWalker` was reimplemented to ensure DFS semantics
 	- `PreOrderWalker` was broken and crazy. It was rewritten as a `BreadthFirstWalker` with the correct semantics
-- Constant expressions in a grammar are now evaluated deeply with  multiple passes of `eval()` to produce results more as expected
+- Constant expressions in a grammar are now evaluated deeply with  multiple passes of `eval()` to produce results that are more as expected
 ```python
 def test_constant_math():
     grammar = r"""
@@ -50,9 +50,10 @@ def test_constant_math():
 	Out[7]: 'ok'
 	```
 - `objectmodel.Node` was rewritten to give it clear semantics and efficiency
-	- No Python attributes are created with `setattr()`, .  No new attributes may be defined on a `Node` after initialization
-	- `Node.children()` has the expected semantics now, it was made much more efficient, and is now recalculated on each call in consistency with the mutability of `Node`
-- `Node.parseinfo` is honored by the parsing engine, when previously only results of type `AST` could have a `parseinfo`. Generation of `parseinfo` is disabled by defaulti, so pass `pareseinfo=True` to the API entry points to enable it.
+	- No Python attributes are created with `setattr()`. New attributes to `Node` after initialization are stored on a `dict` separate from `__dict__` or `__slots__`. This change avoids confusing `@dataclass`, which is used on generated object models.
+    - `Node` equality is explicitely defined as seame identity. No attempts are made for comparing `Node` contents.
+	- `Node.children()` now has the expected semantics, and was made much more efficient. It is now recalculated on each call in consistency with the mutability of `Node`
+- `Node.parseinfo` is now honored by the parsing engine (previously, only results of type `AST` could have a `parseinfo`). Generation of `parseinfo` is disabled by default, and is enabled by passing `pareseinfo=True` to the API entry points.
 ```python
       def test_node_parseinfo(self):
         grammar = """
@@ -71,15 +72,15 @@ def test_constant_math():
         assert node.parseinfo.endpos == len(text)
 ```
 - Synthetic classes created by `synth.synthetize()` during parsing with `ModeleBuilderSemantics` behave more consistently, and now have a base class of `class SynthNode(BaseNode)`
-- `ast.AST` now has consistent semantics of a `dict` that allows access to contents using an attributes interface
-- `asjson()` and friends now cover all cases with improved consistency and efficiency, and less demands over users of the API
-- The API no longer lists a subset of the configuration options defined in `ParserConfig`, but 
-  it accepts them through the `**settings` keyword arguments. Now `ParserConfig` verifies that 
+- `ast.AST` now has consistent semantics of a `dict` that allows access to contents using the attribute interface
+- `asjson()` and friends now cover all known cases with improved consistency and efficiency, so there are less demands over clients of the API
+- Entry points no longer lists a subset of the configuration options defined in `ParserConfig`, but 
+  accepts them through `**settings` keyword arguments. Now `ParserConfig` verifies that 
   settings passed to it are vaild, eliminating the frustration of passing an incorrect setting 
   name and hoping it has the intended effect. 
-- Documentation has a better look and improved navigation thanks to using `MyST-Parser` with `Sphinx`
+- Documentation has a better look and improved navigation thanks to `MyST-Parser` with `Sphinx`
 - [TatSu][] still has no library dependencies for its core functionality, but several libraries are used during its development and testing. [TatSu][] configuration uses `uv` and `hatch`, but several `requirements-xyz.txt` files are generated in favor of those using `pip` with `pyenv`, `virtualenvwrapper`, or `virtualenv`
-- Many of the functions that [TatSu][] defines for its own use are useful in other contexts. Examples are:
+- Many of the functions that [TatSu][] defines for its own use are useful in other contexts. Some examples are:
 ```python
 	from tatsu.notnone import Undefined
 	from tatsu.safeeval import is_eval_safe()
