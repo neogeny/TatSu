@@ -12,7 +12,7 @@ from typing import Any
 from tatsu.util import Undefined
 
 
-def first(iterable, default=Undefined):
+def first(iterable: Iterable[Any], default=Undefined) -> Any:
     """Return the first item of *iterable*, or *default* if *iterable* is
     empty.
 
@@ -55,7 +55,7 @@ def find_from_rematch(m: re.Match):
         return g or m.group()
 
 
-def findalliter(pattern, string, pos=None, endpos=None, flags=0):
+def iter_findall(pattern, string, pos=None, endpos=None, flags=0):
     """
     like finditer(), but with return values like findall()
 
@@ -76,12 +76,12 @@ def findalliter(pattern, string, pos=None, endpos=None, flags=0):
         yield find_from_rematch(m)
 
 
-def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=Undefined):
+def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=Undefined) -> str:
     """
     Avoids using the inefficient findall(...)[0], or first(findall(...))
     """
     return first(
-        findalliter(pattern, string, pos=pos, endpos=endpos, flags=flags),
+        iter_findall(pattern, string, pos=pos, endpos=endpos, flags=flags),
         default=default,
     )
 

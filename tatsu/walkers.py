@@ -122,9 +122,9 @@ class BreadthFirstWalker(NodeWalker):
     #  instead: define walk_xyz() methods
     def walk(self, node: Any, *args, **kwargs) -> tuple[Any, ...]:
         """Flattens the bfs_walk generator into a tuple of results."""
-        return tuple(self.walk_breadthfirst(node, *args, **kwargs))
+        return tuple(self.iter_breadthfirst(node, *args, **kwargs))
 
-    def walk_breadthfirst(self, node: Any, *args, **kwargs) -> Iterable[Any]:
+    def iter_breadthfirst(self, node: Any, *args, **kwargs) -> Iterable[Any]:
         if self.queue is not None:
             raise RuntimeError(
                 f'{type(self).__name__}.walk_breadthfirst() called recursively',
@@ -159,12 +159,12 @@ class DepthFirstWalker(NodeWalker):
     #  in general: do not override this mehod
     #  instead: define walk_xyz() methods
     def walk(self, node, *args, **kwargs) -> tuple[Any, ...]:
-        return tuple(self.walk_depthfirst(node, *args, **kwargs))
+        return tuple(self.iter_depthfirst(node, *args, **kwargs))
 
-    def walk_depthfirst(self, node, *args, **kwargs) -> Iterable[Any]:
+    def iter_depthfirst(self, node, *args, **kwargs) -> Iterable[Any]:
         yield super().walk(node, *args, **kwargs)
         for child in self.children_of(node):
-            yield from self.walk_depthfirst(child)
+            yield from self.iter_depthfirst(child)
 
 
 class ContextWalker(NodeWalker):

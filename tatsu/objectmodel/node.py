@@ -57,10 +57,13 @@ class Node(BaseNode):
             parent = parent.parent
         return tuple(reversed(ancestors))
 
-    def children_list(self) -> list[Node]:
-        return list(self.children())
+    def children(self) -> tuple[Node, ...]:
+        return tuple(self.iter_children())
 
-    def children(self) -> Iterable[Any]:
+    def children_list(self) -> list[Node]:
+        return list(self.iter_children())
+
+    def iter_children(self) -> Iterable[Any]:
         def dfs(obj: Any) -> Iterable[Node]:
             match obj:
                 case Node() as node:
