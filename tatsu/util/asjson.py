@@ -48,7 +48,7 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
     memo: dict[int, Any] = {}
     seen = seen if seen is not None else set()
 
-    def dfs(node: Any) -> Any:
+    def dfs(node: Any) -> Any:  # noqa: PLR0912
         if node is None or isinstance(node, int | float | str | bool):
             return node
 
@@ -62,7 +62,10 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
         try:
             match node:
                 case JSONSerializable() as serializable:
-                    result = serializable.__json__(seen=seen)
+                    if not isinstance(serializable, type):
+                        result = serializable.__json__(seen=seen)
+                    else:
+                        result = serializable
                 case enum.Enum() as en:
                     result = dfs(en.value)
                 case _ if isinstance(node, (weakref.ReferenceType, *weakref.ProxyTypes)):
