@@ -69,11 +69,14 @@ Out[7]: 'ok'
         assert node.parseinfo is not None
         assert node.parseinfo.pos == 0
         assert node.parseinfo.endpos == len(text)
-
 ```
 - Synthetic classes created by `synth.synthetize()` during parsing with `ModeleBuilderSemantics` behave more consistently, and now have a base class of `class SynthNode(BaseNode)`
 - `ast.AST` now has consistent semantics of a `dict` that allows access to contents using an attributes interface
 - `asjson()` and friends now cover all cases with improved consistency and efficiency, and less demands over users of the API
+- The API no longer lists a subset of the configuration options defined in `ParserConfig`, but 
+  it accepts them through the `**settings` keyword arguments. Now `ParserConfig` verifies that 
+  settings passed to it are vaild, eliminating the frustration of passing an incorrect setting 
+  name and hoping it has the intended effect. 
 - Documentation has a better look and improved navigation thanks to using `MyST-Parser` with `Sphinx`
 - [TatSu][] still has no library dependencies for its core functionality, but several libraries are used during its development and testing. [TatSu][] configuration uses `uv` and `hatch`, but several `requirements-xyz.txt` files are generated in favor of those using `pip` with `pyenv`, `virtualenvwrapper`, or `virtualenv`
 - Many of the functions that [TatSu][] defines for its own use are useful in other contexts. Examples are:
