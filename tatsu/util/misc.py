@@ -169,3 +169,7 @@ def fqn(obj: Any) -> str:
     if module and qualname and module != "builtins":
         return f"{module}.{qualname}"
     return qualname or str(obj)
+
+
+def typename(obj: Any) -> str:
+    return type(obj).__name__
