@@ -11,8 +11,6 @@ from ..util.asjson import AsJSONMixin, asjson, asjsons
 
 
 class BaseNode(AsJSONMixin):
-    # __slots__ = ('_BaseNode__attributes', '__weakref__', 'ast', 'parseinfo')
-
     ast: Any
     parseinfo: ParseInfo | None
     __attributes: dict[str, Any]
