@@ -125,7 +125,7 @@ class PythonModelGenerator(IndentPrintMixin):
     def _gen_base_class(self, class_name: str, base: str | None):
         self.print()
         self.print()
-        self.print('@dataclass')
+        self.print('@dataclass(eq=False)')
         if base:
             self.print(f'class {class_name}({base}):')
         else:
@@ -141,7 +141,7 @@ class PythonModelGenerator(IndentPrintMixin):
 
         self.print()
         self.print()
-        self.print('@dataclass')
+        self.print('@dataclass(eq=False)')
         self.print(f'class {spec.class_name}({spec.base}):')
         with self.indent():
             if not arguments:
