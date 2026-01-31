@@ -6,6 +6,7 @@ import keyword
 import types
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
+from types import ModuleType
 from typing import Any
 
 from .objectmodel import Node
@@ -18,10 +19,16 @@ from .util.misc import least_upper_bound_type
 __all__ = [
     'ASTSemantics',
     'ModelBuilderSemantics',
-    'NodesModuleType',
+    'TypeContainer',
 ]
 
-type NodesModuleType = types.ModuleType
+type Constructor = type | Callable
+type TypeContainer = type | ModuleType | Mapping[str, Any]
+
+
+class TypeResolutionError(TypeError):
+    """Raised when a constructor for a node type cannot be found or synthesized"""
+    pass
 
 
 def types_defined_in(container: Any) -> list[type]:
@@ -31,9 +38,9 @@ def types_defined_in(container: Any) -> list[type]:
 @dataclass
 class BuilderConfig(Config):
     nodebase: type = Node
-    nodedefs: NodesModuleType | None = None
     nosynth: bool = False
-    constructors: list[Callable] = field(default_factory=list)
+    nodedefs: list[TypeContainer] = field(default_factory=list)
+    constructors: list[Constructor] = field(default_factory=list)
 
 
 @dataclass
@@ -121,9 +128,9 @@ class ModelBuilderSemantics(AbstractSemantics):
             config: BuilderConfig | None = None,
             nodebase: type | None = None,
             base_type: type | None = None,
-            nodedefs: NodesModuleType | None = None,
+            nodedefs: list[TypeContainer] | None = None,
             nosynth: bool = False,
-            constructors: list[Callable] | None = None,
+            constructors: list[Constructor] | None = None,
             context: Any | None = None,
             types: list[Callable] | None = None,  # for bw compatibility
     ) -> None:
@@ -131,19 +138,25 @@ class ModelBuilderSemantics(AbstractSemantics):
         config = BuilderConfig.new(
             config=config,
             nodebase=nodebase,
-            nodedefs=nodedefs,
             nosynth=nosynth,
+            nodedefs=nodedefs,
             constructors=constructors,
         )
+
+        # handle deeprecations
         if isinstance(base_type, type):
             config = config.override(nodebase=base_type)
         if types is not None:
             config = config.override(constructors=[*(config.constructors or []), *types])
 
         if config.nodedefs:
-            types_in_module = self.types_defined_in(config.nodedefs)
-            all_constructors = [*(config.constructors or []), *types_in_module]
+            contained = []
+            for container in config.nodedefs:
+                contained += self.types_defined_in(container)
+
+            all_constructors = [*config.constructors, *contained]
             config = config.override(constructors=all_constructors)
+
         if config.nodebase is None or config.nodebase is object:
             nodebase = least_upper_bound_type(config.constructors)
             config = config.override(nodebase=nodebase)
@@ -154,9 +167,9 @@ class ModelBuilderSemantics(AbstractSemantics):
         self._constructors: dict[str, Callable] = {}
         for t in config.constructors:
             if not callable(t):
-                raise TypeError(f'Expected callable in types, got: {type(t)!r}')
+                raise TypeResolutionError(f'Expected callable in constructors, got: {type(t)!r}')
             if not hasattr(t, '__name__'):
-                raise TypeError(f'Expected __name__ in callable, got: {t!r}')
+                raise TypeResolutionError(f'Expected __name__ in constructor, got: {t!r}')
             # note: this allows for standalone functions as constructors
             self._register_constructor(t)
 
@@ -197,10 +210,15 @@ class ModelBuilderSemantics(AbstractSemantics):
             return self._constructors[typename]
 
         constructor = self._find_existing_constructor(typename)
-        # FIXME
-        # if not constructor and isinstance(base, type):
-        if not constructor:
+
+        if not constructor and not self.config.nosynth:
             constructor = synthesize(typename, (base,))
+
+        if not constructor:
+            nosynth = bool(self.config.nosynth)
+            raise TypeResolutionError(
+                f'Could not find constructor for type {typename!r}, and {nosynth=} ',
+            )
 
         return self._register_constructor(constructor)
 

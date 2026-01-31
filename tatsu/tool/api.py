@@ -14,7 +14,7 @@ from ..ngcodegen.modelgen import modelgen
 from ..ngcodegen.pythongen import pythongen
 from ..objectmodel import Node
 from ..parser import GrammarGenerator
-from ..semantics import BuilderConfig, ModelBuilderSemantics, NodesModuleType
+from ..semantics import BuilderConfig, Constructor, ModelBuilderSemantics, TypeContainer
 from ..tokenizing import Tokenizer
 
 __all__ = [
@@ -39,12 +39,15 @@ def compile(
     config: ParserConfig | None = None,
     builderconfig: BuilderConfig | None = None,
     nodebase: type | None = None,
-    nodedefs: NodesModuleType | None = None,
     semantics: Any = None,
     asmodel: bool = False,
+    nosynth: bool = False,
+    nodedefs: list[TypeContainer] | None = None,
+    constructors: list[Constructor] | None = None,
     **settings: Any,
 ) -> grammars.Grammar:
-    config = ParserConfig.new(
+    # check parameters
+    ParserConfig.new(
         config=config,
         semantics=semantics,
         name=name,
@@ -63,13 +66,23 @@ def compile(
         gen = GrammarGenerator(name, **settings)
         model = cache[key] = gen.parse(grammar, **settings)
 
+    asmodel = not semantics and (
+        asmodel
+        or isinstance(builderconfig, BuilderConfig)
+        or nodebase is not None
+        or nodedefs is not None
+        or constructors is not None
+    )
     if semantics is not None:
         model.semantics = semantics
     elif asmodel:
+        # HACK: cheating, but necessary for bw-compatibility
         builderconfig = BuilderConfig.new(
             config=builderconfig,
+            nosynth=nosynth,
             nodebase=nodebase,
             nodedefs=nodedefs,
+            constructors=constructors,
         )
         model.semantics = ModelBuilderSemantics(config=builderconfig)
 
@@ -86,8 +99,10 @@ def parse(
     semantics: Any | None = None,
     asmodel: bool = False,
     builderconfig: BuilderConfig | None = None,
-    nodedefs: NodesModuleType | None = None,
     nodebase: type | None = None,
+    nosynth: bool = False,
+    nodedefs: list[TypeContainer] | None = None,
+    constructors: list[Constructor] | None = None,
     **settings: Any,
 ):
     config = ParserConfig.new(
@@ -105,12 +120,15 @@ def parse(
         or isinstance(builderconfig, BuilderConfig)
         or nodebase is not None
         or nodedefs is not None
+        or constructors is not None
     )
     if asmodel:
         builderconfig = BuilderConfig.new(
             config=builderconfig,
+            nosynth=nosynth,
             nodebase=nodebase,
             nodedefs=nodedefs,
+            constructors=constructors,
         )
         config.semantics = ModelBuilderSemantics(config=builderconfig)
     return model.parse(text, start=start, semantics=semantics, config=config)

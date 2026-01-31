@@ -201,7 +201,7 @@ def test_builder_nodedefs():
     """
 
     thismodule = sys.modules[__name__]
-    builderconfig = BuilderConfig(nodedefs=thismodule, nosynth=True)
+    builderconfig = BuilderConfig(nodedefs=[thismodule], nosynth=True)
     ast = parse(grammar, '', builderconfig=builderconfig)
     assert type(ast) is AType
     assert isinstance(ast, BType)
