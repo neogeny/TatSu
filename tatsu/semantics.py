@@ -165,6 +165,7 @@ class ModelBuilderSemantics(AbstractSemantics):
             basetype = least_upper_bound_type(config.constructors)
             config = config.override(basetype=basetype)
 
+        config = config.override(synthok=not constructors)
         self.config = config
         assert config.basetype is not None
 
