@@ -58,6 +58,10 @@ class ParserConfig(Config):
     whitespace: str | None = Undefined  # type: ignore
     parseinfo: bool = False
 
+    # deprecated: some old projects use these
+    owner: Any = None
+    extra: Any = None
+
     def __post_init__(self):  # pylint: disable=W0235
         if self.ignorecase:
             self.keywords = {k.upper() for k in self.keywords}
