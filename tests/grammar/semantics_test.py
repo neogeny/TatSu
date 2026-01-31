@@ -114,7 +114,7 @@ def test_builder_basetype_codegen():
     from tatsu.tool import to_python_model
 
     src = to_python_model(grammar, nodebase=MyNode)
-    print(src)
+    # print(src[:1000])
 
     globals = {}
     exec(src, globals)  # pylint: disable=W0122
@@ -127,9 +127,9 @@ def test_builder_basetype_codegen():
 
     model = compile(grammar, semantics=semantics)
     ast = model.parse('', semantics=semantics)
-    print(f'AST({type(ast)}=', ast)
+    # print(f'AST({type(ast)}=', ast)
 
-    assert isinstance(ast, MyNode)
+    assert not isinstance(ast, MyNode), A.__mro__
     assert isinstance(ast, (A, B, C))
     assert hasattr(ast, 'a')
     assert hasattr(ast, 'b')
