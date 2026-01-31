@@ -129,7 +129,7 @@ def test_builder_basetype_codegen():
     ast = model.parse('', semantics=semantics)
     # print(f'AST({type(ast)}=', ast)
 
-    assert not isinstance(ast, MyNode), A.__mro__
+    assert isinstance(ast, MyNode), A.__mro__
     assert isinstance(ast, (A, B, C))
     assert hasattr(ast, 'a')
     assert hasattr(ast, 'b')

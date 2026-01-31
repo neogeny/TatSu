@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import itertools
 import re
 import shutil
 from collections import defaultdict
@@ -185,9 +186,10 @@ def typename(obj: Any) -> str:
 
 
 def least_upper_bound_type(constructors: Sequence[Constructor]) -> type:
-    if not constructors:
-        return object
+    # by [apalala@gmail.com](https://github.com/apalala)
+    # by Gemini (2026-01-30)
 
+    # Caller is responsible for filtering constructors to relevant types
     types_ = [t for t in constructors if isinstance(t, type)]
 
     if not types_:
@@ -195,16 +197,30 @@ def least_upper_bound_type(constructors: Sequence[Constructor]) -> type:
     if len(types_) == 1:
         return types_[0]
 
-    edges: list[tuple[type, type]] = []
-    for i, a in enumerate(types_):
-        for b in types_[i + 1:]:
-            if issubclass(a, b):
-                edges.append((a, b))
-            elif issubclass(b, a):
-                edges.append((b, a))
+    nodes: set[type] = set()
+    edges: set[tuple[type, type]] = set()
+
+    for t in types_:
+        # mro[1:] focuses on the skeleton/ancestors
+        ancestors = t.__mro__[1:]
+        nodes.update(ancestors)
+
+        edges.update((child, parent) for child, parent in itertools.pairwise(ancestors))
+
+    if not nodes:
+        return object
+
     try:
-        topsorted = topsort(types_, edges)
+        topsorted = topsort(list(nodes), list(edges))
     except CycleError:
         return object
-    else:
-        return topsorted[-1]
+
+    # The LUB is the most specific ancestor that covers all provided types
+    # Since child -> parent, we check from the most specific in the sort
+    return first(
+        (
+            parent for parent in topsorted
+            if all(issubclass(t, parent) for t in types_)
+        ),
+        default=object,
+    )
