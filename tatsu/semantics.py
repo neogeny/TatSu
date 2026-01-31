@@ -146,6 +146,7 @@ class ModelBuilderSemantics(AbstractSemantics):
             typedefs=typedefs,
             constructors=constructors,
         )
+        self._constructor_registry: dict[str, Constructor] = {}
 
         # handle deeprecations
         if isinstance(base_type, type):
@@ -153,40 +154,50 @@ class ModelBuilderSemantics(AbstractSemantics):
         if types is not None:
             config = config.override(constructors=[*(config.constructors or []), *types])
 
-        if config.typedefs:
-            contained = []
-            for container in config.typedefs:
-                contained += self.types_defined_in(container)
+        config = self._typedefs_to_constructors(config)
+        config = self._narrow_basetype(config)
+        self._register_constructors(config)
 
-            all_constructors = [*config.constructors, *contained]
-            config = config.override(constructors=all_constructors)
-
-        if config.basetype is None or config.basetype is object:
-            basetype = least_upper_bound_type(config.constructors)
-            config = config.override(basetype=basetype)
-
-        config = config.override(synthok=not constructors)
         self.config = config
-        assert config.basetype is not None
+        # HACK!
+        self.config = self.config.override(synthok=not constructors)
 
-        self._constructors: dict[str, Constructor] = {}
+    def _typedefs_to_constructors(self, config: BuilderConfig) -> BuilderConfig:
+        if not config.typedefs:
+            return config
+
+        contained = []
+        for container in config.typedefs:
+            contained += self.types_defined_in(container)
+
+        all_constructors = [*config.constructors, *contained]
+        return config.override(constructors=all_constructors)
+
+    def _narrow_basetype(self, config: BuilderConfig) -> BuilderConfig:
+        if config.basetype and config.basetype is not object:
+            return config
+        basetype = least_upper_bound_type(config.constructors)
+        return config.override(basetype=basetype)
+
+    def _register_constructors(self, config: BuilderConfig) -> None:
         for t in config.constructors:
             if not callable(t):
                 raise TypeResolutionError(f'Expected callable in constructors, got: {type(t)!r}')
             if not hasattr(t, '__name__'):
-                raise TypeResolutionError(f'Expected __name__ in constructor, got: {t!r}')
-            # note: this allows for standalone functions as constructors
+                raise TypeResolutionError(f'Expected __name__ in constructor, got: {type(t)!r}')
+
+            # NOTE: this allows for standalone functions as constructors
             self._register_constructor(t)
 
     def safe_context(self, /, *other: Mapping[str, Any]) -> Mapping[str, Any]:
-        return super().safe_context(self._constructors, *other)
+        return super().safe_context(self._constructor_registry, *other)
 
     def _register_constructor(self, constructor: Constructor) -> Constructor:
         name = getattr(constructor, '__name__', None)
         if not name:
             return constructor
 
-        existing = self._constructors.get(name)
+        existing = self._constructor_registry.get(name)
         if existing and existing is not constructor:
             raise TypeResolutionError(
                 f"Conflict for constructor name {name!r}: "
@@ -194,14 +205,14 @@ class ModelBuilderSemantics(AbstractSemantics):
                 f"but {existing!r} is already registered.",
             )
 
-        self._constructors[name] = constructor
+        self._constructor_registry[name] = constructor
         return constructor
 
     # by [apalala@gmail.com](https://github.com/apalala)
     # by Gemini (2026-01-31)
     def _find_existing_constructor(self, typename: str) -> Constructor | None:
         return (
-            self._constructors.get(typename)
+            self._constructor_registry.get(typename)
             or vars(builtins).get(typename)
         )
 
