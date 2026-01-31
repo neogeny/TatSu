@@ -83,10 +83,11 @@ class AbstractSemantics:
         else:
             return []
 
-        return [
-            t for t in contents.values()
-            if isinstance(t, type)
-        ]
+        types_ = [t for t in contents.values() if isinstance(t, type)]
+        name = getattr(container, '__name__', None)
+        if name is None:
+            return types_
+        return [t for t in types_ if t.__module__ == name]
 
 
 class ASTSemantics(AbstractSemantics):
