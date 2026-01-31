@@ -205,22 +205,15 @@ class ModelBuilderSemantics(AbstractSemantics):
         )
 
     def _get_constructor(self, typename: str, base: type) -> Constructor:
-        typename = str(typename)
-
-        if typename in self._constructors:
-            return self._constructors[typename]
-
         constructor = self._find_existing_constructor(typename)
-
-        if not constructor and not self.config.nosynth:
-            constructor = synthesize(typename, (base,))
-
         if not constructor:
             nosynth = bool(self.config.nosynth)
-            raise TypeResolutionError(
-                f'Could not find constructor for type {typename!r}, and {nosynth=} ',
-            )
-
+            if not nosynth:
+                constructor = synthesize(typename, (base,))
+            else:
+                raise TypeResolutionError(
+                    f'Could not find constructor for type {typename!r}, and {nosynth=} ',
+                )
         return self._register_constructor(constructor)
 
     def _find_actual_params(
