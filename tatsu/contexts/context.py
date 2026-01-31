@@ -42,7 +42,7 @@ from ..util import (
 )
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from .infos import MemoKey, RuleResult, closure
-from .parsestate import ParseState, ParseStateStack
+from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, EventTracerImpl
 
 __all__: list[str] = ['ParseContext']
