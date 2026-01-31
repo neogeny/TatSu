@@ -7,8 +7,14 @@ Parser Configuration
 |TatSu| has many configuration options. They are all defined in
 ``tatsu.parserconfig.ParserConfig``. With the introduction of ``ParserConfig``
 there's no need to declare every configuration parameter as an optional named
-argument in entry points and internal methods. The defaults set in
-``ParserConfig`` are suitable for most cases, and they are easy to override.
+argument in entry points and internal methods.
+
+The defaults set in ``ParserConfig`` are suitable for most cases, and they are
+easy to override.
+
+Entry points still accept configuration options as named keyword arguments, but
+those are gathered in ``**settings`` (aka ``**kwargs``) argument for a``ParserConfig``
+to validate in due time.
 
 .. code:: python
 
