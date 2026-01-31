@@ -228,17 +228,17 @@ class ModelBuilderSemantics(AbstractSemantics):
                 )
         return self._register_constructor(constructor)
 
-    def _find_actual_params(
+    # by [apalala@gmail.com](https://github.com/apalala)
+    # by Gemini (2026-01-31)
+    def _actual_params(
             self,
             fun: Callable,
             ast: Any,
             args: Iterable[Any],
             kwargs: Mapping[str, Any],
     ) -> ActualParameters:
-        fun_name = ''
-        if hasattr(fun, '__name__'):
-            fun_name = fun.__name__
-        if fun_name and fun_name in vars(builtins):
+        fun_name = getattr(fun, '__name__', None)
+        if fun_name in vars(builtins):
             return ActualParameters(params=[ast])
 
         known_params = {
@@ -246,20 +246,24 @@ class ModelBuilderSemantics(AbstractSemantics):
             'exp': ast,
             'kwargs': {},
         }
+
         actual = ActualParameters()
         declared = inspect.signature(fun).parameters
 
-        for name, value in known_params.items():
-            if name not in declared:
-                continue
-            param = declared[name]
-            match param.kind:
-                case inspect.Parameter.POSITIONAL_ONLY | inspect.Parameter.POSITIONAL_OR_KEYWORD:
-                    actual.add_param(name, value)
-                case inspect.Parameter.KEYWORD_ONLY:
-                    actual.add_kwparam(name, value)
-                case _:
-                    pass
+        # CAVEAT: if there's exactly one parameter, we map 'ast' to it
+        is_single_param = len(declared) == 1
+
+        for name, param in declared.items():
+            # 1. Match by name or apply the "Single Parameter" injection
+            if name in known_params or is_single_param:
+                value = known_params.get(name, ast)  # note: inject ast
+                match param.kind:
+                    case inspect.Parameter.KEYWORD_ONLY:
+                        actual.add_kwparam(name, value)
+                    case inspect.Parameter.POSITIONAL_ONLY | inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                        actual.add_param(name, value)
+                    case _:
+                        pass
 
         for param in declared.values():
             match param.kind:
@@ -267,12 +271,7 @@ class ModelBuilderSemantics(AbstractSemantics):
                     actual.add_args(args)
                 case inspect.Parameter.VAR_KEYWORD:
                     actual.add_kwargs(kwargs)
-                case _:
-                    pass
 
-        if not actual.has_any_params() and len(declared) == 1:
-            actual.params = [ast]
-        # else: No parameters
         return actual
 
     def _default(self, ast: Any, *args: Any, **kwargs: Any) -> Any:
@@ -303,5 +302,5 @@ class ModelBuilderSemantics(AbstractSemantics):
 
         constructor = self._get_constructor(typename, base=basetype)
 
-        actual = self._find_actual_params(constructor, ast, args[1:], kwargs)
+        actual = self._actual_params(constructor, ast, args[1:], kwargs)
         return constructor(*actual.params, **actual.kwparams)
