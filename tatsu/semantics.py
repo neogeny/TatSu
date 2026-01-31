@@ -10,7 +10,7 @@ from types import ModuleType
 from typing import Any
 
 from .objectmodel import Node
-from .synth import registered_synthetics, synthesize
+from .synth import synthesize
 from .util import simplify_list
 from .util.configs import Config
 from .util.deprecation import deprecated_params
@@ -90,11 +90,14 @@ class AbstractSemantics:
         else:
             return []
 
-        types_ = [t for t in contents.values() if isinstance(t, type)]
-        name = getattr(container, '__name__', None)
+        type_list = [t for t in contents.values() if isinstance(t, type)]
+        name = (
+            getattr(container, '__module__', None)
+            or getattr(container, '__name__', None)
+        )
         if name is None:
-            return types_
-        return [t for t in types_ if t.__module__ == name]
+            return type_list
+        return [t for t in type_list if t.__module__ == name]
 
 
 class ASTSemantics(AbstractSemantics):
@@ -165,7 +168,7 @@ class ModelBuilderSemantics(AbstractSemantics):
         self.config = config
         assert config.basetype is not None
 
-        self._constructors: dict[str, Callable] = {}
+        self._constructors: dict[str, Constructor] = {}
         for t in config.constructors:
             if not callable(t):
                 raise TypeResolutionError(f'Expected callable in constructors, got: {type(t)!r}')
@@ -177,34 +180,31 @@ class ModelBuilderSemantics(AbstractSemantics):
     def safe_context(self, /, *other: Mapping[str, Any]) -> Mapping[str, Any]:
         return super().safe_context(self._constructors, *other)
 
-    def _register_constructor(self, constructor: Callable) -> Callable:
-        if hasattr(constructor, '__name__') and isinstance(constructor.__name__, str):
-            self._constructors[str(constructor.__name__)] = constructor
-        return constructor
-
-    def _find_existing_constructor(self, typename: str) -> Callable | None:
-        context: Mapping[str, Any] = (
-                self._constructors |
-                vars(builtins) |
-                registered_synthetics()
-        )
-        constructor = context.get(typename)
-        if constructor is not None:
+    def _register_constructor(self, constructor: Constructor) -> Constructor:
+        name = getattr(constructor, '__name__', None)
+        if not name:
             return constructor
 
-        for name in reversed(typename.split('.')[:-1]):
-            if name not in context:
-                break
+        existing = self._constructors.get(name)
+        if existing and existing is not constructor:
+            raise TypeResolutionError(
+                f"Conflict for constructor name {name!r}: "
+                f"attempted to register {constructor!r}, "
+                f"but {existing!r} is already registered.",
+            )
 
-            constructor = context[name]
-            if hasattr(constructor, '__dict__'):
-                context = vars(constructor)
-            else:
-                context = {}
-
+        self._constructors[name] = constructor
         return constructor
 
-    def _get_constructor(self, typename: str, base: type) -> type | Callable:
+    # by [apalala@gmail.com](https://github.com/apalala)
+    # by Gemini (2026-01-31)
+    def _find_existing_constructor(self, typename: str) -> Constructor | None:
+        return (
+            self._constructors.get(typename)
+            or vars(builtins).get(typename)
+        )
+
+    def _get_constructor(self, typename: str, base: type) -> Constructor:
         typename = str(typename)
 
         if typename in self._constructors:
