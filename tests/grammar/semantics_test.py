@@ -113,7 +113,7 @@ def test_builder_basetype_codegen():
 
     from tatsu.tool import to_python_model
 
-    src = to_python_model(grammar, nodebase=MyNode)
+    src = to_python_model(grammar, basetype=MyNode)
     # print(src[:1000])
 
     globals = {}
@@ -187,7 +187,7 @@ def test_builder_types():
         start::AType::BType = $ ;
     """
 
-    builderconfig = BuilderConfig(nodebase=BType, constructors=[AType, BType])
+    builderconfig = BuilderConfig(basetype=BType, constructors=[AType, BType])
     ast = parse(grammar, '', builderconfig=builderconfig)
     assert type(ast) is AType
     assert isinstance(ast, BType)
@@ -201,7 +201,7 @@ def test_builder_nodedefs():
     """
 
     thismodule = sys.modules[__name__]
-    builderconfig = BuilderConfig(nodedefs=[thismodule], nosynth=True)
+    builderconfig = BuilderConfig(typedefs=[thismodule], nosynth=True)
     ast = parse(grammar, '', builderconfig=builderconfig)
     assert type(ast) is AType
     assert isinstance(ast, BType)

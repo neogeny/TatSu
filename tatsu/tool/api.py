@@ -37,12 +37,12 @@ def compile(
     name: str | None = None,
     *,
     config: ParserConfig | None = None,
-    builderconfig: BuilderConfig | None = None,
-    nodebase: type | None = None,
+    basetype: type | None = None,
     semantics: Any = None,
     asmodel: bool = False,
+    builderconfig: BuilderConfig | None = None,
     nosynth: bool = False,
-    nodedefs: list[TypeContainer] | None = None,
+    typedefs: list[TypeContainer] | None = None,
     constructors: list[Constructor] | None = None,
     **settings: Any,
 ) -> grammars.Grammar:
@@ -69,8 +69,8 @@ def compile(
     asmodel = not semantics and (
         asmodel
         or isinstance(builderconfig, BuilderConfig)
-        or nodebase is not None
-        or nodedefs is not None
+        or basetype is not None
+        or typedefs is not None
         or constructors is not None
     )
     if semantics is not None:
@@ -80,8 +80,8 @@ def compile(
         builderconfig = BuilderConfig.new(
             config=builderconfig,
             nosynth=nosynth,
-            nodebase=nodebase,
-            nodedefs=nodedefs,
+            basetype=basetype,
+            typedefs=typedefs,
             constructors=constructors,
         )
         model.semantics = ModelBuilderSemantics(config=builderconfig)
@@ -99,9 +99,9 @@ def parse(
     semantics: Any | None = None,
     asmodel: bool = False,
     builderconfig: BuilderConfig | None = None,
-    nodebase: type | None = None,
+    basetype: type | None = None,
     nosynth: bool = False,
-    nodedefs: list[TypeContainer] | None = None,
+    typedefs: list[TypeContainer] | None = None,
     constructors: list[Constructor] | None = None,
     **settings: Any,
 ):
@@ -118,16 +118,16 @@ def parse(
     asmodel = not config.semantics and (
         asmodel
         or isinstance(builderconfig, BuilderConfig)
-        or nodebase is not None
-        or nodedefs is not None
+        or basetype is not None
+        or typedefs is not None
         or constructors is not None
     )
     if asmodel:
         builderconfig = BuilderConfig.new(
             config=builderconfig,
             nosynth=nosynth,
-            nodebase=nodebase,
-            nodedefs=nodedefs,
+            basetype=basetype,
+            typedefs=typedefs,
             constructors=constructors,
         )
         config.semantics = ModelBuilderSemantics(config=builderconfig)
@@ -155,7 +155,7 @@ def to_python_model(
     grammar: str, /, *,
     name: str | None = None,
     filename: str | None = None,
-    nodebase: type = Node,
+    basetype: type = Node,
     config: ParserConfig | None = None,
     **settings: Any,
 ):
@@ -166,7 +166,7 @@ def to_python_model(
         **settings,
     )
     model = compile(grammar, name=name, filename=filename, config=config)
-    return modelgen(model, nodebase=nodebase)
+    return modelgen(model, basetype=basetype)
 
 
 # for backwards compatibility. Use `compile()` instead

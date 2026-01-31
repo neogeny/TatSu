@@ -35,47 +35,47 @@ HEADER = """\
         def __init__(self, constructors=None, **kwargs):
             constructors = constructors or []
             constructors += self.types_defined_in(globals())
-            super().__init__(nodebase={nodebase}, constructors=constructors, **kwargs)
+            super().__init__(basetype={basetype}, constructors=constructors, **kwargs)
 """
 
 
 BaseClassSpec = namedtuple('BaseClassSpec', ['class_name', 'base'])
 
 
-@deprecated_params(base_type='nodebase')
+@deprecated_params(base_type='basetype')
 def modelgen(
         model: grammars.Grammar,
         name: str = '',
-        nodebase: type = Node,
+        basetype: type = Node,
         base_type: type | None = None,
 ) -> str:
     if isinstance(base_type, type):
-        nodebase = base_type
+        basetype = base_type
 
-    generator = PythonModelGenerator(name=name, nodebase=nodebase)
+    generator = PythonModelGenerator(name=name, basetype=basetype)
     return generator.generate_model(model)
 
 
 class PythonModelGenerator(IndentPrintMixin):
 
-    def __init__(self, name: str = '', nodebase: type = Node, base_type: type | None = None):
+    def __init__(self, name: str = '', basetype: type = Node, base_type: type | None = None):
         if isinstance(base_type, type):
-            nodebase = base_type
-        nodebase = nodebase or Node
+            basetype = base_type
+        basetype = basetype or Node
         super().__init__()
-        self.nodebase = nodebase
+        self.basetype = basetype
         self.name = name or None
 
     def generate_model(self, grammar: grammars.Grammar):
-        nodebase = self.nodebase
-        nodebase_name = nodebase.__name__.split('.')[-1]
-        nodebase_import = f"from {nodebase.__module__} import {nodebase_name}"
+        basetype = self.basetype
+        nodebase_name = basetype.__name__.split('.')[-1]
+        nodebase_import = f"from {basetype.__module__} import {nodebase_name}"
 
         self.name = self.name or grammar.name
         self.print(
             HEADER.format(
                 name=self.name,
-                nodebase=self.nodebase.__name__,
+                basetype=self.basetype.__name__,
                 nodebase_import=nodebase_import,
             ),
         )

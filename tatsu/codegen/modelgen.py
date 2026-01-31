@@ -22,12 +22,12 @@ class ModelBase(Node):
 """
 
 
-@deprecated_params(base_type='nodebase')
+@deprecated_params(base_type='basetype')
 @deprecated(replacement=ngcodegen.modelgen)
-def modelgen(model, nodebase: type | None = None, base_type: type | None = None):
+def modelgen(model, basetype: type | None = None, base_type: type | None = None):
     if isinstance(base_type, type):
-        nodebase = base_type
-    return ObjectModelCodeGenerator().render(model, nodebase=nodebase)
+        basetype = base_type
+    return ObjectModelCodeGenerator().render(model, basetype=basetype)
 
 
 def _get_node_class_name(rule):
@@ -85,16 +85,16 @@ def _get_full_name(cls):
     return modulename, name
 
 
-@deprecated_params(base_type='nodebase')
+@deprecated_params(base_type='basetype')
 class BaseTypeRenderer(Renderer):
-    def __init__(self, nodebase: type | None = None, base_type: type | None = None):
+    def __init__(self, basetype: type | None = None, base_type: type | None = None):
         if isinstance(base_type, type):
-            nodebase = base_type
+            basetype = base_type
         super().__init__()
-        self.nodebase = nodebase
+        self.basetype = basetype
 
     def render_fields(self, fields):
-        module, name = _get_full_name(self.nodebase)
+        module, name = _get_full_name(self.basetype)
         if '.' in name:
             lookup = f'\nModelBase = {name}'
             name = name.split('.')[0]
@@ -194,15 +194,15 @@ class Grammar(ModelRenderer):
 
         version = datetime.now().strftime('%Y.%m.%d.%H')
 
-        nodebase = fields['nodebase']
+        basetype = fields['basetype']
 
         fields.update(
             name=self.node.name,
             base_class_declarations=base_class_declarations,
             model_class_declarations=model_class_declarations,
             version=version,
-            nodebase=BaseTypeRenderer(nodebase).render()
-            if nodebase
+            basetype=BaseTypeRenderer(basetype).render()
+            if basetype
             else DEFAULT_BASE_TYPE,
         )
 
@@ -226,7 +226,7 @@ class Grammar(ModelRenderer):
                 from tatsu.objectmodel import Node
                 from tatsu.semantics import ModelBuilderSemantics
 
-                {nodebase}
+                {basetype}
 
                 class {name}ModelBuilderSemantics(ModelBuilderSemantics):
                     def __init__(self, context=None, types=None):

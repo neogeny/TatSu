@@ -37,9 +37,9 @@ def types_defined_in(container: Any) -> list[type]:
 
 @dataclass
 class BuilderConfig(Config):
-    nodebase: type = Node
+    basetype: type = Node
     nosynth: bool = False
-    nodedefs: list[TypeContainer] = field(default_factory=list)
+    typedefs: list[TypeContainer] = field(default_factory=list)
     constructors: list[Constructor] = field(default_factory=list)
 
 
@@ -119,50 +119,51 @@ class ModelBuilderSemantics(AbstractSemantics):
     rule, and synthesizes the class/type if it's not known.
     """
     @deprecated_params(
-        base_type='nodebase',
+        base_type='basetype',
         types='constructors',
         context=None,
     )
     def __init__(
             self,
             config: BuilderConfig | None = None,
-            nodebase: type | None = None,
-            base_type: type | None = None,
-            nodedefs: list[TypeContainer] | None = None,
             nosynth: bool = False,
+            basetype: type | None = None,
+            typedefs: list[TypeContainer] | None = None,
             constructors: list[Constructor] | None = None,
+            # deprecations
             context: Any | None = None,
+            base_type: type | None = None,
             types: list[Callable] | None = None,  # for bw compatibility
     ) -> None:
         assert context is None
         config = BuilderConfig.new(
             config=config,
-            nodebase=nodebase,
+            basetype=basetype,
             nosynth=nosynth,
-            nodedefs=nodedefs,
+            typedefs=typedefs,
             constructors=constructors,
         )
 
         # handle deeprecations
         if isinstance(base_type, type):
-            config = config.override(nodebase=base_type)
+            config = config.override(basetype=base_type)
         if types is not None:
             config = config.override(constructors=[*(config.constructors or []), *types])
 
-        if config.nodedefs:
+        if config.typedefs:
             contained = []
-            for container in config.nodedefs:
+            for container in config.typedefs:
                 contained += self.types_defined_in(container)
 
             all_constructors = [*config.constructors, *contained]
             config = config.override(constructors=all_constructors)
 
-        if config.nodebase is None or config.nodebase is object:
-            nodebase = least_upper_bound_type(config.constructors)
-            config = config.override(nodebase=nodebase)
+        if config.basetype is None or config.basetype is object:
+            basetype = least_upper_bound_type(config.constructors)
+            config = config.override(basetype=basetype)
 
         self.config = config
-        assert config.nodebase is not None
+        assert config.basetype is not None
 
         self._constructors: dict[str, Callable] = {}
         for t in config.constructors:
@@ -289,13 +290,13 @@ class ModelBuilderSemantics(AbstractSemantics):
         typename = typespec[0]
         bases = reversed(typespec)
 
-        nodebase = self.config.nodebase
+        basetype = self.config.basetype
         for base_ in bases:
-            defined = self._get_constructor(base_, base=nodebase)
+            defined = self._get_constructor(base_, base=basetype)
             if isinstance(defined, type):
-                nodebase = defined
+                basetype = defined
 
-        constructor = self._get_constructor(typename, base=nodebase)
+        constructor = self._get_constructor(typename, base=basetype)
 
         actual = self._find_actual_params(constructor, ast, args[1:], kwargs)
         return constructor(*actual.params, **actual.kwparams)
