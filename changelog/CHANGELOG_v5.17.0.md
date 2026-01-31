@@ -88,6 +88,7 @@ Every effort has been made to preserve backwards compatibility by keeping mosts 
 - [TatSu][] still has no library dependencies for its core functionality, but several libraries 
   are used during its development and testing. The [TatSu][] development configuration uses `uv` 
   and `hatch`, but several `requirements-xyz.txt` files are generated in favor of those using `pip` with `pyenv`, `virtualenvwrapper`, or `virtualenv`
+- All pre-existing grammars, and the generated parsers and models for them, are compatible with this version of [TatSu][]. 
 - Many of the functions that [TatSu][] defines for its own use are useful in other contexts. Some examples are:
 ```python
 	from tatsu.notnone import Undefined
