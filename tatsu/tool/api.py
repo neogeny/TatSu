@@ -41,7 +41,7 @@ def compile(
     semantics: Any = None,
     asmodel: bool = False,
     builderconfig: BuilderConfig | None = None,
-    nosynth: bool = False,
+    synthok: bool = True,
     typedefs: list[TypeContainer] | None = None,
     constructors: list[Constructor] | None = None,
     **settings: Any,
@@ -79,7 +79,7 @@ def compile(
         # HACK: cheating, but necessary for bw-compatibility
         builderconfig = BuilderConfig.new(
             config=builderconfig,
-            nosynth=nosynth,
+            synthok=synthok,
             basetype=basetype,
             typedefs=typedefs,
             constructors=constructors,
@@ -100,7 +100,7 @@ def parse(
     asmodel: bool = False,
     builderconfig: BuilderConfig | None = None,
     basetype: type | None = None,
-    nosynth: bool = False,
+    synthok: bool = True,
     typedefs: list[TypeContainer] | None = None,
     constructors: list[Constructor] | None = None,
     **settings: Any,
@@ -125,7 +125,7 @@ def parse(
     if asmodel:
         builderconfig = BuilderConfig.new(
             config=builderconfig,
-            nosynth=nosynth,
+            synthok=synthok,
             basetype=basetype,
             typedefs=typedefs,
             constructors=constructors,

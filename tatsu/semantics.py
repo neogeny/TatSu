@@ -38,7 +38,7 @@ def types_defined_in(container: Any) -> list[type]:
 @dataclass
 class BuilderConfig(Config):
     basetype: type = Node
-    nosynth: bool = False
+    synthok: bool = True
     typedefs: list[TypeContainer] = field(default_factory=list)
     constructors: list[Constructor] = field(default_factory=list)
 
@@ -129,7 +129,7 @@ class ModelBuilderSemantics(AbstractSemantics):
     def __init__(
             self,
             config: BuilderConfig | None = None,
-            nosynth: bool = False,
+            synthok: bool = True,
             basetype: type | None = None,
             typedefs: list[TypeContainer] | None = None,
             constructors: list[Constructor] | None = None,
@@ -142,7 +142,7 @@ class ModelBuilderSemantics(AbstractSemantics):
         config = BuilderConfig.new(
             config=config,
             basetype=basetype,
-            nosynth=nosynth,
+            synthok=synthok,
             typedefs=typedefs,
             constructors=constructors,
         )
@@ -207,12 +207,12 @@ class ModelBuilderSemantics(AbstractSemantics):
     def _get_constructor(self, typename: str, base: type) -> Constructor:
         constructor = self._find_existing_constructor(typename)
         if not constructor:
-            nosynth = bool(self.config.nosynth)
-            if not nosynth:
+            synthok = bool(self.config.synthok)
+            if synthok:
                 constructor = synthesize(typename, (base,))
             else:
                 raise TypeResolutionError(
-                    f'Could not find constructor for type {typename!r}, and {nosynth=} ',
+                    f'Could not find constructor for type {typename!r}, and {synthok=} ',
                 )
         return self._register_constructor(constructor)
 
