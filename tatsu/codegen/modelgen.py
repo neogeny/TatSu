@@ -115,7 +115,7 @@ class BaseClassRenderer(Renderer):
         self.base = spec.base
 
     template = """
-        @dataclass(eq=False)
+        @dataclass(eq=False, repr=False, match_args=False, kw_only=True)
         class {class_name}({base}):
             pass\
         """
@@ -147,7 +147,7 @@ class Rule(ModelRenderer):
         )
 
     template = """
-        @dataclass(eq=False)
+        @dataclass(eq=False, repr=False, match_args=False, kw_only=True)
         class {class_name}({base}):
         {kwargs}\
         """

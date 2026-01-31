@@ -30,6 +30,7 @@ HEADER = """\
     from tatsu.semantics import ModelBuilderSemantics
     {nodebase_import}
 
+    DCCONF = dict(eq=False, repr=False, match_args=False, kw_only=True)
 
     class {name}ModelBuilderSemantics(ModelBuilderSemantics):
         def __init__(self, constructors=None, **kwargs):
@@ -122,10 +123,13 @@ class PythonModelGenerator(IndentPrintMixin):
     def _model_base_name():
         return 'ModelBase'
 
+    def _print_dataclass(self):
+        self.print('@dataclass(**DCCONF)')
+
     def _gen_base_class(self, class_name: str, base: str | None):
         self.print()
         self.print()
-        self.print('@dataclass(eq=False)')
+        self._print_dataclass()
         if base:
             self.print(f'class {class_name}({base}):')
         else:
@@ -141,7 +145,7 @@ class PythonModelGenerator(IndentPrintMixin):
 
         self.print()
         self.print()
-        self.print('@dataclass(eq=False)')
+        self._print_dataclass()
         self.print(f'class {spec.class_name}({spec.base}):')
         with self.indent():
             if not arguments:
