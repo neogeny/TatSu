@@ -56,6 +56,9 @@ exclude = [
 
 target-version = "py312"
 
+[lint.pylint]
+max-branches = 16
+
 [lint.per-file-ignores]
 
 [lint.mccabe]
