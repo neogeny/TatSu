@@ -162,6 +162,9 @@ class ModelBuilderSemantics(AbstractSemantics):
         # HACK!
         self.config = self.config.override(synthok=not constructors)
 
+    def _funname(self, obj: Any) -> str | None:
+        return getattr(obj, '__name__', None)
+
     def _typedefs_to_constructors(self, config: BuilderConfig) -> BuilderConfig:
         if not config.typedefs:
             return config
@@ -183,7 +186,9 @@ class ModelBuilderSemantics(AbstractSemantics):
         for t in config.constructors:
             if not callable(t):
                 raise TypeResolutionError(f'Expected callable in constructors, got: {type(t)!r}')
-            if not hasattr(t, '__name__'):
+
+            name = self._funname(t)
+            if not name:
                 raise TypeResolutionError(f'Expected __name__ in constructor, got: {type(t)!r}')
 
             # NOTE: this allows for standalone functions as constructors
@@ -193,7 +198,7 @@ class ModelBuilderSemantics(AbstractSemantics):
         return super().safe_context(self._constructor_registry, *other)
 
     def _register_constructor(self, constructor: Constructor) -> Constructor:
-        name = getattr(constructor, '__name__', None)
+        name = self._funname(constructor)
         if not name:
             return constructor
 
@@ -237,8 +242,8 @@ class ModelBuilderSemantics(AbstractSemantics):
             args: Iterable[Any],
             kwargs: Mapping[str, Any],
     ) -> ActualParameters:
-        fun_name = getattr(fun, '__name__', None)
-        if fun_name in vars(builtins):
+        funname = self._funname(fun)
+        if funname in vars(builtins):
             return ActualParameters(params=[ast])
 
         known_params = {
@@ -250,28 +255,34 @@ class ModelBuilderSemantics(AbstractSemantics):
         actual = ActualParameters()
         declared = inspect.signature(fun).parameters
 
-        # CAVEAT: if there's exactly one parameter, we map 'ast' to it
-        is_single_param = len(declared) == 1
-
         for name, param in declared.items():
             # 1. Match by name or apply the "Single Parameter" injection
-            if name in known_params or is_single_param:
-                value = known_params.get(name, ast)  # note: inject ast
-                match param.kind:
-                    case inspect.Parameter.KEYWORD_ONLY:
-                        actual.add_kwparam(name, value)
-                    case inspect.Parameter.POSITIONAL_ONLY | inspect.Parameter.POSITIONAL_OR_KEYWORD:
-                        actual.add_param(name, value)
-                    case _:
-                        pass
+            if name not in known_params:
+                continue
 
-        for param in declared.values():
+            value = known_params[name]
             match param.kind:
+                case inspect.Parameter.KEYWORD_ONLY:
+                    actual.add_kwparam(name, value)
+                case inspect.Parameter.POSITIONAL_ONLY:
+                    actual.add_param(name, value)
+                case inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                    actual.add_kwparam(name, value)
+                case _:
+                    pass
+
+        for name, param in declared.items():
+            if name in known_params:
+                continue
+            match param.kind:
+                case inspect.Parameter.POSITIONAL_ONLY:
+                    actual.add_param(name, ast)
+                case inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                    actual.add_kwparam(name, ast)
                 case inspect.Parameter.VAR_POSITIONAL:
                     actual.add_args(args)
                 case inspect.Parameter.VAR_KEYWORD:
                     actual.add_kwargs(kwargs)
-
         return actual
 
     def _default(self, ast: Any, *args: Any, **kwargs: Any) -> Any:
