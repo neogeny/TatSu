@@ -215,7 +215,7 @@ class Buffer(Tokenizer):
         if self.atend():
             return None
         c = self.text[self._pos]
-        self._pos += 1
+        self.goto(self._pos + 1)
         return c
 
     def goto(self, pos: int):
