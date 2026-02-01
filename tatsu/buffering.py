@@ -45,7 +45,7 @@ class Buffer(Tokenizer):
             if config.nameguard is not None
             else bool(self.whitespace_re) or bool(config.namechars)
         )
-        self._namechar_set = set(config.namechars)
+        self._namechar_set = set(config.namechars or '')
 
         self._pos = 0
         self._len = 0
