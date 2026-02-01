@@ -24,19 +24,29 @@ HEADER = """\
 
     from __future__ import annotations
 
+    import dataclasses
     from typing import Any
-    from dataclasses import dataclass
 
     from tatsu.semantics import ModelBuilderSemantics
     {nodebase_import}
 
-    DCCONF = dict(eq=False, repr=False, match_args=False, kw_only=True)
 
     class {name}ModelBuilderSemantics(ModelBuilderSemantics):
         def __init__(self, constructors=None, **kwargs):
             constructors = constructors or []
             constructors += self.types_defined_in(globals())
             super().__init__(basetype={basetype}, constructors=constructors, **kwargs)
+
+
+    def 竜dataclass(decl: type) -> type:
+        tatsu_dataclass = dataclasses.dataclass(
+            init=False,
+            eq=False,
+            repr=False,
+            match_args=False,
+            kw_only=True,
+        )
+        return tatsu_dataclass(decl)
 """
 
 
@@ -124,7 +134,7 @@ class PythonModelGenerator(IndentPrintMixin):
         return 'ModelBase'
 
     def _print_dataclass(self):
-        self.print('@dataclass(**DCCONF)')
+        self.print('@竜dataclass')
 
     def _gen_base_class(self, class_name: str, base: str | None):
         self.print()

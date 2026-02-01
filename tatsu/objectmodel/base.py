@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import inspect
 import warnings
 import weakref
@@ -15,13 +16,6 @@ class BaseNode(AsJSONMixin):
     parseinfo: ParseInfo | None
     __attributes: dict[str, Any]
 
-    def __new__(cls, *args: Any, **kwargs: Any) -> Any:
-        obj = super().__new__(cls)
-        obj.ast = None
-        obj.parseinfo = None
-        obj.__attributes = {}
-        return obj
-
     def __init__(self, ast: Any = None, **kwargs: Any):
         super().__init__()
         self.ast: Any = ast
@@ -32,6 +26,7 @@ class BaseNode(AsJSONMixin):
             self.parseinfo = ast['parseinfo']
 
         allargs = ast | kwargs if isinstance(self.ast, AST) else kwargs
+        self.__init_dataclass()
         self.__set_attributes(**allargs)
 
     def set_parseinfo(self, value: ParseInfo | None) -> None:
@@ -39,6 +34,19 @@ class BaseNode(AsJSONMixin):
 
     def asjson(self) -> Any:
         return asjson(self)
+
+    def __init_dataclass(self):
+        if not dataclasses.is_dataclass(type(self)):
+            return
+
+        for field in dataclasses.fields(type(self)):
+            if field.default_factory is not dataclasses.MISSING:
+                value = field.default_factory()
+            elif field.default is not dataclasses.MISSING:
+                value = field.default
+            else:
+                value = None
+            setattr(self, field.name, value)
 
     def __set_attributes(self, **attrs) -> None:
         for name, value in attrs.items():

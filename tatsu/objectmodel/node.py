@@ -13,11 +13,6 @@ __all__ = ['Node']
 class Node(BaseNode):
     __parent_ref: weakref.ref | None
 
-    def no__new__(cls, *args: Any, **kwargs: Any) -> Any:
-        obj = super().__new__(cls, *args, **kwargs)  # type: ignore
-        obj.__parent_ref = weakref.ref(obj)
-        return obj
-
     def __init__(self, ast: Any = None, **kwargs: Any):
         super().__init__(ast=ast, **kwargs)
         self.__parent_ref: weakref.ref[Node] | None = None
