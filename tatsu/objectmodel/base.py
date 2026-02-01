@@ -40,6 +40,8 @@ class BaseNode(AsJSONMixin):
             return
 
         for field in dataclasses.fields(type(self)):
+            if hasattr(self, field.name):
+                continue
             if field.default_factory is not dataclasses.MISSING:
                 value = field.default_factory()
             elif field.default is not dataclasses.MISSING:
