@@ -1096,7 +1096,6 @@ class Grammar(Model):
             **settings):
         # type: ignore[override]
         config = self.config.override_config(config)
-        config = config.hard_override(**self.directives)
         # note: bw-comp: allow overriding directives
         config = config.override(**settings)
 
