@@ -48,7 +48,7 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
     memo: dict[int, Any] = {}
     seen = seen if seen is not None else set()
 
-    def dfs(node: Any) -> Any:  # noqa: PLR0912
+    def dfs(node: Any) -> Any:
         if node is None or isinstance(node, int | float | str | bool):
             return node
 
