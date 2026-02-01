@@ -388,16 +388,16 @@ import re
         pytest.param(
             "# This comment should be stripped",
             {
-                "eol_comments_re": re.compile(r"(?m)#.*?$"),
-                "eol_comments": r"(?m)#.*?$",
+                "eol_comments_re": r"(?m)#[^\n]*$",
+                "comments": re.compile(r"(?sm)[(][*](?:.|\n)*?[*][)]"),
             },
             id="eol_comments override",
         ),
         pytest.param(
             "(* This comment should be stripped *)",
             {
-                "comments_re": re.compile(r"(?sm)[(][*](?:.|\n)*?[*][)]"),
-                "comments": r"(?sm)[(][*](?:.|\n)*?[*][)]",
+                "eol_comments": re.compile(r"(?m)#[^\n]*$"),
+                "comments_re": r"(?sm)[(][*](?:.|\n)*?[*][)]",
             },
             id="comments override",
         ),
@@ -418,5 +418,5 @@ def test_deprecated_comments_override_failures(comment, option):
         {comment}
         a
     """
-    with pytest.raises(AttributeError):
+    with pytest.warns(UserWarning, match=r'ParserConfig\..*?comments_re.*?is deprecated'):
         tool.parse(grammar, text, **option)
