@@ -10,7 +10,7 @@ from functools import cache
 from graphlib import TopologicalSorter
 from typing import Any
 
-from tatsu.util import Undefined
+from .notnone import Undefined
 
 type Constructor = Callable[..., Any]
 

@@ -4,7 +4,7 @@ from collections import defaultdict
 from enum import Enum, auto
 from typing import cast
 
-from tatsu import grammars
+from .. import grammars
 
 __all__ = ['mark_left_recursion']
 

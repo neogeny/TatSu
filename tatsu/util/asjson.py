@@ -6,7 +6,7 @@ import weakref
 from collections.abc import Mapping
 from typing import Any, Protocol, runtime_checkable
 
-from tatsu.util import as_namedtuple, isiter
+from .common import as_namedtuple, isiter
 
 __all__ = [
     'AsJSONMixin',

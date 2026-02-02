@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from tatsu.util import is_posix
+from .common import is_posix
 
 U_LARROW = '\u2190'
 U_DLARROW = '\u2199'
