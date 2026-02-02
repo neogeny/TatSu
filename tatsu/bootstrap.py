@@ -49,8 +49,8 @@ class EBNFBootstrapBuffer(Buffer):
             ignorecase=False,
             namechars='',
             parseinfo=True,
-            comments='(?sm)[(][*]\\s*((?:.|\\n)*?)\\s*[*][)]',
-            eol_comments='(?m)#\\s*([^\\n]*)\\s*$',
+            comments=r'(?sm)[(][*]\s*((?:.|\n)*?)\s*[*][)]',
+            eol_comments=r'(?m)#\s*([^\n]*)\s*$',
             keywords=KEYWORDS,
             start='start',
         )
@@ -68,8 +68,8 @@ class EBNFBootstrapParser(Parser):
             ignorecase=False,
             namechars='',
             parseinfo=True,
-            comments='(?sm)[(][*]\\s*((?:.|\\n)*?)\\s*[*][)]',
-            eol_comments='(?m)#\\s*([^\\n]*)\\s*$',
+            comments=r'(?sm)[(][*]\s*((?:.|\n)*?)\s*[*][)]',
+            eol_comments=r'(?m)#\s*([^\n]*)\s*$',
             keywords=KEYWORDS,
             start='start',
         )
@@ -422,9 +422,9 @@ class EBNFBootstrapParser(Parser):
                 self._literal_()
             self._error(
                 'expecting one of: '
-                '(?!\\d)\\w+(?:::(?!\\d)\\w+)+ <boolean>'
-                '<float> <hex> <int> <literal> <null>'
-                '<path> <raw_string> <string> <word>'
+                '<boolean> <float> <hex> <int> <literal>'
+                '<null> <path> <raw_string> <string>'
+                "<word> r'(?!\\d)\\w+(?:::(?!\\d)\\w+)+'"
             )
 
     @竜rule()
@@ -914,7 +914,7 @@ class EBNFBootstrapParser(Parser):
                 "'$' '>>' '`' '~' <alert> <call>"
                 '<constant> <cut> <cut_deprecated> <eof>'
                 '<pattern> <raw_string> <regexes>'
-                '<string> <token> <word> \\^+'
+                "<string> <token> <word> r'\\^+'"
             )
 
     @竜rule('Call')
@@ -962,7 +962,8 @@ class EBNFBootstrapParser(Parser):
                     self._pattern('`(.*?)`')
                 self._error(
                     'expecting one of: '
-                    "'`' (?ms)```((?:.|\\n)*?)``` `(.*?)`"
+                    "'`' r'(?ms)```((?:.|\\n)*?)```'"
+                    "r'`(.*?)`'"
                 )
 
     @竜rule('Alert')
@@ -982,7 +983,7 @@ class EBNFBootstrapParser(Parser):
                 self._raw_string_()
             self._error(
                 'expecting one of: '
-                '<STRING> <raw_string> <string> r'
+                "<STRING> <raw_string> <string> r'r'"
             )
 
     @竜rule()
@@ -1006,12 +1007,12 @@ class EBNFBootstrapParser(Parser):
                 self._null_()
             self._error(
                 'expecting one of: '
-                "'False' 'None' 'True' (?!\\d)\\w+"
-                '0[xX](?:\\d|[a-fA-F])+ <STRING> <boolean>'
+                "'False' 'None' 'True' <STRING> <boolean>"
                 '<float> <hex> <int> <null> <raw_string>'
-                '<string> <word> [-'
+                "<string> <word> r'(?!\\d)\\w+'"
+                "r'0[xX](?:\\d|[a-fA-F])+' r'[-"
                 '+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-'
-                '+]?\\d+)? [-+]?\\d+ r'
+                "+]?\\d+)?' r'[-+]?\\d+' r'r'"
             )
 
     @竜rule()
@@ -1037,8 +1038,8 @@ class EBNFBootstrapParser(Parser):
                 self._cut()
             self._error(
                 'expecting one of: '
-                '"((?:[^"\\n]|\\"|\\\\)*?)"'
-                "'((?:[^'\\n]|\\'|\\\\)*?)'"
+                'r\'"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"\''
+                "r'\\'((?:[^\\'\\n]|\\\\\\'|\\\\\\\\)*?)\\''"
             )
 
     @竜rule()
