@@ -180,9 +180,9 @@ class Choice(Base):
     template = """\
                 with self._choice():
                 {options:1::}
-                    self._error(
+                    raise self._error(
                 {error:2:\\n:}  # noqa: COM812
-                    )\
+                    ) from None\
                 """
 
 

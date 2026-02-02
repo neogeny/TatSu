@@ -236,10 +236,10 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print('with self._choice():')
         with self.indent():
             self.walk(choice.options)
-            self.print('self._error(')
+            self.print('raise self._error(')
             with self.indent():
                 self.print(errors)
-            self.print(')')
+            self.print(') from None')
 
     def walk_Option(self, option: grammars.Option):
         self.print('with self._option():')
