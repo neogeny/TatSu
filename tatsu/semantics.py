@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import builtins
-import inspect
 import keyword
 import types
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
+from inspect import Parameter, signature
 from types import ModuleType
 from typing import Any
 
@@ -254,7 +254,7 @@ class ModelBuilderSemantics(AbstractSemantics):
         }
 
         actual = ActualParameters()
-        declared = inspect.signature(fun).parameters
+        declared = signature(fun).parameters
 
         for name, param in declared.items():
             if name not in known_params:
@@ -262,11 +262,9 @@ class ModelBuilderSemantics(AbstractSemantics):
 
             value = known_params[name]
             match param.kind:
-                case inspect.Parameter.KEYWORD_ONLY:
-                    actual.add_kwparam(name, value)
-                case inspect.Parameter.POSITIONAL_ONLY:
+                case Parameter.POSITIONAL_ONLY:
                     actual.add_param(name, value)
-                case inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                case Parameter.KEYWORD_ONLY | Parameter.POSITIONAL_OR_KEYWORD:
                     actual.add_kwparam(name, value)
                 case _:
                     pass
@@ -276,13 +274,13 @@ class ModelBuilderSemantics(AbstractSemantics):
                 continue
 
             match param.kind:
-                case inspect.Parameter.POSITIONAL_ONLY:
-                    actual.add_param(name, ast)  # note: inject `ast`
-                case inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                case Parameter.POSITIONAL_ONLY:
+                    actual.add_param(name, ast)    # note: inject `ast`
+                case Parameter.POSITIONAL_OR_KEYWORD:
                     actual.add_kwparam(name, ast)  # note: inject `ast`
-                case inspect.Parameter.VAR_POSITIONAL:
+                case Parameter.VAR_POSITIONAL:
                     actual.add_args(args)
-                case inspect.Parameter.VAR_KEYWORD:
+                case Parameter.VAR_KEYWORD:
                     actual.add_kwargs(kwargs)
 
         return actual
