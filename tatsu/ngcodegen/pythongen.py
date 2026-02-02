@@ -24,17 +24,18 @@ HEADER = """\
     #  Any changes you make to it will be overwritten the next time
     #  the file is generated.
 
-    # ruff: noqa: RUF100, C405, COM812, I001, F401, PLR1702, PLC2801, SIM117
+    # ruff: noqa: RUF100, C405, COM812, I001, F401, PLR1702, PLC2801, SIM117, PL2401, PLC2402
+
+    from __future__ import annotations
 
     import sys
     from pathlib import Path
 
     from tatsu.buffering import Buffer
     from tatsu.parsing import Parser
-    from tatsu.parsing import tatsumasu
-    from tatsu.parsing import leftrec, nomemo, isname
+    from tatsu.parsing import 竜rule
+    from tatsu.parsing import leftrec, nomemo, isname, generic_main
     from tatsu.infos import ParserConfig
-    from tatsu.util import re, generic_main
 
 
     __all__ = [
@@ -138,7 +139,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
         self.print(
             f"""
-                @tatsumasu({params})\
+                @竜rule({params})\
                 {leftrec}\
                 {nomemo}\
                 {isname}\

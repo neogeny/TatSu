@@ -18,7 +18,6 @@ from ..exceptions import (
     FailedLookahead,
     FailedParse,
     FailedPattern,
-    FailedRef,
     FailedSemantics,
     FailedToken,
     OptionSucceeded,
@@ -256,8 +255,7 @@ class ParseContext:
         )
 
     def _find_rule(self, name: str) -> Callable[[], Any]:
-        self._error(name, exclass=FailedRef)
-        return lambda: None  # makes static checkers happy
+        raise NotImplementedError
 
     def _find_semantic_action(self, name: str) -> tuple[Callable[..., Any] | None, Callable[..., Any] | None]:
         if self.semantics is None:
@@ -539,7 +537,7 @@ class ParseContext:
             )
 
     @contextmanager
-    def _try(self) -> Generator[None, None, None]:
+    def _try(self) -> Generator[None]:
         s = self.substate
         self._push_ast(copyast=True)
         self.last_node = None
@@ -552,7 +550,7 @@ class ParseContext:
             raise
 
     @contextmanager
-    def _option(self) -> Generator[None, None, None]:
+    def _option(self) -> Generator[None]:
         self.last_node = None
         self.states.push_cut()
         try:
@@ -568,19 +566,19 @@ class ParseContext:
             self.states.pop_cut()
 
     @contextmanager
-    def _choice(self) -> Generator[None, None, None]:
+    def _choice(self) -> Generator[None]:
         self.last_node = None
         with suppress(OptionSucceeded):
             yield
 
     @contextmanager
-    def _optional(self) -> Generator[None, None, None]:
+    def _optional(self) -> Generator[None]:
         self.last_node = None
         with self._choice(), self._option():
             yield
 
     @contextmanager
-    def _group(self) -> Generator[None, None, None]:
+    def _group(self) -> Generator[None]:
         self.states.push_cst()
         try:
             yield
@@ -590,7 +588,7 @@ class ParseContext:
             raise
 
     @contextmanager
-    def _if(self) -> Generator[None, None, None]:
+    def _if(self) -> Generator[None]:
         s = self.substate
         self._push_ast()
         self._lookahead += 1
@@ -602,7 +600,7 @@ class ParseContext:
             self.substate = s
 
     @contextmanager
-    def _ifnot(self) -> Generator[None, None, None]:
+    def _ifnot(self) -> Generator[None]:
         try:
             with self._if():
                 yield

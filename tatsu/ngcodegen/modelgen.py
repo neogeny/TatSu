@@ -22,6 +22,8 @@ HEADER = """\
     # Any changes you make to it will be overwritten the next time
     # the file is generated.
 
+    # ruff: noqa: PLC2401, PLC2402
+
     from __future__ import annotations
 
     import dataclasses
