@@ -13,7 +13,7 @@ from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
 from .objectmodel import Node
-from .util import chunks, compress_seq, indent, re, trim
+from .util import chunks, compress_seq, indent, re, re_printable, trim
 
 PEP8_LLEN = 72
 PRAGMA_RE = r'^\s*#include.*$'
@@ -358,7 +358,7 @@ class Pattern(Model):
         return bool(self.regex.match(''))
 
     def __repr__(self):
-        return self.pattern.replace('\\\\', '\\')
+        return re_printable(self.pattern)
 
 
 class Lookahead(Decorator):

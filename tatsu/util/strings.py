@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import codecs
 import re
+from typing import Any
 
 
 def re_printable(text: Any) -> str:
