@@ -7,10 +7,10 @@ else
 endif
 
 
-all:  prepare_for_tests test build requirements
+all:  prepare_for_tests test documentation examples requirements
 
 
-test:  prepare_for_tests lint pytest documentation examples
+test:  prepare_for_tests lint pytest
 	@-uv sync -q
 
 test_plus: prepare_for_tests clean_plus test
