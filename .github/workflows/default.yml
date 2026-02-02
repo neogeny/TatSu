@@ -1,9 +1,8 @@
 name: tests default
 on:
   push:
-      branches: [ master ]
+    branches: [ master ]
   pull_request:
-
 
 jobs:
   test:
@@ -12,47 +11,54 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
+          - '3.15'
           - '3.14'
           - '3.13'
           - '3.12'
 
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: install system graphviz
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y graphviz
-    - name: install uv and hatch
-      run: |
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        uv tool install hatch
-        uv tool install gh
-        uv sync --group test
-    - name: test
-      run: |
-        make test
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          # This is the key for 3.15 alpha/beta versions
+          allow-prereleases: true
+
+      - name: install system graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+
+      - name: install uv and hatch
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          # uv will use the python version provided by actions/setup-python above
+          uv tool install hatch
+          uv tool install gh
+          uv sync --group test
+
+      - name: test
+        run: |
+          make test
 
   docs:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.14'
-    - run: python -m pip install -r requirements-doc.txt
-    - run: python -m pip install sphinx
-    - run: python -m sphinx docs/ docs/_build/
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -r requirements-doc.txt
+      - run: python -m pip install sphinx
+      - run: python -m sphinx docs/ docs/_build/
 
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.14'
-    - run: python -m pip install -r requirements-dev.txt
-    - run: python -m pip install build
-    - run: python -m build
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m pip install build
+      - run: python -m build
