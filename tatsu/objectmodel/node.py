@@ -3,13 +3,14 @@ from __future__ import annotations
 import dataclasses
 import functools
 import weakref
-from collections.abc import Callable, Iterable, Mapping
-from typing import Any, cast
+from collections.abc import Iterable, Mapping
+from typing import Any
 
-from ..tokenizing import CommentInfo
 from .base import BaseNode
 
 __all__ = ['Node']
+
+from ..util.deprecation import deprecated
 
 
 @dataclasses.dataclass(
@@ -43,11 +44,9 @@ class Node(BaseNode):
             return ref()
 
     @property
-    def comments(self) -> CommentInfo:
-        if self.parseinfo and hasattr(self.parseinfo.tokenizer, 'comments'):
-            comments = cast(Callable, self.parseinfo.tokenizer.comments)
-            return comments(self.parseinfo.pos)
-        return CommentInfo([], [])
+    def comments(self) -> Any:
+        deprecated(replacement=None)(self.comments)
+        return None
 
     @property
     def text(self) -> str | None:

@@ -13,7 +13,7 @@ from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
 from .objectmodel import Node
-from .util import chunks, compress_seq, indent, re, trim
+from .util import chunks, compress_seq, indent, re, re_printable, trim
 
 PEP8_LLEN = 72
 PRAGMA_RE = r'^\s*#include.*$'
@@ -144,16 +144,6 @@ class Model(Node):
     # list of Model that can be invoked at the same position
     def callable_at_same_pos(self, ctx: Mapping[str, Rule] | None = None) -> list[Model]:
         return []
-
-    def comments_str(self):
-        comments, _eol = self.comments
-        if not comments:
-            return ''
-
-        return '\n'.join(
-            '(* {} *)\n'.format('\n'.join(c).replace('(*', '').replace('*)', '').strip())
-            for c in comments
-        )
 
     def nodecount(self):
         return 1
@@ -368,7 +358,7 @@ class Pattern(Model):
         return bool(self.regex.match(''))
 
     def __repr__(self):
-        return self.pattern.replace('\\\\', '\\')
+        return re_printable(self.pattern)
 
 
 class Lookahead(Decorator):
@@ -452,13 +442,12 @@ class Sequence(Model):
         return 1 + sum(s.nodecount() for s in self.sequence)
 
     def _to_str(self, lean=False):
-        comments = self.comments_str()
         seq = [str(s._to_str(lean=lean)) for s in self.sequence]
         single = ' '.join(seq)
         if len(single) <= PEP8_LLEN and len(single.splitlines()) <= 1:
-            return comments + single
+            return single
         else:
-            return comments + '\n'.join(seq)
+            return '\n'.join(seq)
 
     def _nullable(self) -> bool:
         return all(s._nullable() for s in self.sequence)
@@ -485,8 +474,8 @@ class Choice(Model):
 
             lookahead = self.lookahead_str()
             if lookahead:
-                ctx._error(f'expecting one of: {lookahead}:')
-            ctx._error('no available options')
+                raise ctx._error(f'expecting one of: {lookahead}:')
+            raise ctx._error('no available options')
             return None
 
     def defines(self):
@@ -789,8 +778,8 @@ class Call(Model):
         try:
             rule = ctx._find_rule(self.name)
             return rule()
-        except KeyError:
-            ctx._error(self.name, exclass=FailedRef)
+        except KeyError as e:
+            raise ctx._error(self.name, exclass=FailedRef) from e
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         if self.name not in rulenames:
@@ -894,13 +883,12 @@ class Rule(Decorator):
 
     def _to_str(self, lean=False):
         str_template = """\
-                {is_name}{comments}{name}{base}{params}
+                {is_name}{name}{base}{params}
                     =
                 {exp}
                     ;
                 """
 
-        comments = self.comments_str()
         if lean:
             params = ''
         else:
@@ -935,7 +923,6 @@ class Rule(Decorator):
             base=base,
             params=params,
             exp=indent(self.exp._to_str(lean=lean)),
-            comments=comments,
             is_name='@name\n' if self.is_name else '',
         )
 

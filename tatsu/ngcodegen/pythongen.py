@@ -9,7 +9,7 @@ from .. import grammars
 from ..exceptions import CodegenError
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
-from ..util import Undefined, compress_seq, safe_name
+from ..util import Undefined, compress_seq, re_printable, safe_name
 from ..walkers import NodeWalker
 
 HEADER = """\
@@ -29,14 +29,20 @@ HEADER = """\
 
     from __future__ import annotations
 
+    import re
     import sys
     from pathlib import Path
 
     from tatsu.buffering import Buffer
-    from tatsu.parsing import Parser
-    from tatsu.parsing import 竜rule
-    from tatsu.parsing import leftrec, nomemo, isname, generic_main
     from tatsu.infos import ParserConfig
+    from tatsu.parsing import (
+        Parser,
+        leftrec,
+        nomemo,
+        isname,
+        generic_main,
+        竜rule,
+    )
 
 
     __all__ = [
@@ -230,10 +236,10 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print('with self._choice():')
         with self.indent():
             self.walk(choice.options)
-            self.print('self._error(')
+            self.print('raise self._error(')
             with self.indent():
                 self.print(errors)
-            self.print(')')
+            self.print(') from None')
 
     def walk_Option(self, option: grammars.Option):
         self.print('with self._option():')
@@ -337,8 +343,8 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                     ignorecase={grammar.config.ignorecase},
                     namechars={grammar.config.namechars or ""!r},
                     parseinfo={grammar.config.parseinfo},
-                    comments={grammar.config.comments!r},
-                    eol_comments={grammar.config.eol_comments!r},
+                    comments={re_printable(grammar.config.comments)},
+                    eol_comments={re_printable(grammar.config.eol_comments)},
                     keywords=KEYWORDS,
                     start={start!r},
                 )

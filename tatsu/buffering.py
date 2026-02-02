@@ -8,17 +8,13 @@ about source lines and content.
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from .exceptions import ParseError
-from .infos import ParserConfig
-from .tokenizing import CommentInfo, LineIndexInfo, LineInfo, PosLine, Tokenizer
+from .infos import ParserConfig, PosLine
+from .tokenizing import LineIndexInfo, LineInfo, Tokenizer
 from .util import (
     Undefined,
-    contains_sublist,
-    extend_list,
 )
 from .util.misc import cached_re_compile, find_from_rematch
 
@@ -53,7 +49,6 @@ class Buffer(Tokenizer):
         self._lines: list[str] = []
         self._line_index: list[LineIndexInfo] = []
         self._line_cache: list[PosLine] = []
-        self._comment_index: list[CommentInfo] = []
 
         self._preprocess()
         self._postprocess()
@@ -94,7 +89,7 @@ class Buffer(Tokenizer):
         self._text = self.join_block_lines(lines)
 
     def _postprocess(self):
-        cache, count = PosLine.build_line_cache(self._lines)
+        cache, count = PosLine.build_line_cache(self._lines, len(self.text))
         self._line_cache = cache
         self._linecount = count
         self._len = len(self.text)
@@ -149,7 +144,7 @@ class Buffer(Tokenizer):
         try:
             return include.read_text(), str(include)
         except OSError as e:
-            raise ParseError(f'include not found: {include}') from e
+            raise ValueError(f'include not found: {include}') from e
 
     def replace_lines(self, i: int, j: int, name: str, block: str) -> tuple[int, str]:
         lines = self.split_block_lines(self.text)
@@ -224,41 +219,6 @@ class Buffer(Tokenizer):
     def move(self, n: int):
         self.goto(self.pos + n)
 
-    def comments(self, p: int, clear: bool = False) -> CommentInfo:
-        if not self.config.comment_recovery or not self._comment_index:
-            return CommentInfo([], [])
-
-        n = self.posline(p)
-        if n >= len(self._comment_index):
-            return CommentInfo([], [])
-
-        eolcmm = []
-        if n < len(self._comment_index):
-            eolcmm = self._comment_index[n].eol
-            if clear:
-                self._comment_index[n] = CommentInfo(inline=self._comment_index[n].inline, eol=[])
-
-        cmm: list = []
-        while n >= 0 and self._comment_index[n].inline:
-            cmm.insert(0, self._comment_index[n].inline)
-            if clear:
-                self._comment_index[n] = CommentInfo(inline=[], eol=self._comment_index[n].eol)
-            n -= 1
-
-        return CommentInfo(cmm, eolcmm)
-
-    def _index_comments(self, comments: list[str], selector: Callable):
-        if comments and self.config.comment_recovery:
-            n = self.line
-            extend_list(
-                self._comment_index, n, default=CommentInfo.new_comment,
-            )
-            previous = selector(self._comment_index[n])
-            if not contains_sublist(
-                previous, comments,
-            ):  # NOTE: will discard repeated comments
-                previous.extend(comments)
-
     def _eat_regex(self, regex: str | re.Pattern) -> None:
         if not regex:
             return
@@ -283,13 +243,11 @@ class Buffer(Tokenizer):
         if self.whitespace_re:
             self._eat_regex(self.whitespace_re)
 
-    def eat_comments(self) -> None:
-        comments = self._eat_regex_list(self.config.comments)
-        self._index_comments(comments, lambda x: x.inline)
+    def eat_comments(self) -> list[str]:
+        return self._eat_regex_list(self.config.comments)
 
-    def eat_eol_comments(self):
-        comments = self._eat_regex_list(self.config.eol_comments)
-        self._index_comments(comments, lambda x: x.eol)
+    def eat_eol_comments(self) -> list[str]:
+        return self._eat_regex_list(self.config.eol_comments)
 
     def next_token(self) -> None:
         p = None
@@ -438,7 +396,7 @@ class Buffer(Tokenizer):
         return self._line_index[start: 1 + end]
 
     def __repr__(self) -> str:
-        return '%s@%d' % (type(self).__name__, self.pos)
+        return f'{type(self).__name__}()'
 
     def __json__(self, seen: set[int] | None = None) -> str | None:
         return None

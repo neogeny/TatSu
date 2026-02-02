@@ -64,6 +64,7 @@ calc_test:
 
 
 lint: ruff ty mypy
+	@-uv sync --group test
 
 
 ruff: prepare_for_tests

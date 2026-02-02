@@ -5,7 +5,7 @@ import ast as stdlib_ast
 import inspect
 from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager, suppress
-from typing import Any, NoReturn
+from typing import Any
 
 from .. import buffering, tokenizing
 from ..ast import AST
@@ -281,11 +281,11 @@ class ParseContext:
             rulestack = [r.name for r in reversed(self._ruleinfo_stack)]
         return exclass(self.tokenizer, rulestack, item)
 
-    def _error(self, item: Any, exclass: type[FailedParse] = FailedParse) -> NoReturn:
-        raise self._make_exception(item, exclass=exclass)
+    def _error(self, item: Any, exclass: type[FailedParse] = FailedParse) -> Exception:
+        return self._make_exception(item, exclass=exclass)
 
-    def _fail(self) -> NoReturn:
-        self._error('fail')
+    def _fail(self):
+        raise self._error('fail')
 
     def _get_parseinfo(self, name: str, pos: int) -> ParseInfo:
         endpos = self.pos
@@ -338,8 +338,8 @@ class ParseContext:
             self.tracer.trace_success()
 
             return result.node
-        except FailedPattern:
-            self._error(f'Expecting <{ruleinfo.name}>')
+        except FailedPattern as e:
+            raise self._error(f'Expecting <{ruleinfo.name}>') from e
         except FailedParse as e:
             self.goto(pos)
             self._set_furthest_exception(e)
@@ -364,7 +364,7 @@ class ParseContext:
         if not ruleinfo.is_leftrec:
             return self._invoke_rule(ruleinfo, key)
         elif not self.config.left_recursion:
-            self._error('Left recursion detected', exclass=FailedLeftRecursion)
+            raise self._error('Left recursion detected', exclass=FailedLeftRecursion)
 
         result: RuleResult | Exception | None = self._results.get(key)
         if isinstance(result, RuleResult):
@@ -432,7 +432,7 @@ class ParseContext:
 
                 return result
             except FailedSemantics as e:
-                self._error(str(e))
+                raise self._error(str(e)) from e
         except FailedParse as e:
             self._memoize(key, e)
             raise
@@ -459,7 +459,7 @@ class ParseContext:
         self._next_token()
         if self.tokenizer.match(token) is None:
             self.tracer.trace_match(token, failed=True)
-            self._error(token, exclass=FailedToken)
+            raise self._error(token, exclass=FailedToken)
         self.tracer.trace_match(token)
         self.states.append_cst(token)
         return token
@@ -518,7 +518,7 @@ class ParseContext:
         token = self.tokenizer.matchre(pattern)
         if token is None:
             self.tracer.trace_match('', pattern, failed=True)
-            self._error(pattern, exclass=FailedPattern)
+            raise self._error(pattern, exclass=FailedPattern)
         self.tracer.trace_match(token, pattern)
         self.states.append_cst(token)
         return token
@@ -532,7 +532,7 @@ class ParseContext:
     def _check_eof(self) -> None:
         self._next_token()
         if not self.tokenizer.atend():
-            self._error(
+            raise self._error(
                 'Expecting end of text', exclass=FailedExpectingEndOfText,
             )
 
@@ -607,7 +607,7 @@ class ParseContext:
         except FailedParse:
             pass
         else:
-            self._error('', exclass=FailedLookahead)
+            raise self._error('', exclass=FailedLookahead)
 
     def _isolate(self, block: Callable[[], Any], drop: bool = False) -> Any:
         self.states.push_cst()
@@ -636,7 +636,7 @@ class ParseContext:
                     self._isolate(block)
 
                     if self.pos == p:
-                        self._error('empty closure')
+                        raise self._error('empty closure')
                 return
 
     def _closure(self, block: Callable[[], Any], sep: Callable[[], Any] | None = None, omitsep: bool = False) -> Any:
@@ -706,7 +706,7 @@ class ParseContext:
         c = self._next()
         if c is None:
             self.tracer.trace_match(c, failed=True)
-            self._error(c, exclass=FailedToken)
+            raise self._error(c, exclass=FailedToken) from None
         self.tracer.trace_match(c)
         self.states.append_cst(c)
         return c

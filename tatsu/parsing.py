@@ -24,7 +24,7 @@ class Parser(ParseContext):
             rule = getattr(self, rulename, None)
             if inspect.ismethod(rule):
                 return rule
-        return self._error(name, exclass=FailedRef)
+        raise self._error(name, exclass=FailedRef)
 
     @classmethod
     def rule_list(cls) -> list[str]:
