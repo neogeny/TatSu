@@ -1,3 +1,4 @@
+# ruff: noqa: PLC2401
 from __future__ import annotations
 
 import functools

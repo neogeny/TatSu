@@ -511,7 +511,8 @@ class Grammar(Base):
                 # Any changes you make to it will be overwritten the next time
                 # the file is generated.
 
-                # ruff: noqa: RUF100, C405, I001, F401, SIM117
+                # ruff: noqa: RUF100, C405, COM812, I001, F401, PLR1702, PLC2801, SIM117
+                # ruff: noqa: PL2401, PLC2402, PLC2403
 
                 import sys
                 from pathlib import Path

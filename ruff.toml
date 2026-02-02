@@ -51,8 +51,8 @@ lint.ignore = [
     "UP046",  # Generic class uses `Generic` subclass instead of type parameters
     "UP047",  # should use i> 3.12type parameters
 
-    "PLC2401",  # Function name contains a non-ASCII character
-    "PLC2403",  # Module name contains a non-ASCII character
+#    "PLC2401",  # Function name contains a non-ASCII character
+#    "PLC2403",  # Module name contains a non-ASCII character
 ]
 
 exclude = [

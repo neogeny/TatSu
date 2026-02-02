@@ -1,3 +1,5 @@
+# ruff: noqa: PLC2403
+
 from __future__ import annotations
 
 import inspect
