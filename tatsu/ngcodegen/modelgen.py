@@ -40,7 +40,6 @@ HEADER = """\
 
     def 竜dataclass(decl: type) -> type:
         tatsu_dataclass = dataclasses.dataclass(
-            init=False,
             eq=False,
             repr=False,
             match_args=False,
