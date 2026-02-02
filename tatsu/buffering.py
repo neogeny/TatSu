@@ -12,9 +12,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from .exceptions import ParseError
-from .infos import ParserConfig
-from .tokenizing import CommentInfo, LineIndexInfo, LineInfo, PosLine, Tokenizer
+from .infos import CommentInfo, ParserConfig, PosLine
+from .tokenizing import LineIndexInfo, LineInfo, Tokenizer
 from .util import (
     Undefined,
     contains_sublist,
@@ -94,7 +93,7 @@ class Buffer(Tokenizer):
         self._text = self.join_block_lines(lines)
 
     def _postprocess(self):
-        cache, count = PosLine.build_line_cache(self._lines)
+        cache, count = PosLine.build_line_cache(self._lines, len(self.text))
         self._line_cache = cache
         self._linecount = count
         self._len = len(self.text)
@@ -149,7 +148,7 @@ class Buffer(Tokenizer):
         try:
             return include.read_text(), str(include)
         except OSError as e:
-            raise ParseError(f'include not found: {include}') from e
+            raise ValueError(f'include not found: {include}') from e
 
     def replace_lines(self, i: int, j: int, name: str, block: str) -> tuple[int, str]:
         lines = self.split_block_lines(self.text)
@@ -438,7 +437,7 @@ class Buffer(Tokenizer):
         return self._line_index[start: 1 + end]
 
     def __repr__(self) -> str:
-        return '%s@%d' % (type(self).__name__, self.pos)
+        return f'{type(self).__name__}()'
 
     def __json__(self, seen: set[int] | None = None) -> str | None:
         return None

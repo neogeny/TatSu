@@ -6,7 +6,7 @@ import weakref
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any, cast
 
-from ..tokenizing import CommentInfo
+from ..infos import CommentInfo
 from .base import BaseNode
 
 __all__ = ['Node']
@@ -43,7 +43,7 @@ class Node(BaseNode):
             return ref()
 
     @property
-    def comments(self) -> CommentInfo:
+    def comments(self) -> Any:
         if self.parseinfo and hasattr(self.parseinfo.tokenizer, 'comments'):
             comments = cast(Callable, self.parseinfo.tokenizer.comments)
             return comments(self.parseinfo.pos)

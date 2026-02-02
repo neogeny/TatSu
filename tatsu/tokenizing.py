@@ -24,37 +24,6 @@ class LineInfo(NamedTuple):
     text: str
 
 
-class PosLine(NamedTuple):
-    start: int
-    line: int
-    length: int
-
-    @staticmethod
-    def build_line_cache(lines):
-        cache = []
-        n = 0
-        i = 0
-        for n, line in enumerate(lines):
-            pl = PosLine(i, n, len(line))
-            for _ in line:
-                cache.append(pl)  # noqa: PERF401
-            i += len(line)
-        n += 1
-        if lines and lines[-1] and lines[-1][-1] in '\r\n':
-            n += 1
-        cache.append(PosLine(i, n, 0))
-        return cache, n
-
-
-class CommentInfo(NamedTuple):
-    inline: list
-    eol: list
-
-    @staticmethod
-    def new_comment():
-        return CommentInfo([], [])
-
-
 @runtime_checkable
 class Tokenizer(Protocol):
     def __init__(self, *ags: Any, **kwargs: Any):
