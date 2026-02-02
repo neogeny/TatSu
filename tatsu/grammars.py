@@ -145,16 +145,6 @@ class Model(Node):
     def callable_at_same_pos(self, ctx: Mapping[str, Rule] | None = None) -> list[Model]:
         return []
 
-    def comments_str(self):
-        comments, _eol = self.comments
-        if not comments:
-            return ''
-
-        return '\n'.join(
-            '(* {} *)\n'.format('\n'.join(c).replace('(*', '').replace('*)', '').strip())
-            for c in comments
-        )
-
     def nodecount(self):
         return 1
 
@@ -452,13 +442,12 @@ class Sequence(Model):
         return 1 + sum(s.nodecount() for s in self.sequence)
 
     def _to_str(self, lean=False):
-        comments = self.comments_str()
         seq = [str(s._to_str(lean=lean)) for s in self.sequence]
         single = ' '.join(seq)
         if len(single) <= PEP8_LLEN and len(single.splitlines()) <= 1:
-            return comments + single
+            return single
         else:
-            return comments + '\n'.join(seq)
+            return '\n'.join(seq)
 
     def _nullable(self) -> bool:
         return all(s._nullable() for s in self.sequence)
@@ -894,13 +883,12 @@ class Rule(Decorator):
 
     def _to_str(self, lean=False):
         str_template = """\
-                {is_name}{comments}{name}{base}{params}
+                {is_name}{name}{base}{params}
                     =
                 {exp}
                     ;
                 """
 
-        comments = self.comments_str()
         if lean:
             params = ''
         else:
@@ -935,7 +923,6 @@ class Rule(Decorator):
             base=base,
             params=params,
             exp=indent(self.exp._to_str(lean=lean)),
-            comments=comments,
             is_name='@name\n' if self.is_name else '',
         )
 

@@ -77,19 +77,20 @@ Every effort has been made to preserve backwards compatibility by keeping mosts 
 			assert node.parseinfo.pos == 0
 			assert node.parseinfo.endpos == len(text)
 	```
-- Synthetic classes created by `synth.synthetize()` during parsing with `ModeleBuilderSemantics` behave more consistently, and now have a base class of `class SynthNode(BaseNode)`
-- `ast.AST` now has consistent semantics of a `dict` that allows access to contents using the attribute interface
+- Synthetic classes created by `synth.synthetize()` during parsing with `ModelBuilderSemantics` behave more consistently, and now have a base class of `class SynthNode(BaseNode)`
+- Now `ast.AST` has consistent semantics of a `dict` that allows access to contents using the attribute interface
 - `asjson()` and friends now cover all known cases with improved consistency and efficiency, so there are less demands over clients of the API
-- Entry points no longer lists a subset of the configuration options defined in `ParserConfig`, but 
+- Entry points no longer lists a large subset of the configuration options defined in `ParserConfig`, but 
   still accept them through `**settings` keyword arguments. Now `ParserConfig` verifies that 
   settings passed to it are vaild, eliminating the frustration of passing an incorrect setting
   (a typo) name and hoping it has the intended effect. 
-- Documentation has a better look and improved navigation thanks to `MyST-Parser` with `Sphinx`
+- Documentation has a better look&feel and improved navigation thanks to `MyST-Parser` with `Sphinx`
 - [TatSu][] still has no library dependencies for its core functionality, but several libraries 
   are used during its development and testing. The [TatSu][] development configuration uses `uv` 
   and `hatch`, but several `requirements-xyz.txt` files are generated in favor of those using `pip` with `pyenv`, `virtualenvwrapper`, or `virtualenv`
 - *CAVEAT:* All pre-existing grammars are compatible with this version of [TatSu][], but, if 
   you use the generated Python parsers or models, *YOU MUST* generate them anew. 
+- *CAVEAT:* All support for trying to recover comments from parsed input was removed. It never worked, so it had no usage.
 - Many of the functions that [TatSu][] defines for its own use are useful in other contexts. Some examples are:
 ```python
 	from tatsu.notnone import Undefined
