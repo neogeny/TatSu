@@ -14,15 +14,21 @@
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
 from tatsu.buffering import Buffer
-from tatsu.parsing import Parser, generic_main
-from tatsu.parsing import 竜rule
-from tatsu.parsing import leftrec, nomemo, isname
 from tatsu.infos import ParserConfig
-from tatsu.util import re
+from tatsu.parsing import (
+    Parser,
+    leftrec,
+    nomemo,
+    isname,
+    generic_main,
+    竜rule,
+)
+
 
 __all__ = [
     'EBNFBootstrapBuffer',
@@ -43,8 +49,8 @@ class EBNFBootstrapBuffer(Buffer):
             ignorecase=False,
             namechars='',
             parseinfo=True,
-            comments='(?sm)[(][*](?:.|\\n)*?[*][)]',
-            eol_comments='(?m)#[^\\n]*$',
+            comments='(?sm)[(][*]\\s*((?:.|\\n)*?)\\s*[*][)]',
+            eol_comments='(?m)#\\s*([^\\n]*)\\s*$',
             keywords=KEYWORDS,
             start='start',
         )
@@ -62,8 +68,8 @@ class EBNFBootstrapParser(Parser):
             ignorecase=False,
             namechars='',
             parseinfo=True,
-            comments='(?sm)[(][*](?:.|\\n)*?[*][)]',
-            eol_comments='(?m)#[^\\n]*$',
+            comments='(?sm)[(][*]\\s*((?:.|\\n)*?)\\s*[*][)]',
+            eol_comments='(?m)#\\s*([^\\n]*)\\s*$',
             keywords=KEYWORDS,
             start='start',
         )
