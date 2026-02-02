@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import codecs
 import datetime
 import functools
 import keyword
@@ -25,19 +24,6 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-ESCAPE_SEQUENCE_RE: re.Pattern = re.compile(
-    r"""
-    ( \\U........      # 8-digit Unicode escapes
-    | \\u....          # 4-digit Unicode escapes
-    | \\x..            # 2-digit Unicode escapes
-    | \\[0-7]{1,3}     # Octal character escapes
-    | \\N\{[^}]+\}     # Unicode characters by name
-    | \\[\\'"abfnrtv]  # Single-character escapes
-    )""",
-    re.UNICODE | re.VERBOSE,
-)
-
-
 def program_name() -> str:
     import __main__ as main
     if package := main.__package__:
@@ -52,7 +38,7 @@ def is_posix() -> bool:
     return os.name == 'posix'
 
 
-def _prints(*args, **kwargs: Any) -> str:
+def prints(*args, **kwargs: Any) -> str:
     with StringIO() as f:
         kwargs['file'] = f
         kwargs['end'] = ''
@@ -61,19 +47,19 @@ def _prints(*args, **kwargs: Any) -> str:
 
 
 def info(*args: Any, **kwargs: Any) -> None:
-    logger.info(_prints(*args, **kwargs))
+    logger.info(prints(*args, **kwargs))
 
 
 def debug(*args: Any, **kwargs: Any) -> None:
-    logger.debug(_prints(*args, **kwargs))
+    logger.debug(prints(*args, **kwargs))
 
 
 def warning(*args: Any, **kwargs: Any) -> None:
-    logger.warning(_prints(*args, **kwargs))
+    logger.warning(prints(*args, **kwargs))
 
 
 def error(*args: Any, **kwargs: Any) -> None:
-    logger.error(_prints(*args, **kwargs))
+    logger.error(prints(*args, **kwargs))
 
 
 def identity(*args: Any) -> Any:
@@ -157,24 +143,6 @@ def compress_seq(seq: Iterable[Any]) -> list[Any]:
             result.append(x)
             seen.add(x)
     return result
-
-
-def eval_escapes(s: str | bytes) -> str | bytes:
-    """
-    Given a string, evaluate escape sequences starting with backslashes as
-    they would be evaluated in Python source code. For a list of these
-    sequences, see: https://docs.python.org/3/reference/lexical_analysis.html
-
-    This is not the same as decoding the whole string with the 'unicode-escape'
-    codec, because that provides no way to handle non-ASCII characters that are
-    literally present in the string.
-    """
-    # by Rob Speer
-
-    def decode_match(match):
-        return codecs.decode(match.group(0), 'unicode-escape')
-
-    return ESCAPE_SEQUENCE_RE.sub(decode_match, s)
 
 
 def isiter(obj: Any) -> bool:
