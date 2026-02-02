@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+import functools
 import inspect
 import warnings
 import weakref
@@ -11,23 +12,39 @@ from ..infos import ParseInfo
 from ..util.asjson import AsJSONMixin, asjson, asjsons
 
 
+@dataclasses.dataclass(
+    # init=False,
+    eq=False,
+    repr=False,
+    match_args=False,
+    unsafe_hash=False,
+    kw_only=True,
+)
 class BaseNode(AsJSONMixin):
-    ast: Any
-    parseinfo: ParseInfo | None
-    __attributes: dict[str, Any]
+    ast: Any = None
+    ctx: Any = None
+    parseinfo: ParseInfo | None = None
 
-    def __init__(self, ast: Any = None, **kwargs: Any):
+    def __init__(self, ast: Any = None, **attributes: Any):
         super().__init__()
-        self.ast: Any = ast
-        self.parseinfo: ParseInfo | None = None
-        self.__attributes: dict[str, Any] = {}
 
-        if isinstance(ast, AST) and 'parseinfo' in ast:
-            self.parseinfo = ast['parseinfo']
+        if isinstance(ast, dict):
+            ast = AST(ast)
+        self.ast = ast
 
-        allargs = ast | kwargs if isinstance(self.ast, AST) else kwargs
-        self.__init_dataclass()
-        self.__set_attributes(**allargs)
+        self.__set_attributes(**attributes)
+        self.__post_init__()
+
+    def __post_init__(self):
+        ast = self.ast
+        if not isinstance(ast, AST):
+            return
+
+        if not self.parseinfo:
+            self.parseinfo = ast.parseinfo
+
+        for name in ast.keys() - self.private_names:
+            setattr(self, name, ast[name])
 
     def set_parseinfo(self, value: ParseInfo | None) -> None:
         self.parseinfo = value
@@ -51,25 +68,36 @@ class BaseNode(AsJSONMixin):
             setattr(self, field.name, value)
 
     def __set_attributes(self, **attrs) -> None:
-        for name, value in attrs.items():
-            if hasattr(self, name) and not inspect.ismethod(getattr(self, name)):
-                setattr(self, name, value)
-            else:
-                if hasattr(self, name):
-                    warnings.warn(
-                        f'"{name}" in keyword arguments will shadow'
-                        f' {type(self).__name__}.{name}',
-                        stacklevel=2,
-                    )
-                self.__attributes[name] = value
+        if not isinstance(attrs, dict):
+            return
 
-    def __getattr__(self, name: str) -> Any:
-        # note: here only if normal attribute search failed
-        try:
-            assert isinstance(self.__attributes, dict)
-            return self.__attributes[name]
-        except KeyError:
-            return super().__getattribute__(name)
+        for name, value in attrs.items():
+            if not hasattr(self, name):
+                continue
+            if (prev := getattr(self, name, None)) and inspect.ismethod(prev):
+                warnings.warn(
+                    f'`{name}` in keyword arguments will shadow'
+                    f' `{type(self).__name__}.{name}`',
+                    stacklevel=2,
+                )
+            setattr(self, name, value)
+
+    @functools.cached_property
+    def private_names(self) -> set[str]:
+        return {f.name for f in dataclasses.fields(BaseNode)}
+
+    def _pubdict(self) -> dict[str, Any]:
+        unwanted = self.private_names
+
+        if not isinstance(self.ast, AST):
+            # ast may be all this object has
+            unwanted -= {'ast'}
+
+        return {
+            name: value
+            for name, value in super()._pubdict().items()
+            if name not in unwanted
+        }
 
     def __str__(self) -> str:
         return asjsons(self)
@@ -82,7 +110,7 @@ class BaseNode(AsJSONMixin):
 
     def __eq__(self, other) -> bool:
         # note: no use case for structural equality
-        return id(self) == id(other)
+        return other is self
 
     def __hash__(self) -> int:
         # note: no use case for structural equality

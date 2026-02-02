@@ -1,6 +1,7 @@
 from collections.abc import Callable, MutableMapping
 from typing import Any
 
+from .ast import AST
 from .objectmodel import BaseNode
 
 # NOTE:
@@ -14,11 +15,11 @@ __all__ = ['SynthNode', 'registered_synthetics', 'synthesize']
 class SynthNode(BaseNode):
     def __init__(self, ast: Any = None, **attributes: Any):
         super().__init__(ast=ast, **attributes)
-        if not isinstance(ast, dict):
+        if not isinstance(ast, AST):
             return
         for name, value in ast.items():
             setattr(self, name, value)
-        self.ast = {}
+        self.ast = None
 
 
 def synthesize(name: str, bases: tuple[type, ...], **kwargs: Any) -> Callable:

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import dataclasses
+import functools
 import weakref
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any, cast
@@ -10,12 +12,27 @@ from .base import BaseNode
 __all__ = ['Node']
 
 
+@dataclasses.dataclass(
+    # init=False,
+    eq=False,
+    repr=False,
+    match_args=False,
+    unsafe_hash=False,
+    kw_only=True,
+)
 class Node(BaseNode):
-    __parent_ref: weakref.ref | None
+    __parent_ref: weakref.ref | None = None
 
     def __init__(self, ast: Any = None, **kwargs: Any):
         super().__init__(ast=ast, **kwargs)
         self.__parent_ref: weakref.ref[Node] | None = None
+
+    @functools.cached_property
+    def private_names(self) -> set[str]:
+        return (
+            {f.name for f in dataclasses.fields(Node)}
+            | super().private_names
+        )
 
     @property
     def parent(self) -> Node | None:
@@ -53,12 +70,12 @@ class Node(BaseNode):
         return tuple(reversed(ancestors))
 
     def children(self) -> tuple[Node, ...]:
-        return tuple(self.iter_children())
+        return tuple(self._children())
 
     def children_list(self) -> list[Node]:
-        return list(self.iter_children())
+        return list(self._children())
 
-    def iter_children(self) -> Iterable[Any]:
+    def _children(self) -> Iterable[Any]:
         def dfs(obj: Any) -> Iterable[Node]:
             match obj:
                 case Node() as node:
