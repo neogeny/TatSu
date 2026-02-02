@@ -12,7 +12,13 @@ __all__ = ['SynthNode', 'registered_synthetics', 'synthesize']
 
 
 class SynthNode(BaseNode):
-    pass
+    def __init__(self, ast: Any = None, **attributes: Any):
+        super().__init__(ast=ast, **attributes)
+        if not isinstance(ast, dict):
+            return
+        for name, value in ast.items():
+            setattr(self, name, value)
+        self.ast = {}
 
 
 def synthesize(name: str, bases: tuple[type, ...], **kwargs: Any) -> Callable:
