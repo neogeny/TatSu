@@ -221,16 +221,17 @@ class ModelBuilderSemantics(AbstractSemantics):
             or vars(builtins).get(typename)
         )
 
-    def _get_constructor(self, typename: str, base: type) -> Constructor:
-        constructor = self._find_existing_constructor(typename)
-        if not constructor:
+    def _get_constructor(self, typename: str, base: type, **args: Any) -> Constructor:
+        if constructor := self._find_existing_constructor(typename):
+            return constructor
+
+        if not self.config.synthok:
             synthok = bool(self.config.synthok)
-            if synthok:
-                constructor = synthesize(typename, (base,))
-            else:
-                raise TypeResolutionError(
-                    f'Could not find constructor for type {typename!r}, and {synthok=} ',
-                )
+            raise TypeResolutionError(
+                f'Could not find constructor for type {typename!r}, and {synthok=} ',
+            )
+
+        constructor = synthesize(typename, (base,), **args)
         return self._register_constructor(constructor)
 
     # by [apalala@gmail.com](https://github.com/apalala)
@@ -312,6 +313,5 @@ class ModelBuilderSemantics(AbstractSemantics):
                 basetype = defined
 
         constructor = self._get_constructor(typename, base=basetype)
-
-        actual = self._actual_params(constructor, ast, args[1:], kwargs)
+        actual = self._actual_params(constructor, ast, args, kwargs)
         return constructor(*actual.params, **actual.kwparams)
