@@ -17,6 +17,10 @@ class SynthNode(BaseNode):
         super().__init__(ast=ast, **attributes)
         if not isinstance(ast, AST):
             return
+        # NOTE:
+        #   synthetic objects have no attributes prior to this __init__()
+        #   During parsing, the Synth is known at the start of a rule invocation
+        #   and the attributes at the end of it
         for name, value in ast.items():
             setattr(self, name, value)
         self.ast = None

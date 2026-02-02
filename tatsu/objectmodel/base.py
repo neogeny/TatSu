@@ -43,8 +43,18 @@ class BaseNode(AsJSONMixin):
         if not self.parseinfo:
             self.parseinfo = ast.parseinfo
 
+        # note:
+        #   Node objects are created by a model builer when invoked by he parser,
+        #   which passes only the ast recovered when the object must be created.
+        #   `
+        #       point::Point = ... left:... right:... ;
+        #   `
+        #   Here the key,value pairs in the AST are injected into the corresponding
+        #   attributes declared by the Node subclass. Synthetic classes
+        #   override this to create the attributes.
         for name in ast.keys() - self.private_names:
-            setattr(self, name, ast[name])
+            if hasattr(self, name):
+                setattr(self, name, ast[name])
 
     def set_parseinfo(self, value: ParseInfo | None) -> None:
         self.parseinfo = value

@@ -257,7 +257,6 @@ class ModelBuilderSemantics(AbstractSemantics):
         declared = inspect.signature(fun).parameters
 
         for name, param in declared.items():
-            # 1. Match by name or apply the "Single Parameter" injection
             if name not in known_params:
                 continue
 
@@ -275,15 +274,17 @@ class ModelBuilderSemantics(AbstractSemantics):
         for name, param in declared.items():
             if name in known_params:
                 continue
+
             match param.kind:
                 case inspect.Parameter.POSITIONAL_ONLY:
-                    actual.add_param(name, ast)
+                    actual.add_param(name, ast)  # note: inject `ast`
                 case inspect.Parameter.POSITIONAL_OR_KEYWORD:
-                    actual.add_kwparam(name, ast)
+                    actual.add_kwparam(name, ast)  # note: inject `ast`
                 case inspect.Parameter.VAR_POSITIONAL:
                     actual.add_args(args)
                 case inspect.Parameter.VAR_KEYWORD:
                     actual.add_kwargs(kwargs)
+
         return actual
 
     def _default(self, ast: Any, *args: Any, **kwargs: Any) -> Any:
