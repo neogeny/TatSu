@@ -9,7 +9,7 @@ from .. import grammars
 from ..exceptions import CodegenError
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
-from ..util import Undefined, compress_seq, safe_name
+from ..util import Undefined, compress_seq, re_printable, safe_name
 from ..walkers import NodeWalker
 
 HEADER = """\
@@ -343,8 +343,8 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                     ignorecase={grammar.config.ignorecase},
                     namechars={grammar.config.namechars or ""!r},
                     parseinfo={grammar.config.parseinfo},
-                    comments={grammar.config.comments!r},
-                    eol_comments={grammar.config.eol_comments!r},
+                    comments={re_printable(grammar.config.comments)},
+                    eol_comments={re_printable(grammar.config.eol_comments)},
                     keywords=KEYWORDS,
                     start={start!r},
                 )
