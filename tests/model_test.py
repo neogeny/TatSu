@@ -36,7 +36,7 @@ def test_node_kwargs() -> None:
 
     with pytest.warns(
             UserWarning,
-            match=r'children.*?in keyword arguments will shadow.*?Atom\.children'
+            match=r'children.*?in keyword arguments will shadow.*?Atom\.children',
     ):
         atom = Atom(children=[])
         assert atom
