@@ -29,14 +29,20 @@ HEADER = """\
 
     from __future__ import annotations
 
+    import re
     import sys
     from pathlib import Path
 
     from tatsu.buffering import Buffer
-    from tatsu.parsing import Parser
-    from tatsu.parsing import 竜rule
-    from tatsu.parsing import leftrec, nomemo, isname, generic_main
     from tatsu.infos import ParserConfig
+    from tatsu.parsing import (
+        Parser,
+        leftrec,
+        nomemo,
+        isname,
+        generic_main,
+        竜rule,
+    )
 
 
     __all__ = [
