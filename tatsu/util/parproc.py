@@ -198,6 +198,7 @@ def processing_loop(
                     description=f'{icon} {filename}',
                 )
 
+                print(result.payload, file=log)
                 if result.exception:
                     print(file=log)
                     try:
