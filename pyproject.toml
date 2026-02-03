@@ -50,6 +50,7 @@ dev = [
 ]
 
 test = [
+    "basedpyright",
     "colorama",
     "graphviz",
     "hatch",
