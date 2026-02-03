@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 # by [apalala@gmail.com](https://github.com/apalala)
 # by Gemini (2026-02-03)
 
@@ -39,9 +41,6 @@ jobs:
           uv sync --group test
 
       - name: License Header Check (Incremental)
-        description: |
-          Find files in the current commit missing the SPDX BSD-4-Clause 
-          header. Emit warnings without failing the build.
         run: |
           CHANGED_FILES=$(git diff --name-only --diff-filter=d HEAD^ HEAD | rg -v '\.(png|jpg|ico|pdf|dot|zip|pyc)$' || true)
           if [ -n "$CHANGED_FILES" ]; then
