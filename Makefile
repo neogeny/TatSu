@@ -1,4 +1,5 @@
-SHELL := /bin/bash
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 
 ifeq ($(OS), Windows_NT)
     PLATFORM := Windows
@@ -7,13 +8,13 @@ else
 endif
 
 
-all:  prepare_for_tests test documentation examples requirements
+all:  test documentation examples requirements
 
 
-test:  prepare_for_tests lint pytest
+test:  lint pytest
 	@-uv sync -q
 
-test_plus: prepare_for_tests clean_plus test
+test_plus: clean_plus test
 	@-uv sync -q
 
 
@@ -79,6 +80,13 @@ mypy: prepare_for_tests
 		--exclude dist \
 		--exclude parsers \
 		--exclude backup
+
+pyright: basedpyright
+
+
+basedpyright: prepare_for_tests
+	@- echo $@
+	@- uv run basedpyright tatsu tests examples
 
 
 ty: prepare_for_tests
