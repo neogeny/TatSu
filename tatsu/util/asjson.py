@@ -6,7 +6,7 @@ import weakref
 from collections.abc import Mapping
 from typing import Any, Protocol, runtime_checkable
 
-from .common import as_namedtuple, isiter
+from .itertools import as_namedtuple, isiter
 
 __all__ = [
     'AsJSONMixin',

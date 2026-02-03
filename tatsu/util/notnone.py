@@ -6,6 +6,10 @@ from typing import Any, cast
 __all__ = ['NotNone', 'Undefined']
 
 
+def notnone[T](value: T | None, default: T) -> T:
+    return value if value is not None else default
+
+
 class NotNoneType[T]:
     __notnone: Any = None
 

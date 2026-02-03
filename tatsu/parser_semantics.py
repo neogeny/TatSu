@@ -7,7 +7,8 @@ from . import grammars
 from .exceptions import FailedSemantics
 from .leftrec import mark_left_recursion
 from .semantics import ModelBuilderSemantics
-from .util import eval_escapes, flatten, re, warning
+from .util import eval_escapes, re, warning
+from .util.itertools import flatten
 
 
 class EBNFGrammarSemantics(ModelBuilderSemantics):

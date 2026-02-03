@@ -7,7 +7,8 @@ from __future__ import annotations
 import itertools
 import string
 
-from ..util import indent, isiter, trim
+from ..util import indent, trim
+from ..util.itertools import isiter
 
 
 def render(item, join='', **fields):

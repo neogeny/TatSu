@@ -6,8 +6,9 @@ from collections import namedtuple
 from .. import grammars
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
-from ..util import compress_seq, safe_name
+from ..util import safe_name
 from ..util.deprecation import deprecated_params
+from ..util.itertools import compress_seq
 from ..util.misc import topsort
 
 HEADER = """\

@@ -32,13 +32,10 @@ from ..infos import (
 from ..tokenizing import NullTokenizer, Tokenizer
 from ..util import (
     Undefined,
-    is_list,
-    left_assoc,
-    prune_dict,
-    right_assoc,
     safe_name,
     trim,
 )
+from ..util.itertools import is_list, left_assoc, prune_dict, right_assoc
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from .infos import MemoKey, RuleResult, closure
 from .state import ParseState, ParseStateStack

@@ -5,7 +5,8 @@ from collections.abc import Iterable
 from typing import Any
 
 from .infos import ParseInfo
-from .util import asjson, is_list
+from .util import asjson
+from .util.itertools import is_list
 from .util.safeeval import make_hashable
 
 
