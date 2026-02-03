@@ -1,3 +1,6 @@
+# by [apalala@gmail.com](https://github.com/apalala)
+# by Gemini (2026-02-03)
+
 name: tests default
 on:
   push:
@@ -21,21 +24,28 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          # This is the key for 3.15 alpha/beta versions
           allow-prereleases: true
 
-      - name: install system graphviz
+      - name: install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y graphviz
+          sudo apt-get install -y graphviz ripgrep
 
       - name: install uv and hatch
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-          # uv will use the python version provided by actions/setup-python above
           uv tool install hatch
           uv tool install gh
           uv sync --group test
+
+      # - name: License Header Check
+      #   description: |
+      #     Emits a warning for any Python files missing the SPDX BSD-4-Clause header.
+      #     Commented out until the 148 modules in TatSu are updated.
+      #   run: |
+      #     for file in $(rg -L "SPDX-License-Identifier: BSD-4-Clause" -g "*.py"); do
+      #       echo "::warning file=$file::Missing SPDX-License-Identifier: BSD-4-Clause"
+      #     done
 
       - name: test
         run: |
