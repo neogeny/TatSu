@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 """
 The Buffer class provides the functionality required by a parser-driven lexer.
 
@@ -16,7 +18,7 @@ from .tokenizing import LineIndexInfo, LineInfo, Tokenizer
 from .util import (
     Undefined,
 )
-from .util.misc import cached_re_compile, find_from_rematch
+from .util.misc import cached_re_compile, str_from_match
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -324,7 +326,7 @@ class Buffer(Tokenizer):
             return None
 
         matched = match.group()
-        token = find_from_rematch(match)
+        token = str_from_match(match)
         self.move(len(matched))
         return token
 

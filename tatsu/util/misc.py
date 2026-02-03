@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import importlib.util
@@ -19,7 +21,7 @@ class CycleError(ValueError):
     pass
 
 
-def first(iterable: Iterable[Any], default=Undefined) -> Any:
+def first(iterable: Iterable[Any], default: Any = Undefined) -> Any:
     """Return the first item of *iterable*, or *default* if *iterable* is
     empty.
 
@@ -52,7 +54,15 @@ def first(iterable: Iterable[Any], default=Undefined) -> Any:
         return default
 
 
-def find_from_rematch(m: re.Match):
+def str_from_match(match: re.Match) -> str | None:
+    g = find_from_match(match)
+    if isinstance(g, tuple):
+        return g[0] if g else None
+    else:
+        return g
+
+
+def find_from_match(m: re.Match) -> str | tuple[str, ...] | None:
     if m is None:
         return None
     g = m.groups(default=m.string[0:0])
@@ -80,7 +90,7 @@ def iter_findall(pattern, string, pos=None, endpos=None, flags=0):
     else:
         iterator = r.finditer(string)
     for m in iterator:
-        yield find_from_rematch(m)
+        yield find_from_match(m)
 
 
 def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=Undefined) -> str:
