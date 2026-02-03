@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import deque
 from collections.abc import Callable, Iterable
 from contextlib import contextmanager
-from typing import Any, ClassVar, Concatenate, cast
+from typing import Any, ClassVar, Concatenate
 
 from .util import pythonize_name
 from .util.deprecation import deprecated
