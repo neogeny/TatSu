@@ -37,7 +37,8 @@ def is_header_missing(path: str, target: str) -> bool:
     try:
         with open(path, 'r', encoding='utf-8', errors='ignore') as f:
             # Check the first 1024 bytes for the header
-            return any(line not in f.read(1024) for line in target.splitlines())
+            head = f.read(1024)
+            return any(line not in head for line in target.splitlines())
     except Exception:
         return False
 
