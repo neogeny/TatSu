@@ -8,8 +8,8 @@ from .strings import prints
 
 
 def stderr_print(*args: Any, **kwargs: Any) -> None:
-    kwargs.pop('file', None)
-    print(*args, file=sys.stderr, **kwargs)
+    file = kwargs.pop('file', sys.stderr)
+    print(*args, file=file, **kwargs)
 
 
 def info(*args: Any, **kwargs: Any) -> None:
