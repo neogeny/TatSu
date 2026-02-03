@@ -9,7 +9,7 @@ class LineIndexInfo(NamedTuple):
     line: int
 
     @staticmethod
-    def block_index(name, n):
+    def block_index(name, n) -> list[LineIndexInfo]:
         return list(
             starmap(LineIndexInfo, zip(n * [name], range(n), strict=False)),
         )

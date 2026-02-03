@@ -94,7 +94,7 @@ class Buffer(Tokenizer):
         self._linecount = count
         self._len = len(self.text)
 
-    def _preprocess_block(self, name: str, block, /, **kwargs):
+    def _preprocess_block(self, name: str, block, /, **kwargs) -> tuple[list[str], list[LineIndexInfo]]:
         lines = self.split_block_lines(block)
         index = LineIndexInfo.block_index(name, len(lines))
         return self.process_block(name, lines, index, **kwargs)
@@ -107,9 +107,11 @@ class Buffer(Tokenizer):
 
     def process_block(
             self,
-            name: str, lines: list[str], index: list[int],
+            name: str,
+            lines: list[str],
+            index: list[LineIndexInfo],
             /,
-            **kwargs) -> tuple[list[str], list[int]]:
+            **kwargs) -> tuple[list[str], list[LineIndexInfo]]:
         return lines, index
 
     def include(
