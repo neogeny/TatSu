@@ -53,7 +53,7 @@ idna==3.11
     #   anyio
     #   httpx
     #   hyperlink
-ipython==9.9.0
+ipython==9.10.0
 ipython-pygments-lexers==1.1.1
     # via ipython
 jaraco-classes==3.4.0
@@ -101,7 +101,7 @@ pluggy==1.6.0
 progress==1.6.1
 prompt-toolkit==3.0.52
     # via ipython
-psutil==7.2.1
+psutil==7.2.2
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
@@ -118,7 +118,7 @@ pyproject-hooks==1.2.0
     # via hatch
 pywin32-ctypes==0.2.3 ; sys_platform == 'win32'
     # via keyring
-rich==14.3.1
+rich==14.3.2
     # via hatch
 rst2html5==2.0.1
 secretstorage==3.5.0 ; sys_platform == 'linux'
@@ -141,9 +141,9 @@ typing-extensions==4.15.0 ; python_full_version < '3.13'
     # via anyio
 userpath==1.9.2
     # via hatch
-uv==0.9.27
+uv==0.9.28
     # via hatch
 virtualenv==20.36.1
     # via hatch
-wcwidth==0.5.0
+wcwidth==0.5.3
     # via prompt-toolkit
