@@ -110,5 +110,5 @@ class Version:
         return Version(
             major=major, minor=minor, micro=micro, nano=nano,
             releaselevel=releaselevel, serial=serial,
-            **dict_project(parts, {'post', 'dev', 'local'})
+            **dict_project(parts, {'post', 'dev', 'local'}),
         )
