@@ -14,6 +14,8 @@ from dataclasses import asdict, dataclass
 
 __all__ = ['Version']
 
+from tatsu.util.misc import dict_project
+
 STRIC_VERSION_RE = r'''(?x)
     ^v?
     (?P<epoch>\d+!)?
@@ -29,11 +31,9 @@ VERSION_RE = r'''(?x)
     ^[vV]?
     (?P<epoch>\d+!)?
     (?P<release>\d+(\.\d+)*)
-    # (?P<nano>\.\d+(\.d+)*)?
-    # (?P<pre>(a|b|rc)\d+)?
-    (?P<pre>(\w+)\d+)?
-    (?P<post>\.post\d+)?
-    (?P<dev>\.dev\d+)?
+    (?P<pre>[-._]?(?!post|dev)(\w+)\d+)?
+    (?P<post>[-._]?post\d+)?
+    (?P<dev>[-._]?dev\d+)?
     (?P<local>\+[\w\.]+)?
     $
 '''
@@ -57,6 +57,9 @@ class Version:
     nano: tuple[int, ...] | None = None
     releaselevel: str | None = None
     serial: int | None = None
+    post: str | None = None
+    dev: str | None = None
+    local: str | None = None
 
     def __str__(self):
         return str(self.astuple())
@@ -90,6 +93,7 @@ class Version:
         if not pre:
             pre = ()
         else:
+            pre = pre.lstrip('_-.')
             _, pre, num = re.split(r'(\D+)', pre, maxsplit=1)
             pre = LETTER_NORMALIZATION.get(pre, pre)
             pre = (pre, int(num))
@@ -106,4 +110,5 @@ class Version:
         return Version(
             major=major, minor=minor, micro=micro, nano=nano,
             releaselevel=releaselevel, serial=serial,
+            **dict_project(parts, {'post', 'dev', 'local'})
         )

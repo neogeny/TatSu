@@ -21,6 +21,10 @@ class CycleError(ValueError):
     pass
 
 
+def dict_project[K, V](d: dict[K, V], keys: Iterable[K]) -> dict[K, V]:
+    return {k: d[k] for k in d.keys() & keys}
+
+
 def first(iterable: Iterable[Any], default: Any = Undefined) -> Any:
     """Return the first item of *iterable*, or *default* if *iterable* is
     empty.
