@@ -21,10 +21,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
+          # fetch-depth 2 allows git diff HEAD^ HEAD to work reliably
+          fetch-depth: 2
 
       - name: install system dependencies
         run: |
@@ -34,18 +33,24 @@ jobs:
       - name: install uv and hatch
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
+          # uv will use the python version provided by actions/setup-python above
           uv tool install hatch
           uv tool install gh
           uv sync --group test
 
-      # - name: License Header Check
-      #   description: |
-      #     Emits a warning for any Python files missing the SPDX BSD-4-Clause header.
-      #     Commented out until the 148 modules in TatSu are updated.
-      #   run: |
-      #     for file in $(rg -L "SPDX-License-Identifier: BSD-4-Clause" -g "*.py"); do
-      #       echo "::warning file=$file::Missing SPDX-License-Identifier: BSD-4-Clause"
-      #     done
+      - name: License Header Check (Incremental)
+        description: |
+          Find files in the current commit missing the SPDX BSD-4-Clause 
+          header. Emit warnings without failing the build.
+        run: |
+          CHANGED_FILES=$(git diff --name-only --diff-filter=d HEAD^ HEAD | rg -v '\.(png|jpg|ico|pdf|dot|zip|pyc)$' || true)
+          if [ -n "$CHANGED_FILES" ]; then
+            for file in $CHANGED_FILES; do
+              if rg -qL "SPDX-License-Identifier: BSD-4-Clause" "$file"; then
+                echo "::warning file=$file::Missing SPDX-License-Identifier: BSD-4-Clause"
+              fi
+            done
+          fi
 
       - name: test
         run: |
