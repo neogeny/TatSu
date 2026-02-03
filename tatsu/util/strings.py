@@ -3,6 +3,7 @@ from __future__ import annotations
 import codecs
 import keyword
 import re
+from io import StringIO
 from typing import Any
 
 
@@ -137,3 +138,11 @@ def pythonize_name(name: str) -> str:
     return name[0].lower() + ''.join(
         '_' + c.lower() if c.isupper() else c for c in name[1:]
     )
+
+
+def prints(*args, **kwargs: Any) -> str:
+    with StringIO() as f:
+        kwargs['file'] = f
+        kwargs['end'] = ''
+        print(*args, **kwargs)
+        return f.getvalue()

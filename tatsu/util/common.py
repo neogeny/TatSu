@@ -1,20 +1,10 @@
 from __future__ import annotations
 
 import datetime
-import logging
 import os
 import os.path
-import sys
-from io import StringIO
 from pathlib import Path
 from typing import Any
-
-logger = logging.getLogger('TatSu')
-logger.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stderr)
-formatter = logging.Formatter('%(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 
 def program_name() -> str:
@@ -29,30 +19,6 @@ def program_name() -> str:
 
 def is_posix() -> bool:
     return os.name == 'posix'
-
-
-def prints(*args, **kwargs: Any) -> str:
-    with StringIO() as f:
-        kwargs['file'] = f
-        kwargs['end'] = ''
-        print(*args, **kwargs)
-        return f.getvalue()
-
-
-def info(*args: Any, **kwargs: Any) -> None:
-    logger.info(prints(*args, **kwargs))
-
-
-def debug(*args: Any, **kwargs: Any) -> None:
-    logger.debug(prints(*args, **kwargs))
-
-
-def warning(*args: Any, **kwargs: Any) -> None:
-    logger.warning(prints(*args, **kwargs))
-
-
-def error(*args: Any, **kwargs: Any) -> None:
-    logger.error(prints(*args, **kwargs))
 
 
 def identity(*args: Any) -> Any:
