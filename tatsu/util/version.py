@@ -31,9 +31,9 @@ VERSION_RE = r'''(?x)
     ^[vV]?
     (?P<epoch>\d+!)?
     (?P<release>\d+(\.\d+)*)
-    (?P<pre>[-._]?(?!post|dev)(\w+)\d+)?
-    (?P<post>[-._]?post\d+)?
-    (?P<dev>[-._]?dev\d+)?
+    (?:[-._]?(?P<pre>(?!post|dev)(\w+)\d+))?
+    (?:[-._]?(?P<post>post\d+))?
+    (?:[-._]?(?P<dev>dev\d+))?
     (?P<local>\+[\w\.]+)?
     $
 '''
