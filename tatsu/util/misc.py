@@ -72,7 +72,13 @@ def find_from_match(m: re.Match) -> str | tuple[str, ...] | None:
         return g or m.group()
 
 
-def iter_findall(pattern, string, pos=None, endpos=None, flags=0):
+def iter_findall(
+        pattern: str | re.Pattern,
+        string: str,
+        pos: int | None = None,
+        endpos: int | None = None,
+        flags: int = 0,
+    ) -> Iterable[str]:
     """
     like finditer(), but with return values like findall()
 
@@ -83,14 +89,16 @@ def iter_findall(pattern, string, pos=None, endpos=None, flags=0):
         if isinstance(pattern, re.Pattern)
         else re.compile(pattern, flags=flags)
     )
-    if endpos is not None:
-        iterator = r.finditer(string, pos=pos, endpos=endpos)
+    if pos is not None and endpos is not None:
+        iterator = r.finditer(string, pos=pos, endpos=endpos)  # pyright: ignore[reportCallIssue]
     elif pos is not None:
         iterator = r.finditer(string, pos=pos)
     else:
         iterator = r.finditer(string)
-    for m in iterator:
-        yield find_from_match(m)
+    return tuple(
+        s for s in (str_from_match(m) for m in iterator if m)
+        if s is not None
+    )
 
 
 def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=Undefined) -> str:

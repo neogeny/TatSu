@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import datetime
@@ -40,13 +42,10 @@ def timestamp():
 try:
     import psutil
 except ImportError:
-
     def memory_use():
         return 0
-
 else:
-
-    def memory_use():
+    def memory_use():  # pyright: ignore[reportRedeclaration]
         process = psutil.Process(os.getpid())
         return process.memory_info().rss
 
