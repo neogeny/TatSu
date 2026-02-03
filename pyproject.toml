@@ -33,7 +33,6 @@ classifiers = [
     "Topic :: Text Processing :: General",
 ]
 dependencies = [
-    "basedpyright>=1.37.3",
 ]
 
 [project.optional-dependencies]
