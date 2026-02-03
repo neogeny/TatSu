@@ -64,6 +64,7 @@ calc_test:
 	cd examples/calc && uv run make -s clean test > /dev/null
 
 
+#lint: ruff ty pyright mypy
 lint: ruff ty mypy
 	@-uv sync --group test
 
@@ -95,8 +96,9 @@ ty: prepare_for_tests
 
 
 clean:
-	find . -name "__pycache__" | xargs /bin/rm -rf
-	/bin/rm -rf tatsu.egg-info dist tmp build .tox
+	@- echo "cleaning..."
+	@- find . -name "__pycache__" | xargs /bin/rm -rf
+	@- /bin/rm -rf tatsu.egg-info dist tmp build .tox
 
 
 clean_plus: clean

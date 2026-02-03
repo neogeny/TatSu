@@ -1811,6 +1811,9 @@ wheels = [
 [[package]]
 name = "tatsu"
 source = { editable = "." }
+dependencies = [
+    { name = "basedpyright" },
+]
 
 [package.optional-dependencies]
 colorization = [
@@ -1870,6 +1873,7 @@ test = [
 
 [package.metadata]
 requires-dist = [
+    { name = "basedpyright", specifier = ">=1.37.3" },
     { name = "colorama", marker = "extra == 'colorization'" },
     { name = "rich", marker = "extra == 'parproc'" },
 ]
