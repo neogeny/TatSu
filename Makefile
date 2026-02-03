@@ -39,17 +39,17 @@ doc: documentation
 
 
 sphinx_make:
-	@-uv sync -q --group doc
-	@echo "-> docs"
-	@-cd docs; uv run make -s html > /dev/null
-	@-uv sync -q
+	@- uv sync -q --group doc
+	@  echo "-> docs"
+	@- cd docs; uv run make -s html > /dev/null
+	@- uv sync -q
 
 
 mkdocs_build:
-	@-uv sync -q --group mkdocs
-	@echo "-> mkdocs"
-	@-cd mkdocs; uv run mkdocs build -q 2>&1 > /dev/null
-	@-uv sync -q
+	@- uv sync -q --group mkdocs
+	@  echo "-> mkdocs"
+	@- cd mkdocs; uv run mkdocs build -q 2>&1 > /dev/null
+	@- uv sync -q
 
 
 examples: clean g2e_test calc_test
