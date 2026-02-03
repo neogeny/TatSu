@@ -1,9 +1,11 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 from collections import deque
 from collections.abc import Callable, Iterable
 from contextlib import contextmanager
-from typing import Any, ClassVar, Concatenate
+from typing import Any, ClassVar, Concatenate, cast
 
 from .util import pythonize_name
 from .util.deprecation import deprecated
@@ -13,7 +15,7 @@ type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
 
 class NodeWalker:
     # note: this is shared among all instances of the same sublass of NodeWalker
-    _walker_cache: ClassVar[dict[str, WalkerMethod | None]] = {}
+    _walker_cache: ClassVar[dict[str, WalkerMethod | None]] = {}  # pyright: ignore[reportRedeclaration]
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -48,7 +50,7 @@ class NodeWalker:
     def children_of(self, node: Any) -> Iterable[Any]:
         if not hasattr(node, 'children') or not callable(node.children):
             return ()
-        return node.children()
+        return node.children()  # pyright: ignore[reportReturnType]
 
     def walk_children(self, node: Any, *args, **kwargs) -> tuple[Any, ...]:
         return tuple(

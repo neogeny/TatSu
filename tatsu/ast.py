@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import copy
@@ -70,10 +72,10 @@ class AST(dict[str, Any]):
             return super().__getitem__(key)
         return super().get(self._safekey(key))
 
-    def __setitem__(self, key: str, value: Any) -> None:
+    def __setitem__(self, key: Any, value: Any) -> None:
         self._set(key, value)
 
-    def __delitem__(self, key: str) -> None:
+    def __delitem__(self, key: Any) -> None:
         super().__delitem__(self._safekey(key))
 
     def __setattr__(self, name: str, value: Any) -> None:

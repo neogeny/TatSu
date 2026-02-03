@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import codecs
@@ -20,13 +22,13 @@ def re_printable(text: Any) -> str:
     else:
         text = str(text)
 
-    ctrl_map = {
+    ctrl_map: dict[str, str] = {
         "\n": r"\n",
         "\r": r"\r",
         "\t": r"\t",
     }
 
-    content = "".join(ctrl_map.get(c, c) for c in text)
+    content = ''.join(ctrl_map.get(c, c) for c in text)  # pyright: ignore[reportCallIssue, reportArgumentType]
     content = content.replace("'", "\\'")
 
     if content.endswith("\\") and (len(content) - len(content.rstrip("\\"))) % 2 != 0:
