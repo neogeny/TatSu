@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 # by [apalala@gmail.com](https://github.com/apalala)
 # by Gemini (2026-02-03)
 from __future__ import annotations
@@ -7,7 +9,6 @@ import os
 import subprocess
 import sys
 from collections.abc import Sequence
-
 
 type FileList = Sequence[str]
 
@@ -36,7 +37,7 @@ def is_header_missing(path: str, target: str) -> bool:
     try:
         with open(path, 'r', encoding='utf-8', errors='ignore') as f:
             # Check the first 1024 bytes for the header
-            return target not in f.read(1024)
+            return any(line not in f.read(1024) for line in target.splitlines())
     except Exception:
         return False
 
@@ -45,10 +46,10 @@ def main() -> None:
     """
     Main entry point. Exits with 1 if any staged files lack the header.
     """
-    target = [
-        'Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)',
-        'SPDX-License-Identifier: BSD-4-Clause',
-    ]
+    target = (
+        'Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)'
+        '\nSPDX-License-Identifier: BSD-4-Clause'
+    )
     ignored = {
         '.dot',
         '.ico',
@@ -57,6 +58,7 @@ def main() -> None:
         '.pdf',
         '.png',
         '.pyc',
+        '.txt',
         '.zip',
         }
 
@@ -74,7 +76,7 @@ def main() -> None:
         print("ERROR: Commit aborted. The following files are missing the license header:")
         for f in missing_files:
             print(f"  - {f}")
-        print(f"\nPlease add:\n{'\n'.join(target)}")
+        print(f"\nPlease add:\n{target}")
         sys.exit(1)
 
     sys.exit(0)
