@@ -10,8 +10,6 @@ about source lines and content.
 from __future__ import annotations
 
 import re
-import warnings
-from functools import cached_property
 from pathlib import Path
 from typing import Any
 
