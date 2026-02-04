@@ -49,7 +49,7 @@ def test_children():
         Inner()  # ty: ignore[missing-argument] # pyright: ignore[reportCallIssue]
 
     with pytest.raises(TypeError):
-        Inner('x')  # ty: ignore[too-many-positional-arguments] # pyright: ignore[reportCallIssue]
+        Inner('x')  # ty: ignore[missing-argument, too-many-positional-arguments] # pyright: ignore[reportCallIssue]
 
     a_inner = Inner(id='a')
     b_inner = Inner(id='b')
