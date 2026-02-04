@@ -10,6 +10,8 @@ about source lines and content.
 from __future__ import annotations
 
 import re
+import warnings
+from functools import cached_property
 from pathlib import Path
 from typing import Any
 
@@ -289,14 +291,38 @@ class Buffer(Tokenizer):
     def is_name_char(self, c: str | None) -> bool:
         return c is not None and (c.isalnum() or c in self._namechar_set)
 
+    def is_name(self, s: str) -> bool:
+        if not s:
+            return False
+        goodstart = s[0].isalpha() or s[0] in self._namechar_set
+        return goodstart and all(self.is_name_char(c) for c in s[1:])
+
+    @cached_property
+    def name_guard_pattern(self) -> str:
+        """
+        Returns a negative lookahead that blocks standard word
+        characters and custom namechars to prevent prefix matching.
+        """
+        nc = self.config.namechars
+        if nc is None:
+            return r'\b'
+
+        # guard for list, set, tuple, ...
+        extra_chars = re.escape(''.join(str(c) for c in str(nc)))
+        # return rf'(?![\w{extra_chars}])'
+        return rf'(?:\b|[^\w{extra_chars}])'
+        # return ''
+
     def match(self, token: str) -> str | None:
         if token is None:
             return self.atend()
 
         p = self.pos
-        flags = re.IGNORECASE if self.ignorecase else 0
-        token_re = cached_re_compile(token, escape=True, flags=flags)
-        is_match = token_re.match(self.text, pos=p) is not None
+        text = self.text[p:p + len(token)]
+        if self.ignorecase:
+            is_match = text.lower() == token.lower()
+        else:
+            is_match = text == token
 
         if not is_match:
             return None
@@ -304,10 +330,8 @@ class Buffer(Tokenizer):
         self.move(len(token))
         partial_match = (
             self.nameguard
-            and token
-            and token[0].isalpha()
             and self.is_name_char(self.current)
-            and all(self.is_name_char(t) for t in token)
+            and self.is_name(token)
         )
         if partial_match:
             self.goto(p)
