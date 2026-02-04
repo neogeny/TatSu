@@ -132,6 +132,7 @@ ignore_missing_imports = true
 
 [tool.ty.rules]
 unresolved-import = "ignore"
+unused-ignore-comment = "ignore"
 
 [tool.ruff]
 line-length = 88

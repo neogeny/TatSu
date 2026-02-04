@@ -1,3 +1,7 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 import contextlib
 import pathlib
 import sys
@@ -186,7 +190,7 @@ class ParameterTests(unittest.TestCase):
         pathlib.Path(py_file_path).write_text(code)
         try:
             sys.path.append(str(temp_dir))
-            import tc36unicharstest  # type: ignore
+            import tc36unicharstest  # pyright: ignore[reportMissingImports]
 
             assert tc36unicharstest
             _trydelete(temp_dir, module_name)

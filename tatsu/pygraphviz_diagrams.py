@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import itertools
@@ -20,7 +22,7 @@ def draw(filename, grammar):
 class DiagramNodeWalker(NodeWalker):
     def __init__(self):
         super().__init__()
-        import pygraphviz as pgv  # type: ignore
+        import pygraphviz as pgv  # pyright: ignore[reportMissingImports]
 
         self.top_graph = pgv.AGraph(
             directed=True,
