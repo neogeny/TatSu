@@ -38,7 +38,7 @@ jobs:
 
       - name: test
         run: |
-          python3 -m pip install -r requirements-test.txt
+          python3 -c "import pytest"
           python3 -m ruff check -q --preview tatsu tests examples
           python3 -m ty check tatsu tests examples
           python3 -m basedpyright tatsu tests examples
