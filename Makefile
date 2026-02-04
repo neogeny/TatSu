@@ -101,11 +101,10 @@ clean:
 
 
 clean_plus: clean
-	# NOTE: keep the complicated .mypy_cache
-	/bin/rm -rf .cache .pytest_cache .ruff_cache
+	@- /bin/rm -rf .cache .pytest_cache .ruff_cache .mypy_cache
 
 
-checks: clean_plus __tests_init__
+checks: clean __tests_init__
 	time uv run hatch run --force-continue test:checks
 
 
