@@ -1,10 +1,12 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import sys
 import warnings
 from typing import Any
 
-from .strings import prints
+from .string import prints
 
 
 def stderr_print(*args: Any, **kwargs: Any) -> None:
