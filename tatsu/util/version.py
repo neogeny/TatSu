@@ -14,6 +14,9 @@ from dataclasses import asdict, dataclass
 
 __all__ = ['Version']
 
+from itertools import takewhile
+from typing import Any
+
 from tatsu.util.misc import dict_project
 
 STRIC_VERSION_RE = r'''(?x)
@@ -29,12 +32,12 @@ STRIC_VERSION_RE = r'''(?x)
 
 VERSION_RE = r'''(?x)
     ^[vV]?
-    (?P<epoch>\d+!)?
+    (?:(?P<epoch>\d+)!)?
     (?P<release>\d+(\.\d+)*)
     (?:[-._]?(?P<pre>(?!post|dev)(\w+)\d+))?
     (?:[-._]?(?P<post>post\d+))?
     (?:[-._]?(?P<dev>dev\d+))?
-    (?P<local>\+[\w\.]+)?
+    (?:\+(?P<local>[\w\.]+))?
     $
 '''
 
@@ -51,15 +54,16 @@ LETTER_NORMALIZATION = {
 
 @dataclass(slots=True, kw_only=True)
 class Version:
+    epoch: Any = None
     major: int | None = None
     minor: int | None = None
     micro: int | None = None
     nano: tuple[int, ...] | None = None
-    releaselevel: str | None = None
+    level: str | None = None
     serial: int | None = None
-    post: str | None = None
-    dev: str | None = None
-    local: str | None = None
+    post: Any = None
+    dev: Any = None
+    local: Any = None
 
     def __str__(self):
         return str(self.astuple())
@@ -80,35 +84,36 @@ class Version:
         if not match:
             raise ValueError(f'Invalid version string: {versionstr!r}')
 
+        def alphadigit_split(s: str) -> tuple[str, int | str]:
+            if not s:
+                return None, None  # type: ignore
+
+            alpha = ''.join(takewhile(str.isalpha, s))
+            digits = s[len(alpha):]
+            if digits.isdigit():
+                digits = int(digits)
+            return alpha, digits
+
         parts = match.groupdict()
-        release = tuple(int(d) for d in re.split(r'[.]', parts['release']))
+        release = tuple(int(d) for d in parts['release'].split('.'))
         parts['release'] = release
 
-        nano = parts.get('nano')
-        if nano:
-            nano = tuple(int(d) for d in re.split(r'[.]', nano[1:]))
-            parts['nano'] = nano
-
         pre = parts['pre']
-        if not pre:
-            pre = ()
-        else:
-            pre = pre.lstrip('_-.')
-            _, pre, num = re.split(r'(\D+)', pre, maxsplit=1)
-            pre = LETTER_NORMALIZATION.get(pre, pre)
-            pre = (pre, int(num))
-            parts['pre'] = pre
+        pre, num = alphadigit_split(pre.lstrip('_-.'))
+        pre = LETTER_NORMALIZATION.get(pre, pre)
+        pre = (pre, num)
+        parts['pre'] = pre
+        level, serial = pre
+        serial = int(serial) if serial else None
 
         major, minor, micro, *nano = release + (None,) * 3
-        nano = tuple(n for n in nano if n is not None)
-        nano = tuple(int(n) for n in nano) if nano else None
+        nano = tuple(int(n) for n in nano if n is not None) or None
 
-        releaselevel, serial, *_ = pre + (None,) * 2
-        releaselevel = str(releaselevel) if releaselevel else None
-        serial = int(serial) if serial else None
+        for key in ('epoch', 'post', 'dev', 'local'):
+            parts[key] = alphadigit_split(parts[key])[1]
 
         return Version(
             major=major, minor=minor, micro=micro, nano=nano,
-            releaselevel=releaselevel, serial=serial,
-            **dict_project(parts, {'post', 'dev', 'local'}),
+            level=level, serial=serial,
+            **dict_project(parts, {'epoch', 'post', 'dev', 'local'}),
         )
