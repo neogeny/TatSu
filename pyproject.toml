@@ -129,6 +129,9 @@ norecursedirs = ["*.egg", ".git", ".venv", "build", "dist"]
 python_version = "3.14"
 exclude = "backup|parsers|docs|dist|build|tmp"
 
+[tool.ty.rules]
+ignore_missing_imports = true
+
 [tool.ruff]
 line-length = 88
 exclude = [".git", "__pycache__", "dist"]
