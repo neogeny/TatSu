@@ -2,9 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import copy
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, override
 
 from .infos import ParseInfo
 from .util import asjson
@@ -31,9 +30,6 @@ class AST(dict[str, Any]):
     # NOTE: required to bypass '_frozen'
     def set_parseinfo(self, value: ParseInfo | None) -> None:
         super().__setitem__('parseinfo', value)
-
-    def copy(self) -> AST:
-        return copy.copy(self)
 
     def asjson(self) -> Any:
         return asjson(self)
@@ -65,7 +61,7 @@ class AST(dict[str, Any]):
                 super().__setitem__(key, [])
 
     def __copy__(self) -> AST:
-        return AST(self)
+        return type(self)(self)
 
     def __getitem__(self, key: str) -> Any:
         if key in self:
@@ -98,5 +94,6 @@ class AST(dict[str, Any]):
     def __str__(self) -> str:
         return str(self.asjson())
 
-    def __hash__(self) -> int:  # type: ignore
+    @override
+    def __hash__(self) -> int:  # pyright: ignore[reportIncompatibleVariableOverride]
         return hash(make_hashable(self))

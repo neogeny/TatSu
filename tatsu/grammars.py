@@ -21,7 +21,7 @@ from .util.itertools import chunks, compress_seq
 PEP8_LLEN = 72
 PRAGMA_RE = r'^\s*#include.*$'
 
-type ffset = set[tuple[str|None, ...]]
+type ffset = set[tuple[str, ...]]
 
 
 class _ref(str):
@@ -181,6 +181,9 @@ class Dot(Model):
 
     def _to_str(self, lean=False):
         return '/./'
+
+    def _first(self, k: int, f: Mapping[str, ffset]) -> ffset:
+        return {('.',)}
 
 
 class Fail(Model):
@@ -394,8 +397,7 @@ class SkipTo(Decorator):
         return ctx._skip_to(lambda: super_parse(ctx))
 
     def _first(self, k, f) -> ffset:
-        # use None to represent ANY
-        return {(None,)} | super()._first(k, f)
+        return {('.',)} | super()._first(k, f)
 
     def _to_str(self, lean=False):
         return '->' + self.exp._to_str(lean=lean)

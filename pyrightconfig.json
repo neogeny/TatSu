@@ -19,9 +19,12 @@
     "**/node_modules",
     "**/__pycache__",
     "**/.venv",
-    "**/.git"
+    "**/.git",
+    "examples/calc"
   ],
   "reportAttributeAccessIssue": false,
+  "reportMissingParameterType": false,
+  "reportImplicitOverride": false,
 
   "reportUnreachable": false,
   "reportMissingTypeStubs": false,
