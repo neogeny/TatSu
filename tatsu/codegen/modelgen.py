@@ -6,7 +6,6 @@ import inspect
 from collections import namedtuple
 from datetime import datetime
 
-from .rendering import Renderer
 from .. import ngcodegen
 from ..codegen.cgbase import CodeGenerator, ModelRenderer
 from ..exceptions import CodegenError
@@ -14,6 +13,7 @@ from ..objectmodel import Node
 from ..util import indent, re, safe_name
 from ..util.deprecate import deprecated, deprecated_params
 from ..util.itertools import compress_seq
+from .rendering import Renderer
 
 NODE_NAME_PATTERN = r'(?!\d)\w+(' + rf'{'::'}' + r'(?!\d)\w+)*'
 

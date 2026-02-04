@@ -1,18 +1,18 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 
-from __future__ import annotations, annotations
+from __future__ import annotations
 
 import re
 import textwrap
 
-from .cgbase import CodeGenerator, ModelRenderer
 from .. import grammars, ngcodegen
 from ..exceptions import CodegenError
 from ..objectmodel import Node
 from ..util import indent, safe_name, timestamp, trim
 from ..util.deprecate import deprecated
 from ..util.itertools import compress_seq
+from .cgbase import CodeGenerator, ModelRenderer
 
 
 @deprecated(replacement=ngcodegen.codegen)
