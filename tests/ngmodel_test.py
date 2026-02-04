@@ -42,14 +42,14 @@ class Outer(Node):
 
 def test_children():
     with pytest.raises(TypeError):
-        outer = Outer()  # pyright: ignore[reportCallIssue]  # ty:ignore[missing-argument]
+        outer = Outer()  # type: ignore
         pytest.fail('Should have raised TypeError')
 
     with pytest.raises(TypeError):
-        Inner()  # ty: ignore[missing-argument] # pyright: ignore[reportCallIssue]
+        Inner()  # type: ignore
 
     with pytest.raises(TypeError):
-        Inner('x')  # ty: ignore[missing-argument, too-many-positional-arguments] # pyright: ignore[reportCallIssue]
+        Inner('x')  # type: ignore
 
     a_inner = Inner(id='a')
     b_inner = Inner(id='b')

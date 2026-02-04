@@ -130,6 +130,9 @@ python_version = "3.14"
 exclude = "backup|parsers|docs|dist|build|tmp"
 ignore_missing_imports = true
 
+[tool.ty.analysis]
+respect-type-ignore-comments = true
+
 [tool.ty.rules]
 unresolved-import = "ignore"
 unused-ignore-comment = "ignore"
