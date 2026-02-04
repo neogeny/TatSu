@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import dataclasses
@@ -5,9 +7,9 @@ import importlib
 import types
 from typing import Any, Self
 
-from ..util import asjson, asjsons
 from . import Undefined
-from .deprecation import deprecated
+from .deprecate import deprecated
+from ..util import asjson, asjsons
 
 
 @dataclasses.dataclass

@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 # by [apalala@gmail.com](https://github.com/apalala)
 # by Gemini (2026-01-29)
 

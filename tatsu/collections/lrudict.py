@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from ..util.deprecation import deprecated
+from ..util.deprecate import deprecated
 from .boundeddict import BoundedDict
 
 

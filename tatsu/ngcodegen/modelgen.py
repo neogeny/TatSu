@@ -1,3 +1,6 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+
 from __future__ import annotations
 
 import builtins
@@ -7,7 +10,7 @@ from .. import grammars
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..util import safe_name
-from ..util.deprecation import deprecated_params
+from ..util.deprecate import deprecated_params
 from ..util.itertools import compress_seq
 from ..util.misc import topsort
 

@@ -1,3 +1,6 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+
 from __future__ import annotations
 
 import builtins
@@ -12,7 +15,7 @@ from typing import Any
 from .objectmodel import Node
 from .synth import synthesize
 from .util.configs import Config
-from .util.deprecation import deprecated_params
+from .util.deprecate import deprecated_params
 from .util.itertools import simplify_list
 from .util.misc import least_upper_bound_type
 

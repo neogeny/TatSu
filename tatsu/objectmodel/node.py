@@ -12,7 +12,7 @@ from .base import BaseNode
 
 __all__ = ['Node']
 
-from ..util.deprecation import deprecated
+from ..util.deprecate import deprecated
 
 
 @dataclasses.dataclass(
