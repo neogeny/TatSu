@@ -89,7 +89,7 @@ class Version:
                 return None, None  # type: ignore
 
             alpha = ''.join(takewhile(str.isalpha, s))
-            digits = s[len(alpha):]
+            digits: str | int = s[len(alpha):]
             if digits.isdigit():
                 digits = int(digits)
             return alpha, digits
