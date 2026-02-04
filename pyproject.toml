@@ -47,13 +47,17 @@ dev = [
 test = [
     "basedpyright",
     "nodejs-wheel-binaries<=24",
+    "colorama",
     "graphviz",
     "mypy",
+    "progress",
+    "psutil",
     "pytest",
     "pytest-cov",
     "pytest-dependency",
     "pytest-rerunfailures",
     "pytest-xdist",
+    "rich",
     "ruff",
     "ty",
 ]

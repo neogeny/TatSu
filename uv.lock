@@ -1853,14 +1853,18 @@ mkdocs = [
 ]
 test = [
     { name = "basedpyright" },
+    { name = "colorama" },
     { name = "graphviz" },
     { name = "mypy" },
     { name = "nodejs-wheel-binaries" },
+    { name = "progress" },
+    { name = "psutil" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-dependency" },
     { name = "pytest-rerunfailures" },
     { name = "pytest-xdist" },
+    { name = "rich" },
     { name = "ruff" },
     { name = "ty" },
 ]
@@ -1905,14 +1909,18 @@ mkdocs = [
 ]
 test = [
     { name = "basedpyright" },
+    { name = "colorama" },
     { name = "graphviz" },
     { name = "mypy" },
     { name = "nodejs-wheel-binaries", specifier = "<=24" },
+    { name = "progress" },
+    { name = "psutil" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-dependency" },
     { name = "pytest-rerunfailures" },
     { name = "pytest-xdist" },
+    { name = "rich" },
     { name = "ruff" },
     { name = "ty" },
 ]

@@ -30,7 +30,7 @@ jobs:
       - name: install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y graphviz ripgrep
+          sudo apt-get install -y graphviz
 
       - name: install python dependencies
         run: |
@@ -38,10 +38,10 @@ jobs:
 
       - name: test
         run: |
-          ruff check -q --preview tatsu tests examples
-          ty check tatsu tests examples
-          basedpyright tatsu tests examples
-          pytest tests
+          python3 -m ruff check -q --preview tatsu tests examples
+          python3 -m ty check tatsu tests examples
+          python3 -m basedpyright tatsu tests examples
+          python3 -m pytest tests
 
   docs:
     runs-on: ubuntu-latest
