@@ -1,5 +1,8 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
+# by [apalala@gmail.com](https://github.com/apalala)
+# by Gemini (2026-01-26)
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -7,33 +10,25 @@ build-backend = "hatchling.build"
 [project]
 name = "TatSu"
 dynamic = ["version"]
-authors = [
-    {name = "Juancarlo Añez", email = "apalala@gmail.com"},
-]
+authors = [{name = "Juancarlo Añez", email = "apalala@gmail.com"}]
 description = "TatSu takes a grammar in a variation of EBNF as input, and outputs a memoizing PEG/Packrat parser in Python."
 readme = "README.rst"
 requires-python = ">=3.12"
-keywords = []
 license = {file = "LICENSE"}
+keywords = ["PEG", "parser", "grammar", "EBNF", "packrat"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
     "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
-    "Environment :: Console",
-    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: 3.15",
-    "Topic :: Software Development :: Code Generators",
     "Topic :: Software Development :: Compilers",
-    "Topic :: Software Development :: Interpreters",
     "Topic :: Text Processing :: General",
 ]
-dependencies = [
-]
+dependencies = []
 
 [project.optional-dependencies]
 colorization = ["colorama"]
@@ -51,14 +46,10 @@ dev = [
     "rich",
     "rst2html5",
 ]
-
 test = [
+    { include-group = "dev" },
     "basedpyright",
-    "nodejs-wheel-binaries<24",
-    "colorama",
-    "graphviz",
-    "hatch",
-    "hatch-uv",
+    "nodejs-wheel-binaries<=24",
     "mypy",
     "pytest",
     "pytest-cov",
@@ -69,26 +60,24 @@ test = [
     "ty",
     "types-decorator",
 ]
-
 doc = [
     "docutils",
-    "sphinx>=8.1.0",                # Support for modern Python and Sphinx 9.x
-    "sphinx-autodoc2>=0.5.0",       # Static analysis for Markdown docstrings
-    "sphinx-copybutton>=0.5.2",     # Latest stable with Sphinx 8+ support
-    "sphinx-rtd-theme>=3.1.0",      # Major v3 release with Docutils 0.22 support
-    "pydata-sphinx-theme>=0.16.0",  # The current gold standard theme
-    "myst-parser>=5.0.0",           # Breaking v5.0 release for Sphinx 8/9 compat
+    "sphinx",
+    "sphinx-autodoc2",
+    "sphinx-copybutton",
+    "sphinx-rtd-theme",
+    "pydata-sphinx-theme",
+    "myst-parser",
 ]
-
 mkdocs = [
-    "mkdocs>=1.6.0",                # The core documentation engine
-    "mkdocs-material>=9.5.0",       # The premium-feel theme with dark mode
-    "mkdocstrings[python]>=0.25.0", # Automatic docstring extraction (replaces autodoc)
-    "mkdocs-autorefs>=1.0.1",       # Cross-links between different markdown files
-    "pymdown-extensions>=10.7",     # Essential for tables, task lists, and code fences
-    "mkdocs-gen-files>=0.5.0",      # Optional: Useful if you want to generate pages from code
-    "mkdocs-literate-nav>=0.6.1",   # Optional: If you prefer to keep nav in separate files
-    "mkdocs-macros-plugin",         # Optional: For advanced templating in markdown
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+    "mkdocs-autorefs",
+    "pymdown-extensions",
+    "mkdocs-gen-files",
+    "mkdocs-literate-nav",
+    "mkdocs-macros-plugin",
 ]
 
 [project.scripts]
@@ -99,7 +88,6 @@ g2e = "tatsu.g2e:main"
 Homepage = "https://github.com/neogeny/TatSu"
 Repository = "https://github.com/neogeny/TatSu"
 Documentation = "https://tatsu.readthedocs.io/en/stable/"
-Questions = "https://stackoverflow.com/questions/tagged/tatsu"
 
 [tool.hatch.version]
 path = "tatsu/_version.py"
@@ -108,148 +96,41 @@ path = "tatsu/_version.py"
 packages = ["tatsu"]
 
 [tool.hatch.build.targets.sdist]
-#ignore-vcs = true
-#include = [
-#    "/tatsu",
-#    "/docs",
-#    "/test",
-#    "/grammar",
-#    "/examples",
-#    "*.yaml",
-#]
-exclude = [
-    "/backup",
-    "/parsers",
-    "/deprecated",
-    "/examples/markdown",
-    "req*.txt",
-]
+exclude = ["/backup", "/parsers", "/deprecated", "req*.txt"]
+
 [tool.hatch.envs.default]
+dependency-groups = ["dev"]
 env-vars = {CFLAGS = "-I/opt/homebrew/include", LDFLAGS = "-L/opt/homebrew/lib"}
 
-[tool.hatch.build.targets.sdist.force-include]
-"./tatsu" = "tatsu"
-
-[tool.hatch.envs.hatch-test]
-default-args = ["test"]
-dependencies = [
-    "mypy",
-    "pytest",
-    "pytest-cov",
-    "pytest-rerunfailures",
-    "pytest-xdist", # For parallel execution
-    "ruff",
-    "ty",
-]
-
-# Set default arguments for the pytest command
-extra-args = ["-v", "--cov"]
-
-# Enable built-in features
-randomize = false  # Randomize test order
-parallel = false   # Run tests in parallel
-retries = 0
-
-[tool.pytest.ini_options]
-# minversion = "6.0"
-#addopts = "-ra -q"
-log_cli = "true"
-log_cli_level = "ERROR"
-log_cli_format = "%(message)s"
-addopts = "-q --ignore=.venv -p no:logging"
-testpaths = [
-    "tests",
-]
-norecursedirs = [
-    "*.egg",
-    ".git",
-    ".tox",
-    ".venv",
-    "build",
-    "dist",
-    "tmp",
-]
-
-[tool.mypy]
-python_version = 3.14
-#ignore_missing_imports = true
-exclude = "backup|parsers|docs|dist|build|tmp"
-
-[tool.ty.rules]
-unused-ignore-comment = "ignore"  # needed for mypy
-#invalid-argument-type = "ignore"  # it seems wrong
-
-[tool.ruff]
-line-length = 88
-
-[tool.ruff.analyze.type-check]
-disable = ["invalid-argument-type"]
-
-# The minimum Python version to support
-# target-version = "py311"
-
-# Files or directories to exclude from linting/formatting
-exclude = [
-    ".git",
-    "__pycache__",
-    "dist",
-]
-
-[tool.coverage.run]
-omit = [
-    "/private/*",  # note: don't know how this gets into coverage
-    "backup/",
-    "parsers/",
-    "tests/*",
-    "tatsu/diagrams.py",
-    "tatsu/codegen/*",
-    "**/test.py",
-    "tmp/*"
-]
-data_file = ".cache/coverage/.coverage"
-parallel = false
-
-[tool.coverage.report]
-ignore_errors = true
-
 [tool.hatch.envs.test]
-# non-lint packages included for the benefit of `ty`
-dependencies = [
-    "graphviz",
-    "basedpyright",
-    "colorama",
-    "mypy",
-    "psutil",
-    "pytest",
-    "pytest-dependency",
-    "rich",
-    "ruff",
-    "ty",
-]
+dependency-groups = ["test"]
 
 [tool.hatch.envs.test.scripts]
-version = "echo `python --version` && echo `tatsu --version`"
+version = "python --version && tatsu --version"
 lint = "ruff check -q --preview tatsu tests examples"
 types = "ty check tatsu tests examples"
-#more_types = "mypy --install-types --exclude dist --exclude parsers --exclude backup ."
 more_types = "basedpyright tatsu tests examples"
 tests = "pytest"
-
-checks = [
-    "version",
-    "lint",
-    "types",
-    "more_types",
-    "tests"
-]
-
-run = [
-    "version",
-    "lint",
-    "types",
-    "more_types",
-    "tests"
-]
+run = ["version", "lint", "types", "more_types", "tests"]
 
 [[tool.hatch.envs.test.matrix]]
 python = ["3.12", "3.13", "3.14", "3.15"]
+
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "ERROR"
+addopts = "-q --ignore=.venv -p no:logging"
+testpaths = ["tests"]
+norecursedirs = ["*.egg", ".git", ".venv", "build", "dist"]
+
+[tool.mypy]
+python_version = "3.14"
+exclude = "backup|parsers|docs|dist|build|tmp"
+
+[tool.ruff]
+line-length = 88
+exclude = [".git", "__pycache__", "dist"]
+
+[tool.coverage.run]
+omit = ["tests/*", "tatsu/diagrams.py", "tatsu/codegen/*", "**/test.py"]
+data_file = ".cache/coverage/.coverage"
