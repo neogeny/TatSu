@@ -215,6 +215,7 @@ ignore_errors = true
 # non-lint packages included for the benefit of `ty`
 dependencies = [
     "graphviz",
+    "basedpyright",
     "colorama",
     "mypy",
     "psutil",
@@ -229,7 +230,8 @@ dependencies = [
 version = "echo `python --version` && echo `tatsu --version`"
 lint = "ruff check -q --preview tatsu tests examples"
 types = "ty check tatsu tests examples"
-more_types = "mypy --install-types --exclude dist --exclude parsers --exclude backup ."
+#more_types = "mypy --install-types --exclude dist --exclude parsers --exclude backup ."
+more_types = "basedpyright tatsu tests examples"
 tests = "pytest"
 
 checks = [

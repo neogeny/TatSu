@@ -20,7 +20,8 @@
     "**/__pycache__",
     "**/.venv",
     "**/.git",
-    "examples/calc"
+    "examples/calc",
+    "parsers/"
   ],
   "reportAttributeAccessIssue": false,
   "reportMissingParameterType": false,
