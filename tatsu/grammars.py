@@ -1086,7 +1086,6 @@ class Grammar(Model):
             ctx: ParseContext | None = None,
             config: ParserConfig | None = None,
             **settings):
-        # type: ignore[override]
         config = self.config.override_config(config)
         # note: bw-comp: allow overriding directives
         config = config.override(**settings)

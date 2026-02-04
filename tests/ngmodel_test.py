@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from dataclasses import dataclass
 
 import pytest
@@ -15,7 +17,7 @@ def test_init_attributes_transferred():
     node = Node(ast='Hello!')
     assert node.ast == 'Hello!'
 
-    node = Node(ctx=object(), ast='Hello!')  # type: ignore
+    node = Node(ctx=object(), ast='Hello!')
     assert node.ast == 'Hello!'
     assert node.ctx
 
@@ -40,14 +42,14 @@ class Outer(Node):
 
 def test_children():
     with pytest.raises(TypeError):
-        outer = Outer()  # type: ignore
+        outer = Outer()  # pyright: ignore[reportCallIssue]  # ty:ignore[missing-argument]
         pytest.fail('Should have raised TypeError')
 
     with pytest.raises(TypeError):
-        Inner()  # type: ignore
+        Inner()  # pyright: ignore[reportCallIssue]
 
     with pytest.raises(TypeError):
-        Inner('x')  # type: ignore
+        Inner('x')  # pyright: ignore[reportCallIssue]
 
     a_inner = Inner(id='a')
     b_inner = Inner(id='b')

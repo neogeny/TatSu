@@ -95,5 +95,5 @@ class AST(dict[str, Any]):
         return str(self.asjson())
 
     @override
-    def __hash__(self) -> int:  # type: ignore pyright: ignore[reportIncompatibleVariableOverride]
+    def __hash__(self) -> int:  # pyright: ignore[reportIncompatibleVariableOverride]
         return hash(make_hashable(self))

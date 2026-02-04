@@ -20,7 +20,7 @@ class NodeWalker:
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         # note: a different cache for each subclass
-        cls._walker_cache: dict[str, WalkerMethod | None] = {}  # type: ignore
+        cls._walker_cache: dict[str, WalkerMethod | None] = {}
 
     @property
     def walker_cache(self):

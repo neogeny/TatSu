@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 from typing import Any, NamedTuple, Protocol
@@ -27,5 +29,5 @@ class RuleLike(Protocol):
 
 
 class closure(list[Any]):
-    def __hash__(self) -> int:  # type: ignore
+    def __hash__(self) -> int:  # pyright: ignore[reportIncompatibleVariableOverride]
         return hash(tuple(self))

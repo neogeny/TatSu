@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 """
 Parse and translate an EBNF grammar into a Python parser for
 the described language.
@@ -29,7 +31,7 @@ __all__ = [
     'to_python_sourcecode',
 ]
 
-__compiled_grammar_cache = {}  # type: ignore[var-annotated]
+__compiled_grammar_cache = {}
 
 
 def compile(
