@@ -8,7 +8,7 @@ else
 endif
 
 
-all:  lint mypy pytest documentation examples build requirements
+all:  test documentation examples build requirements
 
 
 test:  lint pytest
