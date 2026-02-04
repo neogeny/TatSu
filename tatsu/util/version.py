@@ -98,7 +98,7 @@ class Version:
         release = tuple(int(d) for d in parts['release'].split('.'))
         parts['release'] = release
 
-        pre = parts['pre']
+        pre = parts['pre'] or ''
         pre, num = alphadigit_split(pre.lstrip('_-.'))
         pre = LETTER_NORMALIZATION.get(pre, pre)
         pre = (pre, num)
