@@ -104,8 +104,8 @@ clean_plus: clean
 	@- /bin/rm -rf .cache .pytest_cache .ruff_cache .mypy_cache
 
 
-checks: clean __tests_init__
-	time uv run hatch run --force-continue test:checks
+matrix: clean __tests_init__
+	time uv run hatch run --force-continue test:test
 
 
 build: clean
@@ -155,7 +155,7 @@ test_publish: need_gh build
 	@- gh run list --workflow="test_publish.yml"
 
 
-publish: need_gh checks build
+publish: need_gh matrix build
 	# CAVEAT: Trusted Publishers are now enabled in pypi.org
 	gh workflow run publish.yml
 	@- gh run list --workflow="publish.yml"
