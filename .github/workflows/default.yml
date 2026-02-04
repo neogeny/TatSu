@@ -31,6 +31,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y graphviz
 
+      - name: install python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+
       - name: install python dependencies
         run: |
           python3 -m pip install -r requirements-test.txt
@@ -39,6 +45,7 @@ jobs:
         run: |
           python3 -c "import pytest"
           python3 --version && python3 -m tatsu --version
+
       - name: ruff
         run: |
           python3 -m ruff check -q --preview tatsu tests examples
