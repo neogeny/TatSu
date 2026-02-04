@@ -297,25 +297,9 @@ class Buffer(Tokenizer):
         goodstart = s[0].isalpha() or s[0] in self._namechar_set
         return goodstart and all(self.is_name_char(c) for c in s[1:])
 
-    @cached_property
-    def name_guard_pattern(self) -> str:
-        """
-        Returns a negative lookahead that blocks standard word
-        characters and custom namechars to prevent prefix matching.
-        """
-        nc = self.config.namechars
-        if nc is None:
-            return r'\b'
-
-        # guard for list, set, tuple, ...
-        extra_chars = re.escape(''.join(str(c) for c in str(nc)))
-        # return rf'(?![\w{extra_chars}])'
-        return rf'(?:\b|[^\w{extra_chars}])'
-        # return ''
-
     def match(self, token: str) -> str | None:
         if token is None:
-            return self.atend()
+            return None
 
         p = self.pos
         text = self.text[p:p + len(token)]
@@ -323,7 +307,6 @@ class Buffer(Tokenizer):
             is_match = text.lower() == token.lower()
         else:
             is_match = text == token
-
         if not is_match:
             return None
 
