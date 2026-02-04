@@ -38,6 +38,7 @@ jobs:
       - name: env
         run: |
           python3 -c "import pytest"
+          python3 --version && python3 -m tatsu --version
       - name: ruff
         run: |
           python3 -m ruff check -q --preview tatsu tests examples
