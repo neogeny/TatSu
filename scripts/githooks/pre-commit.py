@@ -5,15 +5,12 @@
 # by Gemini (2026-02-03)
 from __future__ import annotations
 
-import os
 import subprocess
 import sys
-from collections.abc import Sequence
-
-type FileList = Sequence[str]
+from pathlib import Path
 
 
-def get_staged_files() -> FileList:
+def get_staged_files() -> list[Path]:
     """
     Get the list of files currently staged for commit.
     """
@@ -24,18 +21,18 @@ def get_staged_files() -> FileList:
             text=True,
             check=True
         )
-        return result.stdout.splitlines()
+        return [Path(filename) for filename in result.stdout.splitlines()]
     except subprocess.CalledProcessError:
         return []
 
 
-def is_header_missing(path: str, target: str) -> bool:
+def is_header_missing(path: Path, target: str) -> bool:
     """
     Check if a file is missing the license header using native string ops.
     Works for # (Python/Makefile) and // (JSONC) comments.
     """
     try:
-        with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+        with path.open('r', encoding='utf-8', errors='ignore') as f:
             # Check the first 1024 bytes for the header
             head = f.read(1024)
             return any(line not in head for line in target.splitlines())
@@ -51,7 +48,7 @@ def main() -> None:
         'Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)'
         '\nSPDX-License-Identifier: BSD-4-Clause'
     )
-    ignored = {
+    ignored_suffix = {
         '.dot',
         '.ico',
         '.jpg',
@@ -61,21 +58,29 @@ def main() -> None:
         '.pyc',
         '.txt',
         '.zip',
-        }
+    }
+
+    ignored_prefix = [
+        'bootstrap',
+    ]
 
     staged = get_staged_files()
-    missing_files: list[str] = []
+    missing_paths: list[Path] = []
 
     for path in staged:
-        if any(path.endswith(ext) for ext in ignored) or not os.path.isfile(path):
+        must_ignore = (
+            path.suffix in ignored_suffix
+            or any(path.stem.startswith(p) for p in ignored_prefix)
+        )
+        if must_ignore:
             continue
 
         if is_header_missing(path, target):
-            missing_files.append(path)
+            missing_paths.append(path)
 
-    if missing_files:
+    if missing_paths:
         print("ERROR: Commit aborted. The following files are missing the license header:")
-        for f in missing_files:
+        for f in missing_paths:
             print(f"  - {f}")
         print(f"\nPlease add:\n{target}")
         sys.exit(1)

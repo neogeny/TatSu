@@ -94,10 +94,11 @@ class EBNFBootstrapParser(Parser):
                 with self._option():
                     self._keyword_()
                     self.add_last_node_to_name('keywords')
-                raise self._error(
-                    'expecting one of: '
-                    '<directive> <keyword>'
-                ) from None
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        '<directive> <keyword>'
+                    ) from None
         self._closure(block0)
         self._rule_()
         self.add_last_node_to_name('rules')
@@ -110,10 +111,11 @@ class EBNFBootstrapParser(Parser):
                 with self._option():
                     self._keyword_()
                     self.add_last_node_to_name('keywords')
-                raise self._error(
-                    'expecting one of: '
-                    '<keyword> <rule>'
-                ) from None
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        '<keyword> <rule>'
+                    ) from None
         self._closure(block1)
         self._check_eof()
         self._define(
@@ -136,10 +138,11 @@ class EBNFBootstrapParser(Parser):
                                 self._token('comments')
                             with self._option():
                                 self._token('eol_comments')
-                            raise self._error(
-                                'expecting one of: '
-                                "'comments' 'eol_comments'"
-                            ) from None
+                            if self._no_more_options:
+                                raise self._error(
+                                    'expecting one of: '
+                                    "'comments' 'eol_comments'"
+                                ) from None
                     self.name_last_node('name')
                     self._cut()
                     self._cut()
@@ -168,10 +171,11 @@ class EBNFBootstrapParser(Parser):
                                 self._token('False')
                             with self._option():
                                 self._constant('None')
-                            raise self._error(
-                                'expecting one of: '
-                                "'False' 'None' <regex> <string>"
-                            ) from None
+                            if self._no_more_options:
+                                raise self._error(
+                                    'expecting one of: '
+                                    "'False' 'None' <regex> <string>"
+                                ) from None
                     self.name_last_node('value')
                     self._define(['name', 'value'], [])
                 with self._option():
@@ -187,11 +191,12 @@ class EBNFBootstrapParser(Parser):
                                 self._token('parseinfo')
                             with self._option():
                                 self._token('memoization')
-                            raise self._error(
-                                'expecting one of: '
-                                "'ignorecase' 'left_recursion'"
-                                "'memoization' 'nameguard' 'parseinfo'"
-                            ) from None
+                            if self._no_more_options:
+                                raise self._error(
+                                    'expecting one of: '
+                                    "'ignorecase' 'left_recursion'"
+                                    "'memoization' 'nameguard' 'parseinfo'"
+                                ) from None
                     self.name_last_node('name')
                     self._cut()
                     with self._group():
@@ -205,10 +210,11 @@ class EBNFBootstrapParser(Parser):
                             with self._option():
                                 self._constant(True)
                                 self.name_last_node('value')
-                            raise self._error(
-                                'expecting one of: '
-                                "'::'"
-                            ) from None
+                            if self._no_more_options:
+                                raise self._error(
+                                    'expecting one of: '
+                                    "'::'"
+                                ) from None
                     self._define(['name', 'value'], [])
                 with self._option():
                     with self._group():
@@ -230,13 +236,14 @@ class EBNFBootstrapParser(Parser):
                     self._string_()
                     self.name_last_node('value')
                     self._define(['name', 'value'], [])
-                raise self._error(
-                    'expecting one of: '
-                    "'comments' 'eol_comments' 'grammar'"
-                    "'ignorecase' 'left_recursion'"
-                    "'memoization' 'namechars' 'nameguard'"
-                    "'parseinfo' 'whitespace'"
-                ) from None
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        "'comments' 'eol_comments' 'grammar'"
+                        "'ignorecase' 'left_recursion'"
+                        "'memoization' 'namechars' 'nameguard'"
+                        "'parseinfo' 'whitespace'"
+                    ) from None
         self._cut()
         self._define(['name', 'value'], [])
 
@@ -261,10 +268,11 @@ class EBNFBootstrapParser(Parser):
                         self._word_()
                     with self._option():
                         self._string_()
-                    raise self._error(
-                        'expecting one of: '
-                        '<string> <word>'
-                    ) from None
+                    if self._no_more_options:
+                        raise self._error(
+                            'expecting one of: '
+                            '<string> <word>'
+                        ) from None
             self.add_last_node_to_name('@')
             with self._ifnot():
                 with self._group():
@@ -273,10 +281,11 @@ class EBNFBootstrapParser(Parser):
                             self._token(':')
                         with self._option():
                             self._token('=')
-                        raise self._error(
-                            'expecting one of: '
-                            "':' '='"
-                        ) from None
+                        if self._no_more_options:
+                            raise self._error(
+                                'expecting one of: '
+                                "':' '='"
+                            ) from None
         self._closure(block0)
 
     @竜rule()
@@ -307,16 +316,18 @@ class EBNFBootstrapParser(Parser):
                         with self._option():
                             self._params_()
                             self.name_last_node('params')
-                        raise self._error(
-                            'expecting one of: '
-                            '<kwparams> <params>'
-                        ) from None
+                        if self._no_more_options:
+                            raise self._error(
+                                'expecting one of: '
+                                '<kwparams> <params>'
+                            ) from None
                 self._token(')')
                 self._define(['kwparams', 'params'], [])
-            raise self._error(
-                'expecting one of: '
-                "'(' '::'"
-            ) from None
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    "'(' '::'"
+                ) from None
 
     @竜rule('Rule')
     def _rule_(self):
@@ -355,16 +366,18 @@ class EBNFBootstrapParser(Parser):
                             with self._option():
                                 self._params_()
                                 self.name_last_node('params')
-                            raise self._error(
-                                'expecting one of: '
-                                '<kwparams> <params>'
-                            ) from None
+                            if self._no_more_options:
+                                raise self._error(
+                                    'expecting one of: '
+                                    '<kwparams> <params>'
+                                ) from None
                     self._token(')')
                     self._define(['kwparams', 'params'], [])
-                raise self._error(
-                    'expecting one of: '
-                    "'(' '::'"
-                ) from None
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        "'(' '::'"
+                    ) from None
         with self._optional():
             self._token('<')
             self._cut()
@@ -393,10 +406,11 @@ class EBNFBootstrapParser(Parser):
                     self._token('name')
                 with self._option():
                     self._token('nomemo')
-                raise self._error(
-                    'expecting one of: '
-                    "'name' 'nomemo' 'override'"
-                ) from None
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        "'name' 'nomemo' 'override'"
+                    ) from None
         self.name_last_node('@')
 
     @竜rule()
@@ -420,12 +434,13 @@ class EBNFBootstrapParser(Parser):
                 self._path_()
             with self._option():
                 self._literal_()
-            raise self._error(
-                'expecting one of: '
-                '<boolean> <float> <hex> <int> <literal>'
-                '<null> <path> <raw_string> <string>'
-                "<word> r'(?!\\d)\\w+(?:::(?!\\d)\\w+)+'"
-            ) from None
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    '<boolean> <float> <hex> <int> <literal>'
+                    '<null> <path> <raw_string> <string>'
+                    "<word> r'(?!\\d)\\w+(?:::(?!\\d)\\w+)+'"
+                ) from None
 
     @竜rule()
     def _kwparams_(self):
@@ -453,11 +468,12 @@ class EBNFBootstrapParser(Parser):
                 self._choice_()
             with self._option():
                 self._sequence_()
-            raise self._error(
-                'expecting one of: '
-                "'|' <choice> <element> <option>"
-                '<sequence>'
-            ) from None
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    "'|' <choice> <element> <option>"
+                    '<sequence>'
+                ) from None
 
     @竜rule('Choice')
     def _choice_(self):
@@ -498,19 +514,20 @@ class EBNFBootstrapParser(Parser):
                 self._override_()
             with self._option():
                 self._term_()
-            raise self._error(
-                'expecting one of: '
-                "'>' <atom> <closure> <empty_closure>"
-                '<gather> <group> <join> <left_join>'
-                '<lookahead> <named> <named_list>'
-                '<named_single> <negative_lookahead>'
-                '<optional> <override> <override_list>'
-                '<override_single>'
-                '<override_single_deprecated>'
-                '<positive_closure> <right_join>'
-                '<rule_include> <skip_to> <special>'
-                '<term> <void>'
-            ) from None
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    "'>' <atom> <closure> <empty_closure>"
+                    '<gather> <group> <join> <left_join>'
+                    '<lookahead> <named> <named_list>'
+                    '<named_single> <negative_lookahead>'
+                    '<optional> <override> <override_list>'
+                    '<override_single>'
+                    '<override_single_deprecated>'
+                    '<positive_closure> <right_join>'
+                    '<rule_include> <skip_to> <special>'
+                    '<term> <void>'
+                ) from None
 
     @竜rule('RuleInclude')
     def _rule_include_(self):
@@ -526,10 +543,11 @@ class EBNFBootstrapParser(Parser):
                 self._named_list_()
             with self._option():
                 self._named_single_()
-            raise self._error(
-                'expecting one of: '
-                '<name> <named_list> <named_single>'
-            ) from None
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    '<name> <named_list> <named_single>'
+                ) from None
 
     @竜rule('NamedList')
     def _named_list_(self):
@@ -560,12 +578,13 @@ class EBNFBootstrapParser(Parser):
                 self._override_single_()
             with self._option():
                 self._override_single_deprecated_()
-            raise self._error(
-                'expecting one of: '
-                "'@' '@+:' '@:' <override_list>"
-                '<override_single>'
-                '<override_single_deprecated>'
-            ) from None
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    "'@' '@+:' '@:' <override_list>"
+                    '<override_single>'
+                    '<override_single_deprecated>'
+                ) from None
 
     @竜rule('OverrideList')
     def _override_list_(self):
@@ -621,18 +640,19 @@ class EBNFBootstrapParser(Parser):
                 self._negative_lookahead_()
             with self._option():
                 self._atom_()
-            raise self._error(
-                'expecting one of: '
-                "'!' '&' '(' '()' '->' '?(' '[' '{'"
-                '<alert> <atom> <call> <closure>'
-                '<constant> <cut> <cut_deprecated>'
-                '<empty_closure> <eof> <gather> <group>'
-                '<join> <left_join> <lookahead>'
-                '<negative_lookahead> <optional>'
-                '<pattern> <positive_closure>'
-                '<right_join> <separator> <skip_to>'
-                '<special> <token> <void>'
-            ) from None
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    "'!' '&' '(' '()' '->' '?(' '[' '{'"
+                    '<alert> <atom> <call> <closure>'
+                    '<constant> <cut> <cut_deprecated>'
+                    '<empty_closure> <eof> <gather> <group>'
+                    '<join> <left_join> <lookahead>'
+                    '<negative_lookahead> <optional>'
+                    '<pattern> <positive_closure>'
+                    '<right_join> <separator> <skip_to>'
+                    '<special> <token> <void>'
+                ) from None
 
     @竜rule('Group')
     def _group_(self):
@@ -657,10 +677,11 @@ class EBNFBootstrapParser(Parser):
                     self._positive_gather_()
                 with self._option():
                     self._normal_gather_()
-                raise self._error(
-                    'expecting one of: '
-                    '<normal_gather> <positive_gather>'
-                ) from None
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        '<normal_gather> <positive_gather>'
+                    ) from None
 
     @竜rule('PositiveGather')
     def _positive_gather_(self):
@@ -676,10 +697,11 @@ class EBNFBootstrapParser(Parser):
                     self._token('+')
                 with self._option():
                     self._token('-')
-                raise self._error(
-                    'expecting one of: '
-                    "'+' '-'"
-                ) from None
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        "'+' '-'"
+                    ) from None
         self._cut()
         self._define(['exp', 'sep'], [])
 
@@ -711,10 +733,11 @@ class EBNFBootstrapParser(Parser):
                     self._positive_join_()
                 with self._option():
                     self._normal_join_()
-                raise self._error(
-                    'expecting one of: '
-                    '<normal_join> <positive_join>'
-                ) from None
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        '<normal_join> <positive_join>'
+                    ) from None
 
     @竜rule('PositiveJoin')
     def _positive_join_(self):
@@ -730,10 +753,11 @@ class EBNFBootstrapParser(Parser):
                     self._token('+')
                 with self._option():
                     self._token('-')
-                raise self._error(
-                    'expecting one of: '
-                    "'+' '-'"
-                ) from None
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        "'+' '-'"
+                    ) from None
         self._cut()
         self._define(['exp', 'sep'], [])
 
@@ -767,10 +791,11 @@ class EBNFBootstrapParser(Parser):
                     self._token('+')
                 with self._option():
                     self._token('-')
-                raise self._error(
-                    'expecting one of: '
-                    "'+' '-'"
-                ) from None
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        "'+' '-'"
+                    ) from None
         self._cut()
         self._define(['exp', 'sep'], [])
 
@@ -789,10 +814,11 @@ class EBNFBootstrapParser(Parser):
                     self._token('+')
                 with self._option():
                     self._token('-')
-                raise self._error(
-                    'expecting one of: '
-                    "'+' '-'"
-                ) from None
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        "'+' '-'"
+                    ) from None
         self._cut()
         self._define(['exp', 'sep'], [])
 
@@ -809,12 +835,13 @@ class EBNFBootstrapParser(Parser):
                 self._dot_()
             with self._option():
                 self._pattern_()
-            raise self._error(
-                'expecting one of: '
-                "'(' '/./' '`' <constant> <dot> <group>"
-                '<pattern> <raw_string> <regexes>'
-                '<string> <token>'
-            ) from None
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    "'(' '/./' '`' <constant> <dot> <group>"
+                    '<pattern> <raw_string> <regexes>'
+                    '<string> <token>'
+                ) from None
 
     @竜rule('PositiveClosure')
     def _positive_closure_(self):
@@ -828,10 +855,11 @@ class EBNFBootstrapParser(Parser):
                     self._token('-')
                 with self._option():
                     self._token('+')
-                raise self._error(
-                    'expecting one of: '
-                    "'+' '-'"
-                ) from None
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        "'+' '-'"
+                    ) from None
         self._cut()
 
     @竜rule('Closure')
@@ -909,13 +937,14 @@ class EBNFBootstrapParser(Parser):
                 self._pattern_()
             with self._option():
                 self._eof_()
-            raise self._error(
-                'expecting one of: '
-                "'$' '>>' '`' '~' <alert> <call>"
-                '<constant> <cut> <cut_deprecated> <eof>'
-                '<pattern> <raw_string> <regexes>'
-                "<string> <token> <word> r'\\^+'"
-            ) from None
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    "'$' '>>' '`' '~' <alert> <call>"
+                    '<constant> <cut> <cut_deprecated> <eof>'
+                    '<pattern> <raw_string> <regexes>'
+                    "<string> <token> <word> r'\\^+'"
+                ) from None
 
     @竜rule('Call')
     def _call_(self):
@@ -960,11 +989,12 @@ class EBNFBootstrapParser(Parser):
                     self._token('`')
                 with self._option():
                     self._pattern('`(.*?)`')
-                raise self._error(
-                    'expecting one of: '
-                    "'`' r'(?ms)```((?:.|\\n)*?)```'"
-                    "r'`(.*?)`'"
-                ) from None
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        "'`' r'(?ms)```((?:.|\\n)*?)```'"
+                        "r'`(.*?)`'"
+                    ) from None
 
     @竜rule('Alert')
     def _alert_(self):
@@ -981,10 +1011,11 @@ class EBNFBootstrapParser(Parser):
                 self._string_()
             with self._option():
                 self._raw_string_()
-            raise self._error(
-                'expecting one of: '
-                "<STRING> <raw_string> <string> r'r'"
-            ) from None
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    "<STRING> <raw_string> <string> r'r'"
+                ) from None
 
     @竜rule()
     def _literal_(self):
@@ -1005,15 +1036,16 @@ class EBNFBootstrapParser(Parser):
                 self._int_()
             with self._option():
                 self._null_()
-            raise self._error(
-                'expecting one of: '
-                "'False' 'None' 'True' <STRING> <boolean>"
-                '<float> <hex> <int> <null> <raw_string>'
-                "<string> <word> r'(?!\\d)\\w+'"
-                "r'0[xX](?:\\d|[a-fA-F])+' r'[-"
-                '+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-'
-                "+]?\\d+)?' r'[-+]?\\d+' r'r'"
-            ) from None
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    "'False' 'None' 'True' <STRING> <boolean>"
+                    '<float> <hex> <int> <null> <raw_string>'
+                    "<string> <word> r'(?!\\d)\\w+'"
+                    "r'0[xX](?:\\d|[a-fA-F])+' r'[-"
+                    '+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-'
+                    "+]?\\d+)?' r'[-+]?\\d+' r'r'"
+                ) from None
 
     @竜rule()
     def _string_(self):
@@ -1036,11 +1068,12 @@ class EBNFBootstrapParser(Parser):
                 self._pattern("'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'")
                 self.name_last_node('@')
                 self._cut()
-            raise self._error(
-                'expecting one of: '
-                'r\'"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"\''
-                "r'\\'((?:[^\\'\\n]|\\\\\\'|\\\\\\\\)*?)\\''"
-            ) from None
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    'r\'"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"\''
+                    "r'\\'((?:[^\\'\\n]|\\\\\\'|\\\\\\\\)*?)\\''"
+                ) from None
 
     @竜rule()
     def _hex_(self):
@@ -1101,10 +1134,11 @@ class EBNFBootstrapParser(Parser):
                 self._token('?')
                 self._STRING_()
                 self.name_last_node('@')
-            raise self._error(
-                'expecting one of: '
-                "'/' '?' '?/'"
-            ) from None
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    "'/' '?' '?/'"
+                ) from None
 
     @竜rule()
     def _boolean_(self):
@@ -1113,10 +1147,11 @@ class EBNFBootstrapParser(Parser):
                 self._token('True')
             with self._option():
                 self._token('False')
-            raise self._error(
-                'expecting one of: '
-                "'False' 'True'"
-            ) from None
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    "'False' 'True'"
+                ) from None
 
     @竜rule()
     def _null_(self):

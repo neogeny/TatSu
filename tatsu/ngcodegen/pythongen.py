@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import itertools
@@ -237,10 +239,12 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print('with self._choice():')
         with self.indent():
             self.walk(choice.options)
-            self.print('raise self._error(')
+            self.print('if self._no_more_options:')
             with self.indent():
-                self.print(errors)
-            self.print(') from None')
+                self.print('raise self._error(')
+                with self.indent():
+                    self.print(errors)
+                self.print(') from None')
 
     def walk_Option(self, option: grammars.Option):
         self.print('with self._option():')
