@@ -26,7 +26,6 @@ jobs:
         with:
           # fetch-depth 2 allows git diff HEAD^ HEAD to work reliably
           fetch-depth: 2
-
       - name: install system dependencies
         run: |
           sudo apt-get update
@@ -36,12 +35,20 @@ jobs:
         run: |
           python3 -m pip install -r requirements-test.txt
 
-      - name: test
+      - name: env
         run: |
           python3 -c "import pytest"
+      - name: ruff
+        run: |
           python3 -m ruff check -q --preview tatsu tests examples
+      - name: ty
+        run: |
           python3 -m ty check tatsu tests examples
+      - name: pyright
+        run: |
           python3 -m basedpyright tatsu tests examples
+      - name: pytest
+        run: |
           python3 -m pytest tests
 
   docs:
