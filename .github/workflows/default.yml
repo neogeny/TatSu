@@ -32,28 +32,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y graphviz ripgrep
 
-      - name: install uv and hatch
+      - name: install python dependencies
         run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          # uv will use the python version provided by actions/setup-python above
-          uv tool install hatch
-          uv tool install gh
-          uv sync --group test
-
-      - name: License Header Check (Incremental)
-        run: |
-          CHANGED_FILES=$(git diff --name-only --diff-filter=d HEAD^ HEAD | rg -v '\.(png|jpg|ico|pdf|dot|zip|pyc)$' || true)
-          if [ -n "$CHANGED_FILES" ]; then
-            for file in $CHANGED_FILES; do
-              if rg -qL "SPDX-License-Identifier: BSD-4-Clause" "$file"; then
-                echo "::warning file=$file::Missing SPDX-License-Identifier: BSD-4-Clause"
-              fi
-            done
-          fi
+          python3 -m pip install -r requirements-test.txt
 
       - name: test
         run: |
-          make test
+          ruff check -q --preview tatsu tests examples
+          ty check tatsu tests examples
+          basedpyright tatsu tests examples
+          pytest tests
 
   docs:
     runs-on: ubuntu-latest

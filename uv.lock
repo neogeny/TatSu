@@ -1853,25 +1853,16 @@ mkdocs = [
 ]
 test = [
     { name = "basedpyright" },
-    { name = "colorama" },
     { name = "graphviz" },
-    { name = "hatch" },
-    { name = "hatch-uv" },
-    { name = "ipython" },
     { name = "mypy" },
     { name = "nodejs-wheel-binaries" },
-    { name = "progress" },
-    { name = "psutil" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-dependency" },
     { name = "pytest-rerunfailures" },
     { name = "pytest-xdist" },
-    { name = "rich" },
-    { name = "rst2html5" },
     { name = "ruff" },
     { name = "ty" },
-    { name = "types-decorator" },
 ]
 
 [package.metadata]
@@ -1914,25 +1905,16 @@ mkdocs = [
 ]
 test = [
     { name = "basedpyright" },
-    { name = "colorama" },
     { name = "graphviz" },
-    { name = "hatch" },
-    { name = "hatch-uv" },
-    { name = "ipython" },
     { name = "mypy" },
     { name = "nodejs-wheel-binaries", specifier = "<=24" },
-    { name = "progress" },
-    { name = "psutil" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-dependency" },
     { name = "pytest-rerunfailures" },
     { name = "pytest-xdist" },
-    { name = "rich" },
-    { name = "rst2html5" },
     { name = "ruff" },
     { name = "ty" },
-    { name = "types-decorator" },
 ]
 
 [[package]]
@@ -2002,15 +1984,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/08/d5/655beb51224d1bfd4f9ddc0bb209659bfe71ff141bcf05c418ab670698f0/ty-0.0.14-py3-none-win32.whl", hash = "sha256:b20e22cf54c66b3e37e87377635da412d9a552c9bf4ad9fc449fed8b2e19dad2", size = 9507626, upload-time = "2026-01-27T00:57:41.43Z" },
     { url = "https://files.pythonhosted.org/packages/b6/d9/c569c9961760e20e0a4bc008eeb1415754564304fd53997a371b7cf3f864/ty-0.0.14-py3-none-win_amd64.whl", hash = "sha256:e312ff9475522d1a33186657fe74d1ec98e4a13e016d66f5758a452c90ff6409", size = 10437980, upload-time = "2026-01-27T00:57:36.422Z" },
     { url = "https://files.pythonhosted.org/packages/ad/0c/186829654f5bfd9a028f6648e9caeb11271960a61de97484627d24443f91/ty-0.0.14-py3-none-win_arm64.whl", hash = "sha256:b6facdbe9b740cb2c15293a1d178e22ffc600653646452632541d01c36d5e378", size = 9885831, upload-time = "2026-01-27T00:57:49.747Z" },
-]
-
-[[package]]
-name = "types-decorator"
-version = "5.2.0.20251101"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a6/e4/929a77f6580928a5b4914a62834a0570d2449428ecdbb0a2e916150ed978/types_decorator-5.2.0.20251101.tar.gz", hash = "sha256:120e2bf4792ec8a47653db1cb380c7aacb6862a797c1490a910aacc21548286c", size = 9059, upload-time = "2025-11-01T03:04:02.355Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/bb/cc/aa53df63915e10d429b7aa0491ba520abe4b80aef0304d1b02425cd5bd08/types_decorator-5.2.0.20251101-py3-none-any.whl", hash = "sha256:8176470ec0a2190e9d688577d4987b24039ae4a23913211707eda96bf2755b0c", size = 8074, upload-time = "2025-11-01T03:04:01.353Z" },
 ]
 
 [[package]]

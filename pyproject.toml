@@ -45,9 +45,9 @@ dev = [
     "rst2html5",
 ]
 test = [
-    { include-group = "dev" },
     "basedpyright",
     "nodejs-wheel-binaries<=24",
+    "graphviz",
     "mypy",
     "pytest",
     "pytest-cov",
@@ -56,7 +56,6 @@ test = [
     "pytest-xdist",
     "ruff",
     "ty",
-    "types-decorator",
 ]
 doc = [
     "docutils",
