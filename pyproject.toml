@@ -54,6 +54,7 @@ dev = [
 
 test = [
     "basedpyright",
+    "nodejs-wheel-binaries<24",
     "colorama",
     "graphviz",
     "hatch",

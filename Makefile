@@ -96,7 +96,7 @@ ty: __tests_init__
 
 clean:
 	@- echo "cleaning..."
-	@- find . -name "__pycache__" | xargs /bin/rm -rf
+	@- find tatsu tests examples -name "__pycache__" | xargs /bin/rm -rf
 	@- /bin/rm -rf tatsu.egg-info dist tmp build .tox
 
 
