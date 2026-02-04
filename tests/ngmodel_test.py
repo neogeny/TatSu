@@ -46,10 +46,10 @@ def test_children():
         pytest.fail('Should have raised TypeError')
 
     with pytest.raises(TypeError):
-        Inner()  # pyright: ignore[reportCallIssue]
+        Inner()  # ty: ignore[missing-argument] # pyright: ignore[reportCallIssue]
 
     with pytest.raises(TypeError):
-        Inner('x')  # pyright: ignore[reportCallIssue]
+        Inner('x')  # ty: ignore[too-many-positional-arguments] # pyright: ignore[reportCallIssue]
 
     a_inner = Inner(id='a')
     b_inner = Inner(id='b')
