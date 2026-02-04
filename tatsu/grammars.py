@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import functools
@@ -19,7 +21,7 @@ from .util.itertools import chunks, compress_seq
 PEP8_LLEN = 72
 PRAGMA_RE = r'^\s*#include.*$'
 
-type ffset = set[tuple[str, ...]]
+type ffset = set[tuple[str|None, ...]]
 
 
 class _ref(str):
@@ -146,7 +148,7 @@ class Model(Node):
     def callable_at_same_pos(self, ctx: Mapping[str, Rule] | None = None) -> list[Model]:
         return []
 
-    def nodecount(self):
+    def nodecount(self) -> int:
         return 1
 
     def pretty(self):
@@ -238,13 +240,13 @@ class Decorator(Model):
     def _used_rule_names(self):
         return self.exp._used_rule_names()
 
-    def _first(self, k: int, f: Mapping[str, ffset]):
+    def _first(self, k: int, f: Mapping[str, ffset]) -> ffset:
         return self.exp._first(k, f)
 
     def _follow(self, k, fl, a):
         return self.exp._follow(k, fl, a)
 
-    def nodecount(self):
+    def nodecount(self) -> int:
         return 1 + self.exp.nodecount()
 
     def _to_str(self, lean=False):
@@ -283,7 +285,7 @@ class Token(Model):
     def _parse(self, ctx):
         return ctx._token(self.token)
 
-    def _first(self, k, f):
+    def _first(self, k, f) -> ffset:
         return {(self.token,)}
 
     def _to_str(self, lean=False):
@@ -298,7 +300,7 @@ class Constant(Model):
     def _parse(self, ctx):
         return ctx._constant(self.literal)
 
-    def _first(self, k, f):
+    def _first(self, k, f) -> ffset:
         return {()}
 
     def _to_str(self, lean=False):
@@ -331,14 +333,14 @@ class Pattern(Model):
         self.regex = re.compile(self.pattern)
 
     @property
-    def pattern(self):
+    def pattern(self) -> str:
         return ''.join(list(self.patterns))
 
     def _parse(self, ctx):
         return ctx._pattern(self.pattern)
 
-    def _first(self, k, f):
-        x = self
+    def _first(self, k, f) -> ffset:
+        x = self.pattern
         if bool(self.regex.match('')):
             return {(), (x,)}
         else:
@@ -391,7 +393,7 @@ class SkipTo(Decorator):
         super_parse = super()._parse
         return ctx._skip_to(lambda: super_parse(ctx))
 
-    def _first(self, k, f):
+    def _first(self, k, f) -> ffset:
         # use None to represent ANY
         return {(None,)} | super()._first(k, f)
 
@@ -422,7 +424,7 @@ class Sequence(Model):
     def _used_rule_names(self):
         return set().union(*[s._used_rule_names() for s in self.sequence])
 
-    def _first(self, k, f):
+    def _first(self, k, f) -> ffset:
         result = {()}
         for s in self.sequence:
             x = s._first(k, f)
@@ -439,7 +441,7 @@ class Sequence(Model):
             fs = kdot(x.firstset(k=k), fs, k)
         return a
 
-    def nodecount(self):
+    def nodecount(self) -> int:
         return 1 + sum(s.nodecount() for s in self.sequence)
 
     def _to_str(self, lean=False):
@@ -490,7 +492,7 @@ class Choice(Model):
     def _used_rule_names(self):
         return set().union(*[o._used_rule_names() for o in self.options])
 
-    def _first(self, k, f):
+    def _first(self, k, f) -> ffset:
         result = set()
         for o in self.options:
             result |= o._first(k, f)
@@ -502,7 +504,7 @@ class Choice(Model):
             o._follow(k, fl, a)
         return a
 
-    def nodecount(self):
+    def nodecount(self) -> int:
         return 1 + sum(o.nodecount() for o in self.options)
 
     def _to_str(self, lean=False):
@@ -536,7 +538,7 @@ class Closure(Decorator):
     def _parse(self, ctx):
         return ctx._closure(lambda: self.exp._parse(ctx))
 
-    def _first(self, k, f):
+    def _first(self, k, f) -> ffset:
         efirst = self.exp._first(k, f)
         result = {()}
         for _i in range(k):
@@ -558,7 +560,7 @@ class PositiveClosure(Closure):
     def _parse(self, ctx):
         return ctx._positive_closure(lambda: self.exp._parse(ctx))
 
-    def _first(self, k, f):
+    def _first(self, k, f) -> ffset:
         efirst = self.exp._first(k, f)
         result = {()}
         for _i in range(k):
@@ -650,7 +652,7 @@ class EmptyClosure(Model):
     def _parse(self, ctx):
         return ctx._empty_closure()
 
-    def _first(self, k, f):
+    def _first(self, k, f) -> ffset:
         return {()}
 
     def _to_str(self, lean=False):
@@ -667,7 +669,7 @@ class Optional(Decorator):
         with ctx._optional():
             return self.exp._parse(ctx)
 
-    def _first(self, k, f):
+    def _first(self, k, f) -> ffset:
         return set({()}) | self.exp._first(k, f)
 
     def _to_str(self, lean=False):
@@ -693,7 +695,7 @@ class Cut(Model):
     def _parse(self, ctx):
         ctx._cut()
 
-    def _first(self, k, f):
+    def _first(self, k, f) -> ffset:
         return {()}
 
     def _to_str(self, lean=False):
@@ -756,7 +758,7 @@ class OverrideList(NamedList):
 
 
 class Special(Model):
-    def _first(self, k, f):
+    def _first(self, k, f) -> ffset:
         return {(self.ast,)}
 
     def _to_str(self, lean=False):
@@ -865,7 +867,7 @@ class Rule(Decorator):
         )
         return ctx._call(ruleinfo)
 
-    def _first(self, k, f):
+    def _first(self, k, f) -> ffset:
         self._firstset = self.exp._first(k, f) | f[self.name]
         return self._firstset
 
@@ -947,7 +949,7 @@ class BasedRule(Rule):
             kwparams or base.kwparams,
             decorators=decorators,
         )
-        self.base: Rule = base
+        self.base = base
         new_exp = [self.base.exp, self.exp]
         ast = AST(sequence=new_exp)
         ast.set_parseinfo(self.base.parseinfo)
