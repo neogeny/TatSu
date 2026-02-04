@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import importlib.util
@@ -10,7 +12,7 @@ from functools import cache
 from graphlib import TopologicalSorter
 from typing import Any
 
-from tatsu.util import Undefined
+from .notnone import Undefined
 
 type Constructor = Callable[..., Any]
 
@@ -19,7 +21,11 @@ class CycleError(ValueError):
     pass
 
 
-def first(iterable: Iterable[Any], default=Undefined) -> Any:
+def dict_project[K, V](d: dict[K, V], keys: Iterable[K]) -> dict[K, V]:
+    return {k: d[k] for k in d.keys() & keys}
+
+
+def first(iterable: Iterable[Any], default: Any = Undefined) -> Any:
     """Return the first item of *iterable*, or *default* if *iterable* is
     empty.
 
@@ -52,7 +58,15 @@ def first(iterable: Iterable[Any], default=Undefined) -> Any:
         return default
 
 
-def find_from_rematch(m: re.Match):
+def str_from_match(match: re.Match) -> str | None:
+    g = find_from_match(match)
+    if isinstance(g, tuple):
+        return g[0] if g else None
+    else:
+        return g
+
+
+def find_from_match(m: re.Match) -> str | tuple[str, ...] | None:
     if m is None:
         return None
     g = m.groups(default=m.string[0:0])
@@ -62,7 +76,13 @@ def find_from_rematch(m: re.Match):
         return g or m.group()
 
 
-def iter_findall(pattern, string, pos=None, endpos=None, flags=0):
+def iter_findall(
+        pattern: str | re.Pattern,
+        string: str,
+        pos: int | None = None,
+        endpos: int | None = None,
+        flags: int = 0,
+    ) -> Iterable[str]:
     """
     like finditer(), but with return values like findall()
 
@@ -73,14 +93,16 @@ def iter_findall(pattern, string, pos=None, endpos=None, flags=0):
         if isinstance(pattern, re.Pattern)
         else re.compile(pattern, flags=flags)
     )
-    if endpos is not None:
-        iterator = r.finditer(string, pos=pos, endpos=endpos)
+    if pos is not None and endpos is not None:
+        iterator = r.finditer(string, pos=pos, endpos=endpos)  # pyright: ignore[reportCallIssue]
     elif pos is not None:
         iterator = r.finditer(string, pos=pos)
     else:
         iterator = r.finditer(string)
-    for m in iterator:
-        yield find_from_rematch(m)
+    return tuple(
+        s for s in (str_from_match(m) for m in iterator if m)
+        if s is not None
+    )
 
 
 def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=Undefined) -> str:

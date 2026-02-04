@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import itertools
@@ -9,7 +11,8 @@ from .. import grammars
 from ..exceptions import CodegenError
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
-from ..util import Undefined, compress_seq, re_printable, safe_name
+from ..util import Undefined, re_printable, safe_name
+from ..util.itertools import compress_seq
 from ..walkers import NodeWalker
 
 HEADER = """\
@@ -236,10 +239,12 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print('with self._choice():')
         with self.indent():
             self.walk(choice.options)
-            self.print('raise self._error(')
+            self.print('if self._no_more_options:')
             with self.indent():
-                self.print(errors)
-            self.print(') from None')
+                self.print('raise self._error(')
+                with self.indent():
+                    self.print(errors)
+                self.print(') from None')
 
     def walk_Option(self, option: grammars.Option):
         self.print('with self._option():')

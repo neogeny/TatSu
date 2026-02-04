@@ -1,9 +1,14 @@
-# notnone.py
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 from typing import Any, cast
 
-__all__ = ['NotNone', 'Undefined']
+__all__ = ['NotNone', 'NotNoneType', 'Undefined', 'UndefinedType']
+
+
+def notnone[T](value: T | None, default: T) -> T:
+    return value if value is not None else default
 
 
 class NotNoneType[T]:
@@ -44,7 +49,7 @@ class NotNoneType[T]:
         return not None
 
     def __repr__(self) -> str:
-        return 'Undefined'
+        return super().__repr__()
 
     def __str__(self) -> str:
         return 'Undefined'
@@ -53,5 +58,6 @@ class NotNoneType[T]:
         return hash(id(self))
 
 
+UndefinedType = NotNoneType
 NotNone: NotNoneType[Any] = NotNoneType()
 Undefined = NotNone

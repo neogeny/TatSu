@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 
 from __future__ import annotations
 
@@ -32,13 +34,10 @@ from ..infos import (
 from ..tokenizing import NullTokenizer, Tokenizer
 from ..util import (
     Undefined,
-    is_list,
-    left_assoc,
-    prune_dict,
-    right_assoc,
     safe_name,
     trim,
 )
+from ..util.itertools import is_list, left_assoc, prune_dict, right_assoc
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from .infos import MemoKey, RuleResult, closure
 from .state import ParseState, ParseStateStack
@@ -548,6 +547,17 @@ class ParseContext:
             self._pop_ast()
             self.substate = s
             raise
+
+    def _no_more_options(self) -> bool:
+        """
+        Used by the Python code generator so there are
+        no unconditional:
+            ```
+            raise self._error(...)
+            ```
+        that fool the syntax highlighting of editors
+        """
+        return True
 
     @contextmanager
     def _option(self) -> Generator[None]:

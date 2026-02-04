@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import argparse
@@ -198,7 +200,7 @@ def tatsu_main():
             colorize=args.color,
             left_recursion=args.left_recursion,
             nameguard=args.nameguard,
-            whitespace=args.whitespace,
+            whitespace=str(args.whitespace),
 
         )
         model = api.compile(

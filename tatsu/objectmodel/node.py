@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import dataclasses
@@ -22,10 +24,14 @@ from ..util.deprecation import deprecated
     kw_only=True,
 )
 class Node(BaseNode):
-    __parent_ref: weakref.ref | None = None
+    __parent_ref: weakref.ref | None = None  # pyright: ignore[reportRedeclaration]
 
     def __init__(self, ast: Any = None, **kwargs: Any):
         super().__init__(ast=ast, **kwargs)
+        self.__parent_ref: weakref.ref[Node] | None = None  # pyright: ignore[reportRedeclaration]
+
+    def __post_init__(self):
+        super().__post_init__()
         self.__parent_ref: weakref.ref[Node] | None = None
 
     @functools.cached_property

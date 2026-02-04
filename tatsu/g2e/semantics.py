@@ -4,9 +4,9 @@ import re
 from itertools import chain
 from typing import Any
 
-from tatsu import grammars as model
-from tatsu.ast import AST
-from tatsu.grammars import Model
+from .. import grammars as model
+from ..ast import AST
+from ..grammars import Model
 
 
 def camel2py(name: Any) -> str:

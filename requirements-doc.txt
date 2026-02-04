@@ -7,7 +7,7 @@ alabaster==1.0.0
     # via sphinx
 astroid==3.3.11
     # via sphinx-autodoc2
-babel==2.17.0
+babel==2.18.0
     # via
     #   pydata-sphinx-theme
     #   sphinx

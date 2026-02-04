@@ -9,7 +9,7 @@ import warnings
 from collections.abc import Callable
 from typing import Any
 
-from tatsu.util.misc import fqn
+from .misc import fqn
 
 type Decorator = Callable[[Callable[..., Any]], Callable[..., Any]]
 type AnyCallable = Callable[..., Any]

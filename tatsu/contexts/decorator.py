@@ -5,9 +5,9 @@ import functools
 from collections.abc import Callable
 from typing import Any, cast
 
-from tatsu.contexts import ParseContext
-from tatsu.contexts.infos import RuleLike
-from tatsu.infos import RuleInfo
+from ..contexts import ParseContext
+from ..contexts.infos import RuleLike
+from ..infos import RuleInfo
 
 
 def leftrec(impl: Callable) -> Callable:

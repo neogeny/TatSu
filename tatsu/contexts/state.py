@@ -12,7 +12,7 @@ __all__ = [
     'ParseStateStack',
 ]
 
-from ..util import is_list
+from ..util.itertools import is_list
 
 
 class ParseState:

@@ -6,8 +6,9 @@ from collections import namedtuple
 from .. import grammars
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
-from ..util import compress_seq, safe_name
+from ..util import safe_name
 from ..util.deprecation import deprecated_params
+from ..util.itertools import compress_seq
 from ..util.misc import topsort
 
 HEADER = """\
@@ -30,7 +31,7 @@ HEADER = """\
     from typing import Any
 
     from tatsu.semantics import ModelBuilderSemantics
-    {nodebase_import}
+    {basetype_import}
 
 
     class {name}ModelBuilderSemantics(ModelBuilderSemantics):
@@ -80,15 +81,15 @@ class PythonModelGenerator(IndentPrintMixin):
 
     def generate_model(self, grammar: grammars.Grammar):
         basetype = self.basetype
-        nodebase_name = basetype.__name__.split('.')[-1]
-        nodebase_import = f"from {basetype.__module__} import {nodebase_name}"
+        basetype_name = basetype.__name__.split('.')[-1]
+        basetype_import = f"from {basetype.__module__} import {basetype_name}"
 
         self.name = self.name or grammar.name
         self.print(
             HEADER.format(
                 name=self.name,
                 basetype=self.basetype.__name__,
-                nodebase_import=nodebase_import,
+                basetype_import=basetype_import,
             ),
         )
 
@@ -105,7 +106,7 @@ class PythonModelGenerator(IndentPrintMixin):
             for s in specs
         }
         base = self._model_base_name()
-        specs_by_name[base] = nodebase_name
+        specs_by_name[base] = basetype_name
 
         all_specs = {
             (s.class_name, s.base)

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, NamedTuple, Protocol
 
-from tatsu.infos import RuleInfo
+from ..infos import RuleInfo
 
 
 class MemoKey(NamedTuple):

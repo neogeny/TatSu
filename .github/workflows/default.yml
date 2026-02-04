@@ -1,3 +1,8 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+# by [apalala@gmail.com](https://github.com/apalala)
+# by Gemini (2026-02-03)
+
 name: tests default
 on:
   push:
@@ -18,16 +23,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-          # This is the key for 3.15 alpha/beta versions
-          allow-prereleases: true
+          # fetch-depth 2 allows git diff HEAD^ HEAD to work reliably
+          fetch-depth: 2
 
-      - name: install system graphviz
+      - name: install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y graphviz
+          sudo apt-get install -y graphviz ripgrep
 
       - name: install uv and hatch
         run: |
@@ -36,6 +39,17 @@ jobs:
           uv tool install hatch
           uv tool install gh
           uv sync --group test
+
+      - name: License Header Check (Incremental)
+        run: |
+          CHANGED_FILES=$(git diff --name-only --diff-filter=d HEAD^ HEAD | rg -v '\.(png|jpg|ico|pdf|dot|zip|pyc)$' || true)
+          if [ -n "$CHANGED_FILES" ]; then
+            for file in $CHANGED_FILES; do
+              if rg -qL "SPDX-License-Identifier: BSD-4-Clause" "$file"; then
+                echo "::warning file=$file::Missing SPDX-License-Identifier: BSD-4-Clause"
+              fi
+            done
+          fi
 
       - name: test
         run: |

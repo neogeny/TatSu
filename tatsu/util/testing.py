@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 import argparse
 
 from . import filelist_from_patterns
@@ -27,7 +29,7 @@ def parallel_test_run(parse, options):
         kwargs.pop('ignore', None)
         parallel = not kwargs.pop('serial', False)
 
-        return processing_loop(parse, filenames, parallel=parallel, **kwargs)
+        return processing_loop(filenames, parse, parallel=parallel, **kwargs)
 
     except KeyboardInterrupt:
         if options.verbose:
