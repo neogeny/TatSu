@@ -37,7 +37,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
-      - name: install python dependencies
+      - name: install dependencies
         run: |
           python3 -m pip install -r requirements-test.txt
 
@@ -66,9 +66,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
-      - run: python -m pip install -r requirements-doc.txt
-      - run: python -m pip install sphinx
-      - run: python -m sphinx docs/ docs/_build/
+      - name: install dependencies
+        run: |
+          python -m pip install -r requirements-doc.txt
+          python -m pip install sphinx
+      - name: docs
+        run: |
+          python -m sphinx docs/ docs/_build/
 
   build:
     runs-on: ubuntu-latest
@@ -77,5 +81,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
-      - run: python -m pip install build
-      - run: python -m build
+      - name: install dependencies
+        run: |
+          python -m pip install build
+      - name: build
+        run: |
+          python -m build
