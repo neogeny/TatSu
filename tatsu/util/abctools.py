@@ -141,7 +141,7 @@ def right_assoc(elements):
     return assoc(iter(elements))
 
 
-def dict_project[K, V](d: dict[K, V], keys: Iterable[K]) -> dict[K, V]:
+def dict_projection[K, V](d: dict[K, V], keys: Iterable[K]) -> dict[K, V]:
     """Project a dictionary onto a subset of keys while preserving order.
     """
     # by [apalala@gmail.com](https://github.com/apalala)
