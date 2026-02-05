@@ -6,7 +6,7 @@ import functools
 import operator
 from collections.abc import Iterable, Mapping
 from itertools import zip_longest
-from typing import Any, Iterable, NamedTuple
+from typing import Any, NamedTuple
 
 
 def is_list(o) -> bool:
@@ -142,4 +142,9 @@ def right_assoc(elements):
 
 
 def dict_project[K, V](d: dict[K, V], keys: Iterable[K]) -> dict[K, V]:
-    return {k: d[k] for k in d.keys() & keys}
+    """Project a dictionary onto a subset of keys while preserving order.
+    """
+    # by [apalala@gmail.com](https://github.com/apalala)
+    # by Gemini (2026-02-05)
+    key_set = set(keys)
+    return {k: v for k, v in d.items() if k in key_set}
