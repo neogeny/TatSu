@@ -53,6 +53,7 @@ def main() -> None:
         '.ico',
         '.jpg',
         '.lock',
+        '.md',
         '.pdf',
         '.png',
         '.pyc',

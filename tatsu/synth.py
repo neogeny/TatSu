@@ -1,3 +1,7 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 from collections.abc import Callable, MutableMapping
 from typing import Any
 
@@ -5,8 +9,8 @@ from .ast import AST
 from .objectmodel import BaseNode
 
 # NOTE:
-#   __REGISTRY is an alias for the modules vars()/ __dict__.
-#   That allows for synthesized types to reside within this module.
+#   __registry is an alias for the modules vars()/ __dict__.
+#   This allows for synthesized types to reside within this module.
 __registry: MutableMapping[str, Callable] = vars()
 
 __all__ = ['SynthNode', 'registered_synthetics', 'synthesize']
@@ -20,7 +24,7 @@ class SynthNode(BaseNode):
         # NOTE:
         #   synthetic objects have no attributes prior to this __init__()
         #   During parsing, the Synth is known at the start of a rule invocation
-        #   and the attributes at the end of it
+        #   and the possible attributes known at the end
         for name, value in ast.items():
             setattr(self, name, value)
         self.ast = None
