@@ -1,21 +1,15 @@
-# ruff: noqa: PLC2403
-
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import inspect
 import sys
 from types import MethodType
 
-from .contexts import (
-    ParseContext,
-    isname,
-    leftrec,
-    nomemo,
-    竜rule,
-)
+from .contexts import ParseContext, isname, leftrec, nomemo, rule
 from .exceptions import FailedRef
 
-__all__ = ['Parser', 'generic_main', 'isname', 'leftrec', 'nomemo', '竜rule']
+__all__ = ['Parser', 'generic_main', 'isname', 'leftrec', 'nomemo', 'rule']
 
 
 class Parser(ParseContext):

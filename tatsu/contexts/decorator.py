@@ -1,4 +1,5 @@
-# ruff: noqa: PLC2401
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import functools
@@ -30,7 +31,7 @@ def isname(impl: Callable) -> Callable:
     return impl
 
 
-def 竜rule(*params: Any, **kwparams: Any) -> Callable[[Callable[..., Any]], Callable[[ParseContext], Any]]:
+def rule(*params: Any, **kwparams: Any) -> Callable[[Callable[..., Any]], Callable[[ParseContext], Any]]:
     def decorator(impl: Callable[..., Any]) -> Callable[[ParseContext], Any]:
         @functools.wraps(impl)
         def wrapper(self: ParseContext) -> Any:

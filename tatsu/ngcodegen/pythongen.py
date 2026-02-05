@@ -44,7 +44,7 @@ HEADER = """\
         nomemo,
         isname,
         generic_main,
-        竜rule,
+        rule,
     )
 
 
@@ -149,7 +149,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
         self.print(
             f"""
-                @竜rule({params})\
+                @rule({params})\
                 {leftrec}\
                 {nomemo}\
                 {isname}\

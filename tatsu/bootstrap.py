@@ -14,7 +14,6 @@
 
 from __future__ import annotations
 
-import re
 import sys
 from pathlib import Path
 
@@ -22,13 +21,9 @@ from tatsu.buffering import Buffer
 from tatsu.infos import ParserConfig
 from tatsu.parsing import (
     Parser,
-    leftrec,
-    nomemo,
-    isname,
     generic_main,
-    竜rule,
+    rule,
 )
-
 
 __all__ = [
     'EBNFBootstrapBuffer',
@@ -77,11 +72,11 @@ class EBNFBootstrapParser(Parser):
 
         super().__init__(config=config)
 
-    @竜rule()
+    @rule()
     def _start_(self):
         self._grammar_()
 
-    @竜rule('Grammar')
+    @rule('Grammar')
     def _grammar_(self):
         self._constant('TATSU')
         self.name_last_node('title')
@@ -123,7 +118,7 @@ class EBNFBootstrapParser(Parser):
             ['directives', 'keywords', 'rules'],
         )
 
-    @竜rule()
+    @rule()
     def _directive_(self):
         self._token('@@')
         with self._ifnot():
@@ -247,14 +242,14 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['name', 'value'], [])
 
-    @竜rule()
+    @rule()
     def _keywords_(self):
 
         def block0():
             self._keywords_()
         self._positive_closure(block0)
 
-    @竜rule()
+    @rule()
     def _keyword_(self):
         self._token('@@keyword')
         self._cut()
@@ -288,7 +283,7 @@ class EBNFBootstrapParser(Parser):
                             ) from None
         self._closure(block0)
 
-    @竜rule()
+    @rule()
     def _paramdef_(self):
         with self._choice():
             with self._option():
@@ -329,7 +324,7 @@ class EBNFBootstrapParser(Parser):
                     "'(' '::'"
                 ) from None
 
-    @竜rule('Rule')
+    @rule('Rule')
     def _rule_(self):
 
         def block0():
@@ -392,7 +387,7 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
 
-    @竜rule()
+    @rule()
     def _decorator_(self):
         self._token('@')
         with self._ifnot():
@@ -413,7 +408,7 @@ class EBNFBootstrapParser(Parser):
                     ) from None
         self.name_last_node('@')
 
-    @竜rule()
+    @rule()
     def _params_(self):
         self._first_param_()
         self.add_last_node_to_name('@')
@@ -427,7 +422,7 @@ class EBNFBootstrapParser(Parser):
             self._cut()
         self._closure(block0)
 
-    @竜rule()
+    @rule()
     def _first_param_(self):
         with self._choice():
             with self._option():
@@ -442,7 +437,7 @@ class EBNFBootstrapParser(Parser):
                     "<word> r'(?!\\d)\\w+(?:::(?!\\d)\\w+)+'"
                 ) from None
 
-    @竜rule()
+    @rule()
     def _kwparams_(self):
 
         def sep0():
@@ -452,7 +447,7 @@ class EBNFBootstrapParser(Parser):
             self._pair_()
         self._positive_gather(block1, sep0)
 
-    @竜rule()
+    @rule()
     def _pair_(self):
         self._word_()
         self.add_last_node_to_name('@')
@@ -461,7 +456,7 @@ class EBNFBootstrapParser(Parser):
         self._literal_()
         self.add_last_node_to_name('@')
 
-    @竜rule()
+    @rule()
     def _expre_(self):
         with self._choice():
             with self._option():
@@ -475,7 +470,7 @@ class EBNFBootstrapParser(Parser):
                     '<sequence>'
                 ) from None
 
-    @竜rule('Choice')
+    @rule('Choice')
     def _choice_(self):
         with self._optional():
             self._token('|')
@@ -490,12 +485,12 @@ class EBNFBootstrapParser(Parser):
             self.add_last_node_to_name('@')
         self._positive_closure(block0)
 
-    @竜rule('Option')
+    @rule('Option')
     def _option_(self):
         self._sequence_()
         self.name_last_node('@')
 
-    @竜rule('Sequence')
+    @rule('Sequence')
     def _sequence_(self):
 
         def block0():
@@ -503,7 +498,7 @@ class EBNFBootstrapParser(Parser):
         self._positive_closure(block0)
         self.name_last_node('sequence')
 
-    @竜rule()
+    @rule()
     def _element_(self):
         with self._choice():
             with self._option():
@@ -529,14 +524,14 @@ class EBNFBootstrapParser(Parser):
                     '<term> <void>'
                 ) from None
 
-    @竜rule('RuleInclude')
+    @rule('RuleInclude')
     def _rule_include_(self):
         self._token('>')
         self._cut()
         self._known_name_()
         self.name_last_node('@')
 
-    @竜rule()
+    @rule()
     def _named_(self):
         with self._choice():
             with self._option():
@@ -549,7 +544,7 @@ class EBNFBootstrapParser(Parser):
                     '<name> <named_list> <named_single>'
                 ) from None
 
-    @竜rule('NamedList')
+    @rule('NamedList')
     def _named_list_(self):
         self._name_()
         self.name_last_node('name')
@@ -559,7 +554,7 @@ class EBNFBootstrapParser(Parser):
         self.name_last_node('exp')
         self._define(['exp', 'name'], [])
 
-    @竜rule('Named')
+    @rule('Named')
     def _named_single_(self):
         self._name_()
         self.name_last_node('name')
@@ -569,7 +564,7 @@ class EBNFBootstrapParser(Parser):
         self.name_last_node('exp')
         self._define(['exp', 'name'], [])
 
-    @竜rule()
+    @rule()
     def _override_(self):
         with self._choice():
             with self._option():
@@ -586,28 +581,28 @@ class EBNFBootstrapParser(Parser):
                     '<override_single_deprecated>'
                 ) from None
 
-    @竜rule('OverrideList')
+    @rule('OverrideList')
     def _override_list_(self):
         self._token('@+:')
         self._cut()
         self._term_()
         self.name_last_node('@')
 
-    @竜rule('Override')
+    @rule('Override')
     def _override_single_(self):
         self._token('@:')
         self._cut()
         self._term_()
         self.name_last_node('@')
 
-    @竜rule('Override')
+    @rule('Override')
     def _override_single_deprecated_(self):
         self._token('@')
         self._cut()
         self._term_()
         self.name_last_node('@')
 
-    @竜rule()
+    @rule()
     def _term_(self):
         with self._choice():
             with self._option():
@@ -654,7 +649,7 @@ class EBNFBootstrapParser(Parser):
                     '<special> <token> <void>'
                 ) from None
 
-    @竜rule('Group')
+    @rule('Group')
     def _group_(self):
         self._token('(')
         self._cut()
@@ -664,7 +659,7 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['exp'], [])
 
-    @竜rule()
+    @rule()
     def _gather_(self):
         with self._if():
             with self._group():
@@ -683,7 +678,7 @@ class EBNFBootstrapParser(Parser):
                         '<normal_gather> <positive_gather>'
                     ) from None
 
-    @竜rule('PositiveGather')
+    @rule('PositiveGather')
     def _positive_gather_(self):
         self._separator_()
         self.name_last_node('sep')
@@ -705,7 +700,7 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['exp', 'sep'], [])
 
-    @竜rule('Gather')
+    @rule('Gather')
     def _normal_gather_(self):
         self._separator_()
         self.name_last_node('sep')
@@ -720,7 +715,7 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['exp', 'sep'], [])
 
-    @竜rule()
+    @rule()
     def _join_(self):
         with self._if():
             with self._group():
@@ -739,7 +734,7 @@ class EBNFBootstrapParser(Parser):
                         '<normal_join> <positive_join>'
                     ) from None
 
-    @竜rule('PositiveJoin')
+    @rule('PositiveJoin')
     def _positive_join_(self):
         self._separator_()
         self.name_last_node('sep')
@@ -761,7 +756,7 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['exp', 'sep'], [])
 
-    @竜rule('Join')
+    @rule('Join')
     def _normal_join_(self):
         self._separator_()
         self.name_last_node('sep')
@@ -776,7 +771,7 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['exp', 'sep'], [])
 
-    @竜rule('LeftJoin')
+    @rule('LeftJoin')
     def _left_join_(self):
         self._separator_()
         self.name_last_node('sep')
@@ -799,7 +794,7 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['exp', 'sep'], [])
 
-    @竜rule('RightJoin')
+    @rule('RightJoin')
     def _right_join_(self):
         self._separator_()
         self.name_last_node('sep')
@@ -822,7 +817,7 @@ class EBNFBootstrapParser(Parser):
         self._cut()
         self._define(['exp', 'sep'], [])
 
-    @竜rule()
+    @rule()
     def _separator_(self):
         with self._choice():
             with self._option():
@@ -843,7 +838,7 @@ class EBNFBootstrapParser(Parser):
                     '<string> <token>'
                 ) from None
 
-    @竜rule('PositiveClosure')
+    @rule('PositiveClosure')
     def _positive_closure_(self):
         self._token('{')
         self._expre_()
@@ -862,7 +857,7 @@ class EBNFBootstrapParser(Parser):
                     ) from None
         self._cut()
 
-    @竜rule('Closure')
+    @rule('Closure')
     def _closure_(self):
         self._token('{')
         self._expre_()
@@ -872,14 +867,14 @@ class EBNFBootstrapParser(Parser):
             self._token('*')
         self._cut()
 
-    @竜rule('EmptyClosure')
+    @rule('EmptyClosure')
     def _empty_closure_(self):
         self._token('{')
         self._void()
         self.name_last_node('@')
         self._token('}')
 
-    @竜rule('Optional')
+    @rule('Optional')
     def _optional_(self):
         self._token('[')
         self._cut()
@@ -888,7 +883,7 @@ class EBNFBootstrapParser(Parser):
         self._token(']')
         self._cut()
 
-    @竜rule('Special')
+    @rule('Special')
     def _special_(self):
         self._token('?(')
         self._cut()
@@ -897,28 +892,28 @@ class EBNFBootstrapParser(Parser):
         self._token(')?')
         self._cut()
 
-    @竜rule('Lookahead')
+    @rule('Lookahead')
     def _lookahead_(self):
         self._token('&')
         self._cut()
         self._term_()
         self.name_last_node('@')
 
-    @竜rule('NegativeLookahead')
+    @rule('NegativeLookahead')
     def _negative_lookahead_(self):
         self._token('!')
         self._cut()
         self._term_()
         self.name_last_node('@')
 
-    @竜rule('SkipTo')
+    @rule('SkipTo')
     def _skip_to_(self):
         self._token('->')
         self._cut()
         self._term_()
         self.name_last_node('@')
 
-    @竜rule()
+    @rule()
     def _atom_(self):
         with self._choice():
             with self._option():
@@ -946,35 +941,35 @@ class EBNFBootstrapParser(Parser):
                     "<string> <token> <word> r'\\^+'"
                 ) from None
 
-    @竜rule('Call')
+    @rule('Call')
     def _call_(self):
         self._word_()
 
-    @竜rule('Void')
+    @rule('Void')
     def _void_(self):
         self._token('()')
         self._cut()
 
-    @竜rule('Cut')
+    @rule('Cut')
     def _cut_(self):
         self._token('~')
         self._cut()
 
-    @竜rule('Cut')
+    @rule('Cut')
     def _cut_deprecated_(self):
         self._token('>>')
         self._cut()
 
-    @竜rule()
+    @rule()
     def _known_name_(self):
         self._name_()
         self._cut()
 
-    @竜rule()
+    @rule()
     def _name_(self):
         self._word_()
 
-    @竜rule('Constant')
+    @rule('Constant')
     def _constant_(self):
         with self._if():
             self._token('`')
@@ -996,7 +991,7 @@ class EBNFBootstrapParser(Parser):
                         "r'`(.*?)`'"
                     ) from None
 
-    @竜rule('Alert')
+    @rule('Alert')
     def _alert_(self):
         self._pattern('\\^+')
         self.name_last_node('level')
@@ -1004,7 +999,7 @@ class EBNFBootstrapParser(Parser):
         self.name_last_node('message')
         self._define(['level', 'message'], [])
 
-    @竜rule('Token')
+    @rule('Token')
     def _token_(self):
         with self._choice():
             with self._option():
@@ -1017,7 +1012,7 @@ class EBNFBootstrapParser(Parser):
                     "<STRING> <raw_string> <string> r'r'"
                 ) from None
 
-    @竜rule()
+    @rule()
     def _literal_(self):
         with self._choice():
             with self._option():
@@ -1047,17 +1042,17 @@ class EBNFBootstrapParser(Parser):
                     "+]?\\d+)?' r'[-+]?\\d+' r'r'"
                 ) from None
 
-    @竜rule()
+    @rule()
     def _string_(self):
         self._STRING_()
 
-    @竜rule()
+    @rule()
     def _raw_string_(self):
         self._pattern('r')
         self._STRING_()
         self.name_last_node('@')
 
-    @竜rule()
+    @rule()
     def _STRING_(self):
         with self._choice():
             with self._option():
@@ -1075,35 +1070,35 @@ class EBNFBootstrapParser(Parser):
                     "r'\\'((?:[^\\'\\n]|\\\\\\'|\\\\\\\\)*?)\\''"
                 ) from None
 
-    @竜rule()
+    @rule()
     def _hex_(self):
         self._pattern('0[xX](?:\\d|[a-fA-F])+')
 
-    @竜rule()
+    @rule()
     def _float_(self):
         self._pattern('[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?')
 
-    @竜rule()
+    @rule()
     def _int_(self):
         self._pattern('[-+]?\\d+')
 
-    @竜rule()
+    @rule()
     def _path_(self):
         self._pattern('(?!\\d)\\w+(?:::(?!\\d)\\w+)+')
 
-    @竜rule()
+    @rule()
     def _word_(self):
         self._pattern('(?!\\d)\\w+')
 
-    @竜rule('Dot')
+    @rule('Dot')
     def _dot_(self):
         self._token('/./')
 
-    @竜rule('Pattern')
+    @rule('Pattern')
     def _pattern_(self):
         self._regexes_()
 
-    @竜rule()
+    @rule()
     def _regexes_(self):
 
         def sep0():
@@ -1113,7 +1108,7 @@ class EBNFBootstrapParser(Parser):
             self._regex_()
         self._positive_gather(block1, sep0)
 
-    @竜rule()
+    @rule()
     def _regex_(self):
         with self._choice():
             with self._option():
@@ -1140,7 +1135,7 @@ class EBNFBootstrapParser(Parser):
                     "'/' '?' '?/'"
                 ) from None
 
-    @竜rule()
+    @rule()
     def _boolean_(self):
         with self._choice():
             with self._option():
@@ -1153,11 +1148,11 @@ class EBNFBootstrapParser(Parser):
                     "'False' 'True'"
                 ) from None
 
-    @竜rule()
+    @rule()
     def _null_(self):
         self._token('None')
 
-    @竜rule('EOF')
+    @rule('EOF')
     def _eof_(self):
         self._token('$')
         self._cut()

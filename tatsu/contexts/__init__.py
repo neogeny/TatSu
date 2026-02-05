@@ -1,8 +1,8 @@
-# ruff: noqa: PLC2403
-
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 from .context import ParseContext
-from .decorator import isname, leftrec, nomemo, 竜rule
+from .decorator import isname, leftrec, nomemo, rule
 
-__all__ = ['ParseContext', 'isname', 'leftrec', 'nomemo', '竜rule']
+__all__ = ['ParseContext', 'isname', 'leftrec', 'nomemo', 'rule']

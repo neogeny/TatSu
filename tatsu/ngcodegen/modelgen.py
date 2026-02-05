@@ -30,9 +30,10 @@ HEADER = """\
 
     from __future__ import annotations
 
-    import dataclasses
+    from dataclasses import dataclass
     from typing import Any
 
+    from tatsu.objectmodel import TatSuDataclassParams
     from tatsu.semantics import ModelBuilderSemantics
     {basetype_import}
 
@@ -42,16 +43,6 @@ HEADER = """\
             constructors = constructors or []
             constructors += self.types_defined_in(globals())
             super().__init__(basetype={basetype}, constructors=constructors, **kwargs)
-
-
-    def 竜dataclass(decl: type) -> type:
-        tatsu_dataclass = dataclasses.dataclass(
-            eq=False,
-            repr=False,
-            match_args=False,
-            kw_only=True,
-        )
-        return tatsu_dataclass(decl)
 """
 
 
@@ -139,7 +130,7 @@ class PythonModelGenerator(IndentPrintMixin):
         return 'ModelBase'
 
     def _print_dataclass(self):
-        self.print('@竜dataclass')
+        self.print('@dataclass(**TatSuDataclassParams)')
 
     def _gen_base_class(self, class_name: str, base: str | None):
         self.print()

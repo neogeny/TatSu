@@ -13,15 +13,19 @@ from ..ast import AST
 from ..infos import ParseInfo
 from ..util.asjson import AsJSONMixin, asjson, asjsons
 
+__all__ = ['BaseNode', 'TatSuDataclassParams']
 
-@dataclasses.dataclass(
-    # init=False,
+
+TatSuDataclassParams = dict(  # noqa: C408
     eq=False,
     repr=False,
     match_args=False,
     unsafe_hash=False,
     kw_only=True,
 )
+
+
+@dataclasses.dataclass(**TatSuDataclassParams)
 class BaseNode(AsJSONMixin):
     ast: Any = None
     ctx: Any = None
@@ -30,7 +34,7 @@ class BaseNode(AsJSONMixin):
     def __init__(self, ast: Any = None, **attributes: Any):
         super().__init__()
 
-        if isinstance(ast, dict):
+        if ast and isinstance(ast, dict):
             ast = AST(ast)
         self.ast = ast
 
@@ -68,7 +72,7 @@ class BaseNode(AsJSONMixin):
         if not dataclasses.is_dataclass(type(self)):
             return
 
-        for field in dataclasses.fields(type(self)):
+        for field in dataclasses.fields(type(self)):  # pyright: ignore[reportArgumentType]
             if hasattr(self, field.name):
                 continue
             if field.default_factory is not dataclasses.MISSING:
@@ -96,12 +100,12 @@ class BaseNode(AsJSONMixin):
 
     @functools.cached_property
     def private_names(self) -> set[str]:
-        return {f.name for f in dataclasses.fields(BaseNode)}
+        return {f.name for f in dataclasses.fields(BaseNode)} | {'private_names'}  # pyright: ignore[reportArgumentType]
 
     def __pubdict__(self) -> dict[str, Any]:
         unwanted = self.private_names
 
-        if not isinstance(self.ast, AST):
+        if self.ast and not isinstance(self.ast, AST):
             # ast may be all this object has
             unwanted -= {'ast'}
 

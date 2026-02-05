@@ -414,7 +414,7 @@ class Rule(_Decorator):
         fields.update(isname='\n@isname' if self.node.is_name else '')
 
     template = """
-        @竜rule({params})\
+        @rule({params})\
         {leftrec}\
         {nomemo}\
         {isname}
@@ -520,8 +520,8 @@ class Grammar(Base):
 
                 from tatsu.buffering import Buffer
                 from tatsu.parsing import Parser
-                from tatsu.parsing import 竜rule
-                from tatsu.parsing import leftrec, nomemo, isname, generic_main
+                from tatsu.parsing import rule
+                from tatsu.parsing import isname, generic_main, leftrec, nomemo
                 from tatsu.infos import ParserConfig
 
 

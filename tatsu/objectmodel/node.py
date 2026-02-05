@@ -8,21 +8,14 @@ import weakref
 from collections.abc import Iterable, Mapping
 from typing import Any
 
-from .base import BaseNode
+from .base import BaseNode, TatSuDataclassParams
 
 __all__ = ['Node']
 
 from ..util.deprecate import deprecated
 
 
-@dataclasses.dataclass(
-    # init=False,
-    eq=False,
-    repr=False,
-    match_args=False,
-    unsafe_hash=False,
-    kw_only=True,
-)
+@dataclasses.dataclass(**TatSuDataclassParams)
 class Node(BaseNode):
     __parent_ref: weakref.ref | None = None  # pyright: ignore[reportRedeclaration]
 
@@ -42,7 +35,7 @@ class Node(BaseNode):
         )
 
     @property
-    def parent(self) -> Node | None:
+    def parent(self) -> Node | None:  # pyright: ignore[reportGeneralTypeIssues]
         ref = self.__parent_ref
         if ref is None:
             return None
