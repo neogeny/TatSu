@@ -43,8 +43,8 @@ jobs:
 
       - name: env
         run: |
-          python3 -c "import pytest"
           python3 --version && python3 -m tatsu --version
+          python3 -c "import pytest"
 
       - name: ruff
         run: |
