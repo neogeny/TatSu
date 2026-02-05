@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import dataclasses
@@ -96,7 +98,7 @@ class BaseNode(AsJSONMixin):
     def private_names(self) -> set[str]:
         return {f.name for f in dataclasses.fields(BaseNode)}
 
-    def _pubdict(self) -> dict[str, Any]:
+    def __pubdict__(self) -> dict[str, Any]:
         unwanted = self.private_names
 
         if not isinstance(self.ast, AST):
@@ -105,7 +107,7 @@ class BaseNode(AsJSONMixin):
 
         return {
             name: value
-            for name, value in super()._pubdict().items()
+            for name, value in super().__pubdict__().items()
             if name not in unwanted
         }
 
@@ -115,7 +117,7 @@ class BaseNode(AsJSONMixin):
     def __repr__(self) -> str:
         return (
             f"{type(self).__name__}"
-            f"({', '.join(self._pubdict())})"
+            f"({', '.join(self.__pubdict__())})"
         )
 
     def __eq__(self, other) -> bool:

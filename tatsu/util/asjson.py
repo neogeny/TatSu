@@ -1,11 +1,15 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import enum
 import json
+import warnings
 import weakref
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from typing import Any, Protocol, runtime_checkable
 
+from .deprecate import deprecated
 from .itertools import as_namedtuple, isiter
 
 __all__ = [
@@ -26,17 +30,35 @@ class AsJSONMixin:
     __slots__ = ()
 
     def __json__(self, seen: set[int] | None = None) -> Any:
+        pubdict = self._get_pubdict()
         return {
             '__class__': type(self).__name__,
-            **asjson(self._pubdict(), seen=seen),
+            **asjson(pubdict(), seen=seen),
         }
 
-    def _pubdict(self) -> dict[str, Any]:
+    def __pubdict__(self) -> dict[str, Any]:
         return {
             name: value
             for name, value in vars(self).items()
             if not name.startswith('_')
         }
+
+    # bw-compatibility
+    def _pubdict(self) -> dict[str, Any]:
+        return self.__pubdict__()
+
+    def _get_pubdict(self) -> Callable:
+        if self._pubdict.__module__ == AsJSONMixin.__module__:
+            return self.__pubdict__
+        else:
+            warnings.warn(
+                message=""
+                        "Override of `AsJSONMixin._pubdict()` is deprecated!"
+                        f" Override `{type(self).__name__}.__pubdict__()` instead.",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+            return self._pubdict
 
 
 def asjson(obj: Any, seen: set[int] | None = None) -> Any:

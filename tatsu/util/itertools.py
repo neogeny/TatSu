@@ -1,10 +1,12 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import functools
 import operator
 from collections.abc import Iterable, Mapping
 from itertools import zip_longest
-from typing import Any, NamedTuple
+from typing import Any, Iterable, NamedTuple
 
 
 def is_list(o) -> bool:
@@ -137,3 +139,7 @@ def right_assoc(elements):
             return (op, left, assoc(it))
 
     return assoc(iter(elements))
+
+
+def dict_project[K, V](d: dict[K, V], keys: Iterable[K]) -> dict[K, V]:
+    return {k: d[k] for k in d.keys() & keys}

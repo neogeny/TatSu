@@ -34,7 +34,7 @@ def deprecated(replacement: AnyCallable | None = None) -> Callable[[AnyCallable]
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             warnings.warn(
-                msg,
+                message=msg,
                 category=DeprecationWarning,
                 stacklevel=2,
             )
@@ -65,7 +65,7 @@ def deprecated_params(**params_map: str | None) -> Decorator:
                 if new_p:
                     msg += f" Use '{new_p}' instead."
                 warnings.warn(
-                    f"{msg} (in {func_name})",
+                    message=f"{msg} (in {func_name})",
                     category=DeprecationWarning,
                     stacklevel=2,
                 )
@@ -79,7 +79,7 @@ def deprecated_params(**params_map: str | None) -> Decorator:
 
                 actual_args.pop(old_p)
                 warnings.warn(
-                    f"Both '{old_p}' and '{new_p}' provided. Using '{new_p}'.",
+                    message=f"Both '{old_p}' and '{new_p}' provided. Using '{new_p}'.",
                     category=RuntimeWarning,
                     stacklevel=2,
                 )

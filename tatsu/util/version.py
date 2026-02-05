@@ -17,7 +17,7 @@ __all__ = ['Version']
 from itertools import takewhile
 from typing import Any
 
-from tatsu.util.misc import dict_project
+from tatsu.util import dict_project
 
 STRIC_VERSION_RE = r'''(?x)
     ^v?
