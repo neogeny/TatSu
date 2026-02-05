@@ -10,8 +10,8 @@ from .. import grammars
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..util import safe_name
+from ..util.abctools import compress_seq
 from ..util.deprecate import deprecated_params
-from ..util.itertools import compress_seq
 from ..util.misc import topsort
 
 HEADER = """\

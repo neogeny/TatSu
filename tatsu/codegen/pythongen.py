@@ -10,8 +10,8 @@ from .. import grammars, ngcodegen
 from ..exceptions import CodegenError
 from ..objectmodel import Node
 from ..util import indent, safe_name, timestamp, trim
+from ..util.abctools import compress_seq
 from ..util.deprecate import deprecated
-from ..util.itertools import compress_seq
 from .cgbase import CodeGenerator, ModelRenderer
 
 

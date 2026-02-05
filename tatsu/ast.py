@@ -7,7 +7,7 @@ from typing import Any, override
 
 from .infos import ParseInfo
 from .util import asjson
-from .util.itertools import is_list
+from .util.abctools import is_list
 from .util.safeeval import make_hashable
 
 

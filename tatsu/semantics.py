@@ -14,9 +14,9 @@ from typing import Any
 
 from .objectmodel import Node
 from .synth import synthesize
+from .util.abctools import simplify_list
 from .util.configs import Config
 from .util.deprecate import deprecated_params
-from .util.itertools import simplify_list
 from .util.misc import least_upper_bound_type
 
 __all__ = [

@@ -9,8 +9,7 @@ import weakref
 from collections.abc import Callable, Mapping
 from typing import Any, Protocol, runtime_checkable
 
-from .deprecate import deprecated
-from .itertools import as_namedtuple, isiter
+from .abctools import as_namedtuple, isiter
 
 __all__ = [
     'AsJSONMixin',

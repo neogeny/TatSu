@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -8,7 +10,7 @@ from .exceptions import FailedSemantics
 from .leftrec import mark_left_recursion
 from .semantics import ModelBuilderSemantics
 from .util import eval_escapes, re, warning
-from .util.itertools import flatten
+from .util.abctools import flatten
 
 
 class EBNFGrammarSemantics(ModelBuilderSemantics):

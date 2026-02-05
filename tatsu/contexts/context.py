@@ -37,7 +37,7 @@ from ..util import (
     safe_name,
     trim,
 )
-from ..util.itertools import is_list, left_assoc, prune_dict, right_assoc
+from ..util.abctools import is_list, left_assoc, prune_dict, right_assoc
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from .infos import MemoKey, RuleResult, closure
 from .state import ParseState, ParseStateStack
