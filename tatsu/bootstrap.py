@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -21,9 +22,13 @@ from tatsu.buffering import Buffer
 from tatsu.infos import ParserConfig
 from tatsu.parsing import (
     Parser,
+    leftrec,
+    nomemo,
+    isname,
     generic_main,
     rule,
 )
+
 
 __all__ = [
     'EBNFBootstrapBuffer',
@@ -432,9 +437,10 @@ class EBNFBootstrapParser(Parser):
             if self._no_more_options:
                 raise self._error(
                     'expecting one of: '
+                    "'(?!\\\\d)\\\\w+(?:::(?!\\\\d)\\\\w+)+'"
                     '<boolean> <float> <hex> <int> <literal>'
                     '<null> <path> <raw_string> <string>'
-                    "<word> r'(?!\\d)\\w+(?:::(?!\\d)\\w+)+'"
+                    '<word>'
                 ) from None
 
     @rule()
@@ -887,7 +893,7 @@ class EBNFBootstrapParser(Parser):
     def _special_(self):
         self._token('?(')
         self._cut()
-        self._pattern('.*?(?!\\)\\?)')
+        self._pattern(r'.*?(?!\)\?)')
         self.name_last_node('@')
         self._token(')?')
         self._cut()
@@ -935,10 +941,10 @@ class EBNFBootstrapParser(Parser):
             if self._no_more_options:
                 raise self._error(
                     'expecting one of: '
-                    "'$' '>>' '`' '~' <alert> <call>"
+                    "'$' '>>' '\\\\^+' '`' '~' <alert> <call>"
                     '<constant> <cut> <cut_deprecated> <eof>'
                     '<pattern> <raw_string> <regexes>'
-                    "<string> <token> <word> r'\\^+'"
+                    '<string> <token> <word>'
                 ) from None
 
     @rule('Call')
@@ -976,24 +982,23 @@ class EBNFBootstrapParser(Parser):
         with self._group():
             with self._choice():
                 with self._option():
-                    self._pattern('(?ms)```((?:.|\\n)*?)```')
+                    self._pattern(r'(?ms)```((?:.|\n)*?)```')
                 with self._option():
                     self._token('`')
                     self._literal_()
                     self.name_last_node('@')
                     self._token('`')
                 with self._option():
-                    self._pattern('`(.*?)`')
+                    self._pattern(r'`(.*?)`')
                 if self._no_more_options:
                     raise self._error(
                         'expecting one of: '
-                        "'`' r'(?ms)```((?:.|\\n)*?)```'"
-                        "r'`(.*?)`'"
+                        "'(?ms)```((?:.|\\\\n)*?)```' '`' '`(.*?)`'"
                     ) from None
 
     @rule('Alert')
     def _alert_(self):
-        self._pattern('\\^+')
+        self._pattern(r'\^+')
         self.name_last_node('level')
         self._constant_()
         self.name_last_node('message')
@@ -1009,7 +1014,7 @@ class EBNFBootstrapParser(Parser):
             if self._no_more_options:
                 raise self._error(
                     'expecting one of: '
-                    "<STRING> <raw_string> <string> r'r'"
+                    "'r' <STRING> <raw_string> <string>"
                 ) from None
 
     @rule()
@@ -1034,12 +1039,12 @@ class EBNFBootstrapParser(Parser):
             if self._no_more_options:
                 raise self._error(
                     'expecting one of: '
-                    "'False' 'None' 'True' <STRING> <boolean>"
-                    '<float> <hex> <int> <null> <raw_string>'
-                    "<string> <word> r'(?!\\d)\\w+'"
-                    "r'0[xX](?:\\d|[a-fA-F])+' r'[-"
-                    '+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-'
-                    "+]?\\d+)?' r'[-+]?\\d+' r'r'"
+                    "'(?!\\\\d)\\\\w+' '0[xX](?:\\\\d|[a-fA-F])+'"
+                    "'False' 'None' 'True' '[-"
+                    '+]?(?:\\\\d+\\\\.\\\\d*|\\\\d*\\\\.\\\\d+)(?:[Ee][-'
+                    "+]?\\\\d+)?' '[-+]?\\\\d+' 'r' <STRING>"
+                    '<boolean> <float> <hex> <int> <null>'
+                    '<raw_string> <string> <word>'
                 ) from None
 
     @rule()
@@ -1048,7 +1053,7 @@ class EBNFBootstrapParser(Parser):
 
     @rule()
     def _raw_string_(self):
-        self._pattern('r')
+        self._pattern(r'r')
         self._STRING_()
         self.name_last_node('@')
 
@@ -1056,39 +1061,39 @@ class EBNFBootstrapParser(Parser):
     def _STRING_(self):
         with self._choice():
             with self._option():
-                self._pattern('"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"')
+                self._pattern(r'"((?:[^"\n]|\\"|\\\\)*?)"')
                 self.name_last_node('@')
                 self._cut()
             with self._option():
-                self._pattern("'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'")
+                self._pattern(r'\'((?:[^\'\n]|\\\'|\\\\)*?)\'')
                 self.name_last_node('@')
                 self._cut()
             if self._no_more_options:
                 raise self._error(
                     'expecting one of: '
-                    'r\'"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"\''
-                    "r'\\'((?:[^\\'\\n]|\\\\\\'|\\\\\\\\)*?)\\''"
+                    '"\'((?:[^\'\\\\n]|\\\\\\\\\'|\\\\\\\\\\\\\\\\)*?)\'"'
+                    '\'"((?:[^"\\\\n]|\\\\\\\\"|\\\\\\\\\\\\\\\\)*?)"\''
                 ) from None
 
     @rule()
     def _hex_(self):
-        self._pattern('0[xX](?:\\d|[a-fA-F])+')
+        self._pattern(r'0[xX](?:\d|[a-fA-F])+')
 
     @rule()
     def _float_(self):
-        self._pattern('[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?')
+        self._pattern(r'[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?')
 
     @rule()
     def _int_(self):
-        self._pattern('[-+]?\\d+')
+        self._pattern(r'[-+]?\d+')
 
     @rule()
     def _path_(self):
-        self._pattern('(?!\\d)\\w+(?:::(?!\\d)\\w+)+')
+        self._pattern(r'(?!\d)\w+(?:::(?!\d)\w+)+')
 
     @rule()
     def _word_(self):
-        self._pattern('(?!\\d)\\w+')
+        self._pattern(r'(?!\d)\w+')
 
     @rule('Dot')
     def _dot_(self):
@@ -1114,16 +1119,16 @@ class EBNFBootstrapParser(Parser):
             with self._option():
                 self._token('/')
                 self._cut()
-                self._pattern('(?:[^/\\\\]|\\\\/|\\\\.)*')
+                self._pattern(r'(?:[^/\\]|\\/|\\.)*')
                 self.name_last_node('@')
                 self._token('/')
                 self._cut()
             with self._option():
                 self._token('?/')
                 self._cut()
-                self._pattern('(?:.|\\n)*?(?=/\\?)')
+                self._pattern(r'(?:.|\n)*?(?=/\?)')
                 self.name_last_node('@')
-                self._pattern('/\\?+')
+                self._pattern(r'/\?+')
                 self._cut()
             with self._option():
                 self._token('?')

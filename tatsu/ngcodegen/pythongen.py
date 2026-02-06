@@ -11,7 +11,7 @@ from .. import grammars
 from ..exceptions import CodegenError
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
-from ..util import Undefined, asregex, safe_name
+from ..util import Undefined, regexp, safe_name
 from ..util.abctools import compress_seq
 from ..walkers import NodeWalker
 
@@ -207,7 +207,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'self._alert({alert.literal!r}, {alert.level})')
 
     def walk_Pattern(self, pattern: grammars.Pattern):
-        self.print(f'self._pattern({pattern.pattern!r})')
+        self.print(f'self._pattern({pattern})')
 
     def walk_Lookahead(self, lookahead: grammars.Lookahead):
         self.print('with self._if():')
@@ -348,8 +348,8 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                     ignorecase={grammar.config.ignorecase},
                     namechars={grammar.config.namechars or ""!r},
                     parseinfo={grammar.config.parseinfo},
-                    comments={asregex(grammar.config.comments)},
-                    eol_comments={asregex(grammar.config.eol_comments)},
+                    comments={regexp(grammar.config.comments)},
+                    eol_comments={regexp(grammar.config.eol_comments)},
                     keywords=KEYWORDS,
                     start={start!r},
                 )

@@ -1,3 +1,7 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 import unittest
 
 from tatsu.exceptions import FailedParse
@@ -115,7 +119,7 @@ class PatternTests(unittest.TestCase):
         print(pythongen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
             pythongen(model.rules[0].exp.sequence[0]).strip(),
-            repr("self._pattern('(?x)\nfoo\nbar\n')").strip('"\''),
+            "self._pattern(r'(?x)\\nfoo\\nbar\\n')",
         )
 
         grammar = r"""
@@ -128,5 +132,5 @@ class PatternTests(unittest.TestCase):
         print(pythongen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
             trim(pythongen(model.rules[0].exp.sequence[0])),
-            repr("self._pattern('(?x)foo\\nbar\nblort')").strip(r'"\.'),
+            "self._pattern(r'(?x)foo\\nbar\\nblort')",
         )

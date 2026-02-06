@@ -15,7 +15,7 @@ from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
 from .objectmodel import Node
-from .util import asregex, indent, re, trim
+from .util import indent, re, regexp, trim
 from .util.abctools import chunks, compress_seq
 
 PEP8_LLEN = 72
@@ -364,7 +364,10 @@ class Pattern(Model):
         return bool(self.regex.match(''))
 
     def __repr__(self):
-        return asregex(self.pattern)
+        return regexp(self.pattern)
+
+    def __str__(self):
+        return self.__repr__()
 
 
 class Lookahead(Decorator):

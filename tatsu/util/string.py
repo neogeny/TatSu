@@ -9,7 +9,7 @@ from io import StringIO
 from typing import Any
 
 
-def asregex(text: Any) -> str:
+def regexp(text: Any) -> str:
     """
     Returns the content of a string formatted as an r'...' literal.
     Escapes control characters and internal single quotes.
@@ -33,15 +33,19 @@ def asregex(text: Any) -> str:
         "\a": r"\a",    # ASCII Bell
 
         # Quotes and Backslashes
-        "\"": r'"',     # Double Quote
-        '\'': r"'",     # Single Quote
-        # "\\": r"\\",    # Literal Backslash
+        # "\"": r'"',     # Double Quote
+        "'": r"\'",     # Single Quote: wrapping will be single quote, so escape
+        # "\\": r"\\",    # Literal Backslash: don't mess with these
 
         # Null Character (often forgotten)
         "\0": r"\0",    # Null char
     }
 
-    content = ''.join(ctrl_map.get(c, c) for c in text)  # pyright: ignore[reportCallIssue, reportArgumentType]
+    content = text
+    # filter out incorrect escapes that modern python compilers rejects
+    content = re.sub(r'\\([\'"])', r'\1', content)
+    content = ''.join(ctrl_map.get(c, c) for c in content)  # pyright: ignore[reportCallIssue, reportArgumentType]
+    content = content.replace(r"\\'", r"\'")
     if content.endswith("\\") and (len(content) - len(content.rstrip("\\"))) % 2 != 0:
         content += "\\"
 
