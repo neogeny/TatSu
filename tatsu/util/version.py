@@ -17,7 +17,7 @@ __all__ = ['Version']
 from itertools import takewhile
 from typing import Any
 
-from tatsu.util import dict_projection
+from tatsu.util import select
 
 STRIC_VERSION_RE = r'''(?x)
     ^v?
@@ -115,5 +115,5 @@ class Version:
         return Version(
             major=major, minor=minor, micro=micro, nano=nano,
             level=level, serial=serial,
-            **dict_projection(parts, {'epoch', 'post', 'dev', 'local'}),
+            **select({'epoch', 'post', 'dev', 'local'}, parts),
         )

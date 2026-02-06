@@ -4,9 +4,13 @@ from __future__ import annotations
 
 import functools
 import operator
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from itertools import zip_longest
 from typing import Any, NamedTuple
+
+
+def true(*_: Any, **__: Any) -> bool:
+    return True
 
 
 def is_list(o) -> bool:
@@ -136,15 +140,21 @@ def right_assoc(elements):
         except StopIteration:
             return left
         else:
-            return (op, left, assoc(it))
+            return op, left, assoc(it)
 
     return assoc(iter(elements))
 
 
-def dict_projection[K, V](d: dict[K, V], keys: Iterable[K]) -> dict[K, V]:
-    """Project a dictionary onto a subset of keys while preserving order.
-    """
+def select[K, V](
+        keys: Iterable[K],
+        *join: dict[K, V],
+        where: Callable[[K, V], bool] = true,
+    ) -> dict[K, V]:
     # by [apalala@gmail.com](https://github.com/apalala)
     # by Gemini (2026-02-05)
     key_set = set(keys)
-    return {k: v for k, v in d.items() if k in key_set}
+    return {
+        k: v
+        for d in join
+        for k, v in d.items() if k in key_set and where(k, v)
+    }
