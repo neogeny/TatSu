@@ -11,7 +11,7 @@ from .. import grammars
 from ..exceptions import CodegenError
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
-from ..util import Undefined, re_printable, safe_name
+from ..util import Undefined, asregex, safe_name
 from ..util.abctools import compress_seq
 from ..walkers import NodeWalker
 
@@ -348,8 +348,8 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                     ignorecase={grammar.config.ignorecase},
                     namechars={grammar.config.namechars or ""!r},
                     parseinfo={grammar.config.parseinfo},
-                    comments={re_printable(grammar.config.comments)},
-                    eol_comments={re_printable(grammar.config.eol_comments)},
+                    comments={asregex(grammar.config.comments)},
+                    eol_comments={asregex(grammar.config.eol_comments)},
                     keywords=KEYWORDS,
                     start={start!r},
                 )

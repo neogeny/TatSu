@@ -9,7 +9,7 @@ from io import StringIO
 from typing import Any
 
 
-def re_printable(text: Any) -> str:
+def asregex(text: Any) -> str:
     """
     Returns the content of a string formatted as an r'...' literal.
     Escapes control characters and internal single quotes.
@@ -23,14 +23,25 @@ def re_printable(text: Any) -> str:
         text = str(text)
 
     ctrl_map: dict[str, str] = {
-        "\n": r"\n",
-        "\r": r"\r",
-        "\t": r"\t",
+        # Standard Whitespace/Formatting
+        "\n": r"\n",    # Linefeed
+        "\r": r"\r",    # Carriage Return
+        "\t": r"\t",    # Horizontal Tab
+        "\v": r"\v",    # Vertical Tab
+        "\f": r"\f",    # Formfeed
+        "\b": r"\b",    # Backspace
+        "\a": r"\a",    # ASCII Bell
+
+        # Quotes and Backslashes
+        "\"": r'"',     # Double Quote
+        '\'': r"'",     # Single Quote
+        # "\\": r"\\",    # Literal Backslash
+
+        # Null Character (often forgotten)
+        "\0": r"\0",    # Null char
     }
 
     content = ''.join(ctrl_map.get(c, c) for c in text)  # pyright: ignore[reportCallIssue, reportArgumentType]
-    content = content.replace("'", "\\'")
-
     if content.endswith("\\") and (len(content) - len(content.rstrip("\\"))) % 2 != 0:
         content += "\\"
 

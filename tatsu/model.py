@@ -5,7 +5,8 @@ from __future__ import annotations
 
 from .ast import AST
 from .builder import ModelBuilder
-from .objectmodel import BaseNode, Node, Node as ParseModel
+from .objectmodel import BaseNode, Node
+from .objectmodel import Node as ParseModel
 from .walkers import BreadthFirstWalker, DepthFirstWalker, NodeWalker, PreOrderWalker
 
 __all__ = [
