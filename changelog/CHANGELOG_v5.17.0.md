@@ -1,4 +1,4 @@
-## The Big and Beautiful Refactoring
+## Spring Cleaning
 
 Maintenance and contributions to **[TatSu][]** have been more difficult than necessary because of the way the code evolved through the years while adding features.
 
