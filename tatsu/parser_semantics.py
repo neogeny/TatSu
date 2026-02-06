@@ -6,14 +6,14 @@ from collections.abc import Iterable
 from typing import Any
 
 from . import grammars
+from .builder import ModelBuilder
 from .exceptions import FailedSemantics
 from .leftrec import mark_left_recursion
-from .semantics import ModelBuilderSemantics
 from .util import eval_escapes, re, warning
 from .util.abctools import flatten
 
 
-class EBNFGrammarSemantics(ModelBuilderSemantics):
+class EBNFGrammarSemantics(ModelBuilder):
     def __init__(self, grammar_name: str | None):
         super().__init__(
             basetype=grammars.Model,

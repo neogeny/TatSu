@@ -119,9 +119,13 @@ class BaseNode(AsJSONMixin):
         return asjsons(self)
 
     def __repr__(self) -> str:
+        attrs = ', '.join(
+            f'{name}={value}'
+            for name, value in self.__pubdict__().items()
+        )
         return (
             f"{type(self).__name__}"
-            f"({', '.join(self.__pubdict__())})"
+            f"({attrs})"
         )
 
     def __eq__(self, other) -> bool:

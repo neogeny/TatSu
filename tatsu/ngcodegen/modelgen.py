@@ -34,15 +34,19 @@ HEADER = """\
     from typing import Any
 
     from tatsu.objectmodel import TatSuDataclassParams
-    from tatsu.semantics import ModelBuilderSemantics
+    from tatsu.builder import ModelBuilder
     {basetype_import}
 
 
-    class {name}ModelBuilderSemantics(ModelBuilderSemantics):
+    class {name}ModelBuilder(ModelBuilder):
         def __init__(self, constructors=None, **kwargs):
             constructors = constructors or []
             constructors += self.types_defined_in(globals())
             super().__init__(basetype={basetype}, constructors=constructors, **kwargs)
+
+
+    class {name}ModelBuilderSemantics({name}ModelBuilder):
+        ...
 """
 
 

@@ -10,13 +10,13 @@ from collections.abc import Callable
 from typing import Any
 
 from .. import grammars
+from ..builder import BuilderConfig, Constructor, ModelBuilder, TypeContainer
 from ..exceptions import ParseException
 from ..infos import ParserConfig
 from ..ngcodegen.modelgen import modelgen
 from ..ngcodegen.pythongen import pythongen
 from ..objectmodel import Node
 from ..parser import GrammarGenerator
-from ..semantics import BuilderConfig, Constructor, ModelBuilderSemantics, TypeContainer
 from ..tokenizing import Tokenizer
 
 __all__ = [
@@ -86,7 +86,7 @@ def compile(
             typedefs=typedefs,
             constructors=constructors,
         )
-        model.semantics = ModelBuilderSemantics(config=builderconfig)
+        model.semantics = ModelBuilder(config=builderconfig)
 
     return model
 
@@ -132,7 +132,7 @@ def parse(
             typedefs=typedefs,
             constructors=constructors,
         )
-        config.semantics = ModelBuilderSemantics(config=builderconfig)
+        config.semantics = ModelBuilder(config=builderconfig)
     return model.parse(text, start=start, semantics=semantics, config=config)
 
 

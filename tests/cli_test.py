@@ -1,3 +1,7 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 import re
 import subprocess  # noqa: S404
 
@@ -24,6 +28,7 @@ def test_cli_model():
     output = output.decode('utf-8')
     pattern = (
         r'(?ms)CAVEAT UTILITOR.*?竜TatSu'
-        r'.*?class \w*?ModelBuilderSemantics\(ModelBuilderSemantics\):'
+        r'.*?class \w+?ModelBuilder\(ModelBuilder\):'
+        r'.*?class \w+?ModelBuilderSemantics\(\w+?ModelBuilder\):'
     )
     assert re.search(pattern, output)

@@ -10,7 +10,7 @@ from typing import Any
 
 from .base import BaseNode, TatSuDataclassParams
 
-__all__ = ['Node']
+__all__ = ['Node', 'TatSuDataclassParams']
 
 from ..util.deprecate import deprecated
 
