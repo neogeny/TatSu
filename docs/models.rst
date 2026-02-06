@@ -85,6 +85,87 @@ from the model according to rule declarations:
 | NOTE: You must pass an instance of ``MyModelBuilder``, and not the class name.
 
 
+Defining Custom Models
+~~~~~~~~~~~~~~~~~~~~~~
+
+|TatSu| allows any definition of model classes:
+
+.. code:: python
+
+    class Expression:
+        ...
+
+    class Addition(Expression):
+        ...
+
+But there's loss of functionality if model classes are not subclasses of
+``objectmodel.Node`` (no ``node.children()``, ``node.parseinfo``,
+``node.parent``, ``...``). For complete functionality it is better if custom
+model clases inherit from ``objectmodel.Node`` and are defined as ``@dataclass``
+configured the |TatSu| way:
+
+.. code:: python
+
+    from dataclasses import dataclass
+    from tatsu.objectmodel import Node, TatSuDataclassParams
+
+    @dataclass(**TatSuDataclassParams)
+    class Expression(Node):
+        ...
+
+    @dataclass(**TatSuDataclassParams)
+    class Addition(Expression):
+        ...
+
+Once the custom model classes are defined, |TatSu|'s entry points need to know
+about them, and there are several flexible ways to do that:
+
+
+.. code:: python
+
+    from . import model
+
+    ct = {
+        'Expression': model.Expression,
+        'Addition': model.Addition,
+    }
+    result = tatsu.parse(grammar_str, text, constructors=ct)
+
+
+.. code:: python
+
+    from tatsu.builder import types_defined_in
+
+    ct = types_defined_in(globals())
+    result = tatsu.parse(grammar_str, text, constructors=ct)
+
+
+.. code:: python
+
+    from tatsu.builder import types_defined_in
+    from . import model
+
+    ct = types_defined_in(model)
+    result = tatsu.parse(grammar_str, text, constructors=ct)
+
+
+.. code:: python
+
+    from . import model
+
+    result = tatsu.parse(grammar_str, text, typedefs=model)
+
+
+.. code:: python
+
+    from . import model
+
+    grammar_model = tatsu.compile(gramar_str, typedefs=model)
+    result = grammar_model.parse(text)
+
+Passing ``constructors=`` or ``typedefs=`` to the |TatSu| API implies that
+a model instead of an AST_ is being requested (``asmodel=True``).
+
 
 Viewing Models as JSON
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -102,12 +183,29 @@ representation for common types, and can handle any type using ``repr()``. There
 The ``model``, with richer semantics, remains unaltered.
 
 Conversion to a JSON-compatible structure relies on the protocol defined by
-``tatsu.utils.asjson.AsJSONMixin``.  The mixin defines a ``__json__(seen=None)``
-method that allows classes to define their best translation. You can use ``AsJSONMixin``
-as a base class in your own models to take advantage of ``asjson()``, and you can
-specialize the conversion by overriding ``AsJSONMixin.__json__()``.
+``tatsu.utils.asjson.AsJSONMixin``.  The mixin defines a ``__json__()``
+method that allows classes to define their best translation.
 
-You can also write your own version of ``asjson()`` to handle special cases that are recurrent in your context.
+You can use ``AsJSONMixin`` as a base class in your own models to take advantage
+of ``asjson()``, and you can specialize the conversion by overriding ``AsJSONMixin.__json__()``.
+
+.. code:: python
+
+    def __json__(self, seen: set[int] | None = None) -> Any:
+        ...
+
+
+An easy way to restrict what goes into the JSON output is to override
+the ``__pubdict__()`` method in classes that inherit from ``AsJSONMixin``.
+
+
+.. code:: python
+
+    def __pubdict__(self) -> dict[str, Any]:
+        ...
+
+You can also write your own version of ``asjson()`` to handle special cases that are recurrent
+in your context.
 
 Walking Models
 ~~~~~~~~~~~~~~
