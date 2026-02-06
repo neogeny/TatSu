@@ -11,16 +11,11 @@ from typing import Any
 
 def regexp(text: Any) -> str:
     """
-    Returns the content of a string formatted as an r'...' literal.
-    Escapes control characters and internal single quotes.
+    Returns a "printable" version of the regexp pattern that should be
+    very similar to the rogiginal one.
     """
     # by [apalala@gmail.com](https://github.com/apalala)
     # by Gemini (2026-02-02)
-
-    if isinstance(text, re.Pattern):
-        text = text.pattern
-    else:
-        text = str(text)
 
     ctrl_map: dict[str, str] = {
         # Standard Whitespace/Formatting
@@ -41,7 +36,8 @@ def regexp(text: Any) -> str:
         "\0": r"\0",    # Null char
     }
 
-    content = text
+    content = text.pattern if isinstance(text, re.Pattern) else str(text)
+
     # filter out incorrect escapes that modern python compilers rejects
     content = re.sub(r'(?!\\\\)\\([\'"])', r'\1', content)
 

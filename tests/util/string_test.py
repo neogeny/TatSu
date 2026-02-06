@@ -5,7 +5,7 @@ from __future__ import annotations
 from tatsu.util.string import regexp
 
 
-def test_regexp_quotes():
+def test_patterns_quotes():
     # single quotes are escaped
     assert regexp("'") == r"r'\''"
     assert regexp('\'') == "r'\\''"
@@ -27,14 +27,14 @@ def test_regexp_quotes():
     assert regexp("\\'") == "r'\\\''"    # 3
 
 
-def test_regexp_newlines():
+def test_patterns_newlines():
     assert regexp("\n") == "r'\\n'"
     assert regexp(r"\n") == "r'\\n'"
     assert regexp(r"\\n") == "r'\\\\n'"
     assert regexp(r"\\n") == r"r'\\n'"
 
 
-def test_regexp_expr():
+def test_patterns_expr():
     assert regexp('[abc]') == r"r'[abc]'"
     assert regexp(r'[abc]') == r"r'[abc]'"
     assert regexp('a.*?b') == r"r'a.*?b'"
@@ -49,6 +49,6 @@ def test_regexp_expr():
     assert regexp(r'\w') == r"r'\w'"
 
 
-def test_regexp_real():
+def test_patterns_real():
     e = r"(REM\s|')[^\r\n]*(\r?\n|\r)"
     assert regexp(e) == r"r'(REM\s|\')[^\r\n]*(\r?\n|\r)'"
