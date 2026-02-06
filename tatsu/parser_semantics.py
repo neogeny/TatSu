@@ -23,6 +23,21 @@ class EBNFGrammarSemantics(ModelBuilder):
         self.grammar_name = grammar_name
         self.rules: dict[str, grammars.Rule] = {}
 
+    @classmethod
+    def validate_literal(cls, ast: Any):
+        try:
+            literal_eval(repr(str(ast)))
+        except SyntaxError as e:
+            raise FailedSemantics('literal string error: ' + str(e)) from e
+
+    @classmethod
+    def validate_pattern(cls, ast: Any):
+        cls.validate_literal(ast)
+        try:
+            re.compile(str(ast))
+        except (TypeError, re.error) as e:
+            raise FailedSemantics('pattern error: ' + str(e)) from e
+
     def token(self, ast: str, *args: Any) -> grammars.Token:
         token = ast
         if not token:
@@ -31,23 +46,18 @@ class EBNFGrammarSemantics(ModelBuilder):
         return grammars.Token(token)
 
     def pattern(self, ast: str, *args) -> grammars.Pattern:
-        literal_eval(repr(ast))
-        return grammars.Pattern(ast)
+        pattern = ast
+        self.validate_literal(pattern)
+        return grammars.Pattern(pattern)
 
     def regexes(self, ast: Iterable[str], *args) -> Iterable[str]:
         pattern = ''.join(ast)
-        try:
-            re.compile(pattern)
-        except (TypeError, re.error) as e:
-            raise FailedSemantics('regexp error: ' + str(e)) from e
+        self.validate_pattern(pattern)
         return ast
 
     def regex(self, ast: str, *args) -> str:
         pattern = ast
-        try:
-            re.compile(pattern)
-        except (TypeError, re.error) as e:
-            raise FailedSemantics('regexp error: ' + str(e)) from e
+        self.validate_pattern(pattern)
         return pattern
 
     def string(self, ast):
