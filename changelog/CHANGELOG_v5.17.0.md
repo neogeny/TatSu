@@ -79,6 +79,7 @@ Every effort has been made to preserve backwards compatibility by keeping mosts 
   are used during its development and testing. The [TatSu][] development configuration uses `uv` and `hatch`. Several `requirements-xyz.txt` files are generated in favor of those using `pip` with `pyenv`, `virtualenvwrapper`, or `virtualenv`
 - All attempts at recovering comments from parsed input were removed. It never worked, so it had no use. Comment revovery may be attempted in the future. 
 - *CAVEAT:* All pre-existing grammars are compatible with this version of [TatSu][], but, if you use the generated Python parsers or models, *YOU MUST* generate them anew. 
+- *CAVEAT:* If there are invalid strings or regex patterns in your grammars *YOU MUST* fix them because now the grammar parser validates strings and patterns.
 - Many of the functions that [TatSu][] defines for its own use are useful in other contexts. Some examples are:
 ```python
 	from tatsu.notnone import Undefined
