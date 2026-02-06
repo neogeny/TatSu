@@ -25,7 +25,7 @@ __all__ = [
 ]
 
 type Constructor = type | Callable
-type TypeContainer = type | ModuleType | Mapping[str, Any]
+type TypeContainer = type | ModuleType | Mapping[str, type] | dict[str, type]
 
 
 class TypeResolutionError(TypeError):
@@ -33,7 +33,7 @@ class TypeResolutionError(TypeError):
     pass
 
 
-def types_defined_in(container: Any) -> list[type]:
+def types_defined_in(container: TypeContainer) -> list[type]:
     return AbstractModelBuilder.types_defined_in(container)
 
 
@@ -81,12 +81,12 @@ class AbstractModelBuilder:
         }
 
     @staticmethod
-    def types_defined_in(container: Any, /) -> list[type]:
+    def types_defined_in(container: TypeContainer, /) -> list[type]:
         contents: dict[str, Any] = {}
         if isinstance(container, types.ModuleType):
             contents.update(vars(container))
         elif isinstance(container, Mapping):
-            contents.update(container)
+            contents.update(container)  # ty:ignore[no-matching-overload]
         elif hasattr(container, '__dict__'):
             contents.update(vars(container))
         else:
