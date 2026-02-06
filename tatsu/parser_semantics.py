@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from ast import literal_eval
 from collections.abc import Iterable
 from typing import Any
 
@@ -26,9 +27,11 @@ class EBNFGrammarSemantics(ModelBuilder):
         token = ast
         if not token:
             raise FailedSemantics('empty token')
+        literal_eval(repr(token))
         return grammars.Token(token)
 
     def pattern(self, ast: str, *args) -> grammars.Pattern:
+        literal_eval(repr(ast))
         return grammars.Pattern(ast)
 
     def regexes(self, ast: Iterable[str], *args) -> Iterable[str]:
@@ -139,6 +142,8 @@ class EBNFGrammarSemantics(ModelBuilder):
 
     def grammar(self, ast, *args):
         directives = {d.name: d.value for d in flatten(ast.directives)}
+        for value in directives.values():
+            literal_eval(repr(value))
         keywords = list(flatten(ast.keywords)) or []
 
         if directives.get('whitespace') in {'None', 'False'}:
