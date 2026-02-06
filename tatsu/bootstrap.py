@@ -1061,11 +1061,11 @@ class EBNFBootstrapParser(Parser):
     def _STRING_(self):
         with self._choice():
             with self._option():
-                self._pattern(r'"((?:[^"\n]|\\"|\\\\)*?)"')
+                self._pattern(r'"((?:[^"\n]|\"|\\\\)*?)"')
                 self.name_last_node('@')
                 self._cut()
             with self._option():
-                self._pattern(r'\'((?:[^\'\n]|\\\'|\\\\)*?)\'')
+                self._pattern(r'\'((?:[^\'\n]|\'|\\\\)*?)\'')
                 self.name_last_node('@')
                 self._cut()
             if self._no_more_options:
