@@ -43,9 +43,11 @@ def regexp(text: Any) -> str:
 
     content = text
     # filter out incorrect escapes that modern python compilers rejects
-    content = re.sub(r'\\([\'"])', r'\1', content)
+    content = re.sub(r'(?!\\\\)\\([\'"])', r'\1', content)
+
     content = ''.join(ctrl_map.get(c, c) for c in content)  # pyright: ignore[reportCallIssue, reportArgumentType]
     content = content.replace(r"\\'", r"\'")
+
     if content.endswith("\\") and (len(content) - len(content.rstrip("\\"))) % 2 != 0:
         content += "\\"
 
