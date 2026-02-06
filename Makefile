@@ -104,6 +104,8 @@ clean_plus: clean
 	@- /bin/rm -rf .cache .pytest_cache .ruff_cache .mypy_cache
 
 
+checks: matrix
+
 matrix: clean __tests_init__
 	time uv run hatch run --force-continue test:test
 
