@@ -91,7 +91,7 @@ basedpyright: __tests_init__
 
 ty: __tests_init__
 	@- echo $@
-	@- uv run ty check --exclude parsers --exclude backups
+	@- uv run ty check tatsu tests examples
 
 
 clean:

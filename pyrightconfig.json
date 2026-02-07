@@ -26,6 +26,7 @@
   "reportAttributeAccessIssue": false,
   "reportMissingParameterType": false,
   "reportImplicitOverride": false,
+  "reportUnhashable": false,
 
   "reportUnreachable": false,
   "reportMissingTypeStubs": false,
