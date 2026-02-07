@@ -5,28 +5,30 @@ from __future__ import annotations
 import codecs
 import keyword
 import re
+import sys
 from io import StringIO
 from typing import Any
+
+if sys.version_info >= (3, 13):
+    from re import PatternError
+else:
+    PatternError = re.error
 
 
 def regexp(text: Any) -> str:
     """
     Returns a printable version of the regexp pattern as a Python raw string.
-    Validates input validity, Python syntax safety, and lossless translation.
+    Validates input and ensures generated output is syntactically valid.
     """
     # by Gemini (2026-02-07)
     # by [apalala@gmail.com](https://github.com/apalala)
 
     pattern_text = text.pattern if hasattr(text, "pattern") else str(text)
 
-    # --- Pre-Validation: Is the input a valid Regex? ---
     try:
         re.compile(pattern_text)
-    except re.error as e:
-        raise ValueError(
-            f"Invalid regex pattern passed to regexp(): {pattern_text!r}\n"
-            f"Error: {e}"
-        ) from e
+    except PatternError as e:
+        raise ValueError(f"Invalid regex passed to regexp(): {pattern_text!r}\n{e}") from e
 
     ctrl_map: dict[str, str] = {
         "\n": r"\n", "\r": r"\r", "\t": r"\t", "\v": r"\v",
@@ -35,25 +37,26 @@ def regexp(text: Any) -> str:
 
     result = "".join(ctrl_map.get(c, c) for c in pattern_text)
 
-    # 1. Handle trailing backslashes (odd count check for raw string safety)
+    # Handle trailing backslashes (odd count check for raw string safety)
     if result.endswith("\\") and (len(result) - len(result.rstrip("\\"))) % 2 != 0:
         result += "\\"
 
-    # 2. Dynamic quoting choice based on quote counts and trailing characters
     if result.endswith("'") or result.count("'") > result.count('"'):
         output = f'r"{re.sub(r'(?<!\\)"', r"\"", result)}"'
     else:
         output = f"r'{re.sub(r"(?<!\\)'", r"\'", result)}'"
 
-    # --- Post-Validation: Python Syntax & Lossless Translation ---
     try:
-        evaluated = eval(output)
-        # if evaluated != pattern_text:
-        #     raise ValueError(f"Lossy translation: {evaluated!r} != {pattern_text!r}")
+        evaluated = eval(output)  # noqa: S307
     except SyntaxError as e:
-        raise ValueError(f"Invalid Python syntax generated: {output}\nError: {e}") from e
+        raise RuntimeError(f"regexp() generated invalid Python syntax: {output}\n{e}") from e
     except Exception as e:
-        raise ValueError(f"Validation failed for {output}: {e}") from e
+        raise RuntimeError(f"Unexpected error evaluating output: {output}\n{e}") from e
+
+    try:
+        re.compile(evaluated)
+    except re.error as e:
+        raise RuntimeError(f"regexp() generated an invalid regex pattern: {output}\n{e}") from e
 
     return output
 
