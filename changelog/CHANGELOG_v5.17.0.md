@@ -1,17 +1,17 @@
 ## Spring Cleaning
 
-Maintenance and contributions to **[TatSu][]** have been more difficult than necessary because of the way the code evolved through the years while adding features.
+Maintenance and contributions to **TatSu** have been more difficult than necessary because of the way the code evolved through its lifetime.
 
 - Very long modules and classes that try to do too much
 - Algorithms difficult to understand or with incorrect semantics
 - Basic features missing, because the above made them hard to implement
 
-This release is a major refactoring of the code in **[TatSu][]**.
+This release is a major refactoring of the code in **TatSu**.
 
 - Complex modules were partitioned into sub-modules and classes with well-defined purpose
-- Several algorithms were rewritten to make their semantics clear and evident
+- Several algorithms were rewritten to make their semantics clear and evident, and the implentetions more efficient
 - Many unit tests were added to assert the semantics of complex algorithms
-- Several user-facing features were added as they became easy to implement
+- Several user-facing features were added as they became easier to implement
 
 For the details about the many changes please take a look at the [commit log][].
 
@@ -19,22 +19,26 @@ Every effort has been made to preserve backwards compatibility by keeping mosts 
 
 ### User-Facing Changes
 
-- Now `tatsu.parse(...., asmodel=True)` produces model that matches the `::Type` declarations in ther grammar.
-- `walkers.NodeWalker` now handles all known types of input. Also: 
+- The [**TatSu** documentation](https://tatsu.readthedocs.io) has been improved and expanded, and it has a better look&feel with improved navigation.
+- Now `tatsu.parse(...., asmodel=True)` produces a model that matches the `::Type` declarations in ther grammar (see the [models][] documentation for a thorough review of the features).
+- `walkers.NodeWalker` now handles all known types of input. 
+   Also: 
 	- `DepthFirstWalker` was reimplemented to ensure DFS semantics
 	- `PreOrderWalker` was broken and crazy. It was rewritten as a `BreadthFirstWalker` with the correct semantics
-- Constant expressions in a grammar are now evaluated deeply with  multiple passes of `eval()` to produce results that are intuitively correct:
+- Constant expressions in a grammar are now evaluated deeply with  multiple passes of `eval()` as to produce results that are intuitively correct:
+
 	```python
-	def test_constant_math():
-		grammar = r"""
-			start = a:`7` b:`2` @:```{a} / {b}``` $ ;
-		"""
-		result = parse(grammar, '', trace=True)
-		assert result == 3.5
+		def test_constant_math():
+			grammar = r"""
+				start = a:`7` b:`2` @:```{a} / {b}``` $ ;
+			"""
+			result = parse(grammar, '', trace=True)
+			assert result == 3.5
 	```
  
 - Evaluation of Python expressions by the parsing engine now use `safe_eval()`, a hardened firewall around most security attacks targeting `eval()` (see the [safeeval][] module for details)
 - Because `None` is a valid initial value for attributes and a frequent return value for callables, the required logic for undefined values was moved to the `notnone` module, which declares `Undefined` as an alias for `notnone.NotNone`
+
 	```python
 	In [1]: from tatsu.util.notnone import Undefined
 	In [2]: u = Undefined
@@ -49,10 +53,11 @@ Every effort has been made to preserve backwards compatibility by keeping mosts 
 	Out[7]: 'ok'
 	```
 - `objectmodel.Node` was rewritten to give it clear semantics and efficiency
-	- New attributes to `Node` after initialization generate a warning if the name of a method is being shadowed. This change avoids confusing `@dataclass`, which is used object models.
-    - `Node` equality is explicitely defined object identity. No attempts are made at comparing `Node` contents.
-	- `Node.children()` now has the expected semantics, and is much more efficient. It is now recalculated on each call, in consistency with the mutable nature of `Node`
+	- New attributes to `Node` after initialization generate a warning if the name of a method is being shadowed. This change avoids confusing `@dataclass`, which is used in generated object models.
+    - `Node` equality is explicitely defined as object identity. No attempts are made at comparing `Node` structurally.
+	- `Node.children()` has the expected semantics, and is much more efficient.
 - `Node.parseinfo` is now honored by the parsing engine (previously, only results of type `AST` could have a `parseinfo`). Generation of `parseinfo` is disabled by default, and is enabled by passing `pareseinfo=True` to the API entry points.
+
 	```python
 		  def test_node_parseinfo(self):
 			grammar = """
@@ -74,24 +79,25 @@ Every effort has been made to preserve backwards compatibility by keeping mosts 
 - Now `ast.AST` has consistent semantics of a `dict` that allows access to contents using the attribute interface
 - `asjson()` and friends now cover all known cases with improved consistency and efficiency, so there are less demands over clients of the API
 - Entry points no longer list a large subset of the configuration options defined in `ParserConfig`, but still accept them through `**settings` keyword arguments. Now `ParserConfig` verifies that the settings passed to are vaild, eliminating the frustration of passing an incorrect setting name (a typo) and hoping it has the intended effect. 
-- Documentation has a better look&feel and improved navigation thanks to `MyST-Parser` with `Sphinx`
-- [TatSu][] still has no library dependencies for its core functionality, but several libraries 
-  are used during its development and testing. The [TatSu][] development configuration uses `uv` and `hatch`. Several `requirements-xyz.txt` files are generated in favor of those using `pip` with `pyenv`, `virtualenvwrapper`, or `virtualenv`
+- **TatSu** still has no library dependencies for its core functionality, but several libraries 
+  are used during its development and testing. The **TatSu** development configuration uses `uv` and `hatch`. Several `requirements-xyz.txt` files are generated in favor of those using `pip` with `pyenv`, `virtualenvwrapper`, or `virtualenv`
 - All attempts at recovering comments from parsed input were removed. It never worked, so it had no use. Comment revovery may be attempted in the future. 
 - *CAVEAT:* All pre-existing grammars are compatible with this version of [TatSu][], but, if you use the generated Python parsers or models, *YOU MUST* generate them anew. 
 - *CAVEAT:* If there are invalid strings or regex patterns in your grammars *YOU MUST* fix them because now the grammar parser validates strings and patterns.
-- Many of the functions that [TatSu][] defines for its own use are useful in other contexts. Some examples are:
-```python
-	from tatsu.notnone import Undefined
-	from tatsu.safeeval import is_eval_safe()
-	from tatsu.safeeval import hasshable()
-	from tatsu.safeeval import make_hashable()
-	from tatsu.util import safe_name()
-	from tatsu.util.misc import find_from_rematch()
-	from tatsu.util.misc import topsort()
-	# ... and many more
-```
+- Many of the functions that **TatSu** defines for its own use are useful in other contexts. Some examples are:
+
+	```python
+		from tatsu.notnone import Undefined
+		from tatsu.safeeval import is_eval_safe()
+		from tatsu.safeeval import hasshable()
+		from tatsu.safeeval import make_hashable()
+		from tatsu.util import safe_name()
+		from tatsu.util.misc import find_from_rematch()
+		from tatsu.util.misc import topsort()
+		# ... and many more
+	```
 
 [TatSu]: https://github.com/neogeny/TatSu
 [commit log]: https://github.com/neogeny/TatSu/commits/
 [safeeval]: https://github.com/neogeny/TatSu/blob/master/tatsu/util/safeeval.py
+[models]: https://tatsu.readthedocs.io/en/stable/models.html
