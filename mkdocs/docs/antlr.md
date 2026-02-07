@@ -16,12 +16,12 @@ For example:
 from tatsu import g2e
 
 tatsu_grammar = translate(filename='mygrammar.g', name='My')
-with open('my.ebnf') as f:
+with open('my.tatsu') as f:
     f.write(tatsu_grammar)
 ```
 
 `g2e` can also be used from the command line:
 
 ``` bash
-$ python -m tatsu.g2e mygrammar.g > my.ebnf
+$ python -m tatsu.g2e mygrammar.g > my.tatsu
 ```

@@ -1,3 +1,6 @@
+.. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+.. SPDX-License-Identifier: BSD-4-Clause
+
 .. include:: links.rst
 
 .. _pegen: https://github.com/we-like-parsers/pegen
@@ -131,7 +134,7 @@ input.
         /\d+/
         ;
 
-Let's save the above grammar in a file called ``calc_cut.ebnf``.
+Let's save the above grammar in a file called ``calc_cut.tatsu``.
 We can now compile the grammar, and test the parser:
 
 .. code:: python
@@ -143,7 +146,7 @@ We can now compile the grammar, and test the parser:
 
 
     def simple_parse():
-        with open('calc_cut.ebnf') as f:
+        with open('calc_cut.tatsu') as f:
             grammar = f.read()
 
         parser = tatsu.compile(grammar)
@@ -252,7 +255,7 @@ clearer semantics code. This is an annotated version of the grammar:
         ;
 
 
-Save the annotated grammar in ``calc_annotated.ebnf``, change
+Save the annotated grammar in ``calc_annotated.tatsu``, change
 the grammar filename in ``calc.py`` and re-execute it to get the resulting AST:
 
 .. code:: python
@@ -305,7 +308,7 @@ Semantic actions for |TatSu| parsers are not specified in the grammar, but in a 
 
 
     def parse_with_basic_semantics():
-        with open('calc_annotated.ebnf') as f:
+        with open('calc_annotated.tatsu') as f:
             grammar = f.read()
 
         parser = tatsu.compile(grammar)
@@ -398,7 +401,7 @@ Having semantic actions determine what was parsed with ``isinstance()`` or query
         /\d+/
         ;
 
-Save the above in ``calc_refactored.ebnf``.
+Save the above in ``calc_refactored.tatsu``.
 
 .. code:: python
 
@@ -425,7 +428,7 @@ Save the above in ``calc_refactored.ebnf``.
 
 
     def parse_refactored():
-        with open('calc_refactored.ebnf') as f:
+        with open('calc_refactored.tatsu') as f:
             grammar = f.read()
 
         parser = tatsu.compile(grammar)
@@ -533,13 +536,13 @@ The first step to create an object model is to annotate the rule names with the 
         /\d+/
         ;
 
-Save the grammar in a file name ``calc_model.ebnf``.
+Save the grammar in a file name ``calc_model.tatsu``.
 
 The ``tatsu.objectmodel.Node`` descendants are synthetized at runtime using ``tatsu.semantics
 .ModelBuilderSemantics``.
 
 This is how the model looks like when generated with the ``tatsu.to_python_model()``
-function or from the command line with ``tatsu --object-model calc_model.ebnf -G calc_semantics_model.py``:
+function or from the command line with ``tatsu --object-model calc_model.tatsu -G calc_semantics_model.py``:
 
 .. code:: python
 
@@ -608,7 +611,7 @@ The model that results from a parse can be printed, and walked:
 
 
     def parse_and_walk_model():
-        with open('calc_model.ebnf') as f:
+        with open('calc_model.tatsu') as f:
             grammar = f.read()
 
         parser = tatsu.compile(grammar, asmodel=True)

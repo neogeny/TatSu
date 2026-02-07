@@ -1,3 +1,6 @@
+.. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+.. SPDX-License-Identifier: BSD-4-Clause
+
 .. include:: links.rst
 
 
@@ -25,7 +28,7 @@ For example:
     from tatsu import g2e
 
     tatsu_grammar = translate(filename='mygrammar.g', name='My')
-    with open('my.ebnf') as f:
+    with open('my.tatsu') as f:
         f.write(tatsu_grammar)
 ..
 
@@ -33,7 +36,7 @@ For example:
 
 .. code:: bash
 
-    $ python -m tatsu.g2e mygrammar.g > my.ebnf
+    $ python -m tatsu.g2e mygrammar.g > my.tatsu
 
 ..
 

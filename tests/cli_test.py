@@ -14,7 +14,7 @@ def test_cli_help():
 
 
 def test_cli_python():
-    output = subprocess.check_output(['tatsu', './grammar/tatsu.ebnf'])  # noqa: S607
+    output = subprocess.check_output(['tatsu', './grammar/tatsu.tatsu'])  # noqa: S607
     output = output.decode('utf-8')
     pattern = (
         r'(?ms)CAVEAT UTILITOR.*?竜TatSu.*?KEYWORDS: set\['
@@ -24,7 +24,7 @@ def test_cli_python():
 
 
 def test_cli_model():
-    output = subprocess.check_output(['tatsu', '-g', './grammar/tatsu.ebnf'])  # noqa: S607
+    output = subprocess.check_output(['tatsu', '-g', './grammar/tatsu.tatsu'])  # noqa: S607
     output = output.decode('utf-8')
     pattern = (
         r'(?ms)CAVEAT UTILITOR.*?竜TatSu'

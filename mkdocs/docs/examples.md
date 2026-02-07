@@ -2,7 +2,7 @@
 
 ## Tatsu
 
-The file `grammar/tatsu.ebnf` contains a grammar for the {{TatSu}} grammar language written in its own grammar language. It is used in the *bootstrap* test suite to prove that {{TatSu}} can generate a parser to parse its own language, and the resulting parser is made the bootstrap parser every time {{TatSu}} is stable (see `tatsu/bootstrap.py` for the generated parser).
+The file `grammar/tatsu.tatsu` contains a grammar for the {{TatSu}} grammar language written in its own grammar language. It is used in the *bootstrap* test suite to prove that {{TatSu}} can generate a parser to parse its own language, and the resulting parser is made the bootstrap parser every time {{TatSu}} is stable (see `tatsu/bootstrap.py` for the generated parser).
 
 {{TatSu}} uses {{TatSu}} to translate grammars into parsers, so it is a good example of end-to-end translation.
 

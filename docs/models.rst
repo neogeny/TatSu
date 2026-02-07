@@ -62,7 +62,7 @@ definition with the required classes:
 
 .. code:: bash
 
-    $ tatsu --object-model mygrammar.ebnf
+    $ tatsu --object-model mygrammar.tatsu
 
 
 You can capture the output, or specify the module filename with the
@@ -70,7 +70,7 @@ You can capture the output, or specify the module filename with the
 
 .. code:: bash
 
-    $ tatsu --object-model-outfile mymodel.py mygrammar.ebnf
+    $ tatsu --object-model-outfile mymodel.py mygrammar.tatsu
 
 
 |TatSu| will generate a ``mymodel.MyModelBuilder`` that can be

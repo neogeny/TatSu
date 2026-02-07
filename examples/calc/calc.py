@@ -1,3 +1,7 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 import json
 from pathlib import Path
 from pprint import pprint
@@ -11,7 +15,7 @@ from tatsu.walkers import NodeWalker
 
 
 def simple_parse():
-    grammar = Path('grammars/calc_cut.ebnf').read_text()
+    grammar = Path('grammars/calc_cut.tatsu').read_text()
 
     parser = tatsu.compile(grammar)
     ast = parser.parse('3 + 5 * ( 10 - 20 )', trace=False, colorize=True)
@@ -28,7 +32,7 @@ def simple_parse():
 
 
 def annotated_parse():
-    grammar = Path('grammars/calc_annotated.ebnf').read_text()
+    grammar = Path('grammars/calc_annotated.tatsu').read_text()
 
     parser = tatsu.compile(grammar)
     ast = parser.parse('3 + 5 * ( 10 - 20 )')
@@ -65,7 +69,7 @@ class CalcBasicSemantics:
 
 
 def parse_with_basic_semantics():
-    grammar = Path('grammars/calc_annotated.ebnf').read_text()
+    grammar = Path('grammars/calc_annotated.tatsu').read_text()
 
     parser = tatsu.compile(grammar)
     result = parser.parse(
@@ -97,7 +101,7 @@ class CalcSemantics:
 
 
 def parse_factored():
-    grammar = Path('grammars/calc_factored.ebnf').read_text()
+    grammar = Path('grammars/calc_factored.tatsu').read_text()
 
     parser = tatsu.compile(grammar)
     ast = parser.parse('3 + 5 * ( 10 - 20 )', semantics=CalcSemantics())
@@ -109,7 +113,7 @@ def parse_factored():
 
 
 def parse_to_model():
-    grammar = Path('grammars/calc_model.ebnf').read_text()
+    grammar = Path('grammars/calc_model.tatsu').read_text()
 
     parser = tatsu.compile(grammar, asmodel=True)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
@@ -138,7 +142,7 @@ class CalcWalker(NodeWalker):
 
 
 def parse_and_walk_model():
-    grammar = Path('grammars/calc_model.ebnf').read_text()
+    grammar = Path('grammars/calc_model.tatsu').read_text()
 
     parser = tatsu.compile(grammar, asmodel=True)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
@@ -152,7 +156,7 @@ def parse_and_walk_model():
 
 
 def parse_and_translate():
-    grammar = Path('grammars/calc_model.ebnf').read_text()
+    grammar = Path('grammars/calc_model.tatsu').read_text()
 
     parser = tatsu.compile(grammar, asmodel=True)
     model = parser.parse('3 + 5 * ( 10 - 20 )')

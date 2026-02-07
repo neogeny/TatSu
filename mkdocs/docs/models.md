@@ -53,14 +53,14 @@ able to override them, the `tatsu` commandline tool will generate a
 module definition with the required classes:
 
 ``` bash
-$ tatsu --object-model mygrammar.ebnf
+$ tatsu --object-model mygrammar.tatsu
 ```
 
 You can capture the output, or specify the module filename with the
 `--object-model-outfile` option to `tatsu`.
 
 ``` bash
-$ tatsu --object-model-outfile mymodel.py mygrammar.ebnf
+$ tatsu --object-model-outfile mymodel.py mygrammar.tatsu
 ```
 
 {{TatSu}} will generate a

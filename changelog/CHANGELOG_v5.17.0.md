@@ -20,6 +20,7 @@ Every effort has been made to preserve backwards compatibility by keeping mosts 
 ### User-Facing Changes
 
 - The [**TatSu** documentation](https://tatsu.readthedocs.io) has been improved and expanded, and it has a better look&feel with improved navigation.
+- **TatSu** doesn't care about file names, but the default extension used in unit tests, examples, and documentation for grammars is now `.tatsu`
 - Now `tatsu.parse(...., asmodel=True)` produces a model that matches the `::Type` declarations in ther grammar (see the [models][] documentation for a thorough review of the features).
 - `walkers.NodeWalker` now handles all known types of input. 
    Also: 

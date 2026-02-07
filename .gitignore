@@ -112,7 +112,7 @@ ENV/
 .vscode/*
 
 # generated files
-examples/g2e/*.ebnf
+examples/g2e/*.tatsu
 .deprecated/
 .obsidian/
 backups/

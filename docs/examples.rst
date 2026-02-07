@@ -1,3 +1,6 @@
+.. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+.. SPDX-License-Identifier: BSD-4-Clause
+
 .. include:: links.rst
 
 
@@ -7,7 +10,7 @@ Examples
 Tatsu
 ~~~~~
 
-The file ``grammar/tatsu.ebnf`` contains a grammar for the |TatSu| grammar
+The file ``grammar/tatsu.tatsu`` contains a grammar for the |TatSu| grammar
 language written in its own grammar language. It is used in the
 *bootstrap* test suite to prove that |TatSu| can generate a parser to
 parse its own language, and the resulting parser is made the bootstrap

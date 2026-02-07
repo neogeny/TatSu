@@ -1,3 +1,7 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 import json
 import tempfile
 import unittest
@@ -37,8 +41,8 @@ class ParsingTests(unittest.TestCase):
         )
 
     def test_real_include(self):
-        _, include_a = tempfile.mkstemp(suffix='.ebnf', prefix='include_')
-        _, include_b = tempfile.mkstemp(suffix='.ebnf', prefix='include_')
+        _, include_a = tempfile.mkstemp(suffix='.tatsu', prefix='include_')
+        _, include_b = tempfile.mkstemp(suffix='.tatsu', prefix='include_')
 
         grammar = """\
             #include :: "{include_a}"

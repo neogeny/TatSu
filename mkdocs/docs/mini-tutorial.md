@@ -113,7 +113,7 @@ number
     ;
 ```
 
-Let's save the above grammar in a file called `calc_cut.ebnf`. We can now compile the grammar, and test the parser:
+Let's save the above grammar in a file called `calc_cut.tatsu`. We can now compile the grammar, and test the parser:
 
 ``` python
 import json
@@ -123,7 +123,7 @@ import tatsu
 
 
 def simple_parse():
-    with open('calc_cut.ebnf') as f:
+    with open('calc_cut.tatsu') as f:
         grammar = f.read()
 
     parser = tatsu.compile(grammar)
@@ -225,7 +225,7 @@ number
     ;
 ```
 
-Save the annotated grammar in `calc_annotated.ebnf`, change the grammar filename in `calc.py` and re-execute it to get the resulting AST:
+Save the annotated grammar in `calc_annotated.tatsu`, change the grammar filename in `calc.py` and re-execute it to get the resulting AST:
 
 ``` python
 # ANNOTATED AST
@@ -275,7 +275,7 @@ class CalcBasicSemantics:
 
 
 def parse_with_basic_semantics():
-    with open('calc_annotated.ebnf') as f:
+    with open('calc_annotated.tatsu') as f:
         grammar = f.read()
 
     parser = tatsu.compile(grammar)
@@ -365,7 +365,7 @@ number
     ;
 ```
 
-Save the above in `calc_refactored.ebnf`.
+Save the above in `calc_refactored.tatsu`.
 
 ``` python
 from pprint import pprint
@@ -391,7 +391,7 @@ class CalcSemantics:
 
 
 def parse_refactored():
-    with open('calc_refactored.ebnf') as f:
+    with open('calc_refactored.tatsu') as f:
         grammar = f.read()
 
     parser = tatsu.compile(grammar)
@@ -495,11 +495,11 @@ number::int
     ;
 ```
 
-Save the grammar in a file name `calc_model.ebnf`.
+Save the grammar in a file name `calc_model.tatsu`.
 
 The `tatsu.objectmodel.Node` descendants are synthetized at runtime using `tatsu.semantics .ModelBuilderSemantics`.
 
-This is how the model looks like when generated with the `tatsu.to_python_model()` function or from the command line with `tatsu --object-model calc_model.ebnf -G calc_semantics_model.py`:
+This is how the model looks like when generated with the `tatsu.to_python_model()` function or from the command line with `tatsu --object-model calc_model.tatsu -G calc_semantics_model.py`:
 
 ``` python
 from tatsu.objectmodel import Node
@@ -567,7 +567,7 @@ class CalcWalker(NodeWalker):
 
 
 def parse_and_walk_model():
-    with open('calc_model.ebnf') as f:
+    with open('calc_model.tatsu') as f:
         grammar = f.read()
 
     parser = tatsu.compile(grammar, asmodel=True)

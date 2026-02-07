@@ -1,3 +1,6 @@
+.. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+.. SPDX-License-Identifier: BSD-4-Clause
+
 .. include:: links.rst
 .. highlight:: none
 
@@ -641,7 +644,7 @@ the command-line tool using the ``-m`` option:
 
 .. code:: bash
 
-   $ tatsu -m MyLanguage mygrammar.ebnf
+   $ tatsu -m MyLanguage mygrammar.tatsu
 
 will generate:
 
