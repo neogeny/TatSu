@@ -8,7 +8,6 @@ from tatsu.util.string import regexp
 
 
 def test_patterns_quotes():
-
     assert regexp("'") == 'r"\'"'
     assert regexp('\'') == 'r"\'"'
 
@@ -20,7 +19,6 @@ def test_patterns_quotes():
 
 
 def test_backslash_edge_cases() -> None:
-
     assert regexp(r"\'") == 'r"\\\'"'
 
     # raw string r"r'\\\''" represents exactly three backslashes
@@ -49,7 +47,6 @@ def test_patterns_real():
 
 
 def test_roundtrip_verification() -> None:
-
     # Standard case
     assert eval(regexp("it's")) == "it's"  # noqa: S307
 
@@ -59,7 +56,6 @@ def test_roundtrip_verification() -> None:
 
 
 def test_edge_cases() -> None:
-
     assert regexp("'''") == 'r"\'\'\'"'
     assert regexp("") == "r''"
     assert regexp(123) == "r'123'"
