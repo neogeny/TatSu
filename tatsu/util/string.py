@@ -1,5 +1,7 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
+# by Gemini (2026-02-07)
+# by [apalala@gmail.com](https://github.com/apalala)
 from __future__ import annotations
 
 import codecs
@@ -27,13 +29,16 @@ def regexp(text: Any) -> str:
         "\0": r"\0",    # Null char
 
         "'": r"\'",     # Single Quote: wrapping will be single quote, so escape
-        # "\\": r"\\",    # Literal Backslash: don't mess with this
-        # "\"": r'"',     # Double Quote
     }
 
-    text = text.pattern if isinstance(text, re.Pattern) else str(text)
-    text = ''.join(ctrl_map.get(c, c) for c in text)  # pyright: ignore[reportCallIssue, reportArgumentType]
-    return f"r'{text}'"
+    pattern_text = text.pattern if isinstance(text, re.Pattern) else str(text)
+
+    if pattern_text.endswith("\\") and (len(pattern_text) - len(pattern_text.rstrip("\\"))) % 2 != 0:
+        pattern_text += "\\"
+
+    result = ''.join(ctrl_map.get(c, c) for c in pattern_text)
+
+    return f"r'{result}'"
 
 
 def eval_escapes(s: str | bytes) -> str | bytes:
