@@ -16,8 +16,8 @@ import pytest
 
 from tatsu import diagrams
 from tatsu.ngcodegen import pythongen
-from tatsu.parser import EBNFParser, GrammarGenerator
-from tatsu.parser_semantics import EBNFGrammarSemantics
+from tatsu.parser import GrammarGenerator, TatSuParser
+from tatsu.parser_semantics import TatSuGrammarSemantics
 from tatsu.semantics import ASTSemantics
 from tatsu.tool import to_python_sourcecode
 from tatsu.util import asjson
@@ -36,7 +36,7 @@ def test_00_with_boostrap_grammar():
         shutil.rmtree('./tmp')
     tmp.mkdir(exist_ok=True)
     text = Path('grammar/tatsu.tatsu').read_text()
-    g = EBNFParser('EBNFBootstrap')
+    g = TatSuParser('TatSuBootstrap')
     grammar0 = g.parse(text, semantics=ASTSemantics(), parseinfo=False)
     ast0 = json.dumps(asjson(grammar0), indent=2)
     Path('./tmp/00.ast').write_text(ast0)
@@ -46,7 +46,7 @@ def test_00_with_boostrap_grammar():
 def test_01_with_parser_generator():
     print('-' * 20, 'phase 01 - parse with parser generator')
     text = Path('grammar/tatsu.tatsu').read_text()
-    g = GrammarGenerator('EBNFBootstrap')
+    g = GrammarGenerator('TatSuBootstrap')
     result = g.parse(text)
     generated_grammar1 = str(result)
     Path('./tmp/01.tatsu').write_text(generated_grammar1)
@@ -59,12 +59,12 @@ def test_02_previous_output_generator():
         'phase 02 - parse previous output with the parser generator',
     )
     text = Path('grammar/tatsu.tatsu').read_text()
-    g = GrammarGenerator('EBNFBootstrap')
+    g = GrammarGenerator('TatSuBootstrap')
     result = g.parse(text)
     generated_grammar1 = str(result)
 
     text = Path('./tmp/01.tatsu').read_text()
-    g = GrammarGenerator('EBNFBootstrap')
+    g = GrammarGenerator('TatSuBootstrap')
     result = g.parse(text)
     generated_grammar2 = str(result)
     Path('./tmp/02.tatsu').write_text(generated_grammar2)
@@ -75,7 +75,7 @@ def test_02_previous_output_generator():
 def test_03_repeat_02():
     print('-' * 20, 'phase 03 - repeat')
     text = Path('./tmp/02.tatsu').read_text()
-    g = EBNFParser('EBNFBootstrap')
+    g = TatSuParser('TatSuBootstrap')
     ast3 = g.parse(text)
     Path('./tmp/03.ast').write_text(json.dumps(asjson(ast3), indent=2))
 
@@ -84,12 +84,12 @@ def test_03_repeat_02():
 def test_04_repeat_03():
     print('-' * 20, 'phase 04 - repeat')
     text = Path('./tmp/01.tatsu').read_text()
-    g = GrammarGenerator('EBNFBootstrap')
+    g = GrammarGenerator('TatSuBootstrap')
     result = g.parse(text)
     generated_grammar2 = str(result)
 
     text = Path('./tmp/02.tatsu').read_text()
-    g = GrammarGenerator('EBNFBootstrap')
+    g = GrammarGenerator('TatSuBootstrap')
     parser = g.parse(text)
     generated_grammar4 = str(parser)
     Path('./tmp/04.tatsu').write_text(generated_grammar4)
@@ -100,7 +100,7 @@ def test_04_repeat_03():
 def test_05_parse_with_model():
     print('-' * 20, 'phase 05 - parse using the grammar model')
     text = Path('./tmp/02.tatsu').read_text()
-    g = GrammarGenerator('EBNFBootstrap')
+    g = GrammarGenerator('TatSuBootstrap')
     parser = g.parse(text)
 
     text = Path('./tmp/04.tatsu').read_text()
@@ -112,7 +112,7 @@ def test_05_parse_with_model():
 def test_06_generate_code():
     print('-' * 20, 'phase 06 - generate parser code')
     text = Path('./tmp/02.tatsu').read_text()
-    g = GrammarGenerator('EBNFBootstrap')
+    g = GrammarGenerator('TatSuBootstrap')
     parser = g.parse(text)
     gencode6 = pythongen(parser)
     Path('./tmp/g06.py').write_text(gencode6)
@@ -179,12 +179,12 @@ def test_08_compile_with_generated():
 def test_09_parser_with_semantics():
     print('-' * 20, 'phase 09 - Generate parser with semantics')
     text = Path('grammar/tatsu.tatsu').read_text()
-    parser = GrammarGenerator('EBNFBootstrap')
+    parser = GrammarGenerator('TatSuBootstrap')
     g9 = parser.parse(text)
     generated_grammar9 = str(g9)
     Path('./tmp/09.tatsu').write_text(generated_grammar9)
     text = Path('grammar/tatsu.tatsu').read_text()
-    g = GrammarGenerator('EBNFBootstrap')
+    g = GrammarGenerator('TatSuBootstrap')
     result = g.parse(text)
     generated_grammar1 = str(result)
     assert generated_grammar9 == generated_grammar1
@@ -194,12 +194,12 @@ def test_09_parser_with_semantics():
 def test_10_with_model_and_semantics():
     print('-' * 20, 'phase 10 - Parse with a model using a semantics')
     text = Path('grammar/tatsu.tatsu').read_text()
-    parser = GrammarGenerator('EBNFBootstrap')
+    parser = GrammarGenerator('TatSuBootstrap')
     g9 = parser.parse(text)
     g10 = g9.parse(
         text,
         start_rule='start',
-        semantics=EBNFGrammarSemantics('EBNFBootstrap'),
+        semantics=TatSuGrammarSemantics('TatSuBootstrap'),
     )
     generated_grammar10 = str(g10)
     Path('./tmp/10.tatsu').write_text(generated_grammar10)
@@ -211,12 +211,12 @@ def test_10_with_model_and_semantics():
 def test_11_with_pickle_and_retry():
     print('-' * 20, 'phase 11 - Pickle the model and try again.')
     text = Path('grammar/tatsu.tatsu').read_text()
-    parser = GrammarGenerator('EBNFBootstrap')
+    parser = GrammarGenerator('TatSuBootstrap')
     g9 = parser.parse(text)
     g10 = g9.parse(
         text,
         start_rule='start',
-        semantics=EBNFGrammarSemantics('EBNFBootstrap'),
+        semantics=TatSuGrammarSemantics('TatSuBootstrap'),
     )
     with Path('./tmp/11.tatsuc').open('wb') as f:
         pickle.dump(g10, f)
@@ -225,7 +225,7 @@ def test_11_with_pickle_and_retry():
     r11 = g11.parse(
         text,
         start_rule='start',
-        semantics=EBNFGrammarSemantics('EBNFBootstrap'),
+        semantics=TatSuGrammarSemantics('TatSuBootstrap'),
     )
     Path('./tmp/11.tatsu').write_text(str(g11))
     gencode11 = pythongen(r11)

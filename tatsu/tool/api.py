@@ -1,7 +1,7 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 """
-Parse and translate an EBNF grammar into a Python parser for
+Parse and translate a TatSu grammar into a Python parser for
 the described language.
 """
 from __future__ import annotations

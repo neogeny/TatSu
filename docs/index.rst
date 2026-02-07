@@ -1,3 +1,6 @@
+.. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+.. SPDX-License-Identifier: BSD-4-Clause
+
 .. tatsu documentation master file, created by
    sphinx-quickstart on Mon May  1 18:01:31 2017.
    You can adapt this file completely to your liking, but it should at least
@@ -23,7 +26,7 @@
 
 
 
-|TatSu| is a tool that takes grammars in a variation of `EBNF`_ as input,
+|TatSu| is a tool that takes a grammars as input,
 and outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_.
 
 Why use a PEG_ parser? Because `regular languages`_ (those parsable with Python's ``re`` package) *"cannot count"*. Any language with nested structures or with balancing of demarcatiors requires more than regular expressions to be parsed.

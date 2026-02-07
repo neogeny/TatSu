@@ -1,3 +1,6 @@
+.. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+.. SPDX-License-Identifier: BSD-4-Clause
+
 .. include:: links_contributors.rst
 
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
@@ -17,7 +20,7 @@
 .. _CST: https://en.wikipedia.org/wiki/Parse_tree
 .. _Cyclomatic complexity: http://en.wikipedia.org/wiki/Cyclomatic_complexity
 .. _Dennis Ritchie: http://en.wikipedia.org/wiki/Dennis_Ritchie
-.. _EBNF: http://en.wikipedia.org/wiki/Ebnf
+.. _EBNF: https://en.wikipedia.org/wiki/Extended_Backus–Naur_form
 .. _English: http://en.wikipedia.org/wiki/English_grammar
 .. _Euler: http://en.wikipedia.org/wiki/Euler_programming_language
 .. _Grako: https://pypi.python.org/pypi/grako/

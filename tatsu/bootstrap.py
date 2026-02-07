@@ -14,7 +14,6 @@
 
 from __future__ import annotations
 
-import re
 import sys
 from pathlib import Path
 
@@ -22,17 +21,13 @@ from tatsu.buffering import Buffer
 from tatsu.infos import ParserConfig
 from tatsu.parsing import (
     Parser,
-    leftrec,
-    nomemo,
-    isname,
     generic_main,
     rule,
 )
 
-
 __all__ = [
-    'EBNFBootstrapBuffer',
-    'EBNFBootstrapParser',
+    'TatSuBootstrapBuffer',
+    'TatSuBootstrapParser',
     'main',
 ]
 
@@ -40,7 +35,7 @@ __all__ = [
 KEYWORDS: set[str] = set()
 
 
-class EBNFBootstrapBuffer(Buffer):
+class TatSuBootstrapBuffer(Buffer):
     def __init__(self, text, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(
             config,
@@ -59,7 +54,7 @@ class EBNFBootstrapBuffer(Buffer):
         super().__init__(text, config=config)
 
 
-class EBNFBootstrapParser(Parser):
+class TatSuBootstrapParser(Parser):
     def __init__(self, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(
             config,
@@ -1168,7 +1163,7 @@ def main(filename, **kwargs):
         text = sys.stdin.read()
     else:
         text = Path(filename).read_text()
-    parser = EBNFBootstrapParser()
+    parser = TatSuBootstrapParser()
     return parser.parse(
         text,
         filename=filename,
@@ -1180,6 +1175,6 @@ if __name__ == '__main__':
     import json
     from tatsu.util import asjson
 
-    ast = generic_main(main, EBNFBootstrapParser, name='EBNFBootstrap')
+    ast = generic_main(main, TatSuBootstrapParser, name='TatSuBootstrap')
     data = asjson(ast)
     print(json.dumps(data, indent=2))

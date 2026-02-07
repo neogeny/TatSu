@@ -9,7 +9,7 @@ import subprocess  # noqa: S404
 def test_cli_help():
     output = subprocess.check_output(['tatsu', '--help'])  # noqa: S607
     output = output.decode('utf-8')
-    pattern = r'(?ms)竜TatSu takes a grammar in a variation of EBNF.*GRAMMAR'
+    pattern = r'(?ms)竜TatSu takes a grammar .*GRAMMAR'
     assert re.search(pattern, output)
 
 

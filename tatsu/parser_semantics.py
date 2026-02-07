@@ -14,7 +14,7 @@ from .util import eval_escapes, re, warning
 from .util.abctools import flatten
 
 
-class EBNFGrammarSemantics(ModelBuilder):
+class TatSuGrammarSemantics(ModelBuilder):
     def __init__(self, grammar_name: str | None):
         super().__init__(
             basetype=grammars.Model,
