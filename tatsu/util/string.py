@@ -20,7 +20,7 @@ def regexp(text: Any) -> str:
     Returns a printable version of the regexp pattern as a Python raw string.
     Validates input and ensures generated output is syntactically valid.
     """
-    # by Gemini (2026-02-07)
+    # by Gemini (2026-02-04 - 2026-02-07)
     # by [apalala@gmail.com](https://github.com/apalala)
 
     pattern_text = text.pattern if hasattr(text, "pattern") else str(text)
