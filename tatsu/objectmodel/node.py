@@ -8,14 +8,14 @@ import weakref
 from collections.abc import Iterable, Mapping
 from typing import Any
 
-from .basenode import BaseNode, TatSuDataclassParams
+from .basenode import BaseNode, tatsudataclass
 
-__all__ = ['Node', 'TatSuDataclassParams']
+__all__ = ['Node', 'tatsudataclass']
 
 from ..util.deprecate import deprecated
 
 
-@dataclasses.dataclass(**TatSuDataclassParams)
+@tatsudataclass
 class Node(BaseNode):
     __parent_ref: weakref.ref | None = None  # pyright: ignore[reportRedeclaration]
 
@@ -30,7 +30,7 @@ class Node(BaseNode):
     @functools.cached_property
     def private_names(self) -> set[str]:
         return (
-            {f.name for f in dataclasses.fields(Node)}
+            {f.name for f in dataclasses.fields(Node)}  # pyright: ignore[reportArgumentType]
             | super().private_names
         )
 

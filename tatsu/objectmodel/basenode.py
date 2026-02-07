@@ -7,13 +7,14 @@ import functools
 import inspect
 import warnings
 import weakref
-from typing import Any
+from collections.abc import Callable
+from typing import Any, overload
 
 from ..ast import AST
 from ..infos import ParseInfo
 from ..util.asjson import AsJSONMixin, asjson, asjsons
 
-__all__ = ['BaseNode', 'TatSuDataclassParams']
+__all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
 
 
 TatSuDataclassParams = dict(  # noqa: C408
@@ -25,7 +26,29 @@ TatSuDataclassParams = dict(  # noqa: C408
 )
 
 
-@dataclasses.dataclass(**TatSuDataclassParams)
+@overload
+def tatsudataclass[T: type](cls: T) -> T: ...
+
+@overload
+def tatsudataclass[T: type](**params: Any) -> Callable[[T], T]: ...
+
+
+def tatsudataclass[T: type](cls: T | None = None, **params: Any) -> T | Callable[[T], T]:
+    # by Gemini (2026-02-07)
+    # by [apalala@gmail.com](https://github.com/apalala)
+
+    def decorator(target: T) -> T:
+        allparams = {**TatSuDataclassParams, **params}
+        return dataclasses.dataclass(**allparams)(target)
+
+    # If cls is passed, it was used as @tatsudataclass with no arguments
+    if cls is not None:
+        return decorator(cls)
+
+    return decorator
+
+
+@tatsudataclass
 class BaseNode(AsJSONMixin):
     ast: Any = None
     ctx: Any = None

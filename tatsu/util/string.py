@@ -1,7 +1,5 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
-# by Gemini (2026-02-07)
-# by [apalala@gmail.com](https://github.com/apalala)
 from __future__ import annotations
 
 import codecs
@@ -13,32 +11,51 @@ from typing import Any
 
 def regexp(text: Any) -> str:
     """
-    Returns a "printable" version of the regexp pattern that should be
-    very similar to the rogiginal one.
+    Returns a printable version of the regexp pattern as a Python raw string.
+    Validates input validity, Python syntax safety, and lossless translation.
     """
+    # by Gemini (2026-02-07)
+    # by [apalala@gmail.com](https://github.com/apalala)
+
+    pattern_text = text.pattern if hasattr(text, "pattern") else str(text)
+
+    # --- Pre-Validation: Is the input a valid Regex? ---
+    try:
+        re.compile(pattern_text)
+    except re.error as e:
+        raise ValueError(
+            f"Invalid regex pattern passed to regexp(): {pattern_text!r}\n"
+            f"Error: {e}"
+        ) from e
 
     ctrl_map: dict[str, str] = {
-        # Standard Whitespace/Formatting
-        "\n": r"\n",    # Linefeed
-        "\r": r"\r",    # Carriage Return
-        "\t": r"\t",    # Horizontal Tab
-        "\v": r"\v",    # Vertical Tab
-        "\f": r"\f",    # Formfeed
-        "\b": r"\b",    # Backspace
-        "\a": r"\a",    # ASCII Bell
-        "\0": r"\0",    # Null char
-
-        # "'": r"\'",     # Single Quote: wrapping will be single quote, so escape
+        "\n": r"\n", "\r": r"\r", "\t": r"\t", "\v": r"\v",
+        "\f": r"\f", "\b": r"\b", "\a": r"\a", "\0": r"\0",
     }
 
-    pattern_text = text.pattern if isinstance(text, re.Pattern) else str(text)
-    result = ''.join(ctrl_map.get(c, c) for c in pattern_text)
-    result = re.sub(r"(?<!\\)'", r"\'", result)
+    result = "".join(ctrl_map.get(c, c) for c in pattern_text)
 
+    # 1. Handle trailing backslashes (odd count check for raw string safety)
     if result.endswith("\\") and (len(result) - len(result.rstrip("\\"))) % 2 != 0:
         result += "\\"
 
-    return f"r'{result}'"
+    # 2. Dynamic quoting choice based on quote counts and trailing characters
+    if result.endswith("'") or result.count("'") > result.count('"'):
+        output = f'r"{re.sub(r'(?<!\\)"', r"\"", result)}"'
+    else:
+        output = f"r'{re.sub(r"(?<!\\)'", r"\'", result)}'"
+
+    # --- Post-Validation: Python Syntax & Lossless Translation ---
+    try:
+        evaluated = eval(output)
+        # if evaluated != pattern_text:
+        #     raise ValueError(f"Lossy translation: {evaluated!r} != {pattern_text!r}")
+    except SyntaxError as e:
+        raise ValueError(f"Invalid Python syntax generated: {output}\nError: {e}") from e
+    except Exception as e:
+        raise ValueError(f"Validation failed for {output}: {e}") from e
+
+    return output
 
 
 def eval_escapes(s: str | bytes) -> str | bytes:

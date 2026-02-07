@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .basenode import BaseNode, TatSuDataclassParams
+from .basenode import BaseNode, TatSuDataclassParams, tatsudataclass
 from .node import Node
 
-__all__ = ['BaseNode', 'Node', 'TatSuDataclassParams']
+__all__ = ['BaseNode', 'Node', 'TatSuDataclassParams', 'tatsudataclass']

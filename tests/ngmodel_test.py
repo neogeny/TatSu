@@ -1,10 +1,10 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
-from dataclasses import dataclass
+from __future__ import annotations
 
 import pytest
 
-from tatsu.objectmodel import Node, TatSuDataclassParams
+from tatsu.objectmodel import Node, tatsudataclass
 
 
 def test_init_attributes():
@@ -29,12 +29,12 @@ def test_attributes_through_shell():
     assert hasattr(node, 'parseinfo')
 
 
-@dataclass(kw_only=True, eq=False)
+@tatsudataclass
 class Inner(Node):
     id: str
 
 
-@dataclass(kw_only=True, eq=False)
+@tatsudataclass
 class Outer(Node):
     left: Inner
     right: Inner

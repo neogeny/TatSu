@@ -33,7 +33,7 @@ HEADER = """\
     from dataclasses import dataclass
     from typing import Any
 
-    from tatsu.objectmodel import TatSuDataclassParams
+    from tatsu.objectmodel import tatsudataclass
     from tatsu.builder import ModelBuilder
     {basetype_import}
 
@@ -134,7 +134,7 @@ class PythonModelGenerator(IndentPrintMixin):
         return 'ModelBase'
 
     def _print_dataclass(self):
-        self.print('@dataclass(**TatSuDataclassParams)')
+        self.print('@tatsudataclass')
 
     def _gen_base_class(self, class_name: str, base: str | None):
         self.print()
