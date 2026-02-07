@@ -14,8 +14,6 @@ def regexp(text: Any) -> str:
     Returns a "printable" version of the regexp pattern that should be
     very similar to the rogiginal one.
     """
-    # by [apalala@gmail.com](https://github.com/apalala)
-    # by Gemini (2026-02-02)
 
     ctrl_map: dict[str, str] = {
         # Standard Whitespace/Formatting
@@ -26,28 +24,16 @@ def regexp(text: Any) -> str:
         "\f": r"\f",    # Formfeed
         "\b": r"\b",    # Backspace
         "\a": r"\a",    # ASCII Bell
-
-        # Quotes and Backslashes
-        # "\"": r'"',     # Double Quote
-        "'": r"\'",     # Single Quote: wrapping will be single quote, so escape
-        # "\\": r"\\",    # Literal Backslash: don't mess with these
-
-        # Null Character (often forgotten)
         "\0": r"\0",    # Null char
+
+        "'": r"\'",     # Single Quote: wrapping will be single quote, so escape
+        # "\\": r"\\",    # Literal Backslash: don't mess with this
+        # "\"": r'"',     # Double Quote
     }
 
-    content = text.pattern if isinstance(text, re.Pattern) else str(text)
-
-    # filter out incorrect escapes that modern python compilers rejects
-    content = re.sub(r'(?!\\\\)\\([\'"])', r'\1', content)
-
-    content = ''.join(ctrl_map.get(c, c) for c in content)  # pyright: ignore[reportCallIssue, reportArgumentType]
-    content = content.replace(r"\\'", r"\'")
-
-    if content.endswith("\\") and (len(content) - len(content.rstrip("\\"))) % 2 != 0:
-        content += "\\"
-
-    return f"r'{content}'"
+    text = text.pattern if isinstance(text, re.Pattern) else str(text)
+    text = ''.join(ctrl_map.get(c, c) for c in text)  # pyright: ignore[reportCallIssue, reportArgumentType]
+    return f"r'{text}'"
 
 
 def eval_escapes(s: str | bytes) -> str | bytes:
