@@ -69,3 +69,12 @@ def test_edge_cases() -> None:
     assert regexp("'''") == r"r'\'\'\''"
     assert regexp("") == "r''"
     assert regexp(123) == "r'123'"
+
+
+def test_regexp_is_runnable():
+    pattern = r"\'"
+    generated_code = regexp(pattern)
+
+    # This ensures the generated code is actually valid Python
+    # and evaluates back to the original pattern.
+    assert eval(generated_code) == pattern
