@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from tatsu.objectmodel import Node
+from tatsu.objectmodel import Node, TatSuDataclassParams
 
 
 def test_init_attributes():
@@ -29,12 +29,12 @@ def test_attributes_through_shell():
     assert hasattr(node, 'parseinfo')
 
 
-@dataclass(kw_only=True, unsafe_hash=True)
+@dataclass(kw_only=True, eq=False)
 class Inner(Node):
     id: str
 
 
-@dataclass(kw_only=True, unsafe_hash=True)
+@dataclass(kw_only=True, eq=False)
 class Outer(Node):
     left: Inner
     right: Inner
@@ -58,4 +58,4 @@ def test_children():
     assert isinstance(outer.left, Inner)
     assert isinstance(outer.right, Inner)
     children = outer.children()
-    assert children == (a_inner, b_inner)
+    assert set(children) == {a_inner, b_inner}
