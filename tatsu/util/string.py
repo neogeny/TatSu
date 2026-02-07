@@ -48,15 +48,13 @@ def regexp(text: Any) -> str:
 
     try:
         evaluated = eval(output)  # noqa: S307
+        re.compile(evaluated)
     except SyntaxError as e:
         raise RuntimeError(f"regexp() generated invalid Python syntax: {output}\n{e}") from e
-    except Exception as e:
-        raise RuntimeError(f"Unexpected error evaluating output: {output}\n{e}") from e
-
-    try:
-        re.compile(evaluated)
     except PatternError as e:
         raise RuntimeError(f"regexp() generated an invalid regex pattern: {output}\n{e}") from e
+    except Exception as e:
+        raise RuntimeError(f"Unexpected error evaluating output: {output}\n{e}") from e
 
     return output
 
