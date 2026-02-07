@@ -68,12 +68,13 @@ class Node(BaseNode):
         return tuple(reversed(ancestors))
 
     def children(self) -> tuple[Node, ...]:
-        return tuple(self._children())
+        return self._cached_children
 
     def children_list(self) -> list[Node]:
-        return list(self._children())
+        return list(self._cached_children)
 
-    def _children(self) -> Iterable[Any]:
+    @functools.cached_property
+    def _cached_children(self) -> tuple[Node, ...]:
         def dfs(obj: Any) -> Iterable[Node]:
             match obj:
                 case Node() as node:
