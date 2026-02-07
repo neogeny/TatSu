@@ -8,7 +8,7 @@ import weakref
 from collections.abc import Iterable, Mapping
 from typing import Any
 
-from .base import BaseNode, TatSuDataclassParams
+from .basenode import BaseNode, TatSuDataclassParams
 
 __all__ = ['Node', 'TatSuDataclassParams']
 
