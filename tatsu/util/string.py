@@ -55,7 +55,7 @@ def regexp(text: Any) -> str:
 
     try:
         re.compile(evaluated)
-    except re.error as e:
+    except PatternError as e:
         raise RuntimeError(f"regexp() generated an invalid regex pattern: {output}\n{e}") from e
 
     return output
