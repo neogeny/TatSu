@@ -28,15 +28,15 @@ def regexp(text: Any) -> str:
         "\a": r"\a",    # ASCII Bell
         "\0": r"\0",    # Null char
 
-        "'": r"\'",     # Single Quote: wrapping will be single quote, so escape
+        # "'": r"\'",     # Single Quote: wrapping will be single quote, so escape
     }
 
     pattern_text = text.pattern if isinstance(text, re.Pattern) else str(text)
-
-    if pattern_text.endswith("\\") and (len(pattern_text) - len(pattern_text.rstrip("\\"))) % 2 != 0:
-        pattern_text += "\\"
-
     result = ''.join(ctrl_map.get(c, c) for c in pattern_text)
+    result = re.sub(r"(?<!\\)'", r"\'", result)
+
+    if result.endswith("\\") and (len(result) - len(result.rstrip("\\"))) % 2 != 0:
+        result += "\\"
 
     return f"r'{result}'"
 
