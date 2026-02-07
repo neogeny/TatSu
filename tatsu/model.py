@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from .ast import AST
-from .builder import ModelBuilder
+from .builder import ModelBuilder, ModelBuilderSemantics
 from .objectmodel import BaseNode, Node
 from .objectmodel import Node as ParseModel
 from .walkers import BreadthFirstWalker, DepthFirstWalker, NodeWalker, PreOrderWalker
@@ -13,10 +13,11 @@ __all__ = [
     'AST',
     'BaseNode',
     'BreadthFirstWalker',
-    'PreOrderWalker',
-    'Node',
-    'ParseModel',
-    'ModelBuilder',
     'DepthFirstWalker',
+    'ModelBuilder',
+    'ModelBuilderSemantics',
+    'Node',
     'NodeWalker',
+    'ParseModel',
+    'PreOrderWalker',
 ]
