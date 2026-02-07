@@ -166,6 +166,9 @@ about them. There are several flexible ways to do that:
 Passing ``constructors=`` or ``typedefs=`` to the |TatSu| API implies that
 a model instead of an AST_ is being requested (``asmodel=True``).
 
+To know what ``@tatsudataclass`` means, you can take a look at
+``objectmodel.TatSuDataclassParams`` for the used ``dataclass`` parameters.
+
 
 Viewing Models as JSON
 ~~~~~~~~~~~~~~~~~~~~~~
