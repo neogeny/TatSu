@@ -23,7 +23,7 @@ class SynthNode(BaseNode):
             return
         # NOTE:
         #   synthetic objects have no attributes prior to this __init__()
-        #   During parsing, the Synth is known at the start of a rule invocation
+        #   During parsing, the Synth is known at the start of a rule invocation,
         #   and the possible attributes known at the end
         for name, value in ast.items():
             setattr(self, name, value)

@@ -55,16 +55,19 @@ class BaseNode(AsJSONMixin):
     parseinfo: ParseInfo | None = None
 
     def __init__(self, ast: Any = None, **attributes: Any):
+        # NOTE:
+        #  A @datclass subclass may not call this,
+        #  but __post_init__() should still be honored
         super().__init__()
 
-        if ast and isinstance(ast, dict):
-            ast = AST(ast)
         self.ast = ast
-
         self.__set_attributes(**attributes)
         self.__post_init__()
 
     def __post_init__(self):
+        if self.ast and isinstance(self.ast, dict):
+            self.ast = AST(self.ast)
+
         ast = self.ast
         if not isinstance(ast, AST):
             return
@@ -74,7 +77,7 @@ class BaseNode(AsJSONMixin):
 
         # note:
         #   Node objects are created by a model builer when invoked by he parser,
-        #   which passes only the ast recovered when the object must be created.
+        #   which passes only the ast recovered when the object was created.
         #   `
         #       point::Point = ... left:... right:... ;
         #   `
@@ -82,8 +85,9 @@ class BaseNode(AsJSONMixin):
         #   attributes declared by the Node subclass. Synthetic classes
         #   override this to create the attributes.
         for name in ast.keys() - self.private_names:
-            if hasattr(self, name):
-                setattr(self, name, ast[name])
+            if not hasattr(self, name):
+                continue
+            setattr(self, name, ast[name])
 
     def set_parseinfo(self, value: ParseInfo | None) -> None:
         self.parseinfo = value
@@ -112,7 +116,7 @@ class BaseNode(AsJSONMixin):
 
         for name, value in attrs.items():
             if not hasattr(self, name):
-                continue
+                continue  # this method is to support initialization of @dataclass
             if (prev := getattr(self, name, None)) and inspect.ismethod(prev):
                 warnings.warn(
                     f'`{name}` in keyword arguments will shadow'
@@ -123,7 +127,10 @@ class BaseNode(AsJSONMixin):
 
     @functools.cached_property
     def private_names(self) -> set[str]:
-        return {f.name for f in dataclasses.fields(BaseNode)} | {'private_names'}  # pyright: ignore[reportArgumentType]
+        return (
+            {'private_names'}
+            | {f.name for f in dataclasses.fields(BaseNode)}  # pyright: ignore[reportArgumentType]
+        )
 
     def __pubdict__(self) -> dict[str, Any]:
         unwanted = self.private_names
@@ -152,11 +159,11 @@ class BaseNode(AsJSONMixin):
         )
 
     def __eq__(self, other) -> bool:
-        # note: no use case for structural equality
+        # NOTE: No use case for structural equality
         return other is self
 
     def __hash__(self) -> int:
-        # note: no use case for structural equality
+        # NOTE: No use case for structural equality
         return hash(id(self))
 
     def __getstate__(self) -> Any:
