@@ -18,6 +18,7 @@ from ..ngcodegen.pythongen import pythongen
 from ..objectmodel import Node
 from ..parser import GrammarGenerator
 from ..tokenizing import Tokenizer
+from .util.deprecate import deprecated
 
 __all__ = [
     'compile',
@@ -39,6 +40,7 @@ def compile(
     name: str | None = None,
     *,
     config: ParserConfig | None = None,
+    filename: str | None = None,
     basetype: type | None = None,
     semantics: Any = None,
     asmodel: bool = False,
@@ -53,6 +55,7 @@ def compile(
         config=config,
         semantics=semantics,
         name=name,
+        filename=filename,
         **settings,
     )
     if isinstance(semantics, type):
@@ -98,6 +101,7 @@ def parse(
     config: ParserConfig | None = None,
     start: str | None = None,
     name: str | None = None,
+    filename: str | None = None,
     semantics: Any | None = None,
     asmodel: bool = False,
     builderconfig: BuilderConfig | None = None,
@@ -111,6 +115,7 @@ def parse(
         config=config,
         start=start,
         name=name,
+        filename=filename,
         semantics=semantics,
         **settings,
     )
@@ -172,6 +177,7 @@ def to_python_model(
 
 
 # for backwards compatibility. Use `compile()` instead
+@deprecated(compile)
 def genmodel(
     *,
     name: str | None = None,
@@ -188,6 +194,7 @@ def genmodel(
     )
 
 
+@deprecated(to_python_sourcecode)
 def gencode(
     *,
     name: str | None = None,
