@@ -18,7 +18,6 @@ from .util.deprecate import deprecated_params
 from .util.misc import least_upper_bound_type
 
 __all__ = [
-    'AbstractModelBuilder',
     'ModelBuilder',
     'ModelBuilderSemantics',
     'TypeContainer',
@@ -34,7 +33,7 @@ class TypeResolutionError(TypeError):
 
 
 def types_defined_in(container: TypeContainer) -> list[type]:
-    return AbstractModelBuilder.types_defined_in(container)
+    return ModelBuilder.types_defined_in(container)
 
 
 @dataclass
@@ -68,41 +67,7 @@ class ActualParameters:
         self.kwparams.update(kwargs)
 
 
-class AbstractModelBuilder:
-    def safe_context(self, *other: Mapping[str, Any]) -> Mapping[str, Any]:
-        context: dict[str, Any] = {}
-        for ctx in other:
-            context |= ctx
-
-        return {
-            name: value
-            for name, value in context.items()
-            if callable(value)
-        }
-
-    @staticmethod
-    def types_defined_in(container: TypeContainer, /) -> list[type]:
-        contents: dict[str, Any] = {}
-        if isinstance(container, types.ModuleType):
-            contents.update(vars(container))
-        elif isinstance(container, Mapping):
-            contents.update(container)  # ty:ignore[no-matching-overload]
-        elif hasattr(container, '__dict__'):
-            contents.update(vars(container))
-        else:
-            return []
-
-        type_list = [t for t in contents.values() if isinstance(t, type)]
-        name = (
-            getattr(container, '__module__', None)
-            or getattr(container, '__name__', None)
-        )
-        if name is None:
-            return type_list
-        return [t for t in type_list if t.__module__ == name]
-
-
-class ModelBuilder(AbstractModelBuilder):
+class ModelBuilder:
     """Intended as a semantic action for parsing. A ModelBuildercreates
     nodes using the class name given as first parameter to a grammar
     rule, and synthesizes the class/type if it's not known.
@@ -148,6 +113,38 @@ class ModelBuilder(AbstractModelBuilder):
         # HACK!
         self.config = self.config.override(synthok=not constructors)
 
+    def safe_context(self, *other: Mapping[str, Any]) -> Mapping[str, Any]:
+        context: dict[str, Any] = {}
+        for ctx in other:
+            context |= ctx
+
+        return {
+            name: value
+            for name, value in context.items()
+            if callable(value)
+        }
+
+    @staticmethod
+    def types_defined_in(container: TypeContainer, /) -> list[type]:
+        contents: dict[str, Any] = {}
+        if isinstance(container, types.ModuleType):
+            contents.update(vars(container))
+        elif isinstance(container, Mapping):
+            contents.update(container)  # ty:ignore[no-matching-overload]
+        elif hasattr(container, '__dict__'):
+            contents.update(vars(container))
+        else:
+            return []
+
+        type_list = [t for t in contents.values() if isinstance(t, type)]
+        name = (
+                getattr(container, '__module__', None)
+                or getattr(container, '__name__', None)
+        )
+        if name is None:
+            return type_list
+        return [t for t in type_list if t.__module__ == name]
+
     def _funname(self, obj: Any) -> str | None:
         return getattr(obj, '__name__', None)
 
@@ -179,9 +176,6 @@ class ModelBuilder(AbstractModelBuilder):
 
             # NOTE: this allows for standalone functions as constructors
             self._register_constructor(t)
-
-    def safe_context(self, /, *other: Mapping[str, Any]) -> Mapping[str, Any]:
-        return super().safe_context(self._constructor_registry, *other)
 
     def _register_constructor(self, constructor: Constructor) -> Constructor:
         name = self._funname(constructor)

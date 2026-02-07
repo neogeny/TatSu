@@ -18,7 +18,6 @@ from ..ngcodegen.pythongen import pythongen
 from ..objectmodel import Node
 from ..parser import GrammarGenerator
 from ..tokenizing import Tokenizer
-from ..util.deprecate import deprecated
 
 __all__ = [
     'compile',
@@ -177,7 +176,6 @@ def to_python_model(
 
 
 # for backwards compatibility. Use `compile()` instead
-@deprecated(compile)
 def genmodel(
     *,
     name: str | None = None,
@@ -194,7 +192,6 @@ def genmodel(
     )
 
 
-@deprecated(to_python_sourcecode)
 def gencode(
     *,
     name: str | None = None,
