@@ -18,7 +18,7 @@ from ..ngcodegen.pythongen import pythongen
 from ..objectmodel import Node
 from ..parser import GrammarGenerator
 from ..tokenizing import Tokenizer
-from .util.deprecate import deprecated
+from ..util.deprecate import deprecated
 
 __all__ = [
     'compile',
