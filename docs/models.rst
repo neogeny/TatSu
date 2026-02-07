@@ -101,24 +101,24 @@ Defining Custom Models
 But there's loss of functionality if model classes are not subclasses of
 ``objectmodel.Node`` (no ``node.children()``, ``node.parseinfo``,
 ``node.parent``, ``...``). For complete functionality it is better if custom
-model clases inherit from ``objectmodel.Node`` and are defined as ``@dataclass``
-configured the |TatSu| way:
+model clases inherit from ``objectmodel.Node`` and are defined as
+``@tatsudataclass`` so they are configured the |TatSu| way:
 
 .. code:: python
 
     from dataclasses import dataclass
-    from tatsu.objectmodel import Node, TatSuDataclassParams
+    from tatsu.objectmodel import Node, tatsudataclass
 
-    @dataclass(**TatSuDataclassParams)
+    @tatsudataclass
     class Expression(Node):
         ...
 
-    @dataclass(**TatSuDataclassParams)
+    @tatsudataclass
     class Addition(Expression):
         ...
 
 Once the custom model classes are defined, |TatSu|'s entry points need to know
-about them, and there are several flexible ways to do that:
+about them. There are several flexible ways to do that:
 
 
 .. code:: python
