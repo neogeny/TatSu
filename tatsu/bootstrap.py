@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -21,9 +22,13 @@ from tatsu.buffering import Buffer
 from tatsu.infos import ParserConfig
 from tatsu.parsing import (
     Parser,
+    leftrec,
+    nomemo,
+    isname,
     generic_main,
     rule,
 )
+
 
 __all__ = [
     'TatSuBootstrapBuffer',
@@ -379,13 +384,43 @@ class TatSuBootstrapParser(Parser):
             self._known_name_()
             self.name_last_node('base')
             self._define(['base'], [])
-        self._token('=')
+        with self._group():
+            with self._choice():
+                with self._option():
+                    self._token('=')
+                with self._option():
+                    self._token(':=')
+                with self._option():
+                    self._token(':')
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        "':' ':=' '='"
+                    ) from None
         self._cut()
         self._expre_()
         self.name_last_node('exp')
-        self._token(';')
+        self._ENDRULE_()
         self._cut()
         self._define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
+
+    @rule()
+    def _ENDRULE_(self):
+        with self._group():
+            with self._choice():
+                with self._option():
+                    self._token(';')
+                with self._option():
+                    self._EMPTYLINE_()
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        "';' <EMPTYLINE>"
+                    ) from None
+
+    @rule()
+    def _EMPTYLINE_(self):
+        self._void()
 
     @rule()
     def _decorator_(self):
@@ -493,37 +528,49 @@ class TatSuBootstrapParser(Parser):
 
     @rule('Sequence')
     def _sequence_(self):
+        with self._group():
+            with self._choice():
+                with self._option():
+                    with self._if():
+                        with self._group():
+                            self._element_()
+                            self._token(',')
 
-        def block0():
-            self._element_()
-        self._positive_closure(block0)
+                    def sep0():
+                        self._token(',')
+
+                    def block1():
+                        self._element_()
+                    self._positive_gather(block1, sep0)
+                with self._option():
+
+                    def block2():
+                        self._element_()
+                    self._positive_closure(block2)
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        "';' <EMPTYLINE> <ENDRULE> <element>"
+                    ) from None
         self.name_last_node('sequence')
 
     @rule()
     def _element_(self):
-        with self._choice():
-            with self._option():
-                self._rule_include_()
-            with self._option():
-                self._named_()
-            with self._option():
-                self._override_()
-            with self._option():
-                self._term_()
-            if self._no_more_options:
-                raise self._error(
-                    'expecting one of: '
-                    "'>' <atom> <closure> <empty_closure>"
-                    '<gather> <group> <join> <left_join>'
-                    '<lookahead> <named> <named_list>'
-                    '<named_single> <negative_lookahead>'
-                    '<optional> <override> <override_list>'
-                    '<override_single>'
-                    '<override_single_deprecated>'
-                    '<positive_closure> <right_join>'
-                    '<rule_include> <skip_to> <special>'
-                    '<term> <void>'
-                ) from None
+        with self._group():
+            with self._choice():
+                with self._option():
+                    self._rule_include_()
+                with self._option():
+                    self._named_()
+                with self._option():
+                    self._override_()
+                with self._option():
+                    self._term_()
+                if self._no_more_options:
+                    raise self._error(
+                        'expecting one of: '
+                        '<named> <override> <rule_include> <term>'
+                    ) from None
 
     @rule('RuleInclude')
     def _rule_include_(self):
@@ -627,8 +674,6 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._optional_()
             with self._option():
-                self._special_()
-            with self._option():
                 self._skip_to_()
             with self._option():
                 self._lookahead_()
@@ -639,15 +684,15 @@ class TatSuBootstrapParser(Parser):
             if self._no_more_options:
                 raise self._error(
                     'expecting one of: '
-                    "'!' '&' '(' '()' '->' '?(' '[' '{'"
-                    '<alert> <atom> <call> <closure>'
-                    '<constant> <cut> <cut_deprecated>'
-                    '<empty_closure> <eof> <gather> <group>'
-                    '<join> <left_join> <lookahead>'
+                    "'!' '&' '(' '()' '->' '[' '{' <alert>"
+                    '<atom> <call> <closure> <constant> <cut>'
+                    '<cut_deprecated> <dot> <empty_closure>'
+                    '<eof> <gather> <group> <join>'
+                    '<left_join> <lookahead>'
                     '<negative_lookahead> <optional>'
                     '<pattern> <positive_closure>'
                     '<right_join> <separator> <skip_to>'
-                    '<special> <token> <void>'
+                    '<token> <void>'
                 ) from None
 
     @rule('Group')
@@ -841,32 +886,58 @@ class TatSuBootstrapParser(Parser):
 
     @rule('PositiveClosure')
     def _positive_closure_(self):
-        self._token('{')
-        self._expre_()
-        self.name_last_node('@')
-        self._token('}')
-        with self._group():
-            with self._choice():
-                with self._option():
-                    self._token('-')
-                with self._option():
-                    self._token('+')
-                if self._no_more_options:
-                    raise self._error(
-                        'expecting one of: '
-                        "'+' '-'"
-                    ) from None
-        self._cut()
+        with self._choice():
+            with self._option():
+                self._token('{')
+                self._expre_()
+                self.name_last_node('@')
+                self._token('}')
+                with self._group():
+                    with self._choice():
+                        with self._option():
+                            self._token('-')
+                        with self._option():
+                            self._token('+')
+                        if self._no_more_options:
+                            raise self._error(
+                                'expecting one of: '
+                                "'+' '-'"
+                            ) from None
+                self._cut()
+            with self._option():
+                self._separator_()
+                self._token('+')
+                self._cut()
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    "'(' '/./' '`' '{' <constant> <dot>"
+                    '<group> <pattern> <raw_string> <regexes>'
+                    '<separator> <string> <token>'
+                ) from None
 
     @rule('Closure')
     def _closure_(self):
-        self._token('{')
-        self._expre_()
-        self.name_last_node('@')
-        self._token('}')
-        with self._optional():
-            self._token('*')
-        self._cut()
+        with self._choice():
+            with self._option():
+                self._token('{')
+                self._expre_()
+                self.name_last_node('@')
+                self._token('}')
+                with self._optional():
+                    self._token('*')
+                self._cut()
+            with self._option():
+                self._separator_()
+                self._token('*')
+                self._cut()
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    "'(' '/./' '`' '{' <constant> <dot>"
+                    '<group> <pattern> <raw_string> <regexes>'
+                    '<separator> <string> <token>'
+                ) from None
 
     @rule('EmptyClosure')
     def _empty_closure_(self):
@@ -877,21 +948,39 @@ class TatSuBootstrapParser(Parser):
 
     @rule('Optional')
     def _optional_(self):
-        self._token('[')
-        self._cut()
-        self._expre_()
-        self.name_last_node('@')
-        self._token(']')
-        self._cut()
-
-    @rule('Special')
-    def _special_(self):
-        self._token('?(')
-        self._cut()
-        self._pattern(r'.*?(?!\)\?)')
-        self.name_last_node('@')
-        self._token(')?')
-        self._cut()
+        with self._choice():
+            with self._option():
+                self._token('[')
+                self._cut()
+                self._expre_()
+                self.name_last_node('@')
+                self._token(']')
+                self._cut()
+            with self._option():
+                self._separator_()
+                with self._ifnot():
+                    with self._group():
+                        self._token('?')
+                        with self._group():
+                            with self._choice():
+                                with self._option():
+                                    self._token('"')
+                                with self._option():
+                                    self._token("'")
+                                if self._no_more_options:
+                                    raise self._error(
+                                        'expecting one of: '
+                                        '"\'" \'"\''
+                                    ) from None
+                self._token('?')
+                self._cut()
+            if self._no_more_options:
+                raise self._error(
+                    'expecting one of: '
+                    "'(' '/./' '[' '`' <constant> <dot>"
+                    '<group> <pattern> <raw_string> <regexes>'
+                    '<separator> <string> <token>'
+                ) from None
 
     @rule('Lookahead')
     def _lookahead_(self):
@@ -949,6 +1038,11 @@ class TatSuBootstrapParser(Parser):
     @rule('Void')
     def _void_(self):
         self._token('()')
+        self._cut()
+
+    @rule('Fail')
+    def _fail_(self):
+        self._token('!()')
         self._cut()
 
     @rule('Cut')
@@ -1056,11 +1150,11 @@ class TatSuBootstrapParser(Parser):
     def _STRING_(self):
         with self._choice():
             with self._option():
-                self._pattern(r'"((?:[^"\n]|\"|\\\\)*?)"')
+                self._pattern(r'"((?:[^"\n]|\\"|\\\\)*?)"')
                 self.name_last_node('@')
                 self._cut()
             with self._option():
-                self._pattern(r'\'((?:[^\'\n]|\'|\\\\)*?)\'')
+                self._pattern(r"'((?:[^'\n]|\\'|\\\\)*?)'")
                 self.name_last_node('@')
                 self._cut()
             if self._no_more_options:

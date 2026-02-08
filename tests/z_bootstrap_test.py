@@ -253,7 +253,7 @@ def test_12_walker():
 
 @pytest.mark.dependency('test_12_walker')
 @pytest.mark.skipif(not diagrams.available(), reason='graphviz is not available')
-def test_13_graphics():
+def test_13_diagram():
     print('-' * 20, 'phase 13 - Graphics')
     with Path('./tmp/11.tatsuc').open('rb') as f:
         g11 = pickle.load(f)

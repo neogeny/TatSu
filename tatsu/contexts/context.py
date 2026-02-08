@@ -23,6 +23,7 @@ from ..exceptions import (
     FailedToken,
     OptionSucceeded,
     ParseError,
+    ParseException,
 )
 from ..infos import (
     Alert,
@@ -114,8 +115,8 @@ class ParseContext:
         return config
 
     def _clear_memoization_caches(self) -> None:
-        self._memos: BoundedDict[MemoKey, RuleResult | Exception] = BoundedDict(self.config.memo_cache_size)
-        self._results: dict[MemoKey, RuleResult | Exception] = {}
+        self._memos: BoundedDict[MemoKey, RuleResult | ParseException] = BoundedDict(self.config.memo_cache_size)
+        self._results: dict[MemoKey, RuleResult | ParseException] = {}
 
     def _set_furthest_exception(self, e: FailedParse) -> None:
         if (
@@ -143,6 +144,8 @@ class ParseContext:
 
             self._tokenizer = tokenizer
             start: str = self.config.effective_rule_name() or 'start'
+            if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
+                self.config.semantics.set_context(self)
 
             try:
                 rule = self._find_rule(start)
@@ -155,6 +158,8 @@ class ParseContext:
         finally:
             self._active_config = self._config
             self.update_tracer()
+            if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
+                self.config.semantics.set_context(None)
 
     @property
     def tokenizer(self) -> Tokenizer:
@@ -179,13 +184,17 @@ class ParseContext:
     def pos(self) -> int:
         return self._tokenizer.pos
 
+    @property
+    def line(self) -> int:
+        return self._tokenizer.line
+
     def goto(self, pos: int) -> None:
         self._tokenizer.goto(pos)
 
     def _next(self) -> Any:
         return self._tokenizer.next()
 
-    def _next_token(self, ruleinfo: RuleInfo | None = None) -> None:
+    def next_token(self, ruleinfo: RuleInfo | None = None) -> None:
         if not (ruleinfo and ruleinfo.is_token_rule()):
             self._tokenizer.next_token()
 
@@ -272,14 +281,14 @@ class ParseContext:
 
         return action, postproc
 
-    def _make_exception(self, item: Any, exclass: type[FailedParse] = FailedParse) -> FailedParse:
+    def _make_exception(self, item: Any, exclass: type[FailedParse] = FailedParse) -> ParseException:
         if issubclass(exclass, FailedLeftRecursion):
             rulestack: list[str] = []
         else:
             rulestack = [r.name for r in reversed(self._ruleinfo_stack)]
-        return exclass(self.tokenizer, rulestack, item)
+        return exclass(self.tokenizer.lineinfo(), rulestack, item)
 
-    def _error(self, item: Any, exclass: type[FailedParse] = FailedParse) -> Exception:
+    def _error(self, item: Any, exclass: type[FailedParse] = FailedParse) -> ParseException:
         return self._make_exception(item, exclass=exclass)
 
     def _fail(self):
@@ -304,7 +313,7 @@ class ParseContext:
     def memokey(self) -> MemoKey:
         return MemoKey(self.pos, self.ruleinfo, self.substate)
 
-    def _memoize(self, key: MemoKey, memo: RuleResult | Exception) -> RuleResult | Exception:
+    def _memoize(self, key: MemoKey, memo: RuleResult | ParseException) -> RuleResult | ParseException:
         if self._memoization() and key.ruleinfo.is_memoizable:
             self._memos[key] = memo
         return memo
@@ -356,7 +365,7 @@ class ParseContext:
         return any(ri.name == ruleinfo.name for ri in self._ruleinfo_stack)
 
     def _recursive_call(self, ruleinfo: RuleInfo) -> RuleResult:
-        self._next_token(ruleinfo)
+        self.next_token(ruleinfo)
         key: MemoKey = self.memokey()
 
         if not ruleinfo.is_leftrec:
@@ -364,13 +373,13 @@ class ParseContext:
         elif not self.config.left_recursion:
             raise self._error('Left recursion detected', exclass=FailedLeftRecursion)
 
-        result: RuleResult | Exception | None = self._results.get(key)
+        result: RuleResult | ParseException | None = self._results.get(key)
         if isinstance(result, RuleResult):
             return result
         elif isinstance(result, Exception):
             raise result
 
-        result = FailedLeftRecursion(self.tokenizer, stack=[], item=ruleinfo.name)
+        result = self._make_exception(ruleinfo.name, FailedLeftRecursion)
         self._results[key] = result
 
         initial = self.pos
@@ -395,14 +404,13 @@ class ParseContext:
 
         return result
 
-    def _actual_node_value(self, pos: int, ruleinfo: RuleInfo) -> Any:
-        node: Any = self.ast
-        if not node:
-            node = tuple(self.cst) if is_list(self.cst) else self.cst
-        elif '@' in node:
-            node = node['@']  # override the AST
-
-        return node
+    def _asnode(self, ast: Any, cst: Any) -> Any:
+        if not ast:
+            return tuple(cst) if is_list(cst) else cst
+        elif '@' in ast:
+            return ast['@']
+        else:
+            return ast
 
     def _invoke_rule(self, ruleinfo: RuleInfo, key: MemoKey) -> RuleResult:
         result = self._memos.get(key)
@@ -416,9 +424,9 @@ class ParseContext:
         self._push_ast()
         try:
             try:
-                self._next_token(ruleinfo)
+                self.next_token(ruleinfo)
                 ruleinfo.impl(self)
-                node = self._actual_node_value(key.pos, ruleinfo)
+                node = self._asnode(self.ast, self.cst)
                 node = self._invoke_semantic_rule(ruleinfo, node)
 
                 if self.config.parseinfo and hasattr(node, 'set_parseinfo'):
@@ -454,7 +462,7 @@ class ParseContext:
         return node
 
     def _token(self, token: str) -> str:
-        self._next_token()
+        self.next_token()
         if self.tokenizer.match(token) is None:
             self.tracer.trace_match(token, failed=True)
             raise self._error(token, exclass=FailedToken)
@@ -463,7 +471,7 @@ class ParseContext:
         return token
 
     def _constant(self, literal: Any) -> Any:
-        self._next_token()
+        self.next_token()
         self.tracer.trace_match(literal)
 
         if not isinstance(literal, str):
@@ -508,7 +516,7 @@ class ParseContext:
         return result
 
     def _alert(self, message: str, level: int) -> None:
-        self._next_token()
+        self.next_token()
         self.tracer.trace_match(f'{"^" * level}`{message}`', failed=True)
         self.state.alerts.append(Alert(message=message, level=level))
 
@@ -521,14 +529,14 @@ class ParseContext:
         self.states.append_cst(token)
         return token
 
-    def _eof(self) -> bool:
+    def eof(self) -> bool:
         return self.tokenizer.atend()
 
-    def _eol(self) -> bool:
+    def eol(self) -> bool:
         return self.tokenizer.ateol()
 
     def _check_eof(self) -> None:
-        self._next_token()
+        self.next_token()
         if not self.tokenizer.atend():
             raise self._error(
                 'Expecting end of text', exclass=FailedExpectingEndOfText,
@@ -592,7 +600,7 @@ class ParseContext:
         try:
             yield
             self.states.merge_cst(extend=True)
-        except Exception:
+        except ParseException:
             self.states.pop_cst()
             raise
 
@@ -613,7 +621,7 @@ class ParseContext:
         try:
             with self._if():
                 yield
-        except FailedParse:
+        except ParseException:
             pass
         else:
             raise self._error('', exclass=FailedLookahead)
@@ -658,7 +666,7 @@ class ParseContext:
             self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
             return self.states.merge_cst()
-        except Exception:
+        except ParseException:
             self.states.pop_cst()
             raise
 
@@ -670,7 +678,7 @@ class ParseContext:
             self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
             return self.states.merge_cst()
-        except Exception:
+        except ParseException:
             self.states.pop_cst()
             raise
 
@@ -721,7 +729,7 @@ class ParseContext:
         return c
 
     def _skip_to(self, block: Callable[[], Any]) -> None:
-        while not self._eof():
+        while not self.eof():
             try:
                 with self._if():
                     block()
@@ -730,7 +738,7 @@ class ParseContext:
             else:
                 break
             pos = self.pos
-            self._next_token()
+            self.next_token()
             if self.pos == pos:
                 self._next()
         block()

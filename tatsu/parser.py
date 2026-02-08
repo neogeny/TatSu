@@ -80,11 +80,12 @@ class GrammarGenerator(TatSuBootstrapParser):
             raise TypeError(
                 f'semantics must be an object instance or None, not class {semantics!r}',
             )
+        if not semantics:
+            semantics = TatSuGrammarSemantics(name=name, context=self)
         config = ParserConfig.new(
             name=name,
             semantics=semantics,
             tokenizercls=TatSuBuffer,
             **settings,
         )
-        config.semantics = TatSuGrammarSemantics(name)
         super().__init__(config)

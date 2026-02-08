@@ -384,8 +384,7 @@ class Buffer(Tokenizer):
             return ''
         info = self.lineinfo()
         text = info.text[info.col: info.col + 1 + 80]
-        text = self.split_block_lines(text)[0].rstrip()
-        return f'{text}'
+        return self.split_block_lines(text)[0].rstrip()
 
     def get_line(self, n: int | None = None) -> str:
         if n is None:

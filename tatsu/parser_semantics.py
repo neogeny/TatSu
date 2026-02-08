@@ -8,6 +8,7 @@ from typing import Any
 
 from . import grammars
 from .builder import ModelBuilder
+from .contexts import ParseContext
 from .exceptions import FailedSemantics
 from .leftrec import mark_left_recursion
 from .util import eval_escapes, re, warning
@@ -15,28 +16,47 @@ from .util.abctools import flatten
 
 
 class TatSuGrammarSemantics(ModelBuilder):
-    def __init__(self, grammar_name: str | None):
+    def __init__(self, name: str | None = None, context: ParseContext | None = None):
         super().__init__(
             basetype=grammars.Model,
             constructors=grammars.Model.classes(),
         )
-        self.grammar_name = grammar_name
+        self.name = name
+        self.context = context
         self.rules: dict[str, grammars.Rule] = {}
 
+    def set_context(self, context: ParseContext):
+        self.context = context
+
     @classmethod
-    def validate_literal(cls, ast: Any):
+    def _validate_literal(cls, ast: Any):
         try:
             literal_eval(repr(str(ast)))
         except SyntaxError as e:
             raise FailedSemantics('literal string error: ' + str(e)) from e
 
     @classmethod
-    def validate_pattern(cls, ast: Any):
-        cls.validate_literal(ast)
+    def _validate_pattern(cls, ast: Any):
+        cls._validate_literal(ast)
         try:
             re.compile(str(ast))
         except (TypeError, re.error) as e:
             raise FailedSemantics('pattern error: ' + str(e)) from e
+
+    def EMPTYLINE(self, ast, *args) -> Any:
+        if not self.context:
+            raise FailedSemantics('NO CONTEXT')
+
+        p = self.context.pos
+
+        startline = self.context.line
+        self.context.next_token()
+        endline = self.context.line
+
+        if self.context.eol() or endline > startline:
+            return ast
+        self.context.goto(p)
+        raise FailedSemantics('NO EMPTY LINE')
 
     def token(self, ast: str, *args: Any) -> grammars.Token:
         token = ast
@@ -47,17 +67,17 @@ class TatSuGrammarSemantics(ModelBuilder):
 
     def pattern(self, ast: str, *args) -> grammars.Pattern:
         pattern = ast
-        self.validate_literal(pattern)
+        self._validate_literal(pattern)
         return grammars.Pattern(pattern)
 
     def regexes(self, ast: Iterable[str], *args) -> Iterable[str]:
         pattern = ''.join(ast)
-        self.validate_pattern(pattern)
+        self._validate_pattern(pattern)
         return ast
 
     def regex(self, ast: str, *args) -> str:
         pattern = ast
-        self.validate_pattern(pattern)
+        self._validate_pattern(pattern)
         return pattern
 
     def string(self, ast):
@@ -160,7 +180,7 @@ class TatSuGrammarSemantics(ModelBuilder):
             # NOTE: use '' because None will _not_ override defaults in configuration
             directives['whitespace'] = ''
 
-        name = self.grammar_name or directives.get('grammar')
+        name = self.name or directives.get('grammar')
         grammar = grammars.Grammar(
             name,
             list(self.rules.values()),

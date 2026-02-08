@@ -1,3 +1,7 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 import random
 from pathlib import Path
 
@@ -21,7 +25,7 @@ def buf(text):
 def test_pos_consistency(text, buf):
     line = col = 0
     for p, c in enumerate(text):
-        bl, bc = buf.line_info(p)[1:3]
+        bl, bc = buf.lineinfo(p)[1:3]
         d = buf.next()
         # print('tx', line, col, repr(c))
         # print('bu', bl, bc, repr(d))
@@ -37,7 +41,7 @@ def test_pos_consistency(text, buf):
 
 def test_next_consisntency(buf):
     while not buf.atend():
-        bl, bc = buf.line_info()[1:3]
+        bl, bc = buf.lineinfo()[1:3]
         #            print('li', bl, bc)
         #            print('bu', buf.line, buf.col)
         assert buf.line == bl
@@ -48,7 +52,7 @@ def test_next_consisntency(buf):
 def test_goto_consistency(text, buf):
     for _ in range(100):
         buf.goto(random.randrange(len(text)))  # noqa: S311
-        bl, bc = buf.line_info()[1:3]
+        bl, bc = buf.lineinfo()[1:3]
         #            print('li', bl, bc)
         #            print('bu', buf.line, buf.col)
         assert buf.line == bl
@@ -67,7 +71,7 @@ def test_line_info_consistency(text, buf):
     col = 0
     start = 0
     for n, char in enumerate(text):
-        info = buf.line_info(n)
+        info = buf.lineinfo(n)
         assert line == info.line
         assert col == info.col
         assert start == info.start
@@ -78,7 +82,7 @@ def test_line_info_consistency(text, buf):
             col = 0
             start = n + 1
     text_len = len(text)
-    info = buf.line_info(1 + text_len)
+    info = buf.lineinfo(1 + text_len)
     assert len(text.splitlines()) - 1 == info.line
     assert text_len == info.end
 

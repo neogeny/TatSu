@@ -94,12 +94,21 @@ rule::Rule
     ~
     [>paramdef]
     ['<' ~ base:known_name]
-    '='
+    ('=' | ':=' | ':' )
     ~
     exp:expre
-    ';'
+    ENDRULE
     ~
     ;
+
+ENDRULE
+    =
+    # ';'
+    (';' | EMPTYLINE)
+    ;
+
+
+EMPTYLINE = () ;
 
 
 decorator
@@ -155,13 +164,17 @@ option::Option
 
 sequence::Sequence
     =
-    sequence:{element}+
+    sequence: (
+        | &(element ',') ','.{element}+
+        | {element}+
+    )
     ;
 
 
 element
     =
-    rule_include | named | override | term
+    # !ENDRULE
+    (rule_include | named | override | term)
     ;
 
 
@@ -225,7 +238,6 @@ term
     | positive_closure
     | closure
     | optional
-    | special
     | skip_to
     | lookahead
     | negative_lookahead
@@ -303,13 +315,15 @@ separator
 
 positive_closure::PositiveClosure
     =
-    '{' @:expre '}' ('-' | '+') ~
+        '{' @:expre '}' ('-' | '+') ~
+    |   separator '+' ~
     ;
 
 
 closure::Closure
     =
-    '{' @:expre '}' ['*'] ~
+        '{' @:expre '}' ['*'] ~
+    |   separator '*' ~
     ;
 
 
@@ -321,13 +335,8 @@ empty_closure::EmptyClosure
 
 optional::Optional
     =
-    '[' ~ @:expre ']' ~
-    ;
-
-
-special::Special
-    =
-    '?(' ~ @:/.*?(?!\)\?)/ ')?' ~
+        '[' ~ @:expre ']' ~
+    |   separator !('?' ('"' | "'")) '?' ~
     ;
 
 
@@ -364,6 +373,12 @@ call::Call
 void::Void
     =
     '()' ~
+    ;
+
+
+fail::Fail
+    =
+    '!()' ~
     ;
 
 
