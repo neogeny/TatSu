@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 from typing import Any
@@ -86,7 +88,7 @@ class EventTracerImpl(EventTracer):
 
         fname = ''
         if self.config.trace_filename:
-            fname = self.tokenizer.line_info().filename
+            fname = self.tokenizer.lineinfo().filename
         if fname:
             fname += '\n'
 
@@ -125,7 +127,7 @@ class EventTracerImpl(EventTracer):
 
         name_str = f'/{name}/' if name else ''
         if self.config.trace_filename:
-            fname = self.tokenizer.line_info().filename + '\n'
+            fname = self.tokenizer.lineinfo().filename + '\n'
         else:
             fname = ''
 
