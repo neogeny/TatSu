@@ -214,15 +214,15 @@ class ModelBuilder:
         constructor = synthesize(typename, (base,), **args)
         return self._register_constructor(constructor)
 
-    # by [apalala@gmail.com](https://github.com/apalala)
-    # by Gemini (2026-01-31)
     def _actual_params(
             self,
             fun: Callable,
             ast: Any,
-            args: Iterable[Any],
-            kwargs: Mapping[str, Any],
+            *args: Any,
+            **kwargs: Any,
     ) -> ActualParameters:
+        # by [apalala@gmail.com](https://github.com/apalala)
+        # by Gemini (2026-01-31)
         funname = self._funname(fun)
         if funname in vars(builtins):
             return ActualParameters(params=[ast])
@@ -292,7 +292,7 @@ class ModelBuilder:
                 basetype = defined
 
         constructor = self._get_constructor(typename, base=basetype)
-        actual = self._actual_params(constructor, ast, args, kwargs)
+        actual = self._actual_params(constructor, ast, *args, **kwargs)
         return constructor(*actual.params, **actual.kwparams)
 
 
