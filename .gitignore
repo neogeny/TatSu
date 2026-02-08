@@ -116,6 +116,7 @@ examples/g2e/*.tatsu
 .deprecated/
 .obsidian/
 backups/
+examples/g2e/python3_parser.py
 
 # mkdocs
 mkdocs/docs/_build

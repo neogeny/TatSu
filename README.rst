@@ -1,3 +1,6 @@
+.. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+.. SPDX-License-Identifier: BSD-4-Clause
+
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
 .. |nbsp| unicode:: 0xA0 .. non breakable space
 .. |TatSu| replace:: |dragon|\ |nbsp|\ **TatSu**
@@ -29,8 +32,10 @@
 |TatSu|
 =======
 
-|TatSu| is a tool that takes grammars in a variation of `EBNF`_ as input, and
-outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_.
+|TatSu| is a tool that takes grammars in a supperset of `EBNF`_ as input, and
+outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_. The classic
+variations of EBNF_ (Tomassetti, EasyExtend, Wirth) and `ISO EBNF`_ are also
+supported as input grammar format.
 
 Why use a PEG_ parser? Because `regular languages`_ (those parsable with Python's ``re`` package) *"cannot count"*. Any language with nested structures or with balancing of demarcations requires more than regular expressions to be parsed.
 
@@ -209,6 +214,7 @@ requires different licensing* please `email`_.
 .. _David Röthlisberger: https://bitbucket.org/drothlis/
 .. _Dennis Ritchie: http://en.wikipedia.org/wiki/Dennis_Ritchie
 .. _EBNF: http://en.wikipedia.org/wiki/Ebnf
+.. _ISO EBNF: http://en.wikipedia.org/wiki/Ebnf
 .. _English: http://en.wikipedia.org/wiki/English_grammar
 .. _Euler: http://en.wikipedia.org/wiki/Euler_programming_language
 .. _Grako: https://bitbucket.org/neogeny/grako/

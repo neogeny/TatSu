@@ -7,10 +7,9 @@
 Grammar Syntax
 --------------
 
-|TatSu| grammars use an extension of the standard `EBNF`_ syntax. Syntax
-definitions for `VIM`_ and for `Sublime Text`_ can be found under the
-``etc/vim`` and ``etc/sublime`` directories in the source code
-distribution.
+|TatSu| grammars use a supperset of the classic `EBNF`_ syntax. The classic
+variations of EBNF_ (Tomassetti, EasyExtend, Wirth) and `ISO EBNF`_ are also
+supported as input grammar format.
 
 Rules
 ~~~~~

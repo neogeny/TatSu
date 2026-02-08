@@ -412,12 +412,13 @@ class TatSuBootstrapParser(Parser):
                 if self._no_more_options:
                     raise self.newexcept(
                         'expecting one of: '
-                        "'(?:\\\\s*$)' ';' <EMPTYLINE>"
+                        "'(?:\\\\s*(?:\\\\r?\\\\n|\\\\r)){2,}' ';'"
+                        '<EMPTYLINE>'
                     ) from None
 
     @rule()
     def _EMPTYLINE_(self):
-        self._pattern(r'(?:\s*$)')
+        self._pattern(r'(?:\s*(?:\r?\n|\r)){2,}')
 
     @rule()
     def _decorator_(self):
@@ -499,8 +500,9 @@ class TatSuBootstrapParser(Parser):
             if self._no_more_options:
                 raise self.newexcept(
                     'expecting one of: '
-                    "'(?:\\\\s*$)' '|' <EMPTYLINE> <choice>"
-                    '<element> <option> <sequence>'
+                    "'(?:\\\\s*(?:\\\\r?\\\\n|\\\\r)){2,}' '|'"
+                    '<EMPTYLINE> <choice> <element> <option>'
+                    '<sequence>'
                 ) from None
 
     @rule('Choice')
@@ -549,8 +551,9 @@ class TatSuBootstrapParser(Parser):
                 if self._no_more_options:
                     raise self.newexcept(
                         'expecting one of: '
-                        "'(?:\\\\s*$)' <EMPTYLINE> <element>"
-                        '<named> <override> <rule_include> <term>'
+                        "'(?:\\\\s*(?:\\\\r?\\\\n|\\\\r)){2,}'"
+                        '<EMPTYLINE> <element> <named> <override>'
+                        '<rule_include> <term>'
                     ) from None
         self.name_last_node('sequence')
 
