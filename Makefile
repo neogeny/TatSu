@@ -12,10 +12,8 @@ all:  test documentation examples build requirements
 
 
 test:  lint pytest
-	@-uv sync -q
 
 test_plus: clean_plus test
-	@-uv sync -q
 
 
 __tests_init__: clean
@@ -42,14 +40,12 @@ sphinx_make:
 	@- uv sync -q --group doc
 	@  echo "-> docs"
 	@- cd docs; uv run make -s html > /dev/null
-	@- uv sync -q
 
 
 mkdocs_build:
 	@- uv sync -q --group mkdocs
 	@  echo "-> mkdocs"
 	@- cd mkdocs; uv run mkdocs build -q 2>&1 > /dev/null
-	@- uv sync -q
 
 
 examples: clean g2e_test calc_test
@@ -65,7 +61,6 @@ calc_test:
 
 
 lint: ruff ty pyright
-	@-uv sync --group test
 
 
 ruff: __tests_init__
