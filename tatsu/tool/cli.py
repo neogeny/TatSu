@@ -7,12 +7,12 @@ import importlib
 import sys
 from pathlib import Path
 
-from . import api
 from .._version import __version__
 from ..exceptions import ParseException
 from ..ngcodegen import modelgen, pythongen
 from ..parserconfig import ParserConfig
 from ..util import eval_escapes
+from . import api
 
 __all__ = ['tatsu_main']
 
