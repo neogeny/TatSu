@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import importlib
@@ -151,6 +153,8 @@ class DiagramNodeWalker(NodeWalker):
         # arrowhead   Changes the shape of the tip normal, dot, none, vee, diamond
         # penwidth    Changes line thickness Numeric value (e.g., 2.0, 0.5)
         # label       Adds text to the edge Any string
+        if not (s and e):
+            return
         self.graph.edge(s, e, **attr)
 
     def redge(self, s, e):
@@ -180,7 +184,7 @@ class DiagramNodeWalker(NodeWalker):
             self.pop_graph()
 
         if not vrules:
-            return None
+            return None, None
 
         s, t = vrules[0][0], vrules[-1][1]
         return s, t
@@ -232,7 +236,7 @@ class DiagramNodeWalker(NodeWalker):
         vseq = [x for x in vseq if x is not None]
 
         if not vseq:
-            return None
+            return None, None
 
         first, _ = vseq[0]
         _, last = vseq[-1]
@@ -266,7 +270,23 @@ class DiagramNodeWalker(NodeWalker):
         return s, e
 
     def walk_negative_lookahead(self, v):
-        i, e = self.walk(v.exp)
+        try:
+            i, e = self.walk(v.exp)
+        except TypeError as e:
+            raise TypeError(f'{e} {v.exp}') from e
+        s = self.node('&', shape='diamond')
         s = self.node('!', shape='diamond')
         self.zedge(s, i)
         return s, e
+
+    def walk_void(self, v):
+        return None, None
+
+    def walk_fail(self, v):
+        return None, None
+
+    def ENDRULE(self, ast):
+        return None, None
+
+    def EMPTYLINE(self, ast, *args):
+        return None, None
