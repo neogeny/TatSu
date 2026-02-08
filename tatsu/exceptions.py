@@ -1,40 +1,33 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
 
-from .tokenizing import Tokenizer
+from .tokenizing import LineInfo
 
 
-class ParseException(Exception):
+class TatSuException(Exception):
     pass
 
 
-# alias
-TatSuException = ParseException
+class ParseException(TatSuException):
+    pass
 
 
 class OptionSucceeded(ParseException):
     pass
 
 
-class GrammarError(ParseException):
-    pass
-
-
-class SemanticError(ParseException):
-    pass
-
-
-class CodegenError(ParseException):
-    pass
-
-
-class MissingSemanticFor(SemanticError):
-    pass
-
-
 class ParseError(ParseException):
+    pass
+
+
+class GrammarError(ParseError):
+    pass
+
+
+class CodegenError(ParseError):
     pass
 
 
@@ -46,28 +39,24 @@ class FailedKeywordSemantics(FailedSemantics):
     pass
 
 
-class NoParseInfo(ParseException):
-    pass
+class FailedParse(ParseException):
+    def __init__(self, lineinfo: LineInfo, stack: list[str], msg: str):
+        # NOTE:
+        #   Pass all arguments to super() to avoid pickling problems
+        #       https://stackoverflow.com/questions/27993567/
+        super().__init__(lineinfo, stack, msg)
 
-
-class FailedParse(ParseError):
-    def __init__(self, tokenizer: Tokenizer, stack: Iterable[str], item: str):
-        stack = list(stack)  # NOTE: can't pass through multiprocessing if generator
-        # note: pass all arguments to super() to avoid pickling problems
-        #   https://stackoverflow.com/questions/27993567/
-        super().__init__(tokenizer, stack, item)
-
-        self.tokenizer = tokenizer
+        self.line_info = lineinfo
         self.stack = stack
-        self.pos = tokenizer.pos
-        self.item = item
+        self.msg = msg
+        self.pos = lineinfo.end
 
     @property
     def message(self):
-        return self.item
+        return self.msg
 
     def __str__(self):
-        info = self.tokenizer.line_info(self.pos)
+        info = self.line_info
         template = '{}({}:{}) {} :\n{}\n{}^\n{}'
         text = info.text.rstrip()
         leading = re.sub(r'[^\t]', ' ', text)[: info.col]

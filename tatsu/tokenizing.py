@@ -83,7 +83,7 @@ class Tokenizer(Protocol):
     def posline(self, pos: int | None = None) -> int:
         ...
 
-    def line_info(self, pos: int | None = None) -> LineInfo:
+    def lineinfo(self, pos: int | None = None) -> LineInfo:
         ...
 
     def get_line(self, n: int | None = None) -> str:
@@ -122,6 +122,10 @@ class NullTokenizer(Tokenizer):
     def pos(self) -> int:
         return 0
 
+    @property
+    def line(self) -> int:
+        return 0
+
     def goto(self, pos) -> None:
         return
 
@@ -154,7 +158,7 @@ class NullTokenizer(Tokenizer):
     def posline(self, pos: int | None = None) -> int:
         return 0
 
-    def line_info(self, pos: int | None = None) -> LineInfo:
+    def lineinfo(self, pos: int | None = None) -> LineInfo:
         return LineInfo('', 0, 0, 0, 0, '')
 
     def get_line(self, n: int | None = None) -> str:

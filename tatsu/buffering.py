@@ -346,7 +346,7 @@ class Buffer(Tokenizer):
     def linecount(self) -> int:
         return self._linecount
 
-    def line_info(self, pos: int | None = None) -> LineInfo:
+    def lineinfo(self, pos: int | None = None) -> LineInfo:
         if pos is None:
             pos = self._pos
         if not self._line_cache or not self._line_index:
@@ -376,13 +376,13 @@ class Buffer(Tokenizer):
     def lookahead_pos(self) -> str:
         if self.atend():
             return ''
-        info = self.line_info()
+        info = self.lineinfo()
         return '@%d:%d' % (info.line + 1, info.col + 1)
 
     def lookahead(self) -> str:
         if self.atend():
             return ''
-        info = self.line_info()
+        info = self.lineinfo()
         text = info.text[info.col: info.col + 1 + 80]
         text = self.split_block_lines(text)[0].rstrip()
         return f'{text}'
