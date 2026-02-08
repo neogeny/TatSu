@@ -14,10 +14,6 @@
 
 from __future__ import annotations
 
-import re
-import sys
-from pathlib import Path
-
 from tatsu.buffering import Buffer
 from tatsu.infos import ParserConfig
 from tatsu.parsing import (
@@ -28,6 +24,7 @@ from tatsu.parsing import (
     generic_main,
     rule,
 )
+import pathlib
 
 
 __all__ = [
@@ -95,7 +92,7 @@ class TatSuBootstrapParser(Parser):
                     self._keyword_()
                     self.add_last_node_to_name('keywords')
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
                         '<directive> <keyword>'
                     ) from None
@@ -112,7 +109,7 @@ class TatSuBootstrapParser(Parser):
                     self._keyword_()
                     self.add_last_node_to_name('keywords')
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
                         '<keyword> <rule>'
                     ) from None
@@ -139,7 +136,7 @@ class TatSuBootstrapParser(Parser):
                             with self._option():
                                 self._token('eol_comments')
                             if self._no_more_options:
-                                raise self._error(
+                                raise self.newexcept(
                                     'expecting one of: '
                                     "'comments' 'eol_comments'"
                                 ) from None
@@ -172,7 +169,7 @@ class TatSuBootstrapParser(Parser):
                             with self._option():
                                 self._constant('None')
                             if self._no_more_options:
-                                raise self._error(
+                                raise self.newexcept(
                                     'expecting one of: '
                                     "'False' 'None' <regex> <string>"
                                 ) from None
@@ -192,7 +189,7 @@ class TatSuBootstrapParser(Parser):
                             with self._option():
                                 self._token('memoization')
                             if self._no_more_options:
-                                raise self._error(
+                                raise self.newexcept(
                                     'expecting one of: '
                                     "'ignorecase' 'left_recursion'"
                                     "'memoization' 'nameguard' 'parseinfo'"
@@ -211,7 +208,7 @@ class TatSuBootstrapParser(Parser):
                                 self._constant(True)
                                 self.name_last_node('value')
                             if self._no_more_options:
-                                raise self._error(
+                                raise self.newexcept(
                                     'expecting one of: '
                                     "'::'"
                                 ) from None
@@ -237,7 +234,7 @@ class TatSuBootstrapParser(Parser):
                     self.name_last_node('value')
                     self._define(['name', 'value'], [])
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
                         "'comments' 'eol_comments' 'grammar'"
                         "'ignorecase' 'left_recursion'"
@@ -269,7 +266,7 @@ class TatSuBootstrapParser(Parser):
                     with self._option():
                         self._string_()
                     if self._no_more_options:
-                        raise self._error(
+                        raise self.newexcept(
                             'expecting one of: '
                             '<string> <word>'
                         ) from None
@@ -282,7 +279,7 @@ class TatSuBootstrapParser(Parser):
                         with self._option():
                             self._token('=')
                         if self._no_more_options:
-                            raise self._error(
+                            raise self.newexcept(
                                 'expecting one of: '
                                 "':' '='"
                             ) from None
@@ -317,14 +314,14 @@ class TatSuBootstrapParser(Parser):
                             self._params_()
                             self.name_last_node('params')
                         if self._no_more_options:
-                            raise self._error(
+                            raise self.newexcept(
                                 'expecting one of: '
                                 '<kwparams> <params>'
                             ) from None
                 self._token(')')
                 self._define(['kwparams', 'params'], [])
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     "'(' '::'"
                 ) from None
@@ -367,14 +364,14 @@ class TatSuBootstrapParser(Parser):
                                 self._params_()
                                 self.name_last_node('params')
                             if self._no_more_options:
-                                raise self._error(
+                                raise self.newexcept(
                                     'expecting one of: '
                                     '<kwparams> <params>'
                                 ) from None
                     self._token(')')
                     self._define(['kwparams', 'params'], [])
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
                         "'(' '::'"
                     ) from None
@@ -393,7 +390,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._token(':')
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
                         "':' ':=' '='"
                     ) from None
@@ -413,7 +410,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._EMPTYLINE_()
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
                         "';' <EMPTYLINE>"
                     ) from None
@@ -437,7 +434,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._token('nomemo')
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
                         "'name' 'nomemo' 'override'"
                     ) from None
@@ -465,7 +462,7 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._literal_()
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     "'(?!\\\\d)\\\\w+(?:::(?!\\\\d)\\\\w+)+'"
                     '<boolean> <float> <hex> <int> <literal>'
@@ -500,7 +497,7 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._sequence_()
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     "'|' <choice> <element> <option>"
                     '<sequence>'
@@ -548,9 +545,10 @@ class TatSuBootstrapParser(Parser):
                         self._element_()
                     self._positive_closure(block2)
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
-                        "';' <EMPTYLINE> <ENDRULE> <element>"
+                        '<element> <named> <override>'
+                        '<rule_include> <term>'
                     ) from None
         self.name_last_node('sequence')
 
@@ -567,9 +565,17 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._term_()
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
-                        '<named> <override> <rule_include> <term>'
+                        "'>' <atom> <closure> <empty_closure>"
+                        '<gather> <group> <join> <left_join>'
+                        '<lookahead> <named> <named_list>'
+                        '<named_single> <negative_lookahead>'
+                        '<optional> <override> <override_list>'
+                        '<override_single>'
+                        '<override_single_deprecated>'
+                        '<positive_closure> <right_join>'
+                        '<rule_include> <skip_to> <term> <void>'
                     ) from None
 
     @rule('RuleInclude')
@@ -587,7 +593,7 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._named_single_()
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     '<name> <named_list> <named_single>'
                 ) from None
@@ -622,7 +628,7 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._override_single_deprecated_()
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     "'@' '@+:' '@:' <override_list>"
                     '<override_single>'
@@ -682,7 +688,7 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._atom_()
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     "'!' '&' '(' '()' '->' '[' '{' <alert>"
                     '<atom> <call> <closure> <constant> <cut>'
@@ -719,7 +725,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._normal_gather_()
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
                         '<normal_gather> <positive_gather>'
                     ) from None
@@ -739,7 +745,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._token('-')
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
                         "'+' '-'"
                     ) from None
@@ -775,7 +781,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._normal_join_()
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
                         '<normal_join> <positive_join>'
                     ) from None
@@ -795,7 +801,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._token('-')
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
                         "'+' '-'"
                     ) from None
@@ -833,7 +839,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._token('-')
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
                         "'+' '-'"
                     ) from None
@@ -856,7 +862,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._token('-')
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
                         "'+' '-'"
                     ) from None
@@ -877,7 +883,7 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._pattern_()
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     "'(' '/./' '`' <constant> <dot> <group>"
                     '<pattern> <raw_string> <regexes>'
@@ -899,7 +905,7 @@ class TatSuBootstrapParser(Parser):
                         with self._option():
                             self._token('+')
                         if self._no_more_options:
-                            raise self._error(
+                            raise self.newexcept(
                                 'expecting one of: '
                                 "'+' '-'"
                             ) from None
@@ -909,7 +915,7 @@ class TatSuBootstrapParser(Parser):
                 self._token('+')
                 self._cut()
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     "'(' '/./' '`' '{' <constant> <dot>"
                     '<group> <pattern> <raw_string> <regexes>'
@@ -932,7 +938,7 @@ class TatSuBootstrapParser(Parser):
                 self._token('*')
                 self._cut()
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     "'(' '/./' '`' '{' <constant> <dot>"
                     '<group> <pattern> <raw_string> <regexes>'
@@ -968,14 +974,14 @@ class TatSuBootstrapParser(Parser):
                                 with self._option():
                                     self._token("'")
                                 if self._no_more_options:
-                                    raise self._error(
+                                    raise self.newexcept(
                                         'expecting one of: '
                                         '"\'" \'"\''
                                     ) from None
                 self._token('?')
                 self._cut()
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     "'(' '/./' '[' '`' <constant> <dot>"
                     '<group> <pattern> <raw_string> <regexes>'
@@ -1023,7 +1029,7 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._eof_()
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     "'$' '>>' '\\\\^+' '`' '~' <alert> <call>"
                     '<constant> <cut> <cut_deprecated> <eof>'
@@ -1080,7 +1086,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._pattern(r'`(.*?)`')
                 if self._no_more_options:
-                    raise self._error(
+                    raise self.newexcept(
                         'expecting one of: '
                         "'(?ms)```((?:.|\\\\n)*?)```' '`' '`(.*?)`'"
                     ) from None
@@ -1101,7 +1107,7 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._raw_string_()
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     "'r' <STRING> <raw_string> <string>"
                 ) from None
@@ -1126,7 +1132,7 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._null_()
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     "'(?!\\\\d)\\\\w+' '0[xX](?:\\\\d|[a-fA-F])+'"
                     "'False' 'None' 'True' '[-"
@@ -1158,7 +1164,7 @@ class TatSuBootstrapParser(Parser):
                 self.name_last_node('@')
                 self._cut()
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     '"\'((?:[^\'\\\\n]|\\\\\\\\\'|\\\\\\\\\\\\\\\\)*?)\'"'
                     '\'"((?:[^"\\\\n]|\\\\\\\\"|\\\\\\\\\\\\\\\\)*?)"\''
@@ -1224,7 +1230,7 @@ class TatSuBootstrapParser(Parser):
                 self._STRING_()
                 self.name_last_node('@')
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     "'/' '?' '?/'"
                 ) from None
@@ -1237,7 +1243,7 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._token('False')
             if self._no_more_options:
-                raise self._error(
+                raise self.newexcept(
                     'expecting one of: '
                     "'False' 'True'"
                 ) from None
@@ -1254,9 +1260,11 @@ class TatSuBootstrapParser(Parser):
 
 def main(filename, **kwargs):
     if not filename or filename == '-':
+        import sys
         text = sys.stdin.read()
     else:
-        text = Path(filename).read_text()
+        text = pathlib.Path(filename).read_text()
+
     parser = TatSuBootstrapParser()
     return parser.parse(
         text,

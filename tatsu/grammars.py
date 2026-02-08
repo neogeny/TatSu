@@ -482,8 +482,8 @@ class Choice(Model):
 
             lookahead = self.lookahead_str()
             if lookahead:
-                raise ctx._error(f'expecting one of: {lookahead}:')
-            raise ctx._error('no available options')
+                raise ctx.newexcept(f'expecting one of: {lookahead}:')
+            raise ctx.newexcept('no available options')
             return None
 
     def defines(self):
@@ -787,7 +787,7 @@ class Call(Model):
             rule = ctx._find_rule(self.name)
             return rule()
         except KeyError as e:
-            raise ctx._error(self.name, exclass=FailedRef) from e
+            raise ctx.newexcept(self.name, exclass=FailedRef) from e
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         if self.name not in rulenames:

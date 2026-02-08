@@ -43,20 +43,8 @@ class TatSuGrammarSemantics(ModelBuilder):
         except (TypeError, re.error) as e:
             raise FailedSemantics('pattern error: ' + str(e)) from e
 
-    def EMPTYLINE(self, ast, *args) -> Any:
-        if not self.context:
-            raise FailedSemantics('NO CONTEXT')
-
-        p = self.context.pos
-
-        startline = self.context.line
-        self.context.next_token()
-        endline = self.context.line
-
-        if self.context.eol() or endline > startline:
-            return ast
-        self.context.goto(p)
-        raise FailedSemantics('NO EMPTY LINE')
+    def eol(self, ast: Any, *args) -> Any:
+        return ast
 
     def token(self, ast: str, *args: Any) -> grammars.Token:
         token = ast

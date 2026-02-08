@@ -32,10 +32,6 @@ HEADER = """\
 
     from __future__ import annotations
 
-    import re
-    import sys
-    from pathlib import Path
-
     from tatsu.buffering import Buffer
     from tatsu.infos import ParserConfig
     from tatsu.parsing import (
@@ -58,9 +54,12 @@ HEADER = """\
 FOOTER = """\
 def main(filename, **kwargs):
     if not filename or filename == '-':
+        import sys
         text = sys.stdin.read()
     else:
-        text = Path(filename).read_text()
+        with open(filename) as f:
+            text = f.read()
+
     parser = {name}Parser()
     return parser.parse(
         text,
@@ -241,7 +240,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             self.walk(choice.options)
             self.print('if self._no_more_options:')
             with self.indent():
-                self.print('raise self._error(')
+                self.print('raise self.newexcept(')
                 with self.indent():
                     self.print(errors)
                 self.print(') from None')

@@ -35,18 +35,14 @@ class FailedSemantics(ParseError):
     pass
 
 
-class FailedKeywordSemantics(FailedSemantics):
-    pass
-
-
-class FailedParse(ParseException):
+class FailedParse(ParseError):
     def __init__(self, lineinfo: LineInfo, stack: list[str], msg: str):
         # NOTE:
         #   Pass all arguments to super() to avoid pickling problems
         #       https://stackoverflow.com/questions/27993567/
         super().__init__(lineinfo, stack, msg)
 
-        self.line_info = lineinfo
+        self.lineinfo = lineinfo
         self.stack = stack
         self.msg = msg
         self.pos = lineinfo.end
@@ -56,7 +52,7 @@ class FailedParse(ParseException):
         return self.msg
 
     def __str__(self):
-        info = self.line_info
+        info = self.lineinfo
         template = '{}({}:{}) {} :\n{}\n{}^\n{}'
         text = info.text.rstrip()
         leading = re.sub(r'[^\t]', ' ', text)[: info.col]
@@ -126,5 +122,21 @@ class FailedExpectingEndOfText(FailedParse):
     pass
 
 
-class FailedKeyword(FailedParse):
+class FailedCut(FailedParse):
+    def __init__(self, nested):
+        super().__init__(nested.lineinfo, nested.stack, nested.msg)
+        self.nested = nested
+
+    @property
+    def message(self):
+        return self.nested.message
+
+    def __reduce__(self):
+        return type(self), (self.nested,)
+
+
+class KeywordError(FailedParse):
     pass
+
+
+FailedKeywordSemantics = KeywordError

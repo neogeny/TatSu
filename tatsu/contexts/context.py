@@ -13,14 +13,15 @@ from ..ast import AST
 from ..buffering import Buffer
 from ..collections import BoundedDict
 from ..exceptions import (
+    FailedCut,
     FailedExpectingEndOfText,
-    FailedKeywordSemantics,
     FailedLeftRecursion,
     FailedLookahead,
     FailedParse,
     FailedPattern,
     FailedSemantics,
     FailedToken,
+    KeywordError,
     OptionSucceeded,
     ParseError,
     ParseException,
@@ -141,21 +142,22 @@ class ParseContext:
                 tokenizer = cls(text, config=config, **settings)
             else:
                 raise ParseError('No tokenizer or text')
-
             self._tokenizer = tokenizer
-            start: str = self.config.effective_rule_name() or 'start'
+
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
                 self.config.semantics.set_context(self)
 
-            try:
-                rule = self._find_rule(start)
-                return rule()
-            except FailedParse as e:
-                self._set_furthest_exception(e)
-                raise self._furthest_exception from e  # type: ignore
-            finally:
-                self._clear_memoization_caches()
+            start: str = self.config.effective_rule_name() or 'start'
+            rule = self._find_rule(start)
+            return rule()
+
+        except FailedParse as e:
+            self._set_furthest_exception(e)
+            if isinstance(self._furthest_exception, Exception):
+                raise self._furthest_exception from e
+            raise
         finally:
+            self._clear_memoization_caches()
             self._active_config = self._config
             self.update_tracer()
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
@@ -281,18 +283,15 @@ class ParseContext:
 
         return action, postproc
 
-    def _make_exception(self, item: Any, exclass: type[FailedParse] = FailedParse) -> ParseException:
+    def newexcept(self, item: Any, exclass: type[FailedParse] = FailedParse) -> FailedParse:
         if issubclass(exclass, FailedLeftRecursion):
             rulestack: list[str] = []
         else:
             rulestack = [r.name for r in reversed(self._ruleinfo_stack)]
         return exclass(self.tokenizer.lineinfo(), rulestack, item)
 
-    def _error(self, item: Any, exclass: type[FailedParse] = FailedParse) -> ParseException:
-        return self._make_exception(item, exclass=exclass)
-
     def _fail(self):
-        raise self._error('fail')
+        raise self.newexcept('fail')
 
     def _get_parseinfo(self, name: str, pos: int) -> ParseInfo:
         endpos = self.pos
@@ -326,7 +325,7 @@ class ParseContext:
     def _set_left_recursion_guard(self, key: MemoKey) -> None:
         if not self.config.left_recursion:
             return
-        ex = self._make_exception(key.ruleinfo.name, exclass=FailedLeftRecursion)
+        ex = self.newexcept(key.ruleinfo.name, exclass=FailedLeftRecursion)
         self._memoize(key, ex)
 
     def _call(self, ruleinfo: RuleInfo) -> Any:
@@ -346,7 +345,7 @@ class ParseContext:
 
             return result.node
         except FailedPattern as e:
-            raise self._error(f'Expecting <{ruleinfo.name}>') from e
+            raise self.newexcept(f'Expecting <{ruleinfo.name}>') from e
         except FailedParse as e:
             self.goto(pos)
             self._set_furthest_exception(e)
@@ -369,9 +368,9 @@ class ParseContext:
         key: MemoKey = self.memokey()
 
         if not ruleinfo.is_leftrec:
-            return self._invoke_rule(ruleinfo, key)
+            return self._rule_call(ruleinfo, key)
         elif not self.config.left_recursion:
-            raise self._error('Left recursion detected', exclass=FailedLeftRecursion)
+            raise self.newexcept('Left recursion detected', exclass=FailedLeftRecursion)
 
         result: RuleResult | ParseException | None = self._results.get(key)
         if isinstance(result, RuleResult):
@@ -379,7 +378,7 @@ class ParseContext:
         elif isinstance(result, Exception):
             raise result
 
-        result = self._make_exception(ruleinfo.name, FailedLeftRecursion)
+        result = self.newexcept(ruleinfo.name, FailedLeftRecursion)
         self._results[key] = result
 
         initial = self.pos
@@ -387,7 +386,7 @@ class ParseContext:
         while True:
             self._clear_recursion_errors()
             try:
-                new_result = self._invoke_rule(ruleinfo, key)
+                new_result = self._rule_call(ruleinfo, key)
                 self.goto(initial)
             except FailedParse:
                 break
@@ -412,7 +411,7 @@ class ParseContext:
         else:
             return ast
 
-    def _invoke_rule(self, ruleinfo: RuleInfo, key: MemoKey) -> RuleResult:
+    def _rule_call(self, ruleinfo: RuleInfo, key: MemoKey) -> RuleResult:
         result = self._memos.get(key)
         if isinstance(result, Exception):
             raise result
@@ -423,29 +422,30 @@ class ParseContext:
 
         self._push_ast()
         try:
-            try:
-                self.next_token(ruleinfo)
-                ruleinfo.impl(self)
-                node = self._asnode(self.ast, self.cst)
-                node = self._invoke_semantic_rule(ruleinfo, node)
+            self.next_token(ruleinfo)
+            ruleinfo.impl(self)
+            node = self._asnode(self.ast, self.cst)
+            node = self._semantics_call(ruleinfo, node)
 
-                if self.config.parseinfo and hasattr(node, 'set_parseinfo'):
-                    parseinfo = self._get_parseinfo(ruleinfo.name, key.pos)
-                    node.set_parseinfo(parseinfo)
+            if self.config.parseinfo and hasattr(node, 'set_parseinfo'):
+                parseinfo = self._get_parseinfo(ruleinfo.name, key.pos)
+                node.set_parseinfo(parseinfo)
 
-                result = RuleResult(node, self.pos, self.substate)
-                self._memoize(key, result)
+            result = RuleResult(node, self.pos, self.substate)
+            self._memoize(key, result)
 
-                return result
-            except FailedSemantics as e:
-                raise self._error(str(e)) from e
-        except FailedParse as e:
+            return result
+        except FailedSemantics as e:
+            ex = self.newexcept(str(e))
+            self._memoize(key, ex)
+            raise ex from e
+        except ParseException as e:
             self._memoize(key, e)
             raise
         finally:
             self._pop_ast()
 
-    def _invoke_semantic_rule(self, ruleinfo: RuleInfo, node: Any) -> Any:
+    def _semantics_call(self, ruleinfo: RuleInfo, node: Any) -> Any:
         params = ruleinfo.params or ()
         kwparams = ruleinfo.kwparams or {}
         semantic, postproc = self._find_semantic_action(ruleinfo.name)
@@ -465,7 +465,7 @@ class ParseContext:
         self.next_token()
         if self.tokenizer.match(token) is None:
             self.tracer.trace_match(token, failed=True)
-            raise self._error(token, exclass=FailedToken)
+            raise self.newexcept(token, exclass=FailedToken)
         self.tracer.trace_match(token)
         self.states.append_cst(token)
         return token
@@ -524,7 +524,7 @@ class ParseContext:
         token = self.tokenizer.matchre(pattern)
         if token is None:
             self.tracer.trace_match('', pattern, failed=True)
-            raise self._error(pattern, exclass=FailedPattern)
+            raise self.newexcept(pattern, exclass=FailedPattern)
         self.tracer.trace_match(token, pattern)
         self.states.append_cst(token)
         return token
@@ -538,7 +538,7 @@ class ParseContext:
     def _check_eof(self) -> None:
         self.next_token()
         if not self.tokenizer.atend():
-            raise self._error(
+            raise self.newexcept(
                 'Expecting end of text', exclass=FailedExpectingEndOfText,
             )
 
@@ -560,7 +560,7 @@ class ParseContext:
         Used by the Python code generator so there are
         no unconditional:
             ```
-            raise self._error(...)
+            raise self.newexception(...)
             ```
         that fool the syntax highlighting of editors
         """
@@ -574,11 +574,11 @@ class ParseContext:
             with self._try():
                 yield
             raise OptionSucceeded()
-        except FailedParse:
+        except FailedCut:
+            raise
+        except FailedParse as e:
             if self.states.is_cut_set():
-                raise
-            else:
-                pass  # ignore, so next option is tried
+                raise FailedCut(e) from e
         finally:
             self.states.pop_cut()
 
@@ -586,7 +586,10 @@ class ParseContext:
     def _choice(self) -> Generator[None]:
         self.last_node = None
         with suppress(OptionSucceeded):
-            yield
+            try:
+                yield
+            except FailedCut as e:
+                raise e.nested from e
 
     @contextmanager
     def _optional(self) -> Generator[None]:
@@ -624,7 +627,7 @@ class ParseContext:
         except ParseException:
             pass
         else:
-            raise self._error('', exclass=FailedLookahead)
+            raise self.newexcept('', exclass=FailedLookahead)
 
     def _isolate(self, block: Callable[[], Any], drop: bool = False) -> Any:
         self.states.push_cst()
@@ -653,7 +656,7 @@ class ParseContext:
                     self._isolate(block)
 
                     if self.pos == p:
-                        raise self._error('empty closure')
+                        raise self.newexcept('empty closure')
                 return
 
     def _closure(self, block: Callable[[], Any], sep: Callable[[], Any] | None = None, omitsep: bool = False) -> Any:
@@ -714,7 +717,10 @@ class ParseContext:
         if self.config.ignorecase or self.tokenizer.ignorecase:
             name_str = name_str.upper()
         if name_str in self.keywords:
-            raise FailedKeywordSemantics(f'"{name_str}" is a reserved word')
+            raise self.newexcept(
+                f'"{name_str}" is a reserved word',
+                KeywordError,
+            )
 
     def _void(self) -> None:
         self.last_node = None
@@ -723,7 +729,7 @@ class ParseContext:
         c = self._next()
         if c is None:
             self.tracer.trace_match(c, failed=True)
-            raise self._error(c, exclass=FailedToken) from None
+            raise self.newexcept(c, exclass=FailedToken) from None
         self.tracer.trace_match(c)
         self.states.append_cst(c)
         return c

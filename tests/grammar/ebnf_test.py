@@ -8,9 +8,9 @@ import tatsu
 from tatsu import grammars
 
 EBNF_CALC_GRAMMAR = r"""
+@@grammar :: TatSu
+
 start := expression $
-
-
 expression := expression '+' term | expression '-' term | term
 
 
