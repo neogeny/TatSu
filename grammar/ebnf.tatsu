@@ -1,9 +1,9 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 @@grammar :: TatSu
-@@whitespace :: /(?m)\s+/
-@@comments :: ?"(?sm)[(][*]\s*((?:.|\n)*?)\s*[*][)]"
-@@eol_comments :: ?"(?m)#\s*([^\n]*)\s*$"
+@@whitespace :: /(?m)(?!(?:\s*$){2,})\s+/
+@@comments :: ?"(?sm)(?:[(][*]\s*((?:.|\n|\r)*?)\s*[*][)]|[/][*]\s*((?:.|\n|\r)*?)\s*[*][/])"
+@@eol_comments :: ?"(?m)#\s*([^\n]*)(?:\s*[\r\n]+)+"
 @@parseinfo :: True
 @@left_recursion :: False
 
@@ -18,9 +18,9 @@ grammar::Grammar
     =
     title:`TATSU`
     {
-        directives+:directive
+        &'@@' directives+:directive
     |
-        keywords+:keyword
+        &'@@' keywords+:keyword
     }
     rules+:rule
     {
@@ -56,6 +56,7 @@ directive
             ~
             '::' ~ value:string
     ) ~
+    lines
     ;
 
 
@@ -89,28 +90,36 @@ paramdef
 
 rule::Rule
     =
-    decorators:{decorator}
-    name:name
+    decorators:{&'@' decorator}
+    name:name [lines]
     ~
     [>paramdef]
     ['<' ~ base:known_name]
-    ('=' | ':=' | ':' )
+    ('=' | ':=' | ':' )[lines]
     ~
     exp:expre
-    RULE_END
+    endrule
     ~
     ;
 
-RULE_END
+endrule
     =
-    (EMPTYLINE|';')
+    ';'
+    # (';' | EMPTYLINE)
     ;
 
 
-EMPTYLINE
+lines
     =
-    /(?:\s*$)/
+    /(?m)\s*[\r\n]+/
     ;
+
+blankline
+    =
+    /(?m)(?:\s*$)+/
+    ;
+
+
 
 
 decorator
@@ -168,14 +177,14 @@ sequence::Sequence
     =
     sequence: (
         | &(element ',') ','.{element}+
-        | {!EMPTYLINE element}+
+        | {element}+
     )
     ;
 
 
 element
     =
-    (rule_include | named | override | term)
+    [lines] !endrule @:(&'>' rule_include | named | override | term) [lines]
     ;
 
 
@@ -187,7 +196,7 @@ rule_include::RuleInclude
 
 named
     =
-    named_list | named_single
+    &name @:(named_list | named_single)
     ;
 
 

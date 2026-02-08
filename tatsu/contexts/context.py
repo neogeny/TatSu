@@ -98,6 +98,57 @@ class ParseContext:
     def tracer(self):
         return self._tracer
 
+    @property
+    def tokenizer(self) -> Tokenizer:
+        return self._tokenizer
+
+    @property
+    def tokenizercls(self) -> type[Tokenizer]:
+        if self.config.tokenizercls is None:
+            return buffering.Buffer
+        else:
+            return self.config.tokenizercls
+
+    @property
+    def last_node(self) -> Any:
+        return self.states.last_node
+
+    @last_node.setter
+    def last_node(self, value: Any) -> None:
+        self.states.last_node = value
+
+    @property
+    def pos(self) -> int:
+        return self._tokenizer.pos
+
+    @property
+    def line(self) -> int:
+        return self._tokenizer.line
+
+    @property
+    def states(self) -> ParseStateStack:
+        return self._states
+
+    @property
+    def state(self) -> ParseState:
+        return self.states.top
+
+    @property
+    def ast(self) -> AST:
+        return self.state.ast
+
+    @ast.setter
+    def ast(self, value: AST) -> None:
+        self.state.ast = value
+
+    @property
+    def cst(self) -> Any:
+        return self.state.cst
+
+    @cst.setter
+    def cst(self, value: Any) -> None:
+        self.state.cst = value
+
     def update_tracer(self) -> EventTracer:
         tracer = EventTracerImpl(
             self._tokenizer,
@@ -163,33 +214,6 @@ class ParseContext:
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
                 self.config.semantics.set_context(None)
 
-    @property
-    def tokenizer(self) -> Tokenizer:
-        return self._tokenizer
-
-    @property
-    def tokenizercls(self) -> type[Tokenizer]:
-        if self.config.tokenizercls is None:
-            return buffering.Buffer
-        else:
-            return self.config.tokenizercls
-
-    @property
-    def last_node(self) -> Any:
-        return self.states.last_node
-
-    @last_node.setter
-    def last_node(self, value: Any) -> None:
-        self.states.last_node = value
-
-    @property
-    def pos(self) -> int:
-        return self._tokenizer.pos
-
-    @property
-    def line(self) -> int:
-        return self._tokenizer.line
-
     def goto(self, pos: int) -> None:
         self._tokenizer.goto(pos)
 
@@ -203,30 +227,6 @@ class ParseContext:
     def _define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None) -> None:
         # NOTE: called by generated parsers
         return self.states.define(keys, list_keys)
-
-    @property
-    def states(self) -> ParseStateStack:
-        return self._states
-
-    @property
-    def state(self) -> ParseState:
-        return self.states.top
-
-    @property
-    def ast(self) -> AST:
-        return self.state.ast
-
-    @ast.setter
-    def ast(self, value: AST) -> None:
-        self.state.ast = value
-
-    @property
-    def cst(self) -> Any:
-        return self.state.cst
-
-    @cst.setter
-    def cst(self, value: Any) -> None:
-        self.state.cst = value
 
     def name_last_node(self, name: str) -> None:
         # NOTE: called by generated parsers
@@ -344,9 +344,9 @@ class ParseContext:
             self.tracer.trace_success()
 
             return result.node
-        except FailedPattern as e:
-            raise self.newexcept(f'Expecting <{ruleinfo.name}>') from e
         except FailedParse as e:
+            if isinstance(e, FailedPattern):
+                e.msg = f'Expecting <{ruleinfo.name}>'
             self.goto(pos)
             self._set_furthest_exception(e)
             self.tracer.trace_failure(e)

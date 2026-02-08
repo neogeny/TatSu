@@ -397,27 +397,27 @@ class TatSuBootstrapParser(Parser):
         self._cut()
         self._expre_()
         self.name_last_node('exp')
-        self._ENDRULE_()
+        self._RULE_END_()
         self._cut()
         self._define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
 
     @rule()
-    def _ENDRULE_(self):
+    def _RULE_END_(self):
         with self._group():
             with self._choice():
                 with self._option():
-                    self._token(';')
-                with self._option():
                     self._EMPTYLINE_()
+                with self._option():
+                    self._token(';')
                 if self._no_more_options:
                     raise self.newexcept(
                         'expecting one of: '
-                        "';' <EMPTYLINE>"
+                        "'(?:\\\\s*$)' ';' <EMPTYLINE>"
                     ) from None
 
     @rule()
     def _EMPTYLINE_(self):
-        self._void()
+        self._pattern(r'(?:\s*$)')
 
     @rule()
     def _decorator_(self):
@@ -499,8 +499,8 @@ class TatSuBootstrapParser(Parser):
             if self._no_more_options:
                 raise self.newexcept(
                     'expecting one of: '
-                    "'|' <choice> <element> <option>"
-                    '<sequence>'
+                    "'(?:\\\\s*$)' '|' <EMPTYLINE> <choice>"
+                    '<element> <option> <sequence>'
                 ) from None
 
     @rule('Choice')
@@ -542,13 +542,15 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
 
                     def block2():
+                        with self._ifnot():
+                            self._EMPTYLINE_()
                         self._element_()
                     self._positive_closure(block2)
                 if self._no_more_options:
                     raise self.newexcept(
                         'expecting one of: '
-                        '<element> <named> <override>'
-                        '<rule_include> <term>'
+                        "'(?:\\\\s*$)' <EMPTYLINE> <element>"
+                        '<named> <override> <rule_include> <term>'
                     ) from None
         self.name_last_node('sequence')
 

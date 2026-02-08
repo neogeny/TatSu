@@ -43,7 +43,7 @@ class TatSuGrammarSemantics(ModelBuilder):
         except (TypeError, re.error) as e:
             raise FailedSemantics('pattern error: ' + str(e)) from e
 
-    def eol(self, ast: Any, *args) -> Any:
+    def EMPTYLINE(self, ast: Any, * args) -> Any:
         return ast
 
     def token(self, ast: str, *args: Any) -> grammars.Token:
