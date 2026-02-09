@@ -57,8 +57,8 @@ def main(filename, **kwargs):
         import sys
         text = sys.stdin.read()
     else:
-        with open(filename) as f:
-            text = f.read()
+        import pathlib
+        text = pathlib.Path(filename).read_text()
 
     parser = {name}Parser()
     return parser.parse(
