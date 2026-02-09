@@ -408,6 +408,8 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._EMPTYLINE_()
                 with self._option():
+                    self._check_eof()
+                with self._option():
                     self._token(';')
                 if self._no_more_options:
                     raise self.newexcept(

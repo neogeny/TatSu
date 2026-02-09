@@ -103,7 +103,7 @@ rule::Rule
 
 RULE_END
     =
-    (EMPTYLINE|';')
+    (EMPTYLINE|$|';')
     ;
 
 
