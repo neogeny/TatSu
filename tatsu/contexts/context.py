@@ -491,7 +491,7 @@ class ParseContext:
                 continue
 
             try:
-                fstr_expression = f'f{expression!r}'
+                fstr_expression = f'''f{expression!r}'''
 
                 if is_eval_safe(fstr_expression, context):
                     result = safe_eval(fstr_expression, context)
