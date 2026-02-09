@@ -7,7 +7,7 @@ import sys
 import pytest
 
 from tatsu import synth
-from tatsu.builder import BuilderConfig, ModelBuilder
+from tatsu.builder import BuilderConfig, ModelBuilder, TypeResolutionError
 from tatsu.exceptions import FailedParse
 from tatsu.objectmodel import Node
 from tatsu.tool import compile, parse
@@ -62,7 +62,8 @@ def test_builder_semantics():
     import functools
 
     dotted = functools.partial(str.join, '.')
-    dotted.__name__ = 'dotted'  # type: ignore
+    # WARNING: this defeats all TatSu knows about functions and types
+    #  dotted.__name__ = 'dotted'  # type: ignore
 
     grammar = r"""
         start::dotted = {number}+ $ ;
@@ -71,8 +72,9 @@ def test_builder_semantics():
 
     semantics = ModelBuilder(constructors=[dotted])
     model = compile(grammar, 'test')
-    ast = model.parse(text, semantics=semantics)
-    assert ast == '5.4.3.2.1'
+    with pytest.raises(TypeResolutionError, match=r"Could not find constructor for type 'dotted'"):
+        ast = model.parse(text, semantics=semantics)
+        assert ast == '5.4.3.2.1'
 
 
 def test_builder_subclassing():
