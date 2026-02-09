@@ -49,7 +49,7 @@ class ParameterTests(unittest.TestCase):
 
     def test_36_param_combinations(self):
         def assert_equal(target, value):
-            self.assertEqual(target, value)
+            assert target == value
 
         class TC36Semantics:
 
