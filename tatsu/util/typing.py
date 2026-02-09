@@ -117,13 +117,7 @@ class BoundCallable:
     """
     Handles the binding of context-aware data to a callable's signature.
     """
-    def __init__(
-            self,
-            fun: Callable,
-            known: dict[str, Any],
-            *args: Any,
-            **kwargs: Any,
-    ):
+    def __init__(self, fun: Callable, known: dict[str, Any], *args: Any, **kwargs: Any):
         self.fun = fun
         self.actual = self.bind(fun, known, *args, **kwargs)
 
