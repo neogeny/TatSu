@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import ast as stdlib_ast
-import inspect
 from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager, suppress
 from typing import Any
@@ -40,6 +39,7 @@ from ..util import (
 )
 from ..util.abctools import is_list, left_assoc, prune_dict, right_assoc
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
+from ..util.typing import boundcall
 from .infos import MemoKey, RuleResult, closure
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, EventTracerImpl
@@ -447,16 +447,11 @@ class ParseContext:
 
         params = ruleinfo.params or ()
         kwparams = ruleinfo.kwparams or {}
-        semantic = self._find_semantic_action(ruleinfo.name)
-        if not semantic:
-            return node
-
-        if inspect.ismethod(semantic):
-            node = semantic(node, *params, **kwparams)
+        action = self._find_semantic_action(ruleinfo.name)
+        if action:
+            return boundcall(action, {}, node, *params, **kwparams)
         else:
-            node = semantic(self.semantics, node, *params, **kwparams)
-
-        return node
+            return node
 
     def _token(self, token: str) -> str:
         self.next_token()
