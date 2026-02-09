@@ -266,11 +266,9 @@ class ParseContext:
     def _find_rule(self, name: str) -> Callable[[], Any]:
         raise NotImplementedError
 
-    def _find_semantic_action(self, name: str) -> tuple[Callable[..., Any] | None, Callable[..., Any] | None]:
-        if self.semantics is None:
-            return None, None
-
-        postproc = getattr(self.semantics, '_postproc', None)
+    def _find_semantic_action(self, name: str) -> Callable[..., Any] | None:
+        if not self.semantics:
+            return None
 
         action = getattr(self.semantics, safe_name(name), None)
         if not callable(action):
@@ -278,10 +276,8 @@ class ParseContext:
 
         if not callable(action):
             action = None
-        if not callable(postproc):
-            postproc = None
 
-        return action, postproc
+        return action
 
     def newexcept(self, item: Any, exclass: type[FailedParse] = FailedParse) -> FailedParse:
         if issubclass(exclass, FailedLeftRecursion):
@@ -446,19 +442,20 @@ class ParseContext:
             self._pop_ast()
 
     def _semantics_call(self, ruleinfo: RuleInfo, node: Any) -> Any:
-        params = ruleinfo.params or ()
-        kwparams = ruleinfo.kwparams or {}
-        semantic, postproc = self._find_semantic_action(ruleinfo.name)
-        if semantic:
-            if inspect.ismethod(semantic):
-                node = semantic(node, *params, **kwparams)
-            else:
-                node = semantic(self.semantics, node, *params, **kwparams)
-
-        if callable(postproc):
-            postproc(self, node)
         if ruleinfo.is_name:
             self._check_name(node)
+
+        params = ruleinfo.params or ()
+        kwparams = ruleinfo.kwparams or {}
+        semantic = self._find_semantic_action(ruleinfo.name)
+        if not semantic:
+            return node
+
+        if inspect.ismethod(semantic):
+            node = semantic(node, *params, **kwparams)
+        else:
+            node = semantic(self.semantics, node, *params, **kwparams)
+
         return node
 
     def _token(self, token: str) -> str:
