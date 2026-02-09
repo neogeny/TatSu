@@ -1,8 +1,6 @@
-"""
-Security utility for restricted expression evaluation.
-# by Gemini (2026-01-26)
-# by [apalala@gmail.com](https://github.com/apalala)
-"""
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
 
 import ast
 import builtins
@@ -10,7 +8,7 @@ from collections.abc import Iterable, Mapping
 from functools import lru_cache
 from typing import Any
 
-from .notnone import NotNoneType, Undefined
+from .typing import NotNoneType, Undefined
 
 __all__ = [
     'SecurityError',

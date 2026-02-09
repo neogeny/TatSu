@@ -12,7 +12,7 @@ from functools import cache
 from graphlib import TopologicalSorter
 from typing import Any
 
-from .notnone import Undefined
+from .typing import Undefined
 
 type Constructor = Callable[..., Any]
 
