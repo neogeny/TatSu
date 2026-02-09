@@ -334,13 +334,12 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         whitespace = grammar.config.whitespace
         if whitespace is Undefined:  # the default value
             whitespace = None
-        whitespace = repr(whitespace)
 
         self.print(
             f'''
                 config = ParserConfig.new(
                     config,
-                    whitespace={whitespace},
+                    whitespace={regexp(whitespace)},
                     nameguard={grammar.config.nameguard},
                     ignorecase={grammar.config.ignorecase},
                     namechars={grammar.config.namechars or ""!r},
