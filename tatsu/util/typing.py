@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import builtins
+import inspect
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
-from inspect import Parameter, signature
 from typing import Any, cast
 
 __all__ = [
@@ -139,43 +139,43 @@ class BoundCallable:
             *args: Any,
             **kwargs: Any,
     ) -> ActualArguments:
-        """
-        The core logic for resolving arguments based on function signature.
-        """
         arg = next(iter(known.values())) if known else (args[0] if args else None)
 
-        funname = getattr(fun, '__name__', None)
-        if funname in vars(builtins):
+        if getattr(fun, '__name__', None) in vars(builtins):
             return ActualArguments(params=[arg])
 
-        actual = ActualArguments()
-        sig = signature(fun)
+        is_bound = inspect.ismethod(fun)
+        sig = inspect.signature(fun)
         declared = sig.parameters
 
+        actual = ActualArguments()
+        P = inspect.Parameter
         for name, param in declared.items():
             if name not in known:
                 continue
 
             value = known[name]
             match param.kind:
-                case Parameter.POSITIONAL_ONLY:
+                case P.POSITIONAL_ONLY:
                     actual.add_param(name, value)
-                case Parameter.KEYWORD_ONLY | Parameter.POSITIONAL_OR_KEYWORD:
+                case P.KEYWORD_ONLY | P.POSITIONAL_OR_KEYWORD:
                     actual.add_kwparam(name, value)
 
         for name, param in declared.items():
-            # Skip if already resolved
-            if name == 'self' or (name in known) or (name in actual.param_names):
+            if name in known or name in actual.param_names:
+                continue
+
+            if name == 'self' and not is_bound:
                 continue
 
             match param.kind:
-                case Parameter.POSITIONAL_ONLY:
+                case P.POSITIONAL_ONLY:
                     actual.add_param(name, arg)
-                case Parameter.POSITIONAL_OR_KEYWORD:
+                case P.POSITIONAL_OR_KEYWORD:
                     actual.add_kwparam(name, arg)
-                case Parameter.VAR_POSITIONAL:
+                case P.VAR_POSITIONAL:
                     actual.add_args(args)
-                case Parameter.VAR_KEYWORD:
+                case P.VAR_KEYWORD:
                     actual.add_kwargs(kwargs)
 
         return actual

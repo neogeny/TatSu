@@ -223,8 +223,7 @@ class ModelBuilder:
             'ast': ast,
             'exp': ast,
         }
-        bound = BoundCallable(constructor, known_arguments, *args, **kwargs)
-        return bound()
+        return BoundCallable.call(constructor, known_arguments, *args, **kwargs)
 
 
 class ModelBuilderSemantics(ModelBuilder):
