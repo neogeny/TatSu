@@ -151,24 +151,24 @@ class Model(Node):
     def nodecount(self) -> int:
         return 1
 
-    def pretty(self):
-        return self._to_str()
+    def pretty(self, lean: bool = False) -> str:
+        return self._pretty(lean=lean)
 
     def pretty_lean(self):
-        return self._to_str(lean=True)
+        return self._pretty(lean=True)
 
-    def _to_str(self, lean=False):
-        return '%s:%d' % (type(self).__name__, id(self))
+    def _pretty(self, lean=False):
+        return f'{type(self).__name__}: {id(self)}'
 
     def __str__(self):
-        return self._to_str()
+        return self.pretty()
 
 
 class Void(Model):
     def _parse(self, ctx):
         return ctx._void()
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         return '()'
 
     def _nullable(self) -> bool:
@@ -179,7 +179,7 @@ class Dot(Model):
     def _parse(self, ctx):
         return ctx._dot()
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         return '/./'
 
     def _first(self, k: int, f: Mapping[str, ffset]) -> ffset:
@@ -190,7 +190,7 @@ class Fail(Model):
     def _parse(self, ctx):
         return ctx._fail()
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         return '!()'
 
 
@@ -199,12 +199,12 @@ class Comment(Model):
         super().__init__(ast=AST(comment=ast))
         self.comment = ast
 
-    def _to_str(self, lean: bool = False):
+    def _pretty(self, lean: bool = False):
         return f'(* {self.comment} *)'
 
 
 class EOLComment(Comment):
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         return f'  # {self.comment}\n'
 
 
@@ -212,7 +212,7 @@ class EOF(Model):
     def _parse(self, ctx):
         ctx._check_eof()
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         return '$'
 
 
@@ -252,8 +252,8 @@ class Decorator(Model):
     def nodecount(self) -> int:
         return 1 + self.exp.nodecount()
 
-    def _to_str(self, lean=False):
-        return self.exp._to_str(lean=lean)
+    def _pretty(self, lean=False):
+        return self.exp._pretty(lean=lean)
 
     def _nullable(self) -> bool:
         return self.exp._nullable()
@@ -272,12 +272,11 @@ class Group(Decorator):
             self.exp._parse(ctx)
             return ctx.last_node
 
-    def _to_str(self, lean=False):
-        exp = self.exp._to_str(lean=lean)
-        if len(exp.splitlines()) > 1:
-            return f'(\n{indent(exp)}\n)'
-        else:
+    def _pretty(self, lean=False):
+        exp = self.exp._pretty(lean=lean)
+        if len(exp.splitlines()) <= 1:
             return f'({trim(exp)})'
+        return f'(\n{indent(exp)}\n)'
 
 
 class Token(Model):
@@ -291,7 +290,7 @@ class Token(Model):
     def _first(self, k, f) -> ffset:
         return {(self.token,)}
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         return repr(self.token)
 
 
@@ -306,7 +305,7 @@ class Constant(Model):
     def _first(self, k, f) -> ffset:
         return {()}
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         return f'`{self.literal!r}`'
 
     def _nullable(self) -> bool:
@@ -322,8 +321,8 @@ class Alert(Constant):
     def _parse(self, ctx):
         return super()._parse(ctx)
 
-    def _to_str(self, lean=False):
-        return f'{"^" * self.level}{super()._to_str()}'
+    def _pretty(self, lean=False):
+        return f'{"^" * self.level}{super()._pretty()}'
 
 
 class Pattern(Model):
@@ -349,7 +348,7 @@ class Pattern(Model):
         else:
             return {(x,)}
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         parts = []
         for pat in (str(p) for p in self.patterns):
             if '/' in pat:
@@ -375,8 +374,8 @@ class Lookahead(Decorator):
         with ctx._if():
             return super()._parse(ctx)
 
-    def _to_str(self, lean=False):
-        return '&' + self.exp._to_str(lean=lean)
+    def _pretty(self, lean=False):
+        return '&' + self.exp._pretty(lean=lean)
 
     def _nullable(self) -> bool:
         return True
@@ -387,8 +386,8 @@ class NegativeLookahead(Decorator):
         with ctx._ifnot():
             return super()._parse(ctx)
 
-    def _to_str(self, lean=False):
-        return '!' + str(self.exp._to_str(lean=lean))
+    def _pretty(self, lean=False):
+        return '!' + str(self.exp._pretty(lean=lean))
 
     def _nullable(self) -> bool:
         return True
@@ -402,8 +401,8 @@ class SkipTo(Decorator):
     def _first(self, k, f) -> ffset:
         return {('.',)} | super()._first(k, f)
 
-    def _to_str(self, lean=False):
-        return '->' + self.exp._to_str(lean=lean)
+    def _pretty(self, lean=False):
+        return '->' + self.exp._pretty(lean=lean)
 
 
 class Sequence(Model):
@@ -449,8 +448,8 @@ class Sequence(Model):
     def nodecount(self) -> int:
         return 1 + sum(s.nodecount() for s in self.sequence)
 
-    def _to_str(self, lean=False):
-        seq = [str(s._to_str(lean=lean)) for s in self.sequence]
+    def _pretty(self, lean=False):
+        seq = [str(s._pretty(lean=lean)) for s in self.sequence]
         single = ' '.join(seq)
         if len(single) <= PEP8_LLEN and len(single.splitlines()) <= 1:
             return single
@@ -511,8 +510,8 @@ class Choice(Model):
     def nodecount(self) -> int:
         return 1 + sum(o.nodecount() for o in self.options)
 
-    def _to_str(self, lean=False):
-        options = [str(o._to_str(lean=lean)) for o in self.options]
+    def _pretty(self, lean=False):
+        options = [str(o._pretty(lean=lean)) for o in self.options]
 
         multi = any(len(o.splitlines()) > 1 for o in options)
         single = ' | '.join(o for o in options)
@@ -549,8 +548,8 @@ class Closure(Decorator):
             result = kdot(result, efirst, k)
         return {()} | result
 
-    def _to_str(self, lean=False):
-        sexp = str(self.exp._to_str(lean=lean))
+    def _pretty(self, lean=False):
+        sexp = str(self.exp._pretty(lean=lean))
         if len(sexp.splitlines()) <= 1:
             return f'{{{sexp}}}'
         else:
@@ -571,8 +570,8 @@ class PositiveClosure(Closure):
             result = kdot(result, efirst, k)
         return result
 
-    def _to_str(self, lean=False):
-        return super()._to_str(lean=lean) + '+'
+    def _pretty(self, lean=False):
+        return super()._pretty(lean=lean) + '+'
 
     def _nullable(self) -> bool:
         return self.exp._nullable()
@@ -597,9 +596,9 @@ class Join(Decorator):
     def _do_parse(self, ctx, exp, sep):
         return ctx._join(exp, sep)
 
-    def _to_str(self, lean=False):
-        ssep = self.sep._to_str(lean=lean)
-        sexp = str(self.exp._to_str(lean=lean))
+    def _pretty(self, lean=False):
+        ssep = self.sep._pretty(lean=lean)
+        sexp = str(self.exp._pretty(lean=lean))
         if len(sexp.splitlines()) <= 1:
             return f'{ssep}{self.JOINOP}{{{sexp}}}'
         else:
@@ -613,8 +612,8 @@ class PositiveJoin(Join):
     def _do_parse(self, ctx, exp, sep):
         return ctx._positive_join(exp, sep)
 
-    def _to_str(self, lean=False):
-        return super()._to_str(lean=lean) + '+'
+    def _pretty(self, lean=False):
+        return super()._pretty(lean=lean) + '+'
 
     def _nullable(self) -> bool:
         return self.exp._nullable()
@@ -645,8 +644,8 @@ class PositiveGather(Gather):
     def _do_parse(self, ctx, exp, sep):
         return ctx._positive_gather(exp, sep)
 
-    def _to_str(self, lean=False):
-        return super()._to_str(lean=lean) + '+'
+    def _pretty(self, lean=False):
+        return super()._pretty(lean=lean) + '+'
 
     def _nullable(self) -> bool:
         return self.exp._nullable()
@@ -659,7 +658,7 @@ class EmptyClosure(Model):
     def _first(self, k, f) -> ffset:
         return {()}
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         return '{}'
 
     def _nullable(self) -> bool:
@@ -676,8 +675,8 @@ class Optional(Decorator):
     def _first(self, k, f) -> ffset:
         return set({()}) | self.exp._first(k, f)
 
-    def _to_str(self, lean=False):
-        exp = str(self.exp._to_str(lean=lean))
+    def _pretty(self, lean=False):
+        exp = str(self.exp._pretty(lean=lean))
         template = '[%s]'
         if len(exp.splitlines()) > 1:
             template = trim(self.str_template)
@@ -702,7 +701,7 @@ class Cut(Model):
     def _first(self, k, f) -> ffset:
         return {()}
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         return '~'
 
     def _nullable(self) -> bool:
@@ -724,10 +723,10 @@ class Named(Decorator):
     def defines(self):
         return [(self.name, False), *super().defines()]
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         if lean:
-            return self.exp._to_str(lean=True)
-        return f'{self.name}:{self.exp._to_str(lean=lean)}'
+            return self.exp._pretty(lean=True)
+        return f'{self.name}:{self.exp._pretty(lean=lean)}'
 
 
 class NamedList(Named):
@@ -739,10 +738,10 @@ class NamedList(Named):
     def defines(self):
         return [(self.name, True), *super().defines()]
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         if lean:
-            return self.exp._to_str(lean=True)
-        return f'{self.name}+:{self.exp._to_str(lean=lean)!s}'
+            return self.exp._pretty(lean=True)
+        return f'{self.name}+:{self.exp._pretty(lean=lean)!s}'
 
 
 class Override(Named):
@@ -765,7 +764,7 @@ class Special(Model):
     def _first(self, k, f) -> ffset:
         return {(self.ast,)}
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         return f'?{self.ast}?'
 
     def _nullable(self) -> bool:
@@ -809,7 +808,7 @@ class Call(Model):
             self._firstset = {ref(self.name)}
         return self._firstset
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         return self.name
 
     def is_nullable(self, rulemap: Mapping[str, Rule] | None = None) -> bool:
@@ -825,7 +824,7 @@ class RuleInclude(Decorator):
         super().__init__(ast=ast.exp)
         self.rule = ast
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         return f'>{self.rule.name}'
 
 
@@ -888,7 +887,7 @@ class Rule(Decorator):
         else:
             return repr(p)
 
-    def _to_str(self, lean=False):
+    def _pretty(self, lean=False):
         str_template = """\
                 {is_name}{name}{base}{params}
                     =
@@ -929,7 +928,7 @@ class Rule(Decorator):
             name=self.name,
             base=base,
             params=params,
-            exp=indent(self.exp._to_str(lean=lean)),
+            exp=indent(self.exp._pretty(lean=lean)),
             is_name='@name\n' if self.is_name else '',
         )
 
@@ -1111,7 +1110,7 @@ class Grammar(Model):
     def nodecount(self) -> int:
         return 1 + sum(r.nodecount() for r in self.rules)
 
-    def _to_str(self, lean: bool = False) -> str:
+    def _pretty(self, lean: bool = False) -> str:
         regex_directives = {'comments', 'eol_comments', 'whitespace'}
         str_directives = {'comments', 'grammar'}
         string_directives = {'namechars'}
@@ -1140,6 +1139,6 @@ class Grammar(Model):
         keywords = '\n\n' + keywords + '\n' if keywords else ''
 
         rules = (
-            '\n\n'.join(str(rule._to_str(lean=lean)) for rule in self.rules)
+            '\n\n'.join(str(rule._pretty(lean=lean)) for rule in self.rules)
         ).rstrip() + '\n'
         return directives + keywords + rules
