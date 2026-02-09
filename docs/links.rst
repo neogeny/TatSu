@@ -21,6 +21,7 @@
 .. _Cyclomatic complexity: http://en.wikipedia.org/wiki/Cyclomatic_complexity
 .. _Dennis Ritchie: http://en.wikipedia.org/wiki/Dennis_Ritchie
 .. _EBNF: https://en.wikipedia.org/wiki/Extended_Backus–Naur_form
+.. _ISO EBNF: https://en.wikipedia.org/wiki/Extended_Backus–Naur_form
 .. _English: http://en.wikipedia.org/wiki/English_grammar
 .. _Euler: http://en.wikipedia.org/wiki/Euler_programming_language
 .. _Grako: https://pypi.python.org/pypi/grako/
