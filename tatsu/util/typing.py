@@ -85,6 +85,9 @@ class ActualArguments:
     param_names: dict[str, Any] = field(default_factory=dict)
     kwparams: dict[str, Any] = field(default_factory=dict)
 
+    def seen(self, name: str) -> bool:
+        return name in self.param_names or name in self.kwparams
+
     def has_any_params(self) -> bool:
         return bool(self.params) or bool(self.kwparams)
 
@@ -93,7 +96,6 @@ class ActualArguments:
         self.params.append(var)
 
     def add_kwparam(self, name: str, var: Any):
-        self.param_names[name] = var
         self.kwparams[name] = var
 
     def add_args(self, args: Iterable[Any]):
@@ -123,59 +125,68 @@ class BoundCallable:
         return self.fun(*self.actual.params, **self.actual.kwparams)
 
     @staticmethod
-    def call(
-            fun: Callable,
-            known: dict[str, Any],
-            *args: Any,
-            **kwargs: Any,
-    ) -> Any:
+    def call(fun: Callable, known: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
         actual = BoundCallable.bind(fun, known, *args, **kwargs)
         return fun(*actual.params, **actual.kwparams)
 
     @staticmethod
-    def bind(
-            fun: Callable,
-            known: dict[str, Any],
-            *args: Any,
-            **kwargs: Any,
-    ) -> ActualArguments:
+    def bind(fun: Callable, known: dict[str, Any], *args: Any, **kwargs: Any) -> ActualArguments:
         arg = next(iter(known.values())) if known else (args[0] if args else None)
-
-        if getattr(fun, '__name__', None) in vars(builtins):
+        funname = getattr(fun, '__name__', None)
+        if funname in vars(builtins):
             return ActualArguments(params=[arg])
 
+        print(f'INPUT {funname}({arg}) {known=} {args=} {kwargs=}')
         is_bound = inspect.ismethod(fun)
         sig = inspect.signature(fun)
         declared = sig.parameters
+        d = tuple((p.name, int(p.kind)) for p in declared.values())
+        print(f'SIG {funname} declared={d}')
 
         actual = ActualArguments()
-        P = inspect.Parameter
-        for name, param in declared.items():
-            if name not in known:
+        p = inspect.Parameter
+        for name, value in known.items():
+            if not (param := declared.get(name, None)):
                 continue
-
-            value = known[name]
             match param.kind:
-                case P.POSITIONAL_ONLY:
+                case p.POSITIONAL_ONLY:
                     actual.add_param(name, value)
-                case P.KEYWORD_ONLY | P.POSITIONAL_OR_KEYWORD:
+                case p.POSITIONAL_OR_KEYWORD:
+                    actual.add_kwparam(name, value)
+                case p.KEYWORD_ONLY:
                     actual.add_kwparam(name, value)
 
+        argsc = list(args)
+        kwargsc = kwargs.copy()
         for name, param in declared.items():
-            if name in known or name in actual.param_names:
+            is_seen = (
+                name in known
+                or actual.seen(name)
+            )
+            print(f'A {funname} [{name}={is_seen}]\n{actual.params=}\n{actual.kwparams=}')
+            if is_seen:
                 continue
 
             if name == 'self' and not is_bound:
                 continue
 
             match param.kind:
-                case P.POSITIONAL_ONLY:
-                    actual.add_param(name, arg)
-                case P.POSITIONAL_OR_KEYWORD:
-                    actual.add_kwparam(name, arg)
-                case P.VAR_POSITIONAL:
-                    actual.add_args(args)
-                case P.VAR_KEYWORD:
-                    actual.add_kwargs(kwargs)
+                case p.POSITIONAL_ONLY:
+                    actual.add_param(name, argsc.pop(0) if argsc else arg)
+                case p.POSITIONAL_OR_KEYWORD:
+                    if name in kwargsc:
+                        actual.add_kwparam(name, kwargsc.pop(name, Undefined))
+                    else:
+                        actual.add_param(name, argsc.pop(0))
+                case p.KEYWORD_ONLY:
+                    actual.add_kwparam(name, kwargsc.pop(name, Undefined))
+                case p.VAR_POSITIONAL:
+                    actual.add_args(argsc)
+                case p.VAR_KEYWORD:
+                    actual.add_kwargs(kwargsc)
+                case _:
+                    pass
+            print(f'B {funname} [{name}={is_seen}]\n{actual.params=}\n{actual.kwparams=}')
 
+        print(f'FINAL {funname}({arg}) {actual=} {args=} {kwargs=}')
         return actual
