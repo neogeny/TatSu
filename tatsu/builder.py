@@ -5,9 +5,8 @@ from __future__ import annotations
 import builtins
 import keyword
 import types
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
-from inspect import Parameter, signature
 from types import ModuleType
 from typing import Any
 
@@ -22,6 +21,8 @@ __all__ = [
     'ModelBuilderSemantics',
     'TypeContainer',
 ]
+
+from .util.typing import BoundCallable
 
 type Constructor = type | Callable
 type TypeContainer = type | ModuleType | Mapping[str, type] | dict[str, type]
@@ -42,29 +43,6 @@ class BuilderConfig(Config):
     synthok: bool = True
     typedefs: list[TypeContainer] = field(default_factory=list)
     constructors: list[Constructor] = field(default_factory=list)
-
-
-@dataclass
-class ActualParameters:
-    params: list[Any] = field(default_factory=list)
-    param_names: dict[str, Any] = field(default_factory=dict)
-    kwparams: dict[str, Any] = field(default_factory=dict)
-
-    def has_any_params(self) -> bool:
-        return bool(self.params) or bool(self.kwparams)
-
-    def add_param(self, name: str, var: Any):
-        self.param_names[name] = var
-        self.params.append(var)
-
-    def add_kwparam(self, name: str, var: Any):
-        self.kwparams[name] = var
-
-    def add_args(self, args: Iterable[Any]):
-        self.params.extend(args)
-
-    def add_kwargs(self, kwargs: Mapping[str, Any]):
-        self.kwparams.update(kwargs)
 
 
 class ModelBuilder:
@@ -214,57 +192,6 @@ class ModelBuilder:
         constructor = synthesize(typename, (base,), **args)
         return self._register_constructor(constructor)
 
-    def _actual_params(
-            self,
-            fun: Callable,
-            ast: Any,
-            *args: Any,
-            **kwargs: Any,
-    ) -> ActualParameters:
-        # by [apalala@gmail.com](https://github.com/apalala)
-        # by Gemini (2026-01-31)
-        funname = self._funname(fun)
-        if funname in vars(builtins):
-            return ActualParameters(params=[ast])
-
-        known_params = {
-            'ast': ast,
-            'exp': ast,
-            'kwargs': {},
-        }
-
-        actual = ActualParameters()
-        declared = signature(fun).parameters
-
-        for name, param in declared.items():
-            if name not in known_params:
-                continue
-
-            value = known_params[name]
-            match param.kind:
-                case Parameter.POSITIONAL_ONLY:
-                    actual.add_param(name, value)
-                case Parameter.KEYWORD_ONLY | Parameter.POSITIONAL_OR_KEYWORD:
-                    actual.add_kwparam(name, value)
-                case _:
-                    pass
-
-        for name, param in declared.items():
-            if name in known_params:
-                continue
-
-            match param.kind:
-                case Parameter.POSITIONAL_ONLY:
-                    actual.add_param(name, ast)    # note: inject `ast`
-                case Parameter.POSITIONAL_OR_KEYWORD:
-                    actual.add_kwparam(name, ast)  # note: inject `ast`
-                case Parameter.VAR_POSITIONAL:
-                    actual.add_args(args)
-                case Parameter.VAR_KEYWORD:
-                    actual.add_kwargs(kwargs)
-
-        return actual
-
     def _default(self, ast: Any, *args: Any, **kwargs: Any) -> Any:
         if not args:
             return ast
@@ -292,8 +219,12 @@ class ModelBuilder:
                 basetype = defined
 
         constructor = self._get_constructor(typename, base=basetype)
-        actual = self._actual_params(constructor, ast, *args, **kwargs)
-        return constructor(*actual.params, **actual.kwparams)
+        known_arguments = {
+            'ast': ast,
+            'exp': ast,
+        }
+        bound = BoundCallable(constructor, known_arguments, *args, **kwargs)
+        return bound()
 
 
 class ModelBuilderSemantics(ModelBuilder):
