@@ -24,7 +24,6 @@ from tatsu.parsing import (
     generic_main,
     rule,
 )
-import pathlib
 
 
 __all__ = [
@@ -407,6 +406,8 @@ class TatSuBootstrapParser(Parser):
             with self._choice():
                 with self._option():
                     self._EMPTYLINE_()
+                    with self._optional():
+                        self._token(';')
                 with self._option():
                     self._check_eof()
                 with self._option():
@@ -1270,7 +1271,8 @@ def main(filename, **kwargs):
         import sys
         text = sys.stdin.read()
     else:
-        text = pathlib.Path(filename).read_text()
+        with open(filename) as f:
+            text = f.read()
 
     parser = TatSuBootstrapParser()
     return parser.parse(
