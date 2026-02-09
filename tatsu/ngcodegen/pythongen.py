@@ -314,9 +314,6 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
     def walk_OverrideList(self, override: grammars.OverrideList):
         self.walk_NamedList(override)
 
-    def walk_Special(self, special: grammars.Special):
-        pass
-
     def _gen_keywords(self, grammar: grammars.Grammar):
         keywords = [str(k) for k in grammar.keywords if k is not None]
         if not keywords:

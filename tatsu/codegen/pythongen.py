@@ -6,13 +6,13 @@ from __future__ import annotations
 import re
 import textwrap
 
+from .cgbase import CodeGenerator, ModelRenderer
 from .. import grammars, ngcodegen
 from ..exceptions import CodegenError
 from ..objectmodel import Node
 from ..util import indent, safe_name, timestamp, trim
 from ..util.abctools import compress_seq
 from ..util.deprecate import deprecated
-from .cgbase import CodeGenerator, ModelRenderer
 
 
 @deprecated(replacement=ngcodegen.codegen)
@@ -344,10 +344,6 @@ class Override(Named):
 
 
 class OverrideList(NamedList):
-    pass
-
-
-class Special(Base):
     pass
 
 

@@ -676,19 +676,13 @@ class Optional(Decorator):
         return set({()}) | self.exp._first(k, f)
 
     def _pretty(self, lean=False):
-        exp = str(self.exp._pretty(lean=lean))
-        template = '[%s]'
-        if len(exp.splitlines()) > 1:
-            template = trim(self.str_template)
-        elif isinstance(self.exp, Group):
-            exp = self.exp.exp
-        return template % exp
-
-    str_template = """
-            [
-            %s
-            ]\
-            """
+        if isinstance(self.exp, Group):
+            exp = self.exp.exp._pretty(lean=lean)
+        else:
+            exp = self.exp._pretty(lean=lean)
+        if len(exp.splitlines()) <= 1:
+            return f'[{exp}]'
+        return f'[\n{exp}\n]'
 
     def _nullable(self) -> bool:
         return True
@@ -758,17 +752,6 @@ class OverrideList(NamedList):
 
     def defines(self):
         return []
-
-
-class Special(Model):
-    def _first(self, k, f) -> ffset:
-        return {(self.ast,)}
-
-    def _pretty(self, lean=False):
-        return f'?{self.ast}?'
-
-    def _nullable(self) -> bool:
-        return True
 
 
 class Call(Model):
