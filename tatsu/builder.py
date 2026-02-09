@@ -22,7 +22,7 @@ __all__ = [
     'TypeContainer',
 ]
 
-from .util.typing import BoundCallable
+from .util.typing import boundcall
 
 type Constructor = type | Callable
 type TypeContainer = type | ModuleType | Mapping[str, type] | dict[str, type]
@@ -124,7 +124,10 @@ class ModelBuilder:
         return [t for t in type_list if t.__module__ == name]
 
     def _funname(self, obj: Any) -> str | None:
-        return getattr(obj, '__name__', None)
+        name = getattr(obj, '__name__', None)
+        if not name and callable(obj):
+            name = type(obj).__name__
+        return name
 
     def _typedefs_to_constructors(self, config: BuilderConfig) -> BuilderConfig:
         if not config.typedefs:
@@ -223,7 +226,7 @@ class ModelBuilder:
             'ast': ast,
             'exp': ast,
         }
-        return BoundCallable.call(constructor, known_arguments, *args, **kwargs)
+        return boundcall(constructor, known_arguments, *args, **kwargs)
 
 
 class ModelBuilderSemantics(ModelBuilder):
