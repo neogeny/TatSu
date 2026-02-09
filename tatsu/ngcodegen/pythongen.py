@@ -319,9 +319,10 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         if not keywords:
             self.print('KEYWORDS: set[str] = set()')
         else:
-            keywords_str = '\n'.join(f'    {k!r},' for k in sorted(keywords))
             self.print('KEYWORDS: set[str] = {')
-            self.print(keywords_str)
+            with self.indent():
+                keywords_str = '\n'.join(f'    {k!r},' for k in sorted(keywords))
+                self.print(keywords_str)
             self.print('}')
 
         self.print()
