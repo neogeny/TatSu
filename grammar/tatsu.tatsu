@@ -317,14 +317,14 @@ separator
 positive_closure::PositiveClosure
     =
         '{' @:expre '}' ('-' | '+') ~
-    |   separator '+' ~
+    |   @:separator '+' ~
     ;
 
 
 closure::Closure
     =
         '{' @:expre '}' ['*'] ~
-    |   separator '*' ~
+    |   @:separator '*' ~
     ;
 
 
@@ -337,7 +337,7 @@ empty_closure::EmptyClosure
 optional::Optional
     =
         '[' ~ @:expre ']' ~
-    |   separator !('?' ('"' | "'")) '?' ~
+    |   @:separator !('?' ('"' | "'")) '?' ~
     ;
 
 

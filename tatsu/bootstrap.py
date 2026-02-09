@@ -920,6 +920,7 @@ class TatSuBootstrapParser(Parser):
                 self._cut()
             with self._option():
                 self._separator_()
+                self.name_last_node('@')
                 self._token('+')
                 self._cut()
             if self._no_more_options:
@@ -943,6 +944,7 @@ class TatSuBootstrapParser(Parser):
                 self._cut()
             with self._option():
                 self._separator_()
+                self.name_last_node('@')
                 self._token('*')
                 self._cut()
             if self._no_more_options:
@@ -972,6 +974,7 @@ class TatSuBootstrapParser(Parser):
                 self._cut()
             with self._option():
                 self._separator_()
+                self.name_last_node('@')
                 with self._ifnot():
                     with self._group():
                         self._token('?')
