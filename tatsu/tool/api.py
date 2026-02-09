@@ -18,6 +18,7 @@ from ..ngcodegen.pythongen import pythongen
 from ..objectmodel import Node
 from ..parser import GrammarGenerator
 from ..tokenizing import Tokenizer
+from ..util.string import hashsha
 
 __all__ = [
     'compile',
@@ -63,7 +64,7 @@ def compile(
         )
     cache = __compiled_grammar_cache
 
-    key = (name, grammar, id(semantics))
+    key = (name, hashsha(grammar), id(semantics))
     if key in cache:
         model = cache[key]
     else:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import codecs
+import hashlib
 import keyword
 import re
 import sys
@@ -13,6 +14,17 @@ if sys.version_info >= (3, 13):
     from re import PatternError
 else:
     PatternError = re.error
+
+
+def hashsha(text: Any) -> str:
+    """
+    Generates a SHA-256 hex digest of the provided object.
+    """
+    # by Gemini (- 2026-02-08)
+    # by [apalala@gmail.com](https://github.com/apalala)
+
+    # hashlib requires bytes, so encode the string to UTF-8
+    return hashlib.sha256(str(text).encode('utf-8')).hexdigest()
 
 
 def regexp(text: Any) -> str:
