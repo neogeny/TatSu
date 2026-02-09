@@ -484,7 +484,6 @@ class Choice(Model):
             if lookahead:
                 raise ctx.newexcept(f'expecting one of: {lookahead}:')
             raise ctx.newexcept('no available options')
-            return None
 
     def defines(self):
         return [d for o in self.options for d in o.defines()]
@@ -680,7 +679,7 @@ class Optional(Decorator):
     def _to_str(self, lean=False):
         exp = str(self.exp._to_str(lean=lean))
         template = '[%s]'
-        if isinstance(self.exp, Choice):
+        if len(exp.splitlines()) > 1:
             template = trim(self.str_template)
         elif isinstance(self.exp, Group):
             exp = self.exp.exp
@@ -689,7 +688,7 @@ class Optional(Decorator):
     str_template = """
             [
             %s
-            ]
+            ]\
             """
 
     def _nullable(self) -> bool:
