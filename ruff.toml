@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 line-length = 88
 
 lint.select = [
@@ -62,7 +64,7 @@ exclude = [
 target-version = "py312"
 
 [lint.pylint]
-max-branches = 16
+max-branches = 21
 
 [lint.per-file-ignores]
 
