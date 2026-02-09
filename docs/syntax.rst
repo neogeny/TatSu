@@ -47,7 +47,10 @@ details.
 Expressions
 ~~~~~~~~~~~
 
-The expressions, in reverse order of operator precedence, can be:
+The expressions, in reverse order of operator precedence, can be any of the following.
+
+.. note::
+   Because |TatSu| now supports EBNF_, there must not be empty lines in expressions.
 
 
 ``# comment``
