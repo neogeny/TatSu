@@ -81,13 +81,7 @@ class FailedToken(FailedParse):
 
 
 class FailedPattern(FailedParse):
-    def __init__(self, tokenizer, stack, pattern):
-        super().__init__(tokenizer, stack, pattern)
-        self.pattern = pattern
-
-    @property
-    def message(self):
-        return f'expecting /{self.pattern}/'
+    pass
 
 
 class FailedRef(FailedParse):
@@ -97,13 +91,13 @@ class FailedRef(FailedParse):
 
     @property
     def message(self):
-        return f"could not resolve reference to rule '{self.name}'"
+        return f"Could not resolve reference to rule '{self.name}'"
 
 
 class FailedChoice(FailedParse):
     @property
     def message(self):
-        return 'no viable option'
+        return 'No viable option'
 
 
 class FailedLookahead(FailedParse):

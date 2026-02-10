@@ -34,6 +34,7 @@ from ..infos import (
 from ..tokenizing import NullTokenizer, Tokenizer
 from ..util import (
     Undefined,
+    regexp,
     safe_name,
     trim,
 )
@@ -341,8 +342,6 @@ class ParseContext:
 
             return result.node
         except FailedParse as e:
-            if isinstance(e, FailedPattern):
-                e.msg = f'Expecting <{ruleinfo.name}>'
             self.goto(pos)
             self._set_furthest_exception(e)
             self.tracer.trace_failure(e)
@@ -516,7 +515,7 @@ class ParseContext:
         token = self.tokenizer.matchre(pattern)
         if token is None:
             self.tracer.trace_match('', pattern, failed=True)
-            raise self.newexcept(pattern, exclass=FailedPattern)
+            raise self.newexcept(f'Expecting {regexp(pattern)}', exclass=FailedPattern)
         self.tracer.trace_match(token, pattern)
         self.states.append_cst(token)
         return token
