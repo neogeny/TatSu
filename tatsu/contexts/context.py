@@ -237,13 +237,12 @@ class ParseContext:
         # NOTE: called by generated parsers
         self.states.add_last_node_to_name(name)
 
-    def _push_ast(self, copyast: bool = False) -> Any:
-        return self.states.push_ast(pos=self.pos, copyast=copyast)
+    def _push_ast(self, copyast: bool = False) -> None:
+        self.states.push_ast(pos=self.pos, copyast=copyast)
 
-    def _pop_ast(self) -> Any:
-        ast = self.states.pop_ast()
+    def _pop_ast(self) -> None:
+        self.states.pop()
         self.tokenizer.goto(self.state.pos)
-        return ast
 
     def _cut(self) -> None:
         self.states.set_cut_seen()
@@ -407,7 +406,7 @@ class ParseContext:
 
         self._set_left_recursion_guard(key)
 
-        self._push_ast()
+        self.states.ngpush(pos=self.pos, ast=AST())
         try:
             self.next_token(ruleinfo)
             ruleinfo.impl(self)
@@ -585,7 +584,7 @@ class ParseContext:
         self.states.push_cst()
         try:
             yield
-            self.states.merge_cst(extend=True)
+            self.states.merge_cst()
         except ParseException:
             self.states.pop_cst()
             raise

@@ -22,9 +22,19 @@ class ParseState:
 
     def __init__(self, pos: int = 0, ast: Any = None, cst: Any = None):
         self.pos: int = pos
-        self.ast: Any = ast
+        self.ast: Any = ast or AST()
         self.cst: Any = cst
         self.alerts: list[Alert] = []
+
+    def node(self) -> Any:
+        ast = self.ast
+        cst = self.cst
+        if not ast:
+            return tuple(cst) if is_list(cst) else cst
+        elif '@' in ast:
+            return ast['@']
+        else:
+            return ast
 
 
 class ParseStateStack:
@@ -71,19 +81,12 @@ class ParseStateStack:
         self._last_node = value
 
     def node(self) -> Any:
-        ast = self.ast
-        cst = self.cst
-        if not ast:
-            return tuple(cst) if is_list(cst) else cst
-        elif '@' in ast:
-            return ast['@']
-        else:
-            return ast
+        return self.top.node()
 
     def pop(self) -> ParseState:
         return self._state_stack.pop()
 
-    def push(self, pos: int = 0, ast: Any = None, cst: Any = None) -> ParseState:
+    def _push(self, pos: int = 0, ast: Any = None, cst: Any = None) -> ParseState:
         self._state_stack.append(ParseState(pos=pos, ast=ast, cst=cst))
         return self.top
 
@@ -103,20 +106,17 @@ class ParseStateStack:
     def push_ast(self, pos: int, copyast: bool = False) -> Any:
         ast = copy(self.ast) if copyast else AST()
         self.state.pos = pos
-        self.push(pos=pos, ast=ast)
+        self._push(pos=pos, ast=ast)
         return self.ast
 
-    def pop_ast(self) -> Any:
-        return self.pop().ast
-
     def merge_ast(self) -> Any:
-        prevstate = self.pop()
-        self.ast = prevstate.ast
-        self.extend_cst(prevstate.cst)
+        prev = self.pop()
+        self.ast = prev.ast
+        self.extend_cst(prev.cst)
         return self.ast
 
     def push_cst(self) -> Any:
-        self.push(ast=self.ast)
+        self._push(ast=self.ast)
         return self.cst
 
     def pop_cst(self) -> Any:
@@ -126,13 +126,10 @@ class ParseStateStack:
         self.ast = ast
         return cst
 
-    def merge_cst(self, extend: bool = True) -> Any:
+    def merge_cst(self) -> Any:
         cst = self.cst
         self.pop_cst()
-        if extend:
-            self.extend_cst(cst)
-        else:
-            self.append_cst(cst)
+        self.extend_cst(cst)
         return cst
 
     def append_cst(self, node: Any) -> Any:
@@ -188,3 +185,15 @@ class ParseStateStack:
 
     def set_cut_seen(self, prune: bool = True) -> None:
         self._cut_stack[-1] = True
+
+    def ngpush(self, pos: int, ast: Any = None, cst: Any = None) -> ParseState:
+        ast = copy(self.ast) if ast is None else ast
+        self.state.pos = pos
+        self._push(pos=pos, ast=ast, cst=cst)
+        return self.ast
+
+    def ngmerge(self) -> ParseState:
+        prev = self.pop()
+        self.ast = prev.ast
+        self.extend_cst(prev.cst)
+        return self.top
