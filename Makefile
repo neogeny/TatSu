@@ -27,7 +27,7 @@ pytest: __tests_init__
 	@- uv run pytest -v tests/
 
 
-documentation: sphinx_make mkdocs_build
+documentation: sphinx_make
 
 
 docs: documentation
@@ -40,12 +40,6 @@ sphinx_make:
 	@- uv sync -q --group doc
 	@  echo "-> docs"
 	@- cd docs; uv run make -s html > /dev/null
-
-
-mkdocs_build:
-	@- uv sync -q --group mkdocs
-	@  echo "-> mkdocs"
-	@- cd mkdocs; uv run mkdocs build -q 2>&1 > /dev/null
 
 
 examples: clean g2e_test calc_test
