@@ -238,7 +238,7 @@ class ParseContext:
         self.states.add_last_node_to_name(name)
 
     def push(self, ast: Any = None) -> None:
-        self.states.ngpush(pos=self.pos, ast=ast)
+        self.states.push(pos=self.pos, ast=ast)
 
     def mergepop(self) -> ParseState:
         return self.states.mergepop(pos=self.pos)
@@ -409,7 +409,7 @@ class ParseContext:
 
         self._set_left_recursion_guard(key)
 
-        self.states.ngpush(pos=self.pos, ast=AST())
+        self.states.push(pos=self.pos, ast=AST())
         try:
             self.next_token(ruleinfo)
             ruleinfo.impl(self)

@@ -86,10 +86,6 @@ class ParseStateStack:
     def pop(self) -> ParseState:
         return self._state_stack.pop()
 
-    def _push(self, pos: int = 0, ast: Any = None, cst: Any = None) -> ParseState:
-        self._state_stack.append(ParseState(pos=pos, ast=ast, cst=cst))
-        return self.top
-
     def alert(self, level: int = 1, message: str = '') -> Alert:
         self.top.alerts.append(Alert(level=level, message=message))
         return self.top.alerts[-1]
@@ -164,10 +160,13 @@ class ParseStateStack:
     def set_cut_seen(self, prune: bool = True) -> None:
         self._cut_stack[-1] = True
 
-    def ngpush(self, pos: int, ast: Any = None, cst: Any = None) -> ParseState:
+    def push(self, pos: int, ast: Any = None, cst: Any = None) -> ParseState:
         ast = copy(self.ast) if ast is None else ast
         self.state.pos = pos
-        self._push(pos=pos, ast=ast, cst=cst)
+
+        newstate = ParseState(pos=pos, ast=ast, cst=cst)
+        self._state_stack.append(newstate)
+
         return self.top
 
     def mergepop(self, pos: int) -> ParseState:
