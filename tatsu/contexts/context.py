@@ -413,7 +413,7 @@ class ParseContext:
         try:
             self.next_token(ruleinfo)
             ruleinfo.impl(self)
-            node = self.states.node()
+            node = self.state.node
             node = self._semantics_call(ruleinfo, node)
 
             if self.config.parseinfo and hasattr(node, 'set_parseinfo'):
