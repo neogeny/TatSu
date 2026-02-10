@@ -70,6 +70,16 @@ class ParseStateStack:
     def last_node(self, value: Any) -> None:
         self._last_node = value
 
+    def node(self) -> Any:
+        ast = self.ast
+        cst = self.cst
+        if not ast:
+            return tuple(cst) if is_list(cst) else cst
+        elif '@' in ast:
+            return ast['@']
+        else:
+            return ast
+
     def pop(self) -> ParseState:
         return self._state_stack.pop()
 

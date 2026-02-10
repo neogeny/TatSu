@@ -398,14 +398,6 @@ class ParseContext:
 
         return result
 
-    def _asnode(self, ast: Any, cst: Any) -> Any:
-        if not ast:
-            return tuple(cst) if is_list(cst) else cst
-        elif '@' in ast:
-            return ast['@']
-        else:
-            return ast
-
     def _rule_call(self, ruleinfo: RuleInfo, key: MemoKey) -> RuleResult:
         result = self._memos.get(key)
         if isinstance(result, Exception):
@@ -419,7 +411,7 @@ class ParseContext:
         try:
             self.next_token(ruleinfo)
             ruleinfo.impl(self)
-            node = self._asnode(self.ast, self.cst)
+            node = self.states.node()
             node = self._semantics_call(ruleinfo, node)
 
             if self.config.parseinfo and hasattr(node, 'set_parseinfo'):
@@ -624,15 +616,9 @@ class ParseContext:
         self.states.push_cst()
         try:
             block()
-            cst = self.cst
+            return closure(self.cst) if is_list(self.cst) else self.cst
         finally:
             self.states.pop_cst()
-
-        if is_list(cst):
-            cst = closure(cst)
-        if not drop:
-            self.states.append_cst(cst)
-        return cst
 
     def _repeat(self, block: Callable[[], Any], prefix: Callable[[], Any] | None = None, dropprefix: bool = False) -> None:
         while True:
@@ -641,10 +627,13 @@ class ParseContext:
                     p = self.pos
 
                     if prefix:
-                        self._isolate(prefix, drop=dropprefix)
+                        pcst = self._isolate(prefix, drop=dropprefix)
+                        if not dropprefix:
+                            self.states.append_cst(pcst)
                         self._cut()
 
-                    self._isolate(block)
+                    cst = self._isolate(block)
+                    self.states.append_cst(cst)
 
                     if self.pos == p:
                         raise self.newexcept('empty closure')
