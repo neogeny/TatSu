@@ -22,9 +22,20 @@ class ParseState:
 
     def __init__(self, pos: int = 0, ast: Any = None, cst: Any = None):
         self.pos: int = pos
-        self.ast: Any = ast
+        self.ast: Any = ast or AST()
         self.cst: Any = cst
         self.alerts: list[Alert] = []
+
+    @property
+    def node(self) -> Any:
+        ast = self.ast
+        cst = self.cst
+        if not ast:
+            return tuple(cst) if is_list(cst) else cst
+        elif '@' in ast:
+            return ast['@']
+        else:
+            return ast
 
 
 class ParseStateStack:
@@ -70,12 +81,28 @@ class ParseStateStack:
     def last_node(self, value: Any) -> None:
         self._last_node = value
 
+    @property
+    def node(self) -> Any:
+        return self.top.node
+
     def pop(self) -> ParseState:
         return self._state_stack.pop()
 
-    def push(self, pos: int = 0, ast: Any = None, cst: Any = None) -> ParseState:
-        self._state_stack.append(ParseState(pos=pos, ast=ast, cst=cst))
+    def push(self, pos: int, ast: Any = None, cst: Any = None) -> ParseState:
+        ast = copy(self.ast) if ast is None else ast
+        self.state.pos = pos
+
+        newstate = ParseState(pos=pos, ast=ast, cst=cst)
+        self._state_stack.append(newstate)
+
         return self.top
+
+    def mergepop(self, pos: int) -> ParseState:
+        prev = self.pop()
+        self.ast = prev.ast
+        self.extend(prev.cst)
+        # self.top.pos = pos
+        return prev
 
     def alert(self, level: int = 1, message: str = '') -> Alert:
         self.top.alerts.append(Alert(level=level, message=message))
@@ -90,42 +117,7 @@ class ParseStateStack:
         else:
             return node
 
-    def push_ast(self, pos: int, copyast: bool = False) -> Any:
-        ast = copy(self.ast) if copyast else AST()
-        self.state.pos = pos
-        self.push(pos=pos, ast=ast)
-        return self.ast
-
-    def pop_ast(self) -> Any:
-        return self.pop().ast
-
-    def merge_ast(self) -> Any:
-        prevstate = self.pop()
-        self.ast = prevstate.ast
-        self.extend_cst(prevstate.cst)
-        return self.ast
-
-    def push_cst(self) -> Any:
-        self.push(ast=self.ast)
-        return self.cst
-
-    def pop_cst(self) -> Any:
-        ast = self.ast
-        cst = self.cst
-        self.pop()
-        self.ast = ast
-        return cst
-
-    def merge_cst(self, extend: bool = True) -> Any:
-        cst = self.cst
-        self.pop_cst()
-        if extend:
-            self.extend_cst(cst)
-        else:
-            self.append_cst(cst)
-        return cst
-
-    def append_cst(self, node: Any) -> Any:
+    def append(self, node: Any) -> Any:
         self.last_node = node
         previous = self.cst
         if previous is None:
@@ -136,7 +128,7 @@ class ParseStateStack:
             self.cst = [previous, node]
         return node
 
-    def extend_cst(self, node: Any) -> Any:
+    def extend(self, node: Any) -> Any:
         self.last_node = node
         if node is None:
             return None
@@ -154,10 +146,10 @@ class ParseStateStack:
             self.cst = [previous, node]
         return node
 
-    def name_last_node(self, name: str) -> None:
-        self.ast[name] = self.last_node
+    def setname(self, name: str) -> None:
+        self.ast._set(name, self.last_node)
 
-    def add_last_node_to_name(self, name: str) -> None:
+    def addname(self, name: str) -> None:
         self.ast._setlist(name, self.last_node)
 
     def define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None) -> Any:

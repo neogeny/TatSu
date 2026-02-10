@@ -328,14 +328,14 @@ class Named(_Decorator):
 
     template = """
                 {exp}
-                self.name_last_node('{name}')\
+                self.setname('{name}')\
                 """
 
 
 class NamedList(Named):
     template = """
                 {exp}
-                self.add_last_node_to_name('{name}')\
+                self.addname('{name}')\
                 """
 
 

@@ -229,21 +229,26 @@ class ParseContext:
         # NOTE: called by generated parsers
         return self.states.define(keys, list_keys)
 
-    def name_last_node(self, name: str) -> None:
+    def setname(self, name: str) -> None:
         # NOTE: called by generated parsers
-        self.states.name_last_node(name)
+        self.states.setname(name)
 
-    def add_last_node_to_name(self, name: str) -> None:
+    def addname(self, name: str) -> None:
         # NOTE: called by generated parsers
-        self.states.add_last_node_to_name(name)
+        self.states.addname(name)
 
-    def _push_ast(self, copyast: bool = False) -> Any:
-        return self.states.push_ast(pos=self.pos, copyast=copyast)
+    def push(self, ast: Any = None) -> None:
+        self.states.push(pos=self.pos, ast=ast)
 
-    def _pop_ast(self) -> Any:
-        ast = self.states.pop_ast()
+    def pop(self) -> ParseState:
+        return self.states.pop()
+
+    def mergepop(self) -> ParseState:
+        return self.states.mergepop(pos=self.pos)
+
+    def undo(self) -> None:
+        self.states.pop()
         self.tokenizer.goto(self.state.pos)
-        return ast
 
     def _cut(self) -> None:
         self.states.set_cut_seen()
@@ -336,7 +341,7 @@ class ParseContext:
 
             self.goto(result.newpos)
             self.substate = result.newstate
-            self.states.append_cst(result.node)
+            self.states.append(result.node)
 
             self.tracer.trace_success()
 
@@ -398,14 +403,6 @@ class ParseContext:
 
         return result
 
-    def _asnode(self, ast: Any, cst: Any) -> Any:
-        if not ast:
-            return tuple(cst) if is_list(cst) else cst
-        elif '@' in ast:
-            return ast['@']
-        else:
-            return ast
-
     def _rule_call(self, ruleinfo: RuleInfo, key: MemoKey) -> RuleResult:
         result = self._memos.get(key)
         if isinstance(result, Exception):
@@ -415,11 +412,11 @@ class ParseContext:
 
         self._set_left_recursion_guard(key)
 
-        self._push_ast()
+        self.states.push(pos=self.pos, ast=AST())
         try:
             self.next_token(ruleinfo)
             ruleinfo.impl(self)
-            node = self._asnode(self.ast, self.cst)
+            node = self.state.node
             node = self._semantics_call(ruleinfo, node)
 
             if self.config.parseinfo and hasattr(node, 'set_parseinfo'):
@@ -438,7 +435,7 @@ class ParseContext:
             self._memoize(key, e)
             raise
         finally:
-            self._pop_ast()
+            self.undo()
 
     def _semantics_call(self, ruleinfo: RuleInfo, node: Any) -> Any:
         if ruleinfo.is_name:
@@ -458,7 +455,7 @@ class ParseContext:
             self.tracer.trace_match(token, failed=True)
             raise self.newexcept(token, exclass=FailedToken)
         self.tracer.trace_match(token)
-        self.states.append_cst(token)
+        self.states.append(token)
         return token
 
     def _constant(self, literal: Any) -> Any:
@@ -466,7 +463,7 @@ class ParseContext:
         self.tracer.trace_match(literal)
 
         if not isinstance(literal, str):
-            self.states.append_cst(literal)
+            self.states.append(literal)
             return literal
         literal = str(literal)  # for type linters
 
@@ -503,7 +500,7 @@ class ParseContext:
                     f'Error evaluating constant {literal!r}: {e}',
                 ) from e
 
-        self.states.append_cst(result)
+        self.states.append(result)
         return result
 
     def _alert(self, message: str, level: int) -> None:
@@ -517,7 +514,7 @@ class ParseContext:
             self.tracer.trace_match('', pattern, failed=True)
             raise self.newexcept(f'Expecting {regexp(pattern)}', exclass=FailedPattern)
         self.tracer.trace_match(token, pattern)
-        self.states.append_cst(token)
+        self.states.append(token)
         return token
 
     def eof(self) -> bool:
@@ -536,13 +533,13 @@ class ParseContext:
     @contextmanager
     def _try(self):
         s = self.substate
-        self._push_ast(copyast=True)
+        self.push(ast=AST(self.ast))
         self.last_node = None
         try:
             yield
-            self.states.merge_ast()
+            self.mergepop()
         except FailedParse:
-            self._pop_ast()
+            self.undo()
             self.substate = s
             raise
 
@@ -590,23 +587,23 @@ class ParseContext:
 
     @contextmanager
     def _group(self):
-        self.states.push_cst()
+        self.push()
         try:
             yield
-            self.states.merge_cst(extend=True)
+            self.mergepop()
         except ParseException:
-            self.states.pop_cst()
+            self.undo()
             raise
 
     @contextmanager
     def _if(self):
         s = self.substate
-        self._push_ast()
+        self.push()
         self._lookahead += 1
         try:
             yield
         finally:
-            self._pop_ast()  # simply discard
+            self.undo()
             self._lookahead -= 1
             self.substate = s
 
@@ -620,19 +617,25 @@ class ParseContext:
         else:
             raise self.newexcept('', exclass=FailedLookahead)
 
+    @contextmanager
+    def _setname(self, name: str):
+        yield
+        self.setname(name)
+
+    @contextmanager
+    def _addname(self, name: str):
+        yield
+        self.addname(name)
+
     def _isolate(self, block: Callable[[], Any], drop: bool = False) -> Any:
-        self.states.push_cst()
+        self.push()
         try:
             block()
-            cst = self.cst
+            return closure(self.cst) if is_list(self.cst) else self.cst
         finally:
-            self.states.pop_cst()
-
-        if is_list(cst):
-            cst = closure(cst)
-        if not drop:
-            self.states.append_cst(cst)
-        return cst
+            ast = self.ast
+            self.pop()
+            self.ast = ast
 
     def _repeat(self, block: Callable[[], Any], prefix: Callable[[], Any] | None = None, dropprefix: bool = False) -> None:
         while True:
@@ -641,17 +644,20 @@ class ParseContext:
                     p = self.pos
 
                     if prefix:
-                        self._isolate(prefix, drop=dropprefix)
+                        pcst = self._isolate(prefix, drop=dropprefix)
+                        if not dropprefix:
+                            self.states.append(pcst)
                         self._cut()
 
-                    self._isolate(block)
+                    cst = self._isolate(block)
+                    self.states.append(cst)
 
                     if self.pos == p:
                         raise self.newexcept('empty closure')
                 return
 
     def _closure(self, block: Callable[[], Any], sep: Callable[[], Any] | None = None, omitsep: bool = False) -> Any:
-        self.states.push_cst()
+        self.push()
         try:
             self.cst = []
             with self._optional():
@@ -659,26 +665,26 @@ class ParseContext:
                 self.cst = [self.cst]
             self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
-            return self.states.merge_cst()
+            return self.mergepop().cst
         except ParseException:
-            self.states.pop_cst()
+            self.undo()
             raise
 
     def _positive_closure(self, block: Callable[[], Any], sep: Callable[[], Any] | None = None, omitsep: bool = False) -> Any:
-        self.states.push_cst()
+        self.push()
         try:
             block()
             self.cst = [self.cst]
             self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
-            return self.states.merge_cst()
+            return self.mergepop().cst
         except ParseException:
-            self.states.pop_cst()
+            self.undo()
             raise
 
     def _empty_closure(self) -> closure:
         cst = closure([])
-        self.states.append_cst(cst)
+        self.states.append(cst)
         return cst
 
     def _gather(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
@@ -722,7 +728,7 @@ class ParseContext:
             self.tracer.trace_match(c, failed=True)
             raise self.newexcept(c, exclass=FailedToken) from None
         self.tracer.trace_match(c)
-        self.states.append_cst(c)
+        self.states.append(c)
         return c
 
     def _skip_to(self, block: Callable[[], Any]) -> None:
