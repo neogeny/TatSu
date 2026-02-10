@@ -80,16 +80,16 @@ class TatSuBootstrapParser(Parser):
     @rule('Grammar')
     def _grammar_(self):
         self._constant('TATSU')
-        self.name_last_node('title')
+        self.setname('title')
 
         def block0():
             with self._choice():
                 with self._option():
                     self._directive_()
-                    self.add_last_node_to_name('directives')
+                    self.addname('directives')
                 with self._option():
                     self._keyword_()
-                    self.add_last_node_to_name('keywords')
+                    self.addname('keywords')
                 if self._no_more_options:
                     raise self.newexcept(
                         'expecting one of: '
@@ -97,16 +97,16 @@ class TatSuBootstrapParser(Parser):
                     ) from None
         self._closure(block0)
         self._rule_()
-        self.add_last_node_to_name('rules')
+        self.addname('rules')
 
         def block1():
             with self._choice():
                 with self._option():
                     self._rule_()
-                    self.add_last_node_to_name('rules')
+                    self.addname('rules')
                 with self._option():
                     self._keyword_()
-                    self.add_last_node_to_name('keywords')
+                    self.addname('keywords')
                 if self._no_more_options:
                     raise self.newexcept(
                         'expecting one of: '
@@ -139,18 +139,18 @@ class TatSuBootstrapParser(Parser):
                                     'expecting one of: '
                                     "'comments' 'eol_comments'"
                                 ) from None
-                    self.name_last_node('name')
+                    self.setname('name')
                     self._cut()
                     self._cut()
                     self._token('::')
                     self._cut()
                     self._regex_()
-                    self.name_last_node('value')
+                    self.setname('value')
                     self._define(['name', 'value'], [])
                 with self._option():
                     with self._group():
                         self._token('whitespace')
-                    self.name_last_node('name')
+                    self.setname('name')
                     self._cut()
                     self._cut()
                     self._token('::')
@@ -172,7 +172,7 @@ class TatSuBootstrapParser(Parser):
                                     'expecting one of: '
                                     "'False' 'None' <regex> <string>"
                                 ) from None
-                    self.name_last_node('value')
+                    self.setname('value')
                     self._define(['name', 'value'], [])
                 with self._option():
                     with self._group():
@@ -193,7 +193,7 @@ class TatSuBootstrapParser(Parser):
                                     "'ignorecase' 'left_recursion'"
                                     "'memoization' 'nameguard' 'parseinfo'"
                                 ) from None
-                    self.name_last_node('name')
+                    self.setname('name')
                     self._cut()
                     with self._group():
                         with self._choice():
@@ -201,11 +201,11 @@ class TatSuBootstrapParser(Parser):
                                 self._token('::')
                                 self._cut()
                                 self._boolean_()
-                                self.name_last_node('value')
+                                self.setname('value')
                                 self._define(['value'], [])
                             with self._option():
                                 self._constant(True)
-                                self.name_last_node('value')
+                                self.setname('value')
                             if self._no_more_options:
                                 raise self.newexcept(
                                     'expecting one of: '
@@ -215,22 +215,22 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     with self._group():
                         self._token('grammar')
-                    self.name_last_node('name')
+                    self.setname('name')
                     self._cut()
                     self._token('::')
                     self._cut()
                     self._word_()
-                    self.name_last_node('value')
+                    self.setname('value')
                     self._define(['name', 'value'], [])
                 with self._option():
                     with self._group():
                         self._token('namechars')
-                    self.name_last_node('name')
+                    self.setname('name')
                     self._cut()
                     self._token('::')
                     self._cut()
                     self._string_()
-                    self.name_last_node('value')
+                    self.setname('value')
                     self._define(['name', 'value'], [])
                 if self._no_more_options:
                     raise self.newexcept(
@@ -269,7 +269,7 @@ class TatSuBootstrapParser(Parser):
                             'expecting one of: '
                             '<string> <word>'
                         ) from None
-            self.add_last_node_to_name('@')
+            self.addname('@')
             with self._ifnot():
                 with self._group():
                     with self._choice():
@@ -291,7 +291,7 @@ class TatSuBootstrapParser(Parser):
                 self._token('::')
                 self._cut()
                 self._params_()
-                self.name_last_node('params')
+                self.setname('params')
                 self._define(['params'], [])
             with self._option():
                 self._token('(')
@@ -300,18 +300,18 @@ class TatSuBootstrapParser(Parser):
                     with self._choice():
                         with self._option():
                             self._kwparams_()
-                            self.name_last_node('kwparams')
+                            self.setname('kwparams')
                         with self._option():
                             self._params_()
-                            self.name_last_node('params')
+                            self.setname('params')
                             self._token(',')
                             self._cut()
                             self._kwparams_()
-                            self.name_last_node('kwparams')
+                            self.setname('kwparams')
                             self._define(['kwparams', 'params'], [])
                         with self._option():
                             self._params_()
-                            self.name_last_node('params')
+                            self.setname('params')
                         if self._no_more_options:
                             raise self.newexcept(
                                 'expecting one of: '
@@ -331,9 +331,9 @@ class TatSuBootstrapParser(Parser):
         def block0():
             self._decorator_()
         self._closure(block0)
-        self.name_last_node('decorators')
+        self.setname('decorators')
         self._name_()
-        self.name_last_node('name')
+        self.setname('name')
         self._cut()
         with self._optional():
             with self._choice():
@@ -341,7 +341,7 @@ class TatSuBootstrapParser(Parser):
                     self._token('::')
                     self._cut()
                     self._params_()
-                    self.name_last_node('params')
+                    self.setname('params')
                     self._define(['params'], [])
                 with self._option():
                     self._token('(')
@@ -350,18 +350,18 @@ class TatSuBootstrapParser(Parser):
                         with self._choice():
                             with self._option():
                                 self._kwparams_()
-                                self.name_last_node('kwparams')
+                                self.setname('kwparams')
                             with self._option():
                                 self._params_()
-                                self.name_last_node('params')
+                                self.setname('params')
                                 self._token(',')
                                 self._cut()
                                 self._kwparams_()
-                                self.name_last_node('kwparams')
+                                self.setname('kwparams')
                                 self._define(['kwparams', 'params'], [])
                             with self._option():
                                 self._params_()
-                                self.name_last_node('params')
+                                self.setname('params')
                             if self._no_more_options:
                                 raise self.newexcept(
                                     'expecting one of: '
@@ -378,7 +378,7 @@ class TatSuBootstrapParser(Parser):
             self._token('<')
             self._cut()
             self._known_name_()
-            self.name_last_node('base')
+            self.setname('base')
             self._define(['base'], [])
         with self._group():
             with self._choice():
@@ -395,7 +395,7 @@ class TatSuBootstrapParser(Parser):
                     ) from None
         self._cut()
         self._expre_()
-        self.name_last_node('exp')
+        self.setname('exp')
         self._RULE_END_()
         self._cut()
         self._define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
@@ -442,17 +442,17 @@ class TatSuBootstrapParser(Parser):
                         'expecting one of: '
                         "'name' 'nomemo' 'override'"
                     ) from None
-        self.name_last_node('@')
+        self.setname('@')
 
     @rule()
     def _params_(self):
         self._first_param_()
-        self.add_last_node_to_name('@')
+        self.addname('@')
 
         def block0():
             self._token(',')
             self._literal_()
-            self.add_last_node_to_name('@')
+            self.addname('@')
             with self._ifnot():
                 self._token('=')
             self._cut()
@@ -487,11 +487,11 @@ class TatSuBootstrapParser(Parser):
     @rule()
     def _pair_(self):
         self._word_()
-        self.add_last_node_to_name('@')
+        self.addname('@')
         self._token('=')
         self._cut()
         self._literal_()
-        self.add_last_node_to_name('@')
+        self.addname('@')
 
     @rule()
     def _expre_(self):
@@ -514,19 +514,19 @@ class TatSuBootstrapParser(Parser):
             self._token('|')
             self._cut()
         self._option_()
-        self.add_last_node_to_name('@')
+        self.addname('@')
 
         def block0():
             self._token('|')
             self._cut()
             self._option_()
-            self.add_last_node_to_name('@')
+            self.addname('@')
         self._positive_closure(block0)
 
     @rule('Option')
     def _option_(self):
         self._sequence_()
-        self.name_last_node('@')
+        self.setname('@')
 
     @rule('Sequence')
     def _sequence_(self):
@@ -558,7 +558,7 @@ class TatSuBootstrapParser(Parser):
                         '<EMPTYLINE> <element> <named> <override>'
                         '<rule_include> <term>'
                     ) from None
-        self.name_last_node('sequence')
+        self.setname('sequence')
 
     @rule()
     def _element_(self):
@@ -591,7 +591,7 @@ class TatSuBootstrapParser(Parser):
         self._token('>')
         self._cut()
         self._known_name_()
-        self.name_last_node('@')
+        self.setname('@')
 
     @rule()
     def _named_(self):
@@ -609,21 +609,21 @@ class TatSuBootstrapParser(Parser):
     @rule('NamedList')
     def _named_list_(self):
         self._name_()
-        self.name_last_node('name')
+        self.setname('name')
         self._token('+:')
         self._cut()
         self._term_()
-        self.name_last_node('exp')
+        self.setname('exp')
         self._define(['exp', 'name'], [])
 
     @rule('Named')
     def _named_single_(self):
         self._name_()
-        self.name_last_node('name')
+        self.setname('name')
         self._token(':')
         self._cut()
         self._term_()
-        self.name_last_node('exp')
+        self.setname('exp')
         self._define(['exp', 'name'], [])
 
     @rule()
@@ -648,21 +648,21 @@ class TatSuBootstrapParser(Parser):
         self._token('@+:')
         self._cut()
         self._term_()
-        self.name_last_node('@')
+        self.setname('@')
 
     @rule('Override')
     def _override_single_(self):
         self._token('@:')
         self._cut()
         self._term_()
-        self.name_last_node('@')
+        self.setname('@')
 
     @rule('Override')
     def _override_single_deprecated_(self):
         self._token('@')
         self._cut()
         self._term_()
-        self.name_last_node('@')
+        self.setname('@')
 
     @rule()
     def _term_(self):
@@ -714,7 +714,7 @@ class TatSuBootstrapParser(Parser):
         self._token('(')
         self._cut()
         self._expre_()
-        self.name_last_node('exp')
+        self.setname('exp')
         self._token(')')
         self._cut()
         self._define(['exp'], [])
@@ -741,10 +741,10 @@ class TatSuBootstrapParser(Parser):
     @rule('PositiveGather')
     def _positive_gather_(self):
         self._separator_()
-        self.name_last_node('sep')
+        self.setname('sep')
         self._token('.{')
         self._expre_()
-        self.name_last_node('exp')
+        self.setname('exp')
         self._token('}')
         with self._group():
             with self._choice():
@@ -763,11 +763,11 @@ class TatSuBootstrapParser(Parser):
     @rule('Gather')
     def _normal_gather_(self):
         self._separator_()
-        self.name_last_node('sep')
+        self.setname('sep')
         self._token('.{')
         self._cut()
         self._expre_()
-        self.name_last_node('exp')
+        self.setname('exp')
         self._token('}')
         with self._optional():
             self._token('*')
@@ -797,10 +797,10 @@ class TatSuBootstrapParser(Parser):
     @rule('PositiveJoin')
     def _positive_join_(self):
         self._separator_()
-        self.name_last_node('sep')
+        self.setname('sep')
         self._token('%{')
         self._expre_()
-        self.name_last_node('exp')
+        self.setname('exp')
         self._token('}')
         with self._group():
             with self._choice():
@@ -819,11 +819,11 @@ class TatSuBootstrapParser(Parser):
     @rule('Join')
     def _normal_join_(self):
         self._separator_()
-        self.name_last_node('sep')
+        self.setname('sep')
         self._token('%{')
         self._cut()
         self._expre_()
-        self.name_last_node('exp')
+        self.setname('exp')
         self._token('}')
         with self._optional():
             self._token('*')
@@ -834,11 +834,11 @@ class TatSuBootstrapParser(Parser):
     @rule('LeftJoin')
     def _left_join_(self):
         self._separator_()
-        self.name_last_node('sep')
+        self.setname('sep')
         self._token('<{')
         self._cut()
         self._expre_()
-        self.name_last_node('exp')
+        self.setname('exp')
         self._token('}')
         with self._group():
             with self._choice():
@@ -857,11 +857,11 @@ class TatSuBootstrapParser(Parser):
     @rule('RightJoin')
     def _right_join_(self):
         self._separator_()
-        self.name_last_node('sep')
+        self.setname('sep')
         self._token('>{')
         self._cut()
         self._expre_()
-        self.name_last_node('exp')
+        self.setname('exp')
         self._token('}')
         with self._group():
             with self._choice():
@@ -904,7 +904,7 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._token('{')
                 self._expre_()
-                self.name_last_node('@')
+                self.setname('@')
                 self._token('}')
                 with self._group():
                     with self._choice():
@@ -920,7 +920,7 @@ class TatSuBootstrapParser(Parser):
                 self._cut()
             with self._option():
                 self._separator_()
-                self.name_last_node('@')
+                self.setname('@')
                 self._token('+')
                 self._cut()
             if self._no_more_options:
@@ -937,14 +937,14 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._token('{')
                 self._expre_()
-                self.name_last_node('@')
+                self.setname('@')
                 self._token('}')
                 with self._optional():
                     self._token('*')
                 self._cut()
             with self._option():
                 self._separator_()
-                self.name_last_node('@')
+                self.setname('@')
                 self._token('*')
                 self._cut()
             if self._no_more_options:
@@ -959,7 +959,7 @@ class TatSuBootstrapParser(Parser):
     def _empty_closure_(self):
         self._token('{')
         self._void()
-        self.name_last_node('@')
+        self.setname('@')
         self._token('}')
 
     @rule('Optional')
@@ -969,12 +969,12 @@ class TatSuBootstrapParser(Parser):
                 self._token('[')
                 self._cut()
                 self._expre_()
-                self.name_last_node('@')
+                self.setname('@')
                 self._token(']')
                 self._cut()
             with self._option():
                 self._separator_()
-                self.name_last_node('@')
+                self.setname('@')
                 with self._ifnot():
                     with self._group():
                         self._token('?')
@@ -1004,21 +1004,21 @@ class TatSuBootstrapParser(Parser):
         self._token('&')
         self._cut()
         self._term_()
-        self.name_last_node('@')
+        self.setname('@')
 
     @rule('NegativeLookahead')
     def _negative_lookahead_(self):
         self._token('!')
         self._cut()
         self._term_()
-        self.name_last_node('@')
+        self.setname('@')
 
     @rule('SkipTo')
     def _skip_to_(self):
         self._token('->')
         self._cut()
         self._term_()
-        self.name_last_node('@')
+        self.setname('@')
 
     @rule()
     def _atom_(self):
@@ -1092,7 +1092,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._token('`')
                     self._literal_()
-                    self.name_last_node('@')
+                    self.setname('@')
                     self._token('`')
                 with self._option():
                     self._pattern(r'`(.*?)`')
@@ -1105,9 +1105,9 @@ class TatSuBootstrapParser(Parser):
     @rule('Alert')
     def _alert_(self):
         self._pattern(r'\^+')
-        self.name_last_node('level')
+        self.setname('level')
         self._constant_()
-        self.name_last_node('message')
+        self.setname('message')
         self._define(['level', 'message'], [])
 
     @rule('Token')
@@ -1161,18 +1161,18 @@ class TatSuBootstrapParser(Parser):
     def _raw_string_(self):
         self._pattern(r'r')
         self._STRING_()
-        self.name_last_node('@')
+        self.setname('@')
 
     @rule()
     def _STRING_(self):
         with self._choice():
             with self._option():
                 self._pattern(r'"((?:[^"\n]|\\"|\\\\)*?)"')
-                self.name_last_node('@')
+                self.setname('@')
                 self._cut()
             with self._option():
                 self._pattern(r"'((?:[^'\n]|\\'|\\\\)*?)'")
-                self.name_last_node('@')
+                self.setname('@')
                 self._cut()
             if self._no_more_options:
                 raise self.newexcept(
@@ -1226,20 +1226,20 @@ class TatSuBootstrapParser(Parser):
                 self._token('/')
                 self._cut()
                 self._pattern(r'(?:[^/\\]|\\/|\\.)*')
-                self.name_last_node('@')
+                self.setname('@')
                 self._token('/')
                 self._cut()
             with self._option():
                 self._token('?/')
                 self._cut()
                 self._pattern(r'(?:.|\n)*?(?=/\?)')
-                self.name_last_node('@')
+                self.setname('@')
                 self._pattern(r'/\?+')
                 self._cut()
             with self._option():
                 self._token('?')
                 self._STRING_()
-                self.name_last_node('@')
+                self.setname('@')
             if self._no_more_options:
                 raise self.newexcept(
                     'expecting one of: '

@@ -229,11 +229,11 @@ class ParseContext:
         # NOTE: called by generated parsers
         return self.states.define(keys, list_keys)
 
-    def name_last_node(self, name: str) -> None:
+    def setname(self, name: str) -> None:
         # NOTE: called by generated parsers
         self.states.setname(name)
 
-    def add_last_node_to_name(self, name: str) -> None:
+    def addname(self, name: str) -> None:
         # NOTE: called by generated parsers
         self.states.addname(name)
 

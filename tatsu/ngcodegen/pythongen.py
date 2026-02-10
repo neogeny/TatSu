@@ -302,11 +302,11 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
     def walk_Named(self, named: grammars.Named):
         self.walk(named.exp)
-        self.print(f"self.name_last_node('{named.name}')")
+        self.print(f"self.setname('{named.name}')")
 
     def walk_NamedList(self, named: grammars.Named):
         self.walk(named.exp)
-        self.print(f"self.add_last_node_to_name('{named.name}')")
+        self.print(f"self.addname('{named.name}')")
 
     def walk_Override(self, override: grammars.Override):
         self.walk_Named(override)
