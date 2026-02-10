@@ -63,7 +63,7 @@ def test_builder_semantics():
 
     dotted = functools.partial(str.join, '.')
     # WARNING: this defeats all TatSu knows about functions and types
-    #  dotted.__name__ = 'dotted'  # type: ignore
+    #  dotted.__name__ = 'dotted'
 
     grammar = r"""
         start::dotted = {number}+ $ ;

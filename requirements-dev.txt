@@ -21,7 +21,7 @@ colorama==0.4.6
     # via
     #   click
     #   ipython
-cryptography==46.0.4 ; sys_platform == 'linux'
+cryptography==46.0.5 ; sys_platform == 'linux'
     # via secretstorage
 decorator==5.2.1
     # via ipython
@@ -84,7 +84,7 @@ packaging==26.0
     # via
     #   hatch
     #   hatchling
-parso==0.8.5
+parso==0.8.6
     # via jedi
 pathspec==1.0.4
     # via hatchling
@@ -141,9 +141,9 @@ typing-extensions==4.15.0 ; python_full_version < '3.13'
     # via anyio
 userpath==1.9.2
     # via hatch
-uv==0.9.28
+uv==0.10.2
     # via hatch
 virtualenv==20.36.1
     # via hatch
-wcwidth==0.5.3
+wcwidth==0.6.0
     # via prompt-toolkit

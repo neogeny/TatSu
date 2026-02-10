@@ -42,14 +42,13 @@ class Outer(Node):
 
 def test_children():
     with pytest.raises(TypeError):
-        outer = Outer()  # type: ignore
-        pytest.fail('Should have raised TypeError')
+        Outer()
 
     with pytest.raises(TypeError):
-        Inner()  # type: ignore
+        Inner()
 
     with pytest.raises(TypeError):
-        Inner('x')  # type: ignore
+        Inner('x')
 
     a_inner = Inner(id='a')
     b_inner = Inner(id='b')
