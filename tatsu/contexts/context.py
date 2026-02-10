@@ -584,7 +584,7 @@ class ParseContext:
 
     @contextmanager
     def _group(self):
-        self.states.push_cst()
+        self.push()
         try:
             yield
             self.mergepop()
@@ -615,7 +615,7 @@ class ParseContext:
             raise self.newexcept('', exclass=FailedLookahead)
 
     def _isolate(self, block: Callable[[], Any], drop: bool = False) -> Any:
-        self.states.push_cst()
+        self.push()
         try:
             block()
             return closure(self.cst) if is_list(self.cst) else self.cst
@@ -642,7 +642,7 @@ class ParseContext:
                 return
 
     def _closure(self, block: Callable[[], Any], sep: Callable[[], Any] | None = None, omitsep: bool = False) -> Any:
-        self.states.push_cst()
+        self.push()
         try:
             self.cst = []
             with self._optional():
@@ -656,7 +656,7 @@ class ParseContext:
             raise
 
     def _positive_closure(self, block: Callable[[], Any], sep: Callable[[], Any] | None = None, omitsep: bool = False) -> Any:
-        self.states.push_cst()
+        self.push()
         try:
             block()
             self.cst = [self.cst]

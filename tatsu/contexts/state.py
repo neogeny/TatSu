@@ -103,16 +103,6 @@ class ParseStateStack:
         else:
             return node
 
-    def push_ast(self, pos: int, copyast: bool = False) -> Any:
-        ast = copy(self.ast) if copyast else AST()
-        self.state.pos = pos
-        self._push(pos=pos, ast=ast)
-        return self.ast
-
-    def push_cst(self) -> Any:
-        self._push(ast=self.ast)
-        return self.cst
-
     def pop_cst(self) -> Any:
         ast = self.ast
         cst = self.cst
