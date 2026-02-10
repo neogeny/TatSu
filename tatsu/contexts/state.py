@@ -100,8 +100,8 @@ class ParseStateStack:
     def mergepop(self, pos: int) -> ParseState:
         prev = self.pop()
         self.ast = prev.ast
-        self.extend_cst(prev.cst)
-        self.top.pos = pos
+        self.extend(prev.cst)
+        # self.top.pos = pos
         return prev
 
     def alert(self, level: int = 1, message: str = '') -> Alert:
@@ -117,14 +117,7 @@ class ParseStateStack:
         else:
             return node
 
-    def pop_cst(self) -> Any:
-        ast = self.ast
-        cst = self.cst
-        self.pop()
-        self.ast = ast
-        return cst
-
-    def append_cst(self, node: Any) -> Any:
+    def append(self, node: Any) -> Any:
         self.last_node = node
         previous = self.cst
         if previous is None:
@@ -135,7 +128,7 @@ class ParseStateStack:
             self.cst = [previous, node]
         return node
 
-    def extend_cst(self, node: Any) -> Any:
+    def extend(self, node: Any) -> Any:
         self.last_node = node
         if node is None:
             return None
@@ -153,10 +146,10 @@ class ParseStateStack:
             self.cst = [previous, node]
         return node
 
-    def name_last_node(self, name: str) -> None:
-        self.ast[name] = self.last_node
+    def setname(self, name: str) -> None:
+        self.ast._set(name, self.last_node)
 
-    def add_last_node_to_name(self, name: str) -> None:
+    def addname(self, name: str) -> None:
         self.ast._setlist(name, self.last_node)
 
     def define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None) -> Any:

@@ -231,14 +231,17 @@ class ParseContext:
 
     def name_last_node(self, name: str) -> None:
         # NOTE: called by generated parsers
-        self.states.name_last_node(name)
+        self.states.setname(name)
 
     def add_last_node_to_name(self, name: str) -> None:
         # NOTE: called by generated parsers
-        self.states.add_last_node_to_name(name)
+        self.states.addname(name)
 
     def push(self, ast: Any = None) -> None:
         self.states.push(pos=self.pos, ast=ast)
+
+    def pop(self) -> ParseState:
+        return self.states.pop()
 
     def mergepop(self) -> ParseState:
         return self.states.mergepop(pos=self.pos)
@@ -338,7 +341,7 @@ class ParseContext:
 
             self.goto(result.newpos)
             self.substate = result.newstate
-            self.states.append_cst(result.node)
+            self.states.append(result.node)
 
             self.tracer.trace_success()
 
@@ -452,7 +455,7 @@ class ParseContext:
             self.tracer.trace_match(token, failed=True)
             raise self.newexcept(token, exclass=FailedToken)
         self.tracer.trace_match(token)
-        self.states.append_cst(token)
+        self.states.append(token)
         return token
 
     def _constant(self, literal: Any) -> Any:
@@ -460,7 +463,7 @@ class ParseContext:
         self.tracer.trace_match(literal)
 
         if not isinstance(literal, str):
-            self.states.append_cst(literal)
+            self.states.append(literal)
             return literal
         literal = str(literal)  # for type linters
 
@@ -497,7 +500,7 @@ class ParseContext:
                     f'Error evaluating constant {literal!r}: {e}',
                 ) from e
 
-        self.states.append_cst(result)
+        self.states.append(result)
         return result
 
     def _alert(self, message: str, level: int) -> None:
@@ -511,7 +514,7 @@ class ParseContext:
             self.tracer.trace_match('', pattern, failed=True)
             raise self.newexcept(f'Expecting {regexp(pattern)}', exclass=FailedPattern)
         self.tracer.trace_match(token, pattern)
-        self.states.append_cst(token)
+        self.states.append(token)
         return token
 
     def eof(self) -> bool:
@@ -620,7 +623,9 @@ class ParseContext:
             block()
             return closure(self.cst) if is_list(self.cst) else self.cst
         finally:
-            self.states.pop_cst()  # discard the cst
+            ast = self.ast
+            self.pop()
+            self.ast = ast
 
     def _repeat(self, block: Callable[[], Any], prefix: Callable[[], Any] | None = None, dropprefix: bool = False) -> None:
         while True:
@@ -631,11 +636,11 @@ class ParseContext:
                     if prefix:
                         pcst = self._isolate(prefix, drop=dropprefix)
                         if not dropprefix:
-                            self.states.append_cst(pcst)
+                            self.states.append(pcst)
                         self._cut()
 
                     cst = self._isolate(block)
-                    self.states.append_cst(cst)
+                    self.states.append(cst)
 
                     if self.pos == p:
                         raise self.newexcept('empty closure')
@@ -669,7 +674,7 @@ class ParseContext:
 
     def _empty_closure(self) -> closure:
         cst = closure([])
-        self.states.append_cst(cst)
+        self.states.append(cst)
         return cst
 
     def _gather(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
@@ -713,7 +718,7 @@ class ParseContext:
             self.tracer.trace_match(c, failed=True)
             raise self.newexcept(c, exclass=FailedToken) from None
         self.tracer.trace_match(c)
-        self.states.append_cst(c)
+        self.states.append(c)
         return c
 
     def _skip_to(self, block: Callable[[], Any]) -> None:
