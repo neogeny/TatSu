@@ -332,7 +332,7 @@ empty_closure::EmptyClosure
 optional::Optional
     =
         '[' ~ @:expre ']' ~
-    |   @:atom !('?' ('"' | "'")) '?' ~
+    |   @:atom !('?"' | "?'" | '?/') '?'  ~
     ;
 
 

@@ -955,18 +955,18 @@ class TatSuBootstrapParser(Parser):
                     self._atom_()
                 with self._ifnot():
                     with self._group():
-                        self._token('?')
-                        with self._group():
-                            with self._choice():
-                                with self._option():
-                                    self._token('"')
-                                with self._option():
-                                    self._token("'")
-                                if self._no_more_options:
-                                    raise self.newexcept(
-                                        'expecting one of: '
-                                        '"\'" \'"\''
-                                    ) from None
+                        with self._choice():
+                            with self._option():
+                                self._token('?"')
+                            with self._option():
+                                self._token("?'")
+                            with self._option():
+                                self._token('?/')
+                            if self._no_more_options:
+                                raise self.newexcept(
+                                    'expecting one of: '
+                                    '"?\'" \'?"\' \'?/\''
+                                ) from None
                 self._token('?')
                 self._cut()
             if self._no_more_options:
