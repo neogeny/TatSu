@@ -586,7 +586,7 @@ class ParseContext:
             yield
             self.states.merge_cst()
         except ParseException:
-            self.states.pop_cst()
+            self.undo()
             raise
 
     @contextmanager
@@ -649,7 +649,7 @@ class ParseContext:
             self.cst = closure(self.cst)
             return self.states.merge_cst()
         except ParseException:
-            self.states.pop_cst()
+            self.undo()
             raise
 
     def _positive_closure(self, block: Callable[[], Any], sep: Callable[[], Any] | None = None, omitsep: bool = False) -> Any:
@@ -661,7 +661,7 @@ class ParseContext:
             self.cst = closure(self.cst)
             return self.states.merge_cst()
         except ParseException:
-            self.states.pop_cst()
+            self.undo()
             raise
 
     def _empty_closure(self) -> closure:
