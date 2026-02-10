@@ -190,7 +190,7 @@ class ParseStateStack:
         ast = copy(self.ast) if ast is None else ast
         self.state.pos = pos
         self._push(pos=pos, ast=ast, cst=cst)
-        return self.ast
+        return self.top
 
     def ngmerge(self) -> ParseState:
         prev = self.pop()

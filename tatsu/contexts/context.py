@@ -237,10 +237,10 @@ class ParseContext:
         # NOTE: called by generated parsers
         self.states.add_last_node_to_name(name)
 
-    def _push_ast(self, copyast: bool = False) -> None:
-        self.states.push_ast(pos=self.pos, copyast=copyast)
+    def push(self, ast: Any = None) -> None:
+        self.states.ngpush(pos=self.pos, ast=ast)
 
-    def _pop_ast(self) -> None:
+    def undo(self) -> None:
         self.states.pop()
         self.tokenizer.goto(self.state.pos)
 
@@ -429,7 +429,7 @@ class ParseContext:
             self._memoize(key, e)
             raise
         finally:
-            self._pop_ast()
+            self.undo()
 
     def _semantics_call(self, ruleinfo: RuleInfo, node: Any) -> Any:
         if ruleinfo.is_name:
@@ -527,13 +527,13 @@ class ParseContext:
     @contextmanager
     def _try(self):
         s = self.substate
-        self._push_ast(copyast=True)
+        self.push(ast=AST(self.ast))
         self.last_node = None
         try:
             yield
             self.states.merge_ast()
         except FailedParse:
-            self._pop_ast()
+            self.undo()
             self.substate = s
             raise
 
@@ -592,12 +592,12 @@ class ParseContext:
     @contextmanager
     def _if(self):
         s = self.substate
-        self._push_ast()
+        self.push()
         self._lookahead += 1
         try:
             yield
         finally:
-            self._pop_ast()  # simply discard
+            self.undo()
             self._lookahead -= 1
             self.substate = s
 
