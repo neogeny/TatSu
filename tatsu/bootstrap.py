@@ -40,7 +40,7 @@ class TatSuBootstrapBuffer(Buffer):
     def __init__(self, text, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(
             config,
-            whitespace='(?m)\\s+',
+            whitespace=r'(?m)\s+',
             nameguard=None,
             ignorecase=False,
             namechars='',
@@ -59,7 +59,7 @@ class TatSuBootstrapParser(Parser):
     def __init__(self, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(
             config,
-            whitespace='(?m)\\s+',
+            whitespace=r'(?m)\s+',
             nameguard=None,
             ignorecase=False,
             namechars='',
