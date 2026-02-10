@@ -412,7 +412,7 @@ class ParseContext:
 
         self._set_left_recursion_guard(key)
 
-        self.states.push(pos=self.pos, ast=AST())
+        self.pushstate(ast=AST())
         try:
             self.next_token(ruleinfo)
             ruleinfo.impl(self)
