@@ -617,6 +617,16 @@ class ParseContext:
         else:
             raise self.newexcept('', exclass=FailedLookahead)
 
+    @contextmanager
+    def _setname(self, name: str):
+        yield
+        self.setname(name)
+
+    @contextmanager
+    def _addname(self, name: str):
+        yield
+        self.addname(name)
+
     def _isolate(self, block: Callable[[], Any], drop: bool = False) -> Any:
         self.push()
         try:

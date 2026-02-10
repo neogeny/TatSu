@@ -301,12 +301,14 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'self._skip_to(block{n})')
 
     def walk_Named(self, named: grammars.Named):
-        self.walk(named.exp)
-        self.print(f"self.setname('{named.name}')")
+        self.print(f"with self._setname('{named.name}'):")
+        with self.indent():
+            self.walk(named.exp)
 
     def walk_NamedList(self, named: grammars.Named):
-        self.walk(named.exp)
-        self.print(f"self.addname('{named.name}')")
+        self.print(f"with self._addname('{named.name}'):")
+        with self.indent():
+            self.walk(named.exp)
 
     def walk_Override(self, override: grammars.Override):
         self.walk_Named(override)
