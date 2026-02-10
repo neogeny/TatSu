@@ -240,6 +240,9 @@ class ParseContext:
     def push(self, ast: Any = None) -> None:
         self.states.ngpush(pos=self.pos, ast=ast)
 
+    def merge_pop(self) -> ParseState:
+        return self.states.ngmerge()
+
     def undo(self) -> None:
         self.states.pop()
         self.tokenizer.goto(self.state.pos)
@@ -584,7 +587,7 @@ class ParseContext:
         self.states.push_cst()
         try:
             yield
-            self.states.merge_cst()
+            self.merge_pop()
         except ParseException:
             self.undo()
             raise
@@ -647,7 +650,7 @@ class ParseContext:
                 self.cst = [self.cst]
             self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
-            return self.states.merge_cst()
+            return self.merge_pop().cst
         except ParseException:
             self.undo()
             raise
@@ -659,7 +662,7 @@ class ParseContext:
             self.cst = [self.cst]
             self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
-            return self.states.merge_cst()
+            return self.merge_pop().cst
         except ParseException:
             self.undo()
             raise

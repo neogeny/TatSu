@@ -196,4 +196,20 @@ class ParseStateStack:
         prev = self.pop()
         self.ast = prev.ast
         self.extend_cst(prev.cst)
-        return self.top
+        return prev
+
+    def __old_pop_cst(self) -> Any:
+        ast = self.ast
+        cst = self.cst
+        self.pop()
+        self.ast = ast
+        return cst
+
+    def __expanded_merge_cst(self) -> Any:
+        cst = self.cst
+
+        ast = self.ast
+        cst = self.cst
+        self.pop()
+        self.ast = ast
+        self.extend_cst(cst)
