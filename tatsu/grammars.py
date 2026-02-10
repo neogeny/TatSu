@@ -743,7 +743,7 @@ class Override(Named):
         super().__init__(ast=AST(name='@', exp=ast))
 
     def defines(self):
-        return []
+        return self.exp.defines()
 
 
 class OverrideList(NamedList):
@@ -751,7 +751,7 @@ class OverrideList(NamedList):
         super().__init__(ast=AST(name='@', exp=ast))
 
     def defines(self):
-        return []
+        return self.exp.defines()
 
 
 class Call(Model):

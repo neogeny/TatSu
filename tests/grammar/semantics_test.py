@@ -212,3 +212,76 @@ def test_builder_nodedefs():
     assert type(ast) is AType
     assert isinstance(ast, BType)
     assert not isinstance(ast, synth.SynthNode)
+
+
+def test_ast_per_option():
+    grammar = """
+        @@grammar :: Test
+
+        start = options $ ;
+
+        options =
+            | a:'a' [b:'b']
+            | c:'c' [d:'d']
+            ;
+    """
+
+    # NOTE:
+    #   Prove each option in a choide has its own version of the AST
+
+    ast = parse(grammar, 'a b')
+    assert ast == {'a': 'a', 'b': 'b'}
+    assert 'c' not in ast
+    assert 'd' not in ast
+
+    ast = parse(grammar, 'c d')
+    assert ast == {'c': 'c', 'd': 'd'}
+    assert 'a' not in ast
+    assert 'b' not in ast
+
+    ast = parse(grammar, 'a')
+    assert ast == {'a': 'a', 'b': None}
+    assert 'b' in ast
+    assert 'c' not in ast
+    assert 'd' not in ast
+
+    ast = parse(grammar, 'c')
+    assert ast == {'c': 'c', 'd': None}
+    assert 'd' in ast
+    assert 'a' not in ast
+    assert 'b' not in ast
+
+
+def test_ast_names_accumulate():
+    grammar = """
+        @@grammar :: Test
+
+        start = options $ ;
+
+        options =
+            | a:'a' ([b:'b'] {x:'x'})
+            | c:'c' ([d:'d'] y:{'y'})
+            ;
+    """
+
+    # NOTE:
+    #   Prove named elements accumulat
+    ast = parse(grammar, 'a')
+    assert ast == {'a': 'a', 'b': None}
+
+    ast = parse(grammar, 'a x')
+    assert ast == {'a': 'a', 'b': None, 'x': 'x'}
+
+    ast = parse(grammar, 'a x x')
+    assert ast == {'a': 'a', 'b': None, 'x': ['x', 'x']}
+
+    # NOTE:
+    #   Prove naming closures always closure
+    ast = parse(grammar, 'c')
+    assert ast == {'c': 'c', 'd': None, 'y': []}
+
+    ast = parse(grammar, 'c y')
+    assert ast == {'c': 'c', 'd': None, 'y': ['y']}
+
+    ast = parse(grammar, 'c y y')
+    assert ast == {'c': 'c', 'd': None, 'y': ['y', 'y']}
