@@ -152,7 +152,6 @@ class TatSuBootstrapParser(Parser):
                         with self._group():
                             self._token('whitespace')
                     self._cut()
-                    self._cut()
                     self._token('::')
                     self._cut()
                     with self._setname('value'):
@@ -575,11 +574,12 @@ class TatSuBootstrapParser(Parser):
                 if self._no_more_options:
                     raise self.newexcept(
                         'expecting one of: '
-                        "'>' <atom> <closure> <empty_closure>"
-                        '<gather> <group> <join> <left_join>'
-                        '<lookahead> <named> <named_list>'
-                        '<named_single> <negative_lookahead>'
-                        '<optional> <override> <override_list>'
+                        "'>' <atom> <closure> <cut>"
+                        '<cut_deprecated> <empty_closure>'
+                        '<gather> <join> <left_join> <lookahead>'
+                        '<named> <named_list> <named_single>'
+                        '<negative_lookahead> <optional>'
+                        '<override> <override_list>'
                         '<override_single>'
                         '<override_single_deprecated>'
                         '<positive_closure> <right_join>'
@@ -678,8 +678,6 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._right_join_()
             with self._option():
-                self._group_()
-            with self._option():
                 self._empty_closure_()
             with self._option():
                 self._positive_closure_()
@@ -694,19 +692,22 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._negative_lookahead_()
             with self._option():
+                self._cut_()
+            with self._option():
+                self._cut_deprecated_()
+            with self._option():
                 self._atom_()
             if self._no_more_options:
                 raise self.newexcept(
                     'expecting one of: '
-                    "'!' '&' '(' '()' '->' '[' '{' <alert>"
-                    '<atom> <call> <closure> <constant> <cut>'
-                    '<cut_deprecated> <dot> <empty_closure>'
-                    '<eof> <gather> <group> <join>'
-                    '<left_join> <lookahead>'
+                    "'!' '&' '(' '()' '->' '>>' '[' '{' '~'"
+                    '<alert> <atom> <call> <closure>'
+                    '<constant> <cut> <cut_deprecated> <dot>'
+                    '<empty_closure> <eof> <gather> <group>'
+                    '<join> <left_join> <lookahead>'
                     '<negative_lookahead> <optional>'
                     '<pattern> <positive_closure>'
-                    '<right_join> <separator> <skip_to>'
-                    '<token> <void>'
+                    '<right_join> <skip_to> <token> <void>'
                 ) from None
 
     @rule('Group')
@@ -723,7 +724,7 @@ class TatSuBootstrapParser(Parser):
     def _gather_(self):
         with self._if():
             with self._group():
-                self._separator_()
+                self._atom_()
                 self._token('.{')
         self._cut()
         with self._group():
@@ -741,7 +742,7 @@ class TatSuBootstrapParser(Parser):
     @rule('PositiveGather')
     def _positive_gather_(self):
         with self._setname('sep'):
-            self._separator_()
+            self._atom_()
         self._token('.{')
         with self._setname('exp'):
             self._expre_()
@@ -763,7 +764,7 @@ class TatSuBootstrapParser(Parser):
     @rule('Gather')
     def _normal_gather_(self):
         with self._setname('sep'):
-            self._separator_()
+            self._atom_()
         self._token('.{')
         self._cut()
         with self._setname('exp'):
@@ -779,7 +780,7 @@ class TatSuBootstrapParser(Parser):
     def _join_(self):
         with self._if():
             with self._group():
-                self._separator_()
+                self._atom_()
                 self._token('%{')
         self._cut()
         with self._group():
@@ -797,7 +798,7 @@ class TatSuBootstrapParser(Parser):
     @rule('PositiveJoin')
     def _positive_join_(self):
         with self._setname('sep'):
-            self._separator_()
+            self._atom_()
         self._token('%{')
         with self._setname('exp'):
             self._expre_()
@@ -819,7 +820,7 @@ class TatSuBootstrapParser(Parser):
     @rule('Join')
     def _normal_join_(self):
         with self._setname('sep'):
-            self._separator_()
+            self._atom_()
         self._token('%{')
         self._cut()
         with self._setname('exp'):
@@ -834,7 +835,7 @@ class TatSuBootstrapParser(Parser):
     @rule('LeftJoin')
     def _left_join_(self):
         with self._setname('sep'):
-            self._separator_()
+            self._atom_()
         self._token('<{')
         self._cut()
         with self._setname('exp'):
@@ -857,7 +858,7 @@ class TatSuBootstrapParser(Parser):
     @rule('RightJoin')
     def _right_join_(self):
         with self._setname('sep'):
-            self._separator_()
+            self._atom_()
         self._token('>{')
         self._cut()
         with self._setname('exp'):
@@ -876,27 +877,6 @@ class TatSuBootstrapParser(Parser):
                     ) from None
         self._cut()
         self._define(['exp', 'sep'], [])
-
-    @rule()
-    def _separator_(self):
-        with self._choice():
-            with self._option():
-                self._group_()
-            with self._option():
-                self._token_()
-            with self._option():
-                self._constant_()
-            with self._option():
-                self._dot_()
-            with self._option():
-                self._pattern_()
-            if self._no_more_options:
-                raise self.newexcept(
-                    'expecting one of: '
-                    "'(' '/./' '`' <constant> <dot> <group>"
-                    '<pattern> <raw_string> <regexes>'
-                    '<string> <token>'
-                ) from None
 
     @rule('PositiveClosure')
     def _positive_closure_(self):
@@ -920,15 +900,14 @@ class TatSuBootstrapParser(Parser):
                 self._cut()
             with self._option():
                 with self._setname('@'):
-                    self._separator_()
+                    self._atom_()
                 self._token('+')
                 self._cut()
             if self._no_more_options:
                 raise self.newexcept(
                     'expecting one of: '
-                    "'(' '/./' '`' '{' <constant> <dot>"
-                    '<group> <pattern> <raw_string> <regexes>'
-                    '<separator> <string> <token>'
+                    "'(' '{' <alert> <atom> <call> <constant>"
+                    '<dot> <eof> <group> <pattern> <token>'
                 ) from None
 
     @rule('Closure')
@@ -944,15 +923,14 @@ class TatSuBootstrapParser(Parser):
                 self._cut()
             with self._option():
                 with self._setname('@'):
-                    self._separator_()
+                    self._atom_()
                 self._token('*')
                 self._cut()
             if self._no_more_options:
                 raise self.newexcept(
                     'expecting one of: '
-                    "'(' '/./' '`' '{' <constant> <dot>"
-                    '<group> <pattern> <raw_string> <regexes>'
-                    '<separator> <string> <token>'
+                    "'(' '{' <alert> <atom> <call> <constant>"
+                    '<dot> <eof> <group> <pattern> <token>'
                 ) from None
 
     @rule('EmptyClosure')
@@ -974,7 +952,7 @@ class TatSuBootstrapParser(Parser):
                 self._cut()
             with self._option():
                 with self._setname('@'):
-                    self._separator_()
+                    self._atom_()
                 with self._ifnot():
                     with self._group():
                         self._token('?')
@@ -994,9 +972,8 @@ class TatSuBootstrapParser(Parser):
             if self._no_more_options:
                 raise self.newexcept(
                     'expecting one of: '
-                    "'(' '/./' '[' '`' <constant> <dot>"
-                    '<group> <pattern> <raw_string> <regexes>'
-                    '<separator> <string> <token>'
+                    "'(' '[' <alert> <atom> <call> <constant>"
+                    '<dot> <eof> <group> <pattern> <token>'
                 ) from None
 
     @rule('Lookahead')
@@ -1024,9 +1001,7 @@ class TatSuBootstrapParser(Parser):
     def _atom_(self):
         with self._choice():
             with self._option():
-                self._cut_()
-            with self._option():
-                self._cut_deprecated_()
+                self._group_()
             with self._option():
                 self._token_()
             with self._option():
@@ -1038,14 +1013,16 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._pattern_()
             with self._option():
+                self._dot_()
+            with self._option():
                 self._eof_()
             if self._no_more_options:
                 raise self.newexcept(
                     'expecting one of: '
-                    "'$' '>>' '\\\\^+' '`' '~' <alert> <call>"
-                    '<constant> <cut> <cut_deprecated> <eof>'
-                    '<pattern> <raw_string> <regexes>'
-                    '<string> <token> <word>'
+                    "'$' '(' '/./' '\\\\^+' '`' <alert> <call>"
+                    '<constant> <dot> <eof> <group> <pattern>'
+                    '<raw_string> <regexes> <string> <token>'
+                    '<word>'
                 ) from None
 
     @rule('Call')

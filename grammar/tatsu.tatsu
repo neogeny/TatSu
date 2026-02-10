@@ -40,7 +40,7 @@ directive
             ~
             '::' ~ value:regex
         |
-            name:('whitespace') ~
+            name:('whitespace')
             ~
             '::' ~ value:(regex|string|'None'|'False'|`None`)
         |
@@ -234,7 +234,6 @@ term
     | join
     | left_join
     | right_join
-    | group
     | empty_closure
     | positive_closure
     | closure
@@ -242,6 +241,8 @@ term
     | skip_to
     | lookahead
     | negative_lookahead
+    | cut
+    | cut_deprecated
     | atom
     ;
 
@@ -254,7 +255,7 @@ group::Group
 
 gather
     =
-    &(separator '.{') ~
+    &(atom '.{') ~
     (
     | positive_gather
     | normal_gather
@@ -264,19 +265,19 @@ gather
 
 positive_gather::PositiveGather
     =
-    sep:separator '.{' exp:expre '}' ('+'|'-') ~
+    sep:atom '.{' exp:expre '}' ('+'|'-') ~
     ;
 
 
 normal_gather::Gather
     =
-    sep:separator '.{' ~ exp:expre '}' ['*' ~] ~
+    sep:atom '.{' ~ exp:expre '}' ['*' ~] ~
     ;
 
 
 join
     =
-    &(separator '%{') ~
+    &(atom '%{') ~
     (
     | positive_join
     | normal_join
@@ -286,45 +287,39 @@ join
 
 positive_join::PositiveJoin
     =
-    sep:separator '%{' exp:expre '}' ('+'|'-') ~
+    sep:atom '%{' exp:expre '}' ('+'|'-') ~
     ;
 
 
 normal_join::Join
     =
-    sep:separator '%{' ~ exp:expre '}' ['*' ~] ~
+    sep:atom '%{' ~ exp:expre '}' ['*' ~] ~
     ;
 
 
 left_join::LeftJoin
     =
-    sep:separator '<{' ~ exp:expre '}' ('+'|'-') ~
+    sep:atom '<{' ~ exp:expre '}' ('+'|'-') ~
     ;
 
 
 right_join::RightJoin
     =
-    sep:separator '>{' ~ exp:expre '}' ('+'|'-') ~
-    ;
-
-
-separator
-    =
-    group | token | constant |  dot | pattern
+    sep:atom '>{' ~ exp:expre '}' ('+'|'-') ~
     ;
 
 
 positive_closure::PositiveClosure
     =
         '{' @:expre '}' ('-' | '+') ~
-    |   @:separator '+' ~
+    |   @:atom '+' ~
     ;
 
 
 closure::Closure
     =
         '{' @:expre '}' ['*'] ~
-    |   @:separator '*' ~
+    |   @:atom '*' ~
     ;
 
 
@@ -337,7 +332,7 @@ empty_closure::EmptyClosure
 optional::Optional
     =
         '[' ~ @:expre ']' ~
-    |   @:separator !('?' ('"' | "'")) '?' ~
+    |   @:atom !('?' ('"' | "'")) '?' ~
     ;
 
 
@@ -361,7 +356,7 @@ skip_to::SkipTo
 
 atom
     =
-    cut | cut_deprecated | token | alert | constant | call | pattern | eof
+    group | token | alert | constant | call | pattern | dot | eof
     ;
 
 
