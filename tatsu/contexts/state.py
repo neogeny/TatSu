@@ -109,12 +109,6 @@ class ParseStateStack:
         self._push(pos=pos, ast=ast)
         return self.ast
 
-    def merge_ast(self) -> Any:
-        prev = self.pop()
-        self.ast = prev.ast
-        self.extend_cst(prev.cst)
-        return self.ast
-
     def push_cst(self) -> Any:
         self._push(ast=self.ast)
         return self.cst
@@ -124,12 +118,6 @@ class ParseStateStack:
         cst = self.cst
         self.pop()
         self.ast = ast
-        return cst
-
-    def merge_cst(self) -> Any:
-        cst = self.cst
-        self.pop_cst()
-        self.extend_cst(cst)
         return cst
 
     def append_cst(self, node: Any) -> Any:
@@ -192,25 +180,9 @@ class ParseStateStack:
         self._push(pos=pos, ast=ast, cst=cst)
         return self.top
 
-    def ngmerge(self, pos: int) -> ParseState:
+    def mergepop(self, pos: int) -> ParseState:
         prev = self.pop()
         self.ast = prev.ast
         self.extend_cst(prev.cst)
         self.top.pos = pos
         return prev
-
-    def __old_pop_cst(self) -> Any:
-        ast = self.ast
-        cst = self.cst
-        self.pop()
-        self.ast = ast
-        return cst
-
-    def __expanded_merge_cst(self) -> Any:
-        cst = self.cst
-
-        ast = self.ast
-        cst = self.cst
-        self.pop()
-        self.ast = ast
-        self.extend_cst(cst)

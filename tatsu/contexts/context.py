@@ -240,8 +240,8 @@ class ParseContext:
     def push(self, ast: Any = None) -> None:
         self.states.ngpush(pos=self.pos, ast=ast)
 
-    def merge_pop(self) -> ParseState:
-        return self.states.ngmerge(pos=self.pos)
+    def mergepop(self) -> ParseState:
+        return self.states.mergepop(pos=self.pos)
 
     def undo(self) -> None:
         self.states.pop()
@@ -534,7 +534,7 @@ class ParseContext:
         self.last_node = None
         try:
             yield
-            self.states.merge_ast()
+            self.mergepop()
         except FailedParse:
             self.undo()
             self.substate = s
@@ -587,7 +587,7 @@ class ParseContext:
         self.states.push_cst()
         try:
             yield
-            self.merge_pop()
+            self.mergepop()
         except ParseException:
             self.undo()
             raise
@@ -620,7 +620,7 @@ class ParseContext:
             block()
             return closure(self.cst) if is_list(self.cst) else self.cst
         finally:
-            self.states.pop_cst()
+            self.states.pop_cst()  # discard the cst
 
     def _repeat(self, block: Callable[[], Any], prefix: Callable[[], Any] | None = None, dropprefix: bool = False) -> None:
         while True:
@@ -650,7 +650,7 @@ class ParseContext:
                 self.cst = [self.cst]
             self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
-            return self.merge_pop().cst
+            return self.mergepop().cst
         except ParseException:
             self.undo()
             raise
@@ -662,7 +662,7 @@ class ParseContext:
             self.cst = [self.cst]
             self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
-            return self.merge_pop().cst
+            return self.mergepop().cst
         except ParseException:
             self.undo()
             raise
