@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import ast as stdlib_ast
-from collections.abc import Callable, Generator, Iterable
+from collections.abc import Callable, Iterable
 from contextlib import contextmanager, suppress
 from typing import Any
 
@@ -534,7 +534,7 @@ class ParseContext:
             )
 
     @contextmanager
-    def _try(self) -> Generator[None]:
+    def _try(self):
         s = self.substate
         self._push_ast(copyast=True)
         self.last_node = None
@@ -558,7 +558,7 @@ class ParseContext:
         return True
 
     @contextmanager
-    def _option(self) -> Generator[None]:
+    def _option(self):
         self.last_node = None
         self.states.push_cut()
         try:
@@ -574,7 +574,7 @@ class ParseContext:
             self.states.pop_cut()
 
     @contextmanager
-    def _choice(self) -> Generator[None]:
+    def _choice(self):
         self.last_node = None
         with suppress(OptionSucceeded):
             try:
@@ -583,13 +583,13 @@ class ParseContext:
                 raise e.nested from e
 
     @contextmanager
-    def _optional(self) -> Generator[None]:
+    def _optional(self):
         self.last_node = None
         with self._choice(), self._option():
             yield
 
     @contextmanager
-    def _group(self) -> Generator[None]:
+    def _group(self):
         self.states.push_cst()
         try:
             yield
@@ -599,7 +599,7 @@ class ParseContext:
             raise
 
     @contextmanager
-    def _if(self) -> Generator[None]:
+    def _if(self):
         s = self.substate
         self._push_ast()
         self._lookahead += 1
@@ -611,7 +611,7 @@ class ParseContext:
             self.substate = s
 
     @contextmanager
-    def _ifnot(self) -> Generator[None]:
+    def _ifnot(self):
         try:
             with self._if():
                 yield
