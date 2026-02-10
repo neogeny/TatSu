@@ -97,11 +97,10 @@ class ParseStateStack:
 
         return self.top
 
-    def mergepop(self, pos: int) -> ParseState:
+    def merge(self, pos: int) -> ParseState:
         prev = self.pop()
         self.ast = prev.ast
         self.extend(prev.cst)
-        # self.top.pos = pos
         return prev
 
     def alert(self, level: int = 1, message: str = '') -> Alert:

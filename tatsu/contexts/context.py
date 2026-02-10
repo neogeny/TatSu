@@ -237,16 +237,16 @@ class ParseContext:
         # NOTE: called by generated parsers
         self.states.addname(name)
 
-    def push(self, ast: Any = None) -> None:
+    def pushstate(self, ast: Any = None) -> None:
         self.states.push(pos=self.pos, ast=ast)
 
-    def pop(self) -> ParseState:
+    def popstate(self) -> ParseState:
         return self.states.pop()
 
-    def mergepop(self) -> ParseState:
-        return self.states.mergepop(pos=self.pos)
+    def mergestate(self) -> ParseState:
+        return self.states.merge(pos=self.pos)
 
-    def undo(self) -> None:
+    def undostate(self) -> None:
         self.states.pop()
         self.tokenizer.goto(self.state.pos)
 
@@ -435,7 +435,7 @@ class ParseContext:
             self._memoize(key, e)
             raise
         finally:
-            self.undo()
+            self.undostate()
 
     def _semantics_call(self, ruleinfo: RuleInfo, node: Any) -> Any:
         if ruleinfo.is_name:
@@ -533,13 +533,13 @@ class ParseContext:
     @contextmanager
     def _try(self):
         s = self.substate
-        self.push(ast=AST(self.ast))
+        self.pushstate(ast=AST(self.ast))
         self.last_node = None
         try:
             yield
-            self.mergepop()
+            self.mergestate()
         except FailedParse:
-            self.undo()
+            self.undostate()
             self.substate = s
             raise
 
@@ -572,7 +572,6 @@ class ParseContext:
 
     @contextmanager
     def _choice(self):
-        self.last_node = None
         with suppress(OptionSucceeded):
             try:
                 yield
@@ -581,29 +580,28 @@ class ParseContext:
 
     @contextmanager
     def _optional(self):
-        self.last_node = None
         with self._choice(), self._option():
             yield
 
     @contextmanager
     def _group(self):
-        self.push()
+        self.pushstate()
         try:
             yield
-            self.mergepop()
+            self.mergestate()
         except ParseException:
-            self.undo()
+            self.undostate()
             raise
 
     @contextmanager
     def _if(self):
         s = self.substate
-        self.push()
+        self.pushstate()
         self._lookahead += 1
         try:
             yield
         finally:
-            self.undo()
+            self.undostate()
             self._lookahead -= 1
             self.substate = s
 
@@ -628,13 +626,13 @@ class ParseContext:
         self.addname(name)
 
     def _isolate(self, block: Callable[[], Any], drop: bool = False) -> Any:
-        self.push()
+        self.pushstate()
         try:
             block()
             return closure(self.cst) if is_list(self.cst) else self.cst
         finally:
             ast = self.ast
-            self.pop()
+            self.popstate()
             self.ast = ast
 
     def _repeat(self, block: Callable[[], Any], prefix: Callable[[], Any] | None = None, dropprefix: bool = False) -> None:
@@ -657,7 +655,7 @@ class ParseContext:
                 return
 
     def _closure(self, block: Callable[[], Any], sep: Callable[[], Any] | None = None, omitsep: bool = False) -> Any:
-        self.push()
+        self.pushstate()
         try:
             self.cst = []
             with self._optional():
@@ -665,21 +663,21 @@ class ParseContext:
                 self.cst = [self.cst]
             self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
-            return self.mergepop().cst
+            return self.mergestate().cst
         except ParseException:
-            self.undo()
+            self.undostate()
             raise
 
     def _positive_closure(self, block: Callable[[], Any], sep: Callable[[], Any] | None = None, omitsep: bool = False) -> Any:
-        self.push()
+        self.pushstate()
         try:
             block()
             self.cst = [self.cst]
             self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
-            return self.mergepop().cst
+            return self.mergestate().cst
         except ParseException:
-            self.undo()
+            self.undostate()
             raise
 
     def _empty_closure(self) -> closure:
