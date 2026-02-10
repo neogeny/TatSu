@@ -241,7 +241,7 @@ class ParseContext:
         self.states.ngpush(pos=self.pos, ast=ast)
 
     def merge_pop(self) -> ParseState:
-        return self.states.ngmerge()
+        return self.states.ngmerge(pos=self.pos)
 
     def undo(self) -> None:
         self.states.pop()

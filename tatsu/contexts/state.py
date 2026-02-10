@@ -192,10 +192,11 @@ class ParseStateStack:
         self._push(pos=pos, ast=ast, cst=cst)
         return self.top
 
-    def ngmerge(self) -> ParseState:
+    def ngmerge(self, pos: int) -> ParseState:
         prev = self.pop()
         self.ast = prev.ast
         self.extend_cst(prev.cst)
+        self.top.pos = pos
         return prev
 
     def __old_pop_cst(self) -> Any:
