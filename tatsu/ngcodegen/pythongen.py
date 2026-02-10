@@ -406,7 +406,9 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
     def _gen_block(self, exp: grammars.Model, name='block'):
         if () in exp.lookahead():
-            raise CodegenError(f'{exp} may repeat empty sequence')
+            raise CodegenError(
+                f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}',
+            )
 
         n = self._next_n()
         self.print()
