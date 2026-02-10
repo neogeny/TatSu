@@ -18,12 +18,13 @@ from ..util.abctools import is_list
 
 
 class ParseState:
-    __slots__ = ('alerts', 'ast', 'cst', 'pos')
+    __slots__ = ('alerts', 'ast', 'cst', 'last_node', 'pos')
 
     def __init__(self, pos: int = 0, ast: Any = None, cst: Any = None):
         self.pos: int = pos
         self.ast: Any = ast or AST()
         self.cst: Any = cst
+        self.last_node: Any = None
         self.alerts: list[Alert] = []
 
     @property
@@ -41,7 +42,6 @@ class ParseState:
 class ParseStateStack:
     def __init__(self: Self) -> None:
         self._state_stack: list[ParseState] = [ParseState()]
-        self._last_node: Any = None
         self._cut_stack: list[bool] = [False]
 
     @property
@@ -75,11 +75,11 @@ class ParseStateStack:
 
     @property
     def last_node(self) -> Any:
-        return self._last_node
+        return self.top.last_node
 
     @last_node.setter
     def last_node(self, value: Any) -> None:
-        self._last_node = value
+        self.top.last_node = value
 
     @property
     def node(self) -> Any:
