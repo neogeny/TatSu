@@ -158,8 +158,8 @@ class PreOrderWalker(BreadthFirstWalker):
 
 class DepthFirstWalker(NodeWalker):
     # CAVEAT:
-    #  in general: do not override this mehod
-    #  instead: define walk_xyz() methods
+    #  In general, do not override this method...
+    #  Define walk_xyz() methods instead.
     def walk(self, node, *args, **kwargs) -> tuple[Any, ...]:
         return tuple(self.iter_depthfirst(node, *args, **kwargs))
 
@@ -167,6 +167,22 @@ class DepthFirstWalker(NodeWalker):
         yield super().walk(node, *args, **kwargs)
         for child in self.children_of(node):
             yield from self.iter_depthfirst(child)
+
+
+class PostOrderDepthFirstWalker(NodeWalker):
+    # CAVEAT:
+    #  In general, do not override this method...
+    #  Define walk_xyz() methods instead.
+    def walk(self, node, *args, **kwargs) -> tuple[Any, ...]:
+        return tuple(self.iter_postdepthfirst(node, *args, **kwargs))
+
+    def iter_postdepthfirst(self, node, *args, **kwargs) -> Iterable[Any]:
+        def iter_children() -> Iterable[Any]:
+            for child in self.children_of(node):
+                yield from self.iter_postdepthfirst(child)
+
+        children = tuple(iter_children())
+        yield super().walk(node, *args, children=children, **kwargs)
 
 
 class ContextWalker(NodeWalker):

@@ -26,6 +26,7 @@ Every effort has been made to preserve backwards compatibility by keeping mosts 
 - `walkers.NodeWalker` now handles all known types of input. 
    Also: 
 	- `DepthFirstWalker` was reimplemented to ensure DFS semantics
+	- `PostOrderDepthFirstWalker` walks children before parents
 	- `PreOrderWalker` was broken and crazy. It was rewritten as a `BreadthFirstWalker` with the correct semantics
 - Constant expressions in a grammar are now evaluated deeply with  multiple passes of `eval()` as to produce results that are intuitively correct:
 
@@ -84,7 +85,9 @@ Every effort has been made to preserve backwards compatibility by keeping mosts 
 - **TatSu** still has no library dependencies for its core functionality, but several libraries 
   are used during its development and testing. The **TatSu** development configuration uses `uv` and `hatch`. Several `requirements-xyz.txt` files are generated in favor of those using `pip` with `pyenv`, `virtualenvwrapper`, or `virtualenv`
 - All attempts at recovering comments from parsed input were removed. It never worked, so it had no use. Comment revovery may be attempted in the future. 
-- *CAVEAT:* All pre-existing grammars are compatible with this version of [TatSu][], but, if you use the generated Python parsers or models, *YOU MUST* generate them anew. 
+- *CAVEAT:* Several functions, methods, and argument names were deprecated. They can still be used, but *warnings* will be issued ar runtime.
+- *CAVEAT:* All pre-existing grammars are compatible with this version of **TatSu**. If you 
+  use the generated Python parsers or models, *YOU MUST* generate them anew. 
 - *CAVEAT:* If there are invalid strings or regex patterns in your grammars *YOU MUST* fix them because now the grammar parser validates strings and patterns.
 - Many of the functions that **TatSu** defines for its own use are useful in other contexts. Some examples are:
 
