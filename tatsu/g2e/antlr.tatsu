@@ -113,7 +113,7 @@ arg
         {
             arg
         |
-            ?/[^\]]*/?
+            1
         }*
     ']'
     ;
@@ -180,7 +180,7 @@ semantic_action
         {
             semantic_action
         |
-            ?/[^}]/?
+            1
         }
     '}'
     ;
@@ -402,12 +402,12 @@ name
 
 lower_name
     =
-    ?/[a-z][A-Za-z0-9_]*/?
+    1
     ;
 
 upper_name
     =
-    ?/[A-Z][A-Za-z0-9_]*/?
+    1
     ;
 
 char
@@ -434,7 +434,7 @@ int
 
 ESC
     =
-    ?/\\['"\\nrtbfv]/?
+    1
     |
-    ?/\\u[a-fA-F0-9]{4}/?
+    1
     ;

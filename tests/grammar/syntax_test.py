@@ -27,7 +27,7 @@ class SyntaxTests(unittest.TestCase):
         grammar = """
             start = items: { item } * $ ;
             item = @:{ subitem } * "0" ;
-            subitem = ?/1+/? ;
+            subitem = /1+/ ;
         """
         m = compile(grammar, 'Update')
         ast = m.parse('1101110100', nameguard=False)

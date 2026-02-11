@@ -1210,11 +1210,22 @@ class TatSuBootstrapParser(Parser):
                 self._token('?')
                 with self._setname('@'):
                     self._STRING_()
+            with self._option():
+                self._deprecated_regex_()
             if self._no_more_options:
                 raise self.newexcept(
                     'expecting one of: '
-                    "'/' '?'"
+                    "'/' '?' '?/' <deprecated_regex>"
                 ) from None
+
+    @rule()
+    def _deprecated_regex_(self):
+        self._token('?/')
+        self._cut()
+        with self._setname('@'):
+            self._pattern(r'(?:.|\n)*?(?=/\?)')
+        self._pattern(r'/\?+')
+        self._cut()
 
     @rule()
     def _boolean_(self):

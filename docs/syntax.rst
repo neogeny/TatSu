@@ -67,19 +67,13 @@ The expressions, in reverse order of operator precedence, can be any of the foll
 ``// comment ...``
 ^^^^^^^^^^^^^^^^^^
 
-`EBNF`_-style end-of-line comments are allowed.
+`Java`_-style end-of-line comments are allowed.
 
 
 ``/* ... */``
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^
 
 `EBNF`_-style multiline comments are allowed.
-
-
-``(* ... *)``
-^^^^^^^^^^^^^^^^^^^^^
-
-`Pascal`_-style multiline comments are allowed.
 
 
 ``e1 | e2``
@@ -369,10 +363,11 @@ Match the token *text* within the quotation marks, interpreting *text*
 like `Python`_'s `raw string literal`_\ s.
 
 
-````/regexp/`` or ?"regexp"`` or ``?'regexp'``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``/regexp/``
+^^^^^^^^^^^^
 
-The *pattern* expression. Match the `Python`_ regular expression
+Also  ``?"regexp"`` or ``?'regexp'``, The *pattern* expression.
+Match the `Python`_ regular expression
 ``regexp`` at the current text position. Unlike other expressions,
 this one does not advance over whitespace or comments. For that, place
 the ``regexp`` as the only term in its own rule.
@@ -473,12 +468,12 @@ that hast type ``str`` is evaluated using:
 A multiline version of ```constant```.
 
 
-^ ```constant``` and ^ `````constant`````
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``^`constant```
+^^^^^^^^^^^^^^^
 
-An alert. There will be no token returned by the parser, but an alert
-will be registed in the parse context and added to the current node's
-``parseinfo``.
+Also  ``^```constant`````. An alert. There will be no token returned by
+the parser, but an alert will be registed in the parse context and added
+to the current node's ``parseinfo``.
 
 The ``^`` character may appear more than once to indicate the alert
 level:
@@ -616,34 +611,35 @@ In which the delimiting tokens are of no interest.
 The *end of text* symbol. Verify that the end of the input text has
 been reached.
 
-..
-    Deprecated Expressions
-    ~~~~~~~~~~~~~~~~~~~~~~
+Deprecated Expressions
+~~~~~~~~~~~~~~~~~~~~~~
 
-    The following expressions are still recognized in grammars, but they are
-    considered deprecated, and will be removed in a future version of
-    |TatSu|.
-
-
-    ``?/regexp/?``
-    ^^^^^^^^^^^^^^
-
-    Another form of the pattern expression that can be used when there
-    are slashes (``/``) in the pattern. Use the ``?"regexp"`` or
-    ``?'regexp'`` forms instead.
+The following expressions are still recognized in grammars, but they are
+considered deprecated, and will be removed in a future version of
+|TatSu|.
 
 
-    ``+?"regexp"`` or ``+?'regexp'`` or ``+/regexp/``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``?/regexp/?``
+^^^^^^^^^^^^^^
 
-    Concatenate the given pattern with the preceding one.
+Another form of the pattern expression that can be used when there
+are slashes (``/``) in the pattern is *deprecated*. Use the ``?"regexp"``
+or ``?'regexp'`` forms instead.
 
 
-    ``(* comment *)``
-    ^^^^^^^^^^^^^^^^^^^^^^^
+``+/regexp/``
+^^^^^^^^^^^^^
 
-    Comments may appear anywhere in the text. Use the `Python`_-style
-    comments instead.
+Also  or ``+?"regexp"`` or ``+?'regexp'``, concatenate the given pattern
+with the preceding one is *deprecated*. Use ``?" ..."`` string concatenations
+instead.
+
+
+``(* comment *)``
+^^^^^^^^^^^^^^^^^
+
+`Pascal`_-style multiline comments are *deprecated*. Use `Java`_-style comments
+instead.
 
 
 Rules with Arguments

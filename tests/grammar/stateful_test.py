@@ -1,3 +1,7 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 import unittest
 
 from tatsu.exceptions import FailedSemantics
@@ -15,8 +19,8 @@ class StatefulTests(unittest.TestCase):
             (* Quirk: If a text line is followed by a sublist, the sublist does not get its own li. *)
             li_text = text:text [ ul:li_followed_by_ul ] ;
             li_followed_by_ul = nl @:ul ;
-            text = ?/.*/? ;
-            nl = ?/\n/? ul_marker ;
+            text = /.*/ ;
+            nl = /\n/ ul_marker ;
             (* The following rules are placeholders for state transitions. *)
             ul_start = () ;
             ul_end = () ;

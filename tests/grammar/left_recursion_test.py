@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import unittest
@@ -34,7 +36,7 @@ class LeftRecursionTests(unittest.TestCase):
 
             number
                 =
-                ?/[0-9]+/?
+                /[0-9]+/
                 ;
         """
         model = compile(grammar, 'test')
@@ -136,7 +138,7 @@ class LeftRecursionTests(unittest.TestCase):
             start = x $ ;
             x = expr ;
             expr = x '-' num | num;
-            num = ?/[0-9]+/? ;
+            num = /[0-9]+/ ;
         """
         model = compile(grammar, 'test')
         ast = model.parse('5-87-32', trace=trace, colorize=True)
@@ -148,7 +150,7 @@ class LeftRecursionTests(unittest.TestCase):
             start = x $ ;
             x = expr ;
             expr = x '-' ~ num | num;
-            num = ?/[0-9]+/? ;
+            num = /[0-9]+/ ;
         """
         model = compile(grammar, 'test')
         ast = model.parse('5-87-32', trace=trace, colorize=True)
@@ -262,7 +264,7 @@ class LeftRecursionTests(unittest.TestCase):
 
             number
                 =
-                ?/[0-9]+/?
+                /[0-9]+/
                 ;
         """
         model = compile(grammar, 'test')
@@ -281,14 +283,14 @@ class LeftRecursionTests(unittest.TestCase):
             s = e $ ;
             e = [e '+'] t ;
             t = [t '*'] a ;
-            a = ?/[0-9]/? ;
+            a = /[0-9]/ ;
         """
         grammar_b = """
             @@left_recursion :: True
             s = e $ ;
             e = [e '+'] a ;
             a = n | p ;
-            n = ?/[0-9]/? ;
+            n = /[0-9]/ ;
             p = '(' @:e ')' ;
         """
         model_a = compile(grammar_a, 'test')
