@@ -116,19 +116,6 @@ class FailedExpectingEndOfText(FailedParse):
     pass
 
 
-class FailedCut(FailedParse):
-    def __init__(self, nested):
-        super().__init__(nested.lineinfo, nested.stack, nested.msg)
-        self.nested = nested
-
-    @property
-    def message(self):
-        return self.nested.message
-
-    def __reduce__(self):
-        return type(self), (self.nested,)
-
-
 class KeywordError(FailedParse):
     pass
 

@@ -12,7 +12,6 @@ from ..ast import AST
 from ..buffering import Buffer
 from ..collections import BoundedDict
 from ..exceptions import (
-    FailedCut,
     FailedExpectingEndOfText,
     FailedLeftRecursion,
     FailedLookahead,
@@ -295,7 +294,7 @@ class ParseContext:
     def _fail(self):
         raise self.newexcept('fail')
 
-    def _get_parseinfo(self, name: str, pos: int) -> ParseInfo:
+    def _make_parseinfo(self, name: str, pos: int) -> ParseInfo:
         endpos = self.pos
         return ParseInfo(
             tokenizer=self.tokenizer,
@@ -306,6 +305,16 @@ class ParseContext:
             endline=self.tokenizer.posline(endpos),
             alerts=self.state.alerts,
         )
+
+    def _set_parseinfo(self, node: Any, name: str, pos: int):
+        if not self.config.parseinfo:
+            return
+        if hasattr(node, 'set_parseinfo'):
+            parseinfo = self._make_parseinfo(name, pos)
+            node.set_parseinfo(parseinfo)
+        elif hasattr(node, 'parseinfo'):
+            parseinfo = self._make_parseinfo(name, pos)
+            node.parseinfo = parseinfo
 
     @property
     def ruleinfo(self) -> RuleInfo:
@@ -415,13 +424,13 @@ class ParseContext:
         self.pushstate(ast=AST())
         try:
             self.next_token(ruleinfo)
-            ruleinfo.impl(self)
+
+            with self.states.cutscope():
+                ruleinfo.impl(self)
+
             node = self.state.node
             node = self._semantics_call(ruleinfo, node)
-
-            if self.config.parseinfo and hasattr(node, 'set_parseinfo'):
-                parseinfo = self._get_parseinfo(ruleinfo.name, key.pos)
-                node.set_parseinfo(parseinfo)
+            self._set_parseinfo(node, ruleinfo.name, key.pos)
 
             result = RuleResult(node, self.pos, self.substate)
             self._memoize(key, result)
@@ -557,37 +566,32 @@ class ParseContext:
     @contextmanager
     def _option(self):
         self.last_node = None
-        self.states.push_cut()
         try:
             with self._try():
                 yield
             raise OptionSucceeded()
-        except FailedCut:
-            raise
-        except FailedParse as e:
-            if self.states.is_cut_set():
-                raise FailedCut(e) from e
-        finally:
-            self.states.pop_cut()
+        except FailedParse:
+            if not self.states.cut_seen():
+                pass
+            else:
+                raise
 
     @contextmanager
     def _choice(self):
-        with suppress(OptionSucceeded):
-            try:
-                yield
-            except FailedCut as e:
-                raise e.nested from e
+        with suppress(OptionSucceeded), self.states.cutscope():
+            yield
 
     @contextmanager
     def _optional(self):
-        with self._choice(), self._option():
+        with self._choice(), self._option(), self.states.cutscope():
             yield
 
     @contextmanager
     def _group(self):
         self.pushstate()
         try:
-            yield
+            with self.states.cutscope():
+                yield
             self.mergestate()
         except ParseException:
             self.undostate()
@@ -658,10 +662,11 @@ class ParseContext:
         self.pushstate()
         try:
             self.cst = []
-            with self._optional():
-                block()
-                self.cst = [self.cst]
-            self._repeat(block, prefix=sep, dropprefix=omitsep)
+            with self.states.cutscope():
+                with self._optional():
+                    block()
+                    self.cst = [self.cst]
+                self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
             return self.mergestate().cst
         except ParseException:
@@ -671,9 +676,10 @@ class ParseContext:
     def _positive_closure(self, block: Callable[[], Any], sep: Callable[[], Any] | None = None, omitsep: bool = False) -> Any:
         self.pushstate()
         try:
-            block()
-            self.cst = [self.cst]
-            self._repeat(block, prefix=sep, dropprefix=omitsep)
+            with self.states.cutscope():
+                block()
+                self.cst = [self.cst]
+                self._repeat(block, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
             return self.mergestate().cst
         except ParseException:

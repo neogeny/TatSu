@@ -8,7 +8,7 @@ import pytest
 
 from tatsu import synth
 from tatsu.builder import BuilderConfig, ModelBuilder, TypeResolutionError
-from tatsu.exceptions import FailedParse
+from tatsu.exceptions import FailedParse, FailedToken
 from tatsu.objectmodel import Node
 from tatsu.tool import compile, parse
 
@@ -216,8 +216,6 @@ def test_builder_nodedefs():
 
 def test_ast_per_option():
     grammar = """
-        @@grammar :: Test
-
         start = options $ ;
 
         options =
@@ -254,8 +252,6 @@ def test_ast_per_option():
 
 def test_ast_names_accumulate():
     grammar = """
-        @@grammar :: Test
-
         start = options $ ;
 
         options =
@@ -285,3 +281,31 @@ def test_ast_names_accumulate():
 
     ast = parse(grammar, 'c y y')
     assert ast == {'c': 'c', 'd': None, 'y': ['y', 'y']}
+
+
+def test_cut_scope():
+    grammar = """
+        start = failcut | failchoice | succeed $ ;
+
+        failcut = 'a' ~ 'y' ;
+
+        failchoice =
+            | 'a' ~ 'b'
+            | 'a' 'c' 'd'
+            ;
+
+        succeed = 'a' 'x' ;
+    """
+
+    ast = parse(grammar, 'a x')
+    assert ast == ('a', 'x')
+
+    ast = parse(grammar, 'a b')
+    assert ast == ('a', 'b')
+
+    ast = parse(grammar, 'a y')
+    assert ast == ('a', 'y')
+
+    with pytest.raises(FailedToken, match=r"expecting 'y'"):
+        ast = parse(grammar, 'a c d')
+        assert ast == ('a', 'c', 'd')

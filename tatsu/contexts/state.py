@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from contextlib import contextmanager
 from copy import copy
 from typing import Any, Self
 
@@ -158,7 +159,7 @@ class ParseStateStack:
         self.ast = ast
         return self.ast
 
-    def is_cut_set(self) -> bool:
+    def cut_seen(self) -> bool:
         return self._cut_stack[-1]
 
     def push_cut(self):
@@ -169,3 +170,11 @@ class ParseStateStack:
 
     def set_cut_seen(self, prune: bool = True) -> None:
         self._cut_stack[-1] = True
+
+    @contextmanager
+    def cutscope(self):
+        self.push_cut()
+        try:
+            yield
+        finally:
+            self.pop_cut()
