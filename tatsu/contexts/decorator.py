@@ -6,9 +6,8 @@ import functools
 from collections.abc import Callable
 from typing import Any, cast
 
-from ..contexts import ParseContext
-from ..contexts.infos import RuleLike
-from ..infos import RuleInfo
+from .engine import ParseContext
+from .infos import RuleInfo, RuleLike
 
 
 def leftrec(impl: Callable) -> Callable:
