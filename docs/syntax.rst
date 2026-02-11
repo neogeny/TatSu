@@ -786,19 +786,35 @@ The name can also be specified within the grammar using the
 Whitespace
 ~~~~~~~~~~
 
-By default, |TatSu| generated parsers skip the usual whitespace
-characters with the regular expression ``r'\s+'`` using the
-``re.UNICODE`` flag (or with the ``Pattern_White_Space`` property if the
-`regex`_ module is available), but you can change that behavior by
-passing a ``whitespace`` parameter to your parser.
+By default, |TatSu| generated parsers skip the usual whitespace characters with
+the regular expression ``r'\s+'``, but you can change that behavior.
 
-For example, the following will skip over *tab* (``\t``) and *space*
-characters, but not so with other typical whitespace characters such as
-*newline* (``\n``):
+Whitespace may be specified within the grammar using the
+``@@whitespace`` directive in the grammar:
+
+.. code:: apl
+    :force:
+
+    @@whitespace :: /[\t ]+/
+
+or:
+
+.. code:: apl
+    :force:
+
+    @@whitespace :: None
+
+If no ``whitespace`` or ``@@whitespace`` is specified, |TatSu| will use
+``r'(?m)\s+'`` as a default. Use ``None`` to have *no whitespace definition*.
+
+You can also pass a ``whitespace`` parameter to your parser, overriding any
+directive setting in the grammar. For example, the following will skip over
+*tab* (``\t``) and *space* characters, but not so with other typical whitespace
+characters such as *newline* (``\n``):
 
 .. code:: python
 
-   parser = MyParser(text, whitespace='\t ')
+   parser = tatsu.parse(grammar, text, whitespace='\t ')
 
 The character string is converted into a regular expression character
 set before starting to parse.
@@ -808,7 +824,7 @@ The following is equivalent to the above example:
 
 .. code:: python
 
-   parser = MyParser(text, whitespace=re.compile(r'[\t ]+'))
+   parser = tatsu.parse(grammar, text, whitespace=re.compile(r'[\t ]+'))
 
 Note that the regular expression must be pre-compiled to let |TatSu|
 distinguish it from plain string.
@@ -819,45 +835,17 @@ parsers):
 
 .. code:: python
 
-   parser = MyParser(text, whitespace='')
-
-Whitespace may also be specified within the grammar using the
-``@@whitespace`` directive, although any of the above methods will
-overwrite the setting in the grammar:
-
-.. code:: apl
-    :force:
-
-    @@whitespace :: /[\t ]+/
-
-If no ``whitespace`` or ``@@whitespace`` is specified, |TatSu| will use
-``r'(?m)\s+'`` as a default. Use ``None`` to have *no whitespace definition*.
+   parser = tatsu.parse(grammar, text, whitespace='')
 
 
 .. code:: python
 
-   parser = MyParser(text, whitespace=None)
-
-or:
-
-.. code:
-
-.. code:: apl
-    :force:
-
-    @@whitespace :: None
+   parser = tatsu.parse(grammar, text, whitespace=None)
 
 Case Sensitivity
 ~~~~~~~~~~~~~~~~
 
-If the source language is case insensitive, it can be specified in the
-parser by using the ``ignorecase`` parameter:
-
-.. code:: python
-
-   parser = MyParser(text, ignorecase=True)
-
-You may also specify case insensitivity within the grammar using the
+You may specify case insensitivity within the grammar using the
 ``@@ignorecase`` directive:
 
 .. code:: apl
@@ -865,8 +853,15 @@ You may also specify case insensitivity within the grammar using the
 
     @@ignorecase :: True
 
-The change will affect token matching, but not pattern matching. Use `(?i)`
+The change will affect token matching, but not pattern matching. Use ``(?i)``
 in patterns that should ignore case.
+
+Case sensitivity can also be specified in the parser by using the ``ignorecase``
+parameter when instantiating a parser:
+
+.. code:: python
+
+   parser = tatsu.parse(grammar, text, ignorecase=True)
 
 Comments
 ~~~~~~~~
@@ -876,7 +871,7 @@ the ``comments`` parameter:
 
 .. code:: python
 
-   parser = MyParser(text, comments="\(\*.*?\*\)")
+   parser = tatsu.parse(grammar, text, comments="\(\*.*?\*\)")
 
 For more complex comment handling, you can override the
 ``Buffer.eat_comments()`` method.
@@ -886,8 +881,8 @@ comments separately:
 
 .. code:: python
 
-   parser = MyParser(
-       text,
+   parser = tatsu.compile(
+       grammar,
        comments="\(\*.*?\*\)",
        eol_comments="#.*?$"
    )
@@ -965,23 +960,20 @@ The functionality required for implementing includes is available to all
 Left Recursion
 ~~~~~~~~~~~~~~
 
-|TatSu| supports left recursion in `PEG`_
-grammars. The algorithm used is `Warth et al`_'s.
+|TatSu| supports left recursion in `PEG`_ grammars. The algorithm used is
+`Warth et al`_'s. Left recursion support is enabled by default.
 
-Sometimes, while debugging a grammar, it is useful to turn
-left-recursion support on or off:
-
-.. code:: python
-
-   parser = MyParser(
-       text,
-       left_recursion=True,
-   )
-
-Left recursion can also be turned off from within the grammar using the
+Left recursion can be turned *on* or *off* from within the grammar using the
 ``@@left_recursion`` directive:
 
 .. code:: apl
     :force:
 
     @@left_recursion :: False
+
+Sometimes, while debugging a grammar, it is useful to turn left-recursion
+support *on* or *off* in the code:
+
+.. code:: python
+
+   parser = tatsu.parse(grammar, text, left_recursion=True)
