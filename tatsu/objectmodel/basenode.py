@@ -89,9 +89,6 @@ class BaseNode(AsJSONMixin):
                 continue
             setattr(self, name, ast[name])
 
-    def set_parseinfo(self, value: ParseInfo | None) -> None:
-        self.parseinfo = value
-
     def asjson(self) -> Any:
         return asjson(self)
 
