@@ -15,6 +15,7 @@ from .synth import synthesize
 from .util.configs import Config
 from .util.deprecate import deprecated_params
 from .util.misc import least_upper_bound_type
+from .util.typing import boundcall
 
 __all__ = [
     'ModelBuilder',
@@ -22,7 +23,6 @@ __all__ = [
     'TypeContainer',
 ]
 
-from .util.typing import boundcall
 
 type Constructor = type | Callable
 type TypeContainer = type | ModuleType | Mapping[str, type] | dict[str, type]
