@@ -145,7 +145,7 @@ class Model(Node):
         return False
 
     # list of Model that can be invoked at the same position
-    def callable_at_same_pos(self, ctx: Mapping[str, Rule] | None = None) -> list[Model]:
+    def callable_at_same_pos(self, rulemap: Mapping[str, Rule] | None = None) -> list[Model]:
         return []
 
     def nodecount(self) -> int:
@@ -261,7 +261,7 @@ class Decorator(Model):
     def _nullable(self) -> bool:
         return self.exp._nullable()
 
-    def callable_at_same_pos(self, ctx: Mapping[str, Rule] | None = None) -> list[Model]:
+    def callable_at_same_pos(self, rulemap: Mapping[str, Rule] | None = None) -> list[Model]:
         return [self.exp]
 
     def __repr__(self):
@@ -468,8 +468,8 @@ class Sequence(Model):
     def _nullable(self) -> bool:
         return all(s._nullable() for s in self.sequence)
 
-    def callable_at_same_pos(self, ctx: Mapping[str, Rule] | None = None) -> list[Model]:
-        head = list(takewhile(lambda c: c.is_nullable(ctx), self.sequence))
+    def callable_at_same_pos(self, rulemap: Mapping[str, Rule] | None = None) -> list[Model]:
+        head = list(takewhile(lambda c: c.is_nullable(rulemap), self.sequence))
         if len(head) < len(self.sequence):
             head.append(self.sequence[len(head)])
         return head
@@ -535,7 +535,7 @@ class Choice(Model):
     def _nullable(self) -> bool:
         return any(o._nullable() for o in self.options)
 
-    def callable_at_same_pos(self, ctx: Mapping[str, Rule] | None = None) -> list[Model]:
+    def callable_at_same_pos(self, rulemap: Mapping[str, Rule] | None = None) -> list[Model]:
         return self.options
 
 

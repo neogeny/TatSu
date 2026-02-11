@@ -28,10 +28,9 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
     def dfs(node: grammars.Model):
         nonlocal depth
 
-        if node_state[node] == State.FIRST:
-            node_state[node] = State.CUTOFF
-        else:
+        if node_state[node] != State.FIRST:
             return
+        node_state[node] = State.CUTOFF
 
         # beforeNode
         leftrec = isinstance(node, grammars.Rule) and node.is_leftrec
