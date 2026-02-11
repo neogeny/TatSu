@@ -161,7 +161,7 @@ class Model(Node):
         return f'{type(self).__name__}: {id(self)}'
 
     def __repr__(self):
-        return f'{type(self).__name__}({str(self)}'
+        return f'{type(self).__name__}()'
 
     def __str__(self):
         return self.pretty()

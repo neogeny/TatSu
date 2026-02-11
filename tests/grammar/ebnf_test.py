@@ -28,7 +28,7 @@ def test_parse_ebnf():
 def test_optional():
     grammar = r"""
         start:  '['?/abc/?
-        
+
         other := 'xyz'?
     """
 

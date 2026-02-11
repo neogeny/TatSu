@@ -206,7 +206,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'self._alert({alert.literal!r}, {alert.level})')
 
     def walk_Pattern(self, pattern: grammars.Pattern):
-        self.print(f'self._pattern({pattern})')
+        self.print(f'self._pattern({regexp(pattern.pattern)})')
 
     def walk_Lookahead(self, lookahead: grammars.Lookahead):
         self.print('with self._if():')
