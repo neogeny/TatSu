@@ -23,3 +23,19 @@ def test_parse_ebnf():
 
     model = tatsu.compile(grammar, asmodel=True)
     assert isinstance(model, grammars.Grammar)
+
+
+def test_optional():
+    grammar = r"""
+        start:  '['?/abc/?
+        
+        other := 'xyz'?
+    """
+
+    model = tatsu.compile(grammar, asmodel=True)
+    exp = model.rulemap['start'].exp
+    assert isinstance(exp, grammars.Sequence)
+    assert repr(exp.sequence) == "[Token('['), Pattern(r'abc')]"
+
+    exp = model.rulemap['other'].exp
+    assert repr(exp) == "Optional(Token('xyz'))"
