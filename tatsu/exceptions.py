@@ -31,11 +31,11 @@ class CodegenError(ParseError):
     pass
 
 
-class FailedSemantics(ParseError):
+class FailedSemantics(ParseException):
     pass
 
 
-class FailedParse(ParseError):
+class FailedParse(ParseException):
     def __init__(self, lineinfo: LineInfo, stack: list[str], msg: str):
         # NOTE:
         #   Pass all arguments to super() to avoid pickling problems
