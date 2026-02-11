@@ -261,6 +261,9 @@ class Decorator(Model):
     def callable_at_same_pos(self, ctx: Mapping[str, Rule] | None = None) -> list[Model]:
         return [self.exp]
 
+    def __repr__(self):
+        return f'{type(self).__name__}({self.exp!r})'
+
 
 # NOTE: backwards compatibility
 _Decorator = Decorator
@@ -292,6 +295,9 @@ class Token(Model):
 
     def _pretty(self, lean=False):
         return repr(self.token)
+
+    def __repr__(self):
+        return f'{type(self).__name__}({self.token!r})'
 
 
 class Constant(Model):
@@ -564,11 +570,7 @@ class PositiveClosure(Closure):
         return ctx._positive_closure(lambda: self.exp._parse(ctx))
 
     def _first(self, k, f) -> ffset:
-        efirst = self.exp._first(k, f)
-        result = {()}
-        for _i in range(k):
-            result = kdot(result, efirst, k)
-        return result
+        return self.exp._first(k, f)
 
     def _pretty(self, lean=False):
         return super()._pretty(lean=lean) + '+'
@@ -609,6 +611,9 @@ class Join(Decorator):
 
 
 class PositiveJoin(Join):
+    def _first(self, k, f) -> ffset:
+        return self.exp._first(k, f)
+
     def _do_parse(self, ctx, exp, sep):
         return ctx._positive_join(exp, sep)
 
@@ -641,6 +646,9 @@ class Gather(Join):
 
 
 class PositiveGather(Gather):
+    def _first(self, k, f) -> ffset:
+        return self.exp._first(k, f)
+
     def _do_parse(self, ctx, exp, sep):
         return ctx._positive_gather(exp, sep)
 
@@ -676,10 +684,7 @@ class Optional(Decorator):
         return set({()}) | self.exp._first(k, f)
 
     def _pretty(self, lean=False):
-        if isinstance(self.exp, Group):
-            exp = self.exp.exp._pretty(lean=lean)
-        else:
-            exp = self.exp._pretty(lean=lean)
+        exp = self.exp._pretty(lean=lean)
         if len(exp.splitlines()) <= 1:
             return f'[{exp}]'
         return f'[\n{exp}\n]'
