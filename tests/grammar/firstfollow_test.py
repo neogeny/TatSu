@@ -65,6 +65,7 @@ class FirstFollowTests(unittest.TestCase):
             num = /[0-9]+/ ;
         """
         model = compile(grammar, 'test')
+        start = model.rulemap['start']
         x = model.rulemap['x']
         expr = model.rulemap['expr']
         num = model.rulemap['num']
@@ -82,6 +83,8 @@ class FirstFollowTests(unittest.TestCase):
 
         assert ref('x') in x.lookahead()
         assert ref('expr') in expr.lookahead()
+
+        assert ref('start') not in start.lookahead()
 
     def test_nullability(self):
         grammar = """

@@ -787,17 +787,11 @@ class Call(Model):
         return {self.name}
 
     def _first(self, k, f) -> ffset:
-        self._firstset = set(f[self.name]) | {ref(self.name)}
-        return self._firstset
+        return f[self.name] | {ref(self.name)}
 
     def _follow(self, k, fl, a):
         fl[self.name] |= a
         return set(a) | {self.name}
-
-    def firstset(self, k=1):
-        if self._firstset is None:
-            self._firstset = {ref(self.name)}
-        return self._firstset
 
     def _pretty(self, lean=False):
         return self.name
@@ -1068,6 +1062,7 @@ class Grammar(Model):
             for rule in self.rules:
                 rule._follow(k, fl, set())
 
+        # cache results
         for rule in self.rules:
             rule._follow_set = fl[rule.name]
 
