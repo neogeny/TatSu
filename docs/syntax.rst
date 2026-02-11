@@ -715,16 +715,16 @@ but it *hasn't been tested*.
 Memoization
 ~~~~~~~~~~~
 
-|TatSu| is a packrat parser. The result of parsing a rule at a given
-position in the input is cached, so the next time the parser visits
-the same input position with the same rule the same result is returned
-and the input advanced, without repeating the parsing. Memoization
+|TatSu| generates *packrat* parsers. The result of parsing a rule at a given
+position in the input is *memoized*, so the next time the parser visits
+the same input position with the same rule, the same result is returned,
+and the input advanced accordingly, without having to parse again. Memoization
 allows for grammars that are clearer and easier to write because
 there's no fear that repeating subexpressions will impact performance.
 
 There are rules that should not be memoized. For example, rules that
-may succeed or not depending on the associated semantic action should
-not be memoized if sucess depends on more than just the input.
+may succeed or not depending on the associated semantic action *should
+not* be memoized.
 
 The ``@nomemo`` decorator turns off memoization for a particular rule:
 
