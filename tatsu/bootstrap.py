@@ -45,8 +45,8 @@ class TatSuBootstrapBuffer(Buffer):
             ignorecase=False,
             namechars='',
             parseinfo=True,
-            comments=r'(?sm)[(][*]\s*((?:.|\n)*?)\s*[*][)]',
-            eol_comments=r'(?m)#\s*([^\n]*)\s*$',
+            comments=r'(?ms)[(][*]\s*((?:.|\n)*?)\s*[*][)]|[\/][*]\s*((?:.|\n)*?)\s*[*][\/]',
+            eol_comments=r'(?ms)[#](.*?)$',
             keywords=KEYWORDS,
             start='start',
         )
@@ -64,8 +64,8 @@ class TatSuBootstrapParser(Parser):
             ignorecase=False,
             namechars='',
             parseinfo=True,
-            comments=r'(?sm)[(][*]\s*((?:.|\n)*?)\s*[*][)]',
-            eol_comments=r'(?m)#\s*([^\n]*)\s*$',
+            comments=r'(?ms)[(][*]\s*((?:.|\n)*?)\s*[*][)]|[\/][*]\s*((?:.|\n)*?)\s*[*][\/]',
+            eol_comments=r'(?ms)[#](.*?)$',
             keywords=KEYWORDS,
             start='start',
         )

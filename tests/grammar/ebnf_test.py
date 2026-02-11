@@ -8,6 +8,9 @@ from tatsu import grammars
 
 def test_parse_ebnf():
     grammar = r"""
+        /*
+            Example of a grammar that mixes TatSu and EBNF
+        */
         @@grammar :: TatSu
 
         start := expression $

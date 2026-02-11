@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 @@grammar :: TatSu
 @@whitespace :: /(?m)\s+/
-@@comments :: ?"(?sm)[(][*]\s*((?:.|\n)*?)\s*[*][)]"
-@@eol_comments :: ?"(?m)#\s*([^\n]*)\s*$"
+@@comments :: ?"(?ms)[(][*]\s*((?:.|\n)*?)\s*[*][)]|[\/][*]\s*((?:.|\n)*?)\s*[*][\/]"
+@@eol_comments :: ?"(?ms)[#](.*?)$"
 @@parseinfo :: True
 @@left_recursion :: False
 
