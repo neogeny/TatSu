@@ -43,8 +43,6 @@ class TatSuBuffer(Buffer):
     def pragma(self, source, name, arg, lines, index, i):
         # we only recognize the 'include' pragama
         if name == 'include':
-            if not source:
-                raise ValueError(f'#include: no filename/path for current grammar {source!r}')
             filename = arg.strip('\'"')
             return self.include_file(source, filename, lines, index, i, i + 1)
         else:
