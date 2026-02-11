@@ -1,50 +1,41 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 
-# Byte-compiled / optimized / DLL files
+### --- Python Environment & Bytecode ---
 __pycache__/
 *.py[cod]
 *$py.class
-*.c
 *.so
-tmp/
-/parsers/
-
-# C extensions
-*.so
-
-# Distribution / packaging
 .Python
 env/
+venv/
+.venv/
+ENV/
+.python-version
+.hypothesis/
+.webassets-cache/
+
+### --- Build & Distribution ---
 build/
-develop-eggs/
 dist/
-downloads/
+sdist/
 eggs/
 .eggs/
 lib/
 lib64/
 parts/
-sdist/
 var/
 wheels/
 *.egg-info/
-.installed.cfg
 *.egg
-.deprecated/
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+develop-eggs/
+downloads/
+.installed.cfg
+target/
 *.manifest
 *.spec
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
+### --- Testing & Coverage ---
 .tox/
 .coverage
 .coverage.*
@@ -52,81 +43,49 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *,cover
-.hypothesis/
+htmlcov/
 
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# dotenv
-.env
-
-# virtualenv
-.venv
-venv/
-ENV/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# PyCharm
-/.idea/
-
-# VSCode
-.vscode/*
-
-# generated files
+### --- Generated Files & Parsers ---
+/parsers/
 examples/g2e/*.tatsu
-.deprecated/
-.obsidian/
-backups/
 examples/g2e/python3_parser.py
+*.sage.py
+tmp/
 
-# mkdocs
-mkdocs/docs/_build
-mkdocs/site
-mkdocs/tmp
+### --- Documentation & Site ---
+docs/_build/
+mkdocs/docs/_build/
+mkdocs/site/
+mkdocs/tmp/
+/site/
 
-# gemini-cli settings
+### --- Logs & Local Configs ---
+*.log
+pip-log.txt
+pip-delete-this-directory.txt
+.env
+local_settings.py
+instance/
+.deprecated/
+backups/
+
+### --- IDEs & Editors ---
+.idea/
+.vscode/
+.spyderproject/
+.spyproject/
+.ropeproject/
+.ipynb_checkpoints/
+.obsidian/
+
+### --- Tools & Apps (Gemini, GitHub, etc.) ---
 .gemini/
-
-# GitHub App credentials
 gha-creds-*.json
 .github/commands/gemini*
 .github/workflows/gemini*
+.scrapy/
+celerybeat-schedule
+
+### --- Localization ---
+*.mo
+*.pot
