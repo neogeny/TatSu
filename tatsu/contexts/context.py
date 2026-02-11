@@ -48,7 +48,7 @@ __all__: list[str] = ['ParseContext']
 
 
 class ParseContext:
-    def __init__(self, /, config: ParserConfig | None = None, **settings: Any) -> None:
+    def __init__(self, /, *, config: ParserConfig | None = None, **settings: Any) -> None:
         super().__init__()
 
         config = ParserConfig.new(config, **settings)
