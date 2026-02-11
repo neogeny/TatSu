@@ -1207,20 +1207,13 @@ class TatSuBootstrapParser(Parser):
                 self._token('/')
                 self._cut()
             with self._option():
-                self._token('?/')
-                self._cut()
-                with self._setname('@'):
-                    self._pattern(r'(?:.|\n)*?(?=/\?)')
-                self._pattern(r'/\?+')
-                self._cut()
-            with self._option():
                 self._token('?')
                 with self._setname('@'):
                     self._STRING_()
             if self._no_more_options:
                 raise self.newexcept(
                     'expecting one of: '
-                    "'/' '?' '?/'"
+                    "'/' '?'"
                 ) from None
 
     @rule()

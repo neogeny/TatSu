@@ -87,7 +87,7 @@ The expressions, in reverse order of operator precedence, can be any of the foll
 
 Choice. Match either ``e1`` or ``e2``.
 
-A `|` may be used before the first option if desired:
+A ``|`` may be used before the first option if desired:
 
 .. code:: apl
     :force:
@@ -243,21 +243,22 @@ Will parse this input:
 
 To this tree:
 
-.. code:: python
+.. code:: apl
+    :force:
 
-   (
-      '+',
-      (
-          '+',
-          (
-              '+',
-              '1',
-              '2'
-          ),
-          '3'
-      ),
-      '4'
-   )
+    (
+        '+',
+        (
+            '+',
+            (
+                '+',
+                '1',
+                '2'
+            ),
+            '3'
+        ),
+        '4'
+    )
 
 
 ``op>{ e }+``
@@ -368,7 +369,7 @@ Match the token *text* within the quotation marks, interpreting *text*
 like `Python`_'s `raw string literal`_\ s.
 
 
-``?"regexp"`` or ``?'regexp'`` or ``/regexp/``
+````/regexp/`` or ?"regexp"`` or ``?'regexp'``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The *pattern* expression. Match the `Python`_ regular expression
