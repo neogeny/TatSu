@@ -294,7 +294,7 @@ def test_cut_scope():
             | 'a' 'c' 'd'
             ;
 
-        succeed = 'a' 'x' ;
+        succeed = ('a' ~ 'y' | 'b' 'z') | 'a' 'x' ;
     """
 
     ast = parse(grammar, 'a x')

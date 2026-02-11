@@ -14,16 +14,22 @@ supported as input grammar format.
 Rules
 ~~~~~
 
-A grammar consists of a sequence of one or more rules of the form::
+A grammar consists of a sequence of one or more rules of the form:
 
-  name = <expre> ;
+.. code:: apl
+    :force:
+
+    name = <expre> ;
 
 If a *name* collides with a `Python`_ keyword, an underscore (``_``)
 will be appended to it on the generated parser.
 
-Rule names that start with an uppercase character::
+Rule names that start with an uppercase character:
 
-  FRAGMENT = /[a-z]+/ ;
+.. code:: apl
+    :force:
+
+    FRAGMENT = /[a-z]+/ ;
 
 *do not* advance over whitespace before beginning to parse. This feature
 becomes handy when defining complex lexical elements, as it allows
@@ -52,7 +58,6 @@ The expressions, in reverse order of operator precedence, can be any of the foll
 .. note::
    Because |TatSu| now supports EBNF_, there must not be empty lines in expressions.
 
-
 ``# comment``
 ^^^^^^^^^^^^^
 
@@ -64,9 +69,12 @@ The expressions, in reverse order of operator precedence, can be any of the foll
 
 Choice. Match either ``e1`` or ``e2``.
 
-A `|` may be used before the first option if desired::
+A `|` may be used before the first option if desired:
 
-  choices
+.. code:: apl
+    :force:
+
+    choices
       =
       | e1
       | e2
@@ -115,61 +123,82 @@ Empty closure. Match nothing and produce an empty ``list`` as `AST`_.
 ``~``
 ^^^^^
 
-The *cut* expression. Commit to the current active option and prevent
-other options from being considered even if what follows fails to
+The *cut* expression: commit to the current option and prevent
+other options from being considered even when what follows fails to
 parse.
 
 In this example, other options won't be considered if a parenthesis is
-parsed::
+parsed:
 
-  atom
-      =
-      | '(' ~ @:expre ')'
-      | int
-      | bool
-      ;
+.. code:: apl
 
-There are also options in optional expressions, because ``[foo]`` is
-equivalent to ``(foo|())``.
+      atom
+          =
+          | '(' ~ @:expre ')'
+          | int
+          | bool
+          ;
 
-There are options also in closures, because of a similar equivalency,
-so the following rule will fail if ``expression`` is not parsed after
-an ``=`` is parsed, while the version without the ``~`` would succeed
-over a partial parse of the ``name '=' expression`` ahead in the
-input::
+Cut expression may be used anywhere. The effect of ``~`` is scoped to the nearest
+enclosing brackets (*group*, *optional*, *closure*), the enclosing *choice*, or
+the enclosing *rule*.
 
-  parameters
-      =
-      ','.{name '=' ~ expression}
-      ;
+On the scoping of *cut*, consider these theoretical equivalences about implicit
+choices in some expressions:
+
+.. code:: apl
+    :force:
+
+    A →  α   ≡ A → α | ⊥
+    A → [x]  ≡ A → B, B → x | ε
+    A → {x}  ≡ A → B, B → xB | ε
+    A → {x}+ ≡ A → B, B → xB | x
+
+This is a common use of ``~``. The *closure* doesn't allow a partial assignment
+expressions to escape it:
+
+.. code:: apl
+    :force:
+
+    parameters = ','.{name '=' ~ expression} ;
 
 
 ``s%{ e }+``
 ^^^^^^^^^^^^
 
 Positive join. Inspired by `Python`_'s ``str.join()``, it parses the
-same as this expression::
+same as this expression:
 
-  e {s ~ e}
+.. code:: apl
+    :force:
+
+    e {s ~ e}
 
 yet the result is a single list of the form:
 
-.. code:: python
+.. code:: apl
+    :force:
 
-   [e, s, e, s, e, ...]
+    [e, s, e, s, e, ...]
 
-Use grouping if `s` is more complex than a *token* or a *pattern*::
+Use grouping if `s` is more complex than a *token* or a *pattern*:
 
-  (s t)%{ e }+
+.. code:: apl
+    :force:
+
+    (s t)%{ e }+
 
 
 ``s%{ e }`` or ``s%{ e }*``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Join. Parses the list of ``s``-separated expressions, or the empty
-closure. It is equivalent to::
+closure. It is equivalent to:
 
-  s%{e}+|{}
+.. code:: apl
+    :force:
+
+    s%{e}+|{}
 
 
 ``op<{ e }+``
@@ -180,13 +209,19 @@ left-associative tree built with ``tuple()``, in wich the first
 element is the separator (``op``), and the other two elements are the
 operands.
 
-The expression::
+The expression:
 
-  '+'<{/\d+/}+
+.. code:: apl
+    :force:
 
-Will parse this input::
+    '+'<{/\d+/}+
 
-  1 + 2 + 3 + 4
+Will parse this input:
+
+.. code:: apl
+    :force:
+
+    1 + 2 + 3 + 4
 
 To this tree:
 
@@ -215,13 +250,19 @@ right-associative tree built with ``tuple()``, in wich the first
 element is the separator (``op``), and the other two elements are the
 operands.
 
-The expression::
+The expression:
 
-  '+'>{/\d+/}+
+.. code:: apl
+    :force:
 
-Will parse this input::
+    '+'>{/\d+/}+
 
-  1 + 2 + 3 + 4
+Will parse this input:
+
+.. code:: apl
+    :force:
+
+    1 + 2 + 3 + 4
 
 To this tree:
 
@@ -252,9 +293,12 @@ included in the resulting `AST`_.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 *Gather*. Like the *join*, but the separator is not included in the
-resulting `AST`_. It is equivalent to::
+resulting `AST`_. It is equivalent to:
 
-  s.{e}+|{}
+.. code:: apl
+    :force:
+
+    s.{e}+|{}
 
 
 ``&e``
@@ -283,14 +327,20 @@ prevent tokens like *IN* matching when the text ahead is
 ``nameguard=False`` to the ``Parser`` or the ``Buffer``, or by using a
 pattern expression (see below) instead of a token expression.
 Alternatively, the ``@@nameguard`` or ``@@namechars`` directives may
-be specified in the grammar::
+be specified in the grammar:
 
-  @@nameguard :: False
+.. code:: apl
+    :force:
+
+    @@nameguard :: False
 
 or to specify additional characters that should also be considered
-part of names::
+part of names:
 
-  @@namechars :: '$-.'
+.. code:: apl
+    :force:
+
+    @@namechars :: '$-.'
 
 
 ``r'text'`` or ``r"text"``
@@ -336,29 +386,38 @@ matches. Whitespace and comments will be skipped at each
 step. Advancing over input is done efficiently, with no regular
 expressions involved.
 
-The expression is equivalent to::
+The expression is equivalent to:
 
-  { !e /./ } e
+.. code:: apl
+    :force:
 
-A common form of the expression is ``->&e``, which is equivalent to::
+    { !e /./ } e
 
-  { !e /./ } &e
+A common form of the expression is ``->&e``, which is equivalent to:
+
+.. code:: apl
+    :force:
+
+    { !e /./ } &e
 
 This is an example of the use of the "*skip to*" expression for
-recovery::
+recovery:
 
-  statement =
-      | if_statement
-      # ...
-      ;
+.. code:: apl
+    :force:
 
-  if_statement
-      =
-      | 'if' condition 'then' statement ['else' statement]
-      | 'if' statement_recovery
-      ;
+    statement =
+        | if_statement
+        # ...
+        ;
 
-  statement_recovery = ->&statement ;
+    if_statement
+        =
+        | 'if' condition 'then' statement ['else' statement]
+        | 'if' statement_recovery
+        ;
+
+    statement_recovery = ->&statement ;
 
 
 ```constant```
@@ -368,9 +427,12 @@ Match nothing, but behave as if ``constant`` had been parsed.
 
 Constants can be used to inject elements into the concrete and
 abstract syntax trees, perhaps avoiding having to write a
-semantic action. For example::
+semantic action. For example:
 
-  boolean_option = name ['=' (boolean|`true`) ] ;
+.. code:: apl
+    :force:
+
+    boolean_option = name ['=' (boolean|`true`) ] ;
 
 
 If the text evaluates to a Python literal (with ``ast.literal_eval()``), that
@@ -378,9 +440,12 @@ will be the returned value.  Otherwise, string interpolation in the style of
 ``str.format()`` over the names in the current `AST`_ is applied for
 *constant* elements. Occurrences of the ``{`` character must be scaped to
 ``\{`` if they are not intended for interpolation. A *constant* expression
-that hast type ``str`` is evaluated using::
+that hast type ``str`` is evaluated using:
 
-  eval(f'{"f" + repr(text)}', {}, ast)
+.. code:: apl
+    :force:
+
+    eval(f'{"f" + repr(text)}', {}, ast)
 
 
 `````constant`````
@@ -397,12 +462,15 @@ will be registed in the parse context and added to the current node's
 ``parseinfo``.
 
 The ``^`` character may appear more than once to indicate the alert
-level::
+level:
 
-  assignment = identifier '=' (
-      | value
-      | -> &';' ^^^`could not parse value in assignment to {identifier}`
-  )
+.. code:: apl
+    :force:
+
+    assignment = identifier '=' (
+        | value
+        | -> &';' ^^^`could not parse value in assignment to {identifier}`
+    )
 
 
 ``rulename``
@@ -419,15 +487,21 @@ not advance the input over whitespace or comments.
 The include operator. Include the *right hand side* of rule
 ``rulename`` at this point.
 
-The following set of declarations::
+The following set of declarations:
 
-  includable = exp1 ;
+.. code:: apl
+    :force:
 
-  expanded = exp0 >includable exp2 ;
+    includable = exp1 ;
 
-Has the same effect as defining *expanded* as::
+    expanded = exp0 >includable exp2 ;
 
-  expanded = exp0 exp1 exp2 ;
+Has the same effect as defining *expanded* as:
+
+.. code:: apl
+    :force:
+
+    expanded = exp0 exp1 exp2 ;
 
 Note that the included rule must be defined before the rule that
 includes it.
@@ -456,13 +530,19 @@ Add the result of ``e`` to the `AST`_ using ``name`` as key. If
 
 When there are no named items in a rule, the `AST`_ consists of the
 elements parsed by the rule, either a single item or a ``list``. This
-default behavior makes it easier to write simple rules::
+default behavior makes it easier to write simple rules:
 
-  number = /[0-9]+/ ;
+.. code:: apl
+    :force:
 
-Without having to write::
+    number = /[0-9]+/ ;
 
-  number = number:/[0-9]+/ ;
+Without having to write:
+
+.. code:: apl
+    :force:
+
+    number = number:/[0-9]+/ ;
 
 When a rule has named elements, the unnamed ones are excluded from the
 `AST`_ (they are ignored).
@@ -485,9 +565,12 @@ The override operator. Make the `AST`_ for the complete rule be the
 
 The override operator is useful to recover only part of the right hand
 side of a rule without the need to name it, or add a semantic
-action. This is a typical use of the override operator::
+action. This is a typical use of the override operator:
 
-  subexp = '(' @:expre ')' ;
+.. code:: apl
+    :force:
+
+    subexp = '(' @:expre ')' ;
 
 The `AST`_ returned for the ``subexp`` rule will be the `AST`_
 recovered from invoking ``expre``.
@@ -498,9 +581,12 @@ recovered from invoking ``expre``.
 
 Like ``@:e``, but make the `AST`_ always be a ``list``.
 
-This operator is convenient in cases such as::
+This operator is convenient in cases such as:
 
-  arglist = '(' @+:arg {',' @+:arg}* ')' ;
+.. code:: apl
+    :force:
+
+    arglist = '(' @+:arg {',' @+:arg}* ')' ;
 
 In which the delimiting tokens are of no interest.
 
@@ -544,18 +630,24 @@ been reached.
 Rules with Arguments
 ~~~~~~~~~~~~~~~~~~~~
 
-|TatSu| allows rules to specify `Python`_-style arguments::
+|TatSu| allows rules to specify `Python`_-style arguments:
 
-  addition(Add, op='+')
+.. code:: apl
+    :force:
+
+    addition(Add, op='+')
       =
       addend '+' addend
       ;
 
 The arguments values are fixed at grammar-compilation time. An
 alternative syntax is available if no *keyword parameters* are
-required::
+required:
 
-  addition::Add, '+'
+.. code:: apl
+    :force:
+
+    addition::Add, '+'
       =
       addend '+' addend
       ;
@@ -584,15 +676,21 @@ Based Rules
 Rules may extend previously defined rules using the ``<`` operator.
 The *base rule* must be defined previously in the grammar.
 
-The following set of declarations::
+The following set of declarations:
 
-  base::Param = exp1 ;
+.. code:: apl
+    :force:
 
-  extended < base = exp2 ;
+    base::Param = exp1 ;
 
-Has the same effect as defining *extended* as::
+    extended < base = exp2 ;
 
-  extended::Param = exp1 exp2 ;
+Has the same effect as defining *extended* as:
+
+.. code:: apl
+    :force:
+
+    extended::Param = exp1 exp2 ;
 
 Parameters from the *base rule* are copied to the new rule if the new
 rule doesn't define its own. Repeated inheritance should be possible,
@@ -613,26 +711,32 @@ There are rules that should not be memoized. For example, rules that
 may succeed or not depending on the associated semantic action should
 not be memoized if sucess depends on more than just the input.
 
-The ``@nomemo`` decorator turns off memoization for a particular rule::
+The ``@nomemo`` decorator turns off memoization for a particular rule:
 
-  @nomemo
-  INDENT = () ;
+.. code:: apl
+    :force:
 
-  @nomemo
-  DEDENT = () ;
+    @nomemo
+    INDENT = () ;
+
+    @nomemo
+    DEDENT = () ;
 
 
 Rule Overrides
 ~~~~~~~~~~~~~~
 
-A grammar rule may be redefined by using the ``@override`` decorator::
+A grammar rule may be redefined by using the ``@override`` decorator:
 
-  start = ab $;
+.. code:: apl
+    :force:
 
-  ab = 'xyz' ;
+    start = ab $;
 
-  @override
-  ab = @:'a' {@:'b'} ;
+    ab = 'xyz' ;
+
+    @override
+    ab = @:'a' {@:'b'} ;
 
 When combined with the ``#include`` directive, rule overrides can be
 used to create a modified grammar without altering the original.
@@ -656,9 +760,12 @@ will generate:
        ...
 
 The name can also be specified within the grammar using the
-``@@grammar`` directive::
+``@@grammar`` directive:
 
-  @@grammar :: MyLanguage
+.. code:: apl
+    :force:
+
+    @@grammar :: MyLanguage
 
 
 Whitespace
@@ -701,9 +808,12 @@ parsers):
 
 Whitespace may also be specified within the grammar using the
 ``@@whitespace`` directive, although any of the above methods will
-overwrite the setting in the grammar::
+overwrite the setting in the grammar:
 
-  @@whitespace :: /[\t ]+/
+.. code:: apl
+    :force:
+
+    @@whitespace :: /[\t ]+/
 
 If no ``whitespace`` or ``@@whitespace`` is specified, |TatSu| will use
 ``r'(?m)\s+'`` as a default. Use ``None`` to have *no whitespace definition*.
@@ -715,7 +825,10 @@ If no ``whitespace`` or ``@@whitespace`` is specified, |TatSu| will use
 
 or:
 
-.. code::
+.. code:
+
+.. code:: apl
+    :force:
 
     @@whitespace :: None
 
@@ -730,9 +843,12 @@ parser by using the ``ignorecase`` parameter:
    parser = MyParser(text, ignorecase=True)
 
 You may also specify case insensitivity within the grammar using the
-``@@ignorecase`` directive::
+``@@ignorecase`` directive:
 
-  @@ignorecase :: True
+.. code:: apl
+    :force:
+
+    @@ignorecase :: True
 
 The change will affect token matching, but not pattern matching. Use `(?i)`
 in patterns that should ignore case.
@@ -762,10 +878,13 @@ comments separately:
    )
 
 Both patterns may also be specified within a grammar using the
-``@@comments`` and ``@@eol_comments`` directives::
+``@@comments`` and ``@@eol_comments`` directives:
 
-  @@comments :: /\(\*.*?\*\)/
-  @@eol_comments :: /#.*?$/
+.. code:: apl
+    :force:
+
+    @@comments :: /\(\*.*?\*\)/
+    @@eol_comments :: /#.*?$/
 
 
 Reserved Words and Keywords
@@ -781,32 +900,44 @@ identifiers though the ``@@keyword`` directive,and the ``@name``
 decorator.
 
 A grammar may specify reserved tokens providing a list of them in one or
-more ``@@keyword`` directives::
+more ``@@keyword`` directives:
 
-  @@keyword :: if endif
-  @@keyword :: else elseif
+.. code:: apl
+    :force:
+
+    @@keyword :: if endif
+    @@keyword :: else elseif
 
 The ``@name`` decorator checks that the result of a grammar rule does
-not match a token defined as a `keyword`_::
+not match a token defined as a `keyword`_:
 
-  @name
-  identifier = /(?!\d)\w+/ ;
+.. code:: apl
+    :force:
+
+    @name
+    identifier = /(?!\d)\w+/ ;
 
 Note that the rule decorated with ``@name`` must produce a single string as result
 (no named expressions that will produce a dict, and no rule arguments).
 
 There are situations in which a token is reserved only in a very
 specific context. In those cases, a negative lookahead will prevent the
-use of the token::
+use of the token:
 
-  statements = {!'END' statement}+ ;
+.. code:: apl
+    :force:
+
+    statements = {!'END' statement}+ ;
 
 Include Directive
 ~~~~~~~~~~~~~~~~~
 
-|TatSu| grammars support file inclusion through the include directive::
+|TatSu| grammars support file inclusion through the include directive:
 
-  #include :: "filename"
+.. code:: apl
+    :force:
+
+    #include :: "filename"
 
 The resolution of the *filename* is relative to the directory/folder of
 the source. Absolute paths and ``../`` navigations are honored.
@@ -833,6 +964,9 @@ left-recursion support on or off:
    )
 
 Left recursion can also be turned off from within the grammar using the
-``@@left_recursion`` directive::
+``@@left_recursion`` directive:
 
-  @@left_recursion :: False
+.. code:: apl
+    :force:
+
+    @@left_recursion :: False
