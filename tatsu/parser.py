@@ -69,7 +69,7 @@ class TatSuParser(TatSuBootstrapParser):
         super().__init__(config)
 
 
-class GrammarGenerator(TatSuBootstrapParser):
+class TatSuParserGenerator(TatSuBootstrapParser):
     def __init__(
         self,
         name: str | None = None,

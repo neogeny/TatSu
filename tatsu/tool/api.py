@@ -16,7 +16,7 @@ from ..infos import ParserConfig
 from ..ngcodegen.modelgen import modelgen
 from ..ngcodegen.pythongen import pythongen
 from ..objectmodel import Node
-from ..parser import GrammarGenerator
+from ..parser import TatSuParserGenerator
 from ..tokenizing import Tokenizer
 from ..util.string import hashsha
 
@@ -68,7 +68,7 @@ def compile(
     if key in cache:
         model = cache[key]
     else:
-        gen = GrammarGenerator(name, **settings)
+        gen = TatSuParserGenerator(name, **settings)
         model = cache[key] = gen.parse(grammar, **settings)
 
     asmodel = not semantics and (

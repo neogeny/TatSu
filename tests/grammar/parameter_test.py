@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 from tatsu.ngcodegen import pythongen
-from tatsu.parser import GrammarGenerator
+from tatsu.parser import TatSuParserGenerator
 from tatsu.tool import compile
 from tatsu.util import trim
 
@@ -22,7 +22,7 @@ class ParameterTests(unittest.TestCase):
                 {'a'} $
                 ;
         """
-        g = GrammarGenerator('Keywords')
+        g = TatSuParserGenerator('Keywords')
         model = g.parse(grammar)
         code = pythongen(model)
         self.assertEqual('#!/usr/bin/env python3', code.splitlines()[0])
