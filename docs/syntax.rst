@@ -58,10 +58,28 @@ The expressions, in reverse order of operator precedence, can be any of the foll
 .. note::
    Because |TatSu| now supports EBNF_, there must not be empty lines in expressions.
 
-``# comment``
-^^^^^^^^^^^^^
+``# comment ...``
+^^^^^^^^^^^^^^^^^
 
-`Python`_-style comments are allowed.
+`Python`_-style end-of-line comments are allowed.
+
+
+``// comment ...``
+^^^^^^^^^^^^^^^^^^
+
+`EBNF`_-style end-of-line comments are allowed.
+
+
+``/* ... */``
+^^^^^^^^^^^^^^^^^^^^^
+
+`EBNF`_-style multiline comments are allowed.
+
+
+``(* ... *)``
+^^^^^^^^^^^^^^^^^^^^^
+
+`Pascal`_-style multiline comments are allowed.
 
 
 ``e1 | e2``

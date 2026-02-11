@@ -21,10 +21,10 @@
 .. _Cyclomatic complexity: http://en.wikipedia.org/wiki/Cyclomatic_complexity
 .. _Dennis Ritchie: http://en.wikipedia.org/wiki/Dennis_Ritchie
 .. _EBNF: https://en.wikipedia.org/wiki/Extended_Backus–Naur_form
-.. _ISO EBNF: https://en.wikipedia.org/wiki/Extended_Backus–Naur_form
 .. _English: http://en.wikipedia.org/wiki/English_grammar
 .. _Euler: http://en.wikipedia.org/wiki/Euler_programming_language
 .. _Grako: https://pypi.python.org/pypi/grako/
+.. _ISO EBNF: https://en.wikipedia.org/wiki/Extended_Backus–Naur_form
 .. _Jack: http://en.wikipedia.org/wiki/Javacc
 .. _Japanese: http://en.wikipedia.org/wiki/Japanese_grammar
 .. _Java: https://en.wikipedia.org/wiki/Java
@@ -43,7 +43,7 @@
 .. _PL/0: http://en.wikipedia.org/wiki/PL/0
 .. _PLY: http://www.dabeaz.com/ply/ply.html#ply_nn22
 .. _Packrat: http://bford.info/packrat/
-.. _Pascal: http://en.wikipedia.org/wiki/Pascal_programming_language
+.. _Pascal: https://en.wikipedia.org/wiki/Pascal_(programming_language)
 .. _Perl: http://www.perl.org/
 .. _PyCharm: https://www.jetbrains.com/pycharm/
 .. _PyPy team: http://pypy.org/people.html
@@ -75,6 +75,7 @@
 .. _declensions: http://en.wikipedia.org/wiki/Declension
 .. _email: mailto:apalala@gmail.com
 .. _exceptions: http://www.jeffknupp.com/blog/2013/02/06/write-cleaner-python-use-exceptions/
+.. _graphviz: https://pypi.python.org/pypi/graphviz
 .. _introduced: http://dl.acm.org/citation.cfm?id=964001.964011
 .. _keyword: https://en.wikipedia.org/wiki/Reserved_word
 .. _keywords: https://en.wikipedia.org/wiki/Reserved_word
@@ -82,7 +83,6 @@
 .. _make: https://www.gnu.org/software/make/manual/make.html
 .. _memoizing: http://en.wikipedia.org/wiki/Memoization
 .. _parsewkt: https://github.com/cleder/parsewkt
-.. _graphviz: https://pypi.python.org/pypi/graphviz
 .. _raw string literal: https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
 .. _re: https://docs.python.org/3.4/library/re.html
 .. _regex: https://pypi.python.org/pypi/regex

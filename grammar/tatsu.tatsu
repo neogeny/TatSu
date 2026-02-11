@@ -3,7 +3,7 @@
 @@grammar :: TatSu
 @@whitespace :: /(?m)\s+/
 @@comments :: ?"(?ms)[(][*]\s*((?:.|\n)*?)\s*[*][)]|[\/][*]\s*((?:.|\n)*?)\s*[*][\/]"
-@@eol_comments :: ?"(?ms)[#](.*?)$"
+@@eol_comments :: ?"(?ms)(?:[#]|[\/][\/])(.*?)$"
 @@parseinfo :: True
 @@left_recursion :: False
 

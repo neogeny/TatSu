@@ -11,7 +11,7 @@ def test_parse_ebnf():
         /*
             Example of a grammar that mixes TatSu and EBNF
         */
-        @@grammar :: TatSu
+        @@grammar :: TatSu  // this is TatSu wiht an EBNF comment
 
         start := expression $
 
