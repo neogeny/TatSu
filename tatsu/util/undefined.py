@@ -5,8 +5,7 @@ from __future__ import annotations
 from typing import Any, cast
 
 __all__ = [
-    'NotNoneType',
-    'NotNone',
+    'UndefinedType',
     'Undefined',
     'notnone',
 ]
@@ -16,17 +15,17 @@ def notnone[T](value: T | None, default: T) -> T:
     return value if value is not None else default
 
 
-class NotNoneType[T]:
+class UndefinedType[T]:
     __notnone: Any = None
 
     def __init__(self):
-        if isinstance(self.__notnone, NotNoneType):
+        if isinstance(self.__notnone, UndefinedType):
             return
         type(self).__notnone = self
 
     @classmethod
-    def notnone(cls) -> NotNoneType[T]:
-        return cast(NotNoneType[T], cls.__notnone)
+    def notnone(cls) -> UndefinedType[T]:
+        return cast(UndefinedType[T], cls.__notnone)
 
     def __eq__(self, other: Any) -> bool:
         if self is not Undefined:
@@ -63,6 +62,4 @@ class NotNoneType[T]:
         return hash(id(self))
 
 
-UndefinedType = NotNoneType
-NotNone: NotNoneType[Any] = NotNoneType()
-Undefined = NotNone
+Undefined = UndefinedType()

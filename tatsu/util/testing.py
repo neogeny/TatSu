@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 import argparse
 
-from . import filelist_from_patterns
+from .common import filelist_from_patterns
 from .parproc import processing_loop
 
 

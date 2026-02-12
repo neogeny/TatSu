@@ -11,7 +11,7 @@ from typing import Any, override
 from .tokenizing import NullTokenizer, Tokenizer
 from .util.configs import Config
 from .util.misc import cached_re_compile
-from .util.notnone import Undefined
+from .util.undefined import Undefined
 from .util.unicode_characters import C_DERIVE
 
 MEMO_CACHE_SIZE = 4 * 1024

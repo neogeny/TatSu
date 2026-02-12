@@ -37,9 +37,9 @@ from ..util import (
     trim,
 )
 from ..util.abctools import is_list, left_assoc, prune_dict, right_assoc
-from ..util.notnone import Undefined
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from ..util.typing import boundcall
+from ..util.undefined import Undefined
 from .infos import MemoKey, RuleResult, closure
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, EventTracerImpl

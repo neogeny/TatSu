@@ -8,7 +8,7 @@ from collections.abc import Iterable, Mapping
 from functools import lru_cache
 from typing import Any
 
-from .notnone import NotNoneType, Undefined
+from .undefined import Undefined, UndefinedType
 
 __all__ = [
     'SecurityError',
@@ -144,7 +144,7 @@ def make_hashable(source: Any) -> Any:
 
 
 @lru_cache(maxsize=1024)
-def parse_expression(expression: str) -> ast.AST | NotNoneType:
+def parse_expression(expression: str) -> ast.AST | UndefinedType:
     try:
         return ast.parse(expression, mode='eval')
     except (ValueError, SyntaxError):
@@ -202,7 +202,7 @@ def _check_safe_eval_cached(expression: str, context_items: tuple[tuple[str, Any
     check_eval_context(context)
 
     tree = parse_expression(expression)
-    if isinstance(tree, NotNoneType):
+    if isinstance(tree, UndefinedType):
         raise SecurityError(f"Invalid expression syntax: {expression!r}")
 
     if tree is None:

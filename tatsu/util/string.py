@@ -6,11 +6,11 @@ import codecs
 import hashlib
 import re
 import sys
-from collections.abc import Collection, Iterable
+from collections.abc import Iterable
 from io import StringIO
 from typing import Any
 
-from tatsu.util import is_reserved
+from .common import is_reserved
 
 if sys.version_info >= (3, 13):
     from re import PatternError
@@ -192,17 +192,18 @@ def prints(*args, **kwargs: Any) -> str:
 
 def longest_common_prefix(strs: Iterable[str], suffix: str = '') -> str:
     if not strs:
-        return ""
+        return ''
 
-    # Sort the strings alphabetically
     strs = [s + suffix for s in sorted(strs)]
+    if len(strs) == 1:
+        return strs[0]
 
     first = strs[0]
     last = strs[-1]
-    i = 0
 
-    # Only compare the first and last strings
-    while i < len(first) and i < len(last) and first[i] == last[i]:
+    i = 0
+    m = min(len(first), len(last))
+    while i < m and first[i] == last[i]:
         i += 1
 
     return first[:i]

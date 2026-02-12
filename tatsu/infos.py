@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any, NamedTuple
 
-from .parserconfig import ParserConfig
+from .parserconfig import ParserConfig  # for backwards compatibility
 from .tokenizing import Tokenizer
 
 __all__ = ['Alert', 'ParserConfig', 'ParseInfo', 'RuleInfo']

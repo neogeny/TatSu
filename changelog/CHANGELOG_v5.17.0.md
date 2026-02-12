@@ -42,8 +42,8 @@ Every effort has been made to preserve backwards compatibility by keeping mosts 
 - Evaluation of Python expressions by the parsing engine now use `safe_eval()`, a hardened firewall around most security attacks targeting `eval()` (see the [safeeval][] module for details)
 - Because `None` is a valid initial value for attributes and a frequent return value for callables, the required logic for undefined values was moved to the `notnone` module, which declares `Undefined` as an alias for `notnone.NotNone`
 
-	```python
-	In [1]: from tatsu.util.notnone import Undefined
+  ```python
+	In [1]: from tatsu.util.undefined import Undefined
 	In [2]: u = Undefined
 	In [3]: u is None
 	Out[3]: False
@@ -54,7 +54,7 @@ Every effort has been made to preserve backwards compatibility by keeping mosts 
 	In [6]: d = u or 'ok'
 	In [7]: d
 	Out[7]: 'ok'
-	```
+  ```
 - `objectmodel.Node` was rewritten to give it clear semantics and efficiency
 	- New attributes to `Node` after initialization generate a warning if the name of a method is being shadowed. This change avoids confusing `@dataclass`, which is used in generated object models.
     - `Node` equality is explicitely defined as object identity. No attempts are made at comparing `Node` structurally.

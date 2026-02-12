@@ -4,8 +4,14 @@ from __future__ import annotations
 
 import ast
 import sys
-from collections.abc import Iterable
 from pathlib import Path
+from typing import NamedTuple
+
+
+class ModuleImports(NamedTuple):
+    name: str
+    path: Path
+    imports: tuple[str, ...]
 
 
 def pathtomodulename(path: Path):
@@ -16,38 +22,38 @@ def pathtomodulename(path: Path):
     )
 
 
-def moduledeps(name: str, path: Path, localnames: set[str]):
+def moduledeps(name: str, path: Path, level: int = 1) -> ModuleImports:
     source = path.read_text()
-    modast = ast.parse(source, filename=name)
-    assert isinstance(modast, ast.Module), modast
+    ast_ = ast.parse(source, filename=name)
+    assert isinstance(ast_, ast.Module), ast_
 
-    return tuple(
-        s.module for s in modast.body
-        if isinstance(s, ast.ImportFrom) and s.level
+    def imported(fromimport: ast.ImportFrom) -> tuple[str, ...]:
+        if fromimport.module:
+            return (fromimport.module,)
+        return tuple(alias.name for alias in fromimport.names)
+
+    imports = {
+        imp
+        for s in ast_.body
+        if isinstance(s, ast.ImportFrom) and s.level >= level
+        for imp in imported(s)
+    }
+    imports = tuple(sorted(imports))
+    return ModuleImports(name=name, path=path, imports=imports)
+
+
+def findeps(paths: list[Path], level:int = 1) -> list[ModuleImports]:
+    modulepaths = sorted(
+        (pathtomodulename(path), path)
+        for path in paths
     )
-
-
-def all_local_names(modulenames: Iterable[str]) -> set[str]:
-    def dfs(names):
-        for name in names:
-            yield name
-            yield from dfs(name.split('.', 1)[1:])
-
-    return set(dfs(modulenames))
-
-
-def findeps(paths: list[Path]):
-    modulepaths = sorted((pathtomodulename(path), path) for path in paths)
-
-    localnames = {name for name, _ in modulepaths}
-    localnames = all_local_names(localnames)
-
-    for name, path in modulepaths:
-        print(f'{name}: {moduledeps(name, path, localnames=localnames)}')
+    return [moduledeps(name, path, level=level) for name, path in modulepaths]
 
 
 def main(filenames: list[str]) -> None:
-    findeps([Path(filename) for filename in filenames])
+    paths = [Path(filename) for filename in filenames]
+    for module in findeps(paths):
+        print(f'{module.name}: {module.imports}')
 
 
 if __name__ == '__main__':

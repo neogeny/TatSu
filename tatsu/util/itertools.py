@@ -8,7 +8,7 @@ from collections.abc import Iterable
 from graphlib import TopologicalSorter
 from typing import Any
 
-from .notnone import Undefined
+from .undefined import Undefined
 
 
 class CycleError(ValueError):

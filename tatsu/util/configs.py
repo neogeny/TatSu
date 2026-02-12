@@ -7,9 +7,9 @@ import importlib
 import types
 from typing import Any, Self
 
-from ..util import asjson, asjsons
+from .asjson import asjson, asjsons
 from .deprecate import deprecated
-from .notnone import Undefined
+from .undefined import Undefined
 
 
 @dataclasses.dataclass

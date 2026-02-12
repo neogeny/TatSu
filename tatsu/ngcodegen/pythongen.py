@@ -13,7 +13,7 @@ from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..util import regexp, safe_name
 from ..util.abctools import compress_seq
-from ..util.notnone import Undefined
+from ..util.undefined import Undefined
 from ..walkers import NodeWalker
 
 HEADER = """\

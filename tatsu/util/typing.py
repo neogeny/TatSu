@@ -11,7 +11,7 @@ from types import ModuleType
 from typing import Any
 
 from .itertools import CycleError, first, topsort
-from .notnone import Undefined
+from .undefined import Undefined
 
 __all__ = [
     'ActualArguments',
