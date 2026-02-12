@@ -351,7 +351,7 @@ class Pattern(Model):
         return ctx._pattern(self.pattern)
 
     def _first(self, k, f) -> ffset:
-        x = self.pattern
+        x = str(self)
         if bool(self.regex.match('')):
             return {(), (x,)}
         else:
@@ -375,7 +375,7 @@ class Pattern(Model):
         return f'{type(self).__name__}({regexp(self.pattern)})'
 
     def __str__(self):
-        return self.__repr__()
+        return self.pattern
 
 
 class Lookahead(Decorator):
