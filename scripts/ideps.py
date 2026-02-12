@@ -24,8 +24,8 @@ def pathtomodulename(path: Path):
 
 def moduledeps(name: str, path: Path, level: int = 1) -> ModuleImports:
     source = path.read_text()
-    ast_ = ast.parse(source, filename=name)
-    assert isinstance(ast_, ast.Module), ast_
+    module = ast.parse(source, filename=name)
+    assert isinstance(module, ast.Module), module
 
     def imported(fromimport: ast.ImportFrom) -> tuple[str, ...]:
         if fromimport.module:
@@ -34,7 +34,7 @@ def moduledeps(name: str, path: Path, level: int = 1) -> ModuleImports:
 
     imports = {
         imp
-        for s in ast_.body
+        for s in module.body
         if isinstance(s, ast.ImportFrom) and s.level >= level
         for imp in imported(s)
     }
