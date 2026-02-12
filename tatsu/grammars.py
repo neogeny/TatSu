@@ -222,23 +222,12 @@ class EOF(Model):
 @tatsudataclass
 class Decorator(Model):
     exp: Model = field(init=False, default_factory=Model)
-    # def __init__(self, ast: Model | AST | None = None, exp: Model | None = None):
-    #     self.exp: Model = Model()
-    #     if exp is not None:
-    #         self.exp = ast = exp
-    #     elif isinstance(ast, Model):
-    #         # Patch to avoid bad interactions with attribute setting in Node.
-    #         # Also a shortcut for subexpressions that are not ASTs.
-    #         self.exp = ast
-    #         ast = AST(exp=ast)
-    #     elif isinstance(ast, AST):
-    #         self.exp = cast(Model, ast.get('exp', self.exp))
-    #     super().__init__(ast=ast)
-    #     assert isinstance(self.exp, Model), self.exp
 
     def __post_init__(self):
         super().__post_init__()
-        self.exp = self.ast
+        if not isinstance(self.ast, AST):
+            self.exp = self.ast
+        # else: allow for subclasses to use self.exp
 
     def _parse(self, ctx) -> Any | None:
         return self.exp._parse(ctx)
@@ -346,12 +335,9 @@ class Alert(Constant):
 
 
 class Pattern(Model):
-    def __init__(self, ast: list[str] | str):
-        super().__init__(ast=ast)
-        ast = self.ast
-        if not isinstance(ast, list):
-            ast = [ast]
-        self.patterns = ast
+    def __post_init__(self):
+        super().__post_init__()
+        self.patterns = self.ast
         self.regex = re.compile(self.pattern)
 
     @property
@@ -484,10 +470,11 @@ class Sequence(Model):
         return head
 
 
+@tatsudataclass
 class Choice(Model):
-    def __init__(self, ast: AST | list[Model] | None = None):
-        self.options: list[Model] = []
-        super().__init__(ast=AST(options=ast))
+    def __post_init__(self):
+        super().__post_init__()
+        self.options = self.ast
         assert isinstance(self.options, list), repr(self.options)
 
     def _parse(self, ctx):
@@ -671,6 +658,7 @@ class PositiveGather(Gather):
         return self.exp._nullable()
 
 
+@tatsudataclass
 class EmptyClosure(Model):
     def _parse(self, ctx):
         return ctx._empty_closure()
@@ -685,6 +673,7 @@ class EmptyClosure(Model):
         return True
 
 
+@tatsudataclass
 class Optional(Decorator):
     def _parse(self, ctx):
         ctx.last_node = None
@@ -705,6 +694,7 @@ class Optional(Decorator):
         return True
 
 
+@tatsudataclass
 class Cut(Model):
     def _parse(self, ctx):
         ctx._cut()
@@ -719,12 +709,16 @@ class Cut(Model):
         return True
 
 
+@tatsudataclass
 class Named(Decorator):
-    def __init__(self, ast: AST):
-        if ast is None:
+    name: str = ''
+
+    def __post_init__(self):
+        super().__post_init__()
+        if self.ast is None:
             raise GrammarError('ast in Named cannot be None')
-        super().__init__(ast=ast['exp'])
-        self.name = ast['name']
+        assert getattr(self, 'name', None) is not None
+        self.exp = self.ast.exp
 
     def _parse(self, ctx):
         value = self.exp._parse(ctx)

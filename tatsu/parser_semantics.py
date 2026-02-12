@@ -56,7 +56,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
     def pattern(self, ast: str, *args) -> grammars.Pattern:
         pattern = ast
         self._validate_literal(pattern)
-        return grammars.Pattern(pattern)
+        return grammars.Pattern(ast=pattern)
 
     def regexes(self, ast: Iterable[str], *args) -> Iterable[str]:
         pattern = ''.join(ast)
@@ -104,10 +104,8 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
             return seq[0]
         return grammars.Sequence(ast=ast)
 
-    def choice(self, ast, *args):
-        if len(ast) == 1:
-            return ast[0]
-        return grammars.Choice(ast)
+    def choice(self, ast):
+        return grammars.Choice(ast=ast)
 
     def new_name(self, name):
         if name in self.rules:
