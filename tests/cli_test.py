@@ -28,7 +28,7 @@ def test_cli_model():
     output = output.decode('utf-8')
     pattern = (
         r'(?ms)CAVEAT UTILITOR.*?竜TatSu'
-        r'.*?class \w+?ModelBuilder\(ModelBuilder\):'
-        r'.*?class \w+?ModelBuilderSemantics\(\w+?ModelBuilder\):'
+        r'.*?class \w+?ModelBuilderSemantics\(ModelBuilderSemantics\):'
+        r'.*?class \w+?ModelBuilderSemantics\(\w+?ModelBuilderSemantics\):'
     )
     assert re.search(pattern, output)

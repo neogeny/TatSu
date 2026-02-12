@@ -23,8 +23,8 @@ def notnone[T](value: T | None, default: T) -> T:
     return value if value is not None else default
 
 
-def boundcall(fun: Callable, knownargs: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
-    return BoundCallable.call(fun, knownargs, *args, **kwargs)
+def boundcall(fun: Callable, known: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
+    return BoundCallable.call(fun, known, *args, **kwargs)
 
 
 class NotNoneType[T]:
@@ -125,13 +125,13 @@ class BoundCallable:
         return self.fun(*self.actual.args, **self.actual.kwargs)
 
     @staticmethod
-    def call(fun: Callable, knownargs: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
-        actual = BoundCallable.bind(fun, knownargs, *args, **kwargs)
+    def call(fun: Callable, known: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
+        actual = BoundCallable.bind(fun, known, *args, **kwargs)
         return fun(*actual.args, **actual.kwargs)
 
     @staticmethod
-    def bind(fun: Callable, knownargs: dict[str, Any], *args: Any, **kwargs: Any) -> ActualArguments:
-        arg = next(iter(knownargs.values())) if knownargs else (args[0] if args else None)
+    def bind(fun: Callable, known: dict[str, Any], *args: Any, **kwargs: Any) -> ActualArguments:
+        arg = next(iter(known.values())) if known else (args[0] if args else None)
 
         funname = getattr(fun, '__name__', None)
         if funname in vars(builtins):
@@ -141,7 +141,7 @@ class BoundCallable:
         p = inspect.Parameter
 
         actual = ActualArguments()
-        for name, value in knownargs.items():
+        for name, value in known.items():
             if not (param := declared.get(name, None)):
                 continue
             match param.kind:

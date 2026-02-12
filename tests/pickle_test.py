@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pickle
 
-from tatsu.builder import ModelBuilder
+from tatsu.builder import ModelBuilderSemantics
 from tatsu.tool import compile
 from tatsu.util import asjson
 
@@ -24,7 +24,7 @@ def test_synth_model():
     """
 
     m = compile(grammar, 'ASeq')
-    model = m.parse('a a a', semantics=ModelBuilder())
+    model = m.parse('a a a', semantics=ModelBuilderSemantics())
     assert type(model).__name__ == 'ASeq'
 
     p = pickle.dumps(model)
@@ -49,7 +49,7 @@ def test_nested_class_synth_model():
     """
 
     m = compile(grammar, 'ASeq')
-    model = m.parse('a a a', semantics=ModelBuilder())
+    model = m.parse('a a a', semantics=ModelBuilderSemantics())
     assert type(model).__name__ == 'ASeq'
 
     p = pickle.dumps(model)

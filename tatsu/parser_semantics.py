@@ -7,7 +7,7 @@ from collections.abc import Iterable
 from typing import Any
 
 from . import grammars
-from .builder import ModelBuilder
+from .builder import ModelBuilderSemantics
 from .contexts import ParseContext
 from .exceptions import FailedSemantics
 from .leftrec import mark_left_recursion
@@ -15,11 +15,11 @@ from .util import eval_escapes, re, warning
 from .util.abctools import flatten
 
 
-class TatSuGrammarSemantics(ModelBuilder):
+class TatSuGrammarSemantics(ModelBuilderSemantics):
     def __init__(self, name: str | None = None, context: ParseContext | None = None):
         super().__init__(
             basetype=grammars.Model,
-            constructors=grammars.Model.classes(),
+            constructors=grammars.Model.classes(),  # ty:ignore[invalid-argument-type]
         )
         self.name = name
         self.context = context

@@ -231,11 +231,11 @@ class Grammar(ModelRenderer):
                 from dataclasses import dataclass
 
                 from tatsu.objectmodel import Node
-                from tatsu.builder import ModelBuilder
+                from tatsu.builder import ModelBuilderSemantics
 
                 {basetype}
 
-                class {name}ModelBuilder(ModelBuilder):
+                class {name}ModelBuilderSemantics(ModelBuilderSemantics):
                     def __init__(self, context=None, types=None):
                         types = [
                             t for t in globals().values()
@@ -244,7 +244,7 @@ class Grammar(ModelRenderer):
                         super().__init__(context=context, types=types)
 
 
-                class {name}ModelBuilderSemantics({name}ModelBuilder):
+                class {name}ModelBuilderSemantics({name}ModelBuilderSemantics):
                     ...
                 {base_class_declarations}
                 {model_class_declarations}

@@ -18,6 +18,7 @@ from .util.misc import least_upper_bound_type
 from .util.typing import boundcall
 
 __all__ = [
+    'BuilderConfig',
     'ModelBuilder',
     'ModelBuilderSemantics',
     'TypeContainer',
@@ -50,24 +51,15 @@ class ModelBuilder:
     nodes using the class name given as first parameter to a grammar
     rule, and synthesizes the class/type if it's not known.
     """
-    @deprecated_params(
-        base_type='basetype',
-        types='constructors',
-        context=None,
-    )
     def __init__(
-            self,
-            config: BuilderConfig | None = None,
-            synthok: bool = True,
-            basetype: type | None = None,
-            typedefs: list[TypeContainer] | None = None,
-            constructors: list[Constructor] | None = None,
-            # deprecations
-            context: Any | None = None,
-            base_type: type | None = None,
-            types: list[Callable] | None = None,  # for bw compatibility
+        self,
+        config: BuilderConfig | None = None,
+        synthok: bool = True,
+        basetype: type | None = None,
+        typedefs: list[TypeContainer] | None = None,
+        constructors: list[Constructor] | None = None,
     ) -> None:
-        assert context is None
+
         config = BuilderConfig.new(
             config=config,
             basetype=basetype,
@@ -77,12 +69,6 @@ class ModelBuilder:
         )
         self._constructor_registry: dict[str, Constructor] = {}
 
-        # handle deeprecations
-        if isinstance(base_type, type):
-            config = config.override(basetype=base_type)
-        if types is not None:
-            config = config.override(constructors=[*(config.constructors or []), *types])
-
         config = self._typedefs_to_constructors(config)
         config = self._narrow_basetype(config)
         self._register_constructors(config)
@@ -90,6 +76,21 @@ class ModelBuilder:
         self.config = config
         # HACK!
         self.config = self.config.override(synthok=not constructors)
+
+    def instance(self, typename, known: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
+        return self._instantiate(typename, known, *args, **kwargs)
+
+    def _instantiate(
+            self,
+            typename: str,
+            known: dict[str, Any],
+            /,
+            *args: Any,
+            base: type | None = None,
+            **kwargs: Any,
+        ) -> Any:
+        constructor = self._get_constructor(typename, base=base)
+        return boundcall(constructor, known, *args, **kwargs)
 
     def safe_context(self, *other: Mapping[str, Any]) -> Mapping[str, Any]:
         context: dict[str, Any] = {}
@@ -174,15 +175,13 @@ class ModelBuilder:
         self._constructor_registry[name] = constructor
         return constructor
 
-    # by [apalala@gmail.com](https://github.com/apalala)
-    # by Gemini (2026-01-31)
     def _find_existing_constructor(self, typename: str) -> Constructor | None:
         return (
             self._constructor_registry.get(typename)
             or vars(builtins).get(typename)
         )
 
-    def _get_constructor(self, typename: str, base: type, **args: Any) -> Constructor:
+    def _get_constructor(self, typename: str, base: type | None, **args: Any) -> Constructor:
         if constructor := self._find_existing_constructor(typename):
             return constructor
 
@@ -192,8 +191,55 @@ class ModelBuilder:
                 f'Could not find constructor for type {typename!r}, and {synthok=} ',
             )
 
-        constructor = synthesize(typename, (base,), **args)
+        if base is None:
+            constructor = synthesize(typename, (), **args)
+        else:
+            constructor = synthesize(typename, (base,), **args)
+
         return self._register_constructor(constructor)
+
+
+class ModelBuilderSemantics:
+    @deprecated_params(
+        base_type='basetype',
+        types='constructors',
+        context=None,
+    )
+    def __init__(
+            self,
+            config: BuilderConfig | None = None,
+            synthok: bool = True,
+            basetype: type | None = None,
+            typedefs: list[TypeContainer] | None = None,
+            constructors: list[Constructor] | None = None,
+            # deprecations
+            context: Any | None = None,
+            base_type: type | None = None,
+            types: list[Callable] | None = None,  # for bw compatibility
+    ) -> None:
+        config = BuilderConfig.new(
+            config=config,
+            basetype=basetype,
+            synthok=synthok,
+            typedefs=typedefs,
+            constructors=constructors,
+        )
+        # handle deeprecations
+        assert context is None
+        if isinstance(base_type, type):
+            config = config.override(basetype=base_type)
+        if types is not None:
+            constructors = [*(config.constructors or []), *types]
+            config = config.override(constructors=constructors)
+
+        self.config = config
+        self._builder = ModelBuilder(
+            config=config,
+            synthok=synthok,
+            basetype=basetype,
+            typedefs=typedefs,
+            constructors=constructors,
+        )
 
     def _default(self, ast: Any, *args: Any, **kwargs: Any) -> Any:
         if not args:
@@ -201,9 +247,9 @@ class ModelBuilder:
 
         def is_reserved(name) -> bool:
             return (
-                keyword.iskeyword(name) or
-                keyword.issoftkeyword(name) or
-                name in {'type', 'list', 'dict', 'set'}
+                    keyword.iskeyword(name) or
+                    keyword.issoftkeyword(name) or
+                    name in {'type', 'list', 'dict', 'set'}
             )
 
         def mangle(name: str) -> str:
@@ -213,21 +259,16 @@ class ModelBuilder:
 
         typespec = [mangle(s) for s in args[0].split('::')]
         typename = typespec[0]
-        bases = reversed(typespec)
+        basenames = reversed(typespec)
 
-        basetype = self.config.basetype
-        for base_ in bases:
-            defined = self._get_constructor(base_, base=basetype)
+        base = self.config.basetype
+        for basename in basenames:
+            defined = self._builder._get_constructor(basename, base=base)
             if isinstance(defined, type):
-                basetype = defined
+                base = defined
 
-        constructor = self._get_constructor(typename, base=basetype)
-        known_arguments = {
+        known = {
             'ast': ast,
             'exp': ast,
         }
-        return boundcall(constructor, known_arguments, *args, **kwargs)
-
-
-class ModelBuilderSemantics(ModelBuilder):
-    pass
+        return self._builder._instantiate(typename, known, ast, *args, base=base, **kwargs)

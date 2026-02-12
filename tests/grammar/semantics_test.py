@@ -7,7 +7,7 @@ import sys
 import pytest
 
 from tatsu import synth
-from tatsu.builder import BuilderConfig, ModelBuilder, TypeResolutionError
+from tatsu.builder import BuilderConfig, ModelBuilderSemantics, TypeResolutionError
 from tatsu.exceptions import FailedParse, FailedToken
 from tatsu.objectmodel import Node
 from tatsu.tool import compile, parse
@@ -32,8 +32,8 @@ def test_semantics_not_class():
         number::int = /\d+/ ;
     """
     text = '5 4 3 2 1'
-    bad_semantics = ModelBuilder  # NOTE: the class
-    semantics = ModelBuilder()  # NOTE: the class
+    bad_semantics = ModelBuilderSemantics  # NOTE: the class
+    semantics = ModelBuilderSemantics()  # NOTE: the class
 
     with pytest.raises(TypeError, match=r'semantics must be an object instance or None.*'):
         compile(grammar, semantics=bad_semantics)
@@ -54,7 +54,7 @@ def test_builder_semantics():
     """
     text = '5 4 3 2 1'
 
-    semantics = ModelBuilder()
+    semantics = ModelBuilderSemantics()
     model = compile(grammar, 'test')
     ast = model.parse(text, semantics=semantics)
     assert ast == 15
@@ -70,7 +70,7 @@ def test_builder_semantics():
         number = /\d+/ ;
     """
 
-    semantics = ModelBuilder(constructors=[dotted])
+    semantics = ModelBuilderSemantics(constructors=[dotted])
     model = compile(grammar, 'test')
     with pytest.raises(TypeResolutionError, match=r"Could not find constructor for type 'dotted'"):
         ast = model.parse(text, semantics=semantics)
@@ -124,7 +124,7 @@ def test_builder_basetype_codegen():
 
     globals = {}
     exec(src, globals)  # pylint: disable=W0122
-    semantics = globals['TestModelBuilder']()
+    semantics = globals['TestModelBuilderSemantics']()
 
     A = globals['A']
     B = globals['B']
@@ -151,11 +151,11 @@ def test_optional_attributes():
 
     grammar = compile(grammar)
 
-    a = grammar.parse('foo : bar', semantics=ModelBuilder())
+    a = grammar.parse('foo : bar', semantics=ModelBuilderSemantics())
     assert a.left == 'foo'
     assert a.right == 'bar'
 
-    b = grammar.parse('foo', semantics=ModelBuilder())
+    b = grammar.parse('foo', semantics=ModelBuilderSemantics())
     assert b.left == 'foo'
     assert b.right is None
 

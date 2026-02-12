@@ -73,16 +73,16 @@ You can capture the output, or specify the module filename with the
     $ tatsu --object-model-outfile mymodel.py mygrammar.tatsu
 
 
-|TatSu| will generate a ``mymodel.MyModelBuilder`` that can be
+|TatSu| will generate a ``mymodel.MyModelBuilderSemantics`` that can be
 passed as semantics to the ``parse()`` function to make it generate objects
 from the model according to rule declarations:
 
 .. code:: python
 
-    model = tatsu.parse(mygrammar_str, text, semantics=mymodel.MyModelBuilder())
+    model = tatsu.parse(mygrammar_str, text, semantics=mymodel.MyModelBuilderSemantics())
 
 
-| NOTE: You must pass an instance of ``MyModelBuilder``, and not the class name.
+| NOTE: You must pass an instance of ``MyModelBuilderSemantics``, and not the class name.
 
 
 Defining Custom Models

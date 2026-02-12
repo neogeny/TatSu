@@ -10,7 +10,7 @@ from collections.abc import Callable
 from typing import Any
 
 from .. import grammars
-from ..builder import BuilderConfig, Constructor, ModelBuilder, TypeContainer
+from ..builder import BuilderConfig, Constructor, ModelBuilderSemantics, TypeContainer
 from ..exceptions import ParseException
 from ..infos import ParserConfig
 from ..ngcodegen.modelgen import modelgen
@@ -89,7 +89,7 @@ def compile(
             typedefs=typedefs,
             constructors=constructors,
         )
-        model.semantics = ModelBuilder(config=builderconfig)
+        model.semantics = ModelBuilderSemantics(config=builderconfig)
 
     return model
 
@@ -137,7 +137,7 @@ def parse(
             typedefs=typedefs,
             constructors=constructors,
         )
-        config.semantics = ModelBuilder(config=builderconfig)
+        config.semantics = ModelBuilderSemantics(config=builderconfig)
     return model.parse(text, start=start, semantics=semantics, config=config)
 
 
