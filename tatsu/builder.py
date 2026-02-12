@@ -77,10 +77,10 @@ class ModelBuilder:
         # HACK!
         self.config = self.config.override(synthok=not constructors)
 
-    def instance(self, typename, known: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
-        return self._instantiate(typename, known, *args, **kwargs)
+    def instanceof(self, typename, /, known: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
+        return self._instanceof(typename, known, *args, **kwargs)
 
-    def _instantiate(
+    def _instanceof(
             self,
             typename: str,
             known: dict[str, Any],
@@ -271,4 +271,4 @@ class ModelBuilderSemantics:
             'ast': ast,
             'exp': ast,
         }
-        return self._builder._instantiate(typename, known, ast, *args, base=base, **kwargs)
+        return self._builder._instanceof(typename, known, ast, *args, base=base, **kwargs)
