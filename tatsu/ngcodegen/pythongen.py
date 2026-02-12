@@ -160,8 +160,6 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             self.print(self.walk(rule.exp))
 
     def walk_BasedRule(self, rule: grammars.BasedRule):
-        # HACK: the following override is to not alter the previous codegen
-        rule.exp = rule.rhs
         self.walk_Rule(rule)
 
     def walk_Call(self, call: grammars.Call):

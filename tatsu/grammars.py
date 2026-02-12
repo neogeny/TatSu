@@ -6,15 +6,16 @@ import functools
 from collections import defaultdict
 from collections.abc import Callable, Collection, Mapping
 from copy import copy
+from dataclasses import field
 from itertools import takewhile
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from .ast import AST
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
-from .objectmodel import Node
+from .objectmodel import Node, tatsudataclass
 from .util import indent, re, regexp, trim
 from .util.abctools import chunks, compress_seq
 
@@ -70,12 +71,11 @@ class ModelContext(ParseContext):
         return functools.partial(self.rulemap[name]._parse, self)
 
 
+@tatsudataclass
 class Model(Node):
-    def __init__(self, ast: Any | None = None, **kwargs):
-        super().__init__(ast=ast, **kwargs)
-        self._lookahead: ffset = set()
-        self._firstset: ffset = set()
-        self._follow_set: ffset = set()
+    _lookahead: ffset = field(init=False, default_factory=set)
+    _firstset: ffset = field(init=False, default_factory=set)
+    _follow_set: ffset = field(init=False, default_factory=set)
 
     @staticmethod
     def classes() -> list[type]:
@@ -219,20 +219,26 @@ class EOF(Model):
         return '$'
 
 
+@tatsudataclass
 class Decorator(Model):
-    def __init__(self, ast: Model | AST | None = None, exp: Model | None = None):
-        self.exp: Model = Model()
-        if exp is not None:
-            self.exp = ast = exp
-        elif isinstance(ast, Model):
-            # Patch to avoid bad interactions with attribute setting in Node.
-            # Also a shortcut for subexpressions that are not ASTs.
-            self.exp = ast
-            ast = AST(exp=ast)
-        elif isinstance(ast, AST):
-            self.exp = cast(Model, ast.get('exp', self.exp))
-        super().__init__(ast=ast)
-        assert isinstance(self.exp, Model), self.exp
+    exp: Model = field(init=False, default_factory=Model)
+    # def __init__(self, ast: Model | AST | None = None, exp: Model | None = None):
+    #     self.exp: Model = Model()
+    #     if exp is not None:
+    #         self.exp = ast = exp
+    #     elif isinstance(ast, Model):
+    #         # Patch to avoid bad interactions with attribute setting in Node.
+    #         # Also a shortcut for subexpressions that are not ASTs.
+    #         self.exp = ast
+    #         ast = AST(exp=ast)
+    #     elif isinstance(ast, AST):
+    #         self.exp = cast(Model, ast.get('exp', self.exp))
+    #     super().__init__(ast=ast)
+    #     assert isinstance(self.exp, Model), self.exp
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.exp = self.ast
 
     def _parse(self, ctx) -> Any | None:
         return self.exp._parse(ctx)
@@ -241,6 +247,7 @@ class Decorator(Model):
         return self.exp.defines()
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
+        assert isinstance(self.exp, Model), f'{self!r}:{self.exp=!r}'
         return self.exp.missing_rules(rulenames)
 
     def _used_rule_names(self):
@@ -272,6 +279,7 @@ class Decorator(Model):
 _Decorator = Decorator
 
 
+@tatsudataclass
 class Group(Decorator):
     def _parse(self, ctx):
         with ctx._group():
@@ -414,13 +422,11 @@ class SkipTo(Decorator):
         return '->' + self.exp._pretty(lean=lean)
 
 
+@tatsudataclass
 class Sequence(Model):
-    def __init__(self, ast: AST | list[Model]):
-        super().__init__(ast=ast)
-        self.sequence: list[Model] = (
-            ast.sequence if isinstance(ast, AST) else ast
-        )
-        assert isinstance(self.sequence, list), self.sequence
+    @property
+    def sequence(self) -> list[Model]:
+        return self.ast
 
     def _parse(self, ctx):
         ctx.last_node = [s._parse(ctx) for s in self.sequence]
@@ -586,7 +592,7 @@ class Join(Decorator):
     JOINOP = '%'
 
     def __init__(self, ast: AST):
-        super().__init__(ast.exp)
+        super().__init__(ast=ast.exp)
         self.sep = ast['sep']
 
     def _parse(self, ctx):
@@ -818,14 +824,13 @@ class Rule(Decorator):
             self,
             ast: AST,
             name: str,
-            exp: Model,
             params: list[str] | tuple[str] | None = None,
             kwparams: dict[str, Any] | None = None,
             decorators: list[str] | None = None,
-    ):
+        ):
         assert kwparams is None or isinstance(kwparams, Mapping), kwparams
-        super().__init__(ast=exp)
-        self.exp = exp
+        super().__init__(ast=ast)
+        self.exp = ast.exp
         self.name = name
         self.params = params or []
         self.kwparams = kwparams or {}
@@ -919,29 +924,10 @@ class Rule(Decorator):
 
 
 class BasedRule(Rule):
-    def __init__(
-        self,
-        ast: AST,
-        name: str,
-        exp: Model,
-        base: Rule,
-        params: list[str],
-        kwparams: dict[str, Any],
-        decorators: list[str] | None = None,
-    ):
-        super().__init__(
-            ast,
-            name,
-            exp,
-            params or base.params,
-            kwparams or base.kwparams,
-            decorators=decorators,
-        )
+    def __init__(self, ast: AST, name: str, base: Rule, params: list[str], kwparams: dict[str, Any], decorators: list[str] | None = None):
+        super().__init__(ast, name, params or base.params, kwparams or base.kwparams, decorators=decorators)
         self.base = base
-        new_exp = [self.base.exp, self.exp]
-        ast = AST(sequence=new_exp)
-        ast.set_parseinfo(self.base.parseinfo)
-        self.rhs = Sequence(ast=new_exp)
+        self.rhs = Sequence(ast=[self.base.exp, self.exp])
 
     def _parse(self, ctx):
         return self._parse_rhs(ctx, self.rhs)

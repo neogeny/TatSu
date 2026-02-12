@@ -166,7 +166,7 @@ option::Option
 
 sequence::Sequence
     =
-    sequence: (
+    (
         | &(element ',') ','.{element}+
         | {!EMPTYLINE element}+
     )
@@ -249,7 +249,7 @@ term
 
 group::Group
     =
-    '(' ~ exp:expre ')' ~
+    '(' ~ @:expre ')' ~
     ;
 
 

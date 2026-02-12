@@ -94,11 +94,15 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         return grammars.Override(ast)
 
     def sequence(self, ast, *args):
-        seq = ast.sequence
+        # if isinstance(ast, list | tuple):
+        #     seq = ast
+        # else:
+        #     seq = ast.sequence
+        seq = ast
         assert isinstance(seq, list), str(seq)
         if len(seq) == 1:
             return seq[0]
-        return grammars.Sequence(ast)
+        return grammars.Sequence(ast=ast)
 
     def choice(self, ast, *args):
         if len(ast) == 1:
@@ -121,7 +125,6 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
     def rule(self, ast, *args):
         decorators = ast.decorators
         name = ast.name
-        exp = ast.exp
         base = ast.base
         params = ast.params
         kwparams = dict(ast.kwparams) if ast.kwparams else {}
@@ -132,21 +135,11 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
             self.known_name(name)
 
         if not base:
-            rule = grammars.Rule(
-                ast, name, exp, params, kwparams, decorators=decorators,
-            )
+            rule = grammars.Rule(ast, name, params, kwparams, decorators=decorators)
         else:
             self.known_name(base)
             base_rule = self.rules[base]
-            rule = grammars.BasedRule(
-                ast,
-                name,
-                exp,
-                base_rule,
-                params,
-                kwparams,
-                decorators=decorators,
-            )
+            rule = grammars.BasedRule(ast, name, base_rule, params, kwparams, decorators=decorators)
 
         self.rules[name] = rule
         return rule

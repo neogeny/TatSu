@@ -529,35 +529,34 @@ class TatSuBootstrapParser(Parser):
 
     @rule('Sequence')
     def _sequence_(self):
-        with self._setname('sequence'):
-            with self._group():
-                with self._choice():
-                    with self._option():
-                        with self._if():
-                            with self._group():
-                                self._element_()
-                                self._token(',')
-
-                        def sep0():
+        with self._group():
+            with self._choice():
+                with self._option():
+                    with self._if():
+                        with self._group():
+                            self._element_()
                             self._token(',')
 
-                        def block1():
-                            self._element_()
-                        self._positive_gather(block1, sep0)
-                    with self._option():
+                    def sep0():
+                        self._token(',')
 
-                        def block2():
-                            with self._ifnot():
-                                self._EMPTYLINE_()
-                            self._element_()
-                        self._positive_closure(block2)
-                    if self._no_more_options:
-                        raise self.newexcept(
-                            'expecting one of: '
-                            "'(?:\\\\s*(?:\\\\r?\\\\n|\\\\r)){2,}'"
-                            '<EMPTYLINE> <element> <named> <override>'
-                            '<rule_include> <term>'
-                        ) from None
+                    def block1():
+                        self._element_()
+                    self._positive_gather(block1, sep0)
+                with self._option():
+
+                    def block2():
+                        with self._ifnot():
+                            self._EMPTYLINE_()
+                        self._element_()
+                    self._positive_closure(block2)
+                if self._no_more_options:
+                    raise self.newexcept(
+                        'expecting one of: '
+                        "'(?:\\\\s*(?:\\\\r?\\\\n|\\\\r)){2,}'"
+                        '<EMPTYLINE> <element> <named> <override>'
+                        '<rule_include> <term>'
+                    ) from None
 
     @rule()
     def _element_(self):
@@ -714,11 +713,10 @@ class TatSuBootstrapParser(Parser):
     def _group_(self):
         self._token('(')
         self._cut()
-        with self._setname('exp'):
+        with self._setname('@'):
             self._expre_()
         self._token(')')
         self._cut()
-        self._define(['exp'], [])
 
     @rule()
     def _gather_(self):

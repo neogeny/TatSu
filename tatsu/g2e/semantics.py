@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import re
@@ -53,7 +55,7 @@ class ANTLRSemantics:
                     self.token_rules[name] = ref
                 name = name.lower()
 
-        return model.Rule(ast, name, exp, ast.params, ast.kwparams)
+        return model.Rule(ast, name, ast.params, ast.kwparams)
 
     def alternatives(self, ast: AST) -> model.Model:
         options = [o for o in ast.options if o is not None]
@@ -70,7 +72,7 @@ class ANTLRSemantics:
         elif len(elements) == 1:
             return elements[0]
         else:
-            return model.Sequence(AST(sequence=elements))
+            return model.Sequence(elements)
 
     def predicate_or_action(self, ast: Any) -> None:
         return None
@@ -102,7 +104,7 @@ class ANTLRSemantics:
     def negative(self, ast: Model) -> model.Sequence:
         neg = model.NegativeLookahead(ast)
         any = model.Pattern('.')
-        return model.Sequence(AST(sequence=[neg, any]))
+        return model.Sequence([neg, any])
 
     def subexp(self, ast: Model) -> model.Group:
         return model.Group(ast)
@@ -179,7 +181,7 @@ class ANTLRSemantics:
             self.tokens[name] = exp
         else:
             exp = model.Fail()
-            rule = model.Rule(ast, name, exp)
+            rule = model.Rule(ast, name)
             self.synthetic_rules.append(rule)
         return exp
 
