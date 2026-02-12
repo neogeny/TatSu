@@ -18,6 +18,7 @@ from .infos import ParserConfig, RuleInfo
 from .objectmodel import Node, tatsudataclass
 from .util import indent, re, regexp, trim
 from .util.abctools import chunks, compress_seq
+from .util.typing import typename
 
 PEP8_LLEN = 72
 PRAGMA_RE = r'^\s*#include.*$'
@@ -158,10 +159,10 @@ class Model(Node):
         return self._pretty(lean=True)
 
     def _pretty(self, lean=False):
-        return f'{type(self).__name__}: {id(self)}'
+        return f'{typename(self)}: {id(self)}'
 
     def __repr__(self):
-        return f'{type(self).__name__}()'
+        return f'{typename(self)}()'
 
     def __str__(self):
         return self.pretty()
@@ -334,6 +335,7 @@ class Alert(Constant):
         return f'{"^" * self.level}{super()._pretty()}'
 
 
+@tatsudataclass
 class Pattern(Model):
     def __post_init__(self):
         super().__post_init__()
@@ -765,10 +767,11 @@ class OverrideList(NamedList):
         return self.exp.defines()
 
 
+@tatsudataclass
 class Call(Model):
-    def __init__(self, ast: str) -> None:
-        super().__init__(ast=ast)
-        self.name: str = ast
+    def __post_init__(self):
+        super().__post_init__()
+        self.name: str = self.ast
         assert isinstance(self.name, str), self.name
 
     def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
@@ -816,28 +819,50 @@ class RuleInclude(Decorator):
         return f'>{self.rule.name}'
 
 
+@tatsudataclass
 class Rule(Decorator):
-    def __init__(
-            self,
-            ast: AST,
-            name: str,
-            params: list[str] | tuple[str] | None = None,
-            kwparams: dict[str, Any] | None = None,
-            decorators: list[str] | None = None,
-        ):
-        assert kwparams is None or isinstance(kwparams, Mapping), kwparams
-        super().__init__(ast=ast)
-        self.exp = ast.exp
-        self.name = name
-        self.params = params or []
-        self.kwparams = kwparams or {}
-        self.decorators = decorators or []
+    name: str
+    params: tuple[str, ...] = field(default_factory=tuple)
+    kwparams: dict[str, Any] = field(default_factory=dict)
+    decorators: list[str] = field(default_factory=list)
+    base: Rule | None = None
+    is_name: bool = False
+    is_leftrec: bool = False
+    is_memoizable: bool = True
 
+    # def __init__(
+    #         self,
+    #         ast: AST,
+    #         name: str,
+    #         params: list[str] | tuple[str] | None = None,
+    #         kwparams: dict[str, Any] | None = None,
+    #         decorators: list[str] | None = None,
+    #     ):
+    #     assert kwparams is None or isinstance(kwparams, Mapping), kwparams
+    #     super().__init__(ast=ast)
+    #     self.exp = ast.exp
+    #     self.name = name
+    #     self.params = params or []
+    #     self.kwparams = kwparams or {}
+    #     self.decorators = decorators or []
+    #
+    #     self.is_name = 'name' in self.decorators
+    #     self.base: Rule | None = None
+    #
+    #     self.is_leftrec = False  # Starts a left recursive cycle
+    #     self.is_memoizable = True
+
+    def __post_init__(self):
+        super().__post_init__()
         self.is_name = 'name' in self.decorators
-        self.base: Rule | None = None
+        self.params = self.params or ()
 
-        self.is_leftrec = False  # Starts a left recursive cycle
-        self.is_memoizable = True
+        if not self.kwparams:
+            self.kwparams = {}
+        elif not isinstance(self.kwparams, dict):
+            self.kwparams = dict(self.kwparams)
+
+        assert isinstance(self.kwparams, dict), f'{typename(self)}: {self.kwparams=!r}'
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return self.exp.missing_rules(rulenames)
@@ -921,8 +946,21 @@ class Rule(Decorator):
 
 
 class BasedRule(Rule):
-    def __init__(self, ast: AST, name: str, base: Rule, params: list[str], kwparams: dict[str, Any], decorators: list[str] | None = None):
-        super().__init__(ast, name, params or base.params, kwparams or base.kwparams, decorators=decorators)
+    def __init__(
+            self, ast: AST,
+            name: str,
+            base: Rule,
+            params: list[str],
+            kwparams: dict[str, Any],
+            decorators: list[str] | None = None,
+    ):
+        super().__init__(
+            ast=ast,
+            name=name,
+            params=params or base.params,
+            kwparams=kwparams or base.kwparams,
+            decorators=decorators,
+        )
         self.base = base
         self.rhs = Sequence(ast=[self.base.exp, self.exp])
 

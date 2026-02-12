@@ -133,7 +133,9 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
             self.known_name(name)
 
         if not base:
-            rule = grammars.Rule(ast, name, params, kwparams, decorators=decorators)
+            rule = grammars.Rule(
+                ast=ast, name=name, params=params, kwparams=kwparams, decorators=decorators,
+            )
         else:
             self.known_name(base)
             base_rule = self.rules[base]

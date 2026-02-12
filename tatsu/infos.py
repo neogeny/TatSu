@@ -42,7 +42,7 @@ class RuleInfo(NamedTuple):
     is_leftrec: bool
     is_memoizable: bool
     is_name: bool
-    params: list[Any] | tuple[Any]
+    params: list[Any] | tuple[Any, ...]
     kwparams: dict[str, Any]
 
     def is_token_rule(self):

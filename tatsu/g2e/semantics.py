@@ -55,7 +55,7 @@ class ANTLRSemantics:
                     self.token_rules[name] = ref
                 name = name.lower()
 
-        return model.Rule(ast, name, ast.params, ast.kwparams)
+        return model.Rule(ast=ast, name=name, params=ast.params, kwparams=ast.kwparams)
 
     def alternatives(self, ast: AST) -> model.Model:
         options = [o for o in ast.options if o is not None]
@@ -181,7 +181,7 @@ class ANTLRSemantics:
             self.tokens[name] = exp
         else:
             exp = model.Fail()
-            rule = model.Rule(ast, name)
+            rule = model.Rule(ast=ast, name=name)
             self.synthetic_rules.append(rule)
         return exp
 
