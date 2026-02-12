@@ -6,6 +6,7 @@ import importlib.util
 import re
 import shutil
 from functools import cache
+from pathlib import Path
 
 from .itertools import first  # bwcompat
 
@@ -39,3 +40,11 @@ def module_missing(name):
 
 def platform_has_command(name) -> bool:
     return shutil.which(name) is not None
+
+
+def pathtomodulename(path: Path):
+    return (
+        str(path.with_suffix(''))
+        .replace('/', '.')
+        .replace('.__init__', '')
+    )

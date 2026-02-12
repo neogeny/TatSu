@@ -6,6 +6,7 @@ import codecs
 import hashlib
 import re
 import sys
+from collections.abc import Collection, Iterable
 from io import StringIO
 from typing import Any
 
@@ -187,3 +188,28 @@ def prints(*args, **kwargs: Any) -> str:
         kwargs['end'] = ''
         print(*args, **kwargs)
         return f.getvalue()
+
+
+def longest_common_prefix(strs: Iterable[str], suffix: str = '') -> str:
+    if not strs:
+        return ""
+
+    # Sort the strings alphabetically
+    strs = [s + suffix for s in sorted(strs)]
+
+    first = strs[0]
+    last = strs[-1]
+    i = 0
+
+    # Only compare the first and last strings
+    while i < len(first) and i < len(last) and first[i] == last[i]:
+        i += 1
+
+    return first[:i]
+
+
+def without_common_prefix(strs: Iterable[str], suffix: str = '') -> list[str]:
+    if not strs:
+        return []
+    prefix = longest_common_prefix(strs, suffix=suffix)
+    return [s.lstrip(prefix) for s in strs]
