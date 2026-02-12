@@ -9,7 +9,7 @@ import sys
 from io import StringIO
 from typing import Any
 
-from .misc import is_reserved
+from tatsu.util import is_reserved
 
 if sys.version_info >= (3, 13):
     from re import PatternError

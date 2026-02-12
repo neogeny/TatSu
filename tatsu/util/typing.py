@@ -11,6 +11,7 @@ from types import ModuleType
 from typing import Any
 
 from .itertools import CycleError, first, topsort
+from .notnone import Undefined
 
 __all__ = [
     'ActualArguments',
@@ -19,8 +20,6 @@ __all__ = [
     'TypeContainer',
     'boundcall',
 ]
-
-from .notnone import Undefined
 
 type Constructor = type | Callable
 type TypeContainer = type | ModuleType | Mapping[str, type] | dict[str, type]
@@ -125,19 +124,6 @@ class BoundCallable:
                     actual.add_kwargs(kwargs)
 
         return actual
-
-
-def fqn(obj: Any) -> str:
-    # by [apalala@gmail.com](https://github.com/apalala)
-    # by Gemini (2026-01-30)
-
-    """Helper to safely retrieve the fully qualified name of a callable."""
-    module = getattr(obj, "__module__", None)
-    qualname = getattr(obj, "__qualname__", None)
-
-    if module and qualname and module != "builtins":
-        return f"{module}.{qualname}"
-    return qualname or str(obj)
 
 
 def typename(obj: Any) -> str:

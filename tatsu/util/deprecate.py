@@ -11,7 +11,7 @@ import warnings
 from collections.abc import Callable
 from typing import Any
 
-from .typing import fqn
+from .common import fqn
 
 type Decorator = Callable[[Callable[..., Any]], Callable[..., Any]]
 type AnyCallable = Callable[..., Any]

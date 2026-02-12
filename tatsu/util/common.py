@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime
+import keyword
 import os
 import os.path
 from pathlib import Path
@@ -119,3 +120,24 @@ def short_relative_path(path: str | Path, base: str | Path = '.') -> Path:
         return rel
     else:
         return path
+
+
+def fqn(obj: Any) -> str:
+    # by [apalala@gmail.com](https://github.com/apalala)
+    # by Gemini (2026-01-30)
+
+    """Helper to safely retrieve the fully qualified name of a callable."""
+    module = getattr(obj, "__module__", None)
+    qualname = getattr(obj, "__qualname__", None)
+
+    if module and qualname and module != "builtins":
+        return f"{module}.{qualname}"
+    return qualname or str(obj)
+
+
+def is_reserved(name) -> bool:
+    return (
+        keyword.iskeyword(name) or
+        keyword.issoftkeyword(name) or
+        name in {'type', 'list', 'dict', 'set'}
+    )

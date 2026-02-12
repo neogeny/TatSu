@@ -11,13 +11,13 @@ from __future__ import annotations
 import re
 from collections import namedtuple
 from dataclasses import asdict, dataclass
-
-__all__ = ['Version']
-
 from itertools import takewhile
 from typing import Any
 
-from tatsu.util import select
+from .abctools import select
+
+__all__ = ['Version']
+
 
 STRIC_VERSION_RE = r'''(?x)
     ^v?

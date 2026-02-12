@@ -3,10 +3,19 @@
 from __future__ import annotations
 
 import importlib.util
-import keyword
 import re
 import shutil
 from functools import cache
+
+from .itertools import first  # bwcompat
+
+__all__ = [
+    'first',
+    'cached_re_compile',
+    'module_available',
+    'module_missing',
+    'platform_has_command',
+]
 
 
 @cache
@@ -30,11 +39,3 @@ def module_missing(name):
 
 def platform_has_command(name) -> bool:
     return shutil.which(name) is not None
-
-
-def is_reserved(name) -> bool:
-    return (
-            keyword.iskeyword(name) or
-            keyword.issoftkeyword(name) or
-            name in {'type', 'list', 'dict', 'set'}
-    )
