@@ -44,6 +44,8 @@ nosetests.xml
 coverage.xml
 *,cover
 htmlcov/
+tach.toml
+.tach/
 
 ### --- Generated Files & Parsers ---
 /parsers/
