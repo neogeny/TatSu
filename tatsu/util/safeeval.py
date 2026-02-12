@@ -8,7 +8,7 @@ from collections.abc import Iterable, Mapping
 from functools import lru_cache
 from typing import Any
 
-from .typing import NotNoneType, Undefined
+from .notnone import NotNoneType, Undefined
 
 __all__ = [
     'SecurityError',

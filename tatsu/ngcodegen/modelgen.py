@@ -12,7 +12,7 @@ from ..objectmodel import Node
 from ..util import safe_name
 from ..util.abctools import compress_seq
 from ..util.deprecate import deprecated_params
-from ..util.misc import topsort
+from ..util.itertools import topsort
 
 HEADER = """\
     #!/usr/bin/env python3

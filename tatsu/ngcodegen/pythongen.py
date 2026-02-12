@@ -11,8 +11,9 @@ from .. import grammars
 from ..exceptions import CodegenError
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
-from ..util import Undefined, regexp, safe_name
+from ..util import regexp, safe_name
 from ..util.abctools import compress_seq
+from ..util.notnone import Undefined
 from ..walkers import NodeWalker
 
 HEADER = """\

@@ -15,10 +15,9 @@ from typing import Any
 
 from .infos import ParserConfig, PosLine
 from .tokenizing import LineIndexInfo, LineInfo, Tokenizer
-from .util import (
-    Undefined,
-)
-from .util.misc import cached_re_compile, str_from_match
+from .util.itertools import str_from_match
+from .util.misc import cached_re_compile
+from .util.notnone import Undefined
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 

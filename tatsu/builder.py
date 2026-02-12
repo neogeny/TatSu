@@ -3,30 +3,17 @@
 from __future__ import annotations
 
 import builtins
-import keyword
 import types
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
-from types import ModuleType
 from typing import Any
 
 from .objectmodel import Node
 from .synth import synthesize
 from .util.configs import Config
 from .util.deprecate import deprecated_params
-from .util.misc import least_upper_bound_type
-from .util.typing import boundcall
-
-__all__ = [
-    'BuilderConfig',
-    'ModelBuilder',
-    'ModelBuilderSemantics',
-    'TypeContainer',
-]
-
-
-type Constructor = type | Callable
-type TypeContainer = type | ModuleType | Mapping[str, type] | dict[str, type]
+from .util.string import mangle
+from .util.typing import Constructor, TypeContainer, boundcall, least_upper_bound_type
 
 
 class TypeResolutionError(TypeError):
@@ -244,18 +231,6 @@ class ModelBuilderSemantics:
     def _default(self, ast: Any, *args: Any, **kwargs: Any) -> Any:
         if not args:
             return ast
-
-        def is_reserved(name) -> bool:
-            return (
-                    keyword.iskeyword(name) or
-                    keyword.issoftkeyword(name) or
-                    name in {'type', 'list', 'dict', 'set'}
-            )
-
-        def mangle(name: str) -> str:
-            while is_reserved(name):
-                name += '_'
-            return name
 
         typespec = [mangle(s) for s in args[0].split('::')]
         typename = typespec[0]

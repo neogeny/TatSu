@@ -32,12 +32,12 @@ from ..infos import (
 )
 from ..tokenizing import NullTokenizer, Tokenizer
 from ..util import (
-    Undefined,
     regexp,
     safe_name,
     trim,
 )
 from ..util.abctools import is_list, left_assoc, prune_dict, right_assoc
+from ..util.notnone import Undefined
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from ..util.typing import boundcall
 from .infos import MemoKey, RuleResult, closure

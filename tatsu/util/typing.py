@@ -4,79 +4,30 @@ from __future__ import annotations
 
 import builtins
 import inspect
-from collections.abc import Callable, Iterable, Mapping
+import itertools
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, cast
+from types import ModuleType
+from typing import Any
+
+from .itertools import CycleError, first, topsort
 
 __all__ = [
     'ActualArguments',
     'BoundCallable',
-    'NotNone',
-    'NotNoneType',
-    'Undefined',
-    'UndefinedType',
+    'Constructor',
+    'TypeContainer',
     'boundcall',
 ]
 
+from .notnone import Undefined
 
-def notnone[T](value: T | None, default: T) -> T:
-    return value if value is not None else default
+type Constructor = type | Callable
+type TypeContainer = type | ModuleType | Mapping[str, type] | dict[str, type]
 
 
 def boundcall(fun: Callable, known: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
     return BoundCallable.call(fun, known, *args, **kwargs)
-
-
-class NotNoneType[T]:
-    __notnone: Any = None
-
-    def __init__(self):
-        if isinstance(self.__notnone, NotNoneType):
-            return
-        type(self).__notnone = self
-
-    @classmethod
-    def notnone(cls) -> NotNoneType[T]:
-        return cast(NotNoneType[T], cls.__notnone)
-
-    def __eq__(self, other: Any) -> bool:
-        if self is not Undefined:
-            return False
-        if other is not Undefined:
-            return False
-        return other is self
-
-    def __bool__(self):
-        return False
-
-    def __and__(self, other):
-        return self
-
-    def __rand__(self, other):
-        return self.__and__(other)
-
-    def __or__(self, other):
-        return other
-
-    def __ror__(self, other):
-        return self.__or__(other)
-
-    def __invert__(self):
-        return not None
-
-    def __repr__(self) -> str:
-        return super().__repr__()
-
-    def __str__(self) -> str:
-        return 'Undefined'
-
-    def __hash__(self) -> int:
-        return hash(id(self))
-
-
-UndefinedType = NotNoneType
-NotNone: NotNoneType[Any] = NotNoneType()
-Undefined = NotNone
 
 
 @dataclass
@@ -174,3 +125,61 @@ class BoundCallable:
                     actual.add_kwargs(kwargs)
 
         return actual
+
+
+def fqn(obj: Any) -> str:
+    # by [apalala@gmail.com](https://github.com/apalala)
+    # by Gemini (2026-01-30)
+
+    """Helper to safely retrieve the fully qualified name of a callable."""
+    module = getattr(obj, "__module__", None)
+    qualname = getattr(obj, "__qualname__", None)
+
+    if module and qualname and module != "builtins":
+        return f"{module}.{qualname}"
+    return qualname or str(obj)
+
+
+def typename(obj: Any) -> str:
+    return type(obj).__name__
+
+
+def least_upper_bound_type(constructors: Sequence[Constructor]) -> type:
+    # by [apalala@gmail.com](https://github.com/apalala)
+    # by Gemini (2026-01-30)
+
+    # Caller is responsible for filtering constructors to relevant types
+    types_ = [t for t in constructors if isinstance(t, type)]
+
+    if not types_:
+        return object
+    if len(types_) == 1:
+        return types_[0]
+
+    nodes: set[type] = set()
+    edges: set[tuple[type, type]] = set()
+
+    for t in types_:
+        # mro[1:] focuses on the skeleton/ancestors
+        ancestors = t.__mro__[1:]
+        nodes.update(ancestors)
+
+        edges.update((child, parent) for child, parent in itertools.pairwise(ancestors))
+
+    if not nodes:
+        return object
+
+    try:
+        topsorted = topsort(list(nodes), list(edges))
+    except CycleError:
+        return object
+
+    # The LUB is the most specific ancestor that covers all provided types
+    # Since child -> parent, we check from the most specific in the sort
+    return first(
+        (
+            parent for parent in topsorted
+            if all(issubclass(t, parent) for t in types_)
+        ),
+        default=object,
+    )

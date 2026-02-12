@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import codecs
 import hashlib
-import keyword
 import re
 import sys
 from io import StringIO
 from typing import Any
+
+from .misc import is_reserved
 
 if sys.version_info >= (3, 13):
     from re import PatternError
@@ -136,6 +137,10 @@ def indent(text, indent=1, multiplier=4):
     return text
 
 
+def mangle(name: str) -> str:
+    return safe_name(name)
+
+
 def safe_name(name: str, plug: str = "_") -> str:
     """
     Utility to transform a string into a valid Python identifier.
@@ -160,8 +165,8 @@ def safe_name(name: str, plug: str = "_") -> str:
         else:
             plugged_name = f"{plug}{plugged_name}"
 
-    if keyword.iskeyword(plugged_name) or keyword.issoftkeyword(plugged_name):
-        plugged_name = f"{plugged_name}_"
+    while is_reserved(plugged_name):
+        plugged_name = f"{plugged_name}{plug}"
 
     return plugged_name
 
