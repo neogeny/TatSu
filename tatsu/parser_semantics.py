@@ -51,7 +51,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         if not token:
             raise FailedSemantics('empty token')
         literal_eval(repr(token))
-        return grammars.Token(token)
+        return grammars.Token(ast=token)
 
     def pattern(self, ast: str, *args) -> grammars.Pattern:
         pattern = ast

@@ -293,10 +293,11 @@ class Group(Decorator):
         return f'(\n{indent(exp)}\n)'
 
 
+@tatsudataclass
 class Token(Model):
-    def __init__(self, ast: str):
-        super().__init__(ast=ast)
-        self.token = ast
+    def __post_init__(self):
+        super().__post_init__()
+        self.token = self.ast
 
     def _parse(self, ctx):
         return ctx._token(self.token)
@@ -311,10 +312,11 @@ class Token(Model):
         return f'{type(self).__name__}({self.token!r})'
 
 
+@tatsudataclass
 class Constant(Model):
-    def __init__(self, ast: str):
-        super().__init__(ast=ast)
-        self.literal = ast
+    def __post_init__(self):
+        super().__post_init__()
+        self.literal = self.ast
 
     def _parse(self, ctx):
         return ctx._constant(self.literal)
@@ -329,9 +331,10 @@ class Constant(Model):
         return True
 
 
+@tatsudataclass
 class Alert(Constant):
-    def __init__(self, ast: str):
-        super().__init__(ast=ast)
+    def __post_init__(self):
+        super().__post_init__()
         self.literal = self.ast.message.literal
         self.level = len(self.ast.level)
 
