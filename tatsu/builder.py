@@ -271,4 +271,4 @@ class ModelBuilderSemantics:
             'ast': ast,
             'exp': ast,
         }
-        return self._builder._instanceof(typename, known, ast, *args, base=base, **kwargs)
+        return self._builder._instanceof(typename, known, ast, *args[1:], base=base, **kwargs)
