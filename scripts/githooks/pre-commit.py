@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import subprocess
 import sys
+from collections.abc import Collection
+from datetime import date
 from pathlib import Path
 
 
@@ -26,7 +28,7 @@ def get_staged_files() -> list[Path]:
         return []
 
 
-def is_header_missing(path: Path, target: str) -> bool:
+def is_header_missing(path: Path, target: Collection[str]) -> bool:
     """
     Check if a file is missing the license header using native string ops.
     Works for # (Python/Makefile) and // (JSONC) comments.
@@ -35,7 +37,7 @@ def is_header_missing(path: Path, target: str) -> bool:
         with path.open('r', encoding='utf-8', errors='ignore') as f:
             # Check the first 1024 bytes for the header
             head = f.read(1024)
-            return any(line not in head for line in target.splitlines())
+            return any(line not in head for line in target)
     except Exception:
         return False
 
@@ -44,10 +46,12 @@ def main() -> None:
     """
     Main entry point. Exits with 1 if any staged files lack the header.
     """
-    target = (
-        'Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)'
-        '\nSPDX-License-Identifier: BSD-4-Clause'
-    )
+    year = date.today().year
+    target = {
+        'Copyright (c)',
+        f'{year} Juancarlo Añez (apalala@gmail.com)',
+        'SPDX-License-Identifier: BSD-4-Clause',
+    }
     ignored_suffix = {
         '.dot',
         '.ico',
