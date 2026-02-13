@@ -16,8 +16,6 @@ from ..util.deprecate import deprecated
 
 @tatsudataclass
 class Node(BaseNode):
-    __parent_ref: weakref.ref | None = None  # pyright: ignore[reportRedeclaration]
-
     def __init__(self, ast: Any = None, **kwargs: Any):
         super().__init__(ast=ast, **kwargs)
         self.__parent_ref: weakref.ref[Node] | None = None  # pyright: ignore[reportRedeclaration]
