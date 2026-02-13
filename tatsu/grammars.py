@@ -223,6 +223,7 @@ class EOF(Model):
 
 @tatsudataclass
 class Decorator(Model):
+    name: str = field(default='')
     exp: Model = field(default_factory=Model)
 
     def __post_init__(self):
@@ -721,7 +722,7 @@ class Cut(Model):
 
 @tatsudataclass
 class Named(Decorator):
-    name: str = ''
+    name: str = field(default='')
 
     def __post_init__(self):
         super().__post_init__()
@@ -843,7 +844,6 @@ class RuleInclude(Decorator):
 
 @tatsudataclass
 class Rule(Decorator):
-    name: str
     params: tuple[str, ...] = field(default_factory=tuple)
     kwparams: dict[str, Any] = field(default_factory=dict)
     decorators: list[str] = field(default_factory=list)
