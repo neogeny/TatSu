@@ -53,7 +53,7 @@ class UndefinedType[T]:
         return not None
 
     def __repr__(self) -> str:
-        return super().__repr__()
+        return 'Undefined'
 
     def __str__(self) -> str:
         return 'Undefined'
