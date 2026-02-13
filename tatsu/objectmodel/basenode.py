@@ -53,7 +53,7 @@ class BaseNode(AsJSONMixin):
     ctx: Any = None
     parseinfo: ParseInfo | None = None
 
-    def __init__(self, ast: Any = None, **attributes: Any):
+    def __init__(self, *, ast: Any = None, **attributes: Any):
         # NOTE:
         #  A @datclass subclass may not call this,
         #  but __post_init__() should still be honored
@@ -124,9 +124,18 @@ class BaseNode(AsJSONMixin):
         }
 
     def __repr__(self) -> str:
+        fieldindex = {
+            f.name: i
+            for i, f in enumerate(dataclasses.fields(self))  # type: ignore
+        }
+
+        def fieldorder(n) -> int:
+            return fieldindex.get(n, len(fieldindex))
+
+        items = sorted(self.__pubdict__().items(), key=fieldorder)
         attrs = ', '.join(
             f'{name}={value!r}'
-            for name, value in self.__pubdict__().items()
+            for name, value in items
             if value is not None
         )
         return (
