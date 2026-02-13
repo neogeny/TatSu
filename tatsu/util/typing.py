@@ -11,7 +11,6 @@ from types import ModuleType
 from typing import Any
 
 from .itertools import CycleError, first, topsort
-from .undefined import Undefined
 
 __all__ = [
     'ActualArguments',
@@ -113,11 +112,11 @@ class BoundCallable:
                     actual.add_arg(name, argsc.pop(0) if argsc else arg)  # note: inject known arg
                 case p.POSITIONAL_OR_KEYWORD:
                     if name in kwargsc:
-                        actual.add_kwarg(name, kwargsc.pop(name, Undefined))
+                        actual.add_kwarg(name, kwargsc.pop(name, None))
                     else:
                         actual.add_arg(name, argsc.pop(0))
                 case p.KEYWORD_ONLY:
-                    actual.add_kwarg(name, kwargsc.pop(name, Undefined))
+                    actual.add_kwarg(name, kwargsc.pop(name, None))
                 case p.VAR_POSITIONAL:
                     actual.add_args(argsc)
                 case p.VAR_KEYWORD:
