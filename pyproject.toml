@@ -1,7 +1,9 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
+# by Gemini 2026-02-13
 
 [build-system]
+# We use hatchling as the engine, which is decoupled from the hatch CLI
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
@@ -34,15 +36,16 @@ parproc = ["rich"]
 
 [dependency-groups]
 dev = [
+    "build",
     "colorama",
     "graphviz",
-    "hatch",
-    "hatch-uv",
     "ipython",
     "progress",
     "psutil",
     "rich",
     "rst2html5",
+    "twine",
+    "uv",
 ]
 test = [
     "basedpyright",
@@ -91,32 +94,14 @@ Repository = "https://github.com/neogeny/TatSu"
 Documentation = "https://tatsu.readthedocs.io/en/stable/"
 
 [tool.hatch.version]
+# Telling Hatchling exactly where to find the version string
 path = "tatsu/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["tatsu"]
 
 [tool.hatch.build.targets.sdist]
-exclude = ["/backup", "/parsers", "/deprecated", "req*.txt"]
-
-[tool.hatch.envs.default]
-dependency-groups = ["dev"]
-env-vars = {CFLAGS = "-I/opt/homebrew/include", LDFLAGS = "-L/opt/homebrew/lib"}
-
-[tool.hatch.envs.test]
-dependency-groups = ["test"]
-default-args = ["test"]
-
-[tool.hatch.envs.test.scripts]
-version = "python --version && tatsu --version"
-lint = "ruff check -q --preview tatsu tests examples"
-types = "ty check tatsu tests examples"
-more_types = "basedpyright tatsu tests examples"
-unit_tests = "pytest tests"
-test = ["version", "lint", "types", "more_types", "unit_tests"]
-
-[[tool.hatch.envs.test.matrix]]
-python = ["3.12", "3.13", "3.14", "3.15"]
+exclude = ["/backup", "/parsers", "/deprecated"]
 
 [tool.pytest.ini_options]
 log_cli = true

@@ -15,12 +15,16 @@ test:  lint pytest
 
 test_plus: clean_plus test
 
+__line__:
+	@- echo $$(python3 --version) $$(tatsu --version)
+	@- uvx python3 -c "import shutil; print('━' * shutil.get_terminal_size().columns)"
 
-__tests_init__: clean
-	@-uv sync -q --group test
+__tests_init__: __line__
+	@- echo "-> tests"
+	@- uv sync -q --group test
 
 
-pytest: __tests_init__
+pytest: __tests_init__ clean
 	@- echo "preparing..."
 	@- mkdir -p ./tmp
 	@- touch ./tmp/__init__.py
@@ -59,12 +63,12 @@ calc_test:
 lint: ruff ty pyright
 
 
-ruff: __tests_init__
+ruff: __tests_init__ clean
 	@- echo "-> $@"
 	@- uv run ruff check -q --preview --fix tatsu tests examples
 
 
-mypy: __tests_init__
+mypy: __tests_init__ clean
 	@- echo "-> $@"
 	@- uv run mypy tatsu tests examples \
 		--install-types \
@@ -75,12 +79,12 @@ mypy: __tests_init__
 pyright: basedpyright
 
 
-basedpyright: __tests_init__
+basedpyright: __tests_init__ clean
 	@- echo "-> $@"
 	@- uv run basedpyright tatsu tests examples
 
 
-ty: __tests_init__
+ty: __tests_init__ clean
 	@- echo "-> $@"
 	@- uv run ty check tatsu tests examples
 
@@ -97,8 +101,13 @@ clean_plus: clean
 
 checks: matrix
 
-matrix: clean __tests_init__
-	time uv run hatch run --force-continue test:test
+matrix: matrix_run __line__
+
+matrix_run:
+	@- uv run -q --python 3.12 make test
+	@- uv run -q --python 3.13 make test
+	@- uv run -q --python 3.14 make test
+	@- uv run -q --python 3.15 make test
 
 
 build: clean
