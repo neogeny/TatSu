@@ -825,32 +825,10 @@ class Rule(Decorator):
     params: tuple[str, ...] = field(default_factory=tuple)
     kwparams: dict[str, Any] = field(default_factory=dict)
     decorators: list[str] = field(default_factory=list)
-    base: Rule | None = None
+    base: str | None = None
     is_name: bool = False
     is_leftrec: bool = False
     is_memoizable: bool = True
-
-    # def __init__(
-    #         self,
-    #         ast: AST,
-    #         name: str,
-    #         params: list[str] | tuple[str] | None = None,
-    #         kwparams: dict[str, Any] | None = None,
-    #         decorators: list[str] | None = None,
-    #     ):
-    #     assert kwparams is None or isinstance(kwparams, Mapping), kwparams
-    #     super().__init__(ast=ast)
-    #     self.exp = ast.exp
-    #     self.name = name
-    #     self.params = params or []
-    #     self.kwparams = kwparams or {}
-    #     self.decorators = decorators or []
-    #
-    #     self.is_name = 'name' in self.decorators
-    #     self.base: Rule | None = None
-    #
-    #     self.is_leftrec = False  # Starts a left recursive cycle
-    #     self.is_memoizable = True
 
     def __post_init__(self):
         super().__post_init__()
@@ -934,7 +912,7 @@ class Rule(Decorator):
                     else f'({params})'
                 )
 
-        base = f' < {self.base.name!s}' if self.base else ''
+        base = f' < {self.base!s}' if self.base else ''
 
         return trim(str_template).format(
             name=self.name,
@@ -945,32 +923,28 @@ class Rule(Decorator):
         )
 
 
+@tatsudataclass
 class BasedRule(Rule):
-    def __init__(
-            self, ast: AST,
-            name: str,
-            base: Rule,
-            params: list[str],
-            kwparams: dict[str, Any],
-            decorators: list[str] | None = None,
-    ):
-        super().__init__(
-            ast=ast,
-            name=name,
-            params=params or base.params,
-            kwparams=kwparams or base.kwparams,
-            decorators=decorators,
-        )
-        self.base = base
-        self.rhs = Sequence(ast=[self.base.exp, self.exp])
+    baserule: Rule  # note: base is name in the AST from the rule
+    rhs: Model = Model()
+
+    def __post_init__(self):
+        super().__post_init__()
+
+        assert isinstance(self.baserule, Rule), f'{typename(self.base)}: {self.basrulee=!r}'
+
+        self.params = self.params or self.baserule.params
+        self.kwparams = self.kwparams or self.baserule.kwparams
+        self.rhs = Sequence(ast=[self.baserule.exp, self.exp])
 
     def _parse(self, ctx):
         return self._parse_rhs(ctx, self.rhs)
 
     def defines(self):
-        return self.rhs.defines()
+        return super().defines() + self.rhs.defines()
 
 
+@tatsudataclass
 class Grammar(Model):
     def __init__(
         self,

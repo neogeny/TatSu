@@ -23,7 +23,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         )
         self.name = name
         self.context = context
-        self.rules: dict[str, grammars.Rule] = {}
+        self.rulemap: dict[str, grammars.Rule] = {}
 
     def set_context(self, context: ParseContext):
         self.context = context
@@ -108,12 +108,12 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         return grammars.Choice(ast=ast)
 
     def new_name(self, name):
-        if name in self.rules:
+        if name in self.rulemap:
             raise FailedSemantics(f'rule "{name!s}" already defined')
         return name
 
-    def known_name(self, name):
-        if name not in self.rules:
+    def known_name(self, name) -> str:
+        if name not in self.rulemap:
             raise FailedSemantics(f'rule "{name!s}" not yet defined')
         return name
 
@@ -127,7 +127,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         params = ast.params
         kwparams = dict(ast.kwparams) if ast.kwparams else {}
 
-        if 'override' not in decorators and name in self.rules:
+        if 'override' not in decorators and name in self.rulemap:
             self.new_name(name)
         elif 'override' in decorators:
             self.known_name(name)
@@ -138,17 +138,19 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
             )
         else:
             self.known_name(base)
-            base_rule = self.rules[base]
-            rule = grammars.BasedRule(ast, name, base_rule, params, kwparams, decorators=decorators)
+            baserule = self.rulemap[base]
+            rule = grammars.BasedRule(
+                ast=ast, name=name, baserule=baserule, params=params, kwparams=kwparams, decorators=decorators,
+            )
 
-        self.rules[name] = rule
+        self.rulemap[name] = rule
         return rule
 
     def rule_include(self, ast, *args):
         name = str(ast)
         self.known_name(name)
 
-        rule = self.rules[name]
+        rule = self.rulemap[name]
         return grammars.RuleInclude(rule)
 
     def grammar(self, ast, *args):
@@ -164,7 +166,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         name = self.name or directives.get('grammar')
         grammar = grammars.Grammar(
             name,
-            list(self.rules.values()),
+            list(self.rulemap.values()),
             directives=directives,
             keywords=keywords,
         )
