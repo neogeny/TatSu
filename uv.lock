@@ -351,6 +351,15 @@ wheels = [
 ]
 
 [[package]]
+name = "diskcache"
+version = "5.6.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3f/21/1c1ffc1a039ddcc459db43cc108658f32c57d271d7289a2794e401d0fdb6/diskcache-5.6.3.tar.gz", hash = "sha256:2c3a3fa2743d8535d832ec61c2054a1641f41775aa7c556758a109941e33e4fc", size = 67916, upload-time = "2023-08-31T06:12:00.316Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3f/27/4570e78fc0bf5ea0ca45eb1de3818a23787af9b390c0b0a0033a1b8236f9/diskcache-5.6.3-py3-none-any.whl", hash = "sha256:5e31b2d5fbad117cc363ebaf6b689474db18a1f6438bc82358b024abd4c2ca19", size = 45550, upload-time = "2023-08-31T06:11:58.822Z" },
+]
+
+[[package]]
 name = "docutils"
 version = "0.22.4"
 source = { registry = "https://pypi.org/simple" }
@@ -1120,11 +1129,11 @@ wheels = [
 
 [[package]]
 name = "platformdirs"
-version = "4.7.0"
+version = "4.7.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/71/25/ccd8e88fcd16a4eb6343a8b4b9635e6f3928a7ebcd82822a14d20e3ca29f/platformdirs-4.7.0.tar.gz", hash = "sha256:fd1a5f8599c85d49b9ac7d6e450bc2f1aaf4a23f1fe86d09952fe20ad365cf36", size = 23118, upload-time = "2026-02-12T22:21:53.764Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d3/3e/c81eb24fb98b00bc097b9ce5dee6eca020c52619ed95b246aaec2018c511/platformdirs-4.7.1.tar.gz", hash = "sha256:6f4ff8472e482af4b7e67a183fbe63da846a9b34f57d5019c4d112a181003d82", size = 25254, upload-time = "2026-02-13T17:57:16.833Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cb/e3/1eddccb2c39ecfbe09b3add42a04abcc3fa5b468aa4224998ffb8a7e9c8f/platformdirs-4.7.0-py3-none-any.whl", hash = "sha256:1ed8db354e344c5bb6039cd727f096af975194b508e37177719d562b2b540ee6", size = 18983, upload-time = "2026-02-12T22:21:52.237Z" },
+    { url = "https://files.pythonhosted.org/packages/d1/82/36dcca0cfa42ad259bf0eb1f7af0d5759710c21928856891631cb47e4771/platformdirs-4.7.1-py3-none-any.whl", hash = "sha256:06ac79ae0c5025949f62711e3f7cd178736515a29bcc669f42a216016cd1dc7a", size = 19070, upload-time = "2026-02-13T17:57:15.67Z" },
 ]
 
 [[package]]
@@ -1741,6 +1750,7 @@ parproc = [
 dev = [
     { name = "build" },
     { name = "colorama" },
+    { name = "diskcache" },
     { name = "graphviz" },
     { name = "ipython" },
     { name = "progress" },
@@ -1796,52 +1806,53 @@ provides-extras = ["colorization", "parproc"]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "build" },
-    { name = "colorama" },
-    { name = "graphviz" },
-    { name = "ipython" },
-    { name = "progress" },
-    { name = "psutil" },
-    { name = "rich" },
-    { name = "rst2html5" },
-    { name = "twine" },
-    { name = "uv" },
+    { name = "build", specifier = ">=1.4.0" },
+    { name = "colorama", specifier = ">=0.4.6" },
+    { name = "diskcache", specifier = ">=5.6.3" },
+    { name = "graphviz", specifier = ">=0.21" },
+    { name = "ipython", specifier = ">=9.10.0" },
+    { name = "progress", specifier = ">=1.6.1" },
+    { name = "psutil", specifier = ">=7.2.2" },
+    { name = "rich", specifier = ">=14.3.2" },
+    { name = "rst2html5", specifier = ">=2.0.1" },
+    { name = "twine", specifier = ">=6.2.0" },
+    { name = "uv", specifier = ">=0.10.2" },
 ]
 doc = [
-    { name = "docutils" },
-    { name = "myst-parser" },
-    { name = "pydata-sphinx-theme" },
-    { name = "sphinx" },
-    { name = "sphinx-autodoc2" },
-    { name = "sphinx-copybutton" },
-    { name = "sphinx-rtd-theme" },
+    { name = "docutils", specifier = ">=0.22.4" },
+    { name = "myst-parser", specifier = ">=5.0.0" },
+    { name = "pydata-sphinx-theme", specifier = ">=0.16.1" },
+    { name = "sphinx", specifier = ">=9.1.0" },
+    { name = "sphinx-autodoc2", specifier = ">=0.5.0" },
+    { name = "sphinx-copybutton", specifier = ">=0.5.2" },
+    { name = "sphinx-rtd-theme", specifier = ">=3.1.0" },
 ]
 mkdocs = [
-    { name = "mkdocs" },
-    { name = "mkdocs-autorefs" },
-    { name = "mkdocs-gen-files" },
-    { name = "mkdocs-literate-nav" },
-    { name = "mkdocs-macros-plugin" },
-    { name = "mkdocs-material" },
-    { name = "mkdocstrings", extras = ["python"] },
-    { name = "pymdown-extensions" },
+    { name = "mkdocs", specifier = ">=1.6.1" },
+    { name = "mkdocs-autorefs", specifier = ">=1.4.4" },
+    { name = "mkdocs-gen-files", specifier = ">=0.6.0" },
+    { name = "mkdocs-literate-nav", specifier = ">=0.6.2" },
+    { name = "mkdocs-macros-plugin", specifier = ">=1.5.0" },
+    { name = "mkdocs-material", specifier = ">=9.7.1" },
+    { name = "mkdocstrings", extras = ["python"], specifier = ">=1.0.3" },
+    { name = "pymdown-extensions", specifier = ">=10.20.1" },
 ]
 test = [
-    { name = "basedpyright" },
-    { name = "colorama" },
-    { name = "graphviz" },
-    { name = "mypy" },
+    { name = "basedpyright", specifier = ">=1.38.0" },
+    { name = "colorama", specifier = ">=0.4.6" },
+    { name = "graphviz", specifier = ">=0.21" },
+    { name = "mypy", specifier = ">=1.19.1" },
     { name = "nodejs-wheel-binaries", specifier = "<=24" },
-    { name = "progress" },
-    { name = "psutil" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-dependency" },
-    { name = "pytest-rerunfailures" },
-    { name = "pytest-xdist" },
-    { name = "rich" },
-    { name = "ruff" },
-    { name = "ty" },
+    { name = "progress", specifier = ">=1.6.1" },
+    { name = "psutil", specifier = ">=7.2.2" },
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "pytest-cov", specifier = ">=7.0.0" },
+    { name = "pytest-dependency", specifier = ">=0.6.0" },
+    { name = "pytest-rerunfailures", specifier = ">=16.1" },
+    { name = "pytest-xdist", specifier = ">=3.8.0" },
+    { name = "rich", specifier = ">=14.3.2" },
+    { name = "ruff", specifier = ">=0.15.1" },
+    { name = "ty", specifier = ">=0.0.17" },
 ]
 
 [[package]]
