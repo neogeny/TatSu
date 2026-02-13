@@ -15,20 +15,24 @@ test:  lint pytest
 
 test_plus: clean_plus test
 
+
+__version__:
+	@- echo "->" $$(python3 --version) $$(python3 -m tatsu --version)
+
+
 __line__:
-	@- echo $$(python3 --version) $$(python3 -m tatsu --version)
 	@- uvx python3 -c "import shutil; print('━' * shutil.get_terminal_size().columns)"
 
-__tests_init__: __line__
-	@- echo "-> tests"
+
+__tests_init__: __line__ __version__
 	@- uv sync -q --group test
 
 
 pytest: __tests_init__ clean
-	@- echo "preparing..."
+	@- echo "-> $@"
 	@- mkdir -p ./tmp
 	@- touch ./tmp/__init__.py
-	@- uv run pytest tests/
+	@- uv run pytest --quiet tests/
 
 
 documentation: sphinx_make
@@ -81,16 +85,15 @@ pyright: basedpyright
 
 basedpyright: __tests_init__ clean
 	@- echo "-> $@"
-	@- uv run basedpyright tatsu tests examples
+	@- uv run basedpyright tatsu tests examples > /dev/null
 
 
 ty: __tests_init__ clean
 	@- echo "-> $@"
-	@- uv run ty check tatsu tests examples
+	@- uv run ty check tatsu tests examples > /dev/null
 
 
 clean:
-	@- echo "-> cleaning..."
 	@- find tatsu tests examples -name "__pycache__" | xargs /bin/rm -rf
 	@- /bin/rm -rf tatsu.egg-info dist tmp build .tox
 
