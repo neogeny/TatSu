@@ -42,6 +42,7 @@ lint.ignore = [
     "S101",  # use of assert
     "S301",  # suspicious-pickle-usage
 #    "S311",  # suspicious-non-cryptographic-random-usage
+    "S106",  # possible password
     "S403",   # insecure modules
     "SIM108",   # use ternary instead of if=else
 #    "SIM115",  # open-file-with-context-handler
