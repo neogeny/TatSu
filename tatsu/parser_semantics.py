@@ -151,7 +151,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         self.known_name(name)
 
         rule = self.rulemap[name]
-        return grammars.RuleInclude(rule)
+        return grammars.RuleInclude(ast=ast, rule=rule)
 
     def grammar(self, ast, *args):
         directives = {d.name: d.value for d in flatten(ast.directives)}

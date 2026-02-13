@@ -827,11 +827,15 @@ class Call(Model):
             return rulemap[self.name].is_nullable(rulemap)
 
 
+@tatsudataclass
 class RuleInclude(Decorator):
-    def __init__(self, ast: Rule):
-        assert isinstance(ast, Rule), str(ast.name)
-        super().__init__(ast=ast.exp)
-        self.rule = ast
+    rule: Rule
+
+    def __post_init__(self):
+        super().__post_init__()
+        assert isinstance(self.rule, Rule)
+        # note: self.ast: str is the rule name
+        self.exp = self.rule.exp
 
     def _pretty(self, lean=False):
         return f'>{self.rule.name}'
