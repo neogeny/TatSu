@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import dataclasses
-import functools
 import inspect
 import warnings
 import weakref
@@ -84,7 +83,7 @@ class BaseNode(AsJSONMixin):
         #   Here the key,value pairs in the AST are injected into the corresponding
         #   attributes declared by the Node subclass. Synthetic classes
         #   override this to create the attributes.
-        for name in ast.keys() - self.private_names:
+        for name in ast:
             if not hasattr(self, name):
                 continue
             setattr(self, name, ast[name])
@@ -92,28 +91,14 @@ class BaseNode(AsJSONMixin):
     def asjson(self) -> Any:
         return asjson(self)
 
-    def __init_dataclass(self):
-        if not dataclasses.is_dataclass(type(self)):
-            return
-
-        for field in dataclasses.fields(type(self)):  # pyright: ignore[reportArgumentType]
-            if hasattr(self, field.name):
-                continue
-            if field.default_factory is not dataclasses.MISSING:
-                value = field.default_factory()
-            elif field.default is not dataclasses.MISSING:
-                value = field.default
-            else:
-                value = None
-            setattr(self, field.name, value)
-
     def __set_attributes(self, **attrs) -> None:
         if not isinstance(attrs, dict):
             return
 
         for name, value in attrs.items():
             if not hasattr(self, name):
-                continue  # this method is to support initialization of @dataclass
+                raise ValueError(f'Unknown argument {name}={value!r}')
+
             if (prev := getattr(self, name, None)) and inspect.ismethod(prev):
                 warnings.warn(
                     f'`{name}` in keyword arguments will shadow'
@@ -122,38 +107,35 @@ class BaseNode(AsJSONMixin):
                 )
             setattr(self, name, value)
 
-    @functools.cached_property
-    def private_names(self) -> set[str]:
-        return (
-            {'private_names'}
-            | {f.name for f in dataclasses.fields(BaseNode)}  # pyright: ignore[reportArgumentType]
-        )
-
     def __pubdict__(self) -> dict[str, Any]:
-        unwanted = self.private_names
+        unwanted = {'ast', 'ctx', 'parseinfo'}
 
-        if self.ast and not isinstance(self.ast, AST):
+        superdict = super().__pubdict__()
+        if len(superdict.keys() - unwanted) > 0:
+            unwanted |= {'ast'}
+        elif self.ast and not isinstance(self.ast, AST):
             # ast may be all this object has
             unwanted -= {'ast'}
 
         return {
             name: value
-            for name, value in super().__pubdict__().items()
+            for name, value in superdict.items()
             if name not in unwanted
         }
 
-    def __str__(self) -> str:
-        return asjsons(self)
-
     def __repr__(self) -> str:
         attrs = ', '.join(
-            f'{name}={value}'
+            f'{name}={value!r}'
             for name, value in self.__pubdict__().items()
+            if value is not None
         )
         return (
             f"{type(self).__name__}"
             f"({attrs})"
         )
+
+    def __str__(self) -> str:
+        return asjsons(self)
 
     def __eq__(self, other) -> bool:
         # NOTE: No use case for structural equality

@@ -16,7 +16,7 @@ from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
 from .objectmodel import Node, tatsudataclass
-from .util import indent, re, regexp, trim
+from .util import indent, re, trim
 from .util.abctools import chunks, compress_seq
 from .util.typing import typename
 
@@ -161,9 +161,6 @@ class Model(Node):
     def _pretty(self, lean=False):
         return f'{typename(self)}: {id(self)}'
 
-    def __repr__(self):
-        return f'{typename(self)}()'
-
     def __str__(self):
         return self.pretty()
 
@@ -226,7 +223,7 @@ class EOF(Model):
 
 @tatsudataclass
 class Decorator(Model):
-    exp: Model = field(init=False, default_factory=Model)
+    exp: Model = field(default_factory=Model)
 
     def __post_init__(self):
         super().__post_init__()
@@ -265,9 +262,6 @@ class Decorator(Model):
     def callable_at_same_pos(self, rulemap: Mapping[str, Rule] | None = None) -> list[Model]:
         return [self.exp]
 
-    def __repr__(self):
-        return f'{type(self).__name__}({self.exp!r})'
-
 
 # NOTE: backwards compatibility
 _Decorator = Decorator
@@ -303,9 +297,6 @@ class Token(Model):
 
     def _pretty(self, lean=False):
         return repr(self.token)
-
-    def __repr__(self):
-        return f'{type(self).__name__}({self.token!r})'
 
 
 @tatsudataclass
@@ -347,28 +338,27 @@ class Alert(Constant):
 
 @tatsudataclass
 class Pattern(Model):
+    pattern: str = ''
+
     def __post_init__(self):
         super().__post_init__()
-        self.patterns = self.ast
-        self.regex = re.compile(self.pattern)
-
-    @property
-    def pattern(self) -> str:
-        return ''.join(list(self.patterns))
+        self._patterns = self.ast
+        self._regex = re.compile(self.pattern)
+        self.pattern = ''.join(list(self._patterns))
 
     def _parse(self, ctx):
         return ctx._pattern(self.pattern)
 
     def _first(self, k, f) -> ffset:
         x = str(self)
-        if bool(self.regex.match('')):
+        if bool(self._regex.match('')):
             return {(), (x,)}
         else:
             return {(x,)}
 
     def _pretty(self, lean=False):
         parts = []
-        for pat in (str(p) for p in self.patterns):
+        for pat in (str(p) for p in self._patterns):
             if '/' in pat:
                 newpat = pat.replace('"', r'\"')
                 regex = f'?"{newpat}"'
@@ -378,10 +368,7 @@ class Pattern(Model):
         return '\n+ '.join(parts)
 
     def _nullable(self) -> bool:
-        return bool(self.regex.match(''))
-
-    def __repr__(self):
-        return f'{type(self).__name__}({regexp(self.pattern)})'
+        return bool(self._regex.match(''))
 
     def __str__(self):
         return self.pattern
@@ -738,8 +725,8 @@ class Named(Decorator):
 
     def __post_init__(self):
         super().__post_init__()
-        if self.ast is None:
-            raise GrammarError('ast in Named cannot be None')
+        if not self.name:
+            raise TypeError(f'{typename(self)}.name is required')
         assert getattr(self, 'name', None) is not None
         # self.exp = self.ast.exp
 

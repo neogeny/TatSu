@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import dataclasses
 import functools
 import weakref
 from collections.abc import Iterable, Mapping
@@ -26,13 +25,6 @@ class Node(BaseNode):
     def __post_init__(self):
         super().__post_init__()
         self.__parent_ref: weakref.ref[Node] | None = None
-
-    @functools.cached_property
-    def private_names(self) -> set[str]:
-        return (
-            {f.name for f in dataclasses.fields(Node)}  # pyright: ignore[reportArgumentType]
-            | super().private_names
-        )
 
     @property
     def parent(self) -> Node | None:  # pyright: ignore[reportGeneralTypeIssues]

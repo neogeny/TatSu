@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import json  # noqa: F401
@@ -6,6 +8,7 @@ from typing import Any
 import pytest
 
 import tatsu
+from tatsu import grammars
 from tatsu.objectmodel import Node
 
 
@@ -119,3 +122,44 @@ def test_children():
     assert model['add']
     assert model['add'].children()
     assert type(model['add'].children()[0]).__name__ == 'Multiply'
+
+
+def test_model_repr():
+    node = Node()
+    assert repr(node) == 'Node()'
+
+    node = Node('hello')
+    assert repr(node) == "Node(ast='hello')"
+
+    node = Node(ast='hello')
+    assert repr(node) == "Node(ast='hello')"
+
+    node = Node(ast='hello', ctx='world')
+    assert repr(node) == "Node(ast='hello')"
+
+    with pytest.raises(ValueError, match=r'world='):
+        Node(ast='hello', world='world')
+
+    token = grammars.Token(ast='hello')
+    assert repr(token) == "Token(token='hello')"
+
+    token = grammars.Token(token='hello')
+    assert repr(token) == "Token(token='hello')"
+
+    with pytest.raises(TypeError, match=r'1 positional argument'):
+        grammars.Token('hello')
+
+    with pytest.raises(TypeError, match=r'unexpected keyword argument'):
+        grammars.Token(x='x')
+
+    with pytest.raises(TypeError, match=r'name is required'):
+        grammars.Named()
+
+    named = grammars.Named(name='foo')
+    assert repr(named) == "Named(name='foo')"
+
+    named = grammars.Named(name='foo', ast='bar')
+    assert repr(named) == "Named(exp='bar', name='foo')"
+
+    named = grammars.Named(name='foo', exp='bar')
+    assert repr(named) == "Named(exp='bar', name='foo')"
