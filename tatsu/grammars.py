@@ -735,7 +735,7 @@ class Named(Decorator):
         if self.ast is None:
             raise GrammarError('ast in Named cannot be None')
         assert getattr(self, 'name', None) is not None
-        self.exp = self.ast.exp
+        # self.exp = self.ast.exp
 
     def _parse(self, ctx):
         value = self.exp._parse(ctx)
@@ -769,8 +769,14 @@ class NamedList(Named):
 
 @tatsudataclass
 class Override(Named):
-    def __init__(self, ast: Model):
-        super().__init__(ast=AST(name='@', exp=ast))
+    def __post_init__(self):
+        # HACK:
+        #   The rule for override in the bootstrap grammar uses `@:term`.
+        #   That's too difficult to change... So we path conformance with Named!
+        #   BaseNode.__post_init__() transfers AST entries to attributes
+
+        self.ast = AST(name='@', exp=self.ast)
+        super().__post_init__()
 
     def defines(self):
         return self.exp.defines()
@@ -778,8 +784,9 @@ class Override(Named):
 
 @tatsudataclass
 class OverrideList(NamedList):
-    def __init__(self, ast: list[Model]):
-        super().__init__(ast=AST(name='@', exp=ast))
+    def __post_init__(self):
+        self.ast = AST(name='@', exp=self.ast)
+        super().__post_init__()
 
     def defines(self):
         return self.exp.defines()
