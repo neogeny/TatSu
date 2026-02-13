@@ -6,10 +6,25 @@ import inspect
 import sys
 from types import MethodType
 
-from .contexts import ParseContext, isname, leftrec, nomemo, rule
+from .contexts import (
+    ParseContext,
+    isname,
+    leftrec,
+    nomemo,
+    rule,
+    rule as tatsumasu,
+)
 from .exceptions import FailedRef
 
-__all__ = ['Parser', 'generic_main', 'isname', 'leftrec', 'nomemo', 'rule']
+__all__ = [
+    'Parser',
+    'generic_main',
+    'isname',
+    'leftrec',
+    'nomemo',
+    'rule',
+    'tatsumasu',
+]
 
 
 class Parser(ParseContext):
