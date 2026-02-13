@@ -16,7 +16,7 @@ test:  lint pytest
 test_plus: clean_plus test
 
 __line__:
-	@- echo $$(python3 --version) $$(tatsu --version)
+	@- echo $$(python3 --version) $$(python3 -m tatsu --version)
 	@- uvx python3 -c "import shutil; print('━' * shutil.get_terminal_size().columns)"
 
 __tests_init__: __line__
