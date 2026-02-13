@@ -156,10 +156,13 @@ def test_model_repr():
         grammars.Named()
 
     named = grammars.Named(name='foo')
-    assert repr(named) == "Named(name='foo')"
+    assert repr(named) == "Named(name='foo', exp=Void())"
 
     named = grammars.Named(name='foo', ast='bar')
-    assert repr(named) == "Named(exp='bar', name='foo')"
+    assert repr(named) == "Named(name='foo', exp='bar')"
+
+    named = grammars.Named(ast={'name': 'foo', 'exp': 'bar'})
+    assert repr(named) == "Named(name='foo', exp='bar')"
 
     named = grammars.Named(name='foo', exp='bar')
-    assert repr(named) == "Named(exp='bar', name='foo')"
+    assert repr(named) == "Named(name='foo', exp='bar')"

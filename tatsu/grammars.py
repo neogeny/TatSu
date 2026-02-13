@@ -224,7 +224,7 @@ class EOF(Model):
 @tatsudataclass
 class Decorator(Model):
     name: str = field(default='')
-    exp: Model = field(default_factory=Model)
+    exp: Model = Void()
 
     def __post_init__(self):
         super().__post_init__()
@@ -725,11 +725,12 @@ class Named(Decorator):
     name: str = field(default='')
 
     def __post_init__(self):
+        if not self.ast:
+            self.ast = AST(name=self.name, exp=self.exp)
         super().__post_init__()
         if not self.name:
             raise TypeError(f'{typename(self)}.name is required')
         assert getattr(self, 'name', None) is not None
-        # self.exp = self.ast.exp
 
     def _parse(self, ctx):
         value = self.exp._parse(ctx)
@@ -844,6 +845,7 @@ class RuleInclude(Decorator):
 
 @tatsudataclass
 class Rule(Decorator):
+    name: str = ''
     params: tuple[str, ...] = field(default_factory=tuple)
     kwparams: dict[str, Any] = field(default_factory=dict)
     decorators: list[str] = field(default_factory=list)

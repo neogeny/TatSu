@@ -138,10 +138,7 @@ class BaseNode(AsJSONMixin):
             for name, value in items
             if value is not None
         )
-        return (
-            f"{type(self).__name__}"
-            f"({attrs})"
-        )
+        return f'{type(self).__name__}({attrs})'
 
     def __str__(self) -> str:
         return asjsons(self)
