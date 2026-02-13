@@ -43,11 +43,11 @@ class ANTLRSemantics:
             name = name.upper()
             if isinstance(exp, model.Token):
                 if name in self.token_rules:
-                    self.token_rules[name].exp = exp  # it is a model._Decorator
+                    self.token_rules[name].exp = exp  # it is a model.Decorator?
                 else:
                     self.token_rules[name] = exp
                 return None
-            elif not ast.fragment and not isinstance(exp, model.Sequence):
+            elif not ast.fragment and not isinstance(exp, model.Model):
                 ref = model.Call(name.lower())
                 if name in self.token_rules:
                     self.token_rules[name].exp = ref
@@ -111,8 +111,8 @@ class ANTLRSemantics:
 
     def regexp(self, ast: AST) -> model.Pattern:
         pattern = ''.join(ast)
-        re.compile(pattern)
-        return model.Pattern(pattern)
+        regex = re.compile(pattern)
+        return model.Pattern(regex.pattern)
 
     def charset_optional(self, ast: AST) -> str:
         return f'{ast}?'
@@ -144,8 +144,8 @@ class ANTLRSemantics:
 
     def newranges(self, ast: AST) -> model.Pattern:
         pattern = ''.join(ast)
-        re.compile(pattern)
-        return model.Pattern(pattern)
+        regex = re.compile(pattern)
+        return model.Pattern(regex.pattern)
 
     def newrange(self, ast: AST) -> str:
         pattern = '[{}]{}'.format(ast.range, ast.repeat or '')
@@ -173,15 +173,14 @@ class ANTLRSemantics:
     def eof(self, ast: AST) -> model.EOF:
         return model.EOF()
 
-    def token(self, ast: AST) -> model.Token | model.Fail:
+    def token(self, ast: AST) -> model.Token | model.Void:
         name = ast.name
-        exp: model.Model | None = None
-        if ast.value:
+        if ast.exp:
             exp = model.Token(ast.value)
             self.tokens[name] = exp
         else:
-            exp = model.Fail()
-            rule = model.Rule(ast=ast, name=name)
+            exp = model.Void()
+            rule = model.Rule(ast=exp, name=name)
             self.synthetic_rules.append(rule)
         return exp
 
