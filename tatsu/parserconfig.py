@@ -22,7 +22,7 @@ class ParserConfig(Config):
     name: str | None = 'Test'
     filename: str = ''
 
-    start: str | None = None  # FIXME
+    start: str | None = None
 
     tokenizercls: type[Tokenizer] = NullTokenizer
     semantics: Any = None
@@ -54,13 +54,13 @@ class ParserConfig(Config):
     whitespace: str | None = Undefined  # type: ignore
     parseinfo: bool = False
 
-    # deprecated: some old projects use these
+    # WARNING: DEPRECATED: some old projects use these
     owner: Any = None
     extra: Any = None
-    start_rule: str | None = None  # FIXME
-    rule_name: str | None = None  # Backward compatibility
-    comments_re: re.Pattern | str | None = None  # WARNING: deprecated
-    eol_comments_re: re.Pattern | str | None = None  # WARNING: deprecated
+    start_rule: str | None = None
+    rule_name: str | None = None
+    comments_re: re.Pattern | str | None = None
+    eol_comments_re: re.Pattern | str | None = None
 
     def __post_init__(self):  # pylint: disable=W0235
         if self.ignorecase:
@@ -119,10 +119,15 @@ class ParserConfig(Config):
                 stacklevel=2,
             )
             break
+        self.start = self.effective_start_rule_name()
 
     def effective_start_rule_name(self):
         # NOTE: there are legacy reasons for this mess
-        return self.start_rule or self.rule_name or self.start
+        return (
+            self.start
+            or getattr(self, 'start_rule', None)
+            or getattr(self, 'rule_name', None)
+        )
 
     @override
     def override(self, **settings: Any) -> ParserConfig:

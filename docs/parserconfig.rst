@@ -28,7 +28,7 @@ to validate in due time.
 
         start: str | None = None
 
-        tokenizercls: type[Tokenizer] | None = None  # FIXME
+        tokenizercls: type[Tokenizer] | None = None
         semantics: type | None = None
 
         comment_recovery: bool = False   # warning: not implemented
@@ -115,7 +115,7 @@ start
 
 .. code:: Python
 
-    start: str | None = None  # FIXME
+    start: str | None = None
 
 The name of the rule on which to start parsing. It may be used to invoke
 only a specific part of the parser.
@@ -130,7 +130,7 @@ tokenizercls
 
 .. code:: Python
 
-    tokenizercls: type[Tokenizer] | None = None  # FIXME
+    tokenizercls: type[Tokenizer] | None = None
 
 The class that implements tokenization for the parser. If it's not defined
 then the parsing modules will default to ``buffering.Buffer``.
