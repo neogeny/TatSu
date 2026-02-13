@@ -751,6 +751,7 @@ class Named(Decorator):
         return f'{self.name}:{self.exp._pretty(lean=lean)}'
 
 
+@tatsudataclass
 class NamedList(Named):
     def _parse(self, ctx):
         value = self.exp._parse(ctx)
@@ -766,6 +767,7 @@ class NamedList(Named):
         return f'{self.name}+:{self.exp._pretty(lean=lean)!s}'
 
 
+@tatsudataclass
 class Override(Named):
     def __init__(self, ast: Model):
         super().__init__(ast=AST(name='@', exp=ast))
@@ -774,6 +776,7 @@ class Override(Named):
         return self.exp.defines()
 
 
+@tatsudataclass
 class OverrideList(NamedList):
     def __init__(self, ast: list[Model]):
         super().__init__(ast=AST(name='@', exp=ast))
