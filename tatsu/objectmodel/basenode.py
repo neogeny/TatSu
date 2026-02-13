@@ -49,11 +49,12 @@ def tatsudataclass[T: type](cls: T | None = None, **params: Any) -> T | Callable
 
 @tatsudataclass
 class BaseNode(AsJSONMixin):
-    ast: Any = None
+    ast: Any = dataclasses.field(kw_only=False, default=None)
+    # _: dataclasses.KW_ONLY
     ctx: Any = None
     parseinfo: ParseInfo | None = None
 
-    def __init__(self, *, ast: Any = None, **attributes: Any):
+    def __init__(self, ast: Any = None, **attributes: Any):
         # NOTE:
         #  A @datclass subclass may not call this,
         #  but __post_init__() should still be honored
@@ -84,7 +85,7 @@ class BaseNode(AsJSONMixin):
         #   attributes declared by the Node subclass. Synthetic classes
         #   override this to create the attributes.
         for name in ast:
-            if not hasattr(self, name):
+            if not hasattr(self, name) or inspect.ismethod(getattr(self, name)):
                 continue
             setattr(self, name, ast[name])
 
@@ -98,6 +99,8 @@ class BaseNode(AsJSONMixin):
         for name, value in attrs.items():
             if not hasattr(self, name):
                 raise ValueError(f'Unknown argument {name}={value!r}')
+            if inspect.ismethod(method := getattr(self, name)):
+                raise TypeError(f'Overriding method {name}={method!r}')
 
             if (prev := getattr(self, name, None)) and inspect.ismethod(prev):
                 warnings.warn(
@@ -132,11 +135,12 @@ class BaseNode(AsJSONMixin):
         def fieldorder(n) -> int:
             return fieldindex.get(n, len(fieldindex))
 
-        items = sorted(self.__pubdict__().items(), key=fieldorder)
+        pub = self.__pubdict__()
+        sortedkeys = sorted(pub.keys(), key=fieldorder)
         attrs = ', '.join(
-            f'{name}={value!r}'
-            for name, value in items
-            if value is not None
+            f'{name}={pub[name]!r}'
+            for name in sortedkeys
+            if pub[name] is not None
         )
         return f'{type(self).__name__}({attrs})'
 

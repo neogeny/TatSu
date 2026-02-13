@@ -16,7 +16,7 @@ from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
 from .objectmodel import Node, tatsudataclass
-from .util import indent, re, trim
+from .util import debug, indent, re, trim
 from .util.abctools import chunks, compress_seq
 from .util.typing import typename
 
@@ -200,7 +200,7 @@ class Fail(Model):
 
 @tatsudataclass
 class Comment(Model):
-    comment: str
+    comment: str = ''
 
     def _pretty(self, lean: bool = False):
         return f'(* {self.comment} *)'
@@ -223,14 +223,16 @@ class EOF(Model):
 
 @tatsudataclass
 class Decorator(Model):
-    name: str = field(default='')
-    exp: Model = Void()
+    name: str = field(default='')  # note: pre-define as common attribute
+    exp: Model = field(default_factory=Void)
 
     def __post_init__(self):
         super().__post_init__()
-        if not isinstance(self.ast, AST):
+        if self.exp is None or not isinstance(self.ast, AST):
             self.exp = self.ast
-        # else: allow for subclasses to use self.exp
+        self.exp = self.exp or Void()
+        assert self.exp is not None, f'{typename(self)}({self.exp})'
+        assert self.exp, repr(self)
 
     def _parse(self, ctx) -> Any | None:
         return self.exp._parse(ctx)
@@ -416,9 +418,13 @@ class SkipTo(Decorator):
 
 @tatsudataclass
 class Sequence(Model):
-    @property
-    def sequence(self) -> list[Model]:
-        return self.ast
+    sequence: list[Model] = field(default_factory=list)
+
+    def __post_init__(self):
+        super().__post_init__()
+        if not self.sequence:
+            self.sequence = self.ast or []
+        assert isinstance(self.sequence, list), self.sequence
 
     def _parse(self, ctx):
         ctx.last_node = [s._parse(ctx) for s in self.sequence]
@@ -789,9 +795,12 @@ class OverrideList(NamedList):
 
 @tatsudataclass
 class Call(Model):
+    name: str = ''
+
     def __post_init__(self):
+        if not self.name:
+            self.ast = AST(name=self.ast)
         super().__post_init__()
-        self.name: str = self.ast
         assert isinstance(self.name, str), self.name
 
     def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
@@ -830,22 +839,7 @@ class Call(Model):
 
 
 @tatsudataclass
-class RuleInclude(Decorator):
-    rule: Rule
-
-    def __post_init__(self):
-        super().__post_init__()
-        assert isinstance(self.rule, Rule)
-        # note: self.ast: str is the rule name
-        self.exp = self.rule.exp
-
-    def _pretty(self, lean=False):
-        return f'>{self.rule.name}'
-
-
-@tatsudataclass
 class Rule(Decorator):
-    name: str = ''
     params: tuple[str, ...] = field(default_factory=tuple)
     kwparams: dict[str, Any] = field(default_factory=dict)
     decorators: list[str] = field(default_factory=list)
@@ -863,10 +857,14 @@ class Rule(Decorator):
             self.kwparams = {}
         elif not isinstance(self.kwparams, dict):
             self.kwparams = dict(self.kwparams)
-
+        self.exp = self.exp if self.exp is not None else Void()
         assert isinstance(self.kwparams, dict), f'{typename(self)}: {self.kwparams=!r}'
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
+        if self.exp is None:
+            debug(f'{self!r} weird with {self.exp=!r}')
+        if self.exp.missing_rules is None:
+            debug(f'{self!r}\nweird with {self.exp.missing_rules=!r}\n{self.exp=!r}')
         return self.exp.missing_rules(rulenames)
 
     def _parse(self, ctx):
@@ -948,8 +946,22 @@ class Rule(Decorator):
 
 
 @tatsudataclass
+class RuleInclude(Decorator):
+    rule: Rule = field(default_factory=Rule)
+
+    def __post_init__(self):
+        super().__post_init__()
+        assert isinstance(self.rule, Rule)
+        # note: self.ast: str is the rule name
+        self.exp = self.rule.exp
+
+    def _pretty(self, lean=False):
+        return f'>{self.rule.name}'
+
+
+@tatsudataclass
 class BasedRule(Rule):
-    baserule: Rule  # note: base is name in the AST from the rule
+    baserule: Rule = field(default_factory=Rule)
     rhs: Model = Model()
 
     def __post_init__(self):

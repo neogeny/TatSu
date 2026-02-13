@@ -37,10 +37,7 @@ def test_node_kwargs() -> None:
     atom = Atom(ast={'bar': 1}, symbol='foo')
     assert atom.ast == {'bar': 1}
 
-    with pytest.warns(
-            UserWarning,
-            match=r'children.*?in keyword arguments will shadow.*?Atom\.children',
-    ):
+    with pytest.raises(TypeError, match=r'Overriding method children'):
         atom = Atom(children=[])
         assert atom
 
@@ -146,8 +143,8 @@ def test_model_repr():
     token = grammars.Token(token='hello')
     assert repr(token) == "Token(token='hello')"
 
-    with pytest.raises(TypeError, match=r'1 positional argument'):
-        grammars.Token('hello')
+    grammars.Token('hello')
+    assert repr(token) == "Token(token='hello')"
 
     with pytest.raises(TypeError, match=r'unexpected keyword argument'):
         grammars.Token(x='x')
