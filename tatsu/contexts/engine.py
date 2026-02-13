@@ -7,9 +7,6 @@ from collections.abc import Callable, Iterable
 from contextlib import contextmanager, suppress
 from typing import Any
 
-from .infos import MemoKey, RuleResult, closure
-from .state import ParseState, ParseStateStack
-from .tracing import EventTracer, EventTracerImpl
 from .. import buffering, tokenizing
 from ..ast import AST
 from ..buffering import Buffer
@@ -40,9 +37,13 @@ from ..util import (
     trim,
 )
 from ..util.abctools import is_list, left_assoc, prune_dict, right_assoc
+from ..util.deprecate import deprecated
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from ..util.typing import boundcall
 from ..util.undefined import Undefined
+from .infos import MemoKey, RuleResult, closure
+from .state import ParseState, ParseStateStack
+from .tracing import EventTracer, EventTracerImpl
 
 __all__: list[str] = ['ParseContext']
 
@@ -237,11 +238,13 @@ class ParseContext:
         self.states.addname(name)
 
     # bw compatibility
+    @deprecated(replacement=setname)
     def name_last_node(self, name: str):  # bw-compat
         self.setname(name)
 
     # bw compatibility
-    def add_last_node_to_name(self, name:str): # bw-compat
+    @deprecated(replacement=addname)
+    def add_last_node_to_name(self, name: str):  # bw-compat
         self.addname(name)
 
     def pushstate(self, ast: Any = None) -> None:
@@ -300,6 +303,7 @@ class ParseContext:
         return exclass(self.tokenizer.lineinfo(), rulestack, item)
 
     # bw compatibility
+    @deprecated(replacement=newexcept)
     def _error(self, item: Any, exclass: type[FailedParse] = FailedParse) -> FailedParse:
         raise self.newexcept(item, exclass)
 
