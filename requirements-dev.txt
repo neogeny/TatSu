@@ -31,7 +31,7 @@ docutils==0.22.4
     # via rst2html5
 executing==2.2.1
     # via stack-data
-filelock==3.20.3
+filelock==3.21.2
     # via virtualenv
 genshi==0.7.10
     # via rst2html5
@@ -92,7 +92,7 @@ pexpect==4.9.0
     # via
     #   hatch
     #   ipython
-platformdirs==4.5.1
+platformdirs==4.7.0
     # via
     #   hatch
     #   virtualenv

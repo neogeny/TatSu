@@ -46,24 +46,26 @@ examples: clean g2e_test calc_test
 
 
 g2e_test:
-	cd examples/g2e && uv run make -s clean test > /dev/null
+	@- echo "-> examples/g2e"
+	@- cd examples/g2e && uv run make -s clean test > /dev/null
 	@- cd examples/g2e && uv run make -s clean > /dev/null
 
 
 calc_test:
-	cd examples/calc && uv run make -s clean test > /dev/null
+	@- echo "-> examples/calc"
+	@- cd examples/calc && uv run make -s clean test > /dev/null
 
 
 lint: ruff ty pyright
 
 
 ruff: __tests_init__
-	@- echo $@
+	@- echo "-> $@"
 	@- uv run ruff check -q --preview --fix tatsu tests examples
 
 
 mypy: __tests_init__
-	@- echo $@
+	@- echo "-> $@"
 	@- uv run mypy tatsu tests examples \
 		--install-types \
 		--exclude dist \
@@ -74,17 +76,17 @@ pyright: basedpyright
 
 
 basedpyright: __tests_init__
-	@- echo $@
+	@- echo "-> $@"
 	@- uv run basedpyright tatsu tests examples
 
 
 ty: __tests_init__
-	@- echo $@
+	@- echo "-> $@"
 	@- uv run ty check tatsu tests examples
 
 
 clean:
-	@- echo "cleaning..."
+	@- echo "-> cleaning..."
 	@- find tatsu tests examples -name "__pycache__" | xargs /bin/rm -rf
 	@- /bin/rm -rf tatsu.egg-info dist tmp build .tox
 
@@ -100,7 +102,8 @@ matrix: clean __tests_init__
 
 
 build: clean
-	uvx hatch build
+	@- echo "-> $@"
+	@- uvx hatch build
 
 
 requirements: \
