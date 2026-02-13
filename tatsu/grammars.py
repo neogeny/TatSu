@@ -203,9 +203,7 @@ class Fail(Model):
 
 @tatsudataclass
 class Comment(Model):
-    def __post_init__(self):
-        super().__post_init__()
-        self.comment = self.ast.comment
+    comment: str
 
     def _pretty(self, lean: bool = False):
         return f'(* {self.comment} *)'
@@ -291,9 +289,11 @@ class Group(Decorator):
 
 @tatsudataclass
 class Token(Model):
+    token: str = ''
+
     def __post_init__(self):
         super().__post_init__()
-        self.token = self.ast
+        self.token = self.token or self.ast
 
     def _parse(self, ctx):
         return ctx._token(self.token)
@@ -310,9 +310,11 @@ class Token(Model):
 
 @tatsudataclass
 class Constant(Model):
+    literal: str = ''
+
     def __post_init__(self):
         super().__post_init__()
-        self.literal = self.ast
+        self.literal = self.literal or self.ast
 
     def _parse(self, ctx):
         return ctx._constant(self.literal)
@@ -329,6 +331,8 @@ class Constant(Model):
 
 @tatsudataclass
 class Alert(Constant):
+    level: int = 0
+
     def __post_init__(self):
         super().__post_init__()
         self.literal = self.ast.message.literal
@@ -483,9 +487,11 @@ class Sequence(Model):
 
 @tatsudataclass
 class Choice(Model):
+    options: list[Model] = field(default_factory=list)
+
     def __post_init__(self):
         super().__post_init__()
-        self.options = self.ast
+        self.options = self.options or self.ast
         assert isinstance(self.options, list), repr(self.options)
 
     def _parse(self, ctx):
