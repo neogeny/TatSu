@@ -12,6 +12,8 @@ from .contexts import (
     leftrec,
     nomemo,
     rule,
+)
+from .contexts import (
     rule as tatsumasu,
 )
 from .exceptions import FailedRef
