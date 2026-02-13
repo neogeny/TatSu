@@ -28,7 +28,7 @@ pytest: __tests_init__ clean
 	@- echo "preparing..."
 	@- mkdir -p ./tmp
 	@- touch ./tmp/__init__.py
-	@- uv run pytest -v tests/
+	@- uv run pytest tests/
 
 
 documentation: sphinx_make
