@@ -168,6 +168,7 @@ class Model(Node):
         return self.pretty()
 
 
+@tatsudataclass
 class Void(Model):
     def _parse(self, ctx):
         return ctx._void()
@@ -179,6 +180,7 @@ class Void(Model):
         return True
 
 
+@tatsudataclass
 class Dot(Model):
     def _parse(self, ctx):
         return ctx._dot()
@@ -190,6 +192,7 @@ class Dot(Model):
         return {('.',)}
 
 
+@tatsudataclass
 class Fail(Model):
     def _parse(self, ctx):
         return ctx._fail()
@@ -198,20 +201,23 @@ class Fail(Model):
         return '!()'
 
 
+@tatsudataclass
 class Comment(Model):
-    def __init__(self, ast: str):
-        super().__init__(ast=AST(comment=ast))
-        self.comment = ast
+    def __post_init__(self):
+        super().__post_init__()
+        self.comment = self.ast.comment
 
     def _pretty(self, lean: bool = False):
         return f'(* {self.comment} *)'
 
 
+@tatsudataclass
 class EOLComment(Comment):
     def _pretty(self, lean=False):
         return f'  # {self.comment}\n'
 
 
+@tatsudataclass
 class EOF(Model):
     def _parse(self, ctx):
         ctx._check_eof()
@@ -377,6 +383,7 @@ class Pattern(Model):
         return self.pattern
 
 
+@tatsudataclass
 class Lookahead(Decorator):
     def _parse(self, ctx):
         with ctx._if():
@@ -389,6 +396,7 @@ class Lookahead(Decorator):
         return True
 
 
+@tatsudataclass
 class NegativeLookahead(Decorator):
     def _parse(self, ctx):
         with ctx._ifnot():
@@ -401,6 +409,7 @@ class NegativeLookahead(Decorator):
         return True
 
 
+@tatsudataclass
 class SkipTo(Decorator):
     def _parse(self, ctx):
         super_parse = super()._parse
@@ -537,6 +546,7 @@ class Choice(Model):
         return self.options
 
 
+@tatsudataclass
 class Option(Decorator):
     def _parse(self, ctx):
         result = super()._parse(ctx)
@@ -544,6 +554,7 @@ class Option(Decorator):
         return result
 
 
+@tatsudataclass
 class Closure(Decorator):
     def _parse(self, ctx):
         return ctx._closure(lambda: self.exp._parse(ctx))
@@ -566,6 +577,7 @@ class Closure(Decorator):
         return True
 
 
+@tatsudataclass
 class PositiveClosure(Closure):
     def _parse(self, ctx):
         return ctx._positive_closure(lambda: self.exp._parse(ctx))
@@ -580,12 +592,15 @@ class PositiveClosure(Closure):
         return self.exp._nullable()
 
 
+@tatsudataclass
 class Join(Decorator):
     JOINOP = '%'
 
-    def __init__(self, ast: AST):
-        super().__init__(ast=ast.exp)
-        self.sep = ast['sep']
+    sep: Model = Model()
+
+    def __post_init__(self):
+        super().__post_init__()
+        assert self.sep == self.ast.sep, self.sep
 
     def _parse(self, ctx):
         def sep():
