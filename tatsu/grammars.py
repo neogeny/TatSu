@@ -345,9 +345,9 @@ class Pattern(Model):
 
     def __post_init__(self):
         super().__post_init__()
-        self._patterns = self.ast
+        self._patterns = self.ast if isinstance(self.ast, list) else [self.ast]
+        self.pattern = ''.join(self._patterns)
         self._regex = re.compile(self.pattern)
-        self.pattern = ''.join(list(self._patterns))
 
     def _parse(self, ctx):
         return ctx._pattern(self.pattern)
