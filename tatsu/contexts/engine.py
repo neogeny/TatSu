@@ -198,7 +198,7 @@ class ParseContext:
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
                 self.config.semantics.set_context(self)
 
-            start: str = self.config.effective_rule_name() or 'start'
+            start: str = self.config.effective_start_rule_name() or 'start'
             rule = self._find_rule(start)
             return rule()
 

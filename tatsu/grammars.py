@@ -1114,11 +1114,12 @@ class Grammar(Model):
                 f'not class {config.semantics!r}',
             )
 
-        start = config.effective_rule_name()
+        start = config.effective_start_rule_name()
         if start is None:
             start = self.rules[0].name
             config.start = start
-            config.start_rule = start
+            config.start_rule = None
+            config.rule_name = None
 
         if ctx is None:
             ctx = ModelContext(self.rules, config=config)

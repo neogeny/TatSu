@@ -198,7 +198,7 @@ def test_10_with_model_and_semantics():
     g9 = parser.parse(text)
     g10 = g9.parse(
         text,
-        start_rule='start',
+        start='start',
         semantics=TatSuGrammarSemantics('TatSuBootstrap'),
     )
     generated_grammar10 = str(g10)
@@ -215,7 +215,7 @@ def test_11_with_pickle_and_retry():
     g9 = parser.parse(text)
     g10 = g9.parse(
         text,
-        start_rule='start',
+        start='start',
         semantics=TatSuGrammarSemantics('TatSuBootstrap'),
     )
     with Path('./tmp/11.tatsuc').open('wb') as f:
@@ -224,7 +224,7 @@ def test_11_with_pickle_and_retry():
         g11 = pickle.load(f)
     r11 = g11.parse(
         text,
-        start_rule='start',
+        start='start',
         semantics=TatSuGrammarSemantics('TatSuBootstrap'),
     )
     Path('./tmp/11.tatsu').write_text(str(g11))

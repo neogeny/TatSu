@@ -87,14 +87,14 @@ class ParsingTests(unittest.TestCase):
         ast = model.parse('test', start='true')
         self.assertEqual(ast, True)
         # Backward compatibility argument name.
-        ast = model.parse('test', rule_name='true')
+        ast = model.parse('test', start='true')
         self.assertEqual(ast, True)
 
         # The default rule can be overwritten.
         ast = tatsu.parse(grammar, 'test', start='false')
         self.assertEqual(ast, False)
         # Backward compatibility argument name.
-        ast = tatsu.parse(grammar, 'test', rule_name='false')
+        ast = tatsu.parse(grammar, 'test', start='false')
         self.assertEqual(ast, False)
 
     def test_rule_capitalization(self):

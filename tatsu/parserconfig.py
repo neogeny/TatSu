@@ -21,11 +21,8 @@ MEMO_CACHE_SIZE = 4 * 1024
 class ParserConfig(Config):
     name: str | None = 'Test'
     filename: str = ''
-    encoding: str = 'utf-8'
 
     start: str | None = None  # FIXME
-    start_rule: str | None = None  # FIXME
-    rule_name: str | None = None  # Backward compatibility
 
     tokenizercls: type[Tokenizer] = NullTokenizer
     semantics: Any = None
@@ -60,6 +57,8 @@ class ParserConfig(Config):
     # deprecated: some old projects use these
     owner: Any = None
     extra: Any = None
+    start_rule: str | None = None  # FIXME
+    rule_name: str | None = None  # Backward compatibility
     comments_re: re.Pattern | str | None = None  # WARNING: deprecated
     eol_comments_re: re.Pattern | str | None = None  # WARNING: deprecated
 
@@ -108,8 +107,21 @@ class ParserConfig(Config):
         if self.whitespace and not isinstance(self.whitespace, re.Pattern):
             cached_re_compile(self.whitespace)
 
-    def effective_rule_name(self):
-        # note: there are legacy reasons for this mess
+        for name in ('start_rule', 'rule_name'):
+            if (value := getattr(self, name, None)) is None:
+                continue
+            warnings.warn(
+                message=(
+                    f'\nSetting {name}={value!r} is deprecated.'
+                    f' Use start={value!r} for the name of the start rule.'
+                ),
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+            break
+
+    def effective_start_rule_name(self):
+        # NOTE: there are legacy reasons for this mess
         return self.start_rule or self.rule_name or self.start
 
     @override

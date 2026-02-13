@@ -1,3 +1,6 @@
+.. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+.. SPDX-License-Identifier: BSD-4-Clause
+
 .. include:: links.rst
 .. highlight:: none
 
@@ -22,14 +25,8 @@ to validate in due time.
     class ParserConfig:
         name: str | None = 'Test'
         filename: str = ''
-        encoding: str = 'utf-8'
 
-        start: str | None = None  # FIXME
-        start_rule: str | None = None  # FIXME
-        rule_name: str | None = None  # Backward compatibility
-
-        comments_re: re.Pattern | str | None = None  # WARNING: deprecated
-        eol_comments_re: re.Pattern | str | None = None  # WARNING: deprecated
+        start: str | None = None
 
         tokenizercls: type[Tokenizer] | None = None  # FIXME
         semantics: type | None = None
@@ -111,16 +108,6 @@ filename
     filename: str = ''
 
 The file name from which the grammar was read. It may be used in error reporting.
-
-
-encoding
-~~~~~~~~
-
-.. code:: Python
-
-    encoding: str = 'utf-8'
-
-The encoding for any text input or output performed by the librarry
 
 
 start
