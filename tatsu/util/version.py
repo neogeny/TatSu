@@ -14,7 +14,7 @@ from dataclasses import asdict, dataclass
 from itertools import takewhile
 from typing import Any
 
-from .abctools import select
+from .abctools import rowselect
 
 __all__ = ['Version']
 
@@ -115,5 +115,5 @@ class Version:
         return Version(
             major=major, minor=minor, micro=micro, nano=nano,
             level=level, serial=serial,
-            **select({'epoch', 'post', 'dev', 'local'}, parts),
+            **rowselect({'epoch', 'post', 'dev', 'local'}, parts),
         )

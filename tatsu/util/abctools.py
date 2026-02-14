@@ -8,6 +8,8 @@ from collections.abc import Callable, Iterable, Mapping
 from itertools import zip_longest
 from typing import Any, NamedTuple
 
+type Predicate[K, V] = Callable[[K, V], bool]
+
 
 def true(*_: Any, **__: Any) -> bool:
     return True
@@ -145,16 +147,24 @@ def right_assoc(elements):
     return assoc(iter(elements))
 
 
-def select[K, V](
-        keys: Iterable[K],
-        *join: dict[K, V],
-        where: Callable[[K, V], bool] = true,
-    ) -> dict[K, V]:
+def rowselect[K, V](
+    keys: Iterable[K],
+    row: dict[K, V],
+    *,
+    where: Predicate[K, V] = true,
+) -> dict[K, V]:
     # by [apalala@gmail.com](https://github.com/apalala)
     # by Gemini (2026-02-05)
-    key_set = set(keys)
     return {
-        k: v
-        for d in join
-        for k, v in d.items() if k in key_set and where(k, v)
+        k: row[k]
+        for k in keys
+        if k in row and where(k, row[k])
     }
+
+
+def select[K, V](
+    keys: Iterable[K],
+    *rows: dict[K, V],
+    where: Predicate[K, V] = true,
+) -> list[dict[K, V]]:
+    return [rowselect(keys, row, where=where) for row in rows]
