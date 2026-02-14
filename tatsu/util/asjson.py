@@ -29,34 +29,16 @@ class AsJSONMixin:
     __slots__ = ()
 
     def __json__(self, seen: set[int] | None = None) -> Any:
-        pubdict = self.__pub__()
+        pub = self.__pub__()
         return {
             '__class__': type(self).__name__,
-            **asjson(pubdict, seen=seen),
+            **asjson(pub, seen=seen),
         }
 
     def __pub__(self) -> dict[str, Any]:
-        def is_property_likely(value: Any) -> bool:
-            if not (name := getattr(value, '__name__', None)):
-                return False
-            if not (clsdef := getattr(type(self), name, None)):
-                return False
-            return inspect.isdatadescriptor(clsdef)
-
-        def is_method_fun(value: Any) -> bool:
-            return (
-                inspect.ismethod(value)
-                and not is_property_likely(value)
-            )
-
-        def is_private(name: str, value: Any) -> bool:
-            return (
-                name.startswith('_')
-                or is_method_fun(value)
-            )
-
+        # Gemini (2026-01-26)
         def is_public(name: str, value: Any) -> bool:
-            return not is_private(name, value)
+            return not (name.startswith('_') or inspect.isroutine(value))
 
         return rowselect(dir(self), vars(self), where=is_public)
 
@@ -64,9 +46,9 @@ class AsJSONMixin:
 def asjson(obj: Any, seen: set[int] | None = None) -> Any:
     """
     Produce a JSON-serializable version of the input structure.
-    # by Gemini (2026-01-26)
-    # by [apalala@gmail.com](https://github.com/apalala)
     """
+    # Gemini (2026-01-26)
+
     memo: dict[int, Any] = {}
     seen = seen if seen is not None else set()
 

@@ -7,6 +7,7 @@ import inspect
 import warnings
 import weakref
 from collections.abc import Callable
+from functools import cache
 from typing import Any, overload
 
 from ..ast import AST
@@ -111,15 +112,21 @@ class BaseNode(AsJSONMixin):
                 )
             setattr(self, name, value)
 
+    @staticmethod
+    @cache
+    def _basenode_keys() -> frozenset[str]:
+        # Gemini (2026-02-14)
+        return frozenset(dir(BaseNode))
+
     def __pub__(self) -> dict[str, Any]:
         pub = super().__pub__()
 
-        unwanted = set(dir(BaseNode))
-        wanted = pub.keys() - unwanted
-        if wanted:
-            wanted -= {'ast'}
-        elif self.ast and not isinstance(self.ast, AST):
-            wanted |= {'ast'}  # self.ast may be all this object has
+        # Gemini (2026-02-14)
+        wanted = pub.keys() - self._basenode_keys()
+        if wanted or self.ast is None:
+            pass
+        elif not isinstance(self.ast, AST):
+            wanted = {'ast'}  # self.ast may be all this object has
 
         return rowselect(wanted, pub)
 
