@@ -85,20 +85,19 @@ Every effort has been made to preserve backwards compatibility by keeping mosts 
 - **TatSu** still has no library dependencies for its core functionality, but several libraries 
   are used during its development and testing. The **TatSu** development configuration uses `uv` and `hatch`. Several `requirements-xyz.txt` files are generated in favor of those using `pip` with `pyenv`, `virtualenvwrapper`, or `virtualenv`
 - All attempts at recovering comments from parsed input were removed. It never worked, so it had no use. Comment revovery may be attempted in the future. 
+- All pre-existing grammars are compatible with this version of **TatSu**. If you use generated Python parsers or models, *you should* consider* generating them anew, even if **TatSu** maintains compatibility with them. 
 - *CAVEAT:* Several functions, methods, and argument names were deprecated. They can still be used, but *warnings* will be issued ar runtime.
-- *CAVEAT:* All pre-existing grammars are compatible with this version of **TatSu**. If you 
-  use the generated Python parsers or models, *YOU MUST* generate them anew. 
 - *CAVEAT:* If there are invalid strings or regex patterns in your grammars *YOU MUST* fix them because now the grammar parser validates strings and patterns.
 - Many of the functions that **TatSu** defines for its own use are useful in other contexts. Some examples are:
 
 	```python
-		from tatsu.notnone import Undefined
-		from tatsu.safeeval import is_eval_safe()
-		from tatsu.safeeval import hasshable()
-		from tatsu.safeeval import make_hashable()
-		from tatsu.util import safe_name()
-		from tatsu.util.misc import find_from_rematch()
-		from tatsu.util.misc import topsort()
+		from tatsu.safeeval import is_eval_safe
+		from tatsu.safeeval import hasshable
+		from tatsu.safeeval import make_hashable
+		from tatsu.util import safe_name
+		from tatsu.util.misc import find_from_rematch
+		from tatsu.util.misc import topsort
+		from tatsu.util.undefined import Undefined
 		# ... and many more
 	```
 
