@@ -16,9 +16,8 @@ from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
 from .objectmodel import Node, tatsudataclass
-from .util import debug, indent, re, trim
+from .util import debug, indent, re, trim, typename
 from .util.abctools import chunks, compress_seq
-from .util.typing import typename
 
 PEP8_LLEN = 72
 PRAGMA_RE = r'^\s*#include.*$'
