@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import enum
+import inspect
 import json
-import warnings
 import weakref
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping
 from typing import Any, Protocol, runtime_checkable
 
-from .abctools import as_namedtuple, isiter
+from .abctools import as_namedtuple, isiter, rowselect
 
 __all__ = [
     'AsJSONMixin',
@@ -29,35 +29,36 @@ class AsJSONMixin:
     __slots__ = ()
 
     def __json__(self, seen: set[int] | None = None) -> Any:
-        pubdict = self._get_pubdict()
+        pubdict = self.__pub__()
         return {
             '__class__': type(self).__name__,
-            **asjson(pubdict(), seen=seen),
+            **asjson(pubdict, seen=seen),
         }
 
-    def __pubdict__(self) -> dict[str, Any]:
-        return {
-            name: value
-            for name, value in vars(self).items()
-            if not name.startswith('_')
-        }
+    def __pub__(self) -> dict[str, Any]:
+        def is_property_likely(value: Any) -> bool:
+            if not (name := getattr(value, '__name__', None)):
+                return False
+            if not (clsdef := getattr(type(self), name, None)):
+                return False
+            return inspect.isdatadescriptor(clsdef)
 
-    # bw-compatibility
-    def _pubdict(self) -> dict[str, Any]:
-        return self.__pubdict__()
-
-    def _get_pubdict(self) -> Callable:
-        if self._pubdict.__module__ == AsJSONMixin.__module__:
-            return self.__pubdict__
-        else:
-            warnings.warn(
-                message=""
-                        "Override of `AsJSONMixin._pubdict()` is deprecated!"
-                        f" Override `{type(self).__name__}.__pubdict__()` instead.",
-                category=DeprecationWarning,
-                stacklevel=2,
+        def is_method_fun(value: Any) -> bool:
+            return (
+                inspect.ismethod(value)
+                and not is_property_likely(value)
             )
-            return self._pubdict
+
+        def is_private(name: str, value: Any) -> bool:
+            return (
+                name.startswith('_')
+                or is_method_fun(value)
+            )
+
+        def is_public(name: str, value: Any) -> bool:
+            return not is_private(name, value)
+
+        return rowselect(dir(self), vars(self), where=is_public)
 
 
 def asjson(obj: Any, seen: set[int] | None = None) -> Any:

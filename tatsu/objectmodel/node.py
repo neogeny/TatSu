@@ -83,4 +83,4 @@ class Node(BaseNode):
                 case _:
                     pass
 
-        return tuple(dfs(self.__pubdict__()))
+        return tuple(dfs(self.__pub__()))

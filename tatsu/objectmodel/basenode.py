@@ -11,6 +11,7 @@ from typing import Any, overload
 
 from ..ast import AST
 from ..infos import ParseInfo
+from ..util.abctools import rowselect
 from ..util.asjson import AsJSONMixin, asjson, asjsons
 
 __all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
@@ -110,21 +111,17 @@ class BaseNode(AsJSONMixin):
                 )
             setattr(self, name, value)
 
-    def __pubdict__(self) -> dict[str, Any]:
-        unwanted = {'ast', 'ctx', 'parseinfo'}
+    def __pub__(self) -> dict[str, Any]:
+        pub = super().__pub__()
 
-        superdict = super().__pubdict__()
-        if len(superdict.keys() - unwanted) > 0:
-            unwanted |= {'ast'}
+        unwanted = set(dir(BaseNode))
+        wanted = pub.keys() - unwanted
+        if wanted:
+            wanted -= {'ast'}
         elif self.ast and not isinstance(self.ast, AST):
-            # ast may be all this object has
-            unwanted -= {'ast'}
+            wanted |= {'ast'}  # self.ast may be all this object has
 
-        return {
-            name: value
-            for name, value in superdict.items()
-            if name not in unwanted
-        }
+        return rowselect(wanted, pub)
 
     def __repr__(self) -> str:
         fieldindex = {
@@ -135,7 +132,7 @@ class BaseNode(AsJSONMixin):
         def fieldorder(n) -> int:
             return fieldindex.get(n, len(fieldindex))
 
-        pub = self.__pubdict__()
+        pub = self.__pub__()
         sortedkeys = sorted(pub.keys(), key=fieldorder)
         attrs = ', '.join(
             f'{name}={pub[name]!r}'

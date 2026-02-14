@@ -195,17 +195,27 @@ of ``asjson()``, and you can specialize the conversion by overriding ``AsJSONMix
 .. code:: python
 
     def __json__(self, seen: set[int] | None = None) -> Any:
-        ...
+        return None  # should not be rendered as JSON
 
+The ``AsJSONMixin`` implementation of ``__json__` decides what goes into
+the JSON representation by calling the ``__pub__()`` method. The default
+implementation of ``__pub__()`` returns the contents of ``vars(self)``
+filtering out ``(name, value)`` items when:
+
+*   ``name`` starts with an underscore
+*   ``value`` is a method that is not also a ``property``
 
 An easy way to restrict what goes into the JSON output is to override
-the ``__pubdict__()`` method in classes that inherit from ``AsJSONMixin``.
+the ``__pub__()`` method in classes that inherit from ``AsJSONMixin``.
 
 
 .. code:: python
 
-    def __pubdict__(self) -> dict[str, Any]:
-        ...
+    def __pub__(self) -> dict[str, Any]:
+        return {
+            name: value for name, value in super().__pub__()
+            if not name[0].isupper()
+        }
 
 You can also write your own version of ``asjson()`` to handle special cases that are recurrent
 in your context.
