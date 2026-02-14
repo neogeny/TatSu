@@ -136,10 +136,6 @@ class BoundCallable:
         return actual.unique()
 
 
-def typename(obj: Any) -> str:
-    return type(obj).__name__
-
-
 def least_upper_bound_type(constructors: Sequence[Constructor]) -> type:
     # by [apalala@gmail.com](https://github.com/apalala)
     # by Gemini (2026-01-30)

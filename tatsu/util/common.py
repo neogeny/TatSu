@@ -141,3 +141,7 @@ def is_reserved(name) -> bool:
         keyword.issoftkeyword(name) or
         name in {'type', 'list', 'dict', 'set'}
     )
+
+
+def typename(obj: Any) -> str:
+    return type(obj).__name__
