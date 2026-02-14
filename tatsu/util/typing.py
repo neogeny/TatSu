@@ -6,7 +6,7 @@ import builtins
 import inspect
 import itertools
 from collections.abc import Callable, Iterable, Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from types import ModuleType
 from typing import Any
 
@@ -47,10 +47,14 @@ class ActualArguments:
         return not (bool(self.args) or bool(self.kwargs))
 
     def add_arg(self, name: str, var: Any):
+        if name in self.arg_names:
+            return
         self.arg_names[name] = var
         self.args.append(var)
 
     def add_kwarg(self, name: str, var: Any):
+        if name in self.arg_names:
+            return
         self.kwargs[name] = var
 
     def add_args(self, args: Iterable[Any]):
@@ -58,6 +62,13 @@ class ActualArguments:
 
     def add_kwargs(self, kwargs: Mapping[str, Any]):
         self.kwargs.update(kwargs)
+
+    def unique(self) -> ActualArguments:
+        clone = replace(self)
+        for name in list(clone.kwargs):
+            if name in clone.arg_names:
+                del clone.kwargs[name]
+        return clone
 
 
 class BoundCallable:
@@ -90,17 +101,6 @@ class BoundCallable:
         p = inspect.Parameter
 
         actual = ActualArguments()
-        for name, value in known.items():
-            if not (param := declared.get(name, None)):
-                continue
-            match param.kind:
-                case p.POSITIONAL_ONLY:
-                    actual.add_arg(name, value)
-                case p.POSITIONAL_OR_KEYWORD:
-                    actual.add_kwarg(name, value)
-                case p.KEYWORD_ONLY:
-                    actual.add_kwarg(name, value)
-
         argsc = list(args)
         kwargsc = kwargs.copy()
         for name, param in declared.items():
@@ -108,21 +108,32 @@ class BoundCallable:
                 continue
 
             match param.kind:
-                case p.POSITIONAL_ONLY:
-                    actual.add_arg(name, argsc.pop(0) if argsc else arg)  # note: inject known arg
+                case p.KEYWORD_ONLY:
+                    actual.add_kwarg(name, kwargsc.pop(name, None))
                 case p.POSITIONAL_OR_KEYWORD:
                     if name in kwargsc:
                         actual.add_kwarg(name, kwargsc.pop(name, None))
                     else:
-                        actual.add_arg(name, argsc.pop(0))
-                case p.KEYWORD_ONLY:
-                    actual.add_kwarg(name, kwargsc.pop(name, None))
+                        actual.add_arg(name, argsc.pop(0) if argsc else arg)
+                case p.POSITIONAL_ONLY:
+                    actual.add_arg(name, argsc.pop(0) if argsc else arg)  # note: inject known arg
                 case p.VAR_POSITIONAL:
                     actual.add_args(argsc)
                 case p.VAR_KEYWORD:
                     actual.add_kwargs(kwargs)
 
-        return actual
+        for name, value in known.items():
+            if not (param := declared.get(name, None)):
+                continue
+            match param.kind:
+                case p.KEYWORD_ONLY:
+                    actual.add_kwarg(name, value)
+                case p.POSITIONAL_OR_KEYWORD:
+                    actual.add_kwarg(name, value)
+                case p.POSITIONAL_ONLY:
+                    actual.add_arg(name, value)
+
+        return actual.unique()
 
 
 def typename(obj: Any) -> str:
