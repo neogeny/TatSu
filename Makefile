@@ -89,8 +89,8 @@ basedpyright: __tests_init__ clean
 
 
 ty: __tests_init__ clean
-	@- echo "-> $@"
-	@- uv run ty check tatsu tests examples > /dev/null
+	@- 	echo "-> $@"
+	@- 	unbuffer uv run ty check tatsu tests examples | (! rg --color=always -v "All checks passed!")
 
 
 clean:
