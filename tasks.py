@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import os
 import shutil
 import string
 from pathlib import Path
@@ -15,16 +16,13 @@ __license__ = 'BSD-4-Clause'
 
 PYTHON = 3.14
 
+LINE_PRE = 4
+THIN_LINE = '─'
+THICK_LINE = '━'
 
-def boundary(banner: str = ''):
-    cols = shutil.get_terminal_size().columns
-    if not banner:
-        print('━' * cols)
-    else:
-        add = sum(ord(c) >= 256 for c in banner)
-        pre = 8
-        print('━' * pre, banner, '━' * (cols - 2 - pre - add - len(banner)))
 
+def uv_python_pin(c):
+    return float(c.run('uv python pin', pty=True, hide='both').stdout.strip())
 
 def uv(c, cmd, args, *, quiet=True, python=PYTHON, group='dev', nogroup='', **kwargs):
     uvpython = uv_python_pin(c)
@@ -60,10 +58,32 @@ def version_tatsu(c, python=PYTHON):
     ).stdout.strip()
 
 
-def uv_python_pin(c):
-    return float(c.run('uv python pin', pty=True, hide='both').stdout.strip())
+def boundary_print(banner: str = '', line=THIN_LINE):
+    cols = shutil.get_terminal_size().columns
+    if not banner:
+        print(line * cols)
+    else:
+        pre = LINE_PRE
+        add = sum(ord(c) >= 256 for c in banner)
+        print(line * pre, banner, line * (cols - 2 - pre - add - len(banner)))
+
+
+def success_print(target='', line=THIN_LINE):
+    boundary_print(f'✅ {target}', line=line)
+
+
+def version_boundary_print(c, target='', python=PYTHON, line=THICK_LINE):
+    verpython= version_python(c, python=python)
+    vertatsu = version_tatsu(c, python=python)
+    boundary_print(f'{target} {verpython} {vertatsu}', line=line)
+
 
 @task
+def begin(c):
+    boundary_print()
+
+
+@task(pre=[begin])
 def clean(c, plus=False):
     print('-> clean')
     patterns = ['build', 'dist', 'tmp', 'tatsu.egg-info', '.tox']
@@ -133,44 +153,54 @@ def pytest(c, python=PYTHON):
     print('-> pytest')
     Path('./tmp').mkdir(exist_ok=True)
     Path('./tmp/__init__.py').touch()
-    uv_run(c, 'pytest --quiet tests/', python=python, group='test')
+    uv_run(c, 'pytest --quiet tests/', python=python, group='test', hide='stdout')
 
 
-@task(pre=[clean, ruff, ty, pyright])
+@task(pre=[begin, clean, ruff, ty, pyright])
 def lint(c):
-    boundary()
+    success_print(lint.name)
 
 
-@task(pre=[lint, pytest])
+@task(pre=[begin, lint, pytest])
 def test(c):
-    pass
+    success_print(test.name)
 
 
-@task
-def docs(c, python=PYTHON):
-    uv_run(c, 'make -s html', python=python, group='doc') # Assumes Makefile in /docs or adjust
+@task(pre=[begin])
+def docs(c):
+    print('-> docs')
+    with c.cd('./docs'):
+        uv_run(
+            c,
+            'make -s html',
+            quiet=True,
+            group='doc',
+            hide='stdout',
+        )
+    success_print(docs.name)
 
 
-@task
+@task(pre=[clean])
 def build(c):
     print('-> build')
-    c.run('uvx hatch build')
+    c.run('uvx hatch build', hide='both')
+    success_print(build.name)
 
 
 def matrix_core(c, python=PYTHON):
     global PYTHON
+    version_boundary_print(c, target='🐍', python=python)
 
     PYTHON, p = python, PYTHON
     try:
-        verpython= version_python(c, python=python)
-        vertatsu = version_tatsu(c, python=python)
-        boundary(f'🐍 Testing {verpython} {vertatsu}')
 
         ruff(c, python=python)
         ty(c, python=python)
         pyright(c, python=python)
+        pytest(c, python=python)
     finally:
        PYTHON = p
+    success_print(python)
 
 @task
 def py312(c):
@@ -191,7 +221,7 @@ def py315(c):
 
 @task(pre=[py312, py313, py314, py315])
 def matrix(c):
-    boundary('✅ matrix complete.')
+    success_print(matrix.name, line=THICK_LINE)
 
 
 def _export_requirements(c, filename, group='', nogroup=''):
@@ -228,9 +258,9 @@ def req_doc(c):
     _export_requirements(c, 'requirements-doc.txt', group='doc', nogroup='dev')
 
 
-@task(pre=[req_base, req_dev, req_test, req_doc])
+@task(pre=[begin, req_base, req_dev, req_test, req_doc])
 def requirements(c):
-    boundary()
+    success_print(requirements.name)
 
 
 @task(pre=[requirements])
@@ -249,27 +279,26 @@ def publish(c, dry_run=True):
 @task
 def g2e(c, python=PYTHON):
     print('-> examples/g2e')
-    # c.cd is a context manager; it handles the 'cd' and 'back' automatically
     with c.cd('examples/g2e'):
         # We use warn=True so one example failure doesn't necessarily
         # kill the entire suite if you don't want it to.
-        c.run('uv run make -s clean test', pty=True)
-        c.run('uv run make -s clean', pty=True)
+        c.run('uv run make -s clean test', pty=True, hide='both')
+        c.run('uv run make -s clean', pty=True, hide='both')
 
 
 @task
 def calc(c, python=PYTHON):
     print('-> examples/calc')
     with c.cd('examples/calc'):
-        c.run('uv run make -s clean test', pty=True)
+        c.run('uv run make -s clean test', pty=True, hide='both')
 
 
-@task(pre=[clean, g2e, calc])
-def examples(c, python=PYTHON):
-    pass
+@task(pre=[clean, begin, g2e, calc])
+def examples(c):
+    success_print(examples.name)
 
 
 @task(pre=[test, docs, examples, build, requirements], default=True)
 def all(c, python=PYTHON):
-    boundary('✨ All targets completed successfully! ✨', add)
+    boundary_print('✨ complete!')
 
