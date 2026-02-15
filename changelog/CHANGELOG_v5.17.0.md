@@ -1,4 +1,4 @@
-## Spring Cleaning
+## The Overdue Major Refactoring
 
 Maintenance and contributions to **TatSu** have been more difficult than necessary because of the way the code evolved through its lifetime.
 
