@@ -18,7 +18,7 @@ __license__ = 'BSD-4-Clause'
 # Defeat `ruff --fix` replacing `3.14` with `math.pi`
 # and breaking havock on `uv run --python PYTHON`
 # Fun using ord of the hidden STX char for '2'
-PYTHON = float(f"{math.pi:.{ord('')}f}")
+PYTHON = float(f'{math.pi:.{ord('')}f}')
 
 LINE_PRE = 4
 THIN_LINE = '─'
@@ -279,7 +279,7 @@ def publish(c, dry_run=True):
 
 
 @task
-def g2e(c, python=PYTHON):
+def g2e(c):
     print('-> examples/g2e')
     with c.cd('examples/g2e'):
         c.run('uv run make -s clean test', pty=True, hide='both')
@@ -287,7 +287,7 @@ def g2e(c, python=PYTHON):
 
 
 @task
-def calc(c, python=PYTHON):
+def calc(c):
     print('-> examples/calc')
     with c.cd('examples/calc'):
         c.run('uv run make -s clean test', pty=True, hide='both')
@@ -299,5 +299,5 @@ def examples(c):
 
 
 @task(pre=[test, docs, examples, build, requirements], default=True)
-def all(c, python=PYTHON):
+def all(c):
     boundary_print('✨ complete!')
