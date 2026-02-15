@@ -209,7 +209,7 @@ def py313(c):
 
 @task
 def py314(c):
-    matrix_core(c, python=math.pi)
+    matrix_core(c, python=round(math.pi, 2))
 
 
 @task
