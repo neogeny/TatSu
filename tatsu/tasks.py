@@ -226,8 +226,8 @@ def matrix_core(c: Context, python: float = PYTHON):
     version_boundary_print(c, target='🐍', python=python)
     ruff(c, python=python)
     ty(c, python=python)
-    # pyright(c, python=python)
-    # pytest(c, python=python)
+    pyright(c, python=python)
+    pytest(c, python=python)
     success_print(str(python))
 
 
