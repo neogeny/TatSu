@@ -1,0 +1,39 @@
+[]: Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+[]: SPDX-License-Identifier: BSD-4-Clause
+[]: by Gemini 2026-02-15
+
+# TatSu Development Style Guide
+
+This document defines the coding standards for the TatSu project, specifically for task automation and core Python development. These rules ensure consistency, type safety, and a professional terminal experience.
+
+## 1. String Quoting
+* **Primary Standard:** Use `'single quotes'` for all strings, including UI messages, shell commands, and identifiers.
+* **Secondary Standard:** Use `"double quotes"` only when necessary to avoid escaping internal single quotes (e.g., `'It's a test'` becomes `"It's a test"`) or within complex f-string expressions.
+
+## 2. Path Management (`pathlib`)
+* **Strict Usage:** Never use `os.path`. Use `pathlib.Path` for all filesystem interactions.
+* **Traversal:** Use `Path.rglob()` for recursive searches and cleanups.
+* **Type Safety:** Maintain paths as `Path` objects as long as possible before converting to `str` for shell execution.
+
+## 3. Type Annotations & Static Analysis
+* **Explicit Typing:** Annotate all top-level constants and function parameters.
+* **Modern Aliases:** Use the `type` keyword (Python 3.12+) for complex type definitions.
+* **Return Types:** * Functions with side effects should be explicitly annotated with `-> None`.
+* **Linter Overrides:** When a linter (like Ruff) conflicts with functional intent, use pragmatic workarounds (e.g., the `math.pi` rounding hack) and silence the specific warning with an inline `# pyright:ignore` or `# noqa`.
+
+## 4. Task Orchestration (Invoke & UV)
+* **Execution Wrappers:** All system calls must be wrapped in a helper (like `uv()`) that manages quiet modes, python versions, and dependency groups.
+* **State Management:** Critical tasks (`matrix`, `all`) must ensure environment synchronization using `uv_sync()`.
+* **Dependencies:** Use the `pre` argument in `@task` to build a robust, ordered execution graph.
+
+## 5. Terminal User Interface (UX)
+* **Visual Hierarchy:** Use box-drawing characters for boundaries.
+* **Constants:**
+    * `THIN_LINE = '─'`
+    * `THICK_LINE = '━'`
+* **Adaptive Width:** UI elements must dynamically adapt to the terminal width using `shutil.get_terminal_size()`.
+* **Visual Cues:** Use emojis (`✅`, `✨`, `🐍`) to mark success and major categories.
+
+## 6. Documentation & Comments
+* **Rationale over Description:** Comments should explain *why* a certain path was taken (the "Engineering Rationale") rather than *what* the code is doing.
+* **Provenance:** Maintain headers with proper copyright and attribution for significant logic changes.
