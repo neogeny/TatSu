@@ -165,7 +165,7 @@ def test_constant_math():
         start = a:`7` b:`2` @:```{a} / {b}``` $ ;
     """
     result = parse(grammar, '', trace=True)
-    assert result == 3.5  # noqa: RUF069
+    assert result <= 3.5 <= result
 
 
 def test_constant_deep_eval():

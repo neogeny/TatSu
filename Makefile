@@ -8,6 +8,9 @@ else
 endif
 
 
+PYTHON := 3.14
+
+
 all:  test documentation examples build requirements
 
 
@@ -17,7 +20,7 @@ test_plus: clean_plus test
 
 
 __version__:
-	@- echo "->" $$(python3 --version) $$(python3 -m tatsu --version)
+	@- echo "->" $$(uv run python3 --version) $$(uv run python3 -m tatsu --version)
 
 
 __line__:
@@ -25,14 +28,14 @@ __line__:
 
 
 __tests_init__: __line__ __version__
-	@- uv sync -q --group test
+	@- uv sync -q --python $(PYTHON) --group test
 
 
 pytest: __tests_init__ clean
 	@- echo "-> $@"
 	@- mkdir -p ./tmp
 	@- touch ./tmp/__init__.py
-	@- uv run pytest --quiet tests/
+	@- uv run -q --python $(PYTHON) pytest --quiet tests/
 
 
 documentation: sphinx_make
@@ -45,9 +48,9 @@ doc: documentation
 
 
 sphinx_make:
-	@- uv sync -q --group doc
+	@- uv sync -q --python $(PYTHON) --group doc
 	@  echo "-> docs"
-	@- cd docs; uv run make -s html > /dev/null
+	@- cd docs; uv run -q --python $(PYTHON) make -s html > /dev/null
 
 
 examples: clean g2e_test calc_test
@@ -55,13 +58,13 @@ examples: clean g2e_test calc_test
 
 g2e_test:
 	@- echo "-> examples/g2e"
-	@- cd examples/g2e && uv run make -s clean test > /dev/null
-	@- cd examples/g2e && uv run make -s clean > /dev/null
+	@- cd examples/g2e && uv run -q --python $(PYTHON) make -s clean test > /dev/null
+	@- cd examples/g2e && uv run -q --python $(PYTHON) make -s clean > /dev/null
 
 
 calc_test:
 	@- echo "-> examples/calc"
-	@- cd examples/calc && uv run make -s clean test > /dev/null
+	@- cd examples/calc && uv run -q --python $(PYTHON) make -s clean test > /dev/null
 
 
 lint: ruff ty pyright
@@ -69,12 +72,12 @@ lint: ruff ty pyright
 
 ruff: __tests_init__ clean
 	@- echo "-> $@"
-	@- uv run ruff check -q --preview --fix tatsu tests examples
+	@- uv run -q --python $(PYTHON) ruff check -q --preview --fix tatsu tests examples
 
 
 mypy: __tests_init__ clean
 	@- echo "-> $@"
-	@- uv run mypy tatsu tests examples \
+	@- uv run -q --python $(PYTHON) mypy tatsu tests examples \
 		--install-types \
 		--exclude dist \
 		--exclude parsers \
@@ -85,12 +88,12 @@ pyright: basedpyright
 
 basedpyright: __tests_init__ clean
 	@- echo "-> $@"
-	@- uv run basedpyright tatsu tests examples > /dev/null
+	@- uv run -q --python $(PYTHON) basedpyright tatsu tests examples > /dev/null
 
 
 ty: __tests_init__ clean
 	@- 	echo "-> $@"
-	@- 	unbuffer uv run ty check tatsu tests examples | (! rg --color=always -v "All checks passed!")
+	@- 	unbuffer uv run -q --python $(PYTHON) ty check tatsu tests examples | (! rg --color=always -v "All checks passed!")
 
 
 clean:
@@ -104,21 +107,25 @@ clean_plus: clean
 
 checks: matrix
 
+MATRIX := test
 matrix: matrix_run __line__
-
 matrix_run: py312 py313 py314 py315
 
+py312: PYTHON := 3.12
 py312:
-	@- uv run -q --python 3.12 make test
+	@- uv run -q --python $(PYTHON) make PYTHON=$(PYTHON) $(MATRIX)
 
+py313: PYTHON := 3.13
 py313:
-	@- uv run -q --python 3.13 make test
+	@- uv run -q --python $(PYTHON) make PYTHON=$(PYTHON) $(MATRIX)
 
+py314: PYTHON := 3.14
 py314:
-	@- uv run -q --python 3.14 make test
+	@- uv run -q --python $(PYTHON) make PYTHON=$(PYTHON) $(MATRIX)
 
+py315: PYTHON := 3.15
 py315:
-	@- uv run -q --python 3.15 make test
+	@- uv run -q --python $(PYTHON) make PYTHON=$(PYTHON) $(MATRIX)
 
 
 build: clean
