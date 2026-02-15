@@ -88,7 +88,7 @@ pyright: basedpyright
 
 basedpyright: __tests_init__ clean
 	@- echo "-> $@"
-	@- uv run -q --python $(PYTHON) basedpyright tatsu tests examples > /dev/null
+	@- uv run -q --python $(PYTHON) basedpyright tatsu tests examples
 
 
 ty: __tests_init__ clean
