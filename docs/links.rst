@@ -25,6 +25,7 @@
 .. _Euler: http://en.wikipedia.org/wiki/Euler_programming_language
 .. _Grako: https://pypi.python.org/pypi/grako/
 .. _ISO EBNF: https://en.wikipedia.org/wiki/Extended_Backus–Naur_form
+.. _Invoke: https://www.pyinvoke.org
 .. _Jack: http://en.wikipedia.org/wiki/Javacc
 .. _Japanese: http://en.wikipedia.org/wiki/Japanese_grammar
 .. _Java: https://en.wikipedia.org/wiki/Java

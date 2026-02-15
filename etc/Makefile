@@ -88,7 +88,7 @@ pyright: basedpyright
 
 basedpyright: __tests_init__ clean
 	@- echo "-> $@"
-	@- uv run -q --python $(PYTHON) basedpyright tatsu tests examples > /dev/null
+	@- uv run -q --python $(PYTHON) basedpyright tatsu tests examples
 
 
 ty: __tests_init__ clean
@@ -145,25 +145,25 @@ requirements.txt: uv.lock
 	@echo "->" $@
 	@- uv export -q --format requirements-txt --no-hashes \
 		--no-group dev \
-		> $@
+		-o $@
 
 requirements-dev.txt: uv.lock
 	@echo "->" $@
 	@- uv export -q --format requirements-txt --no-hashes \
 		--dev \
-		> $@
+		-o $@
 
 requirements-test.txt: uv.lock
 	@echo "->" $@
 	@- uv export -q --format requirements-txt --no-hashes \
 		--group test --no-group dev \
-		> $@
+		-o $@
 
 requirements-doc.txt: uv.lock
 	@echo "->" $@
 	@- uv export -q --format requirements-txt --no-hashes \
 		--group doc --no-group dev \
-		> $@
+		-o $@
 
 
 need_gh:
