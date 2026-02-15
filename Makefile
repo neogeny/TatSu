@@ -106,10 +106,18 @@ checks: matrix
 
 matrix: matrix_run __line__
 
-matrix_run:
+matrix_run: py312 py313 py314 py315
+
+py312:
 	@- uv run -q --python 3.12 make test
+
+py313:
 	@- uv run -q --python 3.13 make test
+
+py314:
 	@- uv run -q --python 3.14 make test
+
+py315:
 	@- uv run -q --python 3.15 make test
 
 
