@@ -3,65 +3,72 @@
 from __future__ import annotations
 
 import shutil
+import string
 from pathlib import Path
 
 from invoke import task
 
 # Metadata
-__copyright__ = "Copyright (c) 2017-2026 Juancarlo Añez"
-__license__ = "BSD-4-Clause"
+__copyright__ = 'Copyright (c) 2017-2026 Juancarlo Añez'
+__license__ = 'BSD-4-Clause'
 
 
-def print_line(banner: str = '', add: int = 0):
+PYTHON = 3.14
+
+
+def boundary(banner: str = ''):
     cols = shutil.get_terminal_size().columns
     if not banner:
-        print("━" * cols)
+        print('━' * cols)
     else:
+        add = sum(ord(c) >= 256 for c in banner)
         pre = 8
-        print("━" * pre, banner, "━" * (cols - pre - add - len(banner) - 2))
+        print('━' * pre, banner, '━' * (cols - 2 - pre - add - len(banner)))
 
-last_python = '3.14'
 
-def run_uv(c, cmd, group=None, python=None, **kwargs):
-    """
-    Helper to wrap uv execution logic.
-    Passes any additional keyword arguments (like hide, warn, pty) to c.run.
-    """
-    global last_python
+def uv(c, cmd, args, *, quiet=True, python=PYTHON, group='dev', nogroup='', **kwargs):
+    uvpython = uv_python_pin(c)
+    q = ' --quiet' if quiet else ''
+    p = f' --python {python}' if python and python!= uvpython else ''
+    g = f' --group {group}' if group else ''
+    n = f' --no-group {nogroup}' if nogroup else ''
 
-    base_cmd = "uv run"
+    options = {'pty': True, **kwargs}
+    return c.run(f'uv {cmd}{q}{p}{g}{n} {args}', **options)
 
-    if python:
-        last_python = python
-    base_cmd += f" --python {last_python}"
 
-    if group:
-        base_cmd += f" --group {group}"
+def uv_run(c, args, *, python=PYTHON, group='dev', quiet=True, **kwargs):
+    return uv(c, 'run', args=args, python=python, group=group, quiet=quiet, **kwargs)
 
-    options = {"pty": True}
-    options.update(kwargs)
+def version_python(c, python=PYTHON):
+    return uv_run(
+        c,
+        'python3 --version',
+        python=python,
+        quiet=True,
+        hide='both',
+    ).stdout.strip()
 
-    return c.run(f"{base_cmd} {cmd}", **options)
 
-def set_version(c, python: str, group:str = 'dev'):
-    return
-    c.run(f"uv python pin {python}", hide='both')
-    c.run(f"uv sync -q --python {python} --group {group}")
+def version_tatsu(c, python=PYTHON):
+    return uv_run(
+        c,
+        'python3 -m tatsu --version',
+        python=python,
+        quiet=True,
+        hide='both',
+    ).stdout.strip()
 
-@task
-def version(c):
-    """Show python and tatsu versions."""
-    c.run("uv run python3 --version")
-    c.run("uv run python3 -m tatsu --version")
 
+def uv_python_pin(c):
+    return float(c.run('uv python pin', pty=True, hide='both').stdout.strip())
 
 @task
 def clean(c, plus=False):
-    """Clean up build and cache artifacts."""
-    patterns = ["build", "dist", "tmp", "tatsu.egg-info", ".tox"]
+    print('-> clean')
+    patterns = ['build', 'dist', 'tmp', 'tatsu.egg-info', '.tox']
     if plus:
-        patterns.extend([".cache", ".pytest_cache", ".ruff_cache", ".mypy_cache"])
-
+        patterns.extend(['.cache', '.pytest_cache', '.ruff_cache', '.mypy_cache'])
 
     for p in patterns:
         path = Path(p)
@@ -71,47 +78,37 @@ def clean(c, plus=False):
             else:
                 path.unlink()
 
-
-    # Recursive pycache removal
-    for p in Path(".").rglob("__pycache__"):
+    for p in Path('.').rglob('__pycache__'):
         shutil.rmtree(p)
 
 
-@task(pre=[version])
-def pytest(c):
-    """Run pytest suite."""
-    clean(c)
-    Path("./tmp").mkdir(exist_ok=True)
-    Path("./tmp/__init__.py").touch()
-    print("-> pytest")
-    run_uv(c, "pytest --quiet tests/", group="test")
+@task(pre=[clean])
+def ruff(c, python=PYTHON):
+    print('-> ruff')
+    uv_run(
+        c,
+        'ruff check -q --preview --fix tatsu tests examples',
+        python=python,
+        group='test',
+    )
 
 
-@task
-def ruff(c):
-    """Run ruff linting."""
-    print("-> ruff")
-    run_uv(c, "ruff check -q --preview --fix tatsu tests examples", group="test")
-
-
-@task
-def pyright(c):
-    """Run pyright (basedpyright) checks."""
-    print("-> pyright")
-    run_uv(c, "basedpyright tatsu tests examples", group="test", hide='stdout')
-
-
-@task
-def ty(c):
-    """Run ty check and only show output if it fails."""
-    print("-> ty")
+@task(pre=[clean])
+def ty(c, python=PYTHON):
+    print('-> ty')
 
     # hide='both' stops it from printing to the screen immediately
     # warn=True prevents the script from exiting on a non-zero return code
-    res = run_uv(c, "ty check tatsu tests examples", group="test", hide='both', warn=True)
+    res = uv_run(
+        c,
+        'ty check tatsu tests examples',
+        python=python,
+        group='test',
+        hide='both',
+    )
 
     # If it failed (return code != 0) or doesn't contain the success string
-    if res.exited != 0 or "All checks passed!" not in res.stdout:
+    if res.exited != 0 or 'All checks passed!' not in res.stdout:
         # Print the captured stdout/stderr
         if res.stdout.strip():
             print(res.stdout)
@@ -119,118 +116,160 @@ def ty(c):
             print(res.stderr)
 
 
-@task(pre=[ruff, ty, pyright])
+@task(pre=[clean])
+def pyright(c, python=PYTHON):
+    print('-> pyright')
+    uv_run(
+        c,
+        'basedpyright tatsu tests examples',
+        python=python,
+        group='test',
+        hide='stdout',
+    )
+
+
+@task(pre=[clean])
+def pytest(c, python=PYTHON):
+    print('-> pytest')
+    Path('./tmp').mkdir(exist_ok=True)
+    Path('./tmp/__init__.py').touch()
+    uv_run(c, 'pytest --quiet tests/', python=python, group='test')
+
+
+@task(pre=[clean, ruff, ty, pyright])
 def lint(c):
-    """Run all linters."""
-    pass
+    boundary()
 
 
 @task(pre=[lint, pytest])
 def test(c):
-    """Run all tests and linters."""
     pass
 
 
 @task
-def docs(c):
-    """Build sphinx documentation."""
-    run_uv(c, "make -s html", group="doc") # Assumes Makefile in /docs or adjust to cd
+def docs(c, python=PYTHON):
+    uv_run(c, 'make -s html', python=python, group='doc') # Assumes Makefile in /docs or adjust
 
 
 @task
 def build(c):
-    """Build package using hatch via uvx."""
-    clean(c)
-    print("-> build")
-    c.run("uvx hatch build")
+    print('-> build')
+    c.run('uvx hatch build')
 
 
-def run_version(c, ver):
-    print_line(f"🐍 Testing Python {ver}", add=1)
-    set_version(c, python=ver, group="test")
-    version(c)
-    run_uv(c, "inv lint", group="test", python=ver)
-    # c.run(f"uv run -q --python {ver} --group test inv lint", pty=True)
+def matrix_core(c, python=PYTHON):
+    global PYTHON
+
+    PYTHON, p = python, PYTHON
+    try:
+        verpython= version_python(c, python=python)
+        vertatsu = version_tatsu(c, python=python)
+        boundary(f'🐍 Testing {verpython} {vertatsu}')
+
+        ruff(c, python=python)
+        ty(c, python=python)
+        pyright(c, python=python)
+    finally:
+       PYTHON = p
 
 @task
 def py312(c):
-    """Run tests on Python 3.12"""
-    run_version(c, "3.12")
+    matrix_core(c, python=3.12)
 
 @task
 def py313(c):
-    """Run tests on Python 3.13"""
-    run_version(c, "3.13")
+    matrix_core(c, python=3.13)
 
 @task
 def py314(c):
-    """Run tests on Python 3.14"""
-    run_version(c, "3.14")
+    matrix_core(c, python=3.14)
 
 @task
 def py315(c):
-    """Run tests on Python 3.15"""
-    run_version(c, "3.15")
+    matrix_core(c, python=3.15)
 
-# 3. Update the main matrix task to use the individuals as dependencies
+
 @task(pre=[py312, py313, py314, py315])
 def matrix(c):
-    """Run the full multi-version test matrix."""
-    print_line("✅ matrix check complete.")
+    boundary('✅ matrix complete.')
+
+
+def _export_requirements(c, filename, group='', nogroup=''):
+    out_file = Path(filename)
+    print(f'-> {out_file}')
+
+    # We use pty=True here to ensure the shell redirection behaves
+    # and we see the output immediately if there's an error.
+    uv(
+        c,
+        'export',
+        f'--no-hashes --format requirements-txt -o {out_file}',
+        group=group,
+        nogroup=nogroup,
+        quiet=True,
+        pty=True,
+    )
 
 
 @task
+def req_base(c):
+    _export_requirements(c, 'requirements.txt', nogroup='dev')
+
+@task
+def req_dev(c):
+    _export_requirements(c, 'requirements-dev.txt', group='dev')
+
+@task
+def req_test(c):
+    _export_requirements(c, 'requirements-test.txt', group='test', nogroup='dev')
+
+@task
+def req_doc(c):
+    _export_requirements(c, 'requirements-doc.txt', group='doc', nogroup='dev')
+
+
+@task(pre=[req_base, req_dev, req_test, req_doc])
 def requirements(c):
-    """Export uv.lock to various requirements.txt files."""
-    req_map = {
-        "requirements.txt": "--no-group dev",
-        "requirements-dev.txt": "--dev",
-        "requirements-test.txt": "--group test --no-group dev",
-        "requirements-doc.txt": "--group doc --no-group dev",
-    }
-    for file, flags in req_map.items():
-        print(f"-> {file}")
-        c.run(f"uv export -q --format requirements-txt --no-hashes {flags} > {file}")
+    boundary()
+
+
+@task(pre=[requirements])
+def reqs(c):
+    pass
 
 
 @task(pre=[build])
 def publish(c, dry_run=True):
-    """Run CI workflow via gh CLI."""
-    c.run("uv tool install -q gh")
-    workflow = "test_publish.yml" if dry_run else "publish.yml"
-    c.run(f"gh workflow run {workflow}")
-    c.run(f"gh run list --workflow={workflow}")
+    c.run('uv tool install -q gh')
+    workflow = 'test_publish.yml' if dry_run else 'publish.yml'
+    c.run(f'gh workflow run {workflow}')
+    c.run(f'gh run list --workflow={workflow}')
 
 
 @task
-def g2e(c):
-    """Run tests for the g2e example."""
-    print("-> examples/g2e")
+def g2e(c, python=PYTHON):
+    print('-> examples/g2e')
     # c.cd is a context manager; it handles the 'cd' and 'back' automatically
-    with c.cd("examples/g2e"):
+    with c.cd('examples/g2e'):
         # We use warn=True so one example failure doesn't necessarily
         # kill the entire suite if you don't want it to.
-        c.run("uv run make -s clean test", pty=True)
-        c.run("uv run make -s clean", pty=True)
+        c.run('uv run make -s clean test', pty=True)
+        c.run('uv run make -s clean', pty=True)
 
 
 @task
-def calc(c):
-    """Run tests for the calc example."""
-    print("-> examples/calc")
-    with c.cd("examples/calc"):
-        c.run("uv run make -s clean test", pty=True)
+def calc(c, python=PYTHON):
+    print('-> examples/calc')
+    with c.cd('examples/calc'):
+        c.run('uv run make -s clean test', pty=True)
 
 
 @task(pre=[clean, g2e, calc])
-def examples(c):
-    """Run all example projects tests."""
+def examples(c, python=PYTHON):
     pass
 
 
 @task(pre=[test, docs, examples, build, requirements], default=True)
-def all(c):
-    """Run all essential tasks: test, docs, examples, build, and requirements."""
-    print_line()
-    print("✨ All targets completed successfully! ✨")
+def all(c, python=PYTHON):
+    boundary('✨ All targets completed successfully! ✨', add)
 
