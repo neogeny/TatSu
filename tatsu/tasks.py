@@ -4,32 +4,52 @@ from __future__ import annotations
 
 import math
 import shutil
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 from invoke import (
+    Context,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
+    Result,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
+    Task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
 )
 
-__copyright__ = 'Copyright (c) 2017-2026 Juancarlo Añez'
-__license__ = 'BSD-4-Clause'
+__copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'
+__license__: str = 'BSD-4-Clause'
 
 
 # by Gemini 2026-02-15
 # Defeat `ruff --fix` replacing `3.14` with `math.pi`
 # and breaking havock on `uv run --python PYTHON`
 # Fun using ord of the hidden STX char for '2'
-PYTHON = float(f'{math.pi:.{ord('')}f}')
+PYTHON: float = float(f'{math.pi:.{ord('')}f}')
 
-LINE_PRE = 4
-THIN_LINE = '─'
-THICK_LINE = '━'
+LINE_PRE: int = 4
+THIN_LINE: str = '─'
+THICK_LINE: str = '━'
 
-
-def uv_python_pin(c):
-    return float(c.run('uv python pin', pty=True, hide='both').stdout.strip())
+type TaskFun = Task | Callable[[Context], Result | None] | None
 
 
-def uv(c, cmd, args, *, quiet=True, python=PYTHON, group='dev', nogroup='', **kwargs):
+def uv_python_pin(c: Context) -> float:
+    result = c.run('uv python pin', pty=True, hide='both')
+    if result is None:
+        return PYTHON
+    return float(result.stdout.strip())
+
+
+def uv(
+        c: Context,
+        cmd: str,
+        args: str,
+        *,
+        quiet: bool = True,
+        python: float = PYTHON,
+        group: str = 'dev',
+        nogroup: str = '',
+        **kwargs: Any,
+) -> Result:
     uvpython = uv_python_pin(c)
     q = ' --quiet' if quiet else ''
     p = f' --python {python!s}' if python and python != uvpython else ''
@@ -37,14 +57,22 @@ def uv(c, cmd, args, *, quiet=True, python=PYTHON, group='dev', nogroup='', **kw
     n = f' --no-group {nogroup}' if nogroup else ''
 
     options = {'pty': True, **kwargs}
-    return c.run(f'uv {cmd}{q}{p}{g}{n} {args}', **options)
+    return c.run(f'uv {cmd}{q}{p}{g}{n} {args}', **options) or Result()
 
 
-def uv_run(c, args, *, python=PYTHON, group='dev', quiet=True, **kwargs):
+def uv_run(
+        c: Context,
+        args: str,
+        *,
+        python: float = PYTHON,
+        group: str = 'dev',
+        quiet: bool = True,
+        **kwargs: Any,
+) -> Result:
     return uv(c, 'run', args=args, python=python, group=group, quiet=quiet, **kwargs)
 
 
-def version_python(c, python=PYTHON):
+def version_python(c: Context, python: float = PYTHON) -> str:
     return uv_run(
         c,
         'python3 --version',
@@ -54,7 +82,7 @@ def version_python(c, python=PYTHON):
     ).stdout.strip()
 
 
-def version_tatsu(c, python=PYTHON):
+def version_tatsu(c: Context, python: float = PYTHON) -> str:
     return uv_run(
         c,
         'python3 -m tatsu --version',
@@ -64,7 +92,7 @@ def version_tatsu(c, python=PYTHON):
     ).stdout.strip()
 
 
-def boundary_print(banner: str = '', line=THIN_LINE):
+def boundary_print(banner: str = '', line: str = THIN_LINE) -> None:
     cols = shutil.get_terminal_size().columns
     if not banner:
         print(line * cols)
@@ -74,24 +102,26 @@ def boundary_print(banner: str = '', line=THIN_LINE):
         print(line * pre, banner, line * (cols - 2 - pre - add - len(banner)))
 
 
-def success_print(target='', task=None, line=THIN_LINE):
-    target += task.name if task else ''
+def success_print(target: str = '', *, task: TaskFun = None, line: str = THIN_LINE) -> None:
+    target += task.name if task else ''  # ty:ignore[unresolved-attribute] # pyright:ignore[reportFunctionMemberAccess]
     boundary_print(f'✅ {target}', line=line)
 
 
-def version_boundary_print(c, target='', python=PYTHON, line=THICK_LINE):
+def version_boundary_print(
+        c: Context, target: str = '', python: float = PYTHON, line: str = THICK_LINE,
+) -> None:
     verpython = version_python(c, python=python)
     vertatsu = version_tatsu(c, python=python)
     boundary_print(f'{target} {verpython} {vertatsu}', line=line)
 
 
 @task
-def begin(c):
+def begin(c: Context) -> None:
     boundary_print()
 
 
 @task(pre=[begin])
-def clean(c, plus=False):
+def clean(c: Context, plus: bool = False) -> None:
     print('-> clean')
     patterns = ['build', 'dist', 'tmp', 'tatsu.egg-info', '.tox']
     if plus:
@@ -110,7 +140,7 @@ def clean(c, plus=False):
 
 
 @task(pre=[clean])
-def ruff(c, python=PYTHON):
+def ruff(c: Context, python: float = PYTHON) -> None:
     print('-> ruff')
     uv_run(
         c,
@@ -121,7 +151,7 @@ def ruff(c, python=PYTHON):
 
 
 @task(pre=[clean])
-def ty(c, python=PYTHON):
+def ty(c: Context, python: float = PYTHON) -> None:
     print('-> ty')
     res = uv_run(
         c,
@@ -138,7 +168,7 @@ def ty(c, python=PYTHON):
 
 
 @task(pre=[clean])
-def pyright(c, python=PYTHON):
+def pyright(c: Context, python: float = PYTHON) -> None:
     print('-> pyright')
     uv_run(
         c,
@@ -150,7 +180,7 @@ def pyright(c, python=PYTHON):
 
 
 @task(pre=[clean])
-def pytest(c, python=PYTHON):
+def pytest(c: Context, python: float = PYTHON) -> None:
     print('-> pytest')
     Path('./tmp').mkdir(exist_ok=True)
     Path('./tmp/__init__.py').touch()
@@ -158,17 +188,17 @@ def pytest(c, python=PYTHON):
 
 
 @task(pre=[begin, clean, ruff, ty, pyright])
-def lint(c):
+def lint(c: Context) -> None:
     success_print(task=lint)
 
 
 @task(pre=[begin, lint, pytest])
-def test(c):
+def test(c: Context) -> None:
     success_print(task=test)
 
 
 @task(pre=[begin])
-def docs(c):
+def docs(c: Context) -> None:
     print('-> docs')
     with c.cd('docs'):
         uv_run(
@@ -182,13 +212,13 @@ def docs(c):
 
 
 @task(pre=[clean])
-def build(c):
+def build(c: Context) -> None:
     print('-> build')
     c.run('uvx hatch build', hide='both')
     success_print(task=build)
 
 
-def matrix_core(c, python=PYTHON):
+def matrix_core(c: Context, python: float = PYTHON) -> None:
     version_boundary_print(c, target='🐍', python=python)
     ruff(c, python=python)
     ty(c, python=python)
@@ -198,31 +228,31 @@ def matrix_core(c, python=PYTHON):
 
 
 @task
-def py312(c):
+def py312(c: Context) -> None:
     matrix_core(c, python=3.12)
 
 
 @task
-def py313(c):
+def py313(c: Context) -> None:
     matrix_core(c, python=3.13)
 
 
 @task
-def py314(c):
+def py314(c: Context) -> None:
     matrix_core(c, python=round(math.pi, 2))
 
 
 @task
-def py315(c):
+def py315(c: Context) -> None:
     matrix_core(c, python=3.15)
 
 
 @task(pre=[py312, py313, py314, py315])
-def matrix(c):
+def matrix(c: Context) -> None:
     success_print(task=matrix, line=THICK_LINE)
 
 
-def _export_requirements(c, filename, group='', nogroup=''):
+def _export_requirements(c: Context, filename: str, group: str = '', nogroup: str = '') -> None:
     out_file = Path(filename)
     print(f'-> {out_file}')
 
@@ -241,37 +271,37 @@ def _export_requirements(c, filename, group='', nogroup=''):
 
 
 @task
-def req_base(c):
+def req_base(c: Context) -> None:
     _export_requirements(c, 'requirements.txt', nogroup='dev')
 
 
 @task
-def req_dev(c):
+def req_dev(c: Context) -> None:
     _export_requirements(c, 'requirements-dev.txt', group='dev')
 
 
 @task
-def req_test(c):
+def req_test(c: Context) -> None:
     _export_requirements(c, 'requirements-test.txt', group='test', nogroup='dev')
 
 
 @task
-def req_doc(c):
+def req_doc(c: Context) -> None:
     _export_requirements(c, 'requirements-doc.txt', group='doc', nogroup='dev')
 
 
 @task(pre=[begin, req_base, req_dev, req_test, req_doc])
-def requirements(c):
+def requirements(c: Context) -> None:
     success_print(task=requirements)
 
 
 @task(pre=[requirements])
-def reqs(c):
+def reqs(c: Context) -> None:
     pass
 
 
 @task(pre=[build])
-def publish(c, dry_run=True):
+def publish(c: Context, dry_run: bool = True) -> None:
     c.run('uv tool install -q gh')
     workflow = 'test_publish.yml' if dry_run else 'publish.yml'
     c.run(f'gh workflow run {workflow}')
@@ -279,7 +309,7 @@ def publish(c, dry_run=True):
 
 
 @task
-def g2e(c):
+def g2e(c: Context) -> None:
     print('-> examples/g2e')
     with c.cd('examples/g2e'):
         c.run('uv run make -s clean test', pty=True, hide='both')
@@ -287,17 +317,17 @@ def g2e(c):
 
 
 @task
-def calc(c):
+def calc(c: Context) -> None:
     print('-> examples/calc')
     with c.cd('examples/calc'):
         c.run('uv run make -s clean test', pty=True, hide='both')
 
 
 @task(pre=[clean, begin, g2e, calc])
-def examples(c):
+def examples(c: Context) -> None:
     success_print(task=examples)
 
 
 @task(pre=[test, docs, examples, build, requirements], default=True)
-def all(c):
+def all(c: Context) -> None:
     boundary_print('✨ complete!')
