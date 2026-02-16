@@ -223,7 +223,7 @@ def build(c: Context):
 
 
 def matrix_core(c: Context, python: float = PYTHON):
-    version_boundary_print(c, target='🐍', python=python)
+    version_boundary_print(c, target='ᝰ', python=python)
     ruff(c, python=python)
     ty(c, python=python)
     pyright(c, python=python)
