@@ -310,9 +310,19 @@ def reqs(c: Context):
 
 
 @task(pre=[build])
+def testpublish(c: Context):
+    c.run('uv tool install -q gh')
+    print('-> test publish')
+    workflow = 'test_publish.yml'
+    c.run(f'gh workflow run {workflow}')
+    c.run(f'gh run list --workflow={workflow}')
+
+
+@task(pre=[build])
 def publish(c: Context, dry_run: bool = True):
     c.run('uv tool install -q gh')
-    workflow = 'test_publish.yml' if dry_run else 'publish.yml'
+    print('-> publish')
+    workflow = 'publish.yml'
     c.run(f'gh workflow run {workflow}')
     c.run(f'gh run list --workflow={workflow}')
 
