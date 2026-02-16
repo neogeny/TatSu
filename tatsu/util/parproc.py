@@ -4,14 +4,14 @@ import io
 import multiprocessing
 import sys
 import time
-from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Generator, Iterable, Mapping, Sequence
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import partial
 from itertools import batched
 from pathlib import Path
-from typing import Any, Generator, NamedTuple
+from typing import Any, NamedTuple
 
 import rich
 from rich.progress import (
@@ -183,16 +183,15 @@ def processing_loop(
         success_linecount = 0
         progress, progress_task = _build_progressbar(total)
 
-
         logpath = None
         if total > 1:
             prefix = program_name().replace('.', '_')
             logpath = iso_logpath(prefix=prefix)
 
         @contextmanager
-        def logctx() -> Generator[io.TextIOBase|Any, None, None]:
+        def logctx() -> Generator[io.TextIOBase | Any, None, None]:
             if isinstance(logpath, Path):
-                with logpath.open(mode="a", encoding="utf-8") as logfile:  # noqa: SIM117
+                with logpath.open(mode="a", encoding="utf-8") as logfile:
                     yield logfile
             else:
                 yield sys.stderr
