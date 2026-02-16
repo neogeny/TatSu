@@ -8,7 +8,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from invoke import (
+from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     Context,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     Result,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     Task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
