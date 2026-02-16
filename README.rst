@@ -32,7 +32,7 @@
 |TatSu|
 =======
 
-|TatSu| is a tool that takes grammars in a supperset of `EBNF`_ as input, and
+|TatSu| is a tool that takes grammars in a superset of `EBNF`_ as input, and
 outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_. The classic
 variations of EBNF_ (Tomassetti, EasyExtend, Wirth) and `ISO EBNF`_ are also
 supported as input grammar format.
