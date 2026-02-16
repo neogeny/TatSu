@@ -9,7 +9,7 @@ Maintenance and contributions to **TatSu** have been more difficult than necessa
 This release is a major refactoring of the code in **TatSu**.
 
 - Complex modules were partitioned into sub-modules and classes with well-defined purpose
-- Several algorithms were rewritten to make their semantics clear and evident, and the implementations more efficient
+- Several algorithms were rewritten to make their semantics clear and evident, and their implementation more efficient
 - Many unit tests were added to assert the semantics of complex algorithms
 - Several user-facing features were added as they became easier to implement
 
