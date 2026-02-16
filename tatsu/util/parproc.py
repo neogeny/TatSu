@@ -27,7 +27,7 @@ from rich.progress import (
 from ..util import (
     identity,
     memory_use,
-    program_name,
+    startscript,
     try_read,
 )
 from ..util.datetime import iso_logpath
@@ -150,7 +150,7 @@ def parallel_proc(payloads: Iterable[Any], process: Callable, *args: Any, **kwar
 
 def _build_progressbar(total: int) -> tuple[Progress, TaskID]:
     progress = Progress(
-        TextColumn(f"[progress.description]{program_name()}"),
+        TextColumn(f"[progress.description]{startscript()}"),
         BarColumn(),
         # *Progress.get_default_columns(),
         TaskProgressColumn(),
@@ -185,7 +185,7 @@ def processing_loop(
 
         logpath = None
         if total > 1:
-            prefix = program_name().replace('.', '_')
+            prefix = startscript().replace('.', '_')
             logpath = iso_logpath(prefix=prefix)
 
         @contextmanager

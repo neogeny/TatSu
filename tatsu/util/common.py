@@ -10,10 +10,11 @@ from pathlib import Path
 from typing import Any
 
 
-def program_name() -> str:
+def startscript() -> str:
     import __main__ as main
-    if package := main.__package__:
-        return package
+
+    if main.__package__:
+        return main.__package__
     elif isinstance(main.__file__, str):
         return Path(main.__file__).name
     else:
