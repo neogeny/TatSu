@@ -108,7 +108,7 @@ def boundary_print(banner: str = '', line: str = THIN_LINE):
 
 def success_print(target: str = '', *, task: TaskFun = None, line: str = THIN_LINE):
     target += task.name if task else ''  # ty:ignore[unresolved-attribute] # pyright:ignore[reportFunctionMemberAccess]
-    boundary_print(f'✅ {target}', line=line)
+    boundary_print(f'✔ {target}', line=line)
 
 
 def version_boundary_print(
@@ -350,4 +350,4 @@ def examples(c: Context):
 @task(pre=[test, docs, examples, build, requirements], default=True)
 def all(c: Context):
     uv_sync(c)
-    boundary_print('✨ complete!')
+    boundary_print('✔ all')
