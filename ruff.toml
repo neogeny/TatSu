@@ -66,6 +66,7 @@ target-version = "py312"
 
 [lint.pylint]
 max-branches = 21
+max-nested-blocks = 8
 
 [lint.per-file-ignores]
 
