@@ -1,42 +1,47 @@
+ Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 from .common import is_posix
 
-U_LARROW = '\u2190'
-U_DLARROW = '\u2199'
-U_LDARROW = '\u21D0'
-U_UDARROW = '\u21D1'
-U_RDARROW = '\u21D2'
-U_DDARROW = '\u21D3'
-U_L_TRIPPLE_ARROW = '\u21DA'
+# ruff: noqa: RUF001
 
-U_WARNING = '\u26A0'
+U_LARROW = '←'
+U_DLARROW = '↙'
+U_LDARROW = '⇐'
+U_UDARROW = '⇑'
+U_RDARROW = '⇒'
+U_DDARROW = '⇓'
+U_L_TRIPPLE_ARROW = '⇚'
 
-U_NOT_EQUAL_TO = '\u2260'
-U_IDENTICAL_TO = '\u2261'
-U_NOT_IDENTICAL_TO = '\u2262'
+U_WARNING = '⚠'
 
-U_CHECK_MARK = '\u2713'
+U_NOT_EQUAL_TO = '≠'
+U_IDENTICAL_TO = '≡'
+U_NOT_IDENTICAL_TO = '≢'
 
-U_POWER_SYMBOL = '\u23FB'
-U_POWER_ON_SYMBOL = '\u23FC'
-U_POWER_OFF_SYMBOL = '\u23FD'
+U_CHECK_MARK = '✓'
 
-U_GREEK_SMALL_LETTER_EPSILON = '\u03B5'
-U_GREEK_ANO_TELEIA = '\u0387'
-U_REGISTERED_SIGN = '\u00AE'
-U_RIENNMAN = '\u211D'
+U_POWER_SYMBOL = '⏻'
+U_POWER_ON_SYMBOL = '⏼'
+U_POWER_OFF_SYMBOL = '⏽'
 
-U_ANTICLOCKWISE_OPEN_CIRCLE_ARROW = '\u21BA'
-U_ANTICLOCKWISE_GAPPED_CIRCLE_ARROW = '\u27F2'
+U_GREEK_SMALL_LETTER_EPSILON = 'ε'
+U_GREEK_ANO_TELEIA = '·'
+U_REGISTERED_SIGN = '®'
+U_RIENNMAN = 'ℝ'
 
+U_ANTICLOCKWISE_OPEN_CIRCLE_ARROW = '↺'
+U_ANTICLOCKWISE_GAPPED_CIRCLE_ARROW = '⟲'
+
+# Recommendation: Keep spaces as escape sequences to remain visible to the human eye
 U_PUNCTUATION_SPACE = '\u2008'
 U_FOUR_PER_EM_SPACE = '\u2005'
 U_MEDIUM_MATHEMATICAL_SPACE = '\u205F'
 U_ZERO_WIDTH_NO_BREAK_SPACE = '\uFEFF'
 
-U_BLACK_SCISSORS = '\u2702'
-U_CROSSED_SWORDS = '\u2694'
+U_BLACK_SCISSORS = '✂'
+U_CROSSED_SWORDS = '⚔'
 
 
 if not is_posix():
