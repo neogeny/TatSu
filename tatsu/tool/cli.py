@@ -235,7 +235,7 @@ def tatsu_main():
                     modelgen(model, basetype=args.base_type),
                 )
 
-        print('-' * 72, file=sys.stderr)
+        print('─' * 72, file=sys.stderr)
         print(
             f'{len(grammar.split()):12,d}  lines in grammar', file=sys.stderr,
         )
