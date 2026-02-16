@@ -53,6 +53,7 @@ test = [
     "basedpyright>=1.38.0",
     "colorama>=0.4.6",
     "graphviz>=0.21",
+    "invoke>=2.2.1",
     "mypy>=1.19.1",
     "nodejs-wheel-binaries<=24",
     "progress>=1.6.1",
