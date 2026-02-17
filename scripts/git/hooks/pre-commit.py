@@ -69,6 +69,11 @@ def main() -> None:
         'bootstrap',
     ]
 
+    ignored_paths = [
+        Path('./.vale/styles/'),
+    ]
+
+
     staged = get_staged_files()
     missing_paths: list[Path] = []
 
@@ -76,6 +81,7 @@ def main() -> None:
         must_ignore = (
             path.suffix in ignored_suffix
             or any(path.stem.startswith(p) for p in ignored_prefix)
+            or any(path.is_relative_to(p) for p in ignored_paths)
         )
         if must_ignore:
             continue
