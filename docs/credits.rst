@@ -28,9 +28,6 @@ Credits
    folks on the *ANLTR* forums helped me shape my ideas about |TatSu|.
 -  **JavaCC** (originally `Jack`_) looks like an abandoned project. It
    was the first parser generator I used while teaching.
--  |TatSu| is fast. But dealing with millions of lines of legacy
-   source code in a matter of minutes would be impossible without
-   `PyPy`_, the work of **Armin Rigo** and the `PyPy team`_.
 -  **Guido van Rossum** created and has lead the development of the
    `Python`_ programming environment for over a decade. A tool like
    |TatSu|, at under 10K lines of code, would not have been
