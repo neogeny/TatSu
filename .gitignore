@@ -60,6 +60,7 @@ mkdocs/docs/_build/
 mkdocs/site/
 mkdocs/tmp/
 /site/
+.vale/styles/
 
 ### --- Logs & Local Configs ---
 *.log
