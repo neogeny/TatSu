@@ -42,9 +42,9 @@ The Tatsu grammar
 ~~~~~~~~~~~~~~~~~
 
 The first step is to convert the grammar to |TatSu| syntax and style,
-add rules for lexical elements (``number`` in this case), add a
+with rules for lexical elements (``number`` in this case). Then add a
 ``start`` rule that checks for end of input, and a directive to name the
-generated classes:
+generated parser:
 
 .. code::
 
@@ -336,7 +336,10 @@ The result is:
 One rule per expression type
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Having semantic actions determine what was parsed with ``isinstance()`` or querying the AST_ for operators is not very pythonic, nor object oriented, and it leads to code that's more difficult to maintain. It's preferable to have one rule per *expression kind*, something that will be necessary if we want to build object models to use *walkers* and *code generation*.
+Having semantic actions determine what was parsed with ``isinstance()`` or querying the AST_ for operators is not very pythonic, nor object oriented.
+It leads to code more difficult to maintain. It's preferable to have one
+rule per *expression kind* (something necessary if we want to build object
+models and use *walkers* or *code generation*).
 
 
 .. code::

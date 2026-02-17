@@ -33,9 +33,10 @@ supported as input grammar format.
 
 Why use a PEG_ parser? Because `regular languages`_ (those parsable with Python's ``re`` package) *"cannot count"*. Any language with nested structures or with balancing of demarcatiors requires more than regular expressions to be parsed.
 
-|TatSu| can compile a grammar stored in a string into a
-``tatsu.grammars.Grammar`` object that can be used to parse any given
-input, much like the `re`_ module does with regular expressions, or it can generate a Python_ module that implements the parser.
+|TatSu| can compile a grammar stored in a string into a ``tatsu.grammars``
+object model. The model can be used to parse any input, much like the `re`_
+module does with compiled regular expressions. The model can also be used to
+generate a Python_ module that implements the parser.
 
 |TatSu| supports `left-recursive`_  rules in PEG_ grammars, and it honors *left-associativity* in the resulting parse trees.
 

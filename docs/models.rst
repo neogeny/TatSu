@@ -12,10 +12,10 @@ Building Models
 ~~~~~~~~~~~~~~~
 
 Naming elements in grammar rules makes the parser discard uninteresting
-parts of the input, like punctuation, to produce an *Abstract Syntax
-Tree* (`AST`_) that reflects the semantic structure of what was parsed.
-But an `AST`_ doesn't carry information about the rule that generated
-it, so navigating the trees may be difficult.
+other parts of the input from the output, like punctuation. With naming
+|TatSu| produces an *Abstract Syntax Tree* (`AST`_) that reflects the
+semantic structure of what was parsed. But an `AST`_ doesn't carry information about the rule that generated it, so navigating the trees
+may be difficult.
 
 |TatSu| defines the ``tatsu.semantics.ModelBuilderSemantics`` semantics
 class which helps construct object models from abstract syntax trees:
@@ -56,9 +56,8 @@ result of any particular grammar rule.
 Generating Models
 ~~~~~~~~~~~~~~~~~
 
-To take a look at what the classes for the grammar look like, or to be able
-to override them, the ``tatsu`` commandline tool will generate a module
-definition with the required classes:
+To see what the classes for the grammar look likethe ``tatsu`` commandline
+tool will generate a module definition with the required classes:
 
 .. code:: bash
 
@@ -79,10 +78,12 @@ from the model according to rule declarations:
 
 .. code:: python
 
-    model = tatsu.parse(mygrammar_str, text, semantics=mymodel.MyModelBuilderSemantics())
+    model = tatsu.parse(
+        mygrammar_str,
+        text,
+        semantics=mymodel.MyModelBuilderSemantics(),
+    )
 
-
-| NOTE: You must pass an instance of ``MyModelBuilderSemantics``, and not the class name.
 
 
 Defining Custom Models
@@ -249,7 +250,7 @@ version of the class name may also be used for the *walk* method:
 ``walk__add_operator()`` (note the double underscore).
 
 If a *walk* method for a node class is not found, then a method for the
-class's bases is searched, so it is possible to write *catch-all*
+class's bases is searched. That makes is possible to write *catch-all*
 methods such as:
 
 .. code:: python

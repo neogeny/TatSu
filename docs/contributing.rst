@@ -6,7 +6,7 @@
 Contributing
 ------------
 
-The source code for |TatSu| is posted to it's repository_ on Github. Bug reports, patches,
+The source code for |TatSu| is posted to it's repository_ on GitHub. Bug reports, patches,
 suggestions, and improvements are welcome.
 
 .. _repository : https://github.com/neogeny/TatSu
@@ -61,8 +61,8 @@ There will be at least these directories under the main project directory:
 * **./tests/** unit and integration tests
 * **./grammar/** grammars used by the project
 * **./docs/** the Sphinx_ documentation
-* **./examples/** sample projects
-* **./etc/** various configuration file templates
+* **./examples/** example projects
+* **./etc/** configuration files and templates
 
 
 .. code:: console

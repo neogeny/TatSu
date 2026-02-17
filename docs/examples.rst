@@ -11,10 +11,9 @@ Tatsu
 ~~~~~
 
 The file ``grammar/tatsu.tatsu`` contains a grammar for the |TatSu| grammar
-language written in its own grammar language. It is used in the
+language written in the same language. The grammar is used in the
 *bootstrap* test suite to prove that |TatSu| can generate a parser to
-parse its own language, and the resulting parser is made the bootstrap
-parser every time |TatSu| is stable (see ``tatsu/bootstrap.py`` for
+parse its own language. The parser output from the tests si made the main parser every time |TatSu| is stable (see ``tatsu/bootstrap.py`` for
 the generated parser).
 
 |TatSu| uses |TatSu| to translate grammars into parsers, so it is a
@@ -33,8 +32,8 @@ g2e
 ~~~
 
 The project ``examples/g2e`` contains an example `ANTLR`_ to |TatSu| grammar
-translation. The project is a good example of the use ``g2e``. It generates the
-|TatSu| grammar on standard output, but because the model used is
-|TatSu|'s own, the same code can be used to directly generate a parser
-from any `ANTLR`_ grammar. Please take a look at the examples *README* to
-know about limitations.
+translation. The project uses ``g2e`` to generate a |TatSu| grammar
+from the ``Python3.g4`` ANTLR_ grammar. Because the model classes used are
+|TatSu|'s own (``grammars.*``), the same strategy can be used to
+generate a parser from any other `ANTLR`_ grammar. Please take a look at the
+examples *README* to know about limitations.

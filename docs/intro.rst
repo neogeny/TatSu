@@ -1,3 +1,6 @@
+.. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+.. SPDX-License-Identifier: BSD-4-Clause
+
 .. include:: links.rst
 
 Introduction
@@ -30,10 +33,9 @@ have measurably low `Cyclomatic complexity`_. At around 5 `KLOC`_ of
 session.
 
 The only dependencies are on the `Python`_ standard library, yet the
-`regex`_ library will be used if installed, and `colorama`_ will be used
-on trace output if available. `graphviz`_ is required for generating
-diagrams of the grammars.
+`colorama`_ library will be used on trace output if available. The
+`graphviz`_ is required for producing diagrams of the grammars.
 
 |TatSu| is feature-complete and currently being used with complex
 grammars to parse, analyze, and translate hundreds of thousands of lines
-of input text, including source code in several programming languages.
+of input text. That includes source code in several programming languages.

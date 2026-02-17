@@ -211,7 +211,7 @@ A **Tatsu** generated parser consists of the following classes:
    can be executed as a `Python`_ script.
 
 The methods in the delegate class return the same `AST`_ received as
-parameter, but custom semantic classes can override the methods to have
+parameter. Custom semantic classes can override the methods to have
 them return anything (for example, a `Semantic Graph`_). The semantics
 class can be used as a template for the final semantics implementation,
 which can omit methods for the rules that do not need semantic
@@ -239,8 +239,8 @@ Using the Generated Parser
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To use the generated parser, just subclass the base or the abstract
-parser, create an instance of it, and invoke its ``parse()`` method
-passing the grammar to parse and the starting rule's name as parameter:
+parser. Then create an instance of it. Thenk invoke its ``parse()`` method,
+passing the grammar to parse and the starting rule's name as parameters:
 
 .. code:: python
 

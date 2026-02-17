@@ -393,7 +393,7 @@ level, without regular expressions.
 ``->e``
 ^^^^^^^
 
-The "*skip to*" expression; useful for writing *recovery* rules.
+The "*skip to*" expression, useful for writing *recovery* rules.
 
 The parser will advance over input, one character at time, until ``e``
 matches. Whitespace and comments will be skipped at each
@@ -715,12 +715,12 @@ but it *hasn't been tested*.
 Memoization
 ~~~~~~~~~~~
 
-|TatSu| generates *packrat* parsers. The result of parsing a rule at a given
-position in the input is *memoized*, so the next time the parser visits
-the same input position with the same rule, the same result is returned,
-and the input advanced accordingly, without having to parse again. Memoization
-allows for grammars that are clearer and easier to write because
-there's no fear that repeating subexpressions will impact performance.
+|TatSu| generates *packrat* parsers. The result of parsing a rule at a
+given position in the input is *memoized*. The next time the parser
+visits the same input position, with the same rule, the memoized result
+is returned and he input advanced accordingly. Memoization allows for
+grammars that are easier to write because there's no fear of repetition
+or alike elements having an impact on performance.
 
 There are rules that should not be memoized. For example, rules that
 may succeed or not depending on the associated semantic action *should
@@ -952,9 +952,9 @@ Include Directive
 The resolution of the *filename* is relative to the directory/folder of
 the source. Absolute paths and ``../`` navigations are honored.
 
-The functionality required for implementing includes is available to all
-|TatSu|-generated parsers through the ``Buffer`` class; see the
-``EBNFBuffer`` class in the ``tatsu.parser`` module for an example.
+The base for implementing includes is available to |TatSu|-generated
+parsers through the ``Buffer`` class. See the ``EBNFBuffer`` class in
+``tatsu.parser`` module for an example.
 
 
 Left Recursion

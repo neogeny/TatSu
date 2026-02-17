@@ -9,9 +9,14 @@ ANTLR Grammars
 
 .. _grammars: https://github.com/antlr/grammars-v4
 
-ANTLR_ is one of the best known parser genrators, and it has an important collection of grammars_.  The ``tatsu.g2e`` module can translate an ANTLR_ grammar to the syntax used by |TatSu|.
+ANTLR_ (ANother Tool for Language Recognition) is one of the best known
+parser generators, and it has an important collection of grammars_.  The
+``tatsu.g2e`` module can translate an ANTLR_ grammar to the syntax used
+by |TatSu|.
 
-The resulting grammar won't be immediately usable. It will have to be edited to make it abide to PEG_ semantics, and in general be adapted to the way things are done with |TatSu|.
+The resulting grammar won't be immediately usable. It will have to be edited to
+make it abide to PEG_ semantics, and in general be adapted to the way things
+are done with |TatSu|.
 
 To use ``g2e`` as a module, invoke one of its translation functions.
 

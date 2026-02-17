@@ -1,3 +1,6 @@
+.. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+.. SPDX-License-Identifier: BSD-4-Clause
+
 .. include:: links.rst
 
 Abstract Syntax Trees (ASTs)
@@ -42,7 +45,7 @@ with the parse information for the node:
         def buffer(self):
             return self.tokenizer
 
-With the help of the ``Tokenizer.line_info()`` method, it is possible to
+With the help of the ``Tokenizer.line_info()`` method, it's possible to
 recover the line, column, and original text parsed for the node. Note
 that when ``ParseInfo`` is generated, the ``Tokenizer`` used during parsing
 is kept in memory for the lifetime of the `AST`_.
