@@ -54,6 +54,7 @@ def main() -> None:
     }
     ignored_suffix = {
         '.dot',
+        '.g4',
         '.ico',
         '.jpg',
         '.lock',
