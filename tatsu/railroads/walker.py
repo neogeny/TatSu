@@ -38,7 +38,8 @@ class RailroadNodeWalker(NodeWalker):
 
     def assert_one_width(self, block: list[str]) -> list[str]:
         if not block:
-            return
+            return []
+
         width = len(block[0])
         for rail in block:
             assert len(rail) == width
@@ -46,20 +47,20 @@ class RailroadNodeWalker(NodeWalker):
 
     def concatenate(self, left: list[str], right: list[str]) -> list[str]:
         if not right:
-            return left[:]
+            return left.copy()
         if not left:
-            return right[:]
+            return right.copy()
 
         left_width = len(left[0])
         right_width = len(right[0])
         final_height = max(len(left), len(right))
         common_height = min(len(left), len(right))
 
-        out = left[:]
+        out = left.copy()
         for i in range(final_height):
             if i < common_height:
                 out[i] += right[i]
-            elif i <  len(out):
+            elif i < len(out):
                 out[i] += f'{' ' * right_width}'
             else:
                 out += f'{' ' * left_width}{right[i]}'
@@ -71,13 +72,13 @@ class RailroadNodeWalker(NodeWalker):
         return self.concatenate(out, self.walk(rule.exp))
 
     def walk_optional(self, o) -> list[str]:
-        return []  # to be implemented
+        return ['']  # to be implemented
 
     def walk_closure(self, r) -> list[str]:
-        return []  # to be implemented
+        return ['']  # to be implemented
 
     def walk_choice(self, c) -> list[str]:
-        return []  # to be implemented
+        return ['']  # to be implemented
 
     def walk_sequence(self, s: grammars.Sequence) -> list[str]:
         out = []
@@ -86,16 +87,16 @@ class RailroadNodeWalker(NodeWalker):
         return self.assert_one_width(out)
 
     def walk_call(self, call: grammars.Call) -> list[str]:
-        return [f"━┥ {call.name} ┝━"]
+        return [f"→ {call.name} ─"]
 
-    def walk_pattern(self, p) -> list[str]:
-        return []  # to be implemented
+    def walk_pattern(self, pattern: grammars.Pattern) -> list[str]:
+        return [pattern.pattern]  # to be implemented
 
     def walk_token(self, token: grammars.Token) -> list[str]:
-        return [f"━┥ {token.token} ┝━"]
+        return [f"→ {token.token} ─"]
 
     def walk_eof(self, eof: grammars.EOF) -> list[str]:
-        return [f"━┥ 🔚 ┝━"]
+        return ["→ 🔚 ─"]
 
     def walk_lookahead(self, la: grammars.Lookahead) -> list[str]:
         return self.walk(la.exp)
@@ -104,13 +105,13 @@ class RailroadNodeWalker(NodeWalker):
         return self.walk(la.exp)
 
     def walk_void(self, v: grammars.Void) -> list[str]:
-        return ['']
+        return ["→ ∅ ─"]
 
     def walk_fail(self, v) -> list[str]:
-        return []  # to be implemented
+        return ["→ ⚠ ─"]
 
     def walk_endrule(self, ast) -> list[str]:
-        return []  # to be implemented
+        return ['']  # to be implemented
 
     def walk_emptyline(self, ast, *args) -> list[str]:
-        return []  # to be implemented
+        return ['']  # to be implemented
