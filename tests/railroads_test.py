@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from tatsu import railroads
 from tatsu.tool import api
 
@@ -11,4 +13,6 @@ from tatsu.tool import api
 def test_railroads():
     grammar = Path('./grammar/tatsu.tatsu').read_text()
     model = api.compile(grammar)
+    print('RAILROADS')
     railroads.draw(model)
+    pytest.fail()

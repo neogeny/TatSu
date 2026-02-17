@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from typing import Any, override
+from typing import override
 
 from tatsu import grammars
-from tatsu.util.abctools import flatten
+from tatsu.util.abctools import join_lists
 from tatsu.walkers import NodeWalker
 
 
@@ -16,7 +16,7 @@ def lines(model: grammars.Grammar):
 
 def draw(model: grammars.Grammar):
     for line in lines(model):
-        print(line)
+        print(line.rstrip())
 
 
 class RailroadNodeWalker(NodeWalker):
@@ -24,17 +24,17 @@ class RailroadNodeWalker(NodeWalker):
         super().__init__()
 
     @override
-    def walk(self, node: Any, *args, **kwargs) -> list[str]:
-        return super().walk(node)
+    def walk(self, node: grammars.Model, *args, **kwargs) -> list[str]:
+        return list(super().walk(node))
 
     def walk_decorator(self, decorator: grammars.Decorator) -> list[str]:
         return self.walk(decorator.exp)
 
     def walk_default(self, node: grammars.Model) -> list[str]:
-        return [f'{node!r}']
+        return [f' <{node!r}> ']
 
-    def walk_grammar(self, g: grammars.Grammar) -> list[str]:
-        return flatten(self.walk(r) for r in g.rules)
+    def walk_grammar(self, grammar: grammars.Grammar) -> list[str]:
+        return join_lists(*(self.walk(r) for r in grammar.rules))
 
     def assert_one_width(self, block: list[str]) -> list[str]:
         if not block:
@@ -42,10 +42,43 @@ class RailroadNodeWalker(NodeWalker):
 
         width = len(block[0])
         for rail in block:
+            assert isinstance(rail, str), f'{rail=!r}'
             assert len(rail) == width
         return block
 
+    def merge_choice(self, paths: list[list[str]]) -> list[str]:
+        # by Gemini 2026/02/17
+
+        if not paths:
+            return []
+        if len(paths) == 1:
+            return [f"───{paths[0][0]}───"]
+
+        max_w = max(len(p[0]) for p in paths)
+        out = []
+
+        # 3. Top Rail
+        main = paths[0][0]
+        pad0 = "─" * (max_w - len(main))
+        out.append(f"──┬─{main}{pad0}─┬─")
+
+        # 4. Middle Paths
+        for path in paths[1:-1]:
+            mid = path[0]
+            pad_m = "─" * (max_w - len(mid))
+            out.append(f"  ├─{mid}{pad_m}─┤ ")
+
+        # 5. Last Path
+        last = paths[-1][0]
+        pad_l = "─" * (max_w - len(last))
+        out.append(f"  └─{last}{pad_l}─┘ ")
+
+        return self.assert_one_width(out)
+
     def concatenate(self, left: list[str], right: list[str]) -> list[str]:
+        assert isinstance(left, list), f'{left=!r}'
+        assert isinstance(right, list), f'{right=!r}'
+
         if not right:
             return left.copy()
         if not left:
@@ -63,22 +96,28 @@ class RailroadNodeWalker(NodeWalker):
             elif i < len(out):
                 out[i] += f'{' ' * right_width}'
             else:
-                out += f'{' ' * left_width}{right[i]}'
+                out += [f'{' ' * left_width}{right[i]}']
 
         return self.assert_one_width(out)
 
     def walk_rule(self, rule: grammars.Rule) -> list[str]:
-        out = [f'{rule.name}●━']
-        return self.concatenate(out, self.walk(rule.exp))
+        out = [f'{rule.name} ≔ ─']
+        out = self.concatenate(out, self.walk(rule.exp))
+        out = self.concatenate(out, ['■'])
+        out += [' ' * len(out[0])]
+        return self.assert_one_width(out)
 
-    def walk_optional(self, o) -> list[str]:
-        return ['']  # to be implemented
+    # def walk_optional(self, o) -> list[str]:
+    #     return ['']  # to be implemented
+    #
+    # def walk_closure(self, r) -> list[str]:
+    #     return ['']  # to be implemented
+    #
+    def walk_choice(self, choice: grammars.Choice) -> list[str]:
+        return self.merge_choice([self.walk(o) for o in choice.options])
 
-    def walk_closure(self, r) -> list[str]:
-        return ['']  # to be implemented
-
-    def walk_choice(self, c) -> list[str]:
-        return ['']  # to be implemented
+    def walk_option(self, option: grammars.Option) -> list[str]:
+        return self.walk(option.exp)
 
     def walk_sequence(self, s: grammars.Sequence) -> list[str]:
         out = []
@@ -87,31 +126,43 @@ class RailroadNodeWalker(NodeWalker):
         return self.assert_one_width(out)
 
     def walk_call(self, call: grammars.Call) -> list[str]:
-        return [f"→ {call.name} ─"]
+        return [f" {call.name} "]
 
     def walk_pattern(self, pattern: grammars.Pattern) -> list[str]:
         return [pattern.pattern]  # to be implemented
 
     def walk_token(self, token: grammars.Token) -> list[str]:
-        return [f"→ {token.token} ─"]
+        return [f"{token.token!r}"]
 
     def walk_eof(self, eof: grammars.EOF) -> list[str]:
-        return ["→ 🔚 ─"]
+        return ["🔚─"]
 
     def walk_lookahead(self, la: grammars.Lookahead) -> list[str]:
-        return self.walk(la.exp)
+        out = self.concatenate(['&('], self.walk(la.exp))
+        out = self.concatenate(out, [')'])
+        return out
 
     def walk_negative_lookahead(self, la: grammars.NegativeLookahead) -> list[str]:
-        return self.walk(la.exp)
+        out = self.concatenate(['!('], self.walk(la.exp))
+        out = self.concatenate(out, [')'])
+        return out
 
     def walk_void(self, v: grammars.Void) -> list[str]:
         return ["→ ∅ ─"]
 
+    def walk_cut(self, cut: grammars.Cut) -> list[str]:
+        return ["→ ~ ─"]
+
     def walk_fail(self, v) -> list[str]:
         return ["→ ⚠ ─"]
 
-    def walk_endrule(self, ast) -> list[str]:
-        return ['']  # to be implemented
+    # def walk_endrule(self, ast) -> list[str]:
+    #     return ['']  # to be implemented
+    #
+    # def walk_emptyline(self, ast, *args) -> list[str]:
+    #     return ['']  # to be implemented
 
-    def walk_emptyline(self, ast, *args) -> list[str]:
-        return ['']  # to be implemented
+    def walk_override(self, override: grammars.Override) -> list[str]:
+        out = self.concatenate(['@:('], self.walk(override.exp))
+        out = self.concatenate(out, [')'])
+        return out
