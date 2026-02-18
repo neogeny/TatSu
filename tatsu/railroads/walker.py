@@ -105,34 +105,61 @@ class RailroadNodeWalker(NodeWalker):
         return self.assert_one_width(out)
 
     def loop(self, path: list[str]) -> list[str]:
-        loop = self.positive_loop(path)
-        return self.merge([[], loop])
         # by Gemini 2026/02/17
         if not path:
             return ["───>───"]
 
         # 1. Dimensions
-        max_w = max(len(line) for line in path)
+        max_w = max(ulen(line) for line in path)
         out = []
 
-        # 2. Top Rail (The Bypass)
-        # Left: ──┬── (5) | Right: ──┬── (5)
-        # Total Width: max_w + 10
-        top_rail = "─" * max_w
-        out += [f"──┬──{top_rail}──┬──"]
+        # 2. First Line (The Entry Rail)
+        # If path[0] is empty/blanks, this becomes the 'bypass'
+        bypass_pad = "─" * max_w
+        out += [f"──┬→{bypass_pad}─┬──"]
 
-        # 3. Content Body
-        for i, line in enumerate(path):
-            pad = " " * (max_w - len(line))
+        first = path[0]
+        first_pad = "─" * (max_w - ulen(first))
+        out += [f"  ├→{first}{first_pad}─┤  "] # xxx
 
-            if i == 0:
-                # First line: Enters from the left, merges into the vertical on the right
-                out += [f"  └─>{line}{pad}──┘  "]
-            else:
-                # Middle lines: Keeps the vertical bar '│' going
-                out += [f"     {line}{pad}  │  "]
+        # 3. Middle Lines (The Body)
+        for line in path[1:]:
+            pad = " " * (max_w - ulen(line))
+            out += [f"  │ {line}{pad} │  "]
+
+        # 4. The Loop Rail (The Return)
+        # Standardized to 4 chars left, 4 chars right
+        # To align ┘ perfectly under ┬, we match the suffix '─<┘ ' to '─┬──'
+        loop_rail = "─" * max_w
+        out += [f"  └─{loop_rail}<┘  "]
 
         return self.assert_one_width(out)
+        # # by Gemini 2026/02/17
+        # if not path:
+        #     return ["───>───"]
+        #
+        # # 1. Dimensions
+        # max_w = max(len(line) for line in path)
+        # out = []
+        #
+        # # 2. Top Rail (The Bypass)
+        # # Left: ──┬── (5) | Right: ──┬── (5)
+        # # Total Width: max_w + 10
+        # top_rail = "─" * max_w
+        # out += [f"──┬──{top_rail}──┬──"]
+        #
+        # # 3. Content Body
+        # for i, line in enumerate(path):
+        #     pad = " " * (max_w - len(line))
+        #
+        #     if i == 0:
+        #         # First line: Enters from the left, merges into the vertical on the right
+        #         out += [f"  └─>{line}{pad}──┘  "]
+        #     else:
+        #         # Middle lines: Keeps the vertical bar '│' going
+        #         out += [f"     {line}{pad}  │  "]
+        #
+        # return self.assert_one_width(out)
 
     def concatenate(self, left: list[str], right: list[str]) -> list[str]:
         assert isinstance(left, list), f'{left=!r}'
