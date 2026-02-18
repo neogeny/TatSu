@@ -81,24 +81,17 @@ class RailroadNodeWalker(NodeWalker):
         if not path:
             return ["───>───"]
 
-        # 1. Dimensions
         max_w = max(ulen(line) for line in path)
         out = []
 
-        # 2. First Line (The Entry Rail)
-        # If path[0] is empty/blanks, this becomes the 'bypass'
         first = path[0]
         first_pad = "─" * (max_w - ulen(first))
         out += [f"──┬─{first}{first_pad}─┬──"]
 
-        # 3. Middle Lines (The Body)
         for line in path[1:]:
             pad = " " * (max_w - ulen(line))
             out += [f"  │ {line}{pad} │  "]
 
-        # 4. The Loop Rail (The Return)
-        # Standardized to 4 chars left, 4 chars right
-        # To align ┘ perfectly under ┬, we match the suffix '─<┘ ' to '─┬──'
         loop_rail = "─" * max_w
         out += [f"  └─{loop_rail}<┘  "]
 
@@ -109,12 +102,9 @@ class RailroadNodeWalker(NodeWalker):
         if not path:
             return ["───>───"]
 
-        # 1. Dimensions
         max_w = max(ulen(line) for line in path)
         out = []
 
-        # 2. First Line (The Entry Rail)
-        # If path[0] is empty/blanks, this becomes the 'bypass'
         bypass_pad = "─" * max_w
         out += [f"──┬→{bypass_pad}─┬──"]
 
@@ -122,44 +112,14 @@ class RailroadNodeWalker(NodeWalker):
         first_pad = "─" * (max_w - ulen(first))
         out += [f"  ├→{first}{first_pad}─┤  "] # xxx
 
-        # 3. Middle Lines (The Body)
         for line in path[1:]:
             pad = " " * (max_w - ulen(line))
             out += [f"  │ {line}{pad} │  "]
 
-        # 4. The Loop Rail (The Return)
-        # Standardized to 4 chars left, 4 chars right
-        # To align ┘ perfectly under ┬, we match the suffix '─<┘ ' to '─┬──'
         loop_rail = "─" * max_w
         out += [f"  └─{loop_rail}<┘  "]
 
         return self.assert_one_width(out)
-        # # by Gemini 2026/02/17
-        # if not path:
-        #     return ["───>───"]
-        #
-        # # 1. Dimensions
-        # max_w = max(len(line) for line in path)
-        # out = []
-        #
-        # # 2. Top Rail (The Bypass)
-        # # Left: ──┬── (5) | Right: ──┬── (5)
-        # # Total Width: max_w + 10
-        # top_rail = "─" * max_w
-        # out += [f"──┬──{top_rail}──┬──"]
-        #
-        # # 3. Content Body
-        # for i, line in enumerate(path):
-        #     pad = " " * (max_w - len(line))
-        #
-        #     if i == 0:
-        #         # First line: Enters from the left, merges into the vertical on the right
-        #         out += [f"  └─>{line}{pad}──┘  "]
-        #     else:
-        #         # Middle lines: Keeps the vertical bar '│' going
-        #         out += [f"     {line}{pad}  │  "]
-        #
-        # return self.assert_one_width(out)
 
     def concatenate(self, left: list[str], right: list[str]) -> list[str]:
         assert isinstance(left, list), f'{left=!r}'
@@ -215,35 +175,35 @@ class RailroadNodeWalker(NodeWalker):
         return self.assert_one_width(out)
 
     def walk_call(self, call: grammars.Call) -> list[str]:
-        return [f"→{call.name}"]
+        return [f"{call.name}"]
 
     def walk_pattern(self, pattern: grammars.Pattern) -> list[str]:
         return [pattern.pattern]  # to be implemented
 
     def walk_token(self, token: grammars.Token) -> list[str]:
-        return [f"→{token.token!r}"]
+        return [f"{token.token!r}"]
 
     def walk_eof(self, eof: grammars.EOF) -> list[str]:
-        return ["→🔚 "]
+        return ["🔚 "]
 
     def walk_lookahead(self, la: grammars.Lookahead) -> list[str]:
-        out = self.concatenate(['→&['], self.walk(la.exp))
+        out = self.concatenate(['&['], self.walk(la.exp))
         out = self.concatenate(out, [']'])
         return out
 
     def walk_negative_lookahead(self, la: grammars.NegativeLookahead) -> list[str]:
-        out = self.concatenate(['→!['], self.walk(la.exp))
+        out = self.concatenate(['!['], self.walk(la.exp))
         out = self.concatenate(out, [']'])
         return out
 
     def walk_void(self, v: grammars.Void) -> list[str]:
-        return ["→ ∅ "]
+        return [" ∅ "]
 
     def walk_cut(self, cut: grammars.Cut) -> list[str]:
-        return ["→ ✂ "]
+        return [" ✂ "]
 
     def walk_fail(self, v) -> list[str]:
-        return ["→ ⚠ "]
+        return [" ⚠ "]
 
     # def walk_endrule(self, ast) -> list[str]:
     #     return ['']  # to be implemented
@@ -252,7 +212,7 @@ class RailroadNodeWalker(NodeWalker):
     #     return ['']  # to be implemented
 
     def walk_override(self, override: grammars.Override) -> list[str]:
-        out = self.concatenate(['→@:('], self.walk(override.exp))
+        out = self.concatenate([' @:('], self.walk(override.exp))
         out = self.concatenate(out, [')'])
         return out
 
