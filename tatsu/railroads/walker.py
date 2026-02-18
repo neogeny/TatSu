@@ -9,7 +9,7 @@ from tatsu import grammars
 from ..util.abctools import join_lists
 from ..util.string import unicode_display_len as ulen
 from ..walkers import NodeWalker
-from .railmath import assert_one_width, concatenate, loop, loop_plus, merge
+from .railmath import check_same_len, lay_out, loop, stopnloop, weld
 
 
 def lines(model: grammars.Grammar):
@@ -41,32 +41,32 @@ class RailroadNodeWalker(NodeWalker):
 
     def walk_rule(self, rule: grammars.Rule) -> list[str]:
         out = [f'{rule.name} ●─']
-        out = concatenate(out, self.walk(rule.exp))
-        out = concatenate(out, ['■'])
+        out = weld(out, self.walk(rule.exp))
+        out = weld(out, ['■'])
         out += [' ' * ulen(out[0])]
-        return assert_one_width(out)
+        return check_same_len(out)
 
     def walk_optional(self, optional: grammars.Optional) -> list[str]:
         # return merge([self.walk(optional.exp), ['→']])
-        out = concatenate(['→'], self.walk(optional.exp))
-        return merge([out, ['→']])
+        out = weld(['→'], self.walk(optional.exp))
+        return lay_out([out, ['→']])
 
     def walk_closure(self, closure: grammars.Closure) -> list[str]:
         return loop(self.walk_decorator(closure))
 
     def walk_positive_closure(self, closure: grammars.Closure) -> list[str]:
-        return loop_plus(self.walk_decorator(closure))
+        return stopnloop(self.walk_decorator(closure))
 
     def walk_join(self, join: grammars.Join) -> list[str]:
-        out = concatenate(self.walk(join.sep), self.walk(join.exp))
+        out = weld(self.walk(join.sep), self.walk(join.exp))
         return loop(out)
 
     def walk_positive_join(self, join: grammars.PositiveJoin) -> list[str]:
-        out = concatenate(self.walk(join.sep), self.walk(join.exp))
-        return loop_plus(out)
+        out = weld(self.walk(join.sep), self.walk(join.exp))
+        return stopnloop(out)
 
     def walk_choice(self, choice: grammars.Choice) -> list[str]:
-        return merge([self.walk(o) for o in choice.options])
+        return lay_out([self.walk(o) for o in choice.options])
 
     def walk_option(self, option: grammars.Option) -> list[str]:
         return self.walk(option.exp)
@@ -74,8 +74,8 @@ class RailroadNodeWalker(NodeWalker):
     def walk_sequence(self, s: grammars.Sequence) -> list[str]:
         out = []
         for element in s.sequence:
-            out = concatenate(out, self.walk(element))
-        return assert_one_width(out)
+            out = weld(out, self.walk(element))
+        return check_same_len(out)
 
     def walk_call(self, call: grammars.Call) -> list[str]:
         return [f"{call.name}"]
@@ -90,13 +90,13 @@ class RailroadNodeWalker(NodeWalker):
         return ["🔚 "]
 
     def walk_lookahead(self, la: grammars.Lookahead) -> list[str]:
-        out = concatenate(['&['], self.walk(la.exp))
-        out = concatenate(out, [']'])
+        out = weld(['&['], self.walk(la.exp))
+        out = weld(out, [']'])
         return out
 
     def walk_negative_lookahead(self, la: grammars.NegativeLookahead) -> list[str]:
-        out = concatenate(['!['], self.walk(la.exp))
-        out = concatenate(out, [']'])
+        out = weld(['!['], self.walk(la.exp))
+        out = weld(out, [']'])
         return out
 
     def walk_void(self, v: grammars.Void) -> list[str]:
@@ -109,8 +109,8 @@ class RailroadNodeWalker(NodeWalker):
         return [" ⚠ "]
 
     def walk_override(self, override: grammars.Override) -> list[str]:
-        out = concatenate([' @:('], self.walk(override.exp))
-        out = concatenate(out, [')'])
+        out = weld([' @:('], self.walk(override.exp))
+        out = weld(out, [')'])
         return out
 
     def walk_constant(self, constant: grammars.Constant) -> list[str]:
