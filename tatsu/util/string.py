@@ -14,7 +14,7 @@ from typing import Any
 from .common import is_reserved
 
 if sys.version_info >= (3, 13):
-    pass
+    from re import PatternError
 else:
     PatternError = re.error
 
