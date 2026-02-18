@@ -34,9 +34,6 @@ def unicode_display_len(text: str) -> int:
     return sum(uwidth(s) for s in text)
 
 
-ulen = unicode_display_len
-
-
 def hashsha(text: Any) -> str:
     """
     Generates a SHA-256 hex digest of the provided object.
