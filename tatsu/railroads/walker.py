@@ -76,6 +76,17 @@ class RailroadNodeWalker(NodeWalker):
 
         return self.assert_one_width(out)
 
+    def loop_tail(self, path: list[str], max_w: int) -> list[str]:
+        out = []
+        for line in path:
+            pad = " " * (max_w - ulen(line))
+            out += [f"  │ {line}{pad} │  "]
+
+        loop_rail = "─" * max_w
+        out += [f"  └─{loop_rail}<┘  "]
+
+        return self.assert_one_width(out)
+
     def positive_loop(self, path: list[str]) -> list[str]:
         # by Gemini 2026/02/17
         if not path:
@@ -88,13 +99,7 @@ class RailroadNodeWalker(NodeWalker):
         first_pad = "─" * (max_w - ulen(first))
         out += [f"──┬─{first}{first_pad}─┬──"]
 
-        for line in path[1:]:
-            pad = " " * (max_w - ulen(line))
-            out += [f"  │ {line}{pad} │  "]
-
-        loop_rail = "─" * max_w
-        out += [f"  └─{loop_rail}<┘  "]
-
+        out += self.loop_tail(path[1:], max_w)
         return self.assert_one_width(out)
 
     def loop(self, path: list[str]) -> list[str]:
@@ -112,13 +117,7 @@ class RailroadNodeWalker(NodeWalker):
         first_pad = "─" * (max_w - ulen(first))
         out += [f"  ├→{first}{first_pad}─┤  "] # xxx
 
-        for line in path[1:]:
-            pad = " " * (max_w - ulen(line))
-            out += [f"  │ {line}{pad} │  "]
-
-        loop_rail = "─" * max_w
-        out += [f"  └─{loop_rail}<┘  "]
-
+        out += self.loop_tail(path[1:], max_w)
         return self.assert_one_width(out)
 
     def concatenate(self, left: list[str], right: list[str]) -> list[str]:
