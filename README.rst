@@ -249,7 +249,7 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
 
     RULE_END ●───┬─EMPTYLINE──┬─→';'─┬──┬──■
                  │            └─→────┘  │
-                 ├─⇥ ␃  ─────────────────┤
+                 ├─⇥ ␃                  │
                  └─';'──────────────────┘
 
     EMPTYLINE ●─/(?:\s*(?:\r?\n|\r)){2,}/──■
@@ -450,6 +450,7 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
     null ●─'None'─■
 
     eof ●─'$' ✂ ──■
+
 
 
 .. _ANTLR: http://www.antlr.org/
