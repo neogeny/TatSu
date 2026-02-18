@@ -47,7 +47,7 @@ class RailroadNodeWalker(NodeWalker):
             assert ulen(rail) == width
         return block
 
-    def merge_choice(self, paths: list[list[str]]) -> list[str]:
+    def merge(self, paths: list[list[str]]) -> list[str]:
         # by Gemini 2026/02/17
 
         if not paths:
@@ -76,7 +76,7 @@ class RailroadNodeWalker(NodeWalker):
 
         return self.assert_one_width(out)
 
-    def one_or_more_loop(self, path: list[str]) -> list[str]:
+    def positive_loop(self, path: list[str]) -> list[str]:
         # by Gemini 2026/02/17
         if not path:
             return ["───>───"]
@@ -104,9 +104,9 @@ class RailroadNodeWalker(NodeWalker):
 
         return self.assert_one_width(out)
 
-    def zero_or_more_loop(self, path: list[str]) -> list[str]:
-        loop = self.one_or_more_loop(path)
-        return self.merge_choice([[], loop])
+    def loop(self, path: list[str]) -> list[str]:
+        loop = self.positive_loop(path)
+        return self.merge([[], loop])
         # by Gemini 2026/02/17
         if not path:
             return ["───>───"]
@@ -170,13 +170,13 @@ class RailroadNodeWalker(NodeWalker):
     #     return ['']  # to be implemented
     #
     def walk_closure(self, closure: grammars.Closure) -> list[str]:
-        return self.zero_or_more_loop(self.walk_decorator(closure))
+        return self.loop(self.walk_decorator(closure))
 
     def walk_positive_closure(self, closure: grammars.Closure) -> list[str]:
-        return self.one_or_more_loop(self.walk_decorator(closure))
+        return self.positive_loop(self.walk_decorator(closure))
 
     def walk_choice(self, choice: grammars.Choice) -> list[str]:
-        return self.merge_choice([self.walk(o) for o in choice.options])
+        return self.merge([self.walk(o) for o in choice.options])
 
     def walk_option(self, option: grammars.Option) -> list[str]:
         return self.walk(option.exp)
