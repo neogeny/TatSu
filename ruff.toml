@@ -34,6 +34,7 @@ lint.ignore = [
 #    "PLW2901",  # redefined-loop-name
     "PLW3201",  # bad-dunder-method-name
 #    "PTH123",  # builtin-open
+    "RET504",   # assign before return
     "RET505",  # superfluous-else-return
     "RUF022",  # __all__ sorting
     "RUF027",  # possible f-string

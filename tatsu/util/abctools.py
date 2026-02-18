@@ -66,8 +66,8 @@ def contains_sublist(lst: list[Any], sublst: list[Any]) -> bool:
     return any(sublst == lst[i: i + n] for i in range(1 + len(lst) - n))
 
 
-def join_lists(lists: Iterable[list[Any]]) -> list[Any]:
-    return functools.reduce(operator.iadd, lists, [])
+def join_lists(*lists: list[Any]) -> list[Any]:
+    return list(functools.reduce(operator.iadd, lists, []))
 
 
 def flatten(o: Iterable[Any] | Any) -> list[Any]:
