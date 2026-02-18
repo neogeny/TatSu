@@ -76,6 +76,7 @@ class TatSuBootstrapParser(Parser):
     @rule()
     def _start_(self):
         self._grammar_()
+        self._check_eof()
 
     @rule('Grammar')
     def _grammar_(self):
@@ -113,7 +114,6 @@ class TatSuBootstrapParser(Parser):
                         '<keyword> <rule>'
                     ) from None
         self._closure(block1)
-        self._check_eof()
         self._define(
             ['title'],
             ['directives', 'keywords', 'rules'],

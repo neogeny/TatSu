@@ -10,7 +10,7 @@
 
 start
     =
-    grammar
+    grammar $
     ;
 
 
@@ -28,7 +28,6 @@ grammar::Grammar
     |
         keywords+:keyword
     }
-    $
     ;
 
 
