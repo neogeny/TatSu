@@ -5,12 +5,10 @@ from __future__ import annotations
 from typing import Any
 
 from tatsu import grammars
-
+from .railmath import (assert_one_length, ETX, lay_out, loop, RailTracks, stopnloop, weld)
 from ..util.abctools import join_lists
-from ..util.string import regexp
-from ..util.string import unicode_display_len as ulen
+from ..util.string import regexp, unicode_display_len as ulen
 from ..walkers import NodeWalker
-from .railmath import RailTracks, assert_one_length, lay_out, loop, stopnloop, weld
 
 
 def tracks(model: grammars.Grammar):
@@ -42,7 +40,8 @@ class RailroadNodeWalker(NodeWalker):
     def walk_rule(self, rule: grammars.Rule) -> RailTracks:
         out = [f'{rule.name} ●─']
         out = weld(out, self.walk(rule.exp))
-        out = weld(out, ['─■'])
+        if ETX not in out:
+            out = weld(out, ['─■'])
         out += [' ' * ulen(out[0])]
         return assert_one_length(out)
 
@@ -90,7 +89,7 @@ class RailroadNodeWalker(NodeWalker):
         return [f"{token.token!r}"]
 
     def walk_eof(self, eof: grammars.EOF) -> RailTracks:
-        return ["─🔚 "]
+        return [f"⇥ {ETX} "]
 
     def walk_lookahead(self, la: grammars.Lookahead) -> RailTracks:
         out = weld(['─ &['], self.walk(la.exp))
@@ -146,6 +145,7 @@ class RailroadNodeWalker(NodeWalker):
     def walk_based_rule(self, rule: grammars.BasedRule):
         out = [f'{rule.name} < {rule.baserule}●─']
         out = weld(out, self.walk(rule.rhs))
-        out = weld(out, ['■'])
+        if ETX not in out:
+            out = weld(out, ['─■'])
         out += [' ' * ulen(out[0])]
         return assert_one_length(out)

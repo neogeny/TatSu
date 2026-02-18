@@ -6,6 +6,8 @@ from ..util import unicode_display_len as ulen
 
 type RailTracks = list[str]
 
+ETX = '␃'
+
 
 def assert_one_length(tracks: RailTracks) -> RailTracks:
     if not tracks:
@@ -23,6 +25,8 @@ def lay_out(tracklist: list[RailTracks]) -> RailTracks:
 
     if not tracklist:
         return []
+    if len(tracklist) == 1:
+        return tracklist[0]
 
     maxw = max(ulen(p[0]) if p else 0 for p in tracklist)
     out: RailTracks = []
@@ -33,8 +37,12 @@ def lay_out(tracklist: list[RailTracks]) -> RailTracks:
         assert isinstance(tracks, list), f'{tracks=!r}'
 
         junction = tracks[0]
-        pad = "─" * (maxw - ulen(junction))
-        out += [f"  ├─{junction}{pad}─┤ "]
+        if ETX not in junction:
+            pad = "─" * (maxw - ulen(junction))
+            out += [f"  ├─{junction}{pad}─┤ "]
+        else:
+            pad = " " * (maxw - ulen(junction))
+            out += [f"  ├─{junction}{pad} │ "]
 
         for rail in tracks[1:]:
             pad = " " * (maxw - ulen(rail))
@@ -42,16 +50,25 @@ def lay_out(tracklist: list[RailTracks]) -> RailTracks:
 
     last_track = tracklist[-1]
     last_junction = last_track[0]
-    pad_l = "─" * (maxw - ulen(last_junction))
-    out += [f"  └─{last_junction}{pad_l}─┘ "]
+    if ETX not in last_junction:
+        pad = "─" * (maxw - ulen(last_junction))
+        out += [f"  └─{last_junction}{pad}─┘ "]
+    else:
+        pad = " " * (maxw - ulen(last_junction))
+        out += [f"  └─{last_junction}{pad}   "]
+        tracklist[-2][-3:-1] = '─┘ '
 
     for rail in last_track[1:]:
         pad = " " * (maxw - ulen(rail))
         out += [f"    {rail}{pad}   "]
 
-    main_junction = tracklist[0][0] if tracklist[0] else ''
-    pad = "─" * (maxw - ulen(main_junction))
-    out[0] = f"──┬─{main_junction}{pad}─┬─"
+    first_junction = tracklist[0][0] if tracklist[0] else ''
+    if ETX not in first_junction:
+        pad = "─" * (maxw - ulen(first_junction))
+        out[0] = f"──┬─{first_junction}{pad}─┬─"
+    else:
+        pad = " " * (maxw - ulen(first_junction))
+        out[0] = f"──┬─{first_junction}{pad} ┬─"
 
     return assert_one_length(out)
 
@@ -107,7 +124,7 @@ def weld(left: RailTracks, right: RailTracks) -> RailTracks:
     assert isinstance(left, list), f'{left=!r}'
     assert isinstance(right, list), f'{right=!r}'
 
-    if not right:
+    if not right or ETX in left:
         return left.copy()
     if not left:
         return right.copy()
