@@ -4,58 +4,59 @@ from __future__ import annotations
 
 from ..util import unicode_display_len as ulen
 
+type RailTracks = list[str]
 
-def assert_one_length(block: list[str]) -> list[str]:
-    if not block:
+
+def assert_one_length(tracks: RailTracks) -> RailTracks:
+    if not tracks:
         return []
 
-    length = ulen(block[0])
-    for rail in block:
+    length = ulen(tracks[0])
+    for rail in tracks:
         assert isinstance(rail, str), f'{rail=!r}'
         assert ulen(rail) == length
-    return block
+    return tracks
 
 
-def lay_out(tracks: list[list[str]]) -> list[str]:
+def lay_out(tracklist: list[RailTracks]) -> RailTracks:
     # by Gemini 2026/02/17
 
-    if not tracks:
-        return tracks
+    if not tracklist:
+        return tracklist
 
-    maxw = max(ulen(p[0]) if p else 0 for p in tracks)
-    out = []
+    maxw = max(ulen(p[0]) if p else 0 for p in tracklist)
+    out: RailTracks = []
 
-    for track in tracks[:-1]:
-        if not track:
+    for tracks in tracklist[:-1]:
+        if not tracks:
             continue
-        assert isinstance(track, list), f'{track=!r}'
+        assert isinstance(tracks, list), f'{tracks=!r}'
 
-        junction = track[0]
+        junction = tracks[0]
         pad_m = "─" * (maxw - ulen(junction))
         out += [f"  ├─{junction}{pad_m}─┤ "]
 
-        for mid in track[1:]:
-            pad_m = "─" * (maxw - ulen(mid))
-            out += [f"  │ {mid}{pad_m} │ "]
+        for rail in tracks[1:]:
+            pad_m = "─" * (maxw - ulen(rail))
+            out += [f"  │ {rail}{pad_m} │ "]
 
-    last_track = tracks[-1]
-
+    last_track = tracklist[-1]
     last_junction = last_track[0]
     pad_l = "─" * (maxw - ulen(last_junction))
     out += [f"  └─{last_junction}{pad_l}─┘ "]
 
-    for mid in last_track[1:]:
-        pad_m = " " * (maxw - ulen(mid))
-        out += [f"    {mid}{pad_m}   "]
+    for rail in last_track[1:]:
+        pad_m = " " * (maxw - ulen(rail))
+        out += [f"    {rail}{pad_m}   "]
 
-    main = tracks[0][0] if tracks[0] else ''
+    main = tracklist[0][0] if tracklist[0] else ''
     pad0 = "─" * (maxw - ulen(main))
     out[0] = f"──┬─{main}{pad0}─┬─"
 
     return assert_one_length(out)
 
 
-def loop_tail(rails: list[str], max_w: int) -> list[str]:
+def loop_tail(rails: RailTracks, max_w: int) -> RailTracks:
     out = []
     for line in rails:
         pad = " " * (max_w - ulen(line))
@@ -67,7 +68,7 @@ def loop_tail(rails: list[str], max_w: int) -> list[str]:
     return assert_one_length(out)
 
 
-def stopnloop(rails: list[str]) -> list[str]:
+def stopnloop(rails: RailTracks) -> RailTracks:
     # by Gemini 2026/02/17
     if not rails:
         return ["───>───"]
@@ -83,7 +84,7 @@ def stopnloop(rails: list[str]) -> list[str]:
     return assert_one_length(out)
 
 
-def loop(rails: list[str]) -> list[str]:
+def loop(rails: RailTracks) -> RailTracks:
     # by Gemini 2026/02/17
     if not rails:
         return ["───>───"]
@@ -102,7 +103,7 @@ def loop(rails: list[str]) -> list[str]:
     return assert_one_length(out)
 
 
-def weld(left: list[str], right: list[str]) -> list[str]:
+def weld(left: RailTracks, right: RailTracks) -> RailTracks:
     assert isinstance(left, list), f'{left=!r}'
     assert isinstance(right, list), f'{right=!r}'
 
