@@ -22,7 +22,7 @@ def lay_out(tracklist: list[RailTracks]) -> RailTracks:
     # by Gemini 2026/02/17
 
     if not tracklist:
-        return tracklist
+        return []
 
     maxw = max(ulen(p[0]) if p else 0 for p in tracklist)
     out: RailTracks = []
@@ -33,12 +33,12 @@ def lay_out(tracklist: list[RailTracks]) -> RailTracks:
         assert isinstance(tracks, list), f'{tracks=!r}'
 
         junction = tracks[0]
-        pad_m = "─" * (maxw - ulen(junction))
-        out += [f"  ├─{junction}{pad_m}─┤ "]
+        pad = "─" * (maxw - ulen(junction))
+        out += [f"  ├─{junction}{pad}─┤ "]
 
         for rail in tracks[1:]:
-            pad_m = "─" * (maxw - ulen(rail))
-            out += [f"  │ {rail}{pad_m} │ "]
+            pad = "─" * (maxw - ulen(rail))
+            out += [f"  │ {rail}{pad} │ "]
 
     last_track = tracklist[-1]
     last_junction = last_track[0]
@@ -46,12 +46,12 @@ def lay_out(tracklist: list[RailTracks]) -> RailTracks:
     out += [f"  └─{last_junction}{pad_l}─┘ "]
 
     for rail in last_track[1:]:
-        pad_m = " " * (maxw - ulen(rail))
-        out += [f"    {rail}{pad_m}   "]
+        pad = " " * (maxw - ulen(rail))
+        out += [f"    {rail}{pad}   "]
 
-    main = tracklist[0][0] if tracklist[0] else ''
-    pad0 = "─" * (maxw - ulen(main))
-    out[0] = f"──┬─{main}{pad0}─┬─"
+    main_junction = tracklist[0][0] if tracklist[0] else ''
+    pad = "─" * (maxw - ulen(main_junction))
+    out[0] = f"──┬─{main_junction}{pad}─┬─"
 
     return assert_one_length(out)
 
