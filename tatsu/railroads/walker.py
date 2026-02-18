@@ -84,7 +84,7 @@ class RailroadNodeWalker(NodeWalker):
         return [pattern.pattern]  # to be implemented
 
     def walk_token(self, token: grammars.Token) -> list[str]:
-        return [f"{token.token!r}"]
+        return [f"─{token.token!r}─"]
 
     def walk_eof(self, eof: grammars.EOF) -> list[str]:
         return ["🔚 "]
