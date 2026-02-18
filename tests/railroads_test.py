@@ -15,10 +15,10 @@ def test_railroads():
     railroads.draw(model)
 
     tracks = railroads.tracks(model)
-    assert len(tracks) == 245
+    assert len(tracks) == 243
 
-    track0 = "start ●─grammar■"
+    track0 = "start ●─grammar─■"
     assert tracks[0] == track0
-    trackm2 = "eof ●──'$'─ ✂ ■"
+    trackm2 = "eof ●─'$' ✂ ──■"
     assert tracks[-2] == trackm2
     assert not tracks[-1].rstrip()

@@ -122,8 +122,8 @@ def weld(left: RailTracks, right: RailTracks) -> RailTracks:
         if i < common_height:
             out[i] += right[i]
         elif i < len(out):
-            out[i] += f'{' ' * right_width}'
+            out[i] += f'{'':{right_width}}'
         else:
-            out += [f'{' ' * left_width}{right[i]}']
+            out += [f'{'':{left_width}}{right[i]}']
 
     return assert_one_length(out)

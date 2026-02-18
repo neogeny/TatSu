@@ -2,21 +2,15 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from typing import override
+from typing import Any
 
 from tatsu import grammars
 
 from ..util.abctools import join_lists
+from ..util.string import regexp
 from ..util.string import unicode_display_len as ulen
 from ..walkers import NodeWalker
-from .railmath import (
-    RailTracks,
-    assert_one_length,
-    lay_out,
-    loop,
-    stopnloop,
-    weld,
-)
+from .railmath import RailTracks, assert_one_length, lay_out, loop, stopnloop, weld
 
 
 def tracks(model: grammars.Grammar):
@@ -33,8 +27,7 @@ class RailroadNodeWalker(NodeWalker):
     def __init__(self):
         super().__init__()
 
-    @override
-    def walk(self, node: grammars.Model, *args, **kwargs) -> RailTracks:
+    def walk(self, node: Any, *args, **kwargs) -> Any:
         return list(super().walk(node))
 
     def walk_default(self, node: grammars.Model) -> RailTracks:
@@ -49,7 +42,7 @@ class RailroadNodeWalker(NodeWalker):
     def walk_rule(self, rule: grammars.Rule) -> RailTracks:
         out = [f'{rule.name} ●─']
         out = weld(out, self.walk(rule.exp))
-        out = weld(out, ['■'])
+        out = weld(out, ['─■'])
         out += [' ' * ulen(out[0])]
         return assert_one_length(out)
 
@@ -65,11 +58,13 @@ class RailroadNodeWalker(NodeWalker):
         return stopnloop(self.walk_decorator(closure))
 
     def walk_join(self, join: grammars.Join) -> RailTracks:
-        out = weld(self.walk(join.sep), self.walk(join.exp))
+        sep = weld(self.walk(join.sep), [' ✂ ─'])
+        out = weld(sep, self.walk(join.exp))
         return loop(out)
 
     def walk_positive_join(self, join: grammars.PositiveJoin) -> RailTracks:
-        out = weld(self.walk(join.sep), self.walk(join.exp))
+        sep = weld(self.walk(join.sep), [' ✂ ─'])
+        out = weld(sep, self.walk(join.exp))
         return stopnloop(out)
 
     def walk_choice(self, choice: grammars.Choice) -> RailTracks:
@@ -88,21 +83,22 @@ class RailroadNodeWalker(NodeWalker):
         return [f"{call.name}"]
 
     def walk_pattern(self, pattern: grammars.Pattern) -> RailTracks:
-        return [pattern.pattern]  # to be implemented
+        pat = regexp(pattern.pattern).replace("r'", "").rstrip("'")
+        return [f"/{pat}/─"]
 
     def walk_token(self, token: grammars.Token) -> RailTracks:
-        return [f"─{token.token!r}─"]
+        return [f"{token.token!r}"]
 
     def walk_eof(self, eof: grammars.EOF) -> RailTracks:
         return ["🔚 "]
 
     def walk_lookahead(self, la: grammars.Lookahead) -> RailTracks:
-        out = weld(['&['], self.walk(la.exp))
+        out = weld(['─ &['], self.walk(la.exp))
         out = weld(out, [']'])
         return out
 
     def walk_negative_lookahead(self, la: grammars.NegativeLookahead) -> RailTracks:
-        out = weld(['!['], self.walk(la.exp))
+        out = weld(['─ !['], self.walk(la.exp))
         out = weld(out, [']'])
         return out
 
@@ -110,7 +106,7 @@ class RailroadNodeWalker(NodeWalker):
         return [" ∅ "]
 
     def walk_cut(self, cut: grammars.Cut) -> RailTracks:
-        return [" ✂ "]
+        return [" ✂ ─"]
 
     def walk_fail(self, v) -> RailTracks:
         return [" ⚠ "]
@@ -120,5 +116,36 @@ class RailroadNodeWalker(NodeWalker):
         out = weld(out, [')'])
         return out
 
+    def walk_override_list(self, override: grammars.OverrideList):
+        out = weld([' @+:('], self.walk(override.exp))
+        out = weld(out, [')'])
+        return out
+
     def walk_constant(self, constant: grammars.Constant) -> RailTracks:
         return [f'`{constant.literal}`']
+
+    def walk_dot(self, dot: grammars.Dot):
+        return [" ∀ "]
+
+    def walk_group(self, group: grammars.Group):
+        return self.walk_decorator(group)
+
+    def walk_alert(self, alert: grammars.Alert):
+        return [f'{'^' * alert.level}`{alert.literal}`']
+
+    def walk_skip_to(self, skipto: grammars.SkipTo):
+        out = weld([' ->('], self.walk(skipto.exp))
+        out = weld(out, [')'])
+        return out
+
+    def walk_rule_include(self, include: grammars.RuleInclude):
+        out = weld([' >('], self.walk(include.rule.name))
+        out = weld(out, [')'])
+        return out
+
+    def walk_based_rule(self, rule: grammars.BasedRule):
+        out = [f'{rule.name} < {rule.baserule}●─']
+        out = weld(out, self.walk(rule.rhs))
+        out = weld(out, ['■'])
+        out += [' ' * ulen(out[0])]
+        return assert_one_length(out)
