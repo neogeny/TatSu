@@ -6,6 +6,7 @@ import codecs
 import hashlib
 import re
 import sys
+import unicodedata
 from collections.abc import Iterable
 from io import StringIO
 from typing import Any
@@ -13,9 +14,27 @@ from typing import Any
 from .common import is_reserved
 
 if sys.version_info >= (3, 13):
-    from re import PatternError
+    pass
 else:
     PatternError = re.error
+
+
+def unicode_display_len(text: str) -> int:
+    # by Gemini 2026/02/17 (with many ammendments)
+    """
+    Calculates the display width of a string in a terminal or
+    fixed-width font context.
+    """
+    assert isinstance(text, str), repr(text)
+
+    def uwidth(c: str) -> int:
+        status = unicodedata.east_asian_width(c)
+        return 1 +  int(status in {'W', 'F'})
+
+    return sum(uwidth(s) for s in text)
+
+
+ulen = unicode_display_len
 
 
 def hashsha(text: Any) -> str:
