@@ -17,7 +17,7 @@ def test_railroads():
     tracks = railroads.tracks(model)
     assert len(tracks) == 243
 
-    track0 = "start ●─grammar🔚 ─■"
+    track0 = "start ●─grammar─🔚 ─■"
     assert tracks[0] == track0
     trackm2 = "eof ●─'$' ✂ ──■"
     assert tracks[-2] == trackm2
