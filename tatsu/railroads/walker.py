@@ -197,7 +197,7 @@ class RailroadNodeWalker(NodeWalker):
         return [f"{token.token!r}"]
 
     def walk_eof(self, eof: grammars.EOF) -> list[str]:
-        return ["🔚─"]
+        return ["→ 🔚"]
 
     def walk_lookahead(self, la: grammars.Lookahead) -> list[str]:
         out = self.concatenate(['&('], self.walk(la.exp))
@@ -210,13 +210,13 @@ class RailroadNodeWalker(NodeWalker):
         return out
 
     def walk_void(self, v: grammars.Void) -> list[str]:
-        return ["→ ∅ ─"]
+        return ["→ ∅"]
 
     def walk_cut(self, cut: grammars.Cut) -> list[str]:
-        return ["→ ~ ─"]
+        return ["→ ✂"]
 
     def walk_fail(self, v) -> list[str]:
-        return ["→ ⚠ ─"]
+        return ["→ ⚠"]
 
     # def walk_endrule(self, ast) -> list[str]:
     #     return ['']  # to be implemented
