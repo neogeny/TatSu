@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from ..util import unicode_display_len as ulen, unicode_display_len
+from ..util import unicode_display_len as ulen
 
 
 def assert_one_width(block: list[str]) -> list[str]:
@@ -27,18 +27,22 @@ def merge(paths: list[list[str]]) -> list[str]:
     max_w = max(ulen(p[0]) if p else 0 for p in paths)
     out = []
 
-    # 3. Top Rail
     main = paths[0][0] if paths[0] else ''
     pad0 = "─" * (max_w - ulen(main))
     out += [f"──┬─{main}{pad0}─┬─"]
 
-    # 4. Middle Paths
     for path in paths[1:-1]:
+        if not path:
+            continue
+
         mid = path[0]
         pad_m = "─" * (max_w - ulen(mid))
         out += [f"  ├─{mid}{pad_m}─┤ "]
 
-    # 5. Last Path
+        for mid in path[1:]:
+            pad_m = "─" * (max_w - ulen(mid))
+            out += [f"  │ {mid}{pad_m} │ "]
+
     last = paths[-1][0] if paths[-1] else ''
     pad_l = "─" * (max_w - ulen(last))
     out += [f"  └─{last}{pad_l}─┘ "]
@@ -58,7 +62,7 @@ def loop_tail(path: list[str], max_w: int) -> list[str]:
     return assert_one_width(out)
 
 
-def positive_loop(path: list[str]) -> list[str]:
+def loop_plus(path: list[str]) -> list[str]:
     # by Gemini 2026/02/17
     if not path:
         return ["───>───"]
@@ -87,7 +91,7 @@ def loop(path: list[str]) -> list[str]:
 
     first = path[0]
     first_pad = "─" * (max_w - ulen(first))
-    out += [f"  ├→{first}{first_pad}─┤  "] # xxx
+    out += [f"  ├→{first}{first_pad}─┤  "]  # xxx
 
     out += loop_tail(path[1:], max_w)
     return assert_one_width(out)

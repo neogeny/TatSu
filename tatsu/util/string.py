@@ -29,7 +29,7 @@ def unicode_display_len(text: str) -> int:
 
     def uwidth(c: str) -> int:
         status = unicodedata.east_asian_width(c)
-        return 1 +  int(status in {'W', 'F'})
+        return 1 + int(status in {'W', 'F'})
 
     return sum(uwidth(s) for s in text)
 
