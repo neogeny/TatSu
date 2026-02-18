@@ -34,6 +34,9 @@ BOX_DRAWING = {
     '→': UC(0x2192, '\u2192', "RIGHTWARDS ARROW"),
     '↱': UC(0x21b1, '\u21b1', "UPWARDS ARROW WITH TIP RIGHTWARDS"),
     '✂': UC(0x2702, '\u2702', "BLACK SCISSORS"),
+    '↦': UC(0x21A6, '\u21A6', "RIGHTWARDS ARROW FROM BAR"),
+    '⇥': UC(0x21E5, '\u21E5', "RIGHTWARDS ARROW TO BAR"),
+    '↠': UC(0x21A0, '\u21A0', "RIGHTWARDS TWO HEADED ARROW"),
 
     # Light and heavy solid lines
     '─': UC(0x2500, '\u2500', "BOX DRAWINGS LIGHT HORIZONTAL"),
