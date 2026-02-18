@@ -9,7 +9,7 @@ from tatsu import grammars
 from ..util.abctools import join_lists
 from ..util.string import unicode_display_len as ulen
 from ..walkers import NodeWalker
-from .railmath import check_same_len, lay_out, loop, stopnloop, weld
+from .railmath import assert_one_length, lay_out, loop, stopnloop, weld
 
 
 def lines(model: grammars.Grammar):
@@ -44,10 +44,10 @@ class RailroadNodeWalker(NodeWalker):
         out = weld(out, self.walk(rule.exp))
         out = weld(out, ['■'])
         out += [' ' * ulen(out[0])]
-        return check_same_len(out)
+        return assert_one_length(out)
 
     def walk_optional(self, optional: grammars.Optional) -> list[str]:
-        # return merge([self.walk(optional.exp), ['→']])
+        # return lay_out([self.walk(optional.exp), ['→']])
         out = weld(['→'], self.walk(optional.exp))
         return lay_out([out, ['→']])
 
@@ -75,7 +75,7 @@ class RailroadNodeWalker(NodeWalker):
         out = []
         for element in s.sequence:
             out = weld(out, self.walk(element))
-        return check_same_len(out)
+        return assert_one_length(out)
 
     def walk_call(self, call: grammars.Call) -> list[str]:
         return [f"{call.name}"]

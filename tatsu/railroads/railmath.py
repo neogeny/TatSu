@@ -5,14 +5,14 @@ from __future__ import annotations
 from ..util import unicode_display_len as ulen
 
 
-def check_same_len(block: list[str]) -> list[str]:
+def assert_one_length(block: list[str]) -> list[str]:
     if not block:
         return []
 
-    width = ulen(block[0])
+    length = ulen(block[0])
     for rail in block:
         assert isinstance(rail, str), f'{rail=!r}'
-        assert ulen(rail) == width
+        assert ulen(rail) == length
     return block
 
 
@@ -20,20 +20,15 @@ def lay_out(tracks: list[list[str]]) -> list[str]:
     # by Gemini 2026/02/17
 
     if not tracks:
-        return []
-    if len(tracks) == 1:
-        return [f"───{tracks[0][0]}───"]
+        return tracks
 
     maxw = max(ulen(p[0]) if p else 0 for p in tracks)
     out = []
 
-    main = tracks[0][0] if tracks[0] else ''
-    pad0 = "─" * (maxw - ulen(main))
-    out += [f"──┬─{main}{pad0}─┬─"]
-
-    for track in tracks[1:-1]:
+    for track in tracks[:-1]:
         if not track:
             continue
+        assert isinstance(track, list), f'{track=!r}'
 
         junction = track[0]
         pad_m = "─" * (maxw - ulen(junction))
@@ -43,11 +38,21 @@ def lay_out(tracks: list[list[str]]) -> list[str]:
             pad_m = "─" * (maxw - ulen(mid))
             out += [f"  │ {mid}{pad_m} │ "]
 
-    last = tracks[-1][0] if tracks[-1] else ''
-    pad_l = "─" * (maxw - ulen(last))
-    out += [f"  └─{last}{pad_l}─┘ "]
+    last_track = tracks[-1]
 
-    return check_same_len(out)
+    last_junction = last_track[0]
+    pad_l = "─" * (maxw - ulen(last_junction))
+    out += [f"  └─{last_junction}{pad_l}─┘ "]
+
+    for mid in last_track[1:]:
+        pad_m = " " * (maxw - ulen(mid))
+        out += [f"    {mid}{pad_m}   "]
+
+    main = tracks[0][0] if tracks[0] else ''
+    pad0 = "─" * (maxw - ulen(main))
+    out[0] = f"──┬─{main}{pad0}─┬─"
+
+    return assert_one_length(out)
 
 
 def loop_tail(rails: list[str], max_w: int) -> list[str]:
@@ -59,7 +64,7 @@ def loop_tail(rails: list[str], max_w: int) -> list[str]:
     loop_rail = "─" * max_w
     out += [f"  └─{loop_rail}<┘  "]
 
-    return check_same_len(out)
+    return assert_one_length(out)
 
 
 def stopnloop(rails: list[str]) -> list[str]:
@@ -75,7 +80,7 @@ def stopnloop(rails: list[str]) -> list[str]:
     out += [f"──┬─{first}{first_pad}─┬──"]
 
     out += loop_tail(rails[1:], max_w)
-    return check_same_len(out)
+    return assert_one_length(out)
 
 
 def loop(rails: list[str]) -> list[str]:
@@ -94,7 +99,7 @@ def loop(rails: list[str]) -> list[str]:
     out += [f"  ├→{first}{first_pad}─┤  "]  # xxx
 
     out += loop_tail(rails[1:], max_w)
-    return check_same_len(out)
+    return assert_one_length(out)
 
 
 def weld(left: list[str], right: list[str]) -> list[str]:
@@ -120,4 +125,4 @@ def weld(left: list[str], right: list[str]) -> list[str]:
         else:
             out += [f'{' ' * left_width}{right[i]}']
 
-    return check_same_len(out)
+    return assert_one_length(out)
