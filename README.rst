@@ -216,12 +216,12 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
                        └─────────────────<┘        └───────────────<┘
 
     directive ●─'@@'─ !['keyword'] ✂ ───┬───┬─'comments'─────┬─ ✂ ─ ✂ ─'::' ✂ ─regex────────┬─ ✂ ──■
-                                        │   └─'eol_comments'─┘                      ─────── │
+                                        │   └─'eol_comments'─┘                              │
                                         ├─'whitespace' ✂ ─'::' ✂ ───┬─regex───┬─────────────┤
-                                        │                           ├─string──┤ ─────────── │
-                                        │                           ├─'None'──┤ ─────────── │
-                                        │                           ├─'False'─┤ ─────────── │
-                                        │                           └─`None`──┘ ─────────── │
+                                        │                           ├─string──┤             │
+                                        │                           ├─'None'──┤             │
+                                        │                           ├─'False'─┤             │
+                                        │                           └─`None`──┘             │
                                         ├───┬─'nameguard'──────┬─ ✂ ───┬─'::' ✂ ─boolean─┬──┤
                                         │   ├─'ignorecase'─────┤       └─`True`──────────┘  │
                                         │   ├─'left_recursion'─┤                            │
@@ -450,8 +450,6 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
     null ●─'None'─■
 
     eof ●─'$' ✂ ──■
-
-
 
 
 .. _ANTLR: http://www.antlr.org/

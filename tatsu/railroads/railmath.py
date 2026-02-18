@@ -37,7 +37,7 @@ def lay_out(tracklist: list[RailTracks]) -> RailTracks:
         out += [f"  ├─{junction}{pad}─┤ "]
 
         for rail in tracks[1:]:
-            pad = "─" * (maxw - ulen(rail))
+            pad = " " * (maxw - ulen(rail))
             out += [f"  │ {rail}{pad} │ "]
 
     last_track = tracklist[-1]
