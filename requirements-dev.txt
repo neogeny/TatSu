@@ -97,6 +97,8 @@ pygments==2.19.2
 pyproject-hooks==1.2.0
     # via build
 pytest==9.0.2
+    # via pytest-dependency
+pytest-dependency==0.6.0
 pywin32-ctypes==0.2.3 ; platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'win32'
     # via keyring
 readme-renderer==44.0
@@ -114,6 +116,8 @@ rich==14.3.2
 rst2html5==2.0.1
 secretstorage==3.5.0 ; platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'linux'
     # via keyring
+setuptools==82.0.0
+    # via pytest-dependency
 stack-data==0.6.3
     # via ipython
 traitlets==5.14.3
