@@ -188,35 +188,35 @@ class RailroadNodeWalker(NodeWalker):
         return self.assert_one_width(out)
 
     def walk_call(self, call: grammars.Call) -> list[str]:
-        return [f" {call.name} "]
+        return [f"→{call.name}"]
 
     def walk_pattern(self, pattern: grammars.Pattern) -> list[str]:
         return [pattern.pattern]  # to be implemented
 
     def walk_token(self, token: grammars.Token) -> list[str]:
-        return [f"{token.token!r}"]
+        return [f"→{token.token!r}"]
 
     def walk_eof(self, eof: grammars.EOF) -> list[str]:
-        return ["→ 🔚"]
+        return ["→🔚 "]
 
     def walk_lookahead(self, la: grammars.Lookahead) -> list[str]:
-        out = self.concatenate(['&('], self.walk(la.exp))
-        out = self.concatenate(out, [')'])
+        out = self.concatenate(['→&['], self.walk(la.exp))
+        out = self.concatenate(out, [']'])
         return out
 
     def walk_negative_lookahead(self, la: grammars.NegativeLookahead) -> list[str]:
-        out = self.concatenate(['!('], self.walk(la.exp))
-        out = self.concatenate(out, [')'])
+        out = self.concatenate(['→!['], self.walk(la.exp))
+        out = self.concatenate(out, [']'])
         return out
 
     def walk_void(self, v: grammars.Void) -> list[str]:
-        return ["→ ∅"]
+        return ["→ ∅ "]
 
     def walk_cut(self, cut: grammars.Cut) -> list[str]:
-        return ["→ ✂"]
+        return ["→ ✂ "]
 
     def walk_fail(self, v) -> list[str]:
-        return ["→ ⚠"]
+        return ["→ ⚠ "]
 
     # def walk_endrule(self, ast) -> list[str]:
     #     return ['']  # to be implemented
@@ -225,7 +225,7 @@ class RailroadNodeWalker(NodeWalker):
     #     return ['']  # to be implemented
 
     def walk_override(self, override: grammars.Override) -> list[str]:
-        out = self.concatenate(['@:('], self.walk(override.exp))
+        out = self.concatenate(['→@:('], self.walk(override.exp))
         out = self.concatenate(out, [')'])
         return out
 
