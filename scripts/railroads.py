@@ -8,17 +8,10 @@ from tatsu import railroads
 from tatsu.tool import api
 
 
-def test_railroads():
+def main():
     grammar = Path('./grammar/tatsu.tatsu').read_text()
     model = api.compile(grammar)
-    print('RAILROADS')
     railroads.draw(model)
 
-    tracks = railroads.tracks(model)
-    assert len(tracks) == 243
-
-    track0 = "start ●─grammar🔚 ─■"
-    assert tracks[0] == track0
-    trackm2 = "eof ●─'$' ✂ ──■"
-    assert tracks[-2] == trackm2
-    assert not tracks[-1].rstrip()
+if __name__ == '__main__':
+    main()

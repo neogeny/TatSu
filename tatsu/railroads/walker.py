@@ -90,7 +90,7 @@ class RailroadNodeWalker(NodeWalker):
         return [f"{token.token!r}"]
 
     def walk_eof(self, eof: grammars.EOF) -> RailTracks:
-        return ["🔚 "]
+        return ["─🔚 "]
 
     def walk_lookahead(self, la: grammars.Lookahead) -> RailTracks:
         out = weld(['─ &['], self.walk(la.exp))
