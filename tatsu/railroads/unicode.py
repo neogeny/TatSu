@@ -32,6 +32,7 @@ BOX_DRAWING = {
     '∅': UC(0x2205, '\u2205', "EMPTY SET"),
     '⚠': UC(0x26A0, '\u26A0', "WARNING SIGN"),
     '→': UC(0x2192, '\u2192', "RIGHTWARDS ARROW"),
+    '↱': UC(0x21b1, '\u21b1', "UPWARDS ARROW WITH TIP RIGHTWARDS"),
 
     # Light and heavy solid lines
     '─': UC(0x2500, '\u2500', "BOX DRAWINGS LIGHT HORIZONTAL"),
