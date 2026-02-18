@@ -11,21 +11,7 @@ from collections.abc import Collection
 from datetime import date
 from pathlib import Path
 
-
-def get_staged_files() -> list[Path]:
-    """
-    Get the list of files currently staged for commit.
-    """
-    try:
-        result = subprocess.run(
-            ['git', 'diff', '--cached', '--name-only', '--diff-filter=d'],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        return [Path(filename) for filename in result.stdout.splitlines()]
-    except subprocess.CalledProcessError:
-        return []
+from common import get_staged_files
 
 
 def is_header_missing(path: Path, target: Collection[str]) -> bool:

@@ -36,6 +36,7 @@ parproc = ["rich"]
 
 [dependency-groups]
 dev = [
+    "black>=26.1.0",
     "build>=1.4.0",
     "colorama>=0.4.6",
     "diskcache>=5.6.3",
@@ -133,3 +134,22 @@ exclude = [".git", "__pycache__", "dist"]
 [tool.coverage.run]
 omit = ["tests/*", "tatsu/diagrams.py", "tatsu/codegen/*", "**/test.py"]
 data_file = ".cache/coverage/.coverage"
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
+skip-string-normalization = true
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
