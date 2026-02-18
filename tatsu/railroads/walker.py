@@ -6,7 +6,7 @@ from typing import override
 
 from tatsu import grammars
 from ..util.abctools import join_lists
-from ..util.string import ulen
+from ..util.string import unicode_display_len as ulen
 from ..walkers import NodeWalker
 
 
@@ -61,18 +61,18 @@ class RailroadNodeWalker(NodeWalker):
         # 3. Top Rail
         main = paths[0][0] if paths[0] else ''
         pad0 = "─" * (max_w - ulen(main))
-        out.append(f"──┬─{main}{pad0}─┬─")
+        out += [f"──┬─{main}{pad0}─┬─"]
 
         # 4. Middle Paths
         for path in paths[1:-1]:
             mid = path[0]
             pad_m = "─" * (max_w - ulen(mid))
-            out.append(f"  ├─{mid}{pad_m}─┤ ")
+            out += [f"  ├─{mid}{pad_m}─┤ "]
 
         # 5. Last Path
         last = paths[-1][0] if paths[-1] else ''
         pad_l = "─" * (max_w - ulen(last))
-        out.append(f"  └─{last}{pad_l}─┘ ")
+        out += [f"  └─{last}{pad_l}─┘ "]
 
         return self.assert_one_width(out)
 
@@ -89,18 +89,18 @@ class RailroadNodeWalker(NodeWalker):
         # If path[0] is empty/blanks, this becomes the 'bypass'
         first = path[0]
         first_pad = "─" * (max_w - ulen(first))
-        out.append(f"──┬─{first}{first_pad}─┬──")
+        out += [f"──┬─{first}{first_pad}─┬──"]
 
         # 3. Middle Lines (The Body)
         for line in path[1:]:
             pad = " " * (max_w - ulen(line))
-            out.append(f"  │ {line}{pad} │  ")
+            out += [f"  │ {line}{pad} │  "]
 
         # 4. The Loop Rail (The Return)
         # Standardized to 4 chars left, 4 chars right
         # To align ┘ perfectly under ┬, we match the suffix '─<┘ ' to '─┬──'
         loop_rail = "─" * max_w
-        out.append(f"  └─{loop_rail}<┘  ")
+        out += [f"  └─{loop_rail}<┘  "]
 
         return self.assert_one_width(out)
 
@@ -119,7 +119,7 @@ class RailroadNodeWalker(NodeWalker):
         # Left: ──┬── (5) | Right: ──┬── (5)
         # Total Width: max_w + 10
         top_rail = "─" * max_w
-        out.append(f"──┬──{top_rail}──┬──")
+        out += [f"──┬──{top_rail}──┬──"]
 
         # 3. Content Body
         for i, line in enumerate(path):
@@ -127,10 +127,10 @@ class RailroadNodeWalker(NodeWalker):
 
             if i == 0:
                 # First line: Enters from the left, merges into the vertical on the right
-                out.append(f"  └─>{line}{pad}──┘  ")
+                out += [f"  └─>{line}{pad}──┘  "]
             else:
                 # Middle lines: Keeps the vertical bar '│' going
-                out.append(f"     {line}{pad}  │  ")
+                out += [f"     {line}{pad}  │  "]
 
         return self.assert_one_width(out)
 
