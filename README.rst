@@ -214,10 +214,10 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
 
     start ●─grammar─■
 
-    grammar∷Grammar ●─ [title](`TATSU`)──┬→─────────────────────────────────┬── [rules]+(rule)──┬→─────────────────────────────┬──⇥ ␃ ─■
-                                         ├→──┬─ [directives]+(directive)─┬──┤                   ├→──┬─ [rules]+(rule)───────┬──┤
-                                         │   └─ [keywords]+(keyword)─────┘  │                   │   └─ [keywords]+(keyword)─┘  │
-                                         └─────────────────────────────────<┘                   └─────────────────────────────<┘
+    grammar∷Grammar ●─ [title](`TATSU`)──┬→───────────────────────────────────┬── [`rules`]+(rule)──┬→───────────────────────────────┬──⇥ ␃ ─■
+                                         ├→──┬─ [`directives`]+(directive)─┬──┤                     ├→──┬─ [`rules`]+(rule)───────┬──┤
+                                         │   └─ [`keywords`]+(keyword)─────┘  │                     │   └─ [`keywords`]+(keyword)─┘  │
+                                         └───────────────────────────────────<┘                     └───────────────────────────────<┘
 
     directive ●─'@@'─ !['keyword'] ✂ ───┬─ [name](──┬─'comments'─────┬─) ✂ ─ ✂ ─'::' ✂ ─ [value](regex)────────┬─ ✂ ──■
                                         │           └─'eol_comments'─┘                                         │
@@ -247,9 +247,9 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
                             ├─ [params](params)',' ✂ ─ [kwparams](kwparams)─┤
                             └─ [params](params)─────────────────────────────┘
 
-    rule∷Rule ●─ [decorators](──┬→──────────┬──) [name](name) ✂ ───┬─→ >( <'paramdef'> )─┬───┬─→'<' ✂ ─ [base](known_name)─┬───┬─'='──┬─ ✂ ─ [exp](expre)RULE_END ✂ ──■
-                                ├→decorator─┤                      └─→───────────────────┘   └─→───────────────────────────┘   ├─':='─┤
-                                └──────────<┘                                                                                  └─':'──┘
+    rule∷Rule ●─ [decorators](──┬→──────────┬──) [name](name) ✂ ───┬─→ >(paramdef) ─┬───┬─→'<' ✂ ─ [base](known_name)─┬───┬─'='──┬─ ✂ ─ [exp](expre)RULE_END ✂ ──■
+                                ├→decorator─┤                      └─→──────────────┘   └─→───────────────────────────┘   ├─':='─┤
+                                └──────────<┘                                                                             └─':'──┘
 
     RULE_END ●───┬─EMPTYLINE──┬─→';'─┬──┬──■
                  │            └─→────┘  │
@@ -454,6 +454,7 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
     null ●─'None'─■
 
     eof∷EOF ●─'$' ✂ ──■
+
 
 
 
