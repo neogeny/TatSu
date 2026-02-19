@@ -8,11 +8,11 @@ Introduction
 
 |TatSu| is *different* from other `PEG`_ parser generators:
 
--  Generated parsers use `Python`_'s very efficient exception-handling
+-  Generated parsers use `Python`_'s efficient exception-handling
    system to backtrack. |TatSu| generated parsers simply assert what
-   must be parsed. There are no complicated *if-then-else* sequences for
-   decision making or backtracking. Memoization allows going over the
-   same input sequence several times in linear time.
+   must be parsed. No complicated *if-then-else* sequences for
+   decision making or backtracking are present. Memoization allows
+   going over the same input sequence several times in linear time.
 -  *Positive and negative lookaheads*, and the *cut* element (with its
    cleaning of the memoization cache) allow for additional, hand-crafted
    optimizations at the grammar level.

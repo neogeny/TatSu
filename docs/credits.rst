@@ -61,7 +61,7 @@ Credits
    handling be compatible with 2.7.x and 3.x, and figured out the
    canonical way of honoring escape sequences in grammar tokens without
    throwing off the encoding.
--  `Basel Shishani`_ has been an incredibly throrough peer-reviewer of
+-  `Basel Shishani`_ has been an incredibly thorough peer-reviewer of
    |TatSu|.
 -  `Paul Sargent`_ implemented `Warth et al`_'s algorithm for supporting
    direct and indirect left recursion in `PEG`_ parsers.

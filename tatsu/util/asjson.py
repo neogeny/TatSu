@@ -48,8 +48,6 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
     Produce a JSON-serializable version of the input structure.
     """
     # Gemini (2026-01-26)
-
-    memo: dict[int, Any] = {}
     seen = seen if seen is not None else set()
 
     def dfs(node: Any) -> Any:
@@ -59,8 +57,6 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
         node_id = id(node)
         if node_id in seen:
             return f"{type(node).__name__}@0x{hex(node_id).upper()[2:]}"
-        if node_id in memo:
-            return memo[node_id]
 
         seen.add(node_id)
         try:
@@ -84,8 +80,6 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
                     result = [dfs(e) for e in node]
                 case _:
                     result = repr(node)
-
-            memo[node_id] = result
             return result
         finally:
             seen.discard(node_id)

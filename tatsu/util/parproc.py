@@ -1,5 +1,7 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 import io
 import multiprocessing
 import sys
@@ -13,16 +15,19 @@ from itertools import batched
 from pathlib import Path
 from typing import Any, NamedTuple
 
-import rich
-from rich.progress import (
-    BarColumn,
-    Progress,
-    TaskID,
-    TaskProgressColumn,
-    TextColumn,
-    TimeElapsedColumn,
-    TimeRemainingColumn,
-)
+try:
+    import rich
+    from rich.progress import (
+        BarColumn,
+        Progress,
+        TaskID,
+        TaskProgressColumn,
+        TextColumn,
+        TimeElapsedColumn,
+        TimeRemainingColumn,
+    )
+except ImportError:
+    sys.exit(1)
 
 from ..util import (
     identity,

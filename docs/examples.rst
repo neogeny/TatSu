@@ -7,7 +7,7 @@
 Examples
 --------
 
-Tatsu
+TatSu
 ~~~~~
 
 The file ``grammar/tatsu.tatsu`` contains a grammar for the |TatSu| grammar

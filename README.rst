@@ -32,12 +32,15 @@
 |TatSu|
 =======
 
-|TatSu| is a tool that takes grammars in a superset of `EBNF`_ as input, and
+|TatSu| is a tool that takes grammars in extended `EBNF`_ as input, and
 outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_. The classic
 variations of EBNF_ (Tomassetti, EasyExtend, Wirth) and `ISO EBNF`_ are also
 supported as input grammar format.
 
-Why use a PEG_ parser? Because `regular languages`_ (those parsable with Python's ``re`` package) *"cannot count"*. Any language with nested structures or with balancing of demarcations requires more than regular expressions to be parsed.
+Why use a PEG_ parser? Because `regular languages`_ (those parseable with
+Python's ``re`` package) *"cannot count"*. Any language with nested structures
+or with balancing of demarcations requires more than regular expressions
+to be parsed.
 
 |TatSu| can compile a grammar stored in a string into a
 ``tatsu.grammars.Grammar`` object that can be used to parse any given
@@ -95,7 +98,8 @@ The result is equivalent to calling:
 
 Compiled grammars are cached for efficiency.
 
-This compiles the grammar to the `Python`_ sourcecode that implements the parser:
+This compiles the grammar to the `Python`_ source code that implements the
+parser:
 
 .. code-block:: python
 
@@ -181,7 +185,7 @@ Questions?
 ----------
 
 Please use the `[tatsu]`_ tag on `StackOverflow`_ for general Q&A, and limit
-Github issues to bugs, enhancement proposals, and feature requests.
+GitHub issues to bugs, enhancement proposals, and feature requests.
 
 .. _[tatsu]: https://stackoverflow.com/tags/tatsu/info
 
@@ -198,6 +202,260 @@ License
 You may use |TatSu| under the terms of the `BSD`_-style license
 described in the enclosed `LICENSE`_ file. *If your project
 requires different licensing* please `email`_.
+
+
+For Fun
+-------
+
+This is a diagram of the grammar for |TatSu|'s own grammar language:
+
+
+.. code:: console
+
+    start ●─grammar─■
+
+    grammar∷Grammar ●─ [title](`TATSU`)──┬→───────────────────────────────────┬── [`rules`]+(rule)──┬→───────────────────────────────┬──⇥ ␃ ─■
+                                         ├→──┬─ [`directives`]+(directive)─┬──┤                     ├→──┬─ [`rules`]+(rule)───────┬──┤
+                                         │   └─ [`keywords`]+(keyword)─────┘  │                     │   └─ [`keywords`]+(keyword)─┘  │
+                                         └───────────────────────────────────<┘                     └───────────────────────────────<┘
+
+    directive ●─'@@'─ !['keyword'] ✂ ───┬─ [name](──┬─'comments'─────┬─) ✂ ─ ✂ ─'::' ✂ ─ [value](regex)────────┬─ ✂ ──■
+                                        │           └─'eol_comments'─┘                                         │
+                                        ├─ [name]('whitespace') ✂ ─'::' ✂ ─ [value](──┬─regex───┬─)────────────┤
+                                        │                                             ├─string──┤              │
+                                        │                                             ├─'None'──┤              │
+                                        │                                             ├─'False'─┤              │
+                                        │                                             └─`None`──┘              │
+                                        ├─ [name](──┬─'nameguard'──────┬─) ✂ ───┬─'::' ✂ ─ [value](boolean)─┬──┤
+                                        │           ├─'ignorecase'─────┤        └─ [value](`True`)──────────┘  │
+                                        │           ├─'left_recursion'─┤                                       │
+                                        │           ├─'parseinfo'──────┤                                       │
+                                        │           └─'memoization'────┘                                       │
+                                        ├─ [name]('grammar') ✂ ─'::' ✂ ─ [value](word)─────────────────────────┤
+                                        └─ [name]('namechars') ✂ ─'::' ✂ ─ [value](string)─────────────────────┘
+
+    keywords ●───┬─keywords─┬───■
+                 └─────────<┘
+
+    keyword ●─'@@keyword' ✂ ─'::' ✂ ───┬→──────────────────────────────────┬───■
+                                       ├→ @+(──┬─word───┬─)─ ![──┬─':'─┬─]─┤
+                                       │       └─string─┘        └─'='─┘   │
+                                       └──────────────────────────────────<┘
+
+    paramdef ●───┬─'::' ✂ ─ [params](params)──────────────────────────────────────┬──■
+                 └─'(' ✂ ───┬─ [kwparams](kwparams)─────────────────────────┬─')'─┘
+                            ├─ [params](params)',' ✂ ─ [kwparams](kwparams)─┤
+                            └─ [params](params)─────────────────────────────┘
+
+    rule∷Rule ●─ [decorators](──┬→──────────┬──) [name](name) ✂ ───┬─→ >(paramdef) ─┬───┬─→'<' ✂ ─ [base](known_name)─┬───┬─'='──┬─ ✂ ─ [exp](expre)RULE_END ✂ ──■
+                                ├→decorator─┤                      └─→──────────────┘   └─→───────────────────────────┘   ├─':='─┤
+                                └──────────<┘                                                                             └─':'──┘
+
+    RULE_END ●───┬─EMPTYLINE──┬─→';'─┬──┬──■
+                 │            └─→────┘  │
+                 ├─⇥ ␃                  │
+                 └─';'──────────────────┘
+
+    EMPTYLINE ●─/(?:\s*(?:\r?\n|\r)){2,}/──■
+
+    decorator ●─'@'─ !['@'] ✂ ─ @(──┬─'override'─┬─)─■
+                                    ├─'name'─────┤
+                                    └─'nomemo'───┘
+
+    params ●─ @+(first_param)──┬→────────────────────────────┬───■
+                               ├→',' @+(literal)─ !['='] ✂ ──┤
+                               └────────────────────────────<┘
+
+    first_param ●───┬─path────┬──■
+                    └─literal─┘
+
+    kwparams ●───┬→────────────┬───■
+                 ├→',' ✂ ─pair─┤
+                 └────────────<┘
+
+    pair ●─ @+(word)'=' ✂ ─ @+(literal)─■
+
+    expre ●───┬─choice───┬──■
+              └─sequence─┘
+
+    choice∷Choice ●───┬─→'|' ✂ ──┬─ @+(option)──┬─'|' ✂ ─ @+(option)─┬───■
+                      └─→────────┘              └───────────────────<┘
+
+    option∷Option ●─ @(sequence)─■
+
+    sequence∷Sequence ●───┬── &[element',']──┬→───────────────┬───┬──■
+                          │                  ├→',' ✂ ─element─┤   │
+                          │                  └───────────────<┘   │
+                          └───┬── ![EMPTYLINE]element─┬───────────┘
+                              └──────────────────────<┘
+
+    element ●───┬─rule_include─┬──■
+                ├─named────────┤
+                ├─override─────┤
+                └─term─────────┘
+
+    rule_include∷RuleInclude ●─'>' ✂ ─ @(known_name)─■
+
+    named ●───┬─named_list───┬──■
+              └─named_single─┘
+
+    named_list∷NamedList ●─ [name](name)'+:' ✂ ─ [exp](term)─■
+
+    named_single∷Named ●─ [name](name)':' ✂ ─ [exp](term)─■
+
+    override ●───┬─override_list──────────────┬──■
+                 ├─override_single────────────┤
+                 └─override_single_deprecated─┘
+
+    override_list∷OverrideList ●─'@+:' ✂ ─ @(term)─■
+
+    override_single∷Override ●─'@:' ✂ ─ @(term)─■
+
+    override_single_deprecated∷Override ●─'@' ✂ ─ @(term)─■
+
+    term ●───┬─void───────────────┬──■
+             ├─gather─────────────┤
+             ├─join───────────────┤
+             ├─left_join──────────┤
+             ├─right_join─────────┤
+             ├─empty_closure──────┤
+             ├─positive_closure───┤
+             ├─closure────────────┤
+             ├─optional───────────┤
+             ├─skip_to────────────┤
+             ├─lookahead──────────┤
+             ├─negative_lookahead─┤
+             ├─cut────────────────┤
+             ├─cut_deprecated─────┤
+             └─atom───────────────┘
+
+    group∷Group ●─'(' ✂ ─ @(expre)')' ✂ ──■
+
+    gather ●── &[atom'.{'] ✂ ───┬─positive_gather─┬──■
+                                └─normal_gather───┘
+
+    positive_gather∷PositiveGather ●─ [sep](atom)'.{' [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
+                                                                       └─'-'─┘
+
+    normal_gather∷Gather ●─ [sep](atom)'.{' ✂ ─ [exp](expre)'}'──┬─→'*' ✂ ──┬─ ✂ ──■
+                                                                 └─→────────┘
+
+    join ●── &[atom'%{'] ✂ ───┬─positive_join─┬──■
+                              └─normal_join───┘
+
+    positive_join∷PositiveJoin ●─ [sep](atom)'%{' [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
+                                                                   └─'-'─┘
+
+    normal_join∷Join ●─ [sep](atom)'%{' ✂ ─ [exp](expre)'}'──┬─→'*' ✂ ──┬─ ✂ ──■
+                                                             └─→────────┘
+
+    left_join∷LeftJoin ●─ [sep](atom)'<{' ✂ ─ [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
+                                                               └─'-'─┘
+
+    right_join∷RightJoin ●─ [sep](atom)'>{' ✂ ─ [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
+                                                                 └─'-'─┘
+
+    positive_closure∷PositiveClosure ●───┬─'{' @(expre)'}'──┬─'-'─┬─ ✂ ──┬──■
+                                         │                  └─'+'─┘      │
+                                         └─ @(atom)'+' ✂ ────────────────┘
+
+    closure∷Closure ●───┬─'{' @(expre)'}'──┬─→'*'─┬─ ✂ ──┬──■
+                        │                  └─→────┘      │
+                        └─ @(atom)'*' ✂ ─────────────────┘
+
+    empty_closure∷EmptyClosure ●─'{}' ✂ ─ @( ∅ )─■
+
+    optional∷Optional ●───┬─'[' ✂ ─ @(expre)']' ✂ ──────────┬──■
+                          └─ @(atom)─ ![──┬─'?"'─┬─]'?' ✂ ──┘
+                                          ├─"?'"─┤
+                                          └─'?/'─┘
+
+    lookahead∷Lookahead ●─'&' ✂ ─ @(term)─■
+
+    negative_lookahead∷NegativeLookahead ●─'!' ✂ ─ @(term)─■
+
+    skip_to∷SkipTo ●─'->' ✂ ─ @(term)─■
+
+    atom ●───┬─group────┬──■
+             ├─token────┤
+             ├─alert────┤
+             ├─constant─┤
+             ├─call─────┤
+             ├─pattern──┤
+             ├─dot──────┤
+             └─eof──────┘
+
+    call∷Call ●─word─■
+
+    void∷Void ●─'()' ✂ ──■
+
+    fail∷Fail ●─'!()' ✂ ──■
+
+    cut∷Cut ●─'~' ✂ ──■
+
+    cut_deprecated∷Cut ●─'>>' ✂ ──■
+
+    known_name ●─name ✂ ──■
+
+    name ●─word─■
+
+    constant∷Constant ●── &['`']──┬─/(?ms)```((?:.|\n)*?)```/──┬──■
+                                  ├─'`' @(literal)'`'──────────┤
+                                  └─/`(.*?)`/──────────────────┘
+
+    alert∷Alert ●─ [level](/\^+/─) [message](constant)─■
+
+    token∷Token ●───┬─string─────┬──■
+                    └─raw_string─┘
+
+    literal ●───┬─string─────┬──■
+                ├─raw_string─┤
+                ├─boolean────┤
+                ├─word───────┤
+                ├─hex────────┤
+                ├─float──────┤
+                ├─int────────┤
+                └─null───────┘
+
+    string ●─STRING─■
+
+    raw_string ●─//─ @(STRING)─■
+
+    STRING ●───┬─ @(/"((?:[^"\n]|\\"|\\\\)*?)"/─) ✂ ─────┬──■
+               └─ @(/r"'((?:[^'\n]|\\'|\\\\)*?)'"/─) ✂ ──┘
+
+    hex ●─/0[xX](?:\d|[a-fA-F])+/──■
+
+    float ●─/[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?/──■
+
+    int ●─/[-+]?\d+/──■
+
+    path ●─/(?!\d)\w+(?:::(?!\d)\w+)+/──■
+
+    word ●─/(?!\d)\w+/──■
+
+    dot∷Dot ●─'/./'─■
+
+    pattern∷Pattern ●─regexes─■
+
+    regexes ●───┬→─────────────┬───■
+                ├→'+' ✂ ─regex─┤
+                └─────────────<┘
+
+    regex ●───┬─'/' ✂ ─ @(/(?:[^/\\]|\\/|\\.)*/─)'/' ✂ ──┬──■
+              ├─'?' @(STRING)────────────────────────────┤
+              └─deprecated_regex─────────────────────────┘
+
+    deprecated_regex ●─'?/' ✂ ─ @(/(?:.|\n)*?(?=/\?)/─)//\?+/─ ✂ ──■
+
+    boolean ●───┬─'True'──┬──■
+                └─'False'─┘
+
+    null ●─'None'─■
+
+    eof∷EOF ●─'$' ✂ ──■
+
+
 
 
 .. _ANTLR: http://www.antlr.org/

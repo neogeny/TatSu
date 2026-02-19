@@ -6,10 +6,10 @@
 Semantic Actions
 ----------------
 
-There are no constructs for semantic actions in |TatSu| grammars. This
-is on purpose, because semantic actions obscure the declarative nature
-of grammars and provide for poor modularization from the
-parser-execution perspective.
+|TatSu| grammars lack notation for semantic actions. That is on purpose,
+because semantic actions within a grammar obscure the declarative nature
+of the context, and allow poor modularization from the parser-execution
+perspective.
 
 Semantic actions are defined in a class, and applied by passing an
 object of the class to the ``parse()`` method of the parser as the
@@ -51,10 +51,10 @@ transformation:
                 raise FailedSemantics('"%s" is a keyword' % str(ast))
             return ast
 
-For finer-grained control it is enough to declare more rules, as the
+For finer-grained control it's enough to declare more rules, as the
 impact on the parsing times will be minimal.
 
-If preprocessing is required at some point, it is enough to place
+If preprocessing is required at some point, it's enough to place
 invocations of empty rules where appropriate:
 
 .. code:: python
