@@ -40,15 +40,15 @@ def uv_python_pin(c: Context) -> float:
 
 
 def uv(
-        c: Context,
-        cmd: str,
-        args: str | list[str],
-        *,
-        quiet: bool = True,
-        python: float = PYTHON,
-        group: str = 'dev',
-        nogroup: str = '',
-        **kwargs: Any,
+    c: Context,
+    cmd: str,
+    args: str | list[str],
+    *,
+    quiet: bool = True,
+    python: float = PYTHON,
+    group: str = 'dev',
+    nogroup: str = '',
+    **kwargs: Any,
 ) -> Result:
     uvpython = uv_python_pin(c)
     q = ' --quiet' if quiet else ''
@@ -58,17 +58,17 @@ def uv(
 
     options = kwargs
     args = ' '.join(args) if isinstance(args, list) else args
-    return c.run(f'uv {cmd}{q}{p}{g}{n} {args}', pty=True, **options) or Result()
+    return c.run(f'uv {cmd}{q}{p}{g}{n} {args}', **options)
 
 
 def uv_run(
-        c: Context,
-        args: str | list[str],
-        *,
-        python: float = PYTHON,
-        group: str = 'dev',
-        quiet: bool = True,
-        **kwargs: Any,
+    c: Context,
+    args: str | list[str],
+    *,
+    python: float = PYTHON,
+    group: str = 'dev',
+    quiet: bool = True,
+    **kwargs: Any,
 ) -> Result:
     return uv(c, 'run', args=args, python=python, group=group, quiet=quiet, **kwargs)
 
@@ -79,21 +79,13 @@ def uv_sync(c: Context):
 
 def version_python(c: Context, python: float = PYTHON) -> str:
     return uv_run(
-        c,
-        'python3 --version',
-        python=python,
-        quiet=True,
-        hide='both',
+        c, 'python3 --version', python=python, quiet=True, hide='both'
     ).stdout.strip()
 
 
 def version_tatsu(c: Context, python: float = PYTHON) -> str:
     return uv_run(
-        c,
-        'python3 -m tatsu --version',
-        python=python,
-        quiet=True,
-        hide='both',
+        c, 'python3 -m tatsu --version', python=python, quiet=True, hide='both'
     ).stdout.strip()
 
 
@@ -108,12 +100,14 @@ def boundary_print(banner: str = '', line: str = THIN_LINE):
 
 
 def success_print(target: str = '', *, task: TaskFun = None, line: str = THIN_LINE):
-    target += task.name if task else ''  # ty:ignore[unresolved-attribute] # pyright:ignore[reportFunctionMemberAccess]
+    target += (
+        task.name if task else ''
+    )  # ty:ignore[unresolved-attribute] # pyright:ignore[reportFunctionMemberAccess]
     boundary_print(f'✔ {target}', line=line)
 
 
 def version_boundary_print(
-        c: Context, target: str = '', python: float = PYTHON, line: str = THICK_LINE,
+    c: Context, target: str = '', python: float = PYTHON, line: str = THICK_LINE
 ):
     verpython = version_python(c, python=python)
     vertatsu = version_tatsu(c, python=python)
@@ -159,11 +153,7 @@ def ruff(c: Context, python: float = PYTHON):
 def ty(c: Context, python: float = PYTHON):
     print('-> ty')
     res = uv_run(
-        c,
-        'ty check tatsu tests examples',
-        python=python,
-        group='test',
-        hide='both',
+        c, 'ty check tatsu tests examples', python=python, group='test', hide='both'
     )
 
     if res.exited != 0 or 'All checks passed!' not in res.stdout:
@@ -200,11 +190,13 @@ def black(c: Context, python: float = PYTHON):
         ["black", "--check", "tatsu", "tests", "examples"],
         python=python,
         group='test',
-        hide='both',
+        warn=True,
+        hide=True,
+        pty=True,
     )
-    # if res.exited != 0:
-    #     print(res.stdout.splitlines()[-1])
-    #     print('✖ failed!')
+    if res.exited != 0:
+        print(res.stdout.splitlines()[-1])
+        print('✖ failed!')
 
 
 @task(pre=[begin, clean, ruff, ty, pyright, black])
@@ -220,25 +212,14 @@ def test(c: Context):
 @task(pre=[clean])
 def doclint(c: Context, python: float = PYTHON):
     print('-> doclint')
-    uv_run(
-        c,
-        'vale README.rst docs/*.rst',
-        group='doc',
-        hide='stdout',
-    )
+    uv_run(c, 'vale README.rst docs/*.rst', group='doc', hide='stdout')
 
 
 @task(pre=[begin, doclint])
 def docs(c: Context):
     print('-> docs')
     with c.cd('docs'):
-        uv_run(
-            c,
-            'make -s html',
-            quiet=True,
-            group='doc',
-            hide='stdout',
-        )
+        uv_run(c, 'make -s html', quiet=True, group='doc', hide='stdout')
     success_print(task=docs)
 
 
