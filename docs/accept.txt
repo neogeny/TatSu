@@ -5,14 +5,25 @@
 \.[\w-_]+
 \w+[-_]\w+
 
+TatSu|tatsu
+pyversions
+
 Juancarlo
 Añez
 Chaudhary
+Chiariotti
+Enzo
 Kim
 Mens
+Mizushima
 Knupp
+Kota
+Lau
 Majda
 Rahul
+Rey
+Ritchie
+Rossum
 Tomassetti
 Wirth
 
@@ -30,10 +41,12 @@ ignorecase
 lookaheads?
 [Mm]emoization
 memoized
+memoizing
 mixin
 namechars
 nameguard
-packrat
+[Pp]ackrat
+parseable
 parseinfo
 parser's
 pegen
@@ -48,7 +61,7 @@ we-
 we-like-parsers
 _sourcecode
 
-\|paypal\|
+paypal|PayPal
 ANTLR_?
 ASTs?
 PEG_?

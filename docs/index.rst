@@ -26,12 +26,15 @@
 
 
 
-|TatSu| is a tool that takes grammars in a superset of `EBNF`_ as input, and
+|TatSu| is a tool that takes grammars in extended `EBNF`_ as input, and
 outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_. The classic
 variations of EBNF_ (Tomassetti, EasyExtend, Wirth) and `ISO EBNF`_ are also
 supported as input grammar format.
 
-Why use a PEG_ parser? Because `regular languages`_ (those parsable with Python's ``re`` package) *"cannot count"*. Any language with nested structures or with balancing of demarcatiors requires more than regular expressions to be parsed.
+Why use a PEG_ parser? Because `regular languages`_ (those that can be parsed
+with Python's ``re`` package) *"cannot count"*. Any language with nested structures
+or with balancing of demarcations requires more than regular expressions to
+be parsed.
 
 |TatSu| can compile a grammar stored in a string into a ``tatsu.grammars``
 object model. The model can be used to parse any input, much like the `re`_

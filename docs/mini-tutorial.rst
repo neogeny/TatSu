@@ -651,7 +651,10 @@ that avoids bookkeeping as much as possible is convenient.
 Code generation works by defining a translation class for each class in the model specified by the grammar.
 
 
-Nowadays the preferred code generation strategy is to walk down the AST_ and `print()` the desired output, with the help of the ``NodWalker`` class, and the ``IndentPrintMixin`` mixin. That's the strategy used by pegen_, the precursor to the new `PEG parser`_ in Python_.
+Nowadays the preferred code generation strategy is to walk down the
+AST_ and `print()` the desired output, with the help of the ``NodWalker``
+class, and the ``IndentPrintMixin`` mixin. That's the strategy used
+by pegen_, the precursor to the new `PEG parser`_ in Python_.
 
 
 The following code generator translates input expressions to the postfix instructions of a stack-based processor:

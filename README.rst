@@ -32,12 +32,15 @@
 |TatSu|
 =======
 
-|TatSu| is a tool that takes grammars in a superset of `EBNF`_ as input, and
+|TatSu| is a tool that takes grammars in extended `EBNF`_ as input, and
 outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_. The classic
 variations of EBNF_ (Tomassetti, EasyExtend, Wirth) and `ISO EBNF`_ are also
 supported as input grammar format.
 
-Why use a PEG_ parser? Because `regular languages`_ (those parsable with Python's ``re`` package) *"cannot count"*. Any language with nested structures or with balancing of demarcations requires more than regular expressions to be parsed.
+Why use a PEG_ parser? Because `regular languages`_ (those parseable with
+Python's ``re`` package) *"cannot count"*. Any language with nested structures
+or with balancing of demarcations requires more than regular expressions
+to be parsed.
 
 |TatSu| can compile a grammar stored in a string into a
 ``tatsu.grammars.Grammar`` object that can be used to parse any given
@@ -95,7 +98,8 @@ The result is equivalent to calling:
 
 Compiled grammars are cached for efficiency.
 
-This compiles the grammar to the `Python`_ sourcecode that implements the parser:
+This compiles the grammar to the `Python`_ source code that implements the
+parser:
 
 .. code-block:: python
 
@@ -181,7 +185,7 @@ Questions?
 ----------
 
 Please use the `[tatsu]`_ tag on `StackOverflow`_ for general Q&A, and limit
-Github issues to bugs, enhancement proposals, and feature requests.
+GitHub issues to bugs, enhancement proposals, and feature requests.
 
 .. _[tatsu]: https://stackoverflow.com/tags/tatsu/info
 
