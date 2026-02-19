@@ -202,23 +202,6 @@ def test(c: Context):
 
 
 @task(pre=[clean])
-def ty(c: Context, python: float = PYTHON):
-    print('-> ty')
-    res = uv_run(
-        c,
-        'ty check tatsu tests examples',
-        python=python,
-        group='test',
-        hide='both',
-    )
-
-    if res.exited != 0 or 'All checks passed!' not in res.stdout:
-        for r in [res.stdout, res.stderr]:
-            if r.strip():
-                print(r)
-
-
-@task(pre=[clean])
 def grammar(c: Context, python: float = PYTHON):
     print('-> grammar')
     res = uv_run(
