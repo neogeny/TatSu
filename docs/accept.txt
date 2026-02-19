@@ -12,6 +12,7 @@ equivalent
 lookahead
 [Mm]emoization
 memoized
+[Mm]odularization
 mixin
 packrat
 parser's
