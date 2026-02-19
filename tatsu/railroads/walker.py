@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from tatsu import grammars
-from .railmath import (assert_one_length, ETX, lay_out, loop, RailTracks, stopnloop, weld)
+from .railmath import ETX, Rails, assert_one_length, lay_out, loop, stopnloop, weld
 from ..util.abctools import join_lists
 from ..util.string import regexp, unicode_display_len as ulen
 from ..walkers import NodeWalker
@@ -28,16 +28,16 @@ class RailroadNodeWalker(NodeWalker):
     def walk(self, node: Any, *args, **kwargs) -> Any:
         return list(super().walk(node))
 
-    def walk_default(self, node: grammars.Model) -> RailTracks:
+    def walk_default(self, node: grammars.Model) -> Rails:
         return [f' <{node!r}> ']
 
-    def walk_decorator(self, decorator: grammars.Decorator) -> RailTracks:
+    def walk_decorator(self, decorator: grammars.Decorator) -> Rails:
         return self.walk(decorator.exp)
 
-    def walk_grammar(self, grammar: grammars.Grammar) -> RailTracks:
+    def walk_grammar(self, grammar: grammars.Grammar) -> Rails:
         return join_lists(*(self.walk(r) for r in grammar.rules))
 
-    def walk_rule(self, rule: grammars.Rule) -> RailTracks:
+    def walk_rule(self, rule: grammars.Rule) -> Rails:
         out = [f'{rule.name} ●─']
         out = weld(out, self.walk(rule.exp))
         if ETX not in out:
@@ -45,72 +45,72 @@ class RailroadNodeWalker(NodeWalker):
         out += [' ' * ulen(out[0])]
         return assert_one_length(out)
 
-    def walk_optional(self, optional: grammars.Optional) -> RailTracks:
+    def walk_optional(self, optional: grammars.Optional) -> Rails:
         # return lay_out([self.walk(optional.exp), ['→']])
         out = weld(['→'], self.walk(optional.exp))
         return lay_out([out, ['→']])
 
-    def walk_closure(self, closure: grammars.Closure) -> RailTracks:
+    def walk_closure(self, closure: grammars.Closure) -> Rails:
         return loop(self.walk_decorator(closure))
 
-    def walk_positive_closure(self, closure: grammars.Closure) -> RailTracks:
+    def walk_positive_closure(self, closure: grammars.Closure) -> Rails:
         return stopnloop(self.walk_decorator(closure))
 
-    def walk_join(self, join: grammars.Join) -> RailTracks:
+    def walk_join(self, join: grammars.Join) -> Rails:
         sep = weld(self.walk(join.sep), [' ✂ ─'])
         out = weld(sep, self.walk(join.exp))
         return loop(out)
 
-    def walk_positive_join(self, join: grammars.PositiveJoin) -> RailTracks:
+    def walk_positive_join(self, join: grammars.PositiveJoin) -> Rails:
         sep = weld(self.walk(join.sep), [' ✂ ─'])
         out = weld(sep, self.walk(join.exp))
         return stopnloop(out)
 
-    def walk_choice(self, choice: grammars.Choice) -> RailTracks:
+    def walk_choice(self, choice: grammars.Choice) -> Rails:
         return lay_out([self.walk(o) for o in choice.options])
 
-    def walk_option(self, option: grammars.Option) -> RailTracks:
+    def walk_option(self, option: grammars.Option) -> Rails:
         return self.walk(option.exp)
 
-    def walk_sequence(self, s: grammars.Sequence) -> RailTracks:
+    def walk_sequence(self, s: grammars.Sequence) -> Rails:
         out = []
         for element in s.sequence:
             out = weld(out, self.walk(element))
         return assert_one_length(out)
 
-    def walk_call(self, call: grammars.Call) -> RailTracks:
+    def walk_call(self, call: grammars.Call) -> Rails:
         return [f"{call.name}"]
 
-    def walk_pattern(self, pattern: grammars.Pattern) -> RailTracks:
+    def walk_pattern(self, pattern: grammars.Pattern) -> Rails:
         pat = regexp(pattern.pattern).replace("r'", "").rstrip("'")
         return [f"/{pat}/─"]
 
-    def walk_token(self, token: grammars.Token) -> RailTracks:
+    def walk_token(self, token: grammars.Token) -> Rails:
         return [f"{token.token!r}"]
 
-    def walk_eof(self, eof: grammars.EOF) -> RailTracks:
+    def walk_eof(self, eof: grammars.EOF) -> Rails:
         return [f"⇥ {ETX} "]
 
-    def walk_lookahead(self, la: grammars.Lookahead) -> RailTracks:
+    def walk_lookahead(self, la: grammars.Lookahead) -> Rails:
         out = weld(['─ &['], self.walk(la.exp))
         out = weld(out, [']'])
         return out
 
-    def walk_negative_lookahead(self, la: grammars.NegativeLookahead) -> RailTracks:
+    def walk_negative_lookahead(self, la: grammars.NegativeLookahead) -> Rails:
         out = weld(['─ !['], self.walk(la.exp))
         out = weld(out, [']'])
         return out
 
-    def walk_void(self, v: grammars.Void) -> RailTracks:
+    def walk_void(self, v: grammars.Void) -> Rails:
         return [" ∅ "]
 
-    def walk_cut(self, cut: grammars.Cut) -> RailTracks:
+    def walk_cut(self, cut: grammars.Cut) -> Rails:
         return [" ✂ ─"]
 
-    def walk_fail(self, v) -> RailTracks:
+    def walk_fail(self, v) -> Rails:
         return [" ⚠ "]
 
-    def walk_override(self, override: grammars.Override) -> RailTracks:
+    def walk_override(self, override: grammars.Override) -> Rails:
         out = weld([' @:('], self.walk(override.exp))
         out = weld(out, [')'])
         return out
@@ -120,7 +120,7 @@ class RailroadNodeWalker(NodeWalker):
         out = weld(out, [')'])
         return out
 
-    def walk_constant(self, constant: grammars.Constant) -> RailTracks:
+    def walk_constant(self, constant: grammars.Constant) -> Rails:
         return [f'`{constant.literal}`']
 
     def walk_dot(self, dot: grammars.Dot):

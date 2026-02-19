@@ -4,88 +4,86 @@ from __future__ import annotations
 
 from ..util import unicode_display_len as ulen
 
-type RailTracks = list[str]
+type Rail = str
+type Rails = list[Rail]
 
 ETX = '␃'
 
 
-def assert_one_length(tracks: RailTracks) -> RailTracks:
-    if not tracks:
+def assert_one_length(rails: Rails) -> Rails:
+    if not rails:
         return []
 
-    length = ulen(tracks[0])
-    for rail in tracks:
+    length = ulen(rails[0])
+    for rail in rails:
         assert isinstance(rail, str), f'{rail=!r}'
         assert ulen(rail) == length
-    return tracks
+    return rails
 
 
-def lay_out(tracklist: list[RailTracks]) -> RailTracks:
+def lay_out(tracks: list[Rails]) -> Rails:
     # by Gemini 2026/02/17
 
-    if not tracklist:
+    if not tracks:
         return []
-    if len(tracklist) == 1:
-        return tracklist[0]
+    if len(tracks) == 1:
+        return tracks[0]
 
-    maxw = max(ulen(p[0]) if p else 0 for p in tracklist)
-    out: RailTracks = []
+    maxl = max(ulen(p[0]) if p else 0 for p in tracks)
+    out: Rails = []
 
-    for tracks in tracklist[:-1]:
-        if not tracks:
+    def lay(rrl: str, c: str) -> str:
+        return f'{rrl}{c * (maxl - ulen(rrl))}'
+
+    for rails in tracks[:-1]:
+        assert isinstance(rails, list), f'{rails=!r}'
+        if not rails:
             continue
-        assert isinstance(tracks, list), f'{tracks=!r}'
 
-        junction = tracks[0]
-        if ETX not in junction:
-            pad = "─" * (maxw - ulen(junction))
-            out += [f"  ├─{junction}{pad}─┤ "]
+        joint = rails[0]
+        if ETX not in joint:
+            out += [f"  ├─{lay(joint, '─')}─┤ "]
         else:
-            pad = " " * (maxw - ulen(junction))
-            out += [f"  ├─{junction}{pad} │ "]
+            out += [f"  ├─{lay(joint, ' ')} │ "]
 
-        for rail in tracks[1:]:
-            pad = " " * (maxw - ulen(rail))
-            out += [f"  │ {rail}{pad} │ "]
+        for rail in rails[1:]:
+            out += [f"  │ {lay(rail, ' ')} │ "]
 
-    last_track = tracklist[-1]
-    last_junction = last_track[0]
-    if ETX not in last_junction:
-        pad = "─" * (maxw - ulen(last_junction))
-        out += [f"  └─{last_junction}{pad}─┘ "]
+    # the last set of rails
+    rails = tracks[-1]
+    joint = rails[0]
+    if ETX not in joint:
+        out += [f"  └─{lay(joint, '─')}─┘ "]
     else:
-        pad = " " * (maxw - ulen(last_junction))
-        out += [f"  └─{last_junction}{pad}   "]
-        tracklist[-2][-3:-1] = '─┘ '
+        out[-1][-3:-1] = '─┘ '
+        out += [f"  └─{lay(joint, ' ')}   "]
 
-    for rail in last_track[1:]:
-        pad = " " * (maxw - ulen(rail))
-        out += [f"    {rail}{pad}   "]
+    for rail in rails[1:]:
+        out += [f"    {lay(rail, ' ')}   "]
 
-    first_junction = tracklist[0][0] if tracklist[0] else ''
-    if ETX not in first_junction:
-        pad = "─" * (maxw - ulen(first_junction))
-        out[0] = f"──┬─{first_junction}{pad}─┬─"
+    # the first rail
+    joint = tracks[0][0] if tracks[0] else ''
+    if ETX not in joint:
+        out[0] = f"──┬─{lay(joint, '─')}─┬─"
     else:
-        pad = " " * (maxw - ulen(first_junction))
-        out[0] = f"──┬─{first_junction}{pad} ┬─"
+        out[0] = f"──┬─{lay(joint, ' ')} ┬─"
 
     return assert_one_length(out)
 
 
-def loop_tail(rails: RailTracks, max_w: int) -> RailTracks:
+def looptail(rails: Rails, maxl: int) -> Rails:
     out = []
     for line in rails:
-        pad = " " * (max_w - ulen(line))
+        pad = " " * (maxl - ulen(line))
         out += [f"  │ {line}{pad} │  "]
 
-    loop_rail = "─" * max_w
+    loop_rail = "─" * maxl
     out += [f"  └─{loop_rail}<┘  "]
 
     return assert_one_length(out)
 
 
-def stopnloop(rails: RailTracks) -> RailTracks:
+def stopnloop(rails: Rails) -> Rails:
     # by Gemini 2026/02/17
     if not rails:
         return ["───>───"]
@@ -97,50 +95,50 @@ def stopnloop(rails: RailTracks) -> RailTracks:
     first_pad = "─" * (max_w - ulen(first))
     out += [f"──┬─{first}{first_pad}─┬──"]
 
-    out += loop_tail(rails[1:], max_w)
+    out += looptail(rails[1:], max_w)
     return assert_one_length(out)
 
 
-def loop(rails: RailTracks) -> RailTracks:
+def loop(rails: Rails) -> Rails:
     # by Gemini 2026/02/17
     if not rails:
         return ["───>───"]
 
-    max_w = max(ulen(line) for line in rails)
+    maxl = max(ulen(line) for line in rails)
     out = []
 
-    bypass_pad = "─" * max_w
+    bypass_pad = "─" * maxl
     out += [f"──┬→{bypass_pad}─┬──"]
 
     first = rails[0]
-    first_pad = "─" * (max_w - ulen(first))
+    first_pad = "─" * (maxl - ulen(first))
     out += [f"  ├→{first}{first_pad}─┤  "]  # xxx
 
-    out += loop_tail(rails[1:], max_w)
+    out += looptail(rails[1:], maxl)
     return assert_one_length(out)
 
 
-def weld(left: RailTracks, right: RailTracks) -> RailTracks:
+def weld(left: Rails, right: Rails) -> Rails:
     assert isinstance(left, list), f'{left=!r}'
     assert isinstance(right, list), f'{right=!r}'
 
     if not right or ETX in left:
-        return left.copy()
+        return left[:]
     if not left:
-        return right.copy()
+        return right[:]
 
-    left_width = ulen(left[0])
-    right_width = ulen(right[0])
-    final_height = max(len(left), len(right))
+    len_left = ulen(left[0])
+    len_right = ulen(right[0])
+    out_height = max(len(left), len(right))
     common_height = min(len(left), len(right))
 
-    out = left.copy()
-    for i in range(final_height):
+    out = left[:]
+    for i in range(out_height):
         if i < common_height:
             out[i] += right[i]
         elif i < len(out):
-            out[i] += f'{'':{right_width}}'
+            out[i] += f'{'':{len_right}}'
         else:
-            out += [f'{'':{left_width}}{right[i]}']
+            out += [f'{'':{len_left}}{right[i]}']
 
     return assert_one_length(out)
