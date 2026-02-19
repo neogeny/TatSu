@@ -5,10 +5,12 @@ from __future__ import annotations
 from typing import Any
 
 from tatsu import grammars
-from .railmath import ETX, Rails, assert_one_length, lay_out, loop, stopnloop, weld
+
 from ..util.abctools import join_lists
-from ..util.string import regexp, unicode_display_len as ulen
+from ..util.string import regexp
+from ..util.string import unicode_display_len as ulen
 from ..walkers import NodeWalker
+from .railmath import ETX, Rails, assert_one_length, lay_out, loop, stopnloop, weld
 
 
 def tracks(model: grammars.Grammar):
