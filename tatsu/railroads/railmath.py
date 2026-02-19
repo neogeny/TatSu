@@ -60,7 +60,7 @@ def lay_out(tracks: list[Rails]) -> Rails:
     if ETX not in joint:
         out += [f"  └─{rlay(joint)}─┘ "]
     else:
-        out[-1][-3:-1] = '─┘ '
+        out[-1] = out[-1][:-3] + '─┘ '
         out += [f"  └─{blay(joint)}   "]
 
     for rail in rails[1:]:

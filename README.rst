@@ -210,42 +210,42 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
 
     start ●─grammar─■
 
-    grammar ●─`TATSU`──┬→─────────────────┬──rule──┬→───────────────┬──⇥ ␃ ─■
-                       ├→──┬─directive─┬──┤        ├→──┬─rule────┬──┤
-                       │   └─keyword───┘  │        │   └─keyword─┘  │
-                       └─────────────────<┘        └───────────────<┘
+    grammar∷Grammar ●─ [title](`TATSU`)──┬→─────────────────────────────────┬── [rules]+(rule)──┬→─────────────────────────────┬──⇥ ␃ ─■
+                                         ├→──┬─ [directives]+(directive)─┬──┤                   ├→──┬─ [rules]+(rule)───────┬──┤
+                                         │   └─ [keywords]+(keyword)─────┘  │                   │   └─ [keywords]+(keyword)─┘  │
+                                         └─────────────────────────────────<┘                   └─────────────────────────────<┘
 
-    directive ●─'@@'─ !['keyword'] ✂ ───┬───┬─'comments'─────┬─ ✂ ─ ✂ ─'::' ✂ ─regex────────┬─ ✂ ──■
-                                        │   └─'eol_comments'─┘                              │
-                                        ├─'whitespace' ✂ ─'::' ✂ ───┬─regex───┬─────────────┤
-                                        │                           ├─string──┤             │
-                                        │                           ├─'None'──┤             │
-                                        │                           ├─'False'─┤             │
-                                        │                           └─`None`──┘             │
-                                        ├───┬─'nameguard'──────┬─ ✂ ───┬─'::' ✂ ─boolean─┬──┤
-                                        │   ├─'ignorecase'─────┤       └─`True`──────────┘  │
-                                        │   ├─'left_recursion'─┤                            │
-                                        │   ├─'parseinfo'──────┤                            │
-                                        │   └─'memoization'────┘                            │
-                                        ├─'grammar' ✂ ─'::' ✂ ─word─────────────────────────┤
-                                        └─'namechars' ✂ ─'::' ✂ ─string─────────────────────┘
+    directive ●─'@@'─ !['keyword'] ✂ ───┬─ [name](──┬─'comments'─────┬─) ✂ ─ ✂ ─'::' ✂ ─ [value](regex)────────┬─ ✂ ──■
+                                        │           └─'eol_comments'─┘                                         │
+                                        ├─ [name]('whitespace') ✂ ─'::' ✂ ─ [value](──┬─regex───┬─)────────────┤
+                                        │                                             ├─string──┤              │
+                                        │                                             ├─'None'──┤              │
+                                        │                                             ├─'False'─┤              │
+                                        │                                             └─`None`──┘              │
+                                        ├─ [name](──┬─'nameguard'──────┬─) ✂ ───┬─'::' ✂ ─ [value](boolean)─┬──┤
+                                        │           ├─'ignorecase'─────┤        └─ [value](`True`)──────────┘  │
+                                        │           ├─'left_recursion'─┤                                       │
+                                        │           ├─'parseinfo'──────┤                                       │
+                                        │           └─'memoization'────┘                                       │
+                                        ├─ [name]('grammar') ✂ ─'::' ✂ ─ [value](word)─────────────────────────┤
+                                        └─ [name]('namechars') ✂ ─'::' ✂ ─ [value](string)─────────────────────┘
 
     keywords ●───┬─keywords─┬───■
                  └─────────<┘
 
-    keyword ●─'@@keyword' ✂ ─'::' ✂ ───┬→───────────────────────────────────┬───■
-                                       ├→ @+:(──┬─word───┬─)─ ![──┬─':'─┬─]─┤
-                                       │        └─string─┘        └─'='─┘   │
-                                       └───────────────────────────────────<┘
+    keyword ●─'@@keyword' ✂ ─'::' ✂ ───┬→──────────────────────────────────┬───■
+                                       ├→ @+(──┬─word───┬─)─ ![──┬─':'─┬─]─┤
+                                       │       └─string─┘        └─'='─┘   │
+                                       └──────────────────────────────────<┘
 
-    paramdef ●───┬─'::' ✂ ─params─────────────────────────┬──■
-                 └─'(' ✂ ───┬─kwparams──────────────┬─')'─┘
-                            ├─params',' ✂ ─kwparams─┤
-                            └─params────────────────┘
+    paramdef ●───┬─'::' ✂ ─ [params](params)──────────────────────────────────────┬──■
+                 └─'(' ✂ ───┬─ [kwparams](kwparams)─────────────────────────┬─')'─┘
+                            ├─ [params](params)',' ✂ ─ [kwparams](kwparams)─┤
+                            └─ [params](params)─────────────────────────────┘
 
-    rule ●───┬→──────────┬──name ✂ ───┬─→ >( <'paramdef'> )─┬───┬─→'<' ✂ ─known_name─┬───┬─'='──┬─ ✂ ─expreRULE_END ✂ ──■
-             ├→decorator─┤            └─→───────────────────┘   └─→──────────────────┘   ├─':='─┤
-             └──────────<┘                                                               └─':'──┘
+    rule∷Rule ●─ [decorators](──┬→──────────┬──) [name](name) ✂ ───┬─→ >( <'paramdef'> )─┬───┬─→'<' ✂ ─ [base](known_name)─┬───┬─'='──┬─ ✂ ─ [exp](expre)RULE_END ✂ ──■
+                                ├→decorator─┤                      └─→───────────────────┘   └─→───────────────────────────┘   ├─':='─┤
+                                └──────────<┘                                                                                  └─':'──┘
 
     RULE_END ●───┬─EMPTYLINE──┬─→';'─┬──┬──■
                  │            └─→────┘  │
@@ -254,13 +254,13 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
 
     EMPTYLINE ●─/(?:\s*(?:\r?\n|\r)){2,}/──■
 
-    decorator ●─'@'─ !['@'] ✂ ─ @:(──┬─'override'─┬─)─■
-                                     ├─'name'─────┤
-                                     └─'nomemo'───┘
+    decorator ●─'@'─ !['@'] ✂ ─ @(──┬─'override'─┬─)─■
+                                    ├─'name'─────┤
+                                    └─'nomemo'───┘
 
-    params ●─ @+:(first_param)──┬→─────────────────────────────┬───■
-                                ├→',' @+:(literal)─ !['='] ✂ ──┤
-                                └─────────────────────────────<┘
+    params ●─ @+(first_param)──┬→────────────────────────────┬───■
+                               ├→',' @+(literal)─ !['='] ✂ ──┤
+                               └────────────────────────────<┘
 
     first_param ●───┬─path────┬──■
                     └─literal─┘
@@ -269,45 +269,45 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
                  ├→',' ✂ ─pair─┤
                  └────────────<┘
 
-    pair ●─ @+:(word)'=' ✂ ─ @+:(literal)─■
+    pair ●─ @+(word)'=' ✂ ─ @+(literal)─■
 
     expre ●───┬─choice───┬──■
               └─sequence─┘
 
-    choice ●───┬─→'|' ✂ ──┬─ @+:(option)──┬─'|' ✂ ─ @+:(option)─┬───■
-               └─→────────┘               └────────────────────<┘
+    choice∷Choice ●───┬─→'|' ✂ ──┬─ @+(option)──┬─'|' ✂ ─ @+(option)─┬───■
+                      └─→────────┘              └───────────────────<┘
 
-    option ●─ @:(sequence)─■
+    option∷Option ●─ @(sequence)─■
 
-    sequence ●───┬── &[element',']──┬→───────────────┬───┬──■
-                 │                  ├→',' ✂ ─element─┤   │
-                 │                  └───────────────<┘   │
-                 └───┬── ![EMPTYLINE]element─┬───────────┘
-                     └──────────────────────<┘
+    sequence∷Sequence ●───┬── &[element',']──┬→───────────────┬───┬──■
+                          │                  ├→',' ✂ ─element─┤   │
+                          │                  └───────────────<┘   │
+                          └───┬── ![EMPTYLINE]element─┬───────────┘
+                              └──────────────────────<┘
 
     element ●───┬─rule_include─┬──■
                 ├─named────────┤
                 ├─override─────┤
                 └─term─────────┘
 
-    rule_include ●─'>' ✂ ─ @:(known_name)─■
+    rule_include∷RuleInclude ●─'>' ✂ ─ @(known_name)─■
 
     named ●───┬─named_list───┬──■
               └─named_single─┘
 
-    named_list ●─name'+:' ✂ ─term─■
+    named_list∷NamedList ●─ [name](name)'+:' ✂ ─ [exp](term)─■
 
-    named_single ●─name':' ✂ ─term─■
+    named_single∷Named ●─ [name](name)':' ✂ ─ [exp](term)─■
 
     override ●───┬─override_list──────────────┬──■
                  ├─override_single────────────┤
                  └─override_single_deprecated─┘
 
-    override_list ●─'@+:' ✂ ─ @:(term)─■
+    override_list∷OverrideList ●─'@+:' ✂ ─ @(term)─■
 
-    override_single ●─'@:' ✂ ─ @:(term)─■
+    override_single∷Override ●─'@:' ✂ ─ @(term)─■
 
-    override_single_deprecated ●─'@' ✂ ─ @:(term)─■
+    override_single_deprecated∷Override ●─'@' ✂ ─ @(term)─■
 
     term ●───┬─void───────────────┬──■
              ├─gather─────────────┤
@@ -325,52 +325,52 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
              ├─cut_deprecated─────┤
              └─atom───────────────┘
 
-    group ●─'(' ✂ ─ @:(expre)')' ✂ ──■
+    group∷Group ●─'(' ✂ ─ @(expre)')' ✂ ──■
 
     gather ●── &[atom'.{'] ✂ ───┬─positive_gather─┬──■
                                 └─normal_gather───┘
 
-    positive_gather ●─atom'.{'expre'}'──┬─'+'─┬─ ✂ ──■
-                                        └─'-'─┘
+    positive_gather∷PositiveGather ●─ [sep](atom)'.{' [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
+                                                                       └─'-'─┘
 
-    normal_gather ●─atom'.{' ✂ ─expre'}'──┬─→'*' ✂ ──┬─ ✂ ──■
-                                          └─→────────┘
+    normal_gather∷Gather ●─ [sep](atom)'.{' ✂ ─ [exp](expre)'}'──┬─→'*' ✂ ──┬─ ✂ ──■
+                                                                 └─→────────┘
 
     join ●── &[atom'%{'] ✂ ───┬─positive_join─┬──■
                               └─normal_join───┘
 
-    positive_join ●─atom'%{'expre'}'──┬─'+'─┬─ ✂ ──■
-                                      └─'-'─┘
+    positive_join∷PositiveJoin ●─ [sep](atom)'%{' [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
+                                                                   └─'-'─┘
 
-    normal_join ●─atom'%{' ✂ ─expre'}'──┬─→'*' ✂ ──┬─ ✂ ──■
-                                        └─→────────┘
+    normal_join∷Join ●─ [sep](atom)'%{' ✂ ─ [exp](expre)'}'──┬─→'*' ✂ ──┬─ ✂ ──■
+                                                             └─→────────┘
 
-    left_join ●─atom'<{' ✂ ─expre'}'──┬─'+'─┬─ ✂ ──■
-                                      └─'-'─┘
+    left_join∷LeftJoin ●─ [sep](atom)'<{' ✂ ─ [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
+                                                               └─'-'─┘
 
-    right_join ●─atom'>{' ✂ ─expre'}'──┬─'+'─┬─ ✂ ──■
-                                       └─'-'─┘
+    right_join∷RightJoin ●─ [sep](atom)'>{' ✂ ─ [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
+                                                                 └─'-'─┘
 
-    positive_closure ●───┬─'{' @:(expre)'}'──┬─'-'─┬─ ✂ ──┬──■
-                         │                   └─'+'─┘      │
-                         └─ @:(atom)'+' ✂ ────────────────┘
+    positive_closure∷PositiveClosure ●───┬─'{' @(expre)'}'──┬─'-'─┬─ ✂ ──┬──■
+                                         │                  └─'+'─┘      │
+                                         └─ @(atom)'+' ✂ ────────────────┘
 
-    closure ●───┬─'{' @:(expre)'}'──┬─→'*'─┬─ ✂ ──┬──■
-                │                   └─→────┘      │
-                └─ @:(atom)'*' ✂ ─────────────────┘
+    closure∷Closure ●───┬─'{' @(expre)'}'──┬─→'*'─┬─ ✂ ──┬──■
+                        │                  └─→────┘      │
+                        └─ @(atom)'*' ✂ ─────────────────┘
 
-    empty_closure ●─'{' @:( ∅ )'}'─■
+    empty_closure∷EmptyClosure ●─'{}' ✂ ─ @( ∅ )─■
 
-    optional ●───┬─'[' ✂ ─ @:(expre)']' ✂ ──────────┬──■
-                 └─ @:(atom)─ ![──┬─'?"'─┬─]'?' ✂ ──┘
-                                  ├─"?'"─┤
-                                  └─'?/'─┘
+    optional∷Optional ●───┬─'[' ✂ ─ @(expre)']' ✂ ──────────┬──■
+                          └─ @(atom)─ ![──┬─'?"'─┬─]'?' ✂ ──┘
+                                          ├─"?'"─┤
+                                          └─'?/'─┘
 
-    lookahead ●─'&' ✂ ─ @:(term)─■
+    lookahead∷Lookahead ●─'&' ✂ ─ @(term)─■
 
-    negative_lookahead ●─'!' ✂ ─ @:(term)─■
+    negative_lookahead∷NegativeLookahead ●─'!' ✂ ─ @(term)─■
 
-    skip_to ●─'->' ✂ ─ @:(term)─■
+    skip_to∷SkipTo ●─'->' ✂ ─ @(term)─■
 
     atom ●───┬─group────┬──■
              ├─token────┤
@@ -381,28 +381,28 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
              ├─dot──────┤
              └─eof──────┘
 
-    call ●─word─■
+    call∷Call ●─word─■
 
-    void ●─'()' ✂ ──■
+    void∷Void ●─'()' ✂ ──■
 
-    fail ●─'!()' ✂ ──■
+    fail∷Fail ●─'!()' ✂ ──■
 
-    cut ●─'~' ✂ ──■
+    cut∷Cut ●─'~' ✂ ──■
 
-    cut_deprecated ●─'>>' ✂ ──■
+    cut_deprecated∷Cut ●─'>>' ✂ ──■
 
     known_name ●─name ✂ ──■
 
     name ●─word─■
 
-    constant ●── &['`']──┬─/(?ms)```((?:.|\n)*?)```/──┬──■
-                         ├─'`' @:(literal)'`'─────────┤
-                         └─/`(.*?)`/──────────────────┘
+    constant∷Constant ●── &['`']──┬─/(?ms)```((?:.|\n)*?)```/──┬──■
+                                  ├─'`' @(literal)'`'──────────┤
+                                  └─/`(.*?)`/──────────────────┘
 
-    alert ●─/\^+/─constant─■
+    alert∷Alert ●─ [level](/\^+/─) [message](constant)─■
 
-    token ●───┬─string─────┬──■
-              └─raw_string─┘
+    token∷Token ●───┬─string─────┬──■
+                    └─raw_string─┘
 
     literal ●───┬─string─────┬──■
                 ├─raw_string─┤
@@ -415,10 +415,10 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
 
     string ●─STRING─■
 
-    raw_string ●─//─ @:(STRING)─■
+    raw_string ●─//─ @(STRING)─■
 
-    STRING ●───┬─ @:(/"((?:[^"\n]|\\"|\\\\)*?)"/─) ✂ ─────┬──■
-               └─ @:(/r"'((?:[^'\n]|\\'|\\\\)*?)'"/─) ✂ ──┘
+    STRING ●───┬─ @(/"((?:[^"\n]|\\"|\\\\)*?)"/─) ✂ ─────┬──■
+               └─ @(/r"'((?:[^'\n]|\\'|\\\\)*?)'"/─) ✂ ──┘
 
     hex ●─/0[xX](?:\d|[a-fA-F])+/──■
 
@@ -430,26 +430,26 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
 
     word ●─/(?!\d)\w+/──■
 
-    dot ●─'/./'─■
+    dot∷Dot ●─'/./'─■
 
-    pattern ●─regexes─■
+    pattern∷Pattern ●─regexes─■
 
     regexes ●───┬→─────────────┬───■
                 ├→'+' ✂ ─regex─┤
                 └─────────────<┘
 
-    regex ●───┬─'/' ✂ ─ @:(/(?:[^/\\]|\\/|\\.)*/─)'/' ✂ ──┬──■
-              ├─'?' @:(STRING)────────────────────────────┤
-              └─deprecated_regex──────────────────────────┘
+    regex ●───┬─'/' ✂ ─ @(/(?:[^/\\]|\\/|\\.)*/─)'/' ✂ ──┬──■
+              ├─'?' @(STRING)────────────────────────────┤
+              └─deprecated_regex─────────────────────────┘
 
-    deprecated_regex ●─'?/' ✂ ─ @:(/(?:.|\n)*?(?=/\?)/─)//\?+/─ ✂ ──■
+    deprecated_regex ●─'?/' ✂ ─ @(/(?:.|\n)*?(?=/\?)/─)//\?+/─ ✂ ──■
 
     boolean ●───┬─'True'──┬──■
                 └─'False'─┘
 
     null ●─'None'─■
 
-    eof ●─'$' ✂ ──■
+    eof∷EOF ●─'$' ✂ ──■
 
 
 

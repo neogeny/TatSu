@@ -5,10 +5,12 @@ from __future__ import annotations
 from typing import Any
 
 from tatsu import grammars
-from .railmath import ETX, Rails, assert_one_length, lay_out, loop, stopnloop, weld
+
 from ..util.abctools import join_lists
-from ..util.string import regexp, unicode_display_len as ulen
+from ..util.string import regexp
+from ..util.string import unicode_display_len as ulen
 from ..walkers import NodeWalker
+from .railmath import ETX, Rails, assert_one_length, lay_out, loop, stopnloop, weld
 
 
 def tracks(model: grammars.Grammar):
@@ -38,7 +40,27 @@ class RailroadNodeWalker(NodeWalker):
         return join_lists(*(self.walk(r) for r in grammar.rules))
 
     def walk_rule(self, rule: grammars.Rule) -> Rails:
-        out = [f'{rule.name} ●─']
+        decorators = ''
+        if rule.decorators:
+            decorators = ' '.join(f'@{d}' for d in rule.decorators) + ' '
+
+        params = ''
+        if rule.params:
+            params = '∷' + ','.join(p for p in rule.params)
+        if rule.kwparams:
+            params = ',' + ','.join(f'{k}={v}' for k, v in rule.kwparams.items())
+
+        leftrec = ''
+        if rule.is_leftrec:
+            leftrec = '⟳'
+        elif not rule.is_memoizable:
+            leftrec = '⊬'
+
+        base = ''
+        if rule.base:
+            base = f"≤({rule.base})"
+
+        out = [f'{decorators}{leftrec}{rule.name}{base}{params} ●─']
         out = weld(out, self.walk(rule.exp))
         if ETX not in out:
             out = weld(out, ['─■'])
@@ -159,4 +181,3 @@ class RailroadNodeWalker(NodeWalker):
         out = weld([' @+('], self.walk(override.exp))
         out = weld(out, [')'])
         return out
-
