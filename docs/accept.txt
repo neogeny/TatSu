@@ -8,6 +8,8 @@
 Juancarlo
 Añez
 Chaudhary
+Kim
+Mens
 Knupp
 Majda
 Rahul
@@ -36,6 +38,7 @@ parseinfo
 parser's
 pegen
 pythonic
+recurse
 trace_length
 trace_separator
 tokenization
