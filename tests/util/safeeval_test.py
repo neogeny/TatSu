@@ -13,8 +13,11 @@ from tatsu.util.safeeval import SecurityError, check_safe_eval, safe_eval
 
 
 class MockObj:
-    def __init__(self, val): self.val = val
-    def do_it(self): return self.val
+    def __init__(self, val):
+        self.val = val
+
+    def do_it(self):
+        return self.val
 
 
 def test_simple_context_eval():

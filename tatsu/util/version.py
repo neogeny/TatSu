@@ -69,13 +69,9 @@ class Version:
         return str(self.astuple())
 
     def astuple(self):
-        notnone = (
-            {
-                name: value
-                for name, value in asdict(self).items()
-                if value is not None
-            }
-        )
+        notnone = {
+            name: value for name, value in asdict(self).items() if value is not None
+        }
         return namedtuple('version_info', notnone.keys())(*notnone.values())
 
     @staticmethod
@@ -89,7 +85,7 @@ class Version:
                 return None, None  # type: ignore
 
             alpha = ''.join(takewhile(str.isalpha, s))
-            digits = s[len(alpha):]
+            digits = s[len(alpha) :]
             if digits.isdigit():
                 digits = int(digits)
             return alpha, digits
@@ -113,7 +109,11 @@ class Version:
             parts[key] = alphadigit_split(parts[key])[1]
 
         return Version(
-            major=major, minor=minor, micro=micro, nano=nano,
-            level=level, serial=serial,
+            major=major,
+            minor=minor,
+            micro=micro,
+            nano=nano,
+            level=level,
+            serial=serial,
             **rowselect({'epoch', 'post', 'dev', 'local'}, parts),
         )

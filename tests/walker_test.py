@@ -1,12 +1,12 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 from collections import defaultdict
 
 import tatsu
 from tatsu.util import asjsons
-from tatsu.walkers import (
-    BreadthFirstWalker,
-    DepthFirstWalker,
-    NodeWalker,
-)
+from tatsu.walkers import BreadthFirstWalker, DepthFirstWalker, NodeWalker
 
 
 def test_walk_node_ast():
@@ -70,22 +70,12 @@ def test_cache_per_class():
     class PW(DepthFirstWalker):
         pass
 
-    assert isinstance(
-        NodeWalker._walker_cache, dict,
-    )
-    assert isinstance(
-        DepthFirstWalker._walker_cache, dict,
-    )
+    assert isinstance(NodeWalker._walker_cache, dict)
+    assert isinstance(DepthFirstWalker._walker_cache, dict)
     assert isinstance(PW._walker_cache, dict)
 
-    assert id(NodeWalker._walker_cache) != id(
-        DepthFirstWalker.walker_cache,
-    )
-    assert id(PW._walker_cache) != id(
-        DepthFirstWalker._walker_cache,
-    )
+    assert id(NodeWalker._walker_cache) != id(DepthFirstWalker.walker_cache)
+    assert id(PW._walker_cache) != id(DepthFirstWalker._walker_cache)
 
     walker = PW()
-    assert id(walker.walker_cache) == id(
-        PW._walker_cache,
-    )
+    assert id(walker.walker_cache) == id(PW._walker_cache)

@@ -1,8 +1,11 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 """
 Unit tests for tatsu.util.safeeval
 # by Gemini (2026-01-26)
 # by [apalala@gmail.com](https://github.com/apalala)
 """
+from __future__ import annotations
 
 import pytest
 
@@ -56,10 +59,7 @@ class TestMakeHashableMemoization:
         Tests a 'Diamond' structure where two branches point to the same object.
         """
         shared_leaf = {"key": "value"}
-        context = {
-            "branch_a": [shared_leaf],
-            "branch_b": [shared_leaf],
-        }
+        context = {"branch_a": [shared_leaf], "branch_b": [shared_leaf]}
 
         result = make_hashable(context)
 

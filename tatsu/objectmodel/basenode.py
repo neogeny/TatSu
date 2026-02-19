@@ -19,22 +19,21 @@ __all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
 
 
 TatSuDataclassParams = dict(  # noqa: C408
-    eq=False,
-    repr=False,
-    match_args=False,
-    unsafe_hash=False,
-    kw_only=True,
+    eq=False, repr=False, match_args=False, unsafe_hash=False, kw_only=True
 )
 
 
 @overload
 def tatsudataclass[T: type](cls: T) -> T: ...
 
+
 @overload
 def tatsudataclass[T: type](**params: Any) -> Callable[[T], T]: ...
 
 
-def tatsudataclass[T: type](cls: T | None = None, **params: Any) -> T | Callable[[T], T]:
+def tatsudataclass[T: type](
+    cls: T | None = None, **params: Any
+) -> T | Callable[[T], T]:
     # by Gemini (2026-02-07)
     # by [apalala@gmail.com](https://github.com/apalala)
 
@@ -132,8 +131,7 @@ class BaseNode(AsJSONMixin):
 
     def __repr__(self) -> str:
         fieldindex = {
-            f.name: i
-            for i, f in enumerate(dataclasses.fields(self))  # type: ignore
+            f.name: i for i, f in enumerate(dataclasses.fields(self))  # type: ignore
         }
 
         def fieldorder(n) -> int:
@@ -142,9 +140,7 @@ class BaseNode(AsJSONMixin):
         pub = self.__pub__()
         sortedkeys = sorted(pub.keys(), key=fieldorder)
         attrs = ', '.join(
-            f'{name}={pub[name]!r}'
-            for name in sortedkeys
-            if pub[name] is not None
+            f'{name}={pub[name]!r}' for name in sortedkeys if pub[name] is not None
         )
         return f'{type(self).__name__}({attrs})'
 
@@ -161,12 +157,11 @@ class BaseNode(AsJSONMixin):
 
     def __getstate__(self) -> Any:
         return {
-            name: value
-            if not isinstance(
-                value,
-                (weakref.ReferenceType, *weakref.ProxyTypes),
+            name: (
+                value
+                if not isinstance(value, (weakref.ReferenceType, *weakref.ProxyTypes))
+                else None
             )
-            else None
             for name, value in vars(self).items()
         }
 

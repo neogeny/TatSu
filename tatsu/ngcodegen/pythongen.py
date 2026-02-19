@@ -125,13 +125,10 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self._reset_counter()
         params = kwparams = ''
         if rule.params:
-            params = ', '.join(
-                param_repr(self.walk(p)) for p in rule.params
-            )
+            params = ', '.join(param_repr(self.walk(p)) for p in rule.params)
         if rule.kwparams:
             kwparams = ', '.join(
-                f'{k}={param_repr(self.walk(v))}'
-                for k, v in rule.kwparams.items()
+                f'{k}={param_repr(self.walk(v))}' for k, v in rule.kwparams.items()
             )
 
         if params and kwparams:
@@ -140,22 +137,16 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             params = kwparams
 
         leftrec = '\n@leftrec' if rule.is_leftrec else ''
-        nomemo = (
-            '\n@nomemo'
-            if not rule.is_memoizable and not leftrec
-            else ''
-        )
+        nomemo = '\n@nomemo' if not rule.is_memoizable and not leftrec else ''
         isname = '\n@isname' if rule.is_name else ''
 
-        self.print(
-            f"""
+        self.print(f"""
                 @rule({params})\
                 {leftrec}\
                 {nomemo}\
                 {isname}\
                 \ndef _{rule.name}_(self):
-            """,
-        )
+            """)
         with self.indent():
             self.print(self.walk(rule.exp))
 
@@ -338,8 +329,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         elif whitespace is not None:
             whitespace = regexp(whitespace)
 
-        self.print(
-            f'''
+        self.print(f'''
                 config = ParserConfig.new(
                     config,
                     whitespace={whitespace},
@@ -353,15 +343,16 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
                     start={start!r},
                 )
                 config = config.override(**settings)
-            ''',
-        )
+            ''')
         self.print()
 
     def _gen_buffering(self, grammar: grammars.Grammar, parser_name: str):
         self.print(f'class {parser_name}Buffer(Buffer):')
 
         with self.indent():
-            self.print('def __init__(self, text, /, config: ParserConfig | None = None, **settings):')
+            self.print(
+                'def __init__(self, text, /, config: ParserConfig | None = None, **settings):'
+            )
             with self.indent():
                 self._gen_init(grammar)
                 self.print('super().__init__(text, config=config)')
@@ -371,7 +362,9 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print()
         self.print(f'class {parser_name}Parser(Parser):')
         with self.indent():
-            self.print('def __init__(self, /, config: ParserConfig | None = None, **settings):')
+            self.print(
+                'def __init__(self, /, config: ParserConfig | None = None, **settings):'
+            )
             with self.indent():
                 self._gen_init(grammar)
                 self.print('super().__init__(config=config)')
@@ -382,11 +375,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
     def _gen_defines_declaration(self, node: grammars.Model):
         defines = compress_seq(node.defines())
         ldefs = {safe_name(d) for d, value in defines if value}
-        sdefs = {
-            safe_name(d)
-            for d, value in defines
-            if not value and d not in ldefs
-        }
+        sdefs = {safe_name(d) for d, value in defines if not value and d not in ldefs}
 
         if not (sdefs or ldefs):
             return
@@ -406,7 +395,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
     def _gen_block(self, exp: grammars.Model, name='block'):
         if () in exp.lookahead():
             raise CodegenError(
-                f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}',
+                f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}'
             )
 
         n = self._next_n()

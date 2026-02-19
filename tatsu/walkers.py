@@ -15,7 +15,9 @@ type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
 
 class NodeWalker:
     # note: this is shared among all instances of the same sublass of NodeWalker
-    _walker_cache: ClassVar[dict[str, WalkerMethod | None]] = {}  # pyright: ignore[reportRedeclaration]
+    _walker_cache: ClassVar[dict[str, WalkerMethod | None]] = (
+        {}
+    )  # pyright: ignore[reportRedeclaration]
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -31,19 +33,19 @@ class NodeWalker:
     #  instead: define walk_xyz() methods
     def walk(self, node: Any, *args, **kwargs) -> Any:
         if isinstance(node, dict):
-            return type(node)({
-                name: self.walk(value, *args, **kwargs)
-                for name, value in node.items()
-                if value != node
-            })
-        elif isinstance(node, list | tuple | set):
             return type(node)(
-                self.walk(n, *args, **kwargs)
-                for n in node
-                if n != node
+                {
+                    name: self.walk(value, *args, **kwargs)
+                    for name, value in node.items()
+                    if value != node
+                }
             )
+        elif isinstance(node, list | tuple | set):
+            return type(node)(self.walk(n, *args, **kwargs) for n in node if n != node)
         elif (walker := self._find_walker(node)) and callable(walker):
-            return walker(self, node, *args, **kwargs)  # walkers are unbound, define self
+            return walker(
+                self, node, *args, **kwargs
+            )  # walkers are unbound, define self
         else:
             return node
 
@@ -54,8 +56,7 @@ class NodeWalker:
 
     def walk_children(self, node: Any, *args, **kwargs) -> tuple[Any, ...]:
         return tuple(
-            self.walk(child, *args, **kwargs)
-            for child in self.children_of(node)
+            self.walk(child, *args, **kwargs) for child in self.children_of(node)
         )
 
     # note: backwards compatibility
@@ -99,11 +100,11 @@ class NodeWalker:
                 class_stack = [*bases, *class_stack]
 
         walker = (
-            walker or
-            get_callable(cls, '_walk__default') or
-            get_callable(cls, '_walk_default') or
-            get_callable(cls, 'walk__default') or
-            get_callable(cls, 'walk_default')
+            walker
+            or get_callable(cls, '_walk__default')
+            or get_callable(cls, '_walk_default')
+            or get_callable(cls, 'walk__default')
+            or get_callable(cls, 'walk_default')
         )
 
         self._walker_cache[node_cls_qualname] = walker
@@ -129,7 +130,7 @@ class BreadthFirstWalker(NodeWalker):
     def iter_breadthfirst(self, node: Any, *args, **kwargs) -> Iterable[Any]:
         if self.queue is not None:
             raise RuntimeError(
-                f'{type(self).__name__}.walk_breadthfirst() called recursively',
+                f'{type(self).__name__}.walk_breadthfirst() called recursively'
             )
 
         self.queue = deque([node])
@@ -146,7 +147,7 @@ class BreadthFirstWalker(NodeWalker):
         An error during a BFS walk
         """
         raise RuntimeError(
-            f'{type(self).__name__}.walk_children() is not allowed in BFS mode',
+            f'{type(self).__name__}.walk_children() is not allowed in BFS mode'
         )
 
 

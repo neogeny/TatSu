@@ -1,3 +1,7 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 import types
 
 import pytest
@@ -135,18 +139,18 @@ def test_dynamic_compiled_ast():
     module = types.ModuleType('test')
     module.__file__ = 'test.py'
     exec(
-        compile(code, module.__file__, 'exec'), module.__dict__,
+        compile(code, module.__file__, 'exec'), module.__dict__
     )  # pylint: disable=exec-used, no-member
 
     dynamic_ast = parser.parse('TEST')
     compiled_ast = module.TestParser().parse(
-        'TEST', start='test',
+        'TEST', start='test'
     )  # pylint: disable=no-member
     assert dynamic_ast == compiled_ast
 
     dynamic_ast = parser.parse('TEST A 1')
     compiled_ast = module.TestParser().parse(
-        'TEST A 1', start='test',
+        'TEST A 1', start='test'
     )  # pylint: disable=no-member
     assert dynamic_ast == compiled_ast
 

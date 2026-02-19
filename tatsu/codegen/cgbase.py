@@ -1,8 +1,10 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from .rendering import Renderer, RenderingFormatter, render
 from ..exceptions import CodegenError
 from ..objectmodel import Node
-from .rendering import Renderer, RenderingFormatter, render
 
 __all__ = [
     'DelegatingRenderingFormatter',
@@ -72,11 +74,7 @@ class ModelRenderer(Renderer):
         template = fields.pop('template', None)
         if isinstance(self.node, Node):
             fields.update(
-                {
-                    k: v
-                    for k, v in vars(self.node).items()
-                    if not k.startswith('_')
-                },
+                {k: v for k, v in vars(self.node).items() if not k.startswith('_')}
             )
         else:
             fields.update(value=self.node)
@@ -143,9 +141,7 @@ class CodeGenerator:
 
         renderer_class = self._find_renderer_class(item)
         if renderer_class is None:
-            raise CodegenError(
-                f'Renderer not found for {type(item).__name__}',
-            )
+            raise CodegenError(f'Renderer not found for {type(item).__name__}')
         try:
             assert issubclass(renderer_class, ModelRenderer)
             return renderer_class(self, item)

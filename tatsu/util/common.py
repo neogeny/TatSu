@@ -44,9 +44,12 @@ def timestamp():
 try:
     import psutil
 except ImportError:
+
     def memory_use():
         return 0
+
 else:
+
     def memory_use():  # pyright: ignore[reportRedeclaration]
         process = psutil.Process(os.getpid())
         return process.memory_info().rss
@@ -138,9 +141,9 @@ def fqn(obj: Any) -> str:
 
 def is_reserved(name) -> bool:
     return (
-        keyword.iskeyword(name) or
-        keyword.issoftkeyword(name) or
-        name in {'type', 'list', 'dict', 'set'}
+        keyword.iskeyword(name)
+        or keyword.issoftkeyword(name)
+        or name in {'type', 'list', 'dict', 'set'}
     )
 
 

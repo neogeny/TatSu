@@ -39,11 +39,7 @@ class Base(ModelRenderer):
     def make_defines_declaration(self):
         defines = compress_seq(self.defines())
         ldefs = {safe_name(d) for d, value in defines if value}
-        sdefs = {
-            safe_name(d)
-            for d, value in defines
-            if not value and d not in ldefs
-        }
+        sdefs = {safe_name(d) for d, value in defines if not value and d not in ldefs}
 
         if not (sdefs or ldefs):
             return ''
@@ -77,9 +73,7 @@ class Fail(Base):
 
 class Comment(Base):
     def render_fields(self, fields):
-        lines = '\n'.join(
-            f'# {c!s}' for c in self.node.comment.splitlines()
-        )
+        lines = '\n'.join(f'# {c!s}' for c in self.node.comment.splitlines())
         fields.update(lines=lines)
 
     template = '\n{lines}\n'
@@ -168,9 +162,7 @@ class Choice(Base):
             error = ['no available options']
         error = [repr(e) for e in error]
         fields.update(n=self.counter(), error=error)
-        fields.update(
-            options='\n'.join(self.rend(o) for o in self.node.options),
-        )
+        fields.update(options='\n'.join(self.rend(o) for o in self.node.options))
 
     def render(self, **fields):
         if len(self.node.options) == 1:
@@ -380,13 +372,10 @@ class Rule(_Decorator):
 
         params = kwparams = ''
         if self.node.params:
-            params = ', '.join(
-                self.param_repr(self.rend(p)) for p in self.node.params
-            )
+            params = ', '.join(self.param_repr(self.rend(p)) for p in self.node.params)
         if self.node.kwparams:
             kwparams = ', '.join(
-                f'{k}={self.param_repr(self.rend(v))}'
-                for k, v in self.kwparams.items()
+                f'{k}={self.param_repr(self.rend(v))}' for k, v in self.kwparams.items()
             )
 
         if params and kwparams:
@@ -403,9 +392,7 @@ class Rule(_Decorator):
         leftrec = self.node.is_leftrec
         fields.update(leftrec='\n@leftrec' if leftrec else '')
         fields.update(
-            nomemo='\n@nomemo'
-            if not self.node.is_memoizable and not leftrec
-            else '',
+            nomemo='\n@nomemo' if not self.node.is_memoizable and not leftrec else ''
         )
         fields.update(isname='\n@isname' if self.node.is_name else '')
 
@@ -465,7 +452,7 @@ class Grammar(Base):
         eol_comments = repr(self.node.config.eol_comments)
 
         rules = '\n'.join(
-            [self.get_renderer(rule).render() for rule in self.node.rulemap],
+            [self.get_renderer(rule).render() for rule in self.node.rulemap]
         )
 
         version = str(tuple(int(n) for n in str(timestamp()).split('.')))

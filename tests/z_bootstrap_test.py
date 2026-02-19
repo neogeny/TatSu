@@ -54,10 +54,7 @@ def test_01_with_parser_generator():
 
 @pytest.mark.dependency('test_01_with_parser_generator')
 def test_02_previous_output_generator():
-    print(
-        '-' * 20,
-        'phase 02 - parse previous output with the parser generator',
-    )
+    print('-' * 20, 'phase 02 - parse previous output with the parser generator')
     text = Path('grammar/tatsu.tatsu').read_text()
     g = TatSuParserGenerator('TatSuBootstrap')
     result = g.parse(text)
@@ -167,11 +164,7 @@ def test_08_compile_with_generated():
     ast8 = json.dumps(asjson(result), indent=2)
     Path('./tmp/08.ast').write_text(ast8)
     print('DIFF')
-    pprint.pprint(
-        list(
-            difflib.unified_diff(ast0.splitlines(), ast8.splitlines()),
-        ),
-    )
+    pprint.pprint(list(difflib.unified_diff(ast0.splitlines(), ast8.splitlines())))
     assert ast0 == ast8
 
 
@@ -197,9 +190,7 @@ def test_10_with_model_and_semantics():
     parser = TatSuParserGenerator('TatSuBootstrap')
     g9 = parser.parse(text)
     g10 = g9.parse(
-        text,
-        start='start',
-        semantics=TatSuGrammarSemantics('TatSuBootstrap'),
+        text, start='start', semantics=TatSuGrammarSemantics('TatSuBootstrap')
     )
     generated_grammar10 = str(g10)
     Path('./tmp/10.tatsu').write_text(generated_grammar10)
@@ -214,18 +205,14 @@ def test_11_with_pickle_and_retry():
     parser = TatSuParserGenerator('TatSuBootstrap')
     g9 = parser.parse(text)
     g10 = g9.parse(
-        text,
-        start='start',
-        semantics=TatSuGrammarSemantics('TatSuBootstrap'),
+        text, start='start', semantics=TatSuGrammarSemantics('TatSuBootstrap')
     )
     with Path('./tmp/11.tatsuc').open('wb') as f:
         pickle.dump(g10, f)
     with Path('./tmp/11.tatsuc').open('rb') as f:
         g11 = pickle.load(f)
     r11 = g11.parse(
-        text,
-        start='start',
-        semantics=TatSuGrammarSemantics('TatSuBootstrap'),
+        text, start='start', semantics=TatSuGrammarSemantics('TatSuBootstrap')
     )
     Path('./tmp/11.tatsu').write_text(str(g11))
     gencode11 = pythongen(r11)

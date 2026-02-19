@@ -74,11 +74,7 @@ class DiagramNodeWalker(NodeWalker):
 
         self.top_graph = self.graphviz.Digraph(
             engine='dot',
-            graph_attr={
-                'rankdir': 'LR',
-                'packMode': 'clust',
-                'splines': 'true',
-            },
+            graph_attr={'rankdir': 'LR', 'packMode': 'clust', 'splines': 'true'},
         )
         self.stack = [self.top_graph]
         self.node_count = 0
@@ -140,9 +136,7 @@ class DiagramNodeWalker(NodeWalker):
 
     def rule_node(self, name, **attr):
         # Using the name as the ID for rules as per original logic
-        return self.node(
-            name, id=name, shape='box', style='bold', **attr,
-        )
+        return self.node(name, id=name, shape='box', style='bold', **attr)
 
     def end_node(self):
         return self.node('', shape='point', width='0.1')

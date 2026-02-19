@@ -26,7 +26,7 @@ DESCRIPTION = (
 
 def parse_args():
     argparser = argparse.ArgumentParser(
-        prog='tatsu', description=DESCRIPTION, add_help=False,
+        prog='tatsu', description=DESCRIPTION, add_help=False
     )
 
     main_mode = argparser.add_mutually_exclusive_group()
@@ -41,7 +41,7 @@ def parse_args():
         help=(
             'generate a diagram of the grammar'
             ' (.svg, .png, .jpeg, .dot, ...'
-             ' / requres --outfile)'
+            ' / requres --outfile)'
         ),
         action='store_true',
     )
@@ -65,9 +65,7 @@ def parse_args():
 
     ebnf_opts = argparser.add_argument_group('parse-time options')
     argparser.add_argument(
-        'filename',
-        metavar='GRAMMAR',
-        help='the filename of the TatSu grammar to parse',
+        'filename', metavar='GRAMMAR', help='the filename of the TatSu grammar to parse'
     )
     ebnf_opts.add_argument(
         '--color',
@@ -76,10 +74,7 @@ def parse_args():
         action='store_true',
     )
     ebnf_opts.add_argument(
-        '--trace',
-        '-t',
-        help='produce verbose parsing output',
-        action='store_true',
+        '--trace', '-t', help='produce verbose parsing output', action='store_true'
     )
 
     generation_opts = argparser.add_argument_group('generation options')
@@ -132,9 +127,7 @@ def parse_args():
 
             return getattr(module, spath[1])
         except Exception as e:
-            raise argparse.ArgumentTypeError(
-                f"Couldn't find class {path}",
-            ) from e
+            raise argparse.ArgumentTypeError(f"Couldn't find class {path}") from e
 
     generation_opts.add_argument(
         '--base-type',
@@ -145,7 +138,7 @@ def parse_args():
 
     std_args = argparser.add_argument_group('common options')
     std_args.add_argument(
-        '--help', '-h', help='show this help message and exit', action='help',
+        '--help', '-h', help='show this help message and exit', action='help'
     )
     std_args.add_argument(
         '--version',
@@ -201,17 +194,12 @@ def tatsu_main():
             left_recursion=args.left_recursion,
             nameguard=args.nameguard,
             whitespace=str(args.whitespace),
-
         )
-        model = api.compile(
-            grammar,
-            args.name,
-            asmodel=True,
-            config=config,
-        )
+        model = api.compile(grammar, args.name, asmodel=True, config=config)
 
         if args.draw:
             from .. import diagrams
+
             diagrams.draw(outfile, model)
         else:
             if args.pretty:
@@ -231,14 +219,11 @@ def tatsu_main():
             # if requested, always save it
             if args.object_model_outfile:
                 save(
-                    args.object_model_outfile,
-                    modelgen(model, basetype=args.base_type),
+                    args.object_model_outfile, modelgen(model, basetype=args.base_type)
                 )
 
         print('─' * 72, file=sys.stderr)
-        print(
-            f'{len(grammar.split()):12,d}  lines in grammar', file=sys.stderr,
-        )
+        print(f'{len(grammar.split()):12,d}  lines in grammar', file=sys.stderr)
         print(f'{len(model.rules):12,d}  rules in grammar', file=sys.stderr)
         print(f'{model.nodecount():12,d}  nodes in AST', file=sys.stderr)
     except ParseException as e:

@@ -6,27 +6,11 @@ import inspect
 import sys
 from types import MethodType
 
-from .contexts import (
-    ParseContext,
-    isname,
-    leftrec,
-    nomemo,
-    rule,
-)
-from .contexts import (
-    rule as tatsumasu,
-)
+from .contexts import ParseContext, isname, leftrec, nomemo, rule
+from .contexts import rule as tatsumasu
 from .exceptions import FailedRef
 
-__all__ = [
-    'Parser',
-    'generic_main',
-    'isname',
-    'leftrec',
-    'nomemo',
-    'rule',
-    'tatsumasu',
-]
+__all__ = ['Parser', 'generic_main', 'isname', 'leftrec', 'nomemo', 'rule', 'tatsumasu']
 
 
 class Parser(ParseContext):
@@ -72,13 +56,7 @@ def generic_main(custom_main, parser_class, name='Unknown'):
         help='use color in traces (requires the colorama library)',
         action='store_true',
     )
-    addarg(
-        '-l',
-        '--list',
-        action=ListRules,
-        nargs=0,
-        help='list all rules and exit',
-    )
+    addarg('-l', '--list', action=ListRules, nargs=0, help='list all rules and exit')
     addarg(
         '-n',
         '--no-nameguard',
@@ -86,15 +64,9 @@ def generic_main(custom_main, parser_class, name='Unknown'):
         dest='no_nameguard',
         help="disable the 'nameguard' feature",
     )
+    addarg('-t', '--trace', action='store_true', help='output trace information')
     addarg(
-        '-t', '--trace', action='store_true', help='output trace information',
-    )
-    addarg(
-        '-w',
-        '--whitespace',
-        type=str,
-        default=None,
-        help='whitespace specification',
+        '-w', '--whitespace', type=str, default=None, help='whitespace specification'
     )
     addarg(
         'file',

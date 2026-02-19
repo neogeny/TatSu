@@ -35,12 +35,16 @@ def test_semantics_not_class():
     bad_semantics = ModelBuilderSemantics  # NOTE: the class
     semantics = ModelBuilderSemantics()  # NOTE: the class
 
-    with pytest.raises(TypeError, match=r'semantics must be an object instance or None.*'):
+    with pytest.raises(
+        TypeError, match=r'semantics must be an object instance or None.*'
+    ):
         compile(grammar, semantics=bad_semantics)
         compile(grammar, semantics=bad_semantics)
 
     model = compile(grammar, 'test')
-    with pytest.raises(TypeError, match=r'semantics must be an object instance or None.*'):
+    with pytest.raises(
+        TypeError, match=r'semantics must be an object instance or None.*'
+    ):
         model.parse(text, semantics=bad_semantics)
 
     ast = model.parse(text, semantics=semantics)
@@ -72,7 +76,9 @@ def test_builder_semantics():
 
     semantics = ModelBuilderSemantics(constructors=[dotted])
     model = compile(grammar, 'test')
-    with pytest.raises(TypeResolutionError, match=r"Could not find constructor for type 'dotted'"):
+    with pytest.raises(
+        TypeResolutionError, match=r"Could not find constructor for type 'dotted'"
+    ):
         ast = model.parse(text, semantics=semantics)
         assert ast == '5.4.3.2.1'
 
@@ -93,20 +99,9 @@ def test_builder_subclassing():
     B = registry['B']
     C = registry['C']
 
-    assert (
-        issubclass(A, B) and
-        issubclass(A, synth.SynthNode) and
-        issubclass(A, Node)
-    )
-    assert (
-        issubclass(B, C) and
-        issubclass(B, synth.SynthNode) and
-        issubclass(A, Node)
-    )
-    assert (
-        issubclass(C, synth.SynthNode) and
-        issubclass(C, Node)
-    )
+    assert issubclass(A, B) and issubclass(A, synth.SynthNode) and issubclass(A, Node)
+    assert issubclass(B, C) and issubclass(B, synth.SynthNode) and issubclass(A, Node)
+    assert issubclass(C, synth.SynthNode) and issubclass(C, Node)
 
 
 def test_builder_basetype_codegen():
@@ -182,7 +177,9 @@ def test_constant_deep_eval():
     """
     model = compile(grammar)
 
-    with pytest.raises(FailedParse, match=r'Error evaluating constant.*ZeroDivisionError'):
+    with pytest.raises(
+        FailedParse, match=r'Error evaluating constant.*ZeroDivisionError'
+    ):
         # NOTE: only with multiple evaluation passes on constants
         model.parse('42 84', trace=True)
 

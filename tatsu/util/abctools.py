@@ -63,7 +63,7 @@ def extend_list(x: list[Any], n: int, default=None) -> None:
 
 def contains_sublist(lst: list[Any], sublst: list[Any]) -> bool:
     n = len(sublst)
-    return any(sublst == lst[i: i + n] for i in range(1 + len(lst) - n))
+    return any(sublst == lst[i : i + n] for i in range(1 + len(lst) - n))
 
 
 def join_lists(*lists: list[Any]) -> list[Any]:
@@ -148,23 +148,14 @@ def right_assoc(elements):
 
 
 def rowselect[K, V](
-    keys: Iterable[K],
-    row: dict[K, V],
-    *,
-    where: Predicate[K, V] = true,
+    keys: Iterable[K], row: dict[K, V], *, where: Predicate[K, V] = true
 ) -> dict[K, V]:
     # by [apalala@gmail.com](https://github.com/apalala)
     # by Gemini (2026-02-05)
-    return {
-        k: row[k]
-        for k in keys
-        if k in row and where(k, row[k])
-    }
+    return {k: row[k] for k in keys if k in row and where(k, row[k])}
 
 
 def select[K, V](
-    keys: Iterable[K],
-    *rows: dict[K, V],
-    where: Predicate[K, V] = true,
+    keys: Iterable[K], *rows: dict[K, V], where: Predicate[K, V] = true
 ) -> list[dict[K, V]]:
     return [rowselect(keys, row, where=where) for row in rows]

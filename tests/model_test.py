@@ -16,6 +16,7 @@ def test_node_kwargs() -> None:
     class Atom(Node):
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
+
         arguments: Any = None
         symbol: Any = None
 

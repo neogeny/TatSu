@@ -75,7 +75,7 @@ class ParserConfig(Config):
 
         if isinstance(self.semantics, type):
             raise TypeError(
-                f'semantics must be an object instance or None, not class {self.semantics!r}',
+                f'semantics must be an object instance or None, not class {self.semantics!r}'
             )
 
         self._deprecate_and_compile_comments()
@@ -84,8 +84,7 @@ class ParserConfig(Config):
         # note: handle deprecations gracefully
         if self.comments_re:
             warnings.warn(
-                'ParserConfig.comments_re is deprecated: use `comments`',
-                stacklevel=3,
+                'ParserConfig.comments_re is deprecated: use `comments`', stacklevel=3
             )
             if not self.comments:
                 self.comments = str(self.comments_re)

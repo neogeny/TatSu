@@ -115,6 +115,7 @@ class PatternTests(unittest.TestCase):
         """
         model = compile(grammar=trim(grammar))
         from tatsu import grammars
+
         assert isinstance(model.rules[0].exp, grammars.Sequence)
         print(pythongen(model.rules[0].exp.sequence[0]))
         self.assertEqual(

@@ -4,10 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Iterator
 
-from ..grammars import (
-    Grammar,
-    Rule,
-)
+from ..grammars import Grammar, Rule
 
 type RuleName = str
 type Headmap = dict[RuleName, set[RuleName]]
@@ -37,9 +34,7 @@ class GrammarAnalysis:
 
         return {
             rule.name: {
-                str(la[0])
-                for la in rule.lookahead()
-                if la and is_rule_name(str(la[0]))
+                str(la[0]) for la in rule.lookahead() if la and is_rule_name(str(la[0]))
             }
             for rule in self.grammar.rules
         }
@@ -107,10 +102,10 @@ class GrammarAnalysis:
                     leaders &= set(cycle)
                 # if not leaders:
                 #     break
-                    # raise ValueError(
-                    #     f"SCC {scc} {leaders} has no leadership candidate"
-                    #     " (no element is included in all cycles)"
-                    # )
+                # raise ValueError(
+                #     f"SCC {scc} {leaders} has no leadership candidate"
+                #     " (no element is included in all cycles)"
+                # )
         return leaders
 
     def find_cycles_in_scc(self, scc: SCC, start: RuleName) -> list[list[RuleName]]:

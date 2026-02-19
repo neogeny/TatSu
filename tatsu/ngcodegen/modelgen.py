@@ -55,10 +55,10 @@ BaseClassSpec = namedtuple('BaseClassSpec', ['class_name', 'base'])
 
 @deprecated_params(base_type='basetype')
 def modelgen(
-        model: grammars.Grammar,
-        name: str = '',
-        basetype: type = Node,
-        base_type: type | None = None,
+    model: grammars.Grammar,
+    name: str = '',
+    basetype: type = Node,
+    base_type: type | None = None,
 ) -> str:
     if isinstance(base_type, type):
         basetype = base_type
@@ -69,7 +69,9 @@ def modelgen(
 
 class PythonModelGenerator(IndentPrintMixin):
 
-    def __init__(self, name: str = '', basetype: type = Node, base_type: type | None = None):
+    def __init__(
+        self, name: str = '', basetype: type = Node, base_type: type | None = None
+    ):
         if isinstance(base_type, type):
             basetype = base_type
         basetype = basetype or Node
@@ -88,28 +90,21 @@ class PythonModelGenerator(IndentPrintMixin):
                 name=self.name,
                 basetype=self.basetype.__name__,
                 basetype_import=basetype_import,
-            ),
+            )
         )
 
         rule_index = grammar.rulemap
-        rule_specs = {
-            rule.name: self._base_class_specs(rule)
-            for rule in grammar.rules
-        }
+        rule_specs = {rule.name: self._base_class_specs(rule) for rule in grammar.rules}
         rule_specs = {name: specs for name, specs in rule_specs.items() if specs}
 
         specs_by_name = {
-            s.class_name: s.base
-            for specs in rule_specs.values()
-            for s in specs
+            s.class_name: s.base for specs in rule_specs.values() for s in specs
         }
         base = self._model_base_name()
         specs_by_name[base] = basetype_name
 
         all_specs = {
-            (s.class_name, s.base)
-            for specs in rule_specs.values()
-            for s in specs
+            (s.class_name, s.base) for specs in rule_specs.values() for s in specs
         }
         model_names = list(reversed(topsort(specs_by_name, all_specs)))
 

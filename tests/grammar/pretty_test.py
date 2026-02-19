@@ -1,3 +1,7 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 import unittest
 
 from tatsu.tool import compile
@@ -14,8 +18,7 @@ class PrettyTests(unittest.TestCase):
             symbol::Symbol = value:/[^\s().]+/ ;
         """
 
-        pretty = trim(
-            r"""
+        pretty = trim(r"""
             start
                 =
                 lisp
@@ -44,11 +47,9 @@ class PrettyTests(unittest.TestCase):
                 =
                 value:/[^\s().]+/
                 ;
-        """,
-        )
+        """)
 
-        pretty_lean = trim(
-            r"""
+        pretty_lean = trim(r"""
             start
                 =
                 lisp
@@ -77,8 +78,7 @@ class PrettyTests(unittest.TestCase):
                 =
                 /[^\s().]+/
                 ;
-        """,
-        )
+        """)
 
         model = compile(grammar=grammar)
 

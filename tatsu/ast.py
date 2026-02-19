@@ -17,6 +17,7 @@ class AST(dict[str, Any]):
     # by Gemini (2026-01-26)
     # by [apalala@gmail.com](https://github.com/apalala)
     """
+
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__()
         self.__dict__['_frozen'] = False

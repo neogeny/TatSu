@@ -18,6 +18,7 @@ from .util.typing import Constructor, TypeContainer, boundcall, least_upper_boun
 
 class TypeResolutionError(TypeError):
     """Raised when a constructor for a node type cannot be found or synthesized"""
+
     pass
 
 
@@ -38,6 +39,7 @@ class ModelBuilder:
     nodes using the class name given as first parameter to a grammar
     rule, and synthesizes the class/type if it's not known.
     """
+
     def __init__(
         self,
         config: BuilderConfig | None = None,
@@ -64,18 +66,20 @@ class ModelBuilder:
         # HACK!
         self.config = self.config.override(synthok=not constructors)
 
-    def instanceof(self, typename, /, known: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
+    def instanceof(
+        self, typename, /, known: dict[str, Any], *args: Any, **kwargs: Any
+    ) -> Any:
         return self._instanceof(typename, known, *args, **kwargs)
 
     def _instanceof(
-            self,
-            typename: str,
-            known: dict[str, Any],
-            /,
-            *args: Any,
-            base: type | None = None,
-            **kwargs: Any,
-        ) -> Any:
+        self,
+        typename: str,
+        known: dict[str, Any],
+        /,
+        *args: Any,
+        base: type | None = None,
+        **kwargs: Any,
+    ) -> Any:
         constructor = self._get_constructor(typename, base=base)
         return boundcall(constructor, known, *args, **kwargs)
 
@@ -84,11 +88,7 @@ class ModelBuilder:
         for ctx in other:
             context |= ctx
 
-        return {
-            name: value
-            for name, value in context.items()
-            if callable(value)
-        }
+        return {name: value for name, value in context.items() if callable(value)}
 
     @staticmethod
     def types_defined_in(container: TypeContainer, /) -> list[type]:
@@ -103,9 +103,8 @@ class ModelBuilder:
             return []
 
         type_list = [t for t in contents.values() if isinstance(t, type)]
-        name = (
-                getattr(container, '__module__', None)
-                or getattr(container, '__name__', None)
+        name = getattr(container, '__module__', None) or getattr(
+            container, '__name__', None
         )
         if name is None:
             return type_list
@@ -137,11 +136,15 @@ class ModelBuilder:
     def _register_constructors(self, config: BuilderConfig) -> None:
         for t in config.constructors:
             if not callable(t):
-                raise TypeResolutionError(f'Expected callable in constructors, got: {type(t)!r}')
+                raise TypeResolutionError(
+                    f'Expected callable in constructors, got: {type(t)!r}'
+                )
 
             name = self._funname(t)
             if not name:
-                raise TypeResolutionError(f'Expected __name__ in constructor, got: {type(t)!r}')
+                raise TypeResolutionError(
+                    f'Expected __name__ in constructor, got: {type(t)!r}'
+                )
 
             # NOTE: this allows for standalone functions as constructors
             self._register_constructor(t)
@@ -156,26 +159,25 @@ class ModelBuilder:
             raise TypeResolutionError(
                 f"Conflict for constructor name {name!r}: "
                 f"attempted to register {constructor!r}, "
-                f"but {existing!r} is already registered.",
+                f"but {existing!r} is already registered."
             )
 
         self._constructor_registry[name] = constructor
         return constructor
 
     def _find_existing_constructor(self, typename: str) -> Constructor | None:
-        return (
-            self._constructor_registry.get(typename)
-            or vars(builtins).get(typename)
-        )
+        return self._constructor_registry.get(typename) or vars(builtins).get(typename)
 
-    def _get_constructor(self, typename: str, base: type | None, **args: Any) -> Constructor:
+    def _get_constructor(
+        self, typename: str, base: type | None, **args: Any
+    ) -> Constructor:
         if constructor := self._find_existing_constructor(typename):
             return constructor
 
         if not self.config.synthok:
             synthok = bool(self.config.synthok)
             raise TypeResolutionError(
-                f'Could not find constructor for type {typename!r}, and {synthok=} ',
+                f'Could not find constructor for type {typename!r}, and {synthok=} '
             )
 
         if base is None:
@@ -187,22 +189,18 @@ class ModelBuilder:
 
 
 class ModelBuilderSemantics:
-    @deprecated_params(
-        base_type='basetype',
-        types='constructors',
-        context=None,
-    )
+    @deprecated_params(base_type='basetype', types='constructors', context=None)
     def __init__(
-            self,
-            config: BuilderConfig | None = None,
-            synthok: bool = True,
-            basetype: type | None = None,
-            typedefs: list[TypeContainer] | None = None,
-            constructors: list[Constructor] | None = None,
-            # deprecations
-            context: Any | None = None,
-            base_type: type | None = None,
-            types: list[Callable] | None = None,  # for bw compatibility
+        self,
+        config: BuilderConfig | None = None,
+        synthok: bool = True,
+        basetype: type | None = None,
+        typedefs: list[TypeContainer] | None = None,
+        constructors: list[Constructor] | None = None,
+        # deprecations
+        context: Any | None = None,
+        base_type: type | None = None,
+        types: list[Callable] | None = None,  # for bw compatibility
     ) -> None:
         config = BuilderConfig.new(
             config=config,
@@ -242,8 +240,7 @@ class ModelBuilderSemantics:
             if isinstance(defined, type):
                 base = defined
 
-        known = {
-            'ast': ast,
-            'exp': ast,
-        }
-        return self._builder._instanceof(typename, known, ast, *args[1:], base=base, **kwargs)
+        known = {'ast': ast, 'exp': ast}
+        return self._builder._instanceof(
+            typename, known, ast, *args[1:], base=base, **kwargs
+        )
