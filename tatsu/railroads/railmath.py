@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from ..util import unicode_display_len as ulen
 
-type Rail = str
-type Rails = list[Rail]
+type Rails = list[str]
 
 ETX = '␃'
 
@@ -35,6 +34,12 @@ def lay_out(tracks: list[Rails]) -> Rails:
     def lay(rrl: str, c: str) -> str:
         return f'{rrl}{c * (maxl - ulen(rrl))}'
 
+    def rlay(rrl: str) -> str:
+        return lay(rrl, '─')
+
+    def blay(rrl: str) -> str:
+        return lay(rrl, ' ')
+
     for rails in tracks[:-1]:
         assert isinstance(rails, list), f'{rails=!r}'
         if not rails:
@@ -42,31 +47,31 @@ def lay_out(tracks: list[Rails]) -> Rails:
 
         joint = rails[0]
         if ETX not in joint:
-            out += [f"  ├─{lay(joint, '─')}─┤ "]
+            out += [f"  ├─{rlay(joint)}─┤ "]
         else:
-            out += [f"  ├─{lay(joint, ' ')} │ "]
+            out += [f"  ├─{blay(joint)} │ "]
 
         for rail in rails[1:]:
-            out += [f"  │ {lay(rail, ' ')} │ "]
+            out += [f"  │ {blay(rail)} │ "]
 
     # the last set of rails
     rails = tracks[-1]
     joint = rails[0]
     if ETX not in joint:
-        out += [f"  └─{lay(joint, '─')}─┘ "]
+        out += [f"  └─{rlay(joint)}─┘ "]
     else:
         out[-1][-3:-1] = '─┘ '
-        out += [f"  └─{lay(joint, ' ')}   "]
+        out += [f"  └─{blay(joint)}   "]
 
     for rail in rails[1:]:
-        out += [f"    {lay(rail, ' ')}   "]
+        out += [f"    {blay(rail)}   "]
 
     # the first rail
     joint = tracks[0][0] if tracks[0] else ''
     if ETX not in joint:
-        out[0] = f"──┬─{lay(joint, '─')}─┬─"
+        out[0] = f"──┬─{rlay(joint)}─┬─"
     else:
-        out[0] = f"──┬─{lay(joint, ' ')} ┬─"
+        out[0] = f"──┬─{blay(joint)} ┬─"
 
     return assert_one_length(out)
 
