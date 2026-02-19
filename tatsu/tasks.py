@@ -204,7 +204,7 @@ def test(c: Context):
 @task(pre=[clean])
 def doclint(c: Context, python: float = PYTHON):
     print('-> doclint')
-    res = uv_run(
+    uv_run(
         c,
         'vale README.rst docs/*.rst',
         group='doc',
