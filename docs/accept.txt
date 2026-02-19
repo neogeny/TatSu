@@ -33,6 +33,7 @@ nameguard
 packrat
 parseinfo
 parser's
+pythonic
 trace_length
 trace_separator
 tokenization
