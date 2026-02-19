@@ -450,9 +450,9 @@ semantic action. For example:
 
 
 If the text evaluates to a Python literal (with ``ast.literal_eval()``), that
-will be the returned value.  Otherwise, string interpolation in the style of
+will be the returned value. Otherwise, string interpolation in the style of
 ``str.format()`` over the names in the current `AST`_ is applied for
-*constant* elements. Occurrences of the ``{`` character must be scaped to
+*constant* elements. Occurrences of the ``{`` character must be escaped to
 ``\{`` if they are not intended for interpolation. A *constant* expression
 that hast type ``str`` is evaluated using:
 
@@ -465,7 +465,7 @@ that hast type ``str`` is evaluated using:
 `````constant`````
 ^^^^^^^^^^^^^^^^^^
 
-A multiline version of ```constant```.
+A multi-line version of ```constant```.
 
 
 ``^`constant```
@@ -475,8 +475,8 @@ Also  ``^```constant`````. An alert. There will be no token returned by
 the parser, but an alert will be registed in the parse context and added
 to the current node's ``parseinfo``.
 
-The ``^`` character may appear more than once to indicate the alert
-level:
+The ``^`` character may appear more than once to encode the *alert
+level*:
 
 .. code:: apl
     :force:
@@ -638,8 +638,8 @@ instead.
 ``(* comment *)``
 ^^^^^^^^^^^^^^^^^
 
-`Pascal`_-style multiline comments are *deprecated*. Use `Java`_-style comments
-instead.
+`Pascal`_-style multi-line comments are *deprecated*. Use `Java`_-style
+comments instead.
 
 
 Rules with Arguments
@@ -675,7 +675,7 @@ the corresponding rule:
    def addition(self, ast, name, op=None):
        ...
 
-When working with rule arguments, it is good to define a
+When working with rule arguments, it's good to define a
 ``_default()`` method that is ready to take any combination of
 standard and keyword arguments:
 
@@ -688,8 +688,7 @@ standard and keyword arguments:
 Based Rules
 ~~~~~~~~~~~
 
-Rules may extend previously defined rules using the ``<`` operator.
-The *base rule* must be defined previously in the grammar.
+Rules may extend rules defined before by using the ``<`` operator.
 
 The following set of declarations:
 
@@ -718,11 +717,9 @@ Memoization
 |TatSu| generates *packrat* parsers. The result of parsing a rule at a
 given position in the input is *memoized*. The next time the parser
 visits the same input position, with the same rule, the memoized result
-is returned and he input advanced accordingly. Memoization allows for
-grammars that are easier to write because there's no fear of repetition
-or alike elements having an impact on performance.
+is returned and the input advanced accordingly.
 
-There are rules that should not be memoized. For example, rules that
+Some rules should not be memoized. For example, rules that
 may succeed or not depending on the associated semantic action *should
 not* be memoized.
 
@@ -820,7 +817,7 @@ The character string is converted into a regular expression character
 set before starting to parse.
 
 You can also provide a regular expression directly instead of a string.
-The following is equivalent to the above example:
+The following is equivalent to the previous example:
 
 .. code:: python
 
@@ -876,8 +873,8 @@ the ``comments`` parameter:
 For more complex comment handling, you can override the
 ``Buffer.eat_comments()`` method.
 
-For flexibility, it is possible to specify a pattern for end-of-line
-comments separately:
+For flexibility, it's also possible to specify a pattern for end-of-line
+comments:
 
 .. code:: python
 
@@ -930,9 +927,8 @@ not match a token defined as a `keyword`_:
 Note that the rule decorated with ``@name`` must produce a single string as result
 (no named expressions that will produce a dict, and no rule arguments).
 
-There are situations in which a token is reserved only in a very
-specific context. In those cases, a negative lookahead will prevent the
-use of the token:
+In some situations a token is reserved only in a specific context. In those
+cases, a negative lookahead will prevent the use of that token:
 
 .. code:: apl
     :force:
@@ -950,7 +946,7 @@ Include Directive
     #include :: "filename"
 
 The resolution of the *filename* is relative to the directory/folder of
-the source. Absolute paths and ``../`` navigations are honored.
+the source. Absolute paths and ``../`` navigation are honored.
 
 The base for implementing includes is available to |TatSu|-generated
 parsers through the ``Buffer`` class. See the ``EBNFBuffer`` class in
@@ -971,7 +967,7 @@ Left recursion can be turned *on* or *off* from within the grammar using the
 
     @@left_recursion :: False
 
-Sometimes, while debugging a grammar, it is useful to turn left-recursion
+Sometimes, while debugging a grammar, it's useful to turn left-recursion
 support *on* or *off* in the code:
 
 .. code:: python

@@ -11,13 +11,9 @@
 Translation
 -----------
 
-Translation is one of the most common tasks in language processing.
-Analysis often sumarizes the parsed input, and *walkers* are good for that.
-
-
-|TatSu| doesn't impose a way to create translators, but it
-exposes the facilities it uses to generate the `Python`_ source code for
-parsers.
+Translation is one of the most common tasks in language processing. |TatSu|
+doesn't impose a way to create translators, but it dose expose the
+functionality it uses to generate `Python`_ source code from grammars.
 
 
 Print Translation
@@ -44,7 +40,7 @@ and should be used thus:
 The ``self.print()`` method takes note of the current level of indentation, so
 output will be indented by the `indent` passed to
 the ``IndentPrintMixin`` constructor, or to the ``indent(amount: int)`` method.
-The mixin keeps as stack of the indent ammounts so it can go back to where it
+The mixin keeps as stack of the indent amounts so it can go back to where it
 was after each ``with indent(amount=n):`` statement:
 
 
@@ -55,7 +51,7 @@ was after each ``with indent(amount=n):`` statement:
             self.print(node.exp)
 
 The printed code can be retrieved using the ``printed_text()`` method, but other
-posibilities are available by assigning a stream-like object to
+possibilities are available by assigning a stream-like object to
 ``self.output_stream`` in the ``__init__()`` method.
 
 A good example of how to do code generation with a ``NodeWalker`` and
