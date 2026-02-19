@@ -110,16 +110,6 @@ class RailroadNodeWalker(NodeWalker):
     def walk_fail(self, v) -> Rails:
         return [" ⚠ "]
 
-    def walk_override(self, override: grammars.Override) -> Rails:
-        out = weld([' @:('], self.walk(override.exp))
-        out = weld(out, [')'])
-        return out
-
-    def walk_override_list(self, override: grammars.OverrideList):
-        out = weld([' @+:('], self.walk(override.exp))
-        out = weld(out, [')'])
-        return out
-
     def walk_constant(self, constant: grammars.Constant) -> Rails:
         return [f'`{constant.literal}`']
 
@@ -149,3 +139,24 @@ class RailroadNodeWalker(NodeWalker):
             out = weld(out, ['─■'])
         out += [' ' * ulen(out[0])]
         return assert_one_length(out)
+
+    def walk_named(self, named: grammars.Named) -> Rails:
+        out = weld([f' [{named.name}]('], self.walk(named.exp))
+        out = weld(out, [')'])
+        return out
+
+    def walk_named_list(self, named: grammars.NamedList) -> Rails:
+        out = weld([f' [{named.name}]+('], self.walk(named.exp))
+        out = weld(out, [')'])
+        return out
+
+    def walk_override(self, override: grammars.Override) -> Rails:
+        out = weld([' @('], self.walk(override.exp))
+        out = weld(out, [')'])
+        return out
+
+    def walk_override_list(self, override: grammars.OverrideList):
+        out = weld([' @+('], self.walk(override.exp))
+        out = weld(out, [')'])
+        return out
+
