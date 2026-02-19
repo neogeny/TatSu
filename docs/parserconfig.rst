@@ -17,7 +17,7 @@ easy to override.
 
 Entry points still accept configuration options as named keyword arguments, but
 those are gathered in ``**settings`` (aka ``**kwargs``) argument for a``ParserConfig``
-to validate in due time.
+to validate when called.
 
 .. code:: python
 
@@ -76,7 +76,7 @@ Entry points and internal methods in |TatSu| have an optional
 If no ``ParserConfig`` is passed, a default one is created. Configuration
 attributes may be overridden by relevant arguments in ``**settings``.
 
-These are several ways to apply a configuration setting:
+These are different ways to apply a configuration setting:
 
 .. code:: Python
 
@@ -135,8 +135,8 @@ tokenizercls
 The class that implements tokenization for the parser. If it's not defined
 then the parsing modules will default to ``buffering.Buffer``.
 
-This option was applied in the prototype PEG parser for Python as to use
-the native Python tokenizer.
+This option was applied in the prototype PEG parser for Python to be
+able to reuse the native Python tokenizer.
 
 
 semantics
@@ -157,7 +157,7 @@ memoization
 
     memoization: bool = True
 
-Enable or disable memoization in the parser. Only very specific input languages
+Enable or disable memoization in the parser. Only specific input languages
 require this to be ``False``.
 
 
@@ -168,7 +168,7 @@ memoize_lookaheads
 
     memoize_lookaheads: bool = True
 
-Enables or disables memoization for lookaheads. Only very specific input languages
+Enables or disables memoization for lookaheads. Only specific input languages
 require this to be ``False``.
 
 memo_cache_size
@@ -179,7 +179,7 @@ memo_cache_size
     memo_cache_size: int = MEMO_CACHE_SIZE
 
 The size of the cache for memos. As parsing progresses, previous memos
-are rarely needed, so there's a bound to the number of memos saved
+are seldom needed, so there's a bound to the number of memos saved
 (currently 1024).
 
 colorize
@@ -210,7 +210,7 @@ trace_filename
 
     trace_filename: bool = False
 
-Include the input textt's filename in trace output.
+Include the input text's filename in trace output.
 
 trace_length
 ~~~~~~~~~~~~
@@ -219,7 +219,7 @@ trace_length
 
     trace_length: int = 72
 
-The maximum width of a line in a trace.
+The max width of a line in a trace.
 
 trace_separator
 ~~~~~~~~~~~~~~~
@@ -228,7 +228,7 @@ trace_separator
 
     trace_separator: str = C_DERIVE
 
-The separator to usee between lines in a trace.
+The separator to use between lines in a trace.
 
 grammar
 ~~~~~~~
