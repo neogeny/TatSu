@@ -144,7 +144,7 @@ skip-string-normalization = true
 skip-magic-trailing-comma = true
 include = '\.pyi?$'
 exclude = '''
-/(
+(
     \.git
   | \.hg
   | \.mypy_cache
@@ -154,5 +154,6 @@ exclude = '''
   | buck-out
   | build
   | dist
-)/
+)
+|tatsu/bootstrap.py
 '''
