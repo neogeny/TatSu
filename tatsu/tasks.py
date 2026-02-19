@@ -202,7 +202,7 @@ def test(c: Context):
 
 
 @task(pre=[clean])
-def grammar(c: Context, python: float = PYTHON):
+def doclint(c: Context, python: float = PYTHON):
     print('-> grammar')
     res = uv_run(
         c,
@@ -217,7 +217,7 @@ def grammar(c: Context, python: float = PYTHON):
                 print(r)
 
 
-@task(pre=[begin, grammar])
+@task(pre=[begin, doclint])
 def docs(c: Context):
     print('-> docs')
     with c.cd('docs'):
