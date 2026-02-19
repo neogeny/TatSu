@@ -19,6 +19,18 @@ __all__ = [
 ]
 
 
+try:
+    from rich import print as rprint
+except ImportError:
+    def rprint(*args, **kwargs):
+
+        def strip_markup(text):
+            return re.sub(r"\[/?[^\]]+\]", "", str(text))
+
+        clean_args = [strip_markup(arg) for arg in args]
+        print(*clean_args, **kwargs)
+
+
 @cache
 def cached_re_compile(
         pattern: str | bytes | re.Pattern, /,
