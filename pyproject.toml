@@ -141,6 +141,7 @@ data_file = ".cache/coverage/.coverage"
 line-length = 88
 target-version = ['py312']
 skip-string-normalization = true
+skip-magic-trailing-comma = true
 include = '\.pyi?$'
 exclude = '''
 /(
