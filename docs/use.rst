@@ -17,7 +17,8 @@ As a Library
 
 -   ``tatsu.parse(grammar, input, start=None, **kwargs)``
 
-    Compiles the grammar and parses the given input producing an AST_ as result. The result is equivalent to calling::
+    Compiles the grammar and parses the given input producing an AST_ as result.
+    The result is equivalent to calling::
 
         model = compile(grammar)
         ast = model.parse(input)
@@ -26,13 +27,15 @@ As a Library
 
 -   ``tatsu.to_python_sourcecode(grammar, name=None, filename=None, **kwargs)``
 
-    Compiles the grammar to the `Python`_ sourcecode that implements the parser.
+    Compiles the grammar to the `Python`_ source code that implements the
+    parser.
 
 -   ``to_python_model(grammar, name=None, filename=None, **kwargs)``
 
-    Compiles the grammar and generates the `Python`_ sourcecode that implements the object model defined by rule annotations.
+    Compiles the grammar and generates the `Python`_ source code that
+    implements the object model defined by rule annotations.
 
-This is an example of how to use **Tatsu** as a library:
+This is an example of how to use **TatSu** as a library:
 
 .. code:: python
 
@@ -116,7 +119,7 @@ And this is the output:
 Compiling grammars to Python
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Tatsu** can be run from the command line:
+**TatSu** can be run from the command line:
 
 .. code:: bash
 
@@ -134,7 +137,7 @@ Or just:
 
     $ tatsu
 
-if **Tatsu** was installed using *easy\_install* or *pip*.
+if **TatSu** was installed using *easy\_install* or *pip*.
 
 The *-h* and *--help* parameters provide full usage information:
 
@@ -151,7 +154,7 @@ The *-h* and *--help* parameters provide full usage information:
     a memoizing PEG/Packrat parser in Python.
 
     positional arguments:
-    GRAMMAR               the filename of the Tatsu grammar to parse
+    GRAMMAR               the filename of the TatSu grammar to parse
 
     optional arguments:
     --generate-parser     generate parser code from the grammar (default)
@@ -184,7 +187,7 @@ The *-h* and *--help* parameters provide full usage information:
 The Generated Parsers
 ~~~~~~~~~~~~~~~~~~~~~
 
-A **Tatsu** generated parser consists of the following classes:
+A **TatSu** generated parser consists of the following classes:
 
 -  A ``MyLanguageBuffer`` class derived from ``tatsu.buffering.Buffer``
    that handles the grammar definitions for *whitespace*, *comments*,
@@ -239,7 +242,7 @@ Using the Generated Parser
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To use the generated parser, just subclass the base or the abstract
-parser. Then create an instance of it. Thenk invoke its ``parse()`` method,
+parser. Then create an instance of it. Then invoke its ``parse()`` method,
 passing the grammar to parse and the starting rule's name as parameters:
 
 .. code:: python
@@ -281,7 +284,7 @@ The generated parser's module can also be invoked as a script:
 
     $ python myparser.py inputfile startrule
 
-As a script, the generated parser's module accepts several options:
+As a script, the generated parser's module accepts some options:
 
 .. code:: bash
 

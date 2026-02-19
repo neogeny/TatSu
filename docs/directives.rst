@@ -1,3 +1,6 @@
+.. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+.. SPDX-License-Identifier: BSD-4-Clause
+
 .. include:: links.rst
 
 
@@ -63,8 +66,9 @@ If set to ``True`` makes |TatSu| not consider case when parsing tokens. Defaults
 @@keyword :: {<word>|<string>}+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Specifies the list of strings or words that the grammar should consider as *"keywords"*.
-May appear more than once. See the `Reserved Words and Keywords`_ section for an explanation.
+Specifies the list of strings or words that the grammar should consider as
+*"keywords"*. May appear more than once. See the `Reserved Words and Keywords`_
+section for an explanation.
 
 .. _`Reserved Words and Keywords`: syntax.html#reserved-words-and-keywords
 

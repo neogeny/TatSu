@@ -56,7 +56,7 @@ def uv(
     g = f' --group {group}' if group else ''
     n = f' --no-group {nogroup}' if nogroup else ''
 
-    options = {'pty': True, **kwargs}
+    options = kwargs
     return c.run(f'uv {cmd}{q}{p}{g}{n} {args}', **options) or Result()
 
 
@@ -201,7 +201,18 @@ def test(c: Context):
     success_print(task=test)
 
 
-@task(pre=[begin])
+@task(pre=[clean])
+def doclint(c: Context, python: float = PYTHON):
+    print('-> doclint')
+    res = uv_run(
+        c,
+        'vale README.rst docs/*.rst',
+        group='doc',
+        hide='stdout',
+    )
+
+
+@task(pre=[begin, doclint])
 def docs(c: Context):
     print('-> docs')
     with c.cd('docs'):

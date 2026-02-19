@@ -10,9 +10,8 @@
 `Calc` Mini Tutorial
 --------------------
 
-|TatSu|  users have suggested that a simple calculator, like the one in the documentation for `PLY`_ would be useful.
-
-Here it is.
+|TatSu|  users have suggested that a simple calculator, like the one in
+the documentation for `PLY`_ would be useful, so here it goes.
 
 The initial grammar
 ~~~~~~~~~~~~~~~~~~~
@@ -38,7 +37,7 @@ And this is the input expression for testing:
 
     3 + 5 * ( 10 - 20 )
 
-The Tatsu grammar
+The TatSu grammar
 ~~~~~~~~~~~~~~~~~
 
 The first step is to convert the grammar to |TatSu| syntax and style,
@@ -134,8 +133,8 @@ input.
         /\d+/
         ;
 
-Let's save the above grammar in a file called ``calc_cut.tatsu``.
-We can now compile the grammar, and test the parser:
+Save the grammar as ``calc_cut.tatsu``, and compile the grammar to test
+the parser:
 
 .. code:: python
 
@@ -167,7 +166,7 @@ We can now compile the grammar, and test the parser:
 
 ..
 
-Save the above in ``calc.py``. This is the output:
+Save the program as ``calc.py``. This is the output:
 
 .. code:: bash
 
@@ -324,8 +323,8 @@ Semantic actions for |TatSu| parsers are not specified in the grammar, but in a 
     if __name__ == '__main__':
         parse_with_basic_semantics()
 
-Save the above in ``calc_semantics.py`` and execute it with ``python calc_semantics.py``.
-The result is:
+Save the program as ``calc_semantics.py`` and execute it with ``python
+calc_semantics.py``. The result is:
 
 .. code:: python
 
@@ -336,7 +335,8 @@ The result is:
 One rule per expression type
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Having semantic actions determine what was parsed with ``isinstance()`` or querying the AST_ for operators is not very pythonic, nor object oriented.
+Having semantic actions determine what was parsed with ``isinstance()`` or
+querying the AST_ for operators is not too pythonic, nor object oriented.
 It leads to code more difficult to maintain. It's preferable to have one
 rule per *expression kind* (something necessary if we want to build object
 models and use *walkers* or *code generation*).
@@ -404,7 +404,7 @@ models and use *walkers* or *code generation*).
         /\d+/
         ;
 
-Save the above in ``calc_refactored.tatsu``.
+Save the grammar in ``calc_refactored.tatsu``.
 
 .. code:: python
 
@@ -464,7 +464,10 @@ Binding semantics to grammar rules is powerful and versatile, but this
 approach risks tying the semantics to the *parsing process*, rather than
 to the parsed *objects*.
 
-That is not a problem for simple languages, like the arithmetic expression language in this tutorial. But as the complexity of the parsed language increases, the number of grammar rules quickly becomes larger than the types of objects parsed.
+That is not a problem for simple languages, like the arithmetic expression
+language in this tutorial. But as the complexity of the parsed language
+increases, the number of grammar rules becomes larger than the types of
+objects parsed.
 
 |TatSu| can create typed object models directly from the parsing process which can be navigated (*walked*) and transformed (with *code generation*) in later passes.
 
@@ -628,7 +631,7 @@ The model that results from a parse can be printed, and walked:
     if __name__ == '__main__':
         parse_and_walk_model()
 
-Save the above program in ``calc_model.py`` and execute it to get this result:
+Save the program in ``calc_model.py`` and execute it to get this result:
 
 .. code:: python
 
@@ -640,14 +643,18 @@ Code Generation
 ~~~~~~~~~~~~~~~
 
 Translation is one of the most common tasks in language processing.
-Analysis often sumarizes the parsed input, and *walkers* are good for that.
-In translation, the output can often be as verbose as the input, so a systematic approach that avoids bookkeeping as much as possible is convenient.
+Analysis builds a compact representation of the parsed input. In translation,
+the output can often be as verbose as the input, so a systematic approach
+that avoids bookkeeping as much as possible is convenient.
 
 |TatSu| provides support for template-based code generation (translation) in the ``tatsu.codegen`` module.
 Code generation works by defining a translation class for each class in the model specified by the grammar.
 
 
-Nowadays the preferred code generation strategy is to walk down the AST_ and `print()` the desired output, with the help of the ``NodWalker`` class, and the ``IndentPrintMixin`` mixin. That's the strategy used by pegen_, the precursor to the new `PEG parser`_ in Python_.
+Nowadays the preferred code generation strategy is to walk down the
+AST_ and `print()` the desired output, with the help of the ``NodWalker``
+class, and the ``IndentPrintMixin`` mixin. That's the strategy used
+by pegen_, the precursor to the new `PEG parser`_ in Python_.
 
 
 The following code generator translates input expressions to the postfix instructions of a stack-based processor:
@@ -694,7 +701,8 @@ The following code generator translates input expressions to the postfix instruc
 
 
 
-Save the above program in ``calc_translate.py`` and execute it to get this result:
+Save the previous program in ``calc_translate.py`` and execute it to get
+this result:
 
 .. code:: python
 

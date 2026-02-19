@@ -1,3 +1,6 @@
+.. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+.. SPDX-License-Identifier: BSD-4-Clause
+
 .. include:: links.rst
 
 Rationale
@@ -27,7 +30,7 @@ over decades of working with parser generation tools:
 -  Preprocessing (like dealing with includes, fixed column formats, or
    structure-through-indentation) belongs in well-designed program code;
    not in the grammar.
--  It is easy to recruit help with knowledge about a mainstream
+-  it's easy to recruit help with knowledge about a mainstream
    programming language like `Python`_, but help is hard to find for
    working with complex grammar-description languages. |TatSu|
    grammars are in the spirit of a *Translators and Interpreters 101*

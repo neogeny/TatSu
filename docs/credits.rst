@@ -28,9 +28,6 @@ Credits
    folks on the *ANLTR* forums helped me shape my ideas about |TatSu|.
 -  **JavaCC** (originally `Jack`_) looks like an abandoned project. It
    was the first parser generator I used while teaching.
--  |TatSu| is fast. But dealing with millions of lines of legacy
-   source code in a matter of minutes would be impossible without
-   `PyPy`_, the work of **Armin Rigo** and the `PyPy team`_.
 -  **Guido van Rossum** created and has lead the development of the
    `Python`_ programming environment for over a decade. A tool like
    |TatSu|, at under 10K lines of code, would not have been
@@ -64,7 +61,7 @@ Credits
    handling be compatible with 2.7.x and 3.x, and figured out the
    canonical way of honoring escape sequences in grammar tokens without
    throwing off the encoding.
--  `Basel Shishani`_ has been an incredibly throrough peer-reviewer of
+-  `Basel Shishani`_ has been an incredibly thorough peer-reviewer of
    |TatSu|.
 -  `Paul Sargent`_ implemented `Warth et al`_'s algorithm for supporting
    direct and indirect left recursion in `PEG`_ parsers.
