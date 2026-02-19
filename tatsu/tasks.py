@@ -42,7 +42,7 @@ def uv_python_pin(c: Context) -> float:
 def uv(
         c: Context,
         cmd: str,
-        args: str,
+        args: str | list[str],
         *,
         quiet: bool = True,
         python: float = PYTHON,
@@ -57,12 +57,13 @@ def uv(
     n = f' --no-group {nogroup}' if nogroup else ''
 
     options = kwargs
-    return c.run(f'uv {cmd}{q}{p}{g}{n} {args}', **options) or Result()
+    args = ' '.join(args) if isinstance(args, list) else args
+    return c.run(f'uv {cmd}{q}{p}{g}{n} {args}', pty=True, **options) or Result()
 
 
 def uv_run(
         c: Context,
-        args: str,
+        args: str | list[str],
         *,
         python: float = PYTHON,
         group: str = 'dev',
@@ -191,7 +192,22 @@ def pytest(c: Context, python: float = PYTHON):
     uv_run(c, 'pytest --quiet tests/', python=python, group='test', hide='stdout')
 
 
-@task(pre=[begin, clean, ruff, ty, pyright])
+@task(pre=[clean])
+def black(c: Context, python: float = PYTHON):
+    print('-> black')
+    res = uv_run(
+        c,
+        ["black", "--check", "tatsu", "tests", "examples"],
+        python=python,
+        group='test',
+        hide='both',
+    )
+    # if res.exited != 0:
+    #     print(res.stdout.splitlines()[-1])
+    #     print('✖ failed!')
+
+
+@task(pre=[begin, clean, ruff, ty, pyright, black])
 def lint(c: Context):
     success_print(task=lint)
 
@@ -238,6 +254,7 @@ def matrix_core(c: Context, python: float = PYTHON):
     ruff(c, python=python)
     ty(c, python=python)
     pyright(c, python=python)
+    black(c, python=python)
     pytest(c, python=python)
     success_print(str(python))
 
