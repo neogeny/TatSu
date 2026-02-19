@@ -5,12 +5,10 @@ from __future__ import annotations
 from typing import Any
 
 from tatsu import grammars
-
-from ..util.abctools import join_lists
-from ..util.string import regexp
-from ..util.string import unicode_display_len as ulen
-from ..walkers import NodeWalker
 from .railmath import ETX, Rails, assert_one_length, lay_out, loop, stopnloop, weld
+from ..util.abctools import join_lists
+from ..util.string import regexp, unicode_display_len as ulen
+from ..walkers import NodeWalker
 
 
 def tracks(model: grammars.Grammar):
@@ -150,8 +148,7 @@ class RailroadNodeWalker(NodeWalker):
         return out
 
     def walk_rule_include(self, include: grammars.RuleInclude):
-        out = weld([' >('], self.walk(include.rule.name))
-        out = weld(out, [')'])
+        out = [f' >({include.rule.name}) ']
         return out
 
     def walk_based_rule(self, rule: grammars.BasedRule):
@@ -168,7 +165,7 @@ class RailroadNodeWalker(NodeWalker):
         return out
 
     def walk_named_list(self, named: grammars.NamedList) -> Rails:
-        out = weld([f' [{named.name}]+('], self.walk(named.exp))
+        out = weld([f' [`{named.name}`]+('], self.walk(named.exp))
         out = weld(out, [')'])
         return out
 
