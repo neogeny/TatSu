@@ -5,6 +5,7 @@ Unit tests for tatsu.util.safeeval
 # by Gemini (2026-01-26)
 # by [apalala@gmail.com](https://github.com/apalala)
 """
+
 from __future__ import annotations
 
 import pytest

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 # ruff: noqa: PLW0603
 
+
 class Color:
     BLACK = ''
     BLUE = ''
