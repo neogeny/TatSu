@@ -1805,6 +1805,7 @@ test = [
     { name = "pytest-dependency" },
     { name = "pytest-rerunfailures" },
     { name = "pytest-xdist" },
+    { name = "rich" },
     { name = "ruff" },
     { name = "ty" },
 ]
@@ -1866,6 +1867,7 @@ test = [
     { name = "pytest-dependency", specifier = ">=0.6.0" },
     { name = "pytest-rerunfailures", specifier = ">=16.1" },
     { name = "pytest-xdist", specifier = ">=3.8.0" },
+    { name = "rich", specifier = ">=14.3.2" },
     { name = "ruff", specifier = ">=0.15.1" },
     { name = "ty", specifier = ">=0.0.17" },
 ]

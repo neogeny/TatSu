@@ -65,6 +65,7 @@ test = [
     "pytest-dependency>=0.6.0",
     "pytest-rerunfailures>=16.1",
     "pytest-xdist>=3.8.0",
+    "rich>=14.3.2",
     "ruff>=0.15.1",
     "ty>=0.0.17",
 ]
