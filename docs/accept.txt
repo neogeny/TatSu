@@ -22,6 +22,7 @@ equivalent
 [Mm]odularization
 
 alias
+Calc
 eol_comments
 ignorecase
 lookaheads?
@@ -33,12 +34,15 @@ nameguard
 packrat
 parseinfo
 parser's
+pegen
 pythonic
 trace_length
 trace_separator
 tokenization
 tokenizer(cls)?
 validate
+we-
+we-like-parsers
 _sourcecode
 
 \|paypal\|
