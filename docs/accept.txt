@@ -7,7 +7,7 @@
 
 additional
 alert
-allows
+allows?
 equivalent
 lookahead
 [Mm]emoization
@@ -23,6 +23,7 @@ Chaudhary
 Knupp
 Majda
 Rahul
+Tomassetti
 Wirth
 
 \|paypal\|

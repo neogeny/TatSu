@@ -7,7 +7,7 @@
 Grammar Syntax
 --------------
 
-|TatSu| grammars use a supperset of the classic `EBNF`_ syntax. The classic
+|TatSu| grammars use an extension of the classic `EBNF`_ syntax. The classic
 variations of EBNF_ (Tomassetti, EasyExtend, Wirth) and `ISO EBNF`_ are also
 supported as input grammar format.
 
@@ -33,7 +33,7 @@ Rule names that start with an uppercase character:
 
 *do not* advance over whitespace before beginning to parse. This feature
 becomes handy when defining complex lexical elements, as it allows
-breaking them into several rules.
+breaking them into more than one rule.
 
 The parser returns an `AST`_ value for each rule depending on what was
 parsed:
@@ -73,7 +73,7 @@ The expressions, in reverse order of operator precedence, can be any of the foll
 ``/* ... */``
 ^^^^^^^^^^^^^
 
-`EBNF`_-style multiline comments are allowed.
+`EBNF`_-style multi-line comments are allowed.
 
 
 ``e1 | e2``
@@ -205,7 +205,7 @@ Use grouping if `s` is more complex than a *token* or a *pattern*:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Join. Parses the list of ``s``-separated expressions, or the empty
-closure. It is equivalent to:
+closure. It's equivalent to:
 
 .. code:: apl
     :force:
@@ -217,7 +217,7 @@ closure. It is equivalent to:
 ^^^^^^^^^^^^^
 
 Left join. Like the *join expression*, but the result is a
-left-associative tree built with ``tuple()``, in wich the first
+left-associative tree built with ``tuple()``, in which the first
 element is the separator (``op``), and the other two elements are the
 operands.
 
@@ -259,7 +259,7 @@ To this tree:
 ^^^^^^^^^^^^^
 
 Right join. Like the *join expression*, but the result is a
-right-associative tree built with ``tuple()``, in wich the first
+right-associative tree built with ``tuple()``, in which the first
 element is the separator (``op``), and the other two elements are the
 operands.
 
@@ -306,7 +306,7 @@ included in the resulting `AST`_.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 *Gather*. Like the *join*, but the separator is not included in the
-resulting `AST`_. It is equivalent to:
+resulting `AST`_. It's equivalent to:
 
 .. code:: apl
     :force:
@@ -339,8 +339,8 @@ prevent tokens like *IN* matching when the text ahead is
 *INITIALIZE*. This feature can be turned off by passing
 ``nameguard=False`` to the ``Parser`` or the ``Buffer``, or by using a
 pattern expression (see below) instead of a token expression.
-Alternatively, the ``@@nameguard`` or ``@@namechars`` directives may
-be specified in the grammar:
+The ``@@nameguard`` and ``@@namechars`` directives may be specified
+in the grammar for the same effect:
 
 .. code:: apl
     :force:
