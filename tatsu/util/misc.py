@@ -24,10 +24,13 @@ try:
 except ImportError:
     def rprint(*args, **kwargs):
 
-        def strip_markup(text):
-            return re.sub(r"\[/?[^\]]+\]", "", str(text))
+        def strip_rich_markup(text):
+            tag_pattern = r"(?<!\[)\[/?[a-zA-Z0-9 #,._]+\](?!\])"
+            stripped = re.sub(tag_pattern, "", str(text))
 
-        clean_args = [strip_markup(arg) for arg in args]
+            return stripped.replace("[[", "[").replace("]]", "]")
+
+        clean_args = [strip_rich_markup(arg) for arg in args]
         print(*clean_args, **kwargs)
 
 
