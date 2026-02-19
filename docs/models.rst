@@ -56,7 +56,7 @@ result of any particular grammar rule.
 Generating Models
 ~~~~~~~~~~~~~~~~~
 
-To see what the classes for the grammar look likethe ``tatsu`` commandline
+To see what the classes for the grammar look like the ``tatsu`` command-line
 tool will generate a module definition with the required classes:
 
 .. code:: bash
@@ -99,10 +99,10 @@ Defining Custom Models
     class Addition(Expression):
         ...
 
-But there's loss of functionality if model classes are not subclasses of
+There's loss of functionality if model classes are not subclasses of
 ``objectmodel.Node`` (no ``node.children()``, ``node.parseinfo``,
-``node.parent``, ``...``). For complete functionality it is better if custom
-model clases inherit from ``objectmodel.Node`` and are defined as
+``node.parent``, ``...``). For complete functionality it's better if custom
+model classes inherit from ``objectmodel.Node`` and are defined as
 ``@tatsudataclass`` so they are configured the |TatSu| way:
 
 .. code:: python
@@ -118,8 +118,8 @@ model clases inherit from ``objectmodel.Node`` and are defined as
     class Addition(Expression):
         ...
 
-Once the custom model classes are defined, |TatSu|'s entry points need to know
-about them. There are several flexible ways to do that:
+Once the custom model classes are defined, |TatSu|'s entry points need to
+know about them, and there are flexible ways to do that:
 
 
 .. code:: python
