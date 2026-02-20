@@ -15,9 +15,7 @@ type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
 
 class NodeWalker:
     # note: this is shared among all instances of the same sublass of NodeWalker
-    _walker_cache: ClassVar[dict[str, WalkerMethod | None]] = (
-        {}
-    )  # pyright: ignore[reportRedeclaration]
+    _walker_cache: ClassVar[dict[str, WalkerMethod | None]] = {}  # pyright: ignore[reportRedeclaration]
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
