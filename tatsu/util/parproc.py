@@ -13,25 +13,27 @@ from dataclasses import dataclass
 from functools import partial
 from itertools import batched
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, NamedTuple
 
 try:
     import rich
-    from rich.progress import (
-        BarColumn,
-        Progress,
-        TaskID,
-        TaskProgressColumn,
-        TextColumn,
-        TimeElapsedColumn,
-        TimeRemainingColumn,
-    )
 except ImportError:
-    sys.exit(1)
+    rich = SimpleNamespace()  # ty:ignore[invalid-assignment]
 
-from ..util import identity, memory_use, startscript, try_read
-from ..util.datetime import iso_logpath
-from ..util.unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
+from rich.progress import (
+    BarColumn,
+    Progress,
+    TaskID,
+    TaskProgressColumn,
+    TextColumn,
+    TimeElapsedColumn,
+    TimeRemainingColumn,
+)
+
+from . import identity, memory_use, startscript, try_read
+from .datetime import iso_logpath
+from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
 
 __all__: list[str] = ['parallel_proc', 'processing_loop']
 
