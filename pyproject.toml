@@ -129,15 +129,14 @@ respect-type-ignore-comments = true
 unresolved-import = "ignore"
 unused-ignore-comment = "ignore"
 
-[tool.ruff]
-line-length = 88
-exclude = [".git", "__pycache__", "dist"]
-
 [tool.coverage.run]
 omit = ["tests/*", "tatsu/diagrams.py", "tatsu/codegen/*", "**/test.py"]
 data_file = ".cache/coverage/.coverage"
 
 [tool.ruff]
+line-length = 88
+exclude = [".git", "__pycache__", "dist"]
+
 # Enable these to catch logic errors
 select = ["E", "F", "I"]
 
