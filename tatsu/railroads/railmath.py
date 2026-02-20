@@ -14,9 +14,13 @@ def assert_one_length(rails: Rails) -> Rails:
         return []
 
     length = ulen(rails[0])
-    for rail in rails:
-        assert isinstance(rail, str), f'{rail=!r}'
-        assert ulen(rail) == length
+
+    def one_length(rail: str) -> bool:
+        check = isinstance(rail, str) and ulen(rail) == length
+        assert check, f'ulen({rail=!r}) != {length=}'
+        return check
+
+    assert all(one_length(rail) for rail in rails), 'lengths differ'
     return rails
 
 
@@ -24,7 +28,7 @@ def pad(rrl: str, c: str, maxl: int) -> str:
     return f'{rrl}{c * (maxl - ulen(rrl))}'
 
 
-def railpad_(rrl: str, maxl: int) -> str:  # name with _ for visual alignment
+def railpad_(rrl: str, maxl: int) -> str:  # name_ for visual alignment
     return pad(rrl, '─', maxl=maxl)
 
 
@@ -122,7 +126,7 @@ def loop(rails: Rails) -> Rails:
     return assert_one_length(out)
 
 
-def weld(left: Rails, right: Rails) -> Rails:
+def weldtwo(left: Rails, right: Rails) -> Rails:
     assert isinstance(left, list), f'{left=!r}'
     assert isinstance(right, list), f'{right=!r}'
 
@@ -145,4 +149,13 @@ def weld(left: Rails, right: Rails) -> Rails:
         else:
             out += [f'{'':{len_left}}{right[i]}']
 
+    return assert_one_length(out)
+
+
+def weld(*tracks: Rails) -> Rails:
+    if not tracks:
+        return []
+    out = tracks[0][:]
+    for rails in tracks[1:]:
+        out = weldtwo(out, rails)
     return assert_one_length(out)

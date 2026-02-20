@@ -4,13 +4,20 @@ from __future__ import annotations
 
 from typing import Any
 
-from tatsu import grammars
-
+from .. import grammars
 from ..util.abctools import join_lists
 from ..util.string import regexp
 from ..util.string import unicode_display_len as ulen
 from ..walkers import NodeWalker
-from .railmath import ETX, Rails, assert_one_length, lay_out, loop, stopnloop, weld
+from .railmath import (
+    ETX,
+    Rails,
+    assert_one_length,
+    lay_out,
+    loop,
+    stopnloop,
+    weld,
+)
 
 
 def tracks(model: grammars.Grammar):
@@ -68,7 +75,6 @@ class RailroadNodeWalker(NodeWalker):
         return assert_one_length(out)
 
     def walk_optional(self, optional: grammars.Optional) -> Rails:
-        # return lay_out([self.walk(optional.exp), ['→']])
         out = weld(['→'], self.walk(optional.exp))
         return lay_out([out, ['→']])
 
@@ -95,10 +101,7 @@ class RailroadNodeWalker(NodeWalker):
         return self.walk(option.exp)
 
     def walk_sequence(self, s: grammars.Sequence) -> Rails:
-        out = []
-        for element in s.sequence:
-            out = weld(out, self.walk(element))
-        return assert_one_length(out)
+        return weld(*(self.walk(e) for e in s.sequence))
 
     def walk_call(self, call: grammars.Call) -> Rails:
         return [f"{call.name}"]
@@ -145,13 +148,10 @@ class RailroadNodeWalker(NodeWalker):
         return [f'{'^' * alert.level}`{alert.literal}`']
 
     def walk_skip_to(self, skipto: grammars.SkipTo):
-        out = weld([' ->('], self.walk(skipto.exp))
-        out = weld(out, [')'])
-        return out
+        return weld([' ->('], self.walk(skipto.exp), [')'])
 
     def walk_rule_include(self, include: grammars.RuleInclude):
-        out = [f' >({include.rule.name}) ']
-        return out
+        return [f' >({include.rule.name}) ']
 
     def walk_based_rule(self, rule: grammars.BasedRule):
         out = [f'{rule.name} < {rule.baserule}●─']
@@ -162,21 +162,13 @@ class RailroadNodeWalker(NodeWalker):
         return assert_one_length(out)
 
     def walk_named(self, named: grammars.Named) -> Rails:
-        out = weld([f' [{named.name}]('], self.walk(named.exp))
-        out = weld(out, [')'])
-        return out
+        return weld([f' [{named.name}]('], self.walk(named.exp), [')'])
 
     def walk_named_list(self, named: grammars.NamedList) -> Rails:
-        out = weld([f' [`{named.name}`]+('], self.walk(named.exp))
-        out = weld(out, [')'])
-        return out
+        return weld([f' [`{named.name}`]+('], self.walk(named.exp), [')'])
 
     def walk_override(self, override: grammars.Override) -> Rails:
-        out = weld([' @('], self.walk(override.exp))
-        out = weld(out, [')'])
-        return out
+        return weld([' @('], self.walk(override.exp), [')'])
 
     def walk_override_list(self, override: grammars.OverrideList):
-        out = weld([' @+('], self.walk(override.exp))
-        out = weld(out, [')'])
-        return out
+        return weld([' @+('], self.walk(override.exp), [')'])
