@@ -25,6 +25,10 @@ def tracks(model: grammars.Grammar):
     return walker.walk(model)
 
 
+def text(model: grammars.Grammar) -> str:
+    return '\n'.join(line.rstrip() for line in tracks(model))
+
+
 def draw(model: grammars.Grammar):
     for line in tracks(model):
         print(line.rstrip())

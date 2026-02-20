@@ -2,6 +2,6 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .walker import draw, tracks
+from .walker import draw, text, tracks
 
-__all__ = ['draw', 'tracks']
+__all__ = ['draw', 'text', 'tracks']

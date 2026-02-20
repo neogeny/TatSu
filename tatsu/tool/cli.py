@@ -7,6 +7,7 @@ import importlib
 import sys
 from pathlib import Path
 
+from .. import railroads
 from .._version import __version__
 from ..exceptions import ParseException
 from ..ngcodegen import modelgen, pythongen
@@ -47,6 +48,8 @@ def parse_args():
         ),
         action='store_true',
     )
+    main_mode.add_argument('--railroad', '-r', help='output a railroad diagram of the grammar in ASCII/Text Art',
+        action='store_true', )
     main_mode.add_argument(
         '--object-model',
         '-g',
@@ -211,6 +214,12 @@ def tatsu_main():
             from .. import diagrams
 
             diagrams.draw(outfile, model)
+        elif args.railroad:
+            railroad = railroads.text(model)
+            if outfile:
+                save(outfile, railroad)
+            else:
+                print(railroad)
         else:
             if args.pretty:
                 result = model.pretty()
