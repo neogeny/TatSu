@@ -133,26 +133,6 @@ unused-ignore-comment = "ignore"
 omit = ["tests/*", "tatsu/diagrams.py", "tatsu/codegen/*", "**/test.py"]
 data_file = ".cache/coverage/.coverage"
 
-[tool.ruff]
-line-length = 88
-exclude = [".git", "__pycache__", "dist"]
-
-# Enable these to catch logic errors
-select = ["E", "F", "I"]
-
-[tool.ruff.format]
-# Tell Ruff to match your Black preferences
-quote-style = "preserve"
-indent-style = "space"
-skip-magic-trailing-comma = false
-
-[tool.ruff.lint.isort]
-# These settings define the "criteria" for how Ruff handles imports
-combine-as-imports = true
-force-single-line = false
-lines-after-imports = 2
-known-first-party = ["tatsu"] # Replace with your project name
-
 [tool.black]
 line-length = 88
 target-version = ['py312', 'py313', 'py314']
@@ -173,3 +153,76 @@ exclude = '''
 )
 |tatsu/bootstrap.py
 '''
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+exclude = [".git", "__pycache__", "dist", "docs"]
+
+[tool.ruff.format]
+# Tell Ruff to match your Black preferences
+quote-style = "preserve"
+indent-style = "space"
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint.isort]
+# These settings define the "criteria" for how Ruff handles imports
+combine-as-imports = true
+force-single-line = false
+lines-after-imports = 2
+known-first-party = ["tatsu"] # Replace with your project name
+
+
+[tool.ruff.lint.pylint]
+max-branches = 21
+max-nested-blocks = 8
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint]
+select = [
+    "F", "E", "W", "UP",
+    "I", "YTT", "S", "B",
+    "COM", "C4", "SIM",
+    "PTH", "TRY",
+    "FLY", "PERF", "FURB", "RUF",
+    "PL", "PGH", "RET",
+]
+
+ignore = [
+    "E501", #    line-too-long
+    "E402", #    module-import-not-at-top-of-file
+    "I001", #    [*] Import block is un-sorted or un-formatted
+    "FURB189", # subclassing str
+    "PERF203", # try-except within loop
+    "PGH003",
+    "PLC0415", # import-outside-top-level
+    "PLR6301", # no-self-use
+    "PLR0904", # too-many-public-methods
+    "PLR0913", # too-many-arguments
+    "PLR0915", # too-many-statements
+    "PLR0917", # too many positional arguments
+    "PLR2004", # magic-value-comparison
+    "PLW1514", # unspecified-encoding
+    "PLW3201", # bad-dunder-method-name
+    "RET504", #  assign before return
+    "RET505", #  superfluous-else-return
+    "RUF022", #  __all__ sorting
+    "RUF027", #  possible f-string
+    "S102", #    exec-builtin
+    "S101", #    use of assert
+    "S301", #    suspicious-pickle-usage
+    "S106", #    possible password
+    "S403", #    insecure modules
+    "SIM108", #  use ternary instead of if-else
+    "SIM114", #  if-with-same-arms
+    "TRY003", #  raise-vanilla-args
+    "TRY300", #  try-consider-else
+    "UP031", #   use of % formatting
+    "UP046", #   generic class uses `Generic` subclass instead of type parameters
+    "UP047", #   should use tyope in 3.12+ type parameters
+]
