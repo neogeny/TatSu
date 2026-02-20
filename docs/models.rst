@@ -273,8 +273,8 @@ in ``tatsu.walkers``,  such as ``PreOrderWalker`` and ``DepthFirstWalker``.
 Sometimes nodes must be walked more than once for the purpose at hand, and it's
 up to the walker how and when to do that.
 
-Take a look at ``tatsu.ngcodegen.PythonCodeGenerator`` for the walker that generates
-a parser in Python from the model of a parsed grammar.
+Take a look at ``tatsu.ngcodegen.PythonParserGenerator`` for the walker that
+generates a parser in Python from the model of a parsed grammar.
 
 
 Model Class Hierarchies

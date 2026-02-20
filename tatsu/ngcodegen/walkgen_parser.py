@@ -67,12 +67,12 @@ if __name__ == '__main__':
 
 
 def pythongen(model: Node, parser_name: str = '') -> str:
-    generator = PythonCodeGenerator(parser_name=parser_name)
+    generator = PythonParserGenerator(parser_name=parser_name)
     generator.walk(model)
     return generator.printed_text()
 
 
-class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
+class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     _counter: Iterator[int] = itertools.count()
 
     def __init__(self, parser_name: str = ''):
