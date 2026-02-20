@@ -16,6 +16,8 @@ from ..util.abctools import compress_seq
 from ..util.undefined import Undefined
 from ..walkers import NodeWalker
 
+BLACK_LEN = 88
+
 HEADER = """\
     #!/usr/bin/env python3
 
@@ -35,38 +37,24 @@ HEADER = """\
 
     from tatsu.buffering import Buffer
     from tatsu.infos import ParserConfig
-    from tatsu.parsing import (
-        Parser,
-        leftrec,
-        nomemo,
-        isname,
-        generic_main,
-        rule,
-    )
+    from tatsu.parsing import Parser, leftrec, nomemo, isname, generic_main, rule
 
-
-    __all__ = [
-        '{parser_name}Buffer',
-        '{parser_name}Parser',
-        'main',
-    ]
+    __all__ = ['{parser_name}Buffer', '{parser_name}Parser', 'main']
 """
 
 FOOTER = """\
 def main(filename, **kwargs):
     if not filename or filename == '-':
         import sys
+
         text = sys.stdin.read()
     else:
         import pathlib
+
         text = pathlib.Path(filename).read_text()
 
     parser = {name}Parser()
-    return parser.parse(
-        text,
-        filename=filename,
-        **kwargs,
-    )
+    return parser.parse(text, filename=filename, **kwargs)
 
 
 if __name__ == '__main__':
@@ -223,17 +211,29 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             error = ['expecting one of: ', *msglines]
         else:
             error = ['no available options']
-        errors = '\n'.join(repr(e) for e in error)
+        errors = ' '.join(error)
+        raisestr = f'raise self.newexcept({errors!r}) from None'
+
+        if len(errors) + self.indentation > BLACK_LEN - 12:
+            errors = '\n'.join(repr(e) for e in error)
+            one_liner = False
+        elif len(raisestr) + self.indentation <= BLACK_LEN - 8:
+            one_liner = True
+        else:
+            one_liner = False
 
         self.print('with self._choice():')
         with self.indent():
             self.walk(choice.options)
             self.print('if self._no_more_options:')
             with self.indent():
-                self.print('raise self.newexcept(')
-                with self.indent():
+                if one_liner:
                     self.print(errors)
-                self.print(') from None')
+                else:
+                    self.print('raise self.newexcept(')
+                    with self.indent():
+                        self.print(errors)
+                    self.print(') from None')
 
     def walk_Option(self, option: grammars.Option):
         self.print('with self._option():')
@@ -250,44 +250,53 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
     def walk_Closure(self, closure: grammars.Closure):
         n = self._gen_block(closure.exp)
+        self.print()
         self.print(f'self._closure(block{n})')
 
     def walk_PositiveClosure(self, closure: grammars.PositiveClosure):
         n = self._gen_block(closure.exp)
+        self.print()
         self.print(f'self._positive_closure(block{n})')
 
     def walk_Join(self, join: grammars.Join):
         m = self._gen_block(join.sep, name='sep')
         n = self._gen_block(join.exp)
+        self.print()
         self.print(f'self._join(block{n}, sep{m})')
 
     def walk_PositiveJoin(self, join: grammars.PositiveJoin):
         m = self._gen_block(join.sep, name='sep')
         n = self._gen_block(join.exp)
+        self.print()
         self.print(f'self._positive_join(block{n}, sep{m})')
 
     def walk_LeftJoin(self, join: grammars.LeftJoin):
         m = self._gen_block(join.sep, name='sep')
         n = self._gen_block(join.exp)
+        self.print()
         self.print(f'self._left_join(block{n}, sep{m})')
 
     def walk_RightJoin(self, join: grammars.RightJoin):
         m = self._gen_block(join.sep, name='sep')
         n = self._gen_block(join.exp)
+        self.print()
         self.print(f'self._right_join(block{n}, sep{m})')
 
     def walk_Gather(self, gather: grammars.Gather):
         m = self._gen_block(gather.sep, name='sep')
         n = self._gen_block(gather.exp)
+        self.print()
         self.print(f'self._gather(block{n}, sep{m})')
 
     def walk_PositiveGather(self, gather: grammars.PositiveGather):
         m = self._gen_block(gather.sep, name='sep')
         n = self._gen_block(gather.exp)
+        self.print()
         self.print(f'self._positive_gather(block{n}, sep{m})')
 
     def walk_SkipTo(self, skipto: grammars.SkipTo):
         n = self._gen_block(skipto.exp)
+        self.print()
         self.print(f'self._skip_to(block{n})')
 
     def walk_Named(self, named: grammars.Named):
@@ -351,7 +360,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
         with self.indent():
             self.print(
-                'def __init__(self, text, /, config: ParserConfig | None = None, **settings):'
+                'def __init__(self, text, /, config: ParserConfig | None = None, **settings):',
             )
             with self.indent():
                 self._gen_init(grammar)
@@ -363,7 +372,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'class {parser_name}Parser(Parser):')
         with self.indent():
             self.print(
-                'def __init__(self, /, config: ParserConfig | None = None, **settings):'
+                'def __init__(self, /, config: ParserConfig | None = None, **settings):',
             )
             with self.indent():
                 self._gen_init(grammar)
@@ -395,7 +404,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
     def _gen_block(self, exp: grammars.Model, name='block'):
         if () in exp.lookahead():
             raise CodegenError(
-                f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}'
+                f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}',
             )
 
         n = self._next_n()
