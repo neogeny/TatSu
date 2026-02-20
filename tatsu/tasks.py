@@ -23,7 +23,8 @@ __license__: str = 'BSD-4-Clause'
 # Defeat `ruff --fix` replacing `3.14` with `math.pi`
 # and breaking havock on `uv run --python PYTHON`
 # Fun using ord of the hidden STX char for '2'
-PYTHON: float = float(f'{math.pi:.{ord('')}f}')
+# PYTHON: float = float(f'{math.pi:.{ord('')}f}')
+PYTHON: float = 3.15
 
 LINE_PRE: int = 4
 THIN_LINE: str = '─'
