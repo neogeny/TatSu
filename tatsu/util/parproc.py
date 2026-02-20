@@ -17,7 +17,7 @@ from types import SimpleNamespace
 from typing import Any, NamedTuple
 
 try:
-    import rich
+    import rich  # pyright: ignore[reportMissingImports]
 except ImportError:
     rich = SimpleNamespace()  # ty:ignore[invalid-assignment]
 

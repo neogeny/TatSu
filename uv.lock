@@ -419,15 +419,6 @@ wheels = [
 ]
 
 [[package]]
-name = "genshi"
-version = "0.7.10"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/58/52/0036675d60f142575a71ca26a52379e967d9b37774de5d57bbd3e8cac0cd/genshi-0.7.10.tar.gz", hash = "sha256:85b0db113625314f0f44f3fe6ef0eb2564d6c34dd2ee5677b495d15142bb4973", size = 237292, upload-time = "2025-11-30T20:28:01.743Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/27/69/259f8a1edc358a72c511b145c33b85a7667804a5c8ba04991aa5737d38a4/genshi-0.7.10-py3-none-any.whl", hash = "sha256:1c45aa70c06f2fcab68137f040890e4fb105cc539f0121cb86d750656dafc37c", size = 179261, upload-time = "2025-11-30T20:28:00.817Z" },
-]
-
-[[package]]
 name = "ghp-import"
 version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1549,20 +1540,6 @@ wheels = [
 ]
 
 [[package]]
-name = "rst2html5"
-version = "2.0.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "docutils" },
-    { name = "genshi" },
-    { name = "pygments" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/bb/82/a85a9664cced2dce7b9d8895f6cace6c2501072a320342d7edcb6d7ce295/rst2html5-2.0.1.tar.gz", hash = "sha256:309998c85fab028f2fcb01a2ccdc886db0afc4398262e795a02ea9c4d0f32ae9", size = 21894, upload-time = "2024-01-06T21:53:05.874Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/68/11/af7dbae566c6601595be0ccfad50d397a94b491532d6d2abf0aff5b852b4/rst2html5-2.0.1-py3-none-any.whl", hash = "sha256:755f97255475ffc3f81e87ebe4bc1a182ffd52b753897045098e997e455651cd", size = 20200, upload-time = "2024-01-06T21:53:03.577Z" },
-]
-
-[[package]]
 name = "ruff"
 version = "0.15.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1823,7 +1800,6 @@ dev = [
     { name = "pytest-dependency" },
     { name = "rich" },
     { name = "rich-click" },
-    { name = "rst2html5" },
     { name = "ruff" },
     { name = "twine" },
     { name = "uv" },
@@ -1886,9 +1862,8 @@ dev = [
     { name = "psutil", specifier = ">=7.2.2" },
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "pytest-dependency", specifier = ">=0.6.0" },
-    { name = "rich", specifier = ">=14.3.2" },
+    { name = "rich", specifier = ">=14.3.3" },
     { name = "rich-click", specifier = ">=1.9.7" },
-    { name = "rst2html5", specifier = ">=2.0.1" },
     { name = "ruff", specifier = ">=0.15.1" },
     { name = "twine", specifier = ">=6.2.0" },
     { name = "uv", specifier = ">=0.10.2" },
