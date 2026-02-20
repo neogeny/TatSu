@@ -36,6 +36,7 @@ parproc = ["rich"]
 
 [dependency-groups]
 dev = [
+    "basedpyright>=1.38.0",
     "black>=26.1.0",
     "build>=1.4.0",
     "colorama>=0.4.6",
@@ -49,6 +50,7 @@ dev = [
     "pytest-dependency>=0.6.0",
     "rich>=14.3.2",
     "rst2html5>=2.0.1",
+    "ruff>=0.15.1",
     "twine>=6.2.0",
     "uv>=0.10.2",
 ]
