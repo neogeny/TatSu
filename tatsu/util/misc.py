@@ -20,7 +20,7 @@ __all__ = [
 
 
 try:
-    from rich import print as rprint
+    from rich import print as rprint  # pyright: ignore[reportMissingImports]
 except ImportError:
 
     def rprint(*args, **kwargs):
