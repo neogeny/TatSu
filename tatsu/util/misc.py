@@ -37,7 +37,9 @@ except ImportError:
 
 @cache
 def cached_re_compile(
-    pattern: str | bytes | re.Pattern, /, flags: int = 0,
+    pattern: str | bytes | re.Pattern,
+    /,
+    flags: int = 0,
 ) -> re.Pattern:
     if isinstance(pattern, re.Pattern):
         return pattern

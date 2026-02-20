@@ -64,7 +64,10 @@ class ParprocResult:
 
 
 def process_payload(
-    process: Callable, task: Any, pickable: Callable = identity, reraise: bool = False,
+    process: Callable,
+    task: Any,
+    pickable: Callable = identity,
+    reraise: bool = False,
 ) -> ParprocResult | None:
     start_time = time.process_time()
     result = ParprocResult(task.payload)
@@ -87,7 +90,9 @@ def process_payload(
 
 
 def _executor_pmap(
-    executor: Callable, process: Callable, tasks: Sequence[Any],
+    executor: Callable,
+    process: Callable,
+    tasks: Sequence[Any],
 ) -> Iterable[ParprocResult]:
     nworkers = max(1, multiprocessing.cpu_count())
     n = nworkers * 8
@@ -128,7 +133,10 @@ _active_pmap = _imap_pmap
 
 
 def parallel_proc(
-    payloads: Iterable[Any], process: Callable, *args: Any, **kwargs: Any,
+    payloads: Iterable[Any],
+    process: Callable,
+    *args: Any,
+    **kwargs: Any,
 ):
     pickable = kwargs.pop('pickable', identity)
     parallel = kwargs.pop('parallel', True)
@@ -209,7 +217,9 @@ def processing_loop(
                     icon = f'[green]{U_CHECK_MARK}'
 
                 progress.update(
-                    progress_task, advance=1, description=f'{icon} {filename}',
+                    progress_task,
+                    advance=1,
+                    description=f'{icon} {filename}',
                 )
 
                 # with logctx() as log:
@@ -223,7 +233,9 @@ def processing_loop(
                         # in case of errors while serializing the exception
                         with logctx() as log:
                             print(
-                                'EXCEPTION', type(result.exception).__name__, file=log,
+                                'EXCEPTION',
+                                type(result.exception).__name__,
+                                file=log,
                             )
                     if reraise:
                         raise result.exception
@@ -237,14 +249,22 @@ def processing_loop(
             progress.stop()
         with logctx() as log:
             file_process_summary(
-                filenames, total_time, run_time, success_count, success_linecount, log,
+                filenames,
+                total_time,
+                run_time,
+                success_count,
+                success_linecount,
+                log,
             )
     except KeyboardInterrupt:
         return
 
 
 def file_process_progress(
-    latest_result: ParprocResult, count: int, total: int, total_time: float,
+    latest_result: ParprocResult,
+    count: int,
+    total: int,
+    total_time: float,
 ):
     filename = latest_result.payload
 

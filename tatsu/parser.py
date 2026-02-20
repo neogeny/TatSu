@@ -76,6 +76,9 @@ class TatSuParserGenerator(TatSuBootstrapParser):
         if not semantics:
             semantics = TatSuGrammarSemantics(name=name, context=self)
         config = ParserConfig.new(
-            name=name, semantics=semantics, tokenizercls=TatSuBuffer, **settings,
+            name=name,
+            semantics=semantics,
+            tokenizercls=TatSuBuffer,
+            **settings,
         )
         super().__init__(config)

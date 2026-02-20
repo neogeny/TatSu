@@ -26,7 +26,9 @@ DESCRIPTION = (
 
 def parse_args():
     argparser = argparse.ArgumentParser(
-        prog='tatsu', description=DESCRIPTION, add_help=False,
+        prog='tatsu',
+        description=DESCRIPTION,
+        add_help=False,
     )
 
     main_mode = argparser.add_mutually_exclusive_group()
@@ -65,7 +67,9 @@ def parse_args():
 
     ebnf_opts = argparser.add_argument_group('parse-time options')
     argparser.add_argument(
-        'filename', metavar='GRAMMAR', help='the filename of the TatSu grammar to parse',
+        'filename',
+        metavar='GRAMMAR',
+        help='the filename of the TatSu grammar to parse',
     )
     ebnf_opts.add_argument(
         '--color',
@@ -74,7 +78,10 @@ def parse_args():
         action='store_true',
     )
     ebnf_opts.add_argument(
-        '--trace', '-t', help='produce verbose parsing output', action='store_true',
+        '--trace',
+        '-t',
+        help='produce verbose parsing output',
+        action='store_true',
     )
 
     generation_opts = argparser.add_argument_group('generation options')
@@ -138,7 +145,10 @@ def parse_args():
 
     std_args = argparser.add_argument_group('common options')
     std_args.add_argument(
-        '--help', '-h', help='show this help message and exit', action='help',
+        '--help',
+        '-h',
+        help='show this help message and exit',
+        action='help',
     )
     std_args.add_argument(
         '--version',
@@ -219,7 +229,8 @@ def tatsu_main():
             # if requested, always save it
             if args.object_model_outfile:
                 save(
-                    args.object_model_outfile, modelgen(model, basetype=args.base_type),
+                    args.object_model_outfile,
+                    modelgen(model, basetype=args.base_type),
                 )
 
         print('─' * 72, file=sys.stderr)

@@ -44,7 +44,10 @@ class NodeWalker:
             return type(node)(self.walk(n, *args, **kwargs) for n in node if n != node)
         elif (walker := self._find_walker(node)) and callable(walker):
             return walker(
-                self, node, *args, **kwargs,
+                self,
+                node,
+                *args,
+                **kwargs,
             )  # walkers are unbound, define self
         else:
             return node

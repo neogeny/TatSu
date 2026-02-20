@@ -146,7 +146,8 @@ class Model(Node):
 
     # list of Model that can be invoked at the same position
     def callable_at_same_pos(
-        self, rulemap: Mapping[str, Rule] | None = None,
+        self,
+        rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         return []
 
@@ -264,7 +265,8 @@ class Decorator(Model):
         return self.exp._nullable()
 
     def callable_at_same_pos(
-        self, rulemap: Mapping[str, Rule] | None = None,
+        self,
+        rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         return [self.exp]
 
@@ -474,7 +476,8 @@ class Sequence(Model):
         return all(s._nullable() for s in self.sequence)
 
     def callable_at_same_pos(
-        self, rulemap: Mapping[str, Rule] | None = None,
+        self,
+        rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         head = list(takewhile(lambda c: c.is_nullable(rulemap), self.sequence))
         if len(head) < len(self.sequence):
@@ -544,7 +547,8 @@ class Choice(Model):
         return any(o._nullable() for o in self.options)
 
     def callable_at_same_pos(
-        self, rulemap: Mapping[str, Rule] | None = None,
+        self,
+        rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         return self.options
 
@@ -966,7 +970,8 @@ class BasedRule(Rule):
         super().__post_init__()
 
         assert isinstance(
-            self.baserule, Rule,
+            self.baserule,
+            Rule,
         ), f'{typename(self.base)}: {self.basrulee=!r}'
 
         self.params = self.params or self.baserule.params

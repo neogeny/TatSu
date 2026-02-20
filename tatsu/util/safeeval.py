@@ -179,7 +179,8 @@ def check_safe_eval(expression: str, context: dict[str, Any]) -> None:
 
 @lru_cache(maxsize=1024)
 def _check_safe_eval_cached(
-    expression: str, context_items: tuple[tuple[str, Any], ...],
+    expression: str,
+    context_items: tuple[tuple[str, Any], ...],
 ) -> None:
     """
     Internal cached function that performs the actual AST validation.

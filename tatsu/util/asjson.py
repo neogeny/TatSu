@@ -60,7 +60,8 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
                 case enum.Enum() as en:
                     result = dfs(en.value)
                 case _ if isinstance(
-                    node, (weakref.ReferenceType, *weakref.ProxyTypes),
+                    node,
+                    (weakref.ReferenceType, *weakref.ProxyTypes),
                 ):
                     result = f"{type(node).__name__}@0x{hex(node_id).upper()[2:]}"
                 case _ if nt := as_namedtuple(node):

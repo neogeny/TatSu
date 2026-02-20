@@ -13,7 +13,9 @@ from ..grammars import Model
 
 def camel2py(name: Any) -> str:
     return re.sub(
-        r'([a-z0-9])([A-Z])', lambda m: m.group(1) + '_' + m.group(2).lower(), str(name),
+        r'([a-z0-9])([A-Z])',
+        lambda m: m.group(1) + '_' + m.group(2).lower(),
+        str(name),
     )
 
 

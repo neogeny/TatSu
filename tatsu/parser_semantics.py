@@ -172,7 +172,10 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
 
         name = self.name or directives.get('grammar')
         grammar = grammars.Grammar(
-            name, list(self.rulemap.values()), directives=directives, keywords=keywords,
+            name,
+            list(self.rulemap.values()),
+            directives=directives,
+            keywords=keywords,
         )
         if grammar.config.left_recursion:
             mark_left_recursion(grammar)

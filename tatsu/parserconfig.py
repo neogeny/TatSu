@@ -84,7 +84,8 @@ class ParserConfig(Config):
         # note: handle deprecations gracefully
         if self.comments_re:
             warnings.warn(
-                'ParserConfig.comments_re is deprecated: use `comments`', stacklevel=3,
+                'ParserConfig.comments_re is deprecated: use `comments`',
+                stacklevel=3,
             )
             if not self.comments:
                 self.comments = str(self.comments_re)

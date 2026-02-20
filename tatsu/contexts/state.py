@@ -150,7 +150,9 @@ class ParseStateStack:
         self.ast._setlist(name, self.last_node)
 
     def define(
-        self, keys: Iterable[str], list_keys: Iterable[str] | None = None,
+        self,
+        keys: Iterable[str],
+        list_keys: Iterable[str] | None = None,
     ) -> Any:
         ast = AST()
         ast._define(keys, list_keys=list_keys)

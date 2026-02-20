@@ -40,7 +40,10 @@ class EventTracer:
     def trace_cut(self) -> None: ...
 
     def trace_match(
-        self, token: Any, name: str | None = None, failed: bool = False,
+        self,
+        token: Any,
+        name: str | None = None,
+        failed: bool = False,
     ) -> None: ...
 
 
@@ -110,7 +113,10 @@ class EventTracerImpl(EventTracer):
         self.trace_event(f'{C.CUT}')
 
     def trace_match(
-        self, token: Any, name: str | None = None, failed: bool = False,
+        self,
+        token: Any,
+        name: str | None = None,
+        failed: bool = False,
     ) -> None:
         if not self.config.trace:
             return
