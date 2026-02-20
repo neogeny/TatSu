@@ -264,7 +264,13 @@ def test(c: Context):
 @task(pre=[clean])
 def doclint(c: Context, python: float = PYTHON):
     print('-> doclint')
-    uv_run(c, 'vale README.rst docs/*.rst', group='doc', hide='stdout')
+    uv_run(
+        c,
+        'vale README.rst docs/*.rst',
+        group='doc',
+        hide='stdout',
+        pty=True,
+    )
 
 
 @task(pre=[begin, doclint])
