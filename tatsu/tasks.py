@@ -191,7 +191,14 @@ def black(c: Context, python: float = PYTHON):
     print('-> black')
     res = uv_run(
         c,
-        ["black", "--check", "tatsu", "tests", "examples"],
+        [
+            "black",
+            "--check",
+            "--skip-string-normalization",
+            "--skip-magic-trailing-comma" "tatsu",
+            "tests",
+            "examples",
+        ],
         python=python,
         group='test',
         warn=True,
