@@ -148,7 +148,7 @@ skip-magic-trailing-comma = false
 
 [tool.black]
 line-length = 88
-target-version = ['py312']
+target-version = ['py312', 'py313', 'py314']
 skip-string-normalization = true
 skip-magic-trailing-comma = false
 include = '\.pyi?$'
