@@ -31,7 +31,7 @@ def isname(impl: Callable) -> Callable:
 
 
 def rule(
-    *params: Any, **kwparams: Any
+    *params: Any, **kwparams: Any,
 ) -> Callable[[Callable[..., Any]], Callable[[ParseContext], Any]]:
     def decorator(impl: Callable[..., Any]) -> Callable[[ParseContext], Any]:
         @functools.wraps(impl)
@@ -45,7 +45,7 @@ def rule(
             is_memoizable = getattr(impl, 'is_memoizable', True)
             is_name = getattr(impl, 'is_name', False)
             ruleinfo = RuleInfo(
-                name, impl, is_leftrec, is_memoizable, is_name, params, kwparams
+                name, impl, is_leftrec, is_memoizable, is_name, params, kwparams,
             )
             return self._call(ruleinfo)
 

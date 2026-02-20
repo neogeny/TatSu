@@ -29,7 +29,7 @@ LineIndexEntry = LineIndexInfo
 class Buffer(Tokenizer):
 
     def __init__(
-        self, text: str, *, config: ParserConfig | None = None, **settings: Any
+        self, text: str, *, config: ParserConfig | None = None, **settings: Any,
     ):
         config = ParserConfig.new(config=config, **settings)
         self.config = config
@@ -97,7 +97,7 @@ class Buffer(Tokenizer):
         self._len = len(self.text)
 
     def _preprocess_block(
-        self, name: str, block, /, **kwargs
+        self, name: str, block, /, **kwargs,
     ) -> tuple[list[str], list[LineIndexInfo]]:
         lines = self.split_block_lines(block)
         index = LineIndexInfo.block_index(name, len(lines))
@@ -110,7 +110,7 @@ class Buffer(Tokenizer):
         return ''.join(lines)
 
     def process_block(
-        self, name: str, lines: list[str], index: list[LineIndexInfo], /, **kwargs
+        self, name: str, lines: list[str], index: list[LineIndexInfo], /, **kwargs,
     ) -> tuple[list[str], list[LineIndexInfo]]:
         return lines, index
 

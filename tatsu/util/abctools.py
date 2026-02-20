@@ -148,7 +148,7 @@ def right_assoc(elements):
 
 
 def rowselect[K, V](
-    keys: Iterable[K], row: dict[K, V], *, where: Predicate[K, V] = true
+    keys: Iterable[K], row: dict[K, V], *, where: Predicate[K, V] = true,
 ) -> dict[K, V]:
     # by [apalala@gmail.com](https://github.com/apalala)
     # by Gemini (2026-02-05)
@@ -156,6 +156,6 @@ def rowselect[K, V](
 
 
 def select[K, V](
-    keys: Iterable[K], *rows: dict[K, V], where: Predicate[K, V] = true
+    keys: Iterable[K], *rows: dict[K, V], where: Predicate[K, V] = true,
 ) -> list[dict[K, V]]:
     return [rowselect(keys, row, where=where) for row in rows]

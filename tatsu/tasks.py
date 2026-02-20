@@ -79,13 +79,13 @@ def uv_sync(c: Context):
 
 def version_python(c: Context, python: float = PYTHON) -> str:
     return uv_run(
-        c, 'python3 --version', python=python, quiet=True, hide='both'
+        c, 'python3 --version', python=python, quiet=True, hide='both',
     ).stdout.strip()
 
 
 def version_tatsu(c: Context, python: float = PYTHON) -> str:
     return uv_run(
-        c, 'python3 -m tatsu --version', python=python, quiet=True, hide='both'
+        c, 'python3 -m tatsu --version', python=python, quiet=True, hide='both',
     ).stdout.strip()
 
 
@@ -105,7 +105,7 @@ def success_print(target: str = '', *, task: TaskFun = None, line: str = THIN_LI
 
 
 def version_boundary_print(
-    c: Context, target: str = '', python: float = PYTHON, line: str = THICK_LINE
+    c: Context, target: str = '', python: float = PYTHON, line: str = THICK_LINE,
 ):
     verpython = version_python(c, python=python)
     vertatsu = version_tatsu(c, python=python)
@@ -191,14 +191,7 @@ def black(c: Context, python: float = PYTHON):
     print('-> black')
     res = uv_run(
         c,
-        [
-            "black",
-            "--check",
-            "--skip-string-normalization",
-            "--skip-magic-trailing-comma" "tatsu",
-            "tests",
-            "examples",
-        ],
+        ["black", "--check", "tatsu", "tests", "examples"],
         python=python,
         group='test',
         warn=True,

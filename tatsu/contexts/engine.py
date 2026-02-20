@@ -41,7 +41,7 @@ __all__: list[str] = ['ParseContext']
 
 class ParseContext:
     def __init__(
-        self, /, *, config: ParserConfig | None = None, **settings: Any
+        self, /, *, config: ParserConfig | None = None, **settings: Any,
     ) -> None:
         super().__init__()
 
@@ -145,7 +145,7 @@ class ParseContext:
 
     def update_tracer(self) -> EventTracer:
         tracer = EventTracerImpl(
-            self._tokenizer, self._ruleinfo_stack, config=self.config
+            self._tokenizer, self._ruleinfo_stack, config=self.config,
         )
         self._tracer = tracer
         return self.tracer
@@ -160,7 +160,7 @@ class ParseContext:
 
     def _clear_memoization_caches(self) -> None:
         self._memos: BoundedDict[MemoKey, RuleResult | ParseException] = BoundedDict(
-            self.config.memo_cache_size
+            self.config.memo_cache_size,
         )
         self._results: dict[MemoKey, RuleResult | ParseException] = {}
 
@@ -223,7 +223,7 @@ class ParseContext:
             self._tokenizer.next_token()
 
     def _define(
-        self, keys: Iterable[str], list_keys: Iterable[str] | None = None
+        self, keys: Iterable[str], list_keys: Iterable[str] | None = None,
     ) -> None:
         # NOTE: called by generated parsers
         return self.states.define(keys, list_keys)
@@ -294,7 +294,7 @@ class ParseContext:
         return action
 
     def newexcept(
-        self, item: Any, exclass: type[FailedParse] = FailedParse
+        self, item: Any, exclass: type[FailedParse] = FailedParse,
     ) -> FailedParse:
         if issubclass(exclass, FailedLeftRecursion):
             rulestack: list[str] = []
@@ -305,7 +305,7 @@ class ParseContext:
     # bw compatibility
     @deprecated(replacement=newexcept)
     def _error(
-        self, item: Any, exclass: type[FailedParse] = FailedParse
+        self, item: Any, exclass: type[FailedParse] = FailedParse,
     ) -> FailedParse:
         raise self.newexcept(item, exclass)
 
@@ -342,7 +342,7 @@ class ParseContext:
         return MemoKey(self.pos, self.ruleinfo, self.substate)
 
     def _memoize(
-        self, key: MemoKey, memo: RuleResult | ParseException
+        self, key: MemoKey, memo: RuleResult | ParseException,
     ) -> RuleResult | ParseException:
         if self._memoization() and key.ruleinfo.is_memoizable:
             self._memos[key] = memo
@@ -528,7 +528,7 @@ class ParseContext:
                     result = safe_eval(expression, context)
             except Exception as e:
                 raise FailedSemantics(
-                    f'Error evaluating constant {literal!r}: {e}'
+                    f'Error evaluating constant {literal!r}: {e}',
                 ) from e
 
         self.states.append(result)
@@ -558,7 +558,7 @@ class ParseContext:
         self.next_token()
         if not self.tokenizer.atend():
             raise self.newexcept(
-                'Expecting end of text', exclass=FailedExpectingEndOfText
+                'Expecting end of text', exclass=FailedExpectingEndOfText,
             )
 
     @contextmanager

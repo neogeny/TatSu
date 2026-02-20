@@ -60,7 +60,6 @@ def main() -> None:
         Path('./.vale/styles/'),
     ]
 
-
     staged = get_staged_files()
     missing_paths: list[Path] = []
 
@@ -77,13 +76,16 @@ def main() -> None:
             missing_paths.append(path)
 
     if missing_paths:
-        print("ERROR: Commit aborted. The following files are missing the license header:")
+        print(
+            "ERROR: Commit aborted. The following files are missing the license header:"
+        )
         for f in missing_paths:
             print(f"  - {f}")
         print(f"\nPlease add:\n{target}")
         sys.exit(1)
 
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

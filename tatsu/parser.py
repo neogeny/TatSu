@@ -71,11 +71,11 @@ class TatSuParserGenerator(TatSuBootstrapParser):
     def __init__(self, name: str | None = None, semantics=None, **settings: Any):
         if isinstance(semantics, type):
             raise TypeError(
-                f'semantics must be an object instance or None, not class {semantics!r}'
+                f'semantics must be an object instance or None, not class {semantics!r}',
             )
         if not semantics:
             semantics = TatSuGrammarSemantics(name=name, context=self)
         config = ParserConfig.new(
-            name=name, semantics=semantics, tokenizercls=TatSuBuffer, **settings
+            name=name, semantics=semantics, tokenizercls=TatSuBuffer, **settings,
         )
         super().__init__(config)

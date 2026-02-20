@@ -13,6 +13,7 @@ from collections.abc import Sequence
 
 type FileList = Sequence[str]
 
+
 def get_staged_files() -> FileList:
     """
     Get files staged for commit. Still requires one external call to git.
@@ -22,11 +23,14 @@ def get_staged_files() -> FileList:
     try:
         result = subprocess.run(
             ['git', 'diff', '--cached', '--name-only', '--diff-filter=d'],
-            capture_output=True, text=True, check=True
+            capture_output=True,
+            text=True,
+            check=True,
         )
         return result.stdout.splitlines()
     except subprocess.CalledProcessError:
         return []
+
 
 def get_missing_headers(files: FileList) -> FileList:
     """
@@ -49,6 +53,7 @@ def get_missing_headers(files: FileList) -> FileList:
             pass
     return missing
 
+
 def main() -> None:
     # by [apalala@gmail.com](https://github.com/apalala)
     # by Gemini (2026-02-03)
@@ -69,6 +74,7 @@ def main() -> None:
             f.write("# --------------------------------------------------------\n")
 
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

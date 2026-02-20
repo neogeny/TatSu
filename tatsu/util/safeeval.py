@@ -179,7 +179,7 @@ def check_safe_eval(expression: str, context: dict[str, Any]) -> None:
 
 @lru_cache(maxsize=1024)
 def _check_safe_eval_cached(
-    expression: str, context_items: tuple[tuple[str, Any], ...]
+    expression: str, context_items: tuple[tuple[str, Any], ...],
 ) -> None:
     """
     Internal cached function that performs the actual AST validation.
@@ -223,7 +223,7 @@ def _check_safe_eval_cached(
 
         if func.id in argcounts and len(node.args) != argcounts[func.id]:
             raise SecurityError(
-                f'Bad argument count of {len(node.args)} for {func.id}().'
+                f'Bad argument count of {len(node.args)} for {func.id}().',
             )
 
 
@@ -269,10 +269,10 @@ def check_eval_context(context: dict[str, Any]) -> None:
         real_name = getattr(obj, "__name__", None)
         if real_name == "<lambda>":
             raise SecurityError(
-                f"Anonymous lambdas are not allowed in context: '{name}'"
+                f"Anonymous lambdas are not allowed in context: '{name}'",
             )
 
         if real_name and real_name != name and name not in sbuiltins:
             raise SecurityError(
-                f"Context name mismatch: '{name}' refers to '{real_name}'"
+                f"Context name mismatch: '{name}' refers to '{real_name}'",
             )

@@ -59,7 +59,7 @@ def regexp(text: Any) -> str:
         re.compile(pattern_text)
     except PatternError as e:
         raise ValueError(
-            f"Invalid regex passed to regexp(): {pattern_text!r}\n{e}"
+            f"Invalid regex passed to regexp(): {pattern_text!r}\n{e}",
         ) from e
 
     ctrl_map: dict[str, str] = {
@@ -89,11 +89,11 @@ def regexp(text: Any) -> str:
         re.compile(evaluated)
     except SyntaxError as e:
         raise RuntimeError(
-            f"regexp() generated invalid Python syntax: {output}\n{e}"
+            f"regexp() generated invalid Python syntax: {output}\n{e}",
         ) from e
     except PatternError as e:
         raise RuntimeError(
-            f"regexp() generated an invalid regex pattern: {output}\n{e}"
+            f"regexp() generated an invalid regex pattern: {output}\n{e}",
         ) from e
     except Exception as e:
         raise RuntimeError(f"Unexpected error evaluating output: {output}\n{e}") from e

@@ -15,7 +15,7 @@ def get_staged_files() -> list[Path]:
             ['git', 'diff', '--cached', '--name-only', '--diff-filter=d'],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
         return [Path(filename) for filename in result.stdout.splitlines()]
     except subprocess.CalledProcessError:

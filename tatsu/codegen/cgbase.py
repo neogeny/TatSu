@@ -74,7 +74,7 @@ class ModelRenderer(Renderer):
         template = fields.pop('template', None)
         if isinstance(self.node, Node):
             fields.update(
-                {k: v for k, v in vars(self.node).items() if not k.startswith('_')}
+                {k: v for k, v in vars(self.node).items() if not k.startswith('_')},
             )
         else:
             fields.update(value=self.node)

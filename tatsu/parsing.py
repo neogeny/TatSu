@@ -66,7 +66,7 @@ def generic_main(custom_main, parser_class, name='Unknown'):
     )
     addarg('-t', '--trace', action='store_true', help='output trace information')
     addarg(
-        '-w', '--whitespace', type=str, default=None, help='whitespace specification'
+        '-w', '--whitespace', type=str, default=None, help='whitespace specification',
     )
     addarg(
         'file',

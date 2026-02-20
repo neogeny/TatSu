@@ -38,13 +38,13 @@ class NodeWalker:
                     name: self.walk(value, *args, **kwargs)
                     for name, value in node.items()
                     if value != node
-                }
+                },
             )
         elif isinstance(node, list | tuple | set):
             return type(node)(self.walk(n, *args, **kwargs) for n in node if n != node)
         elif (walker := self._find_walker(node)) and callable(walker):
             return walker(
-                self, node, *args, **kwargs
+                self, node, *args, **kwargs,
             )  # walkers are unbound, define self
         else:
             return node
@@ -130,7 +130,7 @@ class BreadthFirstWalker(NodeWalker):
     def iter_breadthfirst(self, node: Any, *args, **kwargs) -> Iterable[Any]:
         if self.queue is not None:
             raise RuntimeError(
-                f'{type(self).__name__}.walk_breadthfirst() called recursively'
+                f'{type(self).__name__}.walk_breadthfirst() called recursively',
             )
 
         self.queue = deque([node])
@@ -147,7 +147,7 @@ class BreadthFirstWalker(NodeWalker):
         An error during a BFS walk
         """
         raise RuntimeError(
-            f'{type(self).__name__}.walk_children() is not allowed in BFS mode'
+            f'{type(self).__name__}.walk_children() is not allowed in BFS mode',
         )
 
 

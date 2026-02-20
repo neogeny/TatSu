@@ -53,7 +53,7 @@ def main():
         print('\t', thisprog, 'FILENAME.g [--trace]')
         sys.exit(1)
     model = translate(
-        filename=sys.argv[1], trace='--trace' in sys.argv or '-t' in sys.argv
+        filename=sys.argv[1], trace='--trace' in sys.argv or '-t' in sys.argv,
     )
     print(model)
 

@@ -71,11 +71,11 @@ class Tokenizer(Protocol):
     def get_line(self, n: int | None = None) -> str: ...
 
     def get_lines(
-        self, start: int | None = None, end: int | None = None
+        self, start: int | None = None, end: int | None = None,
     ) -> list[str]: ...
 
     def line_index(
-        self, start: int = 0, end: int | None = None
+        self, start: int = 0, end: int | None = None,
     ) -> list[LineIndexInfo]: ...
 
     def lookahead(self) -> str: ...

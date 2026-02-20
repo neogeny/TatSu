@@ -43,7 +43,7 @@ def first(iterable: Iterable[Any], default: Any = Undefined) -> Any:
         if default is Undefined:
             raise ValueError(
                 'first() was called on an empty iterable, and no '
-                'default value was provided.'
+                'default value was provided.',
             ) from e
         return default
 
@@ -81,7 +81,7 @@ def iter_findall(
     r = pattern if isinstance(pattern, re.Pattern) else re.compile(pattern, flags=flags)
     if pos is not None and endpos is not None:
         iterator = r.finditer(
-            string, pos=pos, endpos=endpos
+            string, pos=pos, endpos=endpos,
         )  # pyright: ignore[reportCallIssue]
     elif pos is not None:
         iterator = r.finditer(string, pos=pos)
@@ -91,7 +91,7 @@ def iter_findall(
 
 
 def findfirst(
-    pattern, string, pos=None, endpos=None, flags=0, default=Undefined
+    pattern, string, pos=None, endpos=None, flags=0, default=Undefined,
 ) -> str:
     """
     Avoids using the inefficient findall(...)[0], or first(findall(...))

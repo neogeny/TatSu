@@ -35,6 +35,7 @@ def run_black_on_staged() -> bool:
         print(f"Black: Failed to format staged files!\n{e.stderr}")
         return False
 
+
 def pre_commit_pipeline():
     # Chain your checks here
     checks = [
@@ -46,6 +47,7 @@ def pre_commit_pipeline():
         if not check():
             print("Pipeline aborted. Please fix errors before committing.")
             sys.exit(1)
+
 
 if __name__ == "__main__":
     pre_commit_pipeline()

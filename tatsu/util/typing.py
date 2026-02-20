@@ -93,7 +93,7 @@ class BoundCallable:
 
     @staticmethod
     def bind(
-        fun: Callable, known: dict[str, Any], *args: Any, **kwargs: Any
+        fun: Callable, known: dict[str, Any], *args: Any, **kwargs: Any,
     ) -> ActualArguments:
         arg = next(iter(known.values())) if known else (args[0] if args else None)
 
@@ -121,7 +121,7 @@ class BoundCallable:
                         actual.add_arg(name, argsc.pop(0) if argsc else arg)
                 case p.POSITIONAL_ONLY:
                     actual.add_arg(
-                        name, argsc.pop(0) if argsc else arg
+                        name, argsc.pop(0) if argsc else arg,
                     )  # note: inject known arg
                 case p.VAR_POSITIONAL:
                     actual.add_args(argsc)

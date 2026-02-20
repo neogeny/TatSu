@@ -190,7 +190,7 @@ def test_10_with_model_and_semantics():
     parser = TatSuParserGenerator('TatSuBootstrap')
     g9 = parser.parse(text)
     g10 = g9.parse(
-        text, start='start', semantics=TatSuGrammarSemantics('TatSuBootstrap')
+        text, start='start', semantics=TatSuGrammarSemantics('TatSuBootstrap'),
     )
     generated_grammar10 = str(g10)
     Path('./tmp/10.tatsu').write_text(generated_grammar10)
@@ -205,14 +205,14 @@ def test_11_with_pickle_and_retry():
     parser = TatSuParserGenerator('TatSuBootstrap')
     g9 = parser.parse(text)
     g10 = g9.parse(
-        text, start='start', semantics=TatSuGrammarSemantics('TatSuBootstrap')
+        text, start='start', semantics=TatSuGrammarSemantics('TatSuBootstrap'),
     )
     with Path('./tmp/11.tatsuc').open('wb') as f:
         pickle.dump(g10, f)
     with Path('./tmp/11.tatsuc').open('rb') as f:
         g11 = pickle.load(f)
     r11 = g11.parse(
-        text, start='start', semantics=TatSuGrammarSemantics('TatSuBootstrap')
+        text, start='start', semantics=TatSuGrammarSemantics('TatSuBootstrap'),
     )
     Path('./tmp/11.tatsu').write_text(str(g11))
     gencode11 = pythongen(r11)

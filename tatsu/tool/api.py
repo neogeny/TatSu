@@ -53,11 +53,11 @@ def compile(
 ) -> grammars.Grammar:
     # check parameters
     ParserConfig.new(
-        config=config, semantics=semantics, name=name, filename=filename, **settings
+        config=config, semantics=semantics, name=name, filename=filename, **settings,
     )
     if isinstance(semantics, type):
         raise TypeError(
-            f'semantics must be an object instance or None, not class {semantics!r}'
+            f'semantics must be an object instance or None, not class {semantics!r}',
         )
     cache = __compiled_grammar_cache
 
@@ -194,6 +194,6 @@ def gencode(
     **settings: Any,
 ):
     model = compile(
-        grammar, name=name, filename=filename, trace=trace, config=config, **settings
+        grammar, name=name, filename=filename, trace=trace, config=config, **settings,
     )
     return codegen(model)

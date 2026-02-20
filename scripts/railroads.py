@@ -13,5 +13,6 @@ def main():
     model = api.compile(grammar)
     railroads.draw(model)
 
+
 if __name__ == '__main__':
     main()

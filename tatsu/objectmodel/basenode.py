@@ -19,7 +19,7 @@ __all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
 
 
 TatSuDataclassParams = dict(  # noqa: C408
-    eq=False, repr=False, match_args=False, unsafe_hash=False, kw_only=True
+    eq=False, repr=False, match_args=False, unsafe_hash=False, kw_only=True,
 )
 
 
@@ -32,7 +32,7 @@ def tatsudataclass[T: type](**params: Any) -> Callable[[T], T]: ...
 
 
 def tatsudataclass[T: type](
-    cls: T | None = None, **params: Any
+    cls: T | None = None, **params: Any,
 ) -> T | Callable[[T], T]:
     # by Gemini (2026-02-07)
     # by [apalala@gmail.com](https://github.com/apalala)

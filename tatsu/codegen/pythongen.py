@@ -392,7 +392,7 @@ class Rule(_Decorator):
         leftrec = self.node.is_leftrec
         fields.update(leftrec='\n@leftrec' if leftrec else '')
         fields.update(
-            nomemo='\n@nomemo' if not self.node.is_memoizable and not leftrec else ''
+            nomemo='\n@nomemo' if not self.node.is_memoizable and not leftrec else '',
         )
         fields.update(isname='\n@isname' if self.node.is_name else '')
 
@@ -452,7 +452,7 @@ class Grammar(Base):
         eol_comments = repr(self.node.config.eol_comments)
 
         rules = '\n'.join(
-            [self.get_renderer(rule).render() for rule in self.node.rulemap]
+            [self.get_renderer(rule).render() for rule in self.node.rulemap],
         )
 
         version = str(tuple(int(n) for n in str(timestamp()).split('.')))

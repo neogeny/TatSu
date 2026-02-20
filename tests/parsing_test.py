@@ -36,7 +36,7 @@ class ParsingTests(unittest.TestCase):
         """
         buf = MockIncludeBuffer(trim(text))
         self.assertEqual(
-            'first\n\nINCLUDED "something"\n\nINCLUDED "anotherthing"\nlast', buf.text
+            'first\n\nINCLUDED "something"\n\nINCLUDED "anotherthing"\nlast', buf.text,
         )
 
     def test_real_include(self):
@@ -103,10 +103,10 @@ class ParsingTests(unittest.TestCase):
         lowercase_rule_names = ['nocaps', 'camelCase', 'tEST']
         uppercase_rule_names = ['Capitalized', 'CamelCase', 'TEST']
         ref_lowercase_result = tatsu.parse(
-            grammar.format(rulename='reflowercase'), test_string
+            grammar.format(rulename='reflowercase'), test_string,
         )
         ref_uppercase_result = tatsu.parse(
-            grammar.format(rulename='Refuppercase'), test_string
+            grammar.format(rulename='Refuppercase'), test_string,
         )
         for rulename in lowercase_rule_names:
             result = tatsu.parse(grammar.format(rulename=rulename), test_string)

@@ -16,21 +16,9 @@ from __future__ import annotations
 
 from tatsu.buffering import Buffer
 from tatsu.infos import ParserConfig
-from tatsu.parsing import (
-    Parser,
-    leftrec,
-    nomemo,
-    isname,
-    generic_main,
-    rule,
-)
+from tatsu.parsing import Parser, leftrec, nomemo, isname, generic_main, rule
 
-
-__all__ = [
-    'TatSuBootstrapBuffer',
-    'TatSuBootstrapParser',
-    'main',
-]
+__all__ = ['TatSuBootstrapBuffer', 'TatSuBootstrapParser', 'main']
 
 
 KEYWORDS: set[str] = set()
@@ -92,9 +80,9 @@ class TatSuBootstrapParser(Parser):
                         self._keyword_()
                 if self._no_more_options:
                     raise self.newexcept(
-                        'expecting one of: '
-                        '<directive> <keyword>'
+                        'expecting one of:  <directive> <keyword>'
                     ) from None
+
         self._closure(block0)
         with self._addname('rules'):
             self._rule_()
@@ -109,15 +97,12 @@ class TatSuBootstrapParser(Parser):
                         self._keyword_()
                 if self._no_more_options:
                     raise self.newexcept(
-                        'expecting one of: '
-                        '<keyword> <rule>'
+                        'expecting one of:  <keyword> <rule>'
                     ) from None
+
         self._closure(block1)
         self._check_eof()
-        self._define(
-            ['title'],
-            ['directives', 'keywords', 'rules'],
-        )
+        self._define(['title'], ['directives', 'keywords', 'rules'])
 
     @rule()
     def _directive_(self):
@@ -137,8 +122,7 @@ class TatSuBootstrapParser(Parser):
                                     self._token('eol_comments')
                                 if self._no_more_options:
                                     raise self.newexcept(
-                                        'expecting one of: '
-                                        "'comments' 'eol_comments'"
+                                        "expecting one of:  'comments' 'eol_comments'"
                                     ) from None
                     self._cut()
                     self._cut()
@@ -207,8 +191,7 @@ class TatSuBootstrapParser(Parser):
                                     self._constant(True)
                             if self._no_more_options:
                                 raise self.newexcept(
-                                    'expecting one of: '
-                                    "'::'"
+                                    "expecting one of:  '::'"
                                 ) from None
                     self._define(['name', 'value'], [])
                 with self._option():
@@ -247,6 +230,7 @@ class TatSuBootstrapParser(Parser):
 
         def block0():
             self._keywords_()
+
         self._positive_closure(block0)
 
     @rule()
@@ -266,8 +250,7 @@ class TatSuBootstrapParser(Parser):
                             self._string_()
                         if self._no_more_options:
                             raise self.newexcept(
-                                'expecting one of: '
-                                '<string> <word>'
+                                'expecting one of:  <string> <word>'
                             ) from None
             with self._ifnot():
                 with self._group():
@@ -277,10 +260,8 @@ class TatSuBootstrapParser(Parser):
                         with self._option():
                             self._token('=')
                         if self._no_more_options:
-                            raise self.newexcept(
-                                'expecting one of: '
-                                "':' '='"
-                            ) from None
+                            raise self.newexcept("expecting one of:  ':' '='") from None
+
         self._closure(block0)
 
     @rule()
@@ -313,16 +294,12 @@ class TatSuBootstrapParser(Parser):
                                 self._params_()
                         if self._no_more_options:
                             raise self.newexcept(
-                                'expecting one of: '
-                                '<kwparams> <params>'
+                                'expecting one of:  <kwparams> <params>'
                             ) from None
                 self._token(')')
                 self._define(['kwparams', 'params'], [])
             if self._no_more_options:
-                raise self.newexcept(
-                    'expecting one of: '
-                    "'(' '::'"
-                ) from None
+                raise self.newexcept("expecting one of:  '(' '::'") from None
 
     @rule('Rule')
     def _rule_(self):
@@ -330,6 +307,7 @@ class TatSuBootstrapParser(Parser):
 
             def block0():
                 self._decorator_()
+
             self._closure(block0)
         with self._setname('name'):
             self._name_()
@@ -363,16 +341,12 @@ class TatSuBootstrapParser(Parser):
                                     self._params_()
                             if self._no_more_options:
                                 raise self.newexcept(
-                                    'expecting one of: '
-                                    '<kwparams> <params>'
+                                    'expecting one of:  <kwparams> <params>'
                                 ) from None
                     self._token(')')
                     self._define(['kwparams', 'params'], [])
                 if self._no_more_options:
-                    raise self.newexcept(
-                        'expecting one of: '
-                        "'(' '::'"
-                    ) from None
+                    raise self.newexcept("expecting one of:  '(' '::'") from None
         with self._optional():
             self._token('<')
             self._cut()
@@ -388,10 +362,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._token(':')
                 if self._no_more_options:
-                    raise self.newexcept(
-                        'expecting one of: '
-                        "':' ':=' '='"
-                    ) from None
+                    raise self.newexcept("expecting one of:  ':' ':=' '='") from None
         self._cut()
         with self._setname('exp'):
             self._expre_()
@@ -439,8 +410,7 @@ class TatSuBootstrapParser(Parser):
                         self._token('nomemo')
                     if self._no_more_options:
                         raise self.newexcept(
-                            'expecting one of: '
-                            "'name' 'nomemo' 'override'"
+                            "expecting one of:  'name' 'nomemo' 'override'"
                         ) from None
 
     @rule()
@@ -455,6 +425,7 @@ class TatSuBootstrapParser(Parser):
             with self._ifnot():
                 self._token('=')
             self._cut()
+
         self._closure(block0)
 
     @rule()
@@ -481,6 +452,7 @@ class TatSuBootstrapParser(Parser):
 
         def block1():
             self._pair_()
+
         self._positive_gather(block1, sep0)
 
     @rule()
@@ -520,6 +492,7 @@ class TatSuBootstrapParser(Parser):
             self._cut()
             with self._addname('@'):
                 self._option_()
+
         self._positive_closure(block0)
 
     @rule('Option')
@@ -542,6 +515,7 @@ class TatSuBootstrapParser(Parser):
 
                     def block1():
                         self._element_()
+
                     self._positive_gather(block1, sep0)
                 with self._option():
 
@@ -549,6 +523,7 @@ class TatSuBootstrapParser(Parser):
                         with self._ifnot():
                             self._EMPTYLINE_()
                         self._element_()
+
                     self._positive_closure(block2)
                 if self._no_more_options:
                     raise self.newexcept(
@@ -601,8 +576,7 @@ class TatSuBootstrapParser(Parser):
                 self._named_single_()
             if self._no_more_options:
                 raise self.newexcept(
-                    'expecting one of: '
-                    '<name> <named_list> <named_single>'
+                    'expecting one of:  <name> <named_list> <named_single>'
                 ) from None
 
     @rule('NamedList')
@@ -699,8 +673,8 @@ class TatSuBootstrapParser(Parser):
             if self._no_more_options:
                 raise self.newexcept(
                     'expecting one of: '
-                    "'!' '&' '(' '()' '->' '>>' '[' '{' '~'"
-                    '<alert> <atom> <call> <closure>'
+                    "'!' '&' '(' '()' '->' '>>' '[' '{' '{}'"
+                    "'~' <alert> <atom> <call> <closure>"
                     '<constant> <cut> <cut_deprecated> <dot>'
                     '<empty_closure> <eof> <gather> <group>'
                     '<join> <left_join> <lookahead>'
@@ -733,8 +707,7 @@ class TatSuBootstrapParser(Parser):
                     self._normal_gather_()
                 if self._no_more_options:
                     raise self.newexcept(
-                        'expecting one of: '
-                        '<normal_gather> <positive_gather>'
+                        'expecting one of:  <normal_gather> <positive_gather>'
                     ) from None
 
     @rule('PositiveGather')
@@ -752,10 +725,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._token('-')
                 if self._no_more_options:
-                    raise self.newexcept(
-                        'expecting one of: '
-                        "'+' '-'"
-                    ) from None
+                    raise self.newexcept("expecting one of:  '+' '-'") from None
         self._cut()
         self._define(['exp', 'sep'], [])
 
@@ -789,8 +759,7 @@ class TatSuBootstrapParser(Parser):
                     self._normal_join_()
                 if self._no_more_options:
                     raise self.newexcept(
-                        'expecting one of: '
-                        '<normal_join> <positive_join>'
+                        'expecting one of:  <normal_join> <positive_join>'
                     ) from None
 
     @rule('PositiveJoin')
@@ -808,10 +777,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._token('-')
                 if self._no_more_options:
-                    raise self.newexcept(
-                        'expecting one of: '
-                        "'+' '-'"
-                    ) from None
+                    raise self.newexcept("expecting one of:  '+' '-'") from None
         self._cut()
         self._define(['exp', 'sep'], [])
 
@@ -846,10 +812,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._token('-')
                 if self._no_more_options:
-                    raise self.newexcept(
-                        'expecting one of: '
-                        "'+' '-'"
-                    ) from None
+                    raise self.newexcept("expecting one of:  '+' '-'") from None
         self._cut()
         self._define(['exp', 'sep'], [])
 
@@ -869,10 +832,7 @@ class TatSuBootstrapParser(Parser):
                 with self._option():
                     self._token('-')
                 if self._no_more_options:
-                    raise self.newexcept(
-                        'expecting one of: '
-                        "'+' '-'"
-                    ) from None
+                    raise self.newexcept("expecting one of:  '+' '-'") from None
         self._cut()
         self._define(['exp', 'sep'], [])
 
@@ -891,10 +851,7 @@ class TatSuBootstrapParser(Parser):
                         with self._option():
                             self._token('+')
                         if self._no_more_options:
-                            raise self.newexcept(
-                                'expecting one of: '
-                                "'+' '-'"
-                            ) from None
+                            raise self.newexcept("expecting one of:  '+' '-'") from None
                 self._cut()
             with self._option():
                 with self._setname('@'):
@@ -933,10 +890,10 @@ class TatSuBootstrapParser(Parser):
 
     @rule('EmptyClosure')
     def _empty_closure_(self):
-        self._token('{')
+        self._token('{}')
+        self._cut()
         with self._setname('@'):
             self._void()
-        self._token('}')
 
     @rule('Optional')
     def _optional_(self):
@@ -962,8 +919,7 @@ class TatSuBootstrapParser(Parser):
                                 self._token('?/')
                             if self._no_more_options:
                                 raise self.newexcept(
-                                    'expecting one of: '
-                                    '"?\'" \'?"\' \'?/\''
+                                    'expecting one of:  "?\'" \'?"\' \'?/\''
                                 ) from None
                 self._token('?')
                 self._cut()
@@ -1073,8 +1029,7 @@ class TatSuBootstrapParser(Parser):
                     self._pattern(r'`(.*?)`')
                 if self._no_more_options:
                     raise self.newexcept(
-                        'expecting one of: '
-                        "'(?ms)```((?:.|\\\\n)*?)```' '`' '`(.*?)`'"
+                        "expecting one of:  '(?ms)```((?:.|\\\\n)*?)```' '`' '`(.*?)`'"
                     ) from None
 
     @rule('Alert')
@@ -1094,8 +1049,7 @@ class TatSuBootstrapParser(Parser):
                 self._raw_string_()
             if self._no_more_options:
                 raise self.newexcept(
-                    'expecting one of: '
-                    "'r' <STRING> <raw_string> <string>"
+                    "expecting one of:  'r' <STRING> <raw_string> <string>"
                 ) from None
 
     @rule()
@@ -1192,6 +1146,7 @@ class TatSuBootstrapParser(Parser):
 
         def block1():
             self._regex_()
+
         self._positive_gather(block1, sep0)
 
     @rule()
@@ -1212,8 +1167,7 @@ class TatSuBootstrapParser(Parser):
                 self._deprecated_regex_()
             if self._no_more_options:
                 raise self.newexcept(
-                    'expecting one of: '
-                    "'/' '?' '?/' <deprecated_regex>"
+                    "expecting one of:  '/' '?' '?/' <deprecated_regex>"
                 ) from None
 
     @rule()
@@ -1233,10 +1187,7 @@ class TatSuBootstrapParser(Parser):
             with self._option():
                 self._token('False')
             if self._no_more_options:
-                raise self.newexcept(
-                    'expecting one of: '
-                    "'False' 'True'"
-                ) from None
+                raise self.newexcept("expecting one of:  'False' 'True'") from None
 
     @rule()
     def _null_(self):
@@ -1251,17 +1202,15 @@ class TatSuBootstrapParser(Parser):
 def main(filename, **kwargs):
     if not filename or filename == '-':
         import sys
+
         text = sys.stdin.read()
     else:
         import pathlib
+
         text = pathlib.Path(filename).read_text()
 
     parser = TatSuBootstrapParser()
-    return parser.parse(
-        text,
-        filename=filename,
-        **kwargs,
-    )
+    return parser.parse(text, filename=filename, **kwargs)
 
 
 if __name__ == '__main__':
