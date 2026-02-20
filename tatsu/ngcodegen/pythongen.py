@@ -211,8 +211,8 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             error = ['expecting one of: ', *msglines]
         else:
             error = ['no available options']
-        errors = ' '.join(error)
-        raisestr = f'raise self.newexcept({errors!r}) from None'
+        errors = repr(' '.join(error))
+        raisestr = f'raise self.newexcept({errors}) from None'
 
         if len(errors) + self.indentation > BLACK_LEN - 12:
             errors = '\n'.join(repr(e) for e in error)
@@ -228,7 +228,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
             self.print('if self._no_more_options:')
             with self.indent():
                 if one_liner:
-                    self.print(errors)
+                    self.print(raisestr)
                 else:
                     self.print('raise self.newexcept(')
                     with self.indent():
@@ -360,7 +360,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
         with self.indent():
             self.print(
-                'def __init__(self, text, /, config: ParserConfig | None = None, **settings):'
+                'def __init__(self, text, /, config: ParserConfig | None = None, **settings):',
             )
             with self.indent():
                 self._gen_init(grammar)
@@ -372,7 +372,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'class {parser_name}Parser(Parser):')
         with self.indent():
             self.print(
-                'def __init__(self, /, config: ParserConfig | None = None, **settings):'
+                'def __init__(self, /, config: ParserConfig | None = None, **settings):',
             )
             with self.indent():
                 self._gen_init(grammar)
@@ -392,8 +392,9 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         sdefs_str = ', '.join(sorted(repr(d) for d in sdefs))
         ldefs_str = ', '.join(sorted(repr(d) for d in ldefs))
 
-        if not ldefs:
-            self.print(f'self._define([{sdefs_str}], [{ldefs_str}])')
+        definestr = f'self._define([{sdefs_str}], [{ldefs_str}])'
+        if not ldefs or len(definestr) + self.indentation <= BLACK_LEN - 4:
+            self.print(definestr)
         else:
             self.print('self._define(')
             with self.indent():
@@ -404,7 +405,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
     def _gen_block(self, exp: grammars.Model, name='block'):
         if () in exp.lookahead():
             raise CodegenError(
-                f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}'
+                f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}',
             )
 
         n = self._next_n()
