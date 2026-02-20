@@ -70,7 +70,7 @@ def modelgen(
 class PythonModelGenerator(IndentPrintMixin):
 
     def __init__(
-        self, name: str = '', basetype: type = Node, base_type: type | None = None,
+        self, name: str = '', basetype: type = Node, base_type: type | None = None
     ):
         if isinstance(base_type, type):
             basetype = base_type
@@ -90,7 +90,7 @@ class PythonModelGenerator(IndentPrintMixin):
                 name=self.name,
                 basetype=self.basetype.__name__,
                 basetype_import=basetype_import,
-            ),
+            )
         )
 
         rule_index = grammar.rulemap

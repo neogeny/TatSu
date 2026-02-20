@@ -360,7 +360,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
 
         with self.indent():
             self.print(
-                'def __init__(self, text, /, config: ParserConfig | None = None, **settings):',
+                'def __init__(self, text, /, config: ParserConfig | None = None, **settings):'
             )
             with self.indent():
                 self._gen_init(grammar)
@@ -372,7 +372,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'class {parser_name}Parser(Parser):')
         with self.indent():
             self.print(
-                'def __init__(self, /, config: ParserConfig | None = None, **settings):',
+                'def __init__(self, /, config: ParserConfig | None = None, **settings):'
             )
             with self.indent():
                 self._gen_init(grammar)
@@ -404,7 +404,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
     def _gen_block(self, exp: grammars.Model, name='block'):
         if () in exp.lookahead():
             raise CodegenError(
-                f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}',
+                f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}'
             )
 
         n = self._next_n()
