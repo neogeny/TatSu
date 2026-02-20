@@ -215,6 +215,7 @@ class Grammar(ModelRenderer):
                 # the file is generated.
 
                 # ruff: noqa: PLC2401, PLC2402, PLC2403
+                # fmt: off
 
                 from __future__ import annotations
 
