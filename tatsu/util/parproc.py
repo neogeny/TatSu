@@ -21,7 +21,7 @@ try:
 except ImportError:
     rich = SimpleNamespace()  # ty:ignore[invalid-assignment]
 
-from rich.progress import (
+from rich.progress import (  # pyright: ignore[reportMissingImports]
     BarColumn,
     Progress,
     TaskID,
