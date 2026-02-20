@@ -49,6 +49,7 @@ dev = [
     "pytest>=9.0.2",
     "pytest-dependency>=0.6.0",
     "rich>=14.3.2",
+    "rich-click>=1.9.7",
     "rst2html5>=2.0.1",
     "ruff>=0.15.1",
     "twine>=6.2.0",

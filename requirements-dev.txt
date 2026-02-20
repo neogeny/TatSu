@@ -13,13 +13,16 @@ cffi==2.0.0 ; platform_machine != 'ppc64le' and platform_machine != 's390x' and 
 charset-normalizer==3.4.4
     # via requests
 click==8.3.1
-    # via black
+    # via
+    #   black
+    #   rich-click
 colorama==0.4.6
     # via
     #   build
     #   click
     #   ipython
     #   pytest
+    #   rich-click
 cryptography==46.0.5 ; platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'linux'
     # via secretstorage
 decorator==5.2.1
@@ -128,7 +131,10 @@ requests-toolbelt==1.0.0
 rfc3986==2.0.0
     # via twine
 rich==14.3.3
-    # via twine
+    # via
+    #   rich-click
+    #   twine
+rich-click==1.9.7
 rst2html5==2.0.1
 ruff==0.15.2
 secretstorage==3.5.0 ; platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'linux'
