@@ -16,8 +16,6 @@ from ..util.abctools import compress_seq
 from ..util.undefined import Undefined
 from ..walkers import NodeWalker
 
-BLACK_LEN = 88
-
 HEADER = """\
     #!/usr/bin/env python3
 
@@ -215,10 +213,10 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         errors = repr(' '.join(error))
         raisestr = f'raise self.newexcept({errors}) from None'
 
-        if len(errors) + self.indentation > BLACK_LEN - 12:
+        if not self.fitsfmt(errors, 3):
             errors = '\n'.join(repr(e) for e in error)
             one_liner = False
-        elif len(raisestr) + self.indentation <= BLACK_LEN - 8:
+        elif self.fitsfmt(raisestr, 2):
             one_liner = True
         else:
             one_liner = False
@@ -394,7 +392,7 @@ class PythonCodeGenerator(IndentPrintMixin, NodeWalker):
         ldefs_str = ', '.join(sorted(repr(d) for d in ldefs))
 
         definestr = f'self._define([{sdefs_str}], [{ldefs_str}])'
-        if not ldefs or len(definestr) + self.indentation <= BLACK_LEN - 4:
+        if not ldefs or self.fitsfmt(definestr, 1):
             self.print(definestr)
         else:
             self.print('self._define(')

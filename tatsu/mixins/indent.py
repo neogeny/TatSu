@@ -8,10 +8,13 @@ from contextlib import contextmanager
 
 from ..util import trim
 
+BLACK_LINE_LENGTH = 88
+
 
 class IndentPrintMixin:
-    def __init__(self, default_indent: int = 4):
-        self.default_indent = default_indent
+
+    def __init__(self, indent_amount: int = 4):
+        self.indent_amount = indent_amount
         self.indent_stack: list[int] = [0]
         self.output_stream = io.StringIO()
 
@@ -31,11 +34,16 @@ class IndentPrintMixin:
         text = self.io_print(*args, **kwargs)
         return self.indented_lines(text)
 
+    def fitsfmt(self, line: str, addindents: int = 0):
+        assert addindents >= 0
+        total = self.indentation + len(line)
+        total += addindents * self.indent_amount
+        return total <= BLACK_LINE_LENGTH
+
     @contextmanager
     def indent(self, amount: int | None = None) -> Iterator:
         assert amount is None or amount >= 0
-        if amount is None:
-            amount = self.default_indent
+        amount = amount if amount is not None else self.indent_amount
 
         self.indent_stack.append(amount + self.indent_stack[-1])
         try:
