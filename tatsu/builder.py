@@ -67,7 +67,7 @@ class ModelBuilder:
         self.config = self.config.override(synthok=not constructors)
 
     def instanceof(
-        self, typename, /, known: dict[str, Any], *args: Any, **kwargs: Any
+        self, typename, /, known: dict[str, Any], *args: Any, **kwargs: Any,
     ) -> Any:
         return self._instanceof(typename, known, *args, **kwargs)
 
@@ -104,7 +104,7 @@ class ModelBuilder:
 
         type_list = [t for t in contents.values() if isinstance(t, type)]
         name = getattr(container, '__module__', None) or getattr(
-            container, '__name__', None
+            container, '__name__', None,
         )
         if name is None:
             return type_list
@@ -137,13 +137,13 @@ class ModelBuilder:
         for t in config.constructors:
             if not callable(t):
                 raise TypeResolutionError(
-                    f'Expected callable in constructors, got: {type(t)!r}'
+                    f'Expected callable in constructors, got: {type(t)!r}',
                 )
 
             name = self._funname(t)
             if not name:
                 raise TypeResolutionError(
-                    f'Expected __name__ in constructor, got: {type(t)!r}'
+                    f'Expected __name__ in constructor, got: {type(t)!r}',
                 )
 
             # NOTE: this allows for standalone functions as constructors
@@ -159,7 +159,7 @@ class ModelBuilder:
             raise TypeResolutionError(
                 f"Conflict for constructor name {name!r}: "
                 f"attempted to register {constructor!r}, "
-                f"but {existing!r} is already registered."
+                f"but {existing!r} is already registered.",
             )
 
         self._constructor_registry[name] = constructor
@@ -169,7 +169,7 @@ class ModelBuilder:
         return self._constructor_registry.get(typename) or vars(builtins).get(typename)
 
     def _get_constructor(
-        self, typename: str, base: type | None, **args: Any
+        self, typename: str, base: type | None, **args: Any,
     ) -> Constructor:
         if constructor := self._find_existing_constructor(typename):
             return constructor
@@ -177,7 +177,7 @@ class ModelBuilder:
         if not self.config.synthok:
             synthok = bool(self.config.synthok)
             raise TypeResolutionError(
-                f'Could not find constructor for type {typename!r}, and {synthok=} '
+                f'Could not find constructor for type {typename!r}, and {synthok=} ',
             )
 
         if base is None:
@@ -242,5 +242,5 @@ class ModelBuilderSemantics:
 
         known = {'ast': ast, 'exp': ast}
         return self._builder._instanceof(
-            typename, known, ast, *args[1:], base=base, **kwargs
+            typename, known, ast, *args[1:], base=base, **kwargs,
         )

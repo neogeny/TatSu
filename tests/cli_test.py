@@ -25,8 +25,8 @@ def test_cli_python():
 
 def test_cli_model():
     output = subprocess.check_output(
-        ['tatsu', '-g', './grammar/tatsu.tatsu']
-    )  # noqa: S607
+        ['tatsu', '-g', './grammar/tatsu.tatsu']  # noqa: S607
+    )
     output = output.decode('utf-8')
     pattern = (
         r'(?ms)CAVEAT UTILITOR.*?竜TatSu'

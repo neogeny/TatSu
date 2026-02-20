@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .rendering import Renderer, RenderingFormatter, render
 from ..exceptions import CodegenError
 from ..objectmodel import Node
+from .rendering import Renderer, RenderingFormatter, render
 
 __all__ = [
     'DelegatingRenderingFormatter',

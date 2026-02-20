@@ -58,7 +58,7 @@ def uv(
 
     options = kwargs
     args = ' '.join(args) if isinstance(args, list) else args
-    return c.run(f'uv {cmd}{q}{p}{g}{n} {args}', **options)
+    return c.run(f'uv {cmd}{q}{p}{g}{n} {args}', **options) or Result()
 
 
 def uv_run(
@@ -100,9 +100,7 @@ def boundary_print(banner: str = '', line: str = THIN_LINE):
 
 
 def success_print(target: str = '', *, task: TaskFun = None, line: str = THIN_LINE):
-    target += (
-        task.name if task else ''
-    )  # ty:ignore[unresolved-attribute] # pyright:ignore[reportFunctionMemberAccess]
+    target += task.name if task else ''  # ty:ignore[unresolved-attribute]
     boundary_print(f'✔ {target}', line=line)
 
 
@@ -153,7 +151,12 @@ def ruff(c: Context, python: float = PYTHON):
 def ty(c: Context, python: float = PYTHON):
     print('-> ty')
     res = uv_run(
-        c, 'ty check tatsu tests examples', python=python, group='test', hide='both'
+        c,
+        'ty check tatsu tests examples',
+        python=python,
+        group='test',
+        warn=True,
+        hide='both',
     )
 
     if res.exited != 0 or 'All checks passed!' not in res.stdout:
@@ -170,6 +173,7 @@ def pyright(c: Context, python: float = PYTHON):
         'basedpyright tatsu tests examples',
         python=python,
         group='test',
+        warn=True,
         hide='stdout',
     )
 
