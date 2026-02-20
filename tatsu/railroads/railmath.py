@@ -24,7 +24,7 @@ def pad(rrl: str, c: str, maxl: int) -> str:
     return f'{rrl}{c * (maxl - ulen(rrl))}'
 
 
-def railpad(rrl: str, maxl: int) -> str:
+def railpad_(rrl: str, maxl: int) -> str:  # name with _ for visual alignment
     return pad(rrl, '─', maxl=maxl)
 
 
@@ -50,7 +50,7 @@ def lay_out(tracks: list[Rails]) -> Rails:
 
         joint = rails[0]
         if ETX not in joint:
-            out += [f"  ├─{railpad(joint, maxl)}─┤ "]
+            out += [f"  ├─{railpad_(joint, maxl)}─┤ "]
         else:
             out += [f"  ├─{blankpad(joint, maxl)} │ "]
 
@@ -61,9 +61,10 @@ def lay_out(tracks: list[Rails]) -> Rails:
     rails = tracks[-1]
     joint = rails[0]
     if ETX not in joint:
-        out += [f"  └─{railpad(joint, maxl)}─┘ "]
+        out += [f"  └─{railpad_(joint, maxl)}─┘ "]
     else:
-        out[-1] = out[-1][:-3] + '─┘ '
+        corner = "─┘ "
+        out[-1] = out[-1][: -len(corner)] + corner
         out += [f"  └─{blankpad(joint, maxl)}   "]
 
     for rail in rails[1:]:
@@ -72,7 +73,7 @@ def lay_out(tracks: list[Rails]) -> Rails:
     # the first rail
     joint = tracks[0][0] if tracks[0] else ''
     if ETX not in joint:
-        out[0] = f"──┬─{railpad(joint, maxl)}─┬─"
+        out[0] = f"──┬─{railpad_(joint, maxl)}─┬─"
     else:
         out[0] = f"──┬─{blankpad(joint, maxl)} ┬─"
 
@@ -84,7 +85,7 @@ def looptail(rails: Rails, maxl: int) -> Rails:
     for line in rails:
         out += [f"  │ {blankpad(line, maxl)} │  "]
 
-    out += [f"  └─{railpad('', maxl)}<┘  "]
+    out += [f"  └─{railpad_('', maxl)}<┘  "]
 
     return assert_one_length(out)
 
@@ -98,7 +99,7 @@ def stopnloop(rails: Rails) -> Rails:
     out = []
 
     first = rails[0]
-    out += [f"──┬─{railpad(first, maxl)}─┬──"]
+    out += [f"──┬─{railpad_(first, maxl)}─┬──"]
 
     out += looptail(rails[1:], maxl)
     return assert_one_length(out)
@@ -112,10 +113,10 @@ def loop(rails: Rails) -> Rails:
     maxl = max(ulen(line) for line in rails)
     out = []
 
-    out += [f"──┬→{railpad('', maxl)}─┬──"]
+    out += [f"──┬→{railpad_('', maxl)}─┬──"]
 
     first = rails[0]
-    out += [f"  ├→{railpad(first, maxl)}─┤  "]  # xxx
+    out += [f"  ├→{railpad_(first, maxl)}─┤  "]  # xxx
 
     out += looptail(rails[1:], maxl)
     return assert_one_length(out)
