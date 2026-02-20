@@ -24,18 +24,9 @@ from ..exceptions import (
     ParseError,
     ParseException,
 )
-from ..infos import (
-    Alert,
-    ParseInfo,
-    ParserConfig,
-    RuleInfo,
-)
+from ..infos import Alert, ParseInfo, ParserConfig, RuleInfo
 from ..tokenizing import NullTokenizer, Tokenizer
-from ..util import (
-    regexp,
-    safe_name,
-    trim,
-)
+from ..util import regexp, safe_name, trim
 from ..util.abctools import is_list, left_assoc, prune_dict, right_assoc
 from ..util.deprecate import deprecated
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
@@ -49,7 +40,13 @@ __all__: list[str] = ['ParseContext']
 
 
 class ParseContext:
-    def __init__(self, /, *, config: ParserConfig | None = None, **settings: Any) -> None:
+    def __init__(
+        self,
+        /,
+        *,
+        config: ParserConfig | None = None,
+        **settings: Any,
+    ) -> None:
         super().__init__()
 
         config = ParserConfig.new(config, **settings)
@@ -168,17 +165,23 @@ class ParseContext:
         return config
 
     def _clear_memoization_caches(self) -> None:
-        self._memos: BoundedDict[MemoKey, RuleResult | ParseException] = BoundedDict(self.config.memo_cache_size)
+        self._memos: BoundedDict[MemoKey, RuleResult | ParseException] = BoundedDict(
+            self.config.memo_cache_size,
+        )
         self._results: dict[MemoKey, RuleResult | ParseException] = {}
 
     def _set_furthest_exception(self, e: FailedParse) -> None:
-        if (
-                not self._furthest_exception
-                or e.pos > self._furthest_exception.pos
-        ):
+        if not self._furthest_exception or e.pos > self._furthest_exception.pos:
             self._furthest_exception = e
 
-    def parse(self, text: str | Tokenizer, /, *, config: ParserConfig | None = None, **settings: Any) -> Any:
+    def parse(
+        self,
+        text: str | Tokenizer,
+        /,
+        *,
+        config: ParserConfig | None = None,
+        **settings: Any,
+    ) -> Any:
         config = self.config.override_config(config)
         config = config.override(**settings)
         self._active_config = config
@@ -225,7 +228,11 @@ class ParseContext:
         if not (ruleinfo and ruleinfo.is_token_rule()):
             self._tokenizer.next_token()
 
-    def _define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None) -> None:
+    def _define(
+        self,
+        keys: Iterable[str],
+        list_keys: Iterable[str] | None = None,
+    ) -> None:
         # NOTE: called by generated parsers
         return self.states.define(keys, list_keys)
 
@@ -275,8 +282,7 @@ class ParseContext:
 
     def _memoization(self) -> bool:
         return self.config.memoization and (
-                self.config.memoize_lookaheads or
-                self._lookahead == 0
+            self.config.memoize_lookaheads or self._lookahead == 0
         )
 
     def _find_rule(self, name: str) -> Callable[[], Any]:
@@ -295,7 +301,11 @@ class ParseContext:
 
         return action
 
-    def newexcept(self, item: Any, exclass: type[FailedParse] = FailedParse) -> FailedParse:
+    def newexcept(
+        self,
+        item: Any,
+        exclass: type[FailedParse] = FailedParse,
+    ) -> FailedParse:
         if issubclass(exclass, FailedLeftRecursion):
             rulestack: list[str] = []
         else:
@@ -304,7 +314,11 @@ class ParseContext:
 
     # bw compatibility
     @deprecated(replacement=newexcept)
-    def _error(self, item: Any, exclass: type[FailedParse] = FailedParse) -> FailedParse:
+    def _error(
+        self,
+        item: Any,
+        exclass: type[FailedParse] = FailedParse,
+    ) -> FailedParse:
         raise self.newexcept(item, exclass)
 
     def _fail(self):
@@ -339,7 +353,11 @@ class ParseContext:
     def memokey(self) -> MemoKey:
         return MemoKey(self.pos, self.ruleinfo, self.substate)
 
-    def _memoize(self, key: MemoKey, memo: RuleResult | ParseException) -> RuleResult | ParseException:
+    def _memoize(
+        self,
+        key: MemoKey,
+        memo: RuleResult | ParseException,
+    ) -> RuleResult | ParseException:
         if self._memoization() and key.ruleinfo.is_memoizable:
             self._memos[key] = memo
         return memo
@@ -493,9 +511,11 @@ class ParseContext:
         literal = str(literal)  # for type linters
 
         context: dict[str, Any] = (
-            safe_builtins() |
-            getattr(self.semantics, 'safe_context', lambda: {})() |
-            self.ast if isinstance(self.ast, AST) else {}
+            safe_builtins()
+            | getattr(self.semantics, 'safe_context', lambda: {})()
+            | self.ast
+            if isinstance(self.ast, AST)
+            else {}
         )
 
         expression = Undefined
@@ -552,7 +572,8 @@ class ParseContext:
         self.next_token()
         if not self.tokenizer.atend():
             raise self.newexcept(
-                'Expecting end of text', exclass=FailedExpectingEndOfText,
+                'Expecting end of text',
+                exclass=FailedExpectingEndOfText,
             )
 
     @contextmanager
@@ -655,7 +676,12 @@ class ParseContext:
             self.popstate()
             self.ast = ast
 
-    def _repeat(self, block: Callable[[], Any], prefix: Callable[[], Any] | None = None, dropprefix: bool = False) -> None:
+    def _repeat(
+        self,
+        block: Callable[[], Any],
+        prefix: Callable[[], Any] | None = None,
+        dropprefix: bool = False,
+    ) -> None:
         while True:
             with self._choice():
                 with self._option():
@@ -674,7 +700,12 @@ class ParseContext:
                         raise self.newexcept('empty closure')
                 return
 
-    def _closure(self, block: Callable[[], Any], sep: Callable[[], Any] | None = None, omitsep: bool = False) -> Any:
+    def _closure(
+        self,
+        block: Callable[[], Any],
+        sep: Callable[[], Any] | None = None,
+        omitsep: bool = False,
+    ) -> Any:
         self.pushstate()
         try:
             self.cst = []
@@ -689,7 +720,12 @@ class ParseContext:
             self.undostate()
             raise
 
-    def _positive_closure(self, block: Callable[[], Any], sep: Callable[[], Any] | None = None, omitsep: bool = False) -> Any:
+    def _positive_closure(
+        self,
+        block: Callable[[], Any],
+        sep: Callable[[], Any] | None = None,
+        omitsep: bool = False,
+    ) -> Any:
         self.pushstate()
         try:
             with self.states.cutscope():
@@ -734,10 +770,7 @@ class ParseContext:
         if self.config.ignorecase or self.tokenizer.ignorecase:
             name_str = name_str.upper()
         if name_str in self.keywords:
-            raise self.newexcept(
-                f'"{name_str}" is a reserved word',
-                KeywordError,
-            )
+            raise self.newexcept(f'"{name_str}" is a reserved word', KeywordError)
 
     def _void(self) -> None:
         self.last_node = None

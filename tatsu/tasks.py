@@ -40,15 +40,15 @@ def uv_python_pin(c: Context) -> float:
 
 
 def uv(
-        c: Context,
-        cmd: str,
-        args: str,
-        *,
-        quiet: bool = True,
-        python: float = PYTHON,
-        group: str = 'dev',
-        nogroup: str = '',
-        **kwargs: Any,
+    c: Context,
+    cmd: str,
+    args: str | list[str],
+    *,
+    quiet: bool = True,
+    python: float = PYTHON,
+    group: str = 'dev',
+    nogroup: str = '',
+    **kwargs: Any,
 ) -> Result:
     uvpython = uv_python_pin(c)
     q = ' --quiet' if quiet else ''
@@ -57,17 +57,18 @@ def uv(
     n = f' --no-group {nogroup}' if nogroup else ''
 
     options = kwargs
+    args = ' '.join(args) if isinstance(args, list) else args
     return c.run(f'uv {cmd}{q}{p}{g}{n} {args}', **options) or Result()
 
 
 def uv_run(
-        c: Context,
-        args: str,
-        *,
-        python: float = PYTHON,
-        group: str = 'dev',
-        quiet: bool = True,
-        **kwargs: Any,
+    c: Context,
+    args: str | list[str],
+    *,
+    python: float = PYTHON,
+    group: str = 'dev',
+    quiet: bool = True,
+    **kwargs: Any,
 ) -> Result:
     return uv(c, 'run', args=args, python=python, group=group, quiet=quiet, **kwargs)
 
@@ -107,12 +108,15 @@ def boundary_print(banner: str = '', line: str = THIN_LINE):
 
 
 def success_print(target: str = '', *, task: TaskFun = None, line: str = THIN_LINE):
-    target += task.name if task else ''  # ty:ignore[unresolved-attribute] # pyright:ignore[reportFunctionMemberAccess]
+    target += task.name if task else ''  # ty:ignore[unresolved-attribute]  # pyright: ignore[reportFunctionMemberAccess]
     boundary_print(f'✔ {target}', line=line)
 
 
 def version_boundary_print(
-        c: Context, target: str = '', python: float = PYTHON, line: str = THICK_LINE,
+    c: Context,
+    target: str = '',
+    python: float = PYTHON,
+    line: str = THICK_LINE,
 ):
     verpython = version_python(c, python=python)
     vertatsu = version_tatsu(c, python=python)
@@ -162,6 +166,7 @@ def ty(c: Context, python: float = PYTHON):
         'ty check tatsu tests examples',
         python=python,
         group='test',
+        warn=True,
         hide='both',
     )
 
@@ -179,19 +184,74 @@ def pyright(c: Context, python: float = PYTHON):
         'basedpyright tatsu tests examples',
         python=python,
         group='test',
-        hide='stdout',
+        pty=True,
+        hide='both',
     )
 
 
 @task(pre=[clean])
-def pytest(c: Context, python: float = PYTHON):
-    print('-> pytest')
+def pytest_fast(c: Context, python: float = PYTHON):
+    print('-> pytest fast')
     Path('./tmp').mkdir(exist_ok=True)
     Path('./tmp/__init__.py').touch()
-    uv_run(c, 'pytest --quiet tests/', python=python, group='test', hide='stdout')
+    uv_run(
+        c,
+        [
+            'pytest',
+            '--quiet',
+            '-n auto',
+            'tests/',
+            '--ignore-glob=tests/z*',
+        ],
+        python=python,
+        group='test',
+        hide='stdout',
+        pty=True,
+    )
 
 
-@task(pre=[begin, clean, ruff, ty, pyright])
+@task(pre=[clean])
+def pytest_bootstrap(c: Context, python: float = PYTHON):
+    print('-> pytest bootstrap')
+    Path('./tmp').mkdir(exist_ok=True)
+    Path('./tmp/__init__.py').touch()
+    uv_run(
+        c,
+        [
+            'pytest',
+            '--quiet',
+            'tests/z_bootstrap_test.py',
+        ],
+        python=python,
+        group='test',
+        hide='stdout',
+        pty=True,
+    )
+
+
+@task(pre=[clean, pytest_fast, pytest_bootstrap])
+def pytest(c: Context, python: float = PYTHON):
+    pass
+
+
+@task(pre=[clean])
+def black(c: Context, python: float = PYTHON):
+    print('-> black')
+    res = uv_run(
+        c,
+        ["black", "--check", "tatsu", "tests", "examples"],
+        python=python,
+        group='test',
+        warn=True,
+        hide=True,
+        pty=True,
+    )
+    if res.exited != 0:
+        print(res.stdout.splitlines()[-1])
+        print('✖ failed!')
+
+
+@task(pre=[begin, clean, ruff, ty, pyright, black])
 def lint(c: Context):
     success_print(task=lint)
 
@@ -209,6 +269,7 @@ def doclint(c: Context, python: float = PYTHON):
         'vale README.rst docs/*.rst',
         group='doc',
         hide='stdout',
+        pty=True,
     )
 
 
@@ -216,13 +277,7 @@ def doclint(c: Context, python: float = PYTHON):
 def docs(c: Context):
     print('-> docs')
     with c.cd('docs'):
-        uv_run(
-            c,
-            'make -s html',
-            quiet=True,
-            group='doc',
-            hide='stdout',
-        )
+        uv_run(c, 'make -s html', quiet=True, group='doc', hide='stdout')
     success_print(task=docs)
 
 
@@ -238,6 +293,7 @@ def matrix_core(c: Context, python: float = PYTHON):
     ruff(c, python=python)
     ty(c, python=python)
     pyright(c, python=python)
+    black(c, python=python)
     pytest(c, python=python)
     success_print(str(python))
 

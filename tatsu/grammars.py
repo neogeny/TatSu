@@ -145,7 +145,10 @@ class Model(Node):
         return False
 
     # list of Model that can be invoked at the same position
-    def callable_at_same_pos(self, rulemap: Mapping[str, Rule] | None = None) -> list[Model]:
+    def callable_at_same_pos(
+        self,
+        rulemap: Mapping[str, Rule] | None = None,
+    ) -> list[Model]:
         return []
 
     def nodecount(self) -> int:
@@ -261,7 +264,10 @@ class Decorator(Model):
     def _nullable(self) -> bool:
         return self.exp._nullable()
 
-    def callable_at_same_pos(self, rulemap: Mapping[str, Rule] | None = None) -> list[Model]:
+    def callable_at_same_pos(
+        self,
+        rulemap: Mapping[str, Rule] | None = None,
+    ) -> list[Model]:
         return [self.exp]
 
 
@@ -433,9 +439,7 @@ class Sequence(Model):
         return [d for s in self.sequence for d in s.defines()]
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
-        return set().union(
-            *[s.missing_rules(rulenames) for s in self.sequence],
-        )
+        return set().union(*[s.missing_rules(rulenames) for s in self.sequence])
 
     def _used_rule_names(self):
         return set().union(*[s._used_rule_names() for s in self.sequence])
@@ -471,7 +475,10 @@ class Sequence(Model):
     def _nullable(self) -> bool:
         return all(s._nullable() for s in self.sequence)
 
-    def callable_at_same_pos(self, rulemap: Mapping[str, Rule] | None = None) -> list[Model]:
+    def callable_at_same_pos(
+        self,
+        rulemap: Mapping[str, Rule] | None = None,
+    ) -> list[Model]:
         head = list(takewhile(lambda c: c.is_nullable(rulemap), self.sequence))
         if len(head) < len(self.sequence):
             head.append(self.sequence[len(head)])
@@ -503,9 +510,7 @@ class Choice(Model):
         return [d for o in self.options for d in o.defines()]
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
-        return set().union(
-            *[o.missing_rules(rulenames) for o in self.options],
-        )
+        return set().union(*[o.missing_rules(rulenames) for o in self.options])
 
     def _used_rule_names(self):
         return set().union(*[o._used_rule_names() for o in self.options])
@@ -541,7 +546,10 @@ class Choice(Model):
     def _nullable(self) -> bool:
         return any(o._nullable() for o in self.options)
 
-    def callable_at_same_pos(self, rulemap: Mapping[str, Rule] | None = None) -> list[Model]:
+    def callable_at_same_pos(
+        self,
+        rulemap: Mapping[str, Rule] | None = None,
+    ) -> list[Model]:
         return self.options
 
 
@@ -918,8 +926,7 @@ class Rule(Decorator):
             kwparams = ''
             if self.kwparams:
                 kwparams = ', '.join(
-                    f'{k}={self.param_repr(v)}'
-                    for (k, v) in self.kwparams.items()
+                    f'{k}={self.param_repr(v)}' for (k, v) in self.kwparams.items()
                 )
 
             if params and kwparams:
@@ -927,11 +934,7 @@ class Rule(Decorator):
             elif kwparams:
                 params = f'({kwparams})'
             elif params:
-                params = (
-                    f'::{params}'
-                    if len(self.params) == 1
-                    else f'({params})'
-                )
+                params = f'::{params}' if len(self.params) == 1 else f'({params})'
 
         base = f' < {self.base!s}' if self.base else ''
 
@@ -966,7 +969,10 @@ class BasedRule(Rule):
     def __post_init__(self):
         super().__post_init__()
 
-        assert isinstance(self.baserule, Rule), f'{typename(self.base)}: {self.basrulee=!r}'
+        assert isinstance(
+            self.baserule,
+            Rule,
+        ), f'{typename(self.base)}: {self.basrulee=!r}'
 
         self.params = self.params or self.baserule.params
         self.kwparams = self.kwparams or self.baserule.kwparams
@@ -1000,10 +1006,7 @@ class Grammar(Model):
         self.config = config
 
         self.rules: list[Rule] = rules
-        self._rulemap: dict[str, Rule] = {
-            rule.name: rule
-            for rule in rules
-        }
+        self._rulemap: dict[str, Rule] = {rule.name: rule for rule in rules}
 
         if name is None:
             name = self.directives.get('grammar')
@@ -1039,9 +1042,7 @@ class Grammar(Model):
         self.config.semantics = value
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
-        return set().union(
-            *[rule.missing_rules(rulenames) for rule in self.rules],
-        )
+        return set().union(*[rule.missing_rules(rulenames) for rule in self.rules])
 
     def _used_rule_names(self) -> set[str]:
         if not self.rules:
@@ -1052,11 +1053,7 @@ class Grammar(Model):
         while used != prev:
             prev = used
             used |= set().union(
-                *[
-                    rule._used_rule_names()
-                    for rule in self.rules
-                    if rule.name in used
-                ],
+                *[rule._used_rule_names() for rule in self.rules if rule.name in used],
             )
         return used
 
@@ -1097,12 +1094,14 @@ class Grammar(Model):
             rule._follow_set = fl[rule.name]
 
     def parse(
-            self,
-            text: str,
-            /, *,
-            ctx: ParseContext | None = None,
-            config: ParserConfig | None = None,
-            **settings):
+        self,
+        text: str,
+        /,
+        *,
+        ctx: ParseContext | None = None,
+        config: ParserConfig | None = None,
+        **settings,
+    ):
         config = self.config.override_config(config)
         # note: bw-comp: allow overriding directives
         config = config.override(**settings)
@@ -1140,9 +1139,7 @@ class Grammar(Model):
                 value=(
                     repr(value)
                     if directive in string_directives
-                    else str(value)
-                    if directive in str_directives
-                    else value
+                    else str(value) if directive in str_directives else value
                 ),
             )
             directives += '@@{name} :: {frame}{value}{frame}\n'.format(**fmt)

@@ -36,6 +36,7 @@ parproc = ["rich"]
 
 [dependency-groups]
 dev = [
+    "black>=26.1.0",
     "build>=1.4.0",
     "colorama>=0.4.6",
     "diskcache>=5.6.3",
@@ -128,10 +129,40 @@ respect-type-ignore-comments = true
 unresolved-import = "ignore"
 unused-ignore-comment = "ignore"
 
+[tool.coverage.run]
+omit = ["tests/*", "tatsu/diagrams.py", "tatsu/codegen/*", "**/test.py"]
+data_file = ".cache/coverage/.coverage"
+
 [tool.ruff]
 line-length = 88
 exclude = [".git", "__pycache__", "dist"]
 
-[tool.coverage.run]
-omit = ["tests/*", "tatsu/diagrams.py", "tatsu/codegen/*", "**/test.py"]
-data_file = ".cache/coverage/.coverage"
+# Enable these to catch logic errors
+select = ["E", "F", "I"]
+
+[tool.ruff.format]
+# Tell Ruff to match your Black preferences
+quote-style = "preserve"
+indent-style = "space"
+skip-magic-trailing-comma = false
+
+[tool.black]
+line-length = 88
+target-version = ['py312', 'py313', 'py314']
+skip-string-normalization = true
+skip-magic-trailing-comma = false
+include = '\.pyi?$'
+exclude = '''
+(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)
+|tatsu/bootstrap.py
+'''

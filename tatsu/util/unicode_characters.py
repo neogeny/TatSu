@@ -37,8 +37,8 @@ U_ANTICLOCKWISE_GAPPED_CIRCLE_ARROW = '⟲'
 # Recommendation: Keep spaces as escape sequences to remain visible to the human eye
 U_PUNCTUATION_SPACE = '\u2008'
 U_FOUR_PER_EM_SPACE = '\u2005'
-U_MEDIUM_MATHEMATICAL_SPACE = '\u205F'
-U_ZERO_WIDTH_NO_BREAK_SPACE = '\uFEFF'
+U_MEDIUM_MATHEMATICAL_SPACE = '\u205f'
+U_ZERO_WIDTH_NO_BREAK_SPACE = '\ufeff'
 
 U_BLACK_SCISSORS = '✂'
 U_CROSSED_SWORDS = '⚔'

@@ -125,6 +125,7 @@ def test_calc_indirect(trace=False):
     assert ast == (('1', '+', '1'), '-', '1')
 
     from tatsu.tool import to_python_sourcecode
+
     src = to_python_sourcecode(grammar)
     globs = {}
     exec(src, globs)
@@ -271,9 +272,7 @@ def test_no_left_recursion(trace=False):
     model = compile(grammar, 'test')
     model.parse('1*2+3*5', trace=trace, colorize=True)
     with pytest.raises(FailedParse, match=r'infinite left recursion'):
-        model.parse(
-            '1*2+3*5', left_recursion=False, trace=trace, colorize=True,
-        )
+        model.parse('1*2+3*5', left_recursion=False, trace=trace, colorize=True)
 
 
 def test_nested_left_recursion(trace=False):
@@ -304,9 +303,7 @@ def test_nested_left_recursion(trace=False):
     assert ast == ('1', '+', '2')
 
 
-@pytest.mark.skip(
-    'For this the seed growing during left recursion is too primitive',
-)
+@pytest.mark.skip('For this the seed growing during left recursion is too primitive')
 def test_interlocking_cycles(trace=False):
     # See https://github.com/PhilippeSigaud/Pegged/wiki/Left-Recursion
     grammar = """
@@ -500,7 +497,10 @@ def test_not_at_top_level():
 
         decl = type:type name:identifier ;
     """
-    assert parse(grammar, 'int x', start='decl').asjson() == {'type': {'id': 'int'}, 'name': 'x'}
+    assert parse(grammar, 'int x', start='decl').asjson() == {
+        'type': {'id': 'int'},
+        'name': 'x',
+    }
 
 
 def test_peg_associativity():

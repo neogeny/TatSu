@@ -54,10 +54,7 @@ def test_01_with_parser_generator():
 
 @pytest.mark.dependency('test_01_with_parser_generator')
 def test_02_previous_output_generator():
-    print(
-        '-' * 20,
-        'phase 02 - parse previous output with the parser generator',
-    )
+    print('-' * 20, 'phase 02 - parse previous output with the parser generator')
     text = Path('grammar/tatsu.tatsu').read_text()
     g = TatSuParserGenerator('TatSuBootstrap')
     result = g.parse(text)
@@ -167,11 +164,7 @@ def test_08_compile_with_generated():
     ast8 = json.dumps(asjson(result), indent=2)
     Path('./tmp/08.ast').write_text(ast8)
     print('DIFF')
-    pprint.pprint(
-        list(
-            difflib.unified_diff(ast0.splitlines(), ast8.splitlines()),
-        ),
-    )
+    pprint.pprint(list(difflib.unified_diff(ast0.splitlines(), ast8.splitlines())))
     assert ast0 == ast8
 
 

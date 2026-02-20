@@ -60,9 +60,7 @@ class ParsingTests(unittest.TestCase):
 
     def test_escape_sequences(self):
         self.assertEqual('\n', eval_escapes(r'\n'))
-        self.assertEqual(
-            'this \xeds a test', eval_escapes(r'this \xeds a test'),
-        )
+        self.assertEqual('this \xeds a test', eval_escapes(r'this \xeds a test'))
         self.assertEqual('this ís a test', eval_escapes(r'this \xeds a test'))
         self.assertEqual('\nañez', eval_escapes(r'\na\xf1ez'))
         self.assertEqual('\nañez', eval_escapes(r'\nañez'))
@@ -106,20 +104,18 @@ class ParsingTests(unittest.TestCase):
         lowercase_rule_names = ['nocaps', 'camelCase', 'tEST']
         uppercase_rule_names = ['Capitalized', 'CamelCase', 'TEST']
         ref_lowercase_result = tatsu.parse(
-            grammar.format(rulename='reflowercase'), test_string,
+            grammar.format(rulename='reflowercase'),
+            test_string,
         )
         ref_uppercase_result = tatsu.parse(
-            grammar.format(rulename='Refuppercase'), test_string,
+            grammar.format(rulename='Refuppercase'),
+            test_string,
         )
         for rulename in lowercase_rule_names:
-            result = tatsu.parse(
-                grammar.format(rulename=rulename), test_string,
-            )
+            result = tatsu.parse(grammar.format(rulename=rulename), test_string)
             self.assertEqual(result, ref_lowercase_result)
         for rulename in uppercase_rule_names:
-            result = tatsu.parse(
-                grammar.format(rulename=rulename), test_string,
-            )
+            result = tatsu.parse(grammar.format(rulename=rulename), test_string)
             self.assertEqual(result, ref_uppercase_result)
 
     def test_startrule_issue62(self):
@@ -182,10 +178,6 @@ class ParsingTests(unittest.TestCase):
         assert node.parseinfo.pos == 0
         assert node.parseinfo.endpos == len(text)
 
-        node = tatsu.parse(
-            grammar,
-            text,
-            asmodel=True,
-        )
+        node = tatsu.parse(grammar, text, asmodel=True)
         assert type(node).__name__ == 'Test'
         assert node.parseinfo is None

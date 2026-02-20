@@ -7,6 +7,7 @@ Line analysis and caching are done so the parser can freely move with goto(p)
 to any position in the parsed text, and still recover accurate information
 about source lines and content.
 """
+
 from __future__ import annotations
 
 import re
@@ -28,7 +29,11 @@ LineIndexEntry = LineIndexInfo
 class Buffer(Tokenizer):
 
     def __init__(
-        self, text: str, *, config: ParserConfig | None = None, **settings: Any,
+        self,
+        text: str,
+        *,
+        config: ParserConfig | None = None,
+        **settings: Any,
     ):
         config = ParserConfig.new(config=config, **settings)
         self.config = config
@@ -95,7 +100,13 @@ class Buffer(Tokenizer):
         self._linecount = count
         self._len = len(self.text)
 
-    def _preprocess_block(self, name: str, block, /, **kwargs) -> tuple[list[str], list[LineIndexInfo]]:
+    def _preprocess_block(
+        self,
+        name: str,
+        block,
+        /,
+        **kwargs,
+    ) -> tuple[list[str], list[LineIndexInfo]]:
         lines = self.split_block_lines(block)
         index = LineIndexInfo.block_index(name, len(lines))
         return self.process_block(name, lines, index, **kwargs)
@@ -107,22 +118,26 @@ class Buffer(Tokenizer):
         return ''.join(lines)
 
     def process_block(
-            self,
-            name: str,
-            lines: list[str],
-            index: list[LineIndexInfo],
-            /,
-            **kwargs) -> tuple[list[str], list[LineIndexInfo]]:
+        self,
+        name: str,
+        lines: list[str],
+        index: list[LineIndexInfo],
+        /,
+        **kwargs,
+    ) -> tuple[list[str], list[LineIndexInfo]]:
         return lines, index
 
     def include(
-            self,
-            lines: list[str],
-            index: list[LineIndexInfo],
-            i: int, j: int,
-            name: str, block: str,
-            /,
-            **kwargs) -> int:
+        self,
+        lines: list[str],
+        index: list[LineIndexInfo],
+        i: int,
+        j: int,
+        name: str,
+        block: str,
+        /,
+        **kwargs,
+    ) -> int:
         blines, bindex = self._preprocess_block(name, block, **kwargs)
         assert len(blines) == len(bindex)
         lines[i:j] = blines
@@ -131,12 +146,14 @@ class Buffer(Tokenizer):
         return j + len(blines) - 1
 
     def include_file(
-            self,
-            source: str,
-            name: str,
-            lines: list[str],
-            index: list[LineIndexInfo],
-            i: int, j: int) -> int:
+        self,
+        source: str,
+        name: str,
+        lines: list[str],
+        index: list[LineIndexInfo],
+        i: int,
+        j: int,
+    ) -> int:
         text, filename = self.get_include(source, name)
         return self.include(lines, index, i, j, filename, text)
 
@@ -159,7 +176,7 @@ class Buffer(Tokenizer):
         self._line_index = index
         self._postprocess()
 
-        newtext = self.join_block_lines(lines[j + 1: endline + 2])
+        newtext = self.join_block_lines(lines[j + 1 : endline + 2])
         return endline, newtext
 
     @property
@@ -277,10 +294,7 @@ class Buffer(Tokenizer):
         return self.skip_to('\n')
 
     def scan_space(self) -> bool:
-        return (
-            bool(self.whitespace_re) and
-            bool(self._scanre(self.whitespace_re))
-        )
+        return bool(self.whitespace_re) and bool(self._scanre(self.whitespace_re))
 
     def is_space(self) -> bool:
         return self.scan_space()
@@ -299,7 +313,7 @@ class Buffer(Tokenizer):
             return None
 
         p = self.pos
-        text = self.text[p:p + len(token)]
+        text = self.text[p : p + len(token)]
         if self.ignorecase:
             is_match = text.lower() == token.lower()
         else:
@@ -309,9 +323,7 @@ class Buffer(Tokenizer):
 
         self.move(len(token))
         partial_match = (
-            self.nameguard
-            and self.is_name_char(self.current)
-            and self.is_name(token)
+            self.nameguard and self.is_name_char(self.current) and self.is_name(token)
         )
         if partial_match:
             self.goto(p)
@@ -382,7 +394,7 @@ class Buffer(Tokenizer):
         if self.atend():
             return ''
         info = self.lineinfo()
-        text = info.text[info.col: info.col + 1 + 80]
+        text = info.text[info.col : info.col + 1 + 80]
         return self.split_block_lines(text)[0].rstrip()
 
     def get_line(self, n: int | None = None) -> str:
@@ -395,12 +407,12 @@ class Buffer(Tokenizer):
             start = 0
         if end is None:
             end = len(self._lines)
-        return self._lines[start: end + 1]
+        return self._lines[start : end + 1]
 
     def line_index(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
         if end is None:
             end = len(self._line_index)
-        return self._line_index[start: 1 + end]
+        return self._line_index[start : 1 + end]
 
     def __repr__(self) -> str:
         return f'{type(self).__name__}()'

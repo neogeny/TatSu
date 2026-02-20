@@ -48,12 +48,14 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
                 dfs(child)
                 # afterEdge
                 if (
-                    node_state[child] == State.CUTOFF and
-                    node_depth[child] > depth_stack[-1]
+                    node_state[child] == State.CUTOFF
+                    and node_depth[child] > depth_stack[-1]
                 ):
                     # turn off memoization for all rules that were involved in this cycle
                     child = cast(grammars.Rule, child)
-                    child_rules = (n for n in node_depth if isinstance(n, grammars.Rule))
+                    child_rules = (
+                        n for n in node_depth if isinstance(n, grammars.Rule)
+                    )
                     for childrule in child_rules:
                         childrule.is_memoizable = False
 

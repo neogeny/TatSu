@@ -9,13 +9,7 @@ from ..infos import RuleInfo
 from ..parserconfig import ParserConfig
 from ..tokenizing import Tokenizer
 from ..util import color, info
-from ..util.unicode_characters import (
-    C_CUT,
-    C_ENTRY,
-    C_FAILURE,
-    C_RECURSION,
-    C_SUCCESS,
-)
+from ..util.unicode_characters import C_CUT, C_ENTRY, C_FAILURE, C_RECURSION, C_SUCCESS
 
 
 class EventColor(color.Color):
@@ -31,39 +25,36 @@ C = EventColor()
 
 
 class EventTracer:
-    def trace(self, msg: str, *args: Any, **kwargs: Any) -> None:
-        ...
+    def trace(self, msg: str, *args: Any, **kwargs: Any) -> None: ...
 
-    def trace_event(self, event: str) -> None:
-        ...
+    def trace_event(self, event: str) -> None: ...
 
-    def trace_entry(self) -> None:
-        ...
+    def trace_entry(self) -> None: ...
 
-    def trace_success(self) -> None:
-        ...
+    def trace_success(self) -> None: ...
 
-    def trace_failure(self, ex: Exception | None = None) -> None:
-        ...
+    def trace_failure(self, ex: Exception | None = None) -> None: ...
 
-    def trace_recursion(self) -> None:
-        ...
+    def trace_recursion(self) -> None: ...
 
-    def trace_cut(self) -> None:
-        ...
+    def trace_cut(self) -> None: ...
 
-    def trace_match(self, token: Any, name: str | None = None, failed: bool = False) -> None:
-        ...
+    def trace_match(
+        self,
+        token: Any,
+        name: str | None = None,
+        failed: bool = False,
+    ) -> None: ...
 
 
 class EventTracerImpl(EventTracer):
     def __init__(
-            self,
-            tokenizer: Tokenizer,
-            ruleinfos: list[RuleInfo],
-            *,
-            config: ParserConfig | None = None,
-            **settings: Any,
+        self,
+        tokenizer: Tokenizer,
+        ruleinfos: list[RuleInfo],
+        *,
+        config: ParserConfig | None = None,
+        **settings: Any,
     ) -> None:
         self.config = ParserConfig.new(config, **settings)
         self.tokenizer = tokenizer
@@ -121,7 +112,12 @@ class EventTracerImpl(EventTracer):
     def trace_cut(self) -> None:
         self.trace_event(f'{C.CUT}')
 
-    def trace_match(self, token: Any, name: str | None = None, failed: bool = False) -> None:
+    def trace_match(
+        self,
+        token: Any,
+        name: str | None = None,
+        failed: bool = False,
+    ) -> None:
         if not self.config.trace:
             return
 
@@ -147,8 +143,11 @@ class EventTracerImpl(EventTracer):
     def rulestack(self) -> str:
         rulestack = [r.name for r in reversed(self.ruleinfos)]
         stack = self.config.trace_separator.join(rulestack)
-        if max((len(s) for s in stack.splitlines()), default=0) > self.config.trace_length:
-            stack = stack[:self.config.trace_length]
+        if (
+            max((len(s) for s in stack.splitlines()), default=0)
+            > self.config.trace_length
+        ):
+            stack = stack[: self.config.trace_length]
             stack = stack.rsplit(self.config.trace_separator, 1)[0]
             stack += self.config.trace_separator
         return stack

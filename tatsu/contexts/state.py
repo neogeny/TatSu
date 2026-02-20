@@ -10,10 +10,7 @@ from typing import Any, Self
 from ..ast import AST
 from ..infos import Alert
 
-__all__ = [
-    'ParseState',
-    'ParseStateStack',
-]
+__all__ = ['ParseState', 'ParseStateStack']
 
 from ..util.abctools import is_list
 
@@ -152,7 +149,11 @@ class ParseStateStack:
     def addname(self, name: str) -> None:
         self.ast._setlist(name, self.last_node)
 
-    def define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None) -> Any:
+    def define(
+        self,
+        keys: Iterable[str],
+        list_keys: Iterable[str] | None = None,
+    ) -> Any:
         ast = AST()
         ast._define(keys, list_keys=list_keys)
         ast.update(self.ast)

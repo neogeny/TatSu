@@ -15,11 +15,7 @@ class ModuleImports(NamedTuple):
 
 
 def pathtomodulename(path: Path):
-    return (
-        str(path.with_suffix(''))
-        .replace('/', '.')
-        .replace('.__init__', '')
-    )
+    return str(path.with_suffix('')).replace('/', '.').replace('.__init__', '')
 
 
 def moduledeps(name: str, path: Path, level: int = 1) -> ModuleImports:
@@ -42,11 +38,8 @@ def moduledeps(name: str, path: Path, level: int = 1) -> ModuleImports:
     return ModuleImports(name=name, path=path, imports=imports)
 
 
-def findeps(paths: list[Path], level:int = 1) -> list[ModuleImports]:
-    modulepaths = sorted(
-        (pathtomodulename(path), path)
-        for path in paths
-    )
+def findeps(paths: list[Path], level: int = 1) -> list[ModuleImports]:
+    modulepaths = sorted((pathtomodulename(path), path) for path in paths)
     return [moduledeps(name, path, level=level) for name, path in modulepaths]
 
 

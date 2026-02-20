@@ -16,11 +16,11 @@ def antlr_grammar() -> str:
 
 
 def translate(
-        text: str | None = None,
-        filename: str | None = None,
-        name: str | None = None,
-        encoding: str = 'utf-8',
-        trace: bool = False,
+    text: str | None = None,
+    filename: str | None = None,
+    name: str | None = None,
+    encoding: str = 'utf-8',
+    trace: bool = False,
 ) -> grammars.Grammar:
     if text is None and filename is None:
         raise ValueError('either `text` or `filename` must be provided')
@@ -53,7 +53,8 @@ def main():
         print('\t', thisprog, 'FILENAME.g [--trace]')
         sys.exit(1)
     model = translate(
-        filename=sys.argv[1], trace='--trace' in sys.argv or '-t' in sys.argv,
+        filename=sys.argv[1],
+        trace='--trace' in sys.argv or '-t' in sys.argv,
     )
     print(model)
 

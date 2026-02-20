@@ -33,6 +33,7 @@ class ActualArguments:
     """
     A DTO representing the resolved positional and keyword arguments for a call.
     """
+
     # by [apalala@gmail.com](https://github.com/apalala)
     # by Gemini (2026-02-09)
 
@@ -77,6 +78,7 @@ class BoundCallable:
     """
     Handles the binding of context-aware data to a callable's signature.
     """
+
     def __init__(self, fun: Callable, known: dict[str, Any], *args: Any, **kwargs: Any):
         self.fun = fun
         self.actual = self.bind(fun, known, *args, **kwargs)
@@ -90,7 +92,12 @@ class BoundCallable:
         return fun(*actual.args, **actual.kwargs)
 
     @staticmethod
-    def bind(fun: Callable, known: dict[str, Any], *args: Any, **kwargs: Any) -> ActualArguments:
+    def bind(
+        fun: Callable,
+        known: dict[str, Any],
+        *args: Any,
+        **kwargs: Any,
+    ) -> ActualArguments:
         arg = next(iter(known.values())) if known else (args[0] if args else None)
 
         funname = getattr(fun, '__name__', None)
@@ -116,7 +123,10 @@ class BoundCallable:
                     else:
                         actual.add_arg(name, argsc.pop(0) if argsc else arg)
                 case p.POSITIONAL_ONLY:
-                    actual.add_arg(name, argsc.pop(0) if argsc else arg)  # note: inject known arg
+                    actual.add_arg(
+                        name,
+                        argsc.pop(0) if argsc else arg,
+                    )  # note: inject known arg
                 case p.VAR_POSITIONAL:
                     actual.add_args(argsc)
                 case p.VAR_KEYWORD:
@@ -169,9 +179,6 @@ def least_upper_bound_type(constructors: Sequence[Constructor]) -> type:
     # The LUB is the most specific ancestor that covers all provided types
     # Since child -> parent, we check from the most specific in the sort
     return first(
-        (
-            parent for parent in topsorted
-            if all(issubclass(t, parent) for t in types_)
-        ),
+        (parent for parent in topsorted if all(issubclass(t, parent) for t in types_)),
         default=object,
     )

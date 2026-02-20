@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
+
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+
 """
 Log parser to split, reverse, and rejoin git-style logs.
 Diagnostic messages are sent to stderr; reversed text is sent to stdout.
 by [apalala@gmail.com](https://github.com/apalala)
 Gemini 3 Flash - 2026-01-28
 """
+from __future__ import annotations
+
+import os
 import re
 import sys
-import os
 
 
 def parse_commits(log_text):

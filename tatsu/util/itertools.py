@@ -67,35 +67,39 @@ def find_from_match(m: re.Match) -> str | tuple[str, ...] | None:
 
 
 def iter_findall(
-        pattern: str | re.Pattern,
-        string: str,
-        pos: int | None = None,
-        endpos: int | None = None,
-        flags: int = 0,
-    ) -> Iterable[str]:
+    pattern: str | re.Pattern,
+    string: str,
+    pos: int | None = None,
+    endpos: int | None = None,
+    flags: int = 0,
+) -> Iterable[str]:
     """
     like finditer(), but with return values like findall()
 
     implementation taken from cpython/Modules/_sre.c/findall()
     """
-    r = (
-        pattern
-        if isinstance(pattern, re.Pattern)
-        else re.compile(pattern, flags=flags)
-    )
+    r = pattern if isinstance(pattern, re.Pattern) else re.compile(pattern, flags=flags)
     if pos is not None and endpos is not None:
-        iterator = r.finditer(string, pos=pos, endpos=endpos)  # pyright: ignore[reportCallIssue]
+        iterator = r.finditer(
+            string,
+            pos=pos,
+            endpos=endpos,
+        )  # pyright: ignore[reportCallIssue]
     elif pos is not None:
         iterator = r.finditer(string, pos=pos)
     else:
         iterator = r.finditer(string)
-    return tuple(
-        s for s in (str_from_match(m) for m in iterator if m)
-        if s is not None
-    )
+    return tuple(s for s in (str_from_match(m) for m in iterator if m) if s is not None)
 
 
-def findfirst(pattern, string, pos=None, endpos=None, flags=0, default=Undefined) -> str:
+def findfirst(
+    pattern,
+    string,
+    pos=None,
+    endpos=None,
+    flags=0,
+    default=Undefined,
+) -> str:
     """
     Avoids using the inefficient findall(...)[0], or first(findall(...))
     """
@@ -147,7 +151,7 @@ def topsort[T](nodes: Iterable[T], edges: Iterable[tuple[T, T]]) -> list[T]:
 
 def graphlib_topsort[T](nodes: Iterable[T], edges: Iterable[tuple[T, T]]) -> list[T]:
     graph: dict[T, list[T]] = defaultdict(list[T], {n: [] for n in nodes})
-    for (n, m) in edges:
+    for n, m in edges:
         graph[m].append(n)
 
     sorter = TopologicalSorter(graph)

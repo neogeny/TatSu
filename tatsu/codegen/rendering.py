@@ -4,6 +4,7 @@
 The Renderer class provides the infrastructure for generating template-based
 code. It's used by the .grammars module for parser generation.
 """
+
 from __future__ import annotations
 
 import itertools
@@ -22,9 +23,7 @@ def render(item, join='', **fields):
     elif isinstance(item, Renderer):
         return item.render(join=join, **fields)
     elif isiter(item):
-        return join.join(
-            render(e, **fields) for e in iter(item) if e is not None
-        )
+        return join.join(render(e, **fields) for e in iter(item) if e is not None)
     elif isinstance(item, int | float):
         return item
     else:
@@ -57,9 +56,7 @@ class RenderingFormatter(string.Formatter):
             fmt = '%s'
 
         if isiter(value):
-            return indent(
-                sep.join(fmt % self.render(v) for v in value), ind, mult,
-            )
+            return indent(sep.join(fmt % self.render(v) for v in value), ind, mult)
         else:
             return indent(fmt % self.render(value), ind, mult)
 
@@ -115,13 +112,9 @@ class Renderer:
     def render(self, **fields):
         template = fields.pop('template', None)
         fields.update(__class__=self.__class__.__name__)
-        fields.update(
-            {k: v for k, v in vars(self).items() if not k.startswith('_')},
-        )
+        fields.update({k: v for k, v in vars(self).items() if not k.startswith('_')})
 
-        override = self.render_fields(
-            fields,
-        )  # pylint: disable=assignment-from-none
+        override = self.render_fields(fields)  # pylint: disable=assignment-from-none
         if override is not None:
             template = override
         elif template is None:

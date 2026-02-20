@@ -17,7 +17,9 @@ type Decorator = Callable[[Callable[..., Any]], Callable[..., Any]]
 type AnyCallable = Callable[..., Any]
 
 
-def deprecated(replacement: AnyCallable | None = None) -> Callable[[AnyCallable], AnyCallable]:
+def deprecated(
+    replacement: AnyCallable | None = None,
+) -> Callable[[AnyCallable], AnyCallable]:
     # by [apalala@gmail.com](https://github.com/apalala)
     # by Gemini (2026-01-30)
 
@@ -33,13 +35,11 @@ def deprecated(replacement: AnyCallable | None = None) -> Callable[[AnyCallable]
 
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-            warnings.warn(
-                message=msg,
-                category=DeprecationWarning,
-                stacklevel=2,
-            )
+            warnings.warn(message=msg, category=DeprecationWarning, stacklevel=2)
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
@@ -85,5 +85,7 @@ def deprecated_params(**params_map: str | None) -> Decorator:
                 )
 
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator

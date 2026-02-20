@@ -422,5 +422,8 @@ def test_deprecated_comments_override_failures(comment, option):
         {comment}
         a
     """
-    with pytest.warns(UserWarning, match=r'ParserConfig\..*?comments_re.*?is deprecated'):
+    with pytest.warns(
+        UserWarning,
+        match=r'ParserConfig\..*?comments_re.*?is deprecated',
+    ):
         tool.parse(grammar, text, **option)

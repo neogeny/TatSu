@@ -1,3 +1,7 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 import pytest
 
 import tatsu
@@ -99,13 +103,11 @@ def test_whitespace_no_newlines():
         # document is just list of this strings of tokens
         document = {@+:token2}* $;
     """
-    text = trim(
-        """\
+    text = trim("""\
         a b
         c d
         e f
-    """,
-    )
+    """)
 
     expected = [(['a', 'b'], '\n'), (['c', 'd'], '\n'), (['e', 'f'], '\n')]
 

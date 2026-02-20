@@ -1,3 +1,7 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 import io
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -40,8 +44,12 @@ class IndentPrintMixin:
             self.indent_stack.pop()
 
     @property
-    def current_indentation(self) -> str:
-        return ' ' * self.indent_stack[-1]
+    def indentation(self) -> int:
+        return self.indent_stack[-1]
+
+    @property
+    def indentstr(self) -> str:
+        return ' ' * self.indentation
 
     @staticmethod
     def io_print(*args, **kwargs) -> str:
@@ -61,6 +69,5 @@ class IndentPrintMixin:
     def indented_lines(self, text: str) -> list[str]:
         text = trim(text)
         return [
-            (self.current_indentation + line).rstrip()
-            for line in text.splitlines(keepends=False)
+            (self.indentstr + line).rstrip() for line in text.splitlines(keepends=False)
         ]

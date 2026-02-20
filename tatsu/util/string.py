@@ -58,11 +58,19 @@ def regexp(text: Any) -> str:
     try:
         re.compile(pattern_text)
     except PatternError as e:
-        raise ValueError(f"Invalid regex passed to regexp(): {pattern_text!r}\n{e}") from e
+        raise ValueError(
+            f"Invalid regex passed to regexp(): {pattern_text!r}\n{e}",
+        ) from e
 
     ctrl_map: dict[str, str] = {
-        "\n": r"\n", "\r": r"\r", "\t": r"\t", "\v": r"\v",
-        "\f": r"\f", "\b": r"\b", "\a": r"\a", "\0": r"\0",
+        "\n": r"\n",
+        "\r": r"\r",
+        "\t": r"\t",
+        "\v": r"\v",
+        "\f": r"\f",
+        "\b": r"\b",
+        "\a": r"\a",
+        "\0": r"\0",
     }
 
     result = "".join(ctrl_map.get(c, c) for c in pattern_text)
@@ -80,9 +88,13 @@ def regexp(text: Any) -> str:
         evaluated = eval(output)  # noqa: S307
         re.compile(evaluated)
     except SyntaxError as e:
-        raise RuntimeError(f"regexp() generated invalid Python syntax: {output}\n{e}") from e
+        raise RuntimeError(
+            f"regexp() generated invalid Python syntax: {output}\n{e}",
+        ) from e
     except PatternError as e:
-        raise RuntimeError(f"regexp() generated an invalid regex pattern: {output}\n{e}") from e
+        raise RuntimeError(
+            f"regexp() generated an invalid regex pattern: {output}\n{e}",
+        ) from e
     except Exception as e:
         raise RuntimeError(f"Unexpected error evaluating output: {output}\n{e}") from e
 
@@ -101,16 +113,14 @@ def eval_escapes(s: str | bytes) -> str | bytes:
     """
     # by Rob Speer
 
-    escape_sequence_re: re.Pattern = re.compile(
-        r"""(?ux)
+    escape_sequence_re: re.Pattern = re.compile(r"""(?ux)
         ( \\U........      # 8-digit Unicode escapes
         | \\u....          # 4-digit Unicode escapes
         | \\x..            # 2-digit Unicode escapes
         | \\[0-7]{1,3}     # Octal character escapes
         | \\N\{[^}]+\}     # Unicode characters by name
         | \\[\\'"abfnrtv]  # Single-character escapes
-        )""",
-    )
+        )""")
 
     def decode_match(match):
         return codecs.decode(match.group(0), 'unicode-escape')
@@ -134,9 +144,7 @@ def trim(text, tabwidth=4):
         stripped = line.lstrip()
         if stripped:
             indent = min(indent, len(line) - len(stripped))
-    trimmed = [lines[0].strip()] + [
-        line[indent:].rstrip() for line in lines[1:]
-    ]
+    trimmed = [lines[0].strip()] + [line[indent:].rstrip() for line in lines[1:]]
     i = 0
     while i < len(trimmed) and not trimmed[i]:
         i += 1
@@ -168,9 +176,7 @@ def safe_name(name: str, plug: str = "_") -> str:
     """
 
     if not plug or not all(c.isalnum() or c == "_" for c in plug):
-        raise ValueError(
-            f"Invalid plug: '{plug}'. Must be non-empty and alphanumeric.",
-        )
+        raise ValueError(f"Invalid plug: '{plug}'. Must be non-empty and alphanumeric.")
     if not name:
         raise ValueError("Input string cannot be empty.")
 

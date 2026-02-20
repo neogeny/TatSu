@@ -3,6 +3,7 @@
 -e .
 asttokens==3.0.1
     # via stack-data
+black==26.1.0
 build==1.4.0
 certifi==2026.1.4
     # via requests
@@ -10,9 +11,12 @@ cffi==2.0.0 ; platform_machine != 'ppc64le' and platform_machine != 's390x' and 
     # via cryptography
 charset-normalizer==3.4.4
     # via requests
+click==8.3.1
+    # via black
 colorama==0.4.6
     # via
     #   build
+    #   click
     #   ipython
     #   pytest
 cryptography==46.0.5 ; platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'linux'
@@ -63,17 +67,24 @@ more-itertools==10.8.0 ; platform_machine != 'ppc64le' and platform_machine != '
     # via
     #   jaraco-classes
     #   jaraco-functools
+mypy-extensions==1.1.0
+    # via black
 nh3==0.3.2
     # via readme-renderer
 packaging==26.0
     # via
+    #   black
     #   build
     #   pytest
     #   twine
 parso==0.8.6
     # via jedi
+pathspec==1.0.4
+    # via black
 pexpect==4.9.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
     # via ipython
+platformdirs==4.7.1
+    # via black
 pluggy==1.6.0
     # via pytest
 progress==1.6.1
@@ -99,6 +110,8 @@ pyproject-hooks==1.2.0
 pytest==9.0.2
     # via pytest-dependency
 pytest-dependency==0.6.0
+pytokens==0.4.1
+    # via black
 pywin32-ctypes==0.2.3 ; platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'win32'
     # via keyring
 readme-renderer==44.0

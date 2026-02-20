@@ -32,10 +32,7 @@ class Config:
             for name, value in settings.items()
             if (
                 hasattr(self, name)
-                and (
-                    hard
-                    or not (value is None or value is Undefined)
-                )
+                and (hard or not (value is None or value is Undefined))
             )
         }
 
@@ -90,7 +87,8 @@ class Config:
     def asdict(self):
         return {
             f.name: getattr(self, f.name)
-            for f in dataclasses.fields(self) if f.name != 'temp_cache'
+            for f in dataclasses.fields(self)
+            if f.name != 'temp_cache'
         }
 
     def diff(self, other: Self | None) -> list[tuple[str, Any, Any]]:
@@ -106,8 +104,7 @@ class Config:
 
     def diffs(self, other: Self | None) -> str:
         return '\n'.join(
-            f'{name} {value!r} {ovalue!r}'
-            for name, value, ovalue in self.diff(other)
+            f'{name} {value!r} {ovalue!r}' for name, value, ovalue in self.diff(other)
         )
 
     # non-init fields cannot be used as arguments in `replace`, however
@@ -116,10 +113,7 @@ class Config:
     # If the `ParserConfig` dataclass drops these fields, then this filter can be removed
     def _filter_non_init_fields(self, settings: dict[str, Any]) -> dict[str, Any]:
         noninit = [f.name for f in dataclasses.fields(self) if not f.init]
-        return {
-            name: value for name, value in settings.items()
-            if name not in noninit
-        }
+        return {name: value for name, value in settings.items() if name not in noninit}
 
     def _check_unknowns(self, **settings: Any) -> None:
         unknown = {name for name in settings if not hasattr(self, name)}

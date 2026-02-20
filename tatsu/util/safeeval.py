@@ -19,50 +19,41 @@ __all__ = [
     'make_hashable',
 ]
 
-argcounts: dict[str, int] = {
-    'type': 1,
-}
+argcounts: dict[str, int] = {'type': 1}
 
 
 unsafe_builtins = {
-    'breakpoint',   # Remote code execution and interactive shell access
-
-    'getattr',      # Attribute-based sandbox escapes and manipulation
+    'breakpoint',  # Remote code execution and interactive shell access
+    'getattr',  # Attribute-based sandbox escapes and manipulation
     'hasattr',
     'setattr',
-
-    'dir',          # Introspection and environment mapping
+    'dir',  # Introspection and environment mapping
     'globals',
     'id',
     'locals',
     'vars',
-
-    'object',       # Type system and MRO navigation (accessing __subclasses__)
+    'object',  # Type system and MRO navigation (accessing __subclasses__)
     'property',
     'staticmethod',
     'super',
     'type',
-
-    'isinstance',   # Class hierarchy discovery
+    'isinstance',  # Class hierarchy discovery
     'issubclass',
-
-    'aiter',        # Asynchronous complexity and execution control
+    'aiter',  # Asynchronous complexity and execution control
     'anext',
-
-    'bytearray',    # Mutable memory/buffer access
+    'bytearray',  # Mutable memory/buffer access
     'memoryview',
-
-    'copyright',    # Unnecessary side effects and environment-specific helpers
+    'copyright',  # Unnecessary side effects and environment-specific helpers
     'credits',
     'display',
     'license',
-
-    'dict',          # Constructor-based type escapes
+    'dict',  # Constructor-based type escapes
 }
 
 
 class SecurityError(RuntimeError):
     """Raised when an expression or context contains unauthorized patterns."""
+
     pass
 
 
@@ -90,9 +81,7 @@ def safe_builtins() -> dict[str, Any]:
         )
 
     return dict(
-        entry
-        for entry in vars(builtins).items()
-        if not is_unsafe_builtin_entry(entry)
+        entry for entry in vars(builtins).items() if not is_unsafe_builtin_entry(entry)
     )
 
 
@@ -124,8 +113,7 @@ def make_hashable(source: Any) -> Any:
                     return tuple(dfs(e, visiting) for e in sequence)
                 case dict() as mapping:
                     return tuple(
-                        (name, dfs(value, visiting))
-                        for name, value in mapping.items()
+                        (name, dfs(value, visiting)) for name, value in mapping.items()
                     )
                 case node if not hashable(node):
                     return (obj_id,)
@@ -176,9 +164,7 @@ def safe_eval(expression: str, context: dict[str, Any]) -> Any:
     except (ValueError, SyntaxError, TypeError, AttributeError):
         raise
     except BaseException as e:
-        raise SecurityError(
-            f'Unexpected exception type {type(e).__name__}: {e}',
-        ) from e
+        raise SecurityError(f'Unexpected exception type {type(e).__name__}: {e}') from e
 
 
 def check_safe_eval(expression: str, context: dict[str, Any]) -> None:
@@ -192,7 +178,10 @@ def check_safe_eval(expression: str, context: dict[str, Any]) -> None:
 
 
 @lru_cache(maxsize=1024)
-def _check_safe_eval_cached(expression: str, context_items: tuple[tuple[str, Any], ...]) -> None:
+def _check_safe_eval_cached(
+    expression: str,
+    context_items: tuple[tuple[str, Any], ...],
+) -> None:
     """
     Internal cached function that performs the actual AST validation.
     # by Gemini (2026-01-26)
@@ -280,7 +269,11 @@ def check_eval_context(context: dict[str, Any]) -> None:
 
         real_name = getattr(obj, "__name__", None)
         if real_name == "<lambda>":
-            raise SecurityError(f"Anonymous lambdas are not allowed in context: '{name}'")
+            raise SecurityError(
+                f"Anonymous lambdas are not allowed in context: '{name}'",
+            )
 
         if real_name and real_name != name and name not in sbuiltins:
-            raise SecurityError(f"Context name mismatch: '{name}' refers to '{real_name}'")
+            raise SecurityError(
+                f"Context name mismatch: '{name}' refers to '{real_name}'",
+            )

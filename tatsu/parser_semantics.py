@@ -43,7 +43,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         except (TypeError, re.error) as e:
             raise FailedSemantics('pattern error: ' + str(e)) from e
 
-    def EMPTYLINE(self, ast: Any, * args) -> Any:
+    def EMPTYLINE(self, ast: Any, *args) -> Any:
         return ast
 
     def token(self, ast: str, *args: Any) -> grammars.Token:
@@ -84,9 +84,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         return None
 
     def cut_deprecated(self, ast, *args):
-        warning(
-            'The use of >> for cut is deprecated. Use the ~ symbol instead.',
-        )
+        warning('The use of >> for cut is deprecated. Use the ~ symbol instead.')
         return grammars.Cut()
 
     def override_single_deprecated(self, ast, *args):
@@ -134,13 +132,22 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
 
         if not base:
             rule = grammars.Rule(
-                ast=ast, name=name, params=params, kwparams=kwparams, decorators=decorators,
+                ast=ast,
+                name=name,
+                params=params,
+                kwparams=kwparams,
+                decorators=decorators,
             )
         else:
             self.known_name(base)
             baserule = self.rulemap[base]
             rule = grammars.BasedRule(
-                ast=ast, name=name, baserule=baserule, params=params, kwparams=kwparams, decorators=decorators,
+                ast=ast,
+                name=name,
+                baserule=baserule,
+                params=params,
+                kwparams=kwparams,
+                decorators=decorators,
             )
 
         self.rulemap[name] = rule

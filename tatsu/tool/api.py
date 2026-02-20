@@ -4,6 +4,7 @@
 Parse and translate a TatSu grammar into a Python parser for
 the described language.
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -97,7 +98,8 @@ def compile(
 def parse(
     grammar: str,
     text: str,
-    /, *,
+    /,
+    *,
     config: ParserConfig | None = None,
     start: str | None = None,
     name: str | None = None,
@@ -142,36 +144,30 @@ def parse(
 
 
 def to_python_sourcecode(
-    grammar: str, /, *,
+    grammar: str,
+    /,
+    *,
     name: str | None = None,
     filename: str | None = None,
     config: ParserConfig | None = None,
     **settings: Any,
 ):
-    config = ParserConfig.new(
-        config=config,
-        name=name,
-        filename=filename,
-        **settings,
-    )
+    config = ParserConfig.new(config=config, name=name, filename=filename, **settings)
     model = compile(grammar, name=name, filename=filename, config=config)
     return pythongen(model)
 
 
 def to_python_model(
-    grammar: str, /, *,
+    grammar: str,
+    /,
+    *,
     name: str | None = None,
     filename: str | None = None,
     basetype: type = Node,
     config: ParserConfig | None = None,
     **settings: Any,
 ):
-    config = ParserConfig.new(
-        config=config,
-        name=name,
-        filename=filename,
-        **settings,
-    )
+    config = ParserConfig.new(config=config, name=name, filename=filename, **settings)
     model = compile(grammar, name=name, filename=filename, config=config)
     return modelgen(model, basetype=basetype)
 
@@ -188,9 +184,7 @@ def genmodel(
     if grammar is None:
         raise ParseException('grammar is None')
 
-    return compile(
-        grammar, name=name, semantics=semantics, config=config, **settings,
-    )
+    return compile(grammar, name=name, semantics=semantics, config=config, **settings)
 
 
 def gencode(

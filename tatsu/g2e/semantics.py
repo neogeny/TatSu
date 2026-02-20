@@ -29,11 +29,7 @@ class ANTLRSemantics:
     def grammar(self, ast: AST) -> model.Grammar:
         return model.Grammar(
             self.name,
-            [
-                r
-                for r in chain(ast.rules, self.synthetic_rules)
-                if r is not None
-            ],
+            [r for r in chain(ast.rules, self.synthetic_rules) if r is not None],
         )
 
     def rule(self, ast: AST) -> model.Rule | None:

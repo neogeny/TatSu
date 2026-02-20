@@ -5,6 +5,7 @@ Unit tests for asjson utility.
 # by Gemini (2026-01-26)
 # by [apalala@gmail.com](https://github.com/apalala)
 """
+
 from __future__ import annotations
 
 import enum
@@ -30,10 +31,7 @@ class CustomNode:
         self.child = child
 
     def __json__(self, seen: set[int] | None = None) -> dict[str, Any]:
-        return {
-            "name": self.name,
-            "child": asjson(self.child, seen=seen),
-        }
+        return {"name": self.name, "child": asjson(self.child, seen=seen)}
 
 
 def test_primitives():
@@ -67,6 +65,7 @@ def test_namedtuple_handling():
 def test_weakref_proxy():
     class Data:
         pass
+
     obj = Data()
     proxy = weakref.proxy(obj)
     result = asjson(proxy)

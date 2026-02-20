@@ -30,7 +30,10 @@ def isname(impl: Callable) -> Callable:
     return impl
 
 
-def rule(*params: Any, **kwparams: Any) -> Callable[[Callable[..., Any]], Callable[[ParseContext], Any]]:
+def rule(
+    *params: Any,
+    **kwparams: Any,
+) -> Callable[[Callable[..., Any]], Callable[[ParseContext], Any]]:
     def decorator(impl: Callable[..., Any]) -> Callable[[ParseContext], Any]:
         @functools.wraps(impl)
         def wrapper(self: ParseContext) -> Any:
@@ -52,6 +55,7 @@ def rule(*params: Any, **kwparams: Any) -> Callable[[Callable[..., Any]], Callab
                 kwparams,
             )
             return self._call(ruleinfo)
+
         return wrapper
 
     return decorator

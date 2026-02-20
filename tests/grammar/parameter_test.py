@@ -52,7 +52,6 @@ class ParameterTests(unittest.TestCase):
             assert target == value
 
         class TC36Semantics:
-
             """Check all rule parameters for expected types and values"""
 
             def rule_positional(self, ast, p1, p2, p3, p4):

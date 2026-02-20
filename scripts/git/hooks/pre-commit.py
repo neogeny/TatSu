@@ -11,21 +11,7 @@ from collections.abc import Collection
 from datetime import date
 from pathlib import Path
 
-
-def get_staged_files() -> list[Path]:
-    """
-    Get the list of files currently staged for commit.
-    """
-    try:
-        result = subprocess.run(
-            ['git', 'diff', '--cached', '--name-only', '--diff-filter=d'],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        return [Path(filename) for filename in result.stdout.splitlines()]
-    except subprocess.CalledProcessError:
-        return []
+from common import get_staged_files
 
 
 def is_header_missing(path: Path, target: Collection[str]) -> bool:
@@ -74,7 +60,6 @@ def main() -> None:
         Path('./.vale/styles/'),
     ]
 
-
     staged = get_staged_files()
     missing_paths: list[Path] = []
 
@@ -91,13 +76,16 @@ def main() -> None:
             missing_paths.append(path)
 
     if missing_paths:
-        print("ERROR: Commit aborted. The following files are missing the license header:")
+        print(
+            "ERROR: Commit aborted. The following files are missing the license header:"
+        )
         for f in missing_paths:
             print(f"  - {f}")
         print(f"\nPlease add:\n{target}")
         sys.exit(1)
 
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

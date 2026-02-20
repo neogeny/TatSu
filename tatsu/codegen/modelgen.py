@@ -83,9 +83,7 @@ def _get_full_name(cls):
 
         assert cls_ == cls
     except AttributeError as e:
-        raise CodegenError(
-            "Couldn't find base type, it has to be importable",
-        ) from e
+        raise CodegenError("Couldn't find base type, it has to be importable") from e
 
     return modulename, name
 
@@ -147,9 +145,7 @@ class Rule(ModelRenderer):
         kwargs = '\n'.join(f'{d}: Any = None' for d in defs)
         kwargs = indent(kwargs) if kwargs else indent('pass')
 
-        fields.update(
-            class_name=spec.class_name, base=spec.base, kwargs=kwargs,
-        )
+        fields.update(class_name=spec.class_name, base=spec.base, kwargs=kwargs)
 
     template = """
         @dataclass(eq=False, repr=False, match_args=False, kw_only=True)
@@ -176,20 +172,15 @@ class Grammar(ModelRenderer):
                 model_rules.append((rule, node_spec))
 
             bases.extend(
-                base
-                for base in base_spec
-                if base.class_name not in node_class_names
+                base for base in base_spec if base.class_name not in node_class_names
             )
 
             node_class_names.update(s.class_name for s in specs)
 
-        base_class_declarations = [
-            BaseClassRenderer(spec).render() for spec in bases
-        ]
+        base_class_declarations = [BaseClassRenderer(spec).render() for spec in bases]
 
         model_class_declarations = [
-            self.get_renderer(rule).render(spec=spec)
-            for rule, spec in model_rules
+            self.get_renderer(rule).render(spec=spec) for rule, spec in model_rules
         ]
 
         base_class_declarations = '\n\n\n'.join(base_class_declarations)
@@ -206,9 +197,9 @@ class Grammar(ModelRenderer):
             base_class_declarations=base_class_declarations,
             model_class_declarations=model_class_declarations,
             version=version,
-            basetype=BaseTypeRenderer(basetype).render()
-            if basetype
-            else DEFAULT_BASE_TYPE,
+            basetype=(
+                BaseTypeRenderer(basetype).render() if basetype else DEFAULT_BASE_TYPE
+            ),
         )
 
     template = """\
@@ -224,6 +215,7 @@ class Grammar(ModelRenderer):
                 # the file is generated.
 
                 # ruff: noqa: PLC2401, PLC2402, PLC2403
+                # fmt: off
 
                 from __future__ import annotations
 
