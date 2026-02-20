@@ -1832,7 +1832,6 @@ doc = [
     { name = "docutils" },
     { name = "myst-parser" },
     { name = "pydata-sphinx-theme" },
-    { name = "rich" },
     { name = "sphinx" },
     { name = "sphinx-autodoc2" },
     { name = "sphinx-copybutton" },
@@ -1862,7 +1861,6 @@ test = [
     { name = "pytest-dependency" },
     { name = "pytest-rerunfailures" },
     { name = "pytest-xdist" },
-    { name = "rich" },
     { name = "ruff" },
     { name = "ty" },
 ]
@@ -1899,7 +1897,6 @@ doc = [
     { name = "docutils", specifier = ">=0.22.4" },
     { name = "myst-parser", specifier = ">=5.0.0" },
     { name = "pydata-sphinx-theme", specifier = ">=0.16.1" },
-    { name = "rich", specifier = ">=14.3.2" },
     { name = "sphinx", specifier = ">=9.1.0" },
     { name = "sphinx-autodoc2", specifier = ">=0.5.0" },
     { name = "sphinx-copybutton", specifier = ">=0.5.2" },
@@ -1929,7 +1926,6 @@ test = [
     { name = "pytest-dependency", specifier = ">=0.6.0" },
     { name = "pytest-rerunfailures", specifier = ">=16.1" },
     { name = "pytest-xdist", specifier = ">=3.8.0" },
-    { name = "rich", specifier = ">=14.3.2" },
     { name = "ruff", specifier = ">=0.15.1" },
     { name = "ty", specifier = ">=0.0.17" },
 ]
