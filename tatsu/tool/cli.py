@@ -48,8 +48,12 @@ def parse_args():
         ),
         action='store_true',
     )
-    main_mode.add_argument('--railroad', '-r', help='output a railroad diagram of the grammar in ASCII/Text Art',
-        action='store_true', )
+    main_mode.add_argument(
+        '--railroad',
+        '-r',
+        help='output a railroad diagram of the grammar in ASCII/Text Art',
+        action='store_true',
+    )
     main_mode.add_argument(
         '--object-model',
         '-g',

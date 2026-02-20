@@ -13,11 +13,10 @@ from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImpor
     Result,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     Task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
-)
+    )
 
 __copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'
 __license__: str = 'BSD-4-Clause'
-
 
 # by Gemini 2026-02-15
 # Defeat `ruff --fix` replacing `3.14` with `math.pi`
@@ -109,7 +108,9 @@ def boundary_print(banner: str = '', line: str = THIN_LINE):
 
 
 def success_print(target: str = '', *, task: TaskFun = None, line: str = THIN_LINE):
-    target += task.name if task else ''  # ty:ignore[unresolved-attribute]  # pyright: ignore[reportFunctionMemberAccess]
+    target += (
+        task.name if task else ''  # ty:ignore[unresolved-attribute]  # pyright: ignore[reportFunctionMemberAccess]
+    )
     boundary_print(f'✔ {target}', line=line)
 
 
@@ -153,7 +154,7 @@ def ruff(c: Context, python: float = PYTHON):
     print('-> ruff')
     uv_run(
         c,
-        'ruff check -q --preview --fix tatsu tests examples',
+        'ruff check -q --preview tatsu tests examples',
         python=python,
         group='test',
     )

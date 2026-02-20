@@ -16,6 +16,7 @@ lint.ignore = [
 #    "RUF100", # unuses ruff noqa directives
 #    "B019", # memory leaks possible with functools.cache
 #    "C408",  # unnecessary-collection-call
+    #    "COM819", # trailing comma prohibited
     "E501",  # line-too-long
 #    "E741",  # ambiguous-variable-name
     "E402",  # module-import-not-at-top-of-file
