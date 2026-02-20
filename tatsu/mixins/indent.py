@@ -69,6 +69,5 @@ class IndentPrintMixin:
     def indented_lines(self, text: str) -> list[str]:
         text = trim(text)
         return [
-            (self.indentstr + line).rstrip()
-            for line in text.splitlines(keepends=False)
+            (self.indentstr + line).rstrip() for line in text.splitlines(keepends=False)
         ]
