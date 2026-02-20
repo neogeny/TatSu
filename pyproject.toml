@@ -137,6 +137,16 @@ exclude = [".git", "__pycache__", "dist"]
 omit = ["tests/*", "tatsu/diagrams.py", "tatsu/codegen/*", "**/test.py"]
 data_file = ".cache/coverage/.coverage"
 
+[tool.ruff]
+# Enable these to catch logic errors
+select = ["E", "F", "I"]
+
+[tool.ruff.format]
+# Tell Ruff to match your Black preferences
+quote-style = "preserve"
+indent-style = "space"
+skip-magic-trailing-comma = false
+
 [tool.black]
 line-length = 88
 target-version = ['py312']
