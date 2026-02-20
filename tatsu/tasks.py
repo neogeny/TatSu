@@ -190,11 +190,48 @@ def pyright(c: Context, python: float = PYTHON):
 
 
 @task(pre=[clean])
-def pytest(c: Context, python: float = PYTHON):
-    print('-> pytest')
+def pytest_fast(c: Context, python: float = PYTHON):
+    print('-> pytest fast')
     Path('./tmp').mkdir(exist_ok=True)
     Path('./tmp/__init__.py').touch()
-    uv_run(c, 'pytest --quiet tests/', python=python, group='test', hide='stdout')
+    uv_run(
+        c,
+        [
+            'pytest',
+            '--quiet',
+            '-n auto',
+            'tests/',
+            '--ignore-glob=tests/z*',
+        ],
+        python=python,
+        group='test',
+        hide='stdout',
+        pty=True,
+    )
+
+
+@task(pre=[clean])
+def pytest_bootstrap(c: Context, python: float = PYTHON):
+    print('-> pytest bootstrap')
+    Path('./tmp').mkdir(exist_ok=True)
+    Path('./tmp/__init__.py').touch()
+    uv_run(
+        c,
+        [
+            'pytest',
+            '--quiet',
+            'tests/z_bootstrap_test.py',
+        ],
+        python=python,
+        group='test',
+        hide='stdout',
+        pty=True,
+    )
+
+
+@task(pre=[clean, pytest_fast, pytest_bootstrap])
+def pytest(c: Context, python: float = PYTHON):
+    pass
 
 
 @task(pre=[clean])
