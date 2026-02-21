@@ -8,87 +8,43 @@
 @@left_recursion :: False
 
 
-start
-    =
-    grammar
-    ;
+start = grammar ;
 
 
-grammar::Grammar
-    =
+grammar::Grammar =
     title:`TATSU`
-    {
-        directives+:directive
-    |
-        keywords+:keyword
-    }
-    rules+:rule
-    {
-        rules+:rule
-    |
-        keywords+:keyword
-    }
+    {directives+:directive | keywords+:keyword}
+    rules+:rule {rules+:rule | keywords+:keyword}
     $
     ;
 
 
-directive
-    =
-    '@@' !'keyword' ~
+directive = '@@' !'keyword' ~
     (
-            name:('comments' | 'eol_comments') ~
-            ~
-            '::' ~ value:regex
-        |
-            name:('whitespace')
-            ~
-            '::' ~ value:(regex|string|'None'|'False'|`None`)
-        |
-            name:('nameguard' | 'ignorecase' | 'left_recursion' | 'parseinfo' | 'memoization')
+        | name:('comments' | 'eol_comments') ~ '::' ~ value:regex
+        | name:('whitespace') ~ '::' ~ value:(regex|string|'None'|'False'|`None`)
+        | name:('nameguard' | 'ignorecase' | 'left_recursion' | 'parseinfo' | 'memoization')
             ~
             ('::' ~ value:boolean|value:`True`)
-        |
-            name:('grammar')
-            ~
-            '::' ~ value:word
-        |
-            name:('namechars')
-            ~
-            '::' ~ value:string
+        | name:('grammar') ~ '::' ~ value:word
+        | name:('namechars') ~ '::' ~ value:string
     ) ~
     ;
 
+keywords = { keywords }+ ;
 
-keywords
-    =
-    { keywords }+
-    ;
+keyword = '@@keyword' ~ '::' ~ {@+:(word|string) !(':'|'=')} ;
 
-
-keyword
-    =
-    '@@keyword' ~ '::' ~ {@+:(word|string) !(':'|'=')}
-    ;
-
-
-paramdef
-    =
-        (* no keyword params if ':: *)
-        '::' ~ params:params
-    |
-        '('
-        ~
-        (
-              kwparams:kwparams
+paramdef =
+    | (* no keyword params if ':: *) '::' ~ params:params
+    | '(' ~ (
+            | kwparams:kwparams
             | params:params ',' ~ kwparams:kwparams
             | params:params
-        )
-        ')'
+       ) ')'
     ;
 
-
-rule::Rule
-    =
+rule::Rule =
     decorators:{decorator}
     name:name
     ~
@@ -101,134 +57,50 @@ rule::Rule
     ~
     ;
 
-RULE_END
-    =
-    (EMPTYLINE [';']|$|';')
+RULE_END = (EMPTYLINE [';']|$|';') ;
+
+EMPTYLINE = /(?:\s*(?:\r?\n|\r)){2,}/ ;
+
+decorator = '@' !'@' ~ @:('override'|'name'|'nomemo') ;
+
+params = @+:first_param {',' @+:literal !'=' ~ } ;
+
+first_param = path | literal ;
+
+kwparams = ','.{pair}+ ;
+
+pair = @+:word '=' ~ @+:literal ;
+
+expre = choice | sequence ;
+
+choice::Choice = ['|' ~] @+:option {'|' ~ @+:option}+ ;
+
+option::Option = @:sequence ;
+
+sequence::Sequence =
+    | &(element ',') ','.{element}+
+    | {!EMPTYLINE element}+
     ;
 
+element = rule_include | named | override | term ;
 
-EMPTYLINE
-    =
-    /(?:\s*(?:\r?\n|\r)){2,}/
-    ;
+rule_include::RuleInclude = '>' ~ @:known_name ;
 
+named = named_list | named_single ;
 
-decorator
-    =
-    '@' !'@' ~ @:('override'|'name'|'nomemo')
-    ;
+named_list::NamedList = name:name '+:' ~ exp:term ;
 
+named_single::Named = name:name ':' ~ exp:term ;
 
-params
-    =
-    @+:first_param {',' @+:literal !'=' ~ }
-    ;
+override = override_list | override_single | override_single_deprecated ;
 
+override_list::OverrideList = '@+:' ~ @:term ;
 
-first_param
-    =
-    | path
-    | literal
-    ;
+override_single::Override = '@:' ~ @:term ;
 
+override_single_deprecated::Override = '@' ~ @:term ;
 
-
-kwparams
-    =
-    ','.{pair}+
-    ;
-
-
-pair
-    =
-    @+:word '=' ~ @+:literal
-    ;
-
-
-expre
-    =
-    choice | sequence
-    ;
-
-
-choice::Choice
-    =
-    ['|' ~] @+:option {'|' ~ @+:option}+
-    ;
-
-
-option::Option
-    =
-    @:sequence
-    ;
-
-
-
-sequence::Sequence
-    =
-    (
-        | &(element ',') ','.{element}+
-        | {!EMPTYLINE element}+
-    )
-    ;
-
-
-element
-    =
-    (rule_include | named | override | term)
-    ;
-
-
-rule_include::RuleInclude
-    =
-    '>' ~ @:known_name
-    ;
-
-
-named
-    =
-    named_list | named_single
-    ;
-
-
-named_list::NamedList
-    =
-    name:name '+:' ~ exp:term
-    ;
-
-
-named_single::Named
-    =
-    name:name ':' ~ exp:term
-    ;
-
-
-override
-    =
-    override_list | override_single | override_single_deprecated
-    ;
-
-
-override_list::OverrideList
-    =
-    '@+:' ~ @:term
-    ;
-
-
-override_single::Override
-    =
-    '@:' ~ @:term
-    ;
-
-
-override_single_deprecated::Override
-    =
-    '@' ~ @:term
-    ;
-
-
-term
-    =
+term =
     | void
     | gather
     | join
@@ -246,166 +118,59 @@ term
     | atom
     ;
 
+group::Group = '(' ~ @:expre ')' ~ ;
 
-group::Group
-    =
-    '(' ~ @:expre ')' ~
+
+gather = &(atom '.{') ~ (positive_gather | normal_gather)
     ;
 
 
-gather
-    =
-    &(atom '.{') ~
-    (
-    | positive_gather
-    | normal_gather
-    )
-    ;
+positive_gather::PositiveGather = sep:atom '.{' exp:expre '}' ('+'|'-') ~ ;
+
+normal_gather::Gather = sep:atom '.{' ~ exp:expre '}' ['*' ~] ~ ;
+
+join = &(atom '%{') ~ (positive_join | normal_join) ;
+
+positive_join::PositiveJoin = sep:atom '%{' exp:expre '}' ('+'|'-') ~ ;
+
+normal_join::Join = sep:atom '%{' ~ exp:expre '}' ['*' ~] ~ ;
+
+left_join::LeftJoin = sep:atom '<{' ~ exp:expre '}' ('+'|'-') ~ ;
+
+right_join::RightJoin = sep:atom '>{' ~ exp:expre '}' ('+'|'-') ~ ;
+
+positive_closure::PositiveClosure = '{' @:expre '}' ('-' | '+') ~ |   @:atom '+' ~ ;
+
+closure::Closure = '{' @:expre '}' ['*'] ~ |   @:atom '*' ~ ;
 
 
-positive_gather::PositiveGather
-    =
-    sep:atom '.{' exp:expre '}' ('+'|'-') ~
-    ;
+empty_closure::EmptyClosure = '{}' ~ @:() ;
 
+optional::Optional = '[' ~ @:expre ']' ~ |   @:atom !('?"' | "?'" | '?/') '?'  ~ ;
 
-normal_gather::Gather
-    =
-    sep:atom '.{' ~ exp:expre '}' ['*' ~] ~
-    ;
+lookahead::Lookahead = '&' ~ @:term ;
 
+negative_lookahead::NegativeLookahead = '!' ~ @:term ;
 
-join
-    =
-    &(atom '%{') ~
-    (
-    | positive_join
-    | normal_join
-    )
-    ;
+skip_to::SkipTo = '->' ~ @:term ;
 
+atom = group | token | alert | constant | call | pattern | dot | eof ;
 
-positive_join::PositiveJoin
-    =
-    sep:atom '%{' exp:expre '}' ('+'|'-') ~
-    ;
+call::Call = word ;
 
+void::Void = '()' ~ ;
 
-normal_join::Join
-    =
-    sep:atom '%{' ~ exp:expre '}' ['*' ~] ~
-    ;
+fail::Fail = '!()' ~ ;
 
+cut::Cut = '~' ~ ;
 
-left_join::LeftJoin
-    =
-    sep:atom '<{' ~ exp:expre '}' ('+'|'-') ~
-    ;
+cut_deprecated::Cut = '>>' ~ ;
 
+known_name = name ~ ;
 
-right_join::RightJoin
-    =
-    sep:atom '>{' ~ exp:expre '}' ('+'|'-') ~
-    ;
+name = word ;
 
-
-positive_closure::PositiveClosure
-    =
-        '{' @:expre '}' ('-' | '+') ~
-    |   @:atom '+' ~
-    ;
-
-
-closure::Closure
-    =
-        '{' @:expre '}' ['*'] ~
-    |   @:atom '*' ~
-    ;
-
-
-empty_closure::EmptyClosure
-    =
-    '{}' ~ @:()
-    ;
-
-
-optional::Optional
-    =
-        '[' ~ @:expre ']' ~
-    |   @:atom !('?"' | "?'" | '?/') '?'  ~
-    ;
-
-
-lookahead::Lookahead
-    =
-    '&' ~ @:term
-    ;
-
-
-negative_lookahead::NegativeLookahead
-    =
-    '!' ~ @:term
-    ;
-
-
-skip_to::SkipTo
-    =
-    '->' ~ @:term
-    ;
-
-
-atom
-    =
-    group | token | alert | constant | call | pattern | dot | eof
-    ;
-
-
-call::Call
-    =
-    word
-    ;
-
-
-void::Void
-    =
-    '()' ~
-    ;
-
-
-fail::Fail
-    =
-    '!()' ~
-    ;
-
-
-cut::Cut
-    =
-    '~' ~
-    ;
-
-
-cut_deprecated::Cut
-    =
-    '>>' ~
-    ;
-
-
-known_name
-    =
-    name ~
-    ;
-
-
-name
-    =
-    word
-    ;
-
-
-
-constant::Constant
-    =
-    &"`"
+constant::Constant = &"`"
     (
         | /(?ms)```((?:.|\n)*?)```/
         | "`" @:literal "`"
@@ -413,119 +178,47 @@ constant::Constant
     )
     ;
 
+alert::Alert = level:/\^+/ message:constant ;
 
-alert::Alert
-    =
-     level:/\^+/ message:constant
-    ;
+token::Token = string | raw_string ;
 
+literal = string | raw_string | boolean | word | hex | float | int | null ;
 
-token::Token
-    =
-    string | raw_string
-    ;
+string = STRING ;
 
+raw_string = /r/ @:STRING ;
 
-literal
-    =
-    string | raw_string | boolean | word | hex | float | int | null
-    ;
-
-
-string
-    =
-    STRING
-    ;
-
-
-raw_string
-    =
-    /r/ @:STRING
-    ;
-
-
-STRING
-    =
+STRING =
     | @:/"((?:[^"\n]|\\"|\\\\)*?)"/ ~
     | @:/'((?:[^'\n]|\\'|\\\\)*?)'/ ~
     ;
 
+hex = /0[xX](?:\d|[a-fA-F])+/ ;
 
-hex
-    =
-    /0[xX](?:\d|[a-fA-F])+/
-    ;
+float = /[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?/ ;
 
+int = /[-+]?\d+/ ;
 
-float
-    =
-    /[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?/
-    ;
+path = /(?!\d)\w+/ + /(?:::(?!\d)\w+)+/ ;
 
+word = /(?!\d)\w+/ ;
 
-int
-    =
-    /[-+]?\d+/
-    ;
+dot::Dot = '/./' ;
 
+pattern::Pattern = regexes ;
 
-path
-    =
-    /(?!\d)\w+/ + /(?:::(?!\d)\w+)+/
-    ;
+regexes = '+'.{regex}+ ;
 
-
-word
-    =
-    /(?!\d)\w+/
-    ;
-
-
-dot::Dot
-    =
-    '/./'
-    ;
-
-
-pattern::Pattern
-    =
-    regexes
-    ;
-
-
-regexes
-    =
-    '+'.{regex}+
-    ;
-
-
-
-regex
-    =
+regex =
     | '/' ~ @:?"(?:[^/\\]|\\/|\\.)*" '/' ~
     | '?' @:STRING
     | deprecated_regex
     ;
 
-deprecated_regex
-    =
-    '?/' ~ @:?"(?:.|\n)*?(?=/\?)" ?"/\?+" ~
-    ;
+deprecated_regex = '?/' ~ @:?"(?:.|\n)*?(?=/\?)" ?"/\?+" ~ ;
 
+boolean = 'True' | 'False' ;
 
-boolean
-    =
-    'True' | 'False'
-    ;
+null = 'None' ;
 
-
-null
-    =
-    'None'
-    ;
-
-
-eof::EOF
-    =
-    '$' ~
-    ;
+eof::EOF = '$' ~ ;

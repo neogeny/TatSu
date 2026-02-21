@@ -11,6 +11,7 @@
 
 # ruff: noqa: RUF100, C405, COM812, I001, F401, PLR1702, PLC2801, SIM117
 # ruff: noqa: PL2401, PLC2402, PLC2403
+# fmt: off
 
 from __future__ import annotations
 
@@ -124,7 +125,6 @@ class TatSuBootstrapParser(Parser):
                                     raise self.newexcept(
                                         "expecting one of:  'comments' 'eol_comments'"
                                     ) from None
-                    self._cut()
                     self._cut()
                     self._token('::')
                     self._cut()
@@ -502,63 +502,61 @@ class TatSuBootstrapParser(Parser):
 
     @rule('Sequence')
     def _sequence_(self):
-        with self._group():
-            with self._choice():
-                with self._option():
-                    with self._if():
-                        with self._group():
-                            self._element_()
-                            self._token(',')
-
-                    def sep0():
+        with self._choice():
+            with self._option():
+                with self._if():
+                    with self._group():
+                        self._element_()
                         self._token(',')
 
-                    def block1():
-                        self._element_()
+                def sep0():
+                    self._token(',')
 
-                    self._positive_gather(block1, sep0)
-                with self._option():
+                def block1():
+                    self._element_()
 
-                    def block2():
-                        with self._ifnot():
-                            self._EMPTYLINE_()
-                        self._element_()
+                self._positive_gather(block1, sep0)
+            with self._option():
 
-                    self._positive_closure(block2)
-                if self._no_more_options:
-                    raise self.newexcept(
-                        'expecting one of: '
-                        "'(?:\\\\s*(?:\\\\r?\\\\n|\\\\r)){2,}'"
-                        '<EMPTYLINE> <element> <named> <override>'
-                        '<rule_include> <term>'
-                    ) from None
+                def block2():
+                    with self._ifnot():
+                        self._EMPTYLINE_()
+                    self._element_()
+
+                self._positive_closure(block2)
+            if self._no_more_options:
+                raise self.newexcept(
+                    'expecting one of: '
+                    "'(?:\\\\s*(?:\\\\r?\\\\n|\\\\r)){2,}'"
+                    '<EMPTYLINE> <element> <named> <override>'
+                    '<rule_include> <term>'
+                ) from None
 
     @rule()
     def _element_(self):
-        with self._group():
-            with self._choice():
-                with self._option():
-                    self._rule_include_()
-                with self._option():
-                    self._named_()
-                with self._option():
-                    self._override_()
-                with self._option():
-                    self._term_()
-                if self._no_more_options:
-                    raise self.newexcept(
-                        'expecting one of: '
-                        "'>' <atom> <closure> <cut>"
-                        '<cut_deprecated> <empty_closure>'
-                        '<gather> <join> <left_join> <lookahead>'
-                        '<named> <named_list> <named_single>'
-                        '<negative_lookahead> <optional>'
-                        '<override> <override_list>'
-                        '<override_single>'
-                        '<override_single_deprecated>'
-                        '<positive_closure> <right_join>'
-                        '<rule_include> <skip_to> <term> <void>'
-                    ) from None
+        with self._choice():
+            with self._option():
+                self._rule_include_()
+            with self._option():
+                self._named_()
+            with self._option():
+                self._override_()
+            with self._option():
+                self._term_()
+            if self._no_more_options:
+                raise self.newexcept(
+                    'expecting one of: '
+                    "'>' <atom> <closure> <cut>"
+                    '<cut_deprecated> <empty_closure>'
+                    '<gather> <join> <left_join> <lookahead>'
+                    '<named> <named_list> <named_single>'
+                    '<negative_lookahead> <optional>'
+                    '<override> <override_list>'
+                    '<override_single>'
+                    '<override_single_deprecated>'
+                    '<positive_closure> <right_join>'
+                    '<rule_include> <skip_to> <term> <void>'
+                ) from None
 
     @rule('RuleInclude')
     def _rule_include_(self):
