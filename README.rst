@@ -214,7 +214,7 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
 
     start ●─grammar─■
 
-    grammar∷Grammar ●─ [title](`TATSU`)──┬→───────────────────────────────────┬── [`rules`]+(rule)──┬→───────────────────────────────┬──⇥ ␃ ─■
+    grammar∷Grammar ●─ [title](`TATSU`)──┬→───────────────────────────────────┬── [`rules`]+(rule)──┬→───────────────────────────────┬──⇥＄
                                          ├→──┬─ [`directives`]+(directive)─┬──┤                     ├→──┬─ [`rules`]+(rule)───────┬──┤
                                          │   └─ [`keywords`]+(keyword)─────┘  │                     │   └─ [`keywords`]+(keyword)─┘  │
                                          └───────────────────────────────────<┘                     └───────────────────────────────<┘
@@ -253,7 +253,7 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
 
     RULE_END ●───┬─EMPTYLINE──┬─→';'─┬──┬──■
                  │            └─→────┘  │
-                 ├─⇥ ␃                  │
+                 ├─⇥＄                  │
                  └─';'──────────────────┘
 
     EMPTYLINE ●─/(?:\s*(?:\r?\n|\r)){2,}/──■
@@ -454,7 +454,6 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
     null ●─'None'─■
 
     eof∷EOF ●─'$' ✂ ──■
-
 
 
 
