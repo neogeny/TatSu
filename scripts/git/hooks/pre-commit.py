@@ -46,6 +46,7 @@ def main() -> None:
         '.lock',
         '.md',
         '.pdf',
+        '.peg',
         '.png',
         '.pyc',
         '.txt',
