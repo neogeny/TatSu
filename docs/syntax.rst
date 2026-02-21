@@ -623,11 +623,7 @@ The alternative syntax with no *keyword parameters* is deprecated:
 .. code:: apl
     :force:
 
-    addition::Add, '+'
-      =
-      addend '+' addend
-      ;
-
+    addition[Add, '+']: addend '+' addend
 
 
 
