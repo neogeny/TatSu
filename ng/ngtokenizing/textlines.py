@@ -15,7 +15,7 @@ DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 LineIndexEntry = LineIndexInfo
 
 
-class Cursor:
+class PositionCursor:
     """Manages the state and navigation within a Buffer."""
 
     def __init__(self, buffer: Buffer, pos: int = 0):
@@ -87,7 +87,7 @@ class Cursor:
         return f'Cursor(pos={self._pos}, line={self.line}, col={self.col})'
 
 
-class Buffer(Tokenizer):
+class TextLinesTokenizer(Tokenizer):
     def __init__(
         self,
         text: str,
@@ -160,7 +160,12 @@ class Buffer(Tokenizer):
         self._linecount = count
         self._len = len(self._text)
 
-    def _preprocess_block(self, name: str, block: str, **kwargs) -> tuple[list[str], list[LineIndexInfo]]:
+    def _preprocess_block(
+        self,
+        name: str,
+        block: str,
+        **kwargs,
+        ) -> tuple[list[str], list[LineIndexInfo]]:
         lines = self.split_block_lines(block)
         index = LineIndexInfo.block_index(name, len(lines))
         return self.process_block(name, lines, index, **kwargs)
@@ -171,7 +176,13 @@ class Buffer(Tokenizer):
     def join_block_lines(self, lines: list[str]) -> str:
         return ''.join(lines)
 
-    def process_block(self, name: str, lines: list[str], index: list[LineIndexInfo], **kwargs):
+    def process_block(
+        self,
+        name: str,
+        lines: list[str],
+        index: list[LineIndexInfo],
+        **kwargs,
+        ):
         return lines, index
 
     # Mapping methods that now take a Cursor instead of using self._pos
@@ -200,7 +211,11 @@ class Buffer(Tokenizer):
             self._eat_regex_list(cursor, self.config.comments)
             self.eat_whitespace(cursor)
 
-    def _eat_regex_list(self, cursor: Cursor, regex: str | re.Pattern | None) -> list[str]:
+    def _eat_regex_list(
+        self,
+        cursor: Cursor,
+        regex: str | re.Pattern | None,
+        ) -> list[str]:
         if not (r := cached_re_compile(regex)):
             return []
 
@@ -226,9 +241,7 @@ class Buffer(Tokenizer):
 
         cursor.move(len(token))
         partial_match = (
-            self.nameguard and
-            self.is_name_char(cursor.current) and
-            self.is_name(token)
+            self.nameguard and self.is_name_char(cursor.current) and self.is_name(token)
         )
         if partial_match:
             cursor.goto(p)
@@ -250,7 +263,11 @@ class Buffer(Tokenizer):
         cursor.move(len(matched))
         return token
 
-    def _scanre(self, cursor: Cursor, pattern: str | re.Pattern | None) -> re.Match[Any] | None:
+    def _scanre(
+        self,
+        cursor: Cursor,
+        pattern: str | re.Pattern | None,
+        ) -> re.Match[Any] | None:
         if not (cre := cached_re_compile(pattern)):
             return None
         return cre.match(self.text, cursor.pos)

@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from itertools import starmap
-from typing import Any, NamedTuple, Protocol, runtime_checkable
+from typing import NamedTuple, Protocol, runtime_checkable
 
-from ng.ngtokenizing.cursor import Cursor, LineInfo, NullCursor
+from ng.ngtokenizing.cursor import Cursor
 
 
 class LineIndexInfo(NamedTuple):
@@ -53,40 +53,3 @@ class Tokenizer(Protocol):
         start: int = 0,
         end: int | None = None,
         ) -> list[LineIndexInfo]: ...
-
-
-class NullTokenizer(Tokenizer):
-    """A no-op implementation of the Tokenizer protocol."""
-
-    def __init__(self, *args: Any, **kwargs: Any): pass
-
-    @property
-    def text(self) -> str: return ''
-
-    @property
-    def filename(self) -> str: return ''
-
-    @property
-    def ignorecase(self) -> bool: return False
-
-    def new_cursor(self, pos: int = 0) -> Cursor:
-        return NullCursor()
-
-    def next_token(self, cursor: Cursor) -> None: pass
-
-    def match(self, cursor: Cursor, token: str) -> str | None: return None
-
-    def matchre(self, cursor: Cursor, pattern: str) -> str | None: return None
-
-    def posline(self, pos: int) -> int: return 0
-
-    def lineinfo(self, pos: int) -> LineInfo:
-        return LineInfo('', 0, 0, 0, 0, '')
-
-    def get_line(self, n: int | None = None) -> str: return ''
-
-    def get_lines(self, start: int | None = None, end: int | None = None) -> list[str]:
-        return []
-
-    def line_index(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
-        return []
