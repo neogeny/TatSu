@@ -7,7 +7,7 @@ from typing import Any
 from ..exceptions import FailedLeftRecursion
 from ..infos import RuleInfo
 from ..parserconfig import ParserConfig
-from ..tokenizing import Tokenizer
+from ..tokenizing.cursor import Cursor
 from ..util import color, info
 from ..util.unicode_characters import C_CUT, C_ENTRY, C_FAILURE, C_RECURSION, C_SUCCESS
 
@@ -50,14 +50,14 @@ class EventTracer:
 class EventTracerImpl(EventTracer):
     def __init__(
         self,
-        tokenizer: Tokenizer,
+        cursor: Cursor,
         ruleinfos: list[RuleInfo],
         *,
         config: ParserConfig | None = None,
         **settings: Any,
     ) -> None:
         self.config = ParserConfig.new(config, **settings)
-        self.tokenizer = tokenizer
+        self.cursor = cursor
 
         # NOTE: not copying / sharing same list with caller
         self.ruleinfos = ruleinfos
@@ -79,17 +79,17 @@ class EventTracerImpl(EventTracer):
 
         fname = ''
         if self.config.trace_filename:
-            fname = self.tokenizer.lineinfo().filename
+            fname = self.cursor.lineinfo().filename
         if fname:
             fname += '\n'
 
-        lookahead = self.tokenizer.lookahead().rstrip()
+        lookahead = self.cursor.lookahead().rstrip()
         lookahead = '\n' + lookahead if lookahead else ''
 
         message = (
             f'{event}{self.rulestack()}'
             f' {C.DIM}{fname}'
-            f'{self.tokenizer.lookahead_pos()}{C.RESET}'
+            f'{self.cursor.lookahead_pos()}{C.RESET}'
             f'{C.RESET_ALL}{lookahead}{C.RESET_ALL}'
         )
         self.trace(message)
@@ -123,13 +123,13 @@ class EventTracerImpl(EventTracer):
 
         name_str = f'/{name}/' if name else ''
         if self.config.trace_filename:
-            fname = self.tokenizer.lineinfo().filename + '\n'
+            fname = self.cursor.lineinfo().filename + '\n'
         else:
             fname = ''
 
         mark = f'{C.FAILURE}' if failed else f'{C.SUCCESS}'
 
-        lookahead = self.tokenizer.lookahead().rstrip()
+        lookahead = self.cursor.lookahead().rstrip()
         lookahead = '\n' + lookahead if lookahead else lookahead
 
         message = (

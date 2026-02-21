@@ -7,7 +7,7 @@ from collections.abc import Callable, Iterable
 from contextlib import contextmanager, suppress
 from typing import Any
 
-from .. import buffering, tokenizing
+from .. import buffering
 from ..ast import AST
 from ..buffering import Buffer
 from ..collections import BoundedDict
@@ -23,9 +23,9 @@ from ..exceptions import (
     OptionSucceeded,
     ParseError,
     ParseException,
-)
+    )
 from ..infos import Alert, ParseInfo, ParserConfig, RuleInfo
-from ..tokenizing import NullTokenizer, Tokenizer
+from ..tokenizing import Cursor, NullTokenizer, Tokenizer
 from ..util import regexp, safe_name, trim
 from ..util.abctools import is_list, left_assoc, prune_dict, right_assoc
 from ..util.deprecate import deprecated
@@ -56,6 +56,7 @@ class ParseContext:
         self._active_config: ParserConfig = self._config
 
         self._tokenizer: Tokenizer = NullTokenizer()
+        self._cursor = self._tokenizer.new_cursor()
         self._semantics: type | None = config.semantics
         self._initialize_caches()
 
@@ -101,11 +102,14 @@ class ParseContext:
         return self._tokenizer
 
     @property
+    def cursor(self) -> Cursor:
+        return self._cursor
+
+    @property
     def tokenizercls(self) -> type[Tokenizer]:
         if self.config.tokenizercls is None:
             return buffering.Buffer
-        else:
-            return self.config.tokenizercls
+        return self.config.tokenizercls
 
     @property
     def last_node(self) -> Any:
@@ -117,11 +121,11 @@ class ParseContext:
 
     @property
     def pos(self) -> int:
-        return self._tokenizer.pos
+        return self.tokenizer.pos
 
     @property
     def line(self) -> int:
-        return self._tokenizer.line
+        return self.cursor.line
 
     @property
     def states(self) -> ParseStateStack:
@@ -149,7 +153,7 @@ class ParseContext:
 
     def update_tracer(self) -> EventTracer:
         tracer = EventTracerImpl(
-            self._tokenizer,
+            self.cursor,
             self._ruleinfo_stack,
             config=self.config,
         )
@@ -188,16 +192,17 @@ class ParseContext:
         self.update_tracer()
         try:
             self._reset(config)
-            if isinstance(text, tokenizing.Tokenizer):
-                tokenizer = text
+            if isinstance(text, Tokenizer):
+                cursor = text
             elif issubclass(config.tokenizercls, NullTokenizer):
-                tokenizer = Buffer(text=text, config=config, **settings)
+                cursor = Buffer(text=text, config=config, **settings)
             elif text is not None:
                 cls = self.tokenizercls
-                tokenizer = cls(text, config=config, **settings)
+                cursor = cls(text, config=config, **settings)
             else:
-                raise ParseError('No tokenizer or text')
-            self._tokenizer = tokenizer
+                raise ParseError('No cursor or text')
+            self._tokenizer = cursor
+            self._cursor = cursor.new_cursor()
 
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
                 self.config.semantics.set_context(self)
@@ -219,14 +224,14 @@ class ParseContext:
                 self.config.semantics.set_context(None)
 
     def goto(self, pos: int) -> None:
-        self._tokenizer.goto(pos)
+        self.cursor.goto(pos)
 
     def _next(self) -> Any:
-        return self._tokenizer.next()
+        return self.cursor.next()
 
     def next_token(self, ruleinfo: RuleInfo | None = None) -> None:
         if not (ruleinfo and ruleinfo.is_token_rule()):
-            self._tokenizer.next_token()
+            self.cursor.next_token()
 
     def _define(
         self,
@@ -265,7 +270,7 @@ class ParseContext:
 
     def undostate(self) -> None:
         self.states.pop()
-        self.tokenizer.goto(self.state.pos)
+        self.cursor.goto(self.state.pos)
 
     def _cut(self) -> None:
         self.states.set_cut_seen()
@@ -310,7 +315,7 @@ class ParseContext:
             rulestack: list[str] = []
         else:
             rulestack = [r.name for r in reversed(self._ruleinfo_stack)]
-        return exclass(self.tokenizer.lineinfo(), rulestack, item)
+        return exclass(self.cursor.lineinfo(), rulestack, item)
 
     # bw compatibility
     @deprecated(replacement=newexcept)
@@ -331,8 +336,8 @@ class ParseContext:
             rule=name,
             pos=pos,
             endpos=endpos,
-            line=self.tokenizer.posline(pos),
-            endline=self.tokenizer.posline(endpos),
+            line=self.cursor.posline(pos),
+            endline=self.cursor.posline(endpos),
             alerts=self.state.alerts,
         )
 
@@ -494,7 +499,7 @@ class ParseContext:
 
     def _token(self, token: str) -> str:
         self.next_token()
-        if self.tokenizer.match(token) is None:
+        if self.cursor.match(token) is None:
             self.tracer.trace_match(token, failed=True)
             raise self.newexcept(token, exclass=FailedToken)
         self.tracer.trace_match(token)
@@ -554,7 +559,7 @@ class ParseContext:
         self.state.alerts.append(Alert(message=message, level=level))
 
     def _pattern(self, pattern: str) -> Any:
-        token = self.tokenizer.matchre(pattern)
+        token = self.cursor.matchre(pattern)
         if token is None:
             self.tracer.trace_match('', pattern, failed=True)
             raise self.newexcept(f'Expecting {regexp(pattern)}', exclass=FailedPattern)
@@ -563,14 +568,14 @@ class ParseContext:
         return token
 
     def eof(self) -> bool:
-        return self.tokenizer.atend()
+        return self.cursor.atend()
 
     def eol(self) -> bool:
-        return self.tokenizer.ateol()
+        return self.cursor.ateol()
 
     def _check_eof(self) -> None:
         self.next_token()
-        if not self.tokenizer.atend():
+        if not self.cursor.atend():
             raise self.newexcept(
                 'Expecting end of text',
                 exclass=FailedExpectingEndOfText,
@@ -767,7 +772,7 @@ class ParseContext:
 
     def _check_name(self, name: Any) -> None:
         name_str = str(name)
-        if self.config.ignorecase or self.tokenizer.ignorecase:
+        if self.config.ignorecase:
             name_str = name_str.upper()
         if name_str in self.keywords:
             raise self.newexcept(f'"{name_str}" is a reserved word', KeywordError)

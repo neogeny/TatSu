@@ -7,18 +7,19 @@ Line analysis and caching are done so the parser can freely move with goto(p)
 to any position in the parsed text, and still recover accurate information
 about source lines and content.
 """
-
 from __future__ import annotations
 
 import re
 from pathlib import Path
 from typing import Any
 
-from .infos import ParserConfig, PosLine
-from .tokenizing import LineIndexInfo, LineInfo, Tokenizer
+from .infos import PosLine
+from .parserconfig import ParserConfig
 from .util.itertools import str_from_match
 from .util.misc import cached_re_compile
 from .util.undefined import Undefined
+from .tokenizing.cursor import Cursor, LineIndexInfo, LineInfo
+from .tokenizing.tokenizer import Tokenizer
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -26,7 +27,7 @@ DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 LineIndexEntry = LineIndexInfo
 
 
-class Buffer(Tokenizer):
+class Buffer(Cursor, Tokenizer):
 
     def __init__(
         self,
@@ -34,7 +35,7 @@ class Buffer(Tokenizer):
         *,
         config: ParserConfig | None = None,
         **settings: Any,
-    ):
+        ):
         config = ParserConfig.new(config=config, **settings)
         self.config = config
 
@@ -58,6 +59,9 @@ class Buffer(Tokenizer):
 
         self._preprocess()
         self._postprocess()
+
+    def new_cursor(self) -> Cursor:
+        return self
 
     @property
     def text(self) -> str:
@@ -106,7 +110,7 @@ class Buffer(Tokenizer):
         block,
         /,
         **kwargs,
-    ) -> tuple[list[str], list[LineIndexInfo]]:
+        ) -> tuple[list[str], list[LineIndexInfo]]:
         lines = self.split_block_lines(block)
         index = LineIndexInfo.block_index(name, len(lines))
         return self.process_block(name, lines, index, **kwargs)
@@ -124,7 +128,7 @@ class Buffer(Tokenizer):
         index: list[LineIndexInfo],
         /,
         **kwargs,
-    ) -> tuple[list[str], list[LineIndexInfo]]:
+        ) -> tuple[list[str], list[LineIndexInfo]]:
         return lines, index
 
     def include(
@@ -137,7 +141,7 @@ class Buffer(Tokenizer):
         block: str,
         /,
         **kwargs,
-    ) -> int:
+        ) -> int:
         blines, bindex = self._preprocess_block(name, block, **kwargs)
         assert len(blines) == len(bindex)
         lines[i:j] = blines
@@ -153,7 +157,7 @@ class Buffer(Tokenizer):
         index: list[LineIndexInfo],
         i: int,
         j: int,
-    ) -> int:
+        ) -> int:
         text, filename = self.get_include(source, name)
         return self.include(lines, index, i, j, filename, text)
 
@@ -368,7 +372,7 @@ class Buffer(Tokenizer):
                 start=0,
                 end=len(self.text),
                 text=self.text,
-            )
+                )
 
         # -2 to skip over sentinel
         pos = min(pos, len(self._line_cache) - 2)
