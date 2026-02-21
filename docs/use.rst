@@ -141,7 +141,7 @@ if **TatSu** was installed using *easy\_install* or *pip*.
 
 The *-h* and *--help* parameters provide full usage information:
 
-.. code:: bash
+.. code:: console
 
     $ tatsu --help
     usage: tatsu [--generate-parser | --draw | --railroad | --object-model |
