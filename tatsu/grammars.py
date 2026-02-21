@@ -373,7 +373,7 @@ class Pattern(Model):
             else:
                 regex = f'/{pat}/'
             parts.append(regex)
-        return '\n+ '.join(parts)
+        return ' + '.join(parts)
 
     def _nullable(self) -> bool:
         return bool(self._regex.match(''))
@@ -907,12 +907,7 @@ class Rule(Decorator):
             return repr(p)
 
     def _pretty(self, lean=False):
-        str_template = """\
-                {is_name}{name}{base}{params}
-                    =
-                {exp}
-                    ;
-                """
+        str_template = "{is_name}{name}{base}{params}: {exp}"
 
         if lean:
             params = ''
@@ -930,19 +925,23 @@ class Rule(Decorator):
                 )
 
             if params and kwparams:
-                params = f'({params}, {kwparams})'
+                params = f'[{params}, {kwparams}]'
             elif kwparams:
-                params = f'({kwparams})'
+                params = f'[{kwparams}]'
             elif params:
-                params = f'::{params}' if len(self.params) == 1 else f'({params})'
+                params = f'[{params}]'
 
         base = f' < {self.base!s}' if self.base else ''
+
+        exp = self.exp._pretty(lean=lean)
+        if len(exp.splitlines()) > 1:
+            exp = '\n' + indent(exp)
 
         return trim(str_template).format(
             name=self.name,
             base=base,
             params=params,
-            exp=indent(self.exp._pretty(lean=lean)),
+            exp=exp,
             is_name='@name\n' if self.is_name else '',
         )
 
@@ -1154,5 +1153,5 @@ class Grammar(Model):
 
         rules = (
             '\n\n'.join(str(rule._pretty(lean=lean)) for rule in self.rules)
-        ).rstrip() + '\n'
+                ).rstrip() + '\n\n'
         return directives + keywords + rules

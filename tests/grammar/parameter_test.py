@@ -29,20 +29,16 @@ class ParameterTests(unittest.TestCase):
 
     def test_35_only_keyword_params(self):
         grammar = """
-            rule(kwdA=A, kwdB=B)
-                =
-                'a'
-                ;
+            rule[kwdA=A, kwdB=B]: 'a'
+
         """
         model = compile(grammar, 'test')
         self.assertEqual(trim(grammar), str(model))
 
     def test_36_params_and_keyword_params(self):
         grammar = """
-            rule(A, kwdB=B)
-                =
-                'a'
-                ;
+            rule[A, kwdB=B]: 'a'
+
         """
         model = compile(grammar, 'test')
         self.assertEqual(trim(grammar), str(model))
@@ -97,28 +93,14 @@ class ParameterTests(unittest.TestCase):
             @@ignorecase :: False
             @@nameguard :: True
 
-            start
-                =
-                {rule_positional | rule_keywords | rule_all} $
-                ;
+            start: {rule_positional | rule_keywords | rule_all} $
 
+            rule_positional[ABC, 123, '=', '+']: 'a'
 
-            rule_positional(ABC, 123, '=', '+')
-                =
-                'a'
-                ;
+            rule_keywords[k1=ABC, k3='=', k4='+', k2=123]: 'b'
 
+            rule_all[DEF, 456, '=', '+', k1=HIJ, k3='=', k4='+', k2=789]: 'c'
 
-            rule_keywords(k1=ABC, k3='=', k4='+', k2=123)
-                =
-                'b'
-                ;
-
-
-            rule_all(DEF, 456, '=', '+', k1=HIJ, k3='=', k4='+', k2=789)
-                =
-                'c'
-                ;
         """
 
         model = compile(grammar, 'RuleArguments')
@@ -198,16 +180,10 @@ class ParameterTests(unittest.TestCase):
 
     def test_numbers_and_unicode(self):
         grammar = """
-            rúle(1, -23, 4.56, 7.89e-11, Añez)
-                =
-                'a'
-                ;
+            rúle[1, -23, 4.56, 7.89e-11, Añez]: 'a'
 
+            rúlé[Añez]: 'ñ'
 
-            rúlé::Añez
-                =
-                'ñ'
-                ;
         """
 
         model = compile(grammar, 'test')

@@ -13,71 +13,35 @@ class PrettyTests(unittest.TestCase):
         grammar = r"""
             start = lisp ;
             lisp = sexp | list | symbol;
-            sexp::SExp = '(' cons:lisp '.' ~ cdr:lisp ')' ;
-            list::List = '(' elements:{sexp}* ')' ;
-            symbol::Symbol = value:/[^\s().]+/ ;
+            sexp[SExp]: '(' cons:lisp '.' ~ cdr:lisp ')' ;
+            list[List]: '(' elements:{sexp}* ')' ;
+            symbol[Symbol]: value:/[^\s().]+/ ;
         """
 
         pretty = trim(r"""
-            start
-                =
-                lisp
-                ;
+            start: lisp
 
+            lisp: sexp | list | symbol
 
-            lisp
-                =
-                sexp | list | symbol
-                ;
+            sexp[SExp]: '(' cons:lisp '.' ~ cdr:lisp ')'
 
+            list[List]: '(' elements:{sexp} ')'
 
-            sexp::SExp
-                =
-                '(' cons:lisp '.' ~ cdr:lisp ')'
-                ;
+            symbol[Symbol]: value:/[^\s().]+/
 
-
-            list::List
-                =
-                '(' elements:{sexp} ')'
-                ;
-
-
-            symbol::Symbol
-                =
-                value:/[^\s().]+/
-                ;
         """)
 
         pretty_lean = trim(r"""
-            start
-                =
-                lisp
-                ;
+            start: lisp
 
+            lisp: sexp | list | symbol
 
-            lisp
-                =
-                sexp | list | symbol
-                ;
+            sexp: '(' lisp '.' ~ lisp ')'
 
+            list: '(' {sexp} ')'
 
-            sexp
-                =
-                '(' lisp '.' ~ lisp ')'
-                ;
+            symbol: /[^\s().]+/
 
-
-            list
-                =
-                '(' {sexp} ')'
-                ;
-
-
-            symbol
-                =
-                /[^\s().]+/
-                ;
         """)
 
         model = compile(grammar=grammar)
@@ -89,10 +53,8 @@ class PrettyTests(unittest.TestCase):
 
     def test_slashed_pattern(self):
         grammar = """
-            start
-                =
-                ?"[a-z]+/[0-9]+" $
-                ;
+            start: ?"[a-z]+/[0-9]+" $
+
         """
         model = compile(grammar=grammar)
         ast = model.parse('abc/123')

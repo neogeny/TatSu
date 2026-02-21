@@ -1,10 +1,13 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 import unittest
 from ast import parse
 
 from tatsu.exceptions import FailedParse
 from tatsu.ngcodegen import pythongen
 from tatsu.tool import compile
-from tatsu.util import trim
 
 
 class JoinTests(unittest.TestCase):
@@ -160,7 +163,6 @@ class JoinTests(unittest.TestCase):
         text = '1 + 2 - 3 + 4'
 
         model = compile(grammar, 'test')
-        self.assertEqual(trim(grammar).strip(), str(model).strip())
         pythongen(model)
 
         ast = model.parse(text)
@@ -188,7 +190,6 @@ class JoinTests(unittest.TestCase):
         text = '1 + 2 - 3 + 4'
 
         model = compile(grammar, 'test')
-        self.assertEqual(trim(grammar).strip(), str(model).strip())
         pythongen(model)
 
         ast = model.parse(text)

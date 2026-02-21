@@ -49,17 +49,10 @@ class PatternTests(unittest.TestCase):
                 ;
         """
         pretty = """
-            start
-                =
-                {letters_digits}+
-                ;
+            start: {letters_digits}+
 
+            letters_digits: /[a-z]+/ + /[0-9]+/
 
-            letters_digits
-                =
-                /[a-z]+/
-                + /[0-9]+/
-                ;
         """
         model = compile(grammar=grammar)
         ast = model.parse('abc123 def456')

@@ -204,27 +204,16 @@ class SyntaxTests(unittest.TestCase):
 
     def test_based_rule(self):
         grammar = """\
-            start
-                =
-                b $
-                ;
+            start: b $
 
+            a: @:'a'
 
-            a
-                =
-                @:'a'
-                ;
-
-
-            b < a
-                =
-                {@:'b'}
-                ;
+            b < a: {@:'b'}
             """
         model = compile(grammar, 'test')
         ast = model.parse('abb', nameguard=False)
         self.assertEqual(('a', 'b', 'b'), ast)
-        self.assertEqual(trim(grammar), str(model))
+        self.assertEqual(trim(grammar), trim(str(model)))
 
     def test_rule_include(self):
         grammar = """
@@ -304,13 +293,14 @@ class SyntaxTests(unittest.TestCase):
 
     def test_raw_string(self):
         grammar = r"""
-            start = r'am\nraw' ;
-        """
-        pretty = r"""
             start
                 =
-                'am\\nraw'
+                r'am\nraw'
                 ;
+        """
+        pretty = r"""
+            start: 'am\\nraw'
+
         """
         model = compile(grammar, 'start')
         print(model.pretty())
