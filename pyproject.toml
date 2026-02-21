@@ -212,6 +212,7 @@ ignore = [
     "PLW3201", # bad-dunder-method-name
     "RET504", #  assign before return
     "RET505", #  superfluous-else-return
+    "RUF001", #  string contains ambiguous `＄` (FULLWIDTH DOLLAR SIGN). Did you mean `$` (DOLLAR SIGN)?
     "RUF022", #  __all__ sorting
     "RUF027", #  possible f-string
     "S102", #    exec-builtin
