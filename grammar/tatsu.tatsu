@@ -52,7 +52,9 @@ rule[Rule]:
     RULE_END
     ~
 
-RULE_END: (EMPTYLINE [';']|$|';')
+RULE_END: EMPTYLINE [';'] | $ | ';' | UNINDENTED
+
+UNINDENTED: ()
 
 EMPTYLINE: /(?:\s*(?:\r?\n|\r)){2,}/
 

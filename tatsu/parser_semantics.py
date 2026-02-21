@@ -46,6 +46,16 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
     def EMPTYLINE(self, ast: Any, *args) -> Any:
         return ast
 
+    def UNINDENTED(self, ast: Any):
+        if not isinstance(self.context, ParseContext):
+            return
+        c = self.context
+        t = self.context.tokenizer
+        if c.pos == 0 and t.current not in {' ', '\t', '\n'}:
+            return
+        # it's indented
+        raise FailedSemantics(f'indented line text[{c.pos}] == {t.current}')
+
     def token(self, ast: str, *args: Any) -> grammars.Token:
         token = ast
         if not token:

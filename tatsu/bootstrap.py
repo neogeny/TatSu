@@ -438,22 +438,27 @@ class TatSuBootstrapParser(Parser):
 
     @rule()
     def _RULE_END_(self):
-        with self._group():
-            with self._choice():
-                with self._option():
-                    self._EMPTYLINE_()
-                    with self._optional():
-                        self._token(';')
-                with self._option():
-                    self._check_eof()
-                with self._option():
+        with self._choice():
+            with self._option():
+                self._EMPTYLINE_()
+                with self._optional():
                     self._token(';')
-                if self._no_more_options:
-                    raise self.newexcept(
-                        'expecting one of: '
-                        "'(?:\\\\s*(?:\\\\r?\\\\n|\\\\r)){2,}' ';'"
-                        '<EMPTYLINE>'
-                    ) from None
+            with self._option():
+                self._check_eof()
+            with self._option():
+                self._token(';')
+            with self._option():
+                self._UNINDENTED_()
+            if self._no_more_options:
+                raise self.newexcept(
+                    'expecting one of: '
+                    "'(?:\\\\s*(?:\\\\r?\\\\n|\\\\r)){2,}' ';'"
+                    '<EMPTYLINE> <UNINDENTED>'
+                ) from None
+
+    @rule()
+    def _UNINDENTED_(self):
+        self._void()
 
     @rule()
     def _EMPTYLINE_(self):
