@@ -142,7 +142,7 @@ def weldtwo(left: Rails, right: Rails) -> Rails:
 
     out = left[:]
     for i in range(out_height):
-        if i < common_height:
+        if i < common_height and ETX not in out[i]:
             out[i] += right[i]
         elif i < len(out):
             out[i] += f'{'':{len_right}}'

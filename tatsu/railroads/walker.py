@@ -8,8 +8,15 @@ from .. import grammars
 from ..util.abctools import join_lists
 from ..util.string import regexp, unicode_display_len as ulen
 from ..walkers import NodeWalker
-from .railmath import (ETX, Rails, assert_one_length, lay_out, loop, stopnloop, weld,
-                       )
+from .railmath import (
+    ETX,
+    Rails,
+    assert_one_length,
+    lay_out,
+    loop,
+    stopnloop,
+    weld,
+    )
 
 
 def tracks(model: grammars.Grammar):
@@ -65,8 +72,7 @@ class RailroadNodeWalker(NodeWalker):
 
         out = [f'{decorators}{leftrec}{rule.name}{base}{params} ●─']
         out = weld(out, self.walk(rule.exp))
-        if ETX not in out[0]:
-            out = weld(out, ['─■'])
+        out = weld(out, ['─■'])
         out += [' ' * ulen(out[0])]
         return assert_one_length(out)
 
@@ -122,19 +128,19 @@ class RailroadNodeWalker(NodeWalker):
         out = weld(out, [']'])
         return out
 
-    def walk_void(self, v: grammars.Void) -> Rails:
+    def walk_void(self, _v: grammars.Void) -> Rails:
         return [" ∅ "]
 
-    def walk_cut(self, cut: grammars.Cut) -> Rails:
+    def walk_cut(self, _cut: grammars.Cut) -> Rails:
         return [" ✂ ─"]
 
-    def walk_fail(self, v) -> Rails:
+    def walk_fail(self, _f: grammars.Fail) -> Rails:
         return [" ⚠ "]
 
     def walk_constant(self, constant: grammars.Constant) -> Rails:
         return [f'`{constant.literal}`']
 
-    def walk_dot(self, dot: grammars.Dot):
+    def walk_dot(self, _dot: grammars.Dot):
         return [" ∀ "]
 
     def walk_group(self, group: grammars.Group):
@@ -168,3 +174,6 @@ class RailroadNodeWalker(NodeWalker):
 
     def walk_override_list(self, override: grammars.OverrideList):
         return weld([' @+('], self.walk(override.exp), [')'])
+
+    def walk_empty_closure(self, _v: grammars.EmptyClosure) -> Rails:
+        return [' {∅}']
