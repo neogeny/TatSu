@@ -19,6 +19,6 @@ def test_railroads():
 
     track0 = "start ●─grammar─■"
     assert tracks[0] == track0
-    trackm2 = "eof∷EOF ●─'$' ✂ ──■"
+    trackm2 = "eof[EOF] ●─'$' ✂ ──■"
     assert tracks[-2] == trackm2
     assert not tracks[-1].rstrip()
