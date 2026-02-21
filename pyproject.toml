@@ -194,11 +194,12 @@ select = [
 ]
 
 ignore = [
+    "COM819", #  [*] Trailing comma prohibited"
     "E501", #    line-too-long
     "E402", #    module-import-not-at-top-of-file
     "I001", #    [*] Import block is un-sorted or un-formatted
-    "FURB189", # subclassing str
-    "PERF203", # try-except within loop
+    "FURB189", #  subclassing str
+    "PERF203", #  try-except within loop
     "PGH003",
     "PLC0415", # import-outside-top-level
     "PLR6301", # no-self-use
