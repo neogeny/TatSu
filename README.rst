@@ -214,10 +214,10 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
 
     start ●─grammar─■
 
-    grammar∷Grammar ●─ [title](`TATSU`)──┬→───────────────────────────────────┬── [`rules`]+(rule)──┬→───────────────────────────────┬──⇥＄
-                                         ├→──┬─ [`directives`]+(directive)─┬──┤                     ├→──┬─ [`rules`]+(rule)───────┬──┤
-                                         │   └─ [`keywords`]+(keyword)─────┘  │                     │   └─ [`keywords`]+(keyword)─┘  │
-                                         └───────────────────────────────────<┘                     └───────────────────────────────<┘
+    grammar[Grammar] ●─ [title](`TATSU`)──┬→───────────────────────────────────┬── [`rules`]+(rule)──┬→───────────────────────────────┬──⇥＄
+                                          ├→──┬─ [`directives`]+(directive)─┬──┤                     ├→──┬─ [`rules`]+(rule)───────┬──┤
+                                          │   └─ [`keywords`]+(keyword)─────┘  │                     │   └─ [`keywords`]+(keyword)─┘  │
+                                          └───────────────────────────────────<┘                     └───────────────────────────────<┘
 
     directive ●─'@@'─ !['keyword'] ✂ ───┬─ [name](──┬─'comments'─────┬─) ✂ ─'::' ✂ ─ [value](regex)────────────┬─ ✂ ──■
                                         │           └─'eol_comments'─┘                                         │
@@ -250,9 +250,9 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
                  ├─'(' ✂ ─ >(the_params_at_last) ')'─┤
                  └─'::' ✂ ─ [params](params)─────────┘
 
-    rule∷Rule ●─ [decorators](──┬→──────────┬──) [name](name) ✂ ───┬─→ >(paramdef) ─┬───┬─→'<' ✂ ─ [base](known_name)─┬───┬─'='──┬─ ✂ ─ [exp](expre)ENDRULE ✂ ──■
-                                ├→decorator─┤                      └─→──────────────┘   └─→───────────────────────────┘   ├─':='─┤
-                                └──────────<┘                                                                             └─':'──┘
+    rule[Rule] ●─ [decorators](──┬→──────────┬──) [name](name) ✂ ───┬─→ >(paramdef) ─┬───┬─→'<' ✂ ─ [base](known_name)─┬───┬─'='──┬─ ✂ ─ [exp](expre)ENDRULE ✂ ──■
+                                 ├→decorator─┤                      └─→──────────────┘   └─→───────────────────────────┘   ├─':='─┤
+                                 └──────────<┘                                                                             └─':'──┘
 
     ENDRULE ●───┬── &[UNINDENTED]──────┬──■
                 ├─EMPTYLINE──┬─→';'─┬──┤
@@ -284,40 +284,40 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
     expre ●───┬─choice───┬──■
               └─sequence─┘
 
-    choice∷Choice ●───┬─→'|' ✂ ──┬─ @+(option)──┬─'|' ✂ ─ @+(option)─┬───■
-                      └─→────────┘              └───────────────────<┘
+    choice[Choice] ●───┬─→'|' ✂ ──┬─ @+(option)──┬─'|' ✂ ─ @+(option)─┬───■
+                       └─→────────┘              └───────────────────<┘
 
-    option∷Option ●─ @(sequence)─■
+    option[Option] ●─ @(sequence)─■
 
-    sequence∷Sequence ●───┬── &[element',']──┬→───────────────┬───┬──■
-                          │                  ├→',' ✂ ─element─┤   │
-                          │                  └───────────────<┘   │
-                          └───┬── ![ENDRULE]element─┬─────────────┘
-                              └────────────────────<┘
+    sequence[Sequence] ●───┬── &[element',']──┬→───────────────┬───┬──■
+                           │                  ├→',' ✂ ─element─┤   │
+                           │                  └───────────────<┘   │
+                           └───┬── ![ENDRULE]element─┬─────────────┘
+                               └────────────────────<┘
 
     element ●───┬─rule_include─┬──■
                 ├─named────────┤
                 ├─override─────┤
                 └─term─────────┘
 
-    rule_include∷RuleInclude ●─'>' ✂ ─ @(known_name)─■
+    rule_include[RuleInclude] ●─'>' ✂ ─ @(known_name)─■
 
     named ●───┬─named_list───┬──■
               └─named_single─┘
 
-    named_list∷NamedList ●─ [name](name)'+:' ✂ ─ [exp](term)─■
+    named_list[NamedList] ●─ [name](name)'+:' ✂ ─ [exp](term)─■
 
-    named_single∷Named ●─ [name](name)':' ✂ ─ [exp](term)─■
+    named_single[Named] ●─ [name](name)':' ✂ ─ [exp](term)─■
 
     override ●───┬─override_list──────────────┬──■
                  ├─override_single────────────┤
                  └─override_single_deprecated─┘
 
-    override_list∷OverrideList ●─'@+:' ✂ ─ @(term)─■
+    override_list[OverrideList] ●─'@+:' ✂ ─ @(term)─■
 
-    override_single∷Override ●─'@:' ✂ ─ @(term)─■
+    override_single[Override] ●─'@:' ✂ ─ @(term)─■
 
-    override_single_deprecated∷Override ●─'@' ✂ ─ @(term)─■
+    override_single_deprecated[Override] ●─'@' ✂ ─ @(term)─■
 
     term ●───┬─void───────────────┬──■
              ├─gather─────────────┤
@@ -335,52 +335,52 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
              ├─cut_deprecated─────┤
              └─atom───────────────┘
 
-    group∷Group ●─'(' ✂ ─ @(expre)')' ✂ ──■
+    group[Group] ●─'(' ✂ ─ @(expre)')' ✂ ──■
 
     gather ●── &[atom'.{'] ✂ ───┬─positive_gather─┬──■
                                 └─normal_gather───┘
 
-    positive_gather∷PositiveGather ●─ [sep](atom)'.{' [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
-                                                                       └─'-'─┘
+    positive_gather[PositiveGather] ●─ [sep](atom)'.{' [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
+                                                                        └─'-'─┘
 
-    normal_gather∷Gather ●─ [sep](atom)'.{' ✂ ─ [exp](expre)'}'──┬─→'*' ✂ ──┬─ ✂ ──■
-                                                                 └─→────────┘
+    normal_gather[Gather] ●─ [sep](atom)'.{' ✂ ─ [exp](expre)'}'──┬─→'*' ✂ ──┬─ ✂ ──■
+                                                                  └─→────────┘
 
     join ●── &[atom'%{'] ✂ ───┬─positive_join─┬──■
                               └─normal_join───┘
 
-    positive_join∷PositiveJoin ●─ [sep](atom)'%{' [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
-                                                                   └─'-'─┘
+    positive_join[PositiveJoin] ●─ [sep](atom)'%{' [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
+                                                                    └─'-'─┘
 
-    normal_join∷Join ●─ [sep](atom)'%{' ✂ ─ [exp](expre)'}'──┬─→'*' ✂ ──┬─ ✂ ──■
-                                                             └─→────────┘
+    normal_join[Join] ●─ [sep](atom)'%{' ✂ ─ [exp](expre)'}'──┬─→'*' ✂ ──┬─ ✂ ──■
+                                                              └─→────────┘
 
-    left_join∷LeftJoin ●─ [sep](atom)'<{' ✂ ─ [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
-                                                               └─'-'─┘
+    left_join[LeftJoin] ●─ [sep](atom)'<{' ✂ ─ [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
+                                                                └─'-'─┘
 
-    right_join∷RightJoin ●─ [sep](atom)'>{' ✂ ─ [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
-                                                                 └─'-'─┘
+    right_join[RightJoin] ●─ [sep](atom)'>{' ✂ ─ [exp](expre)'}'──┬─'+'─┬─ ✂ ──■
+                                                                  └─'-'─┘
 
-    positive_closure∷PositiveClosure ●───┬─'{' @(expre)'}'──┬─'-'─┬─ ✂ ──┬──■
-                                         │                  └─'+'─┘      │
-                                         └─ @(atom)'+' ✂ ────────────────┘
+    positive_closure[PositiveClosure] ●───┬─'{' @(expre)'}'──┬─'-'─┬─ ✂ ──┬──■
+                                          │                  └─'+'─┘      │
+                                          └─ @(atom)'+' ✂ ────────────────┘
 
-    closure∷Closure ●───┬─'{' @(expre)'}'──┬─→'*'─┬─ ✂ ──┬──■
-                        │                  └─→────┘      │
-                        └─ @(atom)'*' ✂ ─────────────────┘
+    closure[Closure] ●───┬─'{' @(expre)'}'──┬─→'*'─┬─ ✂ ──┬──■
+                         │                  └─→────┘      │
+                         └─ @(atom)'*' ✂ ─────────────────┘
 
-    empty_closure∷EmptyClosure ●─'{}' ✂ ─ @( ∅ )─■
+    empty_closure[EmptyClosure] ●─'{}' ✂ ─ @( ∅ )─■
 
-    optional∷Optional ●───┬─'[' ✂ ─ @(expre)']' ✂ ──────────┬──■
-                          └─ @(atom)─ ![──┬─'?"'─┬─]'?' ✂ ──┘
-                                          ├─"?'"─┤
-                                          └─'?/'─┘
+    optional[Optional] ●───┬─'[' ✂ ─ @(expre)']' ✂ ──────────┬──■
+                           └─ @(atom)─ ![──┬─'?"'─┬─]'?' ✂ ──┘
+                                           ├─"?'"─┤
+                                           └─'?/'─┘
 
-    lookahead∷Lookahead ●─'&' ✂ ─ @(term)─■
+    lookahead[Lookahead] ●─'&' ✂ ─ @(term)─■
 
-    negative_lookahead∷NegativeLookahead ●─'!' ✂ ─ @(term)─■
+    negative_lookahead[NegativeLookahead] ●─'!' ✂ ─ @(term)─■
 
-    skip_to∷SkipTo ●─'->' ✂ ─ @(term)─■
+    skip_to[SkipTo] ●─'->' ✂ ─ @(term)─■
 
     atom ●───┬─group────┬──■
              ├─token────┤
@@ -391,28 +391,28 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
              ├─dot──────┤
              └─eof──────┘
 
-    call∷Call ●─word─■
+    call[Call] ●─word─■
 
-    void∷Void ●─'()' ✂ ──■
+    void[Void] ●─'()' ✂ ──■
 
-    fail∷Fail ●─'!()' ✂ ──■
+    fail[Fail] ●─'!()' ✂ ──■
 
-    cut∷Cut ●─'~' ✂ ──■
+    cut[Cut] ●─'~' ✂ ──■
 
-    cut_deprecated∷Cut ●─'>>' ✂ ──■
+    cut_deprecated[Cut] ●─'>>' ✂ ──■
 
     known_name ●─name ✂ ──■
 
     name ●─word─■
 
-    constant∷Constant ●── &['`']──┬─/(?ms)```((?:.|\n)*?)```/──┬──■
-                                  ├─'`' @(literal)'`'──────────┤
-                                  └─/`(.*?)`/──────────────────┘
+    constant[Constant] ●── &['`']──┬─/(?ms)```((?:.|\n)*?)```/──┬──■
+                                   ├─'`' @(literal)'`'──────────┤
+                                   └─/`(.*?)`/──────────────────┘
 
-    alert∷Alert ●─ [level](/\^+/─) [message](constant)─■
+    alert[Alert] ●─ [level](/\^+/─) [message](constant)─■
 
-    token∷Token ●───┬─string─────┬──■
-                    └─raw_string─┘
+    token[Token] ●───┬─string─────┬──■
+                     └─raw_string─┘
 
     literal ●───┬─string─────┬──■
                 ├─raw_string─┤
@@ -440,9 +440,9 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
 
     word ●─/(?!\d)\w+/──■
 
-    dot∷Dot ●─'/./'─■
+    dot[Dot] ●─'/./'─■
 
-    pattern∷Pattern ●─regexes─■
+    pattern[Pattern] ●─regexes─■
 
     regexes ●───┬→─────────────┬───■
                 ├→'+' ✂ ─regex─┤
@@ -459,8 +459,7 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
 
     null ●─'None'─■
 
-    eof∷EOF ●─'$' ✂ ──■
-
+    eof[EOF] ●─'$' ✂ ──■
 
 
 .. _ANTLR: http://www.antlr.org/

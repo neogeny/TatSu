@@ -56,9 +56,19 @@ class RailroadNodeWalker(NodeWalker):
 
         params = ''
         if rule.params:
-            params = '∷' + ','.join(p for p in rule.params)
+            params = ','.join(p for p in rule.params)
+
+        kwparams = ''
         if rule.kwparams:
-            params = ',' + ','.join(f'{k}={v}' for k, v in rule.kwparams.items())
+            kwparams = ','.join(f'{k}={v}' for k, v in rule.kwparams.items())
+
+        if params and kwparams:
+            params = f'{params}, {kwparams}'
+        elif kwparams:
+            params = kwparams
+
+        if params:
+            params = f'[{params}]'
 
         leftrec = ''
         if rule.is_leftrec:
