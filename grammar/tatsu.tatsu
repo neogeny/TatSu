@@ -35,22 +35,16 @@ keywords = { keywords }+ ;
 
 keyword = '@@keyword' ~ '::' ~ {@+:(word|string) !(':'|'=')} ;
 
+the_params_lastly =
+    | kwparams:kwparams
+    | params:params ',' ~ kwparams:kwparams
+    | params:params
+    ;
+
 paramdef =
+    | '[' ~ >the_params_lastly ']'
+    | '(' ~ >the_params_lastly ')'
     | /* no keyword params if ':: */ '::' ~ params:params
-    | '(' ~
-            (
-            | kwparams:kwparams
-            | params:params ',' ~ kwparams:kwparams
-            | params:params
-            )
-       ')'
-    | '[' ~
-            (
-            | kwparams:kwparams
-            | params:params ',' ~ kwparams:kwparams
-            | params:params
-            )
-       ']'
     ;
 
 rule::Rule =
