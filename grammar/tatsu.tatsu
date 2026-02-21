@@ -52,7 +52,7 @@ rule[Rule]:
     RULE_END
     ~
 
-RULE_END: EMPTYLINE [';'] | $ | ';' | UNINDENTED
+RULE_END:  EMPTYLINE [';'] | $ | ';' | UNINDENTED
 
 UNINDENTED: ()
 
