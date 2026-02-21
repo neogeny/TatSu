@@ -265,7 +265,7 @@ class TatSuBootstrapParser(Parser):
         self._closure(block0)
 
     @rule()
-    def _the_params_lastly_(self):
+    def _the_params_at_last_(self):
         with self._choice():
             with self._option():
                 with self._setname('kwparams'):

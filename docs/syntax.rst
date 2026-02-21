@@ -618,6 +618,18 @@ The following expressions are still recognized in grammars, but they are
 considered deprecated, and will be removed in a future version of
 |TatSu|.
 
+The alternative syntax with no *keyword parameters* is deprecated:
+
+.. code:: apl
+    :force:
+
+    addition::Add, '+'
+      =
+      addend '+' addend
+      ;
+
+
+
 
 ``?/regexp/?``
 ^^^^^^^^^^^^^^
@@ -645,30 +657,25 @@ comments instead.
 Rules with Arguments
 ~~~~~~~~~~~~~~~~~~~~
 
-|TatSu| allows rules to specify `Python`_-style arguments:
+Rules may specify a list of arguments and keyword arguments by enclosing
+them in square brackets right after the rule name:
 
 .. code:: apl
     :force:
 
-    addition(Add, op='+')
-      =
-      addend '+' addend
-      ;
+    addition[Add, op='+']: addend '+' addend
 
-The arguments values are fixed at grammar-compilation time. An
-alternative syntax is available if no *keyword parameters* are
-required:
+Arguments within parenthesis are also available:
 
 .. code:: apl
     :force:
 
-    addition::Add, '+'
-      =
-      addend '+' addend
-      ;
+    addition(Add, op='+'): addend '+' addend
 
-Semantic methods must be ready to receive any arguments declared in
-the corresponding rule:
+The arguments values are fixed at grammar-compilation time.
+
+Semantic methods for rules with arguments must be ready to receive the
+arguments declared in the rule:
 
 .. code:: python
 
@@ -695,16 +702,16 @@ The following set of declarations:
 .. code:: apl
     :force:
 
-    base::Param = exp1 ;
+    base[Param]: exp1 ;
 
-    extended < base = exp2 ;
+    extended < base: exp2 ;
 
 Has the same effect as defining *extended* as:
 
 .. code:: apl
     :force:
 
-    extended::Param = exp1 exp2 ;
+    extended[Param]: exp1 exp2 ;
 
 Parameters from the *base rule* are copied to the new rule if the new
 rule doesn't define its own. Repeated inheritance should be possible,
@@ -729,10 +736,10 @@ The ``@nomemo`` decorator turns off memoization for a particular rule:
     :force:
 
     @nomemo
-    INDENT = () ;
+    INDENT: () ;
 
     @nomemo
-    DEDENT = () ;
+    DEDENT: () ;
 
 
 Rule Overrides
