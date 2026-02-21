@@ -72,14 +72,16 @@ class Node(BaseNode):
                 case Node() as node:
                     node.__parent_ref = weakref.ref(self)
                     yield node
-                case Mapping() as map:
-                    for name, value in map.items():
-                        if name.startswith("_"):
+                case Mapping() as mapping:
+                    for name, value in mapping.items():
+                        if name.startswith('_'):
                             continue
                         if value is None:
                             continue
                         yield from dfs(value)
-                case (list() | tuple()) as seq:
+                case bytes() | str():
+                    pass
+                case Iterable() as seq:
                     for item in seq:
                         yield from dfs(item)
                 case _:
