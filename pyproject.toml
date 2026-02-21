@@ -197,7 +197,7 @@ ignore = [
     "COM819", #  [*] Trailing comma prohibited"
     "E501", #    line-too-long
     "E402", #    module-import-not-at-top-of-file
-    "I001", #    [*] Import block is un-sorted or un-formatted
+    "I001", #    Import block is un-sorted or un-formatted
     "FURB189", #  subclassing str
     "PERF203", #  try-except within loop
     "PGH003",
@@ -215,6 +215,7 @@ ignore = [
     "RUF001", #  string contains ambiguous `＄` (FULLWIDTH DOLLAR SIGN). Did you mean `$` (DOLLAR SIGN)?
     "RUF022", #  __all__ sorting
     "RUF027", #  possible f-string
+    #    "RUF100", #  Unused `noqa` directive (non-enabled: `RUF001`)
     "S102", #    exec-builtin
     "S101", #    use of assert
     "S301", #    suspicious-pickle-usage
