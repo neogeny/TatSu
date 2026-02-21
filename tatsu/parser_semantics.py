@@ -43,20 +43,6 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         except (TypeError, re.error) as e:
             raise FailedSemantics('pattern error: ' + str(e)) from e
 
-    def EMPTYLINE(self, ast: Any, *args) -> Any:
-        return ast
-
-    def UNINDENTED(self, ast: Any) -> bool:
-        raise FailedSemantics('indented line')
-        if not isinstance(self.context, ParseContext):
-            return True
-        c = self.context
-        t = self.context.tokenizer
-        if c.pos == 0 and t.current not in {' ', '\t', '\n'}:
-            return True
-        # it's indented
-        raise FailedSemantics(f'indented line text[{c.pos}] == {t.current}')
-
     def token(self, ast: str, *args: Any) -> grammars.Token:
         token = ast
         if not token:

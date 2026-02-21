@@ -432,13 +432,16 @@ class TatSuBootstrapParser(Parser):
         self._cut()
         with self._setname('exp'):
             self._expre_()
-        self._RULE_END_()
+        self._ENDRULE_()
         self._cut()
         self._define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
 
     @rule()
-    def _RULE_END_(self):
+    def _ENDRULE_(self):
         with self._choice():
+            with self._option():
+                with self._if():
+                    self._UNINDENTED_()
             with self._option():
                 self._EMPTYLINE_()
                 with self._optional():
@@ -447,18 +450,17 @@ class TatSuBootstrapParser(Parser):
                 self._check_eof()
             with self._option():
                 self._token(';')
-            with self._option():
-                self._UNINDENTED_()
             if self._no_more_options:
                 raise self.newexcept(
                     'expecting one of: '
-                    "'(?:\\\\s*(?:\\\\r?\\\\n|\\\\r)){2,}' ';'"
+                    "'(?:\\\\s*(?:\\\\r?\\\\n|\\\\r)){2,}'"
+                    "'(?=\\\\s*(?:\\\\r?\\\\n|\\\\r)[^\\\\s])' ';'"
                     '<EMPTYLINE> <UNINDENTED>'
                 ) from None
 
     @rule()
     def _UNINDENTED_(self):
-        self._void()
+        self._pattern(r'(?=\s*(?:\r?\n|\r)[^\s])')
 
     @rule()
     def _EMPTYLINE_(self):
@@ -545,8 +547,8 @@ class TatSuBootstrapParser(Parser):
             if self._no_more_options:
                 raise self.newexcept(
                     'expecting one of: '
-                    "'(?:\\\\s*(?:\\\\r?\\\\n|\\\\r)){2,}' '|'"
-                    '<EMPTYLINE> <choice> <element> <option>'
+                    "';' '|' <EMPTYLINE> <ENDRULE>"
+                    '<UNINDENTED> <choice> <element> <option>'
                     '<sequence>'
                 ) from None
 
@@ -591,7 +593,7 @@ class TatSuBootstrapParser(Parser):
 
                 def block2():
                     with self._ifnot():
-                        self._EMPTYLINE_()
+                        self._ENDRULE_()
                     self._element_()
 
                 self._positive_closure(block2)
@@ -599,7 +601,9 @@ class TatSuBootstrapParser(Parser):
                 raise self.newexcept(
                     'expecting one of: '
                     "'(?:\\\\s*(?:\\\\r?\\\\n|\\\\r)){2,}'"
-                    '<EMPTYLINE> <element> <named> <override>'
+                    "'(?=\\\\s*(?:\\\\r?\\\\n|\\\\r)[^\\\\s])' ';'"
+                    '<EMPTYLINE> <ENDRULE> <UNINDENTED>'
+                    '<element> <named> <override>'
                     '<rule_include> <term>'
                 ) from None
 

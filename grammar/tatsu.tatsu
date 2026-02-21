@@ -49,13 +49,11 @@ rule[Rule]:
     ('=' | ':=' | ':' )
     ~
     exp:expre
-    RULE_END
+    ENDRULE
     ~
 
-RULE_END:  EMPTYLINE [';'] | $ | ';' | UNINDENTED
-
-UNINDENTED: ()
-
+ENDRULE: &UNINDENTED | EMPTYLINE [';'] | $ | ';'
+UNINDENTED: /(?=\s*(?:\r?\n|\r)[^\s])/
 EMPTYLINE: /(?:\s*(?:\r?\n|\r)){2,}/
 
 decorator: '@' !'@' ~ @:('override'|'name'|'nomemo')
@@ -76,7 +74,7 @@ option[Option]: @:sequence
 
 sequence[Sequence]:
     | &(element ',') ','.{element}+
-    | {!EMPTYLINE element}+
+    | {!ENDRULE element}+
 
 element: rule_include | named | override | term
 
