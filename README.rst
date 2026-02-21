@@ -219,7 +219,7 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
                                          │   └─ [`keywords`]+(keyword)─────┘  │                     │   └─ [`keywords`]+(keyword)─┘  │
                                          └───────────────────────────────────<┘                     └───────────────────────────────<┘
 
-    directive ●─'@@'─ !['keyword'] ✂ ───┬─ [name](──┬─'comments'─────┬─) ✂ ─ ✂ ─'::' ✂ ─ [value](regex)────────┬─ ✂ ──■
+    directive ●─'@@'─ !['keyword'] ✂ ───┬─ [name](──┬─'comments'─────┬─) ✂ ─'::' ✂ ─ [value](regex)────────────┬─ ✂ ──■
                                         │           └─'eol_comments'─┘                                         │
                                         ├─ [name]('whitespace') ✂ ─'::' ✂ ─ [value](──┬─regex───┬─)────────────┤
                                         │                                             ├─string──┤              │
@@ -242,19 +242,25 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
                                        │       └─string─┘        └─'='─┘   │
                                        └──────────────────────────────────<┘
 
-    paramdef ●───┬─'::' ✂ ─ [params](params)──────────────────────────────────────┬──■
-                 └─'(' ✂ ───┬─ [kwparams](kwparams)─────────────────────────┬─')'─┘
-                            ├─ [params](params)',' ✂ ─ [kwparams](kwparams)─┤
-                            └─ [params](params)─────────────────────────────┘
+    the_params_at_last ●───┬─ [kwparams](kwparams)─────────────────────────┬──■
+                           ├─ [params](params)',' ✂ ─ [kwparams](kwparams)─┤
+                           └─ [params](params)─────────────────────────────┘
 
-    rule∷Rule ●─ [decorators](──┬→──────────┬──) [name](name) ✂ ───┬─→ >(paramdef) ─┬───┬─→'<' ✂ ─ [base](known_name)─┬───┬─'='──┬─ ✂ ─ [exp](expre)RULE_END ✂ ──■
+    paramdef ●───┬─'[' ✂ ─ >(the_params_at_last) ']'─┬──■
+                 ├─'(' ✂ ─ >(the_params_at_last) ')'─┤
+                 └─'::' ✂ ─ [params](params)─────────┘
+
+    rule∷Rule ●─ [decorators](──┬→──────────┬──) [name](name) ✂ ───┬─→ >(paramdef) ─┬───┬─→'<' ✂ ─ [base](known_name)─┬───┬─'='──┬─ ✂ ─ [exp](expre)ENDRULE ✂ ──■
                                 ├→decorator─┤                      └─→──────────────┘   └─→───────────────────────────┘   ├─':='─┤
                                 └──────────<┘                                                                             └─':'──┘
 
-    RULE_END ●───┬─EMPTYLINE──┬─→';'─┬──┬──■
-                 │            └─→────┘  │
-                 ├─⇥＄                  │
-                 └─';'──────────────────┘
+    ENDRULE ●───┬── &[UNINDENTED]──────┬──■
+                ├─EMPTYLINE──┬─→';'─┬──┤
+                │            └─→────┘  │
+                ├─⇥＄                  │
+                └─';'──────────────────┘
+
+    UNINDENTED ●─/(?=\s*(?:\r?\n|\r)[^\s])/──■
 
     EMPTYLINE ●─/(?:\s*(?:\r?\n|\r)){2,}/──■
 
@@ -286,8 +292,8 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
     sequence∷Sequence ●───┬── &[element',']──┬→───────────────┬───┬──■
                           │                  ├→',' ✂ ─element─┤   │
                           │                  └───────────────<┘   │
-                          └───┬── ![EMPTYLINE]element─┬───────────┘
-                              └──────────────────────<┘
+                          └───┬── ![ENDRULE]element─┬─────────────┘
+                              └────────────────────<┘
 
     element ●───┬─rule_include─┬──■
                 ├─named────────┤
