@@ -6,7 +6,7 @@ from ..util import unicode_display_len as ulen
 
 type Rails = list[str]
 
-ETX = '␃'
+ETX = '＄'  # was '␃'
 
 
 def assert_one_length(rails: Rails) -> Rails:

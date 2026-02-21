@@ -6,18 +6,10 @@ from typing import Any
 
 from .. import grammars
 from ..util.abctools import join_lists
-from ..util.string import regexp
-from ..util.string import unicode_display_len as ulen
+from ..util.string import regexp, unicode_display_len as ulen
 from ..walkers import NodeWalker
-from .railmath import (
-    ETX,
-    Rails,
-    assert_one_length,
-    lay_out,
-    loop,
-    stopnloop,
-    weld,
-)
+from .railmath import (ETX, Rails, assert_one_length, lay_out, loop, stopnloop, weld,
+                       )
 
 
 def tracks(model: grammars.Grammar):
@@ -73,7 +65,7 @@ class RailroadNodeWalker(NodeWalker):
 
         out = [f'{decorators}{leftrec}{rule.name}{base}{params} ●─']
         out = weld(out, self.walk(rule.exp))
-        if ETX not in out:
+        if ETX not in out[0]:
             out = weld(out, ['─■'])
         out += [' ' * ulen(out[0])]
         return assert_one_length(out)
@@ -118,7 +110,7 @@ class RailroadNodeWalker(NodeWalker):
         return [f"{token.token!r}"]
 
     def walk_eof(self, eof: grammars.EOF) -> Rails:
-        return [f"⇥ {ETX} "]
+        return [f"⇥{ETX} "]
 
     def walk_lookahead(self, la: grammars.Lookahead) -> Rails:
         out = weld(['─ &['], self.walk(la.exp))
