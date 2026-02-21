@@ -298,8 +298,33 @@ class TatSuBootstrapParser(Parser):
                             ) from None
                 self._token(')')
                 self._define(['kwparams', 'params'], [])
+            with self._option():
+                self._token('[')
+                self._cut()
+                with self._group():
+                    with self._choice():
+                        with self._option():
+                            with self._setname('kwparams'):
+                                self._kwparams_()
+                        with self._option():
+                            with self._setname('params'):
+                                self._params_()
+                            self._token(',')
+                            self._cut()
+                            with self._setname('kwparams'):
+                                self._kwparams_()
+                            self._define(['kwparams', 'params'], [])
+                        with self._option():
+                            with self._setname('params'):
+                                self._params_()
+                        if self._no_more_options:
+                            raise self.newexcept(
+                                'expecting one of:  <kwparams> <params>'
+                            ) from None
+                self._token(']')
+                self._define(['kwparams', 'params'], [])
             if self._no_more_options:
-                raise self.newexcept("expecting one of:  '(' '::'") from None
+                raise self.newexcept("expecting one of:  '(' '::' '['") from None
 
     @rule('Rule')
     def _rule_(self):
@@ -345,8 +370,33 @@ class TatSuBootstrapParser(Parser):
                                 ) from None
                     self._token(')')
                     self._define(['kwparams', 'params'], [])
+                with self._option():
+                    self._token('[')
+                    self._cut()
+                    with self._group():
+                        with self._choice():
+                            with self._option():
+                                with self._setname('kwparams'):
+                                    self._kwparams_()
+                            with self._option():
+                                with self._setname('params'):
+                                    self._params_()
+                                self._token(',')
+                                self._cut()
+                                with self._setname('kwparams'):
+                                    self._kwparams_()
+                                self._define(['kwparams', 'params'], [])
+                            with self._option():
+                                with self._setname('params'):
+                                    self._params_()
+                            if self._no_more_options:
+                                raise self.newexcept(
+                                    'expecting one of:  <kwparams> <params>'
+                                ) from None
+                    self._token(']')
+                    self._define(['kwparams', 'params'], [])
                 if self._no_more_options:
-                    raise self.newexcept("expecting one of:  '(' '::'") from None
+                    raise self.newexcept("expecting one of:  '(' '::' '['") from None
         with self._optional():
             self._token('<')
             self._cut()
