@@ -26,9 +26,10 @@ from ..exceptions import (
     OptionSucceeded,
     ParseError,
     ParseException,
-    )
+)
 from ..infos import Alert, ParseInfo, ParserConfig, RuleInfo
 from ..tokenizing import Cursor, NullTokenizer, Tokenizer
+from ..tokenizing.textlines import TextLinesTokenizer
 from ..util import regexp, safe_name, trim
 from ..util.abctools import is_list, left_assoc, prune_dict, right_assoc
 from ..util.deprecate import deprecated
@@ -51,7 +52,7 @@ class ParseContext:
 
         config = ParserConfig.new(config, **settings)
         if config.tokenizercls is None:
-            config = config.override(tokenizercls=Buffer)
+            config = config.override(tokenizercls=TextLinesTokenizer)
         self._config: ParserConfig = config
         self._active_config: ParserConfig = self._config
 
