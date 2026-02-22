@@ -10,6 +10,7 @@ about source lines and content.
 from __future__ import annotations
 
 import re
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +18,7 @@ from .infos import PosLine
 from .parserconfig import ParserConfig
 from .tokenizing import Cursor, LineIndexInfo, LineInfo
 from .tokenizing.tokenizer import Tokenizer
+from .util import typename
 from .util.itertools import str_from_match
 from .util.misc import cached_re_compile
 from .util.undefined import Undefined
@@ -27,8 +29,143 @@ DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 LineIndexEntry = LineIndexInfo
 
 
-class Buffer(Cursor, Tokenizer):
+class BufferCursor(Cursor):
+    def __init__(self, buffer: Buffer, pos: int = 0):
+        super().__init__()
+        self._buffer = buffer
+        self._pos = pos
+        self._len = buffer.len
 
+    def copy(self) -> Cursor:
+        return BufferCursor(self.buffer, pos=self.pos)
+
+    @contextmanager
+    def bind(self):
+        p = self.buffer.pos
+        self.buffer.goto(self.pos)
+        yield
+        self.goto(self.buffer.pos)
+        self.buffer.goto(p)
+
+    @property
+    def buffer(self) -> Buffer:
+        return self._buffer
+
+    @property
+    def tokenizer(self) -> Tokenizer:
+        return self.buffer
+
+    @property
+    def pos(self) -> int:
+        return self._pos
+
+    @property
+    def len(self) -> int:
+        return self._len
+
+    @property
+    def line(self) -> int:
+        return self.buffer.posline_at(self.pos)
+
+    @property
+    def col(self) -> int:
+        return self.buffer.poscol(self.pos)
+
+    @property
+    def text(self) -> str:
+        return self.buffer.text
+
+    @property
+    def filename(self) -> str:
+        return self.buffer.filename
+
+    def goto(self, pos: int):
+        self._pos = max(0, min(self.buffer._len, pos))
+
+    def move(self, n: int):
+        self.goto(self._pos + n)
+
+    def atend(self) -> bool:
+        return self._pos >= self.len
+
+    def ateol(self) -> bool:
+        return self.atend() or self.current in {'\r', '\n', None}
+
+    @property
+    def current(self) -> str | None:
+        if self.pos >= self.len:
+            return None
+        return self.text[self._pos]
+
+    def peek(self, n: int = 1) -> str | None:
+        p = self.pos + n
+        if p >= self.len or p < 0:
+            return None
+        return self.buffer.text[p]
+
+    def next(self) -> str | None:
+        if self.atend():
+            return None
+        c = self.current
+        self.move(1)
+        return c
+
+    def next_token(self) -> None:
+        self.buffer.next_token_at(self)
+
+    def match(self, token: str) -> str | None:
+        return self.buffer.match_at(token, self)
+
+    def matchre(self, pattern: str) -> str | None:
+        return self.buffer.matchre_at(pattern, self)
+
+    def lineinfo(self, pos: int | None = None) -> LineInfo:
+        if pos is None:
+            pos = self.pos
+        return self.buffer.lineinfo(pos)
+
+    def lookahead_pos(self) -> str:
+        if self.atend():
+            return ''
+        info = self.lineinfo(self.pos)
+        return '@%d:%d' % (info.line + 1, info.col + 1)
+
+    def lookahead(self) -> str:
+        if self.atend():
+            return ''
+        info = self.lineinfo(self.pos)
+        text = info.text[info.col: info.col + 1 + 80]
+        return self.buffer.split_block_lines(text)[0].rstrip()
+
+    def posline(self, pos: int | None = None) -> int:
+        if pos is None:
+            pos = self.pos
+        return self.buffer.posline(pos)
+
+    def get_line(self, n: int | None = None) -> str:
+        if n is None:
+            n = self.line
+        return self.buffer.get_line(n)
+
+    def get_lines(
+        self,
+        start: int | None = None,
+        end: int | None = None,
+    ) -> list[str]:
+        return self.buffer.get_lines(start, end)
+
+    def line_index(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
+        return self.buffer.line_index(start, end)
+
+    def __len__(self) -> int:
+        return self.len
+
+    def __repr__(self) -> str:
+        pos = self.pos
+        return f'{typename(self)}({pos=})'
+
+
+class Buffer(Tokenizer):
     def __init__(
         self,
         text: str,
@@ -36,6 +173,7 @@ class Buffer(Cursor, Tokenizer):
         config: ParserConfig | None = None,
         **settings: Any,
         ):
+        super().__init__()
         config = ParserConfig.new(config=config, **settings)
         self.config = config
 
@@ -61,10 +199,7 @@ class Buffer(Cursor, Tokenizer):
         self._postprocess()
 
     def newcursor(self) -> Cursor:
-        return self
-
-    def copy(self) -> Cursor:
-        return self
+        return BufferCursor(self, pos=self.pos)
 
     @property
     def tokenizer(self) -> Tokenizer:
@@ -193,6 +328,14 @@ class Buffer(Cursor, Tokenizer):
     @property
     def pos(self) -> int:
         return self._pos
+
+    @pos.setter
+    def pos(self, p: int):
+        self.goto(p)
+
+    @property
+    def len(self) -> int:
+        return self._len
 
     @property
     def line(self) -> int:
@@ -421,8 +564,29 @@ class Buffer(Cursor, Tokenizer):
             end = len(self._line_index)
         return self._line_index[start : 1 + end]
 
-    def line_index_at(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
-        return self.line_index(start, end)
+    def eat_whitespace_at(self, c: BufferCursor) -> None:
+        with c.bind():
+            self.eat_whitespace()
+
+    def eat_comments_at(self, c: BufferCursor) -> None:
+        with c.bind():
+            self.eat_comments()
+
+    def eat_eol_comments_at(self, c: BufferCursor) -> None:
+        with c.bind():
+            self.eat_comments()
+
+    def next_token_at(self, c: BufferCursor) -> None:
+        with c.bind():
+            self.next_token()
+
+    def match_at(self, token: str, c: BufferCursor) -> str | None:
+        with c.bind():
+            return self.match(token)
+
+    def matchre_at(self, pattern: str | re.Pattern, c: BufferCursor) -> str | None:
+        with c.bind():
+            return self.matchre(pattern)
 
     def __repr__(self) -> str:
         return f'{type(self).__name__}()'
