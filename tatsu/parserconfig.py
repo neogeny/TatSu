@@ -8,8 +8,7 @@ from collections.abc import Collection
 from dataclasses import dataclass, field
 from typing import Any, override
 
-from .tokenizing.tokenizer import Tokenizer
-from .tokenizing.null import NullTokenizer
+from .tokenizing import NullTokenizer, Tokenizer
 from .util.configs import Config
 from .util.misc import cached_re_compile
 from .util.undefined import Undefined

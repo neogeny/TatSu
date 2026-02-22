@@ -332,7 +332,7 @@ class ParseContext:
     def _make_parseinfo(self, name: str, pos: int) -> ParseInfo:
         endpos = self.pos
         return ParseInfo(
-            tokenizer=self.tokenizer,
+            cursor=self.cursor,
             rule=name,
             pos=pos,
             endpos=endpos,

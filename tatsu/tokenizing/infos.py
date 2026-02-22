@@ -2,7 +2,26 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from itertools import starmap
 from typing import NamedTuple
+
+
+class LineInfo(NamedTuple):
+    filename: str
+    line: int
+    col: int
+    start: int
+    end: int
+    text: str
+
+
+class LineIndexInfo(NamedTuple):
+    filename: str
+    line: int
+
+    @staticmethod
+    def block_index(name, n) -> list[LineIndexInfo]:
+        return list(starmap(LineIndexInfo, zip(n * [name], range(n), strict=False)))
 
 
 class PosLine(NamedTuple):

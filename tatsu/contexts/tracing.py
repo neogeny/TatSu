@@ -7,7 +7,7 @@ from typing import Any
 from ..exceptions import FailedLeftRecursion
 from ..infos import RuleInfo
 from ..parserconfig import ParserConfig
-from ..tokenizing.cursor import Cursor
+from ..tokenizing import Cursor
 from ..util import color, info
 from ..util.unicode_characters import C_CUT, C_ENTRY, C_FAILURE, C_RECURSION, C_SUCCESS
 

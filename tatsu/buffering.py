@@ -15,7 +15,7 @@ from typing import Any
 
 from .infos import PosLine
 from .parserconfig import ParserConfig
-from .tokenizing.cursor import Cursor, LineIndexInfo, LineInfo
+from .tokenizing import Cursor, LineIndexInfo, LineInfo
 from .tokenizing.tokenizer import Tokenizer
 from .util.itertools import str_from_match
 from .util.misc import cached_re_compile
@@ -64,6 +64,10 @@ class Buffer(Cursor, Tokenizer):
         return self
 
     def clonecursor(self) -> Cursor:
+        return self
+
+    @property
+    def tokenizer(self) -> Tokenizer:
         return self
 
     @property

@@ -5,9 +5,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from .cursor import Cursor, LineIndexInfo, LineInfo
-from .infos import PosLine
-from .tokenizer import Tokenizer
+from .infos import LineIndexInfo, LineInfo, PosLine
+from .tokenizer import Cursor, Tokenizer
 from ..parserconfig import ParserConfig
 from ..util.common import typename
 from ..util.itertools import str_from_match
@@ -17,7 +16,7 @@ from ..util.undefined import Undefined
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 
-class PositionCursor(Cursor):
+class TextLinesCursor(Cursor):
     def __init__(self, tokens: TextLinesTokenizer, pos: int = 0):
         super().__init__()
         self._tokens = tokens
@@ -25,7 +24,7 @@ class PositionCursor(Cursor):
         self._len = tokens._len
 
     def clonecursor(self) -> Cursor:
-        return PositionCursor(self.tokens, self.pos)
+        return TextLinesCursor(self.tokens, self.pos)
 
     @property
     def tokens(self) -> TextLinesTokenizer:
@@ -188,7 +187,7 @@ class TextLinesTokenizer(Tokenizer):
 
     def newcursor(self, pos: int = 0) -> Cursor:
         """Factory method to create a cursor for this buffer."""
-        return PositionCursor(self, pos)
+        return TextLinesCursor(self, pos)
 
     @property
     def text(self) -> str:
