@@ -18,6 +18,7 @@ from __future__ import annotations
 from tatsu.buffering import Buffer
 from tatsu.infos import ParserConfig
 from tatsu.parsing import Parser, leftrec, nomemo, isname, generic_main, rule
+from tatsu.tokenizing.textlines import TextLinesTokenizer
 
 __all__ = ['TatSuBootstrapTokenizer', 'TatSuBootstrapParser', 'main']
 
@@ -25,7 +26,7 @@ __all__ = ['TatSuBootstrapTokenizer', 'TatSuBootstrapParser', 'main']
 KEYWORDS: set[str] = set()
 
 
-class TatSuBootstrapTokenizer(Buffer):
+class TatSuBootstrapTokenizer(TextLinesTokenizer):
     def __init__(self, text, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(
             config,
