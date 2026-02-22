@@ -428,33 +428,6 @@ class Buffer(Cursor, Tokenizer):
     def line_index_at(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
         return self.line_index(start, end)
 
-    def eat_whitespace_at(self, c: Cursor) -> None:
-        self.eat_whitespace()
-
-    def eat_comments_at(self, c: Cursor) -> None:
-        self.eat_comments()
-
-    def eat_eol_comments_at(self, c: Cursor) -> None:
-        self.eat_comments()
-
-    def next_token_at(self, c: Cursor) -> None:
-        self.next_token()
-
-    def match_at(self, token: str, c: Cursor) -> str | None:
-        return self.match(token)
-
-    def matchre_at(self, pattern: str | re.Pattern, c: Cursor) -> str | None:
-        return self.matchre(pattern)
-
-    def posline_at(self, pos: int) -> int:
-        return self.posline(pos)
-
-    def poscol_at(self, pos: int) -> int:
-        return self.poscol(pos)
-
-    def lineinfo_at(self, pos: int) -> LineInfo:
-        return self.lineinfo(pos)
-
     def __repr__(self) -> str:
         return f'{type(self).__name__}()'
 
