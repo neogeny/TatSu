@@ -33,14 +33,10 @@ class ParseInfo(NamedTuple):
         return self.cursor
 
     def text_lines(self) -> list[str]:
-        return self.tokenizer.get_lines(self.line, self.endline)
+        return self.cursor.get_lines(self.line, self.endline)
 
     def line_index(self):
-        return self.tokenizer.line_index(self.line, self.endline)
-
-    @property
-    def buffer(self):
-        return self.tokenizer
+        return self.cursor.line_index(self.line, self.endline)
 
 
 class RuleInfo(NamedTuple):

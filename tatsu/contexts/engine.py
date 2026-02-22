@@ -122,7 +122,7 @@ class ParseContext:
 
     @property
     def pos(self) -> int:
-        return self.tokenizer.pos
+        return self.cursor.pos
 
     @property
     def line(self) -> int:

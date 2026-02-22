@@ -63,10 +63,6 @@ class ModelContext(ParseContext):
     def rulemap(self) -> dict[str, Rule]:
         return self._rulemap
 
-    @property
-    def pos(self) -> int:
-        return self._tokenizer.pos
-
     def _find_rule(self, name: str) -> Callable:
         return functools.partial(self.rulemap[name]._parse, self)
 

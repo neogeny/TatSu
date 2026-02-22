@@ -162,12 +162,6 @@ class Tokenizer(Protocol):
 
     def newcursor(self) -> Cursor: ...
 
-    def lastcursor(self) -> Cursor: ...
-
-    @property
-    def pos(self) -> int:
-        return self.lastcursor().pos
-
     # FIXME: this interface is not needed
     # def eat_whitespace_at(self, c: Cursor) -> None: ...
     #
@@ -191,15 +185,8 @@ class Tokenizer(Protocol):
 
 
 class NullTokenizer(Tokenizer):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self._cursor = NullCursor()
-
-    def newcursor(self) -> Cursor:
-        return self._cursor.clonecursor() if self._cursor else NullCursor()
-
-    def lastcursor(self) -> Cursor:
-        return self._cursor
+    def newcursor(self, pos: int = 0) -> Cursor:
+        return NullCursor()
 
     def eat_whitespace_at(self, c: Cursor) -> None:
         return

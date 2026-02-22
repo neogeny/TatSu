@@ -183,12 +183,8 @@ class TextLinesTokenizer(Tokenizer):
         self._preprocess()
         self._postprocess()
 
-    def newcursor(self, pos: int = 0) -> Cursor:
-        self._last_cursor = TextLinesCursor(self, pos)
-        return self._last_cursor
-
-    def lastcursor(self):
-        return self._last_cursor
+    def newcursor(self) -> Cursor:
+        return TextLinesCursor(self)
 
     @property
     def text(self) -> str:

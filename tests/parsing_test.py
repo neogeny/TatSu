@@ -144,7 +144,7 @@ class ParsingTests(unittest.TestCase):
         subject = ast[1]
         assert subject['name'] == 'bar'
         parseinfo = subject['parseinfo']
-        assert parseinfo.pos == parseinfo.tokenizer.text.index('bar')
+        assert parseinfo.pos == parseinfo.cursor.text.index('bar')
 
     def test_cut_scope(self):
         grammar = '''
