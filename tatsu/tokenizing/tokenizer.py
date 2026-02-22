@@ -158,9 +158,15 @@ class NullCursor(Cursor):
 @runtime_checkable
 class Tokenizer(Protocol):
     def __init__(self, *args, **kwargs) -> None:
-        return
+        pass
 
     def newcursor(self) -> Cursor: ...
+
+    def cursor(self) -> Cursor: ...
+
+    @property
+    def pos(self) -> int:
+        return self.cursor().pos
 
     def eat_whitespace_at(self, c: Cursor) -> None: ...
 
@@ -186,9 +192,13 @@ class Tokenizer(Protocol):
 class NullTokenizer(Tokenizer):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self._cursor = NullCursor()
 
     def newcursor(self) -> Cursor:
-        return NullCursor()
+        return self._cursor.clonecursor() if self._cursor else NullCursor()
+
+    def cursor(self) -> Cursor:
+        return self._cursor
 
     def eat_whitespace_at(self, c: Cursor) -> None:
         return

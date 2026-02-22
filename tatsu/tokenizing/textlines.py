@@ -149,6 +149,8 @@ class TextLinesCursor(Cursor):
 
 
 class TextLinesTokenizer(Tokenizer):
+    _last_cursor: Cursor
+
     def __init__(
         self,
         text: str,
@@ -182,7 +184,11 @@ class TextLinesTokenizer(Tokenizer):
         self._postprocess()
 
     def newcursor(self, pos: int = 0) -> Cursor:
-        return TextLinesCursor(self, pos)
+        self._last_cursor = TextLinesCursor(self, pos)
+        return self._last_cursor
+
+    def cursor(self):
+        return self._last_cursor
 
     @property
     def text(self) -> str:
