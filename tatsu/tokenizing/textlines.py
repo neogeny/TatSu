@@ -21,10 +21,10 @@ class TextLinesCursor(Cursor):
         super().__init__()
         self._tokens = tokens
         self._pos = pos
-        self._len = tokens._len
+        self._len = tokens.len
 
     def clonecursor(self) -> Cursor:
-        return TextLinesCursor(self.tokens, self.pos)
+        return TextLinesCursor(self, self.pos)
 
     @property
     def tokens(self) -> TextLinesTokenizer:
@@ -41,10 +41,6 @@ class TextLinesCursor(Cursor):
     @property
     def len(self) -> int:
         return self._len
-
-    @pos.setter
-    def pos(self, p: int):
-        self.goto(p)
 
     @property
     def line(self) -> int:
@@ -186,6 +182,14 @@ class TextLinesTokenizer(Tokenizer):
 
     def newcursor(self) -> Cursor:
         return TextLinesCursor(self)
+
+    @property
+    def len(self) -> int:
+        return self._len
+
+    @property
+    def linecount(self) -> int:
+        return self._linecount
 
     @property
     def text(self) -> str:

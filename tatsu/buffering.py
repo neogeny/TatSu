@@ -194,10 +194,6 @@ class Buffer(Cursor, Tokenizer):
     def pos(self) -> int:
         return self._pos
 
-    @pos.setter
-    def pos(self, p: int) -> None:
-        self.goto(p)
-
     @property
     def line(self) -> int:
         return self.posline()
