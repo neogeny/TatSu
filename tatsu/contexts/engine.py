@@ -267,7 +267,7 @@ class ParseContext:
         return self.states.pop()
 
     def mergestate(self) -> ParseState:
-        return self.states.merge(pos=self.pos)
+        return self.states.merge()
 
     def undostate(self) -> None:
         self.states.pop()
