@@ -4,15 +4,14 @@
 import re
 from typing import Any
 
-from .bootstrap import TatSuBootstrapParser
-from .buffering import Buffer
+from .bootstrap import TatSuBootstrapParser, TatSuBootstrapTokenizer
 from .grammars import PRAGMA_RE
 from .infos import ParserConfig
 from .parser_semantics import TatSuGrammarSemantics
 from .semantics import ASTSemantics
 
 
-class TatSuBuffer(Buffer):
+class TatSuTokenizer(TatSuBootstrapTokenizer):
     def __init__(
         self,
         text: str,
@@ -61,7 +60,7 @@ class TatSuParser(TatSuBootstrapParser):
             config=config,
             name=name,
             semantics=semantics,
-            tokenizercls=TatSuBuffer,
+            tokenizercls=TatSuTokenizer,
             **settings,
         )
         super().__init__(config)
@@ -78,7 +77,7 @@ class TatSuParserGenerator(TatSuBootstrapParser):
         config = ParserConfig.new(
             name=name,
             semantics=semantics,
-            tokenizercls=TatSuBuffer,
+            tokenizercls=TatSuTokenizer,
             **settings,
         )
         super().__init__(config)

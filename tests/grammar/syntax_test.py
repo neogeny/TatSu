@@ -9,7 +9,7 @@ import pytest
 from tatsu import tool
 from tatsu.exceptions import FailedParse, FailedToken
 from tatsu.ngcodegen import pythongen
-from tatsu.parser import TatSuBuffer
+from tatsu.parser import TatSuTokenizer
 from tatsu.tool import compile
 from tatsu.util import trim
 
@@ -43,7 +43,7 @@ class SyntaxTests(unittest.TestCase):
         including_grammar = overridden % (inclusion)
         whole_grammar = overridden % (included_grammar)
 
-        class FakeIncludesBuffer(TatSuBuffer):
+        class FakeIncludesBuffer(TatSuTokenizer):
             def get_include(self, source, filename):
                 return included_grammar, source + '/' + filename
 

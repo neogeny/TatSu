@@ -38,7 +38,7 @@ HEADER = """\
     from tatsu.infos import ParserConfig
     from tatsu.parsing import Parser, leftrec, nomemo, isname, generic_main, rule
 
-    __all__ = ['{parser_name}Buffer', '{parser_name}Parser', 'main']
+    __all__ = ['{tokenizer_name}', '{parser_name}', 'main']
 """
 
 FOOTER = """\
@@ -91,16 +91,21 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         return node
 
     def walk_Grammar(self, grammar: grammars.Grammar):
-        parser_name = self.parser_name or grammar.name
-        self.print(HEADER.format(parser_name=parser_name))
+        basename = self.parser_name or grammar.name
+        self.print(
+            HEADER.format(
+                tokenizer_name=self._tokenizer_name(basename),
+                parser_name=self._parser_name(basename),
+            ),
+        )
         self.print()
         self.print()
 
         self._gen_keywords(grammar)
-        self._gen_buffering(grammar, parser_name)
-        self._gen_parsing(grammar, parser_name)
+        self._gen_buffering(grammar, basename)
+        self._gen_parsing(grammar, basename)
 
-        self.print(FOOTER.format(name=parser_name))
+        self.print(FOOTER.format(name=basename))
 
     def walk_Rule(self, rule: grammars.Rule):
         def param_repr(p):
@@ -354,8 +359,14 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             ''')
         self.print()
 
-    def _gen_buffering(self, grammar: grammars.Grammar, parser_name: str):
-        self.print(f'class {parser_name}Buffer(Buffer):')
+    def _tokenizer_name(self, basename) -> str:
+        return f'{basename}Tokenizer'
+
+    def _parser_name(self, basename: str) -> str:
+        return f'{basename}Parser'
+
+    def _gen_buffering(self, grammar: grammars.Grammar, basename: str):
+        self.print(f'class {self._tokenizer_name(basename)}(Buffer):')
 
         with self.indent():
             self.print(
@@ -366,16 +377,23 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 self.print('super().__init__(text, config=config)')
         self.print()
 
-    def _gen_parsing(self, grammar: grammars.Grammar, parser_name: str):
+    def _gen_parsing(self, grammar: grammars.Grammar, basename: str):
         self.print()
-        self.print(f'class {parser_name}Parser(Parser):')
+        self.print(f'class {self._parser_name(basename)}(Parser):')
         with self.indent():
             self.print(
                 'def __init__(self, /, config: ParserConfig | None = None, **settings):',
             )
             with self.indent():
                 self._gen_init(grammar)
-                self.print('super().__init__(config=config)')
+                self.print('super().__init__(')
+                with self.indent():
+                    self.print('config=config,')
+                    self.print(
+                        f'tokenizercls=config.tokenizercls'
+                        f' or {self._tokenizer_name(basename)},',
+                    )
+                self.print(')')
             self.print()
             self.walk(grammar.rules)
         self.print()

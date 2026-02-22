@@ -8,11 +8,11 @@ import unittest
 from pathlib import Path
 
 import tatsu
-from tatsu.parser import TatSuBuffer
+from tatsu.parser import TatSuTokenizer
 from tatsu.util import asjson, eval_escapes, trim
 
 
-class MockIncludeBuffer(TatSuBuffer):
+class MockIncludeBuffer(TatSuTokenizer):
     def get_include(self, source, filename):
         return f'\nINCLUDED "{filename}"\n', filename
 

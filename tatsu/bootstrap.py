@@ -19,13 +19,13 @@ from tatsu.buffering import Buffer
 from tatsu.infos import ParserConfig
 from tatsu.parsing import Parser, leftrec, nomemo, isname, generic_main, rule
 
-__all__ = ['TatSuBootstrapBuffer', 'TatSuBootstrapParser', 'main']
+__all__ = ['TatSuBootstrapTokenizer', 'TatSuBootstrapParser', 'main']
 
 
 KEYWORDS: set[str] = set()
 
 
-class TatSuBootstrapBuffer(Buffer):
+class TatSuBootstrapTokenizer(Buffer):
     def __init__(self, text, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(
             config,
@@ -60,7 +60,10 @@ class TatSuBootstrapParser(Parser):
         )
         config = config.override(**settings)
 
-        super().__init__(config=config)
+        super().__init__(
+            config=config,
+            tokenizercls=config.tokenizercls or TatSuBootstrapTokenizer,
+        )
 
     @rule()
     def _start_(self):
