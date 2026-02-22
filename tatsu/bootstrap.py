@@ -44,6 +44,25 @@ class TatSuBootstrapTokenizer(Buffer):
         super().__init__(text, config=config)
 
 
+class TatSuBootstrapBuffer(Buffer):  # NOTE: backwards compatibility
+    def __init__(self, text, /, config: ParserConfig | None = None, **settings):
+        config = ParserConfig.new(
+            config,
+            whitespace=r'(?m)\s+',
+            nameguard=None,
+            ignorecase=False,
+            namechars='',
+            parseinfo=True,
+            comments=r'(?ms)[(][*]\s*((?:.|\n)*?)\s*[*][)]|[\/][*]\s*((?:.|\n)*?)\s*[*][\/]',
+            eol_comments=r'(?ms)(?:[#]|[\/][\/])(.*?)$',
+            keywords=KEYWORDS,
+            start='start',
+        )
+        config = config.override(**settings)
+
+        super().__init__(text, config=config)
+
+
 class TatSuBootstrapParser(Parser):
     def __init__(self, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(
