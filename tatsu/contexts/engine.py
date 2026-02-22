@@ -226,7 +226,7 @@ class ParseContext:
             assert not isinstance(tokenizer, NullTokenizer)
             self._tokenizer = tokenizer
             self._cursor = self._tokenizer.newcursor()
-            self._states = ParseStateStack(cursor=self.tokenizer.newcursor())
+            self._states = ParseStateStack(cursor=tokenizer.newcursor())
             assert not isinstance(self._cursor, NullCursor)
             assert not isinstance(self.state.cursor, NullCursor)
             self._reset(config)

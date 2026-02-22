@@ -19,12 +19,12 @@ DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 class TextLinesCursor(Cursor):
     def __init__(self, tokens: TextLinesTokenizer, pos: int = 0):
         super().__init__()
-        self._tokens = tokens
+        self._tokens: TextLinesTokenizer = tokens
         self._pos = pos
         self._len = tokens.len
 
     def copy(self) -> Cursor:
-        return TextLinesCursor(self, self.pos)
+        return TextLinesCursor(self.tokens, self.pos)
 
     @property
     def tokens(self) -> TextLinesTokenizer:
