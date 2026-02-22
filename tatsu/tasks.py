@@ -40,7 +40,7 @@ def uv_python_pin(c: Context) -> float:
 
 
 def uv(c: Context, cmd: str, args: str | list[str], *, quiet: bool = True, python: float = PYTHON, group: str = 'dev',
-        nogroup: str = '', **kwargs: Any, ) -> Result:
+    nogroup: str = '', **kwargs: Any, ) -> Result:
     uvpython = uv_python_pin(c)
     q = ' --quiet' if quiet else ''
     p = f' --python {python!s}' if python and python != uvpython else ''
@@ -53,7 +53,7 @@ def uv(c: Context, cmd: str, args: str | list[str], *, quiet: bool = True, pytho
 
 
 def uv_run(c: Context, args: str | list[str], *, python: float = PYTHON, group: str = 'dev', quiet: bool = True,
-        **kwargs: Any, ) -> Result:
+    **kwargs: Any, ) -> Result:
     return uv(c, 'run', args=args, python=python, group=group, quiet=quiet, **kwargs)
 
 
@@ -138,24 +138,28 @@ def pyright(c: Context, python: float = PYTHON):
 
 
 @task(pre=[clean])
-def pytest_fast(c: Context, python: float = PYTHON):
+def pytestfast(c: Context, python: float = PYTHON):
     print('-> pytest fast')
     Path('./tmp').mkdir(exist_ok=True)
     Path('./tmp/__init__.py').touch()
-    uv_run(c, ['pytest', '--quiet', '-n auto', 'tests/', '--ignore-glob=tests/z*',
+    uv_run(
+        c, [
+            'pytest', '--quiet', '-n auto', 'tests/', '--ignore-glob=tests/z*',
         ], python=python, group='test', hide='stdout', pty=True, )
 
 
 @task(pre=[clean])
-def pytest_bootstrap(c: Context, python: float = PYTHON):
+def pytestbootstrap(c: Context, python: float = PYTHON):
     print('-> pytest bootstrap')
     Path('./tmp').mkdir(exist_ok=True)
     Path('./tmp/__init__.py').touch()
-    uv_run(c, ['pytest', '--quiet', 'tests/z_bootstrap_test.py',
+    uv_run(
+        c, [
+            'pytest', '--quiet', 'tests/z_bootstrap_test.py',
         ], python=python, group='test', hide='stdout', pty=True, )
 
 
-@task(pre=[clean, pytest_fast, pytest_bootstrap])
+@task(pre=[clean, pytestfast, pytestbootstrap])
 def pytest(c: Context, python: float = PYTHON):
     pass
 
@@ -163,7 +167,8 @@ def pytest(c: Context, python: float = PYTHON):
 @task(pre=[clean])
 def black(c: Context, python: float = PYTHON):
     print('-> black')
-    res = uv_run(c, ["black", "--check", "tatsu", "tests", "examples"], python=python, group='test', warn=True,
+    res = uv_run(
+        c, ["black", "--check", "tatsu", "tests", "examples"], python=python, group='test', warn=True,
         hide=True, pty=True, )
     if res.exited != 0:
         print(res.stdout.splitlines()[-1])
@@ -248,7 +253,8 @@ def _export_requirements(c: Context, filename: str, group: str = '', nogroup: st
     # note:
     #   We use pty=True here to ensure the shell redirection behaves
     #   and we see the output immediately if there's an error.
-    uv(c, 'export', f'--no-hashes --format requirements-txt -o {out_file}', group=group, nogroup=nogroup, quiet=True,
+    uv(
+        c, 'export', f'--no-hashes --format requirements-txt -o {out_file}', group=group, nogroup=nogroup, quiet=True,
         pty=True, )
 
 
