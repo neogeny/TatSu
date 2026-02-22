@@ -94,6 +94,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         basename = self.parser_name or grammar.name
         self.print(
             HEADER.format(
+                basename=basename,
                 tokenizer_name=self._tokenizer_name(basename),
                 parser_name=self._parser_name(basename),
             ),
@@ -375,6 +376,14 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             with self.indent():
                 self._gen_init(grammar)
                 self.print('super().__init__(text, config=config)')
+        self.print()
+        self.print()
+        self.print(
+            f'class {basename}Buffer({self._tokenizer_name(basename)}):'
+            '  # NOTE: backwards compatibility',
+        )
+        with self.indent():
+            self.print('...')
         self.print()
 
     def _gen_parsing(self, grammar: grammars.Grammar, basename: str):
