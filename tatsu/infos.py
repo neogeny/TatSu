@@ -6,7 +6,7 @@ from collections.abc import Callable
 from typing import Any, NamedTuple
 
 from .parserconfig import ParserConfig  # for backwards compatibility
-from .tokenizing import Cursor, PosLine, Tokenizer
+from .tokenizing import Cursor, PosLine
 
 __all__ = ['Alert', 'ParserConfig', 'ParseInfo', 'PosLine', 'RuleInfo']
 
@@ -26,8 +26,11 @@ class ParseInfo(NamedTuple):
     alerts: list[Alert] = []  # noqa: RUF012
 
     @property
-    def tokenizer(self) -> Tokenizer:
-        return self.cursor.tokenizer
+    def tokenizer(self) -> Cursor:
+        # NOTE:
+        #   info.tokenizer provided for bakwards compatibility
+        #   self.cursor.tokenizer:Tokenizer is opaque, so useless
+        return self.cursor
 
     def text_lines(self) -> list[str]:
         return self.tokenizer.get_lines(self.line, self.endline)
