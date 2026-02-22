@@ -37,6 +37,7 @@ HEADER = """\
     from tatsu.buffering import Buffer
     from tatsu.infos import ParserConfig
     from tatsu.parsing import Parser, leftrec, nomemo, isname, generic_main, rule
+    from tatsu.tokenizing.textlines import TextLinesTokenizer
 
     __all__ = ['{tokenizer_name}', '{parser_name}', 'main']
 """
@@ -377,7 +378,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print()
 
     def _gen_buffering(self, grammar: grammars.Grammar, basename: str):
-        self.print(f'class {self._tokenizer_name(basename)}(Buffer):')
+        self.print(f'class {self._tokenizer_name(basename)}(TextLinesTokenizer):')
         self._gen_buffering_init(grammar, basename)
 
         self.print()
