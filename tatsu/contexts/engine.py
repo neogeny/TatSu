@@ -7,6 +7,9 @@ from collections.abc import Callable, Iterable
 from contextlib import contextmanager, suppress
 from typing import Any
 
+from .infos import MemoKey, RuleResult, closure
+from .state import ParseState, ParseStateStack
+from .tracing import EventTracer, EventTracerImpl
 from .. import buffering
 from ..ast import AST
 from ..buffering import Buffer
@@ -32,9 +35,6 @@ from ..util.deprecate import deprecated
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from ..util.typing import boundcall
 from ..util.undefined import Undefined
-from .infos import MemoKey, RuleResult, closure
-from .state import ParseState, ParseStateStack
-from .tracing import EventTracer, EventTracerImpl
 
 __all__: list[str] = ['ParseContext']
 
@@ -56,7 +56,7 @@ class ParseContext:
         self._active_config: ParserConfig = self._config
 
         self._tokenizer: Tokenizer = NullTokenizer()
-        self._cursor = self._tokenizer.new_cursor()
+        self._cursor = self._tokenizer.newcursor()
         self._semantics: type | None = config.semantics
         self._initialize_caches()
 
@@ -193,16 +193,16 @@ class ParseContext:
         try:
             self._reset(config)
             if isinstance(text, Tokenizer):
-                cursor = text
+                tokenizer = text
             elif issubclass(config.tokenizercls, NullTokenizer):
-                cursor = Buffer(text=text, config=config, **settings)
+                tokenizer = Buffer(text=text, config=config, **settings)
             elif text is not None:
                 cls = self.tokenizercls
-                cursor = cls(text, config=config, **settings)
+                tokenizer = cls(text, config=config, **settings)
             else:
-                raise ParseError('No cursor or text')
-            self._tokenizer = cursor
-            self._cursor = cursor.new_cursor()
+                raise ParseError('No tokenizer or text')
+            self._tokenizer = tokenizer
+            self._cursor = tokenizer.newcursor()
 
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
                 self.config.semantics.set_context(self)

@@ -5,63 +5,87 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from ..infos import ParserConfig, PosLine
-from ..tokenizing import LineIndexInfo, LineInfo, Tokenizer
+from .cursor import Cursor, LineIndexInfo, LineInfo
+from .infos import PosLine
+from .tokenizer import Tokenizer
+from ..parserconfig import ParserConfig
+from ..util.common import typename
 from ..util.itertools import str_from_match
 from ..util.misc import cached_re_compile
 from ..util.undefined import Undefined
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
-LineIndexEntry = LineIndexInfo
 
 
-class PositionCursor:
-    """Manages the state and navigation within a Buffer."""
+class PositionCursor(Cursor):
+    def __init__(self, tokens: TextLinesTokenizer, pos: int = 0):
+        super().__init__()
+        self._tokens = tokens
+        self._pos = pos
+        self._len = tokens._len
 
-    def __init__(self, buffer: Buffer, pos: int = 0):
-        self.buffer = buffer
-        self._pos = 0
-        self.goto(pos)
+    def clonecursor(self) -> Cursor:
+        return PositionCursor(self.tokens, self.pos)
+
+    @property
+    def tokens(self) -> TextLinesTokenizer:
+        return self._tokens
+
+    @property
+    def tokenizer(self) -> TextLinesTokenizer:
+        return self._tokens
 
     @property
     def pos(self) -> int:
         return self._pos
 
+    @property
+    def len(self) -> int:
+        return self._len
+
     @pos.setter
     def pos(self, p: int):
         self.goto(p)
 
+    @property
+    def line(self) -> int:
+        return self.tokens.posline(self.pos)
+
+    @property
+    def col(self) -> int:
+        return self.tokens.poscol(self.pos)
+
+    @property
+    def text(self) -> str:
+        return self.tokens.text
+
+    @property
+    def filename(self) -> str:
+        return self.tokens.filename
+
     def goto(self, pos: int):
-        self._pos = max(0, min(self.buffer._len, pos))
+        self._pos = max(0, min(self.tokens._len, pos))
 
     def move(self, n: int):
         self.goto(self._pos + n)
 
-    @property
-    def line(self) -> int:
-        return self.buffer.posline(self._pos)
-
-    @property
-    def col(self) -> int:
-        return self.buffer.poscol(self._pos)
-
     def atend(self) -> bool:
-        return self._pos >= self.buffer._len
+        return self._pos >= self.len
 
     def ateol(self) -> bool:
         return self.atend() or self.current in {'\r', '\n', None}
 
     @property
     def current(self) -> str | None:
-        if self._pos >= self.buffer._len:
+        if self.pos >= self.len:
             return None
-        return self.buffer.text[self._pos]
+        return self.text[self._pos]
 
     def peek(self, n: int = 1) -> str | None:
-        p = self._pos + n
-        if p >= self.buffer._len or p < 0:
+        p = self.pos + n
+        if p >= self.len or p < 0:
             return None
-        return self.buffer.text[p]
+        return self.tokens.text[p]
 
     def next(self) -> str | None:
         if self.atend():
@@ -70,21 +94,63 @@ class PositionCursor:
         self.move(1)
         return c
 
+    def next_token(self) -> None:
+        self.tokens.next_token(self)
+
+    def match(self, token: str) -> str | None:
+        return self.tokens.match(self, token)
+
+    def matchre(self, pattern: str) -> str | None:
+        return self.tokens.matchre(self, pattern)
+
+    def lineinfo(self, pos: int | None = None) -> LineInfo:
+        if pos is None:
+            pos = self.pos
+        return self.tokens.lineinfo(pos)
+
     def lookahead_pos(self) -> str:
         if self.atend():
             return ''
-        info = self.buffer.lineinfo(self._pos)
+        info = self.tokens.lineinfo(self._pos)
         return '@%d:%d' % (info.line + 1, info.col + 1)
 
     def lookahead(self) -> str:
         if self.atend():
             return ''
-        info = self.buffer.lineinfo(self._pos)
+        info = self.tokens.lineinfo(self._pos)
         text = info.text[info.col: info.col + 1 + 80]
-        return self.buffer.split_block_lines(text)[0].rstrip()
+        return self.tokens.split_block_lines(text)[0].rstrip()
+
+    def posline(self, pos: int | None = None) -> int:
+        if pos is None:
+            pos = self.pos
+        return self.tokens.posline(pos)
+
+    def get_line(self, n: int | None = None) -> str:
+        if n is None:
+            n = self.line
+        return self.tokens.get_line(n)
+
+    def get_lines(
+        self,
+        start: int | None = None,
+        end: int | None = None,
+        ) -> list[str]:
+        return self.tokens.get_lines(start, end)
+
+    def line_index(
+        self,
+        start: int = 0,
+        end: int | None = None,
+        ) -> list[LineIndexInfo]:
+        return self.tokens.line_index(start, end)
+
+    def __len__(self) -> int:
+        return self.len
 
     def __repr__(self) -> str:
-        return f'Cursor(pos={self._pos}, line={self.line}, col={self.col})'
+        pos = self.pos
+        return f'{typename(self)}({pos=})'
 
 
 class TextLinesTokenizer(Tokenizer):
@@ -120,9 +186,9 @@ class TextLinesTokenizer(Tokenizer):
         self._preprocess()
         self._postprocess()
 
-    def new_cursor(self, pos: int = 0) -> Cursor:
+    def newcursor(self, pos: int = 0) -> Cursor:
         """Factory method to create a cursor for this buffer."""
-        return Cursor(self, pos)
+        return PositionCursor(self, pos)
 
     @property
     def text(self) -> str:
@@ -286,11 +352,22 @@ class TextLinesTokenizer(Tokenizer):
         filename, actual_line = self._line_index[n]
         return LineInfo(filename, actual_line, col, start, end, text)
 
+    def get_line(self, n: int) -> str:
+        return self._lines[n]
+
+    def get_lines(self, start: int | None = None, end: int | None = None) -> list[str]:
+        if start is None:
+            start = 0
+        if end is None:
+            end = len(self._lines)
+        return self._lines[start: end + 1]
+
     def is_name_char(self, c: str | None) -> bool:
         return c is not None and (c.isalnum() or c in self._namechar_set)
 
     def is_name(self, s: str) -> bool:
         if not s:
             return False
+
         goodstart = s[0].isalpha() or s[0] in self._namechar_set
         return goodstart and all(self.is_name_char(c) for c in s[1:])

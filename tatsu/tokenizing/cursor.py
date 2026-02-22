@@ -26,14 +26,13 @@ class LineInfo(NamedTuple):
 
 @runtime_checkable
 class Cursor(Protocol):
+    def clonecursor(self) -> Cursor: ...
+
     @property
     def text(self) -> str: ...
 
     @property
     def filename(self) -> str: ...
-
-    @property
-    def ignorecase(self) -> bool: ...
 
     @property
     def pos(self) -> int: ...

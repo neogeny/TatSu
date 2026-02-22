@@ -15,11 +15,11 @@ from typing import Any
 
 from .infos import PosLine
 from .parserconfig import ParserConfig
+from .tokenizing.cursor import Cursor, LineIndexInfo, LineInfo
+from .tokenizing.tokenizer import Tokenizer
 from .util.itertools import str_from_match
 from .util.misc import cached_re_compile
 from .util.undefined import Undefined
-from .tokenizing.cursor import Cursor, LineIndexInfo, LineInfo
-from .tokenizing.tokenizer import Tokenizer
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -60,7 +60,10 @@ class Buffer(Cursor, Tokenizer):
         self._preprocess()
         self._postprocess()
 
-    def new_cursor(self) -> Cursor:
+    def newcursor(self) -> Cursor:
+        return self
+
+    def clonecursor(self) -> Cursor:
         return self
 
     @property

@@ -10,11 +10,14 @@ class NullTokenizer(Tokenizer):
     def __init__(self, *args, **kwargs):
         pass
 
-    def new_cursor(self) -> Cursor:
+    def newcursor(self) -> Cursor:
         return NullCursor()
 
 
 class NullCursor(Cursor):
+    def clonecursor(self) -> Cursor:
+        return NullCursor()
+
     @property
     def text(self) -> str:
         return ''
