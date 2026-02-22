@@ -23,6 +23,9 @@ class Cursor(Protocol):
     @property
     def pos(self) -> int: ...
 
+    @pos.setter
+    def pos(self, p: int) -> None: ...
+
     @property
     def line(self) -> int: ...
 
@@ -95,6 +98,10 @@ class NullCursor(Cursor):
     @property
     def pos(self) -> int:
         return 0
+
+    @pos.setter
+    def pos(self, p: int) -> None:
+        return
 
     @property
     def line(self) -> int:
