@@ -27,7 +27,7 @@ type ffset = set[tuple[str, ...]]
 
 class _ref(str):
     def __repr__(self) -> str:
-        return f'<{self}>'
+        return repr(f'<{self}>')
 
 
 def ref(name: str) -> tuple[str]:
