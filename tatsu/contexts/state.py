@@ -22,7 +22,7 @@ class ParseState:
 
     def __init__(self, cursor: Cursor, pos: int = 0, ast: Any = None, cst: Any = None):
         assert isinstance(cursor, Cursor), f'{type(cursor)} != NullCursor'
-        self.cursor: Cursor = cursor.clonecursor()
+        self.cursor: Cursor = cursor.copy()
         self._pos: int = pos
         self.ast: Any = ast or AST()
         self.cst: Any = cst

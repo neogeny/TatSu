@@ -9,7 +9,7 @@ from tatsu.tokenizing import LineIndexInfo, LineInfo
 
 @runtime_checkable
 class Cursor(Protocol):
-    def clonecursor(self) -> Cursor: ...
+    def copy(self) -> Cursor: ...
 
     @property
     def tokenizer(self) -> Tokenizer: ...
@@ -73,7 +73,7 @@ class Cursor(Protocol):
 
 
 class NullCursor(Cursor):
-    def clonecursor(self) -> Cursor:
+    def copy(self) -> Cursor:
         return self
 
     @property

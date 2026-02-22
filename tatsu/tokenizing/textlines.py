@@ -23,7 +23,7 @@ class TextLinesCursor(Cursor):
         self._pos = pos
         self._len = tokens.len
 
-    def clonecursor(self) -> Cursor:
+    def copy(self) -> Cursor:
         return TextLinesCursor(self, self.pos)
 
     @property
