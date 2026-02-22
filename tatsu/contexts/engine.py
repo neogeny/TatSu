@@ -54,15 +54,12 @@ class ChoiceContext:
         self.expected.extend(tokens)
 
     def run(self) -> None:
+        if not self.options:
+            return
         for opt in self.options:
-            try:
-                with self.ctx._option():
-                    opt()
-            except OptionSucceeded:
-                raise
-            except FailedParse:
-                continue
-        raise self.ctx.newexcept("Expected one of: {', '.join(self.expected)}")
+            with self.ctx._option():
+                opt()
+        raise self.ctx.newexcept(f"Expected one of: {', '.join(self.expected)}")
 
 
 class ParseContext:
@@ -653,7 +650,7 @@ class ParseContext:
         ctx = ChoiceContext(self)
         with suppress(OptionSucceeded), self.states.cutscope():
             yield ctx
-            # ctx.run()
+            ctx.run()
 
     @contextmanager
     def _optional(self):

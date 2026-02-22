@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import itertools
-import textwrap
 from collections.abc import Iterator
 from typing import Any
 
@@ -211,40 +210,32 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self.walk(choice.options[0])
             return
 
-        firstset = choice.lookahead_str()
-        if firstset:
-            msglines = textwrap.wrap(firstset, width=40)
-            error = ['expecting one of: ', *msglines]
-        else:
-            error = ['no available options']
-        errors = repr(' '.join(error))
-        raisestr = f'raise self.newexcept({errors}) from None'
-
-        if not self.fitsfmt(errors, 3):
-            errors = '\n'.join(repr(e) for e in error)
-            one_liner = False
-        elif self.fitsfmt(raisestr, 2):
-            one_liner = True
-        else:
-            one_liner = False
-
-        self.print('with self._choice():')
+        self.print('with self._choice() as choice:')
         with self.indent():
             self.walk(choice.options)
-            self.print('if self._no_more_options:')
-            with self.indent():
-                if one_liner:
-                    self.print(raisestr)
-                else:
-                    self.print('raise self.newexcept(')
-                    with self.indent():
-                        self.print(errors)
-                    self.print(') from None')
+
+        elements = [repr(f[0]) for f in choice.lookahead() if f]
+        if not elements:
+            return
+
+        with self.indent():
+            expectstr = f'choice.expecting({', '.join(elements)})'
+            if self.fitsfmt(expectstr, 3):
+                self.print(expectstr)
+            else:
+                self.print('choice.expecting(')
+                with self.indent():
+                    expectinner = ',\n'.join(elements)
+                    self.print(expectinner)
+                self.print(')')
+        self.print()
 
     def walk_Option(self, option: grammars.Option):
-        self.print('with self._option():')
+        self.print('@choice.option')
+        self.print('def _():')
         with self.indent():
             self.walk(option.exp)
+        self.print()
 
     def walk_Optional(self, optional: grammars.Optional):
         self.print('with self._optional():')
