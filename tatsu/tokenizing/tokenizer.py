@@ -74,7 +74,7 @@ class Cursor(Protocol):
 
 class NullCursor(Cursor):
     def clonecursor(self) -> Cursor:
-        return NullCursor()
+        return self
 
     @property
     def tokenizer(self) -> Tokenizer:
