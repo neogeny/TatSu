@@ -10,14 +10,14 @@
 #  the file is generated.
 
 # ruff: noqa: RUF100, C405, COM812, I001, F401, PLR1702, PLC2801, SIM117
-# ruff: noqa: PL2401, PLC2402, PLC2403
+# ruff: noqa: PL2401, PLC2402, PLC2403, E303
 # fmt: off
 
 from __future__ import annotations
 
 from tatsu.buffering import Buffer
 from tatsu.infos import ParserConfig
-from tatsu.parsing import Parser, leftrec, nomemo, isname, generic_main, rule
+from tatsu.parsing import Parser, generic_main, rule
 from tatsu.tokenizing.textlines import TextLinesTokenizer
 
 __all__ = ['TatSuBootstrapTokenizer', 'TatSuBootstrapParser', 'main']
@@ -108,7 +108,6 @@ class TatSuBootstrapParser(Parser):
 
                 choice.expecting('<directive>', '<keyword>')
 
-
         self._closure(block0)
         with self._addname('rules'):
             self._rule_()
@@ -126,7 +125,6 @@ class TatSuBootstrapParser(Parser):
                         self._keyword_()
 
                 choice.expecting('<rule>', '<keyword>')
-
 
         self._closure(block1)
         self._check_eof()
@@ -154,7 +152,6 @@ class TatSuBootstrapParser(Parser):
                                     self._token('eol_comments')
 
                                 choice.expecting('comments', 'eol_comments')
-
                     self._cut()
                     self._token('::')
                     self._cut()
@@ -194,10 +191,10 @@ class TatSuBootstrapParser(Parser):
                                     self._constant('None')
 
                                 choice.expecting(
-                                    '<string>',
-                                    '<regex>',
                                     'None',
-                                    'False'
+                                    '<string>',
+                                    'False',
+                                    '<regex>'
                                 )
 
                     self._define(['name', 'value'], [])
@@ -228,11 +225,11 @@ class TatSuBootstrapParser(Parser):
                                     self._token('memoization')
 
                                 choice.expecting(
+                                    'ignorecase',
+                                    'left_recursion',
                                     'memoization',
                                     'nameguard',
-                                    'parseinfo',
-                                    'ignorecase',
-                                    'left_recursion'
+                                    'parseinfo'
                                 )
 
                     self._cut()
@@ -252,7 +249,6 @@ class TatSuBootstrapParser(Parser):
                                     self._constant(True)
 
                             choice.expecting('::')
-
                     self._define(['name', 'value'], [])
 
                 @choice.option
@@ -280,16 +276,16 @@ class TatSuBootstrapParser(Parser):
                     self._define(['name', 'value'], [])
 
                 choice.expecting(
-                    'whitespace',
                     'namechars',
-                    'comments',
-                    'memoization',
-                    'grammar',
-                    'nameguard',
-                    'parseinfo',
+                    'whitespace',
                     'eol_comments',
                     'ignorecase',
-                    'left_recursion'
+                    'comments',
+                    'left_recursion',
+                    'memoization',
+                    'nameguard',
+                    'parseinfo',
+                    'grammar'
                 )
 
         self._cut()
@@ -322,8 +318,7 @@ class TatSuBootstrapParser(Parser):
                         def _():
                             self._string_()
 
-                        choice.expecting('<string>', '<word>')
-
+                        choice.expecting('<word>', '<string>')
             with self._ifnot():
                 with self._group():
                     with self._choice() as choice:
@@ -335,8 +330,7 @@ class TatSuBootstrapParser(Parser):
                         def _():
                             self._token('=')
 
-                        choice.expecting('=', ':')
-
+                        choice.expecting(':', '=')
 
         self._closure(block0)
 
@@ -363,8 +357,7 @@ class TatSuBootstrapParser(Parser):
                 with self._setname('params'):
                     self._params_()
 
-            choice.expecting('<params>', '<kwparams>')
-
+            choice.expecting('<kwparams>', '<params>')
 
     @rule()
     def _paramdef_(self):
@@ -394,8 +387,7 @@ class TatSuBootstrapParser(Parser):
                         with self._setname('params'):
                             self._params_()
 
-                    choice.expecting('<params>', '<kwparams>')
-
+                    choice.expecting('<kwparams>', '<params>')
                 self._token(']')
                 self._define(['kwparams', 'params'], [])
 
@@ -424,8 +416,7 @@ class TatSuBootstrapParser(Parser):
                         with self._setname('params'):
                             self._params_()
 
-                    choice.expecting('<params>', '<kwparams>')
-
+                    choice.expecting('<kwparams>', '<params>')
                 self._token(')')
                 self._define(['kwparams', 'params'], [])
 
@@ -437,8 +428,7 @@ class TatSuBootstrapParser(Parser):
                     self._params_()
                 self._define(['params'], [])
 
-            choice.expecting('[', '(', '::')
-
+            choice.expecting('[', '::', '(')
 
     @rule('Rule')
     def _rule_(self):
@@ -478,8 +468,7 @@ class TatSuBootstrapParser(Parser):
                             with self._setname('params'):
                                 self._params_()
 
-                        choice.expecting('<params>', '<kwparams>')
-
+                        choice.expecting('<kwparams>', '<params>')
                     self._token(']')
                     self._define(['kwparams', 'params'], [])
 
@@ -508,8 +497,7 @@ class TatSuBootstrapParser(Parser):
                             with self._setname('params'):
                                 self._params_()
 
-                        choice.expecting('<params>', '<kwparams>')
-
+                        choice.expecting('<kwparams>', '<params>')
                     self._token(')')
                     self._define(['kwparams', 'params'], [])
 
@@ -521,8 +509,7 @@ class TatSuBootstrapParser(Parser):
                         self._params_()
                     self._define(['params'], [])
 
-                choice.expecting('[', '(', '::')
-
+                choice.expecting('[', '::', '(')
         with self._optional():
             self._token('<')
             self._cut()
@@ -543,8 +530,7 @@ class TatSuBootstrapParser(Parser):
                 def _():
                     self._token(':')
 
-                choice.expecting('=', ':=', ':')
-
+                choice.expecting(':', ':=', '=')
         self._cut()
         with self._setname('exp'):
             self._expre_()
@@ -575,10 +561,10 @@ class TatSuBootstrapParser(Parser):
                 self._token(';')
 
             choice.expecting(
-                '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
-                ';',
                 '<EMPTYLINE>',
+                ';',
                 '<UNINDENTED>',
+                '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
                 '(?:\\s*(?:\\r?\\n|\\r)){2,}'
             )
 
@@ -612,8 +598,7 @@ class TatSuBootstrapParser(Parser):
                     def _():
                         self._token('nomemo')
 
-                    choice.expecting('name', 'nomemo', 'override')
-
+                    choice.expecting('override', 'name', 'nomemo')
 
     @rule()
     def _params_(self):
@@ -642,17 +627,17 @@ class TatSuBootstrapParser(Parser):
                 self._literal_()
 
             choice.expecting(
-                '(?!\\d)\\w+(?:::(?!\\d)\\w+)+',
-                '<raw_string>',
-                '<null>',
-                '<boolean>',
                 '<word>',
+                '(?!\\d)\\w+(?:::(?!\\d)\\w+)+',
+                '<null>',
                 '<path>',
-                '<float>',
-                '<string>',
                 '<literal>',
+                '<boolean>',
+                '<raw_string>',
                 '<int>',
-                '<hex>'
+                '<string>',
+                '<hex>',
+                '<float>'
             )
 
 
@@ -688,15 +673,15 @@ class TatSuBootstrapParser(Parser):
                 self._sequence_()
 
             choice.expecting(
-                '<option>',
-                ';',
-                '<ENDRULE>',
-                '<EMPTYLINE>',
-                '<element>',
-                '|',
                 '<choice>',
                 '<sequence>',
-                '<UNINDENTED>'
+                '<ENDRULE>',
+                '|',
+                '<element>',
+                '<EMPTYLINE>',
+                ';',
+                '<UNINDENTED>',
+                '<option>'
             )
 
 
@@ -750,17 +735,17 @@ class TatSuBootstrapParser(Parser):
                 self._positive_closure(block2)
 
             choice.expecting(
-                '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
-                '<rule_include>',
-                ';',
-                '<ENDRULE>',
-                '<EMPTYLINE>',
-                '<override>',
-                '<element>',
-                '<UNINDENTED>',
-                '(?:\\s*(?:\\r?\\n|\\r)){2,}',
                 '<named>',
-                '<term>'
+                '<ENDRULE>',
+                '<term>',
+                '<rule_include>',
+                '<element>',
+                '<EMPTYLINE>',
+                ';',
+                '<override>',
+                '<UNINDENTED>',
+                '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
+                '(?:\\s*(?:\\r?\\n|\\r)){2,}'
             )
 
 
@@ -784,31 +769,31 @@ class TatSuBootstrapParser(Parser):
                 self._term_()
 
             choice.expecting(
-                '<override_single>',
-                '<right_join>',
-                '<rule_include>',
-                '<empty_closure>',
-                '<closure>',
-                '<join>',
-                '<named>',
-                '>',
-                '<negative_lookahead>',
                 '<left_join>',
-                '<void>',
-                '<skip_to>',
-                '<optional>',
-                '<gather>',
-                '<override_list>',
-                '<named_single>',
                 '<cut>',
+                '<override_single>',
+                '<rule_include>',
+                '<named_list>',
+                '<named_single>',
+                '<join>',
+                '<gather>',
+                '<closure>',
                 '<cut_deprecated>',
-                '<atom>',
+                '<negative_lookahead>',
                 '<lookahead>',
                 '<override>',
+                '<named>',
+                '<optional>',
+                '<skip_to>',
+                '<empty_closure>',
+                '<override_list>',
+                '<term>',
+                '<void>',
                 '<override_single_deprecated>',
-                '<positive_closure>',
-                '<named_list>',
-                '<term>'
+                '<right_join>',
+                '<atom>',
+                '>',
+                '<positive_closure>'
             )
 
 
@@ -830,8 +815,7 @@ class TatSuBootstrapParser(Parser):
             def _():
                 self._named_single_()
 
-            choice.expecting('<name>', '<named_list>', '<named_single>')
-
+            choice.expecting('<named_single>', '<named_list>', '<name>')
 
     @rule('NamedList')
     def _named_list_(self):
@@ -869,12 +853,12 @@ class TatSuBootstrapParser(Parser):
                 self._override_single_deprecated_()
 
             choice.expecting(
-                '<override_list>',
+                '@:',
                 '<override_single>',
                 '@',
-                '<override_single_deprecated>',
-                '@:',
-                '@+:'
+                '<override_list>',
+                '@+:',
+                '<override_single_deprecated>'
             )
 
 
@@ -963,39 +947,39 @@ class TatSuBootstrapParser(Parser):
                 self._atom_()
 
             choice.expecting(
-                '()',
-                '<right_join>',
-                '<dot>',
-                '&',
-                '<empty_closure>',
-                '<closure>',
-                '~',
-                '<join>',
-                '<alert>',
-                '<constant>',
-                '<pattern>',
-                '<negative_lookahead>',
                 '<left_join>',
+                '<cut>',
+                '<join>',
+                '<gather>',
+                '{}',
+                '<closure>',
+                '<cut_deprecated>',
+                '&',
+                '>>',
+                '<negative_lookahead>',
+                '<group>',
+                '<alert>',
+                '<eof>',
+                '<lookahead>',
+                '->',
+                '{',
+                '<optional>',
+                '(',
+                '<skip_to>',
+                '<empty_closure>',
                 '!',
                 '<void>',
-                '<skip_to>',
-                '{}',
-                '<optional>',
-                '<gather>',
-                '[',
-                '<group>',
+                '<dot>',
                 '<token>',
-                '(',
-                '->',
-                '>>',
-                '<cut>',
-                '<cut_deprecated>',
-                '<atom>',
-                '<lookahead>',
+                '<pattern>',
+                '<right_join>',
                 '<call>',
+                '~',
+                '<atom>',
+                '<constant>',
                 '<positive_closure>',
-                '{',
-                '<eof>'
+                '()',
+                '['
             )
 
 
@@ -1025,8 +1009,7 @@ class TatSuBootstrapParser(Parser):
                 def _():
                     self._normal_gather_()
 
-                choice.expecting('<positive_gather>', '<normal_gather>')
-
+                choice.expecting('<normal_gather>', '<positive_gather>')
 
     @rule('PositiveGather')
     def _positive_gather_(self):
@@ -1047,7 +1030,6 @@ class TatSuBootstrapParser(Parser):
                     self._token('-')
 
                 choice.expecting('-', '+')
-
         self._cut()
         self._define(['exp', 'sep'], [])
 
@@ -1085,7 +1067,6 @@ class TatSuBootstrapParser(Parser):
 
                 choice.expecting('<normal_join>', '<positive_join>')
 
-
     @rule('PositiveJoin')
     def _positive_join_(self):
         with self._setname('sep'):
@@ -1105,7 +1086,6 @@ class TatSuBootstrapParser(Parser):
                     self._token('-')
 
                 choice.expecting('-', '+')
-
         self._cut()
         self._define(['exp', 'sep'], [])
 
@@ -1144,7 +1124,6 @@ class TatSuBootstrapParser(Parser):
                     self._token('-')
 
                 choice.expecting('-', '+')
-
         self._cut()
         self._define(['exp', 'sep'], [])
 
@@ -1168,7 +1147,6 @@ class TatSuBootstrapParser(Parser):
                     self._token('-')
 
                 choice.expecting('-', '+')
-
         self._cut()
         self._define(['exp', 'sep'], [])
 
@@ -1192,7 +1170,6 @@ class TatSuBootstrapParser(Parser):
                             self._token('+')
 
                         choice.expecting('-', '+')
-
                 self._cut()
 
             @choice.option
@@ -1203,17 +1180,17 @@ class TatSuBootstrapParser(Parser):
                 self._cut()
 
             choice.expecting(
-                '<constant>',
-                '<pattern>',
                 '<group>',
+                '<atom>',
+                '<alert>',
+                '<eof>',
+                '{',
                 '<dot>',
                 '<token>',
-                '<atom>',
+                '<constant>',
+                '<pattern>',
                 '<call>',
-                '{',
-                '(',
-                '<eof>',
-                '<alert>'
+                '('
             )
 
 
@@ -1238,17 +1215,17 @@ class TatSuBootstrapParser(Parser):
                 self._cut()
 
             choice.expecting(
-                '<constant>',
-                '<pattern>',
                 '<group>',
+                '<atom>',
+                '<alert>',
+                '<eof>',
+                '{',
                 '<dot>',
                 '<token>',
-                '<atom>',
+                '<constant>',
+                '<pattern>',
                 '<call>',
-                '{',
-                '(',
-                '<eof>',
-                '<alert>'
+                '('
             )
 
 
@@ -1291,22 +1268,21 @@ class TatSuBootstrapParser(Parser):
                                 self._token('?/')
 
                             choice.expecting('?"', '?/', "?'")
-
                 self._token('?')
                 self._cut()
 
             choice.expecting(
-                '[',
-                '<constant>',
-                '<pattern>',
                 '<group>',
+                '<atom>',
+                '<alert>',
+                '<eof>',
                 '<dot>',
                 '<token>',
-                '<atom>',
+                '<constant>',
+                '<pattern>',
+                '[',
                 '<call>',
-                '(',
-                '<eof>',
-                '<alert>'
+                '('
             )
 
 
@@ -1367,23 +1343,23 @@ class TatSuBootstrapParser(Parser):
                 self._eof_()
 
             choice.expecting(
-                '<constant>',
-                '<alert>',
-                '/./',
-                '`',
-                '\\^+',
-                '<pattern>',
-                '<regexes>',
-                '<group>',
-                '<dot>',
-                '<raw_string>',
-                '<token>',
                 '<word>',
-                '<string>',
-                '<call>',
-                '(',
+                '<group>',
+                '/./',
+                '<alert>',
+                '<regexes>',
                 '<eof>',
-                '$'
+                '$',
+                '<raw_string>',
+                '<dot>',
+                '<token>',
+                '`',
+                '<constant>',
+                '<string>',
+                '<pattern>',
+                '\\^+',
+                '<call>',
+                '('
             )
 
 
@@ -1441,8 +1417,7 @@ class TatSuBootstrapParser(Parser):
                 def _():
                     self._pattern(r'`(.*?)`')
 
-                choice.expecting('(?ms)```((?:.|\\n)*?)```', '`', '`(.*?)`')
-
+                choice.expecting('`', '`(.*?)`', '(?ms)```((?:.|\\n)*?)```')
 
     @rule('Alert')
     def _alert_(self):
@@ -1463,8 +1438,7 @@ class TatSuBootstrapParser(Parser):
             def _():
                 self._raw_string_()
 
-            choice.expecting('<string>', '<raw_string>', '<STRING>', 'r')
-
+            choice.expecting('<raw_string>', '<string>', '<STRING>', 'r')
 
     @rule()
     def _literal_(self):
@@ -1502,23 +1476,23 @@ class TatSuBootstrapParser(Parser):
                 self._null_()
 
             choice.expecting(
-                '(?!\\d)\\w+',
-                '[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?',
-                '<STRING>',
-                'r',
-                'True',
-                '<raw_string>',
-                '<boolean>',
-                '<null>',
                 '<word>',
-                '<float>',
-                '<string>',
+                '<null>',
                 '[-+]?\\d+',
-                '<int>',
-                '0[xX](?:\\d|[a-fA-F])+',
-                '<hex>',
                 'None',
-                'False'
+                '<boolean>',
+                '<raw_string>',
+                '[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?',
+                '<int>',
+                '(?!\\d)\\w+',
+                '0[xX](?:\\d|[a-fA-F])+',
+                '<string>',
+                'False',
+                'r',
+                '<hex>',
+                'True',
+                '<STRING>',
+                '<float>'
             )
 
 
@@ -1614,8 +1588,7 @@ class TatSuBootstrapParser(Parser):
             def _():
                 self._deprecated_regex_()
 
-            choice.expecting('?', '/', '?/', '<deprecated_regex>')
-
+            choice.expecting('?', '/', '<deprecated_regex>', '?/')
 
     @rule()
     def _deprecated_regex_(self):
@@ -1638,7 +1611,6 @@ class TatSuBootstrapParser(Parser):
                 self._token('False')
 
             choice.expecting('True', 'False')
-
 
     @rule()
     def _null_(self):
