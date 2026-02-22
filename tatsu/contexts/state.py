@@ -8,7 +8,7 @@ from copy import copy
 from typing import Any
 
 from ..ast import AST
-from ..infos import Alert
+from ..infos import Alert, RuleInfo
 
 __all__ = ['ParseState', 'ParseStateStack']
 
@@ -60,6 +60,7 @@ class ParseStateStack:
     def __init__(self, cursor: Cursor) -> None:
         self._state_stack: list[ParseState] = [ParseState(cursor)]
         self._cut_stack: list[bool] = [False]
+        self._ruleinfo_stack: list[RuleInfo] = []
 
     def copy(self):
         return copy(self)
@@ -210,10 +211,15 @@ class ParseStateStack:
         finally:
             self.pop_cut()
 
+    @property
+    def ruleinfo_stack(self) -> list[RuleInfo]:
+        return self._ruleinfo_stack
+
     def __copy__(self) -> ParseStateStack:
         new = self.__class__.__new__(self.__class__)
 
         new._state_stack = self._state_stack[:]
         new._cut_stack = self._cut_stack[:]
+        new._ruleinfo_stack = self._ruleinfo_stack[:]
 
         return new

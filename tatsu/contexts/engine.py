@@ -88,8 +88,6 @@ class ParseContext:
         self.update_tracer()
 
     def _initialize_caches(self) -> None:
-        self._ruleinfo_stack: list[RuleInfo] = []
-
         self.substate: Any = None
         self._lookahead: int = 0
         self._furthest_exception: FailedParse | None = None
@@ -174,10 +172,14 @@ class ParseContext:
     def cst(self, value: Any) -> None:
         self.state.cst = value
 
+    @property
+    def ruleinfo_stack(self) -> list[RuleInfo]:
+        return self.states.ruleinfo_stack
+
     def update_tracer(self) -> EventTracer:
         tracer = EventTracerImpl(
             self.cursor,
-            self._ruleinfo_stack,
+            self.ruleinfo_stack,
             config=self.config,
         )
         self._tracer = tracer
@@ -340,7 +342,7 @@ class ParseContext:
         if issubclass(exclass, FailedLeftRecursion):
             rulestack: list[str] = []
         else:
-            rulestack = [r.name for r in reversed(self._ruleinfo_stack)]
+            rulestack = [r.name for r in reversed(self.ruleinfo_stack)]
         return exclass(self.cursor.lineinfo(), rulestack, item)
 
     # bw compatibility
@@ -379,7 +381,7 @@ class ParseContext:
 
     @property
     def ruleinfo(self) -> RuleInfo:
-        return self._ruleinfo_stack[-1]
+        return self.ruleinfo_stack[-1]
 
     def memokey(self) -> MemoKey:
         return MemoKey(self.pos, self.ruleinfo, self.substate)
@@ -405,7 +407,8 @@ class ParseContext:
         self._memoize(key, ex)
 
     def _call(self, ruleinfo: RuleInfo) -> Any:
-        self._ruleinfo_stack += [ruleinfo]
+        ristack = self.ruleinfo_stack
+        ristack += [ruleinfo]
         pos = self.pos
         try:
             self.tracer.trace_entry()
@@ -426,7 +429,7 @@ class ParseContext:
             self.tracer.trace_failure(e)
             raise
         finally:
-            self._ruleinfo_stack.pop()
+            ristack.pop()
 
     def _clear_recursion_errors(self) -> None:
         def filter_func(_key: MemoKey, value: Any) -> bool:
@@ -435,7 +438,7 @@ class ParseContext:
         prune_dict(self._memos, filter_func)
 
     def _found_left_recursion(self, ruleinfo: RuleInfo) -> bool:
-        return any(ri.name == ruleinfo.name for ri in self._ruleinfo_stack)
+        return any(ri.name == ruleinfo.name for ri in self.ruleinfo_stack)
 
     def _recursive_call(self, ruleinfo: RuleInfo) -> RuleResult:
         self.next_token(ruleinfo)
