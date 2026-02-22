@@ -48,11 +48,11 @@ class TextLinesCursor(Cursor):
 
     @property
     def line(self) -> int:
-        return self.tokens.posline(self.pos)
+        return self.tokens.posline_at(self.pos)
 
     @property
     def col(self) -> int:
-        return self.tokens.poscol(self.pos)
+        return self.tokens.poscol_at(self.pos)
 
     @property
     def text(self) -> str:
@@ -94,36 +94,36 @@ class TextLinesCursor(Cursor):
         return c
 
     def next_token(self) -> None:
-        self.tokens.next_token(self)
+        self.tokens.next_token_at(self)
 
     def match(self, token: str) -> str | None:
-        return self.tokens.match(self, token)
+        return self.tokens.match_at(token, self)
 
     def matchre(self, pattern: str) -> str | None:
-        return self.tokens.matchre(self, pattern)
+        return self.tokens.matchre_at(pattern, self)
 
     def lineinfo(self, pos: int | None = None) -> LineInfo:
         if pos is None:
             pos = self.pos
-        return self.tokens.lineinfo(pos)
+        return self.tokens.lineinfo_at(pos)
 
     def lookahead_pos(self) -> str:
         if self.atend():
             return ''
-        info = self.tokens.lineinfo(self._pos)
+        info = self.tokens.lineinfo_at(self.pos)
         return '@%d:%d' % (info.line + 1, info.col + 1)
 
     def lookahead(self) -> str:
         if self.atend():
             return ''
-        info = self.tokens.lineinfo(self._pos)
+        info = self.tokens.lineinfo_at(self.pos)
         text = info.text[info.col: info.col + 1 + 80]
         return self.tokens.split_block_lines(text)[0].rstrip()
 
     def posline(self, pos: int | None = None) -> int:
         if pos is None:
             pos = self.pos
-        return self.tokens.posline(pos)
+        return self.tokens.posline_at(pos)
 
     def get_line(self, n: int | None = None) -> str:
         if n is None:
@@ -137,12 +137,8 @@ class TextLinesCursor(Cursor):
         ) -> list[str]:
         return self.tokens.get_lines(start, end)
 
-    def line_index(
-        self,
-        start: int = 0,
-        end: int | None = None,
-        ) -> list[LineIndexInfo]:
-        return self.tokens.line_index(start, end)
+    def line_index(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
+        return self.tokens.line_index_at(start, end)
 
     def __len__(self) -> int:
         return self.len
@@ -186,7 +182,6 @@ class TextLinesTokenizer(Tokenizer):
         self._postprocess()
 
     def newcursor(self, pos: int = 0) -> Cursor:
-        """Factory method to create a cursor for this buffer."""
         return TextLinesCursor(self, pos)
 
     @property
@@ -250,50 +245,51 @@ class TextLinesTokenizer(Tokenizer):
         ):
         return lines, index
 
-    # Mapping methods that now take a Cursor instead of using self._pos
-    def posline(self, pos: int) -> int:
+    def posline_at(self, pos: int) -> int:
         return self._line_cache[pos].line
 
-    def poscol(self, pos: int) -> int:
+    def poscol_at(self, pos: int) -> int:
         start = self._line_cache[pos].start
         return pos - start
 
-    def eat_whitespace(self, cursor: Cursor) -> None:
-        if self.whitespace_re:
-            self._eat_regex(cursor, self.whitespace_re)
-
-    def _eat_regex(self, cursor: Cursor, regex: str | re.Pattern) -> None:
+    def _eat_regex(self, regex: str | re.Pattern | None, c: Cursor) -> None:
         if not regex:
             return
-        while self._matchre_fast(cursor, regex):
+        while self._matchre_fast(regex, c):
             pass
 
-    def next_token(self, cursor: Cursor) -> None:
-        p = -1
-        while cursor.pos != p:
-            p = cursor.pos
-            self._eat_regex_list(cursor, self.config.eol_comments)
-            self._eat_regex_list(cursor, self.config.comments)
-            self.eat_whitespace(cursor)
+    def eat_whitespace_at(self, c: Cursor) -> None:
+        if self.whitespace_re:
+            self._eat_regex(self.whitespace_re, c)
 
-    def _eat_regex_list(
-        self,
-        cursor: Cursor,
-        regex: str | re.Pattern | None,
-        ) -> list[str]:
+    def eat_comments_at(self, c: Cursor) -> None:
+        self._eat_regex(self.config.comments, c)
+
+    def eat_eol_comments_at(self, c: Cursor) -> None:
+        return self._eat_regex(self.config.eol_comments, c)
+
+    def next_token_at(self, c: Cursor) -> None:
+        p = None
+        while c.pos != p:
+            p = c.pos
+            self.eat_eol_comments_at(c)
+            self.eat_comments_at(c)
+            self.eat_whitespace_at(c)
+
+    def _eat_regex_list(self, regex: str | re.Pattern | None, c: Cursor) -> list[str]:
         if not (r := cached_re_compile(regex)):
             return []
 
         found = []
-        while x := self.matchre(cursor, r):
+        while x := self.matchre_at(r, c):
             found.append(x)
         return found
 
-    def match(self, cursor: Cursor, token: str) -> str | None:
+    def match_at(self, token: str, c: Cursor) -> str | None:
         if token is None:
             return None
 
-        p = cursor.pos
+        p = c.pos
         text = self.text[p: p + len(token)]
 
         if self.ignorecase:
@@ -304,40 +300,36 @@ class TextLinesTokenizer(Tokenizer):
         if not is_match:
             return None
 
-        cursor.move(len(token))
+        c.move(len(token))
         partial_match = (
-            self.nameguard and self.is_name_char(cursor.current) and self.is_name(token)
+            self.nameguard and self.is_name_char(c.current) and self.is_name(token)
         )
         if partial_match:
-            cursor.goto(p)
+            c.goto(p)
             return None
 
         return token
 
-    def _matchre_fast(self, cursor: Cursor, pattern: str | re.Pattern | None) -> bool:
-        if not (match := self._scanre(cursor, pattern)):
+    def _matchre_fast(self, pattern: str | re.Pattern | None, c: Cursor) -> bool:
+        if not (match := self._scanre(pattern, c)):
             return False
-        cursor.move(len(match.group()))
+        c.move(len(match.group()))
         return True
 
-    def matchre(self, cursor: Cursor, pattern: str | re.Pattern) -> str | None:
-        if not (match := self._scanre(cursor, pattern)):
+    def matchre_at(self, pattern: str | re.Pattern, c: Cursor) -> str | None:
+        if not (match := self._scanre(pattern, c)):
             return None
         matched = match.group()
         token = str_from_match(match)
-        cursor.move(len(matched))
+        c.move(len(matched))
         return token
 
-    def _scanre(
-        self,
-        cursor: Cursor,
-        pattern: str | re.Pattern | None,
-        ) -> re.Match[Any] | None:
+    def _scanre(self, pattern: str | re.Pattern | None, c: Cursor) -> re.Match[Any] | None:
         if not (cre := cached_re_compile(pattern)):
             return None
-        return cre.match(self.text, cursor.pos)
+        return cre.match(self.text, c.pos)
 
-    def lineinfo(self, pos: int) -> LineInfo:
+    def lineinfo_at(self, pos: int) -> LineInfo:
         if not self._line_cache or not self._line_index:
             return LineInfo(self.filename, 0, 0, 0, self._len, self.text)
 
@@ -360,6 +352,11 @@ class TextLinesTokenizer(Tokenizer):
         if end is None:
             end = len(self._lines)
         return self._lines[start: end + 1]
+
+    def line_index_at(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
+        if end is None:
+            end = len(self._line_index)
+        return self._line_index[start: 1 + end]
 
     def is_name_char(self, c: str | None) -> bool:
         return c is not None and (c.isalnum() or c in self._namechar_set)

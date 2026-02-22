@@ -2,16 +2,10 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import re
 from typing import Protocol, runtime_checkable
 
 from tatsu.tokenizing import LineIndexInfo, LineInfo
-
-
-@runtime_checkable
-class Tokenizer(Protocol):
-    def __init__(self, *args, **kwargs): ...
-
-    def newcursor(self) -> Cursor: ...
 
 
 @runtime_checkable
@@ -34,6 +28,8 @@ class Cursor(Protocol):
     def line(self) -> int: ...
 
     def goto(self, pos) -> None: ...
+
+    def move(self, n: int) -> None: ...
 
     def atend(self) -> bool: ...
 
@@ -77,14 +73,6 @@ class Cursor(Protocol):
     def lookahead_pos(self) -> str: ...
 
 
-class NullTokenizer(Tokenizer):
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def newcursor(self) -> Cursor:
-        return NullCursor()
-
-
 class NullCursor(Cursor):
     def clonecursor(self) -> Cursor:
         return NullCursor()
@@ -114,6 +102,9 @@ class NullCursor(Cursor):
         return 0
 
     def goto(self, pos) -> None:
+        return
+
+    def move(self, n: int) -> None:
         return
 
     def atend(self) -> bool:
@@ -162,3 +153,69 @@ class NullCursor(Cursor):
 
     def lookahead_pos(self) -> str:
         return ''
+
+
+@runtime_checkable
+class Tokenizer(Protocol):
+    def __init__(self, *args, **kwargs) -> None:
+        return
+
+    def newcursor(self) -> Cursor: ...
+
+    def eat_whitespace_at(self, c: Cursor) -> None: ...
+
+    def eat_comments_at(self, c: Cursor) -> None: ...
+
+    def eat_eol_comments_at(self, c: Cursor) -> None: ...
+
+    def next_token_at(self, c: Cursor) -> None: ...
+
+    def match_at(self, token: str, c: Cursor) -> str | None: ...
+
+    def matchre_at(self, pattern: str | re.Pattern, c: Cursor) -> str | None: ...
+
+    def posline_at(self, pos: int) -> int: ...
+
+    def poscol_at(self, pos: int) -> int: ...
+
+    def lineinfo_at(self, pos: int) -> LineInfo: ...
+
+    def line_index_at(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]: ...
+
+
+class NullTokenizer(Tokenizer):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def newcursor(self) -> Cursor:
+        return NullCursor()
+
+    def eat_whitespace_at(self, c: Cursor) -> None:
+        return
+
+    def eat_comments_at(self, c: Cursor) -> None:
+        return
+
+    def eat_eol_comments_at(self, c: Cursor) -> None:
+        return
+
+    def next_token_at(self, c: Cursor) -> None:
+        return
+
+    def match_at(self, token: str, c: Cursor) -> str | None:
+        return
+
+    def matchre_at(self, pattern: str | re.Pattern, c: Cursor) -> str | None:
+        return
+
+    def posline_at(self, pos: int) -> int:
+        return 0
+
+    def poscol_at(self, pos: int) -> int:
+        return 0
+
+    def lineinfo_at(self, pos: int) -> LineInfo:
+        return LineInfo('', 0, 0, 0, 0, '')
+
+    def line_index_at(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
+        return []
