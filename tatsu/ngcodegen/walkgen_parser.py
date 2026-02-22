@@ -29,6 +29,7 @@ HEADER = """\
 
     # ruff: noqa: RUF100, C405, COM812, I001, F401, PLR1702, PLC2801, SIM117
     # ruff: noqa: PL2401, PLC2402, PLC2403
+    # E303
     # fmt: off
 
     from __future__ import annotations
@@ -228,7 +229,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                     expectinner = ',\n'.join(elements)
                     self.print(expectinner)
                 self.print(')')
-        self.print()
+                self.print()
 
     def walk_Option(self, option: grammars.Option):
         self.print('@choice.option')
