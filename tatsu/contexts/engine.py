@@ -40,6 +40,31 @@ from ..util.undefined import Undefined
 __all__: list[str] = ['ParseContext']
 
 
+class ChoiceContext:
+    def __init__(self, ctx: ParseContext):
+        self.ctx = ctx
+        self.options: list[Callable[[], None]] = []
+        self.expected: list[str] = []
+
+    def option(self, func: Callable[[], None]) -> Callable[[], None]:
+        self.options.append(func)
+        return func
+
+    def expecting(self, *tokens: str) -> None:
+        self.expected.extend(tokens)
+
+    def run(self) -> None:
+        for opt in self.options:
+            try:
+                with self.ctx._option():
+                    opt()
+            except OptionSucceeded:
+                raise
+            except FailedParse:
+                continue
+        raise self.ctx.newexcept("Expected one of: {', '.join(self.expected)}")
+
+
 class ParseContext:
     def __init__(
         self,
@@ -625,8 +650,10 @@ class ParseContext:
 
     @contextmanager
     def _choice(self):
+        ctx = ChoiceContext(self)
         with suppress(OptionSucceeded), self.states.cutscope():
-            yield
+            yield ctx
+            # ctx.run()
 
     @contextmanager
     def _optional(self):
