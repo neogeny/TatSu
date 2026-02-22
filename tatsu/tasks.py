@@ -13,7 +13,7 @@ from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImpor
     Result,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     Task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
-    )
+)
 
 __copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'
 __license__: str = 'BSD-4-Clause'
@@ -98,7 +98,7 @@ def begin(c: Context):
 @task(pre=[begin])
 def clean(c: Context, plus: bool = False):
     print('-> clean')
-    patterns = ['build', 'dist', 'tmp', 'tatsu.egg-info', '.tox']
+    patterns = ['build', 'dist', 'tatsu.egg-info', '.tox']
     if plus:
         patterns.extend(['.cache', '.pytest_cache', '.ruff_cache', '.mypy_cache'])
 
