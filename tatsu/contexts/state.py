@@ -22,14 +22,14 @@ class ParseState:
 
     def __init__(self, cursor: Cursor, pos: int = 0, ast: Any = None, cst: Any = None):
         assert isinstance(cursor, Cursor), f'{type(cursor)} != NullCursor'
-        self.cursor: Cursor = cursor.copy()
+        self.cursor: Cursor = cursor.clone()
         self.cursor.goto(pos)
         self.ast: Any = ast or AST()
         self.cst: Any = cst
         self.last_node: Any = None
         self.alerts: list[Alert] = []
 
-    def copy(self):
+    def clone(self):
         return copy(self)
 
     @property
@@ -62,7 +62,7 @@ class ParseStateStack:
         self._cut_stack: list[bool] = [False]
         self._ruleinfo_stack: list[RuleInfo] = []
 
-    def copy(self):
+    def clone(self):
         return copy(self)
 
     @property
@@ -137,11 +137,9 @@ class ParseStateStack:
         return self.top.alerts[-1]
 
     @staticmethod
-    def copy_node(node: Any) -> Any:
-        if node is None:
-            return None
-        elif is_list(node):
-            return node[:]
+    def safelist(node: Any) -> Any:
+        if is_list(node):
+            return type(node)(node)
         else:
             return node
 
@@ -149,7 +147,7 @@ class ParseStateStack:
         self.last_node = node
         previous = self.cst
         if previous is None:
-            self.cst = self.copy_node(node)
+            self.cst = self.safelist(node)
         elif is_list(previous):
             previous.append(node)
         else:
@@ -162,7 +160,7 @@ class ParseStateStack:
             return None
         previous = self.cst
         if previous is None:
-            self.cst = self.copy_node(node)
+            self.cst = self.safelist(node)
         elif is_list(node):
             if is_list(previous):
                 previous.extend(node)

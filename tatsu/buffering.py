@@ -36,7 +36,7 @@ class BufferCursor(Cursor):
         self._pos = pos
         self._len = buffer.len
 
-    def copy(self) -> Cursor:
+    def clone(self) -> Cursor:
         return BufferCursor(self.buffer, pos=self.pos)
 
     @contextmanager
