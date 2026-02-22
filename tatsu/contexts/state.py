@@ -12,18 +12,18 @@ from ..infos import Alert
 
 __all__ = ['ParseState', 'ParseStateStack']
 
-from ..tokenizing import Cursor, NullCursor
+from ..tokenizing import Cursor
 
 from ..util.abctools import is_list
 
 
 class ParseState:
-    __slots__ = ('_pos', 'alerts', 'ast', 'cst', 'cursor', 'last_node',)
+    __slots__ = ('alerts', 'ast', 'cst', 'cursor', 'last_node',)
 
     def __init__(self, cursor: Cursor, pos: int = 0, ast: Any = None, cst: Any = None):
         assert isinstance(cursor, Cursor), f'{type(cursor)} != NullCursor'
         self.cursor: Cursor = cursor.copy()
-        self._pos: int = pos
+        self.cursor.goto(pos)
         self.ast: Any = ast or AST()
         self.cst: Any = cst
         self.last_node: Any = None
@@ -31,14 +31,10 @@ class ParseState:
 
     @property
     def pos(self) -> int:
-        assert not isinstance(self.cursor, NullCursor)
-        # return self.cursor.pos
-        return self._pos
+        return self.cursor.pos
 
     def goto(self, pos: int) -> None:
-        assert not isinstance(self.cursor, NullCursor), f'{type(self.cursor)} != NullCursor'
-        # self.cursor.goto(pos)
-        self._pos = pos
+        self.cursor.goto(pos)
 
     @property
     def node(self) -> Any:
