@@ -126,7 +126,7 @@ class ParseContext:
 
     @property
     def cursor(self) -> Cursor:
-        return self._cursor
+        return self.state.cursor
 
     @property
     def tokenizercls(self) -> type[Tokenizer]:
@@ -290,14 +290,13 @@ class ParseContext:
         self.states.push(pos=self.pos, ast=ast)
 
     def popstate(self) -> ParseState:
-        return self.states.pop()
+        return self.states.pop(self.pos)
 
     def mergestate(self) -> ParseState:
-        return self.states.merge()
+        return self.states.merge(pos=self.pos)
 
     def undostate(self) -> None:
         self.states.pop()
-        self.cursor.goto(self.state.pos)
 
     def _cut(self) -> None:
         self.states.set_cut_seen()

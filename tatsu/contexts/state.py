@@ -29,6 +29,9 @@ class ParseState:
         self.last_node: Any = None
         self.alerts: list[Alert] = []
 
+    def copy(self):
+        return copy(self)
+
     @property
     def pos(self) -> int:
         return self.cursor.pos
@@ -47,11 +50,19 @@ class ParseState:
         else:
             return ast
 
+    def __copy__(self) -> ParseState:
+        new = ParseState(self.cursor, pos=self.pos, ast=self.ast, cst=self.cst)
+        new.alerts = self.alerts[:]
+        return new
+
 
 class ParseStateStack:
     def __init__(self, cursor: Cursor) -> None:
         self._state_stack: list[ParseState] = [ParseState(cursor)]
         self._cut_stack: list[bool] = [False]
+
+    def copy(self):
+        return copy(self)
 
     @property
     def top(self) -> ParseState:
@@ -97,22 +108,27 @@ class ParseStateStack:
     def node(self) -> Any:
         return self.top.node
 
-    def pop(self) -> ParseState:
-        return self._state_stack.pop()
+    def pop(self, pos: int | None = None) -> ParseState:
+        prev = self._state_stack.pop()
+        if pos is not None:
+            self.state.goto(pos)
+        return prev
 
     def push(self, pos: int, ast: Any = None, cst: Any = None) -> ParseState:
         ast = copy(self.ast) if ast is None else ast
         self.state.goto(pos)
 
         newstate = ParseState(self.cursor, pos=pos, ast=ast, cst=cst)
+        newstate.goto(pos)
         self._state_stack.append(newstate)
 
         return self.top
 
-    def merge(self) -> ParseState:
+    def merge(self, pos: int) -> ParseState:
         prev = self.pop()
         self.ast = prev.ast
         self.extend(prev.cst)
+        self.state.goto(pos)
         return prev
 
     def alert(self, level: int = 1, message: str = '') -> Alert:
@@ -193,3 +209,11 @@ class ParseStateStack:
             yield
         finally:
             self.pop_cut()
+
+    def __copy__(self) -> ParseStateStack:
+        new = self.__class__.__new__(self.__class__)
+
+        new._state_stack = self._state_stack[:]
+        new._cut_stack = self._cut_stack[:]
+
+        return new
