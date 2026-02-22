@@ -5,20 +5,23 @@ from __future__ import annotations
 from collections.abc import Iterable
 from contextlib import contextmanager
 from copy import copy
-from typing import Any, Self
+from typing import Any
 
 from ..ast import AST
 from ..infos import Alert
 
 __all__ = ['ParseState', 'ParseStateStack']
 
+from ..tokenizing import Cursor
+
 from ..util.abctools import is_list
 
 
 class ParseState:
-    __slots__ = ('alerts', 'ast', 'cst', 'last_node', 'pos')
+    __slots__ = ('alerts', 'ast', 'cst', 'cursor', 'last_node', 'pos')
 
-    def __init__(self, pos: int = 0, ast: Any = None, cst: Any = None):
+    def __init__(self, cursor: Cursor, pos: int = 0, ast: Any = None, cst: Any = None):
+        self.cursor: Cursor = cursor.clonecursor()
         self.pos: int = pos
         self.ast: Any = ast or AST()
         self.cst: Any = cst
@@ -38,8 +41,8 @@ class ParseState:
 
 
 class ParseStateStack:
-    def __init__(self: Self) -> None:
-        self._state_stack: list[ParseState] = [ParseState()]
+    def __init__(self, cursor: Cursor) -> None:
+        self._state_stack: list[ParseState] = [ParseState(cursor)]
         self._cut_stack: list[bool] = [False]
 
     @property
@@ -63,9 +66,12 @@ class ParseStateStack:
         return self.top.cst
 
     @cst.setter
-    def cst(self, value: Any) -> Any:
+    def cst(self, value: Any):
         self.top.cst = value
-        return self.cst
+
+    @property
+    def cursor(self) -> Cursor:
+        return self.top.cursor
 
     @property
     def pos(self) -> int:
@@ -90,7 +96,7 @@ class ParseStateStack:
         ast = copy(self.ast) if ast is None else ast
         self.state.pos = pos
 
-        newstate = ParseState(pos=pos, ast=ast, cst=cst)
+        newstate = ParseState(self.cursor, pos=pos, ast=ast, cst=cst)
         self._state_stack.append(newstate)
 
         return self.top
@@ -169,7 +175,7 @@ class ParseStateStack:
     def pop_cut(self) -> bool:
         return self._cut_stack.pop()
 
-    def set_cut_seen(self, prune: bool = True) -> None:
+    def set_cut_seen(self) -> None:
         self._cut_stack[-1] = True
 
     @contextmanager

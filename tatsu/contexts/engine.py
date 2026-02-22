@@ -65,7 +65,7 @@ class ParseContext:
         self.update_tracer()
 
     def _initialize_caches(self) -> None:
-        self._states = ParseStateStack()
+        self._states = ParseStateStack(cursor=self.tokenizer.newcursor())
         self._ruleinfo_stack: list[RuleInfo] = []
 
         self.substate: Any = None
@@ -203,7 +203,7 @@ class ParseContext:
             else:
                 raise ParseError('No tokenizer or text')
             self._tokenizer = tokenizer
-            self._cursor = tokenizer.newcursor()
+            self._cursor = self._tokenizer.newcursor()
 
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
                 self.config.semantics.set_context(self)
@@ -404,7 +404,7 @@ class ParseContext:
             self._ruleinfo_stack.pop()
 
     def _clear_recursion_errors(self) -> None:
-        def filter_func(key: MemoKey, value: Any) -> bool:
+        def filter_func(_key: MemoKey, value: Any) -> bool:
             return isinstance(value, FailedLeftRecursion)
 
         prune_dict(self._memos, filter_func)
@@ -672,7 +672,7 @@ class ParseContext:
         yield
         self.addname(name)
 
-    def _isolate(self, block: Callable[[], Any], drop: bool = False) -> Any:
+    def _isolate(self, block: Callable[[], Any], _drop: bool = False) -> Any:
         self.pushstate()
         try:
             block()
@@ -694,7 +694,7 @@ class ParseContext:
                     p = self.pos
 
                     if prefix:
-                        pcst = self._isolate(prefix, drop=dropprefix)
+                        pcst = self._isolate(prefix, _drop=dropprefix)
                         if not dropprefix:
                             self.states.append(pcst)
                         self._cut()
