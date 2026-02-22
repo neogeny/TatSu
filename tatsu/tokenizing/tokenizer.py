@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import re
 from typing import Protocol, runtime_checkable
 
 from tatsu.tokenizing import LineIndexInfo, LineInfo
@@ -188,32 +187,33 @@ class NullTokenizer(Tokenizer):
     def newcursor(self, pos: int = 0) -> Cursor:
         return NullCursor()
 
-    def eat_whitespace_at(self, c: Cursor) -> None:
-        return
-
-    def eat_comments_at(self, c: Cursor) -> None:
-        return
-
-    def eat_eol_comments_at(self, c: Cursor) -> None:
-        return
-
-    def next_token_at(self, c: Cursor) -> None:
-        return
-
-    def match_at(self, token: str, c: Cursor) -> str | None:
-        return
-
-    def matchre_at(self, pattern: str | re.Pattern, c: Cursor) -> str | None:
-        return
-
-    def posline_at(self, pos: int) -> int:
-        return 0
-
-    def poscol_at(self, pos: int) -> int:
-        return 0
-
-    def lineinfo_at(self, pos: int) -> LineInfo:
-        return LineInfo('', 0, 0, 0, 0, '')
-
-    def line_index_at(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
-        return []
+    # FIXME: this interface is not needed
+    # def eat_whitespace_at(self, c: Cursor) -> None:
+    #     return
+    #
+    # def eat_comments_at(self, c: Cursor) -> None:
+    #     return
+    #
+    # def eat_eol_comments_at(self, c: Cursor) -> None:
+    #     return
+    #
+    # def next_token_at(self, c: Cursor) -> None:
+    #     return
+    #
+    # def match_at(self, token: str, c: Cursor) -> str | None:
+    #     return
+    #
+    # def matchre_at(self, pattern: str | re.Pattern, c: Cursor) -> str | None:
+    #     return
+    #
+    # def posline_at(self, pos: int) -> int:
+    #     return 0
+    #
+    # def poscol_at(self, pos: int) -> int:
+    #     return 0
+    #
+    # def lineinfo_at(self, pos: int) -> LineInfo:
+    #     return LineInfo('', 0, 0, 0, 0, '')
+    #
+    # def line_index_at(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
+    #     return []
