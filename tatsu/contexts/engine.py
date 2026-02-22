@@ -28,7 +28,7 @@ from ..exceptions import (
     ParseException,
 )
 from ..infos import Alert, ParseInfo, ParserConfig, RuleInfo
-from ..tokenizing import Cursor, NullTokenizer, Tokenizer
+from ..tokenizing import Cursor, NullCursor, NullTokenizer, Tokenizer
 from ..tokenizing.textlines import TextLinesTokenizer
 from ..util import regexp, safe_name, trim
 from ..util.abctools import is_list, left_assoc, prune_dict, right_assoc
@@ -58,6 +58,7 @@ class ParseContext:
 
         self._tokenizer: Tokenizer = NullTokenizer()
         self._cursor = self._tokenizer.newcursor()
+        self._states = ParseStateStack(cursor=self.tokenizer.newcursor())
         self._semantics: type | None = config.semantics
         self._initialize_caches()
 
@@ -65,7 +66,6 @@ class ParseContext:
         self.update_tracer()
 
     def _initialize_caches(self) -> None:
-        self._states = ParseStateStack(cursor=self.tokenizer.newcursor())
         self._ruleinfo_stack: list[RuleInfo] = []
 
         self.substate: Any = None
@@ -192,7 +192,6 @@ class ParseContext:
         self._active_config = config
         self.update_tracer()
         try:
-            self._reset(config)
             if isinstance(text, Tokenizer):
                 tokenizer = text
             elif issubclass(config.tokenizercls, NullTokenizer):
@@ -202,8 +201,13 @@ class ParseContext:
                 tokenizer = cls(text, config=config, **settings)
             else:
                 raise ParseError('No tokenizer or text')
+            assert not isinstance(tokenizer, NullTokenizer)
             self._tokenizer = tokenizer
             self._cursor = self._tokenizer.newcursor()
+            self._states = ParseStateStack(cursor=self.tokenizer.newcursor())
+            assert not isinstance(self._cursor, NullCursor)
+            assert not isinstance(self.state.cursor, NullCursor)
+            self._reset(config)
 
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
                 self.config.semantics.set_context(self)

@@ -12,21 +12,33 @@ from ..infos import Alert
 
 __all__ = ['ParseState', 'ParseStateStack']
 
-from ..tokenizing import Cursor
+from ..tokenizing import Cursor, NullCursor
 
 from ..util.abctools import is_list
 
 
 class ParseState:
-    __slots__ = ('alerts', 'ast', 'cst', 'cursor', 'last_node', 'pos')
+    __slots__ = ('_pos', 'alerts', 'ast', 'cst', 'cursor', 'last_node',)
 
     def __init__(self, cursor: Cursor, pos: int = 0, ast: Any = None, cst: Any = None):
+        assert isinstance(cursor, Cursor), f'{type(cursor)} != NullCursor'
         self.cursor: Cursor = cursor.clonecursor()
-        self.pos: int = pos
+        self._pos: int = pos
         self.ast: Any = ast or AST()
         self.cst: Any = cst
         self.last_node: Any = None
         self.alerts: list[Alert] = []
+
+    @property
+    def pos(self) -> int:
+        assert not isinstance(self.cursor, NullCursor)
+        # return self.cursor.pos
+        return self._pos
+
+    def goto(self, pos: int) -> None:
+        assert not isinstance(self.cursor, NullCursor), f'{type(self.cursor)} != NullCursor'
+        # self.cursor.goto(pos)
+        self._pos = pos
 
     @property
     def node(self) -> Any:
@@ -94,7 +106,7 @@ class ParseStateStack:
 
     def push(self, pos: int, ast: Any = None, cst: Any = None) -> ParseState:
         ast = copy(self.ast) if ast is None else ast
-        self.state.pos = pos
+        self.state.goto(pos)
 
         newstate = ParseState(self.cursor, pos=pos, ast=ast, cst=cst)
         self._state_stack.append(newstate)
