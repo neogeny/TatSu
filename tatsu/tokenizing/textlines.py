@@ -187,7 +187,7 @@ class TextLinesTokenizer(Tokenizer):
         self._last_cursor = TextLinesCursor(self, pos)
         return self._last_cursor
 
-    def cursor(self):
+    def lastcursor(self):
         return self._last_cursor
 
     @property

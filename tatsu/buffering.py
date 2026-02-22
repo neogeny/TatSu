@@ -66,7 +66,7 @@ class Buffer(Cursor, Tokenizer):
     def clonecursor(self) -> Cursor:
         return self
 
-    def cursor(self) -> Cursor:
+    def lastcursor(self) -> Cursor:
         return self
 
     @property
