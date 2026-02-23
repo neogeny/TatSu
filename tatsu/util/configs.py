@@ -56,7 +56,7 @@ class Config:
         else:
             return self.merge(**other.asdict())
 
-    def override(self, **settings: Any) -> Self:
+    def override(self, /, **settings: Any) -> Self:
         self._check_unknowns(**settings)
         settings = self._filter_non_init_fields(settings)
         overrides = self._find_common(**settings)
@@ -64,15 +64,15 @@ class Config:
         return dataclasses.replace(self, **overrides)
 
     @deprecated(replacement=override)
-    def replace(self, *args, **kwargs):
-        return self.override(*args, **kwargs)
+    def replace(self, *_args, **kwargs):
+        return self.override(**kwargs)
 
-    def hard_override(self, **settings: Any) -> Self:
+    def hard_override(self, /, **settings: Any) -> Self:
         return self.override(**settings)
 
     @deprecated(replacement=hard_override)
-    def hard_replace(self, *args, **kwargs):
-        return self.hard_override(*args, **kwargs)
+    def hard_replace(self, *_args, **kwargs):
+        return self.hard_override(**kwargs)
 
     def merge(self, **settings: Any) -> Self:
         self._check_unknowns(**settings)
