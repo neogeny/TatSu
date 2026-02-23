@@ -128,7 +128,7 @@ class ParseContext:
 
     @property
     def cursor(self) -> Cursor:
-        return self.state.cursor
+        return self.state().cursor
 
     @property
     def tokenizercls(self) -> type[Tokenizer]:
@@ -138,11 +138,11 @@ class ParseContext:
 
     @property
     def last_node(self) -> Any:
-        return self.states.last_node
+        return self.states().last_node
 
     @last_node.setter
     def last_node(self, value: Any) -> None:
-        self.states.last_node = value
+        self.states().last_node = value
 
     @property
     def pos(self) -> int:
@@ -152,33 +152,33 @@ class ParseContext:
     def line(self) -> int:
         return self.cursor.line
 
-    @property
-    def states(self) -> ParseStateStack:
+    def states(self, ss: SS | None = None) -> ParseStateStack:
+        if isinstance(ss, ParseStateStack):
+            return ss
         return self._states
 
-    @property
-    def state(self) -> ParseState:
-        return self.states.top
+    def state(self, ss: SS | None = None) -> ParseState:
+        return self.states(ss).top
 
     @property
     def ast(self) -> AST:
-        return self.state.ast
+        return self.state().ast
 
     @ast.setter
     def ast(self, value: AST) -> None:
-        self.state.ast = value
+        self.state().ast = value
 
     @property
     def cst(self) -> Any:
-        return self.state.cst
+        return self.state().cst
 
     @cst.setter
     def cst(self, value: Any) -> None:
-        self.state.cst = value
+        self.state().cst = value
 
     @property
     def ruleinfo_stack(self) -> list[RuleInfo]:
-        return self.states.ruleinfo_stack
+        return self.states().ruleinfo_stack
 
     def update_tracer(self) -> EventTracer:
         tracer = EventTracerImpl(
@@ -234,7 +234,7 @@ class ParseContext:
             self._cursor = self._tokenizer.newcursor()
             self._states = ParseStateStack(cursor=tokenizer.newcursor())
             assert not isinstance(self._cursor, NullCursor)
-            assert not isinstance(self.state.cursor, NullCursor)
+            assert not isinstance(self.state().cursor, NullCursor)
             self._reset(config)
 
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
@@ -242,7 +242,7 @@ class ParseContext:
 
             start: str = self.config.effective_start_rule_name() or 'start'
             rule = self._find_rule(start)
-            return rule()
+            return rule(self.states)
 
         except FailedParse as e:
             self._set_furthest_exception(e)
@@ -272,15 +272,15 @@ class ParseContext:
         list_keys: Iterable[str] | None = None,
     ) -> None:
         # NOTE: called by generated parsers
-        return self.states.define(keys, list_keys)
+        return self.states().define(keys, list_keys)
 
     def setname(self, name: str) -> None:
         # NOTE: called by generated parsers
-        self.states.setname(name)
+        self.states().setname(name)
 
     def addname(self, name: str) -> None:
         # NOTE: called by generated parsers
-        self.states.addname(name)
+        self.states().addname(name)
 
     # bw compatibility
     @deprecated(replacement=setname)
@@ -293,19 +293,19 @@ class ParseContext:
         self.addname(name)
 
     def pushstate(self, ast: Any = None) -> None:
-        self.states.push(pos=self.pos, ast=ast)
+        self.states().push(pos=self.pos, ast=ast)
 
     def popstate(self) -> ParseState:
-        return self.states.pop(self.pos)
+        return self.states().pop(self.pos)
 
     def mergestate(self) -> ParseState:
-        return self.states.merge(pos=self.pos)
+        return self.states().merge(pos=self.pos)
 
     def undostate(self) -> None:
-        self.states.pop()
+        self.states().pop()
 
     def _cut(self) -> None:
-        self.states.set_cut_seen()
+        self.states().set_cut_seen()
         self.tracer.trace_cut()
 
         def prune(cache: dict[Any, Any], cut_pos: int) -> None:
@@ -322,7 +322,7 @@ class ParseContext:
             self.config.memoize_lookaheads or self._lookahead == 0
         )
 
-    def _find_rule(self, name: str) -> Block:
+    def _find_rule(self, name: str) -> Callable[[Any], None]:
         raise NotImplementedError
 
     def _find_semantic_action(self, name: str) -> Callable[..., Any] | None:
@@ -370,7 +370,7 @@ class ParseContext:
             endpos=endpos,
             line=self.cursor.posline(pos),
             endline=self.cursor.posline(endpos),
-            alerts=self.state.alerts,
+            alerts=self.state().alerts,
         )
 
     def _set_parseinfo(self, node: Any, name: str, pos: int):
@@ -410,7 +410,7 @@ class ParseContext:
         ex = self.newexcept(key.ruleinfo.name, exclass=FailedLeftRecursion)
         self._memoize(key, ex)
 
-    def _call(self, ruleinfo: RuleInfo) -> Any:
+    def _call(self, _ss: SS, ruleinfo: RuleInfo) -> Any:
         ristack = self.ruleinfo_stack
         ristack += [ruleinfo]
         pos = self.pos
@@ -422,7 +422,7 @@ class ParseContext:
 
             self.goto(result.newpos)
             self.substate = result.newstate
-            self.states.append(result.node)
+            self.states().append(result.node)
 
             self.tracer.trace_success()
 
@@ -497,10 +497,10 @@ class ParseContext:
         try:
             self.next_token(ruleinfo)
 
-            with self.states.cutscope():
-                ruleinfo.impl(self)
+            with self.states().cutscope():
+                ruleinfo.impl(self, self.state())
 
-            node = self.state.node
+            node = self.state().node
             node = self._semantics_call(ruleinfo, node)
             self._set_parseinfo(node, ruleinfo.name, key.pos)
 
@@ -536,7 +536,7 @@ class ParseContext:
             self.tracer.trace_match(token, failed=True)
             raise self.newexcept(token, exclass=FailedToken)
         self.tracer.trace_match(token)
-        self.states.append(token)
+        self.states().append(token)
         return token
 
     def _constant(self, literal: Any) -> Any:
@@ -544,7 +544,7 @@ class ParseContext:
         self.tracer.trace_match(literal)
 
         if not isinstance(literal, str):
-            self.states.append(literal)
+            self.states().append(literal)
             return literal
         literal = str(literal)  # for type linters
 
@@ -583,13 +583,13 @@ class ParseContext:
                     f'Error evaluating constant {literal!r}: {e}',
                 ) from e
 
-        self.states.append(result)
+        self.states().append(result)
         return result
 
     def _alert(self, message: str, level: int) -> None:
         self.next_token()
         self.tracer.trace_match(f'{"^" * level}`{message}`', failed=True)
-        self.state.alerts.append(Alert(message=message, level=level))
+        self.state().alerts.append(Alert(message=message, level=level))
 
     def _pattern(self, pattern: str) -> Any:
         token = self.cursor.matchre(pattern)
@@ -597,7 +597,7 @@ class ParseContext:
             self.tracer.trace_match('', pattern, failed=True)
             raise self.newexcept(f'Expecting {regexp(pattern)}', exclass=FailedPattern)
         self.tracer.trace_match(token, pattern)
-        self.states.append(token)
+        self.states().append(token)
         return token
 
     def eof(self) -> bool:
@@ -646,7 +646,7 @@ class ParseContext:
                 yield
             raise OptionSucceeded()
         except FailedParse:
-            if not self.states.cut_seen():
+            if not self.states().cut_seen():
                 pass
             else:
                 raise
@@ -654,20 +654,20 @@ class ParseContext:
     @contextmanager
     def _choice(self):
         ctx = ChoiceContext(self)
-        with suppress(OptionSucceeded), self.states.cutscope():
+        with suppress(OptionSucceeded), self.states().cutscope():
             yield ctx
             ctx.run()
 
     @contextmanager
     def _optional(self):
-        with self._choice(), self._option(), self.states.cutscope():
+        with self._choice(), self._option(), self.states().cutscope():
             yield
 
     @contextmanager
     def _group(self):
         self.pushstate()
         try:
-            with self.states.cutscope():
+            with self.states().cutscope():
                 yield
             self.mergestate()
         except ParseException:
@@ -730,11 +730,11 @@ class ParseContext:
                     if prefix:
                         pcst = self._isolate(prefix, _drop=dropprefix)
                         if not dropprefix:
-                            self.states.append(pcst)
+                            self.states().append(pcst)
                         self._cut()
 
                     cst = self._isolate(block)
-                    self.states.append(cst)
+                    self.states().append(cst)
 
                     if self.pos == p:
                         raise self.newexcept('empty closure')
@@ -749,7 +749,7 @@ class ParseContext:
         self.pushstate()
         try:
             self.cst = []
-            with self.states.cutscope():
+            with self.states().cutscope():
                 with self._optional():
                     block()
                     self.cst = [self.cst]
@@ -768,7 +768,7 @@ class ParseContext:
     ) -> Any:
         self.pushstate()
         try:
-            with self.states.cutscope():
+            with self.states().cutscope():
                 block()
                 self.cst = [self.cst]
                 self._repeat(block, prefix=sep, dropprefix=omitsep)
@@ -780,7 +780,7 @@ class ParseContext:
 
     def _empty_closure(self) -> closure:
         cst = closure([])
-        self.states.append(cst)
+        self.states().append(cst)
         return cst
 
     def _gather(self, block: Block, sep: Block) -> Any:
@@ -821,7 +821,7 @@ class ParseContext:
             self.tracer.trace_match(c, failed=True)
             raise self.newexcept(c, exclass=FailedToken) from None
         self.tracer.trace_match(c)
-        self.states.append(c)
+        self.states().append(c)
         return c
 
     def _skip_to(self, block: Block) -> None:

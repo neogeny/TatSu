@@ -13,6 +13,7 @@ from typing import Any
 
 from .ast import AST
 from .contexts import ParseContext
+from .contexts.engine import SS
 from .exceptions import FailedRef, GrammarError
 from .infos import ParserConfig, RuleInfo
 from .objectmodel import Node, tatsudataclass
@@ -85,7 +86,7 @@ class Model(Node):
     def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
         return self
 
-    def _parse(self, ctx: ModelContext) -> Any | None:
+    def _parse(self, ctx: ModelContext, ss: SS | None = None) -> Any | None:
         ctx.last_node = None
         return None
 
@@ -165,7 +166,7 @@ class Model(Node):
 
 @tatsudataclass
 class Void(Model):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         return ctx._void()
 
     def _pretty(self, lean=False):
@@ -177,7 +178,7 @@ class Void(Model):
 
 @tatsudataclass
 class Dot(Model):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         return ctx._dot()
 
     def _pretty(self, lean=False):
@@ -189,7 +190,7 @@ class Dot(Model):
 
 @tatsudataclass
 class Fail(Model):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         return ctx._fail()
 
     def _pretty(self, lean=False):
@@ -212,7 +213,7 @@ class EOLComment(Comment):
 
 @tatsudataclass
 class EOF(Model):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         ctx._check_eof()
 
     def _pretty(self, lean=False):
@@ -232,7 +233,7 @@ class Decorator(Model):
         assert self.exp is not None, f'{typename(self)}({self.exp})'
         assert self.exp, repr(self)
 
-    def _parse(self, ctx) -> Any | None:
+    def _parse(self, ctx, ss: SS | None = None) -> Any | None:
         return self.exp._parse(ctx)
 
     def defines(self):
@@ -273,7 +274,7 @@ _Decorator = Decorator
 
 @tatsudataclass
 class Group(Decorator):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         with ctx._group():
             self.exp._parse(ctx)
             return ctx.last_node
@@ -293,7 +294,7 @@ class Token(Model):
         super().__post_init__()
         self.token = self.token or self.ast
 
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         return ctx._token(self.token)
 
     def _first(self, k, f) -> ffset:
@@ -311,7 +312,7 @@ class Constant(Model):
         super().__post_init__()
         self.literal = self.literal or self.ast
 
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         return ctx._constant(self.literal)
 
     def _first(self, k, f) -> ffset:
@@ -333,7 +334,7 @@ class Alert(Constant):
         self.literal = self.ast.message.literal
         self.level = len(self.ast.level)
 
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         return super()._parse(ctx)
 
     def _pretty(self, lean=False):
@@ -350,7 +351,7 @@ class Pattern(Model):
         self.pattern = ''.join(self._patterns)
         self._regex = re.compile(self.pattern)
 
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         return ctx._pattern(self.pattern)
 
     def _first(self, k, f) -> ffset:
@@ -380,7 +381,7 @@ class Pattern(Model):
 
 @tatsudataclass
 class Lookahead(Decorator):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         with ctx._if():
             return super()._parse(ctx)
 
@@ -393,7 +394,7 @@ class Lookahead(Decorator):
 
 @tatsudataclass
 class NegativeLookahead(Decorator):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         with ctx._ifnot():
             return super()._parse(ctx)
 
@@ -406,7 +407,7 @@ class NegativeLookahead(Decorator):
 
 @tatsudataclass
 class SkipTo(Decorator):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         super_parse = super()._parse
         return ctx._skip_to(lambda: super_parse(ctx))
 
@@ -427,7 +428,7 @@ class Sequence(Model):
             self.sequence = self.ast or []
         assert isinstance(self.sequence, list), self.sequence
 
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         ctx.last_node = [s._parse(ctx) for s in self.sequence]
         return ctx.last_node
 
@@ -490,7 +491,7 @@ class Choice(Model):
         self.options = self.options or self.ast
         assert isinstance(self.options, list), repr(self.options)
 
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         with ctx._choice():
             for o in self.options:
                 with ctx._option():
@@ -551,7 +552,7 @@ class Choice(Model):
 
 @tatsudataclass
 class Option(Decorator):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         result = super()._parse(ctx)
         self._add_defined_attributes(ctx, result)
         return result
@@ -559,7 +560,7 @@ class Option(Decorator):
 
 @tatsudataclass
 class Closure(Decorator):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         return ctx._closure(lambda: self.exp._parse(ctx))
 
     def _first(self, k, f) -> ffset:
@@ -582,7 +583,7 @@ class Closure(Decorator):
 
 @tatsudataclass
 class PositiveClosure(Closure):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         return ctx._positive_closure(lambda: self.exp._parse(ctx))
 
     def _first(self, k, f) -> ffset:
@@ -605,7 +606,7 @@ class Join(Decorator):
         super().__post_init__()
         assert self.sep == self.ast.sep, self.sep
 
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         def sep():
             return self.sep._parse(ctx)
 
@@ -680,7 +681,7 @@ class PositiveGather(Gather):
 
 @tatsudataclass
 class EmptyClosure(Model):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         return ctx._empty_closure()
 
     def _first(self, k, f) -> ffset:
@@ -695,7 +696,7 @@ class EmptyClosure(Model):
 
 @tatsudataclass
 class Optional(Decorator):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         ctx.last_node = None
         self._add_defined_attributes(ctx, ctx.ast)
         with ctx._optional():
@@ -716,7 +717,7 @@ class Optional(Decorator):
 
 @tatsudataclass
 class Cut(Model):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         ctx._cut()
 
     def _first(self, k, f) -> ffset:
@@ -741,7 +742,7 @@ class Named(Decorator):
             raise TypeError(f'{typename(self)}.name is required')
         assert getattr(self, 'name', None) is not None
 
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         value = self.exp._parse(ctx)
         ctx.ast[self.name] = value
         return value
@@ -757,7 +758,7 @@ class Named(Decorator):
 
 @tatsudataclass
 class NamedList(Named):
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         value = self.exp._parse(ctx)
         ctx.ast._setlist(self.name, value)
         return value
@@ -809,7 +810,7 @@ class Call(Model):
     def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
         return rulemap.get(self.name, self)
 
-    def _parse(self, ctx):
+    def _parse(self, ctx, ss: SS | None = None):
         try:
             rule = ctx._find_rule(self.name)
             return rule()
@@ -870,10 +871,10 @@ class Rule(Decorator):
             debug(f'{self!r}\nweird with {self.exp.missing_rules=!r}\n{self.exp=!r}')
         return self.exp.missing_rules(rulenames)
 
-    def _parse(self, ctx):
-        return self._parse_rhs(ctx, self.exp)
+    def _parse(self, ctx, ss: SS | None = None):
+        return self._parse_rhs(ctx, ss, self.exp)
 
-    def _parse_rhs(self, ctx, exp):
+    def _parse_rhs(self, ctx, ss: SS | None, exp):
         ruleinfo = RuleInfo(
             self.name,
             exp._parse,
@@ -883,7 +884,7 @@ class Rule(Decorator):
             self.params,
             self.kwparams,
         )
-        return ctx._call(ruleinfo)
+        return ctx._call(ss, ruleinfo)
 
     def _first(self, k, f) -> ffset:
         self._firstset = self.exp._first(k, f) | f[self.name]
@@ -973,8 +974,8 @@ class BasedRule(Rule):
         self.kwparams = self.kwparams or self.baserule.kwparams
         self.rhs = Sequence(ast=[self.baserule.exp, self.exp])
 
-    def _parse(self, ctx):
-        return self._parse_rhs(ctx, self.rhs)
+    def _parse(self, ctx, ss: SS | None = None):
+        return self._parse_rhs(ctx, ss, self.rhs)
 
     def defines(self):
         return super().defines() + self.rhs.defines()

@@ -30,13 +30,20 @@ def isname(impl: Callable) -> Callable:
     return impl
 
 
+type RuleFunc = Callable[[Any, Any | None], None]
+# type RuleFunc = Callable[..., Any]
+
+type DecoratedRuleFunc = Callable[[ParseContext, Any], Any]
+
+
 def rule(
     *params: Any,
     **kwparams: Any,
-) -> Callable[[Callable[..., Any]], Callable[[ParseContext], Any]]:
-    def decorator(impl: Callable[..., Any]) -> Callable[[ParseContext], Any]:
+) -> Callable[[RuleFunc], DecoratedRuleFunc]:
+
+    def decorator(impl: RuleFunc) -> DecoratedRuleFunc:
         @functools.wraps(impl)
-        def wrapper(ctx: ParseContext) -> Any:
+        def wrapper(ctx: ParseContext, ss: Any) -> Any:
             name = impl.__name__  # type: ignore
             # remove the single leading and trailing underscore
             # that the parser generator added
@@ -55,7 +62,7 @@ def rule(
                 kwparams,
             )
             self = ctx
-            return self._call(ruleinfo)
+            return self._call(ss, ruleinfo)
 
         return wrapper
 

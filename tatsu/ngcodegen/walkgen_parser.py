@@ -150,7 +150,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.walk_Rule(rule)
 
     def walk_Call(self, call: grammars.Call):
-        self.print(f'self._{call.name}_()')
+        self.print(f'self._{call.name}_(_ss)')
 
     def walk_RuleInclude(self, include: grammars.RuleInclude):
         self.walk(include.rule.exp)
