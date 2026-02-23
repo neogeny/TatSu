@@ -13,7 +13,7 @@ from .synth import synthesize
 from .util.configs import Config
 from .util.deprecate import deprecated_params
 from .util.string import mangle
-from .util.typing import Constructor, TypeContainer, boundcall, least_upper_bound_type
+from .util.typetools import Constructor, TypeContainer, boundcall, least_upper_bound_type
 
 
 class TypeResolutionError(TypeError):
