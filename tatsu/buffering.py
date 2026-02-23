@@ -10,8 +10,11 @@ about source lines and content.
 from __future__ import annotations
 
 import re
+from collections import defaultdict
 from contextlib import contextmanager
+from functools import cached_property
 from pathlib import Path
+from threading import Lock
 from typing import Any
 
 from .infos import PosLine
@@ -28,6 +31,8 @@ DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 # for backwards compatibility with existing parsers
 LineIndexEntry = LineIndexInfo
 
+_locks: dict[int, Lock] = defaultdict(Lock)
+
 
 class BufferCursor(Cursor):
     def __init__(self, buffer: Buffer, pos: int = 0):
@@ -41,11 +46,14 @@ class BufferCursor(Cursor):
 
     @contextmanager
     def bind(self):
-        p = self.buffer.pos
-        self.buffer.goto(self.pos)
-        yield
-        self.goto(self.buffer.pos)
-        self.buffer.goto(p)
+        with self.buffer.lock:
+            p = self.buffer.pos
+            try:
+                self.buffer.goto(self.pos)
+                yield
+                self.goto(self.buffer.pos)
+            finally:
+                self.buffer.goto(p)
 
     @property
     def buffer(self) -> Buffer:
@@ -200,6 +208,15 @@ class Buffer(Tokenizer):
 
     def newcursor(self) -> Cursor:
         return BufferCursor(self, pos=self.pos)
+
+    @cached_property
+    def lock(self) -> Lock:
+        return Lock()
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state.pop('lock', None)
+        return state
 
     @property
     def tokenizer(self) -> Tokenizer:
