@@ -182,3 +182,7 @@ def least_upper_bound_type(constructors: Sequence[Constructor]) -> type:
         (parent for parent in topsorted if all(issubclass(t, parent) for t in types_)),
         default=object,
     )
+
+
+def isproperty(obj: Any, name: str) -> bool:
+    return isinstance(getattr(type(obj), name, None), property)
