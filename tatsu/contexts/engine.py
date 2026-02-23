@@ -9,7 +9,7 @@ from typing import Any
 
 from .infos import MemoKey, RuleResult, closure
 from .state import ParseState, ParseStateStack
-from .tracing import EventTracer, EventTracerImpl
+from .tracing import EventTracer
 from .. import buffering
 from ..ast import AST
 from ..buffering import Buffer
@@ -38,6 +38,10 @@ from ..util.typing import boundcall
 from ..util.undefined import Undefined
 
 __all__: list[str] = ['ParseContext']
+
+
+type RuleOutcome = RuleResult | ParseException
+type MemoCache = dict[MemoKey, RuleOutcome]
 
 
 class ChoiceContext:
@@ -80,19 +84,18 @@ class ParseContext:
 
         self._tokenizer: Tokenizer = NullTokenizer()
         self._cursor = self._tokenizer.newcursor()
-        self._states = ParseStateStack(cursor=self.tokenizer.newcursor())
         self._semantics: type | None = config.semantics
-        self._initialize_caches()
 
-        self._tracer: EventTracer = EventTracer()
+        self._initialize_caches()
+        self._tracer: EventTracer = EventTracer([])
         self.update_tracer()
 
     def _initialize_caches(self) -> None:
         self.substate: Any = None
-        self._lookahead: int = 0
         self._furthest_exception: FailedParse | None = None
-
-        self._clear_memoization_caches()
+        self._memos: MemoCache = BoundedDict(self.config.memo_cache_size)
+        self._results: MemoCache = {}
+        self._states = ParseStateStack(cursor=self.tokenizer.newcursor())
 
     @property
     def config(self):
@@ -176,12 +179,16 @@ class ParseContext:
     def ruleinfo_stack(self) -> list[RuleInfo]:
         return self.states.ruleinfo_stack
 
+    @property
+    def lookahead(self) -> int:
+        return self.states.lookahead
+
+    @lookahead.setter
+    def lookahead(self, value: Any) -> None:
+        self.states.lookahead = value
+
     def update_tracer(self) -> EventTracer:
-        tracer = EventTracerImpl(
-            self.cursor,
-            self.ruleinfo_stack,
-            config=self.config,
-        )
+        tracer = EventTracer(self.ruleinfo_stack, config=self.config)
         self._tracer = tracer
         return self.tracer
 
@@ -192,12 +199,6 @@ class ParseContext:
         if hasattr(self.semantics, 'set_context'):
             self.semantics.set_context(self)
         return config
-
-    def _clear_memoization_caches(self) -> None:
-        self._memos: BoundedDict[MemoKey, RuleResult | ParseException] = BoundedDict(
-            self.config.memo_cache_size,
-        )
-        self._results: dict[MemoKey, RuleResult | ParseException] = {}
 
     def _set_furthest_exception(self, e: FailedParse) -> None:
         if not self._furthest_exception or e.pos > self._furthest_exception.pos:
@@ -246,7 +247,7 @@ class ParseContext:
                 raise self._furthest_exception from e
             raise
         finally:
-            self._clear_memoization_caches()
+            self._initialize_caches()
             self._active_config = self._config
             self.update_tracer()
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
@@ -302,7 +303,7 @@ class ParseContext:
 
     def _cut(self) -> None:
         self.states.set_cut_seen()
-        self.tracer.trace_cut()
+        self.tracer.trace_cut(self.cursor)
 
         def prune(cache: dict[Any, Any], cut_pos: int) -> None:
             prune_dict(
@@ -314,9 +315,9 @@ class ParseContext:
             prune(self._memos, self.pos)
 
     def _memoization(self) -> bool:
-        return self.config.memoization and (
-            self.config.memoize_lookaheads or self._lookahead == 0
-        )
+        if not self.config.memoization:
+            return False
+        return self.config.memoize_lookaheads or self.lookahead == 0
 
     def _find_rule(self, name: str) -> Callable[[], Any]:
         raise NotImplementedError
@@ -411,7 +412,7 @@ class ParseContext:
         ristack += [ruleinfo]
         pos = self.pos
         try:
-            self.tracer.trace_entry()
+            self.tracer.trace_entry(self.cursor)
             self.last_node = None
 
             result = self._recursive_call(ruleinfo)
@@ -420,13 +421,13 @@ class ParseContext:
             self.substate = result.newstate
             self.states.append(result.node)
 
-            self.tracer.trace_success()
+            self.tracer.trace_success(self.cursor)
 
             return result.node
         except FailedParse as e:
             self.goto(pos)
             self._set_furthest_exception(e)
-            self.tracer.trace_failure(e)
+            self.tracer.trace_failure(self.cursor, e)
             raise
         finally:
             ristack.pop()
@@ -529,15 +530,15 @@ class ParseContext:
     def _token(self, token: str) -> str:
         self.next_token()
         if self.cursor.match(token) is None:
-            self.tracer.trace_match(token, failed=True)
+            self.tracer.trace_match(self.cursor, token, failed=True)
             raise self.newexcept(token, exclass=FailedToken)
-        self.tracer.trace_match(token)
+        self.tracer.trace_match(self.cursor, token)
         self.states.append(token)
         return token
 
     def _constant(self, literal: Any) -> Any:
         self.next_token()
-        self.tracer.trace_match(literal)
+        self.tracer.trace_match(self.cursor, literal)
 
         if not isinstance(literal, str):
             self.states.append(literal)
@@ -584,15 +585,19 @@ class ParseContext:
 
     def _alert(self, message: str, level: int) -> None:
         self.next_token()
-        self.tracer.trace_match(f'{"^" * level}`{message}`', failed=True)
+        self.tracer.trace_match(
+            self.cursor,
+            f'{"^" * level}`{message}`',
+            failed=True,
+        )
         self.state.alerts.append(Alert(message=message, level=level))
 
     def _pattern(self, pattern: str) -> Any:
         token = self.cursor.matchre(pattern)
         if token is None:
-            self.tracer.trace_match('', pattern, failed=True)
+            self.tracer.trace_match(self.cursor, '', pattern, failed=True)
             raise self.newexcept(f'Expecting {regexp(pattern)}', exclass=FailedPattern)
-        self.tracer.trace_match(token, pattern)
+        self.tracer.trace_match(self.cursor, token, pattern)
         self.states.append(token)
         return token
 
@@ -674,12 +679,12 @@ class ParseContext:
     def _if(self):
         s = self.substate
         self.pushstate()
-        self._lookahead += 1
+        self.lookahead += 1
         try:
             yield
         finally:
             self.undostate()
-            self._lookahead -= 1
+            self.lookahead -= 1
             self.substate = s
 
     @contextmanager
@@ -814,9 +819,9 @@ class ParseContext:
     def _dot(self) -> Any:
         c = self._next()
         if c is None:
-            self.tracer.trace_match(c, failed=True)
+            self.tracer.trace_match(self.cursor, c, failed=True)
             raise self.newexcept(c, exclass=FailedToken) from None
-        self.tracer.trace_match(c)
+        self.tracer.trace_match(self.cursor, c)
         self.states.append(c)
         return c
 

@@ -64,6 +64,7 @@ class ParseState:
 
 class ParseStateStack:
     def __init__(self, cursor: Cursor) -> None:
+        self.lookahead: int = 0
         self._state_stack: list[ParseState] = [ParseState(cursor)]
         self._cut_stack: list[bool] = [False]
         self._ruleinfo_stack: list[RuleInfo] = []

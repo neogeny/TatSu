@@ -25,39 +25,14 @@ C = EventColor()
 
 
 class EventTracer:
-    def trace(self, msg: str, *args: Any, **kwargs: Any) -> None: ...
-
-    def trace_event(self, event: str) -> None: ...
-
-    def trace_entry(self) -> None: ...
-
-    def trace_success(self) -> None: ...
-
-    def trace_failure(self, ex: Exception | None = None) -> None: ...
-
-    def trace_recursion(self) -> None: ...
-
-    def trace_cut(self) -> None: ...
-
-    def trace_match(
-        self,
-        token: Any,
-        name: str | None = None,
-        failed: bool = False,
-    ) -> None: ...
-
-
-class EventTracerImpl(EventTracer):
     def __init__(
         self,
-        cursor: Cursor,
         ruleinfos: list[RuleInfo],
         *,
         config: ParserConfig | None = None,
         **settings: Any,
     ) -> None:
         self.config = ParserConfig.new(config, **settings)
-        self.cursor = cursor
 
         # NOTE: not copying / sharing same list with caller
         self.ruleinfos = ruleinfos
@@ -73,47 +48,48 @@ class EventTracerImpl(EventTracer):
 
         info(msg, *args, **kwargs)
 
-    def trace_event(self, event: str) -> None:
+    def trace_event(self, cursor: Cursor, event: str, ) -> None:
         if not self.config.trace:
             return
 
         fname = ''
         if self.config.trace_filename:
-            fname = self.cursor.lineinfo().filename
+            fname = cursor.lineinfo().filename
         if fname:
             fname += '\n'
 
-        lookahead = self.cursor.lookahead().rstrip()
+        lookahead = cursor.lookahead().rstrip()
         lookahead = '\n' + lookahead if lookahead else ''
 
         message = (
             f'{event}{self.rulestack()}'
             f' {C.DIM}{fname}'
-            f'{self.cursor.lookahead_pos()}{C.RESET}'
+            f'{cursor.lookahead_pos()}{C.RESET}'
             f'{C.RESET_ALL}{lookahead}{C.RESET_ALL}'
         )
         self.trace(message)
 
-    def trace_entry(self) -> None:
-        self.trace_event(f'{C.ENTRY}')
+    def trace_entry(self, cursor: Cursor) -> None:
+        self.trace_event(cursor, f'{C.ENTRY}')
 
-    def trace_success(self) -> None:
-        self.trace_event(f'{C.SUCCESS}')
+    def trace_success(self, cursor: Cursor) -> None:
+        self.trace_event(cursor, f'{C.SUCCESS}')
 
-    def trace_failure(self, ex: Exception | None = None) -> None:
+    def trace_failure(self, cursor: Cursor, ex: Exception | None = None) -> None:
         if isinstance(ex, FailedLeftRecursion):
-            self.trace_recursion()
+            self.trace_recursion(cursor)
         else:
-            self.trace_event(f'{C.FAILURE}')
+            self.trace_event(cursor, f'{C.FAILURE}')
 
-    def trace_recursion(self) -> None:
-        self.trace_event(f'{C.RECURSION}')
+    def trace_recursion(self, cursor: Cursor) -> None:
+        self.trace_event(cursor, f'{C.RECURSION}')
 
-    def trace_cut(self) -> None:
-        self.trace_event(f'{C.CUT}')
+    def trace_cut(self, cursor: Cursor) -> None:
+        self.trace_event(cursor, f'{C.CUT}')
 
     def trace_match(
         self,
+        cursor: Cursor,
         token: Any,
         name: str | None = None,
         failed: bool = False,
@@ -123,13 +99,13 @@ class EventTracerImpl(EventTracer):
 
         name_str = f'/{name}/' if name else ''
         if self.config.trace_filename:
-            fname = self.cursor.lineinfo().filename + '\n'
+            fname = cursor.lineinfo().filename + '\n'
         else:
             fname = ''
 
         mark = f'{C.FAILURE}' if failed else f'{C.SUCCESS}'
 
-        lookahead = self.cursor.lookahead().rstrip()
+        lookahead = cursor.lookahead().rstrip()
         lookahead = '\n' + lookahead if lookahead else lookahead
 
         message = (
