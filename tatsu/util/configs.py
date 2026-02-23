@@ -22,7 +22,9 @@ class Config:
         result = cls()
         result = result.override_config(config)
         result = result.override(**settings)
-        assert isinstance(result, cls) and dataclasses.is_dataclass(result)
+        assert isinstance(result, cls)
+        assert isinstance(result, Config)
+        assert dataclasses.is_dataclass(result)
         return result
 
     def _find_common(self, **settings: Any) -> dict[str, Any]:
