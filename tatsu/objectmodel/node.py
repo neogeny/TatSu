@@ -18,9 +18,7 @@ from ..util.deprecate import deprecated
 class Node(BaseNode):
     def __init__(self, ast: Any = None, **kwargs: Any):
         super().__init__(ast=ast, **kwargs)
-        self.__parent_ref: weakref.ref[Node] | None = (
-            None  # pyright: ignore[reportRedeclaration]
-        )
+        self.__parent_ref: weakref.ref[Node] | None = None  # type: ignore
 
     def __post_init__(self):
         super().__post_init__()

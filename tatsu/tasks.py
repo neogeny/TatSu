@@ -108,10 +108,7 @@ def boundary_print(banner: str = '', line: str = THIN_LINE):
 
 
 def success_print(target: str = '', *, task: TaskFun = None, line: str = THIN_LINE):
-    target += (
-        task.name if task else ''
-    )  # ty:ignore[unresolved-attribute]  # pyright: ignore[reportFunctionMemberAccess]
-    boundary_print(f'✔ {target}', line=line)
+    target += task.name if task else ''  # type: ignore
 
 
 def version_boundary_print(

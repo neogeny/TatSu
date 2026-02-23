@@ -128,6 +128,7 @@ respect-type-ignore-comments = true
 [tool.ty.rules]
 unresolved-import = "ignore"
 unused-ignore-comment = "ignore"
+unused-type-ignore-comment = "ignore"
 
 [tool.coverage.run]
 omit = ["tests/*", "tatsu/diagrams.py", "tatsu/codegen/*", "**/test.py"]
