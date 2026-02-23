@@ -8,15 +8,8 @@ from tatsu.tokenizing import LineIndexInfo, LineInfo
 
 
 @runtime_checkable
-class Tokenizer(Protocol):
-    def __init__(self, *args, **kwargs): ...
-
-    def newcursor(self) -> Cursor: ...
-
-
-@runtime_checkable
 class Cursor(Protocol):
-    def clonecursor(self) -> Cursor: ...
+    def clone(self) -> Cursor: ...
 
     @property
     def tokenizer(self) -> Tokenizer: ...
@@ -34,6 +27,8 @@ class Cursor(Protocol):
     def line(self) -> int: ...
 
     def goto(self, pos) -> None: ...
+
+    def move(self, n: int) -> None: ...
 
     def atend(self) -> bool: ...
 
@@ -77,17 +72,9 @@ class Cursor(Protocol):
     def lookahead_pos(self) -> str: ...
 
 
-class NullTokenizer(Tokenizer):
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def newcursor(self) -> Cursor:
-        return NullCursor()
-
-
 class NullCursor(Cursor):
-    def clonecursor(self) -> Cursor:
-        return NullCursor()
+    def clone(self) -> Cursor:
+        return self
 
     @property
     def tokenizer(self) -> Tokenizer:
@@ -114,6 +101,9 @@ class NullCursor(Cursor):
         return 0
 
     def goto(self, pos) -> None:
+        return
+
+    def move(self, n: int) -> None:
         return
 
     def atend(self) -> bool:
@@ -162,3 +152,16 @@ class NullCursor(Cursor):
 
     def lookahead_pos(self) -> str:
         return ''
+
+
+@runtime_checkable
+class Tokenizer(Protocol):
+    def __init__(self, *args, **kwargs) -> None:
+        pass
+
+    def newcursor(self) -> Cursor: ...
+
+
+class NullTokenizer(Tokenizer):
+    def newcursor(self, pos: int = 0) -> Cursor:
+        return NullCursor()

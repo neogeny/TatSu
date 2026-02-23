@@ -5,25 +5,39 @@ from __future__ import annotations
 from collections.abc import Iterable
 from contextlib import contextmanager
 from copy import copy
-from typing import Any, Self
+from typing import Any
 
 from ..ast import AST
-from ..infos import Alert
+from ..infos import Alert, RuleInfo
 
 __all__ = ['ParseState', 'ParseStateStack']
+
+from ..tokenizing import Cursor
 
 from ..util.abctools import is_list
 
 
 class ParseState:
-    __slots__ = ('alerts', 'ast', 'cst', 'last_node', 'pos')
+    __slots__ = ('alerts', 'ast', 'cst', 'cursor', 'last_node',)
 
-    def __init__(self, pos: int = 0, ast: Any = None, cst: Any = None):
-        self.pos: int = pos
+    def __init__(self, cursor: Cursor, pos: int = 0, ast: Any = None, cst: Any = None):
+        assert isinstance(cursor, Cursor), f'{type(cursor)} != NullCursor'
+        self.cursor: Cursor = cursor.clone()
+        self.cursor.goto(pos)
         self.ast: Any = ast or AST()
         self.cst: Any = cst
         self.last_node: Any = None
         self.alerts: list[Alert] = []
+
+    def clone(self):
+        return copy(self)
+
+    @property
+    def pos(self) -> int:
+        return self.cursor.pos
+
+    def goto(self, pos: int) -> None:
+        self.cursor.goto(pos)
 
     @property
     def node(self) -> Any:
@@ -36,11 +50,20 @@ class ParseState:
         else:
             return ast
 
+    def __copy__(self) -> ParseState:
+        new = ParseState(self.cursor, pos=self.pos, ast=self.ast, cst=self.cst)
+        new.alerts = self.alerts[:]
+        return new
+
 
 class ParseStateStack:
-    def __init__(self: Self) -> None:
-        self._state_stack: list[ParseState] = [ParseState()]
+    def __init__(self, cursor: Cursor) -> None:
+        self._state_stack: list[ParseState] = [ParseState(cursor)]
         self._cut_stack: list[bool] = [False]
+        self._ruleinfo_stack: list[RuleInfo] = []
+
+    def clone(self):
+        return copy(self)
 
     @property
     def top(self) -> ParseState:
@@ -63,9 +86,12 @@ class ParseStateStack:
         return self.top.cst
 
     @cst.setter
-    def cst(self, value: Any) -> Any:
+    def cst(self, value: Any):
         self.top.cst = value
-        return self.cst
+
+    @property
+    def cursor(self) -> Cursor:
+        return self.top.cursor
 
     @property
     def pos(self) -> int:
@@ -83,14 +109,18 @@ class ParseStateStack:
     def node(self) -> Any:
         return self.top.node
 
-    def pop(self) -> ParseState:
-        return self._state_stack.pop()
+    def pop(self, pos: int | None = None) -> ParseState:
+        prev = self._state_stack.pop()
+        if pos is not None:
+            self.state.goto(pos)
+        return prev
 
     def push(self, pos: int, ast: Any = None, cst: Any = None) -> ParseState:
         ast = copy(self.ast) if ast is None else ast
-        self.state.pos = pos
+        self.state.goto(pos)
 
-        newstate = ParseState(pos=pos, ast=ast, cst=cst)
+        newstate = ParseState(self.cursor, pos=pos, ast=ast, cst=cst)
+        newstate.goto(pos)
         self._state_stack.append(newstate)
 
         return self.top
@@ -99,6 +129,7 @@ class ParseStateStack:
         prev = self.pop()
         self.ast = prev.ast
         self.extend(prev.cst)
+        self.state.goto(pos)
         return prev
 
     def alert(self, level: int = 1, message: str = '') -> Alert:
@@ -106,11 +137,9 @@ class ParseStateStack:
         return self.top.alerts[-1]
 
     @staticmethod
-    def copy_node(node: Any) -> Any:
-        if node is None:
-            return None
-        elif is_list(node):
-            return node[:]
+    def safelist(node: Any) -> Any:
+        if is_list(node):
+            return type(node)(node)
         else:
             return node
 
@@ -118,7 +147,7 @@ class ParseStateStack:
         self.last_node = node
         previous = self.cst
         if previous is None:
-            self.cst = self.copy_node(node)
+            self.cst = self.safelist(node)
         elif is_list(previous):
             previous.append(node)
         else:
@@ -131,14 +160,13 @@ class ParseStateStack:
             return None
         previous = self.cst
         if previous is None:
-            self.cst = self.copy_node(node)
+            self.cst = self.safelist(node)
+        elif is_list(node) and is_list(previous):
+            previous += node
         elif is_list(node):
-            if is_list(previous):
-                previous.extend(node)
-            else:
-                self.cst = [previous, *node]
+            self.cst = [previous, *node]
         elif is_list(previous):
-            previous.append(node)
+            previous += [node]
         else:
             self.cst = [previous, node]
         return node
@@ -169,7 +197,7 @@ class ParseStateStack:
     def pop_cut(self) -> bool:
         return self._cut_stack.pop()
 
-    def set_cut_seen(self, prune: bool = True) -> None:
+    def set_cut_seen(self) -> None:
         self._cut_stack[-1] = True
 
     @contextmanager
@@ -179,3 +207,16 @@ class ParseStateStack:
             yield
         finally:
             self.pop_cut()
+
+    @property
+    def ruleinfo_stack(self) -> list[RuleInfo]:
+        return self._ruleinfo_stack
+
+    def __copy__(self) -> ParseStateStack:
+        new = self.__class__.__new__(self.__class__)
+
+        new._state_stack = self._state_stack[:]
+        new._cut_stack = self._cut_stack[:]
+        new._ruleinfo_stack = self._ruleinfo_stack[:]
+
+        return new

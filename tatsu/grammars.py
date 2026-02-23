@@ -27,7 +27,7 @@ type ffset = set[tuple[str, ...]]
 
 class _ref(str):
     def __repr__(self) -> str:
-        return f'<{self}>'
+        return repr(f'<{self}>')
 
 
 def ref(name: str) -> tuple[str]:
@@ -62,10 +62,6 @@ class ModelContext(ParseContext):
     @property
     def rulemap(self) -> dict[str, Rule]:
         return self._rulemap
-
-    @property
-    def pos(self) -> int:
-        return self._tokenizer.pos
 
     def _find_rule(self, name: str) -> Callable:
         return functools.partial(self.rulemap[name]._parse, self)

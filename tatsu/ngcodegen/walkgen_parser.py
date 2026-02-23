@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import itertools
-import textwrap
 from collections.abc import Iterator
 from typing import Any
 
@@ -30,6 +29,7 @@ HEADER = """\
 
     # ruff: noqa: RUF100, C405, COM812, I001, F401, PLR1702, PLC2801, SIM117
     # ruff: noqa: PL2401, PLC2402, PLC2403
+    # E303
     # fmt: off
 
     from __future__ import annotations
@@ -37,8 +37,9 @@ HEADER = """\
     from tatsu.buffering import Buffer
     from tatsu.infos import ParserConfig
     from tatsu.parsing import Parser, leftrec, nomemo, isname, generic_main, rule
+    from tatsu.tokenizing.textlines import TextLinesTokenizer
 
-    __all__ = ['{parser_name}Buffer', '{parser_name}Parser', 'main']
+    __all__ = ['{tokenizer_name}', '{parser_name}', 'main']
 """
 
 FOOTER = """\
@@ -91,16 +92,22 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         return node
 
     def walk_Grammar(self, grammar: grammars.Grammar):
-        parser_name = self.parser_name or grammar.name
-        self.print(HEADER.format(parser_name=parser_name))
+        basename = self.parser_name or grammar.name
+        self.print(
+            HEADER.format(
+                basename=basename,
+                tokenizer_name=self._tokenizer_name(basename),
+                parser_name=self._parser_name(basename),
+            ),
+        )
         self.print()
         self.print()
 
         self._gen_keywords(grammar)
-        self._gen_buffering(grammar, parser_name)
-        self._gen_parsing(grammar, parser_name)
+        self._gen_buffering(grammar, basename)
+        self._gen_parsing(grammar, basename)
 
-        self.print(FOOTER.format(name=parser_name))
+        self.print(FOOTER.format(name=basename))
 
     def walk_Rule(self, rule: grammars.Rule):
         def param_repr(p):
@@ -204,40 +211,32 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self.walk(choice.options[0])
             return
 
-        firstset = choice.lookahead_str()
-        if firstset:
-            msglines = textwrap.wrap(firstset, width=40)
-            error = ['expecting one of: ', *msglines]
-        else:
-            error = ['no available options']
-        errors = repr(' '.join(error))
-        raisestr = f'raise self.newexcept({errors}) from None'
-
-        if not self.fitsfmt(errors, 3):
-            errors = '\n'.join(repr(e) for e in error)
-            one_liner = False
-        elif self.fitsfmt(raisestr, 2):
-            one_liner = True
-        else:
-            one_liner = False
-
-        self.print('with self._choice():')
+        self.print('with self._choice() as choice:')
         with self.indent():
             self.walk(choice.options)
-            self.print('if self._no_more_options:')
-            with self.indent():
-                if one_liner:
-                    self.print(raisestr)
-                else:
-                    self.print('raise self.newexcept(')
-                    with self.indent():
-                        self.print(errors)
-                    self.print(') from None')
+
+        elements = [repr(f[0]) for f in choice.lookahead() if f]
+        if not elements:
+            return
+
+        with self.indent():
+            expectstr = f'choice.expecting({', '.join(elements)})'
+            if self.fitsfmt(expectstr, 3):
+                self.print(expectstr)
+            else:
+                self.print('choice.expecting(')
+                with self.indent():
+                    expectinner = ',\n'.join(elements)
+                    self.print(expectinner)
+                self.print(')')
+                self.print()
 
     def walk_Option(self, option: grammars.Option):
-        self.print('with self._option():')
+        self.print('@choice.option')
+        self.print('def _():')
         with self.indent():
             self.walk(option.exp)
+        self.print()
 
     def walk_Optional(self, optional: grammars.Optional):
         self.print('with self._optional():')
@@ -354,9 +353,13 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             ''')
         self.print()
 
-    def _gen_buffering(self, grammar: grammars.Grammar, parser_name: str):
-        self.print(f'class {parser_name}Buffer(Buffer):')
+    def _tokenizer_name(self, basename) -> str:
+        return f'{basename}Tokenizer'
 
+    def _parser_name(self, basename: str) -> str:
+        return f'{basename}Parser'
+
+    def _gen_buffering_init(self, grammar: grammars.Grammar, basename: str):
         with self.indent():
             self.print(
                 'def __init__(self, text, /, config: ParserConfig | None = None, **settings):',
@@ -366,16 +369,31 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 self.print('super().__init__(text, config=config)')
         self.print()
 
-    def _gen_parsing(self, grammar: grammars.Grammar, parser_name: str):
+    def _gen_buffering(self, grammar: grammars.Grammar, basename: str):
+        self.print(f'class {self._tokenizer_name(basename)}(TextLinesTokenizer):')
+        self._gen_buffering_init(grammar, basename)
+
         self.print()
-        self.print(f'class {parser_name}Parser(Parser):')
+        self.print(f'class {basename}Buffer(Buffer):  # NOTE: backwards compatibility')
+        self._gen_buffering_init(grammar, basename)
+
+    def _gen_parsing(self, grammar: grammars.Grammar, basename: str):
+        self.print()
+        self.print(f'class {self._parser_name(basename)}(Parser):')
         with self.indent():
             self.print(
                 'def __init__(self, /, config: ParserConfig | None = None, **settings):',
             )
             with self.indent():
                 self._gen_init(grammar)
-                self.print('super().__init__(config=config)')
+                self.print('super().__init__(')
+                with self.indent():
+                    self.print('config=config,')
+                    self.print(
+                        f'tokenizercls=config.tokenizercls'
+                        f' or {self._tokenizer_name(basename)},',
+                    )
+                self.print(')')
             self.print()
             self.walk(grammar.rules)
         self.print()

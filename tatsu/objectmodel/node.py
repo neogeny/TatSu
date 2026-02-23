@@ -42,8 +42,8 @@ class Node(BaseNode):
     @property
     def text(self) -> str | None:
         pi = self.parseinfo
-        if pi and hasattr(pi.tokenizer, "text"):
-            return pi.tokenizer.text[pi.pos : pi.endpos]
+        if pi and hasattr(pi.cursor, "text"):
+            return pi.cursor.text[pi.pos: pi.endpos]
         return None
 
     @property

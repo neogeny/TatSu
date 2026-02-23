@@ -48,7 +48,7 @@ class StatefulTests(unittest.TestCase):
 
             def ul_marker(self, ast):
                 ctx = self._context
-                if ctx.substate is not None and not ctx.tokenizer.match(
+                if ctx.substate is not None and not ctx.cursor.match(
                     '*' * ctx.substate,
                 ):
                     raise FailedSemantics('not at correct level')

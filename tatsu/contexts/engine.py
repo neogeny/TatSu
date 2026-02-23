@@ -26,9 +26,10 @@ from ..exceptions import (
     OptionSucceeded,
     ParseError,
     ParseException,
-    )
+)
 from ..infos import Alert, ParseInfo, ParserConfig, RuleInfo
-from ..tokenizing import Cursor, NullTokenizer, Tokenizer
+from ..tokenizing import Cursor, NullCursor, NullTokenizer, Tokenizer
+from ..tokenizing.textlines import TextLinesTokenizer
 from ..util import regexp, safe_name, trim
 from ..util.abctools import is_list, left_assoc, prune_dict, right_assoc
 from ..util.deprecate import deprecated
@@ -37,6 +38,28 @@ from ..util.typing import boundcall
 from ..util.undefined import Undefined
 
 __all__: list[str] = ['ParseContext']
+
+
+class ChoiceContext:
+    def __init__(self, ctx: ParseContext):
+        self.ctx = ctx
+        self.options: list[Callable[[], None]] = []
+        self.expected: list[str] = []
+
+    def option(self, func: Callable[[], None]) -> Callable[[], None]:
+        self.options.append(func)
+        return func
+
+    def expecting(self, *tokens: str) -> None:
+        self.expected.extend(tokens)
+
+    def run(self) -> None:
+        if not self.options:
+            return
+        for opt in self.options:
+            with self.ctx._option():
+                opt()
+        raise self.ctx.newexcept(f"Expected one of: {', '.join(self.expected)}")
 
 
 class ParseContext:
@@ -51,12 +74,13 @@ class ParseContext:
 
         config = ParserConfig.new(config, **settings)
         if config.tokenizercls is None:
-            config = config.override(tokenizercls=Buffer)
+            config = config.override(tokenizercls=TextLinesTokenizer)
         self._config: ParserConfig = config
         self._active_config: ParserConfig = self._config
 
         self._tokenizer: Tokenizer = NullTokenizer()
         self._cursor = self._tokenizer.newcursor()
+        self._states = ParseStateStack(cursor=self.tokenizer.newcursor())
         self._semantics: type | None = config.semantics
         self._initialize_caches()
 
@@ -64,9 +88,6 @@ class ParseContext:
         self.update_tracer()
 
     def _initialize_caches(self) -> None:
-        self._states = ParseStateStack()
-        self._ruleinfo_stack: list[RuleInfo] = []
-
         self.substate: Any = None
         self._lookahead: int = 0
         self._furthest_exception: FailedParse | None = None
@@ -103,7 +124,7 @@ class ParseContext:
 
     @property
     def cursor(self) -> Cursor:
-        return self._cursor
+        return self.state.cursor
 
     @property
     def tokenizercls(self) -> type[Tokenizer]:
@@ -121,7 +142,7 @@ class ParseContext:
 
     @property
     def pos(self) -> int:
-        return self.tokenizer.pos
+        return self.cursor.pos
 
     @property
     def line(self) -> int:
@@ -151,10 +172,14 @@ class ParseContext:
     def cst(self, value: Any) -> None:
         self.state.cst = value
 
+    @property
+    def ruleinfo_stack(self) -> list[RuleInfo]:
+        return self.states.ruleinfo_stack
+
     def update_tracer(self) -> EventTracer:
         tracer = EventTracerImpl(
             self.cursor,
-            self._ruleinfo_stack,
+            self.ruleinfo_stack,
             config=self.config,
         )
         self._tracer = tracer
@@ -191,7 +216,6 @@ class ParseContext:
         self._active_config = config
         self.update_tracer()
         try:
-            self._reset(config)
             if isinstance(text, Tokenizer):
                 tokenizer = text
             elif issubclass(config.tokenizercls, NullTokenizer):
@@ -201,8 +225,13 @@ class ParseContext:
                 tokenizer = cls(text, config=config, **settings)
             else:
                 raise ParseError('No tokenizer or text')
+            assert not isinstance(tokenizer, NullTokenizer)
             self._tokenizer = tokenizer
-            self._cursor = tokenizer.newcursor()
+            self._cursor = self._tokenizer.newcursor()
+            self._states = ParseStateStack(cursor=tokenizer.newcursor())
+            assert not isinstance(self._cursor, NullCursor)
+            assert not isinstance(self.state.cursor, NullCursor)
+            self._reset(config)
 
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
                 self.config.semantics.set_context(self)
@@ -263,14 +292,13 @@ class ParseContext:
         self.states.push(pos=self.pos, ast=ast)
 
     def popstate(self) -> ParseState:
-        return self.states.pop()
+        return self.states.pop(self.pos)
 
     def mergestate(self) -> ParseState:
         return self.states.merge(pos=self.pos)
 
     def undostate(self) -> None:
         self.states.pop()
-        self.cursor.goto(self.state.pos)
 
     def _cut(self) -> None:
         self.states.set_cut_seen()
@@ -314,7 +342,7 @@ class ParseContext:
         if issubclass(exclass, FailedLeftRecursion):
             rulestack: list[str] = []
         else:
-            rulestack = [r.name for r in reversed(self._ruleinfo_stack)]
+            rulestack = [r.name for r in reversed(self.ruleinfo_stack)]
         return exclass(self.cursor.lineinfo(), rulestack, item)
 
     # bw compatibility
@@ -353,7 +381,7 @@ class ParseContext:
 
     @property
     def ruleinfo(self) -> RuleInfo:
-        return self._ruleinfo_stack[-1]
+        return self.ruleinfo_stack[-1]
 
     def memokey(self) -> MemoKey:
         return MemoKey(self.pos, self.ruleinfo, self.substate)
@@ -379,7 +407,8 @@ class ParseContext:
         self._memoize(key, ex)
 
     def _call(self, ruleinfo: RuleInfo) -> Any:
-        self._ruleinfo_stack += [ruleinfo]
+        ristack = self.ruleinfo_stack
+        ristack += [ruleinfo]
         pos = self.pos
         try:
             self.tracer.trace_entry()
@@ -400,16 +429,16 @@ class ParseContext:
             self.tracer.trace_failure(e)
             raise
         finally:
-            self._ruleinfo_stack.pop()
+            ristack.pop()
 
     def _clear_recursion_errors(self) -> None:
-        def filter_func(key: MemoKey, value: Any) -> bool:
+        def filter_func(_key: MemoKey, value: Any) -> bool:
             return isinstance(value, FailedLeftRecursion)
 
         prune_dict(self._memos, filter_func)
 
     def _found_left_recursion(self, ruleinfo: RuleInfo) -> bool:
-        return any(ri.name == ruleinfo.name for ri in self._ruleinfo_stack)
+        return any(ri.name == ruleinfo.name for ri in self.ruleinfo_stack)
 
     def _recursive_call(self, ruleinfo: RuleInfo) -> RuleResult:
         self.next_token(ruleinfo)
@@ -620,8 +649,10 @@ class ParseContext:
 
     @contextmanager
     def _choice(self):
+        ctx = ChoiceContext(self)
         with suppress(OptionSucceeded), self.states.cutscope():
-            yield
+            yield ctx
+            ctx.run()
 
     @contextmanager
     def _optional(self):
@@ -671,7 +702,7 @@ class ParseContext:
         yield
         self.addname(name)
 
-    def _isolate(self, block: Callable[[], Any], drop: bool = False) -> Any:
+    def _isolate(self, block: Callable[[], Any], _drop: bool = False) -> Any:
         self.pushstate()
         try:
             block()
@@ -693,7 +724,7 @@ class ParseContext:
                     p = self.pos
 
                     if prefix:
-                        pcst = self._isolate(prefix, drop=dropprefix)
+                        pcst = self._isolate(prefix, _drop=dropprefix)
                         if not dropprefix:
                             self.states.append(pcst)
                         self._cut()
