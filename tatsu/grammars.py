@@ -1149,5 +1149,5 @@ class Grammar(Model):
 
         rules = (
             '\n\n'.join(str(rule._pretty(lean=lean)) for rule in self.rules)
-                ).rstrip() + '\n\n'
+        ).rstrip() + '\n\n'
         return directives + keywords + rules

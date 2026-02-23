@@ -15,6 +15,7 @@ class OptionSucceeded(Exception):
 class FailedParse(Exception):
     pass
 
+
 class ChoiceContext:
     def __init__(self, ctx: Any, parallel: bool = False):
         self.ctx = ctx
@@ -80,7 +81,9 @@ class ChoiceContext:
         try:
             # 1. Dispatch branches
             for opt in self.options:
-                futures.append(executor.submit(self._worker, self.ctx, opt, ss.branch()))
+                futures.append(
+                    executor.submit(self._worker, self.ctx, opt, ss.branch())
+                )
 
             # 2. Resolve in order to preserve PEG priority
             for future in futures:

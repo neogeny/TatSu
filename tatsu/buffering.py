@@ -7,6 +7,7 @@ Line analysis and caching are done so the parser can freely move with goto(p)
 to any position in the parsed text, and still recover accurate information
 about source lines and content.
 """
+
 from __future__ import annotations
 
 import re
@@ -142,7 +143,7 @@ class BufferCursor(Cursor):
         if self.atend():
             return ''
         info = self.lineinfo(self.pos)
-        text = info.text[info.col: info.col + 1 + 80]
+        text = info.text[info.col : info.col + 1 + 80]
         return self.buffer.split_block_lines(text)[0].rstrip()
 
     def posline(self, pos: int | None = None) -> int:
@@ -180,7 +181,7 @@ class Buffer(Tokenizer):
         *,
         config: ParserConfig | None = None,
         **settings: Any,
-        ):
+    ):
         super().__init__()
         config = ParserConfig.new(config=config, **settings)
         self.config = config
@@ -269,7 +270,7 @@ class Buffer(Tokenizer):
         block,
         /,
         **kwargs,
-        ) -> tuple[list[str], list[LineIndexInfo]]:
+    ) -> tuple[list[str], list[LineIndexInfo]]:
         lines = self.split_block_lines(block)
         index = LineIndexInfo.block_index(name, len(lines))
         return self.process_block(name, lines, index, **kwargs)
@@ -287,7 +288,7 @@ class Buffer(Tokenizer):
         index: list[LineIndexInfo],
         /,
         **kwargs,
-        ) -> tuple[list[str], list[LineIndexInfo]]:
+    ) -> tuple[list[str], list[LineIndexInfo]]:
         return lines, index
 
     def include(
@@ -300,7 +301,7 @@ class Buffer(Tokenizer):
         block: str,
         /,
         **kwargs,
-        ) -> int:
+    ) -> int:
         blines, bindex = self._preprocess_block(name, block, **kwargs)
         assert len(blines) == len(bindex)
         lines[i:j] = blines
@@ -316,7 +317,7 @@ class Buffer(Tokenizer):
         index: list[LineIndexInfo],
         i: int,
         j: int,
-        ) -> int:
+    ) -> int:
         text, filename = self.get_include(source, name)
         return self.include(lines, index, i, j, filename, text)
 
@@ -535,7 +536,7 @@ class Buffer(Tokenizer):
                 start=0,
                 end=len(self.text),
                 text=self.text,
-                )
+            )
 
         # -2 to skip over sentinel
         pos = min(pos, len(self._line_cache) - 2)

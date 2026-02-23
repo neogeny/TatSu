@@ -16,7 +16,7 @@ from .railmath import (
     loop,
     stopnloop,
     weld,
-    )
+)
 
 
 def tracks(model: grammars.Grammar):

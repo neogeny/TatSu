@@ -18,8 +18,8 @@ from ..util.deprecate import deprecated
 class Node(BaseNode):
     def __init__(self, ast: Any = None, **kwargs: Any):
         super().__init__(ast=ast, **kwargs)
-        self.__parent_ref: weakref.ref[Node] | None = (  # pyright: ignore[reportRedeclaration]
-            None
+        self.__parent_ref: weakref.ref[Node] | None = (
+            None  # pyright: ignore[reportRedeclaration]
         )
 
     def __post_init__(self):
@@ -43,7 +43,7 @@ class Node(BaseNode):
     def text(self) -> str | None:
         pi = self.parseinfo
         if pi and hasattr(pi.cursor, "text"):
-            return pi.cursor.text[pi.pos: pi.endpos]
+            return pi.cursor.text[pi.pos : pi.endpos]
         return None
 
     @property

@@ -4,15 +4,18 @@
 import re
 from typing import Any
 
-from .bootstrap import (TatSuBootstrapBuffer, TatSuBootstrapParser, TatSuBootstrapTokenizer)
+from .bootstrap import (
+    TatSuBootstrapBuffer,
+    TatSuBootstrapParser,
+    TatSuBootstrapTokenizer,
+)
 from .grammars import PRAGMA_RE
 from .infos import ParserConfig
 from .parser_semantics import TatSuGrammarSemantics
 from .semantics import ASTSemantics
 
 
-class TatSuTokenizer(TatSuBootstrapTokenizer):
-    ...
+class TatSuTokenizer(TatSuBootstrapTokenizer): ...
 
 
 class TatSuBuffer(TatSuBootstrapBuffer):

@@ -9,5 +9,7 @@ def fromany(ss: Any) -> ParserStateStack:
     This acts as the type-safe gateway for Engine contexts.
     """
     if not isinstance(ss, ParserStateStack):
-        raise TypeError(f"Parser expected ParserStateStack, received {type(ss).__name__}")
+        raise TypeError(
+            f"Parser expected ParserStateStack, received {type(ss).__name__}"
+        )
     return ss

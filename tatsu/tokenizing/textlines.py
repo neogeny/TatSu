@@ -113,7 +113,7 @@ class TextLinesCursor(Cursor):
         if self.atend():
             return ''
         info = self.tokens.lineinfo_at(self.pos)
-        text = info.text[info.col: info.col + 1 + 80]
+        text = info.text[info.col : info.col + 1 + 80]
         return self.tokens.split_block_lines(text)[0].rstrip()
 
     def posline(self, pos: int | None = None) -> int:
@@ -130,7 +130,7 @@ class TextLinesCursor(Cursor):
         self,
         start: int | None = None,
         end: int | None = None,
-        ) -> list[str]:
+    ) -> list[str]:
         return self.tokens.get_lines(start, end)
 
     def line_index(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
@@ -153,7 +153,7 @@ class TextLinesTokenizer(Tokenizer):
         *,
         config: ParserConfig | None = None,
         **settings: Any,
-        ):
+    ):
         super().__init__()
         config = ParserConfig.new(config=config, **settings)
         self.config = config
@@ -232,7 +232,7 @@ class TextLinesTokenizer(Tokenizer):
         name: str,
         block: str,
         **kwargs,
-        ) -> tuple[list[str], list[LineIndexInfo]]:
+    ) -> tuple[list[str], list[LineIndexInfo]]:
         lines = self.split_block_lines(block)
         index = LineIndexInfo.block_index(name, len(lines))
         return self.process_block(name, lines, index, **kwargs)
@@ -249,7 +249,7 @@ class TextLinesTokenizer(Tokenizer):
         lines: list[str],
         index: list[LineIndexInfo],
         **kwargs,
-        ):
+    ):
         return lines, index
 
     def posline_at(self, pos: int) -> int:
@@ -297,7 +297,7 @@ class TextLinesTokenizer(Tokenizer):
             return None
 
         p = c.pos
-        text = self.text[p: p + len(token)]
+        text = self.text[p : p + len(token)]
 
         if self.ignorecase:
             is_match = text.lower() == token.lower()
@@ -331,7 +331,9 @@ class TextLinesTokenizer(Tokenizer):
         c.move(len(matched))
         return token
 
-    def _scanre(self, pattern: str | re.Pattern | None, c: Cursor) -> re.Match[Any] | None:
+    def _scanre(
+        self, pattern: str | re.Pattern | None, c: Cursor
+    ) -> re.Match[Any] | None:
         if not (cre := cached_re_compile(pattern)):
             return None
         return cre.match(self.text, c.pos)
@@ -358,12 +360,14 @@ class TextLinesTokenizer(Tokenizer):
             start = 0
         if end is None:
             end = len(self._lines)
-        return self._lines[start: end + 1]
+        return self._lines[start : end + 1]
 
-    def line_index_at(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
+    def line_index_at(
+        self, start: int = 0, end: int | None = None
+    ) -> list[LineIndexInfo]:
         if end is None:
             end = len(self._line_index)
-        return self._line_index[start: 1 + end]
+        return self._line_index[start : 1 + end]
 
     def is_name_char(self, c: str | None) -> bool:
         return c is not None and (c.isalnum() or c in self._namechar_set)

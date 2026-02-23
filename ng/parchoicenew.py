@@ -84,7 +84,9 @@ class ChoiceContext:
         try:
             # 1. Dispatch branches with isolated state stacks
             for opt in self.options:
-                futures.append(executor.submit(self._worker, self.ctx, opt, ss.branch()))
+                futures.append(
+                    executor.submit(self._worker, self.ctx, opt, ss.branch())
+                )
 
             # 2. Resolve in registration order
             for future in futures:

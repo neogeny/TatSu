@@ -18,7 +18,13 @@ from ..util.abctools import is_list
 
 
 class ParseState:
-    __slots__ = ('alerts', 'ast', 'cst', 'cursor', 'last_node',)
+    __slots__ = (
+        'alerts',
+        'ast',
+        'cst',
+        'cursor',
+        'last_node',
+    )
 
     def __init__(self, cursor: Cursor, pos: int = 0, ast: Any = None, cst: Any = None):
         assert isinstance(cursor, Cursor), f'{type(cursor)} != NullCursor'
