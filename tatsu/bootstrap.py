@@ -10,14 +10,17 @@
 #  the file is generated.
 
 # ruff: noqa: RUF100, C405, COM812, I001, F401, PLR1702, PLC2801, SIM117
-# ruff: noqa: PL2401, PLC2402, PLC2403, E303
+# ruff: noqa: PL2401, PLC2402, PLC2403
+# E303
 # fmt: off
 
 from __future__ import annotations
 
+from typing import Any
+
 from tatsu.buffering import Buffer
 from tatsu.infos import ParserConfig
-from tatsu.parsing import Parser, generic_main, rule
+from tatsu.parsing import Parser, leftrec, nomemo, isname, generic_main, rule
 from tatsu.tokenizing.textlines import TextLinesTokenizer
 
 __all__ = ['TatSuBootstrapTokenizer', 'TatSuBootstrapParser', 'main']
@@ -86,11 +89,11 @@ class TatSuBootstrapParser(Parser):
         )
 
     @rule()
-    def _start_(self):
+    def _start_(self, _ss: Any = None):
         self._grammar_()
 
     @rule('Grammar')
-    def _grammar_(self):
+    def _grammar_(self, _ss: Any = None):
         with self._setname('title'):
             self._constant('TATSU')
 
@@ -124,14 +127,14 @@ class TatSuBootstrapParser(Parser):
                     with self._addname('keywords'):
                         self._keyword_()
 
-                choice.expecting('<rule>', '<keyword>')
+                choice.expecting('<keyword>', '<rule>')
 
         self._closure(block1)
         self._check_eof()
         self._define(['title'], ['directives', 'keywords', 'rules'])
 
     @rule()
-    def _directive_(self):
+    def _directive_(self, _ss: Any = None):
         self._token('@@')
         with self._ifnot():
             self._token('keyword')
@@ -191,12 +194,11 @@ class TatSuBootstrapParser(Parser):
                                     self._constant('None')
 
                                 choice.expecting(
-                                    'None',
+                                    '<regex>',
                                     '<string>',
                                     'False',
-                                    '<regex>'
+                                    'None'
                                 )
-
                     self._define(['name', 'value'], [])
 
                 @choice.option
@@ -231,7 +233,6 @@ class TatSuBootstrapParser(Parser):
                                     'nameguard',
                                     'parseinfo'
                                 )
-
                     self._cut()
                     with self._group():
                         with self._choice() as choice:
@@ -276,23 +277,22 @@ class TatSuBootstrapParser(Parser):
                     self._define(['name', 'value'], [])
 
                 choice.expecting(
-                    'namechars',
-                    'whitespace',
-                    'eol_comments',
-                    'ignorecase',
                     'comments',
+                    'eol_comments',
+                    'grammar',
+                    'ignorecase',
                     'left_recursion',
                     'memoization',
+                    'namechars',
                     'nameguard',
                     'parseinfo',
-                    'grammar'
+                    'whitespace'
                 )
-
         self._cut()
         self._define(['name', 'value'], [])
 
     @rule()
-    def _keywords_(self):
+    def _keywords_(self, _ss: Any = None):
 
         def block0():
             self._keywords_()
@@ -300,7 +300,7 @@ class TatSuBootstrapParser(Parser):
         self._positive_closure(block0)
 
     @rule()
-    def _keyword_(self):
+    def _keyword_(self, _ss: Any = None):
         self._token('@@keyword')
         self._cut()
         self._token('::')
@@ -318,7 +318,7 @@ class TatSuBootstrapParser(Parser):
                         def _():
                             self._string_()
 
-                        choice.expecting('<word>', '<string>')
+                        choice.expecting('<string>', '<word>')
             with self._ifnot():
                 with self._group():
                     with self._choice() as choice:
@@ -335,7 +335,7 @@ class TatSuBootstrapParser(Parser):
         self._closure(block0)
 
     @rule()
-    def _the_params_at_last_(self):
+    def _the_params_at_last_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -360,7 +360,7 @@ class TatSuBootstrapParser(Parser):
             choice.expecting('<kwparams>', '<params>')
 
     @rule()
-    def _paramdef_(self):
+    def _paramdef_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -428,10 +428,10 @@ class TatSuBootstrapParser(Parser):
                     self._params_()
                 self._define(['params'], [])
 
-            choice.expecting('[', '::', '(')
+            choice.expecting('(', '::', '[')
 
     @rule('Rule')
-    def _rule_(self):
+    def _rule_(self, _ss: Any = None):
         with self._setname('decorators'):
 
             def block0():
@@ -509,7 +509,7 @@ class TatSuBootstrapParser(Parser):
                         self._params_()
                     self._define(['params'], [])
 
-                choice.expecting('[', '::', '(')
+                choice.expecting('(', '::', '[')
         with self._optional():
             self._token('<')
             self._cut()
@@ -539,7 +539,7 @@ class TatSuBootstrapParser(Parser):
         self._define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
 
     @rule()
-    def _ENDRULE_(self):
+    def _ENDRULE_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -561,24 +561,23 @@ class TatSuBootstrapParser(Parser):
                 self._token(';')
 
             choice.expecting(
-                '<EMPTYLINE>',
-                ';',
-                '<UNINDENTED>',
+                '(?:\\s*(?:\\r?\\n|\\r)){2,}',
                 '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
-                '(?:\\s*(?:\\r?\\n|\\r)){2,}'
+                ';',
+                '<EMPTYLINE>',
+                '<UNINDENTED>'
             )
 
-
     @rule()
-    def _UNINDENTED_(self):
+    def _UNINDENTED_(self, _ss: Any = None):
         self._pattern(r'(?=\s*(?:\r?\n|\r)[^\s])')
 
     @rule()
-    def _EMPTYLINE_(self):
+    def _EMPTYLINE_(self, _ss: Any = None):
         self._pattern(r'(?:\s*(?:\r?\n|\r)){2,}')
 
     @rule()
-    def _decorator_(self):
+    def _decorator_(self, _ss: Any = None):
         self._token('@')
         with self._ifnot():
             self._token('@')
@@ -598,10 +597,10 @@ class TatSuBootstrapParser(Parser):
                     def _():
                         self._token('nomemo')
 
-                    choice.expecting('override', 'name', 'nomemo')
+                    choice.expecting('name', 'nomemo', 'override')
 
     @rule()
-    def _params_(self):
+    def _params_(self, _ss: Any = None):
         with self._addname('@'):
             self._first_param_()
 
@@ -616,7 +615,7 @@ class TatSuBootstrapParser(Parser):
         self._closure(block0)
 
     @rule()
-    def _first_param_(self):
+    def _first_param_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -627,22 +626,21 @@ class TatSuBootstrapParser(Parser):
                 self._literal_()
 
             choice.expecting(
-                '<word>',
                 '(?!\\d)\\w+(?:::(?!\\d)\\w+)+',
+                '<boolean>',
+                '<float>',
+                '<hex>',
+                '<int>',
+                '<literal>',
                 '<null>',
                 '<path>',
-                '<literal>',
-                '<boolean>',
                 '<raw_string>',
-                '<int>',
                 '<string>',
-                '<hex>',
-                '<float>'
+                '<word>'
             )
 
-
     @rule()
-    def _kwparams_(self):
+    def _kwparams_(self, _ss: Any = None):
 
         def sep0():
             self._token(',')
@@ -653,7 +651,7 @@ class TatSuBootstrapParser(Parser):
         self._positive_gather(block1, sep0)
 
     @rule()
-    def _pair_(self):
+    def _pair_(self, _ss: Any = None):
         with self._addname('@'):
             self._word_()
         self._token('=')
@@ -662,7 +660,7 @@ class TatSuBootstrapParser(Parser):
             self._literal_()
 
     @rule()
-    def _expre_(self):
+    def _expre_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -673,20 +671,19 @@ class TatSuBootstrapParser(Parser):
                 self._sequence_()
 
             choice.expecting(
-                '<choice>',
-                '<sequence>',
-                '<ENDRULE>',
-                '|',
-                '<element>',
-                '<EMPTYLINE>',
                 ';',
+                '<EMPTYLINE>',
+                '<ENDRULE>',
                 '<UNINDENTED>',
-                '<option>'
+                '<choice>',
+                '<element>',
+                '<option>',
+                '<sequence>',
+                '|'
             )
 
-
     @rule('Choice')
-    def _choice_(self):
+    def _choice_(self, _ss: Any = None):
         with self._optional():
             self._token('|')
             self._cut()
@@ -702,12 +699,12 @@ class TatSuBootstrapParser(Parser):
         self._positive_closure(block0)
 
     @rule('Option')
-    def _option_(self):
+    def _option_(self, _ss: Any = None):
         with self._setname('@'):
             self._sequence_()
 
     @rule('Sequence')
-    def _sequence_(self):
+    def _sequence_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -735,22 +732,21 @@ class TatSuBootstrapParser(Parser):
                 self._positive_closure(block2)
 
             choice.expecting(
-                '<named>',
-                '<ENDRULE>',
-                '<term>',
-                '<rule_include>',
-                '<element>',
-                '<EMPTYLINE>',
-                ';',
-                '<override>',
-                '<UNINDENTED>',
+                '(?:\\s*(?:\\r?\\n|\\r)){2,}',
                 '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
-                '(?:\\s*(?:\\r?\\n|\\r)){2,}'
+                ';',
+                '<EMPTYLINE>',
+                '<ENDRULE>',
+                '<UNINDENTED>',
+                '<element>',
+                '<named>',
+                '<override>',
+                '<rule_include>',
+                '<term>'
             )
 
-
     @rule()
-    def _element_(self):
+    def _element_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -769,43 +765,42 @@ class TatSuBootstrapParser(Parser):
                 self._term_()
 
             choice.expecting(
-                '<left_join>',
+                '<atom>',
+                '<closure>',
                 '<cut>',
-                '<override_single>',
-                '<rule_include>',
+                '<cut_deprecated>',
+                '<empty_closure>',
+                '<gather>',
+                '<join>',
+                '<left_join>',
+                '<lookahead>',
+                '<named>',
                 '<named_list>',
                 '<named_single>',
-                '<join>',
-                '<gather>',
-                '<closure>',
-                '<cut_deprecated>',
                 '<negative_lookahead>',
-                '<lookahead>',
-                '<override>',
-                '<named>',
                 '<optional>',
-                '<skip_to>',
-                '<empty_closure>',
+                '<override>',
                 '<override_list>',
+                '<override_single>',
+                '<override_single_deprecated>',
+                '<positive_closure>',
+                '<right_join>',
+                '<rule_include>',
+                '<skip_to>',
                 '<term>',
                 '<void>',
-                '<override_single_deprecated>',
-                '<right_join>',
-                '<atom>',
-                '>',
-                '<positive_closure>'
+                '>'
             )
 
-
     @rule('RuleInclude')
-    def _rule_include_(self):
+    def _rule_include_(self, _ss: Any = None):
         self._token('>')
         self._cut()
         with self._setname('@'):
             self._known_name_()
 
     @rule()
-    def _named_(self):
+    def _named_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -815,10 +810,10 @@ class TatSuBootstrapParser(Parser):
             def _():
                 self._named_single_()
 
-            choice.expecting('<named_single>', '<named_list>', '<name>')
+            choice.expecting('<name>', '<named_list>', '<named_single>')
 
     @rule('NamedList')
-    def _named_list_(self):
+    def _named_list_(self, _ss: Any = None):
         with self._setname('name'):
             self._name_()
         self._token('+:')
@@ -828,7 +823,7 @@ class TatSuBootstrapParser(Parser):
         self._define(['exp', 'name'], [])
 
     @rule('Named')
-    def _named_single_(self):
+    def _named_single_(self, _ss: Any = None):
         with self._setname('name'):
             self._name_()
         self._token(':')
@@ -838,7 +833,7 @@ class TatSuBootstrapParser(Parser):
         self._define(['exp', 'name'], [])
 
     @rule()
-    def _override_(self):
+    def _override_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -853,38 +848,37 @@ class TatSuBootstrapParser(Parser):
                 self._override_single_deprecated_()
 
             choice.expecting(
-                '@:',
-                '<override_single>',
-                '@',
                 '<override_list>',
+                '<override_single>',
+                '<override_single_deprecated>',
+                '@',
                 '@+:',
-                '<override_single_deprecated>'
+                '@:'
             )
 
-
     @rule('OverrideList')
-    def _override_list_(self):
+    def _override_list_(self, _ss: Any = None):
         self._token('@+:')
         self._cut()
         with self._setname('@'):
             self._term_()
 
     @rule('Override')
-    def _override_single_(self):
+    def _override_single_(self, _ss: Any = None):
         self._token('@:')
         self._cut()
         with self._setname('@'):
             self._term_()
 
     @rule('Override')
-    def _override_single_deprecated_(self):
+    def _override_single_deprecated_(self, _ss: Any = None):
         self._token('@')
         self._cut()
         with self._setname('@'):
             self._term_()
 
     @rule()
-    def _term_(self):
+    def _term_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -947,44 +941,43 @@ class TatSuBootstrapParser(Parser):
                 self._atom_()
 
             choice.expecting(
-                '<left_join>',
-                '<cut>',
-                '<join>',
-                '<gather>',
-                '{}',
-                '<closure>',
-                '<cut_deprecated>',
-                '&',
-                '>>',
-                '<negative_lookahead>',
-                '<group>',
-                '<alert>',
-                '<eof>',
-                '<lookahead>',
-                '->',
-                '{',
-                '<optional>',
-                '(',
-                '<skip_to>',
-                '<empty_closure>',
                 '!',
-                '<void>',
-                '<dot>',
-                '<token>',
-                '<pattern>',
-                '<right_join>',
-                '<call>',
-                '~',
-                '<atom>',
-                '<constant>',
-                '<positive_closure>',
+                '&',
+                '(',
                 '()',
-                '['
+                '->',
+                '<alert>',
+                '<atom>',
+                '<call>',
+                '<closure>',
+                '<constant>',
+                '<cut>',
+                '<cut_deprecated>',
+                '<dot>',
+                '<empty_closure>',
+                '<eof>',
+                '<gather>',
+                '<group>',
+                '<join>',
+                '<left_join>',
+                '<lookahead>',
+                '<negative_lookahead>',
+                '<optional>',
+                '<pattern>',
+                '<positive_closure>',
+                '<right_join>',
+                '<skip_to>',
+                '<token>',
+                '<void>',
+                '>>',
+                '[',
+                '{',
+                '{}',
+                '~'
             )
 
-
     @rule('Group')
-    def _group_(self):
+    def _group_(self, _ss: Any = None):
         self._token('(')
         self._cut()
         with self._setname('@'):
@@ -993,7 +986,7 @@ class TatSuBootstrapParser(Parser):
         self._cut()
 
     @rule()
-    def _gather_(self):
+    def _gather_(self, _ss: Any = None):
         with self._if():
             with self._group():
                 self._atom_()
@@ -1012,7 +1005,7 @@ class TatSuBootstrapParser(Parser):
                 choice.expecting('<normal_gather>', '<positive_gather>')
 
     @rule('PositiveGather')
-    def _positive_gather_(self):
+    def _positive_gather_(self, _ss: Any = None):
         with self._setname('sep'):
             self._atom_()
         self._token('.{')
@@ -1029,12 +1022,12 @@ class TatSuBootstrapParser(Parser):
                 def _():
                     self._token('-')
 
-                choice.expecting('-', '+')
+                choice.expecting('+', '-')
         self._cut()
         self._define(['exp', 'sep'], [])
 
     @rule('Gather')
-    def _normal_gather_(self):
+    def _normal_gather_(self, _ss: Any = None):
         with self._setname('sep'):
             self._atom_()
         self._token('.{')
@@ -1049,7 +1042,7 @@ class TatSuBootstrapParser(Parser):
         self._define(['exp', 'sep'], [])
 
     @rule()
-    def _join_(self):
+    def _join_(self, _ss: Any = None):
         with self._if():
             with self._group():
                 self._atom_()
@@ -1068,7 +1061,7 @@ class TatSuBootstrapParser(Parser):
                 choice.expecting('<normal_join>', '<positive_join>')
 
     @rule('PositiveJoin')
-    def _positive_join_(self):
+    def _positive_join_(self, _ss: Any = None):
         with self._setname('sep'):
             self._atom_()
         self._token('%{')
@@ -1085,12 +1078,12 @@ class TatSuBootstrapParser(Parser):
                 def _():
                     self._token('-')
 
-                choice.expecting('-', '+')
+                choice.expecting('+', '-')
         self._cut()
         self._define(['exp', 'sep'], [])
 
     @rule('Join')
-    def _normal_join_(self):
+    def _normal_join_(self, _ss: Any = None):
         with self._setname('sep'):
             self._atom_()
         self._token('%{')
@@ -1105,7 +1098,7 @@ class TatSuBootstrapParser(Parser):
         self._define(['exp', 'sep'], [])
 
     @rule('LeftJoin')
-    def _left_join_(self):
+    def _left_join_(self, _ss: Any = None):
         with self._setname('sep'):
             self._atom_()
         self._token('<{')
@@ -1123,12 +1116,12 @@ class TatSuBootstrapParser(Parser):
                 def _():
                     self._token('-')
 
-                choice.expecting('-', '+')
+                choice.expecting('+', '-')
         self._cut()
         self._define(['exp', 'sep'], [])
 
     @rule('RightJoin')
-    def _right_join_(self):
+    def _right_join_(self, _ss: Any = None):
         with self._setname('sep'):
             self._atom_()
         self._token('>{')
@@ -1146,12 +1139,12 @@ class TatSuBootstrapParser(Parser):
                 def _():
                     self._token('-')
 
-                choice.expecting('-', '+')
+                choice.expecting('+', '-')
         self._cut()
         self._define(['exp', 'sep'], [])
 
     @rule('PositiveClosure')
-    def _positive_closure_(self):
+    def _positive_closure_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -1169,7 +1162,7 @@ class TatSuBootstrapParser(Parser):
                         def _():
                             self._token('+')
 
-                        choice.expecting('-', '+')
+                        choice.expecting('+', '-')
                 self._cut()
 
             @choice.option
@@ -1180,22 +1173,21 @@ class TatSuBootstrapParser(Parser):
                 self._cut()
 
             choice.expecting(
-                '<group>',
-                '<atom>',
+                '(',
                 '<alert>',
-                '<eof>',
-                '{',
-                '<dot>',
-                '<token>',
-                '<constant>',
-                '<pattern>',
+                '<atom>',
                 '<call>',
-                '('
+                '<constant>',
+                '<dot>',
+                '<eof>',
+                '<group>',
+                '<pattern>',
+                '<token>',
+                '{'
             )
 
-
     @rule('Closure')
-    def _closure_(self):
+    def _closure_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -1215,29 +1207,28 @@ class TatSuBootstrapParser(Parser):
                 self._cut()
 
             choice.expecting(
-                '<group>',
-                '<atom>',
+                '(',
                 '<alert>',
-                '<eof>',
-                '{',
-                '<dot>',
-                '<token>',
-                '<constant>',
-                '<pattern>',
+                '<atom>',
                 '<call>',
-                '('
+                '<constant>',
+                '<dot>',
+                '<eof>',
+                '<group>',
+                '<pattern>',
+                '<token>',
+                '{'
             )
 
-
     @rule('EmptyClosure')
-    def _empty_closure_(self):
+    def _empty_closure_(self, _ss: Any = None):
         self._token('{}')
         self._cut()
         with self._setname('@'):
             self._void()
 
     @rule('Optional')
-    def _optional_(self):
+    def _optional_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -1267,48 +1258,47 @@ class TatSuBootstrapParser(Parser):
                             def _():
                                 self._token('?/')
 
-                            choice.expecting('?"', '?/', "?'")
+                            choice.expecting("?'", '?"', '?/')
                 self._token('?')
                 self._cut()
 
             choice.expecting(
-                '<group>',
-                '<atom>',
+                '(',
                 '<alert>',
-                '<eof>',
-                '<dot>',
-                '<token>',
-                '<constant>',
-                '<pattern>',
-                '[',
+                '<atom>',
                 '<call>',
-                '('
+                '<constant>',
+                '<dot>',
+                '<eof>',
+                '<group>',
+                '<pattern>',
+                '<token>',
+                '['
             )
 
-
     @rule('Lookahead')
-    def _lookahead_(self):
+    def _lookahead_(self, _ss: Any = None):
         self._token('&')
         self._cut()
         with self._setname('@'):
             self._term_()
 
     @rule('NegativeLookahead')
-    def _negative_lookahead_(self):
+    def _negative_lookahead_(self, _ss: Any = None):
         self._token('!')
         self._cut()
         with self._setname('@'):
             self._term_()
 
     @rule('SkipTo')
-    def _skip_to_(self):
+    def _skip_to_(self, _ss: Any = None):
         self._token('->')
         self._cut()
         with self._setname('@'):
             self._term_()
 
     @rule()
-    def _atom_(self):
+    def _atom_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -1343,61 +1333,60 @@ class TatSuBootstrapParser(Parser):
                 self._eof_()
 
             choice.expecting(
-                '<word>',
-                '<group>',
+                '$',
+                '(',
                 '/./',
                 '<alert>',
-                '<regexes>',
-                '<eof>',
-                '$',
-                '<raw_string>',
-                '<dot>',
-                '<token>',
-                '`',
-                '<constant>',
-                '<string>',
-                '<pattern>',
-                '\\^+',
                 '<call>',
-                '('
+                '<constant>',
+                '<dot>',
+                '<eof>',
+                '<group>',
+                '<pattern>',
+                '<raw_string>',
+                '<regexes>',
+                '<string>',
+                '<token>',
+                '<word>',
+                '\\^+',
+                '`'
             )
 
-
     @rule('Call')
-    def _call_(self):
+    def _call_(self, _ss: Any = None):
         self._word_()
 
     @rule('Void')
-    def _void_(self):
+    def _void_(self, _ss: Any = None):
         self._token('()')
         self._cut()
 
     @rule('Fail')
-    def _fail_(self):
+    def _fail_(self, _ss: Any = None):
         self._token('!()')
         self._cut()
 
     @rule('Cut')
-    def _cut_(self):
+    def _cut_(self, _ss: Any = None):
         self._token('~')
         self._cut()
 
     @rule('Cut')
-    def _cut_deprecated_(self):
+    def _cut_deprecated_(self, _ss: Any = None):
         self._token('>>')
         self._cut()
 
     @rule()
-    def _known_name_(self):
+    def _known_name_(self, _ss: Any = None):
         self._name_()
         self._cut()
 
     @rule()
-    def _name_(self):
+    def _name_(self, _ss: Any = None):
         self._word_()
 
     @rule('Constant')
-    def _constant_(self):
+    def _constant_(self, _ss: Any = None):
         with self._if():
             self._token('`')
         with self._group():
@@ -1417,10 +1406,10 @@ class TatSuBootstrapParser(Parser):
                 def _():
                     self._pattern(r'`(.*?)`')
 
-                choice.expecting('`', '`(.*?)`', '(?ms)```((?:.|\\n)*?)```')
+                choice.expecting('(?ms)```((?:.|\\n)*?)```', '`', '`(.*?)`')
 
     @rule('Alert')
-    def _alert_(self):
+    def _alert_(self, _ss: Any = None):
         with self._setname('level'):
             self._pattern(r'\^+')
         with self._setname('message'):
@@ -1428,7 +1417,7 @@ class TatSuBootstrapParser(Parser):
         self._define(['level', 'message'], [])
 
     @rule('Token')
-    def _token_(self):
+    def _token_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -1438,10 +1427,10 @@ class TatSuBootstrapParser(Parser):
             def _():
                 self._raw_string_()
 
-            choice.expecting('<raw_string>', '<string>', '<STRING>', 'r')
+            choice.expecting('<STRING>', '<raw_string>', '<string>', 'r')
 
     @rule()
-    def _literal_(self):
+    def _literal_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -1476,38 +1465,37 @@ class TatSuBootstrapParser(Parser):
                 self._null_()
 
             choice.expecting(
-                '<word>',
-                '<null>',
-                '[-+]?\\d+',
-                'None',
-                '<boolean>',
-                '<raw_string>',
-                '[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?',
-                '<int>',
                 '(?!\\d)\\w+',
                 '0[xX](?:\\d|[a-fA-F])+',
-                '<string>',
-                'False',
-                'r',
-                '<hex>',
-                'True',
                 '<STRING>',
-                '<float>'
+                '<boolean>',
+                '<float>',
+                '<hex>',
+                '<int>',
+                '<null>',
+                '<raw_string>',
+                '<string>',
+                '<word>',
+                'False',
+                'None',
+                'True',
+                '[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?',
+                '[-+]?\\d+',
+                'r'
             )
 
-
     @rule()
-    def _string_(self):
+    def _string_(self, _ss: Any = None):
         self._STRING_()
 
     @rule()
-    def _raw_string_(self):
+    def _raw_string_(self, _ss: Any = None):
         self._pattern(r'r')
         with self._setname('@'):
             self._STRING_()
 
     @rule()
-    def _STRING_(self):
+    def _STRING_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -1522,41 +1510,40 @@ class TatSuBootstrapParser(Parser):
                 self._cut()
 
             choice.expecting(
-                '"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"',
-                "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'"
+                "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'",
+                '"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"'
             )
 
-
     @rule()
-    def _hex_(self):
+    def _hex_(self, _ss: Any = None):
         self._pattern(r'0[xX](?:\d|[a-fA-F])+')
 
     @rule()
-    def _float_(self):
+    def _float_(self, _ss: Any = None):
         self._pattern(r'[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?')
 
     @rule()
-    def _int_(self):
+    def _int_(self, _ss: Any = None):
         self._pattern(r'[-+]?\d+')
 
     @rule()
-    def _path_(self):
+    def _path_(self, _ss: Any = None):
         self._pattern(r'(?!\d)\w+(?:::(?!\d)\w+)+')
 
     @rule()
-    def _word_(self):
+    def _word_(self, _ss: Any = None):
         self._pattern(r'(?!\d)\w+')
 
     @rule('Dot')
-    def _dot_(self):
+    def _dot_(self, _ss: Any = None):
         self._token('/./')
 
     @rule('Pattern')
-    def _pattern_(self):
+    def _pattern_(self, _ss: Any = None):
         self._regexes_()
 
     @rule()
-    def _regexes_(self):
+    def _regexes_(self, _ss: Any = None):
 
         def sep0():
             self._token('+')
@@ -1567,7 +1554,7 @@ class TatSuBootstrapParser(Parser):
         self._positive_gather(block1, sep0)
 
     @rule()
-    def _regex_(self):
+    def _regex_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -1588,10 +1575,10 @@ class TatSuBootstrapParser(Parser):
             def _():
                 self._deprecated_regex_()
 
-            choice.expecting('?', '/', '<deprecated_regex>', '?/')
+            choice.expecting('/', '<deprecated_regex>', '?', '?/')
 
     @rule()
-    def _deprecated_regex_(self):
+    def _deprecated_regex_(self, _ss: Any = None):
         self._token('?/')
         self._cut()
         with self._setname('@'):
@@ -1600,7 +1587,7 @@ class TatSuBootstrapParser(Parser):
         self._cut()
 
     @rule()
-    def _boolean_(self):
+    def _boolean_(self, _ss: Any = None):
         with self._choice() as choice:
             @choice.option
             def _():
@@ -1610,14 +1597,14 @@ class TatSuBootstrapParser(Parser):
             def _():
                 self._token('False')
 
-            choice.expecting('True', 'False')
+            choice.expecting('False', 'True')
 
     @rule()
-    def _null_(self):
+    def _null_(self, _ss: Any = None):
         self._token('None')
 
     @rule('EOF')
-    def _eof_(self):
+    def _eof_(self, _ss: Any = None):
         self._token('$')
         self._cut()
 

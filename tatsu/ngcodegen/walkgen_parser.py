@@ -34,6 +34,8 @@ HEADER = """\
 
     from __future__ import annotations
 
+    from typing import Any
+
     from tatsu.buffering import Buffer
     from tatsu.infos import ParserConfig
     from tatsu.parsing import Parser, leftrec, nomemo, isname, generic_main, rule
@@ -63,7 +65,7 @@ if __name__ == '__main__':
 
     ast = generic_main(main, {name}Parser, name='{name}')
     data = asjson(ast)
-    print(json.dumps(data, indent=2))
+    print(json.dumps(data, indent=2))\
 """
 
 
@@ -107,7 +109,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self._gen_buffering(grammar, basename)
         self._gen_parsing(grammar, basename)
 
-        self.print(FOOTER.format(name=basename))
+        self.print(FOOTER.format(name=basename).rstrip())
 
     def walk_Rule(self, rule: grammars.Rule):
         def param_repr(p):
@@ -139,7 +141,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 {leftrec}\
                 {nomemo}\
                 {isname}\
-                \ndef _{rule.name}_(self):
+                \ndef _{rule.name}_(self, _ss: Any = None):
             """)
         with self.indent():
             self.print(self.walk(rule.exp))
@@ -215,7 +217,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         with self.indent():
             self.walk(choice.options)
 
-        elements = [repr(f[0]) for f in choice.lookahead() if f]
+        elements = sorted(repr(f[0]) for f in choice.lookahead() if f)
         if not elements:
             return
 
@@ -229,7 +231,6 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                     expectinner = ',\n'.join(elements)
                     self.print(expectinner)
                 self.print(')')
-                self.print()
 
     def walk_Option(self, option: grammars.Option):
         self.print('@choice.option')

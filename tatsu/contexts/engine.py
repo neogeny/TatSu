@@ -40,6 +40,10 @@ from ..util.undefined import Undefined
 __all__: list[str] = ['ParseContext']
 
 
+type SS = ParseStateStack
+type Block = Callable[[], Any]
+
+
 class ChoiceContext:
     def __init__(self, ctx: ParseContext):
         self.ctx = ctx
@@ -318,7 +322,7 @@ class ParseContext:
             self.config.memoize_lookaheads or self._lookahead == 0
         )
 
-    def _find_rule(self, name: str) -> Callable[[], Any]:
+    def _find_rule(self, name: str) -> Block:
         raise NotImplementedError
 
     def _find_semantic_action(self, name: str) -> Callable[..., Any] | None:
@@ -702,7 +706,7 @@ class ParseContext:
         yield
         self.addname(name)
 
-    def _isolate(self, block: Callable[[], Any], _drop: bool = False) -> Any:
+    def _isolate(self, block: Block, _drop: bool = False) -> Any:
         self.pushstate()
         try:
             block()
@@ -714,8 +718,8 @@ class ParseContext:
 
     def _repeat(
         self,
-        block: Callable[[], Any],
-        prefix: Callable[[], Any] | None = None,
+        block: Block,
+        prefix: Block | None = None,
         dropprefix: bool = False,
     ) -> None:
         while True:
@@ -738,8 +742,8 @@ class ParseContext:
 
     def _closure(
         self,
-        block: Callable[[], Any],
-        sep: Callable[[], Any] | None = None,
+        block: Block,
+        sep: Block | None = None,
         omitsep: bool = False,
     ) -> Any:
         self.pushstate()
@@ -758,8 +762,8 @@ class ParseContext:
 
     def _positive_closure(
         self,
-        block: Callable[[], Any],
-        sep: Callable[[], Any] | None = None,
+        block: Block,
+        sep: Block | None = None,
         omitsep: bool = False,
     ) -> Any:
         self.pushstate()
@@ -779,24 +783,24 @@ class ParseContext:
         self.states.append(cst)
         return cst
 
-    def _gather(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+    def _gather(self, block: Block, sep: Block) -> Any:
         return self._closure(block, sep=sep, omitsep=True)
 
-    def _positive_gather(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+    def _positive_gather(self, block: Block, sep: Block) -> Any:
         return self._positive_closure(block, sep=sep, omitsep=True)
 
-    def _join(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+    def _join(self, block: Block, sep: Block) -> Any:
         return self._closure(block, sep=sep)
 
-    def _positive_join(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+    def _positive_join(self, block: Block, sep: Block) -> Any:
         return self._positive_closure(block, sep=sep)
 
-    def _left_join(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+    def _left_join(self, block: Block, sep: Block) -> Any:
         self.cst = left_assoc(self._positive_join(block, sep))
         self.last_node = self.cst
         return self.cst
 
-    def _right_join(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+    def _right_join(self, block: Block, sep: Block) -> Any:
         self.cst = right_assoc(self._positive_join(block, sep))
         self.last_node = self.cst
         return self.cst
@@ -820,7 +824,7 @@ class ParseContext:
         self.states.append(c)
         return c
 
-    def _skip_to(self, block: Callable[[], Any]) -> None:
+    def _skip_to(self, block: Block) -> None:
         while not self.eof():
             try:
                 with self._if():

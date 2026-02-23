@@ -36,7 +36,7 @@ def rule(
 ) -> Callable[[Callable[..., Any]], Callable[[ParseContext], Any]]:
     def decorator(impl: Callable[..., Any]) -> Callable[[ParseContext], Any]:
         @functools.wraps(impl)
-        def wrapper(self: ParseContext) -> Any:
+        def wrapper(ctx: ParseContext) -> Any:
             name = impl.__name__  # type: ignore
             # remove the single leading and trailing underscore
             # that the parser generator added
@@ -54,6 +54,7 @@ def rule(
                 params,
                 kwparams,
             )
+            self = ctx
             return self._call(ruleinfo)
 
         return wrapper
