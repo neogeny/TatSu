@@ -194,7 +194,8 @@ select = [
 ]
 
 ignore = [
-    "COM819", #  [*] Trailing comma prohibited"
+    "COM812", #  Trailing comma missing"
+    "COM819", #  Trailing comma prohibited"
     "E501", #    line-too-long
     "E402", #    module-import-not-at-top-of-file
     "I001", #    Import block is un-sorted or un-formatted
