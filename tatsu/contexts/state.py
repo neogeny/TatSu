@@ -161,13 +161,12 @@ class ParseStateStack:
         previous = self.cst
         if previous is None:
             self.cst = self.safelist(node)
+        elif is_list(node) and is_list(previous):
+            previous += node
         elif is_list(node):
-            if is_list(previous):
-                previous.extend(node)
-            else:
-                self.cst = [previous, *node]
+            self.cst = [previous, *node]
         elif is_list(previous):
-            previous.append(node)
+            previous += [node]
         else:
             self.cst = [previous, node]
         return node
