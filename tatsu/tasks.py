@@ -293,7 +293,8 @@ def matrix_core(c: Context, python: float = PYTHON):
     ty(c, python=python)
     pyright(c, python=python)
     black(c, python=python)
-    pytest(c, python=python)
+    pytestfast(c, python=python)
+    pytestbootstrap(c, python=python)
     success_print(str(python))
 
 
