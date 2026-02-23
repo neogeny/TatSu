@@ -65,7 +65,7 @@ class BufferCursor(Cursor):
 
     @property
     def line(self) -> int:
-        return self.buffer.posline_at(self.pos)
+        return self.buffer.posline(self.pos)
 
     @property
     def col(self) -> int:
