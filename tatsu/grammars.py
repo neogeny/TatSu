@@ -988,7 +988,7 @@ class Grammar(Model):
         name,
         rules,
         /,
-        config: ParserConfig | None = None,
+        config: ParserConfig = ParserConfig.DFLT,
         directives: dict | None = None,
         **settings,
     ):
