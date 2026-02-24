@@ -7,6 +7,7 @@ import builtins
 from collections import namedtuple
 
 from .. import grammars
+from .._version import version_info
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..util import safe_name
@@ -38,6 +39,7 @@ HEADER = """\
     from tatsu.builder import ModelBuilderSemantics, types_defined_in
     {basetype_import}
 
+    version_info = {version_info}
 
     class {name}ModelBuilderSemantics(ModelBuilderSemantics):
         def __init__(self, constructors=None, **kwargs):
@@ -94,6 +96,7 @@ class PythonModelGenerator(IndentPrintMixin):
                 name=self.name,
                 basetype=self.basetype.__name__,
                 basetype_import=basetype_import,
+                version_info=tuple(version_info)
             ),
         )
 

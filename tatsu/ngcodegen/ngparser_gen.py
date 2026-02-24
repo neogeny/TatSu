@@ -14,6 +14,7 @@ from ..util import regexp, safe_name
 from ..util.abctools import compress_seq
 from ..util.undefined import Undefined
 from ..walkers import NodeWalker
+from .._version import version_info
 
 HEADER = """\
     #!/usr/bin/env python3
@@ -41,6 +42,8 @@ HEADER = """\
     from tatsu.tokenizing.textlines import TextLinesTokenizer
 
     __all__ = ['{tokenizer_name}', '{parser_name}', 'main']
+    
+    version_info = {version_info!r} 
 """
 
 FOOTER = """\
@@ -99,6 +102,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 basename=basename,
                 tokenizer_name=self._tokenizer_name(basename),
                 parser_name=self._parser_name(basename),
+                version_info=tuple(version_info),
             ),
         )
         self.print()
