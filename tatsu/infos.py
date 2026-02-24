@@ -41,7 +41,8 @@ class ParseInfo(NamedTuple):
 
 class RuleInfo(NamedTuple):
     name: str
-    impl: Callable
+    obj: Any
+    impl: Callable[..., None]
     is_leftrec: bool
     is_memoizable: bool
     is_name: bool

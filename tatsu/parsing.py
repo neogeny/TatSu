@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import inspect
 import sys
+from collections.abc import Callable
 from types import MethodType
+from typing import Any
 
 from .contexts import ParseContext, isname, leftrec, nomemo, rule
 from .contexts import rule as tatsumasu
@@ -14,7 +16,7 @@ __all__ = ['Parser', 'generic_main', 'isname', 'leftrec', 'nomemo', 'rule', 'tat
 
 
 class Parser(ParseContext):
-    def _find_rule(self, name: str) -> MethodType:
+    def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
         for rulename in (f'_{name}_', name):
             rule = getattr(self, rulename, None)
             if inspect.ismethod(rule):

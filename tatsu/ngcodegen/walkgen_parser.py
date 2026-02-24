@@ -35,6 +35,7 @@ HEADER = """\
     from __future__ import annotations
 
     from tatsu.buffering import Buffer
+    from tatsu.contexts import ParseContext
     from tatsu.infos import ParserConfig
     from tatsu.parsing import Parser, leftrec, nomemo, isname, generic_main, rule
     from tatsu.tokenizing.textlines import TextLinesTokenizer
@@ -139,7 +140,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 {leftrec}\
                 {nomemo}\
                 {isname}\
-                \ndef _{rule.name}_(self):
+                \ndef _{rule.name}_(self, ctx: ParseContext):
             """)
         with self.indent():
             self.print(self.walk(rule.exp))
@@ -148,22 +149,22 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.walk_Rule(rule)
 
     def walk_Call(self, call: grammars.Call):
-        self.print(f'self._{call.name}_()')
+        self.print(f'self._{call.name}_(ctx)')
 
     def walk_RuleInclude(self, include: grammars.RuleInclude):
         self.walk(include.rule.exp)
 
     def walk_Void(self, void: grammars.Void):
-        self.print('self._void()')
+        self.print('ctx._void()')
 
     def walk_Dot(self, _dot: grammars.Dot):
-        self.print('self._dot()')
+        self.print('ctx._dot()')
 
     def walk_Fail(self, fail: grammars.Fail):
-        self.print('self._fail()')
+        self.print('ctx._fail()')
 
     def walk_Cut(self, cut: grammars.Cut):
-        self.print('self._cut()')
+        self.print('ctx._cut()')
 
     def walk_Comment(self, comment: grammars.Comment):
         lines = '\n'.join(f'# {c!s}' for c in comment.comment.splitlines())
@@ -173,7 +174,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.walk_Comment(comment)
 
     def walk_EOF(self, eof: grammars.EOF):
-        self.print('self._check_eof()')
+        self.print('ctx._check_eof()')
 
     def walk_Group(self, group: grammars.Group):
         self.print('with self._group():')
@@ -181,16 +182,16 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self.walk(group.exp)
 
     def walk_Token(self, token: grammars.Token):
-        self.print(f'self._token({token.token!r})')
+        self.print(f'ctx._token({token.token!r})')
 
     def walk_Constant(self, constant: grammars.Constant):
-        self.print(f'self._constant({constant.literal!r})')
+        self.print(f'ctx._constant({constant.literal!r})')
 
     def walk_Alert(self, alert: grammars.Alert):
-        self.print(f'self._alert({alert.literal!r}, {alert.level})')
+        self.print(f'ctx._alert({alert.literal!r}, {alert.level})')
 
     def walk_Pattern(self, pattern: grammars.Pattern):
-        self.print(f'self._pattern({regexp(pattern.pattern)})')
+        self.print(f'ctx._pattern({regexp(pattern.pattern)})')
 
     def walk_Lookahead(self, lookahead: grammars.Lookahead):
         self.print('with self._if():')
@@ -244,58 +245,58 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self.walk(optional.exp)
 
     def walk_EmptyClosure(self, closure: grammars.EmptyClosure):
-        self.print('self._empty_closure()')
+        self.print('ctx._empty_closure()')
 
     def walk_Closure(self, closure: grammars.Closure):
         n = self._gen_block(closure.exp)
         self.print()
-        self.print(f'self._closure(block{n})')
+        self.print(f'ctx._closure(block{n})')
 
     def walk_PositiveClosure(self, closure: grammars.PositiveClosure):
         n = self._gen_block(closure.exp)
         self.print()
-        self.print(f'self._positive_closure(block{n})')
+        self.print(f'ctx._positive_closure(block{n})')
 
     def walk_Join(self, join: grammars.Join):
         m = self._gen_block(join.sep, name='sep')
         n = self._gen_block(join.exp)
         self.print()
-        self.print(f'self._join(block{n}, sep{m})')
+        self.print(f'ctx._join(block{n}, sep{m})')
 
     def walk_PositiveJoin(self, join: grammars.PositiveJoin):
         m = self._gen_block(join.sep, name='sep')
         n = self._gen_block(join.exp)
         self.print()
-        self.print(f'self._positive_join(block{n}, sep{m})')
+        self.print(f'ctx._positive_join(block{n}, sep{m})')
 
     def walk_LeftJoin(self, join: grammars.LeftJoin):
         m = self._gen_block(join.sep, name='sep')
         n = self._gen_block(join.exp)
         self.print()
-        self.print(f'self._left_join(block{n}, sep{m})')
+        self.print(f'ctx._left_join(block{n}, sep{m})')
 
     def walk_RightJoin(self, join: grammars.RightJoin):
         m = self._gen_block(join.sep, name='sep')
         n = self._gen_block(join.exp)
         self.print()
-        self.print(f'self._right_join(block{n}, sep{m})')
+        self.print(f'ctx._right_join(block{n}, sep{m})')
 
     def walk_Gather(self, gather: grammars.Gather):
         m = self._gen_block(gather.sep, name='sep')
         n = self._gen_block(gather.exp)
         self.print()
-        self.print(f'self._gather(block{n}, sep{m})')
+        self.print(f'ctx._gather(block{n}, sep{m})')
 
     def walk_PositiveGather(self, gather: grammars.PositiveGather):
         m = self._gen_block(gather.sep, name='sep')
         n = self._gen_block(gather.exp)
         self.print()
-        self.print(f'self._positive_gather(block{n}, sep{m})')
+        self.print(f'ctx._positive_gather(block{n}, sep{m})')
 
     def walk_SkipTo(self, skipto: grammars.SkipTo):
         n = self._gen_block(skipto.exp)
         self.print()
-        self.print(f'self._skip_to(block{n})')
+        self.print(f'ctx._skip_to(block{n})')
 
     def walk_Named(self, named: grammars.Named):
         self.print(f"with self._setname('{named.name}'):")
@@ -409,11 +410,11 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         sdefs_str = ', '.join(sorted(repr(d) for d in sdefs))
         ldefs_str = ', '.join(sorted(repr(d) for d in ldefs))
 
-        definestr = f'self._define([{sdefs_str}], [{ldefs_str}])'
+        definestr = f'ctx._define([{sdefs_str}], [{ldefs_str}])'
         if not ldefs or self.fitsfmt(definestr, 1):
             self.print(definestr)
         else:
-            self.print('self._define(')
+            self.print('ctx._define(')
             with self.indent():
                 self.print(f'[{sdefs_str}],')
                 self.print(f'[{ldefs_str}],')

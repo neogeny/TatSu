@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast as stdlib_ast
+import inspect
 from collections.abc import Callable, Iterable
 from contextlib import contextmanager, suppress
 from typing import Any
@@ -239,7 +240,10 @@ class ParseContext:
 
             start: str = self.config.effective_start_rule_name() or 'start'
             rule = self._find_rule(start)
-            return rule()
+            if inspect.ismethod(rule):
+                return rule(self)
+            else:
+                return rule()
 
         except FailedParse as e:
             self._set_furthest_exception(e)
@@ -319,7 +323,7 @@ class ParseContext:
             return False
         return self.config.memoize_lookaheads or self.lookahead == 0
 
-    def _find_rule(self, name: str) -> Callable[[], Any]:
+    def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
         raise NotImplementedError
 
     def _find_semantic_action(self, name: str) -> Callable[..., Any] | None:
@@ -494,9 +498,7 @@ class ParseContext:
         try:
             self.next_token(ruleinfo)
 
-            with self.states.cutscope():
-                ruleinfo.impl(self)
-
+            self._impl_call(ruleinfo)
             node = self.state.node
             node = self._semantics_call(ruleinfo, node)
             self._set_parseinfo(node, ruleinfo.name, key.pos)
@@ -514,6 +516,13 @@ class ParseContext:
             raise
         finally:
             self.undostate()
+
+    def _impl_call(self, ruleinfo: RuleInfo):
+        with self.states.cutscope():
+            if inspect.ismethod(ruleinfo.impl):
+                ruleinfo.impl(self)
+            else:
+                ruleinfo.impl(ruleinfo.obj, self)
 
     def _semantics_call(self, ruleinfo: RuleInfo, node: Any) -> Any:
         if ruleinfo.is_name:
