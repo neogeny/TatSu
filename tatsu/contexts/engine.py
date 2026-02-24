@@ -70,9 +70,8 @@ class ChoiceContext:
 class ParseContext:
     def __init__(
         self,
-        /,
-        *,
-        config: ParserConfig | None = None,
+        /, *,
+        config: ParserConfig = ParserConfig.DFLT,
         **settings: Any,
     ) -> None:
         super().__init__()
