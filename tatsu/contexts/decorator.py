@@ -30,40 +30,78 @@ def isname(impl: Callable) -> Callable:
     return impl
 
 
-type InputRuleMethod = Callable[[Any, ParseContext], None]
-type RuleMethod = Callable[[Any, ParseContext], None]
+class rule:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.impl: Callable[..., Any] | None = None
+        self.params: tuple[Any, ...] = ()
+        self.kwparams: dict[str, Any] = {}
+        self.ruleinfo: RuleInfo | None = None
 
+        # If the first argument is a callable and no other args exist,
+        # it was used as @rule. Otherwise, it was @rule(...).
+        if len(args) == 1 and callable(args[0]) and not kwargs:
+            self.impl = args[0]
+            return
 
-def rule(
-    *params: Any,
-    **kwparams: Any,
-) -> Callable[[InputRuleMethod], RuleMethod]:
-    def decorator(impl: InputRuleMethod) -> RuleMethod:
-        @functools.wraps(impl)
-        def wrapper(obj: Any, ctx: ParseContext | None = None) -> Any:
-            name = impl.__name__  # type: ignore
-            # remove the single leading and trailing underscore
-            # that the parser generator added
-            if name.startswith("_") and name.endswith("_"):
-                name = name[1:-1]
-            is_leftrec = getattr(impl, 'is_leftrec', False)
-            is_memoizable = getattr(impl, 'is_memoizable', True)
-            is_name = getattr(impl, 'is_name', False)
-            ruleinfo = RuleInfo(
-                name=name,
-                obj=obj,
-                impl=impl,
-                is_leftrec=is_leftrec,
-                is_memoizable=is_memoizable,
-                is_name=is_name,
-                params=params,
-                kwparams=kwparams,
-            )
-            if ctx is None:
-                return obj._call(ruleinfo)  # note: compatibility with older versions
-            else:
-                return ctx._call(ruleinfo)
+        self.params = args
+        self.kwparams = kwargs
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        # If impl is None, we are in the @rule(...) phase
+        if self.impl is None:
+            impl: Callable[..., Any] = args[0]
+            new = rule(*self.params, **self.kwparams)
+            new.impl = impl
+            functools.update_wrapper(new, impl)
+            # Return a new instance with the implementation bound
+            return new
+
+        # Otherwise, this is the actual function call
+        return self._run(None, args, kwargs)
+
+    def __get__(self, obj: Any, objtype: Any = None) -> Any:
+        if obj is None:
+            return self
+
+        # Return a wrapper that binds 'self' (obj)
+        if not callable(self.impl):
+            return self
+
+        impl = self.impl
+        name = impl.__name__  # type: ignore
+        is_leftrec = getattr(impl, 'is_leftrec', False)
+        is_memoizable = getattr(impl, 'is_memoizable', True)
+        is_name = getattr(impl, 'is_name', False)
+
+        self.ruleinfo = RuleInfo(
+            name=name,
+            obj=obj,
+            impl=impl,
+            is_leftrec=is_leftrec,
+            is_memoizable=is_memoizable,
+            is_name=is_name,
+            params=self.params,
+            kwparams=self.kwparams,
+        )
+        self.impl.__ruleinfo__ = self.ruleinfo  # pyright: ignore[reportFunctionMemberAccess]
+
+        @functools.wraps(self.impl)
+        def wrapper(ctx: Any) -> Any:
+            return self._run(obj, ctx, (), {})
 
         return wrapper
 
-    return decorator
+    def _run(self, obj: Any, ctx: Any, args: tuple[Any, ...], kwargs: dict[str, Any]) -> str:
+        assert obj and ctx, f'{obj=!r} {ctx=!r}'
+        return ctx._call(self.impl.__ruleinfo__)  # pyright: ignore[reportFunctionMemberAccess, reportOptionalMemberAccess]
+
+        # # Reconstruct the call arguments
+        # call_args = (obj, ctx, *args) if obj is not None else args
+        #
+        # # Execute the original function
+        # result = self.impl(*call_args, **kwargs) # type: ignore
+        #
+        # arg_str = "".join(str(a) for a in self.params)
+        # strresult = f"RESULT strextra {ctx=} {result} {arg_str}"
+        # print(strresult)
+        # return result

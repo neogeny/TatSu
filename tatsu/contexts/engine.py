@@ -238,10 +238,7 @@ class ParseContext:
 
             start: str = self.config.effective_start_rule_name() or 'start'
             rule = self._find_rule(start)
-            if inspect.ismethod(rule):
-                return rule(self)
-            else:
-                return rule()
+            return rule(self)
 
         except FailedParse as e:
             self._set_furthest_exception(e)
@@ -322,12 +319,12 @@ class ParseContext:
         return self.config.memoize_lookaheads or self.lookahead == 0
 
     def _find_rule(self, name: str) -> Callable[..., Any]:
-        raise NotImplementedError
+        ...
 
     def _find_semantic_action(self, name: str) -> Callable[..., Any] | None:
         if not self.semantics:
             return None
-
+        name = name.strip('_')
         action = getattr(self.semantics, safe_name(name), None)
         if not callable(action):
             action = getattr(self.semantics, '_default', None)
@@ -518,7 +515,7 @@ class ParseContext:
         declared = inspect.signature(ruleinfo.impl).parameters
         legacy_parser_maybe = len(declared) == 1
         with self.states.cutscope():
-            if legacy_parser_maybe or inspect.ismethod(ruleinfo.impl):
+            if legacy_parser_maybe:
                 ruleinfo.impl(self)
             else:
                 ruleinfo.impl(ruleinfo.obj, self)

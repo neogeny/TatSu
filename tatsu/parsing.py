@@ -14,15 +14,16 @@ from .exceptions import FailedRef
 __all__ = ['Parser', 'generic_main', 'isname', 'leftrec', 'nomemo', 'rule', 'tatsumasu']
 
 from .parserconfig import ParserConfig
+from .util import typename
 
 
 class Parser(ParseContext):
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
         for rulename in (f'_{name}_', f'_{name}', name):
             rule = getattr(self, rulename, None)
-            if inspect.ismethod(rule):
+            if callable(rule):
                 return rule
-        raise self.newexcept(name, exclass=FailedRef)
+        raise self.newexcept(f'ol {name!r}@{typename(self)}', exclass=FailedRef)
 
     @classmethod
     def rule_list(cls) -> list[str]:
@@ -56,11 +57,12 @@ class NGParser(Parser):
         super().__init__(config=config, **settings)
 
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
+        name = name.strip('_')
         for rulename in (f'_{name}_', f'_{name}', name):
             rule = getattr(self.rulesource, rulename, None)
-            if inspect.ismethod(rule):
+            if callable(rule):
                 return rule
-        raise self.newexcept(name, exclass=FailedRef)
+        raise self.newexcept(f'ng {name!r}', exclass=FailedRef)
 
 
 def generic_main(custom_main, parser_class, name='Unknown'):
