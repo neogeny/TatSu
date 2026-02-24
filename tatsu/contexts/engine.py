@@ -92,7 +92,6 @@ class ParseContext:
         self.update_tracer()
 
     def _initialize_caches(self) -> None:
-        self.substate: Any = None
         self._furthest_exception: FailedParse | None = None
         self._memos: MemoCache = BoundedDict(self.config.memo_cache_size)
         self._results: MemoCache = {}
@@ -323,7 +322,7 @@ class ParseContext:
             return False
         return self.config.memoize_lookaheads or self.lookahead == 0
 
-    def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
+    def _find_rule(self, name: str) -> Callable[..., Any]:
         raise NotImplementedError
 
     def _find_semantic_action(self, name: str) -> Callable[..., Any] | None:
@@ -389,7 +388,7 @@ class ParseContext:
         return self.ruleinfo_stack[-1]
 
     def memokey(self) -> MemoKey:
-        return MemoKey(self.pos, self.ruleinfo, self.substate)
+        return MemoKey(self.pos, self.ruleinfo)
 
     def _memoize(
         self,
@@ -422,7 +421,6 @@ class ParseContext:
             result = self._recursive_call(ruleinfo)
 
             self.goto(result.newpos)
-            self.substate = result.newstate
             self.states.append(result.node)
 
             self.tracer.trace_success(self.cursor)
@@ -503,7 +501,7 @@ class ParseContext:
             node = self._semantics_call(ruleinfo, node)
             self._set_parseinfo(node, ruleinfo.name, key.pos)
 
-            result = RuleResult(node, self.pos, self.substate)
+            result = RuleResult(node, self.pos)
             self._memoize(key, result)
 
             return result
@@ -626,7 +624,6 @@ class ParseContext:
 
     @contextmanager
     def _try(self):
-        s = self.substate
         self.pushstate(ast=AST(self.ast))
         self.last_node = None
         try:
@@ -634,7 +631,6 @@ class ParseContext:
             self.mergestate()
         except FailedParse:
             self.undostate()
-            self.substate = s
             raise
 
     def _no_more_options(self) -> bool:
@@ -686,7 +682,6 @@ class ParseContext:
 
     @contextmanager
     def _if(self):
-        s = self.substate
         self.pushstate()
         self.lookahead += 1
         try:
@@ -694,7 +689,6 @@ class ParseContext:
         finally:
             self.undostate()
             self.lookahead -= 1
-            self.substate = s
 
     @contextmanager
     def _ifnot(self):
