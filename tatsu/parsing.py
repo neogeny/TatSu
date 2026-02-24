@@ -14,12 +14,11 @@ from .exceptions import FailedRef
 __all__ = ['Parser', 'generic_main', 'isname', 'leftrec', 'nomemo', 'rule', 'tatsumasu']
 
 from .parserconfig import ParserConfig
-from .util.configs import HasConfig
 
 
 class Parser(ParseContext):
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
-        for rulename in (f'_{name}_', name):
+        for rulename in (f'_{name}_', f'_{name}', name):
             rule = getattr(self, rulename, None)
             if inspect.ismethod(rule):
                 return rule
@@ -49,15 +48,15 @@ class NGParser(Parser):
     ) -> None:
         self.rulesource = rulesource
 
-        if isinstance(rulesource, HasConfig):  # supports not present
-            baseconfig = ParserConfig.new(rulesource.config) # supports None
+        if hasattr(rulesource, 'config'):  # supports not present
+            baseconfig = ParserConfig.new(rulesource.config)  # supports None
             config = baseconfig.override_config(config)
         config = config.new(config, **settings)
 
         super().__init__(config=config, **settings)
 
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
-        for rulename in (f'_{name}_', name):
+        for rulename in (f'_{name}_', f'_{name}', name):
             rule = getattr(self.rulesource, rulename, None)
             if inspect.ismethod(rule):
                 return rule
