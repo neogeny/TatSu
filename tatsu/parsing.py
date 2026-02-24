@@ -14,6 +14,7 @@ from .exceptions import FailedRef
 __all__ = ['Parser', 'generic_main', 'isname', 'leftrec', 'nomemo', 'rule', 'tatsumasu']
 
 from .parserconfig import ParserConfig
+from .util.configs import HasConfig
 
 
 class Parser(ParseContext):
@@ -46,8 +47,14 @@ class NGParser(Parser):
         config: ParserConfig = ParserConfig.DFLT,
         **settings: Any,
     ) -> None:
-        super().__init__(config=config, **settings)
         self.rulesource = rulesource
+
+        if isinstance(rulesource, HasConfig):  # supports not present
+            baseconfig = ParserConfig.new(rulesource.config) # supports None
+            config = baseconfig.override_config(config)
+        config = config.new(config, **settings)
+
+        super().__init__(config=config, **settings)
 
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
         for rulename in (f'_{name}_', name):

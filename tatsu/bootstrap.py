@@ -67,6 +67,13 @@ class TatSuBootstrapBuffer(Buffer):  # NOTE: backwards compatibility
 
 class TatSuBootstrapParser(NGParser):
     def __init__(self, /, config: ParserConfig  = ParserConfig.DFLT, **settings):
+        config = ParserConfig.new(config, **settings)
+        rulessource = TatSuBootstrapRules()
+        tokenizercls = config.tokenizercls or TatSuBootstrapTokenizer
+        super().__init__(rulessource, config=config, tokenizercls=tokenizercls)
+
+class TatSuBootstrapRules:
+    def __init__(self, /, config: ParserConfig  = ParserConfig.DFLT, **settings):
         config = ParserConfig.new(
             config=config,
             whitespace=r'(?m)\s+',
@@ -79,15 +86,12 @@ class TatSuBootstrapParser(NGParser):
             keywords=KEYWORDS,
             start='start',
         )
-        config = config.override(**settings)
+        self._config = config.override(**settings)
 
-        super().__init__(
-            TatSuBootstrapRules(),
-            config=config,
-            tokenizercls=config.tokenizercls or TatSuBootstrapTokenizer,
-        )
+    @property
+    def config(self) -> ParserConfig:
+        return self._config
 
-class TatSuBootstrapRules:
     @rule()
     def _start_(self, ctx: ParseContext):
         self._grammar_(ctx)

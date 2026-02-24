@@ -5,11 +5,16 @@ from __future__ import annotations
 import dataclasses
 import importlib
 import types
-from typing import Any, Self
+from typing import Any, Protocol, Self, runtime_checkable
 
 from .asjson import asjson, asjsons
 from .deprecate import deprecated
 from .undefined import Undefined
+
+
+@runtime_checkable
+class HasConfig(Protocol):
+    config: Config
 
 
 @dataclasses.dataclass
