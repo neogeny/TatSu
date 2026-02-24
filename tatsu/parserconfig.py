@@ -6,7 +6,7 @@ import re
 import warnings
 from collections.abc import Collection
 from dataclasses import dataclass, field
-from typing import Any, override
+from typing import Any, ClassVar, override
 
 from .tokenizing import NullTokenizer, Tokenizer
 from .util.configs import Config
@@ -19,6 +19,8 @@ MEMO_CACHE_SIZE = 4 * 1024
 
 @dataclass
 class ParserConfig(Config):
+    DFLT: ClassVar[ParserConfig]
+
     name: str | None = 'Test'
     filename: str = ''
 
@@ -136,3 +138,6 @@ class ParserConfig(Config):
             result.name = result.grammar
         self._deprecate_and_compile_comments()
         return result
+
+
+ParserConfig.DFLT = ParserConfig()

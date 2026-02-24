@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import functools
 from collections import defaultdict
 from collections.abc import Callable, Collection, Mapping
 from copy import copy
@@ -49,7 +48,7 @@ class ModelContext(ParseContext):
         rules,
         /,
         start: str | None = None,
-        config: ParserConfig | None = None,
+        config: ParserConfig = ParserConfig.DFLT,
         **settings,
     ):
         config = ParserConfig.new(config, **settings)
