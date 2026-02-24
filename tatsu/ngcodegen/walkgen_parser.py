@@ -177,7 +177,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print('ctx._check_eof()')
 
     def walk_Group(self, group: grammars.Group):
-        self.print('with self._group():')
+        self.print('with ctx._group():')
         with self.indent():
             self.walk(group.exp)
 
@@ -194,12 +194,12 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'ctx._pattern({regexp(pattern.pattern)})')
 
     def walk_Lookahead(self, lookahead: grammars.Lookahead):
-        self.print('with self._if():')
+        self.print('with ctx._if():')
         with self.indent():
             self.walk(lookahead.exp)
 
     def walk_NegativeLookahead(self, lookahead: grammars.NegativeLookahead):
-        self.print('with self._ifnot():')
+        self.print('with ctx._ifnot():')
         with self.indent():
             self.walk(lookahead.exp)
 
@@ -212,11 +212,11 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self.walk(choice.options[0])
             return
 
-        self.print('with self._choice() as choice:')
+        self.print('with ctx._choice() as choice:')
         with self.indent():
             self.walk(choice.options)
 
-        elements = [repr(f[0]) for f in choice.lookahead() if f]
+        elements = sorted(repr(f[0]) for f in choice.lookahead() if f)
         if not elements:
             return
 
@@ -240,7 +240,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print()
 
     def walk_Optional(self, optional: grammars.Optional):
-        self.print('with self._optional():')
+        self.print('with ctx._optional():')
         with self.indent():
             self.walk(optional.exp)
 
@@ -299,12 +299,12 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'ctx._skip_to(block{n})')
 
     def walk_Named(self, named: grammars.Named):
-        self.print(f"with self._setname('{named.name}'):")
+        self.print(f"with ctx._setname('{named.name}'):")
         with self.indent():
             self.walk(named.exp)
 
     def walk_NamedList(self, named: grammars.Named):
-        self.print(f"with self._addname('{named.name}'):")
+        self.print(f"with ctx._addname('{named.name}'):")
         with self.indent():
             self.walk(named.exp)
 
