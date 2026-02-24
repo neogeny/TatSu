@@ -32,7 +32,7 @@ from rich.progress import (  # pyright: ignore[reportMissingImports]
 )
 
 from . import identity, memory_use, startscript, try_read
-from .datetime import iso_logpath
+from .datetimetools import iso_logpath
 from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
 
 __all__: list[str] = ['parallel_proc', 'processing_loop']
