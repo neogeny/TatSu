@@ -1118,6 +1118,7 @@ class Grammar(Model):
 
         if ctx is None:
             ctx = ModelContext(self.rules, config=config)
+        assert isinstance(ctx, ParseContext)
         return ctx.parse(text, config=config)
 
     def nodecount(self) -> int:
