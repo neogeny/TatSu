@@ -18,7 +18,7 @@ from __future__ import annotations
 from tatsu.buffering import Buffer
 from tatsu.contexts import ParseContext
 from tatsu.infos import ParserConfig
-from tatsu.parsing import Parser, generic_main, rule
+from tatsu.parsing import NGParser, Parser, generic_main, rule
 from tatsu.tokenizing.textlines import TextLinesTokenizer
 
 __all__ = ['TatSuBootstrapTokenizer', 'TatSuBootstrapParser', 'main']
@@ -65,10 +65,10 @@ class TatSuBootstrapBuffer(Buffer):  # NOTE: backwards compatibility
         super().__init__(text, config=config)
 
 
-class TatSuBootstrapParser(Parser):
-    def __init__(self, /, config: ParserConfig | None = None, **settings):
+class TatSuBootstrapParser(NGParser):
+    def __init__(self, /, config: ParserConfig  = ParserConfig.DFLT, **settings):
         config = ParserConfig.new(
-            config,
+            config=config,
             whitespace=r'(?m)\s+',
             nameguard=None,
             ignorecase=False,
@@ -82,10 +82,12 @@ class TatSuBootstrapParser(Parser):
         config = config.override(**settings)
 
         super().__init__(
+            TatSuBootstrapRules(),
             config=config,
             tokenizercls=config.tokenizercls or TatSuBootstrapTokenizer,
         )
 
+class TatSuBootstrapRules:
     @rule()
     def _start_(self, ctx: ParseContext):
         self._grammar_(ctx)

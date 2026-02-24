@@ -13,6 +13,8 @@ from .exceptions import FailedRef
 
 __all__ = ['Parser', 'generic_main', 'isname', 'leftrec', 'nomemo', 'rule', 'tatsumasu']
 
+from .parserconfig import ParserConfig
+
 
 class Parser(ParseContext):
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
@@ -35,6 +37,24 @@ class Parser(ParseContext):
             if name.startswith('_') and name.endswith('_'):
                 result.append(name[1:-1])
         return result
+
+
+class NGParser(Parser):
+    def __init__(
+        self, rulesource: Any,
+        /, *,
+        config: ParserConfig = ParserConfig.DFLT,
+        **settings: Any,
+    ) -> None:
+        super().__init__(config=config, **settings)
+        self.rulesource = rulesource
+
+    def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
+        for rulename in (f'_{name}_', name):
+            rule = getattr(self.rulesource, rulename, None)
+            if inspect.ismethod(rule):
+                return rule
+        raise self.newexcept(name, exclass=FailedRef)
 
 
 def generic_main(custom_main, parser_class, name='Unknown'):
