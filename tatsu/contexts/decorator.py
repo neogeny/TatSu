@@ -40,7 +40,7 @@ def rule(
 ) -> Callable[[InputRuleMethod], RuleMethod]:
     def decorator(impl: InputRuleMethod) -> RuleMethod:
         @functools.wraps(impl)
-        def wrapper(obj: Any, ctx: ParseContext) -> Any:
+        def wrapper(obj: Any, ctx: ParseContext | None = None) -> Any:
             name = impl.__name__  # type: ignore
             # remove the single leading and trailing underscore
             # that the parser generator added
@@ -59,7 +59,10 @@ def rule(
                 params=params,
                 kwparams=kwparams,
             )
-            return ctx._call(ruleinfo)
+            if ctx is None:
+                return obj._call(ruleinfo)  # note: compatibility with older versions
+            else:
+                return ctx._call(ruleinfo)
 
         return wrapper
 

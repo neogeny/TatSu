@@ -516,8 +516,10 @@ class ParseContext:
             self.undostate()
 
     def _impl_call(self, ruleinfo: RuleInfo):
+        declared = inspect.signature(ruleinfo.impl).parameters
+        legacy_parser_maybe = len(declared) == 1
         with self.states.cutscope():
-            if inspect.ismethod(ruleinfo.impl):
+            if legacy_parser_maybe or inspect.ismethod(ruleinfo.impl):
                 ruleinfo.impl(self)
             else:
                 ruleinfo.impl(ruleinfo.obj, self)
