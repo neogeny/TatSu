@@ -993,7 +993,7 @@ class Grammar(Model):
         **settings,
     ):
         super().__init__()
-        assert isinstance(rules, list), str(rules)
+        assert isinstance(rules, list), f'{type(rules)!r} {rules!r}'
         directives = directives or {}
         self.directives = directives
 
