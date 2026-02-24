@@ -86,14 +86,17 @@ class rule:
         self.impl.__ruleinfo__ = self.ruleinfo  # pyright: ignore[reportFunctionMemberAccess]
 
         @functools.wraps(self.impl)
-        def wrapper(ctx: Any) -> Any:
+        def wrapper(ctx: Any = None) -> Any:
             return self._run(obj, ctx, (), {})
 
         return wrapper
 
     def _run(self, obj: Any, ctx: Any, args: tuple[Any, ...], kwargs: dict[str, Any]) -> str:
-        assert obj and ctx, f'{obj=!r} {ctx=!r}'
-        return ctx._call(self.impl.__ruleinfo__)  # pyright: ignore[reportFunctionMemberAccess, reportOptionalMemberAccess]
+        assert obj , f'{obj=!r} {ctx=!r}'
+        if ctx is not None:
+            return ctx._call(self.ruleinfo)
+        else:
+            return obj._call(self.ruleinfo)  # legacy case
 
         # # Reconstruct the call arguments
         # call_args = (obj, ctx, *args) if obj is not None else args
