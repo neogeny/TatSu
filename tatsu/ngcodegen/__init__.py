@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .walkgen_model import modelgen
-from .walkgen_parser import pythongen
-from .walkgen_parser import pythongen as codegen
+from .ngmodel_gen import modelgen
+from .ngparser_gen import pythongen
+from .ngparser_gen import pythongen as codegen
 
 __all__ = ['codegen', 'pythongen', 'modelgen']
