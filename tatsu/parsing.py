@@ -7,11 +7,15 @@ import sys
 from collections.abc import Callable
 from typing import Any
 
-from .contexts import ParseContext, isname, leftrec, nomemo, rule
+from .contexts import ParseContext, isname, name, leftrec, nomemo, rule
 from .contexts import rule as tatsumasu
 from .exceptions import FailedRef
 
-__all__ = ['Parser', 'generic_main', 'isname', 'leftrec', 'nomemo', 'rule', 'tatsumasu']
+__all__ = [
+    'NGParser', 'Parser',
+    'generic_main', 'isname', 'name', 'leftrec', 'nomemo',
+    'rule', 'tatsumasu',
+]
 
 from .parserconfig import ParserConfig
 from .util import typename

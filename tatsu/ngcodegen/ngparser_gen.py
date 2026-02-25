@@ -40,7 +40,7 @@ HEADER = """\
     from tatsu.infos import ParserConfig
     from tatsu.parsing import (
         Parser, NGParser,
-        leftrec, nomemo, isname, generic_main, rule
+        leftrec, nomemo, isname, name, generic_main, rule
     )
     from tatsu.tokenizing.textlines import TextLinesTokenizer
 
@@ -157,7 +157,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
 
         leftrec = '\n@leftrec' if rule.is_leftrec else ''
         nomemo = '\n@nomemo' if not rule.is_memoizable and not leftrec else ''
-        isname = '\n@isname' if rule.is_name else ''
+        isname = '\n@name' if rule.is_name else ''
 
         self.print(f"""
                 @rule({params})\

@@ -853,7 +853,8 @@ class Rule(Decorator):
 
     def __post_init__(self):
         super().__post_init__()
-        self.is_name = 'name' in self.decorators
+        self.is_name |= 'name' in self.decorators
+        self.is_name |= 'isname' in self.decorators
         self.params = self.params or ()
 
         if not self.kwparams:
