@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import itertools
+import types
 from collections.abc import Callable, Iterator
 from typing import Any
 
@@ -492,6 +493,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         var: str = '',
         emptycheck: bool = True,
     ):
+        assert isinstance(mgr, types.FunctionType)
         name = mgr.__name__
         self.print(f'with ctx.{name}() as {var}:')
         with self.indent():
