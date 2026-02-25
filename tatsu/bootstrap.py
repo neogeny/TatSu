@@ -228,7 +228,6 @@ class TatSuBootstrapRules:
                                     'False',
                                     'None'
                                 )
-
                     ctx._define(['name', 'value'], [])
 
                 @ch.option
@@ -263,7 +262,6 @@ class TatSuBootstrapRules:
                                     'nameguard',
                                     'parseinfo'
                                 )
-
                     ctx._cut()
                     with ctx._group():
                         with ctx._choice() as ch:
@@ -319,7 +317,6 @@ class TatSuBootstrapRules:
                     'parseinfo',
                     'whitespace'
                 )
-
         ctx._cut()
         ctx._define(['name', 'value'], [])
 
@@ -600,7 +597,6 @@ class TatSuBootstrapRules:
                 '<UNINDENTED>'
             )
 
-
     @rule()
     def _UNINDENTED_(self, ctx: ParseContext):
         ctx._pattern(r'(?=\s*(?:\r?\n|\r)[^\s])')
@@ -676,7 +672,6 @@ class TatSuBootstrapRules:
                 '<word>'
             )
 
-
     @rule()
     def _kwparams_(self, ctx: ParseContext):
 
@@ -719,7 +714,6 @@ class TatSuBootstrapRules:
                 '<sequence>',
                 '|'
             )
-
 
     @rule('Choice')
     def _choice_(self, ctx: ParseContext):
@@ -784,7 +778,6 @@ class TatSuBootstrapRules:
                 '<term>'
             )
 
-
     @rule()
     def _element_(self, ctx: ParseContext):
         with ctx._choice() as ch:
@@ -831,7 +824,6 @@ class TatSuBootstrapRules:
                 '<void>',
                 '>'
             )
-
 
     @rule('RuleInclude')
     def _rule_include_(self, ctx: ParseContext):
@@ -896,7 +888,6 @@ class TatSuBootstrapRules:
                 '@+:',
                 '@:'
             )
-
 
     @rule('OverrideList')
     def _override_list_(self, ctx: ParseContext):
@@ -1017,7 +1008,6 @@ class TatSuBootstrapRules:
                 '{}',
                 '~'
             )
-
 
     @rule('Group')
     def _group_(self, ctx: ParseContext):
@@ -1229,7 +1219,6 @@ class TatSuBootstrapRules:
                 '{'
             )
 
-
     @rule('Closure')
     def _closure_(self, ctx: ParseContext):
         with ctx._choice() as ch:
@@ -1263,7 +1252,6 @@ class TatSuBootstrapRules:
                 '<token>',
                 '{'
             )
-
 
     @rule('EmptyClosure')
     def _empty_closure_(self, ctx: ParseContext):
@@ -1320,7 +1308,6 @@ class TatSuBootstrapRules:
                 '<token>',
                 '['
             )
-
 
     @rule('Lookahead')
     def _lookahead_(self, ctx: ParseContext):
@@ -1397,7 +1384,6 @@ class TatSuBootstrapRules:
                 '\\^+',
                 '`'
             )
-
 
     @rule('Call')
     def _call_(self, ctx: ParseContext):
@@ -1531,7 +1517,6 @@ class TatSuBootstrapRules:
                 'r'
             )
 
-
     @rule()
     def _string_(self, ctx: ParseContext):
         self._STRING_(ctx)
@@ -1561,7 +1546,6 @@ class TatSuBootstrapRules:
                 "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'",
                 '"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"'
             )
-
 
     @rule()
     def _hex_(self, ctx: ParseContext):

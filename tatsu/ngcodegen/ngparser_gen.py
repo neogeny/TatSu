@@ -132,7 +132,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self._gen_buffering(grammar, basename)
         self._gen_parsing(grammar, basename)
 
-        self.print(FOOTER.format(name=basename))
+        self.print(FOOTER.format(name=basename).rstrip())
 
     def walk_Rule(self, rule: grammars.Rule):
         def param_repr(p):
@@ -254,7 +254,6 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                     expectinner = ',\n'.join(elements)
                     self.print(expectinner)
                 self.print(')')
-                self.print()
 
     def walk_Option(self, option: grammars.Option):
         self.print('@ch.option')
@@ -366,7 +365,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                     config=config,
                     whitespace={whitespace},
                     nameguard={grammar.config.nameguard},
-                    ignorecase={grammar.config.ignorecase},
+                    ignorecase={grammar.config.ignorecase or False},
                     namechars={grammar.config.namechars or ""!r},
                     parseinfo={grammar.config.parseinfo},
                     comments={regexp(grammar.config.comments)},
