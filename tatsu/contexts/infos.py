@@ -10,13 +10,11 @@ from ..infos import RuleInfo
 class MemoKey(NamedTuple):
     pos: int
     ruleinfo: RuleInfo
-    state: Any
 
 
 class RuleResult(NamedTuple):
     node: Any
     newpos: int
-    newstate: Any
 
 
 class RuleLike(Protocol):

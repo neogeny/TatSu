@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import re
 import warnings
-from collections.abc import Collection
 from dataclasses import dataclass, field
 from typing import Any, override
 
@@ -46,9 +45,9 @@ class ParserConfig(Config):
 
     comments: str | None = None
     eol_comments: str | None = None
-    keywords: Collection[str] = field(default_factory=set)
+    keywords: set[str] = field(default_factory=set)
 
-    ignorecase: bool = False
+    ignorecase: bool | None = None
     namechars: str | None = None
     nameguard: bool | None = None  # implied by namechars
     whitespace: str | None = Undefined  # type: ignore

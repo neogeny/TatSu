@@ -4,22 +4,30 @@ from __future__ import annotations
 
 import inspect
 import sys
-from types import MethodType
+from collections.abc import Callable
+from typing import Any
 
-from .contexts import ParseContext, isname, leftrec, nomemo, rule
+from .contexts import ParseContext, isname, name, leftrec, nomemo, rule
 from .contexts import rule as tatsumasu
 from .exceptions import FailedRef
 
-__all__ = ['Parser', 'generic_main', 'isname', 'leftrec', 'nomemo', 'rule', 'tatsumasu']
+__all__ = [
+    'NGParser', 'Parser',
+    'generic_main', 'isname', 'name', 'leftrec', 'nomemo',
+    'rule', 'tatsumasu',
+]
+
+from .parserconfig import ParserConfig
+from .util import typename
 
 
 class Parser(ParseContext):
-    def _find_rule(self, name: str) -> MethodType:
-        for rulename in (f'_{name}_', name):
+    def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
+        for rulename in (f'_{name}_', f'_{name}', name):
             rule = getattr(self, rulename, None)
-            if inspect.ismethod(rule):
+            if callable(rule):
                 return rule
-        raise self.newexcept(name, exclass=FailedRef)
+        raise self.newexcept(f'ol {name!r}@{typename(self)}', exclass=FailedRef)
 
     @classmethod
     def rule_list(cls) -> list[str]:
@@ -34,6 +42,30 @@ class Parser(ParseContext):
             if name.startswith('_') and name.endswith('_'):
                 result.append(name[1:-1])
         return result
+
+
+class NGParser(Parser):
+    def __init__(
+        self, rulesource: Any,
+        /, *,
+        config: ParserConfig | None = None,
+        **settings: Any,
+    ) -> None:
+        self.rulesource = rulesource
+
+        config = ParserConfig.new(config, **settings)
+        srcconfig = ParserConfig.new(getattr(rulesource, 'config', None))
+        config = srcconfig.override_config(config)
+
+        super().__init__(config=config)
+
+    def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
+        name = name.strip('_')
+        for rulename in (f'_{name}_', f'_{name}', name):
+            rule = getattr(self.rulesource, rulename, None)
+            if callable(rule):
+                return rule
+        raise self.newexcept(f'ng {name!r}', exclass=FailedRef)
 
 
 def generic_main(custom_main, parser_class, name='Unknown'):
