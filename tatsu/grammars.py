@@ -48,7 +48,7 @@ class ModelContext(ParseContext):
         rules,
         /,
         start: str | None = None,
-        config: ParserConfig = ParserConfig.DFLT,
+        config: ParserConfig | None = None,
         **settings,
     ):
         config = ParserConfig.new(config, **settings)
@@ -989,7 +989,7 @@ class Grammar(Model):
         name,
         rules,
         /,
-        config: ParserConfig = ParserConfig.DFLT,
+        config: ParserConfig | None = None,
         directives: dict | None = None,
         **settings,
     ):

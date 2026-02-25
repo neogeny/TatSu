@@ -19,8 +19,6 @@ MEMO_CACHE_SIZE = 4 * 1024
 
 @dataclass
 class ParserConfig(Config):
-    DFLT: ClassVar[ParserConfig]
-
     name: str | None = 'Test'
     filename: str = ''
 
@@ -138,6 +136,3 @@ class ParserConfig(Config):
             result.name = result.grammar
         self._deprecate_and_compile_comments()
         return result
-
-
-ParserConfig.DFLT = ParserConfig()

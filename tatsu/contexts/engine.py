@@ -71,7 +71,7 @@ class ParseContext:
     def __init__(
         self,
         /, *,
-        config: ParserConfig = ParserConfig.DFLT,
+        config: ParserConfig | None = None,
         **settings: Any,
     ) -> None:
         super().__init__()
