@@ -48,9 +48,9 @@ class ParserConfig(Config):
 
     comments: str | None = None
     eol_comments: str | None = None
-    keywords: Collection[str] = field(default_factory=set)
+    keywords: set[str] | None = None
 
-    ignorecase: bool = False
+    ignorecase: bool | None = None
     namechars: str | None = None
     nameguard: bool | None = None  # implied by namechars
     whitespace: str | None = Undefined  # type: ignore

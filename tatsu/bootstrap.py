@@ -43,7 +43,7 @@ class TatSuBootstrapTokenizer(TextLinesTokenizer):
     def __init__(
         self,
         text, /,
-        config: ParserConfig=ParserConfig.DFLT,
+        config: ParserConfig | None = None,
         **settings,
     ) -> None:
         config = ParserConfig.new(
@@ -67,7 +67,7 @@ class TatSuBootstrapBuffer(Buffer):  # NOTE: backwards compatibility
     def __init__(
         self,
         text, /,
-        config: ParserConfig=ParserConfig.DFLT,
+        config: ParserConfig | None = None,
         **settings,
     ) -> None:
         config = ParserConfig.new(

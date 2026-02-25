@@ -397,7 +397,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                     """
                     self,
                     text, /,
-                    config: ParserConfig=ParserConfig.DFLT,
+                    config: ParserConfig | None = None,
                     **settings,
                     """,
                 )
@@ -420,7 +420,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def _gen_parsing(self, grammar: grammars.Grammar, basename: str):
         self.print(f'class {self._parser_name(basename)}(NGParser):')
         with self.indent():
-            self.print('def __init__(self, /, config: ParserConfig = ParserConfig.DFLT, **settings):')
+            self.print('def __init__(self, /, config: ParserConfig | None = None, **settings):')
             with self.indent():
                 self.print(
                     '\n' + NGPARSER_BODY.format(
@@ -435,7 +435,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'class {self._rules_name(basename)}:')
         with self.indent():
             self.print(
-                'def __init__(self, /, config: ParserConfig = ParserConfig.DFLT, **settings):',
+                'def __init__(self, /, config: ParserConfig | None = None, **settings):',
             )
             with self.indent():
                 self._gen_init(grammar)

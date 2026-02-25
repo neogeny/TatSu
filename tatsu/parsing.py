@@ -48,17 +48,16 @@ class NGParser(Parser):
     def __init__(
         self, rulesource: Any,
         /, *,
-        config: ParserConfig = ParserConfig.DFLT,
+        config: ParserConfig | None = None,
         **settings: Any,
     ) -> None:
         self.rulesource = rulesource
 
-        if hasattr(rulesource, 'config'):  # supports not present
-            baseconfig = ParserConfig.new(rulesource.config)  # supports None
-            config = baseconfig.override_config(config)
-        config = config.new(config, **settings)
+        config = ParserConfig.new(config, **settings)
+        srcconfig = ParserConfig.new(getattr(rulesource, 'config', None))
+        config = srcconfig.override_config(config)
 
-        super().__init__(config=config, **settings)
+        super().__init__(config=config)
 
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
         name = name.strip('_')
