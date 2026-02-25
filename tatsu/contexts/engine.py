@@ -70,7 +70,8 @@ class ChoiceContext:
 class ParseContext:
     def __init__(
         self,
-        /, *,
+        /,
+        *,
         config: ParserConfig | None = None,
         **settings: Any,
     ) -> None:

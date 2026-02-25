@@ -44,8 +44,7 @@ class Config:
         return {
             name: value
             for name, value in settings.items()
-            if hasattr(self, name)
-            and (hard or not erases(name, value))
+            if hasattr(self, name) and (hard or not erases(name, value))
         }
 
     def override_config(self, other: Config | None = None) -> Self:

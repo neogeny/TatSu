@@ -38,6 +38,7 @@ class FastProxy[T]:
 
 
 if __name__ == '__main__':
+
     class C:
         def __init__(self):
             self._x = 0

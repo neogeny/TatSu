@@ -48,7 +48,11 @@ class EventTracer:
 
         info(msg, *args, **kwargs)
 
-    def trace_event(self, cursor: Cursor, event: str, ) -> None:
+    def trace_event(
+        self,
+        cursor: Cursor,
+        event: str,
+    ) -> None:
         if not self.config.trace:
             return
 

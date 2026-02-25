@@ -12,9 +12,15 @@ from .contexts import rule as tatsumasu
 from .exceptions import FailedRef
 
 __all__ = [
-    'NGParser', 'Parser',
-    'generic_main', 'isname', 'name', 'leftrec', 'nomemo',
-    'rule', 'tatsumasu',
+    'NGParser',
+    'Parser',
+    'generic_main',
+    'isname',
+    'name',
+    'leftrec',
+    'nomemo',
+    'rule',
+    'tatsumasu',
 ]
 
 from .parserconfig import ParserConfig
@@ -46,8 +52,10 @@ class Parser(ParseContext):
 
 class NGParser(Parser):
     def __init__(
-        self, rulesource: Any,
-        /, *,
+        self,
+        rulesource: Any,
+        /,
+        *,
         config: ParserConfig | None = None,
         **settings: Any,
     ) -> None:

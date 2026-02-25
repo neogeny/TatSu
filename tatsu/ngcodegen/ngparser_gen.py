@@ -412,17 +412,22 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self._gen_buffering_init(grammar, basename)
 
         self.print()
-        self.print(f'class {self._buffer_name(basename)}(Buffer):  # NOTE: backwards compatibility')
+        self.print(
+            f'class {self._buffer_name(basename)}(Buffer):  # NOTE: backwards compatibility'
+        )
         self._gen_buffering_init(grammar, basename)
         self.print()
 
     def _gen_parsing(self, grammar: grammars.Grammar, basename: str):
         self.print(f'class {self._parser_name(basename)}(NGParser):')
         with self.indent():
-            self.print('def __init__(self, /, config: ParserConfig | None = None, **settings):')
+            self.print(
+                'def __init__(self, /, config: ParserConfig | None = None, **settings):'
+            )
             with self.indent():
                 self.print(
-                    '\n' + NGPARSER_BODY.format(
+                    '\n'
+                    + NGPARSER_BODY.format(
                         parser_name=self._parser_name(basename),
                         rules_name=self._rules_name(basename),
                         tokenizer_name=self._tokenizer_name(basename),
@@ -440,13 +445,11 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 self._gen_init(grammar)
                 self.print('self._config = config')
                 self.print()
-            self.print(
-                """
+            self.print("""
                 @property
                 def config(self) -> ParserConfig:
                     return self._config
-                """
-            )
+                """)
             self.print()
             self.walk(grammar.rules)
         self.print()

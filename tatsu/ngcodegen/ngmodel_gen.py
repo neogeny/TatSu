@@ -92,7 +92,7 @@ class PythonModelGenerator(IndentPrintMixin):
                 name=self.name,
                 basetype=self.basetype.__name__,
                 basetype_import=basetype_import,
-                version_info=tuple(version_info)
+                version_info=tuple(version_info),
             ),
         )
 
