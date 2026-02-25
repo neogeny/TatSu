@@ -258,6 +258,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
 
     def walk_Option(self, option: grammars.Option):
         self._gen_anon_block(option.exp, decor='ch.option')
+        self.print()
 
     def walk_Optional(self, optional: grammars.Optional):
         self.print('with ctx._optional():')
@@ -469,7 +470,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def _gen_anon_block(
         self,
         exp: grammars.Model,
-        decor: str ='',
+        decor: str = '',
         emptycheck: bool = False,
     ):
         if emptycheck and () in exp.lookahead():
@@ -482,7 +483,6 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print('def _():')
         with self.indent():
             self.walk(exp)
-        self.print()
 
     def _gen_decor(
         self,
@@ -499,4 +499,5 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 self._gen_anon_block(
                     sep, decor=f'{var}.sep', emptycheck=emptycheck,
                 )
+                self.print()
             self._gen_anon_block(exp, decor=f'{var}.exp', emptycheck=emptycheck)
