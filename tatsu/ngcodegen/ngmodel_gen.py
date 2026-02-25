@@ -46,10 +46,6 @@ HEADER = """\
             constructors = constructors or []
             constructors += types_defined_in(globals())
             super().__init__(basetype={basetype}, constructors=constructors, **kwargs)
-
-
-    class {name}ModelBuilderSemantics({name}ModelBuilderSemantics):
-        ...
 """
 
 
