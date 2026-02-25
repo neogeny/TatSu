@@ -8,8 +8,8 @@ from typing import Any
 class FastProxy[T]:
     def __init__(self, obj: T, **other: Any) -> None:
         object.__setattr__(self, '_obj', obj)
-        for name, value in other.items():
-            name = f'_{name}' if not name.startswith('_') else name
+        for key, value in other.items():
+            name = f'_{key}' if not key.startswith('_') else key
             object.__setattr__(self, name, value)
 
     def __getattr__(self, name: str) -> Any:

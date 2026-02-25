@@ -6,7 +6,6 @@ import functools
 from collections.abc import Callable
 from typing import Any, cast
 
-from .engine import ParseContext
 from .infos import RuleInfo, RuleLike
 
 
@@ -35,7 +34,16 @@ class rule:
         self.impl: Callable[..., Any] | None = None
         self.params: tuple[Any, ...] = ()
         self.kwparams: dict[str, Any] = {}
-        self.ruleinfo: RuleInfo | None = None
+        self.ruleinfo: RuleInfo = RuleInfo(
+            name='<none>',
+            obj=None,
+            impl=lambda: None,
+            is_leftrec=False,
+            is_memoizable=True,
+            is_name=False,
+            params=(),
+            kwparams={},
+        )
 
         # If the first argument is a callable and no other args exist,
         # it was used as @rule. Otherwise, it was @rule(...).
@@ -55,9 +63,15 @@ class rule:
             functools.update_wrapper(new, impl)
             # Return a new instance with the implementation bound
             return new
+        return self
 
+        @functools.wraps(self.impl)
+        def wrapper(obj: Any = None, ctx: Any = None) -> Any:
+            return self._run(obj, ctx, args, kwargs)
+
+        return wrapper
         # Otherwise, this is the actual function call
-        return self._run(None, args, kwargs)
+        # return self._run(None, None, args, kwargs)
 
     def __get__(self, obj: Any, objtype: Any = None) -> Any:
         if obj is None:
@@ -85,26 +99,24 @@ class rule:
         )
         self.impl.__ruleinfo__ = self.ruleinfo  # pyright: ignore[reportFunctionMemberAccess]
 
+        # return self._run
         @functools.wraps(self.impl)
-        def wrapper(ctx: Any = None) -> Any:
+        def wrapper(obj: Any, ctx: Any = None) -> Any:
             return self._run(obj, ctx, (), {})
 
         return wrapper
 
-    def _run(self, obj: Any, ctx: Any, args: tuple[Any, ...], kwargs: dict[str, Any]) -> str:
-        assert obj , f'{obj=!r} {ctx=!r}'
+    def _run(
+        self,
+        obj: Any,
+        ctx: Any = None,
+        _args: tuple[Any, ...] | None = None,
+        _kwargs: dict[str, Any] | None = None,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
+        assert obj, f'{obj=!r} {ctx=!r}'
         if ctx is not None:
             return ctx._call(self.ruleinfo)
         else:
             return obj._call(self.ruleinfo)  # legacy case
-
-        # # Reconstruct the call arguments
-        # call_args = (obj, ctx, *args) if obj is not None else args
-        #
-        # # Execute the original function
-        # result = self.impl(*call_args, **kwargs) # type: ignore
-        #
-        # arg_str = "".join(str(a) for a in self.params)
-        # strresult = f"RESULT strextra {ctx=} {result} {arg_str}"
-        # print(strresult)
-        # return result

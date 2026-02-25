@@ -38,12 +38,30 @@ HEADER = """\
     from tatsu.buffering import Buffer
     from tatsu.contexts import ParseContext
     from tatsu.infos import ParserConfig
-    from tatsu.parsing import Parser, leftrec, nomemo, isname, generic_main, rule
+    from tatsu.parsing import (
+        Parser, NGParser,
+        leftrec, nomemo, isname, generic_main, rule
+    )
     from tatsu.tokenizing.textlines import TextLinesTokenizer
 
-    __all__ = ['{tokenizer_name}', '{parser_name}', 'main']
-    
-    version_info = {version_info!r} 
+    __all__ = [
+        '{tokenizer_name}',
+        '{buffer_name}',
+        '{parser_name}',
+        '{rules_name}',
+        'main',
+        ]
+
+    version_info = {version_info!r}
+"""
+
+
+NGPARSER_BODY = """\
+    config = ParserConfig.new(config, **settings)
+    rulessource = {rules_name}()
+    tokenizercls = config.tokenizercls or {tokenizer_name}
+
+    super().__init__(rulessource, config=config, tokenizercls=tokenizercls)
 """
 
 FOOTER = """\
@@ -101,7 +119,9 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             HEADER.format(
                 basename=basename,
                 tokenizer_name=self._tokenizer_name(basename),
+                buffer_name=self._buffer_name(basename),
                 parser_name=self._parser_name(basename),
+                rules_name=self._rules_name(basename),
                 version_info=tuple(version_info),
             ),
         )
@@ -216,7 +236,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self.walk(choice.options[0])
             return
 
-        self.print('with ctx._choice() as choice:')
+        self.print('with ctx._choice() as ch:')
         with self.indent():
             self.walk(choice.options)
 
@@ -225,11 +245,11 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             return
 
         with self.indent():
-            expectstr = f'choice.expecting({', '.join(elements)})'
+            expectstr = f'ch.expecting({', '.join(elements)})'
             if self.fitsfmt(expectstr, 3):
                 self.print(expectstr)
             else:
-                self.print('choice.expecting(')
+                self.print('ch.expecting(')
                 with self.indent():
                     expectinner = ',\n'.join(elements)
                     self.print(expectinner)
@@ -237,7 +257,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 self.print()
 
     def walk_Option(self, option: grammars.Option):
-        self.print('@choice.option')
+        self.print('@ch.option')
         self.print('def _():')
         with self.indent():
             self.walk(option.exp)
@@ -343,7 +363,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
 
         self.print(f'''
                 config = ParserConfig.new(
-                    config,
+                    config=config,
                     whitespace={whitespace},
                     nameguard={grammar.config.nameguard},
                     ignorecase={grammar.config.ignorecase},
@@ -356,21 +376,35 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 )
                 config = config.override(**settings)
             ''')
-        self.print()
 
     def _tokenizer_name(self, basename) -> str:
         return f'{basename}Tokenizer'
 
+    def _buffer_name(self, basename) -> str:
+        return f'{basename}Buffer'
+
     def _parser_name(self, basename: str) -> str:
         return f'{basename}Parser'
 
+    def _rules_name(self, basename: str) -> str:
+        return f'{basename}Rules'
+
     def _gen_buffering_init(self, grammar: grammars.Grammar, basename: str):
         with self.indent():
-            self.print(
-                'def __init__(self, text, /, config: ParserConfig | None = None, **settings):',
-            )
+            self.print('def __init__(')
+            with self.indent():
+                self.print(
+                    """
+                    self,
+                    text, /,
+                    config: ParserConfig=ParserConfig.DFLT,
+                    **settings,
+                    """,
+                )
+            self.print(') -> None:')
             with self.indent():
                 self._gen_init(grammar)
+                self.print()
                 self.print('super().__init__(text, config=config)')
         self.print()
 
@@ -379,26 +413,41 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self._gen_buffering_init(grammar, basename)
 
         self.print()
-        self.print(f'class {basename}Buffer(Buffer):  # NOTE: backwards compatibility')
+        self.print(f'class {self._buffer_name(basename)}(Buffer):  # NOTE: backwards compatibility')
         self._gen_buffering_init(grammar, basename)
+        self.print()
 
     def _gen_parsing(self, grammar: grammars.Grammar, basename: str):
+        self.print(f'class {self._parser_name(basename)}(NGParser):')
+        with self.indent():
+            self.print('def __init__(self, /, config: ParserConfig = ParserConfig.DFLT, **settings):')
+            with self.indent():
+                self.print(
+                    '\n' + NGPARSER_BODY.format(
+                        parser_name=self._parser_name(basename),
+                        rules_name=self._rules_name(basename),
+                        tokenizer_name=self._tokenizer_name(basename),
+                    )
+                )
         self.print()
-        self.print(f'class {self._parser_name(basename)}(Parser):')
+        self.print()
+
+        self.print(f'class {self._rules_name(basename)}:')
         with self.indent():
             self.print(
-                'def __init__(self, /, config: ParserConfig | None = None, **settings):',
+                'def __init__(self, /, config: ParserConfig = ParserConfig.DFLT, **settings):',
             )
             with self.indent():
                 self._gen_init(grammar)
-                self.print('super().__init__(')
-                with self.indent():
-                    self.print('config=config,')
-                    self.print(
-                        f'tokenizercls=config.tokenizercls'
-                        f' or {self._tokenizer_name(basename)},',
-                    )
-                self.print(')')
+                self.print('self._config = config')
+                self.print()
+            self.print(
+                """
+                @property
+                def config(self) -> ParserConfig:
+                    return self._config
+                """
+            )
             self.print()
             self.walk(grammar.rules)
         self.print()
