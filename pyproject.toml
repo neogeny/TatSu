@@ -231,3 +231,52 @@ ignore = [
     "UP046", #   generic class uses `Generic` subclass instead of type parameters
     "UP047", #   should use tyope in 3.12+ type parameters
 ]
+
+[tool.basedpyright]
+typeCheckingMode = "standard"
+# Possible values for typeCheckingMode:
+# "off":         Only reports syntax errors.
+# "basic":       Basic type checking; similar to default mypy.
+# "standard":    Recommended middle ground; more "Any" checks.
+# "recommended": High-quality type safety without being pedantic.
+# "strict":      All Pyright strict rules; "Any" is mostly forbidden.
+# "all":         Enables every single diagnostic rule Basedpyright has.
+
+pythonVersion = "3.12"
+include = ["."]
+ignore = [
+    "tatsu/codegen/*",
+    "tatsu/g2e/*"
+]
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.venv",
+    "**/.git",
+    "examples/calc",
+    "parsers/"
+]
+
+reportAttributeAccessIssue = false
+reportMissingParameterType = false
+reportImplicitOverride = false
+reportUnhashable = false
+reportUnreachable = false
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+reportUnknownArgumentType = false
+reportUnknownParameterType = false
+reportUnknownLambdaType = false
+# reportUnknownReturnType = false
+reportAny = false
+reportExplicitAny = false
+reportUnnecessaryIsInstance = false
+reportUnnecessaryCast = false
+reportUnnecessaryComparison = false
+reportUnusedClass = false
+reportUnusedFunction = false
+reportUnusedVariable = false
+
+# From your previous request
+reportInvalidTypeForm = false
