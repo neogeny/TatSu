@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from tatsu.contexts.protocol import ParseContextProtocol
+from tatsu.contexts.protocol import ParseCtx
 
 
 class ChoiceContext:
-    def __init__(self, ctx: ParseContextProtocol):
+    def __init__(self, ctx: ParseCtx):
         self.ctx = ctx
         self.options: list[Callable[[], None]] = []
         self.expected: list[str] = []

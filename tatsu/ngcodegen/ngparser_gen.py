@@ -15,7 +15,7 @@ from ..util.abctools import compress_seq
 from ..util.undefined import Undefined
 from ..walkers import NodeWalker
 from .._version import version_info
-from ..contexts.protocol import ParseContextProtocol as Proto
+from ..contexts.protocol import ParseCtx
 from ..parserconfig import ParserConfig
 
 HEADER = """\
@@ -270,28 +270,28 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print('ctx._empty_closure()')
 
     def walk_Closure(self, closure: grammars.Closure):
-        self._gen_decor(Proto._zeroormore, closure.exp, var='cl')
+        self._gen_decor(ParseCtx._zeroormore, closure.exp, var='cl')
 
     def walk_PositiveClosure(self, closure: grammars.PositiveClosure):
-        self._gen_decor(Proto._oneormore, closure.exp, var='cl')
+        self._gen_decor(ParseCtx._oneormore, closure.exp, var='cl')
 
     def walk_Join(self, join: grammars.Join):
-        self._gen_decor(Proto._joinctx, join.exp, join.sep, var='cl')
+        self._gen_decor(ParseCtx._joinctx, join.exp, join.sep, var='cl')
 
     def walk_PositiveJoin(self, join: grammars.PositiveJoin):
-        self._gen_decor(Proto._joinoneormore, join.exp, join.sep, var='cl')
+        self._gen_decor(ParseCtx._joinoneormore, join.exp, join.sep, var='cl')
 
     def walk_LeftJoin(self, join: grammars.LeftJoin):
-        self._gen_decor(Proto._leftjoin, join.exp, join.sep, var='cl')
+        self._gen_decor(ParseCtx._leftjoin, join.exp, join.sep, var='cl')
 
     def walk_RightJoin(self, join: grammars.RightJoin):
-        self._gen_decor(Proto._rightjoin, join.exp, join.sep, var='cl')
+        self._gen_decor(ParseCtx._rightjoin, join.exp, join.sep, var='cl')
 
     def walk_Gather(self, gather: grammars.Gather):
-        self._gen_decor(Proto._gatherctx, gather.exp, gather.sep, var='g')
+        self._gen_decor(ParseCtx._gatherctx, gather.exp, gather.sep, var='g')
 
     def walk_PositiveGather(self, gather: grammars.PositiveGather):
-        self._gen_decor(Proto._gatheroneormore, gather.exp, gather.sep, var='g')
+        self._gen_decor(ParseCtx._gatheroneormore, gather.exp, gather.sep, var='g')
 
     def walk_SkipTo(self, skipto: grammars.SkipTo):
         n = self._gen_block(skipto.exp)

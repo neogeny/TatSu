@@ -38,7 +38,7 @@ from ..util.deprecate import deprecated
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from ..util.typetools import boundcall
 from ..util.undefined import Undefined
-from .protocol import ParseContextProtocol
+from .protocol import ParseCtx
 
 __all__: list[str] = ['ParseContext']
 
@@ -47,7 +47,7 @@ type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
 
-class ParseContext(ParseContextProtocol):
+class ParseContext(ParseCtx):
     def __init__(
         self,
         /,
@@ -323,13 +323,13 @@ class ParseContext(ParseContextProtocol):
     def newexcept(
         self,
         item: Any,
-        exclass: type[FailedParse] = FailedParse,
+        excls: type[FailedParse] = FailedParse,
     ) -> FailedParse:
-        if issubclass(exclass, FailedLeftRecursion):
+        if issubclass(excls, FailedLeftRecursion):
             rulestack: list[str] = []
         else:
             rulestack = [r.name for r in reversed(self.ruleinfo_stack)]
-        return exclass(self.cursor.lineinfo(), rulestack, item)
+        return excls(self.cursor.lineinfo(), rulestack, item)
 
     # bw compatibility
     @deprecated(replacement=newexcept)
@@ -389,7 +389,7 @@ class ParseContext(ParseContextProtocol):
     def _set_left_recursion_guard(self, key: MemoKey) -> None:
         if not self.config.left_recursion:
             return
-        ex = self.newexcept(key.ruleinfo.name, exclass=FailedLeftRecursion)
+        ex = self.newexcept(key.ruleinfo.name, excls=FailedLeftRecursion)
         self._memoize(key, ex)
 
     def _call(self, ruleinfo: RuleInfo) -> Any:
@@ -432,7 +432,7 @@ class ParseContext(ParseContextProtocol):
         if not ruleinfo.is_leftrec:
             return self._rule_call(ruleinfo, key)
         elif not self.config.left_recursion:
-            raise self.newexcept('Left recursion detected', exclass=FailedLeftRecursion)
+            raise self.newexcept('Left recursion detected', excls=FailedLeftRecursion)
 
         result: RuleResult | ParseException | None = self._results.get(key)
         if isinstance(result, RuleResult):
@@ -524,7 +524,7 @@ class ParseContext(ParseContextProtocol):
         self.next_token()
         if self.cursor.match(token) is None:
             self.tracer.trace_match(self.cursor, token, failed=True)
-            raise self.newexcept(token, exclass=FailedToken)
+            raise self.newexcept(token, excls=FailedToken)
         self.tracer.trace_match(self.cursor, token)
         self.states.append(token)
         return token
@@ -589,7 +589,7 @@ class ParseContext(ParseContextProtocol):
         token = self.cursor.matchre(pattern)
         if token is None:
             self.tracer.trace_match(self.cursor, '', pattern, failed=True)
-            raise self.newexcept(f'Expecting {regexp(pattern)}', exclass=FailedPattern)
+            raise self.newexcept(f'Expecting {regexp(pattern)}', excls=FailedPattern)
         self.tracer.trace_match(self.cursor, token, pattern)
         self.states.append(token)
         return token
@@ -605,7 +605,7 @@ class ParseContext(ParseContextProtocol):
         if not self.cursor.atend():
             raise self.newexcept(
                 'Expecting end of text',
-                exclass=FailedExpectingEndOfText,
+                excls=FailedExpectingEndOfText,
             )
 
     @contextmanager
@@ -684,7 +684,7 @@ class ParseContext(ParseContextProtocol):
         except ParseException:
             pass
         else:
-            raise self.newexcept('', exclass=FailedLookahead)
+            raise self.newexcept('', excls=FailedLookahead)
 
     @contextmanager
     def _setname(self, name: str):
@@ -858,7 +858,7 @@ class ParseContext(ParseContextProtocol):
         c = self._next()
         if c is None:
             self.tracer.trace_match(self.cursor, c, failed=True)
-            raise self.newexcept(c, exclass=FailedToken) from None
+            raise self.newexcept(c, excls=FailedToken) from None
         self.tracer.trace_match(self.cursor, c)
         self.states.append(c)
         return c

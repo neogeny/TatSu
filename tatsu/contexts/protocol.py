@@ -2,20 +2,25 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from contextlib import AbstractContextManager
 from typing import Any, Protocol, runtime_checkable
 
 from .state import ParseStateStack
+from ..exceptions import FailedParse
 from ..infos import RuleInfo
 
 
 @runtime_checkable
-class ParseContextProtocol(Protocol):
-
+class ParseCtx(Protocol):
     @property
     def states(self) -> ParseStateStack: ...
 
     def _call(self, ruleinfo: RuleInfo) -> Any: ...
+
+    def newexcept(
+        self,
+        item: Any,
+        excls: type[FailedParse] = FailedParse,
+    ) -> FailedParse: ...
 
     def _option(self) -> Any: ...
 
