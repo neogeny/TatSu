@@ -16,6 +16,7 @@ from ..util.undefined import Undefined
 from ..walkers import NodeWalker
 from .._version import version_info
 from ..contexts.protocol import ParseContextProtocol as Proto
+from ..parserconfig import ParserConfig
 
 HEADER = """\
     #!/usr/bin/env python3
@@ -328,7 +329,6 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print()
 
     def _gen_init(self, grammar: grammars.Grammar):
-        from tatsu.parserconfig import ParserConfig
         assert isinstance(grammar.config, ParserConfig)
         start = grammar.config.start or grammar.rules[0].name
 
@@ -497,7 +497,9 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         with self.indent():
             if sep:
                 self._gen_anon_block(
-                    sep, decor=f'{var}.sep', emptycheck=emptycheck,
+                    sep,
+                    decor=f'{var}.sep',
+                    emptycheck=emptycheck,
                 )
                 self.print()
             self._gen_anon_block(exp, decor=f'{var}.exp', emptycheck=emptycheck)

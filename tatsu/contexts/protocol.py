@@ -9,9 +9,6 @@ from .state import ParseStateStack
 from ..infos import RuleInfo
 
 
-type MethodContextManager = AbstractContextManager[Any, None]
-
-
 @runtime_checkable
 class ParseContextProtocol(Protocol):
 
