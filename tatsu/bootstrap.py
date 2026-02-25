@@ -123,6 +123,7 @@ class TatSuBootstrapRules:
 
     @rule('Grammar')
     def _grammar_(self, ctx: ParseContext):
+        ctx._define(['title'], ['directives', 'keywords', 'rules'])
         with ctx._setname('title'):
             ctx._constant('TATSU')
         with ctx._zeroormore() as cl:
@@ -158,10 +159,10 @@ class TatSuBootstrapRules:
 
                     ch.expecting('<keyword>', '<rule>')
         ctx._check_eof()
-        ctx._define(['title'], ['directives', 'keywords', 'rules'])
 
     @rule()
     def _directive_(self, ctx: ParseContext):
+        ctx._define(['name', 'value'], [])
         ctx._token('@@')
         with ctx._ifnot():
             ctx._token('keyword')
@@ -170,6 +171,7 @@ class TatSuBootstrapRules:
             with ctx._choice() as ch:
                 @ch.option
                 def _():
+                    ctx._define(['name', 'value'], [])
                     with ctx._setname('name'):
                         with ctx._group():
                             with ctx._choice() as ch:
@@ -187,10 +189,10 @@ class TatSuBootstrapRules:
                     ctx._cut()
                     with ctx._setname('value'):
                         self._regex_(ctx)
-                    ctx._define(['name', 'value'], [])
 
                 @ch.option
                 def _():
+                    ctx._define(['name', 'value'], [])
                     with ctx._setname('name'):
                         with ctx._group():
                             ctx._token('whitespace')
@@ -226,10 +228,10 @@ class TatSuBootstrapRules:
                                     'False',
                                     'None'
                                 )
-                    ctx._define(['name', 'value'], [])
 
                 @ch.option
                 def _():
+                    ctx._define(['name', 'value'], [])
                     with ctx._setname('name'):
                         with ctx._group():
                             with ctx._choice() as ch:
@@ -265,11 +267,11 @@ class TatSuBootstrapRules:
                         with ctx._choice() as ch:
                             @ch.option
                             def _():
+                                ctx._define(['value'], [])
                                 ctx._token('::')
                                 ctx._cut()
                                 with ctx._setname('value'):
                                     self._boolean_(ctx)
-                                ctx._define(['value'], [])
 
                             @ch.option
                             def _():
@@ -277,10 +279,10 @@ class TatSuBootstrapRules:
                                     ctx._constant(True)
 
                             ch.expecting('::')
-                    ctx._define(['name', 'value'], [])
 
                 @ch.option
                 def _():
+                    ctx._define(['name', 'value'], [])
                     with ctx._setname('name'):
                         with ctx._group():
                             ctx._token('grammar')
@@ -289,10 +291,10 @@ class TatSuBootstrapRules:
                     ctx._cut()
                     with ctx._setname('value'):
                         self._word_(ctx)
-                    ctx._define(['name', 'value'], [])
 
                 @ch.option
                 def _():
+                    ctx._define(['name', 'value'], [])
                     with ctx._setname('name'):
                         with ctx._group():
                             ctx._token('namechars')
@@ -301,7 +303,6 @@ class TatSuBootstrapRules:
                     ctx._cut()
                     with ctx._setname('value'):
                         self._string_(ctx)
-                    ctx._define(['name', 'value'], [])
 
                 ch.expecting(
                     'comments',
@@ -316,7 +317,6 @@ class TatSuBootstrapRules:
                     'whitespace'
                 )
         ctx._cut()
-        ctx._define(['name', 'value'], [])
 
     @rule()
     def _keywords_(self, ctx: ParseContext):
@@ -369,13 +369,13 @@ class TatSuBootstrapRules:
 
             @ch.option
             def _():
+                ctx._define(['kwparams', 'params'], [])
                 with ctx._setname('params'):
                     self._params_(ctx)
                 ctx._token(',')
                 ctx._cut()
                 with ctx._setname('kwparams'):
                     self._kwparams_(ctx)
-                ctx._define(['kwparams', 'params'], [])
 
             @ch.option
             def _():
@@ -389,6 +389,7 @@ class TatSuBootstrapRules:
         with ctx._choice() as ch:
             @ch.option
             def _():
+                ctx._define(['kwparams', 'params'], [])
                 ctx._token('[')
                 ctx._cut()
                 with ctx._choice() as ch:
@@ -399,13 +400,13 @@ class TatSuBootstrapRules:
 
                     @ch.option
                     def _():
+                        ctx._define(['kwparams', 'params'], [])
                         with ctx._setname('params'):
                             self._params_(ctx)
                         ctx._token(',')
                         ctx._cut()
                         with ctx._setname('kwparams'):
                             self._kwparams_(ctx)
-                        ctx._define(['kwparams', 'params'], [])
 
                     @ch.option
                     def _():
@@ -414,10 +415,10 @@ class TatSuBootstrapRules:
 
                     ch.expecting('<kwparams>', '<params>')
                 ctx._token(']')
-                ctx._define(['kwparams', 'params'], [])
 
             @ch.option
             def _():
+                ctx._define(['kwparams', 'params'], [])
                 ctx._token('(')
                 ctx._cut()
                 with ctx._choice() as ch:
@@ -428,13 +429,13 @@ class TatSuBootstrapRules:
 
                     @ch.option
                     def _():
+                        ctx._define(['kwparams', 'params'], [])
                         with ctx._setname('params'):
                             self._params_(ctx)
                         ctx._token(',')
                         ctx._cut()
                         with ctx._setname('kwparams'):
                             self._kwparams_(ctx)
-                        ctx._define(['kwparams', 'params'], [])
 
                     @ch.option
                     def _():
@@ -443,20 +444,20 @@ class TatSuBootstrapRules:
 
                     ch.expecting('<kwparams>', '<params>')
                 ctx._token(')')
-                ctx._define(['kwparams', 'params'], [])
 
             @ch.option
             def _():
+                ctx._define(['params'], [])
                 ctx._token('::')
                 ctx._cut()
                 with ctx._setname('params'):
                     self._params_(ctx)
-                ctx._define(['params'], [])
 
             ch.expecting('(', '::', '[')
 
     @rule('Rule')
     def _rule_(self, ctx: ParseContext):
+        ctx._define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
         with ctx._setname('decorators'):
             with ctx._zeroormore() as cl:
                 @cl.exp
@@ -469,6 +470,7 @@ class TatSuBootstrapRules:
             with ctx._choice() as ch:
                 @ch.option
                 def _():
+                    ctx._define(['kwparams', 'params'], [])
                     ctx._token('[')
                     ctx._cut()
                     with ctx._choice() as ch:
@@ -479,13 +481,13 @@ class TatSuBootstrapRules:
 
                         @ch.option
                         def _():
+                            ctx._define(['kwparams', 'params'], [])
                             with ctx._setname('params'):
                                 self._params_(ctx)
                             ctx._token(',')
                             ctx._cut()
                             with ctx._setname('kwparams'):
                                 self._kwparams_(ctx)
-                            ctx._define(['kwparams', 'params'], [])
 
                         @ch.option
                         def _():
@@ -494,10 +496,10 @@ class TatSuBootstrapRules:
 
                         ch.expecting('<kwparams>', '<params>')
                     ctx._token(']')
-                    ctx._define(['kwparams', 'params'], [])
 
                 @ch.option
                 def _():
+                    ctx._define(['kwparams', 'params'], [])
                     ctx._token('(')
                     ctx._cut()
                     with ctx._choice() as ch:
@@ -508,13 +510,13 @@ class TatSuBootstrapRules:
 
                         @ch.option
                         def _():
+                            ctx._define(['kwparams', 'params'], [])
                             with ctx._setname('params'):
                                 self._params_(ctx)
                             ctx._token(',')
                             ctx._cut()
                             with ctx._setname('kwparams'):
                                 self._kwparams_(ctx)
-                            ctx._define(['kwparams', 'params'], [])
 
                         @ch.option
                         def _():
@@ -523,23 +525,22 @@ class TatSuBootstrapRules:
 
                         ch.expecting('<kwparams>', '<params>')
                     ctx._token(')')
-                    ctx._define(['kwparams', 'params'], [])
 
                 @ch.option
                 def _():
+                    ctx._define(['params'], [])
                     ctx._token('::')
                     ctx._cut()
                     with ctx._setname('params'):
                         self._params_(ctx)
-                    ctx._define(['params'], [])
 
                 ch.expecting('(', '::', '[')
         with ctx._optional():
+            ctx._define(['base'], [])
             ctx._token('<')
             ctx._cut()
             with ctx._setname('base'):
                 self._known_name_(ctx)
-            ctx._define(['base'], [])
         with ctx._group():
             with ctx._choice() as ch:
                 @ch.option
@@ -560,7 +561,6 @@ class TatSuBootstrapRules:
             self._expre_(ctx)
         self._ENDRULE_(ctx)
         ctx._cut()
-        ctx._define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
 
     @rule()
     def _ENDRULE_(self, ctx: ParseContext):
@@ -839,23 +839,23 @@ class TatSuBootstrapRules:
 
     @rule('NamedList')
     def _named_list_(self, ctx: ParseContext):
+        ctx._define(['exp', 'name'], [])
         with ctx._setname('name'):
             self._name_(ctx)
         ctx._token('+:')
         ctx._cut()
         with ctx._setname('exp'):
             self._term_(ctx)
-        ctx._define(['exp', 'name'], [])
 
     @rule('Named')
     def _named_single_(self, ctx: ParseContext):
+        ctx._define(['exp', 'name'], [])
         with ctx._setname('name'):
             self._name_(ctx)
         ctx._token(':')
         ctx._cut()
         with ctx._setname('exp'):
             self._term_(ctx)
-        ctx._define(['exp', 'name'], [])
 
     @rule()
     def _override_(self, ctx: ParseContext):
@@ -1031,6 +1031,7 @@ class TatSuBootstrapRules:
 
     @rule('PositiveGather')
     def _positive_gather_(self, ctx: ParseContext):
+        ctx._define(['exp', 'sep'], [])
         with ctx._setname('sep'):
             self._atom_(ctx)
         ctx._token('.{')
@@ -1049,10 +1050,10 @@ class TatSuBootstrapRules:
 
                 ch.expecting('+', '-')
         ctx._cut()
-        ctx._define(['exp', 'sep'], [])
 
     @rule('Gather')
     def _normal_gather_(self, ctx: ParseContext):
+        ctx._define(['exp', 'sep'], [])
         with ctx._setname('sep'):
             self._atom_(ctx)
         ctx._token('.{')
@@ -1064,7 +1065,6 @@ class TatSuBootstrapRules:
             ctx._token('*')
             ctx._cut()
         ctx._cut()
-        ctx._define(['exp', 'sep'], [])
 
     @rule()
     def _join_(self, ctx: ParseContext):
@@ -1087,6 +1087,7 @@ class TatSuBootstrapRules:
 
     @rule('PositiveJoin')
     def _positive_join_(self, ctx: ParseContext):
+        ctx._define(['exp', 'sep'], [])
         with ctx._setname('sep'):
             self._atom_(ctx)
         ctx._token('%{')
@@ -1105,10 +1106,10 @@ class TatSuBootstrapRules:
 
                 ch.expecting('+', '-')
         ctx._cut()
-        ctx._define(['exp', 'sep'], [])
 
     @rule('Join')
     def _normal_join_(self, ctx: ParseContext):
+        ctx._define(['exp', 'sep'], [])
         with ctx._setname('sep'):
             self._atom_(ctx)
         ctx._token('%{')
@@ -1120,10 +1121,10 @@ class TatSuBootstrapRules:
             ctx._token('*')
             ctx._cut()
         ctx._cut()
-        ctx._define(['exp', 'sep'], [])
 
     @rule('LeftJoin')
     def _left_join_(self, ctx: ParseContext):
+        ctx._define(['exp', 'sep'], [])
         with ctx._setname('sep'):
             self._atom_(ctx)
         ctx._token('<{')
@@ -1143,10 +1144,10 @@ class TatSuBootstrapRules:
 
                 ch.expecting('+', '-')
         ctx._cut()
-        ctx._define(['exp', 'sep'], [])
 
     @rule('RightJoin')
     def _right_join_(self, ctx: ParseContext):
+        ctx._define(['exp', 'sep'], [])
         with ctx._setname('sep'):
             self._atom_(ctx)
         ctx._token('>{')
@@ -1166,7 +1167,6 @@ class TatSuBootstrapRules:
 
                 ch.expecting('+', '-')
         ctx._cut()
-        ctx._define(['exp', 'sep'], [])
 
     @rule('PositiveClosure')
     def _positive_closure_(self, ctx: ParseContext):
@@ -1435,11 +1435,11 @@ class TatSuBootstrapRules:
 
     @rule('Alert')
     def _alert_(self, ctx: ParseContext):
+        ctx._define(['level', 'message'], [])
         with ctx._setname('level'):
             ctx._pattern(r'\^+')
         with ctx._setname('message'):
             self._constant_(ctx)
-        ctx._define(['level', 'message'], [])
 
     @rule('Token')
     def _token_(self, ctx: ParseContext):

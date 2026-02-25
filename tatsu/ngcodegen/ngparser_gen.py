@@ -231,8 +231,8 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self.walk(lookahead.exp)
 
     def walk_Sequence(self, seq: grammars.Sequence):
-        self.walk(seq.sequence)
         self._gen_defines_declaration(seq)
+        self.walk(seq.sequence)
 
     def walk_Choice(self, choice: grammars.Choice):
         if len(choice.options) == 1:
