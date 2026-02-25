@@ -135,7 +135,6 @@ positive_closure[PositiveClosure]: '{' @:expre '}' ('-' | '+') ~ |   @:atom '+' 
 
 closure[Closure]: '{' @:expre '}' ['*'] ~ |   @:atom '*' ~
 
-
 empty_closure[EmptyClosure]: '{}' ~ @:()
 
 optional[Optional]: '[' ~ @:expre ']' ~ |   @:atom !('?"' | "?'" | '?/') '?'  ~

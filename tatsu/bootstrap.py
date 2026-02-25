@@ -322,11 +322,10 @@ class TatSuBootstrapRules:
 
     @rule()
     def _keywords_(self, ctx: ParseContext):
-
-        def block0():
-            self._keywords_(ctx)
-
-        ctx._positive_closure(block0)
+        with ctx._oneormore() as cl:
+            @cl.exp
+            def _():
+                self._keywords_(ctx)
 
     @rule()
     def _keyword_(self, ctx: ParseContext):
@@ -335,33 +334,33 @@ class TatSuBootstrapRules:
         ctx._token('::')
         ctx._cut()
 
-        def block0():
-            with ctx._addname('@'):
-                with ctx._group():
-                    with ctx._choice() as ch:
-                        @ch.option
-                        def _():
-                            self._word_(ctx)
+        with ctx._zeroormore() as cl:
+            @cl.exp
+            def _():
+                with ctx._addname('@'):
+                    with ctx._group():
+                        with ctx._choice() as ch:
+                            @ch.option
+                            def _():
+                                self._word_(ctx)
 
-                        @ch.option
-                        def _():
-                            self._string_(ctx)
+                            @ch.option
+                            def _():
+                                self._string_(ctx)
 
-                        ch.expecting('<string>', '<word>')
-            with ctx._ifnot():
-                with ctx._group():
-                    with ctx._choice() as ch:
-                        @ch.option
-                        def _():
-                            ctx._token(':')
+                            ch.expecting('<string>', '<word>')
+                with ctx._ifnot():
+                    with ctx._group():
+                        with ctx._choice() as ch:
+                            @ch.option
+                            def _():
+                                ctx._token(':')
 
-                        @ch.option
-                        def _():
-                            ctx._token('=')
+                            @ch.option
+                            def _():
+                                ctx._token('=')
 
-                        ch.expecting(':', '=')
-
-        ctx._closure(block0)
+                            ch.expecting(':', '=')
 
     @rule()
     def _the_params_at_last_(self, ctx: ParseContext):

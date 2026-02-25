@@ -8,7 +8,7 @@ from collections.abc import Callable, Generator, Iterable
 from contextlib import AbstractContextManager, contextmanager, suppress
 from typing import Any
 
-from .ctxlib import ChoiceContext
+from .ctxlib import ChoiceContext, InnerExpContext
 from .infos import MemoKey, RuleResult, closure
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer
@@ -696,10 +696,10 @@ class ParseContext(ParseContextProtocol):
         yield
         self.addname(name)
 
-    def _isolate(self, block: Callable[[], Any], _drop: bool = False) -> Any:
+    def _isolate(self, exp: Callable[[], Any], _drop: bool = False) -> Any:
         self.pushstate()
         try:
-            block()
+            exp()
             return closure(self.cst) if is_list(self.cst) else self.cst
         finally:
             ast = self.ast
@@ -708,7 +708,7 @@ class ParseContext(ParseContextProtocol):
 
     def _repeat(
         self,
-        block: Callable[[], Any],
+        exp: Callable[[], Any],
         prefix: Callable[[], Any] | None = None,
         dropprefix: bool = False,
     ) -> None:
@@ -723,17 +723,29 @@ class ParseContext(ParseContextProtocol):
                             self.states.append(pcst)
                         self._cut()
 
-                    cst = self._isolate(block)
+                    cst = self._isolate(exp)
                     self.states.append(cst)
 
                     if self.pos == p:
                         raise self.newexcept('empty closure')
                 return
 
+    @contextmanager
+    def _zeroormore(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._closure(cl._exp_value())
+
+    @contextmanager
+    def _oneormore(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._positive_closure(cl._exp_value())
+
     def _closure(
         self,
-        block: Callable[[], Any],
-        sep: Callable[[], Any] | None = None,
+        exp: Callable[[], None],
+        sep: Callable[[], None] | None = None,
         omitsep: bool = False,
     ) -> Any:
         self.pushstate()
@@ -741,9 +753,9 @@ class ParseContext(ParseContextProtocol):
             self.cst = []
             with self.states.cutscope():
                 with self._optional():
-                    block()
+                    exp()
                     self.cst = [self.cst]
-                self._repeat(block, prefix=sep, dropprefix=omitsep)
+                self._repeat(exp, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
             return self.mergestate().cst
         except ParseException:
@@ -752,16 +764,16 @@ class ParseContext(ParseContextProtocol):
 
     def _positive_closure(
         self,
-        block: Callable[[], Any],
+        exp: Callable[[], Any],
         sep: Callable[[], Any] | None = None,
         omitsep: bool = False,
     ) -> Any:
         self.pushstate()
         try:
             with self.states.cutscope():
-                block()
+                exp()
                 self.cst = [self.cst]
-                self._repeat(block, prefix=sep, dropprefix=omitsep)
+                self._repeat(exp, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
             return self.mergestate().cst
         except ParseException:
@@ -773,25 +785,61 @@ class ParseContext(ParseContextProtocol):
         self.states.append(cst)
         return cst
 
-    def _gather(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
-        return self._closure(block, sep=sep, omitsep=True)
+    @contextmanager
+    def _gatherctx(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._gather(cl._exp_value(), cl._sep_value())
 
-    def _positive_gather(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
-        return self._positive_closure(block, sep=sep, omitsep=True)
+    @contextmanager
+    def _gatheroneormore(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._positive_gather(cl._exp_value(), cl._sep_value())
 
-    def _join(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
-        return self._closure(block, sep=sep)
+    def _gather(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+        return self._closure(exp, sep=sep, omitsep=True)
 
-    def _positive_join(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
-        return self._positive_closure(block, sep=sep)
+    def _positive_gather(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+        return self._positive_closure(exp, sep=sep, omitsep=True)
 
-    def _left_join(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
-        self.cst = left_assoc(self._positive_join(block, sep))
+    @contextmanager
+    def _joinctx(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._join(cl._exp_value(), cl._sep_value())
+
+    @contextmanager
+    def _joinoneormore(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._positive_join(cl._exp_value(), cl._sep_value())
+
+    def _join(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+        return self._closure(exp, sep=sep)
+
+    def _positive_join(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+        return self._positive_closure(exp, sep=sep)
+
+    @contextmanager
+    def _leftjoin(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._left_join(cl._exp_value(), cl._sep_value())
+
+    @contextmanager
+    def _rightjoin(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._right_join(cl._exp_value(), cl._sep_value())
+
+    def _left_join(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+        self.cst = left_assoc(self._positive_join(exp, sep))
         self.last_node = self.cst
         return self.cst
 
-    def _right_join(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
-        self.cst = right_assoc(self._positive_join(block, sep))
+    def _right_join(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+        self.cst = right_assoc(self._positive_join(exp, sep))
         self.last_node = self.cst
         return self.cst
 
@@ -815,11 +863,17 @@ class ParseContext(ParseContextProtocol):
         self.states.append(c)
         return c
 
-    def _skip_to(self, block: Callable[[], Any]) -> None:
+    @contextmanager
+    def _skipto(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._skip_to(cl._exp_value())
+
+    def _skip_to(self, exp: Callable[[], Any]) -> None:
         while not self.eof():
             try:
                 with self._if():
-                    block()
+                    exp()
             except FailedParse:
                 pass
             else:
@@ -828,4 +882,4 @@ class ParseContext(ParseContextProtocol):
             self.next_token()
             if self.pos == pos:
                 self._next()
-        block()
+        exp()

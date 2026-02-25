@@ -3,5 +3,6 @@
 from __future__ import annotations
 
 from .choice import ChoiceContext
+from .exp import InnerExpContext
 
 __all__ = ['ChoiceContext']
