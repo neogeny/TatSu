@@ -6,6 +6,8 @@ import functools
 from collections.abc import Callable
 from typing import Any, cast
 
+from tatsu.contexts.engine import ParseContext
+
 from .infos import RuleInfo, RuleLike
 
 
@@ -25,7 +27,12 @@ def nomemo(impl: Callable) -> Callable:
 def isname(impl: Callable) -> Callable:
     over: RuleLike = cast(RuleLike, impl)
     over.is_name = True
+    return impl
 
+
+def name(impl: Callable) -> Callable:
+    over: RuleLike = cast(RuleLike, impl)
+    over.is_name = True
     return impl
 
 
@@ -81,13 +88,23 @@ class rule:
         if not callable(self.impl):
             return self
 
-        impl = self.impl
+        self.ruleinfo = self._ruleinfo(obj, self.impl)
+        self.impl.__ruleinfo__ = self.ruleinfo  # pyright: ignore[reportFunctionMemberAccess]
+
+        # return self._run
+        @functools.wraps(self.impl)
+        def wrapper(obj: Any, ctx: Any = None) -> Any:
+            return self._run(obj, ctx, (), {})
+
+        return wrapper
+
+    def _ruleinfo(self, obj: Any, impl: Callable[..., Any]) -> RuleInfo:
         name = impl.__name__  # type: ignore
         is_leftrec = getattr(impl, 'is_leftrec', False)
         is_memoizable = getattr(impl, 'is_memoizable', True)
         is_name = getattr(impl, 'is_name', False)
 
-        self.ruleinfo = RuleInfo(
+        return RuleInfo(
             name=name,
             obj=obj,
             impl=impl,
@@ -97,14 +114,6 @@ class rule:
             params=self.params,
             kwparams=self.kwparams,
         )
-        self.impl.__ruleinfo__ = self.ruleinfo  # pyright: ignore[reportFunctionMemberAccess]
-
-        # return self._run
-        @functools.wraps(self.impl)
-        def wrapper(obj: Any, ctx: Any = None) -> Any:
-            return self._run(obj, ctx, (), {})
-
-        return wrapper
 
     def _run(
         self,
@@ -116,7 +125,8 @@ class rule:
         **kwargs: Any,
     ) -> Any:
         assert obj, f'{obj=!r} {ctx=!r}'
-        if ctx is not None:
+
+        if isinstance(ctx, ParseContext):
             return ctx._call(self.ruleinfo)
         else:
             return obj._call(self.ruleinfo)  # legacy case
