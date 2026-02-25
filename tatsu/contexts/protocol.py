@@ -1,0 +1,41 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
+from typing import Any, Protocol, runtime_checkable
+
+from .state import ParseStateStack
+from ..exceptions import FailedParse
+from ..infos import RuleInfo
+
+
+@runtime_checkable
+class ParseCtx(Protocol):
+    @property
+    def states(self) -> ParseStateStack: ...
+
+    def _call(self, ruleinfo: RuleInfo) -> Any: ...
+
+    def newexcept(
+        self,
+        item: Any,
+        excls: type[FailedParse] = FailedParse,
+    ) -> FailedParse: ...
+
+    def _option(self) -> Any: ...
+
+    def _zeroormore(self) -> Any: ...
+
+    def _oneormore(self) -> Any: ...
+
+    def _gatherctx(self) -> Any: ...
+
+    def _gatheroneormore(self) -> Any: ...
+
+    def _joinctx(self) -> Any: ...
+
+    def _joinoneormore(self) -> Any: ...
+
+    def _leftjoin(self) -> Any: ...
+
+    def _rightjoin(self) -> Any: ...

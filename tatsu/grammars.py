@@ -814,7 +814,7 @@ class Call(Model):
             rule = ctx._find_rule(self.name)
             return rule(ctx)
         except KeyError as e:
-            raise ctx.newexcept(self.name, exclass=FailedRef) from e
+            raise ctx.newexcept(self.name, excls=FailedRef) from e
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         if self.name not in rulenames:

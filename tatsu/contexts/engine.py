@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import ast as stdlib_ast
 import inspect
-from collections.abc import Callable, Iterable
-from contextlib import contextmanager, suppress
+from collections.abc import Callable, Generator, Iterable
+from contextlib import AbstractContextManager, contextmanager, suppress
 from typing import Any
 
+from .ctxlib import ChoiceContext, InnerExpContext
 from .infos import MemoKey, RuleResult, closure
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer
@@ -37,6 +38,7 @@ from ..util.deprecate import deprecated
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from ..util.typetools import boundcall
 from ..util.undefined import Undefined
+from .protocol import ParseCtx
 
 __all__: list[str] = ['ParseContext']
 
@@ -45,29 +47,7 @@ type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
 
-class ChoiceContext:
-    def __init__(self, ctx: ParseContext):
-        self.ctx = ctx
-        self.options: list[Callable[[], None]] = []
-        self.expected: list[str] = []
-
-    def option(self, func: Callable[[], None]) -> Callable[[], None]:
-        self.options.append(func)
-        return func
-
-    def expecting(self, *tokens: str) -> None:
-        self.expected.extend(tokens)
-
-    def run(self) -> None:
-        if not self.options:
-            return
-        for opt in self.options:
-            with self.ctx._option():
-                opt()
-        raise self.ctx.newexcept(f"Expected one of: {', '.join(self.expected)}")
-
-
-class ParseContext:
+class ParseContext(ParseCtx):
     def __init__(
         self,
         /,
@@ -78,14 +58,17 @@ class ParseContext:
         super().__init__()
 
         config = ParserConfig.new(config, **settings)
+        assert isinstance(config, ParserConfig)
         if config.tokenizercls is None:
             config = config.override(tokenizercls=TextLinesTokenizer)
+        assert isinstance(config, ParserConfig)
         self._config: ParserConfig = config
         self._active_config: ParserConfig = self._config
 
         self._tokenizer: Tokenizer = NullTokenizer()
         self._cursor = self._tokenizer.newcursor()
         self._semantics: type | None = config.semantics
+        self._states: ParseStateStack = ParseStateStack(cursor=self._cursor)
 
         self._initialize_caches()
         self._tracer: EventTracer = EventTracer([])
@@ -213,7 +196,9 @@ class ParseContext:
         **settings: Any,
     ) -> Any:
         config = self.config.override_config(config)
+        assert isinstance(config, ParserConfig)
         config = config.override(**settings)
+        assert isinstance(config, ParserConfig)
         self._active_config = config
         self.update_tracer()
         try:
@@ -338,13 +323,13 @@ class ParseContext:
     def newexcept(
         self,
         item: Any,
-        exclass: type[FailedParse] = FailedParse,
+        excls: type[FailedParse] = FailedParse,
     ) -> FailedParse:
-        if issubclass(exclass, FailedLeftRecursion):
+        if issubclass(excls, FailedLeftRecursion):
             rulestack: list[str] = []
         else:
             rulestack = [r.name for r in reversed(self.ruleinfo_stack)]
-        return exclass(self.cursor.lineinfo(), rulestack, item)
+        return excls(self.cursor.lineinfo(), rulestack, item)
 
     # bw compatibility
     @deprecated(replacement=newexcept)
@@ -404,7 +389,7 @@ class ParseContext:
     def _set_left_recursion_guard(self, key: MemoKey) -> None:
         if not self.config.left_recursion:
             return
-        ex = self.newexcept(key.ruleinfo.name, exclass=FailedLeftRecursion)
+        ex = self.newexcept(key.ruleinfo.name, excls=FailedLeftRecursion)
         self._memoize(key, ex)
 
     def _call(self, ruleinfo: RuleInfo) -> Any:
@@ -447,7 +432,7 @@ class ParseContext:
         if not ruleinfo.is_leftrec:
             return self._rule_call(ruleinfo, key)
         elif not self.config.left_recursion:
-            raise self.newexcept('Left recursion detected', exclass=FailedLeftRecursion)
+            raise self.newexcept('Left recursion detected', excls=FailedLeftRecursion)
 
         result: RuleResult | ParseException | None = self._results.get(key)
         if isinstance(result, RuleResult):
@@ -456,6 +441,7 @@ class ParseContext:
             raise result
 
         result = self.newexcept(ruleinfo.name, FailedLeftRecursion)
+        assert isinstance(result, RuleResult | ParseException)
         self._results[key] = result
 
         initial = self.pos
@@ -478,6 +464,7 @@ class ParseContext:
         if isinstance(result, Exception):
             raise result
 
+        assert isinstance(result, RuleResult | ParseException)
         return result
 
     def _rule_call(self, ruleinfo: RuleInfo, key: MemoKey) -> RuleResult:
@@ -537,7 +524,7 @@ class ParseContext:
         self.next_token()
         if self.cursor.match(token) is None:
             self.tracer.trace_match(self.cursor, token, failed=True)
-            raise self.newexcept(token, exclass=FailedToken)
+            raise self.newexcept(token, excls=FailedToken)
         self.tracer.trace_match(self.cursor, token)
         self.states.append(token)
         return token
@@ -602,7 +589,7 @@ class ParseContext:
         token = self.cursor.matchre(pattern)
         if token is None:
             self.tracer.trace_match(self.cursor, '', pattern, failed=True)
-            raise self.newexcept(f'Expecting {regexp(pattern)}', exclass=FailedPattern)
+            raise self.newexcept(f'Expecting {regexp(pattern)}', excls=FailedPattern)
         self.tracer.trace_match(self.cursor, token, pattern)
         self.states.append(token)
         return token
@@ -618,11 +605,11 @@ class ParseContext:
         if not self.cursor.atend():
             raise self.newexcept(
                 'Expecting end of text',
-                exclass=FailedExpectingEndOfText,
+                excls=FailedExpectingEndOfText,
             )
 
     @contextmanager
-    def _try(self):
+    def _try(self) -> Any:
         self.pushstate(ast=AST(self.ast))
         self.last_node = None
         try:
@@ -644,7 +631,7 @@ class ParseContext:
         return True
 
     @contextmanager
-    def _option(self):
+    def _option(self) -> Any:
         self.last_node = None
         try:
             with self._try():
@@ -657,7 +644,7 @@ class ParseContext:
                 raise
 
     @contextmanager
-    def _choice(self):
+    def _choice(self) -> Generator[ChoiceContext, Any, Any]:
         ctx = ChoiceContext(self)
         with suppress(OptionSucceeded), self.states.cutscope():
             yield ctx
@@ -697,7 +684,7 @@ class ParseContext:
         except ParseException:
             pass
         else:
-            raise self.newexcept('', exclass=FailedLookahead)
+            raise self.newexcept('', excls=FailedLookahead)
 
     @contextmanager
     def _setname(self, name: str):
@@ -709,10 +696,10 @@ class ParseContext:
         yield
         self.addname(name)
 
-    def _isolate(self, block: Callable[[], Any], _drop: bool = False) -> Any:
+    def _isolate(self, exp: Callable[[], Any], _drop: bool = False) -> Any:
         self.pushstate()
         try:
-            block()
+            exp()
             return closure(self.cst) if is_list(self.cst) else self.cst
         finally:
             ast = self.ast
@@ -721,7 +708,7 @@ class ParseContext:
 
     def _repeat(
         self,
-        block: Callable[[], Any],
+        exp: Callable[[], Any],
         prefix: Callable[[], Any] | None = None,
         dropprefix: bool = False,
     ) -> None:
@@ -736,17 +723,29 @@ class ParseContext:
                             self.states.append(pcst)
                         self._cut()
 
-                    cst = self._isolate(block)
+                    cst = self._isolate(exp)
                     self.states.append(cst)
 
                     if self.pos == p:
                         raise self.newexcept('empty closure')
                 return
 
+    @contextmanager
+    def _zeroormore(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._closure(cl._exp_value())
+
+    @contextmanager
+    def _oneormore(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._positive_closure(cl._exp_value())
+
     def _closure(
         self,
-        block: Callable[[], Any],
-        sep: Callable[[], Any] | None = None,
+        exp: Callable[[], None],
+        sep: Callable[[], None] | None = None,
         omitsep: bool = False,
     ) -> Any:
         self.pushstate()
@@ -754,9 +753,9 @@ class ParseContext:
             self.cst = []
             with self.states.cutscope():
                 with self._optional():
-                    block()
+                    exp()
                     self.cst = [self.cst]
-                self._repeat(block, prefix=sep, dropprefix=omitsep)
+                self._repeat(exp, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
             return self.mergestate().cst
         except ParseException:
@@ -765,16 +764,16 @@ class ParseContext:
 
     def _positive_closure(
         self,
-        block: Callable[[], Any],
+        exp: Callable[[], Any],
         sep: Callable[[], Any] | None = None,
         omitsep: bool = False,
     ) -> Any:
         self.pushstate()
         try:
             with self.states.cutscope():
-                block()
+                exp()
                 self.cst = [self.cst]
-                self._repeat(block, prefix=sep, dropprefix=omitsep)
+                self._repeat(exp, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
             return self.mergestate().cst
         except ParseException:
@@ -786,25 +785,61 @@ class ParseContext:
         self.states.append(cst)
         return cst
 
-    def _gather(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
-        return self._closure(block, sep=sep, omitsep=True)
+    @contextmanager
+    def _gatherctx(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._gather(cl._exp_value(), cl._sep_value())
 
-    def _positive_gather(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
-        return self._positive_closure(block, sep=sep, omitsep=True)
+    @contextmanager
+    def _gatheroneormore(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._positive_gather(cl._exp_value(), cl._sep_value())
 
-    def _join(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
-        return self._closure(block, sep=sep)
+    def _gather(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+        return self._closure(exp, sep=sep, omitsep=True)
 
-    def _positive_join(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
-        return self._positive_closure(block, sep=sep)
+    def _positive_gather(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+        return self._positive_closure(exp, sep=sep, omitsep=True)
 
-    def _left_join(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
-        self.cst = left_assoc(self._positive_join(block, sep))
+    @contextmanager
+    def _joinctx(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._join(cl._exp_value(), cl._sep_value())
+
+    @contextmanager
+    def _joinoneormore(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._positive_join(cl._exp_value(), cl._sep_value())
+
+    def _join(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+        return self._closure(exp, sep=sep)
+
+    def _positive_join(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+        return self._positive_closure(exp, sep=sep)
+
+    @contextmanager
+    def _leftjoin(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._left_join(cl._exp_value(), cl._sep_value())
+
+    @contextmanager
+    def _rightjoin(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._right_join(cl._exp_value(), cl._sep_value())
+
+    def _left_join(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+        self.cst = left_assoc(self._positive_join(exp, sep))
         self.last_node = self.cst
         return self.cst
 
-    def _right_join(self, block: Callable[[], Any], sep: Callable[[], Any]) -> Any:
-        self.cst = right_assoc(self._positive_join(block, sep))
+    def _right_join(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+        self.cst = right_assoc(self._positive_join(exp, sep))
         self.last_node = self.cst
         return self.cst
 
@@ -823,16 +858,22 @@ class ParseContext:
         c = self._next()
         if c is None:
             self.tracer.trace_match(self.cursor, c, failed=True)
-            raise self.newexcept(c, exclass=FailedToken) from None
+            raise self.newexcept(c, excls=FailedToken) from None
         self.tracer.trace_match(self.cursor, c)
         self.states.append(c)
         return c
 
-    def _skip_to(self, block: Callable[[], Any]) -> None:
+    @contextmanager
+    def _skipto(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._skip_to(cl._exp_value())
+
+    def _skip_to(self, exp: Callable[[], Any]) -> None:
         while not self.eof():
             try:
                 with self._if():
-                    block()
+                    exp()
             except FailedParse:
                 pass
             else:
@@ -841,4 +882,4 @@ class ParseContext:
             self.next_token()
             if self.pos == pos:
                 self._next()
-        block()
+        exp()

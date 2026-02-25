@@ -33,7 +33,7 @@ __all__ = [
     'main',
     ]
 
-version_info = (5, 17, 2, 'a', 1)
+version_info = (5, 18, 0, 'b', 1)
 
 
 KEYWORDS: set[str] = set()
@@ -125,40 +125,38 @@ class TatSuBootstrapRules:
     def _grammar_(self, ctx: ParseContext):
         with ctx._setname('title'):
             ctx._constant('TATSU')
+        with ctx._zeroormore() as cl:
+            @cl.exp
+            def _():
+                with ctx._choice() as ch:
+                    @ch.option
+                    def _():
+                        with ctx._addname('directives'):
+                            self._directive_(ctx)
 
-        def block0():
-            with ctx._choice() as ch:
-                @ch.option
-                def _():
-                    with ctx._addname('directives'):
-                        self._directive_(ctx)
+                    @ch.option
+                    def _():
+                        with ctx._addname('keywords'):
+                            self._keyword_(ctx)
 
-                @ch.option
-                def _():
-                    with ctx._addname('keywords'):
-                        self._keyword_(ctx)
-
-                ch.expecting('<directive>', '<keyword>')
-
-        ctx._closure(block0)
+                    ch.expecting('<directive>', '<keyword>')
         with ctx._addname('rules'):
             self._rule_(ctx)
+        with ctx._zeroormore() as cl:
+            @cl.exp
+            def _():
+                with ctx._choice() as ch:
+                    @ch.option
+                    def _():
+                        with ctx._addname('rules'):
+                            self._rule_(ctx)
 
-        def block1():
-            with ctx._choice() as ch:
-                @ch.option
-                def _():
-                    with ctx._addname('rules'):
-                        self._rule_(ctx)
+                    @ch.option
+                    def _():
+                        with ctx._addname('keywords'):
+                            self._keyword_(ctx)
 
-                @ch.option
-                def _():
-                    with ctx._addname('keywords'):
-                        self._keyword_(ctx)
-
-                ch.expecting('<keyword>', '<rule>')
-
-        ctx._closure(block1)
+                    ch.expecting('<keyword>', '<rule>')
         ctx._check_eof()
         ctx._define(['title'], ['directives', 'keywords', 'rules'])
 
@@ -322,11 +320,10 @@ class TatSuBootstrapRules:
 
     @rule()
     def _keywords_(self, ctx: ParseContext):
-
-        def block0():
-            self._keywords_(ctx)
-
-        ctx._positive_closure(block0)
+        with ctx._oneormore() as cl:
+            @cl.exp
+            def _():
+                self._keywords_(ctx)
 
     @rule()
     def _keyword_(self, ctx: ParseContext):
@@ -334,34 +331,33 @@ class TatSuBootstrapRules:
         ctx._cut()
         ctx._token('::')
         ctx._cut()
+        with ctx._zeroormore() as cl:
+            @cl.exp
+            def _():
+                with ctx._addname('@'):
+                    with ctx._group():
+                        with ctx._choice() as ch:
+                            @ch.option
+                            def _():
+                                self._word_(ctx)
 
-        def block0():
-            with ctx._addname('@'):
-                with ctx._group():
-                    with ctx._choice() as ch:
-                        @ch.option
-                        def _():
-                            self._word_(ctx)
+                            @ch.option
+                            def _():
+                                self._string_(ctx)
 
-                        @ch.option
-                        def _():
-                            self._string_(ctx)
+                            ch.expecting('<string>', '<word>')
+                with ctx._ifnot():
+                    with ctx._group():
+                        with ctx._choice() as ch:
+                            @ch.option
+                            def _():
+                                ctx._token(':')
 
-                        ch.expecting('<string>', '<word>')
-            with ctx._ifnot():
-                with ctx._group():
-                    with ctx._choice() as ch:
-                        @ch.option
-                        def _():
-                            ctx._token(':')
+                            @ch.option
+                            def _():
+                                ctx._token('=')
 
-                        @ch.option
-                        def _():
-                            ctx._token('=')
-
-                        ch.expecting(':', '=')
-
-        ctx._closure(block0)
+                            ch.expecting(':', '=')
 
     @rule()
     def _the_params_at_last_(self, ctx: ParseContext):
@@ -462,11 +458,10 @@ class TatSuBootstrapRules:
     @rule('Rule')
     def _rule_(self, ctx: ParseContext):
         with ctx._setname('decorators'):
-
-            def block0():
-                self._decorator_(ctx)
-
-            ctx._closure(block0)
+            with ctx._zeroormore() as cl:
+                @cl.exp
+                def _():
+                    self._decorator_(ctx)
         with ctx._setname('name'):
             self._name_(ctx)
         ctx._cut()
@@ -636,16 +631,15 @@ class TatSuBootstrapRules:
     def _params_(self, ctx: ParseContext):
         with ctx._addname('@'):
             self._first_param_(ctx)
-
-        def block0():
-            ctx._token(',')
-            with ctx._addname('@'):
-                self._literal_(ctx)
-            with ctx._ifnot():
-                ctx._token('=')
-            ctx._cut()
-
-        ctx._closure(block0)
+        with ctx._zeroormore() as cl:
+            @cl.exp
+            def _():
+                ctx._token(',')
+                with ctx._addname('@'):
+                    self._literal_(ctx)
+                with ctx._ifnot():
+                    ctx._token('=')
+                ctx._cut()
 
     @rule()
     def _first_param_(self, ctx: ParseContext):
@@ -674,14 +668,14 @@ class TatSuBootstrapRules:
 
     @rule()
     def _kwparams_(self, ctx: ParseContext):
+        with ctx._gatheroneormore() as g:
+            @g.sep
+            def _():
+                ctx._token(',')
 
-        def sep0():
-            ctx._token(',')
-
-        def block1():
-            self._pair_(ctx)
-
-        ctx._positive_gather(block1, sep0)
+            @g.exp
+            def _():
+                self._pair_(ctx)
 
     @rule()
     def _pair_(self, ctx: ParseContext):
@@ -722,14 +716,13 @@ class TatSuBootstrapRules:
             ctx._cut()
         with ctx._addname('@'):
             self._option_(ctx)
-
-        def block0():
-            ctx._token('|')
-            ctx._cut()
-            with ctx._addname('@'):
-                self._option_(ctx)
-
-        ctx._positive_closure(block0)
+        with ctx._oneormore() as cl:
+            @cl.exp
+            def _():
+                ctx._token('|')
+                ctx._cut()
+                with ctx._addname('@'):
+                    self._option_(ctx)
 
     @rule('Option')
     def _option_(self, ctx: ParseContext):
@@ -745,24 +738,23 @@ class TatSuBootstrapRules:
                     with ctx._group():
                         self._element_(ctx)
                         ctx._token(',')
+                with ctx._gatheroneormore() as g:
+                    @g.sep
+                    def _():
+                        ctx._token(',')
 
-                def sep0():
-                    ctx._token(',')
-
-                def block1():
-                    self._element_(ctx)
-
-                ctx._positive_gather(block1, sep0)
+                    @g.exp
+                    def _():
+                        self._element_(ctx)
 
             @ch.option
             def _():
-
-                def block2():
-                    with ctx._ifnot():
-                        self._ENDRULE_(ctx)
-                    self._element_(ctx)
-
-                ctx._positive_closure(block2)
+                with ctx._oneormore() as cl:
+                    @cl.exp
+                    def _():
+                        with ctx._ifnot():
+                            self._ENDRULE_(ctx)
+                        self._element_(ctx)
 
             ch.expecting(
                 '(?:\\s*(?:\\r?\\n|\\r)){2,}',
@@ -1577,14 +1569,14 @@ class TatSuBootstrapRules:
 
     @rule()
     def _regexes_(self, ctx: ParseContext):
+        with ctx._gatheroneormore() as g:
+            @g.sep
+            def _():
+                ctx._token('+')
 
-        def sep0():
-            ctx._token('+')
-
-        def block1():
-            self._regex_(ctx)
-
-        ctx._positive_gather(block1, sep0)
+            @g.exp
+            def _():
+                self._regex_(ctx)
 
     @rule()
     def _regex_(self, ctx: ParseContext):

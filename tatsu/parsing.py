@@ -33,7 +33,7 @@ class Parser(ParseContext):
             rule = getattr(self, rulename, None)
             if callable(rule):
                 return rule
-        raise self.newexcept(f'ol {name!r}@{typename(self)}', exclass=FailedRef)
+        raise self.newexcept(f'ol {name!r}@{typename(self)}', excls=FailedRef)
 
     @classmethod
     def rule_list(cls) -> list[str]:
@@ -73,7 +73,7 @@ class NGParser(Parser):
             rule = getattr(self.rulesource, rulename, None)
             if callable(rule):
                 return rule
-        raise self.newexcept(f'ng {name!r}', exclass=FailedRef)
+        raise self.newexcept(f'ng {name!r}', excls=FailedRef)
 
 
 def generic_main(custom_main, parser_class, name='Unknown'):
