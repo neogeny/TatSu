@@ -75,8 +75,8 @@ class rule:
         @functools.wraps(self.impl)
         def wrapper(obj: Any = None, ctx: Any = None) -> Any:
             return self._run(obj, ctx, args, kwargs)
-
         return wrapper
+
         # Otherwise, this is the actual function call
         # return self._run(None, None, args, kwargs)
 
