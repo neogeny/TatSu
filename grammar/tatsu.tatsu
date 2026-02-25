@@ -56,7 +56,7 @@ ENDRULE: &UNINDENTED | EMPTYLINE [';'] | $ | ';'
 UNINDENTED: /(?=\s*(?:\r?\n|\r)[^\s])/
 EMPTYLINE: /(?:\s*(?:\r?\n|\r)){2,}/
 
-decorator: '@' !'@' ~ @:('override'|'name'|'nomemo')
+decorator: '@' !'@' ~ @:('override'|'name'|'isname'|'nomemo')
 
 params: @+:first_param {',' @+:literal !'=' ~ }
 
