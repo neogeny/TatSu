@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast as stdlib_ast
+import inspect
 from collections.abc import Callable, Iterable
 from contextlib import contextmanager, suppress
 from typing import Any
@@ -30,7 +31,7 @@ from ..exceptions import (
 from ..infos import Alert, ParseInfo, ParserConfig, RuleInfo
 from ..tokenizing import Cursor, NullCursor, NullTokenizer, Tokenizer
 from ..tokenizing.textlines import TextLinesTokenizer
-from ..util import regexp, safe_name, trim
+from ..util import debug, regexp, safe_name, trim
 from ..util.abctools import is_list, left_assoc, prune_dict, right_assoc
 from ..util.deprecate import deprecated
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
@@ -69,8 +70,7 @@ class ChoiceContext:
 class ParseContext:
     def __init__(
         self,
-        /,
-        *,
+        /, *,
         config: ParserConfig | None = None,
         **settings: Any,
     ) -> None:
@@ -91,7 +91,6 @@ class ParseContext:
         self.update_tracer()
 
     def _initialize_caches(self) -> None:
-        self.substate: Any = None
         self._furthest_exception: FailedParse | None = None
         self._memos: MemoCache = BoundedDict(self.config.memo_cache_size)
         self._results: MemoCache = {}
@@ -239,7 +238,7 @@ class ParseContext:
 
             start: str = self.config.effective_start_rule_name() or 'start'
             rule = self._find_rule(start)
-            return rule()
+            return rule(self)
 
         except FailedParse as e:
             self._set_furthest_exception(e)
@@ -319,13 +318,13 @@ class ParseContext:
             return False
         return self.config.memoize_lookaheads or self.lookahead == 0
 
-    def _find_rule(self, name: str) -> Callable[[], Any]:
+    def _find_rule(self, name: str) -> Callable[..., Any]:
         raise NotImplementedError
 
     def _find_semantic_action(self, name: str) -> Callable[..., Any] | None:
         if not self.semantics:
             return None
-
+        name = name.strip('_')
         action = getattr(self.semantics, safe_name(name), None)
         if not callable(action):
             action = getattr(self.semantics, '_default', None)
@@ -385,7 +384,7 @@ class ParseContext:
         return self.ruleinfo_stack[-1]
 
     def memokey(self) -> MemoKey:
-        return MemoKey(self.pos, self.ruleinfo, self.substate)
+        return MemoKey(self.pos, self.ruleinfo)
 
     def _memoize(
         self,
@@ -418,7 +417,6 @@ class ParseContext:
             result = self._recursive_call(ruleinfo)
 
             self.goto(result.newpos)
-            self.substate = result.newstate
             self.states.append(result.node)
 
             self.tracer.trace_success(self.cursor)
@@ -494,14 +492,12 @@ class ParseContext:
         try:
             self.next_token(ruleinfo)
 
-            with self.states.cutscope():
-                ruleinfo.impl(self)
-
+            self._impl_call(ruleinfo)
             node = self.state.node
             node = self._semantics_call(ruleinfo, node)
             self._set_parseinfo(node, ruleinfo.name, key.pos)
 
-            result = RuleResult(node, self.pos, self.substate)
+            result = RuleResult(node, self.pos)
             self._memoize(key, result)
 
             return result
@@ -514,6 +510,15 @@ class ParseContext:
             raise
         finally:
             self.undostate()
+
+    def _impl_call(self, ruleinfo: RuleInfo):
+        declared = inspect.signature(ruleinfo.impl).parameters
+        legacy_parser_maybe = len(declared) == 1
+        with self.states.cutscope():
+            if legacy_parser_maybe:
+                ruleinfo.impl(self)
+            else:
+                ruleinfo.impl(ruleinfo.obj, self)
 
     def _semantics_call(self, ruleinfo: RuleInfo, node: Any) -> Any:
         if ruleinfo.is_name:
@@ -617,7 +622,6 @@ class ParseContext:
 
     @contextmanager
     def _try(self):
-        s = self.substate
         self.pushstate(ast=AST(self.ast))
         self.last_node = None
         try:
@@ -625,7 +629,6 @@ class ParseContext:
             self.mergestate()
         except FailedParse:
             self.undostate()
-            self.substate = s
             raise
 
     def _no_more_options(self) -> bool:
@@ -677,7 +680,6 @@ class ParseContext:
 
     @contextmanager
     def _if(self):
-        s = self.substate
         self.pushstate()
         self.lookahead += 1
         try:
@@ -685,7 +687,6 @@ class ParseContext:
         finally:
             self.undostate()
             self.lookahead -= 1
-            self.substate = s
 
     @contextmanager
     def _ifnot(self):
@@ -810,6 +811,7 @@ class ParseContext:
         name_str = str(name)
         if self.config.ignorecase:
             name_str = name_str.upper()
+        debug(f'NAME {name_str!r} {self.keywords!r}')
         if name_str in self.keywords:
             raise self.newexcept(f'"{name_str}" is a reserved word', KeywordError)
 

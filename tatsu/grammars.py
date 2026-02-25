@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import functools
 from collections import defaultdict
 from collections.abc import Callable, Collection, Mapping
 from copy import copy
@@ -64,7 +63,8 @@ class ModelContext(ParseContext):
         return self._rulemap
 
     def _find_rule(self, name: str) -> Callable:
-        return functools.partial(self.rulemap[name]._parse, self)
+        return self.rulemap[name]._parse
+        # return functools.partial(self.rulemap[name]._parse, self)
 
 
 @tatsudataclass
@@ -812,7 +812,7 @@ class Call(Model):
     def _parse(self, ctx):
         try:
             rule = ctx._find_rule(self.name)
-            return rule()
+            return rule(ctx)
         except KeyError as e:
             raise ctx.newexcept(self.name, exclass=FailedRef) from e
 
@@ -853,7 +853,8 @@ class Rule(Decorator):
 
     def __post_init__(self):
         super().__post_init__()
-        self.is_name = 'name' in self.decorators
+        self.is_name |= 'name' in self.decorators
+        self.is_name |= 'isname' in self.decorators
         self.params = self.params or ()
 
         if not self.kwparams:
@@ -875,13 +876,14 @@ class Rule(Decorator):
 
     def _parse_rhs(self, ctx, exp):
         ruleinfo = RuleInfo(
-            self.name,
-            exp._parse,
-            self.is_leftrec,
-            self.is_memoizable,
-            self.is_name,
-            self.params,
-            self.kwparams,
+            name=self.name,
+            obj=exp,
+            impl=exp._parse,
+            is_leftrec=self.is_leftrec,
+            is_memoizable=self.is_memoizable,
+            is_name=self.is_name,
+            params=self.params,
+            kwparams=self.kwparams,
         )
         return ctx._call(ruleinfo)
 
@@ -992,7 +994,7 @@ class Grammar(Model):
         **settings,
     ):
         super().__init__()
-        assert isinstance(rules, list), str(rules)
+        assert isinstance(rules, list), f'{type(rules)!r} {rules!r}'
         directives = directives or {}
         self.directives = directives
 
@@ -1116,6 +1118,7 @@ class Grammar(Model):
 
         if ctx is None:
             ctx = ModelContext(self.rules, config=config)
+        assert isinstance(ctx, ParseContext)
         return ctx.parse(text, config=config)
 
     def nodecount(self) -> int:

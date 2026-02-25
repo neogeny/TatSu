@@ -5,11 +5,16 @@ from __future__ import annotations
 import dataclasses
 import importlib
 import types
-from typing import Any, Self
+from typing import Any, Protocol, Self, runtime_checkable
 
 from .asjson import asjson, asjsons
 from .deprecate import deprecated
 from .undefined import Undefined
+
+
+@runtime_checkable
+class HasConfig(Protocol):
+    config: Config
 
 
 @dataclasses.dataclass
@@ -28,14 +33,19 @@ class Config:
         return result
 
     def _find_common(self, **settings: Any) -> dict[str, Any]:
+        def erases(name: str, value: Any) -> bool:
+            if value is None or value is Undefined:
+                return True
+            if isinstance(value, list | set | dict):
+                return getattr(self, name) and not value
+            return False
+
         hard = settings.pop('hard', False)
         return {
             name: value
             for name, value in settings.items()
-            if (
-                hasattr(self, name)
-                and (hard or not (value is None or value is Undefined))
-            )
+            if hasattr(self, name)
+            and (hard or not erases(name, value))
         }
 
     def override_config(self, other: Config | None = None) -> Self:

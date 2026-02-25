@@ -14,8 +14,8 @@ from .. import grammars
 from ..builder import BuilderConfig, Constructor, ModelBuilderSemantics, TypeContainer
 from ..exceptions import ParseException
 from ..infos import ParserConfig
-from ..ngcodegen.walkgen_model import modelgen
-from ..ngcodegen.walkgen_parser import pythongen
+from ..ngcodegen.ngmodel_gen import modelgen
+from ..ngcodegen.ngparser_gen import pythongen
 from ..objectmodel import Node
 from ..parser import TatSuParserGenerator
 from ..tokenizing import Tokenizer

@@ -10,26 +10,44 @@
 #  the file is generated.
 
 # ruff: noqa: RUF100, C405, COM812, I001, F401, PLR1702, PLC2801, SIM117
-# ruff: noqa: PL2401, PLC2402, PLC2403, E303
+# ruff: noqa: PL2401, PLC2402, PLC2403
+# E303
 # fmt: off
 
 from __future__ import annotations
 
 from tatsu.buffering import Buffer
+from tatsu.contexts import ParseContext
 from tatsu.infos import ParserConfig
-from tatsu.parsing import Parser, generic_main, rule
+from tatsu.parsing import (
+    Parser, NGParser,
+    leftrec, nomemo, isname, name, generic_main, rule
+)
 from tatsu.tokenizing.textlines import TextLinesTokenizer
 
-__all__ = ['TatSuBootstrapTokenizer', 'TatSuBootstrapParser', 'main']
+__all__ = [
+    'TatSuBootstrapTokenizer',
+    'TatSuBootstrapBuffer',
+    'TatSuBootstrapParser',
+    'TatSuBootstrapRules',
+    'main',
+    ]
+
+version_info = (5, 17, 2, 'a', 1)
 
 
 KEYWORDS: set[str] = set()
 
 
 class TatSuBootstrapTokenizer(TextLinesTokenizer):
-    def __init__(self, text, /, config: ParserConfig | None = None, **settings):
+    def __init__(
+        self,
+        text, /,
+        config: ParserConfig | None = None,
+        **settings,
+    ) -> None:
         config = ParserConfig.new(
-            config,
+            config=config,
             whitespace=r'(?m)\s+',
             nameguard=None,
             ignorecase=False,
@@ -46,9 +64,14 @@ class TatSuBootstrapTokenizer(TextLinesTokenizer):
 
 
 class TatSuBootstrapBuffer(Buffer):  # NOTE: backwards compatibility
-    def __init__(self, text, /, config: ParserConfig | None = None, **settings):
+    def __init__(
+        self,
+        text, /,
+        config: ParserConfig | None = None,
+        **settings,
+    ) -> None:
         config = ParserConfig.new(
-            config,
+            config=config,
             whitespace=r'(?m)\s+',
             nameguard=None,
             ignorecase=False,
@@ -64,10 +87,19 @@ class TatSuBootstrapBuffer(Buffer):  # NOTE: backwards compatibility
         super().__init__(text, config=config)
 
 
-class TatSuBootstrapParser(Parser):
+class TatSuBootstrapParser(NGParser):
+    def __init__(self, /, config: ParserConfig | None = None, **settings):
+        config = ParserConfig.new(config, **settings)
+        rulessource = TatSuBootstrapRules()
+        tokenizercls = config.tokenizercls or TatSuBootstrapTokenizer
+
+        super().__init__(rulessource, config=config, tokenizercls=tokenizercls)
+
+
+class TatSuBootstrapRules:
     def __init__(self, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(
-            config,
+            config=config,
             whitespace=r'(?m)\s+',
             nameguard=None,
             ignorecase=False,
@@ -79,1547 +111,1535 @@ class TatSuBootstrapParser(Parser):
             start='start',
         )
         config = config.override(**settings)
+        self._config = config
 
-        super().__init__(
-            config=config,
-            tokenizercls=config.tokenizercls or TatSuBootstrapTokenizer,
-        )
+    @property
+    def config(self) -> ParserConfig:
+        return self._config
 
     @rule()
-    def _start_(self):
-        self._grammar_()
+    def _start_(self, ctx: ParseContext):
+        self._grammar_(ctx)
 
     @rule('Grammar')
-    def _grammar_(self):
-        with self._setname('title'):
-            self._constant('TATSU')
+    def _grammar_(self, ctx: ParseContext):
+        with ctx._setname('title'):
+            ctx._constant('TATSU')
 
         def block0():
-            with self._choice() as choice:
-                @choice.option
+            with ctx._choice() as ch:
+                @ch.option
                 def _():
-                    with self._addname('directives'):
-                        self._directive_()
+                    with ctx._addname('directives'):
+                        self._directive_(ctx)
 
-                @choice.option
+                @ch.option
                 def _():
-                    with self._addname('keywords'):
-                        self._keyword_()
+                    with ctx._addname('keywords'):
+                        self._keyword_(ctx)
 
-                choice.expecting('<directive>', '<keyword>')
+                ch.expecting('<directive>', '<keyword>')
 
-        self._closure(block0)
-        with self._addname('rules'):
-            self._rule_()
+        ctx._closure(block0)
+        with ctx._addname('rules'):
+            self._rule_(ctx)
 
         def block1():
-            with self._choice() as choice:
-                @choice.option
+            with ctx._choice() as ch:
+                @ch.option
                 def _():
-                    with self._addname('rules'):
-                        self._rule_()
+                    with ctx._addname('rules'):
+                        self._rule_(ctx)
 
-                @choice.option
+                @ch.option
                 def _():
-                    with self._addname('keywords'):
-                        self._keyword_()
+                    with ctx._addname('keywords'):
+                        self._keyword_(ctx)
 
-                choice.expecting('<rule>', '<keyword>')
+                ch.expecting('<keyword>', '<rule>')
 
-        self._closure(block1)
-        self._check_eof()
-        self._define(['title'], ['directives', 'keywords', 'rules'])
+        ctx._closure(block1)
+        ctx._check_eof()
+        ctx._define(['title'], ['directives', 'keywords', 'rules'])
 
     @rule()
-    def _directive_(self):
-        self._token('@@')
-        with self._ifnot():
-            self._token('keyword')
-        self._cut()
-        with self._group():
-            with self._choice() as choice:
-                @choice.option
+    def _directive_(self, ctx: ParseContext):
+        ctx._token('@@')
+        with ctx._ifnot():
+            ctx._token('keyword')
+        ctx._cut()
+        with ctx._group():
+            with ctx._choice() as ch:
+                @ch.option
                 def _():
-                    with self._setname('name'):
-                        with self._group():
-                            with self._choice() as choice:
-                                @choice.option
+                    with ctx._setname('name'):
+                        with ctx._group():
+                            with ctx._choice() as ch:
+                                @ch.option
                                 def _():
-                                    self._token('comments')
+                                    ctx._token('comments')
 
-                                @choice.option
+                                @ch.option
                                 def _():
-                                    self._token('eol_comments')
+                                    ctx._token('eol_comments')
 
-                                choice.expecting('comments', 'eol_comments')
-                    self._cut()
-                    self._token('::')
-                    self._cut()
-                    with self._setname('value'):
-                        self._regex_()
-                    self._define(['name', 'value'], [])
+                                ch.expecting('comments', 'eol_comments')
+                    ctx._cut()
+                    ctx._token('::')
+                    ctx._cut()
+                    with ctx._setname('value'):
+                        self._regex_(ctx)
+                    ctx._define(['name', 'value'], [])
 
-                @choice.option
+                @ch.option
                 def _():
-                    with self._setname('name'):
-                        with self._group():
-                            self._token('whitespace')
-                    self._cut()
-                    self._token('::')
-                    self._cut()
-                    with self._setname('value'):
-                        with self._group():
-                            with self._choice() as choice:
-                                @choice.option
+                    with ctx._setname('name'):
+                        with ctx._group():
+                            ctx._token('whitespace')
+                    ctx._cut()
+                    ctx._token('::')
+                    ctx._cut()
+                    with ctx._setname('value'):
+                        with ctx._group():
+                            with ctx._choice() as ch:
+                                @ch.option
                                 def _():
-                                    self._regex_()
+                                    self._regex_(ctx)
 
-                                @choice.option
+                                @ch.option
                                 def _():
-                                    self._string_()
+                                    self._string_(ctx)
 
-                                @choice.option
+                                @ch.option
                                 def _():
-                                    self._token('None')
+                                    ctx._token('None')
 
-                                @choice.option
+                                @ch.option
                                 def _():
-                                    self._token('False')
+                                    ctx._token('False')
 
-                                @choice.option
+                                @ch.option
                                 def _():
-                                    self._constant('None')
+                                    ctx._constant('None')
 
-                                choice.expecting(
-                                    'None',
+                                ch.expecting(
+                                    '<regex>',
                                     '<string>',
                                     'False',
-                                    '<regex>'
+                                    'None'
                                 )
+                    ctx._define(['name', 'value'], [])
 
-                    self._define(['name', 'value'], [])
-
-                @choice.option
+                @ch.option
                 def _():
-                    with self._setname('name'):
-                        with self._group():
-                            with self._choice() as choice:
-                                @choice.option
+                    with ctx._setname('name'):
+                        with ctx._group():
+                            with ctx._choice() as ch:
+                                @ch.option
                                 def _():
-                                    self._token('nameguard')
+                                    ctx._token('nameguard')
 
-                                @choice.option
+                                @ch.option
                                 def _():
-                                    self._token('ignorecase')
+                                    ctx._token('ignorecase')
 
-                                @choice.option
+                                @ch.option
                                 def _():
-                                    self._token('left_recursion')
+                                    ctx._token('left_recursion')
 
-                                @choice.option
+                                @ch.option
                                 def _():
-                                    self._token('parseinfo')
+                                    ctx._token('parseinfo')
 
-                                @choice.option
+                                @ch.option
                                 def _():
-                                    self._token('memoization')
+                                    ctx._token('memoization')
 
-                                choice.expecting(
+                                ch.expecting(
                                     'ignorecase',
                                     'left_recursion',
                                     'memoization',
                                     'nameguard',
                                     'parseinfo'
                                 )
-
-                    self._cut()
-                    with self._group():
-                        with self._choice() as choice:
-                            @choice.option
+                    ctx._cut()
+                    with ctx._group():
+                        with ctx._choice() as ch:
+                            @ch.option
                             def _():
-                                self._token('::')
-                                self._cut()
-                                with self._setname('value'):
-                                    self._boolean_()
-                                self._define(['value'], [])
+                                ctx._token('::')
+                                ctx._cut()
+                                with ctx._setname('value'):
+                                    self._boolean_(ctx)
+                                ctx._define(['value'], [])
 
-                            @choice.option
+                            @ch.option
                             def _():
-                                with self._setname('value'):
-                                    self._constant(True)
+                                with ctx._setname('value'):
+                                    ctx._constant(True)
 
-                            choice.expecting('::')
-                    self._define(['name', 'value'], [])
+                            ch.expecting('::')
+                    ctx._define(['name', 'value'], [])
 
-                @choice.option
+                @ch.option
                 def _():
-                    with self._setname('name'):
-                        with self._group():
-                            self._token('grammar')
-                    self._cut()
-                    self._token('::')
-                    self._cut()
-                    with self._setname('value'):
-                        self._word_()
-                    self._define(['name', 'value'], [])
+                    with ctx._setname('name'):
+                        with ctx._group():
+                            ctx._token('grammar')
+                    ctx._cut()
+                    ctx._token('::')
+                    ctx._cut()
+                    with ctx._setname('value'):
+                        self._word_(ctx)
+                    ctx._define(['name', 'value'], [])
 
-                @choice.option
+                @ch.option
                 def _():
-                    with self._setname('name'):
-                        with self._group():
-                            self._token('namechars')
-                    self._cut()
-                    self._token('::')
-                    self._cut()
-                    with self._setname('value'):
-                        self._string_()
-                    self._define(['name', 'value'], [])
+                    with ctx._setname('name'):
+                        with ctx._group():
+                            ctx._token('namechars')
+                    ctx._cut()
+                    ctx._token('::')
+                    ctx._cut()
+                    with ctx._setname('value'):
+                        self._string_(ctx)
+                    ctx._define(['name', 'value'], [])
 
-                choice.expecting(
-                    'namechars',
-                    'whitespace',
-                    'eol_comments',
-                    'ignorecase',
+                ch.expecting(
                     'comments',
+                    'eol_comments',
+                    'grammar',
+                    'ignorecase',
                     'left_recursion',
                     'memoization',
+                    'namechars',
                     'nameguard',
                     'parseinfo',
-                    'grammar'
+                    'whitespace'
                 )
-
-        self._cut()
-        self._define(['name', 'value'], [])
+        ctx._cut()
+        ctx._define(['name', 'value'], [])
 
     @rule()
-    def _keywords_(self):
+    def _keywords_(self, ctx: ParseContext):
 
         def block0():
-            self._keywords_()
+            self._keywords_(ctx)
 
-        self._positive_closure(block0)
+        ctx._positive_closure(block0)
 
     @rule()
-    def _keyword_(self):
-        self._token('@@keyword')
-        self._cut()
-        self._token('::')
-        self._cut()
+    def _keyword_(self, ctx: ParseContext):
+        ctx._token('@@keyword')
+        ctx._cut()
+        ctx._token('::')
+        ctx._cut()
 
         def block0():
-            with self._addname('@'):
-                with self._group():
-                    with self._choice() as choice:
-                        @choice.option
+            with ctx._addname('@'):
+                with ctx._group():
+                    with ctx._choice() as ch:
+                        @ch.option
                         def _():
-                            self._word_()
+                            self._word_(ctx)
 
-                        @choice.option
+                        @ch.option
                         def _():
-                            self._string_()
+                            self._string_(ctx)
 
-                        choice.expecting('<word>', '<string>')
-            with self._ifnot():
-                with self._group():
-                    with self._choice() as choice:
-                        @choice.option
+                        ch.expecting('<string>', '<word>')
+            with ctx._ifnot():
+                with ctx._group():
+                    with ctx._choice() as ch:
+                        @ch.option
                         def _():
-                            self._token(':')
+                            ctx._token(':')
 
-                        @choice.option
+                        @ch.option
                         def _():
-                            self._token('=')
+                            ctx._token('=')
 
-                        choice.expecting(':', '=')
+                        ch.expecting(':', '=')
 
-        self._closure(block0)
+        ctx._closure(block0)
 
     @rule()
-    def _the_params_at_last_(self):
-        with self._choice() as choice:
-            @choice.option
+    def _the_params_at_last_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
             def _():
-                with self._setname('kwparams'):
-                    self._kwparams_()
+                with ctx._setname('kwparams'):
+                    self._kwparams_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                with self._setname('params'):
-                    self._params_()
-                self._token(',')
-                self._cut()
-                with self._setname('kwparams'):
-                    self._kwparams_()
-                self._define(['kwparams', 'params'], [])
+                with ctx._setname('params'):
+                    self._params_(ctx)
+                ctx._token(',')
+                ctx._cut()
+                with ctx._setname('kwparams'):
+                    self._kwparams_(ctx)
+                ctx._define(['kwparams', 'params'], [])
 
-            @choice.option
+            @ch.option
             def _():
-                with self._setname('params'):
-                    self._params_()
+                with ctx._setname('params'):
+                    self._params_(ctx)
 
-            choice.expecting('<kwparams>', '<params>')
+            ch.expecting('<kwparams>', '<params>')
 
     @rule()
-    def _paramdef_(self):
-        with self._choice() as choice:
-            @choice.option
+    def _paramdef_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
             def _():
-                self._token('[')
-                self._cut()
-                with self._choice() as choice:
-                    @choice.option
+                ctx._token('[')
+                ctx._cut()
+                with ctx._choice() as ch:
+                    @ch.option
                     def _():
-                        with self._setname('kwparams'):
-                            self._kwparams_()
+                        with ctx._setname('kwparams'):
+                            self._kwparams_(ctx)
 
-                    @choice.option
+                    @ch.option
                     def _():
-                        with self._setname('params'):
-                            self._params_()
-                        self._token(',')
-                        self._cut()
-                        with self._setname('kwparams'):
-                            self._kwparams_()
-                        self._define(['kwparams', 'params'], [])
+                        with ctx._setname('params'):
+                            self._params_(ctx)
+                        ctx._token(',')
+                        ctx._cut()
+                        with ctx._setname('kwparams'):
+                            self._kwparams_(ctx)
+                        ctx._define(['kwparams', 'params'], [])
 
-                    @choice.option
+                    @ch.option
                     def _():
-                        with self._setname('params'):
-                            self._params_()
+                        with ctx._setname('params'):
+                            self._params_(ctx)
 
-                    choice.expecting('<kwparams>', '<params>')
-                self._token(']')
-                self._define(['kwparams', 'params'], [])
+                    ch.expecting('<kwparams>', '<params>')
+                ctx._token(']')
+                ctx._define(['kwparams', 'params'], [])
 
-            @choice.option
+            @ch.option
             def _():
-                self._token('(')
-                self._cut()
-                with self._choice() as choice:
-                    @choice.option
+                ctx._token('(')
+                ctx._cut()
+                with ctx._choice() as ch:
+                    @ch.option
                     def _():
-                        with self._setname('kwparams'):
-                            self._kwparams_()
+                        with ctx._setname('kwparams'):
+                            self._kwparams_(ctx)
 
-                    @choice.option
+                    @ch.option
                     def _():
-                        with self._setname('params'):
-                            self._params_()
-                        self._token(',')
-                        self._cut()
-                        with self._setname('kwparams'):
-                            self._kwparams_()
-                        self._define(['kwparams', 'params'], [])
+                        with ctx._setname('params'):
+                            self._params_(ctx)
+                        ctx._token(',')
+                        ctx._cut()
+                        with ctx._setname('kwparams'):
+                            self._kwparams_(ctx)
+                        ctx._define(['kwparams', 'params'], [])
 
-                    @choice.option
+                    @ch.option
                     def _():
-                        with self._setname('params'):
-                            self._params_()
+                        with ctx._setname('params'):
+                            self._params_(ctx)
 
-                    choice.expecting('<kwparams>', '<params>')
-                self._token(')')
-                self._define(['kwparams', 'params'], [])
+                    ch.expecting('<kwparams>', '<params>')
+                ctx._token(')')
+                ctx._define(['kwparams', 'params'], [])
 
-            @choice.option
+            @ch.option
             def _():
-                self._token('::')
-                self._cut()
-                with self._setname('params'):
-                    self._params_()
-                self._define(['params'], [])
+                ctx._token('::')
+                ctx._cut()
+                with ctx._setname('params'):
+                    self._params_(ctx)
+                ctx._define(['params'], [])
 
-            choice.expecting('[', '::', '(')
+            ch.expecting('(', '::', '[')
 
     @rule('Rule')
-    def _rule_(self):
-        with self._setname('decorators'):
+    def _rule_(self, ctx: ParseContext):
+        with ctx._setname('decorators'):
 
             def block0():
-                self._decorator_()
+                self._decorator_(ctx)
 
-            self._closure(block0)
-        with self._setname('name'):
-            self._name_()
-        self._cut()
-        with self._optional():
-            with self._choice() as choice:
-                @choice.option
+            ctx._closure(block0)
+        with ctx._setname('name'):
+            self._name_(ctx)
+        ctx._cut()
+        with ctx._optional():
+            with ctx._choice() as ch:
+                @ch.option
                 def _():
-                    self._token('[')
-                    self._cut()
-                    with self._choice() as choice:
-                        @choice.option
+                    ctx._token('[')
+                    ctx._cut()
+                    with ctx._choice() as ch:
+                        @ch.option
                         def _():
-                            with self._setname('kwparams'):
-                                self._kwparams_()
+                            with ctx._setname('kwparams'):
+                                self._kwparams_(ctx)
 
-                        @choice.option
+                        @ch.option
                         def _():
-                            with self._setname('params'):
-                                self._params_()
-                            self._token(',')
-                            self._cut()
-                            with self._setname('kwparams'):
-                                self._kwparams_()
-                            self._define(['kwparams', 'params'], [])
+                            with ctx._setname('params'):
+                                self._params_(ctx)
+                            ctx._token(',')
+                            ctx._cut()
+                            with ctx._setname('kwparams'):
+                                self._kwparams_(ctx)
+                            ctx._define(['kwparams', 'params'], [])
 
-                        @choice.option
+                        @ch.option
                         def _():
-                            with self._setname('params'):
-                                self._params_()
+                            with ctx._setname('params'):
+                                self._params_(ctx)
 
-                        choice.expecting('<kwparams>', '<params>')
-                    self._token(']')
-                    self._define(['kwparams', 'params'], [])
+                        ch.expecting('<kwparams>', '<params>')
+                    ctx._token(']')
+                    ctx._define(['kwparams', 'params'], [])
 
-                @choice.option
+                @ch.option
                 def _():
-                    self._token('(')
-                    self._cut()
-                    with self._choice() as choice:
-                        @choice.option
+                    ctx._token('(')
+                    ctx._cut()
+                    with ctx._choice() as ch:
+                        @ch.option
                         def _():
-                            with self._setname('kwparams'):
-                                self._kwparams_()
+                            with ctx._setname('kwparams'):
+                                self._kwparams_(ctx)
 
-                        @choice.option
+                        @ch.option
                         def _():
-                            with self._setname('params'):
-                                self._params_()
-                            self._token(',')
-                            self._cut()
-                            with self._setname('kwparams'):
-                                self._kwparams_()
-                            self._define(['kwparams', 'params'], [])
+                            with ctx._setname('params'):
+                                self._params_(ctx)
+                            ctx._token(',')
+                            ctx._cut()
+                            with ctx._setname('kwparams'):
+                                self._kwparams_(ctx)
+                            ctx._define(['kwparams', 'params'], [])
 
-                        @choice.option
+                        @ch.option
                         def _():
-                            with self._setname('params'):
-                                self._params_()
+                            with ctx._setname('params'):
+                                self._params_(ctx)
 
-                        choice.expecting('<kwparams>', '<params>')
-                    self._token(')')
-                    self._define(['kwparams', 'params'], [])
+                        ch.expecting('<kwparams>', '<params>')
+                    ctx._token(')')
+                    ctx._define(['kwparams', 'params'], [])
 
-                @choice.option
+                @ch.option
                 def _():
-                    self._token('::')
-                    self._cut()
-                    with self._setname('params'):
-                        self._params_()
-                    self._define(['params'], [])
+                    ctx._token('::')
+                    ctx._cut()
+                    with ctx._setname('params'):
+                        self._params_(ctx)
+                    ctx._define(['params'], [])
 
-                choice.expecting('[', '::', '(')
-        with self._optional():
-            self._token('<')
-            self._cut()
-            with self._setname('base'):
-                self._known_name_()
-            self._define(['base'], [])
-        with self._group():
-            with self._choice() as choice:
-                @choice.option
+                ch.expecting('(', '::', '[')
+        with ctx._optional():
+            ctx._token('<')
+            ctx._cut()
+            with ctx._setname('base'):
+                self._known_name_(ctx)
+            ctx._define(['base'], [])
+        with ctx._group():
+            with ctx._choice() as ch:
+                @ch.option
                 def _():
-                    self._token('=')
+                    ctx._token('=')
 
-                @choice.option
+                @ch.option
                 def _():
-                    self._token(':=')
+                    ctx._token(':=')
 
-                @choice.option
+                @ch.option
                 def _():
-                    self._token(':')
+                    ctx._token(':')
 
-                choice.expecting(':', ':=', '=')
-        self._cut()
-        with self._setname('exp'):
-            self._expre_()
-        self._ENDRULE_()
-        self._cut()
-        self._define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
+                ch.expecting(':', ':=', '=')
+        ctx._cut()
+        with ctx._setname('exp'):
+            self._expre_(ctx)
+        self._ENDRULE_(ctx)
+        ctx._cut()
+        ctx._define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
 
     @rule()
-    def _ENDRULE_(self):
-        with self._choice() as choice:
-            @choice.option
+    def _ENDRULE_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
             def _():
-                with self._if():
-                    self._UNINDENTED_()
+                with ctx._if():
+                    self._UNINDENTED_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._EMPTYLINE_()
-                with self._optional():
-                    self._token(';')
+                self._EMPTYLINE_(ctx)
+                with ctx._optional():
+                    ctx._token(';')
 
-            @choice.option
+            @ch.option
             def _():
-                self._check_eof()
+                ctx._check_eof()
 
-            @choice.option
+            @ch.option
             def _():
-                self._token(';')
+                ctx._token(';')
 
-            choice.expecting(
-                '<EMPTYLINE>',
-                ';',
-                '<UNINDENTED>',
+            ch.expecting(
+                '(?:\\s*(?:\\r?\\n|\\r)){2,}',
                 '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
-                '(?:\\s*(?:\\r?\\n|\\r)){2,}'
+                ';',
+                '<EMPTYLINE>',
+                '<UNINDENTED>'
             )
 
+    @rule()
+    def _UNINDENTED_(self, ctx: ParseContext):
+        ctx._pattern(r'(?=\s*(?:\r?\n|\r)[^\s])')
 
     @rule()
-    def _UNINDENTED_(self):
-        self._pattern(r'(?=\s*(?:\r?\n|\r)[^\s])')
+    def _EMPTYLINE_(self, ctx: ParseContext):
+        ctx._pattern(r'(?:\s*(?:\r?\n|\r)){2,}')
 
     @rule()
-    def _EMPTYLINE_(self):
-        self._pattern(r'(?:\s*(?:\r?\n|\r)){2,}')
-
-    @rule()
-    def _decorator_(self):
-        self._token('@')
-        with self._ifnot():
-            self._token('@')
-        self._cut()
-        with self._setname('@'):
-            with self._group():
-                with self._choice() as choice:
-                    @choice.option
+    def _decorator_(self, ctx: ParseContext):
+        ctx._token('@')
+        with ctx._ifnot():
+            ctx._token('@')
+        ctx._cut()
+        with ctx._setname('@'):
+            with ctx._group():
+                with ctx._choice() as ch:
+                    @ch.option
                     def _():
-                        self._token('override')
+                        ctx._token('override')
 
-                    @choice.option
+                    @ch.option
                     def _():
-                        self._token('name')
+                        ctx._token('name')
 
-                    @choice.option
+                    @ch.option
                     def _():
-                        self._token('nomemo')
+                        ctx._token('isname')
 
-                    choice.expecting('override', 'name', 'nomemo')
+                    @ch.option
+                    def _():
+                        ctx._token('nomemo')
+
+                    ch.expecting('isname', 'name', 'nomemo', 'override')
 
     @rule()
-    def _params_(self):
-        with self._addname('@'):
-            self._first_param_()
+    def _params_(self, ctx: ParseContext):
+        with ctx._addname('@'):
+            self._first_param_(ctx)
 
         def block0():
-            self._token(',')
-            with self._addname('@'):
-                self._literal_()
-            with self._ifnot():
-                self._token('=')
-            self._cut()
+            ctx._token(',')
+            with ctx._addname('@'):
+                self._literal_(ctx)
+            with ctx._ifnot():
+                ctx._token('=')
+            ctx._cut()
 
-        self._closure(block0)
+        ctx._closure(block0)
 
     @rule()
-    def _first_param_(self):
-        with self._choice() as choice:
-            @choice.option
+    def _first_param_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
             def _():
-                self._path_()
+                self._path_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._literal_()
+                self._literal_(ctx)
 
-            choice.expecting(
-                '<word>',
+            ch.expecting(
                 '(?!\\d)\\w+(?:::(?!\\d)\\w+)+',
+                '<boolean>',
+                '<float>',
+                '<hex>',
+                '<int>',
+                '<literal>',
                 '<null>',
                 '<path>',
-                '<literal>',
-                '<boolean>',
                 '<raw_string>',
-                '<int>',
                 '<string>',
-                '<hex>',
-                '<float>'
+                '<word>'
             )
 
-
     @rule()
-    def _kwparams_(self):
+    def _kwparams_(self, ctx: ParseContext):
 
         def sep0():
-            self._token(',')
+            ctx._token(',')
 
         def block1():
-            self._pair_()
+            self._pair_(ctx)
 
-        self._positive_gather(block1, sep0)
-
-    @rule()
-    def _pair_(self):
-        with self._addname('@'):
-            self._word_()
-        self._token('=')
-        self._cut()
-        with self._addname('@'):
-            self._literal_()
+        ctx._positive_gather(block1, sep0)
 
     @rule()
-    def _expre_(self):
-        with self._choice() as choice:
-            @choice.option
-            def _():
-                self._choice_()
+    def _pair_(self, ctx: ParseContext):
+        with ctx._addname('@'):
+            self._word_(ctx)
+        ctx._token('=')
+        ctx._cut()
+        with ctx._addname('@'):
+            self._literal_(ctx)
 
-            @choice.option
+    @rule()
+    def _expre_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
             def _():
-                self._sequence_()
+                self._choice_(ctx)
 
-            choice.expecting(
-                '<choice>',
-                '<sequence>',
-                '<ENDRULE>',
-                '|',
-                '<element>',
-                '<EMPTYLINE>',
+            @ch.option
+            def _():
+                self._sequence_(ctx)
+
+            ch.expecting(
                 ';',
+                '<EMPTYLINE>',
+                '<ENDRULE>',
                 '<UNINDENTED>',
-                '<option>'
+                '<choice>',
+                '<element>',
+                '<option>',
+                '<sequence>',
+                '|'
             )
 
-
     @rule('Choice')
-    def _choice_(self):
-        with self._optional():
-            self._token('|')
-            self._cut()
-        with self._addname('@'):
-            self._option_()
+    def _choice_(self, ctx: ParseContext):
+        with ctx._optional():
+            ctx._token('|')
+            ctx._cut()
+        with ctx._addname('@'):
+            self._option_(ctx)
 
         def block0():
-            self._token('|')
-            self._cut()
-            with self._addname('@'):
-                self._option_()
+            ctx._token('|')
+            ctx._cut()
+            with ctx._addname('@'):
+                self._option_(ctx)
 
-        self._positive_closure(block0)
+        ctx._positive_closure(block0)
 
     @rule('Option')
-    def _option_(self):
-        with self._setname('@'):
-            self._sequence_()
+    def _option_(self, ctx: ParseContext):
+        with ctx._setname('@'):
+            self._sequence_(ctx)
 
     @rule('Sequence')
-    def _sequence_(self):
-        with self._choice() as choice:
-            @choice.option
+    def _sequence_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
             def _():
-                with self._if():
-                    with self._group():
-                        self._element_()
-                        self._token(',')
+                with ctx._if():
+                    with ctx._group():
+                        self._element_(ctx)
+                        ctx._token(',')
 
                 def sep0():
-                    self._token(',')
+                    ctx._token(',')
 
                 def block1():
-                    self._element_()
+                    self._element_(ctx)
 
-                self._positive_gather(block1, sep0)
+                ctx._positive_gather(block1, sep0)
 
-            @choice.option
+            @ch.option
             def _():
 
                 def block2():
-                    with self._ifnot():
-                        self._ENDRULE_()
-                    self._element_()
+                    with ctx._ifnot():
+                        self._ENDRULE_(ctx)
+                    self._element_(ctx)
 
-                self._positive_closure(block2)
+                ctx._positive_closure(block2)
 
-            choice.expecting(
-                '<named>',
-                '<ENDRULE>',
-                '<term>',
-                '<rule_include>',
-                '<element>',
-                '<EMPTYLINE>',
-                ';',
-                '<override>',
-                '<UNINDENTED>',
+            ch.expecting(
+                '(?:\\s*(?:\\r?\\n|\\r)){2,}',
                 '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
-                '(?:\\s*(?:\\r?\\n|\\r)){2,}'
+                ';',
+                '<EMPTYLINE>',
+                '<ENDRULE>',
+                '<UNINDENTED>',
+                '<element>',
+                '<named>',
+                '<override>',
+                '<rule_include>',
+                '<term>'
             )
 
-
     @rule()
-    def _element_(self):
-        with self._choice() as choice:
-            @choice.option
+    def _element_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
             def _():
-                self._rule_include_()
+                self._rule_include_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._named_()
+                self._named_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._override_()
+                self._override_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._term_()
+                self._term_(ctx)
 
-            choice.expecting(
-                '<left_join>',
+            ch.expecting(
+                '<atom>',
+                '<closure>',
                 '<cut>',
-                '<override_single>',
-                '<rule_include>',
+                '<cut_deprecated>',
+                '<empty_closure>',
+                '<gather>',
+                '<join>',
+                '<left_join>',
+                '<lookahead>',
+                '<named>',
                 '<named_list>',
                 '<named_single>',
-                '<join>',
-                '<gather>',
-                '<closure>',
-                '<cut_deprecated>',
                 '<negative_lookahead>',
-                '<lookahead>',
-                '<override>',
-                '<named>',
                 '<optional>',
-                '<skip_to>',
-                '<empty_closure>',
+                '<override>',
                 '<override_list>',
+                '<override_single>',
+                '<override_single_deprecated>',
+                '<positive_closure>',
+                '<right_join>',
+                '<rule_include>',
+                '<skip_to>',
                 '<term>',
                 '<void>',
-                '<override_single_deprecated>',
-                '<right_join>',
-                '<atom>',
-                '>',
-                '<positive_closure>'
+                '>'
             )
-
 
     @rule('RuleInclude')
-    def _rule_include_(self):
-        self._token('>')
-        self._cut()
-        with self._setname('@'):
-            self._known_name_()
+    def _rule_include_(self, ctx: ParseContext):
+        ctx._token('>')
+        ctx._cut()
+        with ctx._setname('@'):
+            self._known_name_(ctx)
 
     @rule()
-    def _named_(self):
-        with self._choice() as choice:
-            @choice.option
+    def _named_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
             def _():
-                self._named_list_()
+                self._named_list_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._named_single_()
+                self._named_single_(ctx)
 
-            choice.expecting('<named_single>', '<named_list>', '<name>')
+            ch.expecting('<name>', '<named_list>', '<named_single>')
 
     @rule('NamedList')
-    def _named_list_(self):
-        with self._setname('name'):
-            self._name_()
-        self._token('+:')
-        self._cut()
-        with self._setname('exp'):
-            self._term_()
-        self._define(['exp', 'name'], [])
+    def _named_list_(self, ctx: ParseContext):
+        with ctx._setname('name'):
+            self._name_(ctx)
+        ctx._token('+:')
+        ctx._cut()
+        with ctx._setname('exp'):
+            self._term_(ctx)
+        ctx._define(['exp', 'name'], [])
 
     @rule('Named')
-    def _named_single_(self):
-        with self._setname('name'):
-            self._name_()
-        self._token(':')
-        self._cut()
-        with self._setname('exp'):
-            self._term_()
-        self._define(['exp', 'name'], [])
+    def _named_single_(self, ctx: ParseContext):
+        with ctx._setname('name'):
+            self._name_(ctx)
+        ctx._token(':')
+        ctx._cut()
+        with ctx._setname('exp'):
+            self._term_(ctx)
+        ctx._define(['exp', 'name'], [])
 
     @rule()
-    def _override_(self):
-        with self._choice() as choice:
-            @choice.option
+    def _override_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
             def _():
-                self._override_list_()
+                self._override_list_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._override_single_()
+                self._override_single_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._override_single_deprecated_()
+                self._override_single_deprecated_(ctx)
 
-            choice.expecting(
-                '@:',
-                '<override_single>',
-                '@',
+            ch.expecting(
                 '<override_list>',
+                '<override_single>',
+                '<override_single_deprecated>',
+                '@',
                 '@+:',
-                '<override_single_deprecated>'
+                '@:'
             )
 
-
     @rule('OverrideList')
-    def _override_list_(self):
-        self._token('@+:')
-        self._cut()
-        with self._setname('@'):
-            self._term_()
+    def _override_list_(self, ctx: ParseContext):
+        ctx._token('@+:')
+        ctx._cut()
+        with ctx._setname('@'):
+            self._term_(ctx)
 
     @rule('Override')
-    def _override_single_(self):
-        self._token('@:')
-        self._cut()
-        with self._setname('@'):
-            self._term_()
+    def _override_single_(self, ctx: ParseContext):
+        ctx._token('@:')
+        ctx._cut()
+        with ctx._setname('@'):
+            self._term_(ctx)
 
     @rule('Override')
-    def _override_single_deprecated_(self):
-        self._token('@')
-        self._cut()
-        with self._setname('@'):
-            self._term_()
+    def _override_single_deprecated_(self, ctx: ParseContext):
+        ctx._token('@')
+        ctx._cut()
+        with ctx._setname('@'):
+            self._term_(ctx)
 
     @rule()
-    def _term_(self):
-        with self._choice() as choice:
-            @choice.option
+    def _term_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
             def _():
-                self._void_()
+                self._void_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._gather_()
+                self._gather_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._join_()
+                self._join_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._left_join_()
+                self._left_join_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._right_join_()
+                self._right_join_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._empty_closure_()
+                self._empty_closure_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._positive_closure_()
+                self._positive_closure_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._closure_()
+                self._closure_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._optional_()
+                self._optional_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._skip_to_()
+                self._skip_to_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._lookahead_()
+                self._lookahead_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._negative_lookahead_()
+                self._negative_lookahead_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._cut_()
+                self._cut_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._cut_deprecated_()
+                self._cut_deprecated_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._atom_()
+                self._atom_(ctx)
 
-            choice.expecting(
-                '<left_join>',
-                '<cut>',
-                '<join>',
-                '<gather>',
-                '{}',
-                '<closure>',
-                '<cut_deprecated>',
-                '&',
-                '>>',
-                '<negative_lookahead>',
-                '<group>',
-                '<alert>',
-                '<eof>',
-                '<lookahead>',
-                '->',
-                '{',
-                '<optional>',
-                '(',
-                '<skip_to>',
-                '<empty_closure>',
+            ch.expecting(
                 '!',
-                '<void>',
-                '<dot>',
-                '<token>',
-                '<pattern>',
-                '<right_join>',
-                '<call>',
-                '~',
-                '<atom>',
-                '<constant>',
-                '<positive_closure>',
+                '&',
+                '(',
                 '()',
+                '->',
+                '<alert>',
+                '<atom>',
+                '<call>',
+                '<closure>',
+                '<constant>',
+                '<cut>',
+                '<cut_deprecated>',
+                '<dot>',
+                '<empty_closure>',
+                '<eof>',
+                '<gather>',
+                '<group>',
+                '<join>',
+                '<left_join>',
+                '<lookahead>',
+                '<negative_lookahead>',
+                '<optional>',
+                '<pattern>',
+                '<positive_closure>',
+                '<right_join>',
+                '<skip_to>',
+                '<token>',
+                '<void>',
+                '>>',
+                '[',
+                '{',
+                '{}',
+                '~'
+            )
+
+    @rule('Group')
+    def _group_(self, ctx: ParseContext):
+        ctx._token('(')
+        ctx._cut()
+        with ctx._setname('@'):
+            self._expre_(ctx)
+        ctx._token(')')
+        ctx._cut()
+
+    @rule()
+    def _gather_(self, ctx: ParseContext):
+        with ctx._if():
+            with ctx._group():
+                self._atom_(ctx)
+                ctx._token('.{')
+        ctx._cut()
+        with ctx._group():
+            with ctx._choice() as ch:
+                @ch.option
+                def _():
+                    self._positive_gather_(ctx)
+
+                @ch.option
+                def _():
+                    self._normal_gather_(ctx)
+
+                ch.expecting('<normal_gather>', '<positive_gather>')
+
+    @rule('PositiveGather')
+    def _positive_gather_(self, ctx: ParseContext):
+        with ctx._setname('sep'):
+            self._atom_(ctx)
+        ctx._token('.{')
+        with ctx._setname('exp'):
+            self._expre_(ctx)
+        ctx._token('}')
+        with ctx._group():
+            with ctx._choice() as ch:
+                @ch.option
+                def _():
+                    ctx._token('+')
+
+                @ch.option
+                def _():
+                    ctx._token('-')
+
+                ch.expecting('+', '-')
+        ctx._cut()
+        ctx._define(['exp', 'sep'], [])
+
+    @rule('Gather')
+    def _normal_gather_(self, ctx: ParseContext):
+        with ctx._setname('sep'):
+            self._atom_(ctx)
+        ctx._token('.{')
+        ctx._cut()
+        with ctx._setname('exp'):
+            self._expre_(ctx)
+        ctx._token('}')
+        with ctx._optional():
+            ctx._token('*')
+            ctx._cut()
+        ctx._cut()
+        ctx._define(['exp', 'sep'], [])
+
+    @rule()
+    def _join_(self, ctx: ParseContext):
+        with ctx._if():
+            with ctx._group():
+                self._atom_(ctx)
+                ctx._token('%{')
+        ctx._cut()
+        with ctx._group():
+            with ctx._choice() as ch:
+                @ch.option
+                def _():
+                    self._positive_join_(ctx)
+
+                @ch.option
+                def _():
+                    self._normal_join_(ctx)
+
+                ch.expecting('<normal_join>', '<positive_join>')
+
+    @rule('PositiveJoin')
+    def _positive_join_(self, ctx: ParseContext):
+        with ctx._setname('sep'):
+            self._atom_(ctx)
+        ctx._token('%{')
+        with ctx._setname('exp'):
+            self._expre_(ctx)
+        ctx._token('}')
+        with ctx._group():
+            with ctx._choice() as ch:
+                @ch.option
+                def _():
+                    ctx._token('+')
+
+                @ch.option
+                def _():
+                    ctx._token('-')
+
+                ch.expecting('+', '-')
+        ctx._cut()
+        ctx._define(['exp', 'sep'], [])
+
+    @rule('Join')
+    def _normal_join_(self, ctx: ParseContext):
+        with ctx._setname('sep'):
+            self._atom_(ctx)
+        ctx._token('%{')
+        ctx._cut()
+        with ctx._setname('exp'):
+            self._expre_(ctx)
+        ctx._token('}')
+        with ctx._optional():
+            ctx._token('*')
+            ctx._cut()
+        ctx._cut()
+        ctx._define(['exp', 'sep'], [])
+
+    @rule('LeftJoin')
+    def _left_join_(self, ctx: ParseContext):
+        with ctx._setname('sep'):
+            self._atom_(ctx)
+        ctx._token('<{')
+        ctx._cut()
+        with ctx._setname('exp'):
+            self._expre_(ctx)
+        ctx._token('}')
+        with ctx._group():
+            with ctx._choice() as ch:
+                @ch.option
+                def _():
+                    ctx._token('+')
+
+                @ch.option
+                def _():
+                    ctx._token('-')
+
+                ch.expecting('+', '-')
+        ctx._cut()
+        ctx._define(['exp', 'sep'], [])
+
+    @rule('RightJoin')
+    def _right_join_(self, ctx: ParseContext):
+        with ctx._setname('sep'):
+            self._atom_(ctx)
+        ctx._token('>{')
+        ctx._cut()
+        with ctx._setname('exp'):
+            self._expre_(ctx)
+        ctx._token('}')
+        with ctx._group():
+            with ctx._choice() as ch:
+                @ch.option
+                def _():
+                    ctx._token('+')
+
+                @ch.option
+                def _():
+                    ctx._token('-')
+
+                ch.expecting('+', '-')
+        ctx._cut()
+        ctx._define(['exp', 'sep'], [])
+
+    @rule('PositiveClosure')
+    def _positive_closure_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
+            def _():
+                ctx._token('{')
+                with ctx._setname('@'):
+                    self._expre_(ctx)
+                ctx._token('}')
+                with ctx._group():
+                    with ctx._choice() as ch:
+                        @ch.option
+                        def _():
+                            ctx._token('-')
+
+                        @ch.option
+                        def _():
+                            ctx._token('+')
+
+                        ch.expecting('+', '-')
+                ctx._cut()
+
+            @ch.option
+            def _():
+                with ctx._setname('@'):
+                    self._atom_(ctx)
+                ctx._token('+')
+                ctx._cut()
+
+            ch.expecting(
+                '(',
+                '<alert>',
+                '<atom>',
+                '<call>',
+                '<constant>',
+                '<dot>',
+                '<eof>',
+                '<group>',
+                '<pattern>',
+                '<token>',
+                '{'
+            )
+
+    @rule('Closure')
+    def _closure_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
+            def _():
+                ctx._token('{')
+                with ctx._setname('@'):
+                    self._expre_(ctx)
+                ctx._token('}')
+                with ctx._optional():
+                    ctx._token('*')
+                ctx._cut()
+
+            @ch.option
+            def _():
+                with ctx._setname('@'):
+                    self._atom_(ctx)
+                ctx._token('*')
+                ctx._cut()
+
+            ch.expecting(
+                '(',
+                '<alert>',
+                '<atom>',
+                '<call>',
+                '<constant>',
+                '<dot>',
+                '<eof>',
+                '<group>',
+                '<pattern>',
+                '<token>',
+                '{'
+            )
+
+    @rule('EmptyClosure')
+    def _empty_closure_(self, ctx: ParseContext):
+        ctx._token('{}')
+        ctx._cut()
+        with ctx._setname('@'):
+            ctx._void()
+
+    @rule('Optional')
+    def _optional_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
+            def _():
+                ctx._token('[')
+                ctx._cut()
+                with ctx._setname('@'):
+                    self._expre_(ctx)
+                ctx._token(']')
+                ctx._cut()
+
+            @ch.option
+            def _():
+                with ctx._setname('@'):
+                    self._atom_(ctx)
+                with ctx._ifnot():
+                    with ctx._group():
+                        with ctx._choice() as ch:
+                            @ch.option
+                            def _():
+                                ctx._token('?"')
+
+                            @ch.option
+                            def _():
+                                ctx._token("?'")
+
+                            @ch.option
+                            def _():
+                                ctx._token('?/')
+
+                            ch.expecting("?'", '?"', '?/')
+                ctx._token('?')
+                ctx._cut()
+
+            ch.expecting(
+                '(',
+                '<alert>',
+                '<atom>',
+                '<call>',
+                '<constant>',
+                '<dot>',
+                '<eof>',
+                '<group>',
+                '<pattern>',
+                '<token>',
                 '['
             )
 
-
-    @rule('Group')
-    def _group_(self):
-        self._token('(')
-        self._cut()
-        with self._setname('@'):
-            self._expre_()
-        self._token(')')
-        self._cut()
-
-    @rule()
-    def _gather_(self):
-        with self._if():
-            with self._group():
-                self._atom_()
-                self._token('.{')
-        self._cut()
-        with self._group():
-            with self._choice() as choice:
-                @choice.option
-                def _():
-                    self._positive_gather_()
-
-                @choice.option
-                def _():
-                    self._normal_gather_()
-
-                choice.expecting('<normal_gather>', '<positive_gather>')
-
-    @rule('PositiveGather')
-    def _positive_gather_(self):
-        with self._setname('sep'):
-            self._atom_()
-        self._token('.{')
-        with self._setname('exp'):
-            self._expre_()
-        self._token('}')
-        with self._group():
-            with self._choice() as choice:
-                @choice.option
-                def _():
-                    self._token('+')
-
-                @choice.option
-                def _():
-                    self._token('-')
-
-                choice.expecting('-', '+')
-        self._cut()
-        self._define(['exp', 'sep'], [])
-
-    @rule('Gather')
-    def _normal_gather_(self):
-        with self._setname('sep'):
-            self._atom_()
-        self._token('.{')
-        self._cut()
-        with self._setname('exp'):
-            self._expre_()
-        self._token('}')
-        with self._optional():
-            self._token('*')
-            self._cut()
-        self._cut()
-        self._define(['exp', 'sep'], [])
-
-    @rule()
-    def _join_(self):
-        with self._if():
-            with self._group():
-                self._atom_()
-                self._token('%{')
-        self._cut()
-        with self._group():
-            with self._choice() as choice:
-                @choice.option
-                def _():
-                    self._positive_join_()
-
-                @choice.option
-                def _():
-                    self._normal_join_()
-
-                choice.expecting('<normal_join>', '<positive_join>')
-
-    @rule('PositiveJoin')
-    def _positive_join_(self):
-        with self._setname('sep'):
-            self._atom_()
-        self._token('%{')
-        with self._setname('exp'):
-            self._expre_()
-        self._token('}')
-        with self._group():
-            with self._choice() as choice:
-                @choice.option
-                def _():
-                    self._token('+')
-
-                @choice.option
-                def _():
-                    self._token('-')
-
-                choice.expecting('-', '+')
-        self._cut()
-        self._define(['exp', 'sep'], [])
-
-    @rule('Join')
-    def _normal_join_(self):
-        with self._setname('sep'):
-            self._atom_()
-        self._token('%{')
-        self._cut()
-        with self._setname('exp'):
-            self._expre_()
-        self._token('}')
-        with self._optional():
-            self._token('*')
-            self._cut()
-        self._cut()
-        self._define(['exp', 'sep'], [])
-
-    @rule('LeftJoin')
-    def _left_join_(self):
-        with self._setname('sep'):
-            self._atom_()
-        self._token('<{')
-        self._cut()
-        with self._setname('exp'):
-            self._expre_()
-        self._token('}')
-        with self._group():
-            with self._choice() as choice:
-                @choice.option
-                def _():
-                    self._token('+')
-
-                @choice.option
-                def _():
-                    self._token('-')
-
-                choice.expecting('-', '+')
-        self._cut()
-        self._define(['exp', 'sep'], [])
-
-    @rule('RightJoin')
-    def _right_join_(self):
-        with self._setname('sep'):
-            self._atom_()
-        self._token('>{')
-        self._cut()
-        with self._setname('exp'):
-            self._expre_()
-        self._token('}')
-        with self._group():
-            with self._choice() as choice:
-                @choice.option
-                def _():
-                    self._token('+')
-
-                @choice.option
-                def _():
-                    self._token('-')
-
-                choice.expecting('-', '+')
-        self._cut()
-        self._define(['exp', 'sep'], [])
-
-    @rule('PositiveClosure')
-    def _positive_closure_(self):
-        with self._choice() as choice:
-            @choice.option
-            def _():
-                self._token('{')
-                with self._setname('@'):
-                    self._expre_()
-                self._token('}')
-                with self._group():
-                    with self._choice() as choice:
-                        @choice.option
-                        def _():
-                            self._token('-')
-
-                        @choice.option
-                        def _():
-                            self._token('+')
-
-                        choice.expecting('-', '+')
-                self._cut()
-
-            @choice.option
-            def _():
-                with self._setname('@'):
-                    self._atom_()
-                self._token('+')
-                self._cut()
-
-            choice.expecting(
-                '<group>',
-                '<atom>',
-                '<alert>',
-                '<eof>',
-                '{',
-                '<dot>',
-                '<token>',
-                '<constant>',
-                '<pattern>',
-                '<call>',
-                '('
-            )
-
-
-    @rule('Closure')
-    def _closure_(self):
-        with self._choice() as choice:
-            @choice.option
-            def _():
-                self._token('{')
-                with self._setname('@'):
-                    self._expre_()
-                self._token('}')
-                with self._optional():
-                    self._token('*')
-                self._cut()
-
-            @choice.option
-            def _():
-                with self._setname('@'):
-                    self._atom_()
-                self._token('*')
-                self._cut()
-
-            choice.expecting(
-                '<group>',
-                '<atom>',
-                '<alert>',
-                '<eof>',
-                '{',
-                '<dot>',
-                '<token>',
-                '<constant>',
-                '<pattern>',
-                '<call>',
-                '('
-            )
-
-
-    @rule('EmptyClosure')
-    def _empty_closure_(self):
-        self._token('{}')
-        self._cut()
-        with self._setname('@'):
-            self._void()
-
-    @rule('Optional')
-    def _optional_(self):
-        with self._choice() as choice:
-            @choice.option
-            def _():
-                self._token('[')
-                self._cut()
-                with self._setname('@'):
-                    self._expre_()
-                self._token(']')
-                self._cut()
-
-            @choice.option
-            def _():
-                with self._setname('@'):
-                    self._atom_()
-                with self._ifnot():
-                    with self._group():
-                        with self._choice() as choice:
-                            @choice.option
-                            def _():
-                                self._token('?"')
-
-                            @choice.option
-                            def _():
-                                self._token("?'")
-
-                            @choice.option
-                            def _():
-                                self._token('?/')
-
-                            choice.expecting('?"', '?/', "?'")
-                self._token('?')
-                self._cut()
-
-            choice.expecting(
-                '<group>',
-                '<atom>',
-                '<alert>',
-                '<eof>',
-                '<dot>',
-                '<token>',
-                '<constant>',
-                '<pattern>',
-                '[',
-                '<call>',
-                '('
-            )
-
-
     @rule('Lookahead')
-    def _lookahead_(self):
-        self._token('&')
-        self._cut()
-        with self._setname('@'):
-            self._term_()
+    def _lookahead_(self, ctx: ParseContext):
+        ctx._token('&')
+        ctx._cut()
+        with ctx._setname('@'):
+            self._term_(ctx)
 
     @rule('NegativeLookahead')
-    def _negative_lookahead_(self):
-        self._token('!')
-        self._cut()
-        with self._setname('@'):
-            self._term_()
+    def _negative_lookahead_(self, ctx: ParseContext):
+        ctx._token('!')
+        ctx._cut()
+        with ctx._setname('@'):
+            self._term_(ctx)
 
     @rule('SkipTo')
-    def _skip_to_(self):
-        self._token('->')
-        self._cut()
-        with self._setname('@'):
-            self._term_()
+    def _skip_to_(self, ctx: ParseContext):
+        ctx._token('->')
+        ctx._cut()
+        with ctx._setname('@'):
+            self._term_(ctx)
 
     @rule()
-    def _atom_(self):
-        with self._choice() as choice:
-            @choice.option
+    def _atom_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
             def _():
-                self._group_()
+                self._group_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._token_()
+                self._token_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._alert_()
+                self._alert_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._constant_()
+                self._constant_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._call_()
+                self._call_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._pattern_()
+                self._pattern_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._dot_()
+                self._dot_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._eof_()
+                self._eof_(ctx)
 
-            choice.expecting(
-                '<word>',
-                '<group>',
+            ch.expecting(
+                '$',
+                '(',
                 '/./',
                 '<alert>',
-                '<regexes>',
-                '<eof>',
-                '$',
-                '<raw_string>',
-                '<dot>',
-                '<token>',
-                '`',
-                '<constant>',
-                '<string>',
-                '<pattern>',
-                '\\^+',
                 '<call>',
-                '('
+                '<constant>',
+                '<dot>',
+                '<eof>',
+                '<group>',
+                '<pattern>',
+                '<raw_string>',
+                '<regexes>',
+                '<string>',
+                '<token>',
+                '<word>',
+                '\\^+',
+                '`'
             )
-
 
     @rule('Call')
-    def _call_(self):
-        self._word_()
+    def _call_(self, ctx: ParseContext):
+        self._word_(ctx)
 
     @rule('Void')
-    def _void_(self):
-        self._token('()')
-        self._cut()
+    def _void_(self, ctx: ParseContext):
+        ctx._token('()')
+        ctx._cut()
 
     @rule('Fail')
-    def _fail_(self):
-        self._token('!()')
-        self._cut()
+    def _fail_(self, ctx: ParseContext):
+        ctx._token('!()')
+        ctx._cut()
 
     @rule('Cut')
-    def _cut_(self):
-        self._token('~')
-        self._cut()
+    def _cut_(self, ctx: ParseContext):
+        ctx._token('~')
+        ctx._cut()
 
     @rule('Cut')
-    def _cut_deprecated_(self):
-        self._token('>>')
-        self._cut()
+    def _cut_deprecated_(self, ctx: ParseContext):
+        ctx._token('>>')
+        ctx._cut()
 
     @rule()
-    def _known_name_(self):
-        self._name_()
-        self._cut()
+    def _known_name_(self, ctx: ParseContext):
+        self._name_(ctx)
+        ctx._cut()
 
     @rule()
-    def _name_(self):
-        self._word_()
+    def _name_(self, ctx: ParseContext):
+        self._word_(ctx)
 
     @rule('Constant')
-    def _constant_(self):
-        with self._if():
-            self._token('`')
-        with self._group():
-            with self._choice() as choice:
-                @choice.option
+    def _constant_(self, ctx: ParseContext):
+        with ctx._if():
+            ctx._token('`')
+        with ctx._group():
+            with ctx._choice() as ch:
+                @ch.option
                 def _():
-                    self._pattern(r'(?ms)```((?:.|\n)*?)```')
+                    ctx._pattern(r'(?ms)```((?:.|\n)*?)```')
 
-                @choice.option
+                @ch.option
                 def _():
-                    self._token('`')
-                    with self._setname('@'):
-                        self._literal_()
-                    self._token('`')
+                    ctx._token('`')
+                    with ctx._setname('@'):
+                        self._literal_(ctx)
+                    ctx._token('`')
 
-                @choice.option
+                @ch.option
                 def _():
-                    self._pattern(r'`(.*?)`')
+                    ctx._pattern(r'`(.*?)`')
 
-                choice.expecting('`', '`(.*?)`', '(?ms)```((?:.|\\n)*?)```')
+                ch.expecting('(?ms)```((?:.|\\n)*?)```', '`', '`(.*?)`')
 
     @rule('Alert')
-    def _alert_(self):
-        with self._setname('level'):
-            self._pattern(r'\^+')
-        with self._setname('message'):
-            self._constant_()
-        self._define(['level', 'message'], [])
+    def _alert_(self, ctx: ParseContext):
+        with ctx._setname('level'):
+            ctx._pattern(r'\^+')
+        with ctx._setname('message'):
+            self._constant_(ctx)
+        ctx._define(['level', 'message'], [])
 
     @rule('Token')
-    def _token_(self):
-        with self._choice() as choice:
-            @choice.option
+    def _token_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
             def _():
-                self._string_()
+                self._string_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._raw_string_()
+                self._raw_string_(ctx)
 
-            choice.expecting('<raw_string>', '<string>', '<STRING>', 'r')
+            ch.expecting('<STRING>', '<raw_string>', '<string>', 'r')
 
     @rule()
-    def _literal_(self):
-        with self._choice() as choice:
-            @choice.option
+    def _literal_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
             def _():
-                self._string_()
+                self._string_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._raw_string_()
+                self._raw_string_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._boolean_()
+                self._boolean_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._word_()
+                self._word_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._hex_()
+                self._hex_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._float_()
+                self._float_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._int_()
+                self._int_(ctx)
 
-            @choice.option
+            @ch.option
             def _():
-                self._null_()
+                self._null_(ctx)
 
-            choice.expecting(
-                '<word>',
-                '<null>',
-                '[-+]?\\d+',
-                'None',
-                '<boolean>',
-                '<raw_string>',
-                '[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?',
-                '<int>',
+            ch.expecting(
                 '(?!\\d)\\w+',
                 '0[xX](?:\\d|[a-fA-F])+',
-                '<string>',
-                'False',
-                'r',
-                '<hex>',
-                'True',
                 '<STRING>',
-                '<float>'
+                '<boolean>',
+                '<float>',
+                '<hex>',
+                '<int>',
+                '<null>',
+                '<raw_string>',
+                '<string>',
+                '<word>',
+                'False',
+                'None',
+                'True',
+                '[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?',
+                '[-+]?\\d+',
+                'r'
             )
 
+    @rule()
+    def _string_(self, ctx: ParseContext):
+        self._STRING_(ctx)
 
     @rule()
-    def _string_(self):
-        self._STRING_()
+    def _raw_string_(self, ctx: ParseContext):
+        ctx._pattern(r'r')
+        with ctx._setname('@'):
+            self._STRING_(ctx)
 
     @rule()
-    def _raw_string_(self):
-        self._pattern(r'r')
-        with self._setname('@'):
-            self._STRING_()
-
-    @rule()
-    def _STRING_(self):
-        with self._choice() as choice:
-            @choice.option
+    def _STRING_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
             def _():
-                with self._setname('@'):
-                    self._pattern(r'"((?:[^"\n]|\\"|\\\\)*?)"')
-                self._cut()
+                with ctx._setname('@'):
+                    ctx._pattern(r'"((?:[^"\n]|\\"|\\\\)*?)"')
+                ctx._cut()
 
-            @choice.option
+            @ch.option
             def _():
-                with self._setname('@'):
-                    self._pattern(r"'((?:[^'\n]|\\'|\\\\)*?)'")
-                self._cut()
+                with ctx._setname('@'):
+                    ctx._pattern(r"'((?:[^'\n]|\\'|\\\\)*?)'")
+                ctx._cut()
 
-            choice.expecting(
-                '"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"',
-                "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'"
+            ch.expecting(
+                "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'",
+                '"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"'
             )
 
+    @rule()
+    def _hex_(self, ctx: ParseContext):
+        ctx._pattern(r'0[xX](?:\d|[a-fA-F])+')
 
     @rule()
-    def _hex_(self):
-        self._pattern(r'0[xX](?:\d|[a-fA-F])+')
+    def _float_(self, ctx: ParseContext):
+        ctx._pattern(r'[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?')
 
     @rule()
-    def _float_(self):
-        self._pattern(r'[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?')
+    def _int_(self, ctx: ParseContext):
+        ctx._pattern(r'[-+]?\d+')
 
     @rule()
-    def _int_(self):
-        self._pattern(r'[-+]?\d+')
+    def _path_(self, ctx: ParseContext):
+        ctx._pattern(r'(?!\d)\w+(?:::(?!\d)\w+)+')
 
     @rule()
-    def _path_(self):
-        self._pattern(r'(?!\d)\w+(?:::(?!\d)\w+)+')
-
-    @rule()
-    def _word_(self):
-        self._pattern(r'(?!\d)\w+')
+    def _word_(self, ctx: ParseContext):
+        ctx._pattern(r'(?!\d)\w+')
 
     @rule('Dot')
-    def _dot_(self):
-        self._token('/./')
+    def _dot_(self, ctx: ParseContext):
+        ctx._token('/./')
 
     @rule('Pattern')
-    def _pattern_(self):
-        self._regexes_()
+    def _pattern_(self, ctx: ParseContext):
+        self._regexes_(ctx)
 
     @rule()
-    def _regexes_(self):
+    def _regexes_(self, ctx: ParseContext):
 
         def sep0():
-            self._token('+')
+            ctx._token('+')
 
         def block1():
-            self._regex_()
+            self._regex_(ctx)
 
-        self._positive_gather(block1, sep0)
-
-    @rule()
-    def _regex_(self):
-        with self._choice() as choice:
-            @choice.option
-            def _():
-                self._token('/')
-                self._cut()
-                with self._setname('@'):
-                    self._pattern(r'(?:[^/\\]|\\/|\\.)*')
-                self._token('/')
-                self._cut()
-
-            @choice.option
-            def _():
-                self._token('?')
-                with self._setname('@'):
-                    self._STRING_()
-
-            @choice.option
-            def _():
-                self._deprecated_regex_()
-
-            choice.expecting('?', '/', '<deprecated_regex>', '?/')
+        ctx._positive_gather(block1, sep0)
 
     @rule()
-    def _deprecated_regex_(self):
-        self._token('?/')
-        self._cut()
-        with self._setname('@'):
-            self._pattern(r'(?:.|\n)*?(?=/\?)')
-        self._pattern(r'/\?+')
-        self._cut()
+    def _regex_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
+            def _():
+                ctx._token('/')
+                ctx._cut()
+                with ctx._setname('@'):
+                    ctx._pattern(r'(?:[^/\\]|\\/|\\.)*')
+                ctx._token('/')
+                ctx._cut()
+
+            @ch.option
+            def _():
+                ctx._token('?')
+                with ctx._setname('@'):
+                    self._STRING_(ctx)
+
+            @ch.option
+            def _():
+                self._deprecated_regex_(ctx)
+
+            ch.expecting('/', '<deprecated_regex>', '?', '?/')
 
     @rule()
-    def _boolean_(self):
-        with self._choice() as choice:
-            @choice.option
-            def _():
-                self._token('True')
-
-            @choice.option
-            def _():
-                self._token('False')
-
-            choice.expecting('True', 'False')
+    def _deprecated_regex_(self, ctx: ParseContext):
+        ctx._token('?/')
+        ctx._cut()
+        with ctx._setname('@'):
+            ctx._pattern(r'(?:.|\n)*?(?=/\?)')
+        ctx._pattern(r'/\?+')
+        ctx._cut()
 
     @rule()
-    def _null_(self):
-        self._token('None')
+    def _boolean_(self, ctx: ParseContext):
+        with ctx._choice() as ch:
+            @ch.option
+            def _():
+                ctx._token('True')
+
+            @ch.option
+            def _():
+                ctx._token('False')
+
+            ch.expecting('False', 'True')
+
+    @rule()
+    def _null_(self, ctx: ParseContext):
+        ctx._token('None')
 
     @rule('EOF')
-    def _eof_(self):
-        self._token('$')
-        self._cut()
+    def _eof_(self, ctx: ParseContext):
+        ctx._token('$')
+        ctx._cut()
 
 
 def main(filename, **kwargs):

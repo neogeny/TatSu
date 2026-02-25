@@ -7,7 +7,7 @@ import types
 import pytest
 
 import tatsu
-from tatsu.exceptions import FailedParse
+from tatsu.exceptions import FailedParse, KeywordError
 
 INPUT = """
     1d3
@@ -101,7 +101,7 @@ def test_name_checked():
 
     def subtest(parser):
         parser.parse('nonIF if 1', trace=False)
-        with pytest.raises(FailedParse):
+        with pytest.raises(KeywordError):
             parser.parse('if if 1', trace=False)
         with pytest.raises(FailedParse):
             parser.parse('IF if 1', trace=False)

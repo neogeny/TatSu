@@ -10,7 +10,7 @@ def test_cli_help():
     output = subprocess.check_output(['tatsu', '--help'])  # noqa: S607
     output = output.decode('utf-8')
     pattern = r'(?ms)竜TatSu takes a grammar .*GRAMMAR'
-    assert re.search(pattern, output)
+    assert bool(re.search(pattern, output))
 
 
 def test_cli_python():
@@ -18,9 +18,9 @@ def test_cli_python():
     output = output.decode('utf-8')
     pattern = (
         r'(?ms)CAVEAT UTILITOR.*?竜TatSu.*?KEYWORDS: set\['
-        r'.*?class \w*?Parser\(Parser\):'
+        r'.*?class \w*?Parser\(\w*Parser\):'
     )
-    assert re.search(pattern, output)
+    assert bool(re.search(pattern, output))
 
 
 def test_cli_model():
@@ -31,6 +31,5 @@ def test_cli_model():
     pattern = (
         r'(?ms)CAVEAT UTILITOR.*?竜TatSu'
         r'.*?class \w+?ModelBuilderSemantics\(ModelBuilderSemantics\):'
-        r'.*?class \w+?ModelBuilderSemantics\(\w+?ModelBuilderSemantics\):'
     )
-    assert re.search(pattern, output)
+    assert bool(re.search(pattern, output))

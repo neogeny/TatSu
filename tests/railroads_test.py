@@ -15,7 +15,7 @@ def test_railroads():
     railroads.draw(model)
 
     tracks = railroads.tracks(model)
-    assert len(tracks) == 249
+    assert len(tracks) == 250
 
     track0 = "start ●─grammar─■"
     assert tracks[0] == track0
