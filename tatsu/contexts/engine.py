@@ -319,7 +319,7 @@ class ParseContext:
         return self.config.memoize_lookaheads or self.lookahead == 0
 
     def _find_rule(self, name: str) -> Callable[..., Any]:
-        ...
+        raise NotImplementedError
 
     def _find_semantic_action(self, name: str) -> Callable[..., Any] | None:
         if not self.semantics:

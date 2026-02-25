@@ -89,7 +89,6 @@ class rule:
             return self
 
         self.ruleinfo = self._ruleinfo(obj, self.impl)
-        self.impl.__ruleinfo__ = self.ruleinfo  # pyright: ignore[reportFunctionMemberAccess]
 
         # return self._run
         @functools.wraps(self.impl)
