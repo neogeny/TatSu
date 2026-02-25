@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import ast as stdlib_ast
 import inspect
-from collections.abc import Callable, Iterable
-from contextlib import contextmanager, suppress
+from collections.abc import Callable, Generator, Iterable
+from contextlib import AbstractContextManager, contextmanager, suppress
 from typing import Any
 
+from .ctxlib import ChoiceContext
 from .infos import MemoKey, RuleResult, closure
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer
@@ -37,6 +38,7 @@ from ..util.deprecate import deprecated
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from ..util.typetools import boundcall
 from ..util.undefined import Undefined
+from .protocol import ParseContextProtocol
 
 __all__: list[str] = ['ParseContext']
 
@@ -45,29 +47,7 @@ type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
 
-class ChoiceContext:
-    def __init__(self, ctx: ParseContext):
-        self.ctx = ctx
-        self.options: list[Callable[[], None]] = []
-        self.expected: list[str] = []
-
-    def option(self, func: Callable[[], None]) -> Callable[[], None]:
-        self.options.append(func)
-        return func
-
-    def expecting(self, *tokens: str) -> None:
-        self.expected.extend(tokens)
-
-    def run(self) -> None:
-        if not self.options:
-            return
-        for opt in self.options:
-            with self.ctx._option():
-                opt()
-        raise self.ctx.newexcept(f"Expected one of: {', '.join(self.expected)}")
-
-
-class ParseContext:
+class ParseContext(ParseContextProtocol):
     def __init__(
         self,
         /,
@@ -78,14 +58,17 @@ class ParseContext:
         super().__init__()
 
         config = ParserConfig.new(config, **settings)
+        assert isinstance(config, ParserConfig)
         if config.tokenizercls is None:
             config = config.override(tokenizercls=TextLinesTokenizer)
+        assert isinstance(config, ParserConfig)
         self._config: ParserConfig = config
         self._active_config: ParserConfig = self._config
 
         self._tokenizer: Tokenizer = NullTokenizer()
         self._cursor = self._tokenizer.newcursor()
         self._semantics: type | None = config.semantics
+        self._states: ParseStateStack = ParseStateStack(cursor=self._cursor)
 
         self._initialize_caches()
         self._tracer: EventTracer = EventTracer([])
@@ -213,7 +196,9 @@ class ParseContext:
         **settings: Any,
     ) -> Any:
         config = self.config.override_config(config)
+        assert isinstance(config, ParserConfig)
         config = config.override(**settings)
+        assert isinstance(config, ParserConfig)
         self._active_config = config
         self.update_tracer()
         try:
@@ -456,6 +441,7 @@ class ParseContext:
             raise result
 
         result = self.newexcept(ruleinfo.name, FailedLeftRecursion)
+        assert isinstance(result, RuleResult | ParseException)
         self._results[key] = result
 
         initial = self.pos
@@ -478,6 +464,7 @@ class ParseContext:
         if isinstance(result, Exception):
             raise result
 
+        assert isinstance(result, RuleResult | ParseException)
         return result
 
     def _rule_call(self, ruleinfo: RuleInfo, key: MemoKey) -> RuleResult:
@@ -622,7 +609,7 @@ class ParseContext:
             )
 
     @contextmanager
-    def _try(self):
+    def _try(self) -> Any:
         self.pushstate(ast=AST(self.ast))
         self.last_node = None
         try:
@@ -644,7 +631,7 @@ class ParseContext:
         return True
 
     @contextmanager
-    def _option(self):
+    def _option(self) -> Any:
         self.last_node = None
         try:
             with self._try():
@@ -657,7 +644,7 @@ class ParseContext:
                 raise
 
     @contextmanager
-    def _choice(self):
+    def _choice(self) -> Generator[ChoiceContext, Any, Any]:
         ctx = ChoiceContext(self)
         with suppress(OptionSucceeded), self.states.cutscope():
             yield ctx

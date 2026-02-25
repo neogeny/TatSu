@@ -6,7 +6,7 @@ import functools
 from collections.abc import Callable
 from typing import Any, cast
 
-from tatsu.contexts.engine import ParseContext
+from .protocol import ParseContextProtocol
 
 from .infos import RuleInfo, RuleLike
 
@@ -125,7 +125,7 @@ class rule:
     ) -> Any:
         assert obj, f'{obj=!r} {ctx=!r}'
 
-        if isinstance(ctx, ParseContext):
+        if isinstance(ctx, ParseContextProtocol):
             return ctx._call(self.ruleinfo)
         else:
             return obj._call(self.ruleinfo)  # legacy case
