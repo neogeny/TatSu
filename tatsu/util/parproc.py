@@ -7,7 +7,7 @@ import multiprocessing
 import sys
 import time
 from collections.abc import Callable, Generator, Iterable, Mapping, Sequence
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from concurrent.futures import Executor, ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import partial
@@ -92,15 +92,15 @@ def process_payload(
 
 
 def _executor_pmap(
-    executor: Callable,
+    executorcls: type[Executor],
     process: Callable,
     tasks: Sequence[Any],
 ) -> Iterable[ParprocResult]:
     nworkers = max(1, multiprocessing.cpu_count())
-    n = nworkers * 8
+    n = nworkers * 4 * 1000
     chunks = batched(tasks, n)
-    for chunk in chunks:
-        with executor(max_workers=nworkers) as ex:
+    with executorcls() as ex:
+        for chunk in chunks:
             futures = [ex.submit(process, task) for task in chunk]
             for future in as_completed(futures):
                 yield future.result()
@@ -131,7 +131,7 @@ def _imap_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocResul
         )
 
 
-_active_pmap = _imap_pmap
+_active_pmap = _process_pmap
 
 
 def parallel_proc(

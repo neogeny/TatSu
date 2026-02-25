@@ -66,7 +66,7 @@ def try_read(filename):
     raise ValueError(f"cannot find the encoding for '{filename}'")
 
 
-def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
+def pathlist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
     ignore = ignore or ()
     base = Path(base or '.').expanduser()
 
