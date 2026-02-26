@@ -11,7 +11,6 @@ from ..infos import RuleInfo
 
 @runtime_checkable
 class ParseCtx(Protocol):
-    @property
     def states(self) -> ParseStateStack: ...
 
     def _call(self, ruleinfo: RuleInfo) -> Any: ...
