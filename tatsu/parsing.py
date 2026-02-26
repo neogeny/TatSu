@@ -8,8 +8,7 @@ from collections.abc import Callable
 from typing import Any
 
 from . import util
-from .contexts import ParseContext, isname, name, leftrec, nomemo, rule
-from .contexts import rule as tatsumasu
+from .contexts import ParseContext, isname, name, leftrec, nomemo, rule, tatsumasu
 from .exceptions import FailedRef
 
 __all__ = [
@@ -143,5 +142,6 @@ def generic_main(custom_main, parser_class, name='Unknown'):
     except KeyboardInterrupt:
         pass
 
-# HACK: do this for backwards compatibility
-util.generic_main = generic_main
+
+# HACK: backwards compatibility
+util.generic_main = generic_main  # type: ignore ty: ignore[ # unresolved-attribute]
