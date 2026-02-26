@@ -68,12 +68,12 @@ class NGParser(Parser):
         super().__init__(config=config)
 
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
-        name = name.strip('_')
-        for rulename in (f'_{name}_', f'_{name}', name):
+        namestripped = name.strip('_')
+        for rulename in (f'_{namestripped}_', f'_{namestripped}', namestripped):
             rule = getattr(self.rulesource, rulename, None)
             if callable(rule):
                 return rule
-        raise self.newexcept(f'ng {name!r}', excls=FailedRef)
+        raise self.newexcept(f'{name!r}@ng', excls=FailedRef)
 
 
 def generic_main(custom_main, parser_class, name='Unknown'):
