@@ -2,7 +2,15 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .decorator import isname, name, leftrec, nomemo, rule
+from .decorator import isname, name, leftrec, nomemo, rule, tatsumasu
 from .engine import ParseContext
 
-__all__ = ['ParseContext', 'isname', 'name', 'leftrec', 'nomemo', 'rule']
+__all__ = [
+    'ParseContext',
+    'isname',
+    'name',
+    'leftrec',
+    'nomemo',
+    'rule',
+    'tatsumasu',
+]
