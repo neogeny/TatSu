@@ -5,7 +5,7 @@ from __future__ import annotations
 import ast as stdlib_ast
 import inspect
 from collections.abc import Callable, Generator, Iterable
-from contextlib import AbstractContextManager, contextmanager, suppress
+from contextlib import contextmanager, suppress
 from typing import Any
 
 from .ctxlib import ChoiceContext, InnerExpContext
@@ -32,7 +32,7 @@ from ..exceptions import (
 from ..infos import Alert, ParseInfo, ParserConfig, RuleInfo
 from ..tokenizing import Cursor, NullCursor, NullTokenizer, Tokenizer
 from ..tokenizing.textlines import TextLinesTokenizer
-from ..util import debug, regexp, safe_name, trim
+from ..util import regexp, safe_name, trim
 from ..util.abctools import is_list, left_assoc, prune_dict, right_assoc
 from ..util.deprecate import deprecated
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
@@ -848,7 +848,6 @@ class ParseContext(ParseCtx):
         name_str = str(name)
         if self.config.ignorecase:
             name_str = name_str.upper()
-        debug(f'NAME {name_str!r} {self.keywords!r}')
         if name_str in self.keywords:
             raise self.newexcept(f'"{name_str}" is a reserved word', KeywordError)
 
