@@ -311,5 +311,6 @@ def test_cut_scope():
         ast = parse(grammar, 'a c d')
         assert ast == ('a', 'c', 'd')
 
+
 if __name__ == '__main__':
     test_cut_scope()

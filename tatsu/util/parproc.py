@@ -7,7 +7,12 @@ import multiprocessing
 import sys
 import time
 from collections.abc import Callable, Generator, Iterable, Mapping, Sequence
-from concurrent.futures import Executor, ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+from concurrent.futures import (
+    Executor,
+    ProcessPoolExecutor,
+    ThreadPoolExecutor,
+    as_completed,
+)
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import partial
