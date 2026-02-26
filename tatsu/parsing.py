@@ -144,4 +144,4 @@ def generic_main(custom_main, parser_class, name='Unknown'):
 
 
 # HACK: backwards compatibility
-util.generic_main = generic_main  # type ignore
+util.generic_main = generic_main  # type: ignore ty: ignore[ # unresolved-attribute]
