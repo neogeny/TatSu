@@ -11,7 +11,6 @@ from ...util import debug  # noqa: PGH004
 from ..engine import ParseContext
 from ..protocol import ParseCtx
 from ..infos import RuleInfo
-from .tatsumasu import tatsumasu
 
 
 def debug(*_args, **_kwargs) -> None:  # noqa: F811
@@ -28,10 +27,9 @@ def tn(obj) -> str:
 
 class rule:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.func: Callable[..., Any] | None = None
-        if func := kwargs.pop('func', None):
-            self.func = func
-        # debug(f'__init__ {fn(self.func)!r} {args=!r} {kwargs=!r}')
+        # note: we may be an instance created by self
+        self.func: Callable[..., Any] | None = kwargs.pop('func', None)
+        debug(f'__init__ {fn(self.func)!r} {args=!r} {kwargs=!r}')
         self.obj = None
         self.params = args
         self.kwparams = kwargs
@@ -46,11 +44,23 @@ class rule:
         )
         owner = owner or type(instance)
         if issubclass(owner, ParseContext) and isinstance(instance, ParseCtx):
-            # WARNING:
-            #  v5.15 <= parsers <= v5.17.1  may use @rule on methods defined in Parser
+            # NOTE:
+            #  v5.16 <= parser <= v5.17.1
+            #  may use @rule on methods defined inside MyParser
             debug(f'__get__ LEGACY {instance=!r} {owner=!r}')
-            # note: return the legacy wrapper
-            return tatsumasu(*self.params, **self.kwparams)(self.func) # pyright: ignore[reportCallIssue]
+            assert isinstance(self.func, Callable)
+
+            @functools.wraps(self.func)
+            def transition_wrapper(_ctx: Any = None) -> Any:
+                debug(
+                    f'__transition_wrapper__@__get__'
+                    f' {fn(self.func)!r} {_ctx=!r} {instance=!r} {fn(owner)=!r}'
+                )
+                assert isinstance(instance, ParseContext)
+                assert isinstance(self.func, Callable)
+                ruleinfo = RuleInfo.new(instance, self.func, self.params, self.kwparams)
+                return instance._call(ruleinfo)
+            return transition_wrapper
 
         assert isinstance(self.func, Callable)
 
@@ -61,10 +71,9 @@ class rule:
                 f' { fn(instance)=!r} {fn(owner)!r}'
             )
             assert isinstance(self.func, Callable)
+            assert isinstance(ctx, ParseContext)
             ruleinfo = RuleInfo.new(self.obj, self.func, self.params, self.kwparams)
-            assert isinstance(ctx, ParseCtx)
             return ctx._call(ruleinfo)
-
         return wrapper
 
     def __call__(self, *args, **kwargs) -> Any:
@@ -85,7 +94,7 @@ class rule:
             ctx = ctx or self.obj
             ruleinfo = RuleInfo.new(self.obj, self.func, self.params, self.kwparams)
             debug(f'__wrapper__@__call__ {tn(self.obj)=!r} {fn(ctx)=!r} {ruleinfo=!r}')
-            assert isinstance(ctx, ParseCtx)
+            assert isinstance(ctx, ParseContext)
             return ctx._call(ruleinfo)
 
         return wrapper
