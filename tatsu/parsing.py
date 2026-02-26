@@ -7,6 +7,7 @@ import sys
 from collections.abc import Callable
 from typing import Any
 
+from . import util
 from .contexts import ParseContext, isname, name, leftrec, nomemo, rule
 from .contexts import rule as tatsumasu
 from .exceptions import FailedRef
@@ -47,6 +48,8 @@ class Parser(ParseContext):
                 continue
             if name.startswith('_') and name.endswith('_'):
                 result.append(name[1:-1])
+            else:
+                result.append(name)
         return result
 
 
@@ -139,3 +142,6 @@ def generic_main(custom_main, parser_class, name='Unknown'):
         )
     except KeyboardInterrupt:
         pass
+
+# HACK: do this for backwards compatibility
+util.generic_main = generic_main
