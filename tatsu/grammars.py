@@ -13,7 +13,8 @@ from typing import Any
 from .ast import AST
 from .contexts import ParseContext
 from .exceptions import FailedRef, GrammarError
-from .infos import ParserConfig, RuleInfo
+from .parserconfig import ParserConfig
+from .contexts.infos import RuleInfo
 from .objectmodel import Node, tatsudataclass
 from .util import debug, indent, re, trim, typename
 from .util.abctools import chunks, compress_seq

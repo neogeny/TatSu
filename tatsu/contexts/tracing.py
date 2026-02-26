@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from ..exceptions import FailedLeftRecursion
-from ..infos import RuleInfo
+from .infos import RuleInfo
 from ..parserconfig import ParserConfig
 from ..tokenizing import Cursor
 from ..util import color, info

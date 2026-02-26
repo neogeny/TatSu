@@ -8,7 +8,8 @@ from copy import copy
 from typing import Any
 
 from ..ast import AST
-from ..infos import Alert, RuleInfo
+from ..infos import Alert
+from .infos import RuleInfo
 
 __all__ = ['ParseState', 'ParseStateStack']
 

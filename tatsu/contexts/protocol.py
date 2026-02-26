@@ -6,7 +6,7 @@ from typing import Any, Protocol, runtime_checkable
 
 from .state import ParseStateStack
 from ..exceptions import FailedParse
-from ..infos import RuleInfo
+from .infos import RuleInfo
 
 
 @runtime_checkable

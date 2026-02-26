@@ -9,7 +9,7 @@ from contextlib import AbstractContextManager, contextmanager, suppress
 from typing import Any
 
 from .ctxlib import ChoiceContext, InnerExpContext
-from .infos import MemoKey, RuleResult, closure
+from .infos import MemoKey, RuleInfo, RuleResult, closure
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer
 from .. import buffering
@@ -29,7 +29,7 @@ from ..exceptions import (
     ParseError,
     ParseException,
 )
-from ..infos import Alert, ParseInfo, ParserConfig, RuleInfo
+from ..infos import Alert, ParseInfo, ParserConfig
 from ..tokenizing import Cursor, NullCursor, NullTokenizer, Tokenizer
 from ..tokenizing.textlines import TextLinesTokenizer
 from ..util import debug, regexp, safe_name, trim
