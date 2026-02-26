@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import cast
 from collections.abc import Callable
 
-from tatsu.contexts.infos import RuleLike
+from ..infos import RuleLike
 
 
 def leftrec(impl: Callable) -> Callable:

@@ -11,12 +11,16 @@ from ..protocol import ParseCtx
 
 type RuleMethod = Callable[[], None]
 
-def tatsumasu(*params: Any, **kwparams: Any) -> Callable[RuleMethod, Callable[[ParseCtx], Any]]:
-    def decorator(impl: RuleMethod) -> Callable[[ParseCtx], None]:
-        @functools.wraps(impl)
+
+def tatsumasu(
+    *params: Any, **kwparams: Any
+) -> Callable[RuleMethod, Callable[[ParseCtx], Any]]:
+    def decorator(func: RuleMethod) -> Callable[[ParseCtx], Any]:
+        @functools.wraps(func)
         def wrapper(self: ParseCtx, _ctx: ParseCtx | None = None) -> Any:
-            ruleinfo = RuleInfo.new(self, impl, params, kwparams)
+            ruleinfo = RuleInfo.new(self, func, params, kwparams)
             return self._call(ruleinfo)
+
         return wrapper
 
-    return decorator
+    return decorator  # pyright: ignore[reportReturnType]
