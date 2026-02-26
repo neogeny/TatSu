@@ -310,8 +310,9 @@ class ParseContext(ParseCtx):
     def _find_semantic_action(self, name: str) -> Callable[..., Any] | None:
         if not self.semantics:
             return None
-        name = name.strip('_')
         action = getattr(self.semantics, safe_name(name), None)
+        if not action:
+            action = getattr(self.semantics, safe_name(name.strip('_')), None)
         if not callable(action):
             action = getattr(self.semantics, '_default', None)
 
