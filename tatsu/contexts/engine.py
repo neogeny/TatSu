@@ -377,7 +377,7 @@ class ParseContext(ParseCtx):
         key: MemoKey,
         memo: RuleResult | ParseException,
     ) -> RuleResult | ParseException:
-        if self._memoization() and key.ruleinfo.is_memoizable:
+        if self._memoization() and key.ruleinfo.is_memo:
             self._memos[key] = memo
         return memo
 
@@ -429,7 +429,7 @@ class ParseContext(ParseCtx):
         self.next_token(ruleinfo)
         key: MemoKey = self.memokey()
 
-        if not ruleinfo.is_leftrec:
+        if not ruleinfo.is_lrec:
             return self._rule_call(ruleinfo, key)
         elif not self.config.left_recursion:
             raise self.newexcept('Left recursion detected', excls=FailedLeftRecursion)
@@ -500,13 +500,13 @@ class ParseContext(ParseCtx):
             self.undostate()
 
     def _impl_call(self, ruleinfo: RuleInfo):
-        declared = inspect.signature(ruleinfo.impl).parameters
+        declared = inspect.signature(ruleinfo.func).parameters
         legacy_parser_maybe = len(declared) == 1
         with self.states.cutscope():
             if legacy_parser_maybe:
-                ruleinfo.impl(self)
+                ruleinfo.func(self)
             else:
-                ruleinfo.impl(ruleinfo.obj, self)
+                ruleinfo.func(ruleinfo.obj, self)
 
     def _semantics_call(self, ruleinfo: RuleInfo, node: Any) -> Any:
         if ruleinfo.is_name:

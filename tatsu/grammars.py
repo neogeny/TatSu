@@ -878,9 +878,9 @@ class Rule(Decorator):
         ruleinfo = RuleInfo(
             name=self.name,
             obj=exp,
-            impl=exp._parse,
-            is_leftrec=self.is_leftrec,
-            is_memoizable=self.is_memoizable,
+            func=exp._parse,
+            is_lrec=self.is_leftrec,
+            is_memo=self.is_memoizable,
             is_name=self.is_name,
             params=self.params,
             kwparams=self.kwparams,

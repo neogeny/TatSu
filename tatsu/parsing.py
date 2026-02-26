@@ -68,8 +68,8 @@ class NGParser(Parser):
         super().__init__(config=config)
 
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
-        namestripped = name.strip('_')
-        for rulename in (f'_{namestripped}_', f'_{namestripped}', namestripped):
+        stripped = name.strip('_')
+        for rulename in (f'_{stripped}_', f'_{stripped}', stripped):
             rule = getattr(self.rulesource, rulename, None)
             if callable(rule):
                 return rule

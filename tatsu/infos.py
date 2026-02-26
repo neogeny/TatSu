@@ -42,12 +42,30 @@ class ParseInfo(NamedTuple):
 class RuleInfo(NamedTuple):
     name: str
     obj: Any
-    impl: Callable[..., None]
-    is_leftrec: bool
-    is_memoizable: bool
+    func: Callable[..., None]
+    is_lrec: bool
+    is_memo: bool
     is_name: bool
-    params: list[Any] | tuple[Any, ...]
+    params: tuple[Any, ...]
     kwparams: dict[str, Any]
+
+    @staticmethod
+    def new(obj: Any, func: Callable, params=None, kwparams=None):
+        name = getattr(func, '__name__', '<?>')
+        is_leftrec = getattr(func, 'is_leftrec', False)
+        is_memoizable = getattr(func, 'is_memoizable', True)
+        is_name = getattr(func, 'is_name', False)
+
+        return RuleInfo(
+            name=name,
+            obj=obj,
+            func=func,
+            is_lrec=is_leftrec,
+            is_memo=is_memoizable,
+            is_name=is_name,
+            params=params or (),
+            kwparams=kwparams or {},
+        )
 
     def is_token_rule(self):
         return self.name.lstrip('_')[:1].isupper()

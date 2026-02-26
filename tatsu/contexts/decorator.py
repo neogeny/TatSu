@@ -9,8 +9,10 @@ from typing import Any, cast
 from .protocol import ParseCtx
 
 from .infos import RuleInfo, RuleLike
+from ..util import debug
 
 
+# note: decorator
 def leftrec(impl: Callable) -> Callable:
     over: RuleLike = cast(RuleLike, impl)
     over.is_leftrec = True
@@ -18,114 +20,58 @@ def leftrec(impl: Callable) -> Callable:
     return impl
 
 
+# note: decorator
 def nomemo(impl: Callable) -> Callable:
     over: RuleLike = cast(RuleLike, impl)
     over.is_memoizable = False
     return impl
 
 
+# note: decorator
 def isname(impl: Callable) -> Callable:
     over: RuleLike = cast(RuleLike, impl)
     over.is_name = True
     return impl
 
 
+# note: decorator
 def name(impl: Callable) -> Callable:
     over: RuleLike = cast(RuleLike, impl)
     over.is_name = True
     return impl
 
 
+# note: decorator
 class rule:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.impl: Callable[..., Any] | None = None
-        self.params: tuple[Any, ...] = ()
-        self.kwparams: dict[str, Any] = {}
-        self.ruleinfo: RuleInfo = RuleInfo(
-            name='<none>',
-            obj=None,
-            impl=lambda: None,
-            is_leftrec=False,
-            is_memoizable=True,
-            is_name=False,
-            params=(),
-            kwparams={},
-        )
-
-        # If the first argument is a callable and no other args exist,
-        # it was used as @rule. Otherwise, it was @rule(...).
-        if len(args) == 1 and callable(args[0]) and not kwargs:
-            self.impl = args[0]
-            return
-
+        # allways used as rule()
+        if not __debug__:
+            raise RuntimeError('WANT DEBUG')
+        debug(f'__init__ {args=!r} {kwargs=!r}')
+        self.obj = None
+        self.func = None
         self.params = args
         self.kwparams = kwargs
+        self.owner = None
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        # If impl is None, we are in the @rule(...) phase
-        if self.impl is None:
-            impl: Callable[..., Any] = args[0]
-            new = rule(*self.params, **self.kwparams)
-            new.impl = impl
-            functools.update_wrapper(new, impl)
-            # Return a new instance with the implementation bound
-            return new
+    def __get__(self, obj: Any, owner: Any = None) -> Any:
+        debug(f'__get__ {obj=!r} {owner=!r}')
+        self.obj = owner or obj
         return self
 
-        @functools.wraps(self.impl)
-        def wrapper(obj: Any = None, ctx: Any = None) -> Any:
-            return self._run(obj, ctx, args, kwargs)
-        return wrapper
+    def __call__(self, func: Callable) -> Any:
+        debug(f'__call__ {self.obj=} {func=}')
+        self.func = func
 
-        # Otherwise, this is the actual function call
-        # return self._run(None, None, args, kwargs)
+        @functools.wraps(func)
+        def wrapper(obj: Any, ctx: ParseCtx | None = None) -> Any:
+            ruleinfo = RuleInfo.new(obj, func, self.params, self.kwparams)
+            debug(f'__wrapper__ {obj=!r} {ctx=!r} {ruleinfo=!r}')
+            if isinstance(ctx, ParseCtx):
+                return ctx._call(ruleinfo)
 
-    def __get__(self, obj: Any, objtype: Any = None) -> Any:
-        if obj is None:
-            return self
-
-        # Return a wrapper that binds 'self' (obj)
-        if not callable(self.impl):
-            return self
-
-        self.ruleinfo = self._ruleinfo(obj, self.impl)
-
-        # return self._run
-        @functools.wraps(self.impl)
-        def wrapper(obj: Any, ctx: Any = None) -> Any:
-            return self._run(obj, ctx, (), {})
+            # note:
+            #   methods for rules used to be declared in the parser object
+            return obj._call(ruleinfo)  # legacy case
 
         return wrapper
-
-    def _ruleinfo(self, obj: Any, impl: Callable[..., Any]) -> RuleInfo:
-        name = impl.__name__  # type: ignore
-        is_leftrec = getattr(impl, 'is_leftrec', False)
-        is_memoizable = getattr(impl, 'is_memoizable', True)
-        is_name = getattr(impl, 'is_name', False)
-
-        return RuleInfo(
-            name=name,
-            obj=obj,
-            impl=impl,
-            is_leftrec=is_leftrec,
-            is_memoizable=is_memoizable,
-            is_name=is_name,
-            params=self.params,
-            kwparams=self.kwparams,
-        )
-
-    def _run(
-        self,
-        obj: Any,
-        ctx: Any = None,
-        _args: tuple[Any, ...] | None = None,
-        _kwargs: dict[str, Any] | None = None,
-        *args: Any,
-        **kwargs: Any,
-    ) -> Any:
-        assert obj, f'{obj=!r} {ctx=!r}'
-
-        if isinstance(ctx, ParseCtx):
-            return ctx._call(self.ruleinfo)
-        else:
-            return obj._call(self.ruleinfo)  # legacy case
