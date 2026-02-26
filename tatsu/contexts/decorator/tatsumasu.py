@@ -9,13 +9,11 @@ from typing import Any
 from ..infos import RuleInfo
 from ..protocol import ParseCtx
 
-type RuleMethod = Callable[[], None]
-
 
 def tatsumasu(
     *params: Any, **kwparams: Any
-) -> Callable[RuleMethod, Callable[[ParseCtx], Any]]:
-    def decorator(func: RuleMethod) -> Callable[[ParseCtx], Any]:
+) -> Callable[Callable[[], None], Callable[[ParseCtx], Any]]:
+    def decorator(func: Callable[[], None]) -> Callable[[ParseCtx], Any]:
         @functools.wraps(func)
         def wrapper(self: ParseCtx, _ctx: ParseCtx | None = None) -> Any:
             ruleinfo = RuleInfo.new(self, func, params, kwparams)
