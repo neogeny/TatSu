@@ -143,5 +143,5 @@ def generic_main(custom_main, parser_class, name='Unknown'):
         pass
 
 
-# HACK: do this for backwards compatibility
-util.generic_main = generic_main
+# HACK: backwards compatibility
+util.generic_main = generic_main  # type ignore
