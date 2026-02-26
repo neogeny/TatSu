@@ -61,37 +61,32 @@ class rule:
         self.kwparams = kwargs
         self.owner = None
 
-    def __get__(self, obj: Any, owner: Any = None) -> Any:
-        self.obj = obj
+    def __get__(self, instance: Any, owner: Any = None) -> Any:
+        self.obj = instance
 
         debug(
-            f'__get__ {fn(self.func)=!r} {obj=!r} {owner=!r}'
+            f'__get__ {fn(self.func)=!r} {instance=!r} {owner=!r}'
             f'  {tn(self.obj)=!r} '
         )
-        if issubclass(owner, ParseCtx) and isinstance(obj, ParseCtx):
-            debug(f'__get__ LEGACY {obj=!r} {owner=!r}')
+        if issubclass(owner, ParseCtx) and isinstance(instance, ParseCtx):
+            debug(f'__get__ LEGACY {instance=!r} {owner=!r}')
             @functools.wraps(self.func)
-            def wrapper(selfobj: Any = None) -> Any:
+            def wrapper(_ctx: Any = None) -> Any:
                 debug(
-                    f'__legacy_wrapper__@__get__ {fn(self.func)!r} {selfobj=!r}'
-                    f' {obj=!r} {fn(owner)=!r}'
+                    f'__legacy_wrapper__@__get__' 
+                    f' {fn(self.func)!r} {_ctx=!r} {instance=!r} {fn(owner)=!r}'
                 )
-                if selfobj is None:
-                    assert isinstance(obj, ParseCtx)
-                    ruleinfo = RuleInfo.new(obj, self.func, self.params, self.kwparams)
-                    return obj._call(ruleinfo)
-
-                assert isinstance(selfobj, ParseCtx)
-                ruleinfo = RuleInfo.new(selfobj, self.func, self.params, self.kwparams)
-                return selfobj._call(ruleinfo)
+                assert isinstance(instance, ParseCtx)
+                ruleinfo = RuleInfo.new(instance, self.func, self.params, self.kwparams)
+                return instance._call(ruleinfo)
 
             return wrapper
 
         @functools.wraps(self.func)
         def wrapper(ctx: ParseCtx) -> Any:
             debug(
-                f'__wrapper__@__get__ {fn(self.func)!r} {obj=!r} {tn(ctx)=!r}' 
-                f' {fn(obj)=!r} {fn(owner)!r}'
+                f'__wrapper__@__get__ {fn(self.func)!r} {instance=!r} {tn(ctx)=!r}' 
+                f' {fn(instance)=!r} {fn(owner)!r}'
             )
             ruleinfo = RuleInfo.new(self.obj, self.func, self.params, self.kwparams)
             assert isinstance(ctx, ParseCtx)
