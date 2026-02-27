@@ -256,6 +256,10 @@ class ParseContext(ParseCtx):
         # NOTE: called by generated parsers
         return self.states.define(keys, addkeys)
 
+    def define(self, keys: list[str], addkeys: list[str] | None = None) -> None:
+        # NOTE: called by generated parsers
+        return self.states.define(keys, addkeys)
+
     def setname(self, name: str) -> None:
         # NOTE: called by generated parsers
         self.states.setname(name)
@@ -298,6 +302,9 @@ class ParseContext(ParseCtx):
 
         if self.config.prune_memos_on_cut:
             prune(self._memos, self.pos)
+
+    def cut(self) -> None:
+        self._cut()
 
     def _memoization(self) -> bool:
         if not self.config.memoization:
@@ -534,6 +541,12 @@ class ParseContext(ParseCtx):
         self.states.append(token)
         return token
 
+    def token(self, token: str) -> str:
+        return self._token(token)
+
+    def constant(self, literal: Any) -> Any:
+        return self._constant(literal)
+
     def _constant(self, literal: Any) -> Any:
         self.next_token()
         self.tracer.trace_match(self.cursor, literal)
@@ -599,6 +612,9 @@ class ParseContext(ParseCtx):
         self.states.append(token)
         return token
 
+    def pattern(self, pattern: str) -> Any:
+        return self._pattern(pattern)
+
     def eof(self) -> bool:
         return self.cursor.atend()
 
@@ -612,6 +628,9 @@ class ParseContext(ParseCtx):
                 'Expecting end of text',
                 excls=FailedExpectingEndOfText,
             )
+
+    def eofcheck(self) -> None:
+        self._check_eof()
 
     @contextmanager
     def _try(self) -> Any:
@@ -649,11 +668,16 @@ class ParseContext(ParseCtx):
                 raise
 
     @contextmanager
-    def _choice(self) -> Generator[ChoiceContext, Any, Any]:
+    def choice(self) -> Generator[ChoiceContext, Any, Any]:
         ctx = ChoiceContext(self)
         with suppress(OptionSucceeded), self.states.cutscope():
             yield ctx
             ctx.run()
+
+    @contextmanager
+    def _choice(self) -> Generator[ChoiceContext, Any, Any]:
+        with self.choice() as ch:
+            yield ch
 
     @contextmanager
     def _optional(self) -> Any:
@@ -661,7 +685,12 @@ class ParseContext(ParseCtx):
             yield
 
     @contextmanager
-    def _group(self) -> Any:
+    def optional(self) -> Any:
+        with self._choice(), self._option(), self.states.cutscope():
+            yield
+
+    @contextmanager
+    def group(self) -> Any:
         self.pushstate()
         try:
             with self.states.cutscope():
@@ -672,7 +701,12 @@ class ParseContext(ParseCtx):
             raise
 
     @contextmanager
-    def _if(self) -> Any:
+    def _group(self) -> Any:
+        with self.group():
+            yield
+
+    @contextmanager
+    def if_(self) -> Any:
         self.pushstate()
         self.lookahead += 1
         try:
@@ -682,9 +716,9 @@ class ParseContext(ParseCtx):
             self.lookahead -= 1
 
     @contextmanager
-    def _ifnot(self) -> Any:
+    def ifnot_(self) -> Any:
         try:
-            with self._if():
+            with self.if_():
                 yield
         except ParseException:
             pass
@@ -692,12 +726,32 @@ class ParseContext(ParseCtx):
             raise self.newexcept('', excls=FailedLookahead)
 
     @contextmanager
-    def _nameset(self, name: str) -> Any:
+    def _if(self) -> Any:
+        with self.if_():
+            yield
+
+    @contextmanager
+    def _ifnot(self) -> Any:
+        with self.ifnot_():
+            yield
+
+    @contextmanager
+    def _setname(self, name: str) -> Any:
         yield
         self.setname(name)
 
     @contextmanager
-    def _nameadd(self, name: str) -> Any:
+    def nameset(self, name: str) -> Any:
+        yield
+        self.setname(name)
+
+    @contextmanager
+    def _addname(self, name: str) -> Any:
+        yield
+        self.addname(name)
+
+    @contextmanager
+    def nameadd(self, name: str) -> Any:
         yield
         self.addname(name)
 
@@ -736,13 +790,13 @@ class ParseContext(ParseCtx):
                 return
 
     @contextmanager
-    def _loopopt(self) -> Any:
+    def loopopt(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._closure(cl._exp_value())
 
     @contextmanager
-    def _loopplus(self) -> Any:
+    def loopplus(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._positive_closure(cl._exp_value())
@@ -791,13 +845,13 @@ class ParseContext(ParseCtx):
         return cst
 
     @contextmanager
-    def _gatheropt(self) -> Any:
+    def gatheropt(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._gather(cl._exp_value(), cl._sep_value())
 
     @contextmanager
-    def _gatherplus(self) -> Any:
+    def gatherplus(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._positive_gather(cl._exp_value(), cl._sep_value())
@@ -809,13 +863,13 @@ class ParseContext(ParseCtx):
         return self._positive_closure(exp, sep=sep, omitsep=True)
 
     @contextmanager
-    def _joinopt(self) -> Any:
+    def joinopt(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._join(cl._exp_value(), cl._sep_value())
 
     @contextmanager
-    def _joinplus(self) -> Any:
+    def joinplus(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._positive_join(cl._exp_value(), cl._sep_value())
@@ -827,13 +881,13 @@ class ParseContext(ParseCtx):
         return self._positive_closure(exp, sep=sep)
 
     @contextmanager
-    def _joinleft(self) -> Any:
+    def joinleft(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._left_join(cl._exp_value(), cl._sep_value())
 
     @contextmanager
-    def _joinright(self) -> Any:
+    def joinright(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._right_join(cl._exp_value(), cl._sep_value())
@@ -859,6 +913,9 @@ class ParseContext(ParseCtx):
     def _void(self) -> None:
         self.last_node = None
 
+    def void(self) -> None:
+        self.last_node = None
+
     def _dot(self) -> Any:
         c = self._next()
         if c is None:
@@ -874,10 +931,16 @@ class ParseContext(ParseCtx):
         yield cl
         self._skip_to(cl._exp_value())
 
+    @contextmanager
+    def skipto(self) -> Any:
+        cl = InnerExpContext(self)
+        yield cl
+        self._skip_to(cl._exp_value())
+
     def _skip_to(self, exp: Callable[[], Any]) -> None:
         while not self.eof():
             try:
-                with self._if():
+                with self.if_():
                     exp()
             except FailedParse:
                 pass

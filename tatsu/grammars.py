@@ -382,7 +382,7 @@ class Pattern(Model):
 @tatsudataclass
 class Lookahead(Decorator):
     def _parse(self, ctx):
-        with ctx._if():
+        with ctx.if_():
             return super()._parse(ctx)
 
     def _pretty(self, lean=False):
@@ -395,7 +395,7 @@ class Lookahead(Decorator):
 @tatsudataclass
 class NegativeLookahead(Decorator):
     def _parse(self, ctx):
-        with ctx._ifnot():
+        with ctx.ifnot_():
             return super()._parse(ctx)
 
     def _pretty(self, lean=False):

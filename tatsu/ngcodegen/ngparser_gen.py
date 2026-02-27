@@ -221,14 +221,10 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'ctx._pattern({regexp(pattern.pattern)})')
 
     def walk_Lookahead(self, lookahead: grammars.Lookahead):
-        self.print('with ctx._if():')
-        with self.indent():
-            self.walk(lookahead.exp)
+        self._gen_decor(ParseCtx.if_, lookahead.exp)
 
     def walk_NegativeLookahead(self, lookahead: grammars.NegativeLookahead):
-        self.print('with ctx._ifnot():')
-        with self.indent():
-            self.walk(lookahead.exp)
+        self._gen_decor(ParseCtx.ifnot_, lookahead.exp)
 
     def walk_Sequence(self, seq: grammars.Sequence):
         self._gen_defines_declaration(seq)
@@ -239,7 +235,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self.walk(choice.options[0])
             return
 
-        self.print('with ctx._choice() as ch:')
+        self._gen_decor(ParseCtx.choice, var='ch')
         with self.indent():
             self.walk(choice.options)
 
@@ -263,43 +259,43 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print()
 
     def walk_Optional(self, optional: grammars.Optional):
-        self._gen_decor(ParseCtx._optional, optional.exp)
+        self._gen_decor(ParseCtx.optional, optional.exp)
 
     def walk_EmptyClosure(self, _closure: grammars.EmptyClosure):
         self.print('ctx._empty_closure()')
 
     def walk_Closure(self, closure: grammars.Closure):
-        self._gen_decor(ParseCtx._loopopt, closure.exp, var='cl')
+        self._gen_decor(ParseCtx.loopopt, closure.exp, var='cl')
 
     def walk_PositiveClosure(self, closure: grammars.PositiveClosure):
-        self._gen_decor(ParseCtx._loopplus, closure.exp, var='cl')
+        self._gen_decor(ParseCtx.loopplus, closure.exp, var='cl')
 
     def walk_Join(self, join: grammars.Join):
-        self._gen_decor(ParseCtx._joinopt, join.exp, sep=join.sep, var='cl')
+        self._gen_decor(ParseCtx.joinopt, join.exp, sep=join.sep, var='cl')
 
     def walk_PositiveJoin(self, join: grammars.PositiveJoin):
-        self._gen_decor(ParseCtx._joinplus, join.exp, sep=join.sep, var='cl')
+        self._gen_decor(ParseCtx.joinplus, join.exp, sep=join.sep, var='cl')
 
     def walk_LeftJoin(self, join: grammars.LeftJoin):
-        self._gen_decor(ParseCtx._joinleft, join.exp, sep=join.sep, var='cl')
+        self._gen_decor(ParseCtx.joinleft, join.exp, sep=join.sep, var='cl')
 
     def walk_RightJoin(self, join: grammars.RightJoin):
-        self._gen_decor(ParseCtx._joinright, join.exp, sep=join.sep, var='cl')
+        self._gen_decor(ParseCtx.joinright, join.exp, sep=join.sep, var='cl')
 
     def walk_Gather(self, gather: grammars.Gather):
-        self._gen_decor(ParseCtx._gatheropt, gather.exp, sep=gather.sep, var='g')
+        self._gen_decor(ParseCtx.gatheropt, gather.exp, sep=gather.sep, var='g')
 
     def walk_PositiveGather(self, gather: grammars.PositiveGather):
-        self._gen_decor(ParseCtx._gatherplus, gather.exp, sep=gather.sep, var='g')
+        self._gen_decor(ParseCtx.gatherplus, gather.exp, sep=gather.sep, var='g')
 
     def walk_SkipTo(self, skipto: grammars.SkipTo):
-        self._gen_decor(ParseCtx._skipto, skipto.exp)
+        self._gen_decor(ParseCtx.skipto, skipto.exp)
 
     def walk_Named(self, named: grammars.Named):
-        self._gen_decor(ParseCtx._nameset, named.exp, arg=repr(named.name))
+        self._gen_decor(ParseCtx.nameset, named.exp, arg=repr(named.name))
 
     def walk_NamedList(self, named: grammars.Named):
-        self._gen_decor(ParseCtx._nameadd, named.exp, arg=repr(named.name))
+        self._gen_decor(ParseCtx.nameadd, named.exp, arg=repr(named.name))
 
     def walk_Override(self, override: grammars.Override):
         self.walk_Named(override)
@@ -482,7 +478,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def _gen_decor(
         self,
         mgr: Callable[..., Any],
-        exp: grammars.Model,
+        exp: grammars.Model | None = None,
         sep: grammars.Model | None = None,
         var: str = '',
         arg: str = '',
@@ -498,7 +494,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             if sep:
                 self._gen_anon_block(sep, decor=f'{var}.sep', echeck=echeck)
                 self.print()
-            if var:
+            if exp and var:
                 self._gen_anon_block(exp, decor=f'{var}.exp', echeck=echeck)
-            else:
+            elif exp:
                 self.walk(exp)
