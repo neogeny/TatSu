@@ -14,7 +14,7 @@ from ..protocol import ParseCtx
 from ..infos import RuleInfo
 
 
-def _debug(*_args, **_kwargs) -> None:  # noqa: F811
+def debug(*_args, **_kwargs) -> None:  # noqa: F811
     pass
 
 
