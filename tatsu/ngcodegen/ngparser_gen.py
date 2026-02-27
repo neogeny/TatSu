@@ -40,7 +40,7 @@ HEADER = """\
 
     import tatsu.decorators as tatsu
     from tatsu.buffering import Buffer
-    from tatsu.contexts import ParseCtx
+    from tatsu.contexts import Ctx
     from tatsu.infos import ParserConfig
     from tatsu.parsing import NGParser, generic_main
     from tatsu.tokenizing.textlines import TextLinesTokenizer
@@ -162,12 +162,13 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         nomemo = '\n@tatsu.nomemo' if not rule.is_memoizable and not leftrec else ''
         isname = '\n@tatsu.name' if rule.is_name else ''
 
+        name = safe_name(rule.name)
         self.print(f"""
                 @tatsu.rule({params})\
                 {leftrec}\
                 {nomemo}\
                 {isname}\
-                \ndef {rule.name}(self, ctx: ParseCtx):
+                \ndef {name}(self, ctx: Ctx):
             """)
         with self.indent():
             self.print(self.walk(rule.exp))
@@ -176,7 +177,8 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.walk_Rule(rule)
 
     def walk_Call(self, call: grammars.Call):
-        self.print(f'self.{call.name}(ctx)')
+        name = safe_name(call.name)
+        self.print(f'self.{name}(ctx)')
 
     def walk_RuleInclude(self, include: grammars.RuleInclude):
         self.walk(include.rule.exp)

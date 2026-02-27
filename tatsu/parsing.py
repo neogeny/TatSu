@@ -12,7 +12,7 @@ from .contexts import ParseContext, isname, name, leftrec, nomemo, rule, tatsuma
 from .exceptions import FailedRef
 
 from .parserconfig import ParserConfig
-from .util import debug, typename
+from .util import debug, safe_name, typename
 
 __all__ = [
     'NGParser',
@@ -35,7 +35,7 @@ def debug(*_args, **_kwargs) -> None:  # noqa: F811
 class Parser(ParseContext):
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
         for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:
-            action = getattr(self, rulename, None)
+            action = getattr(self, safe_name(rulename), None)
             if callable(action):
                 return action
         raise self.newexcept(f'{name!r}@{typename(self)}', excls=FailedRef)
@@ -68,7 +68,7 @@ class NGParser(Parser):
 
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
         for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:
-            action = getattr(self.rulesource, rulename, None)
+            action = getattr(self.rulesource, safe_name(rulename), None)
             if callable(action):
                 return action
         raise self.newexcept(f'{name}', excls=FailedRef)
