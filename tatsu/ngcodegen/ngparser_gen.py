@@ -31,7 +31,7 @@ HEADER = """\
     #  Any changes you make to it will be overwritten the next time
     #  the file is generated.
 
-    # ruff: noqa: RUF100, C405, COM812, I001, F401, PLR1702, PLC2801, SIM117
+    # ruff: noqa: RUF100, C405, COM812, I001, F401, F811, PLR1702, PLC2801, SIM117
     # ruff: noqa: PL2401, PLC2402, PLC2403
     # E303
     # fmt: off
@@ -167,7 +167,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 {leftrec}\
                 {nomemo}\
                 {isname}\
-                \ndef _{rule.name}_(self, ctx: ParseContext):
+                \ndef {rule.name}(self, ctx: ParseContext):
             """)
         with self.indent():
             self.print(self.walk(rule.exp))
@@ -176,7 +176,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.walk_Rule(rule)
 
     def walk_Call(self, call: grammars.Call):
-        self.print(f'self._{call.name}_(ctx)')
+        self.print(f'self.{call.name}(ctx)')
 
     def walk_RuleInclude(self, include: grammars.RuleInclude):
         self.walk(include.rule.exp)

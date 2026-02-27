@@ -76,7 +76,7 @@ class rule:
         @functools.wraps(func)
         def wrapper(ctx: ParseCtx) -> Any:
             debug(
-                f'__wrapper__@__get__ {selfid=} {fn(func)!r}' 
+                f'__wrapper__@__get__ {selfid=} {fn(func)!r}'
                 f' {tn(instance)=!r} { tn(ctx)=!r}'
                 f' {params=!r} {kwparams=!r}'
             )
