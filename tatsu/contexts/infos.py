@@ -58,6 +58,19 @@ class RuleInfo(NamedTuple):
             kwparams=kwparams or {},
         )
 
+    @staticmethod
+    def bind(ri: RuleInfo, newinstance: Any):
+        return RuleInfo(
+            name=ri.name,
+            instance=newinstance,
+            func=ri.func,
+            is_lrec=ri.is_lrec,
+            is_memo=ri.is_memo,
+            is_name=ri.is_name,
+            params=ri.params or (),
+            kwparams=ri.kwparams or {},
+        )
+
     def is_token_rule(self):
         return self.name.lstrip('_')[:1].isupper()
 
