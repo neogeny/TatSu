@@ -16,7 +16,6 @@ from .util import debug, safe_name, typename
 
 __all__ = [
     'Parser',
-    'Parser',
     'generic_main',
     'isname',
     'name',
@@ -71,12 +70,12 @@ class Parser(ParseContext):
 
     def rule_list(self) -> list[str]:
         source = self.rulesource or type(self)
+
         def isdunder(name: str) -> bool:
             return name.startswith('__') and name.endswith('__')
 
         methods = inspect.getmembers(source, predicate=inspect.ismethod)
         return [m[0] for m in methods if not isdunder(m[0])]
-
 
 
 def generic_main(custom_main, parser_class, name='Unknown'):
