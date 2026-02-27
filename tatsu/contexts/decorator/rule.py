@@ -10,7 +10,7 @@ from collections.abc import Callable
 
 from ...util import debug  # noqa: PGH004
 from ..engine import ParseContext
-from ..protocol import ParseCtx
+from ..protocol import Ctx
 from ..infos import RuleInfo
 
 
@@ -56,57 +56,46 @@ class rule:
         kwparams = copy(self.kwparams) or {}
         assert isinstance(func, Callable)
 
-        if issubclass(owner, ParseContext) and isinstance(instance, ParseCtx):
+        ruleinfo = RuleInfo.new(instance, func, params, kwparams)
+        if issubclass(owner, ParseContext) and isinstance(instance, Ctx):
             # NOTE:
             #  v5.16 <= parser <= v5.17.1 may use @rule on methods
             #  defined inside a ParseContext
             debug(f'__get__ LEGACY {instance=!r} {owner=!r}')
-            return self._rules_in_ctx(id(self), instance, func, params, kwparams)
+            return self._rules_in_ctx(id(self), ruleinfo)
         else:
-            return self._rules_in_obj(id(self), instance, func, params, kwparams)
+            return self._rules_in_obj(id(self), ruleinfo)
 
     @staticmethod
-    def _rules_in_obj(
-        selfid,
-        instance: Any,
-        func: Callable,
-        params: tuple[Any, ...],
-        kwparams: dict[str, Any],
-    ) -> Any:
-        @functools.wraps(func)
-        def wrapper(ctx: ParseCtx) -> Any:
+    def _rules_in_obj(selfid, ruleinfo: RuleInfo) -> Any:
+        @functools.wraps(ruleinfo.func)
+        def wrapper(ctx: Ctx) -> Any:
+            ri = ruleinfo
             debug(
-                f'__wrapper__@__get__ {selfid=} {fn(func)!r}'
-                f' {tn(instance)=!r} { tn(ctx)=!r}'
-                f' {params=!r} {kwparams=!r}'
+                f'__wrapper__@__get__ {selfid=} {fn(ri.func)!r}'
+                f' {tn(ri.instance)=!r} { tn(ctx)=!r}'
+                f' {ri.params=!r} {ri.kwparams=!r}'
             )
-            assert isinstance(func, Callable)
-            assert isinstance(ctx, ParseContext)
-            ruleinfo = RuleInfo.new(instance, func, params, kwparams)
+            assert isinstance(ri.func, Callable)
+            assert isinstance(ctx, Ctx)
             return ctx._call(ruleinfo)
 
         return wrapper
 
     @staticmethod
-    def _rules_in_ctx(
-        selfid,
-        instance: Any,
-        func: Callable,
-        params: tuple[Any, ...],
-        kwparams: dict[str, Any],
-    ) -> Any:
-        assert isinstance(func, Callable)
+    def _rules_in_ctx(selfid, ruleinfo: RuleInfo) -> Any:
+        ri = ruleinfo
+        assert isinstance(ri.func, Callable)
 
-        @functools.wraps(func)
+        @functools.wraps(ri.func)
         def transition_wrapper(_ctx: Any = None) -> Any:
             debug(
                 f'__rules_in_ctx_wrapper__@__get__ {selfid=}'
-                f' {fn(func)!r} {_ctx=!r} {instance=!r}'
-                f' {params=!r} {kwparams=!r}'
+                f' {fn(ri.func)!r} {_ctx=!r} {ri.instance=!r}'
+                f' {ri.params=!r} {ri.kwparams=!r}'
             )
-            assert isinstance(instance, ParseContext)
-            assert isinstance(func, Callable)
-            ruleinfo = RuleInfo.new(instance, func, params, kwparams)
-            return instance._call(ruleinfo)
+            assert isinstance(ri.instance, ParseContext)
+            assert isinstance(ri.func, Callable)
+            return ri.instance._call(ruleinfo)
 
         return transition_wrapper

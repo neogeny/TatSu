@@ -16,13 +16,11 @@
 
 from __future__ import annotations
 
+import tatsu.decorators as tatsu
 from tatsu.buffering import Buffer
-from tatsu.contexts import ParseContext
+from tatsu.contexts import Ctx
 from tatsu.infos import ParserConfig
-from tatsu.parsing import (
-    Parser, NGParser,
-    leftrec, nomemo, isname, name, generic_main, rule
-)
+from tatsu.parsing import NGParser, generic_main
 from tatsu.tokenizing.textlines import TextLinesTokenizer
 
 __all__ = [
@@ -56,6 +54,7 @@ class TatSuBootstrapTokenizer(TextLinesTokenizer):
             keywords=KEYWORDS,
             start='start',
         )
+        assert isinstance(config, ParserConfig)
         config = config.override(**settings)
 
         super().__init__(text, config=config)
@@ -80,6 +79,7 @@ class TatSuBootstrapBuffer(Buffer):  # NOTE: backwards compatibility
             keywords=KEYWORDS,
             start='start',
         )
+        assert isinstance(config, ParserConfig)
         config = config.override(**settings)
 
         super().__init__(text, config=config)
@@ -89,6 +89,7 @@ class TatSuBootstrapParser(NGParser):
     def __init__(self, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(config, **settings)
         rulessource = TatSuBootstrapRules()
+        assert isinstance(config, ParserConfig)
         tokenizercls = config.tokenizercls or TatSuBootstrapTokenizer
 
         super().__init__(rulessource, config=config, tokenizercls=tokenizercls)
@@ -108,98 +109,100 @@ class TatSuBootstrapRules:
             keywords=KEYWORDS,
             start='start',
         )
+        assert isinstance(config, ParserConfig)
         config = config.override(**settings)
         self._config = config
 
     @property
     def config(self) -> ParserConfig:
+        assert isinstance(self._config, ParserConfig)
         return self._config
 
-    @rule()
-    def start(self, ctx: ParseContext):
+    @tatsu.rule()
+    def start(self, ctx: Ctx):
         self.grammar(ctx)
 
-    @rule('Grammar')
-    def grammar(self, ctx: ParseContext):
-        ctx._define(['title'], ['directives', 'keywords', 'rules'])
-        with ctx._setname('title'):
-            ctx._constant('TATSU')
-        with ctx._zeroormore() as cl:
+    @tatsu.rule('Grammar')
+    def grammar(self, ctx: Ctx):
+        ctx.define(['title'], ['directives', 'keywords', 'rules'])
+        with ctx.nameset('title'):
+            ctx.constant('TATSU')
+        with ctx.loopopt() as cl:
             @cl.exp
             def _():
-                with ctx._choice() as ch:
+                with ctx.choice() as ch:
                     @ch.option
                     def _():
-                        with ctx._addname('directives'):
+                        with ctx.nameadd('directives'):
                             self.directive(ctx)
 
                     @ch.option
                     def _():
-                        with ctx._addname('keywords'):
+                        with ctx.nameadd('keywords'):
                             self.keyword(ctx)
 
                     ch.expecting('<directive>', '<keyword>')
-        with ctx._addname('rules'):
+        with ctx.nameadd('rules'):
             self.rule(ctx)
-        with ctx._zeroormore() as cl:
+        with ctx.loopopt() as cl:
             @cl.exp
             def _():
-                with ctx._choice() as ch:
+                with ctx.choice() as ch:
                     @ch.option
                     def _():
-                        with ctx._addname('rules'):
+                        with ctx.nameadd('rules'):
                             self.rule(ctx)
 
                     @ch.option
                     def _():
-                        with ctx._addname('keywords'):
+                        with ctx.nameadd('keywords'):
                             self.keyword(ctx)
 
                     ch.expecting('<keyword>', '<rule>')
-        ctx._check_eof()
+        ctx.eofcheck()
 
-    @rule()
-    def directive(self, ctx: ParseContext):
-        ctx._define(['name', 'value'], [])
-        ctx._token('@@')
-        with ctx._ifnot():
-            ctx._token('keyword')
-        ctx._cut()
-        with ctx._group():
-            with ctx._choice() as ch:
+    @tatsu.rule()
+    def directive(self, ctx: Ctx):
+        ctx.define(['name', 'value'], [])
+        ctx.token('@@')
+        with ctx.ifnot_():
+            ctx.token('keyword')
+        ctx.cut()
+        with ctx.group():
+            with ctx.choice() as ch:
                 @ch.option
                 def _():
-                    ctx._define(['name', 'value'], [])
-                    with ctx._setname('name'):
-                        with ctx._group():
-                            with ctx._choice() as ch:
+                    ctx.define(['name', 'value'], [])
+                    with ctx.nameset('name'):
+                        with ctx.group():
+                            with ctx.choice() as ch:
                                 @ch.option
                                 def _():
-                                    ctx._token('comments')
+                                    ctx.token('comments')
 
                                 @ch.option
                                 def _():
-                                    ctx._token('eol_comments')
+                                    ctx.token('eol_comments')
 
                                 ch.expecting('comments', 'eol_comments')
-                    ctx._cut()
-                    ctx._token('::')
-                    ctx._cut()
-                    with ctx._setname('value'):
+                    ctx.cut()
+                    ctx.token('::')
+                    ctx.cut()
+                    with ctx.nameset('value'):
                         self.regex(ctx)
 
                 @ch.option
                 def _():
-                    ctx._define(['name', 'value'], [])
-                    with ctx._setname('name'):
-                        with ctx._group():
-                            ctx._token('whitespace')
-                    ctx._cut()
-                    ctx._token('::')
-                    ctx._cut()
-                    with ctx._setname('value'):
-                        with ctx._group():
-                            with ctx._choice() as ch:
+                    ctx.define(['name', 'value'], [])
+                    with ctx.nameset('name'):
+                        with ctx.group():
+                            ctx.token('whitespace')
+                    ctx.cut()
+                    ctx.token('::')
+                    ctx.cut()
+                    with ctx.nameset('value'):
+                        with ctx.group():
+                            with ctx.choice() as ch:
                                 @ch.option
                                 def _():
                                     self.regex(ctx)
@@ -210,15 +213,15 @@ class TatSuBootstrapRules:
 
                                 @ch.option
                                 def _():
-                                    ctx._token('None')
+                                    ctx.token('None')
 
                                 @ch.option
                                 def _():
-                                    ctx._token('False')
+                                    ctx.token('False')
 
                                 @ch.option
                                 def _():
-                                    ctx._constant('None')
+                                    ctx.constant('None')
 
                                 ch.expecting(
                                     '<regex>',
@@ -229,29 +232,29 @@ class TatSuBootstrapRules:
 
                 @ch.option
                 def _():
-                    ctx._define(['name', 'value'], [])
-                    with ctx._setname('name'):
-                        with ctx._group():
-                            with ctx._choice() as ch:
+                    ctx.define(['name', 'value'], [])
+                    with ctx.nameset('name'):
+                        with ctx.group():
+                            with ctx.choice() as ch:
                                 @ch.option
                                 def _():
-                                    ctx._token('nameguard')
+                                    ctx.token('nameguard')
 
                                 @ch.option
                                 def _():
-                                    ctx._token('ignorecase')
+                                    ctx.token('ignorecase')
 
                                 @ch.option
                                 def _():
-                                    ctx._token('left_recursion')
+                                    ctx.token('left_recursion')
 
                                 @ch.option
                                 def _():
-                                    ctx._token('parseinfo')
+                                    ctx.token('parseinfo')
 
                                 @ch.option
                                 def _():
-                                    ctx._token('memoization')
+                                    ctx.token('memoization')
 
                                 ch.expecting(
                                     'ignorecase',
@@ -260,46 +263,46 @@ class TatSuBootstrapRules:
                                     'nameguard',
                                     'parseinfo'
                                 )
-                    ctx._cut()
-                    with ctx._group():
-                        with ctx._choice() as ch:
+                    ctx.cut()
+                    with ctx.group():
+                        with ctx.choice() as ch:
                             @ch.option
                             def _():
-                                ctx._define(['value'], [])
-                                ctx._token('::')
-                                ctx._cut()
-                                with ctx._setname('value'):
+                                ctx.define(['value'], [])
+                                ctx.token('::')
+                                ctx.cut()
+                                with ctx.nameset('value'):
                                     self.boolean(ctx)
 
                             @ch.option
                             def _():
-                                with ctx._setname('value'):
-                                    ctx._constant(True)
+                                with ctx.nameset('value'):
+                                    ctx.constant(True)
 
                             ch.expecting('::')
 
                 @ch.option
                 def _():
-                    ctx._define(['name', 'value'], [])
-                    with ctx._setname('name'):
-                        with ctx._group():
-                            ctx._token('grammar')
-                    ctx._cut()
-                    ctx._token('::')
-                    ctx._cut()
-                    with ctx._setname('value'):
+                    ctx.define(['name', 'value'], [])
+                    with ctx.nameset('name'):
+                        with ctx.group():
+                            ctx.token('grammar')
+                    ctx.cut()
+                    ctx.token('::')
+                    ctx.cut()
+                    with ctx.nameset('value'):
                         self.word(ctx)
 
                 @ch.option
                 def _():
-                    ctx._define(['name', 'value'], [])
-                    with ctx._setname('name'):
-                        with ctx._group():
-                            ctx._token('namechars')
-                    ctx._cut()
-                    ctx._token('::')
-                    ctx._cut()
-                    with ctx._setname('value'):
+                    ctx.define(['name', 'value'], [])
+                    with ctx.nameset('name'):
+                        with ctx.group():
+                            ctx.token('namechars')
+                    ctx.cut()
+                    ctx.token('::')
+                    ctx.cut()
+                    with ctx.nameset('value'):
                         self.string(ctx)
 
                 ch.expecting(
@@ -314,27 +317,27 @@ class TatSuBootstrapRules:
                     'parseinfo',
                     'whitespace'
                 )
-        ctx._cut()
+        ctx.cut()
 
-    @rule()
-    def keywords(self, ctx: ParseContext):
-        with ctx._oneormore() as cl:
+    @tatsu.rule()
+    def keywords(self, ctx: Ctx):
+        with ctx.loopplus() as cl:
             @cl.exp
             def _():
                 self.keywords(ctx)
 
-    @rule()
-    def keyword(self, ctx: ParseContext):
-        ctx._token('@@keyword')
-        ctx._cut()
-        ctx._token('::')
-        ctx._cut()
-        with ctx._zeroormore() as cl:
+    @tatsu.rule()
+    def keyword(self, ctx: Ctx):
+        ctx.token('@@keyword')
+        ctx.cut()
+        ctx.token('::')
+        ctx.cut()
+        with ctx.loopopt() as cl:
             @cl.exp
             def _():
-                with ctx._addname('@'):
-                    with ctx._group():
-                        with ctx._choice() as ch:
+                with ctx.nameadd('@'):
+                    with ctx.group():
+                        with ctx.choice() as ch:
                             @ch.option
                             def _():
                                 self.word(ctx)
@@ -344,243 +347,243 @@ class TatSuBootstrapRules:
                                 self.string(ctx)
 
                             ch.expecting('<string>', '<word>')
-                with ctx._ifnot():
-                    with ctx._group():
-                        with ctx._choice() as ch:
+                with ctx.ifnot_():
+                    with ctx.group():
+                        with ctx.choice() as ch:
                             @ch.option
                             def _():
-                                ctx._token(':')
+                                ctx.token(':')
 
                             @ch.option
                             def _():
-                                ctx._token('=')
+                                ctx.token('=')
 
                             ch.expecting(':', '=')
 
-    @rule()
-    def the_params_at_last(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule()
+    def the_params_at_last(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
-                with ctx._setname('kwparams'):
+                with ctx.nameset('kwparams'):
                     self.kwparams(ctx)
 
             @ch.option
             def _():
-                ctx._define(['kwparams', 'params'], [])
-                with ctx._setname('params'):
+                ctx.define(['kwparams', 'params'], [])
+                with ctx.nameset('params'):
                     self.params(ctx)
-                ctx._token(',')
-                ctx._cut()
-                with ctx._setname('kwparams'):
+                ctx.token(',')
+                ctx.cut()
+                with ctx.nameset('kwparams'):
                     self.kwparams(ctx)
 
             @ch.option
             def _():
-                with ctx._setname('params'):
+                with ctx.nameset('params'):
                     self.params(ctx)
 
             ch.expecting('<kwparams>', '<params>')
 
-    @rule()
-    def paramdef(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule()
+    def paramdef(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
-                ctx._define(['kwparams', 'params'], [])
-                ctx._token('[')
-                ctx._cut()
-                with ctx._choice() as ch:
+                ctx.define(['kwparams', 'params'], [])
+                ctx.token('[')
+                ctx.cut()
+                with ctx.choice() as ch:
                     @ch.option
                     def _():
-                        with ctx._setname('kwparams'):
+                        with ctx.nameset('kwparams'):
                             self.kwparams(ctx)
 
                     @ch.option
                     def _():
-                        ctx._define(['kwparams', 'params'], [])
-                        with ctx._setname('params'):
+                        ctx.define(['kwparams', 'params'], [])
+                        with ctx.nameset('params'):
                             self.params(ctx)
-                        ctx._token(',')
-                        ctx._cut()
-                        with ctx._setname('kwparams'):
+                        ctx.token(',')
+                        ctx.cut()
+                        with ctx.nameset('kwparams'):
                             self.kwparams(ctx)
 
                     @ch.option
                     def _():
-                        with ctx._setname('params'):
+                        with ctx.nameset('params'):
                             self.params(ctx)
 
                     ch.expecting('<kwparams>', '<params>')
-                ctx._token(']')
+                ctx.token(']')
 
             @ch.option
             def _():
-                ctx._define(['kwparams', 'params'], [])
-                ctx._token('(')
-                ctx._cut()
-                with ctx._choice() as ch:
+                ctx.define(['kwparams', 'params'], [])
+                ctx.token('(')
+                ctx.cut()
+                with ctx.choice() as ch:
                     @ch.option
                     def _():
-                        with ctx._setname('kwparams'):
+                        with ctx.nameset('kwparams'):
                             self.kwparams(ctx)
 
                     @ch.option
                     def _():
-                        ctx._define(['kwparams', 'params'], [])
-                        with ctx._setname('params'):
+                        ctx.define(['kwparams', 'params'], [])
+                        with ctx.nameset('params'):
                             self.params(ctx)
-                        ctx._token(',')
-                        ctx._cut()
-                        with ctx._setname('kwparams'):
+                        ctx.token(',')
+                        ctx.cut()
+                        with ctx.nameset('kwparams'):
                             self.kwparams(ctx)
 
                     @ch.option
                     def _():
-                        with ctx._setname('params'):
+                        with ctx.nameset('params'):
                             self.params(ctx)
 
                     ch.expecting('<kwparams>', '<params>')
-                ctx._token(')')
+                ctx.token(')')
 
             @ch.option
             def _():
-                ctx._define(['params'], [])
-                ctx._token('::')
-                ctx._cut()
-                with ctx._setname('params'):
+                ctx.define(['params'], [])
+                ctx.token('::')
+                ctx.cut()
+                with ctx.nameset('params'):
                     self.params(ctx)
 
             ch.expecting('(', '::', '[')
 
-    @rule('Rule')
-    def rule(self, ctx: ParseContext):
-        ctx._define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
-        with ctx._setname('decorators'):
-            with ctx._zeroormore() as cl:
+    @tatsu.rule('Rule')
+    def rule(self, ctx: Ctx):
+        ctx.define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
+        with ctx.nameset('decorators'):
+            with ctx.loopopt() as cl:
                 @cl.exp
                 def _():
                     self.decorator(ctx)
-        with ctx._setname('name'):
+        with ctx.nameset('name'):
             self.name(ctx)
-        ctx._cut()
-        with ctx._optional():
-            with ctx._choice() as ch:
+        ctx.cut()
+        with ctx.optional():
+            with ctx.choice() as ch:
                 @ch.option
                 def _():
-                    ctx._define(['kwparams', 'params'], [])
-                    ctx._token('[')
-                    ctx._cut()
-                    with ctx._choice() as ch:
+                    ctx.define(['kwparams', 'params'], [])
+                    ctx.token('[')
+                    ctx.cut()
+                    with ctx.choice() as ch:
                         @ch.option
                         def _():
-                            with ctx._setname('kwparams'):
+                            with ctx.nameset('kwparams'):
                                 self.kwparams(ctx)
 
                         @ch.option
                         def _():
-                            ctx._define(['kwparams', 'params'], [])
-                            with ctx._setname('params'):
+                            ctx.define(['kwparams', 'params'], [])
+                            with ctx.nameset('params'):
                                 self.params(ctx)
-                            ctx._token(',')
-                            ctx._cut()
-                            with ctx._setname('kwparams'):
+                            ctx.token(',')
+                            ctx.cut()
+                            with ctx.nameset('kwparams'):
                                 self.kwparams(ctx)
 
                         @ch.option
                         def _():
-                            with ctx._setname('params'):
+                            with ctx.nameset('params'):
                                 self.params(ctx)
 
                         ch.expecting('<kwparams>', '<params>')
-                    ctx._token(']')
+                    ctx.token(']')
 
                 @ch.option
                 def _():
-                    ctx._define(['kwparams', 'params'], [])
-                    ctx._token('(')
-                    ctx._cut()
-                    with ctx._choice() as ch:
+                    ctx.define(['kwparams', 'params'], [])
+                    ctx.token('(')
+                    ctx.cut()
+                    with ctx.choice() as ch:
                         @ch.option
                         def _():
-                            with ctx._setname('kwparams'):
+                            with ctx.nameset('kwparams'):
                                 self.kwparams(ctx)
 
                         @ch.option
                         def _():
-                            ctx._define(['kwparams', 'params'], [])
-                            with ctx._setname('params'):
+                            ctx.define(['kwparams', 'params'], [])
+                            with ctx.nameset('params'):
                                 self.params(ctx)
-                            ctx._token(',')
-                            ctx._cut()
-                            with ctx._setname('kwparams'):
+                            ctx.token(',')
+                            ctx.cut()
+                            with ctx.nameset('kwparams'):
                                 self.kwparams(ctx)
 
                         @ch.option
                         def _():
-                            with ctx._setname('params'):
+                            with ctx.nameset('params'):
                                 self.params(ctx)
 
                         ch.expecting('<kwparams>', '<params>')
-                    ctx._token(')')
+                    ctx.token(')')
 
                 @ch.option
                 def _():
-                    ctx._define(['params'], [])
-                    ctx._token('::')
-                    ctx._cut()
-                    with ctx._setname('params'):
+                    ctx.define(['params'], [])
+                    ctx.token('::')
+                    ctx.cut()
+                    with ctx.nameset('params'):
                         self.params(ctx)
 
                 ch.expecting('(', '::', '[')
-        with ctx._optional():
-            ctx._define(['base'], [])
-            ctx._token('<')
-            ctx._cut()
-            with ctx._setname('base'):
+        with ctx.optional():
+            ctx.define(['base'], [])
+            ctx.token('<')
+            ctx.cut()
+            with ctx.nameset('base'):
                 self.known_name(ctx)
-        with ctx._group():
-            with ctx._choice() as ch:
+        with ctx.group():
+            with ctx.choice() as ch:
                 @ch.option
                 def _():
-                    ctx._token('=')
+                    ctx.token('=')
 
                 @ch.option
                 def _():
-                    ctx._token(':=')
+                    ctx.token(':=')
 
                 @ch.option
                 def _():
-                    ctx._token(':')
+                    ctx.token(':')
 
                 ch.expecting(':', ':=', '=')
-        ctx._cut()
-        with ctx._setname('exp'):
+        ctx.cut()
+        with ctx.nameset('exp'):
             self.expre(ctx)
         self.ENDRULE(ctx)
-        ctx._cut()
+        ctx.cut()
 
-    @rule()
-    def ENDRULE(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule()
+    def ENDRULE(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
-                with ctx._if():
+                with ctx.if_():
                     self.UNINDENTED(ctx)
 
             @ch.option
             def _():
                 self.EMPTYLINE(ctx)
-                with ctx._optional():
-                    ctx._token(';')
+                with ctx.optional():
+                    ctx.token(';')
 
             @ch.option
             def _():
-                ctx._check_eof()
+                ctx.eofcheck()
 
             @ch.option
             def _():
-                ctx._token(';')
+                ctx.token(';')
 
             ch.expecting(
                 '(?:\\s*(?:\\r?\\n|\\r)){2,}',
@@ -590,58 +593,58 @@ class TatSuBootstrapRules:
                 '<UNINDENTED>'
             )
 
-    @rule()
-    def UNINDENTED(self, ctx: ParseContext):
-        ctx._pattern(r'(?=\s*(?:\r?\n|\r)[^\s])')
+    @tatsu.rule()
+    def UNINDENTED(self, ctx: Ctx):
+        ctx.pattern(r'(?=\s*(?:\r?\n|\r)[^\s])')
 
-    @rule()
-    def EMPTYLINE(self, ctx: ParseContext):
-        ctx._pattern(r'(?:\s*(?:\r?\n|\r)){2,}')
+    @tatsu.rule()
+    def EMPTYLINE(self, ctx: Ctx):
+        ctx.pattern(r'(?:\s*(?:\r?\n|\r)){2,}')
 
-    @rule()
-    def decorator(self, ctx: ParseContext):
-        ctx._token('@')
-        with ctx._ifnot():
-            ctx._token('@')
-        ctx._cut()
-        with ctx._setname('@'):
-            with ctx._group():
-                with ctx._choice() as ch:
+    @tatsu.rule()
+    def decorator(self, ctx: Ctx):
+        ctx.token('@')
+        with ctx.ifnot_():
+            ctx.token('@')
+        ctx.cut()
+        with ctx.nameset('@'):
+            with ctx.group():
+                with ctx.choice() as ch:
                     @ch.option
                     def _():
-                        ctx._token('override')
-
-                    @ch.option
-                    def _():
-                        ctx._token('name')
+                        ctx.token('override')
 
                     @ch.option
                     def _():
-                        ctx._token('isname')
+                        ctx.token('name')
 
                     @ch.option
                     def _():
-                        ctx._token('nomemo')
+                        ctx.token('isname')
+
+                    @ch.option
+                    def _():
+                        ctx.token('nomemo')
 
                     ch.expecting('isname', 'name', 'nomemo', 'override')
 
-    @rule()
-    def params(self, ctx: ParseContext):
-        with ctx._addname('@'):
+    @tatsu.rule()
+    def params(self, ctx: Ctx):
+        with ctx.nameadd('@'):
             self.first_param(ctx)
-        with ctx._zeroormore() as cl:
+        with ctx.loopopt() as cl:
             @cl.exp
             def _():
-                ctx._token(',')
-                with ctx._addname('@'):
+                ctx.token(',')
+                with ctx.nameadd('@'):
                     self.literal(ctx)
-                with ctx._ifnot():
-                    ctx._token('=')
-                ctx._cut()
+                with ctx.ifnot_():
+                    ctx.token('=')
+                ctx.cut()
 
-    @rule()
-    def first_param(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule()
+    def first_param(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
                 self.path(ctx)
@@ -664,29 +667,29 @@ class TatSuBootstrapRules:
                 '<word>'
             )
 
-    @rule()
-    def kwparams(self, ctx: ParseContext):
-        with ctx._gatheroneormore() as g:
+    @tatsu.rule()
+    def kwparams(self, ctx: Ctx):
+        with ctx.gatherplus() as g:
             @g.sep
             def _():
-                ctx._token(',')
+                ctx.token(',')
 
             @g.exp
             def _():
                 self.pair(ctx)
 
-    @rule()
-    def pair(self, ctx: ParseContext):
-        with ctx._addname('@'):
+    @tatsu.rule()
+    def pair(self, ctx: Ctx):
+        with ctx.nameadd('@'):
             self.word(ctx)
-        ctx._token('=')
-        ctx._cut()
-        with ctx._addname('@'):
+        ctx.token('=')
+        ctx.cut()
+        with ctx.nameadd('@'):
             self.literal(ctx)
 
-    @rule()
-    def expre(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule()
+    def expre(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
                 self.choice(ctx)
@@ -707,39 +710,39 @@ class TatSuBootstrapRules:
                 '|'
             )
 
-    @rule('Choice')
-    def choice(self, ctx: ParseContext):
-        with ctx._optional():
-            ctx._token('|')
-            ctx._cut()
-        with ctx._addname('@'):
+    @tatsu.rule('Choice')
+    def choice(self, ctx: Ctx):
+        with ctx.optional():
+            ctx.token('|')
+            ctx.cut()
+        with ctx.nameadd('@'):
             self.option(ctx)
-        with ctx._oneormore() as cl:
+        with ctx.loopplus() as cl:
             @cl.exp
             def _():
-                ctx._token('|')
-                ctx._cut()
-                with ctx._addname('@'):
+                ctx.token('|')
+                ctx.cut()
+                with ctx.nameadd('@'):
                     self.option(ctx)
 
-    @rule('Option')
-    def option(self, ctx: ParseContext):
-        with ctx._setname('@'):
+    @tatsu.rule('Option')
+    def option(self, ctx: Ctx):
+        with ctx.nameset('@'):
             self.sequence(ctx)
 
-    @rule('Sequence')
-    def sequence(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule('Sequence')
+    def sequence(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
-                with ctx._if():
-                    with ctx._group():
+                with ctx.if_():
+                    with ctx.group():
                         self.element(ctx)
-                        ctx._token(',')
-                with ctx._gatheroneormore() as g:
+                        ctx.token(',')
+                with ctx.gatherplus() as g:
                     @g.sep
                     def _():
-                        ctx._token(',')
+                        ctx.token(',')
 
                     @g.exp
                     def _():
@@ -747,10 +750,10 @@ class TatSuBootstrapRules:
 
             @ch.option
             def _():
-                with ctx._oneormore() as cl:
+                with ctx.loopplus() as cl:
                     @cl.exp
                     def _():
-                        with ctx._ifnot():
+                        with ctx.ifnot_():
                             self.ENDRULE(ctx)
                         self.element(ctx)
 
@@ -768,9 +771,9 @@ class TatSuBootstrapRules:
                 '<term>'
             )
 
-    @rule()
-    def element(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule()
+    def element(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
                 self.rule_include(ctx)
@@ -815,16 +818,16 @@ class TatSuBootstrapRules:
                 '>'
             )
 
-    @rule('RuleInclude')
-    def rule_include(self, ctx: ParseContext):
-        ctx._token('>')
-        ctx._cut()
-        with ctx._setname('@'):
+    @tatsu.rule('RuleInclude')
+    def rule_include(self, ctx: Ctx):
+        ctx.token('>')
+        ctx.cut()
+        with ctx.nameset('@'):
             self.known_name(ctx)
 
-    @rule()
-    def named(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule()
+    def named(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
                 self.named_list(ctx)
@@ -835,29 +838,29 @@ class TatSuBootstrapRules:
 
             ch.expecting('<name>', '<named_list>', '<named_single>')
 
-    @rule('NamedList')
-    def named_list(self, ctx: ParseContext):
-        ctx._define(['exp', 'name'], [])
-        with ctx._setname('name'):
+    @tatsu.rule('NamedList')
+    def named_list(self, ctx: Ctx):
+        ctx.define(['exp', 'name'], [])
+        with ctx.nameset('name'):
             self.name(ctx)
-        ctx._token('+:')
-        ctx._cut()
-        with ctx._setname('exp'):
+        ctx.token('+:')
+        ctx.cut()
+        with ctx.nameset('exp'):
             self.term(ctx)
 
-    @rule('Named')
-    def named_single(self, ctx: ParseContext):
-        ctx._define(['exp', 'name'], [])
-        with ctx._setname('name'):
+    @tatsu.rule('Named')
+    def named_single(self, ctx: Ctx):
+        ctx.define(['exp', 'name'], [])
+        with ctx.nameset('name'):
             self.name(ctx)
-        ctx._token(':')
-        ctx._cut()
-        with ctx._setname('exp'):
+        ctx.token(':')
+        ctx.cut()
+        with ctx.nameset('exp'):
             self.term(ctx)
 
-    @rule()
-    def override(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule()
+    def override(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
                 self.override_list(ctx)
@@ -879,30 +882,30 @@ class TatSuBootstrapRules:
                 '@:'
             )
 
-    @rule('OverrideList')
-    def override_list(self, ctx: ParseContext):
-        ctx._token('@+:')
-        ctx._cut()
-        with ctx._setname('@'):
+    @tatsu.rule('OverrideList')
+    def override_list(self, ctx: Ctx):
+        ctx.token('@+:')
+        ctx.cut()
+        with ctx.nameset('@'):
             self.term(ctx)
 
-    @rule('Override')
-    def override_single(self, ctx: ParseContext):
-        ctx._token('@:')
-        ctx._cut()
-        with ctx._setname('@'):
+    @tatsu.rule('Override')
+    def override_single(self, ctx: Ctx):
+        ctx.token('@:')
+        ctx.cut()
+        with ctx.nameset('@'):
             self.term(ctx)
 
-    @rule('Override')
-    def override_single_deprecated(self, ctx: ParseContext):
-        ctx._token('@')
-        ctx._cut()
-        with ctx._setname('@'):
+    @tatsu.rule('Override')
+    def override_single_deprecated(self, ctx: Ctx):
+        ctx.token('@')
+        ctx.cut()
+        with ctx.nameset('@'):
             self.term(ctx)
 
-    @rule()
-    def term(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule()
+    def term(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
                 self.void(ctx)
@@ -999,24 +1002,24 @@ class TatSuBootstrapRules:
                 '~'
             )
 
-    @rule('Group')
-    def group(self, ctx: ParseContext):
-        ctx._token('(')
-        ctx._cut()
-        with ctx._setname('@'):
+    @tatsu.rule('Group')
+    def group(self, ctx: Ctx):
+        ctx.token('(')
+        ctx.cut()
+        with ctx.nameset('@'):
             self.expre(ctx)
-        ctx._token(')')
-        ctx._cut()
+        ctx.token(')')
+        ctx.cut()
 
-    @rule()
-    def gather(self, ctx: ParseContext):
-        with ctx._if():
-            with ctx._group():
+    @tatsu.rule()
+    def gather(self, ctx: Ctx):
+        with ctx.if_():
+            with ctx.group():
                 self.atom(ctx)
-                ctx._token('.{')
-        ctx._cut()
-        with ctx._group():
-            with ctx._choice() as ch:
+                ctx.token('.{')
+        ctx.cut()
+        with ctx.group():
+            with ctx.choice() as ch:
                 @ch.option
                 def _():
                     self.positive_gather(ctx)
@@ -1027,52 +1030,52 @@ class TatSuBootstrapRules:
 
                 ch.expecting('<normal_gather>', '<positive_gather>')
 
-    @rule('PositiveGather')
-    def positive_gather(self, ctx: ParseContext):
-        ctx._define(['exp', 'sep'], [])
-        with ctx._setname('sep'):
+    @tatsu.rule('PositiveGather')
+    def positive_gather(self, ctx: Ctx):
+        ctx.define(['exp', 'sep'], [])
+        with ctx.nameset('sep'):
             self.atom(ctx)
-        ctx._token('.{')
-        with ctx._setname('exp'):
+        ctx.token('.{')
+        with ctx.nameset('exp'):
             self.expre(ctx)
-        ctx._token('}')
-        with ctx._group():
-            with ctx._choice() as ch:
+        ctx.token('}')
+        with ctx.group():
+            with ctx.choice() as ch:
                 @ch.option
                 def _():
-                    ctx._token('+')
+                    ctx.token('+')
 
                 @ch.option
                 def _():
-                    ctx._token('-')
+                    ctx.token('-')
 
                 ch.expecting('+', '-')
-        ctx._cut()
+        ctx.cut()
 
-    @rule('Gather')
-    def normal_gather(self, ctx: ParseContext):
-        ctx._define(['exp', 'sep'], [])
-        with ctx._setname('sep'):
+    @tatsu.rule('Gather')
+    def normal_gather(self, ctx: Ctx):
+        ctx.define(['exp', 'sep'], [])
+        with ctx.nameset('sep'):
             self.atom(ctx)
-        ctx._token('.{')
-        ctx._cut()
-        with ctx._setname('exp'):
+        ctx.token('.{')
+        ctx.cut()
+        with ctx.nameset('exp'):
             self.expre(ctx)
-        ctx._token('}')
-        with ctx._optional():
-            ctx._token('*')
-            ctx._cut()
-        ctx._cut()
+        ctx.token('}')
+        with ctx.optional():
+            ctx.token('*')
+            ctx.cut()
+        ctx.cut()
 
-    @rule()
-    def join(self, ctx: ParseContext):
-        with ctx._if():
-            with ctx._group():
+    @tatsu.rule()
+    def join(self, ctx: Ctx):
+        with ctx.if_():
+            with ctx.group():
                 self.atom(ctx)
-                ctx._token('%{')
-        ctx._cut()
-        with ctx._group():
-            with ctx._choice() as ch:
+                ctx.token('%{')
+        ctx.cut()
+        with ctx.group():
+            with ctx.choice() as ch:
                 @ch.option
                 def _():
                     self.positive_join(ctx)
@@ -1083,117 +1086,117 @@ class TatSuBootstrapRules:
 
                 ch.expecting('<normal_join>', '<positive_join>')
 
-    @rule('PositiveJoin')
-    def positive_join(self, ctx: ParseContext):
-        ctx._define(['exp', 'sep'], [])
-        with ctx._setname('sep'):
+    @tatsu.rule('PositiveJoin')
+    def positive_join(self, ctx: Ctx):
+        ctx.define(['exp', 'sep'], [])
+        with ctx.nameset('sep'):
             self.atom(ctx)
-        ctx._token('%{')
-        with ctx._setname('exp'):
+        ctx.token('%{')
+        with ctx.nameset('exp'):
             self.expre(ctx)
-        ctx._token('}')
-        with ctx._group():
-            with ctx._choice() as ch:
+        ctx.token('}')
+        with ctx.group():
+            with ctx.choice() as ch:
                 @ch.option
                 def _():
-                    ctx._token('+')
+                    ctx.token('+')
 
                 @ch.option
                 def _():
-                    ctx._token('-')
+                    ctx.token('-')
 
                 ch.expecting('+', '-')
-        ctx._cut()
+        ctx.cut()
 
-    @rule('Join')
-    def normal_join(self, ctx: ParseContext):
-        ctx._define(['exp', 'sep'], [])
-        with ctx._setname('sep'):
+    @tatsu.rule('Join')
+    def normal_join(self, ctx: Ctx):
+        ctx.define(['exp', 'sep'], [])
+        with ctx.nameset('sep'):
             self.atom(ctx)
-        ctx._token('%{')
-        ctx._cut()
-        with ctx._setname('exp'):
+        ctx.token('%{')
+        ctx.cut()
+        with ctx.nameset('exp'):
             self.expre(ctx)
-        ctx._token('}')
-        with ctx._optional():
-            ctx._token('*')
-            ctx._cut()
-        ctx._cut()
+        ctx.token('}')
+        with ctx.optional():
+            ctx.token('*')
+            ctx.cut()
+        ctx.cut()
 
-    @rule('LeftJoin')
-    def left_join(self, ctx: ParseContext):
-        ctx._define(['exp', 'sep'], [])
-        with ctx._setname('sep'):
+    @tatsu.rule('LeftJoin')
+    def left_join(self, ctx: Ctx):
+        ctx.define(['exp', 'sep'], [])
+        with ctx.nameset('sep'):
             self.atom(ctx)
-        ctx._token('<{')
-        ctx._cut()
-        with ctx._setname('exp'):
+        ctx.token('<{')
+        ctx.cut()
+        with ctx.nameset('exp'):
             self.expre(ctx)
-        ctx._token('}')
-        with ctx._group():
-            with ctx._choice() as ch:
+        ctx.token('}')
+        with ctx.group():
+            with ctx.choice() as ch:
                 @ch.option
                 def _():
-                    ctx._token('+')
+                    ctx.token('+')
 
                 @ch.option
                 def _():
-                    ctx._token('-')
+                    ctx.token('-')
 
                 ch.expecting('+', '-')
-        ctx._cut()
+        ctx.cut()
 
-    @rule('RightJoin')
-    def right_join(self, ctx: ParseContext):
-        ctx._define(['exp', 'sep'], [])
-        with ctx._setname('sep'):
+    @tatsu.rule('RightJoin')
+    def right_join(self, ctx: Ctx):
+        ctx.define(['exp', 'sep'], [])
+        with ctx.nameset('sep'):
             self.atom(ctx)
-        ctx._token('>{')
-        ctx._cut()
-        with ctx._setname('exp'):
+        ctx.token('>{')
+        ctx.cut()
+        with ctx.nameset('exp'):
             self.expre(ctx)
-        ctx._token('}')
-        with ctx._group():
-            with ctx._choice() as ch:
+        ctx.token('}')
+        with ctx.group():
+            with ctx.choice() as ch:
                 @ch.option
                 def _():
-                    ctx._token('+')
+                    ctx.token('+')
 
                 @ch.option
                 def _():
-                    ctx._token('-')
+                    ctx.token('-')
 
                 ch.expecting('+', '-')
-        ctx._cut()
+        ctx.cut()
 
-    @rule('PositiveClosure')
-    def positive_closure(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule('PositiveClosure')
+    def positive_closure(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
-                ctx._token('{')
-                with ctx._setname('@'):
+                ctx.token('{')
+                with ctx.nameset('@'):
                     self.expre(ctx)
-                ctx._token('}')
-                with ctx._group():
-                    with ctx._choice() as ch:
+                ctx.token('}')
+                with ctx.group():
+                    with ctx.choice() as ch:
                         @ch.option
                         def _():
-                            ctx._token('-')
+                            ctx.token('-')
 
                         @ch.option
                         def _():
-                            ctx._token('+')
+                            ctx.token('+')
 
                         ch.expecting('+', '-')
-                ctx._cut()
+                ctx.cut()
 
             @ch.option
             def _():
-                with ctx._setname('@'):
+                with ctx.nameset('@'):
                     self.atom(ctx)
-                ctx._token('+')
-                ctx._cut()
+                ctx.token('+')
+                ctx.cut()
 
             ch.expecting(
                 '(',
@@ -1209,25 +1212,25 @@ class TatSuBootstrapRules:
                 '{'
             )
 
-    @rule('Closure')
-    def closure(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule('Closure')
+    def closure(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
-                ctx._token('{')
-                with ctx._setname('@'):
+                ctx.token('{')
+                with ctx.nameset('@'):
                     self.expre(ctx)
-                ctx._token('}')
-                with ctx._optional():
-                    ctx._token('*')
-                ctx._cut()
+                ctx.token('}')
+                with ctx.optional():
+                    ctx.token('*')
+                ctx.cut()
 
             @ch.option
             def _():
-                with ctx._setname('@'):
+                with ctx.nameset('@'):
                     self.atom(ctx)
-                ctx._token('*')
-                ctx._cut()
+                ctx.token('*')
+                ctx.cut()
 
             ch.expecting(
                 '(',
@@ -1243,47 +1246,47 @@ class TatSuBootstrapRules:
                 '{'
             )
 
-    @rule('EmptyClosure')
-    def empty_closure(self, ctx: ParseContext):
-        ctx._token('{}')
-        ctx._cut()
-        with ctx._setname('@'):
-            ctx._void()
+    @tatsu.rule('EmptyClosure')
+    def empty_closure(self, ctx: Ctx):
+        ctx.token('{}')
+        ctx.cut()
+        with ctx.nameset('@'):
+            ctx.void()
 
-    @rule('Optional')
-    def optional(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule('Optional')
+    def optional(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
-                ctx._token('[')
-                ctx._cut()
-                with ctx._setname('@'):
+                ctx.token('[')
+                ctx.cut()
+                with ctx.nameset('@'):
                     self.expre(ctx)
-                ctx._token(']')
-                ctx._cut()
+                ctx.token(']')
+                ctx.cut()
 
             @ch.option
             def _():
-                with ctx._setname('@'):
+                with ctx.nameset('@'):
                     self.atom(ctx)
-                with ctx._ifnot():
-                    with ctx._group():
-                        with ctx._choice() as ch:
+                with ctx.ifnot_():
+                    with ctx.group():
+                        with ctx.choice() as ch:
                             @ch.option
                             def _():
-                                ctx._token('?"')
+                                ctx.token('?"')
 
                             @ch.option
                             def _():
-                                ctx._token("?'")
+                                ctx.token("?'")
 
                             @ch.option
                             def _():
-                                ctx._token('?/')
+                                ctx.token('?/')
 
                             ch.expecting("?'", '?"', '?/')
-                ctx._token('?')
-                ctx._cut()
+                ctx.token('?')
+                ctx.cut()
 
             ch.expecting(
                 '(',
@@ -1299,30 +1302,30 @@ class TatSuBootstrapRules:
                 '['
             )
 
-    @rule('Lookahead')
-    def lookahead(self, ctx: ParseContext):
-        ctx._token('&')
-        ctx._cut()
-        with ctx._setname('@'):
+    @tatsu.rule('Lookahead')
+    def lookahead(self, ctx: Ctx):
+        ctx.token('&')
+        ctx.cut()
+        with ctx.nameset('@'):
             self.term(ctx)
 
-    @rule('NegativeLookahead')
-    def negative_lookahead(self, ctx: ParseContext):
-        ctx._token('!')
-        ctx._cut()
-        with ctx._setname('@'):
+    @tatsu.rule('NegativeLookahead')
+    def negative_lookahead(self, ctx: Ctx):
+        ctx.token('!')
+        ctx.cut()
+        with ctx.nameset('@'):
             self.term(ctx)
 
-    @rule('SkipTo')
-    def skip_to(self, ctx: ParseContext):
-        ctx._token('->')
-        ctx._cut()
-        with ctx._setname('@'):
+    @tatsu.rule('SkipTo')
+    def skip_to(self, ctx: Ctx):
+        ctx.token('->')
+        ctx.cut()
+        with ctx.nameset('@'):
             self.term(ctx)
 
-    @rule()
-    def atom(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule()
+    def atom(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
                 self.group(ctx)
@@ -1375,73 +1378,73 @@ class TatSuBootstrapRules:
                 '`'
             )
 
-    @rule('Call')
-    def call(self, ctx: ParseContext):
+    @tatsu.rule('Call')
+    def call(self, ctx: Ctx):
         self.word(ctx)
 
-    @rule('Void')
-    def void(self, ctx: ParseContext):
-        ctx._token('()')
-        ctx._cut()
+    @tatsu.rule('Void')
+    def void(self, ctx: Ctx):
+        ctx.token('()')
+        ctx.cut()
 
-    @rule('Fail')
-    def fail(self, ctx: ParseContext):
-        ctx._token('!()')
-        ctx._cut()
+    @tatsu.rule('Fail')
+    def fail(self, ctx: Ctx):
+        ctx.token('!()')
+        ctx.cut()
 
-    @rule('Cut')
-    def cut(self, ctx: ParseContext):
-        ctx._token('~')
-        ctx._cut()
+    @tatsu.rule('Cut')
+    def cut(self, ctx: Ctx):
+        ctx.token('~')
+        ctx.cut()
 
-    @rule('Cut')
-    def cut_deprecated(self, ctx: ParseContext):
-        ctx._token('>>')
-        ctx._cut()
+    @tatsu.rule('Cut')
+    def cut_deprecated(self, ctx: Ctx):
+        ctx.token('>>')
+        ctx.cut()
 
-    @rule()
-    def known_name(self, ctx: ParseContext):
+    @tatsu.rule()
+    def known_name(self, ctx: Ctx):
         self.name(ctx)
-        ctx._cut()
+        ctx.cut()
 
-    @rule()
-    def name(self, ctx: ParseContext):
+    @tatsu.rule()
+    def name(self, ctx: Ctx):
         self.word(ctx)
 
-    @rule('Constant')
-    def constant(self, ctx: ParseContext):
-        with ctx._if():
-            ctx._token('`')
-        with ctx._group():
-            with ctx._choice() as ch:
+    @tatsu.rule('Constant')
+    def constant(self, ctx: Ctx):
+        with ctx.if_():
+            ctx.token('`')
+        with ctx.group():
+            with ctx.choice() as ch:
                 @ch.option
                 def _():
-                    ctx._pattern(r'(?ms)```((?:.|\n)*?)```')
+                    ctx.pattern(r'(?ms)```((?:.|\n)*?)```')
 
                 @ch.option
                 def _():
-                    ctx._token('`')
-                    with ctx._setname('@'):
+                    ctx.token('`')
+                    with ctx.nameset('@'):
                         self.literal(ctx)
-                    ctx._token('`')
+                    ctx.token('`')
 
                 @ch.option
                 def _():
-                    ctx._pattern(r'`(.*?)`')
+                    ctx.pattern(r'`(.*?)`')
 
                 ch.expecting('(?ms)```((?:.|\\n)*?)```', '`', '`(.*?)`')
 
-    @rule('Alert')
-    def alert(self, ctx: ParseContext):
-        ctx._define(['level', 'message'], [])
-        with ctx._setname('level'):
-            ctx._pattern(r'\^+')
-        with ctx._setname('message'):
+    @tatsu.rule('Alert')
+    def alert(self, ctx: Ctx):
+        ctx.define(['level', 'message'], [])
+        with ctx.nameset('level'):
+            ctx.pattern(r'\^+')
+        with ctx.nameset('message'):
             self.constant(ctx)
 
-    @rule('Token')
-    def token(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule('Token')
+    def token(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
                 self.string(ctx)
@@ -1452,9 +1455,9 @@ class TatSuBootstrapRules:
 
             ch.expecting('<STRING>', '<raw_string>', '<string>', 'r')
 
-    @rule()
-    def literal(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule()
+    def literal(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
                 self.string(ctx)
@@ -1507,91 +1510,91 @@ class TatSuBootstrapRules:
                 'r'
             )
 
-    @rule()
-    def string(self, ctx: ParseContext):
+    @tatsu.rule()
+    def string(self, ctx: Ctx):
         self.STRING(ctx)
 
-    @rule()
-    def raw_string(self, ctx: ParseContext):
-        ctx._pattern(r'r')
-        with ctx._setname('@'):
+    @tatsu.rule()
+    def raw_string(self, ctx: Ctx):
+        ctx.pattern(r'r')
+        with ctx.nameset('@'):
             self.STRING(ctx)
 
-    @rule()
-    def STRING(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule()
+    def STRING(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
-                with ctx._setname('@'):
-                    ctx._pattern(r'"((?:[^"\n]|\\"|\\\\)*?)"')
-                ctx._cut()
+                with ctx.nameset('@'):
+                    ctx.pattern(r'"((?:[^"\n]|\\"|\\\\)*?)"')
+                ctx.cut()
 
             @ch.option
             def _():
-                with ctx._setname('@'):
-                    ctx._pattern(r"'((?:[^'\n]|\\'|\\\\)*?)'")
-                ctx._cut()
+                with ctx.nameset('@'):
+                    ctx.pattern(r"'((?:[^'\n]|\\'|\\\\)*?)'")
+                ctx.cut()
 
             ch.expecting(
                 "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'",
                 '"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"'
             )
 
-    @rule()
-    def hex(self, ctx: ParseContext):
-        ctx._pattern(r'0[xX](?:\d|[a-fA-F])+')
+    @tatsu.rule()
+    def hex(self, ctx: Ctx):
+        ctx.pattern(r'0[xX](?:\d|[a-fA-F])+')
 
-    @rule()
-    def float(self, ctx: ParseContext):
-        ctx._pattern(r'[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?')
+    @tatsu.rule()
+    def float(self, ctx: Ctx):
+        ctx.pattern(r'[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?')
 
-    @rule()
-    def int(self, ctx: ParseContext):
-        ctx._pattern(r'[-+]?\d+')
+    @tatsu.rule()
+    def int(self, ctx: Ctx):
+        ctx.pattern(r'[-+]?\d+')
 
-    @rule()
-    def path(self, ctx: ParseContext):
-        ctx._pattern(r'(?!\d)\w+(?:::(?!\d)\w+)+')
+    @tatsu.rule()
+    def path(self, ctx: Ctx):
+        ctx.pattern(r'(?!\d)\w+(?:::(?!\d)\w+)+')
 
-    @rule()
-    def word(self, ctx: ParseContext):
-        ctx._pattern(r'(?!\d)\w+')
+    @tatsu.rule()
+    def word(self, ctx: Ctx):
+        ctx.pattern(r'(?!\d)\w+')
 
-    @rule('Dot')
-    def dot(self, ctx: ParseContext):
-        ctx._token('/./')
+    @tatsu.rule('Dot')
+    def dot(self, ctx: Ctx):
+        ctx.token('/./')
 
-    @rule('Pattern')
-    def pattern(self, ctx: ParseContext):
+    @tatsu.rule('Pattern')
+    def pattern(self, ctx: Ctx):
         self.regexes(ctx)
 
-    @rule()
-    def regexes(self, ctx: ParseContext):
-        with ctx._gatheroneormore() as g:
+    @tatsu.rule()
+    def regexes(self, ctx: Ctx):
+        with ctx.gatherplus() as g:
             @g.sep
             def _():
-                ctx._token('+')
+                ctx.token('+')
 
             @g.exp
             def _():
                 self.regex(ctx)
 
-    @rule()
-    def regex(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule()
+    def regex(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
-                ctx._token('/')
-                ctx._cut()
-                with ctx._setname('@'):
-                    ctx._pattern(r'(?:[^/\\]|\\/|\\.)*')
-                ctx._token('/')
-                ctx._cut()
+                ctx.token('/')
+                ctx.cut()
+                with ctx.nameset('@'):
+                    ctx.pattern(r'(?:[^/\\]|\\/|\\.)*')
+                ctx.token('/')
+                ctx.cut()
 
             @ch.option
             def _():
-                ctx._token('?')
-                with ctx._setname('@'):
+                ctx.token('?')
+                with ctx.nameset('@'):
                     self.STRING(ctx)
 
             @ch.option
@@ -1600,36 +1603,36 @@ class TatSuBootstrapRules:
 
             ch.expecting('/', '<deprecated_regex>', '?', '?/')
 
-    @rule()
-    def deprecated_regex(self, ctx: ParseContext):
-        ctx._token('?/')
-        ctx._cut()
-        with ctx._setname('@'):
-            ctx._pattern(r'(?:.|\n)*?(?=/\?)')
-        ctx._pattern(r'/\?+')
-        ctx._cut()
+    @tatsu.rule()
+    def deprecated_regex(self, ctx: Ctx):
+        ctx.token('?/')
+        ctx.cut()
+        with ctx.nameset('@'):
+            ctx.pattern(r'(?:.|\n)*?(?=/\?)')
+        ctx.pattern(r'/\?+')
+        ctx.cut()
 
-    @rule()
-    def boolean(self, ctx: ParseContext):
-        with ctx._choice() as ch:
+    @tatsu.rule()
+    def boolean(self, ctx: Ctx):
+        with ctx.choice() as ch:
             @ch.option
             def _():
-                ctx._token('True')
+                ctx.token('True')
 
             @ch.option
             def _():
-                ctx._token('False')
+                ctx.token('False')
 
             ch.expecting('False', 'True')
 
-    @rule()
-    def null(self, ctx: ParseContext):
-        ctx._token('None')
+    @tatsu.rule()
+    def null(self, ctx: Ctx):
+        ctx.token('None')
 
-    @rule('EOF')
-    def eof(self, ctx: ParseContext):
-        ctx._token('$')
-        ctx._cut()
+    @tatsu.rule('EOF')
+    def eof(self, ctx: Ctx):
+        ctx.token('$')
+        ctx.cut()
 
 
 def main(filename, **kwargs):

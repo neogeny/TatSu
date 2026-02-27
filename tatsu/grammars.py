@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from .ast import AST
-from .contexts import ParseContext
+from .contexts import ParseContext, Ctx
 from .exceptions import FailedRef, GrammarError
 from .parserconfig import ParserConfig
 from .contexts.infos import RuleInfo
@@ -53,6 +53,7 @@ class ModelContext(ParseContext):
         **settings,
     ):
         config = ParserConfig.new(config, **settings)
+        assert isinstance(config, ParserConfig)
         config = config.override(start=start)
 
         super().__init__(config=config)
@@ -101,8 +102,8 @@ class Model(Node):
 
         defines = dict(compress_seq(self.defines()))
 
-        keys = [k for k, list in defines.items() if not list]
-        list_keys = [k for k, list in defines.items() if list]
+        keys = [k for k, ll in defines.items() if not ll]
+        list_keys = [k for k, ll in defines.items() if ll]
         ctx._define(keys, list_keys)
         if isinstance(ast, AST):
             ast._define(keys, list_keys)
@@ -120,7 +121,7 @@ class Model(Node):
             self._firstset = self._first(k, defaultdict(set))
         return self._firstset
 
-    def followset(self, k: int = 1) -> ffset:
+    def followset(self, _k: int = 1) -> ffset:
         return self._follow_set
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
@@ -167,7 +168,7 @@ class Model(Node):
 @tatsudataclass
 class Void(Model):
     def _parse(self, ctx):
-        return ctx._void()
+        ctx.void()
 
     def _pretty(self, lean=False):
         return '()'
@@ -382,7 +383,7 @@ class Pattern(Model):
 @tatsudataclass
 class Lookahead(Decorator):
     def _parse(self, ctx):
-        with ctx._if():
+        with ctx.if_():
             return super()._parse(ctx)
 
     def _pretty(self, lean=False):
@@ -395,7 +396,7 @@ class Lookahead(Decorator):
 @tatsudataclass
 class NegativeLookahead(Decorator):
     def _parse(self, ctx):
-        with ctx._ifnot():
+        with ctx.ifnot_():
             return super()._parse(ctx)
 
     def _pretty(self, lean=False):
@@ -409,7 +410,7 @@ class NegativeLookahead(Decorator):
 class SkipTo(Decorator):
     def _parse(self, ctx):
         super_parse = super()._parse
-        return ctx._skip_to(lambda: super_parse(ctx))
+        ctx._skip_to(lambda: super_parse(ctx))
 
     def _first(self, k, f) -> ffset:
         return {('.',)} | super()._first(k, f)
@@ -703,7 +704,7 @@ class Optional(Decorator):
             return self.exp._parse(ctx)
 
     def _first(self, k, f) -> ffset:
-        return set({()}) | self.exp._first(k, f)
+        return {()} | self.exp._first(k, f)
 
     def _pretty(self, lean=False):
         exp = self.exp._pretty(lean=lean)
@@ -819,7 +820,7 @@ class Call(Model):
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         if self.name not in rulenames:
-            return set({self.name})
+            return {self.name}
         return set()
 
     def _used_rule_names(self) -> set[str]:
@@ -871,7 +872,7 @@ class Rule(Decorator):
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         if self.exp is None:
             debug(f'{self!r} weird with {self.exp=!r}')
-        if self.exp.missing_rules is None:
+        elif self.exp.missing_rules is None:
             debug(f'{self!r}\nweird with {self.exp.missing_rules=!r}\n{self.exp=!r}')
         return self.exp.missing_rules(rulenames)
 
@@ -881,7 +882,7 @@ class Rule(Decorator):
     def _parse_rhs(self, ctx, exp):
         ruleinfo = RuleInfo(
             name=self.name,
-            obj=exp,
+            instance=exp,
             func=exp._parse,
             is_lrec=self.is_leftrec,
             is_memo=self.is_memoizable,
@@ -920,16 +921,16 @@ class Rule(Decorator):
                 else ''
             )
 
-            kwparams = ''
+            skwparams = ''
             if self.kwparams:
-                kwparams = ', '.join(
+                skwparams = ', '.join(
                     f'{k}={self.param_repr(v)}' for (k, v) in self.kwparams.items()
                 )
 
-            if params and kwparams:
-                params = f'[{params}, {kwparams}]'
-            elif kwparams:
-                params = f'[{kwparams}]'
+            if params and skwparams:
+                params = f'[{params}, {skwparams}]'
+            elif skwparams:
+                params = f'[{skwparams}]'
             elif params:
                 params = f'[{params}]'
 
@@ -973,7 +974,7 @@ class BasedRule(Rule):
         assert isinstance(
             self.baserule,
             Rule,
-        ), f'{typename(self.base)}: {self.basrulee=!r}'
+        ), f'{typename(self.base)}: {self.baserule=!r}'
 
         self.params = self.params or self.baserule.params
         self.kwparams = self.kwparams or self.baserule.kwparams
@@ -1122,7 +1123,7 @@ class Grammar(Model):
 
         if ctx is None:
             ctx = ModelContext(self.rules, config=config)
-        assert isinstance(ctx, ParseContext)
+        assert isinstance(ctx, Ctx)
         return ctx.parse(text, config=config)
 
     def nodecount(self) -> int:

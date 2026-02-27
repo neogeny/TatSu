@@ -32,7 +32,7 @@ class closure(list[Any]):
 
 class RuleInfo(NamedTuple):
     name: str
-    obj: Any
+    instance: Any
     func: Callable[..., None]
     is_lrec: bool
     is_memo: bool
@@ -41,7 +41,7 @@ class RuleInfo(NamedTuple):
     kwparams: dict[str, Any]
 
     @staticmethod
-    def new(obj: Any, func: Callable, params=None, kwparams=None):
+    def new(instance: Any, func: Callable, params=None, kwparams=None):
         name = getattr(func, '__name__', '<?>')
         is_leftrec = getattr(func, 'is_leftrec', False)
         is_memoizable = getattr(func, 'is_memoizable', True)
@@ -49,13 +49,26 @@ class RuleInfo(NamedTuple):
 
         return RuleInfo(
             name=name,
-            obj=obj,
+            instance=instance,
             func=func,
             is_lrec=is_leftrec,
             is_memo=is_memoizable,
             is_name=is_name,
             params=params or (),
             kwparams=kwparams or {},
+        )
+
+    @staticmethod
+    def bind(ri: RuleInfo, newinstance: Any):
+        return RuleInfo(
+            name=ri.name,
+            instance=newinstance,
+            func=ri.func,
+            is_lrec=ri.is_lrec,
+            is_memo=ri.is_memo,
+            is_name=ri.is_name,
+            params=ri.params or (),
+            kwparams=ri.kwparams or {},
         )
 
     def is_token_rule(self):

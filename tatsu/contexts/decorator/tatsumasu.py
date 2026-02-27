@@ -7,15 +7,15 @@ from collections.abc import Callable
 from typing import Any
 
 from ..infos import RuleInfo
-from ..protocol import ParseCtx
+from ..protocol import Ctx
 
 
 def tatsumasu(
     *params: Any, **kwparams: Any
-) -> Callable[Callable[[], None], Callable[[ParseCtx], Any]]:
-    def decorator(func: Callable[[], None]) -> Callable[[ParseCtx], Any]:
+) -> Callable[Callable[[], None], Callable[[Ctx], Any]]:
+    def decorator(func: Callable[[], None]) -> Callable[[Ctx], Any]:
         @functools.wraps(func)
-        def wrapper(self: ParseCtx, _ctx: ParseCtx | None = None) -> Any:
+        def wrapper(self: Ctx, _ctx: Ctx | None = None) -> Any:
             ruleinfo = RuleInfo.new(self, func, params, kwparams)
             return self._call(ruleinfo)
 

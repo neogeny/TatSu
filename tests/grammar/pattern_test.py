@@ -113,7 +113,7 @@ class PatternTests(unittest.TestCase):
         print(pythongen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
             pythongen(model.rules[0].exp.sequence[0]).strip(),
-            "ctx._pattern(r'(?x)\\nfoo\\nbar\\n')",
+            "ctx.pattern(r'(?x)\\nfoo\\nbar\\n')",
         )
 
         grammar = r"""
@@ -126,5 +126,5 @@ class PatternTests(unittest.TestCase):
         print(pythongen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
             trim(pythongen(model.rules[0].exp.sequence[0])),
-            "ctx._pattern(r'(?x)foo\\nbar\\nblort')",
+            "ctx.pattern(r'(?x)foo\\nbar\\nblort')",
         )

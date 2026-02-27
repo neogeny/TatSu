@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from tatsu.contexts.protocol import ParseCtx
+from ..protocol import Ctx
 
 
 class ChoiceContext:
-    def __init__(self, ctx: ParseCtx):
+    def __init__(self, ctx: Ctx):
         self.ctx = ctx
         self.options: list[Callable[[], None]] = []
         self.expected: list[str] = []
@@ -24,6 +24,6 @@ class ChoiceContext:
         if not self.options:
             return
         for opt in self.options:
-            with self.ctx._option():
+            with self.ctx.option():
                 opt()
         raise self.ctx.newexcept(f"Expected one of: {', '.join(self.expected)}")

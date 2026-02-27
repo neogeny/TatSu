@@ -2,13 +2,12 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .decorator import isname, name, leftrec, nomemo, rule, tatsumasu
-from .engine import ParseContext
-from .protocol import Ctx
+from .contexts.decorator import isname, name, leftrec, nomemo, rule, tatsumasu
+from .objectmodel import TatSuDataclassParams, tatsudataclass as dataclass
 
 __all__ = [
-    'ParseContext',
-    'Ctx',
+    'TatSuDataclassParams',
+    'dataclass',
     'isname',
     'name',
     'leftrec',
