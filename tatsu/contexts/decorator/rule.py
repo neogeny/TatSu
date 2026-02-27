@@ -57,7 +57,7 @@ class rule:
             #  v5.16 <= parser <= v5.17.1 may use @rule on methods
             #  defined inside a ParseContext
             debug(f'__get__ LEGACY {instance=!r} {owner=!r}')
-            return self._rules_in_ctx(instance, func, params, kwparams)
+            return self._rules_in_ctx(id(self), instance, func, params, kwparams)
 
 
         @functools.wraps(self.func)
@@ -75,8 +75,9 @@ class rule:
 
         return wrapper
 
+    @staticmethod
     def _rules_in_ctx(
-        self,
+        selfid,
         instance: Any,
         func: Callable,
         params: tuple[Any, ...],
@@ -86,7 +87,7 @@ class rule:
         @functools.wraps(func)
         def transition_wrapper(_ctx: Any = None) -> Any:
             debug(
-                f'__rules_in_ctx_wrapper__@__get__'
+                f'__rules_in_ctx_wrapper__@__get__ {selfid=}'
                 f' {fn(func)!r} {_ctx=!r} {instance=!r}'
                 f' {params=!r} {kwparams=!r}'
             )
