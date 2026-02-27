@@ -10,7 +10,7 @@ from collections.abc import Callable
 
 from ...util import debug  # noqa: PGH004
 from ..engine import ParseContext
-from ..protocol import ParseCtx
+from ..protocol import Ctx
 from ..infos import RuleInfo
 
 
@@ -57,7 +57,7 @@ class rule:
         assert isinstance(func, Callable)
 
         ruleinfo = RuleInfo.new(instance, func, params, kwparams)
-        if issubclass(owner, ParseContext) and isinstance(instance, ParseCtx):
+        if issubclass(owner, ParseContext) and isinstance(instance, Ctx):
             # NOTE:
             #  v5.16 <= parser <= v5.17.1 may use @rule on methods
             #  defined inside a ParseContext
@@ -69,7 +69,7 @@ class rule:
     @staticmethod
     def _rules_in_obj(selfid, ruleinfo: RuleInfo) -> Any:
         @functools.wraps(ruleinfo.func)
-        def wrapper(ctx: ParseCtx) -> Any:
+        def wrapper(ctx: Ctx) -> Any:
             ri = ruleinfo
             debug(
                 f'__wrapper__@__get__ {selfid=} {fn(ri.func)!r}'
@@ -77,7 +77,7 @@ class rule:
                 f' {ri.params=!r} {ri.kwparams=!r}'
             )
             assert isinstance(ri.func, Callable)
-            assert isinstance(ctx, ParseCtx)
+            assert isinstance(ctx, Ctx)
             return ctx._call(ruleinfo)
 
         return wrapper

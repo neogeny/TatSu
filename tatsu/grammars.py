@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from .ast import AST
-from .contexts import ParseContext, ParseCtx
+from .contexts import ParseContext, Ctx
 from .exceptions import FailedRef, GrammarError
 from .parserconfig import ParserConfig
 from .contexts.infos import RuleInfo
@@ -1123,7 +1123,7 @@ class Grammar(Model):
 
         if ctx is None:
             ctx = ModelContext(self.rules, config=config)
-        assert isinstance(ctx, ParseCtx)
+        assert isinstance(ctx, Ctx)
         return ctx.parse(text, config=config)
 
     def nodecount(self) -> int:

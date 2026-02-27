@@ -38,7 +38,7 @@ from ..util.deprecate import deprecated
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from ..util.typetools import boundcall
 from ..util.undefined import Undefined
-from .protocol import ParseCtx
+from .protocol import Ctx
 
 __all__: list[str] = ['ParseContext']
 
@@ -51,7 +51,7 @@ def debug(*_args, **_kwargs):  # noqa: F811
     pass
 
 
-class ParseContext(ParseCtx):
+class ParseContext(Ctx):
     def __init__(
         self,
         /,

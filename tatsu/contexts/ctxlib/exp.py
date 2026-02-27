@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from ..protocol import ParseCtx
+from ..protocol import Ctx
 
 
 class InnerExpContext:
-    def __init__(self, ctx: ParseCtx, nosep: bool = False):
+    def __init__(self, ctx: Ctx, nosep: bool = False):
         self.ctx = ctx
         self._nosep = nosep
         self._exp: Callable[[], None] | None = None

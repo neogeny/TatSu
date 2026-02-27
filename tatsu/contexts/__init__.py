@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from .decorator import isname, name, leftrec, nomemo, rule, tatsumasu
 from .engine import ParseContext
-from .protocol import ParseCtx
+from .protocol import Ctx
 
 __all__ = [
     'ParseContext',
-    'ParseCtx',
+    'Ctx',
     'isname',
     'name',
     'leftrec',

@@ -10,7 +10,7 @@ from .infos import RuleInfo
 
 
 @runtime_checkable
-class ParseCtx(Protocol):
+class Ctx(Protocol):
     @property
     def states(self) -> ParseStateStack: ...
 
