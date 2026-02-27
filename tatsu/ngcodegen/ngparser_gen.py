@@ -59,6 +59,7 @@ HEADER = """\
 NGPARSER_BODY = """\
     config = ParserConfig.new(config, **settings)
     rulessource = {rules_name}()
+    assert isinstance(config, ParserConfig)
     tokenizercls = config.tokenizercls or {tokenizer_name}
 
     super().__init__(rulessource, config=config, tokenizercls=tokenizercls)
@@ -351,6 +352,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                     keywords=KEYWORDS,
                     start={start!r},
                 )
+                assert isinstance(config, ParserConfig)
                 config = config.override(**settings)
             ''')
 

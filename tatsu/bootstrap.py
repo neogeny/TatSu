@@ -19,6 +19,7 @@ from __future__ import annotations
 import tatsu.decorators as tatsu
 from tatsu.buffering import Buffer
 from tatsu.contexts import ParseContext
+from tatsu.contexts.ctxlib import ChoiceContext
 from tatsu.infos import ParserConfig
 from tatsu.parsing import NGParser, generic_main
 from tatsu.tokenizing.textlines import TextLinesTokenizer
@@ -54,6 +55,7 @@ class TatSuBootstrapTokenizer(TextLinesTokenizer):
             keywords=KEYWORDS,
             start='start',
         )
+        assert isinstance(config, ParserConfig)
         config = config.override(**settings)
 
         super().__init__(text, config=config)
@@ -78,6 +80,7 @@ class TatSuBootstrapBuffer(Buffer):  # NOTE: backwards compatibility
             keywords=KEYWORDS,
             start='start',
         )
+        assert isinstance(config, ParserConfig)
         config = config.override(**settings)
 
         super().__init__(text, config=config)
@@ -87,6 +90,7 @@ class TatSuBootstrapParser(NGParser):
     def __init__(self, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(config, **settings)
         rulessource = TatSuBootstrapRules()
+        assert isinstance(config, ParserConfig)
         tokenizercls = config.tokenizercls or TatSuBootstrapTokenizer
 
         super().__init__(rulessource, config=config, tokenizercls=tokenizercls)
@@ -106,6 +110,7 @@ class TatSuBootstrapRules:
             keywords=KEYWORDS,
             start='start',
         )
+        assert isinstance(config, ParserConfig)
         config = config.override(**settings)
         self._config = config
 
