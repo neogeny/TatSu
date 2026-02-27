@@ -34,10 +34,14 @@ class rule:
         self.params = args
         self.kwparams = kwargs
 
-    def __call__(self, func: Callable) -> Any:
-        debug(f'__call__ {id(self)=} {fn(func)=}')
-        assert isinstance(func, Callable)
-        return rule(*self.params, func=func, **self.kwparams)
+    def __call__(self, *args, **kwargs) -> Any:
+        debug(f'__call__ {id(self)=} {args=!r} {kwargs=!r}')
+        func = args[0] if args else None
+        if callable(func):
+            return rule(*self.params, func=func, **self.kwparams)
+        else:
+            # note: this self may be being reused
+            return rule(*args, **kwargs)
 
     def __get__(self, instance: Any, owner: Any = None) -> Any:
         debug(
