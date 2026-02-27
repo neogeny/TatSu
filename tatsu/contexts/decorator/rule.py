@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import functools
+from copy import copy
 from typing import Any
 from collections.abc import Callable
 
@@ -13,7 +14,7 @@ from ..protocol import ParseCtx
 from ..infos import RuleInfo
 
 
-def debug(*_args, **_kwargs) -> None:  # noqa: F811
+def _debug(*_args, **_kwargs) -> None:  # noqa: F811
     pass
 
 
@@ -33,16 +34,24 @@ class rule:
         self.obj = None
         self.params = args
         self.kwparams = kwargs
-        self.owner = None
 
     def __get__(self, instance: Any, owner: Any = None) -> Any:
         self.obj = instance
 
         debug(
-            f'__get__ { fn(self.func)=!r} {instance=!r} {owner=!r}'
-            f'  { tn(self.obj)=!r} '
+            f'__get__ {id(self)=}'
+            f' { fn(self.func)=!r} {instance=!r} {owner=!r}'
+            f'  {tn(self.obj)=!r}'
+            f'  {self.params=!r} {self.kwparams=!r}'
         )
+
         owner = owner or type(instance)
+        params = copy(self.params) or ()
+        kwparams = self.kwparams.copy() or {}
+        # self.params = ()
+        # self.kwparams = {}
+        assert isinstance(self.func, Callable)
+
         if issubclass(owner, ParseContext) and isinstance(instance, ParseCtx):
             # NOTE:
             #  v5.16 <= parser <= v5.17.1
@@ -55,25 +64,28 @@ class rule:
                 debug(
                     f'__transition_wrapper__@__get__'
                     f' {fn(self.func)!r} {_ctx=!r} {instance=!r} {fn(owner)=!r}'
+                    f' {params=!r} {kwparams=!r}'
                 )
                 assert isinstance(instance, ParseContext)
                 assert isinstance(self.func, Callable)
-                ruleinfo = RuleInfo.new(instance, self.func, self.params, self.kwparams)
+                ruleinfo = RuleInfo.new(instance, self.func, params, kwparams)
                 return instance._call(ruleinfo)
-            return transition_wrapper
 
-        assert isinstance(self.func, Callable)
+            return transition_wrapper
 
         @functools.wraps(self.func)
         def wrapper(ctx: ParseCtx) -> Any:
             debug(
-                f'__wrapper__@__get__ {fn(self.func)!r} {instance=!r} { tn(ctx)=!r}'
-                f' { fn(instance)=!r} {fn(owner)!r}'
+                f'__wrapper__@__get__ {id(self)=} {fn(self.func)!r} {
+                instance=!r} { tn(ctx)=!r}'
+                f' {fn(instance)=!r} {fn(owner)!r}'
+                f' {params=!r} {kwparams=!r}'
             )
             assert isinstance(self.func, Callable)
             assert isinstance(ctx, ParseContext)
-            ruleinfo = RuleInfo.new(self.obj, self.func, self.params, self.kwparams)
+            ruleinfo = RuleInfo.new(self.obj, self.func, params, kwparams)
             return ctx._call(ruleinfo)
+
         return wrapper
 
     def __call__(self, *args, **kwargs) -> Any:
@@ -87,6 +99,8 @@ class rule:
             return other
 
         assert isinstance(self.func, Callable)
+
+        raise RuntimeError('HERE')
 
         @functools.wraps(self.func)
         def wrapper(ctx: ParseCtx | None = None) -> Any:
