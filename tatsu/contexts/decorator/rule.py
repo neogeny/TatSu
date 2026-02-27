@@ -67,11 +67,11 @@ class rule:
 
     @staticmethod
     def _rules_in_obj(
-            selfid,
-            instance: Any,
-            func: Callable,
-            params: tuple[Any, ...],
-            kwparams: dict[str, Any],
+        selfid,
+        instance: Any,
+        func: Callable,
+        params: tuple[Any, ...],
+        kwparams: dict[str, Any],
     ) -> Any:
         @functools.wraps(func)
         def wrapper(ctx: ParseCtx) -> Any:
@@ -84,6 +84,7 @@ class rule:
             assert isinstance(ctx, ParseContext)
             ruleinfo = RuleInfo.new(instance, func, params, kwparams)
             return ctx._call(ruleinfo)
+
         return wrapper
 
     @staticmethod
@@ -107,4 +108,5 @@ class rule:
             assert isinstance(func, Callable)
             ruleinfo = RuleInfo.new(instance, func, params, kwparams)
             return instance._call(ruleinfo)
+
         return transition_wrapper
