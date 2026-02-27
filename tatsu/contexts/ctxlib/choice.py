@@ -24,6 +24,6 @@ class ChoiceContext:
         if not self.options:
             return
         for opt in self.options:
-            with self.ctx._option():
+            with self.ctx.option():
                 opt()
         raise self.ctx.newexcept(f"Expected one of: {', '.join(self.expected)}")

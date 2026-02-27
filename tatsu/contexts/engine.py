@@ -661,7 +661,7 @@ class ParseContext(Ctx):
         return True
 
     @contextmanager
-    def _option(self) -> Any:
+    def option(self) -> Any:
         self.last_node = None
         try:
             with self._try():
@@ -672,6 +672,11 @@ class ParseContext(Ctx):
                 pass
             else:
                 raise
+
+    @contextmanager
+    def _option(self) -> Any:
+        with self.option():
+            yield
 
     @contextmanager
     def choice(self) -> Generator[ChoiceContext, Any, Any]:
