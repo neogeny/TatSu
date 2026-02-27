@@ -15,7 +15,7 @@ from .parserconfig import ParserConfig
 from .util import debug, safe_name, typename
 
 __all__ = [
-    'NGParser',
+    'Parser',
     'Parser',
     'generic_main',
     'isname',
@@ -32,27 +32,14 @@ def debug(*_args, **_kwargs) -> None:  # noqa: F811
     pass
 
 
+class OldParser(ParseContext):
+    pass
+
+
 class Parser(ParseContext):
-    def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
-        for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:
-            action = getattr(self, safe_name(rulename), None)
-            if callable(action):
-                return action
-        raise self.newexcept(f'{name!r}@{typename(self)}', excls=FailedRef)
-
-    @classmethod
-    def rule_list(cls) -> list[str]:
-        def isdunder(name: str) -> bool:
-            return name.startswith('__') and name.endswith('__')
-
-        methods = inspect.getmembers(cls, predicate=inspect.ismethod)
-        return [m[0] for m in methods if not isdunder(m[0])]
-
-
-class NGParser(Parser):
     def __init__(
         self,
-        rulesource: Any,
+        rulesource: Any = None,
         /,
         *,
         config: ParserConfig | None = None,
@@ -67,11 +54,29 @@ class NGParser(Parser):
         super().__init__(config=config)
 
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
+        if not self.rulesource:
+            return self._find_cls_rule(name)
         for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:
             action = getattr(self.rulesource, safe_name(rulename), None)
             if callable(action):
                 return action
         raise self.newexcept(f'{name}', excls=FailedRef)
+
+    def _find_cls_rule(self, name: str) -> Callable[[ParseContext], Any]:
+        for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:
+            action = getattr(self, safe_name(rulename), None)
+            if callable(action):
+                return action
+        raise self.newexcept(f'{name!r}@{typename(self)}', excls=FailedRef)
+
+    def rule_list(self) -> list[str]:
+        source = self.rulesource or type(self)
+        def isdunder(name: str) -> bool:
+            return name.startswith('__') and name.endswith('__')
+
+        methods = inspect.getmembers(source, predicate=inspect.ismethod)
+        return [m[0] for m in methods if not isdunder(m[0])]
+
 
 
 def generic_main(custom_main, parser_class, name='Unknown'):

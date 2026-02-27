@@ -20,7 +20,7 @@ import tatsu.decorators as tatsu
 from tatsu.buffering import Buffer
 from tatsu.contexts import Ctx
 from tatsu.infos import ParserConfig
-from tatsu.parsing import NGParser, generic_main
+from tatsu.parsing import Parser, generic_main
 from tatsu.tokenizing.textlines import TextLinesTokenizer
 
 __all__ = [
@@ -85,7 +85,7 @@ class TatSuBootstrapBuffer(Buffer):  # NOTE: backwards compatibility
         super().__init__(text, config=config)
 
 
-class TatSuBootstrapParser(NGParser):
+class TatSuBootstrapParser(Parser):
     def __init__(self, /, config: ParserConfig | None = None, **settings):
         config = ParserConfig.new(config, **settings)
         rulessource = TatSuBootstrapRules()
