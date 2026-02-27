@@ -71,6 +71,7 @@ class rule:
     def _rules_in_obj(selfid, ruleinfo: RuleInfo) -> Any:
         @functools.wraps(ruleinfo.func)
         def wrapper(ctx: ParseCtx) -> Any:
+            ruleinfo.func.__ruleinfo__ = ruleinfo
             ri = ruleinfo
             debug(
                 f'__wrapper__@__get__ {selfid=} {fn(ri.func)!r}'
