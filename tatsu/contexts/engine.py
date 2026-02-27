@@ -935,7 +935,7 @@ class ParseContext(Ctx):
         return c
 
     def _dot(self) -> Any:
-        return self.doit()
+        return self.dot()
 
     @contextmanager
     def _skipto(self) -> Any:
