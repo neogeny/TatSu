@@ -19,16 +19,16 @@ from .railmath import (
 )
 
 
-def tracks(model: grammars.Grammar):
+def tracks(model: grammars.Model):
     walker = RailroadNodeWalker()
     return walker.walk(model)
 
 
-def text(model: grammars.Grammar) -> str:
+def text(model: grammars.Model) -> str:
     return '\n'.join(line.rstrip() for line in tracks(model))
 
 
-def draw(model: grammars.Grammar):
+def draw(model: grammars.Model):
     for line in tracks(model):
         print(line.rstrip())
 
