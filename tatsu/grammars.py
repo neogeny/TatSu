@@ -161,6 +161,10 @@ class Model(Node):
     def _pretty(self, lean=False):
         return f'{typename(self)}: {id(self)}'
 
+    def railroads(self) -> str:
+        from . import railroads
+        return railroads.text(self)
+
     def __str__(self):
         return self.pretty()
 
