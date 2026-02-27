@@ -57,7 +57,6 @@ class rule:
         assert isinstance(func, Callable)
 
         ruleinfo = RuleInfo.new(instance, func, params, kwparams)
-        func.__ruleinfo__ = ruleinfo
         if issubclass(owner, ParseContext) and isinstance(instance, ParseCtx):
             # NOTE:
             #  v5.16 <= parser <= v5.17.1 may use @rule on methods
@@ -71,7 +70,6 @@ class rule:
     def _rules_in_obj(selfid, ruleinfo: RuleInfo) -> Any:
         @functools.wraps(ruleinfo.func)
         def wrapper(ctx: ParseCtx) -> Any:
-            ruleinfo.func.__ruleinfo__ = ruleinfo
             ri = ruleinfo
             debug(
                 f'__wrapper__@__get__ {selfid=} {fn(ri.func)!r}'
@@ -87,7 +85,7 @@ class rule:
     @staticmethod
     def _rules_in_ctx(selfid, ruleinfo: RuleInfo) -> Any:
         ri = ruleinfo
-        assert isinstance(ri.unc, Callable)
+        assert isinstance(ri.func, Callable)
 
         @functools.wraps(ri.func)
         def transition_wrapper(_ctx: Any = None) -> Any:

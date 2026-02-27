@@ -42,7 +42,7 @@ HEADER = """\
     from tatsu.buffering import Buffer
     from tatsu.contexts import ParseContext
     from tatsu.infos import ParserConfig
-    from tatsu.parsing import NGParser
+    from tatsu.parsing import NGParser, generic_main
     from tatsu.tokenizing.textlines import TextLinesTokenizer
 
     __all__ = [
@@ -147,6 +147,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         if rule.params:
             params = ', '.join(param_repr(self.walk(p)) for p in rule.params)
         if rule.kwparams:
+            assert isinstance(rule.kwparams, dict)
             kwparams = ', '.join(
                 f'{k}={param_repr(self.walk(v))}' for k, v in rule.kwparams.items()
             )
@@ -425,6 +426,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self.print("""
                 @property
                 def config(self) -> ParserConfig:
+                    assert isinstance(self._config, ParserConfig)
                     return self._config
                 """)
             self.print()

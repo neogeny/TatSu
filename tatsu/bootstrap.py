@@ -20,7 +20,7 @@ import tatsu.decorators as tatsu
 from tatsu.buffering import Buffer
 from tatsu.contexts import ParseContext
 from tatsu.infos import ParserConfig
-from tatsu.parsing import NGParser
+from tatsu.parsing import NGParser, generic_main
 from tatsu.tokenizing.textlines import TextLinesTokenizer
 
 __all__ = [
@@ -111,6 +111,7 @@ class TatSuBootstrapRules:
 
     @property
     def config(self) -> ParserConfig:
+        assert isinstance(self._config, ParserConfig)
         return self._config
 
     @tatsu.rule()
