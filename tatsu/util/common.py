@@ -140,13 +140,10 @@ def fqn(obj: Any) -> str:
 
 
 def is_reserved(name) -> bool:
-    import builtins
-
     return (
         keyword.iskeyword(name)
         or keyword.issoftkeyword(name)
         or name in {'type', 'list', 'dict', 'set'}
-        or name in vars(builtins)
     )
 
 
