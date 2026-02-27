@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from tatsu.contexts.protocol import ParseCtx
+from ..protocol import ParseCtx
 
 
 class InnerExpContext:

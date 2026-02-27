@@ -38,13 +38,11 @@ HEADER = """\
 
     from __future__ import annotations
 
+    import tatsu.decorators as tatsu
     from tatsu.buffering import Buffer
     from tatsu.contexts import ParseContext
     from tatsu.infos import ParserConfig
-    from tatsu.parsing import (
-        Parser, NGParser,
-        leftrec, nomemo, isname, name, generic_main, rule
-    )
+    from tatsu.parsing import NGParser
     from tatsu.tokenizing.textlines import TextLinesTokenizer
 
     __all__ = [
@@ -158,12 +156,12 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         elif kwparams:
             params = kwparams
 
-        leftrec = '\n@leftrec' if rule.is_leftrec else ''
-        nomemo = '\n@nomemo' if not rule.is_memoizable and not leftrec else ''
-        isname = '\n@name' if rule.is_name else ''
+        leftrec = '\n@tatsu.leftrec' if rule.is_leftrec else ''
+        nomemo = '\n@tatsu.nomemo' if not rule.is_memoizable and not leftrec else ''
+        isname = '\n@tatsu.name' if rule.is_name else ''
 
         self.print(f"""
-                @rule({params})\
+                @tatsu.rule({params})\
                 {leftrec}\
                 {nomemo}\
                 {isname}\

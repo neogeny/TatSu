@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-from tatsu.tokenizing import LineIndexInfo, LineInfo
+from .infos import LineIndexInfo, LineInfo
 
 
 @runtime_checkable

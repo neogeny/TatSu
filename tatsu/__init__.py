@@ -14,6 +14,8 @@ from .tool import (  # pylint: disable=W0622
     to_python_sourcecode,
 )
 from .tool import tatsu_main as main
+from .contexts.decorator import isname, name, leftrec, nomemo, rule, tatsumasu
+from .objectmodel import TatSuDataclassParams, tatsudataclass as dataclass
 
 __all__ = [
     '__toolname__',
@@ -28,4 +30,14 @@ __all__ = [
     'to_python_sourcecode',
     'version',
     'version_info',
+    'isname',
+
+    'TatSuDataclassParams',
+    'dataclass',
+
+    'name',
+    'leftrec',
+    'nomemo',
+    'rule',
+    'tatsumasu',
 ]
