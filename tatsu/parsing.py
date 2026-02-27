@@ -11,6 +11,9 @@ from . import util
 from .contexts import ParseContext, isname, name, leftrec, nomemo, rule, tatsumasu
 from .exceptions import FailedRef
 
+from .parserconfig import ParserConfig
+from .util import debug, typename
+
 __all__ = [
     'NGParser',
     'Parser',
@@ -23,16 +26,18 @@ __all__ = [
     'tatsumasu',
 ]
 
-from .parserconfig import ParserConfig
-from .util import typename
+
+def debug(*_args, **_kwargs) -> None:  # noqa: F811
+    assert debug
+    pass
 
 
 class Parser(ParseContext):
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
-        for rulename in (name, f'_{name}_'):
-            rule = getattr(self.rulesource, rulename, None)
-            if callable(rule):
-                return rule
+        for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:
+            action = getattr(self, rulename, None)
+            if callable(action):
+                return action
         raise self.newexcept(f'{name!r}@{typename(self)}', excls=FailedRef)
 
     @classmethod
@@ -62,11 +67,11 @@ class NGParser(Parser):
         super().__init__(config=config)
 
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
-        for rulename in (name, f'_{name}_'):
-            rule = getattr(self.rulesource, rulename, None)
-            if callable(rule):
-                return rule
-        raise self.newexcept(f'"{name}"@ng', excls=FailedRef)
+        for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:
+            action = getattr(self.rulesource, rulename, None)
+            if callable(action):
+                return action
+        raise self.newexcept(f'{name}', excls=FailedRef)
 
 
 def generic_main(custom_main, parser_class, name='Unknown'):
