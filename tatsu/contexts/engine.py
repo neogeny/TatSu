@@ -356,6 +356,9 @@ class ParseContext(ParseCtx):
     def _fail(self):
         raise self.newexcept('fail')
 
+    def fail(self):
+        raise self.newexcept('fail')
+
     def _make_parseinfo(self, name: str, pos: int) -> ParseInfo:
         endpos = self.pos
         return ParseInfo(
@@ -594,7 +597,7 @@ class ParseContext(ParseCtx):
         self.states.append(result)
         return result
 
-    def _alert(self, message: str, level: int) -> None:
+    def alert(self, message: str, level: int) -> None:
         self.next_token()
         self.tracer.trace_match(
             self.cursor,
@@ -602,6 +605,9 @@ class ParseContext(ParseCtx):
             failed=True,
         )
         self.state.alerts.append(Alert(message=message, level=level))
+
+    def _alert(self, message: str, level: int) -> None:
+        self.alert(message, level)
 
     def _pattern(self, pattern: str) -> Any:
         token = self.cursor.matchre(pattern)
@@ -839,10 +845,13 @@ class ParseContext(ParseCtx):
             self.undostate()
             raise
 
-    def _empty_closure(self) -> closure:
+    def empty(self) -> list:
         cst = closure([])
         self.states.append(cst)
         return cst
+
+    def _empty_closure(self) -> list:
+        return self.empty()
 
     @contextmanager
     def gatheropt(self) -> Any:
@@ -916,7 +925,7 @@ class ParseContext(ParseCtx):
     def void(self) -> None:
         self.last_node = None
 
-    def _dot(self) -> Any:
+    def dot(self) -> Any:
         c = self._next()
         if c is None:
             self.tracer.trace_match(self.cursor, c, failed=True)
@@ -924,6 +933,9 @@ class ParseContext(ParseCtx):
         self.tracer.trace_match(self.cursor, c)
         self.states.append(c)
         return c
+
+    def _dot(self) -> Any:
+        return self.doit()
 
     @contextmanager
     def _skipto(self) -> Any:

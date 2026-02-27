@@ -40,7 +40,7 @@ HEADER = """\
 
     import tatsu.decorators as tatsu
     from tatsu.buffering import Buffer
-    from tatsu.contexts import ParseContext
+    from tatsu.contexts import ParseCtx
     from tatsu.infos import ParserConfig
     from tatsu.parsing import NGParser, generic_main
     from tatsu.tokenizing.textlines import TextLinesTokenizer
@@ -167,7 +167,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 {leftrec}\
                 {nomemo}\
                 {isname}\
-                \ndef {rule.name}(self, ctx: ParseContext):
+                \ndef {rule.name}(self, ctx: ParseCtx):
             """)
         with self.indent():
             self.print(self.walk(rule.exp))
@@ -182,16 +182,16 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.walk(include.rule.exp)
 
     def walk_Void(self, _void: grammars.Void):
-        self.print('ctx._void()')
+        self.print('ctx.void()')
 
     def walk_Dot(self, _dot: grammars.Dot):
-        self.print('ctx._dot()')
+        self.print('ctx.dot()')
 
     def walk_Fail(self, _fail: grammars.Fail):
-        self.print('ctx._fail()')
+        self.print('ctx.fail()')
 
     def walk_Cut(self, _cut: grammars.Cut):
-        self.print('ctx._cut()')
+        self.print('ctx.cut()')
 
     def walk_Comment(self, comment: grammars.Comment):
         lines = '\n'.join(f'# {c!s}' for c in comment.comment.splitlines())
@@ -201,24 +201,22 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.walk_Comment(comment)
 
     def walk_EOF(self, _eof: grammars.EOF):
-        self.print('ctx._check_eof()')
+        self.print('ctx.eofcheck()')
 
     def walk_Group(self, group: grammars.Group):
-        self.print('with ctx._group():')
-        with self.indent():
-            self.walk(group.exp)
+        self._gen_decor(ParseCtx.group, group.exp)
 
     def walk_Token(self, token: grammars.Token):
-        self.print(f'ctx._token({token.token!r})')
+        self.print(f'ctx.token({token.token!r})')
 
     def walk_Constant(self, constant: grammars.Constant):
-        self.print(f'ctx._constant({constant.literal!r})')
+        self.print(f'ctx.constant({constant.literal!r})')
 
     def walk_Alert(self, alert: grammars.Alert):
-        self.print(f'ctx._alert({alert.literal!r}, {alert.level})')
+        self.print(f'ctx.alert({alert.literal!r}, {alert.level})')
 
     def walk_Pattern(self, pattern: grammars.Pattern):
-        self.print(f'ctx._pattern({regexp(pattern.pattern)})')
+        self.print(f'ctx.pattern({regexp(pattern.pattern)})')
 
     def walk_Lookahead(self, lookahead: grammars.Lookahead):
         self._gen_decor(ParseCtx.if_, lookahead.exp)
@@ -262,7 +260,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self._gen_decor(ParseCtx.optional, optional.exp)
 
     def walk_EmptyClosure(self, _closure: grammars.EmptyClosure):
-        self.print('ctx._empty_closure()')
+        self.print('ctx.empty()')
 
     def walk_Closure(self, closure: grammars.Closure):
         self._gen_decor(ParseCtx.loopopt, closure.exp, var='cl')
@@ -434,11 +432,11 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         sdefs_str = ', '.join(sorted(repr(d) for d in sdefs))
         ldefs_str = ', '.join(sorted(repr(d) for d in ldefs))
 
-        definestr = f'ctx._define([{sdefs_str}], [{ldefs_str}])'
+        definestr = f'ctx.define([{sdefs_str}], [{ldefs_str}])'
         if not ldefs or self.fitsfmt(definestr, 1):
             self.print(definestr)
         else:
-            self.print('ctx._define(')
+            self.print('ctx.define(')
             with self.indent():
                 self.print(f'[{sdefs_str}],')
                 self.print(f'[{ldefs_str}],')
