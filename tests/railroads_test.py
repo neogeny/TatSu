@@ -34,7 +34,7 @@ def test_per_node():
     """
     model = api.compile(grammar)
     assert isinstance(model, grammars.Grammar)
-    optrule = model.rules[1]
+    optrule = model.rulemap['options']
     expected = """
          options ●───┬─number──┬──■
                      └─'hello'─┘
