@@ -57,21 +57,8 @@ class rule:
             #  v5.16 <= parser <= v5.17.1 may use @rule on methods
             #  defined inside a ParseContext
             debug(f'__get__ LEGACY {instance=!r} {owner=!r}')
+            return self._rules_in_ctx(instance, func, params, kwparams)
 
-            assert isinstance(func, Callable)
-            @functools.wraps(func)
-            def transition_wrapper(_ctx: Any = None) -> Any:
-                debug(
-                    f'__transition_wrapper__@__get__'
-                    f' {fn(func)!r} {_ctx=!r} {instance=!r} {fn(owner)=!r}'
-                    f' {params=!r} {kwparams=!r}'
-                )
-                assert isinstance(instance, ParseContext)
-                assert isinstance(func, Callable)
-                ruleinfo = RuleInfo.new(instance, func, params, kwparams)
-                return instance._call(ruleinfo)
-
-            return transition_wrapper
 
         @functools.wraps(self.func)
         def wrapper(ctx: ParseCtx) -> Any:
@@ -87,3 +74,25 @@ class rule:
             return ctx._call(ruleinfo)
 
         return wrapper
+
+    def _rules_in_ctx(
+        self,
+        instance: Any,
+        func: Callable,
+        params: tuple[Any, ...],
+        kwparams: dict[str, Any],
+    ) -> Any:
+        assert isinstance(func, Callable)
+        @functools.wraps(func)
+        def transition_wrapper(_ctx: Any = None) -> Any:
+            debug(
+                f'__rules_in_ctx_wrapper__@__get__'
+                f' {fn(func)!r} {_ctx=!r} {instance=!r}'
+                f' {params=!r} {kwparams=!r}'
+            )
+            assert isinstance(instance, ParseContext)
+            assert isinstance(func, Callable)
+            ruleinfo = RuleInfo.new(instance, func, params, kwparams)
+            return instance._call(ruleinfo)
+
+        return transition_wrapper
