@@ -33,6 +33,7 @@ class rule:
         debug(f'__init__ {id(self)=} {fn(self.func)!r} {args=!r} {kwargs=!r}')
         self.params = args
         self.kwparams = kwargs
+        self.ruleinfo: RuleInfo | None = None
 
     def __call__(self, *args, **kwargs) -> Any:
         debug(f'__call__ {id(self)=} {args=!r} {kwargs=!r}')
@@ -56,6 +57,9 @@ class rule:
         kwparams = copy(self.kwparams) or {}
         assert isinstance(func, Callable)
 
+        ruleinfo = RuleInfo.new(instance, func, params, kwparams)
+        # self.ruleinfo = ruleinfo
+        func.__ruleinfo__ = ruleinfo
         if issubclass(owner, ParseContext) and isinstance(instance, ParseCtx):
             # NOTE:
             #  v5.16 <= parser <= v5.17.1 may use @rule on methods
@@ -63,26 +67,23 @@ class rule:
             debug(f'__get__ LEGACY {instance=!r} {owner=!r}')
             return self._rules_in_ctx(id(self), instance, func, params, kwparams)
         else:
-            return self._rules_in_obj(id(self), instance, func, params, kwparams)
+            return self._rules_in_obj(id(self), ruleinfo)
 
     @staticmethod
     def _rules_in_obj(
         selfid,
-        instance: Any,
-        func: Callable,
-        params: tuple[Any, ...],
-        kwparams: dict[str, Any],
+        ruleinfo: RuleInfo,
     ) -> Any:
-        @functools.wraps(func)
+        @functools.wraps(ruleinfo.func)
         def wrapper(ctx: ParseCtx) -> Any:
+            ri = ruleinfo
             debug(
-                f'__wrapper__@__get__ {selfid=} {fn(func)!r}'
-                f' {tn(instance)=!r} { tn(ctx)=!r}'
-                f' {params=!r} {kwparams=!r}'
+                f'__wrapper__@__get__ {selfid=} {fn(ri.func)!r}'
+                f' {tn(ri.instance)=!r} { tn(ctx)=!r}'
+                f' {ri.params=!r} {ri.kwparams=!r}'
             )
-            assert isinstance(func, Callable)
-            assert isinstance(ctx, ParseContext)
-            ruleinfo = RuleInfo.new(instance, func, params, kwparams)
+            assert isinstance(ri.func, Callable)
+            assert isinstance(ctx, ParseCtx)
             return ctx._call(ruleinfo)
 
         return wrapper

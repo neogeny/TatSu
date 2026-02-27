@@ -881,7 +881,7 @@ class Rule(Decorator):
     def _parse_rhs(self, ctx, exp):
         ruleinfo = RuleInfo(
             name=self.name,
-            obj=exp,
+            instance=exp,
             func=exp._parse,
             is_lrec=self.is_leftrec,
             is_memo=self.is_memoizable,
