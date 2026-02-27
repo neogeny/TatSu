@@ -58,21 +58,28 @@ class rule:
             #  defined inside a ParseContext
             debug(f'__get__ LEGACY {instance=!r} {owner=!r}')
             return self._rules_in_ctx(id(self), instance, func, params, kwparams)
+        else:
+            return self._rules_in_obj(id(self), instance, func, params, kwparams)
 
-
-        @functools.wraps(self.func)
+    @staticmethod
+    def _rules_in_obj(
+            selfid,
+            instance: Any,
+            func: Callable,
+            params: tuple[Any, ...],
+            kwparams: dict[str, Any],
+    ) -> Any:
+        @functools.wraps(func)
         def wrapper(ctx: ParseCtx) -> Any:
             debug(
-                f'__wrapper__@__get__ {id(self)=} {fn(func)!r} {
-                instance=!r} { tn(ctx)=!r}'
-                f' {fn(instance)=!r} {fn(owner)!r}'
+                f'__wrapper__@__get__ {selfid=} {fn(func)!r}' 
+                f' {tn(instance)=!r} { tn(ctx)=!r}'
                 f' {params=!r} {kwparams=!r}'
             )
             assert isinstance(func, Callable)
             assert isinstance(ctx, ParseContext)
             ruleinfo = RuleInfo.new(instance, func, params, kwparams)
             return ctx._call(ruleinfo)
-
         return wrapper
 
     @staticmethod
@@ -84,6 +91,7 @@ class rule:
         kwparams: dict[str, Any],
     ) -> Any:
         assert isinstance(func, Callable)
+
         @functools.wraps(func)
         def transition_wrapper(_ctx: Any = None) -> Any:
             debug(
@@ -95,5 +103,4 @@ class rule:
             assert isinstance(func, Callable)
             ruleinfo = RuleInfo.new(instance, func, params, kwparams)
             return instance._call(ruleinfo)
-
         return transition_wrapper
