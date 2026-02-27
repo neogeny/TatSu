@@ -286,7 +286,7 @@ def test_ast_names_accumulate():
 
 def test_cut_scope():
     grammar = """
-        start = failcut | failchoice | succeed $ ;
+        start = (failcut | failchoice | succeed) $ ;
 
         failcut = 'a' ~ 'y' ;
 

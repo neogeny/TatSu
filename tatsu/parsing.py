@@ -11,6 +11,9 @@ from . import util
 from .contexts import ParseContext, isname, name, leftrec, nomemo, rule, tatsumasu
 from .exceptions import FailedRef
 
+from .parserconfig import ParserConfig
+from .util import debug, typename
+
 __all__ = [
     'NGParser',
     'Parser',
@@ -23,33 +26,27 @@ __all__ = [
     'tatsumasu',
 ]
 
-from .parserconfig import ParserConfig
-from .util import typename
+
+def debug(*_args, **_kwargs) -> None:  # noqa: F811
+    assert debug
+    pass
 
 
 class Parser(ParseContext):
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
-        for rulename in (f'_{name}_', f'_{name}', name):
-            rule = getattr(self, rulename, None)
-            if callable(rule):
-                return rule
-        raise self.newexcept(f'ol {name!r}@{typename(self)}', excls=FailedRef)
+        for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:
+            action = getattr(self, rulename, None)
+            if callable(action):
+                return action
+        raise self.newexcept(f'{name!r}@{typename(self)}', excls=FailedRef)
 
     @classmethod
     def rule_list(cls) -> list[str]:
+        def isdunder(name: str) -> bool:
+            return name.startswith('__') and name.endswith('__')
+
         methods = inspect.getmembers(cls, predicate=inspect.ismethod)
-        result = []
-        for m in methods:
-            name = m[0]
-            if len(name) < 3:
-                continue
-            if name.startswith('__') or name.endswith('__'):
-                continue
-            if name.startswith('_') and name.endswith('_'):
-                result.append(name[1:-1])
-            else:
-                result.append(name)
-        return result
+        return [m[0] for m in methods if not isdunder(m[0])]
 
 
 class NGParser(Parser):
@@ -70,12 +67,11 @@ class NGParser(Parser):
         super().__init__(config=config)
 
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
-        stripped = name.strip('_')
-        for rulename in (f'_{stripped}_', f'_{stripped}', stripped):
-            rule = getattr(self.rulesource, rulename, None)
-            if callable(rule):
-                return rule
-        raise self.newexcept(f'{name!r}@ng', excls=FailedRef)
+        for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:
+            action = getattr(self.rulesource, rulename, None)
+            if callable(action):
+                return action
+        raise self.newexcept(f'{name}', excls=FailedRef)
 
 
 def generic_main(custom_main, parser_class, name='Unknown'):

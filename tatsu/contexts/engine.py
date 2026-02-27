@@ -6,6 +6,7 @@ import ast as stdlib_ast
 import inspect
 from collections.abc import Callable, Generator, Iterable
 from contextlib import AbstractContextManager, contextmanager, suppress
+from functools import cached_property
 from typing import Any
 
 from .ctxlib import ChoiceContext, InnerExpContext
@@ -45,6 +46,10 @@ __all__: list[str] = ['ParseContext']
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
+
+
+def debug(*_args, **_kwargs):  # noqa: F811
+    pass
 
 
 class ParseContext(ParseCtx):
@@ -310,13 +315,19 @@ class ParseContext(ParseCtx):
     def _find_semantic_action(self, name: str) -> Callable[..., Any] | None:
         if not self.semantics:
             return None
-        name = name.strip('_')
-        action = getattr(self.semantics, safe_name(name), None)
+
+        for rulename in (name, name.strip('_'), f'_{name}', f'_{name}_'):
+            action = getattr(self.semantics, safe_name(rulename), None)
+            if callable(action):
+                break
+        else:
+            action = None
         if not callable(action):
             action = getattr(self.semantics, '_default', None)
 
         if not callable(action):
             action = None
+        debug(f'FIND SEMANTICS of {name!r} {action!r}')
 
         return action
 
@@ -516,6 +527,7 @@ class ParseContext(ParseCtx):
         params = ruleinfo.params or ()
         kwparams = ruleinfo.kwparams or {}
         action = self._find_semantic_action(ruleinfo.name)
+        debug(f'SEMANTICS of {ruleinfo.name!r} {action=!r} {params=!r} {kwparams=!r}')
         if action:
             return boundcall(action, {}, node, *params, **kwparams)
         else:
