@@ -31,10 +31,8 @@ __all__ = [
     'version',
     'version_info',
     'isname',
-
     'TatSuDataclassParams',
     'dataclass',
-
     'name',
     'leftrec',
     'nomemo',

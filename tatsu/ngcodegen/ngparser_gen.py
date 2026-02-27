@@ -263,51 +263,43 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print()
 
     def walk_Optional(self, optional: grammars.Optional):
-        self.print('with ctx._optional():')
-        with self.indent():
-            self.walk(optional.exp)
+        self._gen_decor(ParseCtx._optional, optional.exp)
 
     def walk_EmptyClosure(self, _closure: grammars.EmptyClosure):
         self.print('ctx._empty_closure()')
 
     def walk_Closure(self, closure: grammars.Closure):
-        self._gen_decor(ParseCtx._zeroormore, closure.exp, var='cl')
+        self._gen_decor(ParseCtx._loopopt, closure.exp, var='cl')
 
     def walk_PositiveClosure(self, closure: grammars.PositiveClosure):
-        self._gen_decor(ParseCtx._oneormore, closure.exp, var='cl')
+        self._gen_decor(ParseCtx._loopplus, closure.exp, var='cl')
 
     def walk_Join(self, join: grammars.Join):
-        self._gen_decor(ParseCtx._joinctx, join.exp, join.sep, var='cl')
+        self._gen_decor(ParseCtx._joinopt, join.exp, sep=join.sep, var='cl')
 
     def walk_PositiveJoin(self, join: grammars.PositiveJoin):
-        self._gen_decor(ParseCtx._joinoneormore, join.exp, join.sep, var='cl')
+        self._gen_decor(ParseCtx._joinplus, join.exp, sep=join.sep, var='cl')
 
     def walk_LeftJoin(self, join: grammars.LeftJoin):
-        self._gen_decor(ParseCtx._leftjoin, join.exp, join.sep, var='cl')
+        self._gen_decor(ParseCtx._joinleft, join.exp, sep=join.sep, var='cl')
 
     def walk_RightJoin(self, join: grammars.RightJoin):
-        self._gen_decor(ParseCtx._rightjoin, join.exp, join.sep, var='cl')
+        self._gen_decor(ParseCtx._joinright, join.exp, sep=join.sep, var='cl')
 
     def walk_Gather(self, gather: grammars.Gather):
-        self._gen_decor(ParseCtx._gatherctx, gather.exp, gather.sep, var='g')
+        self._gen_decor(ParseCtx._gatheropt, gather.exp, sep=gather.sep, var='g')
 
     def walk_PositiveGather(self, gather: grammars.PositiveGather):
-        self._gen_decor(ParseCtx._gatheroneormore, gather.exp, gather.sep, var='g')
+        self._gen_decor(ParseCtx._gatherplus, gather.exp, sep=gather.sep, var='g')
 
     def walk_SkipTo(self, skipto: grammars.SkipTo):
-        n = self._gen_block(skipto.exp)
-        self.print()
-        self.print(f'ctx._skip_to(block{n})')
+        self._gen_decor(ParseCtx._skipto, skipto.exp)
 
     def walk_Named(self, named: grammars.Named):
-        self.print(f"with ctx._setname('{named.name}'):")
-        with self.indent():
-            self.walk(named.exp)
+        self._gen_decor(ParseCtx._nameset, named.exp, arg=repr(named.name))
 
     def walk_NamedList(self, named: grammars.Named):
-        self.print(f"with ctx._addname('{named.name}'):")
-        with self.indent():
-            self.walk(named.exp)
+        self._gen_decor(ParseCtx._nameadd, named.exp, arg=repr(named.name))
 
     def walk_Override(self, override: grammars.Override):
         self.walk_Named(override)
@@ -474,9 +466,9 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self,
         exp: grammars.Model,
         decor: str = '',
-        emptycheck: bool = False,
+        echeck: bool = False,
     ):
-        if emptycheck and () in exp.lookahead():
+        if echeck and () in exp.lookahead():
             raise CodegenError(
                 f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}',
             )
@@ -493,17 +485,20 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         exp: grammars.Model,
         sep: grammars.Model | None = None,
         var: str = '',
-        emptycheck: bool = True,
+        arg: str = '',
+        echeck: bool = True,
     ):
         assert isinstance(mgr, types.FunctionType)
         name = mgr.__name__
-        self.print(f'with ctx.{name}() as {var}:')
+        if var:
+            self.print(f'with ctx.{name}({arg}) as {var}:')
+        else:
+            self.print(f'with ctx.{name}({arg}):')
         with self.indent():
             if sep:
-                self._gen_anon_block(
-                    sep,
-                    decor=f'{var}.sep',
-                    emptycheck=emptycheck,
-                )
+                self._gen_anon_block(sep, decor=f'{var}.sep', echeck=echeck)
                 self.print()
-            self._gen_anon_block(exp, decor=f'{var}.exp', emptycheck=emptycheck)
+            if var:
+                self._gen_anon_block(exp, decor=f'{var}.exp', echeck=echeck)
+            else:
+                self.walk(exp)

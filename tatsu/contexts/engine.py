@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast as stdlib_ast
 import inspect
-from collections.abc import Callable, Generator, Iterable
+from collections.abc import Callable, Generator
 from contextlib import contextmanager, suppress
 from typing import Any
 
@@ -252,13 +252,9 @@ class ParseContext(ParseCtx):
         if not (ri and ri.is_token_rule()):
             self.cursor.next_token()
 
-    def _define(
-        self,
-        keys: Iterable[str],
-        list_keys: Iterable[str] | None = None,
-    ) -> None:
+    def _define(self, keys: list[str], addkeys: list[str] | None = None) -> None:
         # NOTE: called by generated parsers
-        return self.states.define(keys, list_keys)
+        return self.states.define(keys, addkeys)
 
     def setname(self, name: str) -> None:
         # NOTE: called by generated parsers
@@ -660,12 +656,12 @@ class ParseContext(ParseCtx):
             ctx.run()
 
     @contextmanager
-    def _optional(self):
+    def _optional(self) -> Any:
         with self._choice(), self._option(), self.states.cutscope():
             yield
 
     @contextmanager
-    def _group(self):
+    def _group(self) -> Any:
         self.pushstate()
         try:
             with self.states.cutscope():
@@ -676,7 +672,7 @@ class ParseContext(ParseCtx):
             raise
 
     @contextmanager
-    def _if(self):
+    def _if(self) -> Any:
         self.pushstate()
         self.lookahead += 1
         try:
@@ -686,7 +682,7 @@ class ParseContext(ParseCtx):
             self.lookahead -= 1
 
     @contextmanager
-    def _ifnot(self):
+    def _ifnot(self) -> Any:
         try:
             with self._if():
                 yield
@@ -696,12 +692,12 @@ class ParseContext(ParseCtx):
             raise self.newexcept('', excls=FailedLookahead)
 
     @contextmanager
-    def _setname(self, name: str):
+    def _nameset(self, name: str) -> Any:
         yield
         self.setname(name)
 
     @contextmanager
-    def _addname(self, name: str):
+    def _nameadd(self, name: str) -> Any:
         yield
         self.addname(name)
 
@@ -740,13 +736,13 @@ class ParseContext(ParseCtx):
                 return
 
     @contextmanager
-    def _zeroormore(self) -> Any:
+    def _loopopt(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._closure(cl._exp_value())
 
     @contextmanager
-    def _oneormore(self) -> Any:
+    def _loopplus(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._positive_closure(cl._exp_value())
@@ -795,13 +791,13 @@ class ParseContext(ParseCtx):
         return cst
 
     @contextmanager
-    def _gatherctx(self) -> Any:
+    def _gatheropt(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._gather(cl._exp_value(), cl._sep_value())
 
     @contextmanager
-    def _gatheroneormore(self) -> Any:
+    def _gatherplus(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._positive_gather(cl._exp_value(), cl._sep_value())
@@ -813,13 +809,13 @@ class ParseContext(ParseCtx):
         return self._positive_closure(exp, sep=sep, omitsep=True)
 
     @contextmanager
-    def _joinctx(self) -> Any:
+    def _joinopt(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._join(cl._exp_value(), cl._sep_value())
 
     @contextmanager
-    def _joinoneormore(self) -> Any:
+    def _joinplus(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._positive_join(cl._exp_value(), cl._sep_value())
@@ -831,13 +827,13 @@ class ParseContext(ParseCtx):
         return self._positive_closure(exp, sep=sep)
 
     @contextmanager
-    def _leftjoin(self) -> Any:
+    def _joinleft(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._left_join(cl._exp_value(), cl._sep_value())
 
     @contextmanager
-    def _rightjoin(self) -> Any:
+    def _joinright(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._right_join(cl._exp_value(), cl._sep_value())

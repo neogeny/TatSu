@@ -5,11 +5,9 @@ from __future__ import annotations
 from .contexts.decorator import isname, name, leftrec, nomemo, rule, tatsumasu
 from .objectmodel import TatSuDataclassParams, tatsudataclass as dataclass
 
-
 __all__ = [
     'TatSuDataclassParams',
     'dataclass',
-
     'isname',
     'name',
     'leftrec',
