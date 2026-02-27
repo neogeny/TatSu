@@ -226,6 +226,10 @@ class ModelBuilderSemantics:
             constructors=constructors,
         )
 
+    @staticmethod
+    def types_defined_in(container: TypeContainer, /) -> list[type]:
+        return ModelBuilder.types_defined_in(container)
+
     def _default(self, ast: Any, *args: Any, **kwargs: Any) -> Any:
         if not args:
             return ast
