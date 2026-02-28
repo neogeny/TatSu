@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import inspect
-import sys
 from collections.abc import Callable
 from typing import Any
 
@@ -12,7 +11,8 @@ from .contexts import ParseContext, isname, name, leftrec, nomemo, rule, tatsuma
 from .exceptions import FailedRef
 
 from .parserconfig import ParserConfig
-from .util import debug, safe_name, typename
+from .util import safe_name, typename
+from .util.genericmain import generic_main
 
 __all__ = [
     'Parser',
@@ -25,10 +25,7 @@ __all__ = [
     'tatsumasu',
 ]
 
-
-def debug(*_args, **_kwargs) -> None:  # noqa: F811
-    assert debug
-    pass
+from .util.genericmain import generic_main
 
 
 class OldParser(ParseContext):
@@ -76,72 +73,3 @@ class Parser(ParseContext):
 
         methods = inspect.getmembers(source, predicate=inspect.ismethod)
         return [m[0] for m in methods if not isdunder(m[0])]
-
-
-def generic_main(custom_main, parser_class, name='Unknown'):
-    import argparse
-
-    class ListRules(argparse.Action):
-        def __call__(self, parser, namespace, values, option_string=None):
-            print('Rules:')
-            for r in parser_class.rule_list():
-                print(r)
-            print()
-            sys.exit(0)
-
-    argp = argparse.ArgumentParser(description=f'Simple parser for {name}.')
-    addarg = argp.add_argument
-
-    addarg(
-        '-c',
-        '--color',
-        help='use color in traces (requires the colorama library)',
-        action='store_true',
-    )
-    addarg('-l', '--list', action=ListRules, nargs=0, help='list all rules and exit')
-    addarg(
-        '-n',
-        '--no-nameguard',
-        action='store_true',
-        dest='no_nameguard',
-        help="disable the 'nameguard' feature",
-    )
-    addarg('-t', '--trace', action='store_true', help='output trace information')
-    addarg(
-        '-w',
-        '--whitespace',
-        type=str,
-        default=None,
-        help='whitespace specification',
-    )
-    addarg(
-        'file',
-        metavar='FILE',
-        help="the input file to parse or '-' for standard input",
-        nargs='?',
-        default='-',
-    )
-    addarg(
-        'startrule',
-        metavar='STARTRULE',
-        nargs='?',
-        help='the start rule for parsing',
-        default=None,
-    )
-
-    args = argp.parse_args()
-    try:
-        return custom_main(
-            args.file,
-            start=args.startrule,
-            trace=args.trace,
-            whitespace=args.whitespace,
-            nameguard=not args.no_nameguard,
-            colorize=args.color,
-        )
-    except KeyboardInterrupt:
-        pass
-
-
-# HACK: backwards compatibility
-util.generic_main = generic_main  # type: ignore ty: ignore[ # unresolved-attribute]
