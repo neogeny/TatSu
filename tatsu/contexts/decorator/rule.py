@@ -41,14 +41,11 @@ def rule(
     *args: Any, **kwargs: Any
 ) ->  Callable[[Callable[[Any, Ctx], None]], Callable[[Any, Ctx], Any]]:
 
-    params = args
-    kwparams = kwargs
-
-    def decorator(func: Callable[[Any, Ctx], None]) -> Callable[[Any, Ctx], Any]:
-        return __rule_wrapper(func, args, kwargs)
-
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func: Callable[[Any, Ctx], None] = args[0]
         return __rule_wrapper(func, (), {})
+
+    def decorator(func: Callable[[Any, Ctx], None]) -> Callable[[Any, Ctx], Any]:
+        return __rule_wrapper(func, args, kwargs)
 
     return decorator
