@@ -1,7 +1,11 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 
-$INVOKE_COLLECTION_NAME='makefile'
+$TATSUDEBUG = 0
+
+$INVOKE_COLLECTION_NAME = 'invoke_tasks'
+
+
 $PYTHONOPTIMIZE=0
 # Value,Equivalent Flag,Effect
 # 0,(Default),No optimization. Assertions are active.
