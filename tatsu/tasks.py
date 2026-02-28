@@ -107,8 +107,22 @@ def boundary_print(banner: str = '', line: str = THIN_LINE):
         print(line * pre, banner, line * (cols - 2 - pre - add - len(banner)))
 
 
-def success_print(target: str = '', *, task: TaskFun = None, line: str = THIN_LINE):
-    target += task.name if task else ''  # type: ignore
+def start_print(task: TaskFun = None, target: str = ''):
+    taskstr = task.name if task else ''  # type: ignore
+    targetstr = ' ' + target if target else ''
+    print(f'▶ {taskstr}{targetstr}')
+
+
+def success_print(
+        target: str = '',
+        *,
+        task: TaskFun = None,
+        line: str = THIN_LINE,
+        icon: str = '⏏',
+):
+    taskstr = task.name if task else ''  # type: ignore
+    targetstr = ' ' + target if target else ''
+    boundary_print(f'{icon} {taskstr}{targetstr}', line=line)
 
 
 def version_boundary_print(
@@ -123,13 +137,13 @@ def version_boundary_print(
 
 
 @task
-def begin(c: Context):
+def begin(_c: Context):
     boundary_print()
 
 
 @task(pre=[begin])
-def clean(c: Context, plus: bool = False):
-    print('-> clean')
+def clean(_c: Context, plus: bool = False):
+    start_print(clean)
     patterns = ['build', 'dist', 'tatsu.egg-info', '.tox']
     if plus:
         patterns.extend(['.cache', '.pytest_cache', '.ruff_cache', '.mypy_cache'])
@@ -148,7 +162,7 @@ def clean(c: Context, plus: bool = False):
 
 @task(pre=[clean])
 def ruff(c: Context, python: float = PYTHON):
-    print('-> ruff')
+    start_print(ruff)
     uv_run(
         c,
         'ruff check -q --preview tatsu tests examples',
@@ -159,7 +173,7 @@ def ruff(c: Context, python: float = PYTHON):
 
 @task(pre=[clean])
 def ty(c: Context, python: float = PYTHON):
-    print('-> ty')
+    start_print(ty)
     res = uv_run(
         c,
         'ty check tatsu tests examples',
@@ -177,7 +191,7 @@ def ty(c: Context, python: float = PYTHON):
 
 @task(pre=[clean])
 def mypy(c: Context, python: float = PYTHON):
-    print(f'-> {mypy.__name__}')
+    start_print(mypy)
     res = uv_run(
         c,
         [
@@ -203,7 +217,7 @@ def mypy(c: Context, python: float = PYTHON):
 
 @task(pre=[clean])
 def pyright(c: Context, python: float = PYTHON):
-    print('-> pyright')
+    start_print(pyright)
     uv_run(
         c,
         'basedpyright tatsu tests examples',
@@ -216,7 +230,7 @@ def pyright(c: Context, python: float = PYTHON):
 
 @task(pre=[clean])
 def pytestfast(c: Context, python: float = PYTHON):
-    print('-> pytest fast')
+    start_print(pytest, target='fast')
     Path('./tmp').mkdir(exist_ok=True)
     Path('./tmp/__init__.py').touch()
     uv_run(
@@ -237,7 +251,7 @@ def pytestfast(c: Context, python: float = PYTHON):
 
 @task(pre=[clean])
 def pytestbootstrap(c: Context, python: float = PYTHON):
-    print('-> pytest bootstrap')
+    start_print(pytest, target='bootstrap')
     Path('./tmp').mkdir(exist_ok=True)
     Path('./tmp/__init__.py').touch()
     uv_run(
@@ -255,13 +269,13 @@ def pytestbootstrap(c: Context, python: float = PYTHON):
 
 
 @task(pre=[clean, pytestfast, pytestbootstrap])
-def pytest(c: Context, python: float = PYTHON):
+def pytest(_c: Context, _python: float = PYTHON):
     pass
 
 
 @task(pre=[clean])
 def black(c: Context, python: float = PYTHON):
-    print('-> black')
+    start_print(black)
     res = uv_run(
         c,
         ["black", "--check", "tatsu", "tests", "examples"],
@@ -277,18 +291,18 @@ def black(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin, clean, ruff, ty, mypy, pyright, black])
-def lint(c: Context):
+def lint(_c: Context):
     success_print(task=lint)
 
 
 @task(pre=[begin, lint, pytest])
-def test(c: Context):
+def test(_c: Context):
     success_print(task=test)
 
 
 @task(pre=[clean])
-def doclint(c: Context, python: float = PYTHON):
-    print('-> doclint')
+def doclint(c: Context, _python: float = PYTHON):
+    start_print(doclint)
     uv_run(
         c,
         'vale README.rst docs/*.rst',
@@ -300,7 +314,7 @@ def doclint(c: Context, python: float = PYTHON):
 
 @task(pre=[begin, doclint])
 def docs(c: Context):
-    print('-> docs')
+    start_print(docs)
     with c.cd('docs'):
         uv_run(c, 'make -s html', quiet=True, group='doc', hide='stdout')
     success_print(task=docs)
@@ -308,20 +322,22 @@ def docs(c: Context):
 
 @task(pre=[clean])
 def build(c: Context):
-    print('-> build')
+    start_print(build)
     c.run('uvx hatch build', hide='both')
     success_print(task=build)
 
 
 def matrix_core(c: Context, python: float = PYTHON):
     version_boundary_print(c, target='ᝰ', python=python)
+
     ruff(c, python=python)
     ty(c, python=python)
     pyright(c, python=python)
-    black(c, python=python)
+
     pytestfast(c, python=python)
     pytestbootstrap(c, python=python)
-    success_print(str(python))
+
+    success_print(str(python), icon='✓')
 
 
 @task
@@ -356,7 +372,7 @@ def matrix(c: Context):
 
 def _export_requirements(c: Context, filename: str, group: str = '', nogroup: str = ''):
     out_file = Path(filename)
-    print(f'-> {out_file}')
+    start_print(target=str(out_file))
 
     # note:
     #   We use pty=True here to ensure the shell redirection behaves
@@ -393,26 +409,26 @@ def req_doc(c: Context):
 
 
 @task(pre=[begin, req_base, req_dev, req_test, req_doc])
-def requirements(c: Context):
+def requirements(_c: Context):
     success_print(task=requirements)
 
 
 @task(pre=[requirements])
-def reqs(c: Context):
+def reqs(_c: Context):
     pass
 
 
 @task(pre=[build])
 def testpublish(c: Context):
-    print('-> test publish')
+    start_print(target='test publish')
     workflow = 'test_publish.yml'
     c.run(f'gh workflow run {workflow}')
     c.run(f'gh run list --workflow={workflow}')
 
 
 @task(pre=[build])
-def publish(c: Context, dry_run: bool = True):
-    print('-> publish')
+def publish(c: Context, _dry_run: bool = True):
+    start_print(publish)
     workflow = 'publish.yml'
     c.run(f'gh workflow run {workflow}')
     c.run(f'gh run list --workflow={workflow}')
@@ -420,7 +436,7 @@ def publish(c: Context, dry_run: bool = True):
 
 @task
 def g2e(c: Context):
-    print('-> examples/g2e')
+    start_print(g2e, target='examples/')
     with c.cd('examples/g2e'):
         c.run('uv run make -s clean test', pty=True, hide='both')
         c.run('uv run make -s clean', pty=True, hide='both')
@@ -428,13 +444,13 @@ def g2e(c: Context):
 
 @task
 def calc(c: Context):
-    print('-> examples/calc')
+    start_print(calc, target='examples/')
     with c.cd('examples/calc'):
         c.run('uv run make -s clean test', pty=True, hide='both')
 
 
 @task(pre=[clean, begin, g2e, calc])
-def examples(c: Context):
+def examples(_c: Context):
     success_print(task=examples)
 
 
