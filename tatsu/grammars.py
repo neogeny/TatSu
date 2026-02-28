@@ -16,7 +16,7 @@ from .exceptions import FailedRef, GrammarError
 from .parserconfig import ParserConfig
 from .contexts.infos import RuleInfo
 from .objectmodel import Node, tatsudataclass
-from .util import debug, indent, re, trim, typename
+from .util import indent, re, trim, typename
 from .util.abctools import chunks, compress_seq
 
 PEP8_LLEN = 72
@@ -875,10 +875,6 @@ class Rule(Decorator):
         assert isinstance(self.kwparams, dict), f'{typename(self)}: {self.kwparams=!r}'
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
-        if self.exp is None:
-            debug(f'{self!r} weird with {self.exp=!r}')
-        elif self.exp.missing_rules is None:
-            debug(f'{self!r}\nweird with {self.exp.missing_rules=!r}\n{self.exp=!r}')
         return self.exp.missing_rules(rulenames)
 
     def _parse(self, ctx):
