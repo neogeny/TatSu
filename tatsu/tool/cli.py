@@ -68,7 +68,7 @@ def parse_args():
     )
     main_mode.add_argument(
         '--pretty-lean',
-        help='like --pretty, but without name: or ::Parameter annotations',
+        help='like --pretty, but without name: or [Parameter] annotations',
         action='store_true',
     )
 
