@@ -28,6 +28,15 @@ def tn(obj) -> str:
     return getattr(type(obj), '__name__', '.?.')
 
 
+def __rule_wrapper(func: Callable[[Any, Ctx], Any], params, kwparams) -> Callable[[Any, Ctx], Any]:
+    @functools.wraps(func)
+    def wrapper(self: Any, ctx: Ctx) -> Any:
+        ruleinfo = RuleInfo.new(self, func, params, kwparams)
+        return ctx._call(ruleinfo)
+
+    return wrapper
+
+
 def rule(
     *args: Any, **kwargs: Any
 ) ->  Callable[[Callable[[Any, Ctx], None]], Callable[[Any, Ctx], Any]]:
@@ -36,6 +45,7 @@ def rule(
     kwparams = kwargs
 
     def decorator(func: Callable[[Any, Ctx], None]) -> Callable[[Any, Ctx], Any]:
+        return __rule_wrapper(func, params, kwparams)
         @functools.wraps(func)
         def wrapper(self: Any, ctx: Ctx) -> Any:
             ruleinfo = RuleInfo.new(self, func, params, kwparams)
@@ -44,7 +54,8 @@ def rule(
         return wrapper
 
     if len(args) == 1 and callable(args[0]) and not kwargs:
-        func = args[0]
+        func: Callable[[Any, Ctx], None] = args[0]
+        return __rule_wrapper(func, (), {})
 
         @functools.wraps(func)
         def wrapper(self: Any, ctx: Ctx) -> Any:
