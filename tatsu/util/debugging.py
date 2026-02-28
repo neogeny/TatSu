@@ -21,7 +21,7 @@ def info(*args: Any, **kwargs: Any) -> None:
 def debug(*args: Any, **kwargs: Any) -> None:
     if not __debug__:
         return
-    stderr_print('🐞', *args, **kwargs)
+    stderr_print(*args, **kwargs)
 
 
 def warning(*args: Any, **kwargs: Any) -> None:

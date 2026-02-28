@@ -163,6 +163,7 @@ class Model(Node):
 
     def railroads(self) -> str:
         from . import railroads
+
         return railroads.text(self)
 
     def __str__(self):

@@ -24,6 +24,7 @@ def test_railroads():
     assert tracks[-2] == trackm2
     assert not tracks[-1].rstrip()
 
+
 def test_per_node():
     grammar = r"""
         start: options
