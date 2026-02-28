@@ -448,7 +448,7 @@ class Sequence(Model):
         return set().union(*[s._used_rule_names() for s in self.sequence])
 
     def _first(self, k, f) -> ffset:
-        result = {()}
+        result: ffset = {()}
         for s in self.sequence:
             x = s._first(k, f)
             result = kdot(result, x, k)
@@ -571,7 +571,7 @@ class Closure(Decorator):
 
     def _first(self, k, f) -> ffset:
         efirst = self.exp._first(k, f)
-        result = {()}
+        result: ffset = {()}
         for _i in range(k):
             result = kdot(result, efirst, k)
         return {()} | result
@@ -1041,11 +1041,11 @@ class Grammar(Model):
         return self.config.keywords
 
     @property
-    def semantics(self) -> type[object] | None:
+    def semantics(self) -> Any:
         return self.config.semantics
 
     @semantics.setter
-    def semantics(self, value: type[object]):
+    def semantics(self, value: Any):
         self.config.semantics = value
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:

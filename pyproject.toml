@@ -258,6 +258,7 @@ exclude = [
     "parsers/"
 ]
 
+#reportCallIssue = false
 reportAttributeAccessIssue = false
 reportMissingParameterType = false
 reportImplicitOverride = false

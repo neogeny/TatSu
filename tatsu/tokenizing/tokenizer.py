@@ -156,9 +156,6 @@ class NullCursor(Cursor):
 
 @runtime_checkable
 class Tokenizer(Protocol):
-    def __init__(self, *args, **kwargs) -> None:
-        pass
-
     def newcursor(self) -> Cursor: ...
 
 

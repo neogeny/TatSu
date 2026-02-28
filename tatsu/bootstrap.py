@@ -11,7 +11,6 @@
 
 # ruff: noqa: RUF100, C405, COM812, I001, F401, F811, PLR1702, PLC2801, SIM117
 # ruff: noqa: PL2401, PLC2402, PLC2403
-# E303
 # pyright: ignore reportReturnType
 # fmt: off
 
@@ -21,7 +20,8 @@ import tatsu.decorators as tatsu
 from tatsu.buffering import Buffer
 from tatsu.contexts import Ctx
 from tatsu.infos import ParserConfig
-from tatsu.parsing import Parser, generic_main
+from tatsu.parsing import Parser
+from tatsu.util.genericmain import generic_main
 from tatsu.tokenizing.textlines import TextLinesTokenizer
 
 __all__ = [

@@ -175,7 +175,7 @@ class ANTLRSemantics:
             exp = model.Token(ast.value)
             self.tokens[name] = exp
         else:
-            exp = model.Void()
+            exp = model.Void()  # type: ignore
             rule = model.Rule(ast=exp, name=name)
             self.synthetic_rules.append(rule)
         return exp

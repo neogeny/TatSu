@@ -33,7 +33,8 @@ __all__ = [
     'to_python_sourcecode',
 ]
 
-__compiled_grammar_cache = {}
+
+__compiled_grammar_cache: dict[tuple[str|None, str, int], grammars.Grammar] = {}
 
 
 def compile(

@@ -4,14 +4,9 @@
 from __future__ import annotations
 
 import functools
-from copy import copy
-from typing import Any
+from typing import Any, cast, overload
 from collections.abc import Callable
 
-from twine.cli import args
-
-from ...util import debug  # noqa: PGH004
-from ..engine import ParseContext
 from ..protocol import Ctx
 from ..infos import RuleInfo
 
@@ -28,24 +23,35 @@ def tn(obj) -> str:
     return getattr(type(obj), '__name__', '.?.')
 
 
-def __rule_wrapper(func: Callable[[Any, Ctx], Any], params, kwparams) -> Callable[[Any, Ctx], Any]:
+def __rule_wrapper(
+    func: Callable,
+    *args: Any,
+    **kwargs: Any,
+) -> Callable[[Any, Ctx], Any]:
+
     @functools.wraps(func)
     def wrapper(self: Any, ctx: Ctx) -> Any:
-        ruleinfo = RuleInfo.new(self, func, params, kwparams)
+        ruleinfo = RuleInfo.new(self, func, args, kwargs)
         return ctx._call(ruleinfo)
 
     return wrapper
 
+# @overload
+# def rule(func: Callable[[Any, Ctx], None]) -> Callable[[Any, Ctx], Any]: ...
+#
+# @overload
+# def rule(typename: str, *args: Any, **kwargs: Any) -> Callable[[Any, Ctx], Any]: ...
 
-def rule(
-    *args: Any, **kwargs: Any
-) ->  Callable[[Callable[[Any, Ctx], None]], Callable[[Any, Ctx], Any]]:
-
+def rule(*args: Any, **kwargs: Any) -> Callable:
+# (
+#       Callable[[Any, Ctx], Any]
+#     | Callable[[Callable[[Any, Ctx], None]], Callable[[Any, Ctx], Any]]
+# ):
     if len(args) == 1 and callable(args[0]) and not kwargs:
-        func: Callable[[Any, Ctx], None] = args[0]
-        return __rule_wrapper(func, (), {})
+        func: Callable = cast(Callable, args[0])
+        return __rule_wrapper(func)
 
-    def decorator(func: Callable[[Any, Ctx], None]) -> Callable[[Any, Ctx], Any]:
-        return __rule_wrapper(func, args, kwargs)
+    def decorator(func: Callable) -> Callable[[Any, Ctx], Any]:
+        return __rule_wrapper(func, *args, *kwargs)
 
     return decorator
