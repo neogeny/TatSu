@@ -96,8 +96,8 @@ def _executor_pmap(
     process: Callable,
     tasks: Sequence[Any],
 ) -> Iterable[ParprocResult]:
-    nworkers = max(1, multiprocessing.cpu_count())
-    n = nworkers * 4 * 1000
+    nworkers = 4 * max(1, multiprocessing.cpu_count())
+    n = nworkers * 4
     chunks = batched(tasks, n)
     with executorcls() as ex:
         for chunk in chunks:
@@ -115,15 +115,15 @@ def _process_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocRe
 
 
 def _imap_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocResult]:
-    nworkers = max(1, multiprocessing.cpu_count())
+    nworkers = 4 * max(1, multiprocessing.cpu_count())
 
     n = nworkers * 4
     chunks = batched(tasks, n)
 
     count = 0
-    for chunk in chunks:
-        count += len(chunk)
-        with multiprocessing.Pool(processes=nworkers) as pool:
+    with multiprocessing.Pool(processes=nworkers) as pool:
+        for chunk in chunks:
+            count += len(chunk)
             yield from pool.imap_unordered(process, chunk)
     if len(tasks) != count:
         raise RuntimeError(
