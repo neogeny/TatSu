@@ -12,7 +12,7 @@ from ..protocol import Ctx
 
 def tatsumasu(
     *params: Any, **kwparams: Any
-) -> Callable[Callable[[], None], Callable[[Ctx], Any]]:
+) -> Callable[[Callable[[], None]], Callable[[Ctx], Any]]:
     def decorator(func: Callable[[], None]) -> Callable[[Ctx], Any]:
         @functools.wraps(func)
         def wrapper(self: Ctx, _ctx: Ctx | None = None) -> Any:

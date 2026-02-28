@@ -133,7 +133,7 @@ class BoundCallable:
                     actual.add_kwargs(kwargs)
 
         for name, value in known.items():
-            if not (param := declared.get(name, None)):
+            if not (param := declared.get(name, None)):  # type: ignore
                 continue
             match param.kind:
                 case p.KEYWORD_ONLY:

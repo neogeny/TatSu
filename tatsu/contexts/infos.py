@@ -26,7 +26,7 @@ class RuleLike(Protocol):
 
 
 class closure(list[Any]):
-    def __hash__(self) -> int:  # pyright: ignore[reportIncompatibleVariableOverride]
+    def __hash__(self) -> int:  # type: ignore
         return hash(tuple(self))
 
 

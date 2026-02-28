@@ -60,7 +60,7 @@ class Version:
     micro: int | None = None
     nano: tuple[int, ...] | None = None
     level: str | None = None
-    serial: int | None = None
+    serial: int | str | None = None
     post: Any = None
     dev: Any = None
     local: Any = None
@@ -87,7 +87,7 @@ class Version:
             alpha = ''.join(takewhile(str.isalpha, s))
             digits = s[len(alpha) :]
             if digits.isdigit():
-                digits = int(digits)
+                digits = int(digits)  # type: ignore
             return alpha, digits
 
         parts = match.groupdict()
@@ -100,10 +100,10 @@ class Version:
         pre = (pre, num)
         parts['pre'] = pre
         level, serial = pre
-        serial = int(serial) if serial else None
+        serial = int(serial) if serial else None  # type: ignore
 
         major, minor, micro, *nano = release + (None,) * 3
-        nano = tuple(int(n) for n in nano if n is not None) or None
+        nano = tuple(int(n) for n in nano if n is not None) or None  # type: ignore
 
         for key in ('epoch', 'post', 'dev', 'local'):
             parts[key] = alphadigit_split(parts[key])[1]
@@ -112,7 +112,7 @@ class Version:
             major=major,
             minor=minor,
             micro=micro,
-            nano=nano,
+            nano=nano,  # type: ignore
             level=level,
             serial=serial,
             **rowselect({'epoch', 'post', 'dev', 'local'}, parts),

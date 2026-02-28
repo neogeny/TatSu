@@ -34,7 +34,7 @@ __all__ = [
 ]
 
 
-__compiled_grammar_cache: dict[tuple[str|None, str, int], grammars.Grammar] = {}
+__compiled_grammar_cache: dict[tuple[str | None, str, int], grammars.Grammar] = {}
 
 
 def compile(

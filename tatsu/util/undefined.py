@@ -58,4 +58,4 @@ class UndefinedType[T]:
         return hash(id(self))
 
 
-Undefined = UndefinedType()
+Undefined: UndefinedType = UndefinedType()

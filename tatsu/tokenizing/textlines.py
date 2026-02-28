@@ -18,7 +18,6 @@ DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 class TextLinesCursor(Cursor):
     def __init__(self, tokens: TextLinesTokenizer, pos: int = 0):
-        super().__init__()
         self._tokens: TextLinesTokenizer = tokens
         self._pos = pos
         self._len = tokens.len
@@ -154,7 +153,6 @@ class TextLinesTokenizer(Tokenizer):
         config: ParserConfig | None = None,
         **settings: Any,
     ):
-        super().__init__()
         config = ParserConfig.new(config=config, **settings)
         self.config = config
 

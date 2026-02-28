@@ -211,6 +211,7 @@ ignore = [
     "PLR0915", # too-many-statements
     "PLR0917", # too many positional arguments
     "PLR2004", # magic-value-comparison
+    "PLW1508", # Invalid type for environment variable default; expected `str` or `None`
     "PLW1514", # unspecified-encoding
     "PLW3201", # bad-dunder-method-name
     "RET504", #  assign before return

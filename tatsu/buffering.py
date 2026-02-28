@@ -182,7 +182,6 @@ class Buffer(Tokenizer):
         config: ParserConfig | None = None,
         **settings: Any,
     ):
-        super().__init__()
         config = ParserConfig.new(config=config, **settings)
         self.config = config
 

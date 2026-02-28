@@ -47,10 +47,6 @@ type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
 
-def debug(*_args, **_kwargs):  # noqa: F811
-    pass
-
-
 class ParseContext(Ctx):
     def __init__(
         self,

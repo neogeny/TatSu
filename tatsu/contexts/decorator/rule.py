@@ -36,17 +36,19 @@ def __rule_wrapper(
 
     return wrapper
 
+
 # @overload
 # def rule(func: Callable[[Any, Ctx], None]) -> Callable[[Any, Ctx], Any]: ...
 #
 # @overload
 # def rule(typename: str, *args: Any, **kwargs: Any) -> Callable[[Any, Ctx], Any]: ...
 
+
 def rule(*args: Any, **kwargs: Any) -> Callable:
-# (
-#       Callable[[Any, Ctx], Any]
-#     | Callable[[Callable[[Any, Ctx], None]], Callable[[Any, Ctx], Any]]
-# ):
+    # (
+    #       Callable[[Any, Ctx], Any]
+    #     | Callable[[Callable[[Any, Ctx], None]], Callable[[Any, Ctx], Any]]
+    # ):
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func: Callable = cast(Callable, args[0])
         return __rule_wrapper(func)

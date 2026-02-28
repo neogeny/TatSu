@@ -44,10 +44,10 @@ def tatsudataclass[T: type](
 
     def decorator(target: T) -> T:
         allparams = {**TatSuDataclassParams, **params}
-        return dataclasses.dataclass(**allparams)(target)
+        return dataclasses.dataclass(**allparams)(target)  # type: ignore
 
     # If cls is passed, it was used as @tatsudataclass with no arguments
-    if cls is not None:
+    if cls is not None and not params:
         return decorator(cls)
 
     return decorator

@@ -17,10 +17,10 @@ class NodeWalker:
     # note: this is shared among all instances of the same sublass of NodeWalker
     _walker_cache: ClassVar[dict[str, WalkerMethod | None]] = {}  # type: ignore
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
         # note: a different cache for each subclass
-        cls._walker_cache: dict[str, WalkerMethod | None] = {}
+        cls._walker_cache: dict[str, WalkerMethod | None] = {}  # type: ignore
 
     @property
     def walker_cache(self):

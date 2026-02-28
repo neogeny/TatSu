@@ -2,11 +2,14 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import os
 import sys
 import warnings
 from typing import Any
 
 from .string import prints
+
+TATSUDEBUG: int | str | None = os.environ.get('TATSUDEBUG', 0)
 
 
 def stderr_print(*args: Any, **kwargs: Any) -> None:
@@ -19,7 +22,7 @@ def info(*args: Any, **kwargs: Any) -> None:
 
 
 def debug(*args: Any, **kwargs: Any) -> None:
-    if not __debug__:
+    if not __debug__ and TATSUDEBUG:
         return
     stderr_print(*args, **kwargs)
 

@@ -20,9 +20,9 @@ class Node(BaseNode):
         super().__init__(ast=ast, **kwargs)
         self.__parent_ref: weakref.ref[Node] | None = None  # type: ignore
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         super().__post_init__()
-        self.__parent_ref: weakref.ref[Node] | None = None
+        self.__parent_ref: weakref.ref[Node] | None = None  # type: ignore
 
     @property
     def parent(self) -> Node | None:

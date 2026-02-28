@@ -18,15 +18,10 @@ from dataclasses import dataclass
 from functools import partial
 from itertools import batched
 from pathlib import Path
-from types import SimpleNamespace
 from typing import Any, NamedTuple
 
-try:
-    import rich  # pyright: ignore[reportMissingImports]
-except ImportError:
-    rich = SimpleNamespace()  # ty:ignore[invalid-assignment]
-
-from rich.progress import (  # pyright: ignore[reportMissingImports]
+import rich
+from rich.progress import (
     BarColumn,
     Progress,
     TaskID,

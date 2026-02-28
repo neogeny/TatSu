@@ -174,23 +174,32 @@ def ty(c: Context, python: float = PYTHON):
             if r.strip():
                 print(r)
 
+
 @task(pre=[clean])
 def mypy(c: Context, python: float = PYTHON):
     print(f'-> {mypy.__name__}')
-    uv_run(
+    res = uv_run(
         c,
         [
-            'mypy', 'tatsu', 'tests', 'examples',
+            'mypy',
+            'tatsu',
+            'tests',
+            'examples',
             '--install-types',
             '--exclude dist',
             '--exclude parsers',
-            '--exclude backup'
+            '--exclude backup',
         ],
         python=python,
         group='test',
-        # pty=True,
-        # hide='both',
+        pty=True,
+        hide='both',
     )
+    if res.exited != 0 or 'Success' not in res.stdout:
+        for r in [res.stdout, res.stderr]:
+            if r.strip():
+                print(r)
+
 
 @task(pre=[clean])
 def pyright(c: Context, python: float = PYTHON):

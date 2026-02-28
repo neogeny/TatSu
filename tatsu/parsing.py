@@ -6,7 +6,6 @@ import inspect
 from collections.abc import Callable
 from typing import Any
 
-from . import util
 from .contexts import ParseContext, isname, name, leftrec, nomemo, rule, tatsumasu
 from .exceptions import FailedRef
 
@@ -24,8 +23,6 @@ __all__ = [
     'rule',
     'tatsumasu',
 ]
-
-from .util.genericmain import generic_main
 
 
 class OldParser(ParseContext):
