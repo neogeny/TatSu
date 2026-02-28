@@ -20,8 +20,8 @@ from itertools import batched
 from pathlib import Path
 from typing import Any, NamedTuple
 
-import rich
-from rich.progress import (
+import rich  # type: ignore
+from rich.progress import (  # type: ignore
     BarColumn,
     Progress,
     TaskID,
