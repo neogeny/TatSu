@@ -134,8 +134,8 @@ def clean(c: Context, plus: bool = False):
     if plus:
         patterns.extend(['.cache', '.pytest_cache', '.ruff_cache', '.mypy_cache'])
 
-    for p in patterns:
-        path = Path(p)
+    for pat in patterns:
+        path = Path(pat)
         if path.exists():
             if path.is_dir():
                 shutil.rmtree(path)
@@ -174,6 +174,23 @@ def ty(c: Context, python: float = PYTHON):
             if r.strip():
                 print(r)
 
+@task(pre=[clean])
+def mypy(c: Context, python: float = PYTHON):
+    print(f'-> {mypy.__name__}')
+    uv_run(
+        c,
+        [
+            'mypy', 'tatsu', 'tests', 'examples',
+            '--install-types',
+            '--exclude dist',
+            '--exclude parsers',
+            '--exclude backup'
+        ],
+        python=python,
+        group='test',
+        # pty=True,
+        # hide='both',
+    )
 
 @task(pre=[clean])
 def pyright(c: Context, python: float = PYTHON):
@@ -250,7 +267,7 @@ def black(c: Context, python: float = PYTHON):
         print('✖ failed!')
 
 
-@task(pre=[begin, clean, ruff, ty, pyright, black])
+@task(pre=[begin, clean, ruff, ty, mypy, pyright, black])
 def lint(c: Context):
     success_print(task=lint)
 
