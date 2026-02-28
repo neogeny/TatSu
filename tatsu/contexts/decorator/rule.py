@@ -45,23 +45,10 @@ def rule(
     kwparams = kwargs
 
     def decorator(func: Callable[[Any, Ctx], None]) -> Callable[[Any, Ctx], Any]:
-        return __rule_wrapper(func, params, kwparams)
-        @functools.wraps(func)
-        def wrapper(self: Any, ctx: Ctx) -> Any:
-            ruleinfo = RuleInfo.new(self, func, params, kwparams)
-            return ctx._call(ruleinfo)
-
-        return wrapper
+        return __rule_wrapper(func, args, kwargs)
 
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func: Callable[[Any, Ctx], None] = args[0]
         return __rule_wrapper(func, (), {})
-
-        @functools.wraps(func)
-        def wrapper(self: Any, ctx: Ctx) -> Any:
-            ruleinfo = RuleInfo.new(self, func, (), {})
-            return ctx._call(ruleinfo)
-
-        return wrapper
 
     return decorator
