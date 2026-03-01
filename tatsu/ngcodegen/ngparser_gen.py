@@ -37,7 +37,7 @@ HEADER = """\
 
     from __future__ import annotations
 
-    import tatsu
+    from tatsu import decorators as tatsu
     from tatsu.buffering import Buffer
     from tatsu.contexts import Ctx
     from tatsu.infos import ParserConfig
