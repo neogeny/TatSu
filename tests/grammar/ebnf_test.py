@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import tatsu
-from tatsu import grammars
-from tatsu.grammars import syntax
+from tatsu import grammars as g
 
 
 def test_parse_ebnf():
@@ -26,7 +25,7 @@ def test_parse_ebnf():
     """
 
     model = tatsu.compile(grammar, asmodel=True)
-    assert isinstance(model, grammars.Grammar)
+    assert isinstance(model, g.Grammar)
 
 
 def test_optional():
@@ -38,7 +37,7 @@ def test_optional():
 
     model = tatsu.compile(grammar, asmodel=True)
     exp = model.rulemap['start'].exp
-    assert isinstance(exp, syntax.Sequence)
+    assert isinstance(exp, g.Sequence)
     assert repr(exp.sequence) == "[Token(token='['), Pattern(pattern='abc')]"
 
     exp = model.rulemap['other'].exp

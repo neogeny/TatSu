@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import unittest
 
+from tatsu import grammars as g
 from tatsu.exceptions import FailedParse
-from tatsu.grammars import syntax
 from tatsu.ngcodegen import pythongen
 from tatsu.tool import compile
 from tatsu.util import trim
@@ -108,9 +108,8 @@ class PatternTests(unittest.TestCase):
             / $ ;
         """
         model = compile(grammar=trim(grammar))
-        from tatsu import grammars
 
-        assert isinstance(model.rules[0].exp, syntax.Sequence)
+        assert isinstance(model.rules[0].exp, g.Sequence)
         print(pythongen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
             pythongen(model.rules[0].exp.sequence[0]).strip(),
@@ -123,7 +122,7 @@ class PatternTests(unittest.TestCase):
             blort/ $ ;
         """
         model = compile(grammar=trim(grammar))
-        assert isinstance(model.rules[0].exp, syntax.Sequence)
+        assert isinstance(model.rules[0].exp, g.Sequence)
         print(pythongen(model.rules[0].exp.sequence[0]))
         self.assertEqual(
             trim(pythongen(model.rules[0].exp.sequence[0])),

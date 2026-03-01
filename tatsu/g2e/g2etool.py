@@ -6,7 +6,7 @@ import sys
 from importlib import resources
 from pathlib import Path
 
-from .. import compile, grammars
+from .. import compile, grammars as g
 from .semantics import ANTLRSemantics
 
 
@@ -21,7 +21,7 @@ def translate(
     name: str | None = None,
     encoding: str = 'utf-8',
     trace: bool = False,
-) -> grammars.Grammar:
+) -> g.Grammar:
     if text is None and filename is None:
         raise ValueError('either `text` or `filename` must be provided')
     if filename:

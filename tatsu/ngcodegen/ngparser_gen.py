@@ -7,9 +7,8 @@ import types
 from collections.abc import Callable, Iterator
 from typing import Any
 
-from .. import grammars
+from .. import grammars as g
 from ..exceptions import CodegenError
-from ..grammars import rulelike, syntax
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..util import regexp, safe_name
@@ -114,7 +113,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def walk_default(self, node: Any) -> Any:
         return node
 
-    def walk_Grammar(self, grammar: grammars.Grammar):
+    def walk_Grammar(self, grammar: g.Grammar):
         basename = self.parser_name or grammar.name
         self.print(
             HEADER.format(
@@ -136,7 +135,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
 
         self.print(FOOTER.format(name=basename).rstrip())
 
-    def walk_Rule(self, rule: grammars.Rule):
+    def walk_Rule(self, rule: g.Rule):
         def param_repr(p):
             if isinstance(p, int | float):
                 return str(p)
@@ -175,64 +174,64 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         with self.indent():
             self.print(self.walk(rule.exp))
 
-    def walk_BasedRule(self, rule: rulelike.BasedRule):
+    def walk_BasedRule(self, rule: g.BasedRule):
         self.walk_Rule(rule)
 
-    def walk_Call(self, call: syntax.Call):
+    def walk_Call(self, call: g.Call):
         name = safe_name(call.name)
         self.print(f'self.{name}(ctx)')
 
-    def walk_RuleInclude(self, include: rulelike.RuleInclude):
+    def walk_RuleInclude(self, include: g.RuleInclude):
         self.walk(include.rule.exp)
 
-    def walk_Void(self, _void: grammars.Void):
+    def walk_Void(self, _void: g.Void):
         self.print('ctx.void()')
 
-    def walk_Dot(self, _dot: grammars.Dot):
+    def walk_Dot(self, _dot: g.Dot):
         self.print('ctx.dot()')
 
-    def walk_Fail(self, _fail: grammars.Fail):
+    def walk_Fail(self, _fail: g.Fail):
         self.print('ctx.fail()')
 
-    def walk_Cut(self, _cut: grammars.Cut):
+    def walk_Cut(self, _cut: g.Cut):
         self.print('ctx.cut()')
 
-    def walk_Comment(self, comment: grammars.Comment):
+    def walk_Comment(self, comment: g.Comment):
         lines = '\n'.join(f'# {c!s}' for c in comment.comment.splitlines())
         self.print(f'\n{lines}\n')
 
-    def walk_EOLComment(self, comment: grammars.EOLComment):
+    def walk_EOLComment(self, comment: g.EOLComment):
         self.walk_Comment(comment)
 
-    def walk_EOF(self, _eof: grammars.EOF):
+    def walk_EOF(self, _eof: g.EOF):
         self.print('ctx.eofcheck()')
 
-    def walk_Group(self, group: grammars.Group):
+    def walk_Group(self, group: g.Group):
         self._gen_decor(Ctx.group, group.exp)
 
-    def walk_Token(self, token: grammars.Token):
+    def walk_Token(self, token: g.Token):
         self.print(f'ctx.token({token.token!r})')
 
-    def walk_Constant(self, constant: grammars.Constant):
+    def walk_Constant(self, constant: g.Constant):
         self.print(f'ctx.constant({constant.literal!r})')
 
-    def walk_Alert(self, alert: grammars.Alert):
+    def walk_Alert(self, alert: g.Alert):
         self.print(f'ctx.alert({alert.literal!r}, {alert.level})')
 
-    def walk_Pattern(self, pattern: grammars.Pattern):
+    def walk_Pattern(self, pattern: g.Pattern):
         self.print(f'ctx.pattern({regexp(pattern.pattern)})')
 
-    def walk_Lookahead(self, lookahead: grammars.Lookahead):
+    def walk_Lookahead(self, lookahead: g.Lookahead):
         self._gen_decor(Ctx.if_, lookahead.exp)
 
-    def walk_NegativeLookahead(self, lookahead: grammars.NegativeLookahead):
+    def walk_NegativeLookahead(self, lookahead: g.NegativeLookahead):
         self._gen_decor(Ctx.ifnot_, lookahead.exp)
 
-    def walk_Sequence(self, seq: syntax.Sequence):
+    def walk_Sequence(self, seq: g.Sequence):
         self._gen_defines_declaration(seq)
         self.walk(seq.sequence)
 
-    def walk_Choice(self, choice: grammars.Choice):
+    def walk_Choice(self, choice: g.Choice):
         if len(choice.options) == 1:
             self.walk(choice.options[0])
             return
@@ -256,56 +255,56 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                     self.print(expectinner)
                 self.print(')')
 
-    def walk_Option(self, option: grammars.Option):
+    def walk_Option(self, option: g.Option):
         self._gen_anon_block(option.exp, decor='ch.option')
         self.print()
 
-    def walk_Optional(self, optional: grammars.Optional):
+    def walk_Optional(self, optional: g.Optional):
         self._gen_decor(Ctx.optional, optional.exp)
 
-    def walk_EmptyClosure(self, _closure: grammars.EmptyClosure):
+    def walk_EmptyClosure(self, _closure: g.EmptyClosure):
         self.print('ctx.empty()')
 
-    def walk_Closure(self, closure: grammars.Closure):
+    def walk_Closure(self, closure: g.Closure):
         self._gen_decor(Ctx.loopopt, closure.exp, var='cl')
 
-    def walk_PositiveClosure(self, closure: grammars.PositiveClosure):
+    def walk_PositiveClosure(self, closure: g.PositiveClosure):
         self._gen_decor(Ctx.loopplus, closure.exp, var='cl')
 
-    def walk_Join(self, join: grammars.Join):
+    def walk_Join(self, join: g.Join):
         self._gen_decor(Ctx.joinopt, join.exp, sep=join.sep, var='cl')
 
-    def walk_PositiveJoin(self, join: grammars.PositiveJoin):
+    def walk_PositiveJoin(self, join: g.PositiveJoin):
         self._gen_decor(Ctx.joinplus, join.exp, sep=join.sep, var='cl')
 
-    def walk_LeftJoin(self, join: grammars.LeftJoin):
+    def walk_LeftJoin(self, join: g.LeftJoin):
         self._gen_decor(Ctx.joinleft, join.exp, sep=join.sep, var='cl')
 
-    def walk_RightJoin(self, join: grammars.RightJoin):
+    def walk_RightJoin(self, join: g.RightJoin):
         self._gen_decor(Ctx.joinright, join.exp, sep=join.sep, var='cl')
 
-    def walk_Gather(self, gather: grammars.Gather):
+    def walk_Gather(self, gather: g.Gather):
         self._gen_decor(Ctx.gatheropt, gather.exp, sep=gather.sep, var='g')
 
-    def walk_PositiveGather(self, gather: grammars.PositiveGather):
+    def walk_PositiveGather(self, gather: g.PositiveGather):
         self._gen_decor(Ctx.gatherplus, gather.exp, sep=gather.sep, var='g')
 
-    def walk_SkipTo(self, skipto: grammars.SkipTo):
+    def walk_SkipTo(self, skipto: g.SkipTo):
         self._gen_decor(Ctx.skipto, skipto.exp)
 
-    def walk_Named(self, named: grammars.Named):
+    def walk_Named(self, named: g.Named):
         self._gen_decor(Ctx.nameset, named.exp, arg=repr(named.name))
 
-    def walk_NamedList(self, named: grammars.Named):
+    def walk_NamedList(self, named: g.Named):
         self._gen_decor(Ctx.nameadd, named.exp, arg=repr(named.name))
 
-    def walk_Override(self, override: grammars.Override):
+    def walk_Override(self, override: g.Override):
         self.walk_Named(override)
 
-    def walk_OverrideList(self, override: grammars.OverrideList):
+    def walk_OverrideList(self, override: g.OverrideList):
         self.walk_NamedList(override)
 
-    def _gen_keywords(self, grammar: grammars.Grammar):
+    def _gen_keywords(self, grammar: g.Grammar):
         keywords = [str(k) for k in grammar.keywords if k is not None]
         if not keywords:
             self.print('KEYWORDS: set[str] = set()')
@@ -319,7 +318,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print()
         self.print()
 
-    def _gen_init(self, grammar: grammars.Grammar):
+    def _gen_init(self, grammar: g.Grammar):
         assert isinstance(grammar.config, ParserConfig)
         start = grammar.config.start or grammar.rules[0].name
 
@@ -358,7 +357,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def _rules_name(self, basename: str) -> str:
         return f'{basename}Rules'
 
-    def _gen_buffering_init(self, grammar: grammars.Grammar):
+    def _gen_buffering_init(self, grammar: g.Grammar):
         with self.indent():
             self.print('def __init__(')
             with self.indent():
@@ -377,7 +376,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 self.print('super().__init__(text, config=config)')
         self.print()
 
-    def _gen_buffering(self, grammar: grammars.Grammar, basename: str):
+    def _gen_buffering(self, grammar: g.Grammar, basename: str):
         self.print(f'class {self._tokenizer_name(basename)}(TextLinesTokenizer):')
         self._gen_buffering_init(grammar)
 
@@ -388,7 +387,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self._gen_buffering_init(grammar)
         self.print()
 
-    def _gen_parsing(self, grammar: grammars.Grammar, basename: str):
+    def _gen_parsing(self, grammar: g.Grammar, basename: str):
         self.print(f'class {self._parser_name(basename)}(Parser):')
         with self.indent():
             self.print(
@@ -425,7 +424,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self.walk(grammar.rules)
         self.print()
 
-    def _gen_defines_declaration(self, node: grammars.Model):
+    def _gen_defines_declaration(self, node: g.Model):
         defines = compress_seq(node.defines())
         ldefs = {safe_name(d) for d, value in defines if value}
         sdefs = {safe_name(d) for d, value in defines if not value and d not in ldefs}
@@ -446,7 +445,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 self.print(f'[{ldefs_str}],')
             self.print(')')
 
-    def _gen_block(self, exp: grammars.Model, name='block'):
+    def _gen_block(self, exp: g.Model, name='block'):
         if () in exp.lookahead():
             raise CodegenError(
                 f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}',
@@ -462,7 +461,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
 
     def _gen_anon_block(
         self,
-        exp: grammars.Model,
+        exp: g.Model,
         decor: str = '',
         echeck: bool = False,
     ):
@@ -480,8 +479,8 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def _gen_decor(
         self,
         mgr: Callable[..., Any],
-        exp: grammars.Model | None = None,
-        sep: grammars.Model | None = None,
+        exp: g.Model | None = None,
+        sep: g.Model | None = None,
         var: str = '',
         arg: str = '',
         echeck: bool = True,

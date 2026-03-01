@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from .. import grammars
+from .. import grammars as g
 from ..builder import BuilderConfig, Constructor, ModelBuilderSemantics, TypeContainer
 from ..exceptions import ParseException
 from ..infos import ParserConfig
@@ -25,7 +25,6 @@ __all__ = [
     'compile',
     'gencode',
     'genmodel',
-    'grammars',
     'modelgen',
     'parse',
     'pythongen',
@@ -34,7 +33,7 @@ __all__ = [
 ]
 
 
-__compiled_grammar_cache: dict[tuple[str | None, str, int], grammars.Grammar] = {}
+__compiled_grammar_cache: dict[tuple[str | None, str, int], g.Grammar] = {}
 
 
 def compile(
@@ -51,7 +50,7 @@ def compile(
     typedefs: list[TypeContainer] | None = None,
     constructors: list[Constructor] | None = None,
     **settings: Any,
-) -> grammars.Grammar:
+) -> g.Grammar:
     # check parameters
     ParserConfig.new(
         config=config,

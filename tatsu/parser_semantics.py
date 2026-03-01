@@ -6,7 +6,7 @@ from ast import literal_eval
 from collections.abc import Iterable
 from typing import Any
 
-from . import grammars
+from . import grammars as g
 from .builder import ModelBuilderSemantics
 from .contexts import ParseContext
 from .exceptions import FailedSemantics
@@ -17,12 +17,12 @@ from .util.abctools import flatten
 class TatSuGrammarSemantics(ModelBuilderSemantics):
     def __init__(self, name: str | None = None, context: ParseContext | None = None):
         super().__init__(
-            basetype=grammars.Model,
-            constructors=grammars.model_classes(),  # ty:ignore[invalid-argument-type]
+            basetype=g.Model,
+            constructors=g.model_classes(),  # ty:ignore[invalid-argument-type]
         )
         self.name = name
         self.context = context
-        self.rulemap: dict[str, grammars.Rule] = {}
+        self.rulemap: dict[str, g.Rule] = {}
 
     def set_context(self, context: ParseContext):
         self.context = context
@@ -42,17 +42,17 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         except (TypeError, re.error) as e:
             raise FailedSemantics('pattern error: ' + str(e)) from e
 
-    def token(self, ast: str) -> grammars.Token:
+    def token(self, ast: str) -> g.Token:
         token = ast
         if not token:
             raise FailedSemantics('empty token')
         literal_eval(repr(token))
-        return grammars.Token(ast=token)
+        return g.Token(ast=token)
 
-    def pattern(self, ast: str) -> grammars.Pattern:
+    def pattern(self, ast: str) -> g.Pattern:
         pattern = ast
         self._validate_literal(pattern)
-        return grammars.Pattern(ast=pattern)
+        return g.Pattern(ast=pattern)
 
     def regexes(self, ast: Iterable[str]) -> Iterable[str]:
         pattern = ''.join(ast)
@@ -81,11 +81,11 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
 
     def cut_deprecated(self, _ast):
         warning('The use of >> for cut is deprecated. Use the ~ symbol instead.')
-        return grammars.Cut()
+        return g.Cut()
 
     def override_single_deprecated(self, ast):
         warning('The use of @ for override is deprecated. Use @: instead')
-        return grammars.Override(ast)
+        return g.Override(ast)
 
     def sequence(self, ast):
         # if isinstance(ast, list | tuple):
@@ -96,10 +96,10 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         assert isinstance(seq, list), str(seq)
         if len(seq) == 1:
             return seq[0]
-        return grammars.Sequence(ast=ast)
+        return g.Sequence(ast=ast)
 
     def choice(self, ast):
-        return grammars.Choice(ast=ast)
+        return g.Choice(ast=ast)
 
     def new_name(self, name):
         if name in self.rulemap:
@@ -127,7 +127,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
             self.known_name(name)
 
         if not base:
-            rule = grammars.Rule(
+            rule = g.Rule(
                 ast=ast,
                 name=name,
                 params=params,
@@ -137,7 +137,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         else:
             self.known_name(base)
             baserule = self.rulemap[base]
-            rule = grammars.BasedRule(
+            rule = g.BasedRule(
                 ast=ast,
                 name=name,
                 baserule=baserule,
@@ -154,7 +154,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         self.known_name(name)
 
         rule = self.rulemap[name]
-        return grammars.RuleInclude(ast=ast, rule=rule)
+        return g.RuleInclude(ast=ast, rule=rule)
 
     def grammar(self, ast):
         directives = {d.name: d.value for d in flatten(ast.directives)}
@@ -167,7 +167,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
             directives['whitespace'] = ''
 
         name = self.name or directives.get('grammar')
-        grammar = grammars.Grammar(
+        grammar = g.Grammar(
             name,
             list(self.rulemap.values()),
             directives=directives,
