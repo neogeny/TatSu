@@ -438,11 +438,13 @@ class Buffer(Tokenizer):
 
     def next_token(self) -> None:
         p = None
-        while self._pos != p:
+        while self.pos != p:
             p = self._pos
-            self.eat_eol_comments()
-            self.eat_comments()
             self.eat_whitespace()
+            self.eat_eol_comments()
+            if self.pos != p:
+                continue
+            self.eat_comments()
 
     def skip_to(self, c: str) -> int:
         p = self._pos

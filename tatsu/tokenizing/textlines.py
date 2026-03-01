@@ -277,9 +277,11 @@ class TextLinesTokenizer(Tokenizer):
         p = None
         while c.pos != p:
             p = c.pos
-            self.eat_eol_comments_at(c)
-            self.eat_comments_at(c)
             self.eat_whitespace_at(c)
+            self.eat_eol_comments_at(c)
+            if c.pos != p:
+                continue
+            self.eat_comments_at(c)
 
     def _eat_regex_list(self, regex: str | re.Pattern | None, c: Cursor) -> list[str]:
         if not (r := cached_re_compile(regex)):
