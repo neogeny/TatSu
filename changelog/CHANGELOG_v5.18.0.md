@@ -11,8 +11,8 @@ acts as the source of the input stream.
 
 * All the bookkeeping for a parse with a `ParseContext` was moved to 
 `StateStack` that only takes a `Cursor` as initialization parameter. It's
-possible to have several parses on the same input at once because the
-the state is separate from the `ParseContext` and the `Tokenizer`.
+possible to have more than one parse on the same input because the state 
+of the parsing is separate from the `ParseContext` and the `Tokenizer.
 
 * Methods to represent grammar rules no longer have to be declared in 
 a sublclass of `Parser`, but can be declared in any class. The convention
@@ -26,3 +26,5 @@ the name is modified by appending one or more underscores to it.
 to caccess and pass the invocation `ParsContext`. `Ctx` is the protocol
 that defines only the interface that methods for rules require to perform
 a parse according to the input grammar.
+
+* The undocumented and unmaintained `ParseContext.substate` was removed.

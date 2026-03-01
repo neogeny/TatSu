@@ -98,9 +98,7 @@ class TextLinesCursor(Cursor):
         return self.tokens.matchre_at(pattern, self)
 
     def lineinfo(self, pos: int | None = None) -> LineInfo:
-        if pos is None:
-            pos = self.pos
-        return self.tokens.lineinfo_at(pos)
+        return self.tokens.lineinfo_at(self.pos if pos is None else pos)
 
     def lookahead_pos(self) -> str:
         if self.atend():
@@ -116,9 +114,7 @@ class TextLinesCursor(Cursor):
         return self.tokens.split_block_lines(text)[0].rstrip()
 
     def posline(self, pos: int | None = None) -> int:
-        if pos is None:
-            pos = self.pos
-        return self.tokens.posline_at(pos)
+        return self.tokens.posline_at(self.pos if pos is None else pos)
 
     def get_line(self, n: int | None = None) -> str:
         if n is None:
@@ -153,7 +149,8 @@ class TextLinesTokenizer(Tokenizer):
         config: ParserConfig | None = None,
         **settings: Any,
     ):
-        config = ParserConfig.new(config=config, **settings)
+        super().__init__()
+        config: ParserConfig = ParserConfig.new(config=config, **settings)
         self.config = config
 
         text = str(text)
