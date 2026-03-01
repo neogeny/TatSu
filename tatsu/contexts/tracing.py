@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Protocol
 
 from ..exceptions import FailedLeftRecursion
 from .infos import RuleInfo
@@ -24,7 +24,33 @@ class EventColor(color.Color):
 C = EventColor()
 
 
-class EventTracer:
+class EventTracer(Protocol):
+    def trace(self, msg: str, *args: Any, **kwargs: Any) -> None: ...
+
+    def trace_event(self, cursor: Cursor, event: str) -> None: ...
+
+    def trace_entry(self, cursor: Cursor) -> None: ...
+
+    def trace_success(self, cursor: Cursor) -> None: ...
+
+    def trace_failure(self, cursor: Cursor, ex: Exception | None = None) -> None: ...
+
+    def trace_recursion(self, cursor: Cursor) -> None: ...
+
+    def trace_cut(self, cursor: Cursor) -> None: ...
+
+    def trace_match(
+        self,
+        cursor: Cursor,
+        token: Any,
+        name: str | None = None,
+        failed: bool = False,
+    ) -> None: ...
+
+    def rulestack(self) -> str: ...
+
+
+class InfoEventTracer(EventTracer):
     def __init__(
         self,
         ruleinfos: list[RuleInfo],
@@ -131,3 +157,38 @@ class EventTracer:
             stack = stack.rsplit(self.config.trace_separator, 1)[0]
             stack += self.config.trace_separator
         return stack
+
+
+class NullEventTracer(EventTracer):
+    def trace(self, msg: str, *args: Any, **kwargs: Any) -> None:
+        pass
+
+    def trace_event(self, cursor: Cursor, event: str) -> None:
+        pass
+
+    def trace_entry(self, cursor: Cursor) -> None:
+        pass
+
+    def trace_success(self, cursor: Cursor) -> None:
+        pass
+
+    def trace_failure(self, cursor: Cursor, ex: Exception | None = None) -> None:
+        pass
+
+    def trace_recursion(self, cursor: Cursor) -> None:
+        pass
+
+    def trace_cut(self, cursor: Cursor) -> None:
+        pass
+
+    def trace_match(
+        self,
+        cursor: Cursor,
+        token: Any,
+        name: str | None = None,
+        failed: bool = False,
+    ) -> None:
+        pass
+
+    def rulestack(self) -> str:
+        return ""

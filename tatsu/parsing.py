@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import inspect
 from collections.abc import Callable
+from functools import cache
 from typing import Any
 
 from .contexts import ParseContext, isname, name, leftrec, nomemo, rule, tatsumasu
@@ -25,8 +26,13 @@ __all__ = [
 ]
 
 
-class OldParser(ParseContext):
-    pass
+@cache
+def find_rule(source: Any, name: str) -> Callable[[ParseContext], Any] | None:
+    for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:
+        action = getattr(source, safe_name(rulename), None)
+        if callable(action):
+            return action
+    return None
 
 
 class Parser(ParseContext):
@@ -47,13 +53,14 @@ class Parser(ParseContext):
         super().__init__(config=config)
 
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
-        if not self.rulesource:
-            return self._find_cls_rule(name)
-        for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:
-            action = getattr(self.rulesource, safe_name(rulename), None)
-            if callable(action):
-                return action
-        raise self.newexcept(f'{name}', excls=FailedRef)
+        if self.rulesource:
+             action = find_rule(self.rulesource, name)
+        else:
+            action = find_rule(self, name)
+        if not action:
+            raise self.newexcept(f'{name}', excls=FailedRef)
+        return action
+
 
     def _find_cls_rule(self, name: str) -> Callable[[ParseContext], Any]:
         for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:

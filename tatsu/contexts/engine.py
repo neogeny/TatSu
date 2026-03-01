@@ -6,12 +6,13 @@ import ast as stdlib_ast
 import inspect
 from collections.abc import Callable, Generator
 from contextlib import contextmanager, suppress
+from functools import cache
 from typing import Any
 
 from .ctxlib import ChoiceContext, InnerExpContext
 from .infos import MemoKey, RuleInfo, RuleResult, closure
 from .state import ParseState, ParseStateStack
-from .tracing import EventTracer
+from .tracing import InfoEventTracer, EventTracer, NullEventTracer
 from .. import buffering
 from ..ast import AST
 from ..buffering import Buffer
@@ -47,6 +48,27 @@ type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
 
+@cache
+def find_cached_semantic_action(semantics: Any, name: str) -> Callable[..., Any] | None:
+    if not semantics:
+        return None
+
+    for rulename in (name, name.strip('_'), f'_{name}', f'_{name}_'):
+        action = getattr(semantics, safe_name(rulename), None)
+        if callable(action):
+            break
+    else:
+        action = None
+
+    if not callable(action):
+        action = getattr(semantics, '_default', None)
+
+    if not callable(action):
+        action = None
+
+    return action
+
+
 class ParseContext(Ctx):
     def __init__(
         self,
@@ -71,7 +93,7 @@ class ParseContext(Ctx):
         self._states: ParseStateStack = ParseStateStack(cursor=self._cursor)
 
         self._initialize_caches()
-        self._tracer: EventTracer = EventTracer([])
+        self._tracer: EventTracer = NullEventTracer()
         self.update_tracer()
 
     def _initialize_caches(self) -> None:
@@ -171,7 +193,10 @@ class ParseContext(Ctx):
         self.states.lookahead = value
 
     def update_tracer(self) -> EventTracer:
-        tracer = EventTracer(self.ruleinfo_stack, config=self.config)
+        if self.active_config.trace:
+            tracer = InfoEventTracer(self.ruleinfo_stack, config=self.config)
+        else:
+            tracer = NullEventTracer()
         self._tracer = tracer
         return self.tracer
 
@@ -311,22 +336,7 @@ class ParseContext(Ctx):
         raise NotImplementedError
 
     def _find_semantic_action(self, name: str) -> Callable[..., Any] | None:
-        if not self.semantics:
-            return None
-
-        for rulename in (name, name.strip('_'), f'_{name}', f'_{name}_'):
-            action = getattr(self.semantics, safe_name(rulename), None)
-            if callable(action):
-                break
-        else:
-            action = None
-        if not callable(action):
-            action = getattr(self.semantics, '_default', None)
-
-        if not callable(action):
-            action = None
-
-        return action
+        return find_cached_semantic_action(self.semantics, name)
 
     def newexcept(
         self,
