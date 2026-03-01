@@ -10,7 +10,9 @@ from . import grammars
 from .builder import ModelBuilderSemantics
 from .contexts import ParseContext
 from .exceptions import FailedSemantics
+from .grammars import rulelike, syntax
 from .leftrec import mark_left_recursion
+from .parserconfig import ParserConfig
 from .util import eval_escapes, re, warning
 from .util.abctools import flatten
 
@@ -19,7 +21,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
     def __init__(self, name: str | None = None, context: ParseContext | None = None):
         super().__init__(
             basetype=grammars.Model,
-            constructors=grammars.Model.classes(),  # ty:ignore[invalid-argument-type]
+            constructors=grammars.model_classes(),  # ty:ignore[invalid-argument-type]
         )
         self.name = name
         self.context = context
@@ -43,24 +45,24 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         except (TypeError, re.error) as e:
             raise FailedSemantics('pattern error: ' + str(e)) from e
 
-    def token(self, ast: str, *args: Any) -> grammars.Token:
+    def token(self, ast: str) -> grammars.Token:
         token = ast
         if not token:
             raise FailedSemantics('empty token')
         literal_eval(repr(token))
         return grammars.Token(ast=token)
 
-    def pattern(self, ast: str, *args) -> grammars.Pattern:
+    def pattern(self, ast: str) -> grammars.Pattern:
         pattern = ast
         self._validate_literal(pattern)
         return grammars.Pattern(ast=pattern)
 
-    def regexes(self, ast: Iterable[str], *args) -> Iterable[str]:
+    def regexes(self, ast: Iterable[str]) -> Iterable[str]:
         pattern = ''.join(ast)
         self._validate_pattern(pattern)
         return ast
 
-    def regex(self, ast: str, *args) -> str:
+    def regex(self, ast: str) -> str:
         pattern = ast
         self._validate_pattern(pattern)
         return pattern
@@ -77,18 +79,18 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
     def int(self, ast):
         return int(ast)
 
-    def null(self, ast):
+    def null(self, _ast):
         return None
 
-    def cut_deprecated(self, ast, *args):
+    def cut_deprecated(self, _ast):
         warning('The use of >> for cut is deprecated. Use the ~ symbol instead.')
         return grammars.Cut()
 
-    def override_single_deprecated(self, ast, *args):
+    def override_single_deprecated(self, ast):
         warning('The use of @ for override is deprecated. Use @: instead')
         return grammars.Override(ast)
 
-    def sequence(self, ast, *args):
+    def sequence(self, ast):
         # if isinstance(ast, list | tuple):
         #     seq = ast
         # else:
@@ -97,7 +99,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         assert isinstance(seq, list), str(seq)
         if len(seq) == 1:
             return seq[0]
-        return grammars.Sequence(ast=ast)
+        return syntax.Sequence(ast=ast)
 
     def choice(self, ast):
         return grammars.Choice(ast=ast)
@@ -115,7 +117,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
     def boolean(self, ast):
         return str(ast).lower() in {'true', 'yes', 'ok', '1'}
 
-    def rule(self, ast, *args):
+    def rule(self, ast):
         decorators = ast.decorators
         name = ast.name
         base = ast.base
@@ -138,7 +140,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         else:
             self.known_name(base)
             baserule = self.rulemap[base]
-            rule = grammars.BasedRule(
+            rule = rulelike.BasedRule(
                 ast=ast,
                 name=name,
                 baserule=baserule,
@@ -150,14 +152,14 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         self.rulemap[name] = rule
         return rule
 
-    def rule_include(self, ast, *args):
+    def rule_include(self, ast):
         name = str(ast)
         self.known_name(name)
 
         rule = self.rulemap[name]
-        return grammars.RuleInclude(ast=ast, rule=rule)
+        return rulelike.RuleInclude(ast=ast, rule=rule)
 
-    def grammar(self, ast, *args):
+    def grammar(self, ast):
         directives = {d.name: d.value for d in flatten(ast.directives)}
         for value in directives.values():
             literal_eval(repr(value))
@@ -174,6 +176,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
             directives=directives,
             keywords=keywords,
         )
+        assert isinstance(grammar.config, ParserConfig)
         if grammar.config.left_recursion:
             mark_left_recursion(grammar)
         return grammar

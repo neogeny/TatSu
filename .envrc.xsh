@@ -1,7 +1,7 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 
-$TATSUDEBUG = 0
+$TATSUDEBUG = 1
 
 $INVOKE_COLLECTION_NAME = 'invoke_tasks'
 

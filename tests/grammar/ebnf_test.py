@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import tatsu
 from tatsu import grammars
+from tatsu.grammars import syntax
 
 
 def test_parse_ebnf():
@@ -37,7 +38,7 @@ def test_optional():
 
     model = tatsu.compile(grammar, asmodel=True)
     exp = model.rulemap['start'].exp
-    assert isinstance(exp, grammars.Sequence)
+    assert isinstance(exp, syntax.Sequence)
     assert repr(exp.sequence) == "[Token(token='['), Pattern(pattern='abc')]"
 
     exp = model.rulemap['other'].exp

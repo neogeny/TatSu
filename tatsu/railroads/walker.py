@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from .. import grammars
+from ..grammars import rulelike, syntax
 from ..util.abctools import join_lists
 from ..util.string import regexp, unicode_display_len as ulen
 from ..walkers import NodeWalker
@@ -112,10 +113,10 @@ class RailroadNodeWalker(NodeWalker):
     def walk_option(self, option: grammars.Option) -> Rails:
         return self.walk(option.exp)
 
-    def walk_sequence(self, s: grammars.Sequence) -> Rails:
+    def walk_sequence(self, s: syntax.Sequence) -> Rails:
         return weld(*(self.walk(e) for e in s.sequence))
 
-    def walk_call(self, call: grammars.Call) -> Rails:
+    def walk_call(self, call: syntax.Call) -> Rails:
         return [f"{call.name}"]
 
     def walk_pattern(self, pattern: grammars.Pattern) -> Rails:
@@ -162,10 +163,10 @@ class RailroadNodeWalker(NodeWalker):
     def walk_skip_to(self, skipto: grammars.SkipTo):
         return weld([' ->('], self.walk(skipto.exp), [')'])
 
-    def walk_rule_include(self, include: grammars.RuleInclude):
+    def walk_rule_include(self, include: rulelike.RuleInclude):
         return [f' >({include.rule.name}) ']
 
-    def walk_based_rule(self, rule: grammars.BasedRule):
+    def walk_based_rule(self, rule: rulelike.BasedRule):
         out = [f'{rule.name} < {rule.baserule}●─']
         out = weld(out, self.walk(rule.rhs))
         if ETX not in out:

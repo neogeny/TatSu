@@ -9,6 +9,7 @@ from typing import Any
 
 from .. import grammars
 from ..exceptions import CodegenError
+from ..grammars import rulelike, syntax
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..util import regexp, safe_name
@@ -174,14 +175,14 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         with self.indent():
             self.print(self.walk(rule.exp))
 
-    def walk_BasedRule(self, rule: grammars.BasedRule):
+    def walk_BasedRule(self, rule: rulelike.BasedRule):
         self.walk_Rule(rule)
 
-    def walk_Call(self, call: grammars.Call):
+    def walk_Call(self, call: syntax.Call):
         name = safe_name(call.name)
         self.print(f'self.{name}(ctx)')
 
-    def walk_RuleInclude(self, include: grammars.RuleInclude):
+    def walk_RuleInclude(self, include: rulelike.RuleInclude):
         self.walk(include.rule.exp)
 
     def walk_Void(self, _void: grammars.Void):
@@ -227,7 +228,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def walk_NegativeLookahead(self, lookahead: grammars.NegativeLookahead):
         self._gen_decor(Ctx.ifnot_, lookahead.exp)
 
-    def walk_Sequence(self, seq: grammars.Sequence):
+    def walk_Sequence(self, seq: syntax.Sequence):
         self._gen_defines_declaration(seq)
         self.walk(seq.sequence)
 
