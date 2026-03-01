@@ -26,7 +26,7 @@ directive: '@@' !'keyword' ~
         | name:('namechars') ~ '::' ~ value:string
     ) ~
 
-keywords: { keywords }+
+keywords: { keyword }+
 
 keyword: '@@keyword' ~ '::' ~ {@+:(word|string) !(':'|'=')}
 
