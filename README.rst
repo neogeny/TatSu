@@ -14,6 +14,7 @@
 | |docs|
 | |installs|
 | |sponsor|
+| |codspeed|
 |
 
     *At least for the people who send me mail about a new language that
@@ -576,3 +577,6 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
    :target: https://pypistats.org/packages/tatsu
 .. |sponsor| image:: https://img.shields.io/badge/Sponsor-EA4AAA?label=TatSu
    :target: https://github.com/sponsors/neogeny
+
+.. |codspeed| image:: https://img.shields.io/endpoint?url=https://codspeed.io/badge.json
+   :target: https://codspeed.io/neogeny/TatSu?utm_source=badge
