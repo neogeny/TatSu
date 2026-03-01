@@ -14,13 +14,14 @@ __all__ = ['mark_left_recursion']
 
 
 # note: based on https://github.com/ncellar/autumn_v1/
-def mark_left_recursion(rulemap: Mapping[str, Rule]) -> None:
+def mark_left_recursion(rulemap: Mapping[str, Rule]) -> list[Rule]:
 
     class State(Enum):
         FIRST = auto()
         CUTOFF = auto()
         VISITED = auto()
 
+    leftrec_rules: list[Rule] = []
     depth = 0
     depth_stack: list[int] = [-1]
     node_depth: dict[Model, int] = {}
@@ -57,7 +58,10 @@ def mark_left_recursion(rulemap: Mapping[str, Rule]) -> None:
                     for childrule in child_rules:
                         childrule.is_memoizable = False
 
+                    nonlocal leftrec_rules
+                    assert isinstance(child, Rule)
                     child.is_leftrec = True
+                    leftrec_rules.append(child)
         finally:
             # afterNode
             if leftrec:
@@ -68,3 +72,4 @@ def mark_left_recursion(rulemap: Mapping[str, Rule]) -> None:
 
     for rule in rulemap.values():
         dfs(rule)
+    return leftrec_rules

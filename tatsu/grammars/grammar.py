@@ -56,7 +56,13 @@ class Grammar(Model):
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
         self._calc_lookahead_sets()
-        mark_left_recursion(self.rulemap)
+        leftrect_rules = mark_left_recursion(self.rulemap)
+        if leftrect_rules and not config.left_recursion:
+            raise GrammarError(
+                f'{config.left_recursion=}' 
+                f' but found recursive rules' 
+                f' {', '.join(repr(r.name) for r in leftrect_rules)}!'
+            )
 
     @property
     def rulemap(self) -> dict[str, Rule]:
