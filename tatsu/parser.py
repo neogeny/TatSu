@@ -9,10 +9,11 @@ from .bootstrap import (
     TatSuBootstrapParser,
     TatSuBootstrapTokenizer,
 )
-from .grammars import PRAGMA_RE
 from .infos import ParserConfig
 from .parser_semantics import TatSuGrammarSemantics
 from .semantics import ASTSemantics
+
+PRAGMA_RE = r'^\s*#include.*$'
 
 
 class TatSuTokenizer(TatSuBootstrapTokenizer): ...
