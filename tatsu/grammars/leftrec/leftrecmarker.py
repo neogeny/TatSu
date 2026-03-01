@@ -4,16 +4,17 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Mapping
 from enum import Enum, auto
 from typing import cast
 
-from .. import grammars
+from .._core import Model, Rule
 
 __all__ = ['mark_left_recursion']
 
 
 # note: based on https://github.com/ncellar/autumn_v1/
-def mark_left_recursion(grammar: grammars.Grammar) -> None:
+def mark_left_recursion(rulemap: Mapping[str, Rule]) -> None:
 
     class State(Enum):
         FIRST = auto()
@@ -22,10 +23,10 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
 
     depth = 0
     depth_stack: list[int] = [-1]
-    node_depth: dict[grammars.Model, int] = {}
-    node_state: dict[grammars.Model, State] = defaultdict(lambda: State.FIRST)
+    node_depth: dict[Model, int] = {}
+    node_state: dict[Model, State] = defaultdict(lambda: State.FIRST)
 
-    def dfs(node: grammars.Model):
+    def dfs(node: Model):
         nonlocal depth
 
         if node_state[node] != State.FIRST:
@@ -33,7 +34,7 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
         node_state[node] = State.CUTOFF
 
         # beforeNode
-        leftrec = isinstance(node, grammars.Rule) and node.is_leftrec
+        leftrec = isinstance(node, Rule) and node.is_leftrec
         if leftrec:
             depth_stack.append(depth)
 
@@ -41,8 +42,7 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
         depth += 1
         try:
             callable_children = tuple(
-                c.follow_ref(grammar.rulemap)
-                for c in node.callable_at_same_pos(grammar.rulemap)
+                c.follow_ref(rulemap) for c in node.callable_at_same_pos(rulemap)
             )
             for child in callable_children:
                 dfs(child)
@@ -52,10 +52,8 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
                     and node_depth[child] > depth_stack[-1]
                 ):
                     # turn off memoization for all rules that were involved in this cycle
-                    child = cast(grammars.Rule, child)
-                    child_rules = (
-                        n for n in node_depth if isinstance(n, grammars.Rule)
-                    )
+                    child = cast(Rule, child)
+                    child_rules = (n for n in node_depth if isinstance(n, Rule))
                     for childrule in child_rules:
                         childrule.is_memoizable = False
 
@@ -68,5 +66,5 @@ def mark_left_recursion(grammar: grammars.Grammar) -> None:
             depth -= 1
             node_state[node] = State.VISITED
 
-    for rule in grammar.rules:
+    for rule in rulemap.values():
         dfs(rule)

@@ -8,7 +8,7 @@ from typing import Any
 
 from .. import grammars as model
 from ..ast import AST
-from ..grammars import Model
+from ..grammars import Model, syntax
 
 
 def camel2py(name: Any) -> str:
@@ -44,7 +44,7 @@ class ANTLRSemantics:
                     self.token_rules[name] = exp
                 return None
             elif not ast.fragment and not isinstance(exp, model.Model):
-                ref = model.Call(name.lower())
+                ref = syntax.Call(name.lower())
                 if name in self.token_rules:
                     self.token_rules[name].exp = ref
                 else:
@@ -68,7 +68,7 @@ class ANTLRSemantics:
         elif len(elements) == 1:
             return elements[0]
         else:
-            return model.Sequence(elements)
+            return syntax.Sequence(elements)
 
     def predicate_or_action(self, ast: Any) -> None:
         return None
@@ -97,10 +97,10 @@ class ANTLRSemantics:
             ast = ast.exp
         return model.PositiveClosure(ast)
 
-    def negative(self, ast: Model) -> model.Sequence:
+    def negative(self, ast: Model) -> syntax.Sequence:
         neg = model.NegativeLookahead(ast)
         any = model.Pattern('.')
-        return model.Sequence([neg, any])
+        return syntax.Sequence([neg, any])
 
     def subexp(self, ast: Model) -> model.Group:
         return model.Group(ast)
@@ -153,9 +153,9 @@ class ANTLRSemantics:
         re.compile(pattern)
         return pattern
 
-    def call(self, ast: str) -> model.Call:
+    def call(self, ast: str) -> syntax.Call:
         assert ast[0].islower()
-        return model.Call(camel2py(ast))
+        return syntax.Call(camel2py(ast))
 
     def any(self, ast: AST) -> model.Pattern:
         return model.Pattern(r'\w+|\S+')
@@ -190,6 +190,6 @@ class ANTLRSemantics:
         if name in self.token_rules:
             exp = self.token_rules[name]
         else:
-            exp = model.Decorator(model.Call(name))
+            exp = model.Decorator(syntax.Call(name))
             self.token_rules[name] = exp
         return exp

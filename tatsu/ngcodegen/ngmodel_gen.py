@@ -6,7 +6,7 @@ from __future__ import annotations
 import builtins
 from collections import namedtuple
 
-from .. import grammars
+from .. import grammars as g
 from .._version import version_info
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
@@ -53,7 +53,7 @@ BaseClassSpec = namedtuple('BaseClassSpec', ['class_name', 'base'])
 
 @deprecated_params(base_type='basetype')
 def modelgen(
-    model: grammars.Grammar,
+    model: g.Grammar,
     name: str = '',
     basetype: type = Node,
     base_type: type | None = None,
@@ -80,7 +80,7 @@ class PythonModelGenerator(IndentPrintMixin):
         self.basetype = basetype
         self.name = name or None
 
-    def generate_model(self, grammar: grammars.Grammar):
+    def generate_model(self, grammar: g.Grammar):
         basetype = self.basetype
         basetype_name = basetype.__name__.split('.')[-1]
         basetype_import = f"from {basetype.__module__} import {basetype_name}"
@@ -144,7 +144,7 @@ class PythonModelGenerator(IndentPrintMixin):
         with self.indent():
             self.print('pass')
 
-    def _gen_rule_class(self, rule: grammars.Rule, specs: list[BaseClassSpec]):
+    def _gen_rule_class(self, rule: g.Rule, specs: list[BaseClassSpec]):
         if not specs:
             return
         spec = specs[0]
@@ -160,7 +160,7 @@ class PythonModelGenerator(IndentPrintMixin):
             for arg in arguments:
                 self.print(f'{arg}: Any = None')
 
-    def _base_class_specs(self, rule: grammars.Rule) -> list[BaseClassSpec]:
+    def _base_class_specs(self, rule: g.Rule) -> list[BaseClassSpec]:
         if not rule.params or not isinstance(rule.params[0], str):
             return []
         spec = rule.params[0].split('::')

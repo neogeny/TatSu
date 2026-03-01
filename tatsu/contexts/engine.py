@@ -194,7 +194,9 @@ class ParseContext(Ctx):
 
     def update_tracer(self) -> EventTracer:
         if self.active_config.trace:
-            tracer: EventTracer = InfoEventTracer(self.ruleinfo_stack, config=self.config)
+            tracer: EventTracer = InfoEventTracer(
+                self.ruleinfo_stack, config=self.config
+            )
         else:
             tracer = NullEventTracer()
         self._tracer = tracer

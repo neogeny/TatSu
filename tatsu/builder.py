@@ -226,6 +226,10 @@ class ModelBuilderSemantics:
             constructors=constructors,
         )
 
+    @property
+    def builder(self) -> ModelBuilder:
+        return self._builder
+
     @staticmethod
     def types_defined_in(container: TypeContainer, /) -> list[type]:
         return ModelBuilder.types_defined_in(container)

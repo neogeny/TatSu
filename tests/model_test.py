@@ -8,7 +8,7 @@ from typing import Any
 import pytest
 
 import tatsu
-from tatsu import grammars
+from tatsu import grammars as g
 from tatsu.objectmodel import Node
 
 
@@ -138,29 +138,29 @@ def test_model_repr():
     with pytest.raises(ValueError, match=r'world='):
         Node(ast='hello', world='world')
 
-    token = grammars.Token(ast='hello')
+    token = g.Token(ast='hello')
     assert repr(token) == "Token(token='hello')"
 
-    token = grammars.Token(token='hello')
+    token = g.Token(token='hello')
     assert repr(token) == "Token(token='hello')"
 
-    grammars.Token('hello')
+    g.Token('hello')
     assert repr(token) == "Token(token='hello')"
 
     with pytest.raises(TypeError, match=r'unexpected keyword argument'):
-        grammars.Token(x='x')
+        g.Token(x='x')
 
     with pytest.raises(TypeError, match=r'name is required'):
-        grammars.Named()
+        g.Named()
 
-    named = grammars.Named(name='foo')
+    named = g.Named(name='foo')
     assert repr(named) == "Named(name='foo', exp=Void())"
 
-    named = grammars.Named(name='foo', ast='bar')
+    named = g.Named(name='foo', ast='bar')
     assert repr(named) == "Named(name='foo', exp='bar')"
 
-    named = grammars.Named(ast={'name': 'foo', 'exp': 'bar'})
+    named = g.Named(ast={'name': 'foo', 'exp': 'bar'})
     assert repr(named) == "Named(name='foo', exp='bar')"
 
-    named = grammars.Named(name='foo', exp='bar')
+    named = g.Named(name='foo', exp='bar')
     assert repr(named) == "Named(name='foo', exp='bar')"

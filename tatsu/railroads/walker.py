@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .. import grammars
+from .. import grammars as g
 from ..util.abctools import join_lists
 from ..util.string import regexp, unicode_display_len as ulen
 from ..walkers import NodeWalker
@@ -19,16 +19,16 @@ from .railmath import (
 )
 
 
-def tracks(model: grammars.Model):
+def tracks(model: g.Model):
     walker = RailroadNodeWalker()
     return walker.walk(model)
 
 
-def text(model: grammars.Model) -> str:
+def text(model: g.Model) -> str:
     return '\n'.join(line.rstrip() for line in tracks(model))
 
 
-def draw(model: grammars.Model):
+def draw(model: g.Model):
     for line in tracks(model):
         print(line.rstrip())
 
@@ -40,16 +40,16 @@ class RailroadNodeWalker(NodeWalker):
     def walk(self, node: Any, *args, **kwargs) -> Any:
         return list(super().walk(node))
 
-    def walk_default(self, node: grammars.Model) -> Rails:
+    def walk_default(self, node: g.Model) -> Rails:
         return [f' <{node!r}> ']
 
-    def walk_decorator(self, decorator: grammars.Decorator) -> Rails:
+    def walk_decorator(self, decorator: g.Decorator) -> Rails:
         return self.walk(decorator.exp)
 
-    def walk_grammar(self, grammar: grammars.Grammar) -> Rails:
+    def walk_grammar(self, grammar: g.Grammar) -> Rails:
         return join_lists(*(self.walk(r) for r in grammar.rules))
 
-    def walk_rule(self, rule: grammars.Rule) -> Rails:
+    def walk_rule(self, rule: g.Rule) -> Rails:
         decorators = ''
         if rule.decorators:
             decorators = ' '.join(f'@{d}' for d in rule.decorators) + ' '
@@ -86,86 +86,86 @@ class RailroadNodeWalker(NodeWalker):
         out += [' ' * ulen(out[0])]
         return assert_one_length(out)
 
-    def walk_optional(self, optional: grammars.Optional) -> Rails:
+    def walk_optional(self, optional: g.Optional) -> Rails:
         out = weld(['→'], self.walk(optional.exp))
         return lay_out([out, ['→']])
 
-    def walk_closure(self, closure: grammars.Closure) -> Rails:
+    def walk_closure(self, closure: g.Closure) -> Rails:
         return loop(self.walk_decorator(closure))
 
-    def walk_positive_closure(self, closure: grammars.Closure) -> Rails:
+    def walk_positive_closure(self, closure: g.Closure) -> Rails:
         return stopnloop(self.walk_decorator(closure))
 
-    def walk_join(self, join: grammars.Join) -> Rails:
+    def walk_join(self, join: g.Join) -> Rails:
         sep = weld(self.walk(join.sep), [' ✂ ─'])
         out = weld(sep, self.walk(join.exp))
         return loop(out)
 
-    def walk_positive_join(self, join: grammars.PositiveJoin) -> Rails:
+    def walk_positive_join(self, join: g.PositiveJoin) -> Rails:
         sep = weld(self.walk(join.sep), [' ✂ ─'])
         out = weld(sep, self.walk(join.exp))
         return stopnloop(out)
 
-    def walk_choice(self, choice: grammars.Choice) -> Rails:
+    def walk_choice(self, choice: g.Choice) -> Rails:
         return lay_out([self.walk(o) for o in choice.options])
 
-    def walk_option(self, option: grammars.Option) -> Rails:
+    def walk_option(self, option: g.Option) -> Rails:
         return self.walk(option.exp)
 
-    def walk_sequence(self, s: grammars.Sequence) -> Rails:
+    def walk_sequence(self, s: g.Sequence) -> Rails:
         return weld(*(self.walk(e) for e in s.sequence))
 
-    def walk_call(self, call: grammars.Call) -> Rails:
+    def walk_call(self, call: g.Call) -> Rails:
         return [f"{call.name}"]
 
-    def walk_pattern(self, pattern: grammars.Pattern) -> Rails:
+    def walk_pattern(self, pattern: g.Pattern) -> Rails:
         pat = regexp(pattern.pattern).replace("r'", "").rstrip("'")
         return [f"/{pat}/─"]
 
-    def walk_token(self, token: grammars.Token) -> Rails:
+    def walk_token(self, token: g.Token) -> Rails:
         return [f"{token.token!r}"]
 
-    def walk_eof(self, eof: grammars.EOF) -> Rails:
+    def walk_eof(self, eof: g.EOF) -> Rails:
         return [f"⇥{ETX} "]
 
-    def walk_lookahead(self, la: grammars.Lookahead) -> Rails:
+    def walk_lookahead(self, la: g.Lookahead) -> Rails:
         out = weld(['─ &['], self.walk(la.exp))
         out = weld(out, [']'])
         return out
 
-    def walk_negative_lookahead(self, la: grammars.NegativeLookahead) -> Rails:
+    def walk_negative_lookahead(self, la: g.NegativeLookahead) -> Rails:
         out = weld(['─ !['], self.walk(la.exp))
         out = weld(out, [']'])
         return out
 
-    def walk_void(self, _v: grammars.Void) -> Rails:
+    def walk_void(self, _v: g.Void) -> Rails:
         return [" ∅ "]
 
-    def walk_cut(self, _cut: grammars.Cut) -> Rails:
+    def walk_cut(self, _cut: g.Cut) -> Rails:
         return [" ✂ ─"]
 
-    def walk_fail(self, _f: grammars.Fail) -> Rails:
+    def walk_fail(self, _f: g.Fail) -> Rails:
         return [" ⚠ "]
 
-    def walk_constant(self, constant: grammars.Constant) -> Rails:
+    def walk_constant(self, constant: g.Constant) -> Rails:
         return [f'`{constant.literal}`']
 
-    def walk_dot(self, _dot: grammars.Dot):
+    def walk_dot(self, _dot: g.Dot):
         return [" ∀ "]
 
-    def walk_group(self, group: grammars.Group):
+    def walk_group(self, group: g.Group):
         return self.walk_decorator(group)
 
-    def walk_alert(self, alert: grammars.Alert):
+    def walk_alert(self, alert: g.Alert):
         return [f'{'^' * alert.level}`{alert.literal}`']
 
-    def walk_skip_to(self, skipto: grammars.SkipTo):
+    def walk_skip_to(self, skipto: g.SkipTo):
         return weld([' ->('], self.walk(skipto.exp), [')'])
 
-    def walk_rule_include(self, include: grammars.RuleInclude):
+    def walk_rule_include(self, include: g.RuleInclude):
         return [f' >({include.rule.name}) ']
 
-    def walk_based_rule(self, rule: grammars.BasedRule):
+    def walk_based_rule(self, rule: g.BasedRule):
         out = [f'{rule.name} < {rule.baserule}●─']
         out = weld(out, self.walk(rule.rhs))
         if ETX not in out:
@@ -173,17 +173,17 @@ class RailroadNodeWalker(NodeWalker):
         out += [' ' * ulen(out[0])]
         return assert_one_length(out)
 
-    def walk_named(self, named: grammars.Named) -> Rails:
+    def walk_named(self, named: g.Named) -> Rails:
         return weld([f' [{named.name}]('], self.walk(named.exp), [')'])
 
-    def walk_named_list(self, named: grammars.NamedList) -> Rails:
+    def walk_named_list(self, named: g.NamedList) -> Rails:
         return weld([f' [`{named.name}`]+('], self.walk(named.exp), [')'])
 
-    def walk_override(self, override: grammars.Override) -> Rails:
+    def walk_override(self, override: g.Override) -> Rails:
         return weld([' @('], self.walk(override.exp), [')'])
 
-    def walk_override_list(self, override: grammars.OverrideList):
+    def walk_override_list(self, override: g.OverrideList):
         return weld([' @+('], self.walk(override.exp), [')'])
 
-    def walk_empty_closure(self, _v: grammars.EmptyClosure) -> Rails:
+    def walk_empty_closure(self, _v: g.EmptyClosure) -> Rails:
         return [' {∅}']
