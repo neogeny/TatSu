@@ -13,29 +13,23 @@ from tatsu.tool import to_python_sourcecode
 CALC_GRAMMAR = """\
     @@grammar::CALC
 
-    start = expression $ ;
+    start: expression $
 
-    expression
-        =
+    expression:
         | expression '+' term
         | expression '-' term
         | term
-        ;
 
-    term
-        =
+    term:
         | term '*' factor
         | term '/' factor
         | factor
-        ;
 
-    factor
-        =
+    factor:
         | '(' expression ')'
         | number
-        ;
 
-    number = /\\d+/ ;
+    number: /\\d+/ 
 """
 
 TATSU_GRAMMAR = Path(__file__).resolve().parents[2] / "grammar" / "tatsu.tatsu"
