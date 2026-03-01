@@ -118,9 +118,15 @@ testpaths = ["tests"]
 norecursedirs = ["*.egg", ".git", ".venv", "build", "dist"]
 
 [tool.mypy]
-python_version = "3.14"
-exclude = "backup|parsers|docs|dist|build|tmp"
-ignore_missing_imports = true
+python_version = "3.12"
+ignore_missing_imports = false
+disable_error_code = ["safe-super", "import-untyped"]
+exclude = [
+    'parsers',
+    'docs',
+    'build',
+    'tmp',
+]
 
 [tool.ty.analysis]
 respect-type-ignore-comments = true
