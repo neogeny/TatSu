@@ -114,11 +114,11 @@ def start_print(task: TaskFun = None, target: str = ''):
 
 
 def success_print(
-        target: str = '',
-        *,
-        task: TaskFun = None,
-        line: str = THIN_LINE,
-        icon: str = '⏏',
+    target: str = '',
+    *,
+    task: TaskFun = None,
+    line: str = THIN_LINE,
+    icon: str = '⏏',
 ):
     taskstr = task.name if task else ''  # type: ignore
     targetstr = ' ' + target if target else ''

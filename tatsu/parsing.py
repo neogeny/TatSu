@@ -54,20 +54,12 @@ class Parser(ParseContext):
 
     def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
         if self.rulesource:
-             action = find_rule(self.rulesource, name)
+            action = find_rule(self.rulesource, name)
         else:
             action = find_rule(self, name)
         if not action:
             raise self.newexcept(f'{name}', excls=FailedRef)
         return action
-
-
-    def _find_cls_rule(self, name: str) -> Callable[[ParseContext], Any]:
-        for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:
-            action = getattr(self, safe_name(rulename), None)
-            if callable(action):
-                return action
-        raise self.newexcept(f'{name!r}@{typename(self)}', excls=FailedRef)
 
     def rule_list(self) -> list[str]:
         source = self.rulesource or type(self)

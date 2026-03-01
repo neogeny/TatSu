@@ -163,5 +163,8 @@ class Tokenizer(Protocol):
 
 
 class NullTokenizer(Tokenizer):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     def newcursor(self, pos: int = 0) -> Cursor:
         return NullCursor()

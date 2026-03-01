@@ -150,7 +150,8 @@ class TextLinesTokenizer(Tokenizer):
         **settings: Any,
     ):
         super().__init__()
-        config: ParserConfig = ParserConfig.new(config=config, **settings)
+        config = ParserConfig.new(config=config, **settings)
+        assert isinstance(config, ParserConfig)
         self.config = config
 
         text = str(text)
