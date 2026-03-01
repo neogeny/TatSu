@@ -88,6 +88,7 @@ gha-creds-*.json
 .github/workflows/gemini*
 .scrapy/
 celerybeat-schedule
+.envrc*
 
 ### --- Localization ---
 *.mo

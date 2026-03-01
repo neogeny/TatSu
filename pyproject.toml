@@ -70,6 +70,12 @@ test = [
     "pytest-xdist>=3.8.0",
     "ruff>=0.15.1",
     "ty>=0.0.17",
+    "types-colorama>=0.4.15.20250801",
+    "types-decorator>=5.2.0.20251101",
+    "types-pexpect>=4.9.0.20260127",
+    "types-psutil>=7.2.2.20260130",
+    "types-pygments>=2.19.0.20251121",
+    "types-pyyaml>=6.0.12.20250915",
 ]
 doc = [
     "docutils>=0.22.4",
@@ -120,7 +126,11 @@ norecursedirs = ["*.egg", ".git", ".venv", "build", "dist"]
 [tool.mypy]
 python_version = "3.12"
 ignore_missing_imports = false
-disable_error_code = ["safe-super", "import-untyped"]
+disable_error_code = [
+    "safe-super",
+    "import-untyped",
+    "import-not-found",
+]
 exclude = [
     'parsers',
     'docs',
@@ -266,6 +276,7 @@ exclude = [
 ]
 
 #reportCallIssue = false
+# reportMissingImports = false
 reportAttributeAccessIssue = false
 reportMissingParameterType = false
 reportImplicitOverride = false
