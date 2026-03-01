@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from tatsu.exceptions import FailedParse
+from tatsu.exceptions import FailedParse, GrammarError
 from tatsu.tool import compile, parse
 
 
@@ -307,7 +307,7 @@ def test_nested_left_recursion(trace=False):
 def test_interlocking_cycles(trace=False):
     # See https://github.com/PhilippeSigaud/Pegged/wiki/Left-Recursion
     grammar = """
-        @@left_recursion :: False
+        @@left_recursion :: True
         @@nameguard :: False
 
         s = e $;
@@ -558,3 +558,16 @@ def test_leftrec_with_void():
 
     assert parse(left_grammar, 'aaa') == (('a', 'a'), 'a')
     assert parse(left_grammar, '') is None
+
+
+def test_unwanted_leftrec():
+    left_grammar = """
+        @@left_recursion :: False
+        @@nameguard :: False
+
+        start = A $ ;
+        A = | A 'a' | () ;
+    """
+
+    with pytest.raises(GrammarError, match=r"left-recursive rules 'A'"):
+        assert parse(left_grammar, 'aaa') == (('a', 'a'), 'a')

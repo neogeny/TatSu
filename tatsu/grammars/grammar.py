@@ -60,7 +60,7 @@ class Grammar(Model):
         if leftrect_rules and not config.left_recursion:
             raise GrammarError(
                 f'{config.left_recursion=}' 
-                f' but found recursive rules' 
+                f' but found left-recursive rules' 
                 f' {', '.join(repr(r.name) for r in leftrect_rules)}!'
             )
 
