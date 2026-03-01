@@ -11,7 +11,7 @@ from ..parserconfig import ParserConfig
 from ..util.common import typename
 from ..util.itertools import str_from_match
 from ..util.misc import cached_re_compile
-from ..util.undefined import Undefined
+from ..util.undefined import Undefined, notnone
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -98,7 +98,7 @@ class TextLinesCursor(Cursor):
         return self.tokens.matchre_at(pattern, self)
 
     def lineinfo(self, pos: int | None = None) -> LineInfo:
-        return self.tokens.lineinfo_at(self.pos if pos is None else pos)
+        return self.tokens.lineinfo_at(notnone(pos, self.pos))
 
     def lookahead_pos(self) -> str:
         if self.atend():
@@ -114,7 +114,7 @@ class TextLinesCursor(Cursor):
         return self.tokens.split_block_lines(text)[0].rstrip()
 
     def posline(self, pos: int | None = None) -> int:
-        return self.tokens.posline_at(self.pos if pos is None else pos)
+        return self.tokens.posline_at(notnone(pos, self.pos))
 
     def get_line(self, n: int | None = None) -> str:
         if n is None:

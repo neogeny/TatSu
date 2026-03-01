@@ -498,8 +498,7 @@ class ParseContext(Ctx):
         try:
             self.next_token(ri)
 
-            self._func_call(ri)
-            node = self.state.node
+            node = self._func_call(ri)
             node = self._semantics_call(ri, node)
             self._set_parseinfo(node, ri.name, key.pos)
 
@@ -517,7 +516,7 @@ class ParseContext(Ctx):
         finally:
             self.undostate()
 
-    def _func_call(self, ri: RuleInfo):
+    def _func_call(self, ri: RuleInfo) -> Any:
         is_legacy_parser = ri.instance is self
         with self.states.cutscope():
             if is_legacy_parser:
@@ -526,6 +525,7 @@ class ParseContext(Ctx):
                 ri.func(self)
             else:
                 ri.func(ri.instance, self)
+        return self.state.node
 
     def _semantics_call(self, ri: RuleInfo, node: Any) -> Any:
         if ri.is_name:
