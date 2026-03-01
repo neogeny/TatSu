@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Iterator
 
-from ..grammars import Grammar, Rule
+from tatsu.grammars import Grammar, Rule
 
 type RuleName = str
 type Headmap = dict[RuleName, set[RuleName]]

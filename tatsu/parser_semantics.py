@@ -10,9 +10,6 @@ from . import grammars
 from .builder import ModelBuilderSemantics
 from .contexts import ParseContext
 from .exceptions import FailedSemantics
-from .grammars import rulelike, syntax
-from .leftrec import mark_left_recursion
-from .parserconfig import ParserConfig
 from .util import eval_escapes, re, warning
 from .util.abctools import flatten
 
@@ -99,7 +96,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         assert isinstance(seq, list), str(seq)
         if len(seq) == 1:
             return seq[0]
-        return syntax.Sequence(ast=ast)
+        return grammars.Sequence(ast=ast)
 
     def choice(self, ast):
         return grammars.Choice(ast=ast)
@@ -140,7 +137,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         else:
             self.known_name(base)
             baserule = self.rulemap[base]
-            rule = rulelike.BasedRule(
+            rule = grammars.BasedRule(
                 ast=ast,
                 name=name,
                 baserule=baserule,
@@ -157,7 +154,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         self.known_name(name)
 
         rule = self.rulemap[name]
-        return rulelike.RuleInclude(ast=ast, rule=rule)
+        return grammars.RuleInclude(ast=ast, rule=rule)
 
     def grammar(self, ast):
         directives = {d.name: d.value for d in flatten(ast.directives)}
@@ -176,7 +173,4 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
             directives=directives,
             keywords=keywords,
         )
-        assert isinstance(grammar.config, ParserConfig)
-        if grammar.config.left_recursion:
-            mark_left_recursion(grammar)
         return grammar

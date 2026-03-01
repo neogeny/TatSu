@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import field
 from typing import Any, ClassVar
 
@@ -64,7 +64,7 @@ class Model(Node):
     def model_classes(cls) -> list[type[Model]]:
         return cls._model_classes
 
-    def follow_ref(self, rulemap: dict[str, Rule]) -> Model:
+    def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
         return self
 
     def _parse(self, ctx: ModelContext) -> Any | None:
@@ -116,7 +116,7 @@ class Model(Node):
     def _follow(self, k, fl, a):
         return a
 
-    def is_nullable(self, rulemap: dict[str, Rule] | None = None) -> bool:
+    def is_nullable(self, rulemap: Mapping[str, Rule] | None = None) -> bool:
         return self._nullable()
 
     def _nullable(self) -> bool:
@@ -125,7 +125,7 @@ class Model(Node):
     # list of Model that can be invoked at the same position
     def callable_at_same_pos(
         self,
-        rulemap: dict[str, Rule] | None = None,
+        rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         return []
 
@@ -205,7 +205,7 @@ class Decorator(Model):
 
     def callable_at_same_pos(
         self,
-        rulemap: dict[str, Rule] | None = None,
+        rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         return [self.exp]
 

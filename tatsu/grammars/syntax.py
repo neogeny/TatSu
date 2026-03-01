@@ -6,14 +6,13 @@ from collections.abc import Mapping
 from dataclasses import field
 from itertools import takewhile
 
-from . import ref
 from ..ast import AST
 from ..exceptions import FailedRef
 from ..objectmodel import tatsudataclass
 from ..util import indent, trim
 
 from ._core import Decorator, Model, PEP8_LLEN, Rule
-from .math import ffset, kdot
+from .math import ffset, kdot, ref
 
 
 @tatsudataclass
@@ -222,7 +221,7 @@ class Sequence(Model):
 
     def callable_at_same_pos(
         self,
-        rulemap: dict[str, Rule] | None = None,
+        rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         head = list(takewhile(lambda c: c.is_nullable(rulemap), self.sequence))
         if len(head) < len(self.sequence):
@@ -240,7 +239,7 @@ class Call(Model):
         super().__post_init__()
         assert isinstance(self.name, str), self.name
 
-    def follow_ref(self, rulemap: dict[str, Rule]) -> Model:
+    def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
         return rulemap.get(self.name, self)
 
     def _parse(self, ctx):
@@ -268,7 +267,7 @@ class Call(Model):
     def _pretty(self, lean=False):
         return self.name
 
-    def is_nullable(self, rulemap: dict[str, Rule] | None = None) -> bool:
+    def is_nullable(self, rulemap: Mapping[str, Rule] | None = None) -> bool:
         if rulemap is None:
             return False
         else:

@@ -14,6 +14,7 @@ from ..parserconfig import ParserConfig
 from ..util import chunks
 from .math import ffset
 from ._core import ModelContext, Model, Rule
+from .leftrec import mark_left_recursion
 
 
 @tatsudataclass
@@ -55,6 +56,7 @@ class Grammar(Model):
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
         self._calc_lookahead_sets()
+        mark_left_recursion(self.rulemap)
 
     @property
     def rulemap(self) -> dict[str, Rule]:
