@@ -28,11 +28,6 @@ TatSuDataclassParams = dict(
     slots=True,
 )
 
-TatSuDataclassParamsUnslotted = dict(
-    TatSuDataclassParams,
-    slots=False,
-)
-
 
 @overload
 def tatsudataclass[T: type](cls: T) -> T: ...
@@ -130,8 +125,10 @@ class BaseNode(AsJSONMixin):
         # Gemini (2026-02-14)
         return frozenset(dir(BaseNode))
 
-    def __pub__(self) -> dict[str, Any]:
-        pub = super().__pub__()
+    def __pub__(self, prot: bool = False) -> dict[str, Any]:
+        pub = super().__pub__(prot=prot)
+        if prot:
+            return pub
 
         # Gemini (2026-02-14)
         wanted = pub.keys() - self._basenode_keys()
@@ -169,14 +166,8 @@ class BaseNode(AsJSONMixin):
         return hash(id(self))
 
     def __getstate__(self) -> Any:
-        return {
-            name: (
-                value
-                if not isinstance(value, (weakref.ReferenceType, *weakref.ProxyTypes))
-                else None
-            )
-            for name, value in vars(self).items()
-        }
+        return self.__pub__(prot=True)
 
-    def __setstate__(self, state):
-        self.__dict__.update(state)
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        for name, value in state.items():
+            setattr(self, name, value)
