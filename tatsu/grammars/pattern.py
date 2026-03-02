@@ -14,7 +14,7 @@ from tatsu.objectmodel import tatsudataclass
 class Pattern(Model):
     pattern: str = ''
     _patterns: list[str] = dc.field(init=False, default_factory=list)
-    _regex: Pattern | None = dc.field(init=False, default=None)
+    _regex: re.Pattern = dc.field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
