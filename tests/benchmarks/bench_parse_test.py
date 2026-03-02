@@ -10,7 +10,7 @@ import tatsu
 from tatsu.parser import TatSuParserGenerator
 from tatsu.tool import to_python_sourcecode
 
-CALC_GRAMMAR = """\
+CALC_GRAMMAR = r"""
     @@grammar::CALC
 
     start: expression $
@@ -29,11 +29,8 @@ CALC_GRAMMAR = """\
         | '(' expression ')'
         | number
 
-    number: /\\d+/ 
+    number: /\d+/
 """
-
-TATSU_GRAMMAR = Path(__file__).resolve().parents[2] / "grammar" / "tatsu.tatsu"
-
 
 @pytest.mark.benchmark
 def test_bench_compile_calc_grammar():
@@ -51,7 +48,7 @@ def test_bench_parse_arithmetic_expression():
 @pytest.mark.benchmark
 def test_bench_compile_tatsu_grammar():
     """Benchmark compiling the full TatSu grammar (self-hosting)."""
-    text = TATSU_GRAMMAR.read_text()
+    text = tatsu.grammar
     g = TatSuParserGenerator("TatSuBootstrap")
     g.parse(text)
 
