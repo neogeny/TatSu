@@ -81,7 +81,7 @@ class Grammar(Model):
 
     @semantics.setter
     def semantics(self, value: Any):
-        self.config.semantics = value. # type: ignore
+        self.config.semantics = value  # type: ignore
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return set().union(*[rule.missing_rules(rulenames) for rule in self.rules])
