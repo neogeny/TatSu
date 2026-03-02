@@ -18,13 +18,19 @@ from ..util.asjson import AsJSONMixin, asjson, asjsons
 __all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
 
 
-TatSuDataclassParams = dict(  # noqa: C408
+TatSuDataclassParams = dict(
+    {},
     eq=False,
     repr=False,
     match_args=False,
     unsafe_hash=False,
     kw_only=True,
     slots=True,
+)
+
+TatSuDataclassParamsUnslotted = dict(
+    TatSuDataclassParams,
+    slots=False,
 )
 
 
