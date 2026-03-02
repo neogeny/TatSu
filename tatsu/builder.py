@@ -33,6 +33,17 @@ class BuilderConfig(Config):
     typedefs: list[TypeContainer] = field(default_factory=list)
     constructors: list[Constructor] = field(default_factory=list)
 
+    def __getstate__(self) -> Any:
+        state = super().__getstate__()
+        state.pop('typedefs', None)
+        state.pop('constructors', None)
+        return state
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        super().__setstate__(state)
+        self.typedefs = []
+        self.constructors = []
+
 
 class ModelBuilder:
     """Intended as a semantic action for parsing. A ModelBuildercreates
@@ -160,7 +171,9 @@ class ModelBuilder:
                 existing.__name__ == constructor.__name__
                 and existing.__module__ == constructor.__module__
             )
-            if not same_class:
+            if same_class:
+                pass
+            else:
                 raise TypeResolutionError(
                     f"Conflict for constructor name {name!r}:"
                     f" attempted to register {constructor!r},"
