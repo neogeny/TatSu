@@ -41,35 +41,21 @@ class RuleInfo(NamedTuple):
     kwparams: dict[str, Any]
 
     @staticmethod
-    def new(instance: Any, func: Callable, params=None, kwparams=None):
-        name = getattr(func, '__name__', '<?>')
-        is_leftrec = getattr(func, 'is_leftrec', False)
-        is_memoizable = getattr(func, 'is_memoizable', True)
-        is_name = getattr(func, 'is_name', False)
-
+    def new(instance: Any, func: Callable, params=None, kwparams=None) -> RuleInfo:
         return RuleInfo(
-            name=name,
+            name=getattr(func, '__name__', '<?>'),
             instance=instance,
             func=func,
-            is_lrec=is_leftrec,
-            is_memo=is_memoizable,
-            is_name=is_name,
+            is_lrec=getattr(func, 'is_leftrec', False),
+            is_memo=getattr(func, 'is_memoizable', True),
+            is_name=getattr(func, 'is_name', False),
             params=params or (),
             kwparams=kwparams or {},
         )
 
     @staticmethod
-    def bind(ri: RuleInfo, newinstance: Any):
-        return RuleInfo(
-            name=ri.name,
-            instance=newinstance,
-            func=ri.func,
-            is_lrec=ri.is_lrec,
-            is_memo=ri.is_memo,
-            is_name=ri.is_name,
-            params=ri.params or (),
-            kwparams=ri.kwparams or {},
-        )
+    def bind(ri: RuleInfo, instance: Any) -> RuleInfo:
+        return ri._replace(instance=instance)
 
     def is_token_rule(self):
         return self.name.lstrip('_')[:1].isupper()
