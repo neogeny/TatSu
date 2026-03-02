@@ -24,6 +24,7 @@ TatSuDataclassParams = dict(  # noqa: C408
     match_args=False,
     unsafe_hash=False,
     kw_only=True,
+    slots=True,
 )
 
 
@@ -56,7 +57,6 @@ def tatsudataclass[T: type](
 @tatsudataclass
 class BaseNode(AsJSONMixin):
     ast: Any = dataclasses.field(kw_only=False, default=None)
-    # _: dataclasses.KW_ONLY
     ctx: Any = None
     parseinfo: ParseInfo | None = None
 
@@ -102,10 +102,11 @@ class BaseNode(AsJSONMixin):
         if not isinstance(attrs, dict):
             return
 
+        allowed = set(dir(self))
         for name, value in attrs.items():
-            if not hasattr(self, name):
+            if name not in allowed:
                 raise ValueError(f'Unknown argument {name}={value!r}')
-            if inspect.ismethod(method := getattr(self, name)):
+            if inspect.isroutine(method := getattr(type(self), name)):
                 raise TypeError(f'Overriding method {name}={method!r}')
 
             if (prev := getattr(self, name, None)) and inspect.ismethod(prev):
