@@ -102,9 +102,8 @@ class BaseNode(AsJSONMixin):
         if not isinstance(attrs, dict):
             return
 
-        allowed = set(dir(self))
         for name, value in attrs.items():
-            if name not in allowed:
+            if not hasattr(type(self), name):
                 raise ValueError(f'Unknown argument {name}={value!r}')
             if inspect.isroutine(method := getattr(type(self), name)):
                 raise TypeError(f'Overriding method {name}={method!r}')
