@@ -416,14 +416,19 @@ class ParseContext(Ctx):
         self._memoize(key, ex)
 
     def _call(self, ri: RuleInfo) -> Any:
-        ristack = self.ruleinfo_stack
-        ristack += [ri]
+        self.ruleinfo_stack.append(ri)
+        self.next_token(ri)
+        key: MemoKey = self.memokey()
+
         pos = self.pos
         try:
             self.tracer.trace_entry(self.cursor)
             self.last_node = None
 
-            result = self._recursive_call(ri)
+            if ri.is_lrec:
+                result = self._recursive_call(ri, key)
+            else:
+                result = self._rule_call(ri, key)
 
             self.goto(result.newpos)
             self.states.append(result.node)
@@ -437,7 +442,7 @@ class ParseContext(Ctx):
             self.tracer.trace_failure(self.cursor, e)
             raise
         finally:
-            ristack.pop()
+            self.ruleinfo_stack.pop()
 
     def _clear_recursion_errors(self) -> None:
         def filter_func(_key: MemoKey, value: Any) -> bool:
@@ -445,10 +450,7 @@ class ParseContext(Ctx):
 
         prune_dict(self._memos, filter_func)
 
-    def _recursive_call(self, ri: RuleInfo) -> RuleResult:
-        self.next_token(ri)
-        key: MemoKey = self.memokey()
-
+    def _recursive_call(self, ri: RuleInfo, key: MemoKey) -> RuleResult:
         if not ri.is_lrec:
             return self._rule_call(ri, key)
         elif not self.config.left_recursion:
