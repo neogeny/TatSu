@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import dataclasses as dc
 import functools
 import weakref
 from collections.abc import Iterable, Mapping
@@ -16,17 +17,11 @@ from ..util.deprecate import deprecated
 
 @tatsudataclass
 class Node(BaseNode):
-    def __init__(self, ast: Any = None, **kwargs: Any):
-        super().__init__(ast=ast, **kwargs)
-        self.__parent_ref: weakref.ref[Node] | None = None  # type: ignore
-
-    def __post_init__(self) -> None:
-        super().__post_init__()
-        self.__parent_ref: weakref.ref[Node] | None = None  # type: ignore
+    _parent_ref: weakref.ref[Node] | None = dc.field(init=False, default=None)
 
     @property
     def parent(self) -> Node | None:
-        ref = self.__parent_ref
+        ref = self._parent_ref
         if ref is None:
             return None
         else:
@@ -68,7 +63,7 @@ class Node(BaseNode):
         def dfs(obj: Any) -> Iterable[Node]:
             match obj:
                 case Node() as node:
-                    node.__parent_ref = weakref.ref(self)
+                    node._parent_ref = weakref.ref(self)
                     yield node
                 case Mapping() as mapping:
                     for name, value in mapping.items():
