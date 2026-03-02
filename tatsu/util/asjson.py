@@ -40,9 +40,8 @@ class AsJSONMixin:
                 return False
 
             value = getattr(self, name)
-            return (
-                not inspect.ismethod(value)
-                and not isinstance(value, (weakref.ReferenceType, *weakref.ProxyTypes))
+            return not inspect.ismethod(value) and not isinstance(
+                value, (weakref.ReferenceType, *weakref.ProxyTypes)
             )
 
         pubnames = [name for name in dir(self) if is_public(name)]

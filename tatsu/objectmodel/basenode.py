@@ -140,9 +140,7 @@ class BaseNode(AsJSONMixin):
         return rowselect(wanted, pub)
 
     def __repr__(self) -> str:
-        fieldindex = {
-            f.name: i for i, f in enumerate(dc.fields(self))  # type: ignore
-        }
+        fieldindex = {f.name: i for i, f in enumerate(dc.fields(self))}  # type: ignore
 
         def fieldorder(n) -> int:
             return fieldindex.get(n, len(fieldindex))
