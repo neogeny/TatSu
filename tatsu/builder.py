@@ -155,14 +155,18 @@ class ModelBuilder:
             return constructor
 
         existing = self._constructor_registry.get(name)
-        if existing and existing != constructor:
-            pass
-            # raise TypeResolutionError(
-            #     f"Conflict for constructor name {name!r}:"
-            #     f" attempted to register {constructor!r},"
-            #     f" but {existing!r} is already registered"
-            #     f"{id(existing)=} {id(constructor)=}."
-            # )
+        if existing and existing is not constructor:
+            same_class = (
+                existing.__name__ == constructor.__name__
+                and existing.__module__ == constructor.__module__
+            )
+            if not same_class:
+                raise TypeResolutionError(
+                    f"Conflict for constructor name {name!r}:"
+                    f" attempted to register {constructor!r},"
+                    f" but {existing!r} is already registered" 
+                    f"{id(existing)=} {id(constructor)=}."
+                )
 
         self._constructor_registry[name] = constructor
         return constructor
