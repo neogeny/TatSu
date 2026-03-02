@@ -32,6 +32,7 @@ CALC_GRAMMAR = r"""
     number: /\d+/
 """
 
+
 @pytest.mark.benchmark
 def test_bench_compile_calc_grammar():
     """Benchmark compiling a simple calculator grammar."""
