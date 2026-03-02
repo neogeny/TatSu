@@ -174,10 +174,10 @@ class RailroadNodeWalker(NodeWalker):
         return assert_one_length(out)
 
     def walk_named(self, named: g.Named) -> Rails:
-        return weld([f' [{named.name}]('], self.walk(named.exp), [')'])
+        return weld([f' `{named.name}`('], self.walk(named.exp), [')'])
 
     def walk_named_list(self, named: g.NamedList) -> Rails:
-        return weld([f' [`{named.name}`]+('], self.walk(named.exp), [')'])
+        return weld([f' `{named.name}`]('], self.walk(named.exp), [')'])
 
     def walk_override(self, override: g.Override) -> Rails:
         return weld([' @('], self.walk(override.exp), [')'])
