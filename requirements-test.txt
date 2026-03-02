@@ -2,6 +2,8 @@
 #    uv export --group test --no-group dev --no-hashes --format requirements-txt -o requirements-test.txt
 -e .
 basedpyright==1.38.1
+cffi==2.0.0
+    # via pytest-codspeed
 colorama==0.4.6
     # via pytest
 coverage==7.13.4
@@ -14,6 +16,10 @@ iniconfig==2.3.0
 invoke==2.2.1
 librt==0.8.1 ; platform_python_implementation != 'PyPy'
     # via mypy
+markdown-it-py==4.0.0
+    # via rich
+mdurl==0.1.2
+    # via markdown-it-py
 mypy==1.19.1
 mypy-extensions==1.1.0
     # via mypy
@@ -31,18 +37,26 @@ pluggy==1.6.0
     #   pytest-cov
 progress==1.6.1
 psutil==7.2.2
+pycparser==3.0 ; implementation_name != 'PyPy'
+    # via cffi
 pygments==2.19.2
-    # via pytest
+    # via
+    #   pytest
+    #   rich
 pytest==9.0.2
     # via
+    #   pytest-codspeed
     #   pytest-cov
     #   pytest-dependency
     #   pytest-rerunfailures
     #   pytest-xdist
+pytest-codspeed==4.3.0
 pytest-cov==7.0.0
 pytest-dependency==0.6.1
 pytest-rerunfailures==16.1
 pytest-xdist==3.8.0
+rich==14.3.3
+    # via pytest-codspeed
 ruff==0.15.2
 setuptools==82.0.0
     # via pytest-dependency

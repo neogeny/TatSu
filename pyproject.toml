@@ -65,6 +65,7 @@ test = [
     "progress>=1.6.1",
     "psutil>=7.2.2",
     "pytest>=9.0.2",
+    "pytest-codspeed>=4.3.0",
     "pytest-cov>=7.0.0",
     "pytest-dependency>=0.6.0",
     "pytest-rerunfailures>=16.1",
@@ -113,9 +114,26 @@ path = "tatsu/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["tatsu"]
+artifacts = [
+    "*.tatsu",
+    "*.json",
+    "*.toml",
+]
 
 [tool.hatch.build.targets.sdist]
-exclude = ["/backup", "/parsers", "/deprecated"]
+#artifacts = [
+#    "*.tatsu",
+#    "*.json",
+#    "*.toml",
+#]
+exclude = [
+    ".github",
+    "backups",
+    "deprecated",
+    "ng",
+    "parsers",
+    "tmp",
+]
 
 [tool.pytest.ini_options]
 log_cli = true

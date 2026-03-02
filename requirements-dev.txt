@@ -8,8 +8,10 @@ black==26.1.0
 build==1.4.0
 certifi==2026.2.25
     # via requests
-cffi==2.0.0 ; platform_machine != 'ppc64le' and platform_machine != 's390x' and platform_python_implementation != 'PyPy' and sys_platform == 'linux'
-    # via cryptography
+cffi==2.0.0
+    # via
+    #   cryptography
+    #   pytest-codspeed
 charset-normalizer==3.4.4
     # via requests
 click==8.3.1
@@ -97,7 +99,7 @@ ptyprocess==0.7.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
-pycparser==3.0 ; implementation_name != 'PyPy' and platform_machine != 'ppc64le' and platform_machine != 's390x' and platform_python_implementation != 'PyPy' and sys_platform == 'linux'
+pycparser==3.0 ; implementation_name != 'PyPy'
     # via cffi
 pygments==2.19.2
     # via
@@ -109,7 +111,10 @@ pygments==2.19.2
 pyproject-hooks==1.2.0
     # via build
 pytest==9.0.2
-    # via pytest-dependency
+    # via
+    #   pytest-codspeed
+    #   pytest-dependency
+pytest-codspeed==4.3.0
 pytest-dependency==0.6.1
 pytokens==0.4.1
     # via black
@@ -127,6 +132,7 @@ rfc3986==2.0.0
     # via twine
 rich==14.3.3
     # via
+    #   pytest-codspeed
     #   rich-click
     #   twine
 rich-click==1.9.7
