@@ -34,7 +34,7 @@ HEADER = """\
 
     from typing import Any
 
-    import tatsu.decorators as tatsu
+    from tatsu import decorators as tatsu
     from tatsu.builder import ModelBuilderSemantics
     {basetype_import}
 
