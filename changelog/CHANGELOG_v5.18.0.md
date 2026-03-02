@@ -1,9 +1,15 @@
 []: copyright (c) 2017-2026 juancarlo añez (apalala@gmail.com)
 []: spdx-license-identifier: bsd-4-clause
 
-## Separation of State and Content
+## Grammars / EBNF
 
-### Cursor
+* Now **TatSu**'s own grammar is written in EBNF notation.
+* There's now a copy of the **TatSu** grammar unther the main package
+at `./tatsu/_tatsu.tatsu`. The grammar text is available as 
+`tatsu.grammar`. The grammar remains available at `./grammar/tatsu.tatsu`
+by a symbolic link.
+
+## Separation of State and Content
 
 * `Tokenizer` classes provide implementations of the `Cursor` protocol 
  which holds the state (e.g. the position) of a parse, while the tokenizer
