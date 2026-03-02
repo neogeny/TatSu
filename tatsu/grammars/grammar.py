@@ -44,8 +44,8 @@ class Grammar(Model):
         config = config.hard_override(**directives)
         self.config = config
 
-        self.rules: list[Rule] = rules
-        self.rulemap: dict[str, Rule] = {rule.name: rule for rule in rules}
+        self.rules = rules
+        self.rulemap = {rule.name: rule for rule in rules}
 
         if name is None:
             name = self.directives.get('grammar')

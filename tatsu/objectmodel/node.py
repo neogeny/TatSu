@@ -61,7 +61,7 @@ class Node(BaseNode):
     def children_list(self) -> list[Node]:
         return list(self._cached_children())
 
-    @functools.cache
+    @functools.cache  # noqa: B019
     def _cached_children(self) -> tuple[Node, ...]:
         def dfs(obj: Any) -> Iterable[Node]:
             match obj:

@@ -21,7 +21,6 @@ _model_classes: list[type[Model]] = []
 
 
 def model_classes() -> list[type[Model]]:
-    global _model_classes
     return _model_classes
 
 
@@ -59,12 +58,10 @@ class Model(Node):
 
     def __init_subclass__(cls: type[Model], **kwargs):
         super().__init_subclass__(**kwargs)
-        global _model_classes
         _model_classes.append(cls)
 
     @staticmethod
     def model_classes() -> list[type[Model]]:
-        global _model_classes
         return _model_classes
 
     def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:

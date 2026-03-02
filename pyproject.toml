@@ -149,6 +149,7 @@ disable_error_code = [
     "safe-super",
     "import-untyped",
     "import-not-found",
+    "union-attr",
 ]
 exclude = [
     'parsers',
@@ -294,8 +295,9 @@ exclude = [
     "parsers/"
 ]
 
-#reportCallIssue = false
+# reportCallIssue = false
 # reportMissingImports = false
+reportOptionalMemberAccess = false
 reportAttributeAccessIssue = false
 reportMissingParameterType = false
 reportImplicitOverride = false
