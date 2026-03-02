@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from typing import Protocol, runtime_checkable
+from abc import ABC, abstractmethod
+from typing import Any, Protocol, runtime_checkable
 
 from .infos import LineIndexInfo, LineInfo
 
@@ -154,17 +155,17 @@ class NullCursor(Cursor):
         return ''
 
 
-@runtime_checkable
-class Tokenizer(Protocol):
-    def __init__(self, *args, **kwargs) -> None:
-        pass
+class Tokenizer(ABC):
+    def __init__(self, text: Any, /, *args, **kwargs) -> None:
+        assert text or text is None
 
+    @abstractmethod
     def newcursor(self) -> Cursor: ...
 
 
 class NullTokenizer(Tokenizer):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self) -> None:
+        super().__init__(None)
 
     def newcursor(self, pos: int = 0) -> Cursor:
         return NullCursor()
