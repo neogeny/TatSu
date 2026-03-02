@@ -9,9 +9,11 @@ from collections.abc import Iterable, Mapping
 from typing import Any
 
 from .basenode import BaseNode, tatsudataclass
-from ..util.deprecate import deprecated
 
 __all__ = ['Node', 'tatsudataclass']
+
+
+_children_cache: Mapping[Node, tuple[Node, ...]] = weakref.WeakKeyDictionary()
 
 
 @tatsudataclass
@@ -31,7 +33,6 @@ class Node(BaseNode):
             return ref()
 
     @property
-    # @deprecated(replacement=None)
     def comments(self) -> Any:
         return None
 
@@ -61,7 +62,6 @@ class Node(BaseNode):
     def children_list(self) -> list[Node]:
         return list(self._cached_children())
 
-    @functools.cache  # noqa: B019
     def _cached_children(self) -> tuple[Node, ...]:
         def dfs(obj: Any) -> Iterable[Node]:
             match obj:
@@ -83,4 +83,6 @@ class Node(BaseNode):
                 case _:
                     pass
 
-        return tuple(dfs(self.__pub__()))
+        if self not in _children_cache:
+            _children_cache[self] = tuple(dfs(self.__pub__()))
+        return _children_cache[self]
