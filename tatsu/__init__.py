@@ -16,6 +16,10 @@ from .tool import (  # pylint: disable=W0622
 from .tool import tatsu_main as main
 from .contexts.decorator import isname, name, leftrec, nomemo, rule, tatsumasu
 from .objectmodel import TatSuDataclassParams, tatsudataclass as dataclass
+from importlib import resources
+
+grammar_path = resources.files().joinpath("_tatsu.tatsu")  # noqa: RUF067
+grammar = grammar_path.read_text()  # noqa: RUF067
 
 __all__ = [
     '__toolname__',
@@ -38,4 +42,6 @@ __all__ = [
     'nomemo',
     'rule',
     'tatsumasu',
+    'grammar_path',
+    'grammar',
 ]
