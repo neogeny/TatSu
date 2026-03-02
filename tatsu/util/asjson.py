@@ -28,11 +28,20 @@ class AsJSONMixin:
 
     def __pub__(self) -> dict[str, Any]:
         def is_public(name: str, value: Any) -> bool:
-            return not (name.startswith('_') or inspect.isroutine(value))
+            return (
+                not name.startswith('_')
+                and not inspect.ismethod(value)
+                and not inspect.isroutine(getattr(type(self), name))
+                and not isinstance(getattr(type(self), name), property)
+            )
 
-        names = dir(self)
-        values = {n: getattr(self, n) for n in dir(self)}
-        return rowselect(names, values, where=is_public)
+
+        likevars = {name: getattr(self, name) for name in dir(self)}
+        return {
+            name: value
+            for name, value in likevars.items()
+            if is_public(name, value)
+        }
 
 
 def asjson(obj: Any, seen: set[int] | None = None) -> Any:
