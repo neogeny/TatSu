@@ -31,8 +31,8 @@ class Node(BaseNode):
             return ref()
 
     @property
+    # @deprecated(replacement=None)
     def comments(self) -> Any:
-        deprecated(replacement=None)(self.comments)
         return None
 
     @property
@@ -56,11 +56,12 @@ class Node(BaseNode):
         return tuple(reversed(ancestors))
 
     def children(self) -> tuple[Node, ...]:
-        return self._cached_children
+        return self._cached_children()
 
     def children_list(self) -> list[Node]:
-        return list(self._cached_children)
+        return list(self._cached_children())
 
+    @functools.cache
     def _cached_children(self) -> tuple[Node, ...]:
         def dfs(obj: Any) -> Iterable[Node]:
             match obj:
