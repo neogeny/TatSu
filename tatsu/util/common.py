@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import builtins
 import datetime
+import importlib
 import keyword
 import os
 import os.path
@@ -137,6 +139,20 @@ def fqn(obj: Any) -> str:
     if module and qualname and module != "builtins":
         return f"{module}.{qualname}"
     return qualname or str(obj)
+
+
+def fqntype(fqn: str, default_module: str = '') -> type:
+    if func := getattr(builtins, fqn, None):
+        return func
+
+    if '.' in fqn:
+        module_name, class_name = fqn.rsplit(".", 1)
+    else:
+        module_name = default_module
+        class_name = fqn
+
+    module = importlib.import_module(module_name)
+    return getattr(module, class_name)
 
 
 def is_reserved(name) -> bool:
