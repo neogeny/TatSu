@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import dataclasses
+import dataclasses as dc
 import inspect
 import warnings
 import weakref
@@ -45,7 +45,7 @@ def tatsudataclass[T: type](
 
     def decorator(target: T) -> T:
         allparams = {**TatSuDataclassParams, **params}
-        return dataclasses.dataclass(**allparams)(target)  # type: ignore
+        return dc.dataclass(**allparams)(target)  # type: ignore
 
     # If cls is passed, it was used as @tatsudataclass with no arguments
     if cls is not None and not params:
@@ -56,9 +56,9 @@ def tatsudataclass[T: type](
 
 @tatsudataclass
 class BaseNode(AsJSONMixin):
-    ast: Any = dataclasses.field(kw_only=False, default=None)
-    ctx: Any = None
-    parseinfo: ParseInfo | None = None
+    ast: Any = dc.field(kw_only=False, default=None)
+    ctx: Any = dc.field(kw_only=True, default=None)
+    parseinfo: ParseInfo | None = dc.field(kw_only=True, default=None)
 
     def __init__(self, ast: Any = None, **attributes: Any):
         # NOTE:
@@ -67,6 +67,8 @@ class BaseNode(AsJSONMixin):
         super().__init__()
 
         self.ast = ast
+        self.ctx = None
+        self.parseinfo = None
         self.__set_attributes(**attributes)
         self.__post_init__()
 
@@ -136,7 +138,7 @@ class BaseNode(AsJSONMixin):
 
     def __repr__(self) -> str:
         fieldindex = {
-            f.name: i for i, f in enumerate(dataclasses.fields(self))  # type: ignore
+            f.name: i for i, f in enumerate(dc.fields(self))  # type: ignore
         }
 
         def fieldorder(n) -> int:

@@ -9,15 +9,18 @@ from collections.abc import Iterable, Mapping
 from typing import Any
 
 from .basenode import BaseNode, tatsudataclass
+from ..util.deprecate import deprecated
 
 __all__ = ['Node', 'tatsudataclass']
-
-from ..util.deprecate import deprecated
 
 
 @tatsudataclass
 class Node(BaseNode):
     _parent_ref: weakref.ref[Node] | None = dc.field(init=False, default=None)
+
+    def __init__(self, ast: Any = None, **kwargs: Any):
+        super().__init__(ast=ast, **kwargs)
+        self._parent_ref = None
 
     @property
     def parent(self) -> Node | None:
@@ -58,7 +61,6 @@ class Node(BaseNode):
     def children_list(self) -> list[Node]:
         return list(self._cached_children)
 
-    @functools.cached_property
     def _cached_children(self) -> tuple[Node, ...]:
         def dfs(obj: Any) -> Iterable[Node]:
             match obj:
