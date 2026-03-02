@@ -27,11 +27,12 @@ class AsJSONMixin:
         return {'__class__': type(self).__name__, **asjson(pub, seen=seen)}
 
     def __pub__(self) -> dict[str, Any]:
-        # Gemini (2026-01-26)
         def is_public(name: str, value: Any) -> bool:
             return not (name.startswith('_') or inspect.isroutine(value))
 
-        return rowselect(dir(self), vars(self), where=is_public)
+        names = dir(self)
+        values = {n: getattr(self, n) for n in dir(self)}
+        return rowselect(names, values, where=is_public)
 
 
 def asjson(obj: Any, seen: set[int] | None = None) -> Any:
