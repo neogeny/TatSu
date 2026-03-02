@@ -5,7 +5,7 @@ from __future__ import annotations
 import dataclasses as dc
 import functools
 import weakref
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, MutableMapping
 from typing import Any
 
 from .basenode import BaseNode, tatsudataclass
@@ -13,7 +13,7 @@ from .basenode import BaseNode, tatsudataclass
 __all__ = ['Node', 'tatsudataclass']
 
 
-_children_cache: Mapping[Node, tuple[Node, ...]] = weakref.WeakKeyDictionary()
+_children_cache: MutableMapping[Node, tuple[Node, ...]] = weakref.WeakKeyDictionary()
 
 
 @tatsudataclass
