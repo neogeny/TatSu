@@ -29,14 +29,14 @@ class AsJSONMixin:
     def __pub__(self, prot: bool = False) -> dict[str, Any]:
         def is_public(name: str) -> bool:
             tvalue = getattr(type(self), name, None)
-            public_so_far = (
+            good_so_far = (
                 (prot or not name.startswith('_'))
                 and not name.startswith('__')
                 and hasattr(self, name)
                 and not inspect.isroutine(tvalue)
                 and not isinstance(tvalue, property)
             )
-            if not public_so_far:
+            if not good_so_far:
                 return False
 
             value = getattr(self, name)
