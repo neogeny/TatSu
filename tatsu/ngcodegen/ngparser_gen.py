@@ -8,16 +8,17 @@ from collections.abc import Callable, Iterator
 from typing import Any
 
 from .. import grammars as g
+from .._version import version, version_info
+from ..contexts.protocol import Ctx
 from ..exceptions import CodegenError
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
+from ..parserconfig import ParserConfig
 from ..util import regexp, safe_name
 from ..util.abctools import compress_seq
 from ..util.undefined import Undefined
 from ..walkers import NodeWalker
-from .._version import version, version_info
-from ..contexts.protocol import Ctx
-from ..parserconfig import ParserConfig
+
 
 HEADER = """\
     #!/usr/bin/env python3
@@ -31,8 +32,8 @@ HEADER = """\
     #  Any changes you make to it will be overwritten the next time
     #  the file is generated.
     #
-    # ruff: noqa: RUF100, C405, COM812, I001, F401, F811, PLR1702, PLC2801, SIM117
-    # ruff: noqa: PL2401, PLC2402, PLC2403
+    # ruff: noqa: RUF100, RUF102, C405, COM812, I001, F401, F811, PLR1702
+    # ruff: noqa: PLC2801, SIM117, PL2401, PLC2402, PLC2403
     # fmt: off
 
     from __future__ import annotations
