@@ -3,7 +3,7 @@
 -e .
 asttokens==3.0.1
     # via stack-data
-basedpyright==1.38.1
+basedpyright==1.38.2
 black==26.1.0
 build==1.4.0
 certifi==2026.2.25
@@ -136,7 +136,7 @@ rich==14.3.3
     #   rich-click
     #   twine
 rich-click==1.9.7
-ruff==0.15.2
+ruff==0.15.4
 secretstorage==3.5.0 ; platform_machine != 'ppc64le' and platform_machine != 's390x' and sys_platform == 'linux'
     # via keyring
 setuptools==82.0.0
@@ -153,6 +153,6 @@ urllib3==2.6.3
     #   id
     #   requests
     #   twine
-uv==0.10.6
+uv==0.10.8
 wcwidth==0.6.0
     # via prompt-toolkit
