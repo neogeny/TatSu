@@ -22,7 +22,6 @@ from .math import ffset
 class Grammar(Model):
     name: str = 'MyTest'
     directives: dict[str, Any] = field(default_factory=dict)
-    config: ParserConfig = field(default=ParserConfig())
     rules: list[Rule] = field(default_factory=list)
     rulemap: dict[str, Rule] = field(default_factory=dict)
 
@@ -42,7 +41,7 @@ class Grammar(Model):
 
         newcfg = ParserConfig.new(config=newcfg, **settings)
         newcfg = newcfg.hard_override(**directives)
-        self.config = newcfg
+        self.config: ParserConfig = newcfg
 
         self.rules = rules
         self.rulemap = {rule.name: rule for rule in rules}
