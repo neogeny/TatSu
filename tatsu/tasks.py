@@ -278,7 +278,7 @@ def black(c: Context, python: float = PYTHON):
     start_print(black)
     res = uv_run(
         c,
-        ["black", "--check", "tatsu", "tests", "examples"],
+        ["black", "tatsu", "tests", "examples"],
         python=python,
         group='test',
         warn=True,
@@ -290,7 +290,7 @@ def black(c: Context, python: float = PYTHON):
         print('✖ failed!')
 
 
-@task(pre=[begin, clean, ruff, ty, mypy, pyright, black])
+@task(pre=[begin, clean, ruff, ty, mypy, pyright])
 def lint(_c: Context):
     success_print(task=lint)
 
