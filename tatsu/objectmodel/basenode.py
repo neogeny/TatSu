@@ -121,7 +121,7 @@ class BaseNode(AsJSONMixin):
     @cache
     def _basenode_keys() -> frozenset[str]:
         # Gemini (2026-02-14)
-        return frozenset(dir(BaseNode))
+        return frozenset(vars(BaseNode).keys())
 
     def __pub__(self, prot: bool = False) -> dict[str, Any]:
         pub = super().__pub__(prot=prot)

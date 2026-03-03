@@ -27,25 +27,18 @@ class AsJSONMixin:
         return {'__class__': type(self).__name__, **asjson(pub, seen=seen)}
 
     def __pub__(self, prot: bool = False) -> dict[str, Any]:
-        def is_public(name: str) -> bool:
+        def is_public(name: str, value: Any) -> bool:
             tvalue = getattr(type(self), name, None)
-            good_so_far = (
-                (prot or not name.startswith('_'))
-                and not name.startswith('__')
+            return (
+                not name.startswith('__')
+                and (prot or not name.startswith('_'))
                 and hasattr(self, name)
                 and not inspect.isroutine(tvalue)
                 and not isinstance(tvalue, property)
+                and not inspect.ismethod(value)
+                and not isinstance(value, (weakref.ReferenceType, *weakref.ProxyTypes))
             )
-            if not good_so_far:
-                return False
-
-            value = getattr(self, name)
-            return not inspect.ismethod(value) and not isinstance(
-                value, (weakref.ReferenceType, *weakref.ProxyTypes)
-            )
-
-        pubnames = [name for name in dir(self) if is_public(name)]
-        return {name: getattr(self, name) for name in pubnames}
+        return rowselect(vars(self), vars(self), where=is_public)
 
 
 def asjson(obj: Any, seen: set[int] | None = None) -> Any:
