@@ -13,6 +13,7 @@ from typing import Any
 
 from .common import is_reserved
 
+
 if sys.version_info >= (3, 13):
     from re import PatternError
 else:
@@ -207,9 +208,10 @@ def pythonize_name(name: str) -> str:
 def prints(*args, **kwargs: Any) -> str:
     with StringIO() as f:
         kwargs['file'] = f
-        kwargs['end'] = ''
+        # kwargs['end'] = ''
         print(*args, **kwargs)
-        return f.getvalue()
+        out = f.getvalue()
+        return '\n'.join(out.splitlines(False)).rstrip()
 
 
 def longest_common_prefix(strs: Iterable[str], suffix: str = '') -> str:

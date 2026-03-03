@@ -23,13 +23,12 @@ class Grammar(Model):
     name: str = 'MyTest'
     directives: dict[str, Any] = field(default_factory=dict)
     rules: list[Rule] = field(default_factory=list)
-    rulemap: dict[str, Rule] = field(default_factory=dict)
 
     def __init__(
         self,
-        name,
-        rules,
-        /,
+        name=None,
+        rules=None,
+        *,
         newcfg: ParserConfig | None = None,
         directives: dict | None = None,
         **settings,
@@ -41,15 +40,15 @@ class Grammar(Model):
 
         newcfg = ParserConfig.new(config=newcfg, **settings)
         newcfg = newcfg.hard_override(**directives)
-        self.config: ParserConfig = newcfg
+        self._config: ParserConfig = newcfg
 
         self.rules = rules
-        self.rulemap = {rule.name: rule for rule in rules}
+        self._rulemap = {rule.name: rule for rule in rules}
 
         if name is None:
             name = self.directives.get('grammar')
         if name is None:
-            name = self.config.name
+            name = self._config.name
         if name is None and newcfg.filename is not None:
             name = Path(newcfg.filename).stem
         if name is None:
@@ -69,6 +68,14 @@ class Grammar(Model):
                 f' but found left-recursive rules'
                 f' {', '.join(repr(r.name) for r in leftrect_rules)}!'
             )
+
+    @property
+    def config(self) -> ParserConfig:
+        return self._config
+
+    @property
+    def rulemap(self) -> dict[str, Rule]:
+        return self._rulemap
 
     @property
     def keywords(self) -> set[str]:
@@ -160,7 +167,7 @@ class Grammar(Model):
             newcfg.start_rule = None
             newcfg.rule_name = None
 
-        self.config = newcfg
+        self._config = newcfg
         if ctx is None:
             ctx = ModelContext(self.rules, config=newcfg)
         assert isinstance(ctx, Ctx)

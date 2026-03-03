@@ -98,8 +98,10 @@ def isiter(obj: Any) -> bool:
     # by Gemini (2026-01-26)
     # by [apalala@gmail.com](https://github.com/apalala)
     """
-    if isinstance(obj, str | bytes | bytearray | Mapping):
+    if isinstance(obj, str | bytes | bytearray):
         return False
+    if isinstance(obj, list | set | tuple | dict):
+        return True
     try:
         iter(obj)
         return True

@@ -15,6 +15,7 @@ from ..parserconfig import ParserConfig
 from ..util import compress_seq, indent, trim, typename
 from .math import ffset, kdot
 
+
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
@@ -145,9 +146,6 @@ class Model(Node):
         from .. import railroads
 
         return railroads.text(self)
-
-    def __str__(self):
-        return self.pretty()
 
 
 @tatsudataclass

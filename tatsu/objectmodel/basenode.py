@@ -11,8 +11,11 @@ from typing import Any, overload
 
 from ..ast import AST
 from ..infos import ParseInfo
-from ..util.abctools import rowselect
+from ..mixins.indent import IndentPrintMixin
+from ..util.abctools import is_list, isiter, rowselect
 from ..util.asjson import AsJSONMixin, asjson, asjsons
+from ..util.common import fqn
+
 
 __all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
 
@@ -144,13 +147,69 @@ class BaseNode(AsJSONMixin):
 
         pub = self.__pub__()
         sortedkeys = sorted(pub.keys(), key=fieldorder)
-        attrs = ', '.join(
-            f'{name}={pub[name]!r}' for name in sortedkeys if pub[name] is not None
-        )
-        return f'{type(self).__name__}({attrs})'
+
+        im = IndentPrintMixin()
+        attr_repr = []
+        for name in sortedkeys:
+            value = pub[name]
+            values = repr(value)
+            reprs = f'{name}={values}'
+
+            if value is None:
+                continue
+
+            im = IndentPrintMixin()
+            if im.fitsfmt(reprs) or not isiter(value):
+                attr_repr += [reprs]
+                continue
+
+            if isinstance(value, dict):
+                im = IndentPrintMixin()
+                values = f'{name}={value!r}'
+                if im.fitsfmt(values) and len(values.splitlines()) == 1:
+                    attr_repr += [values]
+                    continue
+                values = ',\n'.join(f'{k}: {v!r}' for k, v in value.items())
+                im.print(f'{name}={{')
+                with im.indent():
+                    im.print(values)
+                im.print('}')
+                attr_repr += [im.printed_text().rstrip()]
+
+            islist = isinstance(value, list)
+            im = IndentPrintMixin()
+            reprs = [repr(v) for v in value]
+            values = ', '.join(reprs)
+            if im.fitsfmt(values) and len(values.splitlines()) == 1:
+                if islist:
+                    attr_repr += [f'{name}=[{values}]']
+                else:
+                    attr_repr += [f'{name}=({values})']
+                continue
+
+            values = ',\n'.join(reprs)
+            im.print(f'{name}=' + '[' if islist else '(')
+            with im.indent():
+                im.print(values)
+            im.print(']' if islist else ')')
+            attr_repr += [im.printed_text().rstrip()]
+
+        im = IndentPrintMixin()
+        attrs = ', '.join(attr_repr)
+        reprs = f'{type(self).__name__}({attrs})'
+        if im.fitsfmt(reprs) and len(reprs.splitlines()) == 1:
+            return reprs
+
+        attrs = ',\n'.join(attr_repr)
+        im.print(f'{type(self).__name__}(')
+        with im.indent():
+            im.print(attrs)
+        im.print(')')
+        return im.printed_text().rstrip()
 
     def __str__(self) -> str:
-        return asjsons(self)
+        # FIXME: return f'<{fqn(type(self))} object at 0x{id(self):x}>'
+        return super().__repr__()
 
     def __eq__(self, other) -> bool:
         # NOTE: No use case for structural equality
