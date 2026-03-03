@@ -56,7 +56,7 @@ def main():
         filename=sys.argv[1],
         trace='--trace' in sys.argv or '-t' in sys.argv,
     )
-    print(model)
+    print(model.pretty())
 
 
 if __name__ == '__main__':
