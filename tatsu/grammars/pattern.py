@@ -12,14 +12,17 @@ from tatsu.objectmodel import tatsudataclass
 
 @tatsudataclass
 class Pattern(Model):
-    pattern: str = ''
+    pattern: str | None = None
     _patterns: list[str] = dc.field(init=False, default_factory=list)
     _regex: re.Pattern = dc.field(init=False)
 
     def __post_init__(self):
         super().__post_init__()
         self._patterns = self.ast if isinstance(self.ast, list) else [self.ast]
-        self.pattern = ''.join(self._patterns)
+        if self.pattern is None:
+            self.pattern = ''.join(self._patterns or [])
+        else:
+            self._patterns = self.pattern.splitlines()
         self._regex = re.compile(self.pattern)
 
     def _parse(self, ctx):
