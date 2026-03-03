@@ -213,7 +213,7 @@ class SyntaxTests(unittest.TestCase):
         model = compile(grammar, 'test')
         ast = model.parse('abb', nameguard=False)
         self.assertEqual(('a', 'b', 'b'), ast)
-        self.assertEqual(trim(grammar), trim(str(model)))
+        self.assertEqual(trim(grammar), trim(model.pretty()))
 
     def test_rule_include(self):
         grammar = """

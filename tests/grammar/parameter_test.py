@@ -33,7 +33,7 @@ class ParameterTests(unittest.TestCase):
 
         """
         model = compile(grammar, 'test')
-        self.assertEqual(trim(grammar), str(model))
+        self.assertEqual(trim(grammar), model.pretty())
 
     def test_36_params_and_keyword_params(self):
         grammar = """
@@ -41,7 +41,7 @@ class ParameterTests(unittest.TestCase):
 
         """
         model = compile(grammar, 'test')
-        self.assertEqual(trim(grammar), str(model))
+        self.assertEqual(trim(grammar), model.pretty())
 
     def test_36_param_combinations(self):
         def assert_equal(target, value):
@@ -104,7 +104,7 @@ class ParameterTests(unittest.TestCase):
         """
 
         model = compile(grammar, 'RuleArguments')
-        self.assertEqual(trim(pretty), str(model))
+        self.assertEqual(trim(pretty), model.pretty())
         model = compile(pretty, 'RuleArguments')
 
         ast = model.parse('a b c')
@@ -187,4 +187,4 @@ class ParameterTests(unittest.TestCase):
         """
 
         model = compile(grammar, 'test')
-        self.assertEqual(trim(grammar), str(model))
+        self.assertEqual(trim(grammar), model.pretty())

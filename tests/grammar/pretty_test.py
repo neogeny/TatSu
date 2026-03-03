@@ -47,7 +47,6 @@ class PrettyTests(unittest.TestCase):
         model = compile(grammar=grammar)
 
         self.assertEqual(pretty, model.pretty())
-        self.assertEqual(str(model), model.pretty())
 
         self.assertEqual(pretty_lean, model.pretty_lean())
 

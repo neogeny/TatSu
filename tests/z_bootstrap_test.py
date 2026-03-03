@@ -24,6 +24,7 @@ from tatsu.tool import to_python_sourcecode
 from tatsu.util import asjson
 from tatsu.walkers import DepthFirstWalker
 
+
 tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
 
@@ -49,7 +50,7 @@ def test_01_with_parser_generator():
     text = tatsu.grammar
     g = TatSuParserGenerator('TatSuBootstrap')
     result = g.parse(text)
-    generated_grammar1 = str(result)
+    generated_grammar1 = result.pretty()
     Path('./tmp/01.tatsu').write_text(generated_grammar1)
 
 
@@ -59,12 +60,12 @@ def test_02_previous_output_generator():
     text = tatsu.grammar
     g = TatSuParserGenerator('TatSuBootstrap')
     result = g.parse(text)
-    generated_grammar1 = str(result)
+    generated_grammar1 = result.pretty()
 
     text = Path('./tmp/01.tatsu').read_text()
     g = TatSuParserGenerator('TatSuBootstrap')
     result = g.parse(text)
-    generated_grammar2 = str(result)
+    generated_grammar2 = result.pretty()
     Path('./tmp/02.tatsu').write_text(generated_grammar2)
     assert generated_grammar2 == generated_grammar1
 
@@ -84,12 +85,12 @@ def test_04_repeat_03():
     text = Path('./tmp/01.tatsu').read_text()
     g = TatSuParserGenerator('TatSuBootstrap')
     result = g.parse(text)
-    generated_grammar2 = str(result)
+    generated_grammar2 = result.pretty()
 
     text = Path('./tmp/02.tatsu').read_text()
     g = TatSuParserGenerator('TatSuBootstrap')
     parser = g.parse(text)
-    generated_grammar4 = str(parser)
+    generated_grammar4 = parser.pretty()
     Path('./tmp/04.tatsu').write_text(generated_grammar4)
     assert generated_grammar4 == generated_grammar2
 
@@ -175,12 +176,12 @@ def test_09_parser_with_semantics():
     text = tatsu.grammar
     parser = TatSuParserGenerator('TatSuBootstrap')
     g9 = parser.parse(text)
-    generated_grammar9 = str(g9)
+    generated_grammar9 = g9.pretty()
     Path('./tmp/09.tatsu').write_text(generated_grammar9)
     text = tatsu.grammar
     g = TatSuParserGenerator('TatSuBootstrap')
     result = g.parse(text)
-    generated_grammar1 = str(result)
+    generated_grammar1 = result.pretty()
     assert generated_grammar9 == generated_grammar1
 
 
@@ -195,7 +196,7 @@ def test_10_with_model_and_semantics():
         start='start',
         semantics=TatSuGrammarSemantics('TatSuBootstrap'),
     )
-    generated_grammar10 = str(g10)
+    generated_grammar10 = g10.pretty()
     Path('./tmp/10.tatsu').write_text(generated_grammar10)
     gencode10 = pythongen(g10)
     Path('./tmp/g10.py').write_text(gencode10)
@@ -221,7 +222,7 @@ def test_11_with_pickle_and_retry():
         start='start',
         semantics=TatSuGrammarSemantics('TatSuBootstrap'),
     )
-    Path('./tmp/11.tatsu').write_text(str(g11))
+    Path('./tmp/11.tatsu').write_text(g11.pretty())
     gencode11 = pythongen(r11)
     Path('./tmp/bootstrap_g11.py').write_text(gencode11)
 
