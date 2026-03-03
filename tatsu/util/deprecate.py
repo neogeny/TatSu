@@ -30,7 +30,7 @@ def deprecated(
             msg = f"`{func_name}()` is deprecated. Use `{repl_name}()` instead."
         else:
             msg = f"{func_name}()` is deprecated and will be removed the near future."
-        func.__deprecated__ = msg
+        func.__deprecated__ = msg  # type: ignore
 
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:

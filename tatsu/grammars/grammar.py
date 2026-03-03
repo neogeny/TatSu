@@ -13,16 +13,16 @@ from ..exceptions import GrammarError
 from ..objectmodel import tatsudataclass
 from ..parserconfig import ParserConfig
 from ..util import chunks
-from .math import ffset
-from ._core import ModelContext, Model, Rule
+from ._core import Model, ModelContext, Rule
 from .leftrec import mark_left_recursion
+from .math import ffset
 
 
 @tatsudataclass
 class Grammar(Model):
     name: str = 'MyTest'
-    directives: dict[str, Any] | None = field(default_factory=dict)
-    config: ParserConfig | None = None
+    directives: dict[str, Any] = field(default_factory=dict)
+    config: ParserConfig = field(default=ParserConfig())
     rules: list[Rule] = field(default_factory=list)
     rulemap: dict[str, Rule] = field(default_factory=dict)
 
@@ -31,7 +31,7 @@ class Grammar(Model):
         name,
         rules,
         /,
-        config: ParserConfig | None = None,
+        newcfg: ParserConfig | None = None,
         directives: dict | None = None,
         **settings,
     ):
@@ -40,9 +40,9 @@ class Grammar(Model):
         directives = directives or {}
         self.directives = directives
 
-        config = ParserConfig.new(config=config, **settings)
-        config = config.hard_override(**directives)
-        self.config = config
+        newcfg = ParserConfig.new(config=newcfg, **settings)
+        newcfg = newcfg.hard_override(**directives)
+        self.config = newcfg
 
         self.rules = rules
         self.rulemap = {rule.name: rule for rule in rules}
@@ -51,8 +51,8 @@ class Grammar(Model):
             name = self.directives.get('grammar')
         if name is None:
             name = self.config.name
-        if name is None and config.filename is not None:
-            name = Path(config.filename).stem
+        if name is None and newcfg.filename is not None:
+            name = Path(newcfg.filename).stem
         if name is None:
             name = 'My'
         self.name = name
@@ -64,9 +64,9 @@ class Grammar(Model):
 
         self._calc_lookahead_sets()
         leftrect_rules = mark_left_recursion(self.rulemap)
-        if leftrect_rules and not config.left_recursion:
+        if leftrect_rules and not newcfg.left_recursion:
             raise GrammarError(
-                f'{config.left_recursion=}'
+                f'{newcfg.left_recursion=}'
                 f' but found left-recursive rules'
                 f' {', '.join(repr(r.name) for r in leftrect_rules)}!'
             )
@@ -141,30 +141,31 @@ class Grammar(Model):
         /,
         *,
         ctx: ParseContext | None = None,
-        config: ParserConfig | None = None,
+        newcfg: ParserConfig | None = None,
         **settings,
     ):
-        config = self.config.override_config(config)
+        newcfg = self.config.override_config(newcfg)
         # note: bw-comp: allow overriding directives
-        config = config.override(**settings)
+        newcfg = newcfg.override(**settings)
 
-        if isinstance(config.semantics, type):
+        if isinstance(newcfg.semantics, type):
             raise TypeError(
                 'semantics must be an object instance or None, '
-                f'not class {config.semantics!r}',
+                f'not class {newcfg.semantics!r}',
             )
 
-        start = config.effective_start_rule_name()
+        start = newcfg.effective_start_rule_name()
         if start is None:
             start = self.rules[0].name
-            config.start = start
-            config.start_rule = None
-            config.rule_name = None
+            newcfg.start = start
+            newcfg.start_rule = None
+            newcfg.rule_name = None
 
+        self.config = newcfg
         if ctx is None:
-            ctx = ModelContext(self.rules, config=config)
+            ctx = ModelContext(self.rules, config=newcfg)
         assert isinstance(ctx, Ctx)
-        return ctx.parse(text, config=config)
+        return ctx.parse(text, config=newcfg)
 
     def nodecount(self) -> int:
         return 1 + sum(r.nodecount() for r in self.rules)

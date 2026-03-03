@@ -140,7 +140,7 @@ def parse(
             constructors=constructors,
         )
         config.semantics = ModelBuilderSemantics(config=builderconfig)
-    return model.parse(text, start=start, semantics=semantics, config=config)
+    return model.parse(text, start=start, semantics=semantics, newcfg=config)
 
 
 def to_python_sourcecode(
