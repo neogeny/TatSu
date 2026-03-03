@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import builtins
-import importlib
 import types
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
@@ -172,19 +171,12 @@ class ModelBuilder:
 
         existing = self._registry.get(name)
         if existing and existing is not constructor:
-            same_class = (
-                existing.__name__ == constructor.__name__
-                and existing.__module__ == constructor.__module__
+            raise TypeResolutionError(
+                f"Conflict for constructor name {name!r}:"
+                f" attempted to register {constructor!r},"
+                f" but {existing!r} is already registered"
+                f"{id(existing)=} {id(constructor)=}."
             )
-            if same_class:
-                pass
-            else:
-                raise TypeResolutionError(
-                    f"Conflict for constructor name {name!r}:"
-                    f" attempted to register {constructor!r},"
-                    f" but {existing!r} is already registered"
-                    f"{id(existing)=} {id(constructor)=}."
-                )
 
         self._registry[name] = constructor
         return constructor

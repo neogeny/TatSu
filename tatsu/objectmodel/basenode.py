@@ -5,7 +5,6 @@ from __future__ import annotations
 import dataclasses as dc
 import inspect
 import warnings
-import weakref
 from collections.abc import Callable
 from functools import cache
 from typing import Any, overload
@@ -25,7 +24,6 @@ TatSuDataclassParams = dict(
     match_args=False,
     unsafe_hash=False,
     kw_only=True,
-    slots=True,
 )
 
 
