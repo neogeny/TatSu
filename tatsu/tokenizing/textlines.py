@@ -11,7 +11,8 @@ from ..parserconfig import ParserConfig
 from ..util.common import typename
 from ..util.itertools import str_from_match
 from ..util.misc import cached_re_compile
-from ..util.undefined import Undefined, notnone
+from ..util.undefined import Undefined
+from ..util.typetools import notnone
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 

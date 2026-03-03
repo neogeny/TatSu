@@ -6,7 +6,8 @@ from typing import Any
 
 from .. import grammars as g
 from ..util.abctools import join_lists
-from ..util.string import regexp, unicode_display_len as ulen
+from ..util.string import regexp
+from ..util.string import unicode_display_len as ulen
 from ..walkers import NodeWalker
 from .railmath import (
     ETX,
@@ -177,7 +178,7 @@ class RailroadNodeWalker(NodeWalker):
         return weld([f' `{named.name}`('], self.walk(named.exp), [')'])
 
     def walk_named_list(self, named: g.NamedList) -> Rails:
-        return weld([f' `{named.name}`]('], self.walk(named.exp), [')'])
+        return weld([f' `{named.name}`]+('], self.walk(named.exp), [')'])
 
     def walk_override(self, override: g.Override) -> Rails:
         return weld([' @('], self.walk(override.exp), [')'])

@@ -18,6 +18,9 @@ __all__ = [
     'Constructor',
     'TypeContainer',
     'boundcall',
+    'cast',
+    'isproperty',
+    'notnone',
 ]
 
 type Constructor = type | Callable
@@ -26,6 +29,19 @@ type TypeContainer = type | ModuleType | Mapping[str, type] | dict[str, type]
 
 def boundcall(fun: Callable, known: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
     return BoundCallable.call(fun, known, *args, **kwargs)
+
+
+def isproperty(obj: Any, name: str) -> bool:
+    return isinstance(getattr(type(obj), name, None), property)
+
+
+def notnone[T](value: Any | None, default: T) -> T:
+    return value if value is not None else default
+
+
+def cast[T](t: type[T], value: Any) -> T:
+    assert isinstance(value, t)
+    return value
 
 
 @dataclass
@@ -182,7 +198,3 @@ def least_upper_bound_type(constructors: Sequence[Constructor]) -> type:
         (parent for parent in topsorted if all(issubclass(t, parent) for t in types_)),
         default=object,
     )
-
-
-def isproperty(obj: Any, name: str) -> bool:
-    return isinstance(getattr(type(obj), name, None), property)
