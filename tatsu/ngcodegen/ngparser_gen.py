@@ -19,7 +19,6 @@ from ..util.abctools import compress_seq
 from ..util.undefined import Undefined
 from ..walkers import NodeWalker
 
-
 HEADER = """\
     #!/usr/bin/env python3
     #
