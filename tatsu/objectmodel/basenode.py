@@ -35,8 +35,8 @@ def tatsudataclass[T: type](**params: Any) -> Callable[[T], T]: ...
 
 
 def tatsudataclass[T: type](
-        cls: T | None = None,
-        **params: Any,
+    cls: T | None = None,
+    **params: Any,
 ) -> T | Callable[[T], T]:
     # by Gemini (2026-02-07)
     # by [apalala@gmail.com](https://github.com/apalala)
