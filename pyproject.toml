@@ -10,11 +10,11 @@ build-backend = "hatchling.build"
 [project]
 name = "TatSu"
 dynamic = ["version"]
-authors = [{name = "Juancarlo Añez", email = "apalala@gmail.com"}]
+authors = [{ name = "Juancarlo Añez", email = "apalala@gmail.com" }]
 description = "TatSu takes a grammar in a variation of EBNF as input, and outputs a memoizing PEG/Packrat parser in Python."
 readme = "README.rst"
 requires-python = ">=3.12"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 keywords = ["PEG", "parser", "grammar", "EBNF", "packrat"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -165,7 +165,7 @@ respect-type-ignore-comments = true
 unresolved-import = "ignore"
 unused-ignore-comment = "ignore"
 unused-type-ignore-comment = "ignore"
-unresolved-attribute = "ignore"
+#unresolved-attribute = "ignore"
 
 [tool.coverage.run]
 omit = ["tests/*", "tatsu/diagrams.py", "tatsu/codegen/*", "**/test.py"]
@@ -232,7 +232,7 @@ select = [
 ]
 
 ignore = [
-    "F401",   # `XYZ` imported but unused
+    "F401", # `XYZ` imported but unused
     "COM812", #  Trailing comma missing"
     "COM819", #  Trailing comma prohibited"
     "E501", #    line-too-long
@@ -296,29 +296,29 @@ exclude = [
     "parsers/"
 ]
 
-# reportCallIssue = false
-# reportMissingImports = false
-reportOptionalMemberAccess = false
-reportAttributeAccessIssue = false
-reportMissingParameterType = false
-reportImplicitOverride = false
-reportUnhashable = false
-reportUnreachable = false
-reportMissingTypeStubs = false
-reportUnknownMemberType = false
-reportUnknownVariableType = false
-reportUnknownArgumentType = false
-reportUnknownParameterType = false
-reportUnknownLambdaType = false
-# reportUnknownReturnType = false
+#reportCallIssue = false
+#reportMissingImports = false
+#reportOptionalMemberAccess = false
+#reportAttributeAccessIssue = false
+#reportMissingParameterType = false
+#reportImplicitOverride = false
+#reportUnhashable = false
+#reportUnreachable = false
+#reportMissingTypeStubs = false
+#reportUnknownMemberType = false
+#reportUnknownVariableType = false
+#reportUnknownArgumentType = false
+#reportUnknownParameterType = false
+#reportUnknownLambdaType = false
+#reportUnknownReturnType = false
 reportAny = false
 reportExplicitAny = false
-reportUnnecessaryIsInstance = false
-reportUnnecessaryCast = false
-reportUnnecessaryComparison = false
-reportUnusedClass = false
-reportUnusedFunction = false
-reportUnusedVariable = false
+#reportUnnecessaryIsInstance = false
+#reportUnnecessaryCast = false
+#reportUnnecessaryComparison = false
+#reportUnusedClass = false
+#reportUnusedFunction = false
+#reportUnusedVariable = false
 
 # From your previous request
-reportInvalidTypeForm = false
+#reportInvalidTypeForm = false
