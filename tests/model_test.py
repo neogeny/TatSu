@@ -355,3 +355,6 @@ def test_calc_repr():
     refrepr = trim(calc_repr).rstrip()
     modelrepr = trim(repr(model)).rstrip()
     assert modelrepr == refrepr
+    evalmodel = eval(modelrepr, globals=vars(g))  # noqa: S307
+    assert isinstance(evalmodel, g.Grammar)
+    assert isinstance(evalmodel.rules[0], g.Rule)
