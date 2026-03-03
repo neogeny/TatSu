@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from dataclasses import field
 
-from tatsu.ast import AST
-from tatsu.grammars import Decorator
-from tatsu.objectmodel import tatsudataclass
-from tatsu.util import typename
+from ..ast import AST
+from ..objectmodel import tatsudataclass
+from ..util import typename
+from .syntax import Decorator
 
 
 @tatsudataclass

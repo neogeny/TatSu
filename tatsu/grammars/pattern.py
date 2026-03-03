@@ -26,7 +26,7 @@ class Pattern(Model):
         self._regex = re.compile(self.pattern)
 
     def _parse(self, ctx):
-        return ctx._pattern(self.pattern)
+        return ctx._pattern(self.pattern or r'\\')
 
     def _first(self, k, f) -> ffset:
         x = str(self)

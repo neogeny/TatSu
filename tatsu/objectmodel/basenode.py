@@ -12,10 +12,8 @@ from typing import Any, overload
 from ..ast import AST
 from ..infos import ParseInfo
 from ..mixins.indent import IndentPrintMixin
-from ..util.abctools import is_list, isiter, rowselect
-from ..util.asjson import AsJSONMixin, asjson, asjsons
-from ..util.common import fqn
-
+from ..util.abctools import isiter, rowselect
+from ..util.asjson import AsJSONMixin, asjson
 
 __all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
 
@@ -178,8 +176,8 @@ class BaseNode(AsJSONMixin):
 
             islist = isinstance(value, list)
             im = IndentPrintMixin()
-            reprs = [repr(v) for v in value]
-            values = ', '.join(reprs)
+            reprlist = [repr(v) for v in value]
+            values = ', '.join(reprlist)  # type: ignore
             if im.fitsfmt(values) and len(values.splitlines()) == 1:
                 if islist:
                     attr_repr += [f'{name}=[{values}]']
@@ -187,7 +185,7 @@ class BaseNode(AsJSONMixin):
                     attr_repr += [f'{name}=({values})']
                 continue
 
-            values = ',\n'.join(reprs)
+            values = ',\n'.join(reprlist)
             im.print(f'{name}=' + '[' if islist else '(')
             with im.indent():
                 im.print(values)
@@ -208,7 +206,6 @@ class BaseNode(AsJSONMixin):
         return im.printed_text().rstrip()
 
     def __str__(self) -> str:
-        # FIXME: return f'<{fqn(type(self))} object at 0x{id(self):x}>'
         return super().__repr__()
 
     def __eq__(self, other) -> bool:

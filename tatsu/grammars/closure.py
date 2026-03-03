@@ -2,10 +2,11 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from tatsu.grammars import Decorator, Model
-from tatsu.grammars.math import ffset, kdot
-from tatsu.objectmodel import tatsudataclass
-from tatsu.util import indent
+from ..objectmodel import tatsudataclass
+from ..util import indent
+from ._core import Model
+from .math import ffset, kdot
+from .syntax import Decorator
 
 
 @tatsudataclass
