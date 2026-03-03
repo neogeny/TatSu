@@ -129,24 +129,20 @@ def short_relative_path(path: str | Path, base: str | Path = '.') -> Path:
 
 
 def fqn(obj: Any) -> str:
-    # by [apalala@gmail.com](https://github.com/apalala)
     # by Gemini (2026-01-30)
-
     """Helper to safely retrieve the fully qualified name of a callable."""
-    module = getattr(obj, "__module__", None)
-    qualname = getattr(obj, "__qualname__", None)
 
-    if module and qualname and module != "builtins":
-        return f"{module}.{qualname}"
+    module = getattr(obj, '__module__', None)
+    qualname = getattr(obj, '__qualname__', None)
+
+    if module and qualname and module != 'builtins':
+        return f'{module}.{qualname}'
     return qualname or str(obj)
 
 
-def fqntype(fqn: str, default_module: str = '') -> type:
-    if func := getattr(builtins, fqn, None):
-        return func
-
+def fqntype(fqn: str, default_module: str = 'builtins') -> type:
     if '.' in fqn:
-        module_name, class_name = fqn.rsplit(".", 1)
+        module_name, class_name = fqn.rsplit('.', 1)
     else:
         module_name = default_module
         class_name = fqn

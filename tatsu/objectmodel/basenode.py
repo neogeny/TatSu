@@ -16,7 +16,6 @@ from ..util.asjson import AsJSONMixin, asjson, asjsons
 
 __all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
 
-
 TatSuDataclassParams = dict(
     {},
     eq=False,
@@ -36,8 +35,8 @@ def tatsudataclass[T: type](**params: Any) -> Callable[[T], T]: ...
 
 
 def tatsudataclass[T: type](
-    cls: T | None = None,
-    **params: Any,
+        cls: T | None = None,
+        **params: Any,
 ) -> T | Callable[[T], T]:
     # by Gemini (2026-02-07)
     # by [apalala@gmail.com](https://github.com/apalala)
@@ -123,10 +122,10 @@ class BaseNode(AsJSONMixin):
         # Gemini (2026-02-14)
         return frozenset(vars(BaseNode).keys())
 
-    def __pub__(self, prot: bool = False) -> dict[str, Any]:
-        pub = super().__pub__(prot=prot)
-        if prot:
-            return pub
+    def __pub__(self, sunderok: bool = False) -> dict[str, Any]:
+        pub = super().__pub__(sunderok=sunderok)
+        if sunderok:
+            return pub  # we're being called from __getstate__ not __repr__
 
         # Gemini (2026-02-14)
         wanted = pub.keys() - self._basenode_keys()
@@ -162,7 +161,7 @@ class BaseNode(AsJSONMixin):
         return hash(id(self))
 
     def __getstate__(self) -> Any:
-        return self.__pub__(prot=True)
+        return self.__pub__(sunderok=True)
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         for name, value in state.items():
