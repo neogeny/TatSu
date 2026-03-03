@@ -20,19 +20,25 @@ class JSONSerializable(Protocol):
 
 
 class AsJSONMixin:
-    __slots__ = ()
+    __slots__ = ('__weakref__',)
 
     def __json__(self, seen: set[int] | None = None) -> Any:
         pub = self.__pub__()
         return {'__class__': type(self).__name__, **asjson(pub, seen=seen)}
 
-    def __pub__(self) -> dict[str, Any]:
+    def __pub__(self, prot: bool = False) -> dict[str, Any]:
         def is_public(name: str, value: Any) -> bool:
-            return not (name.startswith('_') or inspect.isroutine(value))
-
-        names = dir(self)
-        values = {n: getattr(self, n) for n in dir(self)}
-        return rowselect(names, values, where=is_public)
+            tvalue = getattr(type(self), name, None)
+            return (
+                not name.startswith('__')
+                and (prot or not name.startswith('_'))
+                and hasattr(self, name)
+                and not inspect.isroutine(tvalue)
+                and not isinstance(tvalue, property)
+                and not inspect.ismethod(value)
+                and not isinstance(value, (weakref.ReferenceType, *weakref.ProxyTypes))
+            )
+        return rowselect(vars(self), vars(self), where=is_public)
 
 
 def asjson(obj: Any, seen: set[int] | None = None) -> Any:

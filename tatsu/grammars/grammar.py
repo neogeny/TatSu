@@ -44,8 +44,8 @@ class Grammar(Model):
         config = config.hard_override(**directives)
         self.config = config
 
-        self.rules: list[Rule] = rules
-        self.rulemap: dict[str, Rule] = {rule.name: rule for rule in rules}
+        self.rules = rules
+        self.rulemap = {rule.name: rule for rule in rules}
 
         if name is None:
             name = self.directives.get('grammar')
@@ -81,7 +81,7 @@ class Grammar(Model):
 
     @semantics.setter
     def semantics(self, value: Any):
-        self.config.semantics = value
+        self.config.semantics = value  # type: ignore
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return set().union(*[rule.missing_rules(rulenames) for rule in self.rules])

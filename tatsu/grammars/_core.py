@@ -17,9 +17,11 @@ from .math import ffset, kdot
 
 PEP8_LLEN = 72
 
+_model_classes: list[type[Model]] = []
+
 
 def model_classes() -> list[type[Model]]:
-    return Model.model_classes()
+    return _model_classes
 
 
 class ModelContext(ParseContext):
@@ -50,19 +52,17 @@ class ModelContext(ParseContext):
 
 @tatsudataclass
 class Model(Node):
-    _model_classes: ClassVar[list[type[Model]]] = []
-
     _lookahead: ffset = field(init=False, default_factory=set)
     _firstset: ffset = field(init=False, default_factory=set)
     _follow_set: ffset = field(init=False, default_factory=set)
 
     def __init_subclass__(cls: type[Model], **kwargs):
         super().__init_subclass__(**kwargs)
-        cls._model_classes.append(cls)
+        _model_classes.append(cls)
 
-    @classmethod
-    def model_classes(cls) -> list[type[Model]]:
-        return cls._model_classes
+    @staticmethod
+    def model_classes() -> list[type[Model]]:
+        return _model_classes
 
     def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
         return self

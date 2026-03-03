@@ -5,19 +5,24 @@ from __future__ import annotations
 import dataclasses as dc
 import functools
 import weakref
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, MutableMapping
 from typing import Any
 
 from .basenode import BaseNode, tatsudataclass
 
 __all__ = ['Node', 'tatsudataclass']
 
-from ..util.deprecate import deprecated
+
+_children_cache: MutableMapping[Node, tuple[Node, ...]] = weakref.WeakKeyDictionary()
 
 
 @tatsudataclass
 class Node(BaseNode):
     _parent_ref: weakref.ref[Node] | None = dc.field(init=False, default=None)
+
+    def __init__(self, ast: Any = None, **kwargs: Any):
+        super().__init__(ast=ast, **kwargs)
+        self._parent_ref = None
 
     @property
     def parent(self) -> Node | None:
@@ -29,7 +34,6 @@ class Node(BaseNode):
 
     @property
     def comments(self) -> Any:
-        deprecated(replacement=None)(self.comments)
         return None
 
     @property
@@ -53,12 +57,11 @@ class Node(BaseNode):
         return tuple(reversed(ancestors))
 
     def children(self) -> tuple[Node, ...]:
-        return self._cached_children
+        return self._cached_children()
 
     def children_list(self) -> list[Node]:
-        return list(self._cached_children)
+        return list(self._cached_children())
 
-    @functools.cached_property
     def _cached_children(self) -> tuple[Node, ...]:
         def dfs(obj: Any) -> Iterable[Node]:
             match obj:
@@ -80,4 +83,6 @@ class Node(BaseNode):
                 case _:
                     pass
 
-        return tuple(dfs(self.__pub__()))
+        if self not in _children_cache:
+            _children_cache[self] = tuple(dfs(self.__pub__()))
+        return _children_cache[self]

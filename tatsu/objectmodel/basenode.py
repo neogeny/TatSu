@@ -2,10 +2,9 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import dataclasses
+import dataclasses as dc
 import inspect
 import warnings
-import weakref
 from collections.abc import Callable
 from functools import cache
 from typing import Any, overload
@@ -18,13 +17,13 @@ from ..util.asjson import AsJSONMixin, asjson, asjsons
 __all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
 
 
-TatSuDataclassParams = dict(  # noqa: C408
+TatSuDataclassParams = dict(
+    {},
     eq=False,
     repr=False,
     match_args=False,
     unsafe_hash=False,
     kw_only=True,
-    slots=True,
 )
 
 
@@ -45,7 +44,7 @@ def tatsudataclass[T: type](
 
     def decorator(target: T) -> T:
         allparams = {**TatSuDataclassParams, **params}
-        return dataclasses.dataclass(**allparams)(target)  # type: ignore
+        return dc.dataclass(**allparams)(target)  # type: ignore
 
     # If cls is passed, it was used as @tatsudataclass with no arguments
     if cls is not None and not params:
@@ -56,9 +55,9 @@ def tatsudataclass[T: type](
 
 @tatsudataclass
 class BaseNode(AsJSONMixin):
-    ast: Any = dataclasses.field(kw_only=False, default=None)
-    ctx: Any = None
-    parseinfo: ParseInfo | None = None
+    ast: Any = dc.field(kw_only=False, default=None)
+    ctx: Any = dc.field(kw_only=True, default=None)
+    parseinfo: ParseInfo | None = dc.field(kw_only=True, default=None)
 
     def __init__(self, ast: Any = None, **attributes: Any):
         # NOTE:
@@ -67,6 +66,8 @@ class BaseNode(AsJSONMixin):
         super().__init__()
 
         self.ast = ast
+        self.ctx = None
+        self.parseinfo = None
         self.__set_attributes(**attributes)
         self.__post_init__()
 
@@ -120,10 +121,12 @@ class BaseNode(AsJSONMixin):
     @cache
     def _basenode_keys() -> frozenset[str]:
         # Gemini (2026-02-14)
-        return frozenset(dir(BaseNode))
+        return frozenset(vars(BaseNode).keys())
 
-    def __pub__(self) -> dict[str, Any]:
-        pub = super().__pub__()
+    def __pub__(self, prot: bool = False) -> dict[str, Any]:
+        pub = super().__pub__(prot=prot)
+        if prot:
+            return pub
 
         # Gemini (2026-02-14)
         wanted = pub.keys() - self._basenode_keys()
@@ -135,9 +138,7 @@ class BaseNode(AsJSONMixin):
         return rowselect(wanted, pub)
 
     def __repr__(self) -> str:
-        fieldindex = {
-            f.name: i for i, f in enumerate(dataclasses.fields(self))  # type: ignore
-        }
+        fieldindex = {f.name: i for i, f in enumerate(dc.fields(self))}  # type: ignore
 
         def fieldorder(n) -> int:
             return fieldindex.get(n, len(fieldindex))
@@ -161,14 +162,8 @@ class BaseNode(AsJSONMixin):
         return hash(id(self))
 
     def __getstate__(self) -> Any:
-        return {
-            name: (
-                value
-                if not isinstance(value, (weakref.ReferenceType, *weakref.ProxyTypes))
-                else None
-            )
-            for name, value in vars(self).items()
-        }
+        return self.__pub__(prot=True)
 
-    def __setstate__(self, state):
-        self.__dict__.update(state)
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        for name, value in state.items():
+            setattr(self, name, value)

@@ -20,7 +20,7 @@ def parallel_test_run(parse, options):
             return pattern + '*.py'
 
     try:
-        patterns = [pysearch(p) for p in options.patterns]
+        patterns = [pysearch(p) for p in options._patterns]
         filepaths = pathlist_from_patterns(
             patterns,
             sizesort=options.sort,

@@ -6,10 +6,11 @@ import builtins
 import types
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
 from .objectmodel import Node
 from .synth import synthesize
+from .util import fqn, fqntype
 from .util.configs import Config
 from .util.deprecate import deprecated_params
 from .util.string import mangle
@@ -30,8 +31,22 @@ def types_defined_in(container: TypeContainer) -> list[type]:
 class BuilderConfig(Config):
     basetype: type = Node
     synthok: bool = True
-    typedefs: list[TypeContainer] = field(default_factory=list)
-    constructors: list[Constructor] = field(default_factory=list)
+    typedefs: list = field(default_factory=list)
+    constructors: list = field(default_factory=list)
+
+    def __getstate__(self) -> dict[str, Any]:
+        state = super().__getstate__()
+
+        state['typedefs'] = [fqn(t) for t in self.typedefs]
+        state['constructors'] = [fqn(c) for c in self.constructors]
+
+        return state
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        super().__setstate__(state)
+
+        self.typedefs = [fqntype(t) for t in state.get('typedefs', [])]
+        self.constructors = [fqntype(c) for c in state.get('constructors', [])]
 
 
 class ModelBuilder:
@@ -56,7 +71,7 @@ class ModelBuilder:
             typedefs=typedefs,
             constructors=constructors,
         )
-        self._constructor_registry: dict[str, Constructor] = {}
+        self._registry: dict[str, Constructor] = {}
 
         config = self._typedefs_to_constructors(config)
         config = self._narrow_basetype(config)
@@ -154,19 +169,20 @@ class ModelBuilder:
         if not name:
             return constructor
 
-        existing = self._constructor_registry.get(name)
+        existing = self._registry.get(name)
         if existing and existing is not constructor:
             raise TypeResolutionError(
-                f"Conflict for constructor name {name!r}: "
-                f"attempted to register {constructor!r}, "
-                f"but {existing!r} is already registered.",
+                f"Conflict for constructor name {name!r}:"
+                f" attempted to register {constructor!r},"
+                f" but {existing!r} is already registered"
+                f"{id(existing)=} {id(constructor)=}."
             )
 
-        self._constructor_registry[name] = constructor
+        self._registry[name] = constructor
         return constructor
 
     def _find_existing_constructor(self, typename: str) -> Constructor | None:
-        return self._constructor_registry.get(typename) or vars(builtins).get(typename)
+        return self._registry.get(typename) or vars(builtins).get(typename)
 
     def _get_constructor(
         self, typename: str, base: type | None, **args: Any,
@@ -186,6 +202,16 @@ class ModelBuilder:
             constructor = synthesize(typename, (base,), **args)
 
         return self._register_constructor(constructor)
+
+    def __getstate__(self) -> dict[str, Any]:
+        state: dict[str, Any] = cast(dict, super().__getstate__())
+        state['__registry'] = [fqn(t) for t in self._registry]
+        return state
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        state['_registry'] = [fqntype(t) for t in state.get('_registrt', [])]
+        for name, value in state.items():
+            setattr(self, name, value)
 
 
 class ModelBuilderSemantics:
