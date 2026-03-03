@@ -146,7 +146,7 @@ def clean(_c: Context, plus: bool = False):
     start_print(clean)
     patterns = ['build', 'dist', 'tatsu.egg-info', '.tox']
     if plus:
-        patterns.extend(['.cache', '.pytest_cache', '.ruff_cache', '.mypy_cache'])
+        patterns.extend(['.cache', '.pytest_cache', '.ruff_cache'])
 
     for pat in patterns:
         path = Path(pat)
