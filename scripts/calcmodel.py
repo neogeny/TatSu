@@ -1,5 +1,9 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
+import sys
+
+
+sys.path.insert(0, '.')
 from tatsu.grammars import *
 
 
