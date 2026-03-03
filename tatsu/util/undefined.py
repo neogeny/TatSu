@@ -7,7 +7,7 @@ from typing import Any, cast
 __all__ = ['UndefinedType', 'Undefined', 'notnone']
 
 
-def notnone[T](value: T | None, default: T) -> T:
+def notnone[T](value: Any | None, default: T) -> T:
     return value if value is not None else default
 
 

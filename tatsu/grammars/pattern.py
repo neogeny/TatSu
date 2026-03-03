@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import dataclasses as dc
 import re
 
 from tatsu.grammars import Model
@@ -12,6 +13,8 @@ from tatsu.objectmodel import tatsudataclass
 @tatsudataclass
 class Pattern(Model):
     pattern: str = ''
+    _patterns: list[str] = dc.field(init=False, default_factory=list)
+    _regex: re.Pattern = dc.field(init=False)
 
     def __post_init__(self):
         super().__post_init__()

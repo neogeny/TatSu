@@ -11,28 +11,13 @@ from ..protocol import Ctx
 from ..infos import RuleInfo
 
 
-def _debug(*_args, **_kwargs) -> None:  # noqa: F811
-    pass
-
-
-def fn(func) -> str:
-    return getattr(func, '__name__', '<?>')
-
-
-def tn(obj) -> str:
-    return getattr(type(obj), '__name__', '.?.')
-
-
-def __rule_wrapper(
-    func: Callable,
-    *args: Any,
-    **kwargs: Any,
-) -> Callable[[Any, Ctx], Any]:
+def __rule_wrapper(func: Callable, *args: Any, **kwargs: Any) -> Callable:
+    ribase = RuleInfo.new(None, func, args, kwargs)
 
     @functools.wraps(func)
-    def wrapper(self: Any, ctx: Ctx) -> Any:
-        ruleinfo = RuleInfo.new(self, func, args, kwargs)
-        return ctx._call(ruleinfo)
+    def wrapper(instance: Any, ctx: Ctx) -> Any:
+        ri = RuleInfo.bind(ribase, instance)
+        return ctx._call(ri)
 
     return wrapper
 

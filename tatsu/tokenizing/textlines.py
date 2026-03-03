@@ -117,9 +117,7 @@ class TextLinesCursor(Cursor):
         return self.tokens.posline_at(notnone(pos, self.pos))
 
     def get_line(self, n: int | None = None) -> str:
-        if n is None:
-            n = self.line
-        return self.tokens.get_line(n)
+        return self.tokens.get_line(notnone(n, self.line))
 
     def get_lines(
         self,
@@ -149,7 +147,7 @@ class TextLinesTokenizer(Tokenizer):
         config: ParserConfig | None = None,
         **settings: Any,
     ):
-        super().__init__()
+        super().__init__(text, config=config)
         config = ParserConfig.new(config=config, **settings)
         assert isinstance(config, ParserConfig)
         self.config = config
@@ -241,10 +239,10 @@ class TextLinesTokenizer(Tokenizer):
 
     def process_block(
         self,
-        name: str,
+        _name: str,
         lines: list[str],
         index: list[LineIndexInfo],
-        **kwargs,
+        **_kwargs,
     ):
         return lines, index
 
@@ -269,7 +267,7 @@ class TextLinesTokenizer(Tokenizer):
         self._eat_regex(self.config.comments, c)
 
     def eat_eol_comments_at(self, c: Cursor) -> None:
-        return self._eat_regex(self.config.eol_comments, c)
+        self._eat_regex(self.config.eol_comments, c)
 
     def next_token_at(self, c: Cursor) -> None:
         p = None
@@ -356,9 +354,7 @@ class TextLinesTokenizer(Tokenizer):
     def get_lines(self, start: int | None = None, end: int | None = None) -> list[str]:
         if start is None:
             start = 0
-        if end is None:
-            end = len(self._lines)
-        return self._lines[start : end + 1]
+        return self._lines[start : notnone(end, len(self._lines)) + 1]
 
     def line_index_at(
         self, start: int = 0, end: int | None = None

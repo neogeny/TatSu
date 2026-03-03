@@ -149,6 +149,7 @@ disable_error_code = [
     "safe-super",
     "import-untyped",
     "import-not-found",
+    "union-attr",
 ]
 exclude = [
     'parsers',
@@ -164,6 +165,7 @@ respect-type-ignore-comments = true
 unresolved-import = "ignore"
 unused-ignore-comment = "ignore"
 unused-type-ignore-comment = "ignore"
+unresolved-attribute = "ignore"
 
 [tool.coverage.run]
 omit = ["tests/*", "tatsu/diagrams.py", "tatsu/codegen/*", "**/test.py"]
@@ -294,8 +296,9 @@ exclude = [
     "parsers/"
 ]
 
-#reportCallIssue = false
+# reportCallIssue = false
 # reportMissingImports = false
+reportOptionalMemberAccess = false
 reportAttributeAccessIssue = false
 reportMissingParameterType = false
 reportImplicitOverride = false

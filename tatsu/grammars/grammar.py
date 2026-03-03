@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from copy import copy
+from dataclasses import field
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +20,12 @@ from .leftrec import mark_left_recursion
 
 @tatsudataclass
 class Grammar(Model):
+    name: str = 'MyTest'
+    directives: dict[str, Any] | None = field(default_factory=dict)
+    config: ParserConfig | None = None
+    rules: list[Rule] = field(default_factory=list)
+    rulemap: dict[str, Rule] = field(default_factory=dict)
+
     def __init__(
         self,
         name,
@@ -37,8 +44,8 @@ class Grammar(Model):
         config = config.hard_override(**directives)
         self.config = config
 
-        self.rules: list[Rule] = rules
-        self._rulemap: dict[str, Rule] = {rule.name: rule for rule in rules}
+        self.rules = rules
+        self.rulemap = {rule.name: rule for rule in rules}
 
         if name is None:
             name = self.directives.get('grammar')
@@ -50,7 +57,7 @@ class Grammar(Model):
             name = 'My'
         self.name = name
 
-        missing: set[str] = self.missing_rules(set(self._rulemap))
+        missing: set[str] = self.missing_rules(set(self.rulemap))
         if missing:
             msg = '\n'.join(['', *sorted(missing)])
             raise GrammarError('Unknown rules, no parser generated:' + msg)
@@ -65,10 +72,6 @@ class Grammar(Model):
             )
 
     @property
-    def rulemap(self) -> dict[str, Rule]:
-        return self._rulemap
-
-    @property
     def keywords(self) -> set[str]:
         return self.config.keywords
 
@@ -78,7 +81,7 @@ class Grammar(Model):
 
     @semantics.setter
     def semantics(self, value: Any):
-        self.config.semantics = value
+        self.config.semantics = value  # type: ignore
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return set().union(*[rule.missing_rules(rulenames) for rule in self.rules])

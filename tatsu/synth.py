@@ -6,7 +6,7 @@ import types
 from typing import Any
 
 from .ast import AST
-from .objectmodel import BaseNode
+from .objectmodel import BaseNode, tatsudataclass
 
 __all__ = ['SynthNode', 'registered_synthetics', 'synthesize']
 
@@ -16,16 +16,17 @@ __all__ = ['SynthNode', 'registered_synthetics', 'synthesize']
 __registry: dict[str, Any] = vars()
 
 
+@tatsudataclass
 class SynthNode(BaseNode):
-    def __init__(self, ast: Any = None, **attributes: Any):
-        super().__init__(ast=ast, **attributes)
-        if not isinstance(ast, AST):
+    def __post_init__(self):
+        super().__post_init__()
+        if not isinstance(self.ast, AST):
             return
         # NOTE:
         #   synthetic objects have no attributes prior to this __init__()
         #   During parsing, the Synth is known at the start of a rule invocation,
         #   and the possible attributes known at the end
-        for name, value in ast.items():
+        for name, value in self.ast.items():
             setattr(self, name, value)
         self.ast = None
 
