@@ -5,9 +5,9 @@ from __future__ import annotations
 import dataclasses as dc
 import re
 
-from tatsu.grammars import Model
-from tatsu.grammars.math import ffset
-from tatsu.objectmodel import tatsudataclass
+from ..objectmodel import tatsudataclass
+from ._core import Model
+from .math import ffset
 
 
 @tatsudataclass
@@ -48,6 +48,3 @@ class Pattern(Model):
 
     def _nullable(self) -> bool:
         return bool(self._regex.match(''))
-
-    def __str__(self):
-        return self.pattern
