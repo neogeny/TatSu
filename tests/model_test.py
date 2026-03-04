@@ -178,24 +178,24 @@ def test_calc_repr():
             | subtraction
             | term
 
-        addition: left:expression op:'+' ~ right:term
+        addition[Add]: left:expression op:'+' ~ right:term
 
-        subtraction: left:expression op:'-' ~ right:term
+        subtraction[Subtract]: left:expression op:'-' ~ right:term
 
         term:
             | multiplication
             | division
             | factor
 
-        multiplication: left:term op:'*' ~ right:factor
+        multiplication[Multiply]: left:term op:'*' ~ right:factor
 
-        division: left:term '/' ~ right:factor
+        division[Divide]: left:term '/' ~ right:factor
 
         factor:
             | '(' ~ @:expression ')'
             | number
 
-        number: /\d+/
+        number[int]: /\d+/
     """
 
     calc_repr = r"""
@@ -239,7 +239,7 @@ def test_calc_repr():
                             Named(name='right', exp=Call(name='term'))
                         ]
                     ),
-                    params=(),
+                    params=['Add'],
                     kwparams={},
                     decorators=[],
                     is_name=False,
@@ -256,7 +256,7 @@ def test_calc_repr():
                             Named(name='right', exp=Call(name='term'))
                         ]
                     ),
-                    params=(),
+                    params=['Subtract'],
                     kwparams={},
                     decorators=[],
                     is_name=False,
@@ -289,7 +289,7 @@ def test_calc_repr():
                             Named(name='right', exp=Call(name='factor'))
                         ]
                     ),
-                    params=(),
+                    params=['Multiply'],
                     kwparams={},
                     decorators=[],
                     is_name=False,
@@ -306,7 +306,7 @@ def test_calc_repr():
                             Named(name='right', exp=Call(name='factor'))
                         ]
                     ),
-                    params=(),
+                    params=['Divide'],
                     kwparams={},
                     decorators=[],
                     is_name=False,
@@ -340,7 +340,7 @@ def test_calc_repr():
                 Rule(
                     name='number',
                     exp=Pattern(pattern='\\d+'),
-                    params=(),
+                    params=['int'],
                     kwparams={},
                     decorators=[],
                     is_name=False,
@@ -354,9 +354,9 @@ def test_calc_repr():
     model = tatsu.compile(calc_grammar, asmodel=True)
     modelrepr = trim(repr(model)).rstrip()
 
-    # HACK
-    #  from pathlib import Path
-    #  Path('calcmodel.py').write_text(modelrepr)
+    # HACK FIXME
+    # from pathlib import Path
+    # Path('calcmodel.py').write_text(modelrepr)
 
     refrepr = trim(calc_repr).rstrip()
     assert modelrepr == refrepr

@@ -40,7 +40,7 @@ Grammar(
                     Named(name='right', exp=Call(name='term'))
                 ]
             ),
-            params=(),
+            params=['Add'],
             kwparams={},
             decorators=[],
             is_name=False,
@@ -57,7 +57,7 @@ Grammar(
                     Named(name='right', exp=Call(name='term'))
                 ]
             ),
-            params=(),
+            params=['Subtract'],
             kwparams={},
             decorators=[],
             is_name=False,
@@ -90,7 +90,7 @@ Grammar(
                     Named(name='right', exp=Call(name='factor'))
                 ]
             ),
-            params=(),
+            params=['Multiply'],
             kwparams={},
             decorators=[],
             is_name=False,
@@ -107,7 +107,7 @@ Grammar(
                     Named(name='right', exp=Call(name='factor'))
                 ]
             ),
-            params=(),
+            params=['Divide'],
             kwparams={},
             decorators=[],
             is_name=False,
@@ -141,7 +141,7 @@ Grammar(
         Rule(
             name='number',
             exp=Pattern(pattern='\\d+'),
-            params=(),
+            params=['int'],
             kwparams={},
             decorators=[],
             is_name=False,
