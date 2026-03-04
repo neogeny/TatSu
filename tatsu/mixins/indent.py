@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import io
+import re
 from collections.abc import Iterator
 from contextlib import contextmanager
 
 from ..util import trim
+
 
 BLACK_LINE_LENGTH = 88
 
@@ -39,6 +41,8 @@ class IndentPrintMixin:
 
     def fitsfmt(self, line: str, addindents: int = 0):
         assert addindents >= 0
+        if re.search(r"(?m)[\r\n]", line):
+            return False
         total = self.indentation + len(line)
         total += addindents * self.indent_amount
         return total <= BLACK_LINE_LENGTH
