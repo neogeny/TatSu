@@ -13,7 +13,8 @@ from ..ast import AST
 from ..infos import ParseInfo
 from ..mixins.indent import IndentPrintMixin
 from ..util.abctools import isiter, rowselect
-from ..util.asjson import AsJSONMixin, asjson
+from ..util.asjson import AsJSONMixin, asjson, asjsons
+
 
 __all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
 
@@ -96,9 +97,6 @@ class BaseNode(AsJSONMixin):
                 continue
             setattr(self, name, ast[name])
 
-    def asjson(self) -> Any:
-        return asjson(self)
-
     def __set_attributes(self, **attrs) -> None:
         if not isinstance(attrs, dict):
             return
@@ -111,11 +109,17 @@ class BaseNode(AsJSONMixin):
 
             if (prev := getattr(self, name, None)) and inspect.ismethod(prev):
                 warnings.warn(
-                    f'`{name}` in keyword arguments will shadow'
-                    f' `{type(self).__name__}.{name}`',
+                    f'`{name}` in keyword arguments will override'
+                    f' `{type(self).__name__}.{name}`: {prev!r}',
                     stacklevel=2,
                 )
             setattr(self, name, value)
+
+    def asjson(self) -> Any:
+        return asjson(self)
+
+    def asjsons(self) -> str:
+        return asjsons(self)
 
     @staticmethod
     @cache
