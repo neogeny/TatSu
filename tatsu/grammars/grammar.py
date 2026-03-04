@@ -8,7 +8,7 @@ from dataclasses import field
 from pathlib import Path
 from typing import Any
 
-from ..contexts import Ctx, ParseContext
+from ..contexts import Ctx
 from ..exceptions import GrammarError
 from ..objectmodel import tatsudataclass
 from ..parserconfig import ParserConfig
@@ -36,6 +36,7 @@ class Grammar(Model):
         super().__init__()
         assert isinstance(rules, list), f'{type(rules)!r} {rules!r}'
         directives = directives or {}
+        assert isinstance(directives, dict)
         self.directives = directives
 
         config = ParserConfig.new(config=config, **settings)
