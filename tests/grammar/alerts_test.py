@@ -16,3 +16,5 @@ def test_alert_interpolation(trace=False):
     # print(asjsons(model))
     ast = model.parse(input, trace=trace)
     assert ast == {'a': '42', 'b': '69', 'i': 'seen: 42, 69'}
+    ast = model.parse(input, asmodel=True, trace=trace)
+    assert ast == {'a': 42, 'b': 69, 'i': 'seen: 42, 69'}
