@@ -4,14 +4,14 @@ from __future__ import annotations
 
 from dataclasses import field
 
-from .syntax import Sequence
-from ._core import Decorator, Model, Rule
 from ..objectmodel import tatsudataclass
 from ..util import typename
+from ._core import Expression, Model, Rule
+from .syntax import Sequence
 
 
 @tatsudataclass
-class RuleInclude(Decorator):
+class RuleInclude(Expression):
     rule: Rule = field(default_factory=Rule)
 
     def __post_init__(self):

@@ -6,11 +6,11 @@ from ..objectmodel import tatsudataclass
 from ..util import indent
 from ._core import Model
 from .math import ffset, kdot
-from .syntax import Decorator
+from .syntax import Expression
 
 
 @tatsudataclass
-class Closure(Decorator):
+class Closure(Expression):
     def _parse(self, ctx):
         return ctx._closure(lambda: self.exp._parse(ctx))
 
@@ -48,7 +48,7 @@ class PositiveClosure(Closure):
 
 
 @tatsudataclass
-class Join(Decorator):
+class Join(Expression):
     JOINOP = '%'
 
     sep: Model = Model()

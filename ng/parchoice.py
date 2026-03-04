@@ -24,7 +24,7 @@ class ChoiceContext:
         self.expected: list[str] = []
 
     def option(self, func: Callable[[Any], None]) -> Callable[[Any], None]:
-        """Decorator to register a grammar branch."""
+        """Expression to register a grammar branch."""
         self.options.append(func)
         return func
 

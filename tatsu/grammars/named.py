@@ -7,13 +7,11 @@ from dataclasses import field
 from ..ast import AST
 from ..objectmodel import tatsudataclass
 from ..util import typename
-from .syntax import Decorator
+from ._core import NamedExpression
 
 
 @tatsudataclass
-class Named(Decorator):
-    name: str = field(default='')
-
+class Named(NamedExpression):
     def __post_init__(self):
         if not self.ast:
             self.ast = AST(name=self.name, exp=self.exp)

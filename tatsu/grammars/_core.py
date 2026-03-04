@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Callable, Mapping
 from dataclasses import field
-from typing import Any, ClassVar
+from typing import Any
 
 from ..ast import AST
 from ..builder import ModelBuilderSemantics
@@ -177,7 +177,7 @@ class Void(Model):
 
 
 @tatsudataclass
-class Decorator(Model):
+class Expression(Model):
     name: str | None = field(init=False, default=None)
     exp: Model = field(default_factory=NULL)
 
@@ -228,13 +228,13 @@ class Decorator(Model):
         return [self.exp]
 
 
-# NOTE: backwards compatibility
-_Decorator = Decorator
+@tatsudataclass
+class NamedExpression(Expression):
+    name: str = field(init=True, default='<?>')  # type: ignore
 
 
 @tatsudataclass
-class Rule(Decorator):
-    name: str = '<rule>'
+class Rule(NamedExpression):
     params: tuple[str, ...] = field(default_factory=tuple)
     kwparams: dict[str, Any] = field(default_factory=dict)
     decorators: list[str] = field(default_factory=list)

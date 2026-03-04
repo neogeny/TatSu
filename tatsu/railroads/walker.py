@@ -6,8 +6,7 @@ from typing import Any
 
 from .. import grammars as g
 from ..util.abctools import join_lists
-from ..util.string import regexp
-from ..util.string import unicode_display_len as ulen
+from ..util.string import regexp, unicode_display_len as ulen
 from ..walkers import NodeWalker
 from .railmath import (
     ETX,
@@ -44,7 +43,7 @@ class RailroadNodeWalker(NodeWalker):
     def walk_default(self, node: g.Model) -> Rails:
         return [f' <{node!r}> ']
 
-    def walk_decorator(self, decorator: g.Decorator) -> Rails:
+    def walk_decorator(self, decorator: g.Expression) -> Rails:
         return self.walk(decorator.exp)
 
     def walk_grammar(self, grammar: g.Grammar) -> Rails:

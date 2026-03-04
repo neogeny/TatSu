@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from ._core import (
     NULL,
-    Decorator,
+    Expression,
     Model,
     ModelContext,
     Rule,
@@ -50,6 +50,7 @@ from .syntax import (
     SkipTo,
 )
 
+
 __all__ = [
     'Alert',
     'BasedRule',
@@ -59,7 +60,7 @@ __all__ = [
     'Comment',
     'Constant',
     'Cut',
-    'Decorator',
+    'Expression',
     'Dot',
     'EOF',
     'EOLComment',

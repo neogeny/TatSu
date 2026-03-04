@@ -39,7 +39,7 @@ class ANTLRSemantics:
             name = name.upper()
             if isinstance(exp, model.Token):
                 if name in self.token_rules:
-                    self.token_rules[name].exp = exp  # it is a model.Decorator?
+                    self.token_rules[name].exp = exp  # it is a model.Expression?
                 else:
                     self.token_rules[name] = exp
                 return None
@@ -190,6 +190,6 @@ class ANTLRSemantics:
         if name in self.token_rules:
             exp = self.token_rules[name]
         else:
-            exp = model.Decorator(syntax.Call(name))
+            exp = model.Expression(syntax.Call(name))
             self.token_rules[name] = exp
         return exp

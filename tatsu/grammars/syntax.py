@@ -10,13 +10,12 @@ from ..ast import AST
 from ..exceptions import FailedRef
 from ..objectmodel import tatsudataclass
 from ..util import indent, trim
-
-from ._core import Decorator, Model, PEP8_LLEN, Rule
+from ._core import PEP8_LLEN, Expression, Model, Rule
 from .math import ffset, kdot, ref
 
 
 @tatsudataclass
-class Group(Decorator):
+class Group(Expression):
     def _parse(self, ctx):
         with ctx._group():
             self.exp._parse(ctx)
@@ -30,7 +29,7 @@ class Group(Decorator):
 
 
 @tatsudataclass
-class Lookahead(Decorator):
+class Lookahead(Expression):
     def _parse(self, ctx):
         with ctx.if_():
             return super()._parse(ctx)
@@ -43,7 +42,7 @@ class Lookahead(Decorator):
 
 
 @tatsudataclass
-class NegativeLookahead(Decorator):
+class NegativeLookahead(Expression):
     def _parse(self, ctx):
         with ctx.ifnot_():
             return super()._parse(ctx)
@@ -56,7 +55,7 @@ class NegativeLookahead(Decorator):
 
 
 @tatsudataclass
-class SkipTo(Decorator):
+class SkipTo(Expression):
     def _parse(self, ctx):
         super_parse = super()._parse
         ctx._skip_to(lambda: super_parse(ctx))
@@ -130,14 +129,14 @@ class Choice(Model):
         return any(o._nullable() for o in self.options)
 
     def callable_at_same_pos(
-        self,
-        rulemap: Mapping[str, Rule] | None = None,
+            self,
+            rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         return self.options
 
 
 @tatsudataclass
-class Option(Decorator):
+class Option(Expression):
     def _parse(self, ctx):
         result = super()._parse(ctx)
         self._add_defined_attributes(ctx, result)
@@ -145,7 +144,7 @@ class Option(Decorator):
 
 
 @tatsudataclass
-class Optional(Decorator):
+class Optional(Expression):
     def _parse(self, ctx):
         ctx.last_node = None
         self._add_defined_attributes(ctx, ctx.ast)
@@ -220,8 +219,8 @@ class Sequence(Model):
         return all(s._nullable() for s in self.sequence)
 
     def callable_at_same_pos(
-        self,
-        rulemap: Mapping[str, Rule] | None = None,
+            self,
+            rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         head = list(takewhile(lambda c: c.is_nullable(rulemap), self.sequence))
         if len(head) < len(self.sequence):

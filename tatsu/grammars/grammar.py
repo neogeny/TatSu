@@ -146,7 +146,7 @@ class Grammar(Model):
             text: str,
             /,
             *,
-            ctx: ParseContext | None = None,
+            ctx: Ctx | None = None,
             config: ParserConfig | None = None,
             asmodel: bool = False,
             **settings,
