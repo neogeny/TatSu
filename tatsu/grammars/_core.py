@@ -15,7 +15,6 @@ from ..parserconfig import ParserConfig
 from ..util import compress_seq, indent, trim, typename
 from .math import ffset, kdot
 
-
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
@@ -27,12 +26,12 @@ def model_classes() -> list[type[Model]]:
 
 class ModelContext(ParseContext):
     def __init__(
-            self,
-            rules,
-            /,
-            start: str | None = None,
-            config: ParserConfig | None = None,
-            **settings,
+        self,
+        rules,
+        /,
+        start: str | None = None,
+        config: ParserConfig | None = None,
+        **settings,
     ):
         config = ParserConfig.new(config, **settings)
         assert isinstance(config, ParserConfig)
@@ -125,8 +124,8 @@ class Model(Node):
 
     # list of Model that can be invoked at the same position
     def callable_at_same_pos(
-            self,
-            rulemap: Mapping[str, Rule] | None = None,
+        self,
+        rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         return []
 
@@ -149,12 +148,15 @@ class Model(Node):
 
 
 @tatsudataclass
-class NA(Model):
+class NULL(Model):
+    def _parse(self, ctx):
+        ctx.fail()
+
     def _pretty(self, lean=False):
-        return 'N/A'
+        return NULL.__name__
 
     def _nullable(self) -> bool:
-        return True
+        return False
 
 
 @tatsudataclass
@@ -172,13 +174,13 @@ class Void(Model):
 @tatsudataclass
 class Decorator(Model):
     name: str = field(default='')  # note: pre-define as common attribute
-    exp: Model = field(default_factory=NA)
+    exp: Model = field(default_factory=NULL)
 
     def __post_init__(self):
         super().__post_init__()
         if self.exp is None or not isinstance(self.ast, AST):
             self.exp = self.ast
-        self.exp = self.exp or NA()
+        self.exp = self.exp or NULL()
         assert self.exp is not None, f'{typename(self)}({self.exp})'
         assert self.exp, repr(self)
 
@@ -211,8 +213,8 @@ class Decorator(Model):
         return self.exp._nullable()
 
     def callable_at_same_pos(
-            self,
-            rulemap: Mapping[str, Rule] | None = None,
+        self,
+        rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         return [self.exp]
 

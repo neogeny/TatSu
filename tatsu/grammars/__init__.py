@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .grammar import Grammar
 from ._core import (
+    NULL,
     Decorator,
     Model,
     ModelContext,
@@ -11,21 +11,17 @@ from ._core import (
     Void,
     model_classes,
 )
-from .rulelike import BasedRule, RuleInclude
-from .math import _ref, ref
-from .syntax import (
-    Call,
-    Choice,
-    Group,
-    Lookahead,
-    NegativeLookahead,
-    Option,
-    Optional,
-    Sequence,
-    SkipTo,
+from .basic import (
+    EOF,
+    Alert,
+    Comment,
+    Constant,
+    Cut,
+    Dot,
+    EOLComment,
+    Fail,
+    Token,
 )
-from .pattern import Pattern
-from .named import Named, NamedList, Override, OverrideList
 from .closure import (
     Closure,
     EmptyClosure,
@@ -37,16 +33,21 @@ from .closure import (
     PositiveJoin,
     RightJoin,
 )
-from .basic import (
-    Alert,
-    Comment,
-    Constant,
-    Cut,
-    Dot,
-    EOF,
-    EOLComment,
-    Fail,
-    Token,
+from .grammar import Grammar
+from .math import _ref, ref
+from .named import Named, NamedList, Override, OverrideList
+from .pattern import Pattern
+from .rulelike import BasedRule, RuleInclude
+from .syntax import (
+    Call,
+    Choice,
+    Group,
+    Lookahead,
+    NegativeLookahead,
+    Option,
+    Optional,
+    Sequence,
+    SkipTo,
 )
 
 __all__ = [
@@ -75,6 +76,7 @@ __all__ = [
     'Named',
     'NamedList',
     'NegativeLookahead',
+    'NULL',
     'Option',
     'Optional',
     'Override',
