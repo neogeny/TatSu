@@ -152,7 +152,7 @@ def test_model_repr():
     with pytest.raises(TypeError, match=r'unexpected keyword argument'):
         g.Token(x='x')
 
-    with pytest.raises(TypeError, match=r'name is required'):
+    with pytest.raises(TypeError, match=r"required.*'name'"):
         g.Named()
 
     named = g.Named(name='foo')
