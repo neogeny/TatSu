@@ -25,13 +25,13 @@ class Grammar(Model):
     rules: list[Rule] = field(default_factory=list)
 
     def __init__(
-            self,
-            name=None,
-            rules=None,
-            *,
-            config: ParserConfig | None = None,
-            directives: dict | None = None,
-            **settings,
+        self,
+        name=None,
+        rules=None,
+        *,
+        config: ParserConfig | None = None,
+        directives: dict | None = None,
+        **settings,
     ):
         super().__init__()
         assert isinstance(rules, list), f'{type(rules)!r} {rules!r}'
@@ -142,14 +142,14 @@ class Grammar(Model):
             rule._follow_set = fl[rule.name]
 
     def parse(
-            self,
-            text: str,
-            /,
-            *,
-            ctx: Ctx | None = None,
-            config: ParserConfig | None = None,
-            asmodel: bool = False,
-            **settings,
+        self,
+        text: str,
+        /,
+        *,
+        ctx: Ctx | None = None,
+        config: ParserConfig | None = None,
+        asmodel: bool = False,
+        **settings,
     ):
         config = self.config.override_config(config)
         assert isinstance(config, ParserConfig)
@@ -207,6 +207,6 @@ class Grammar(Model):
         keywords = '\n\n' + keywords + '\n' if keywords else ''
 
         rules = (
-                    '\n\n'.join(str(rule._pretty(lean=lean)) for rule in self.rules)
-                ).rstrip() + '\n\n'
+            '\n\n'.join(str(rule._pretty(lean=lean)) for rule in self.rules)
+        ).rstrip() + '\n\n'
         return directives + keywords + rules

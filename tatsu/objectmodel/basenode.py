@@ -15,7 +15,6 @@ from ..mixins.indent import IndentPrintMixin
 from ..util.abctools import isiter, rowselect
 from ..util.asjson import AsJSONMixin, asjson
 
-
 __all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
 
 TatSuDataclassParams = dict(
@@ -29,18 +28,16 @@ TatSuDataclassParams = dict(
 
 
 @overload
-def tatsudataclass[T: type](cls: T) -> T:
-    ...
+def tatsudataclass[T: type](cls: T) -> T: ...
 
 
 @overload
-def tatsudataclass[T: type](**params: Any) -> Callable[[T], T]:
-    ...
+def tatsudataclass[T: type](**params: Any) -> Callable[[T], T]: ...
 
 
 def tatsudataclass[T: type](
-        cls: T | None = None,
-        **params: Any,
+    cls: T | None = None,
+    **params: Any,
 ) -> T | Callable[[T], T]:
     # by Gemini (2026-02-07)
     # by [apalala@gmail.com](https://github.com/apalala)

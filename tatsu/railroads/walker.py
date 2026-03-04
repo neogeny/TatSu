@@ -43,8 +43,8 @@ class RailroadNodeWalker(NodeWalker):
     def walk_default(self, node: g.Model) -> Rails:
         return [f' <{node!r}> ']
 
-    def walk_decorator(self, decorator: g.Expression) -> Rails:
-        return self.walk(decorator.exp)
+    def walk_expression(self, e: g.Expression) -> Rails:
+        return self.walk(e.exp)
 
     def walk_grammar(self, grammar: g.Grammar) -> Rails:
         return join_lists(*(self.walk(r) for r in grammar.rules))
@@ -91,10 +91,10 @@ class RailroadNodeWalker(NodeWalker):
         return lay_out([out, ['→']])
 
     def walk_closure(self, closure: g.Closure) -> Rails:
-        return loop(self.walk_decorator(closure))
+        return loop(self.walk_expression(closure))
 
     def walk_positive_closure(self, closure: g.Closure) -> Rails:
-        return stopnloop(self.walk_decorator(closure))
+        return stopnloop(self.walk_expression(closure))
 
     def walk_join(self, join: g.Join) -> Rails:
         sep = weld(self.walk(join.sep), [' ✂ ─'])
@@ -154,7 +154,7 @@ class RailroadNodeWalker(NodeWalker):
         return [" ∀ "]
 
     def walk_group(self, group: g.Group):
-        return self.walk_decorator(group)
+        return self.walk_expression(group)
 
     def walk_alert(self, alert: g.Alert):
         return [f'{'^' * alert.level}`{alert.literal}`']

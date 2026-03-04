@@ -37,7 +37,6 @@ from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
 
 __all__: list[str] = ['parallel_proc', 'processing_loop']
 
-
 EOLCH = '\r' if sys.stderr.isatty() else '\n'
 sys.setrecursionlimit(2**16)
 

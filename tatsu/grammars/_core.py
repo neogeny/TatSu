@@ -16,7 +16,6 @@ from ..parserconfig import ParserConfig
 from ..util import compress_seq, indent, trim, typename
 from .math import ffset, kdot
 
-
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
@@ -28,13 +27,13 @@ def model_classes() -> list[type[Model]]:
 
 class ModelContext(ParseContext):
     def __init__(
-            self,
-            rules,
-            /,
-            start: str | None = None,
-            config: ParserConfig | None = None,
-            asmodel: bool = False,
-            **settings,
+        self,
+        rules,
+        /,
+        start: str | None = None,
+        config: ParserConfig | None = None,
+        asmodel: bool = False,
+        **settings,
     ):
         config = ParserConfig.new(config, **settings)
         assert isinstance(config, ParserConfig)
@@ -129,8 +128,8 @@ class Model(Node):
 
     # list of Model that can be invoked at the same position
     def callable_at_same_pos(
-            self,
-            rulemap: Mapping[str, Rule] | None = None,
+        self,
+        rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         return []
 
@@ -222,15 +221,15 @@ class Expression(Model):
         return self.exp._nullable()
 
     def callable_at_same_pos(
-            self,
-            rulemap: Mapping[str, Rule] | None = None,
+        self,
+        rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         return [self.exp]
 
 
 @tatsudataclass
 class NamedExpression(Expression):
-    name: str = field(init=True, default='<?>')  # type: ignore
+    name: str = field(default='')
 
 
 @tatsudataclass

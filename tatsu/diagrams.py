@@ -11,6 +11,7 @@ from .walkers import NodeWalker
 
 __all__ = ['draw']
 
+
 # SHAPE           DESCRIPTION
 # box             Standard rectangle
 # circle          Basic circle
@@ -69,7 +70,7 @@ class DiagramNodeWalker(NodeWalker):
         # line     Strictly straight lines between nodes.
         # polyline Straight segments that can change direction at internal points.
         # ortho    All lines are strictly horizontal or vertical (manhattan routing).
-        # curved   Smooth Bezier curves (default behavior for splines=true).
+        # curved   Smooth Bézier curves (default behavior for splines=true).
         self.graphviz = importlib.import_module('graphviz')
 
         self.top_graph = self.graphviz.Digraph(
@@ -152,19 +153,19 @@ class DiagramNodeWalker(NodeWalker):
         self.graph.edge(s, e, **attr)
 
     def redge(self, s, e):
-        return self.edge(s, e, dir='back')
+        self.edge(s, e, dir='back')
 
     def zedge(self, s, e):
         # 'len' is for neato, but kept for parity
-        return self.edge(s, e, len='0.000001')
+        self.edge(s, e, len='0.000001')
 
     def nedge(self, s, e):
-        return self.edge(s, e, style='invisible', dir='none')
+        self.edge(s, e, style='invisible', dir='none')
 
     # --- Walker Logic (Mostly identical, utilizing new wrapper methods) ---
 
-    def walk_decorator(self, d):
-        return self.walk(d.exp)
+    def walk_expression(self, e):
+        return self.walk(e.exp)
 
     def walk_default(self, node):
         pass
@@ -196,7 +197,7 @@ class DiagramNodeWalker(NodeWalker):
             self.pop_graph()
 
     def walk_optional(self, o):
-        i, e = self.walk_decorator(o)
+        i, e = self.walk_expression(o)
         ni = self.dot()
         ne = self.dot()
         self.zedge(ni, i)
@@ -207,7 +208,7 @@ class DiagramNodeWalker(NodeWalker):
     def walk_closure(self, r):
         self.push_graph(rankdir='TB')
         try:
-            i, e = self.walk_decorator(r)
+            i, e = self.walk_expression(r)
             ni = self.dot()
             self.zedge(ni, i)
             self.zedge(e, ni)
@@ -253,7 +254,7 @@ class DiagramNodeWalker(NodeWalker):
         n = self.tnode(t.token)
         return n, n
 
-    def walk_eof(self, v):
+    def walk_eof(self, _v):
         n = self.node('$EOF')
         return n, n
 
@@ -268,19 +269,18 @@ class DiagramNodeWalker(NodeWalker):
             i, e = self.walk(v.exp)
         except TypeError as e:
             raise TypeError(f'{e} {v.exp}') from e
-        s = self.node('&', shape='diamond')
         s = self.node('!', shape='diamond')
         self.zedge(s, i)
         return s, e
 
-    def walk_void(self, v):
+    def walk_void(self, _v):
         return None, None
 
-    def walk_fail(self, v):
+    def walk_fail(self, _v):
         return None, None
 
-    def ENDRULE(self, ast):
+    def ENDRULE(self, _ast):
         return None, None
 
-    def EMPTYLINE(self, ast, *args):
+    def EMPTYLINE(self, _ast):
         return None, None

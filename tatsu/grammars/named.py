@@ -17,7 +17,7 @@ class Named(NamedExpression):
             self.ast = AST(name=self.name, exp=self.exp)
         super().__post_init__()
         if not self.name:
-            raise TypeError(f'{typename(self)}.name is required')
+            raise TypeError(f"{typename(self)} is missing required: 'name'")
         assert getattr(self, 'name', None) is not None
 
     def _parse(self, ctx):

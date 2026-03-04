@@ -21,7 +21,6 @@ from ..parser import TatSuParserGenerator
 from ..tokenizing import Tokenizer
 from ..util.string import hashsha
 
-
 __all__ = [
     'compile',
     'gencode',
@@ -37,19 +36,19 @@ __compiled_grammar_cache: dict[tuple[str | None, str, int], g.Grammar] = {}
 
 
 def compile(
-        grammar: str | Tokenizer,
-        name: str | None = None,
-        *,
-        config: ParserConfig | None = None,
-        filename: str | None = None,
-        basetype: type | None = None,
-        semantics: Any = None,
-        asmodel: bool = False,
-        builderconfig: BuilderConfig | None = None,
-        synthok: bool = True,
-        typedefs: list[TypeContainer] | None = None,
-        constructors: list[Constructor] | None = None,
-        **settings: Any,
+    grammar: str | Tokenizer,
+    name: str | None = None,
+    *,
+    config: ParserConfig | None = None,
+    filename: str | None = None,
+    basetype: type | None = None,
+    semantics: Any = None,
+    asmodel: bool = False,
+    builderconfig: BuilderConfig | None = None,
+    synthok: bool = True,
+    typedefs: list[TypeContainer] | None = None,
+    constructors: list[Constructor] | None = None,
+    **settings: Any,
 ) -> g.Grammar:
     # check parameters
     ParserConfig.new(
@@ -73,11 +72,11 @@ def compile(
         model = cache[key] = gen.parse(grammar, **settings)
 
     asmodel = not semantics and (
-            asmodel
-            or isinstance(builderconfig, BuilderConfig)
-            or basetype is not None
-            or typedefs is not None
-            or constructors is not None
+        asmodel
+        or isinstance(builderconfig, BuilderConfig)
+        or basetype is not None
+        or typedefs is not None
+        or constructors is not None
     )
     if semantics is not None:
         model.semantics = semantics
@@ -96,22 +95,22 @@ def compile(
 
 
 def parse(
-        grammar: str,
-        text: str,
-        /,
-        *,
-        config: ParserConfig | None = None,
-        start: str | None = None,
-        name: str | None = None,
-        filename: str | None = None,
-        semantics: Any | None = None,
-        asmodel: bool = False,
-        builderconfig: BuilderConfig | None = None,
-        basetype: type | None = None,
-        synthok: bool = True,
-        typedefs: list[TypeContainer] | None = None,
-        constructors: list[Constructor] | None = None,
-        **settings: Any,
+    grammar: str,
+    text: str,
+    /,
+    *,
+    config: ParserConfig | None = None,
+    start: str | None = None,
+    name: str | None = None,
+    filename: str | None = None,
+    semantics: Any | None = None,
+    asmodel: bool = False,
+    builderconfig: BuilderConfig | None = None,
+    basetype: type | None = None,
+    synthok: bool = True,
+    typedefs: list[TypeContainer] | None = None,
+    constructors: list[Constructor] | None = None,
+    **settings: Any,
 ):
     config = ParserConfig.new(
         config=config,
@@ -125,11 +124,11 @@ def parse(
     config.semantics = semantics or model.semantics
 
     asmodel = not config.semantics and (
-            asmodel
-            or isinstance(builderconfig, BuilderConfig)
-            or basetype is not None
-            or typedefs is not None
-            or constructors is not None
+        asmodel
+        or isinstance(builderconfig, BuilderConfig)
+        or basetype is not None
+        or typedefs is not None
+        or constructors is not None
     )
     if asmodel:
         builderconfig = BuilderConfig.new(
@@ -144,13 +143,13 @@ def parse(
 
 
 def to_python_sourcecode(
-        grammar: str,
-        /,
-        *,
-        name: str | None = None,
-        filename: str | None = None,
-        config: ParserConfig | None = None,
-        **settings: Any,
+    grammar: str,
+    /,
+    *,
+    name: str | None = None,
+    filename: str | None = None,
+    config: ParserConfig | None = None,
+    **settings: Any,
 ):
     config = ParserConfig.new(config=config, name=name, filename=filename, **settings)
     model = compile(grammar, name=name, filename=filename, config=config)
@@ -158,14 +157,14 @@ def to_python_sourcecode(
 
 
 def to_python_model(
-        grammar: str,
-        /,
-        *,
-        name: str | None = None,
-        filename: str | None = None,
-        basetype: type = Node,
-        config: ParserConfig | None = None,
-        **settings: Any,
+    grammar: str,
+    /,
+    *,
+    name: str | None = None,
+    filename: str | None = None,
+    basetype: type = Node,
+    config: ParserConfig | None = None,
+    **settings: Any,
 ):
     config = ParserConfig.new(config=config, name=name, filename=filename, **settings)
     model = compile(grammar, name=name, filename=filename, config=config)
@@ -174,12 +173,12 @@ def to_python_model(
 
 # for backwards compatibility. Use `compile()` instead
 def genmodel(
-        *,
-        name: str | None = None,
-        grammar: str | None = None,
-        semantics: type | None = None,
-        config: ParserConfig | None = None,
-        **settings: Any,
+    *,
+    name: str | None = None,
+    grammar: str | None = None,
+    semantics: type | None = None,
+    config: ParserConfig | None = None,
+    **settings: Any,
 ):
     if grammar is None:
         raise ParseException('grammar is None')
@@ -188,14 +187,14 @@ def genmodel(
 
 
 def gencode(
-        *,
-        name: str | None = None,
-        grammar: str,
-        trace: bool = False,
-        filename: str | None = None,
-        codegen: Callable = pythongen,
-        config: ParserConfig | None = None,
-        **settings: Any,
+    *,
+    name: str | None = None,
+    grammar: str,
+    trace: bool = False,
+    filename: str | None = None,
+    codegen: Callable = pythongen,
+    config: ParserConfig | None = None,
+    **settings: Any,
 ):
     model = compile(
         grammar,

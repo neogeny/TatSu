@@ -129,8 +129,8 @@ class Choice(Model):
         return any(o._nullable() for o in self.options)
 
     def callable_at_same_pos(
-            self,
-            rulemap: Mapping[str, Rule] | None = None,
+        self,
+        rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         return self.options
 
@@ -219,8 +219,8 @@ class Sequence(Model):
         return all(s._nullable() for s in self.sequence)
 
     def callable_at_same_pos(
-            self,
-            rulemap: Mapping[str, Rule] | None = None,
+        self,
+        rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         head = list(takewhile(lambda c: c.is_nullable(rulemap), self.sequence))
         if len(head) < len(self.sequence):
