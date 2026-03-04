@@ -10,6 +10,7 @@ import pytest
 import tatsu
 from tatsu import grammars as g
 from tatsu.objectmodel import Node
+from tatsu.util import typename
 from tatsu.util.string import trim
 
 
@@ -368,4 +369,8 @@ def test_calc_repr():
     assert emodel.rules[-1].name == 'number'
     assert isinstance(emodel.rules[-1].exp, g.Pattern)
     assert repr(emodel).strip() == refrepr
-    # assert emodel.parse('3 * 2 + 1') == ''
+
+    exp = emodel.parse('3 * 2 + 1')
+    assert typename(exp) == 'Add'
+    assert typename(exp.left) == 'Multiply'
+    assert typename(exp.right) == 'int'

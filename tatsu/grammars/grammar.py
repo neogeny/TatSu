@@ -25,13 +25,13 @@ class Grammar(Model):
     rules: list[Rule] = field(default_factory=list)
 
     def __init__(
-        self,
-        name=None,
-        rules=None,
-        *,
-        newcfg: ParserConfig | None = None,
-        directives: dict | None = None,
-        **settings,
+            self,
+            name=None,
+            rules=None,
+            *,
+            newcfg: ParserConfig | None = None,
+            directives: dict | None = None,
+            **settings,
     ):
         super().__init__()
         assert isinstance(rules, list), f'{type(rules)!r} {rules!r}'
@@ -142,15 +142,16 @@ class Grammar(Model):
             rule._follow_set = fl[rule.name]
 
     def parse(
-        self,
-        text: str,
-        /,
-        *,
-        ctx: ParseContext | None = None,
-        newcfg: ParserConfig | None = None,
-        **settings,
+            self,
+            text: str,
+            /,
+            *,
+            ctx: ParseContext | None = None,
+            config: ParserConfig | None = None,
+            asmodel: bool = True,
+            **settings,
     ):
-        newcfg = self.config.override_config(newcfg)
+        newcfg = self.config.override_config(config)
         # note: bw-comp: allow overriding directives
         newcfg = newcfg.override(**settings)
 
@@ -168,10 +169,12 @@ class Grammar(Model):
             newcfg.rule_name = None
 
         self._config = newcfg
-        if ctx is None:
-            ctx = ModelContext(self.rules, config=newcfg)
+        ctx = ctx or self.newctx(asmodel=asmodel)
         assert isinstance(ctx, Ctx)
         return ctx.parse(text, config=newcfg)
+
+    def newctx(self, asmodel: bool = True) -> Ctx:
+        return ModelContext(self.rules, config=self.config, asmodel=asmodel)
 
     def nodecount(self) -> int:
         return 1 + sum(r.nodecount() for r in self.rules)
@@ -203,6 +206,6 @@ class Grammar(Model):
         keywords = '\n\n' + keywords + '\n' if keywords else ''
 
         rules = (
-            '\n\n'.join(str(rule._pretty(lean=lean)) for rule in self.rules)
-        ).rstrip() + '\n\n'
+                    '\n\n'.join(str(rule._pretty(lean=lean)) for rule in self.rules)
+                ).rstrip() + '\n\n'
         return directives + keywords + rules

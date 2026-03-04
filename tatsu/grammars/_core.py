@@ -8,6 +8,7 @@ from dataclasses import field
 from typing import Any, ClassVar
 
 from ..ast import AST
+from ..builder import ModelBuilderSemantics
 from ..contexts import ParseContext
 from ..contexts.infos import RuleInfo
 from ..objectmodel import Node, tatsudataclass
@@ -32,6 +33,7 @@ class ModelContext(ParseContext):
             /,
             start: str | None = None,
             config: ParserConfig | None = None,
+            asmodel: bool = True,
             **settings,
     ):
         config = ParserConfig.new(config, **settings)
@@ -39,6 +41,8 @@ class ModelContext(ParseContext):
         config = config.override(start=start)
 
         super().__init__(config=config)
+        if not self.config.semantics and asmodel:
+            self.config.semantics = ModelBuilderSemantics()
 
         self._rulemap: dict[str, Rule] = {rule.name: rule for rule in rules}
 
