@@ -9,6 +9,8 @@ from collections.abc import Callable
 from functools import cache
 from typing import Any, overload
 
+from tatsu.util.common import typename
+
 from ..ast import AST
 from ..infos import ParseInfo
 from ..mixins.indent import IndentPrintMixin
@@ -110,7 +112,7 @@ class BaseNode(AsJSONMixin):
             if (prev := getattr(self, name, None)) and inspect.ismethod(prev):
                 warnings.warn(
                     f'`{name}` in keyword arguments will override'
-                    f' `{type(self).__name__}.{name}`: {prev!r}',
+                    f' `{typename(self)}.{name}`: {prev!r}',
                     stacklevel=2,
                 )
             setattr(self, name, value)
@@ -154,19 +156,18 @@ class BaseNode(AsJSONMixin):
         attr_repr = []
         for name in sortedkeys:
             value = pub[name]
-            valuestr = repr(value)
-            reprs = f'{name}={valuestr}'
-
             if value is None:
                 continue
 
+            valuestr = repr(value)
+            reprs = f'{name}={valuestr}'
             if im.fitsfmt(reprs) or not isiter(value):
                 attr_repr += [reprs]
                 continue
 
             if isinstance(value, dict):
                 valuestr = f'{name}={value!r}'
-                if im.fitsfmt(valuestr) and len(valuestr.splitlines()) == 1:
+                if im.fitsfmt(valuestr):
                     attr_repr += [valuestr]
                     continue
                 valuestr = ',\n'.join(f'{k}: {v!r}' for k, v in value.items())
@@ -179,7 +180,7 @@ class BaseNode(AsJSONMixin):
             islist = isinstance(value, list)
             reprlist = [repr(v) for v in value]
             valuestr = ', '.join(reprlist)  # type: ignore
-            if im.fitsfmt(valuestr, 3) and len(valuestr.splitlines()) == 1:
+            if im.fitsfmt(valuestr, 3):
                 if islist:
                     attr_repr += [f'{name}=[{valuestr}]']
                 else:
@@ -195,12 +196,12 @@ class BaseNode(AsJSONMixin):
 
         im.clear()
         attrs = ', '.join(attr_repr)
-        reprs = f'{type(self).__name__}({attrs})'
-        if im.fitsfmt(reprs) and len(reprs.splitlines()) == 1:
+        reprs = f'{typename(self)}({attrs})'
+        if im.fitsfmt(reprs):
             return reprs
 
         attrs = ',\n'.join(attr_repr)
-        im.print(f'{type(self).__name__}(')
+        im.print(f'{typename(self)}(')
         with im.indent():
             im.print(attrs)
         im.print(')')

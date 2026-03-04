@@ -535,11 +535,9 @@ class ParseContext(Ctx):
         if ri.is_name:
             self._check_name(node)
 
-        params = ri.params or ()
-        kwparams = ri.kwparams or {}
         action = self._find_semantic_action(ri.name)
         if action:
-            return boundcall(action, {}, node, *params, **kwparams)
+            return boundcall(action, {}, node, *ri.params, **ri.kwparams)
         else:
             return node
 
