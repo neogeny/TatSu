@@ -156,13 +156,11 @@ class BaseNode(AsJSONMixin):
             if value is None:
                 continue
 
-            im = IndentPrintMixin()
             if im.fitsfmt(reprs) or not isiter(value):
                 attr_repr += [reprs]
                 continue
 
             if isinstance(value, dict):
-                im = IndentPrintMixin()
                 values = f'{name}={value!r}'
                 if im.fitsfmt(values) and len(values.splitlines()) == 1:
                     attr_repr += [values]
@@ -175,7 +173,6 @@ class BaseNode(AsJSONMixin):
                 attr_repr += [im.printed_text().rstrip()]
 
             islist = isinstance(value, list)
-            im = IndentPrintMixin()
             reprlist = [repr(v) for v in value]
             values = ', '.join(reprlist)  # type: ignore
             if im.fitsfmt(values) and len(values.splitlines()) == 1:
@@ -192,7 +189,7 @@ class BaseNode(AsJSONMixin):
             im.print(']' if islist else ')')
             attr_repr += [im.printed_text().rstrip()]
 
-        im = IndentPrintMixin()
+        im.clear()
         attrs = ', '.join(attr_repr)
         reprs = f'{type(self).__name__}({attrs})'
         if im.fitsfmt(reprs) and len(reprs.splitlines()) == 1:
