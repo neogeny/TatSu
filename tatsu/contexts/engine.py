@@ -9,10 +9,6 @@ from contextlib import contextmanager, suppress
 from functools import cache
 from typing import Any
 
-from .ctxlib import ChoiceContext, InnerExpContext
-from .infos import MemoKey, RuleInfo, RuleResult, closure
-from .state import ParseState, ParseStateStack
-from .tracing import InfoEventTracer, EventTracer, NullEventTracer
 from .. import buffering
 from ..ast import AST
 from ..buffering import Buffer
@@ -39,7 +35,11 @@ from ..util.deprecate import deprecated
 from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
 from ..util.typetools import boundcall
 from ..util.undefined import Undefined
+from .ctxlib import ChoiceContext, InnerExpContext
+from .infos import MemoKey, RuleInfo, RuleResult, closure
 from .protocol import Ctx
+from .state import ParseState, ParseStateStack
+from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
 __all__: list[str] = ['ParseContext']
 
@@ -342,14 +342,14 @@ class ParseContext(Ctx):
 
     def newexcept(
         self,
-        item: Any,
+        msg: Any,
         excls: type[FailedParse] = FailedParse,
     ) -> FailedParse:
         if issubclass(excls, FailedLeftRecursion):
             rulestack: list[str] = []
         else:
             rulestack = [r.name for r in reversed(self.ruleinfo_stack)]
-        return excls(self.cursor.lineinfo(), rulestack, item)
+        return excls(self.cursor.lineinfo(), rulestack, msg)
 
     # bw compatibility
     @deprecated(replacement=newexcept)

@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import Any, Protocol, runtime_checkable
 
-from .state import ParseStateStack
 from ..exceptions import FailedParse
 from .infos import RuleInfo
+from .state import ParseStateStack
 
 
 @runtime_checkable
@@ -16,7 +16,7 @@ class Ctx(Protocol):
 
     def newexcept(
         self,
-        item: Any,
+        msg: Any,
         excls: type[FailedParse] = FailedParse,
     ) -> FailedParse: ...
 

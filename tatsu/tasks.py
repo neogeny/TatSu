@@ -15,7 +15,6 @@ from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImpor
     task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
 )
 
-
 __copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'
 __license__: str = 'BSD-4-Clause'
 

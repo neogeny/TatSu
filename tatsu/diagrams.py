@@ -13,7 +13,6 @@ from pathlib import Path
 from .util import misc
 from .walkers import NodeWalker
 
-
 __all__ = ['draw']
 
 
