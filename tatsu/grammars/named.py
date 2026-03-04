@@ -1,3 +1,7 @@
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+#
+
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
@@ -7,11 +11,11 @@ from dataclasses import field
 from ..ast import AST
 from ..objectmodel import tatsudataclass
 from ..util import typename
-from ._core import NamedExpression
+from ._core import NamedBox
 
 
 @tatsudataclass
-class Named(NamedExpression):
+class Named(NamedBox):
     def __post_init__(self):
         if not self.ast:
             self.ast = AST(name=self.name, exp=self.exp)

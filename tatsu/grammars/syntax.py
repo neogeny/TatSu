@@ -1,3 +1,7 @@
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+#
+
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
@@ -10,12 +14,12 @@ from ..ast import AST
 from ..exceptions import FailedRef
 from ..objectmodel import tatsudataclass
 from ..util import indent, trim
-from ._core import PEP8_LLEN, Expression, Model, Rule
+from ._core import PEP8_LLEN, Box, Model, Rule
 from .math import ffset, kdot, ref
 
 
 @tatsudataclass
-class Group(Expression):
+class Group(Box):
     def _parse(self, ctx):
         with ctx._group():
             self.exp._parse(ctx)
@@ -29,7 +33,7 @@ class Group(Expression):
 
 
 @tatsudataclass
-class Lookahead(Expression):
+class Lookahead(Box):
     def _parse(self, ctx):
         with ctx.if_():
             return super()._parse(ctx)
@@ -42,7 +46,7 @@ class Lookahead(Expression):
 
 
 @tatsudataclass
-class NegativeLookahead(Expression):
+class NegativeLookahead(Box):
     def _parse(self, ctx):
         with ctx.ifnot_():
             return super()._parse(ctx)
@@ -55,7 +59,7 @@ class NegativeLookahead(Expression):
 
 
 @tatsudataclass
-class SkipTo(Expression):
+class SkipTo(Box):
     def _parse(self, ctx):
         super_parse = super()._parse
         ctx._skip_to(lambda: super_parse(ctx))
@@ -136,7 +140,7 @@ class Choice(Model):
 
 
 @tatsudataclass
-class Option(Expression):
+class Option(Box):
     def _parse(self, ctx):
         result = super()._parse(ctx)
         self._add_defined_attributes(ctx, result)
@@ -144,7 +148,7 @@ class Option(Expression):
 
 
 @tatsudataclass
-class Optional(Expression):
+class Optional(Box):
     def _parse(self, ctx):
         ctx.last_node = None
         self._add_defined_attributes(ctx, ctx.ast)

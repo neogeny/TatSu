@@ -1,3 +1,65 @@
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+#
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+#
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+#
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+#
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+#
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+#
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+#
+
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+#
+
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
@@ -15,6 +77,7 @@ from ..objectmodel import Node, tatsudataclass
 from ..parserconfig import ParserConfig
 from ..util import compress_seq, indent, trim, typename
 from .math import ffset, kdot
+
 
 PEP8_LLEN = 72
 
@@ -176,7 +239,7 @@ class Void(Model):
 
 
 @tatsudataclass
-class Expression(Model):
+class Box(Model):
     name: str | None = field(init=False, default=None)
     exp: Model = field(default_factory=NULL)
 
@@ -228,12 +291,12 @@ class Expression(Model):
 
 
 @tatsudataclass
-class NamedExpression(Expression):
-    name: str = field(default='')
+class NamedBox(Box):
+    name: str = field(default='')  # pyright: ignore[reportIncompatibleVariableOverride]
 
 
 @tatsudataclass
-class Rule(NamedExpression):
+class Rule(NamedBox):
     params: tuple[str, ...] = field(default_factory=tuple)
     kwparams: dict[str, Any] = field(default_factory=dict)
     decorators: list[str] = field(default_factory=list)

@@ -1,3 +1,7 @@
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+#
+
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
@@ -6,12 +10,12 @@ from dataclasses import field
 
 from ..objectmodel import tatsudataclass
 from ..util import typename
-from ._core import Expression, Model, Rule
+from ._core import Box, Model, Rule
 from .syntax import Sequence
 
 
 @tatsudataclass
-class RuleInclude(Expression):
+class RuleInclude(Box):
     rule: Rule = field(default_factory=Rule)
 
     def __post_init__(self):

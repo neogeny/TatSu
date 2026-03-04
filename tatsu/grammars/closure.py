@@ -1,3 +1,7 @@
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+#
+
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
@@ -6,11 +10,11 @@ from ..objectmodel import tatsudataclass
 from ..util import indent
 from ._core import Model
 from .math import ffset, kdot
-from .syntax import Expression
+from .syntax import Box
 
 
 @tatsudataclass
-class Closure(Expression):
+class Closure(Box):
     def _parse(self, ctx):
         return ctx._closure(lambda: self.exp._parse(ctx))
 
@@ -48,7 +52,7 @@ class PositiveClosure(Closure):
 
 
 @tatsudataclass
-class Join(Expression):
+class Join(Box):
     JOINOP = '%'
 
     sep: Model = Model()

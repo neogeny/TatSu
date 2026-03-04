@@ -1,3 +1,7 @@
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+#
+
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
@@ -39,7 +43,7 @@ class ANTLRSemantics:
             name = name.upper()
             if isinstance(exp, model.Token):
                 if name in self.token_rules:
-                    self.token_rules[name].exp = exp  # it is a model.Expression?
+                    self.token_rules[name].exp = exp  # it is a model.Box?
                 else:
                     self.token_rules[name] = exp
                 return None
@@ -190,6 +194,6 @@ class ANTLRSemantics:
         if name in self.token_rules:
             exp = self.token_rules[name]
         else:
-            exp = model.Expression(syntax.Call(name))
+            exp = model.Box(syntax.Call(name))
             self.token_rules[name] = exp
         return exp

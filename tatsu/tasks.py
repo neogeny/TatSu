@@ -15,6 +15,7 @@ from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImpor
     task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
 )
 
+
 __copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'
 __license__: str = 'BSD-4-Clause'
 
@@ -109,8 +110,7 @@ def boundary_print(banner: str = '', line: str = THIN_LINE):
 
 def start_print(task: TaskFun = None, target: str = ''):
     taskstr = task.name if task else ''  # type: ignore
-    targetstr = ' ' + target if target else ''
-    print(f'▶ {taskstr}{targetstr}')
+    print(f'▶ {target}{taskstr}')
 
 
 def success_print(

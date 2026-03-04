@@ -1,3 +1,7 @@
+#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+#  SPDX-License-Identifier: BSD-4-Clause
+#
+
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
@@ -8,6 +12,7 @@ from pathlib import Path
 
 from .util import misc
 from .walkers import NodeWalker
+
 
 __all__ = ['draw']
 
@@ -164,8 +169,8 @@ class DiagramNodeWalker(NodeWalker):
 
     # --- Walker Logic (Mostly identical, utilizing new wrapper methods) ---
 
-    def walk_expression(self, e):
-        return self.walk(e.exp)
+    def walk_box(self, b):
+        return self.walk(b.exp)
 
     def walk_default(self, node):
         pass
@@ -197,7 +202,7 @@ class DiagramNodeWalker(NodeWalker):
             self.pop_graph()
 
     def walk_optional(self, o):
-        i, e = self.walk_expression(o)
+        i, e = self.walk_box(o)
         ni = self.dot()
         ne = self.dot()
         self.zedge(ni, i)
@@ -208,7 +213,7 @@ class DiagramNodeWalker(NodeWalker):
     def walk_closure(self, r):
         self.push_graph(rankdir='TB')
         try:
-            i, e = self.walk_expression(r)
+            i, e = self.walk_box(r)
             ni = self.dot()
             self.zedge(ni, i)
             self.zedge(e, ni)
