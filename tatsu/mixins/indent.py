@@ -18,6 +18,9 @@ class IndentPrintMixin:
         self.indent_stack: list[int] = [0]
         self.output_stream = io.StringIO()
 
+    def clear(self):
+        self.__init__(indent_amount=self.indent_amount)
+
     def printed_text(self):
         return self.output_stream.getvalue()
 
