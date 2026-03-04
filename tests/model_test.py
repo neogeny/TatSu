@@ -10,7 +10,7 @@ import pytest
 import tatsu
 from tatsu import grammars as g
 from tatsu.objectmodel import Node
-from tatsu.util.string import prints, trim
+from tatsu.util.string import trim
 
 
 def test_node_kwargs() -> None:
@@ -155,7 +155,7 @@ def test_model_repr():
         g.Named()
 
     named = g.Named(name='foo')
-    assert repr(named) == "Named(name='foo', exp=Void())"
+    assert repr(named) == "Named(name='foo', exp=NA())"
 
     named = g.Named(name='foo', ast='bar')
     assert repr(named) == "Named(name='foo', exp='bar')"
@@ -352,9 +352,19 @@ def test_calc_repr():
     """
 
     model = tatsu.compile(calc_grammar, asmodel=True)
-    refrepr = trim(calc_repr).rstrip()
     modelrepr = trim(repr(model)).rstrip()
+
+    # HACK
+    #  from pathlib import Path
+    #  Path('calcmodel.py').write_text(modelrepr)
+
+    refrepr = trim(calc_repr).rstrip()
     assert modelrepr == refrepr
-    evalmodel = eval(modelrepr, vars(g), {})  # type: ignore # noqa: S307
-    assert isinstance(evalmodel, g.Grammar)
-    assert isinstance(evalmodel.rules[0], g.Rule)
+    emodel = eval(modelrepr, vars(g), {})  # type: ignore # noqa: S307
+    assert isinstance(emodel, g.Grammar)
+    assert isinstance(emodel.rules[0], g.Rule)
+    assert emodel.name == 'CALC'
+    assert emodel.rules[0].name == 'start'
+    assert emodel.rules[-1].name == 'number'
+    # assert repr(emodel).strip() == refrepr
+    # assert emodel.parse('3 * 2 + 1') == ''

@@ -1,13 +1,6 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
-import sys
-
-
-sys.path.insert(0, '.')
-from tatsu.grammars import *
-
-
-g = Grammar(
+Grammar(
     name='CALC',
     directives={'grammar': 'CALC'},
     rules=[
@@ -19,7 +12,7 @@ g = Grammar(
             decorators=[],
             is_name=False,
             is_leftrec=False,
-            is_memoizable=False,
+            is_memoizable=False
         ),
         Rule(
             name='expression',
@@ -27,7 +20,7 @@ g = Grammar(
                 options=[
                     Option(exp=Call(name='addition')),
                     Option(exp=Call(name='subtraction')),
-                    Option(exp=Call(name='term')),
+                    Option(exp=Call(name='term'))
                 ]
             ),
             params=(),
@@ -35,7 +28,7 @@ g = Grammar(
             decorators=[],
             is_name=False,
             is_leftrec=True,
-            is_memoizable=False,
+            is_memoizable=False
         ),
         Rule(
             name='addition',
@@ -44,7 +37,7 @@ g = Grammar(
                     Named(name='left', exp=Call(name='expression')),
                     Named(name='op', exp=Token(token='+')),
                     Cut(ast='~'),
-                    Named(name='right', exp=Call(name='term')),
+                    Named(name='right', exp=Call(name='term'))
                 ]
             ),
             params=(),
@@ -52,7 +45,7 @@ g = Grammar(
             decorators=[],
             is_name=False,
             is_leftrec=False,
-            is_memoizable=False,
+            is_memoizable=False
         ),
         Rule(
             name='subtraction',
@@ -61,7 +54,7 @@ g = Grammar(
                     Named(name='left', exp=Call(name='expression')),
                     Named(name='op', exp=Token(token='-')),
                     Cut(ast='~'),
-                    Named(name='right', exp=Call(name='term')),
+                    Named(name='right', exp=Call(name='term'))
                 ]
             ),
             params=(),
@@ -69,7 +62,7 @@ g = Grammar(
             decorators=[],
             is_name=False,
             is_leftrec=False,
-            is_memoizable=False,
+            is_memoizable=False
         ),
         Rule(
             name='term',
@@ -77,7 +70,7 @@ g = Grammar(
                 options=[
                     Option(exp=Call(name='multiplication')),
                     Option(exp=Call(name='division')),
-                    Option(exp=Call(name='factor')),
+                    Option(exp=Call(name='factor'))
                 ]
             ),
             params=(),
@@ -85,7 +78,7 @@ g = Grammar(
             decorators=[],
             is_name=False,
             is_leftrec=True,
-            is_memoizable=False,
+            is_memoizable=False
         ),
         Rule(
             name='multiplication',
@@ -94,7 +87,7 @@ g = Grammar(
                     Named(name='left', exp=Call(name='term')),
                     Named(name='op', exp=Token(token='*')),
                     Cut(ast='~'),
-                    Named(name='right', exp=Call(name='factor')),
+                    Named(name='right', exp=Call(name='factor'))
                 ]
             ),
             params=(),
@@ -102,7 +95,7 @@ g = Grammar(
             decorators=[],
             is_name=False,
             is_leftrec=False,
-            is_memoizable=False,
+            is_memoizable=False
         ),
         Rule(
             name='division',
@@ -111,7 +104,7 @@ g = Grammar(
                     Named(name='left', exp=Call(name='term')),
                     Token(token='/'),
                     Cut(ast='~'),
-                    Named(name='right', exp=Call(name='factor')),
+                    Named(name='right', exp=Call(name='factor'))
                 ]
             ),
             params=(),
@@ -119,7 +112,7 @@ g = Grammar(
             decorators=[],
             is_name=False,
             is_leftrec=False,
-            is_memoizable=False,
+            is_memoizable=False
         ),
         Rule(
             name='factor',
@@ -131,11 +124,11 @@ g = Grammar(
                                 Token(token='('),
                                 Cut(ast='~'),
                                 Override(name='@', exp=Call(name='expression')),
-                                Token(token=')'),
+                                Token(token=')')
                             ]
                         )
                     ),
-                    Option(exp=Call(name='number')),
+                    Option(exp=Call(name='number'))
                 ]
             ),
             params=(),
@@ -143,7 +136,7 @@ g = Grammar(
             decorators=[],
             is_name=False,
             is_leftrec=False,
-            is_memoizable=True,
+            is_memoizable=True
         ),
         Rule(
             name='number',
@@ -153,9 +146,7 @@ g = Grammar(
             decorators=[],
             is_name=False,
             is_leftrec=False,
-            is_memoizable=True,
-        ),
-    ],
+            is_memoizable=True
+        )
+    ]
 )
-# print(repr(g))
-print(g)

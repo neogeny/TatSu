@@ -14,7 +14,6 @@ from .math import ffset
 class Pattern(Model):
     pattern: str | None = None
     _patterns: list[str] = dc.field(init=False, default_factory=list)
-    _regex: re.Pattern = dc.field(init=False)
 
     def __post_init__(self):
         super().__post_init__()

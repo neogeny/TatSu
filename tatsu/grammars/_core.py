@@ -15,6 +15,7 @@ from ..parserconfig import ParserConfig
 from ..util import compress_seq, indent, trim, typename
 from .math import ffset, kdot
 
+
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
@@ -26,12 +27,12 @@ def model_classes() -> list[type[Model]]:
 
 class ModelContext(ParseContext):
     def __init__(
-        self,
-        rules,
-        /,
-        start: str | None = None,
-        config: ParserConfig | None = None,
-        **settings,
+            self,
+            rules,
+            /,
+            start: str | None = None,
+            config: ParserConfig | None = None,
+            **settings,
     ):
         config = ParserConfig.new(config, **settings)
         assert isinstance(config, ParserConfig)
@@ -124,8 +125,8 @@ class Model(Node):
 
     # list of Model that can be invoked at the same position
     def callable_at_same_pos(
-        self,
-        rulemap: Mapping[str, Rule] | None = None,
+            self,
+            rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         return []
 
@@ -148,6 +149,15 @@ class Model(Node):
 
 
 @tatsudataclass
+class NA(Model):
+    def _pretty(self, lean=False):
+        return 'N/A'
+
+    def _nullable(self) -> bool:
+        return True
+
+
+@tatsudataclass
 class Void(Model):
     def _parse(self, ctx):
         ctx.void()
@@ -162,13 +172,13 @@ class Void(Model):
 @tatsudataclass
 class Decorator(Model):
     name: str = field(default='')  # note: pre-define as common attribute
-    exp: Model = field(default_factory=Void)
+    exp: Model = field(default_factory=NA)
 
     def __post_init__(self):
         super().__post_init__()
         if self.exp is None or not isinstance(self.ast, AST):
             self.exp = self.ast
-        self.exp = self.exp or Void()
+        self.exp = self.exp or NA()
         assert self.exp is not None, f'{typename(self)}({self.exp})'
         assert self.exp, repr(self)
 
@@ -201,8 +211,8 @@ class Decorator(Model):
         return self.exp._nullable()
 
     def callable_at_same_pos(
-        self,
-        rulemap: Mapping[str, Rule] | None = None,
+            self,
+            rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         return [self.exp]
 
@@ -234,7 +244,6 @@ class Rule(Decorator):
             self.kwparams = {}
         elif not isinstance(self.kwparams, dict):
             self.kwparams = dict(self.kwparams)
-        self.exp = self.exp if self.exp is not None else Void()
         assert isinstance(self.kwparams, dict), f'{typename(self)}: {self.kwparams=!r}'
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
