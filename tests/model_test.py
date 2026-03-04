@@ -367,5 +367,5 @@ def test_calc_repr():
     assert emodel.rules[0].name == 'start'
     assert emodel.rules[-1].name == 'number'
     assert isinstance(emodel.rules[-1].exp, g.Pattern)
-    # assert repr(emodel).strip() == refrepr
+    assert repr(emodel).strip() == refrepr
     # assert emodel.parse('3 * 2 + 1') == ''

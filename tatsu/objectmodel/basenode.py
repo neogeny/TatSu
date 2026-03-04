@@ -153,8 +153,8 @@ class BaseNode(AsJSONMixin):
         attr_repr = []
         for name in sortedkeys:
             value = pub[name]
-            values = repr(value)
-            reprs = f'{name}={values}'
+            valuestr = repr(value)
+            reprs = f'{name}={valuestr}'
 
             if value is None:
                 continue
@@ -164,31 +164,31 @@ class BaseNode(AsJSONMixin):
                 continue
 
             if isinstance(value, dict):
-                values = f'{name}={value!r}'
-                if im.fitsfmt(values) and len(values.splitlines()) == 1:
-                    attr_repr += [values]
+                valuestr = f'{name}={value!r}'
+                if im.fitsfmt(valuestr) and len(valuestr.splitlines()) == 1:
+                    attr_repr += [valuestr]
                     continue
-                values = ',\n'.join(f'{k}: {v!r}' for k, v in value.items())
+                valuestr = ',\n'.join(f'{k}: {v!r}' for k, v in value.items())
                 im.print(f'{name}={{')
                 with im.indent():
-                    im.print(values)
+                    im.print(valuestr)
                 im.print('}')
                 attr_repr += [im.printed_text().rstrip()]
 
             islist = isinstance(value, list)
             reprlist = [repr(v) for v in value]
-            values = ', '.join(reprlist)  # type: ignore
-            if im.fitsfmt(values) and len(values.splitlines()) == 1:
+            valuestr = ', '.join(reprlist)  # type: ignore
+            if im.fitsfmt(valuestr, 3) and len(valuestr.splitlines()) == 1:
                 if islist:
-                    attr_repr += [f'{name}=[{values}]']
+                    attr_repr += [f'{name}=[{valuestr}]']
                 else:
-                    attr_repr += [f'{name}=({values})']
+                    attr_repr += [f'{name}=({valuestr})']
                 continue
 
-            values = ',\n'.join(reprlist)
+            valuestr = ',\n'.join(reprlist)
             im.print(f'{name}=' + '[' if islist else '(')
             with im.indent():
-                im.print(values)
+                im.print(valuestr)
             im.print(']' if islist else ')')
             attr_repr += [im.printed_text().rstrip()]
 

@@ -60,7 +60,8 @@ class Override(Named):
         #   That's too difficult to change... So we path conformance with Named!
         #   BaseNode.__post_init__() transfers AST entries to attributes
 
-        self.ast = AST(name='@', exp=self.ast)
+        assert self.exp is not None, vars(self)
+        self.ast = AST(name='@', exp=self.exp)
         super().__post_init__()
 
     def defines(self):
