@@ -29,7 +29,7 @@ class Grammar(Model):
             name=None,
             rules=None,
             *,
-            newcfg: ParserConfig | None = None,
+            config: ParserConfig | None = None,
             directives: dict | None = None,
             **settings,
     ):
@@ -38,9 +38,9 @@ class Grammar(Model):
         directives = directives or {}
         self.directives = directives
 
-        newcfg = ParserConfig.new(config=newcfg, **settings)
-        newcfg = newcfg.hard_override(**directives)
-        self._config: ParserConfig = newcfg
+        config = ParserConfig.new(config=config, **settings)
+        config = config.hard_override(**directives)
+        self._config: ParserConfig = config
 
         self.rules = rules
         self._rulemap = {rule.name: rule for rule in rules}
@@ -49,8 +49,8 @@ class Grammar(Model):
             name = self.directives.get('grammar')
         if name is None:
             name = self._config.name
-        if name is None and newcfg.filename is not None:
-            name = Path(newcfg.filename).stem
+        if name is None and config.filename is not None:
+            name = Path(config.filename).stem
         if name is None:
             name = 'My'
         self.name = name
@@ -62,9 +62,9 @@ class Grammar(Model):
 
         self._calc_lookahead_sets()
         leftrect_rules = mark_left_recursion(self.rulemap)
-        if leftrect_rules and not newcfg.left_recursion:
+        if leftrect_rules and not config.left_recursion:
             raise GrammarError(
-                f'{newcfg.left_recursion=}'
+                f'{config.left_recursion=}'
                 f' but found left-recursive rules'
                 f' {', '.join(repr(r.name) for r in leftrect_rules)}!'
             )
@@ -148,30 +148,31 @@ class Grammar(Model):
             *,
             ctx: ParseContext | None = None,
             config: ParserConfig | None = None,
-            asmodel: bool = True,
+            asmodel: bool = False,
             **settings,
     ):
-        newcfg = self.config.override_config(config)
+        config = self.config.override_config(config)
+        assert isinstance(config, ParserConfig)
         # note: bw-comp: allow overriding directives
-        newcfg = newcfg.override(**settings)
+        config = config.override(**settings)
 
-        if isinstance(newcfg.semantics, type):
+        if isinstance(config.semantics, type):
             raise TypeError(
                 'semantics must be an object instance or None, '
-                f'not class {newcfg.semantics!r}',
+                f'not class {config.semantics!r}',
             )
 
-        start = newcfg.effective_start_rule_name()
+        start = config.effective_start_rule_name()
         if start is None:
             start = self.rules[0].name
-            newcfg.start = start
-            newcfg.start_rule = None
-            newcfg.rule_name = None
+            config.start = start
+            config.start_rule = None
+            config.rule_name = None
 
-        self._config = newcfg
+        self._config = config
         ctx = ctx or self.newctx(asmodel=asmodel)
         assert isinstance(ctx, Ctx)
-        return ctx.parse(text, config=newcfg)
+        return ctx.parse(text, config=config)
 
     def newctx(self, asmodel: bool = True) -> Ctx:
         return ModelContext(self.rules, config=self.config, asmodel=asmodel)

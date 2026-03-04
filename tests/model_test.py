@@ -370,7 +370,7 @@ def test_calc_repr():
     assert isinstance(emodel.rules[-1].exp, g.Pattern)
     assert repr(emodel).strip() == refrepr
 
-    exp = emodel.parse('3 * 2 + 1')
+    exp = emodel.parse('3 * 2 + 1', asmodel=True)
     assert typename(exp) == 'Add'
     assert typename(exp.left) == 'Multiply'
     assert typename(exp.right) == 'int'

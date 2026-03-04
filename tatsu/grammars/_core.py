@@ -33,7 +33,7 @@ class ModelContext(ParseContext):
             /,
             start: str | None = None,
             config: ParserConfig | None = None,
-            asmodel: bool = True,
+            asmodel: bool = False,
             **settings,
     ):
         config = ParserConfig.new(config, **settings)
