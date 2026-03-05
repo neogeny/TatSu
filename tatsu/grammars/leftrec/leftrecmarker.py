@@ -4,17 +4,17 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Mapping
 from enum import Enum, auto
 from typing import cast
 
 from .._core import Model, Rule
 
+
 __all__ = ['mark_left_recursion']
 
 
 # note: based on https://github.com/ncellar/autumn_v1/
-def mark_left_recursion(rulemap: Mapping[str, Rule]) -> list[Rule]:
+def mark_left_recursion(rules: list[Rule]) -> list[Rule]:
 
     class State(Enum):
         FIRST = auto()
@@ -43,7 +43,7 @@ def mark_left_recursion(rulemap: Mapping[str, Rule]) -> list[Rule]:
         depth += 1
         try:
             callable_children = tuple(
-                c.follow_ref(rulemap) for c in node.callable_at_same_pos(rulemap)
+                c.follow_ref() for c in node.callable_at_same_pos()
             )
             for child in callable_children:
                 dfs(child)
@@ -70,6 +70,6 @@ def mark_left_recursion(rulemap: Mapping[str, Rule]) -> list[Rule]:
             depth -= 1
             node_state[node] = State.VISITED
 
-    for rule in rulemap.values():
+    for rule in rules:
         dfs(rule)
     return leftrec_rules

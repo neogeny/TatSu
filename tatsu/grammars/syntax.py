@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from collections.abc import Mapping
 from dataclasses import field
 from itertools import takewhile
 
@@ -15,7 +14,7 @@ from ..contexts import ParseContext
 from ..exceptions import FailedRef
 from ..objectmodel import tatsudataclass
 from ..util import indent, trim
-from ._core import PEP8_LLEN, Box, Model, Result, Rule
+from ._core import PEP8_LLEN, Box, Model, Result
 from .math import ffset, kdot, ref
 
 
@@ -127,10 +126,7 @@ class Choice(Model):
     def _nullable(self) -> bool:
         return any(o._nullable() for o in self.options)
 
-    def callable_at_same_pos(
-        self,
-        rulemap: Mapping[str, Rule] | None = None,
-    ) -> list[Model]:
+    def callable_at_same_pos(self) -> list[Model]:
         return self.options
 
 
@@ -215,11 +211,8 @@ class Sequence(Model):
     def _nullable(self) -> bool:
         return all(s._nullable() for s in self.sequence)
 
-    def callable_at_same_pos(
-        self,
-        rulemap: Mapping[str, Rule] | None = None,
-    ) -> list[Model]:
-        head = list(takewhile(lambda c: c.is_nullable(rulemap), self.sequence))
+    def callable_at_same_pos(self) -> list[Model]:
+        head = list(takewhile(lambda c: c.is_nullable(), self.sequence))
         if len(head) < len(self.sequence):
             head.append(self.sequence[len(head)])
         return head
@@ -235,8 +228,8 @@ class Call(Model):
         super().__post_init__()
         assert isinstance(self.name, str), self.name
 
-    def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
-        return rulemap.get(self.name, self)
+    def follow_ref(self) -> Model:
+        return self.grammar.rulemap.get(self.name, self)
 
     def _parse(self, ctx: ParseContext) -> Result:
         try:
@@ -263,8 +256,5 @@ class Call(Model):
     def _pretty(self, lean=False):
         return self.name
 
-    def is_nullable(self, rulemap: Mapping[str, Rule] | None = None) -> bool:
-        if rulemap is None:
-            return False
-        else:
-            return rulemap[self.name].is_nullable(rulemap)
+    def is_nullable(self) -> bool:
+        return self.grammar.rulemap[self.name].is_nullable()

@@ -78,7 +78,7 @@ class Model(Node):
     def model_classes() -> list[type[Model]]:
         return _model_classes
 
-    def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
+    def follow_ref(self) -> Model:
         return self
 
     def _parse(self, ctx: ParseContext) -> Result:
@@ -88,7 +88,7 @@ class Model(Node):
         return []
 
     @property
-    def grammar(self) -> Grammar | None:
+    def grammar(self) -> Grammar:
         if self._grammar_ref is None:
             raise RuntimeError(f'{typename(self)} not fully initialized')
         grammar = self._grammar_ref()
@@ -153,17 +153,14 @@ class Model(Node):
     def _follow(self, k, fl, a):
         return a
 
-    def is_nullable(self, rulemap: Mapping[str, Rule] | None = None) -> bool:
+    def is_nullable(self) -> bool:
         return self._nullable()
 
     def _nullable(self) -> bool:
         return False
 
     # list of Model that can be invoked at the same position
-    def callable_at_same_pos(
-        self,
-        rulemap: Mapping[str, Rule] | None = None,
-    ) -> list[Model]:
+    def callable_at_same_pos(self) -> list[Model]:
         return []
 
     def nodecount(self) -> int:
@@ -394,15 +391,7 @@ class Grammar(Model):
         self.rules = rules
         self._rulemap = {rule.name: rule for rule in rules}
 
-        if name is None:
-            name = self.directives.get('grammar')
-        if name is None:
-            name = self._config.name
-        if name is None and config.filename is not None:
-            name = Path(config.filename).stem
-        if name is None:
-            name = 'My'
-        self.name = name
+        self.name = self._resolve_name(name)
 
         for rule in self.rules:
             rule._set_grammar(self)
@@ -413,15 +402,7 @@ class Grammar(Model):
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
         self._calc_lookahead_sets()
-
-        from .leftrec import mark_left_recursion
-        leftrect_rules = mark_left_recursion(self.rulemap)
-        if leftrect_rules and not config.left_recursion:
-            raise GrammarError(
-                f'{config.left_recursion=}'
-                f' but found left-recursive rules'
-                f' {', '.join(repr(r.name) for r in leftrect_rules)}!'
-            )
+        self._mark_left_recursion()
 
     @property
     def config(self) -> ParserConfig:
@@ -443,8 +424,38 @@ class Grammar(Model):
     def semantics(self, value: Any):
         self.config.semantics = value  # type: ignore
 
+    @property
+    def first_sets(self):
+        return self._firstset
+
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return set().union(*[rule.missing_rules(rulenames) for rule in self.rules])
+
+    def used_rules(self) -> list[Rule]:
+        used = self._used_rule_names()
+        return [rule for rule in self.rules if rule.name in used]
+
+    def _resolve_name(self, name: str | None) -> str:
+        if name is None:
+            name = self.directives.get('grammar')
+        if name is None:
+            name = self.config.name
+        if name is None and self.config.filename is not None:
+            name = Path(self.config.filename).stem
+        if name is None:
+            name = 'My'
+        return name
+
+    def _mark_left_recursion(self):
+        from .leftrec import mark_left_recursion
+        leftrect_rules = mark_left_recursion(self.rules)
+        if leftrect_rules and not self.config.left_recursion:
+            config = self.config
+            raise GrammarError(
+                f'{config.left_recursion=}'
+                f' but found left-recursive rules'
+                f' {', '.join(repr(r.name) for r in leftrect_rules)}!'
+            )
 
     def _used_rule_names(self) -> set[str]:
         if not self.rules:
@@ -458,14 +469,6 @@ class Grammar(Model):
                 *[rule._used_rule_names() for rule in self.rules if rule.name in used],
             )
         return used
-
-    def used_rules(self) -> list[Rule]:
-        used = self._used_rule_names()
-        return [rule for rule in self.rules if rule.name in used]
-
-    @property
-    def first_sets(self):
-        return self._firstset
 
     def _calc_lookahead_sets(self, k: int = 1):
         self._calc_first_sets(k=k)
