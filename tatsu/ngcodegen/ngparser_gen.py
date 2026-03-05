@@ -298,11 +298,11 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def walk_NamedList(self, named: g.Named):
         self._gen_decor(Ctx.nameadd, named.exp, arg=repr(named.name))
 
-    def walk_Override(self, override: g.Override):
-        self.walk_Named(override)
+    def walk_Override(self, o: g.Override):
+        self._gen_decor(Ctx.nameset, o.exp, arg=repr('@'))
 
     def walk_OverrideList(self, override: g.OverrideList):
-        self.walk_NamedList(override)
+        self._gen_decor(Ctx.nameadd, override.exp, arg=repr('@'))
 
     def _gen_keywords(self, grammar: g.Grammar):
         keywords = [str(k) for k in grammar.keywords if k is not None]
