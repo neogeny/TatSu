@@ -13,6 +13,7 @@ from typing import Any
 
 from .common import is_reserved
 
+
 if sys.version_info >= (3, 13):
     from re import PatternError
 else:
@@ -34,7 +35,7 @@ def unicode_display_len(text: str) -> int:
     return sum(uwidth(s) for s in text)
 
 
-def hashsha(text: Any) -> str:
+def hasha(text: Any) -> str:
     """
     Generates a SHA-256 hex digest of the provided object.
     """

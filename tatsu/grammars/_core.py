@@ -71,7 +71,7 @@ from typing import Any
 
 from ..ast import AST
 from ..builder import ModelBuilderSemantics
-from ..contexts import ParseContext
+from ..contexts import Ctx, ParseContext
 from ..contexts.infos import RuleInfo
 from ..objectmodel import Node, tatsudataclass
 from ..parserconfig import ParserConfig
@@ -133,14 +133,13 @@ class Model(Node):
     def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
         return self
 
-    def _parse(self, ctx: ModelContext) -> Any | None:
-        ctx.last_node = None
+    def _parse(self, ctx: Ctx) -> Any | None:
         return None
 
     def defines(self):
         return []
 
-    def _add_defined_attributes(self, ctx: ModelContext, ast: Any | None = None):
+    def _add_defined_attributes(self, ctx: Ctx, ast: Any | None = None):
         if ast is None:
             return
         if not hasattr(ast, '_define'):
@@ -150,7 +149,7 @@ class Model(Node):
 
         keys = [k for k, ll in defines.items() if not ll]
         list_keys = [k for k, ll in defines.items() if ll]
-        ctx._define(keys, list_keys)
+        ctx.define(keys, list_keys)
         if isinstance(ast, AST):
             ast._define(keys, list_keys)
 

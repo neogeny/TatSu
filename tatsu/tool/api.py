@@ -19,7 +19,7 @@ from ..ngcodegen.ngparser_gen import pythongen
 from ..objectmodel import Node
 from ..parser import TatSuParserGenerator
 from ..tokenizing import Tokenizer
-from ..util.string import hashsha
+from ..util.string import hasha
 
 __all__ = [
     'compile',
@@ -64,7 +64,7 @@ def compile(
         )
     cache = __compiled_grammar_cache
 
-    key = (name, hashsha(grammar), id(semantics))
+    key = (name, hasha(grammar), id(semantics))
     if key in cache:
         model = cache[key]
     else:

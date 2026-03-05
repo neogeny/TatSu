@@ -9,6 +9,7 @@ from .common import *  # noqa: F403
 from .debugging import *  # noqa: F403
 from .genericmain import generic_main  # noqa: F403
 from .misc import *  # noqa: F403
+from .safeeval import *  # noqa: F403
 from .string import *  # noqa: F403
 from .typetools import *  # noqa: F403
 from .undefined import *  # noqa: F403

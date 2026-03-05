@@ -10,7 +10,7 @@ import pytest
 import tatsu
 from tatsu import grammars as g
 from tatsu.objectmodel import Node
-from tatsu.util import typename
+from tatsu.util import hasha, typename
 from tatsu.util.string import trim
 
 
@@ -323,7 +323,7 @@ def test_calc_repr():
                                     sequence=[
                                         Token(token='('),
                                         Cut(ast='~'),
-                                        Override(name='@', exp=Call(name='expression')),
+                                        Override(exp=Call(name='expression')),
                                         Token(token=')')
                                     ]
                                 )
@@ -361,6 +361,7 @@ def test_calc_repr():
 
     refrepr = trim(calc_repr).rstrip()
     assert modelrepr == refrepr
+    # assert hasha(modelrepr) == hasha(refrepr)
     emodel = eval(modelrepr, vars(g), {})  # type: ignore # noqa: S307
     assert isinstance(emodel, g.Grammar)
     assert isinstance(emodel.rules[0], g.Rule)
@@ -368,7 +369,7 @@ def test_calc_repr():
     assert emodel.rules[0].name == 'start'
     assert emodel.rules[-1].name == 'number'
     assert isinstance(emodel.rules[-1].exp, g.Pattern)
-    assert repr(emodel).strip() == refrepr
+    assert hasha(repr(emodel).strip()) == hasha(refrepr)
 
     exp = emodel.parse('3 * 2 + 1', asmodel=True)
     assert typename(exp) == 'Add'
