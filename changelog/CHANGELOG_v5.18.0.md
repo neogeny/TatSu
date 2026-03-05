@@ -13,11 +13,14 @@
 
 * Now `str(model)` returns the standard `__str__()` output and no longer
   returns `model.pretty()`. To obtain a grammar representation of a
-  grammar model use `model.pretty()`.
+  grammar model use `model.pretty()` directly.
 * `repr(model)` no longer returns `asjsons(model)` but instead returns
   a representation that can be used to reconstruct the model:
+
     ```python
-        assert repr(model) == repr(eval(repr(model), globals=vars(grammars)))
+        model = tatsu.parse(grammar, asmodel=True)
+        evalmodel = eval(repr(model), globals=vars(grammars))
+        assert repr(model) == repr(evalmodel)
     ```
 
 ## Separation of State and Content
