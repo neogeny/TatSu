@@ -81,11 +81,10 @@ class Choice(Model):
         assert isinstance(self.options, list), repr(self.options)
 
     def _parse(self, ctx):
-        with ctx._choice():
+        with ctx.choice():
             for o in self.options:
-                with ctx._option():
-                    ctx.last_node = o._parse(ctx)
-                    return ctx.last_node
+                with ctx.option():
+                    return o._parse(ctx)
 
             lookahead = self.lookahead_str()
             if lookahead:
@@ -179,8 +178,7 @@ class Sequence(Model):
         assert isinstance(self.sequence, list), self.sequence
 
     def _parse(self, ctx):
-        ctx.last_node = [s._parse(ctx) for s in self.sequence]
-        return ctx.last_node
+        return [s._parse(ctx) for s in self.sequence]
 
     def defines(self):
         return [d for s in self.sequence for d in s.defines()]
