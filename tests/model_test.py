@@ -205,7 +205,7 @@ def test_calc_repr():
         Grammar(
           name='CALC',
           directives={'grammar': 'CALC'},
-          rules=[
+          rules=(
             Rule(
               name='start',
               exp=Sequence(sequence=[Call(name='expression'), EOF(ast='$')]),
@@ -350,7 +350,7 @@ def test_calc_repr():
               is_leftrec=False,
               is_memoizable=True
             )
-          ]
+          )
         )
     """
 
@@ -358,8 +358,8 @@ def test_calc_repr():
     modelrepr = trim(repr(model)).rstrip()
 
     # HACK FIXME
-    # from pathlib import Path
-    # Path('calcmodel.py').write_text(modelrepr)
+    from pathlib import Path
+    Path('calcmodel.py').write_text(modelrepr)
 
     refrepr = trim(calc_repr).rstrip()
     assert modelrepr == refrepr
@@ -394,3 +394,8 @@ def test_calc_repr():
     assert exp == '3'
 
     assert pprint.pformat(emodel).rstrip() == refrepr
+
+    # test rule access by name
+    assert isinstance(model.rule.start, g.Rule)
+    assert isinstance(model.rule.addition, g.Rule)
+    assert isinstance(model.rule.multiplication, g.Rule)

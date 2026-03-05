@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import weakref
 from collections import defaultdict
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from copy import copy
 from dataclasses import field
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, override
 
 from ..ast import AST
@@ -60,7 +61,6 @@ class ModelContext(ParseContext):
 
     def find_rule(self, name: str) -> Callable:
         return self.rulemap[name]._parse
-        # return functools.partial(self.rulemap[name]._parse, self)
 
 
 @tatsudataclass
@@ -367,19 +367,19 @@ class Rule(NamedBox):
 class Grammar(Model):
     name: str = 'MyTest'
     directives: dict[str, Any] = field(default_factory=dict)
-    rules: list[Rule] = field(default_factory=list)
+    rules: tuple[Rule, ...] = field(default_factory=tuple)
 
     def __init__(
         self,
         name=None,
-        rules=None,
+        rules: Iterable | None = None,
         *,
         config: ParserConfig | None = None,
         directives: dict | None = None,
         **settings,
     ):
         super().__init__()
-        assert isinstance(rules, list), f'{type(rules)!r} {rules!r}'
+        assert isinstance(rules, Iterable), f'{type(rules)!r} {rules!r}'
         directives = directives or {}
         assert isinstance(directives, dict)
         self.directives = directives
@@ -388,8 +388,10 @@ class Grammar(Model):
         config = config.hard_override(**directives)
         self._config: ParserConfig = config
 
-        self.rules = rules
-        self._rulemap = {rule.name: rule for rule in rules}
+        self.rules = tuple(rules)  # type: ignore
+        rulemap = {rule.name: rule for rule in rules}
+        self._rule = SimpleNamespace(**rulemap)
+        self._rulemap = self._rule.__dict__
 
         self.name = self._resolve_name(name)
 
@@ -411,6 +413,10 @@ class Grammar(Model):
     @property
     def rulemap(self) -> dict[str, Rule]:
         return self._rulemap
+
+    @property
+    def rule(self) -> SimpleNamespace:
+        return self._rule
 
     @property
     def keywords(self) -> set[str]:

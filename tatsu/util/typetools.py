@@ -5,6 +5,7 @@ from __future__ import annotations
 import builtins
 import inspect
 import itertools
+import typing
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from types import ModuleType
@@ -41,9 +42,8 @@ def notnone[T](value: Any | None, default: T) -> T:
     return value if value is not None else default
 
 
-def cast[T](t: type[T], value: Any) -> T:
-    assert isinstance(value, t)
-    return value
+def cast[T](_t: type[T], value: Any) -> T:
+    return typing.cast(T, value)
 
 
 @dataclass

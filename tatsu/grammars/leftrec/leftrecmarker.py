@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Iterable
 from enum import Enum, auto
 from typing import cast
 
@@ -14,7 +15,7 @@ __all__ = ['mark_left_recursion']
 
 
 # note: based on https://github.com/ncellar/autumn_v1/
-def mark_left_recursion(rules: list[Rule]) -> list[Rule]:
+def mark_left_recursion(rules: Iterable[Rule]) -> list[Rule]:
 
     class State(Enum):
         FIRST = auto()

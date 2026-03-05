@@ -59,6 +59,7 @@ def main() -> None:
 
     ignored_paths = [
         Path('./.vale/styles/'),
+        Path('./scripts/calcmodel.pynofmt'),
     ]
 
     staged = get_staged_files()

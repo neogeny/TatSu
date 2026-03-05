@@ -22,9 +22,24 @@ to generate a new Python parser.
   a representation that can be used to reconstruct the model:
 
     ```python
-        model = tatsu.parse(grammar, asmodel=True)
-        evalmodel = eval(repr(model), globals=vars(grammars))
-        assert repr(model) == repr(evalmodel)
+    model = tatsu.parse(grammar, asmodel=True)
+    evalmodel = eval(repr(model), globals=vars(grammars))
+    assert repr(model) == repr(evalmodel)
+    ```
+  
+* Now in addition to the existing `rules` and `rulemap` attributes of `Grammar`,
+  there is a `rule` attribute that allows access to rules as attributes:
+ 
+    ```python
+    class Grammar(Model):
+        rules: tuple[Rule, ...]
+        rulemap: dict[str, Rule]
+        rule: SimpleNamespace
+    ```
+
+    ```python
+    model = tatsu.compile(grammar)
+    rule = mode.rule.start
     ```
 
 ## Separation of State and Content

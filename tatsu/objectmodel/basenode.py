@@ -187,7 +187,7 @@ class BaseNode(AsJSONMixin):
                 continue
 
             valuestr = ',\n'.join(reprlist)
-            im.print(f'{name}=' + '[' if islist else '(')
+            im.print(f"{name}={'[' if islist else '('}")
             with im.indent():
                 im.print(valuestr)
             im.print(']' if islist else ')')
