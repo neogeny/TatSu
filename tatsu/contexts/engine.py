@@ -541,7 +541,7 @@ class ParseContext(Ctx):
         else:
             return node
 
-    def _token(self, token: str) -> str:
+    def token(self, token: str) -> str:
         self.next_token()
         if self.cursor.match(token) is None:
             self.tracer.trace_match(self.cursor, token, failed=True)
@@ -550,8 +550,8 @@ class ParseContext(Ctx):
         self.states.append(token)
         return token
 
-    def token(self, token: str) -> str:
-        return self._token(token)
+    def _token(self, token: str) -> str:
+        return self.token(token)
 
     def constant(self, literal: Any) -> Any:
         return self._constant(literal)
@@ -928,8 +928,8 @@ class ParseContext(Ctx):
     def _void(self) -> None:
         pass
 
-    def void(self) -> None:
-        pass
+    def void(self) -> Any:
+        return ()
 
     def dot(self) -> Any:
         c = self._next()

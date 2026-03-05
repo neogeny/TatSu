@@ -168,9 +168,8 @@ class NULL(Model):
 
 @tatsudataclass
 class Void(Model):
-    def _parse(self, ctx: ParseContext) -> Any:
-        ctx.void()
-        return None
+    def _parse(self, ctx: ParseContext) -> Result:
+        return ctx.void()
 
     def _pretty(self, lean=False):
         return '()'

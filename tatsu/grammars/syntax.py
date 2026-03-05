@@ -23,8 +23,7 @@ from .math import ffset, kdot, ref
 class Group(Box):
     def _parse(self, ctx: ParseContext) -> Result:
         with ctx.group():
-            r = self.exp._parse(ctx)
-            # assert r == ctx.last_node, f'G {ctx.last_node=!r} {r=!r}'
+            self.exp._parse(ctx)
             return ctx.last_node
 
     def _pretty(self, lean=False):
