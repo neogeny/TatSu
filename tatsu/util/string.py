@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import codecs
+import functools
 import hashlib
 import re
 import sys
@@ -37,7 +38,7 @@ def unicode_display_len(text: str) -> int:
 
 def hasha(text: Any) -> str:
     """
-    Generates a SHA-256 hex digest of the provided object.
+    Generates an SHA-256 hex digest of the provided object.
     """
     # by Gemini (- 2026-02-08)
     # by [apalala@gmail.com](https://github.com/apalala)
@@ -167,6 +168,7 @@ def mangle(name: str) -> str:
     return safe_name(name)
 
 
+@functools.lru_cache(maxsize=2 * 1024)
 def safe_name(name: str, plug: str = "_") -> str:
     """
     Utility to transform a string into a valid Python identifier.
@@ -178,6 +180,8 @@ def safe_name(name: str, plug: str = "_") -> str:
 
     if not plug or not all(c.isalnum() or c == "_" for c in plug):
         raise ValueError(f"Invalid plug: '{plug}'. Must be non-empty and alphanumeric.")
+    if not f'_{plug}'.isidentifier():
+        raise ValueError(f"Invalid plug: '{plug}'. Must be valid in identifiers.")
     if not name:
         raise ValueError("Input string cannot be empty.")
 
@@ -188,6 +192,13 @@ def safe_name(name: str, plug: str = "_") -> str:
             plugged_name = f"_{plugged_name}"
         else:
             plugged_name = f"{plug}{plugged_name}"
+
+    chars = list(plugged_name)
+    for i, char in enumerate(chars):
+        if not f'_{char}'.isidentifier():
+            chars[i] = plug
+    plugged_name = ''.join(chars)
+    assert plugged_name.isidentifier()
 
     while is_reserved(plugged_name):
         plugged_name = f"{plugged_name}{plug}"
