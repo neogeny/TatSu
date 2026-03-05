@@ -7,14 +7,9 @@
 .. |TatSu-LTS| replace:: |dragon|\ |nbsp|\ **TatSu-LTS**
 .. _RELEASES: https://github.com/neogeny/TatSu/releases
 
-|license|
-|pyversions|
-|fury|
-|actions|
-|docs|
-|installs|
-|sponsor|
-|codspeed|
+| |license| |pyversions| |codspeed|
+| |fury| |actions| |docs| |installs|
+| |sponsor|
 
     *At least for the people who send me mail about a new language that
     they're designing, the general advice is: do it to learn about how
