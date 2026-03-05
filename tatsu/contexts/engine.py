@@ -251,7 +251,7 @@ class ParseContext(Ctx):
                 self.config.semantics.set_context(self)
 
             start: str = self.config.effective_start_rule_name() or 'start'
-            rule = self._find_rule(start)
+            rule = self.find_rule(start)
             return rule(self)
 
         except FailedParse as e:
@@ -335,7 +335,7 @@ class ParseContext(Ctx):
             return False
         return self.config.memoize_lookaheads or self.lookahead == 0
 
-    def _find_rule(self, name: str) -> Callable[..., Any]:
+    def find_rule(self, name: str) -> Callable[..., Any]:
         raise NotImplementedError
 
     def _find_semantic_action(self, name: str) -> Callable[..., Any] | None:

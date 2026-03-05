@@ -247,7 +247,7 @@ class Call(Model):
 
     def _parse(self, ctx):
         try:
-            rule = ctx._find_rule(self.name)
+            rule = ctx.find_rule(self.name)
             return rule(ctx)
         except KeyError as e:
             raise ctx.newexcept(self.name, excls=FailedRef) from e

@@ -7,12 +7,12 @@ from collections.abc import Callable
 from functools import cache
 from typing import Any
 
-from .contexts import ParseContext, isname, name, leftrec, nomemo, rule, tatsumasu
+from .contexts import ParseContext, isname, leftrec, name, nomemo, rule, tatsumasu
 from .exceptions import FailedRef
-
 from .parserconfig import ParserConfig
 from .util import safe_name, typename
 from .util.genericmain import generic_main
+
 
 __all__ = [
     'Parser',
@@ -52,7 +52,7 @@ class Parser(ParseContext):
 
         super().__init__(config=config)
 
-    def _find_rule(self, name: str) -> Callable[[ParseContext], Any]:
+    def find_rule(self, name: str) -> Callable[[ParseContext], Any]:
         if self.rulesource:
             action = find_rule(self.rulesource, name)
         else:

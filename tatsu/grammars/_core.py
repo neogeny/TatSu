@@ -112,7 +112,7 @@ class ModelContext(ParseContext):
     def rulemap(self) -> dict[str, Rule]:
         return self._rulemap
 
-    def _find_rule(self, name: str) -> Callable:
+    def find_rule(self, name: str) -> Callable:
         return self.rulemap[name]._parse
         # return functools.partial(self.rulemap[name]._parse, self)
 
