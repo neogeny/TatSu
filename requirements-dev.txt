@@ -42,7 +42,7 @@ idna==3.11
 iniconfig==2.3.0
     # via pytest
 invoke==2.2.1
-ipython==9.10.0
+ipython==9.11.0
 ipython-pygments-lexers==1.1.1
     # via ipython
 jaraco-classes==3.4.0 ; platform_machine != 'ppc64le' and platform_machine != 's390x'
@@ -87,7 +87,7 @@ pathspec==1.0.4
     # via black
 pexpect==4.9.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
     # via ipython
-platformdirs==4.9.2
+platformdirs==4.9.4
     # via black
 pluggy==1.6.0
     # via pytest
