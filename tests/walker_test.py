@@ -38,10 +38,10 @@ def test_walk_node_ast():
     class PW(DepthFirstWalker):
         def walk_Node(self, node, *args, **kwargs):
             t = type(node).__name__
-            print(f'node {t}')
+            # print(f'node {t}')
             seen[t] += 1
 
-    print(asjsons(model))
+    # print(asjsons(model))
     PW().walk(model)
     assert dict(seen) == {'SampleExpression': 2, 'TemporalSeq': 1, 'Number': 2}
 

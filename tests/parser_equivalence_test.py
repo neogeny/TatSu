@@ -45,7 +45,7 @@ GRAMMAR = r"""
 
 def generate_and_load_parser(name, grammar):
     code = tatsu.to_python_sourcecode(grammar, name='Test')
-    print(code)
+    # print(code)
     module = types.ModuleType(name)
     module.__file__ = '<generated>'
     exec(compile(code, module.__file__, 'exec'), module.__dict__)
