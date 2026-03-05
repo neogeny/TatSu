@@ -13,6 +13,7 @@ class ChoiceContext:
         self.ctx = ctx
         self.options: list[Callable[[], Any]] = []
         self.expected: list[str] = []
+        self.result: Any = None
 
     def option(self, func: Callable[[], Any]) -> Callable[[], None]:
         self.options.append(func)
@@ -21,10 +22,10 @@ class ChoiceContext:
     def expecting(self, *tokens: str) -> None:
         self.expected.extend(tokens)
 
-    def run(self) -> None:
+    def run(self) -> Any:
         if not self.options:
             return
         for opt in self.options:
             with self.ctx.option():
-                opt()
-        raise self.ctx.newexcept(f"Expected one of: {', '.join(self.expected)}")
+                self.result = opt()
+        raise self.ctx.newexcept(f"Expected one of: {' '.join(self.expected)}")

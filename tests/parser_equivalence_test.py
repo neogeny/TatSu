@@ -9,6 +9,7 @@ import pytest
 import tatsu
 from tatsu.exceptions import FailedParse, KeywordError
 
+
 INPUT = """
     1d3
 """
@@ -81,7 +82,7 @@ def test_error_messages():
     except FailedParse as e:
         e1 = str(e)
         assert (
-            "expecting one of: 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o'"
+            "Expected one of: 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o'"
             in e1
         )
 

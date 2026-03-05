@@ -9,9 +9,7 @@ import textwrap
 from .. import grammars, ngcodegen
 from ..exceptions import CodegenError
 from ..objectmodel import Node
-from ..util import indent, safe_name, timestamp, trim
-from ..util import compress_seq
-from ..util import deprecated
+from ..util import compress_seq, deprecated, indent, safe_name, timestamp, trim
 from .cgbase import CodeGenerator, ModelRenderer
 
 
@@ -154,10 +152,10 @@ class Sequence(Base):
 
 class Choice(Base):
     def render_fields(self, fields):
-        firstset = self.node.lookahead_str()
+        firstset = ' '.join(self.node.lookaheadlist())
         if firstset:
             msglines = textwrap.wrap(firstset, width=40)
-            error = ['expecting one of: ', *msglines]
+            error = ['Expected one of: ', *msglines]
         else:
             error = ['no available options']
         error = [repr(e) for e in error]

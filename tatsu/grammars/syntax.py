@@ -82,15 +82,10 @@ class Choice(Model):
         assert isinstance(self.options, list), repr(self.options)
 
     def _parse(self, ctx: ParseContext) -> Result:
-        with ctx.choice():
-            for o in self.options:
-                with ctx.option():
-                    return o._parse(ctx)
-
-            lookahead = self.lookahead_str()
-            if lookahead:
-                raise ctx.newexcept(f'expecting one of: {lookahead}:')
-            raise ctx.newexcept('no available options')
+        with ctx.choice() as ch:
+            ch.options = [lambda o=o: o._parse(ctx) for o in self.options]  # type: ignore
+            ch.expecting(*self.lookaheadlist())
+        return ch.result
 
     def defines(self):
         return [d for o in self.options for d in o.defines()]

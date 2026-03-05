@@ -100,8 +100,10 @@ class Model(Node):
             self._lookahead = kdot(self.firstset(k), self.followset(k), k)
         return self._lookahead
 
-    def lookahead_str(self) -> str:
-        return ' '.join(sorted(repr(f[0]) for f in self.lookahead() if f))
+    def lookaheadlist(self, k: int = 1) -> list[str]:
+        return sorted(
+            repr(fl[0]) if fl else repr(fl) for fl in self.lookahead(k=k)
+        )
 
     def firstset(self, k: int = 1) -> ffset:
         if not self._firstset:
