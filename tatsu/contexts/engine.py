@@ -26,7 +26,7 @@ from ..exceptions import (
     ParseError,
     ParseException,
 )
-from ..infos import Alert, ParseInfo, ParserConfig
+from ..infos import ParseInfo, ParserConfig
 from ..tokenizing import Cursor, NullCursor, NullTokenizer, Tokenizer
 from ..tokenizing.textlines import TextLinesTokenizer
 from ..util import regexp, safe_name, trim
@@ -610,7 +610,7 @@ class ParseContext(Ctx):
             f'{"^" * level}`{message}`',
             failed=True,
         )
-        self.state.alerts.append(Alert(message=message, level=level))
+        self.states.alert(level=level, message=message)
 
     def _alert(self, message: str, level: int) -> None:
         self.alert(message, level)

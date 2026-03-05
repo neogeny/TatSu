@@ -11,10 +11,10 @@ from ..ast import AST
 from ..infos import Alert
 from .infos import RuleInfo
 
+
 __all__ = ['ParseState', 'ParseStateStack']
 
 from ..tokenizing import Cursor
-
 from ..util.abctools import is_list
 
 
@@ -137,6 +137,7 @@ class ParseStateStack:
         prev = self.pop()
         self.ast = prev.ast
         self.extend(prev.cst)
+        self.state.alerts.extend(prev.alerts)
         self.state.goto(pos)
         return prev
 
