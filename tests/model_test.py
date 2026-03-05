@@ -377,4 +377,12 @@ def test_calc_repr():
     assert typename(exp.left) == 'Multiply'
     assert typename(exp.right) == 'int'
 
+    exp = emodel.parse('3', start='number', asmodel=True)
+    assert isinstance(exp, int)
+    assert exp == 3
+
+    exp = emodel.parse('3', asmodel=True)
+    assert isinstance(exp, int)
+    assert exp == 3
+
     assert pprint.pformat(emodel).rstrip() == refrepr

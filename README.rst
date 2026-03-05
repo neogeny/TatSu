@@ -138,9 +138,7 @@ This is an example of how to use |TatSu| as a library:
 .. code-block:: python
 
     GRAMMAR = '''
-        @@grammar::CALC
-
-        start:  expression $ ;
+        start:  expression $
 
         expression:
             | expression '+' term

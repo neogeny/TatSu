@@ -147,6 +147,7 @@ class Grammar(Model):
         text: str,
         /,
         *,
+        start: str | None = None,
         ctx: Ctx | None = None,
         config: ParserConfig | None = None,
         asmodel: bool = False,
@@ -155,7 +156,7 @@ class Grammar(Model):
         config = self.config.override_config(config)
         assert isinstance(config, ParserConfig)
         # note: bw-comp: allow overriding directives
-        config = config.override(**settings)
+        config = config.override(start=start, **settings)
 
         if isinstance(config.semantics, type):
             raise TypeError(
@@ -166,9 +167,11 @@ class Grammar(Model):
         start = config.effective_start_rule_name()
         if start is None:
             start = self.rules[0].name
-            config.start = start
-            config.start_rule = None
-            config.rule_name = None
+            config = config.override(
+                start=start,
+                start_rule=None,
+                rule_name=None,
+            )
 
         self._config = config
         ctx = ctx or self.newctx(asmodel=asmodel)
