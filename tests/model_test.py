@@ -202,154 +202,154 @@ def test_calc_repr():
 
     calc_repr = r"""
         Grammar(
-            name='CALC',
-            directives={'grammar': 'CALC'},
-            rules=[
-                Rule(
-                    name='start',
-                    exp=Sequence(sequence=[Call(name='expression'), EOF(ast='$')]),
-                    params=(),
-                    kwparams={},
-                    decorators=[],
-                    is_name=False,
-                    is_leftrec=False,
-                    is_memoizable=False
-                ),
-                Rule(
-                    name='expression',
-                    exp=Choice(
-                        options=[
-                            Option(exp=Call(name='addition')),
-                            Option(exp=Call(name='subtraction')),
-                            Option(exp=Call(name='term'))
-                        ]
-                    ),
-                    params=(),
-                    kwparams={},
-                    decorators=[],
-                    is_name=False,
-                    is_leftrec=True,
-                    is_memoizable=False
-                ),
-                Rule(
-                    name='addition',
+          name='CALC',
+          directives={'grammar': 'CALC'},
+          rules=[
+            Rule(
+              name='start',
+              exp=Sequence(sequence=[Call(name='expression'), EOF(ast='$')]),
+              params=(),
+              kwparams={},
+              decorators=[],
+              is_name=False,
+              is_leftrec=False,
+              is_memoizable=False
+            ),
+            Rule(
+              name='expression',
+              exp=Choice(
+                options=[
+                  Option(exp=Call(name='addition')),
+                  Option(exp=Call(name='subtraction')),
+                  Option(exp=Call(name='term'))
+                ]
+              ),
+              params=(),
+              kwparams={},
+              decorators=[],
+              is_name=False,
+              is_leftrec=True,
+              is_memoizable=False
+            ),
+            Rule(
+              name='addition',
+              exp=Sequence(
+                sequence=[
+                  Named(name='left', exp=Call(name='expression')),
+                  Named(name='op', exp=Token(token='+')),
+                  Cut(ast='~'),
+                  Named(name='right', exp=Call(name='term'))
+                ]
+              ),
+              params=['Add'],
+              kwparams={},
+              decorators=[],
+              is_name=False,
+              is_leftrec=False,
+              is_memoizable=False
+            ),
+            Rule(
+              name='subtraction',
+              exp=Sequence(
+                sequence=[
+                  Named(name='left', exp=Call(name='expression')),
+                  Named(name='op', exp=Token(token='-')),
+                  Cut(ast='~'),
+                  Named(name='right', exp=Call(name='term'))
+                ]
+              ),
+              params=['Subtract'],
+              kwparams={},
+              decorators=[],
+              is_name=False,
+              is_leftrec=False,
+              is_memoizable=False
+            ),
+            Rule(
+              name='term',
+              exp=Choice(
+                options=[
+                  Option(exp=Call(name='multiplication')),
+                  Option(exp=Call(name='division')),
+                  Option(exp=Call(name='factor'))
+                ]
+              ),
+              params=(),
+              kwparams={},
+              decorators=[],
+              is_name=False,
+              is_leftrec=True,
+              is_memoizable=False
+            ),
+            Rule(
+              name='multiplication',
+              exp=Sequence(
+                sequence=[
+                  Named(name='left', exp=Call(name='term')),
+                  Named(name='op', exp=Token(token='*')),
+                  Cut(ast='~'),
+                  Named(name='right', exp=Call(name='factor'))
+                ]
+              ),
+              params=['Multiply'],
+              kwparams={},
+              decorators=[],
+              is_name=False,
+              is_leftrec=False,
+              is_memoizable=False
+            ),
+            Rule(
+              name='division',
+              exp=Sequence(
+                sequence=[
+                  Named(name='left', exp=Call(name='term')),
+                  Token(token='/'),
+                  Cut(ast='~'),
+                  Named(name='right', exp=Call(name='factor'))
+                ]
+              ),
+              params=['Divide'],
+              kwparams={},
+              decorators=[],
+              is_name=False,
+              is_leftrec=False,
+              is_memoizable=False
+            ),
+            Rule(
+              name='factor',
+              exp=Choice(
+                options=[
+                  Option(
                     exp=Sequence(
-                        sequence=[
-                            Named(name='left', exp=Call(name='expression')),
-                            Named(name='op', exp=Token(token='+')),
-                            Cut(ast='~'),
-                            Named(name='right', exp=Call(name='term'))
-                        ]
-                    ),
-                    params=['Add'],
-                    kwparams={},
-                    decorators=[],
-                    is_name=False,
-                    is_leftrec=False,
-                    is_memoizable=False
-                ),
-                Rule(
-                    name='subtraction',
-                    exp=Sequence(
-                        sequence=[
-                            Named(name='left', exp=Call(name='expression')),
-                            Named(name='op', exp=Token(token='-')),
-                            Cut(ast='~'),
-                            Named(name='right', exp=Call(name='term'))
-                        ]
-                    ),
-                    params=['Subtract'],
-                    kwparams={},
-                    decorators=[],
-                    is_name=False,
-                    is_leftrec=False,
-                    is_memoizable=False
-                ),
-                Rule(
-                    name='term',
-                    exp=Choice(
-                        options=[
-                            Option(exp=Call(name='multiplication')),
-                            Option(exp=Call(name='division')),
-                            Option(exp=Call(name='factor'))
-                        ]
-                    ),
-                    params=(),
-                    kwparams={},
-                    decorators=[],
-                    is_name=False,
-                    is_leftrec=True,
-                    is_memoizable=False
-                ),
-                Rule(
-                    name='multiplication',
-                    exp=Sequence(
-                        sequence=[
-                            Named(name='left', exp=Call(name='term')),
-                            Named(name='op', exp=Token(token='*')),
-                            Cut(ast='~'),
-                            Named(name='right', exp=Call(name='factor'))
-                        ]
-                    ),
-                    params=['Multiply'],
-                    kwparams={},
-                    decorators=[],
-                    is_name=False,
-                    is_leftrec=False,
-                    is_memoizable=False
-                ),
-                Rule(
-                    name='division',
-                    exp=Sequence(
-                        sequence=[
-                            Named(name='left', exp=Call(name='term')),
-                            Token(token='/'),
-                            Cut(ast='~'),
-                            Named(name='right', exp=Call(name='factor'))
-                        ]
-                    ),
-                    params=['Divide'],
-                    kwparams={},
-                    decorators=[],
-                    is_name=False,
-                    is_leftrec=False,
-                    is_memoizable=False
-                ),
-                Rule(
-                    name='factor',
-                    exp=Choice(
-                        options=[
-                            Option(
-                                exp=Sequence(
-                                    sequence=[
-                                        Token(token='('),
-                                        Cut(ast='~'),
-                                        Override(exp=Call(name='expression')),
-                                        Token(token=')')
-                                    ]
-                                )
-                            ),
-                            Option(exp=Call(name='number'))
-                        ]
-                    ),
-                    params=(),
-                    kwparams={},
-                    decorators=[],
-                    is_name=False,
-                    is_leftrec=False,
-                    is_memoizable=True
-                ),
-                Rule(
-                    name='number',
-                    exp=Pattern(pattern='\\d+'),
-                    params=['int'],
-                    kwparams={},
-                    decorators=[],
-                    is_name=False,
-                    is_leftrec=False,
-                    is_memoizable=True
-                )
-            ]
+                      sequence=[
+                        Token(token='('),
+                        Cut(ast='~'),
+                        Override(exp=Call(name='expression')),
+                        Token(token=')')
+                      ]
+                    )
+                  ),
+                  Option(exp=Call(name='number'))
+                ]
+              ),
+              params=(),
+              kwparams={},
+              decorators=[],
+              is_name=False,
+              is_leftrec=False,
+              is_memoizable=True
+            ),
+            Rule(
+              name='number',
+              exp=Pattern(pattern='\\d+'),
+              params=['int'],
+              kwparams={},
+              decorators=[],
+              is_name=False,
+              is_leftrec=False,
+              is_memoizable=True
+            )
+          ]
         )
     """
 

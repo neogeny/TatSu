@@ -152,7 +152,7 @@ class BaseNode(AsJSONMixin):
         pub = self.__pub__()
         sortedkeys = sorted(pub.keys(), key=fieldorder)
 
-        im = IndentPrintMixin()
+        im = IndentPrintMixin(indent_amount=2)
         attr_repr = []
         for name in sortedkeys:
             value = pub[name]
