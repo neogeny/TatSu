@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import dataclasses as dc
 import re
+from typing import Any
 
+from ..contexts import Ctx
 from ..objectmodel import tatsudataclass
 from ._core import Model
 from .math import ffset
@@ -24,8 +26,8 @@ class Pattern(Model):
             self._patterns = self.pattern.splitlines()
         self._regex = re.compile(self.pattern)
 
-    def _parse(self, ctx):
-        return ctx._pattern(self.pattern or r'\\')
+    def _parse(self, ctx: Ctx) -> Any:
+        return ctx.pattern(self.pattern or r'\\')
 
     def _first(self, k, f) -> ffset:
         x = str(self)

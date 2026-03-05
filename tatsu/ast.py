@@ -45,7 +45,7 @@ class AST(dict[str, Any]):
         else:
             super().__setitem__(key, [previous, value])
 
-    def _setlist(self, key: str, value: list[Any]) -> None:
+    def _setlist(self, key: str, value: Any) -> None:
         self._set(key, value, force_list=True)
 
     def _safekey(self, key: str) -> str:

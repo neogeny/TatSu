@@ -2,6 +2,9 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from typing import Any
+
+from ..contexts import ParseContext
 from ..objectmodel import tatsudataclass
 from ._core import Model
 from .math import ffset
@@ -9,8 +12,8 @@ from .math import ffset
 
 @tatsudataclass
 class Dot(Model):
-    def _parse(self, ctx):
-        return ctx._dot()
+    def _parse(self, ctx: ParseContext) -> Any:
+        return ctx.dot()
 
     def _pretty(self, lean=False):
         return '/./'
@@ -21,8 +24,8 @@ class Dot(Model):
 
 @tatsudataclass
 class Fail(Model):
-    def _parse(self, ctx):
-        return ctx._fail()
+    def _parse(self, ctx: ParseContext) -> Any:
+        return ctx.fail()
 
     def _pretty(self, lean=False):
         return '!()'
@@ -44,8 +47,8 @@ class EOLComment(Comment):
 
 @tatsudataclass
 class EOF(Model):
-    def _parse(self, ctx):
-        ctx._check_eof()
+    def _parse(self, ctx: ParseContext) -> Any:
+        ctx.eofcheck()
 
     def _pretty(self, lean=False):
         return '$'
@@ -59,8 +62,8 @@ class Token(Model):
         super().__post_init__()
         self.token = self.token or self.ast
 
-    def _parse(self, ctx):
-        return ctx._token(self.token)
+    def _parse(self, ctx: ParseContext) -> Any:
+        return ctx.token(self.token)
 
     def _first(self, k, f) -> ffset:
         return {(self.token,)}
@@ -77,8 +80,8 @@ class Constant(Model):
         super().__post_init__()
         self.literal = self.literal or self.ast
 
-    def _parse(self, ctx):
-        return ctx._constant(self.literal)
+    def _parse(self, ctx: ParseContext) -> Any:
+        return ctx.constant(self.literal)
 
     def _first(self, k, f) -> ffset:
         return {()}
@@ -99,17 +102,14 @@ class Alert(Constant):
         self.literal = self.ast.message.literal
         self.level = len(self.ast.level)
 
-    def _parse(self, ctx):
-        return super()._parse(ctx)
-
     def _pretty(self, lean=False):
         return f'{"^" * self.level}{super()._pretty()}'
 
 
 @tatsudataclass
 class Cut(Model):
-    def _parse(self, ctx):
-        ctx._cut()
+    def _parse(self, ctx: ParseContext) -> Any:
+        ctx.cut()
 
     def _first(self, k, f) -> ffset:
         return {()}

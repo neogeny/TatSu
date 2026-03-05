@@ -11,18 +11,20 @@ from dataclasses import field
 from itertools import takewhile
 
 from ..ast import AST
+from ..contexts import ParseContext
 from ..exceptions import FailedRef
 from ..objectmodel import tatsudataclass
 from ..util import indent, trim
-from ._core import PEP8_LLEN, Box, Model, Rule
+from ._core import PEP8_LLEN, Box, Model, Result, Rule
 from .math import ffset, kdot, ref
 
 
 @tatsudataclass
 class Group(Box):
-    def _parse(self, ctx):
-        with ctx._group():
-            self.exp._parse(ctx)
+    def _parse(self, ctx: ParseContext) -> Result:
+        with ctx.group():
+            r = self.exp._parse(ctx)
+            # assert r == ctx.last_node, f'G {ctx.last_node=!r} {r=!r}'
             return ctx.last_node
 
     def _pretty(self, lean=False):
@@ -34,7 +36,7 @@ class Group(Box):
 
 @tatsudataclass
 class Lookahead(Box):
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Result:
         with ctx.if_():
             return super()._parse(ctx)
 
@@ -47,7 +49,7 @@ class Lookahead(Box):
 
 @tatsudataclass
 class NegativeLookahead(Box):
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Result:
         with ctx.ifnot_():
             return super()._parse(ctx)
 
@@ -60,9 +62,9 @@ class NegativeLookahead(Box):
 
 @tatsudataclass
 class SkipTo(Box):
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Result:
         super_parse = super()._parse
-        ctx._skip_to(lambda: super_parse(ctx))
+        return ctx._skip_to(lambda: super_parse(ctx))
 
     def _first(self, k, f) -> ffset:
         return {('.',)} | super()._first(k, f)
@@ -80,7 +82,7 @@ class Choice(Model):
         self.options = self.options or self.ast
         assert isinstance(self.options, list), repr(self.options)
 
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Result:
         with ctx.choice():
             for o in self.options:
                 with ctx.option():
@@ -140,7 +142,7 @@ class Choice(Model):
 
 @tatsudataclass
 class Option(Box):
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Result:
         result = super()._parse(ctx)
         self._add_defined_attributes(ctx, result)
         return result
@@ -148,8 +150,7 @@ class Option(Box):
 
 @tatsudataclass
 class Optional(Box):
-    def _parse(self, ctx):
-        ctx.last_node = None
+    def _parse(self, ctx: ParseContext) -> Result:
         self._add_defined_attributes(ctx, ctx.ast)
         with ctx._optional():
             return self.exp._parse(ctx)
@@ -177,7 +178,7 @@ class Sequence(Model):
             self.sequence = self.ast or []
         assert isinstance(self.sequence, list), self.sequence
 
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Result:
         return [s._parse(ctx) for s in self.sequence]
 
     def defines(self):
@@ -243,7 +244,7 @@ class Call(Model):
     def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
         return rulemap.get(self.name, self)
 
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Result:
         try:
             rule = ctx.find_rule(self.name)
             return rule(ctx)

@@ -8,9 +8,10 @@ from __future__ import annotations
 
 from dataclasses import field
 
+from ..contexts import Ctx
 from ..objectmodel import tatsudataclass
 from ..util import typename
-from ._core import Box, Model, Rule
+from ._core import Box, Model, Result, Rule
 from .syntax import Sequence
 
 
@@ -46,7 +47,7 @@ class BasedRule(Rule):
 
         self.rhs = Sequence(ast=[self.baserule.exp, self.exp])
 
-    def _parse(self, ctx):
+    def _parse(self, ctx: Ctx) -> Result:
         return self._parse_rhs(ctx, self.rhs)
 
     def defines(self):

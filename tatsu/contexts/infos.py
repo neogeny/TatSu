@@ -33,7 +33,7 @@ class closure(list[Any]):
 class RuleInfo(NamedTuple):
     name: str
     instance: Any
-    func: Callable[..., None]
+    func: Callable[..., Any]
     is_lrec: bool
     is_memo: bool
     is_name: bool

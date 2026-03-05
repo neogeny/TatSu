@@ -1,65 +1,3 @@
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-#
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-#
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-#
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-#
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-#
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-#
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-#
-
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-#
-
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
@@ -71,7 +9,7 @@ from typing import Any
 
 from ..ast import AST
 from ..builder import ModelBuilderSemantics
-from ..contexts import Ctx, ParseContext
+from ..contexts import ParseContext
 from ..contexts.infos import RuleInfo
 from ..objectmodel import Node, tatsudataclass
 from ..parserconfig import ParserConfig
@@ -82,6 +20,9 @@ from .math import ffset, kdot
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
+
+type Func = Callable[[], Any]
+type Result = str | AST | list[Result] | tuple[Result, ...]
 
 
 def model_classes() -> list[type[Model]]:
@@ -134,13 +75,13 @@ class Model(Node):
     def follow_ref(self, rulemap: Mapping[str, Rule]) -> Model:
         return self
 
-    def _parse(self, ctx: Ctx) -> Any | None:
-        return None
+    def _parse(self, ctx: ParseContext) -> Result:
+        return ()
 
     def defines(self):
         return []
 
-    def _add_defined_attributes(self, ctx: Ctx, ast: Any | None = None):
+    def _add_defined_attributes(self, ctx: ParseContext, ast: Any | None = None):
         if ast is None:
             return
         if not hasattr(ast, '_define'):
@@ -215,8 +156,8 @@ class Model(Node):
 
 @tatsudataclass
 class NULL(Model):
-    def _parse(self, ctx):
-        ctx.fail()
+    def _parse(self, ctx: ParseContext) -> Result:
+        return ctx.fail() or ()
 
     def _pretty(self, lean=False):
         return NULL.__name__
@@ -227,8 +168,9 @@ class NULL(Model):
 
 @tatsudataclass
 class Void(Model):
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Any:
         ctx.void()
+        return None
 
     def _pretty(self, lean=False):
         return '()'
@@ -254,7 +196,7 @@ class Box(Model):
         assert self.exp is not None, f'{typename(self)}({self.exp})'
         assert self.exp, repr(self)
 
-    def _parse(self, ctx) -> Any | None:
+    def _parse(self, ctx: ParseContext) -> Result:
         return self.exp._parse(ctx)
 
     def defines(self):
@@ -322,10 +264,10 @@ class Rule(NamedBox):
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return self.exp.missing_rules(rulenames)
 
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Any:
         return self._parse_rhs(ctx, self.exp)
 
-    def _parse_rhs(self, ctx, exp):
+    def _parse_rhs(self, ctx: ParseContext, exp: Model) -> Result:
         ruleinfo = RuleInfo(
             name=self.name,
             instance=exp,

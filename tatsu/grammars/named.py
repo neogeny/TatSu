@@ -6,12 +6,11 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from dataclasses import field
-
 from ..ast import AST
+from ..contexts import ParseContext
 from ..objectmodel import tatsudataclass
 from ..util import typename
-from ._core import Box, NamedBox
+from ._core import Box, NamedBox, Result
 
 
 @tatsudataclass
@@ -24,7 +23,7 @@ class Named(NamedBox):
             raise TypeError(f"{typename(self)} is missing required: 'name'")
         assert getattr(self, 'name', None) is not None
 
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Result:
         value = self.exp._parse(ctx)
         ctx.ast[self.name] = value
         return value
@@ -40,7 +39,7 @@ class Named(NamedBox):
 
 @tatsudataclass
 class NamedList(Named):
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Result:
         value = self.exp._parse(ctx)
         ctx.ast._setlist(self.name, value)
         return value
@@ -56,7 +55,7 @@ class NamedList(Named):
 
 @tatsudataclass
 class Override(Box):
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Result:
         value = self.exp._parse(ctx)
         ctx.ast['@'] = value
         return value
@@ -69,7 +68,7 @@ class Override(Box):
 
 @tatsudataclass
 class OverrideList(Box):
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Result:
         value = self.exp._parse(ctx)
         ctx.ast._setlist('@', value)
         return value

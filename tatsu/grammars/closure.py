@@ -6,16 +6,17 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from ..contexts import ParseContext
 from ..objectmodel import tatsudataclass
 from ..util import indent
-from ._core import Model
+from ._core import Func, Model, Result
 from .math import ffset, kdot
 from .syntax import Box
 
 
 @tatsudataclass
 class Closure(Box):
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Result:
         return ctx._closure(lambda: self.exp._parse(ctx))
 
     def _first(self, k, f) -> ffset:
@@ -38,7 +39,7 @@ class Closure(Box):
 
 @tatsudataclass
 class PositiveClosure(Closure):
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Result:
         return ctx._positive_closure(lambda: self.exp._parse(ctx))
 
     def _first(self, k, f) -> ffset:
@@ -61,7 +62,7 @@ class Join(Box):
         super().__post_init__()
         assert self.sep == self.ast.sep, self.sep
 
-    def _parse(self, ctx):
+    def _parse(self, ctx: ParseContext) -> Result:
         def sep():
             return self.sep._parse(ctx)
 
@@ -70,7 +71,7 @@ class Join(Box):
 
         return self._do_parse(ctx, exp, sep)
 
-    def _do_parse(self, ctx, exp, sep):
+    def _do_parse(self, ctx: ParseContext, exp: Func, sep: Func) -> Result:
         return ctx._join(exp, sep)
 
     def _pretty(self, lean=False):
@@ -136,8 +137,8 @@ class PositiveGather(Gather):
 
 @tatsudataclass
 class EmptyClosure(Model):
-    def _parse(self, ctx):
-        return ctx._empty_closure()
+    def _parse(self, ctx: ParseContext) -> Result:
+        return ctx.empty()
 
     def _first(self, k, f) -> ffset:
         return {()}

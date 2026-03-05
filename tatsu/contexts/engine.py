@@ -818,8 +818,8 @@ class ParseContext(Ctx):
 
     def _closure(
         self,
-        exp: Callable[[], None],
-        sep: Callable[[], None] | None = None,
+        exp: Callable[[], Any],
+        sep: Callable[[], Any] | None = None,
         omitsep: bool = False,
     ) -> Any:
         self.pushstate()
@@ -955,7 +955,7 @@ class ParseContext(Ctx):
         yield cl
         self._skip_to(cl._exp_value())
 
-    def _skip_to(self, exp: Callable[[], Any]) -> None:
+    def _skip_to(self, exp: Callable[[], Any]) -> Any:
         while not self.eof():
             try:
                 with self.if_():
@@ -968,4 +968,4 @@ class ParseContext(Ctx):
             self.next_token()
             if self.pos == pos:
                 self._next()
-        exp()
+        return exp()
