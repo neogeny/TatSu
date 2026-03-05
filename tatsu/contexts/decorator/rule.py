@@ -4,11 +4,11 @@
 from __future__ import annotations
 
 import functools
-from typing import Any, cast, overload
 from collections.abc import Callable
+from typing import Any, cast, overload
 
-from ..protocol import Ctx
 from ..infos import RuleInfo
+from ..protocol import Ctx
 
 
 def __rule_wrapper(func: Callable, *args: Any, **kwargs: Any) -> Callable:
@@ -17,7 +17,7 @@ def __rule_wrapper(func: Callable, *args: Any, **kwargs: Any) -> Callable:
     @functools.wraps(func)
     def wrapper(instance: Any, ctx: Ctx) -> Any:
         ri = RuleInfo.bind(ribase, instance)
-        return ctx._call(ri)
+        return ctx.call(ri)
 
     return wrapper
 

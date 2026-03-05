@@ -17,7 +17,7 @@ def tatsumasu(
         @functools.wraps(func)
         def wrapper(self: Ctx, _ctx: Ctx | None = None) -> Any:
             ruleinfo = RuleInfo.new(self, func, params, kwparams)
-            return self._call(ruleinfo)
+            return self.call(ruleinfo)
 
         return wrapper
 

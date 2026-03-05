@@ -78,6 +78,7 @@ from ..parserconfig import ParserConfig
 from ..util import compress_seq, indent, trim, typename
 from .math import ffset, kdot
 
+
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
@@ -335,7 +336,7 @@ class Rule(NamedBox):
             params=self.params,
             kwparams=self.kwparams,
         )
-        return ctx._call(ruleinfo)
+        return ctx.call(ruleinfo)
 
     def _first(self, k, f) -> ffset:
         self._firstset = self.exp._first(k, f) | f[self.name]

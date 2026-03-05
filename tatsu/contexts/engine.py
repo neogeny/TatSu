@@ -41,6 +41,7 @@ from .protocol import Ctx
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
+
 __all__: list[str] = ['ParseContext']
 
 
@@ -415,7 +416,7 @@ class ParseContext(Ctx):
         ex = self.newexcept(key.ruleinfo.name, excls=FailedLeftRecursion)
         self._memoize(key, ex)
 
-    def _call(self, ri: RuleInfo) -> Any:
+    def call(self, ri: RuleInfo) -> Any:
         self.ruleinfo_stack.append(ri)
         self.next_token(ri)
         key: MemoKey = self.memokey()
