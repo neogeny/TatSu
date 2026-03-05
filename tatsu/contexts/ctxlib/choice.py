@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import Any
 
 from ..protocol import Ctx
 
@@ -10,10 +11,10 @@ from ..protocol import Ctx
 class ChoiceContext:
     def __init__(self, ctx: Ctx):
         self.ctx = ctx
-        self.options: list[Callable[[], None]] = []
+        self.options: list[Callable[[], Any]] = []
         self.expected: list[str] = []
 
-    def option(self, func: Callable[[], None]) -> Callable[[], None]:
+    def option(self, func: Callable[[], Any]) -> Callable[[], None]:
         self.options.append(func)
         return func
 
