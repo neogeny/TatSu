@@ -10,6 +10,7 @@
 | |license| ​ |pyversions|
 | |fury| ​ |actions| ​ |docs| ​ |installs| ​ |codspeed|
 | |sponsor|
+|
 
     *At least for the people who send me mail about a new language that
     they're designing, the general advice is: do it to learn about how
