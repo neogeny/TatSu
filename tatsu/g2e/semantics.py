@@ -12,7 +12,7 @@ from typing import Any
 
 from .. import grammars as model
 from ..ast import AST
-from ..grammars import Model, syntax
+from ..grammars import Model, _core, syntax
 
 
 def camel2py(name: Any) -> str:
@@ -30,8 +30,8 @@ class ANTLRSemantics:
         self.token_rules = {}
         self.synthetic_rules = []
 
-    def grammar(self, ast: AST) -> model.Grammar:
-        return model.Grammar(
+    def grammar(self, ast: AST) -> _core.Grammar:
+        return _core.Grammar(
             self.name,
             [r for r in chain(ast.rules, self.synthetic_rules) if r is not None],
         )

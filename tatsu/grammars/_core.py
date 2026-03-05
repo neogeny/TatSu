@@ -2,18 +2,22 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import weakref
 from collections import defaultdict
 from collections.abc import Callable, Mapping
+from copy import copy
 from dataclasses import field
-from typing import Any
+from pathlib import Path
+from typing import Any, override
 
 from ..ast import AST
 from ..builder import ModelBuilderSemantics
-from ..contexts import ParseContext
+from ..contexts import Ctx, ParseContext
 from ..contexts.infos import RuleInfo
+from ..exceptions import GrammarError
 from ..objectmodel import Node, tatsudataclass
 from ..parserconfig import ParserConfig
-from ..util import compress_seq, indent, trim, typename
+from ..util import chunks, compress_seq, indent, trim, typename
 from .math import ffset, kdot
 
 
@@ -22,7 +26,8 @@ PEP8_LLEN = 72
 _model_classes: list[type[Model]] = []
 
 type Func = Callable[[], Any]
-type Result = str | AST | list[Result] | tuple[Result, ...]
+# type Result = str | Model | AST | list[Result] | tuple[Result, ...]
+type Result = Any
 
 
 def model_classes() -> list[type[Model]]:
@@ -63,6 +68,7 @@ class Model(Node):
     _lookahead: ffset = field(init=False, default_factory=set)
     _firstset: ffset = field(init=False, default_factory=set)
     _follow_set: ffset = field(init=False, default_factory=set)
+    _grammar_ref: weakref.ref[Model] | None = field(init=False, default=None)
 
     def __init_subclass__(cls: type[Model], **kwargs):
         super().__init_subclass__(**kwargs)
@@ -80,6 +86,28 @@ class Model(Node):
 
     def defines(self):
         return []
+
+    @property
+    def grammar(self) -> Grammar | None:
+        if self._grammar_ref is None:
+            raise RuntimeError(f'{typename(self)} not fully initialized')
+        grammar = self._grammar_ref()
+        if not isinstance(grammar, Grammar):
+            raise TypeError(f'{typename(self)} incorrectly initialized {grammar}')
+        return grammar
+
+    def parse(self, text: str, /, **settings) -> Result:
+        grammar = self.grammar
+        assert isinstance(grammar, Grammar)
+        return grammar.parse(text, **settings)
+
+    def _set_grammar(self, grammar: Grammar):
+        assert isinstance(grammar, Grammar)
+
+        self._grammar_ref = weakref.ref(grammar)
+        for child in self.children():
+            assert isinstance(child, Model)
+            child._set_grammar(grammar)
 
     def _add_defined_attributes(self, ctx: ParseContext, ast: Any | None = None):
         if ast is None:
@@ -336,3 +364,207 @@ class Rule(NamedBox):
             exp=exp,
             is_name='@name\n' if self.is_name else '',
         )
+
+
+@tatsudataclass
+class Grammar(Model):
+    name: str = 'MyTest'
+    directives: dict[str, Any] = field(default_factory=dict)
+    rules: list[Rule] = field(default_factory=list)
+
+    def __init__(
+        self,
+        name=None,
+        rules=None,
+        *,
+        config: ParserConfig | None = None,
+        directives: dict | None = None,
+        **settings,
+    ):
+        super().__init__()
+        assert isinstance(rules, list), f'{type(rules)!r} {rules!r}'
+        directives = directives or {}
+        assert isinstance(directives, dict)
+        self.directives = directives
+
+        config = ParserConfig.new(config=config, **settings)
+        config = config.hard_override(**directives)
+        self._config: ParserConfig = config
+
+        self.rules = rules
+        self._rulemap = {rule.name: rule for rule in rules}
+
+        if name is None:
+            name = self.directives.get('grammar')
+        if name is None:
+            name = self._config.name
+        if name is None and config.filename is not None:
+            name = Path(config.filename).stem
+        if name is None:
+            name = 'My'
+        self.name = name
+
+        for rule in self.rules:
+            rule._set_grammar(self)
+
+        missing: set[str] = self.missing_rules(set(self.rulemap))
+        if missing:
+            msg = '\n'.join(['', *sorted(missing)])
+            raise GrammarError('Unknown rules, no parser generated:' + msg)
+
+        self._calc_lookahead_sets()
+
+        from .leftrec import mark_left_recursion
+        leftrect_rules = mark_left_recursion(self.rulemap)
+        if leftrect_rules and not config.left_recursion:
+            raise GrammarError(
+                f'{config.left_recursion=}'
+                f' but found left-recursive rules'
+                f' {', '.join(repr(r.name) for r in leftrect_rules)}!'
+            )
+
+    @property
+    def config(self) -> ParserConfig:
+        return self._config
+
+    @property
+    def rulemap(self) -> dict[str, Rule]:
+        return self._rulemap
+
+    @property
+    def keywords(self) -> set[str]:
+        return self.config.keywords
+
+    @property
+    def semantics(self) -> Any:
+        return self.config.semantics
+
+    @semantics.setter
+    def semantics(self, value: Any):
+        self.config.semantics = value  # type: ignore
+
+    def missing_rules(self, rulenames: set[str]) -> set[str]:
+        return set().union(*[rule.missing_rules(rulenames) for rule in self.rules])
+
+    def _used_rule_names(self) -> set[str]:
+        if not self.rules:
+            return set()
+
+        used = {'start', self.rules[0].name}
+        prev: set[str] = set()
+        while used != prev:
+            prev = used
+            used |= set().union(
+                *[rule._used_rule_names() for rule in self.rules if rule.name in used],
+            )
+        return used
+
+    def used_rules(self) -> list[Rule]:
+        used = self._used_rule_names()
+        return [rule for rule in self.rules if rule.name in used]
+
+    @property
+    def first_sets(self):
+        return self._firstset
+
+    def _calc_lookahead_sets(self, k: int = 1):
+        self._calc_first_sets(k=k)
+        self._calc_follow_sets(k=k)
+
+    def _calc_first_sets(self, k: int = 1):
+        f: dict[str, ffset] = defaultdict(set)
+        f1 = None
+        while f1 != f:
+            f1 = copy(f)
+            for rule in self.rules:
+                f[rule.name] |= rule._first(k, f)
+
+        # cache results
+        for rule in self.rules:
+            rule._firstset = f[rule.name]
+
+    def _calc_follow_sets(self, k: int = 1):
+        fl: dict[str, ffset] = defaultdict(set)
+        fl1 = None
+        while fl1 != fl:
+            fl1 = copy(fl)
+            for rule in self.rules:
+                rule._follow(k, fl, set())
+
+        # cache results
+        for rule in self.rules:
+            rule._follow_set = fl[rule.name]
+
+    @override
+    def parse(
+        self,
+        text: str,
+        /,
+        *,
+        start: str | None = None,
+        ctx: Ctx | None = None,
+        config: ParserConfig | None = None,
+        asmodel: bool = False,
+        **settings,
+    ) -> Result:
+        config = self.config.override_config(config)
+        assert isinstance(config, ParserConfig)
+        # note: bw-comp: allow overriding directives
+        config = config.override(start=start, **settings)
+
+        if isinstance(config.semantics, type):
+            raise TypeError(
+                'semantics must be an object instance or None, '
+                f'not class {config.semantics!r}',
+            )
+
+        start = config.effective_start_rule_name()
+        if start is None:
+            start = self.rules[0].name
+            config = config.override(
+                start=start,
+                start_rule=None,
+                rule_name=None,
+            )
+
+        self._config = config
+        ctx = ctx or self.newctx(asmodel=asmodel)
+        assert isinstance(ctx, Ctx)
+        return ctx.parse(text, config=config)
+
+    def newctx(self, asmodel: bool = True) -> Ctx:
+        return ModelContext(self.rules, config=self.config, asmodel=asmodel)
+
+    def nodecount(self) -> int:
+        return 1 + sum(r.nodecount() for r in self.rules)
+
+    def _pretty(self, lean: bool = False) -> str:
+        regex_directives = {'comments', 'eol_comments', 'whitespace'}
+        str_directives = {'comments', 'grammar'}
+        string_directives = {'namechars'}
+
+        directives = ''
+        for directive, value in self.directives.items():
+            fmt = dict(  # noqa: C408
+                name=directive,
+                frame='/' if directive in regex_directives else '',
+                value=(
+                    repr(value)
+                    if directive in string_directives
+                    else str(value) if directive in str_directives else value
+                ),
+            )
+            directives += '@@{name} :: {frame}{value}{frame}\n'.format(**fmt)
+        if directives:
+            directives += '\n'
+
+        keywords = '\n'.join(
+            '@@keyword :: ' + ' '.join(repr(k) for k in c if k is not None)
+            for c in chunks(sorted(self.keywords), 8)
+        ).strip()
+        keywords = '\n\n' + keywords + '\n' if keywords else ''
+
+        rules = (
+            '\n\n'.join(str(rule._pretty(lean=lean)) for rule in self.rules)
+        ).rstrip() + '\n\n'
+        return directives + keywords + rules

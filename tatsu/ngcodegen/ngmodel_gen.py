@@ -8,6 +8,7 @@ from collections import namedtuple
 
 from .. import grammars as g
 from .._version import version_info
+from ..grammars import _core
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..util import compress_seq, deprecated_params, safe_name, topsort
@@ -51,7 +52,7 @@ BaseClassSpec = namedtuple('BaseClassSpec', ['class_name', 'base'])
 
 @deprecated_params(base_type='basetype')
 def modelgen(
-    model: g.Grammar,
+    model: _core.Grammar,
     name: str = '',
     basetype: type = Node,
     base_type: type | None = None,
@@ -78,7 +79,7 @@ class PythonModelGenerator(IndentPrintMixin):
         self.basetype = basetype
         self.name = name or None
 
-    def generate_model(self, grammar: g.Grammar):
+    def generate_model(self, grammar: _core.Grammar):
         basetype = self.basetype
         basetype_name = basetype.__name__.split('.')[-1]
         basetype_import = f"from {basetype.__module__} import {basetype_name}"

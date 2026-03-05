@@ -11,6 +11,7 @@ from .. import grammars as g
 from .._version import version, version_info
 from ..contexts.protocol import Ctx
 from ..exceptions import CodegenError
+from ..grammars import _core
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..parserconfig import ParserConfig
@@ -112,7 +113,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def walk_default(self, node: Any) -> Any:
         return node
 
-    def walk_Grammar(self, grammar: g.Grammar):
+    def walk_Grammar(self, grammar: _core.Grammar):
         basename = self.parser_name or grammar.name
         self.print(
             HEADER.format(
@@ -303,7 +304,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def walk_OverrideList(self, override: g.OverrideList):
         self._gen_decor(Ctx.nameadd, override.exp, arg=repr('@'))
 
-    def _gen_keywords(self, grammar: g.Grammar):
+    def _gen_keywords(self, grammar: _core.Grammar):
         keywords = [str(k) for k in grammar.keywords if k is not None]
         if not keywords:
             self.print('KEYWORDS: set[str] = set()')
@@ -317,7 +318,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print()
         self.print()
 
-    def _gen_init(self, grammar: g.Grammar):
+    def _gen_init(self, grammar: _core.Grammar):
         assert isinstance(grammar.config, ParserConfig)
         start = grammar.config.start or grammar.rules[0].name
 
@@ -356,7 +357,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def _rules_name(self, basename: str) -> str:
         return f'{basename}Rules'
 
-    def _gen_buffering_init(self, grammar: g.Grammar):
+    def _gen_buffering_init(self, grammar: _core.Grammar):
         with self.indent():
             self.print('def __init__(')
             with self.indent():
@@ -375,7 +376,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 self.print('super().__init__(text, config=config)')
         self.print()
 
-    def _gen_buffering(self, grammar: g.Grammar, basename: str):
+    def _gen_buffering(self, grammar: _core.Grammar, basename: str):
         self.print(f'class {self._tokenizer_name(basename)}(TextLinesTokenizer):')
         self._gen_buffering_init(grammar)
 
@@ -386,7 +387,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self._gen_buffering_init(grammar)
         self.print()
 
-    def _gen_parsing(self, grammar: g.Grammar, basename: str):
+    def _gen_parsing(self, grammar: _core.Grammar, basename: str):
         self.print(f'class {self._parser_name(basename)}(Parser):')
         with self.indent():
             self.print(

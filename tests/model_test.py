@@ -10,6 +10,7 @@ import pytest
 
 import tatsu
 from tatsu import grammars as g
+from tatsu.ast import AST
 from tatsu.objectmodel import Node
 from tatsu.util import hasha, typename
 from tatsu.util.string import trim
@@ -119,7 +120,7 @@ def test_children():
     parser = tatsu.compile(grammar, asmodel=True, trace=False)
     assert parser
     model = parser.parse('3 + 5 * ( 10 - 20 )')
-    assert model
+    assert isinstance(model, AST)
     assert model['add']
     assert model['add'].children()
     assert type(model['add'].children()[0]).__name__ == 'Multiply'
@@ -374,15 +375,22 @@ def test_calc_repr():
 
     exp = emodel.parse('3 * 2 + 1', asmodel=True)
     assert typename(exp) == 'Add'
-    assert typename(exp.left) == 'Multiply'
-    assert typename(exp.right) == 'int'
+    assert typename(exp.left) == 'Multiply'  # type: ignore
+    assert typename(exp.right) == 'int'  # type: ignore
+
+    addmodel = emodel.rulemap['addition']
+    assert isinstance(addmodel, g.Model)
+    assert addmodel.grammar is emodel
+
+    addresult = addmodel.parse('2 + 2', asmodel=False)
+    assert addresult == {'left': '2', 'op': '+', 'right': '2'}
 
     exp = emodel.parse('3', start='number', asmodel=True)
     assert isinstance(exp, int)
     assert exp == 3
 
-    exp = emodel.parse('3', asmodel=True)
-    assert isinstance(exp, int)
-    assert exp == 3
+    exp = emodel.parse('3', asmodel=False)
+    assert isinstance(exp, str)
+    assert exp == '3'
 
     assert pprint.pformat(emodel).rstrip() == refrepr

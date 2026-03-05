@@ -5,12 +5,12 @@ from __future__ import annotations
 from collections import defaultdict
 
 import tatsu
-from tatsu.util import asjsons
+from tatsu.objectmodel import Node
 from tatsu.walkers import BreadthFirstWalker, DepthFirstWalker, NodeWalker
 
 
 def test_walk_node_ast():
-    GRAMMAR = r"""
+    grammar = r"""
         @@grammar::TLA
 
         #
@@ -29,14 +29,15 @@ def test_walk_node_ast():
         number::int = /\d+/;
     """
 
-    parser = tatsu.compile(GRAMMAR, asmodel=True)
+    parser = tatsu.compile(grammar, asmodel=True)
     model = parser.parse('Seq(1,1)')
+    assert isinstance(model, Node)
     assert model.ast is not None
 
     seen = defaultdict(int)
 
     class PW(DepthFirstWalker):
-        def walk_Node(self, node, *args, **kwargs):
+        def walk_Node(self, node):
             t = type(node).__name__
             # print(f'node {t}')
             seen[t] += 1

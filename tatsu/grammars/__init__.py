@@ -9,6 +9,7 @@ from __future__ import annotations
 from ._core import (
     NULL,
     Box,
+    Grammar,
     Model,
     ModelContext,
     Rule,
@@ -37,7 +38,6 @@ from .closure import (
     PositiveJoin,
     RightJoin,
 )
-from .grammar import Grammar
 from .math import _ref, ref
 from .named import Named, NamedList, Override, OverrideList
 from .pattern import Pattern
@@ -53,6 +53,7 @@ from .syntax import (
     Sequence,
     SkipTo,
 )
+
 
 __all__ = [
     'Alert',
