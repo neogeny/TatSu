@@ -41,42 +41,44 @@ supported as input grammar formats.
 Why use a `PEG`_ parser generator?
 ----------------------------------
 
-Regular expressions are “memoryless”—they excel at finding flat patterns
+Regular expressions are *“memory-less”*—they excel at finding flat patterns
 like email addresses or phone numbers, but they fail once data becomes
-hierarchical. Parsing is the essential step up when you need to
-understand the **logic and structure** of information rather than just
-its appearance.
+hierarchical. Regular expressions cannot *"count"* or balance demarcations
+(a regex cannot reliably validate whether opening and closing parenthesis are
+matched in a nested math equation).
 
-The fundamental limitation of regular expressions is that they cannot
-*"count"* or balance demarcations. For example, a regex cannot reliably
-validate whether every opening parenthesis in a deeply nested math
-equation has a matching closing one.
+Parsing is the essential step up when you need to understand the **logic and
+structure** of information rather than just its appearance. Parsing constructs
+an **Abstract Syntax Tree** (AST_) of the input, a hierarchical map that
+represents how different parts of a sequence relate to one another.
 
-Parsing solves this by constructing an **Abstract Syntax Tree** (AST_), a
-hierarchical map that represents how different parts of a sequence relate
-to one another.
-
-* **Handling Recursive Structures:** Whenever a piece of data can contain
+* **Recursive Structures:** Whenever a piece of data can contain
   a version of itself (like a folder inside a folder, or a conditional
   ``if`` statement inside another ``if``), you need a parser to track the
   depth and scope.
-* **Translating Formats:** When converting one high-level language into
-  another, a parser ensures that the *meaning* of the structure is
-  preserved, preventing the "data soup" that occurs when simple
-  find-and-replace tools break nested logic.
-* **Ambiguity Resolution:** In complex sequences, the same character might
+
+* **Translating Formats:** When converting one format into another, a
+  parser ensures that the *meaning* of the original structure is
+  preserved, preventing the *"data soup"* that occurs when using simple
+  find-and-replace tools.
+
+* **Ambiguity Resolution:** In complex sequences, the same sub-sequence might
   mean different things depending on where it sits in the tree. A parser
-  uses the surrounding context (the "grammar") to decide how to treat that
-  character, whereas a regex treats every match in isolation.
-* **Building Executable Logic:** While a regex can tell you if a string
+  uses the surrounding context to decide how to treat that sequence,
+  whereas a regex treats every match in isolation.
+
+* **Domain-Specific Languages (DSL):** Parsing allows the creation of
+  specialized *"mini-languages"* tailored to a specific field, such as hardware
+  description, music notation, or complex business rules.
+
+* **Executable Logic:** While a regex can tell you if a string
   *looks* like a command, a parser turns that string into an object that a
   computer can actually execute, ensuring the order of operations and
   dependencies are strictly followed.
 
-|TatSu| can compile a grammar stored in a string into a
-``Grammar`` object that can be used to parse any given
-input, much like the `re`_ module does with regular expressions. |TatSu|
-can also generate a Python_ module that implements the parser.
+|TatSu| can compile a grammar stored in a string into a ``Grammar`` object that
+can be used to parse any given input (much like the `re`_ module does with regular
+expressions). |TatSu| can also generate a Python_ module that implements the parser.
 
 |TatSu| supports `left-recursive`_  rules in PEG_ grammars using the
 algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left associativity.
@@ -84,15 +86,12 @@ algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left ass
 Compatibility
 -------------
 
-|TatSu| expects a maintained version of Python (>=3.14 at the moment).
-That said, currently all tests run in versions of Python  down to
-Python 3.12.
+|TatSu| expects a maintained_ version of Python (>=3.13), but currently all tests
+run in versions of Python down to Python 3.12. |TatSu| is also compatible with the
+current pre-release version of Python 3.15.
 
-*If you need support for previous versions of Python, please consider*
-`TatSu-LTS`_, *a  friendly fork of* |TatSu| *aimed at compatibility with
-other versions of Python still used by many projects. The developers of
-both projects work together to promote compatibility with most versions
-of Python.*
+*For older versions of Python, you may consider* `TatSu-LTS`_, *a
+friendly fork of* |TatSu| *aimed at compatibility*.
 
 .. _algorithm: http://norswap.com/pubs/sle2016.pdf
 .. _TatSu-LTS: https://pypi.org/project/TatSu-LTS/
@@ -575,6 +574,7 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
 .. _leewz: https://bitbucket.org/leewz
 .. _linkdd: https://bitbucket.org/linkdd
 .. _make a donation: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=P9PV7ZACB669J
+.. _maintained: https://devguide.python.org/versions/#supported-versions
 .. _memoizing: http://en.wikipedia.org/wiki/Memoization
 .. _nehz: https://bitbucket.org/nehz
 .. _neumond: https://bitbucket.org/neumond

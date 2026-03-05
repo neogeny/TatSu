@@ -65,6 +65,7 @@ _sourcecode
 paypal|PayPal
 ANTLR_?
 ASTs?
+DSL[s_]?
 PEG_?
 pdw-mb
 uv
