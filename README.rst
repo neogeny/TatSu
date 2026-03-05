@@ -35,31 +35,64 @@
 
 |TatSu| is a tool that takes grammars in extended `EBNF`_ as input, and
 outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_. The classic
-variations of EBNF_ (Tomassetti, EasyExtend, Wirth) and `ISO EBNF`_ are also
-supported as input grammar format.
+variations of EBNF_ (Tomassetti, EasyExtend, Wirth) and `ISO EBNF`_ are
+supported as input grammar formats.
 
-Why use a PEG_ parser? Because `regular languages`_ (those parseable with
-Python's ``re`` package) *"cannot count"*. Any language with nested structures
-or with balancing of demarcations requires more than regular expressions
-to be parsed.
+Why use a `PEG`_ parser generator?
+----------------------------------
+
+Regular expressions are “memoryless”—they excel at finding flat patterns
+like email addresses or phone numbers, but they fail once data becomes
+hierarchical. Parsing is the essential step up when you need to
+understand the **logic and structure** of information rather than just
+its appearance.
+
+The fundamental limitation of regular expressions is that they cannot
+*"count"* or balance demarcations. For example, a regex cannot reliably
+validate whether every opening parenthesis in a deeply nested math
+equation has a matching closing one.
+
+Parsing solves this by constructing an **Abstract Syntax Tree** (AST_), a
+hierarchical map that represents how different parts of a sequence relate
+to one another.
+
+* **Handling Recursive Structures:** Whenever a piece of data can contain
+  a version of itself (like a folder inside a folder, or a conditional
+  ``if`` statement inside another ``if``), you need a parser to track the
+  depth and scope.
+* **Translating Formats:** When converting one high-level language into
+  another, a parser ensures that the *meaning* of the structure is
+  preserved, preventing the "data soup" that occurs when simple
+  find-and-replace tools break nested logic.
+* **Ambiguity Resolution:** In complex sequences, the same character might
+  mean different things depending on where it sits in the tree. A parser
+  uses the surrounding context (the "grammar") to decide how to treat that
+  character, whereas a regex treats every match in isolation.
+* **Building Executable Logic:** While a regex can tell you if a string
+  *looks* like a command, a parser turns that string into an object that a
+  computer can actually execute, ensuring the order of operations and
+  dependencies are strictly followed.
 
 |TatSu| can compile a grammar stored in a string into a
-``tatsu.grammars.Grammar`` object that can be used to parse any given
-input, much like the `re`_ module does with regular expressions, or it can generate a Python_ module that implements the parser.
+``Grammar`` object that can be used to parse any given
+input, much like the `re`_ module does with regular expressions. |TatSu|
+can also generate a Python_ module that implements the parser.
 
 |TatSu| supports `left-recursive`_  rules in PEG_ grammars using the
 algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left associativity.
 
-|TatSu| expects a maintained version of Python (>=3.14 at the moment).  While no code
-in |TatSu| yet depends on new language or standard library features,
-the authors don't want to be constrained by Python version compatibility considerations
-when developing future releases. That said, currently all tests run in versions down to
+Compatibility
+-------------
+
+|TatSu| expects a maintained version of Python (>=3.14 at the moment).
+That said, currently all tests run in versions of Python  down to
 Python 3.12.
 
-*If you need support for previous versions of Python, please consider* `TatSu-LTS`_,
-*a  friendly fork of* |TatSu| *aimed at compatibility with other versions of Python still used by
-many projects. The developers of both projects work together to promote compatibility
-with most versions of Python.*
+*If you need support for previous versions of Python, please consider*
+`TatSu-LTS`_, *a  friendly fork of* |TatSu| *aimed at compatibility with
+other versions of Python still used by many projects. The developers of
+both projects work together to promote compatibility with most versions
+of Python.*
 
 .. _algorithm: http://norswap.com/pubs/sle2016.pdf
 .. _TatSu-LTS: https://pypi.org/project/TatSu-LTS/
