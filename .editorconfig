@@ -1,0 +1,36 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+# top-most EditorConfig file
+root = true
+
+# Global settings
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+indent_style = space
+indent_size = 4
+# Disable hard wrapping globally
+max_line_length = off
+
+# Python specific (Following PEP 8 but relaxed on length)
+[*.py]
+indent_size = 4
+# Increase to 120 to avoid the "80-column jump" in PyCharm
+max_line_length = 120
+# Ensure PyCharm doesn't force-wrap on typing
+wrap_on_typing = false
+
+# TatSu Grammars (EBNF)
+[*.{ebnf,tatsu,gra}]
+indent_size = 4
+max_line_length = off
+
+# Slint UI files
+[*.slint]
+indent_size = 4
+max_line_length = off
+
+# YAML and JSON (often used for data/configs)
+[*.{yml,yaml,json}]
+indent_size = 2
