@@ -1,6 +1,10 @@
 []: copyright (c) 2017-2026 juancarlo añez (apalala@gmail.com)
 []: spdx-license-identifier: bsd-4-clause
 
+## Incompatible Changes
+* Support for old generated Python parsers is dropped. In most cases it's best
+to generate a new Python parser.
+
 ## Grammars / EBNF
 
 * Now **TatSu**'s own grammar is written in EBNF notation.
