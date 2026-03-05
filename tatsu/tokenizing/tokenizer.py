@@ -157,7 +157,7 @@ class NullCursor(Cursor):
 
 class Tokenizer(ABC):
     def __init__(self, text: Any, /, *args, **kwargs) -> None:
-        assert text or text is None
+        assert text is None or text is not None
 
     @abstractmethod
     def newcursor(self) -> Cursor: ...

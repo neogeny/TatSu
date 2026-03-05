@@ -10,6 +10,7 @@ from pathlib import Path
 
 from .itertools import first  # bwcompat
 
+
 __all__ = [
     'first',
     'cached_re_compile',
@@ -40,6 +41,7 @@ def module_missing(name):
 
 
 def platform_has_command(name) -> bool:
+    # noinspection PyDeprecation
     return shutil.which(name) is not None
 
 

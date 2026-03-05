@@ -12,6 +12,9 @@ from .deprecate import deprecated
 from .undefined import Undefined
 
 
+__all__ = ['Config', 'HasConfig']
+
+
 @runtime_checkable
 class HasConfig(Protocol):
     config: Config

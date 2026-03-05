@@ -10,9 +10,11 @@ from typing import Any
 
 from .undefined import Undefined, UndefinedType
 
+
 __all__ = [
     'SecurityError',
     'is_eval_safe',
+    'safe_builtins',
     'safe_eval',
     'check_safe_eval',
     'hashable',

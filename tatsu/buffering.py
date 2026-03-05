@@ -22,10 +22,8 @@ from .infos import PosLine
 from .parserconfig import ParserConfig
 from .tokenizing import Cursor, LineIndexInfo, LineInfo
 from .tokenizing.tokenizer import Tokenizer
-from .util import typename
-from .util.itertools import str_from_match
-from .util.misc import cached_re_compile
-from .util.undefined import Undefined
+from .util import Undefined, cached_re_compile, str_from_match, typename
+
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -143,7 +141,7 @@ class BufferCursor(Cursor):
         if self.atend():
             return ''
         info = self.lineinfo(self.pos)
-        text = info.text[info.col : info.col + 1 + 80]
+        text = info.text[info.col: info.col + 1 + 80]
         return self.buffer.split_block_lines(text)[0].rstrip()
 
     def posline(self, pos: int | None = None) -> int:
@@ -182,7 +180,9 @@ class Buffer(Tokenizer):
         config: ParserConfig | None = None,
         **settings: Any,
     ):
+        super().__init__(text)
         config = ParserConfig.new(config=config, **settings)
+        assert isinstance(config, ParserConfig)
         self.config = config
 
         text = str(text)
@@ -339,7 +339,7 @@ class Buffer(Tokenizer):
         self._line_index = index
         self._postprocess()
 
-        newtext = self.join_block_lines(lines[j + 1 : endline + 2])
+        newtext = self.join_block_lines(lines[j + 1: endline + 2])
         return endline, newtext
 
     @property
@@ -482,7 +482,7 @@ class Buffer(Tokenizer):
             return None
 
         p = self.pos
-        text = self.text[p : p + len(token)]
+        text = self.text[p: p + len(token)]
         if self.ignorecase:
             is_match = text.lower() == token.lower()
         else:
@@ -492,7 +492,7 @@ class Buffer(Tokenizer):
 
         self.move(len(token))
         partial_match = (
-            self.nameguard and self.is_name_char(self.current) and self.is_name(token)
+                self.nameguard and self.is_name_char(self.current) and self.is_name(token)
         )
         if partial_match:
             self.goto(p)
@@ -500,11 +500,12 @@ class Buffer(Tokenizer):
 
         return token
 
-    def _matchre_fast(self, pattern: str | re.Pattern | None):
+    def _matchre_fast(self, pattern: str | re.Pattern | None) -> bool:
         if not (match := self._scanre(pattern)):
-            return
+            return False
 
         self.move(len(match.group()))
+        return True
 
     def matchre(self, pattern: str | re.Pattern) -> str | None:
         if not (match := self._scanre(pattern)):
@@ -563,7 +564,7 @@ class Buffer(Tokenizer):
         if self.atend():
             return ''
         info = self.lineinfo()
-        text = info.text[info.col : info.col + 1 + 80]
+        text = info.text[info.col: info.col + 1 + 80]
         return self.split_block_lines(text)[0].rstrip()
 
     def get_line(self, n: int | None = None) -> str:
@@ -576,12 +577,12 @@ class Buffer(Tokenizer):
             start = 0
         if end is None:
             end = len(self._lines)
-        return self._lines[start : end + 1]
+        return self._lines[start: end + 1]
 
     def line_index(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
         if end is None:
             end = len(self._line_index)
-        return self._line_index[start : 1 + end]
+        return self._line_index[start: 1 + end]
 
     def eat_whitespace_at(self, c: BufferCursor) -> None:
         with c.bind():
@@ -610,5 +611,5 @@ class Buffer(Tokenizer):
     def __repr__(self) -> str:
         return f'{type(self).__name__}()'
 
-    def __json__(self, seen: set[int] | None = None) -> str | None:
+    def __json__(self, _seen: set[int] | None = None) -> str | None:
         return None

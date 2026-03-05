@@ -5,8 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from .. import grammars as g
-from ..util.abctools import join_lists
-from ..util.string import regexp, unicode_display_len as ulen
+from ..util import join_lists, regexp, unicode_display_len as ulen
 from ..walkers import NodeWalker
 from .railmath import (
     ETX,

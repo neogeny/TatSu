@@ -14,8 +14,7 @@ from tatsu.util.common import typename
 from ..ast import AST
 from ..infos import ParseInfo
 from ..mixins.indent import IndentPrintMixin
-from ..util.abctools import isiter, rowselect
-from ..util.asjson import AsJSONMixin, asjson, asjsons
+from ..util import AsJSONMixin, asjson, asjsons, isiter, rowselect
 
 
 __all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']

@@ -8,10 +8,9 @@ from dataclasses import dataclass, field
 from typing import Any, override
 
 from .tokenizing import NullTokenizer, Tokenizer
-from .util.configs import Config
-from .util.misc import cached_re_compile
-from .util.undefined import Undefined
+from .util import Config, Undefined, cached_re_compile
 from .util.unicode_characters import C_DERIVE
+
 
 MEMO_CACHE_SIZE = 4 * 1024
 

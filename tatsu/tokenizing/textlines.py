@@ -8,11 +8,11 @@ from typing import Any
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
 from ..parserconfig import ParserConfig
-from ..util.common import typename
-from ..util.itertools import str_from_match
-from ..util.misc import cached_re_compile
-from ..util.undefined import Undefined
-from ..util.typetools import notnone
+from ..util import typename
+from ..util import str_from_match
+from ..util import cached_re_compile
+from ..util import Undefined
+from ..util import notnone
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 

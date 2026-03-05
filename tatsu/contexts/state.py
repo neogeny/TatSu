@@ -15,7 +15,7 @@ from .infos import RuleInfo
 __all__ = ['ParseState', 'ParseStateStack']
 
 from ..tokenizing import Cursor
-from ..util.abctools import is_list
+from ..util import is_list
 
 
 class ParseState:

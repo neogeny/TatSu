@@ -19,7 +19,7 @@ from ..ngcodegen.ngparser_gen import pythongen
 from ..objectmodel import Node
 from ..parser import TatSuParserGenerator
 from ..tokenizing import Tokenizer
-from ..util.string import hasha
+from ..util import hasha
 
 __all__ = [
     'compile',

@@ -10,8 +10,7 @@ from . import grammars as g
 from .builder import ModelBuilderSemantics
 from .contexts import ParseContext
 from .exceptions import FailedSemantics
-from .util import eval_escapes, re, warning
-from .util.abctools import flatten
+from .util import eval_escapes, flatten, re, warning
 
 
 class TatSuGrammarSemantics(ModelBuilderSemantics):

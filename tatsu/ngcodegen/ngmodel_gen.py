@@ -10,10 +10,8 @@ from .. import grammars as g
 from .._version import version_info
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
-from ..util import safe_name
-from ..util.abctools import compress_seq
-from ..util.deprecate import deprecated_params
-from ..util.itertools import topsort
+from ..util import compress_seq, deprecated_params, safe_name, topsort
+
 
 HEADER = """\
     #!/usr/bin/env python3

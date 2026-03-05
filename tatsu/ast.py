@@ -6,9 +6,7 @@ from collections.abc import Iterable
 from typing import Any, override
 
 from .infos import ParseInfo
-from .util import asjson
-from .util.abctools import is_list
-from .util.safeeval import make_hashable
+from .util import asjson, is_list, make_hashable
 
 
 class AST(dict[str, Any]):

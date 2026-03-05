@@ -14,10 +14,9 @@ from ..exceptions import CodegenError
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..parserconfig import ParserConfig
-from ..util import regexp, safe_name
-from ..util.abctools import compress_seq
-from ..util.undefined import Undefined
+from ..util import Undefined, compress_seq, regexp, safe_name
 from ..walkers import NodeWalker
+
 
 HEADER = """\
     #!/usr/bin/env python3

@@ -11,7 +11,7 @@ from .contexts import ParseContext, isname, leftrec, name, nomemo, rule, tatsuma
 from .exceptions import FailedRef
 from .parserconfig import ParserConfig
 from .util import safe_name, typename
-from .util.genericmain import generic_main
+from .util import generic_main
 
 
 __all__ = [

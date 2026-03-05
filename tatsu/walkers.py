@@ -7,8 +7,8 @@ from collections.abc import Callable, Iterable
 from contextlib import contextmanager
 from typing import Any, ClassVar, Concatenate
 
-from .util.deprecate import deprecated
-from .util.string import pythonize_name
+from .util import deprecated, pythonize_name
+
 
 type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
 

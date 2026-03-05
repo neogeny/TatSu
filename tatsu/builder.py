@@ -10,11 +10,17 @@ from typing import Any, cast
 
 from .objectmodel import Node
 from .synth import synthesize
-from .util import fqn, fqntype
-from .util.configs import Config
-from .util.deprecate import deprecated_params
-from .util.string import mangle
-from .util.typetools import Constructor, TypeContainer, boundcall, least_upper_bound_type
+from .util import (
+    Config,
+    Constructor,
+    TypeContainer,
+    boundcall,
+    deprecated_params,
+    fqn,
+    fqntype,
+    least_upper_bound_type,
+    mangle,
+)
 
 
 class TypeResolutionError(TypeError):

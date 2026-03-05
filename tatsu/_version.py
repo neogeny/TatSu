@@ -3,7 +3,8 @@
 
 from __future__ import annotations
 
-from .util.version import Version
+from .util import Version
+
 
 __version__ = '5.18.0b1'
 version = __version__

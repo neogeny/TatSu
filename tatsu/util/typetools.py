@@ -12,6 +12,7 @@ from typing import Any
 
 from .itertools import CycleError, first, topsort
 
+
 __all__ = [
     'ActualArguments',
     'BoundCallable',
@@ -20,6 +21,7 @@ __all__ = [
     'boundcall',
     'cast',
     'isproperty',
+    'least_upper_bound_type',
     'notnone',
 ]
 

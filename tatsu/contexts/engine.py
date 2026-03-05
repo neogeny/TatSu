@@ -29,12 +29,21 @@ from ..exceptions import (
 from ..infos import ParseInfo, ParserConfig
 from ..tokenizing import Cursor, NullCursor, NullTokenizer, Tokenizer
 from ..tokenizing.textlines import TextLinesTokenizer
-from ..util import regexp, safe_name, trim
-from ..util.abctools import is_list, left_assoc, prune_dict, right_assoc
-from ..util.deprecate import deprecated
-from ..util.safeeval import is_eval_safe, safe_builtins, safe_eval
-from ..util.typetools import boundcall
-from ..util.undefined import Undefined
+from ..util import (
+    Undefined,
+    boundcall,
+    deprecated,
+    is_eval_safe,
+    is_list,
+    left_assoc,
+    prune_dict,
+    regexp,
+    right_assoc,
+    safe_builtins,
+    safe_eval,
+    safe_name,
+    trim,
+)
 from .ctxlib import ChoiceContext, InnerExpContext
 from .infos import MemoKey, RuleInfo, RuleResult, closure
 from .protocol import Ctx

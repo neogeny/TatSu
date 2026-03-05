@@ -11,7 +11,7 @@ import itertools
 import string
 
 from ..util import indent, trim
-from ..util.abctools import isiter
+from ..util import isiter
 
 
 def render(item, join='', **fields):
