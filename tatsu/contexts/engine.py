@@ -424,7 +424,6 @@ class ParseContext(Ctx):
         pos = self.pos
         try:
             self.tracer.trace_entry(self.cursor)
-            self.last_node = None
 
             if ri.is_lrec:
                 result = self._recursive_call(ri, key)
@@ -648,7 +647,6 @@ class ParseContext(Ctx):
     @contextmanager
     def _try(self) -> Any:
         self.pushstate(ast=AST(self.ast))
-        self.last_node = None
         try:
             yield
             self.mergestate()
@@ -669,7 +667,6 @@ class ParseContext(Ctx):
 
     @contextmanager
     def option(self) -> Any:
-        self.last_node = None
         try:
             with self._try():
                 yield
@@ -915,12 +912,10 @@ class ParseContext(Ctx):
 
     def _left_join(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
         self.cst = left_assoc(self._positive_join(exp, sep))
-        self.last_node = self.cst
         return self.cst
 
     def _right_join(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
         self.cst = right_assoc(self._positive_join(exp, sep))
-        self.last_node = self.cst
         return self.cst
 
     def _check_name(self, name: Any) -> None:
@@ -931,10 +926,10 @@ class ParseContext(Ctx):
             raise self.newexcept(f'"{name_str}" is a reserved word', KeywordError)
 
     def _void(self) -> None:
-        self.last_node = None
+        pass
 
     def void(self) -> None:
-        self.last_node = None
+        pass
 
     def dot(self) -> Any:
         c = self._next()
