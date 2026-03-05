@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json  # noqa: F401
+import pprint  # noqa: F401
 from typing import Any
 
 import pytest
@@ -375,3 +376,5 @@ def test_calc_repr():
     assert typename(exp) == 'Add'
     assert typename(exp.left) == 'Multiply'
     assert typename(exp.right) == 'int'
+
+    assert pprint.pformat(emodel).rstrip() == refrepr
