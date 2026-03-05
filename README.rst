@@ -140,34 +140,23 @@ This is an example of how to use |TatSu| as a library:
     GRAMMAR = '''
         @@grammar::CALC
 
+        start:  expression $ ;
 
-        start = expression $ ;
-
-
-        expression
-            =
+        expression:
             | expression '+' term
             | expression '-' term
             | term
-            ;
 
-
-        term
-            =
+        term:
             | term '*' factor
             | term '/' factor
             | factor
-            ;
 
-
-        factor
-            =
+        factor:
             | '(' expression ')'
             | number
-            ;
 
-
-        number = /\d+/ ;
+        number: /\d+/
     '''
 
 
@@ -177,7 +166,7 @@ This is an example of how to use |TatSu| as a library:
         from tatsu.util import asjson
 
         ast = parse(GRAMMAR, '3 + 5 * ( 10 - 20 )')
-        print(json.dumps(asjson(ast), indent=2))
+        print(ast.asjsons())
 ..
 
 |TatSu| will use the first rule defined in the grammar as the *start* rule.
@@ -199,6 +188,8 @@ This is the output:
         ]
       ]
     ]
+
+
 
 Documentation
 -------------
