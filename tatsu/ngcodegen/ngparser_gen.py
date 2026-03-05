@@ -14,7 +14,7 @@ from ..exceptions import CodegenError
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..parserconfig import ParserConfig
-from ..util import Undefined, compress_seq, regexp, safe_name
+from ..util import Undefined, compress_seq, regexpp, safe_name
 from ..walkers import NodeWalker
 
 
@@ -218,7 +218,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'ctx.alert({alert.literal!r}, {alert.level})')
 
     def walk_Pattern(self, pattern: g.Pattern):
-        self.print(f'ctx.pattern({regexp(pattern.pattern)})')
+        self.print(f'ctx.pattern({regexpp(pattern.pattern)})')
 
     def walk_Lookahead(self, lookahead: g.Lookahead):
         self._gen_decor(Ctx.if_, lookahead.exp)
@@ -325,7 +325,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         if whitespace is Undefined:  # the default value
             whitespace = None
         elif whitespace is not None:
-            whitespace = regexp(whitespace)
+            whitespace = regexpp(whitespace)
 
         self.print(f'''
                 config = ParserConfig.new(
@@ -335,8 +335,8 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                     ignorecase={grammar.config.ignorecase or False},
                     namechars={grammar.config.namechars or ""!r},
                     parseinfo={grammar.config.parseinfo},
-                    comments={regexp(grammar.config.comments)},
-                    eol_comments={regexp(grammar.config.eol_comments)},
+                    comments={regexpp(grammar.config.comments)},
+                    eol_comments={regexpp(grammar.config.eol_comments)},
                     keywords=KEYWORDS,
                     start={start!r},
                 )

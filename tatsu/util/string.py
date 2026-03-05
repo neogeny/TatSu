@@ -46,7 +46,7 @@ def hasha(text: Any) -> str:
     return hashlib.sha256(str(text).encode('utf-8')).hexdigest()
 
 
-def regexp(text: Any) -> str:
+def regexpp(regex: Any) -> str:
     """
     Returns a printable version of the regexp pattern as a Python raw string.
     Validates input and ensures generated output is syntactically valid.
@@ -54,7 +54,7 @@ def regexp(text: Any) -> str:
     # by Gemini (2026-02-04 - 2026-02-07)
     # by [apalala@gmail.com](https://github.com/apalala)
 
-    pattern_text = text.pattern if hasattr(text, "pattern") else str(text)
+    pattern_text = regex.pattern if hasattr(regex, "pattern") else str(regex)
 
     try:
         re.compile(pattern_text)

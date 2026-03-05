@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from .. import grammars as g
-from ..util import join_lists, regexp, unicode_display_len as ulen
+from ..util import join_lists, regexpp, unicode_display_len as ulen
 from ..walkers import NodeWalker
 from .railmath import (
     ETX,
@@ -118,7 +118,7 @@ class RailroadNodeWalker(NodeWalker):
         return [f"{call.name}"]
 
     def walk_pattern(self, pattern: g.Pattern) -> Rails:
-        pat = regexp(pattern.pattern).replace("r'", "").rstrip("'")
+        pat = regexpp(pattern.pattern).replace("r'", "").rstrip("'")
         return [f"/{pat}/─"]
 
     def walk_token(self, token: g.Token) -> Rails:

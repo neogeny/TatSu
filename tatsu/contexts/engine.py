@@ -37,7 +37,7 @@ from ..util import (
     is_list,
     left_assoc,
     prune_dict,
-    regexp,
+    regexpp,
     right_assoc,
     safe_builtins,
     safe_eval,
@@ -628,7 +628,7 @@ class ParseContext(Ctx):
         token = self.cursor.matchre(pattern)
         if token is None:
             self.tracer.trace_match(self.cursor, '', pattern, failed=True)
-            raise self.newexcept(f'Expecting {regexp(pattern)}', excls=FailedPattern)
+            raise self.newexcept(f'Expecting {regexpp(pattern)}', excls=FailedPattern)
         self.tracer.trace_match(self.cursor, token, pattern)
         self.states.append(token)
         return token
