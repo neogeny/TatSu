@@ -10,7 +10,6 @@ from . import grammars as g
 from .builder import ModelBuilderSemantics
 from .contexts import ParseContext
 from .exceptions import FailedSemantics
-from .grammars import _core
 from .util import eval_escapes, flatten, re, warning
 
 
@@ -167,7 +166,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
             directives['whitespace'] = ''
 
         name = self.name or directives.get('grammar')
-        grammar = _core.Grammar(
+        grammar = g.Grammar(
             name,
             list(self.rulemap.values()),
             directives=directives,

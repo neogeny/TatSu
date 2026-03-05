@@ -15,6 +15,7 @@ from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImpor
     task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
 )
 
+
 __copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'
 __license__: str = 'BSD-4-Clause'
 
@@ -229,7 +230,7 @@ def pyright(c: Context, python: float = PYTHON):
 
 @task(pre=[clean])
 def pytestfast(c: Context, python: float = PYTHON):
-    start_print(pytest, target='fast')
+    start_print(pytest, target='fast ')
     Path('./tmp').mkdir(exist_ok=True)
     Path('./tmp/__init__.py').touch()
     uv_run(
@@ -250,7 +251,7 @@ def pytestfast(c: Context, python: float = PYTHON):
 
 @task(pre=[clean])
 def pytestbootstrap(c: Context, python: float = PYTHON):
-    start_print(pytest, target='bootstrap')
+    start_print(pytest, target='boot ')
     Path('./tmp').mkdir(exist_ok=True)
     Path('./tmp/__init__.py').touch()
     uv_run(

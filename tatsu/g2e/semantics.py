@@ -12,7 +12,7 @@ from typing import Any
 
 from .. import grammars as model
 from ..ast import AST
-from ..grammars import Model, _core, syntax
+from ..grammars import Grammar, Model, syntax
 
 
 def camel2py(name: Any) -> str:
@@ -30,8 +30,8 @@ class ANTLRSemantics:
         self.token_rules = {}
         self.synthetic_rules = []
 
-    def grammar(self, ast: AST) -> _core.Grammar:
-        return _core.Grammar(
+    def grammar(self, ast: AST) -> Grammar:
+        return Grammar(
             self.name,
             [r for r in chain(ast.rules, self.synthetic_rules) if r is not None],
         )
@@ -74,7 +74,7 @@ class ANTLRSemantics:
         else:
             return syntax.Sequence(elements)
 
-    def predicate_or_action(self, ast: Any) -> None:
+    def predicate_or_action(self, _ast: Any) -> None:
         return None
 
     def named(self, ast: AST) -> model.Named:
@@ -83,7 +83,7 @@ class ANTLRSemantics:
         else:
             return model.Named(ast)
 
-    def syntactic_predicate(self, ast: Any) -> None:
+    def syntactic_predicate(self, _ast: Any) -> None:
         return None
 
     def optional(self, ast: Model) -> model.Optional:
@@ -161,7 +161,7 @@ class ANTLRSemantics:
         assert ast[0].islower()
         return syntax.Call(camel2py(ast))
 
-    def any(self, ast: AST) -> model.Pattern:
+    def any(self, _ast: AST) -> model.Pattern:
         return model.Pattern(r'\w+|\S+')
 
     def string(self, ast: AST) -> model.Token:
@@ -170,7 +170,7 @@ class ANTLRSemantics:
             text = ''.join(text)
         return model.Token(text)
 
-    def eof(self, ast: AST) -> model.EOF:
+    def eof(self, _ast: AST) -> model.EOF:
         return model.EOF()
 
     def token(self, ast: AST) -> model.Token | model.Void:

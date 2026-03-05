@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 from .. import grammars as g
-from ..grammars import _core
 from ..util import join_lists, regexpp, unicode_display_len as ulen
 from ..walkers import NodeWalker
 from .railmath import (
@@ -46,7 +45,7 @@ class RailroadNodeWalker(NodeWalker):
     def walk_box(self, b: g.Box) -> Rails:
         return self.walk(b.exp)
 
-    def walk_grammar(self, grammar: _core.Grammar) -> Rails:
+    def walk_grammar(self, grammar: g.Grammar) -> Rails:
         return join_lists(*(self.walk(r) for r in grammar.rules))
 
     def walk_rule(self, rule: g.Rule) -> Rails:
@@ -125,7 +124,7 @@ class RailroadNodeWalker(NodeWalker):
     def walk_token(self, token: g.Token) -> Rails:
         return [f"{token.token!r}"]
 
-    def walk_eof(self, eof: g.EOF) -> Rails:
+    def walk_eof(self, _eof: g.EOF) -> Rails:
         return [f"⇥{ETX} "]
 
     def walk_lookahead(self, la: g.Lookahead) -> Rails:
