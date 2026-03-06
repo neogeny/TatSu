@@ -14,6 +14,7 @@ from typing import Any
 
 from .common import is_reserved
 
+
 if sys.version_info >= (3, 13):
     from re import PatternError
 else:
@@ -119,7 +120,7 @@ def eval_escapes(s: str | bytes) -> str | bytes:
         | \\u....          # 4-digit Unicode escapes
         | \\x..            # 2-digit Unicode escapes
         | \\[0-7]{1,3}     # Octal character escapes
-        | \\N\{[^}]+\}     # Unicode characters by name
+        | \\N\{[^}]+}      # Unicode characters by name
         | \\[\\'"abfnrtv]  # Single-character escapes
         )""")
 
@@ -192,12 +193,13 @@ def safe_name(name: str, plug: str = "_") -> str:
         else:
             plugged_name = f"{plug}{plugged_name}"
 
-    chars = list(plugged_name)
-    for i, char in enumerate(chars):
-        if not f'_{char}'.isidentifier():
-            chars[i] = plug
-    plugged_name = ''.join(chars)
-    assert plugged_name.isidentifier()
+    if not plugged_name.isidentifier():
+        chars = list(plugged_name)
+        for i, char in enumerate(chars):
+            if not f'_{char}'.isidentifier():
+                chars[i] = plug
+        plugged_name = ''.join(chars)
+        assert plugged_name.isidentifier()
 
     while is_reserved(plugged_name):
         plugged_name = f"{plugged_name}{plug}"
