@@ -16,7 +16,6 @@ from ..infos import ParseInfo
 from ..mixins.indent import IndentPrintMixin
 from ..util import AsJSONMixin, asjson, asjsons, isiter, rowselect
 
-
 __all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
 
 TatSuDataclassParams = dict(

@@ -21,7 +21,6 @@ from ..parserconfig import ParserConfig
 from ..util import chunks, compress_seq, indent, trim, typename
 from .math import ffset, kdot
 
-
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
@@ -129,9 +128,7 @@ class Model(Node):
         return self._lookahead
 
     def lookaheadlist(self, k: int = 1) -> list[str]:
-        return sorted(
-            repr(fl[0]) if fl else repr(fl) for fl in self.lookahead(k=k)
-        )
+        return sorted(repr(fl[0]) if fl else repr(fl) for fl in self.lookahead(k=k))
 
     def firstset(self, k: int = 1) -> ffset:
         if not self._firstset:
@@ -454,6 +451,7 @@ class Grammar(Model):
 
     def _mark_left_recursion(self):
         from .leftrec import mark_left_recursion
+
         leftrect_rules = mark_left_recursion(self.rules)
         if leftrect_rules and not self.config.left_recursion:
             config = self.config

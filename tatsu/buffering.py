@@ -24,7 +24,6 @@ from .tokenizing import Cursor, LineIndexInfo, LineInfo
 from .tokenizing.tokenizer import Tokenizer
 from .util import Undefined, cached_re_compile, str_from_match, typename
 
-
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 # for backwards compatibility with existing parsers
@@ -34,6 +33,8 @@ _locks: dict[int, Lock] = defaultdict(Lock)
 
 
 class BufferCursor(Cursor):
+    __slots__ = ('_buffer', '_len', '_pos')
+
     def __init__(self, buffer: Buffer, pos: int = 0):
         super().__init__()
         self._buffer = buffer
@@ -141,7 +142,7 @@ class BufferCursor(Cursor):
         if self.atend():
             return ''
         info = self.lineinfo(self.pos)
-        text = info.text[info.col: info.col + 1 + 80]
+        text = info.text[info.col : info.col + 1 + 80]
         return self.buffer.split_block_lines(text)[0].rstrip()
 
     def posline(self, pos: int | None = None) -> int:
@@ -339,7 +340,7 @@ class Buffer(Tokenizer):
         self._line_index = index
         self._postprocess()
 
-        newtext = self.join_block_lines(lines[j + 1: endline + 2])
+        newtext = self.join_block_lines(lines[j + 1 : endline + 2])
         return endline, newtext
 
     @property
@@ -482,7 +483,7 @@ class Buffer(Tokenizer):
             return None
 
         p = self.pos
-        text = self.text[p: p + len(token)]
+        text = self.text[p : p + len(token)]
         if self.ignorecase:
             is_match = text.lower() == token.lower()
         else:
@@ -492,7 +493,7 @@ class Buffer(Tokenizer):
 
         self.move(len(token))
         partial_match = (
-                self.nameguard and self.is_name_char(self.current) and self.is_name(token)
+            self.nameguard and self.is_name_char(self.current) and self.is_name(token)
         )
         if partial_match:
             self.goto(p)
@@ -564,7 +565,7 @@ class Buffer(Tokenizer):
         if self.atend():
             return ''
         info = self.lineinfo()
-        text = info.text[info.col: info.col + 1 + 80]
+        text = info.text[info.col : info.col + 1 + 80]
         return self.split_block_lines(text)[0].rstrip()
 
     def get_line(self, n: int | None = None) -> str:
@@ -577,12 +578,12 @@ class Buffer(Tokenizer):
             start = 0
         if end is None:
             end = len(self._lines)
-        return self._lines[start: end + 1]
+        return self._lines[start : end + 1]
 
     def line_index(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
         if end is None:
             end = len(self._line_index)
-        return self._line_index[start: 1 + end]
+        return self._line_index[start : 1 + end]
 
     def eat_whitespace_at(self, c: BufferCursor) -> None:
         with c.bind():

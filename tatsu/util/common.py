@@ -11,7 +11,6 @@ import os.path
 from pathlib import Path
 from typing import Any
 
-
 __all__ = [
     'format_if',
     'fqn',

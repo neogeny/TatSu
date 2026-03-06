@@ -21,7 +21,6 @@ from ..parser import TatSuParserGenerator
 from ..tokenizing import Tokenizer
 from ..util import hasha
 
-
 __all__ = [
     'compile',
     'gencode',

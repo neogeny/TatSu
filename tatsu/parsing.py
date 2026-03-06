@@ -20,7 +20,6 @@ from .exceptions import FailedRef
 from .parserconfig import ParserConfig
 from .util import generic_main, safe_name, typename
 
-
 __all__ = [
     'Parser',
     'generic_main',

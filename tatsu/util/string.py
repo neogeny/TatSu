@@ -14,7 +14,6 @@ from typing import Any
 
 from .common import is_reserved
 
-
 if sys.version_info >= (3, 13):
     from re import PatternError
 else:

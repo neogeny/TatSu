@@ -17,7 +17,6 @@ from ..parserconfig import ParserConfig
 from ..util import Undefined, compress_seq, regexpp, safe_name
 from ..walkers import NodeWalker
 
-
 HEADER = """\
     #!/usr/bin/env python3
     #

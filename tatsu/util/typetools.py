@@ -13,7 +13,6 @@ from typing import Any
 
 from .itertools import CycleError, first, topsort
 
-
 __all__ = [
     'ActualArguments',
     'BoundCallable',

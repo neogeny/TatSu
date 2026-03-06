@@ -11,7 +11,6 @@ from .asjson import asjson, asjsons
 from .deprecate import deprecated
 from .undefined import Undefined
 
-
 __all__ = ['Config', 'HasConfig']
 
 

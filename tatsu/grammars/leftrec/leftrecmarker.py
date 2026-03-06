@@ -10,7 +10,6 @@ from typing import cast
 
 from .._core import Model, Rule
 
-
 __all__ = ['mark_left_recursion']
 
 

@@ -9,7 +9,6 @@ from contextlib import contextmanager
 
 from ..util import trim
 
-
 BLACK_LINE_LENGTH = 88
 
 
