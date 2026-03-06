@@ -10,7 +10,7 @@ from . import grammars as g
 from .builder import ModelBuilderSemantics
 from .contexts import ParseContext
 from .exceptions import FailedSemantics
-from .util import eval_escapes, flatten, re, warning
+from .util import eval_escapes, flatten, re, safe_name, warning
 
 
 class TatSuGrammarSemantics(ModelBuilderSemantics):
@@ -115,7 +115,7 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
 
     def rule(self, ast):
         decorators = ast.decorators
-        name = ast.name
+        name = safe_name(ast.name)
         base = ast.base
         params = ast.params
         kwparams = dict(ast.kwparams) if ast.kwparams else {}

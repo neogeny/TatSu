@@ -358,8 +358,8 @@ def test_calc_repr():
     modelrepr = trim(repr(model)).rstrip()
 
     # HACK FIXME
-    from pathlib import Path
-    Path('calcmodel.py').write_text(modelrepr)
+    # from pathlib import Path
+    # Path('calcmodel.py').write_text(modelrepr)
 
     refrepr = trim(calc_repr).rstrip()
     assert modelrepr == refrepr
