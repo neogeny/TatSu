@@ -1439,7 +1439,13 @@ class TatSuBootstrapRules:
             def _():
                 self.raw_string(ctx)
 
-            ch.expecting('<STRING>', '<raw_string>', '<string>', 'r')
+            ch.expecting(
+                '<doublequoted>',
+                '<raw_string>',
+                '<singlequoted>',
+                '<string>',
+                'r'
+            )
 
     @tatsu.rule
     def literal(self, ctx: Ctx):
@@ -1479,13 +1485,14 @@ class TatSuBootstrapRules:
             ch.expecting(
                 '(?!\\d)\\w+',
                 '0[xX](?:\\d|[a-fA-F])+',
-                '<STRING>',
                 '<boolean>',
+                '<doublequoted>',
                 '<float>',
                 '<hex>',
                 '<int>',
                 '<null>',
                 '<raw_string>',
+                '<singlequoted>',
                 '<string>',
                 '<word>',
                 'False',
@@ -1498,7 +1505,29 @@ class TatSuBootstrapRules:
 
     @tatsu.rule
     def string(self, ctx: Ctx):
-        self.STRING(ctx)
+        with ctx.choice() as ch:
+            @ch.option
+            def _():
+                self.singlequoted(ctx)
+
+            @ch.option
+            def _():
+                self.doublequoted(ctx)
+
+            ch.expecting(
+                '<DOUBLEQUOTED>',
+                '<SINGLEQUOTED>',
+                '<doublequoted>',
+                '<singlequoted>'
+            )
+
+    @tatsu.rule
+    def singlequoted(self, ctx: Ctx):
+        self.SINGLEQUOTED(ctx)
+
+    @tatsu.rule
+    def doublequoted(self, ctx: Ctx):
+        self.DOUBLEQUOTED(ctx)
 
     @tatsu.rule
     def raw_string(self, ctx: Ctx):
@@ -1511,26 +1540,26 @@ class TatSuBootstrapRules:
         with ctx.choice() as ch:
             @ch.option
             def _():
-                self.SINGLEQUOTE_STRING(ctx)
+                self.SINGLEQUOTED(ctx)
 
             @ch.option
             def _():
-                self.DOUBLEQUOTE_STRING(ctx)
+                self.DOUBLEQUOTED(ctx)
 
             ch.expecting(
                 "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'",
                 '"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"',
-                '<DOUBLEQUOTE_STRING>',
-                '<SINGLEQUOTE_STRING>'
+                '<DOUBLEQUOTED>',
+                '<SINGLEQUOTED>'
             )
 
     @tatsu.rule
-    def SINGLEQUOTE_STRING(self, ctx: Ctx):
+    def SINGLEQUOTED(self, ctx: Ctx):
         ctx.pattern(r"'((?:[^'\n]|\\'|\\\\)*?)'")
         ctx.cut()
 
     @tatsu.rule
-    def DOUBLEQUOTE_STRING(self, ctx: Ctx):
+    def DOUBLEQUOTED(self, ctx: Ctx):
         ctx.pattern(r'"((?:[^"\n]|\\"|\\\\)*?)"')
         ctx.cut()
 

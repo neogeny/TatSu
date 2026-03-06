@@ -175,13 +175,15 @@ token[Token]: string | raw_string
 
 literal: string | raw_string | boolean | word | hex | float | int | null
 
-string: STRING
+string: singlequoted | doublequoted
+singlequoted: SINGLEQUOTED
+doublequoted: DOUBLEQUOTED
 
 raw_string: /r/ @:STRING
 
-STRING: SINGLEQUOTE_STRING | DOUBLEQUOTE_STRING
-SINGLEQUOTE_STRING: /'((?:[^'\n]|\\'|\\\\)*?)'/ ~
-DOUBLEQUOTE_STRING: /"((?:[^"\n]|\\"|\\\\)*?)"/ ~
+STRING: SINGLEQUOTED | DOUBLEQUOTED
+SINGLEQUOTED: /'((?:[^'\n]|\\'|\\\\)*?)'/ ~
+DOUBLEQUOTED: /"((?:[^"\n]|\\"|\\\\)*?)"/ ~
 
 hex: /0[xX](?:\d|[a-fA-F])+/
 
