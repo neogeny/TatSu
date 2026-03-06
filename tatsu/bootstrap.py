@@ -1591,12 +1591,7 @@ class TatSuBootstrapRules:
         with ctx.choice() as ch:
             @ch.option
             def _():
-                ctx.token('/')
-                ctx.cut()
-                with ctx.nameset('@'):
-                    ctx.pattern(r'(?:[^/\\]|\\/|\\.)*')
-                ctx.token('/')
-                ctx.cut()
+                self.REGEX(ctx)
 
             @ch.option
             def _():
@@ -1608,7 +1603,18 @@ class TatSuBootstrapRules:
             def _():
                 self.deprecated_regex(ctx)
 
-            ch.expecting('/', '<deprecated_regex>', '?', '?/')
+            ch.expecting(
+                '/((?:[^/\\\\]|\\\\/|\\\\.)*)/',
+                '<REGEX>',
+                '<deprecated_regex>',
+                '?',
+                '?/'
+            )
+
+    @tatsu.rule
+    def REGEX(self, ctx: Ctx):
+        ctx.pattern(r'/((?:[^/\\]|\\/|\\.)*)/')
+        ctx.cut()
 
     @tatsu.rule
     def deprecated_regex(self, ctx: Ctx):

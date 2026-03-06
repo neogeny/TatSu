@@ -199,9 +199,11 @@ pattern[Pattern]: regexes
 regexes: '+'.{regex}+
 
 regex =
-    | '/' ~ @:?"(?:[^/\\]|\\/|\\.)*" '/' ~
+    | REGEX
     | '?' @:STRING
     | deprecated_regex
+
+REGEX: ?"/((?:[^/\\]|\\/|\\.)*)/" ~
 
 deprecated_regex: '?/' ~ @:?"(?:.|\n)*?(?=/\?)" ?"/\?+" ~
 
