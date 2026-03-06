@@ -14,6 +14,7 @@ from typing import Any
 
 from .common import is_reserved
 
+
 if sys.version_info >= (3, 13):
     from re import PatternError
 else:
@@ -180,13 +181,13 @@ def safe_name(name: str, plug: str = "_") -> str:
         raise ValueError("Input string cannot be empty.")
     if not plug or not all(c.isalnum() or c == "_" for c in plug):
         raise ValueError(f"Invalid plug: '{plug}'. Must be non-empty and alphanumeric.")
-    if not f'_{plug}'.isidentifier():
+    if not plug.isidentifier():
         raise ValueError(f"Invalid plug: '{plug}'. Must be valid in identifiers.")
 
     res = re.sub(r"\W", plug, name)
 
     if not res.isidentifier():
-        res = ''.join(c if f'_{c}'.isidentifier() else plug for c in res)
+        res = ''.join(c if c.isalnum() or c == '_' else plug for c in name)
 
     if not res.isidentifier():
         if res[0].isdigit():
@@ -203,13 +204,14 @@ def safe_name(name: str, plug: str = "_") -> str:
 
 
 def pythonize_name(name: str) -> str:
+    # by Copilot 2026-03-06
     if not name:
         return name
-    if name.isupper():
-        return name.lower()
-    return name[0].lower() + ''.join(
-        '_' + c.lower() if c.isupper() else c for c in name[1:]
-    )
+    # Convert CamelCase to snake_case
+    name = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', name)
+    name = re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', name).lower()
+    # Ensure it's a valid Python identifier
+    return safe_name(name)
 
 
 def prints(*args, **kwargs: Any) -> str:
