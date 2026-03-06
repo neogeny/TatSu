@@ -7,9 +7,10 @@ import warnings
 from dataclasses import dataclass, field
 from typing import Any, override
 
-from .tokenizing import NullTokenizer, Tokenizer
+from .tokenizing.tokenizer import NullTokenizer, Tokenizer
 from .util import Config, Undefined, cached_re_compile
 from .util.unicode_characters import C_DERIVE
+
 
 MEMO_CACHE_SIZE = 4 * 1024
 

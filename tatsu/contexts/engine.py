@@ -9,9 +9,7 @@ from contextlib import contextmanager, suppress
 from functools import cache
 from typing import Any
 
-from .. import buffering
 from ..ast import AST
-from ..buffering import Buffer
 from ..collections import BoundedDict
 from ..exceptions import (
     FailedExpectingEndOfText,
@@ -28,6 +26,7 @@ from ..exceptions import (
 )
 from ..infos import ParseInfo, ParserConfig
 from ..tokenizing import Cursor, NullCursor, NullTokenizer, Tokenizer
+from ..tokenizing.buffer import Buffer
 from ..tokenizing.textlines import TextLinesTokenizer
 from ..util import (
     Undefined,
@@ -49,6 +48,7 @@ from .infos import MemoKey, RuleInfo, RuleResult, closure
 from .protocol import Ctx
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
+
 
 __all__: list[str] = ['ParseContext']
 
@@ -146,7 +146,7 @@ class ParseContext(Ctx):
     @property
     def tokenizercls(self) -> type[Tokenizer]:
         if self.config.tokenizercls is None:
-            return buffering.Buffer
+            return Buffer
         return self.config.tokenizercls
 
     @property

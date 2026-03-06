@@ -16,10 +16,10 @@
 from __future__ import annotations
 
 from tatsu import decorators as tatsu
-from tatsu.buffering import Buffer
 from tatsu.contexts import Ctx
-from tatsu.infos import ParserConfig
+from tatsu.parserconfig import ParserConfig
 from tatsu.parsing import Parser, generic_main
+from tatsu.tokenizing.buffer import Buffer
 from tatsu.tokenizing.textlines import TextLinesTokenizer
 
 __all__ = [

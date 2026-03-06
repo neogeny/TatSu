@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from tatsu import parse
-from tatsu.buffering import Buffer
+from tatsu.tokenizing.buffer import Buffer
 
 
 @pytest.fixture
