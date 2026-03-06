@@ -49,6 +49,7 @@ from .protocol import Ctx
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
+
 __all__: list[str] = ['ParseContext']
 
 
@@ -369,9 +370,11 @@ class ParseContext(Ctx):
         raise self.newexcept(item, exclass)
 
     def _fail(self):
+        self.next_token()
         raise self.newexcept('fail')
 
     def fail(self):
+        self.next_token()
         raise self.newexcept('fail')
 
     def _make_parseinfo(self, name: str, pos: int) -> ParseInfo:
@@ -932,10 +935,12 @@ class ParseContext(Ctx):
         if name_str in self.keywords:
             raise self.newexcept(f'"{name_str}" is a reserved word', KeywordError)
 
-    def _void(self) -> None:
-        pass
+    def _void(self) -> Any:
+        self.next_token()
+        return ()
 
     def void(self) -> Any:
+        self.next_token()
         return ()
 
     def dot(self) -> Any:
