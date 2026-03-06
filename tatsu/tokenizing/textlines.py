@@ -10,7 +10,6 @@ from ..util import Undefined, cached_re_compile, notnone, str_from_match, typena
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
 
-
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 

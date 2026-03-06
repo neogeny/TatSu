@@ -9,7 +9,6 @@ from .tokenizing import buffer
 from .tokenizing.buffer import *  # noqa: F403
 from .util import fqn
 
-
 warnings.warn(
     f'Module {__name__!r} is deprecated. Use module {fqn(buffer)!r} instead.',
     DeprecationWarning,

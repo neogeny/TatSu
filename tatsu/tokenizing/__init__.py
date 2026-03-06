@@ -5,7 +5,6 @@ from __future__ import annotations
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, NullCursor, NullTokenizer, Tokenizer
 
-
 __all__ = [
     'Cursor',
     'NullCursor',

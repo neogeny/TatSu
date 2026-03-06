@@ -11,7 +11,6 @@ import os.path
 from pathlib import Path
 from typing import Any
 
-
 __all__ = [
     'format_if',
     'fqn',
@@ -64,9 +63,12 @@ try:
     # noinspection PyUnusedImports
     import psutil
 except ImportError:
+
     def memory_use():
         return 0
+
 else:
+
     def memory_use():  # pyright: ignore[reportRedeclaration]
         process = psutil.Process(os.getpid())
         return process.memory_info().rss
@@ -147,14 +149,8 @@ def fqn(obj: Any) -> str:
     # by Gemini (2026-01-30)
     """Helper to safely retrieve the fully qualified name of a callable."""
 
-    module = (
-        getattr(obj, '__module__', None)
-        or getattr(obj, '__package__', None)
-    )
-    qualname = (
-        getattr(obj, '__qualname__', None)
-        or getattr(obj, '__name__', None)
-    )
+    module = getattr(obj, '__module__', None) or getattr(obj, '__package__', None)
+    qualname = getattr(obj, '__qualname__', None) or getattr(obj, '__name__', None)
 
     if module and qualname and module != builtins.__name__:
         return f'{module}.{qualname}'

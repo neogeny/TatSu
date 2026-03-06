@@ -49,7 +49,6 @@ from .protocol import Ctx
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
-
 __all__: list[str] = ['ParseContext']
 
 
