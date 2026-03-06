@@ -15,17 +15,15 @@ from .math import ffset
 
 @tatsudataclass
 class Pattern(Model):
-    pattern: str | None = None
-    _patterns: list[str] = dc.field(init=False, default_factory=list)
+    pattern: str = ""
 
     def __post_init__(self):
         super().__post_init__()
-        self._patterns = self.ast if isinstance(self.ast, list) else [self.ast]
-        if self.pattern is None:
-            self.pattern = ''.join(self._patterns or [])
-        else:
-            self._patterns = self.pattern.splitlines()
-        self._regex = re.compile(self.pattern)
+        self.pattern = self.pattern or self.ast or ""
+        try:
+            self._regex = re.compile(self.pattern)
+        except Exception as e:
+            raise ValueError(f"Invalid regex pattern: {self.pattern!r}") from e
 
     def _parse(self, ctx: Ctx) -> Any:
         return ctx.pattern(self.pattern or r'\\')
@@ -38,15 +36,13 @@ class Pattern(Model):
             return {(x,)}
 
     def _pretty(self, lean=False):
-        parts = []
-        for pat in (str(p) for p in self._patterns):
-            if '/' in pat:
-                newpat = pat.replace('"', r'\"')
-                regex = f'?"{newpat}"'
-            else:
-                regex = f'/{pat}/'
-            parts.append(regex)
-        return ' + '.join(parts)
+        pat = self.pattern or ""
+        if '/' in pat:
+            newpat = pat.replace('"', r'\"')
+            regex = f'?"{newpat}"'
+        else:
+            regex = f'/{pat}/'
+        return regex
 
     def _nullable(self) -> bool:
         return bool(self._regex.match(''))

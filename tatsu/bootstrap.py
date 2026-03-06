@@ -360,6 +360,56 @@ class TatSuBootstrapRules:
                             ch.expecting(':', '=')
 
     @tatsu.rule
+    def params(self, ctx: Ctx):
+        with ctx.nameadd('@'):
+            self.first_param(ctx)
+        with ctx.loopopt() as cl:
+            @cl.exp
+            def _():
+                ctx.token(',')
+                with ctx.nameadd('@'):
+                    self.literal(ctx)
+                with ctx.ifnot_():
+                    ctx.token('=')
+                ctx.cut()
+
+    @tatsu.rule
+    def first_param(self, ctx: Ctx):
+        with ctx.choice() as ch:
+            @ch.option
+            def _():
+                self.path(ctx)
+
+            @ch.option
+            def _():
+                self.literal(ctx)
+
+            ch.expecting(
+                '(?!\\d)\\w+(?:::(?!\\d)\\w+)+',
+                '<boolean>',
+                '<float>',
+                '<hex>',
+                '<int>',
+                '<literal>',
+                '<null>',
+                '<path>',
+                '<raw_string>',
+                '<string>',
+                '<word>'
+            )
+
+    @tatsu.rule
+    def kwparams(self, ctx: Ctx):
+        with ctx.gatherplus() as g:
+            @g.sep
+            def _():
+                ctx.token(',')
+
+            @g.exp
+            def _():
+                self.pair(ctx)
+
+    @tatsu.rule
     def the_params_at_last(self, ctx: Ctx):
         with ctx.choice() as ch:
             @ch.option
@@ -626,56 +676,6 @@ class TatSuBootstrapRules:
                         ctx.token('nomemo')
 
                     ch.expecting('isname', 'name', 'nomemo', 'override')
-
-    @tatsu.rule
-    def params(self, ctx: Ctx):
-        with ctx.nameadd('@'):
-            self.first_param(ctx)
-        with ctx.loopopt() as cl:
-            @cl.exp
-            def _():
-                ctx.token(',')
-                with ctx.nameadd('@'):
-                    self.literal(ctx)
-                with ctx.ifnot_():
-                    ctx.token('=')
-                ctx.cut()
-
-    @tatsu.rule
-    def first_param(self, ctx: Ctx):
-        with ctx.choice() as ch:
-            @ch.option
-            def _():
-                self.path(ctx)
-
-            @ch.option
-            def _():
-                self.literal(ctx)
-
-            ch.expecting(
-                '(?!\\d)\\w+(?:::(?!\\d)\\w+)+',
-                '<boolean>',
-                '<float>',
-                '<hex>',
-                '<int>',
-                '<literal>',
-                '<null>',
-                '<path>',
-                '<raw_string>',
-                '<string>',
-                '<word>'
-            )
-
-    @tatsu.rule
-    def kwparams(self, ctx: Ctx):
-        with ctx.gatherplus() as g:
-            @g.sep
-            def _():
-                ctx.token(',')
-
-            @g.exp
-            def _():
-                self.pair(ctx)
 
     @tatsu.rule
     def pair(self, ctx: Ctx):
@@ -1369,7 +1369,7 @@ class TatSuBootstrapRules:
                 '<group>',
                 '<pattern>',
                 '<raw_string>',
-                '<regexes>',
+                '<regex>',
                 '<string>',
                 '<token>',
                 '<word>',
@@ -1573,18 +1573,7 @@ class TatSuBootstrapRules:
 
     @tatsu.rule('Pattern')
     def pattern(self, ctx: Ctx):
-        self.regexes(ctx)
-
-    @tatsu.rule
-    def regexes(self, ctx: Ctx):
-        with ctx.gatherplus() as g:
-            @g.sep
-            def _():
-                ctx.token('+')
-
-            @g.exp
-            def _():
-                self.regex(ctx)
+        self.regex(ctx)
 
     @tatsu.rule
     def regex(self, ctx: Ctx):

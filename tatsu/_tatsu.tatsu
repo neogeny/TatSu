@@ -30,16 +30,16 @@ keywords: { keyword }+
 
 keyword: '@@keyword' ~ '::' ~ {@+:(word|string) !(':'|'=')}
 
-the_params_at_last:
-    | kwparams:kwparams
-    | params:params ',' ~ kwparams:kwparams
-    | params:params
-
 params: @+:first_param {',' @+:literal !'=' ~ }
 
 first_param: path | literal
 
 kwparams: ','.{pair}+
+
+the_params_at_last:
+    | kwparams:kwparams
+    | params:params ',' ~ kwparams:kwparams
+    | params:params
 
 paramdef:
     | '[' ~ >the_params_at_last ']'
@@ -52,7 +52,8 @@ rule[Rule]:
     ~
     [>paramdef]
     ['<' ~ base:known_name]
-    /=|:=?/
+    # () /=|:=?/
+    ('=' | ':=' | ':' )
     ~
     exp:expre
     ENDRULE
@@ -188,7 +189,7 @@ float: /[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?/
 
 int: /[-+]?\d+/
 
-path: /(?!\d)\w+/ + /(?:::(?!\d)\w+)+/
+path: /(?!\d)\w+(?:::(?!\d)\w+)+/
 
 word: /(?!\d)\w+/
 

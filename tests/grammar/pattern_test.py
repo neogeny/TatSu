@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import unittest
 
+import pytest
+
 from tatsu import grammars as g
 from tatsu.exceptions import FailedParse
 from tatsu.ngcodegen import pythongen
@@ -35,6 +37,7 @@ class PatternTests(unittest.TestCase):
         ast = model.parse('\n\n')
         self.assertEqual(('\n', '\n'), ast)
 
+    @pytest.mark.skip(reason="deprecated")
     def test_pattern_concatenation(self):
         grammar = """
             start
