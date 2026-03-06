@@ -1524,20 +1524,28 @@ class TatSuBootstrapRules:
         with ctx.choice() as ch:
             @ch.option
             def _():
-                with ctx.nameset('@'):
-                    ctx.pattern(r'"((?:[^"\n]|\\"|\\\\)*?)"')
-                ctx.cut()
+                self.SINGLEQUOTE_STRING(ctx)
 
             @ch.option
             def _():
-                with ctx.nameset('@'):
-                    ctx.pattern(r"'((?:[^'\n]|\\'|\\\\)*?)'")
-                ctx.cut()
+                self.DOUBLEQUOTE_STRING(ctx)
 
             ch.expecting(
                 "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'",
-                '"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"'
+                '"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"',
+                '<DOUBLEQUOTE_STRING>',
+                '<SINGLEQUOTE_STRING>'
             )
+
+    @tatsu.rule
+    def SINGLEQUOTE_STRING(self, ctx: Ctx):
+        ctx.pattern(r"'((?:[^'\n]|\\'|\\\\)*?)'")
+        ctx.cut()
+
+    @tatsu.rule
+    def DOUBLEQUOTE_STRING(self, ctx: Ctx):
+        ctx.pattern(r'"((?:[^"\n]|\\"|\\\\)*?)"')
+        ctx.cut()
 
     @tatsu.rule
     def hex(self, ctx: Ctx):

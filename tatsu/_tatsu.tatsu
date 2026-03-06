@@ -178,9 +178,9 @@ string: STRING
 
 raw_string: /r/ @:STRING
 
-STRING =
-    | @:/"((?:[^"\n]|\\"|\\\\)*?)"/ ~
-    | @:/'((?:[^'\n]|\\'|\\\\)*?)'/ ~
+STRING: SINGLEQUOTE_STRING | DOUBLEQUOTE_STRING
+SINGLEQUOTE_STRING: /'((?:[^'\n]|\\'|\\\\)*?)'/ ~
+DOUBLEQUOTE_STRING: /"((?:[^"\n]|\\"|\\\\)*?)"/ ~
 
 hex: /0[xX](?:\d|[a-fA-F])+/
 
