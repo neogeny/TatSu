@@ -30,7 +30,7 @@ def test_parse_ebnf():
 
 def test_optional():
     grammar = r"""
-        start:  '['?/abc/?
+        start:  '[' /abc/
 
         other := 'xyz'?
     """

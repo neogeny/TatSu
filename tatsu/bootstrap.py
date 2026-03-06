@@ -1624,6 +1624,10 @@ class TatSuBootstrapRules:
             ctx.pattern(r'(?:.|\n)*?(?=/\?)')
         ctx.pattern(r'/\?+')
         ctx.cut()
+        ctx.alert('deprecated', 2)
+        with ctx.ifnot_():
+            ctx.void()
+        ctx.cut()
 
     @tatsu.rule
     def boolean(self, ctx: Ctx):

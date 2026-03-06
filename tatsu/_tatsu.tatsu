@@ -205,7 +205,7 @@ regex =
 
 REGEX: ?"/((?:[^/\\]|\\/|\\.)*)/" ~
 
-deprecated_regex: '?/' ~ @:?"(?:.|\n)*?(?=/\?)" ?"/\?+" ~
+deprecated_regex: '?/' ~ @:?"(?:.|\n)*?(?=/\?)" ?"/\?+" ~ ^^`deprecated` !() ~
 
 boolean: 'True' | 'False'
 
