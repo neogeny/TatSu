@@ -30,12 +30,18 @@ keywords: { keyword }+
 
 keyword: '@@keyword' ~ '::' ~ {@+:(word|string) !(':'|'=')}
 
-the_params_at_last =
+the_params_at_last:
     | kwparams:kwparams
     | params:params ',' ~ kwparams:kwparams
     | params:params
 
-paramdef =
+params: @+:first_param {',' @+:literal !'=' ~ }
+
+first_param: path | literal
+
+kwparams: ','.{pair}+
+
+paramdef:
     | '[' ~ >the_params_at_last ']'
     | '(' ~ >the_params_at_last ')'
     | /* no keyword params if ':: */ '::' ~ params:params
@@ -46,7 +52,7 @@ rule[Rule]:
     ~
     [>paramdef]
     ['<' ~ base:known_name]
-    ('=' | ':=' | ':' )
+    /=|:=?/
     ~
     exp:expre
     ENDRULE
@@ -57,12 +63,6 @@ UNINDENTED: /(?=\s*(?:\r?\n|\r)[^\s])/
 EMPTYLINE: /(?:\s*(?:\r?\n|\r)){2,}/
 
 decorator: '@' !'@' ~ @:('override'|'name'|'isname'|'nomemo')
-
-params: @+:first_param {',' @+:literal !'=' ~ }
-
-first_param: path | literal
-
-kwparams: ','.{pair}+
 
 pair: @+:word '=' ~ @+:literal
 
@@ -94,7 +94,7 @@ override_single[Override]: '@:' ~ @:term
 
 override_single_deprecated[Override]: '@' ~ @:term
 
-term =
+term:
     | void
     | gather
     | join
@@ -194,11 +194,9 @@ word: /(?!\d)\w+/
 
 dot[Dot]: '/./'
 
-pattern[Pattern]: regexes
+pattern[Pattern]: regex
 
-regexes: '+'.{regex}+
-
-regex =
+regex:
     | REGEX
     | '?' @:STRING
     | deprecated_regex
