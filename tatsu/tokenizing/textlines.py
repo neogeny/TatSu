@@ -10,6 +10,7 @@ from ..util import Undefined, cached_re_compile, notnone, str_from_match, typena
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
 
+
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 
@@ -252,30 +253,32 @@ class TextLinesTokenizer(Tokenizer):
         start = self._line_cache[pos].start
         return pos - start
 
-    def _eat_regex(self, regex: str | re.Pattern | None, c: Cursor) -> None:
+    def _eat_regex(self, regex: str | re.Pattern | None, c: Cursor) -> Any:
         if not regex:
-            return
+            return False
+        res = False
         while self._matchre_fast(regex, c):
-            pass
+            res = True
+        return res
 
-    def eat_whitespace_at(self, c: Cursor) -> None:
+    def eat_whitespace_at(self, c: Cursor) -> bool:
         if self.whitespace_re:
-            self._eat_regex(self.whitespace_re, c)
+            return self._eat_regex(self.whitespace_re, c)
+        return False
 
-    def eat_comments_at(self, c: Cursor) -> None:
-        self._eat_regex(self.config.comments, c)
+    def eat_comments_at(self, c: Cursor) -> bool:
+        return self._eat_regex(self.config.comments, c)
 
-    def eat_eol_comments_at(self, c: Cursor) -> None:
-        self._eat_regex(self.config.eol_comments, c)
+    def eat_eol_comments_at(self, c: Cursor) -> bool:
+        return self._eat_regex(self.config.eol_comments, c)
 
     def next_token_at(self, c: Cursor) -> None:
         p = None
         while c.pos != p:
             p = c.pos
             self.eat_whitespace_at(c)
-            self.eat_eol_comments_at(c)
-            if c.pos != p:
-                continue
+            if self.eat_eol_comments_at(c):
+                self.eat_whitespace_at(c)
             self.eat_comments_at(c)
 
     def _eat_regex_list(self, regex: str | re.Pattern | None, c: Cursor) -> list[str]:

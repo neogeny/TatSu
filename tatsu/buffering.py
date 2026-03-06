@@ -24,6 +24,7 @@ from .tokenizing import Cursor, LineIndexInfo, LineInfo
 from .tokenizing.tokenizer import Tokenizer
 from .util import Undefined, cached_re_compile, str_from_match, typename
 
+
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 # for backwards compatibility with existing parsers
@@ -442,9 +443,8 @@ class Buffer(Tokenizer):
         while self.pos != p:
             p = self._pos
             self.eat_whitespace()
-            self.eat_eol_comments()
-            if self.pos != p:
-                continue
+            if self.eat_eol_comments():
+                self.eat_whitespace()
             self.eat_comments()
 
     def skip_to(self, c: str) -> int:
