@@ -11,7 +11,6 @@ from ..ast import AST
 from ..infos import Alert
 from .infos import RuleInfo
 
-
 __all__ = ['ParseState', 'ParseStateStack']
 
 from ..tokenizing import Cursor
@@ -64,6 +63,8 @@ class ParseState:
 
 
 class ParseStateStack:
+    __slots__ = ('_cut_stack', '_ruleinfo_stack', '_state_stack', 'lookahead')
+
     def __init__(self, cursor: Cursor) -> None:
         self.lookahead: int = 0
         self._state_stack: list[ParseState] = [ParseState(cursor)]

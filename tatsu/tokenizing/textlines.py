@@ -5,19 +5,17 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from ..parserconfig import ParserConfig
+from ..util import Undefined, cached_re_compile, notnone, str_from_match, typename
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
-from ..parserconfig import ParserConfig
-from ..util import typename
-from ..util import str_from_match
-from ..util import cached_re_compile
-from ..util import Undefined
-from ..util import notnone
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 
 class TextLinesCursor(Cursor):
+    __slots__ = ('_len', '_pos', '_tokens')
+
     def __init__(self, tokens: TextLinesTokenizer, pos: int = 0):
         self._tokens: TextLinesTokenizer = tokens
         self._pos = pos
