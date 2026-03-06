@@ -7,11 +7,18 @@ from collections.abc import Callable
 from functools import cache
 from typing import Any
 
-from .contexts import ParseContext, isname, leftrec, name, nomemo, rule, tatsumasu
+from .contexts import (
+    ParseContext,
+    isname,
+    leftrec,
+    name,
+    nomemo,
+    tatsumasu,
+    tatsumasu as rule,  # note: this suppors v5.16-v5.17 parsers
+)
 from .exceptions import FailedRef
 from .parserconfig import ParserConfig
-from .util import safe_name, typename
-from .util import generic_main
+from .util import generic_main, safe_name, typename
 
 
 __all__ = [
