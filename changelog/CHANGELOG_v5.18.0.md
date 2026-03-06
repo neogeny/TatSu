@@ -8,10 +8,23 @@ to generate a new Python parser.
 ## Grammars / EBNF
 
 * Now **TatSu**'s own grammar is written in EBNF notation.
+
 * There's now a copy of the **TatSu** grammar unther the main package
   at `./tatsu/_tatsu.tatsu`. The grammar text is available as
   `tatsu.grammar`. The grammar remains available at `./grammar/tatsu.tatsu`
   by a symbolic link.
+
+## Functional Changes
+* Left recursion is detected at grammar model creation time, and a `GrammarError` 
+is raised if left recursion was not enabled in the grammar or configuration 
+parameters.
+
+* Large Python modules continue to be factored into smaller modules within a package.
+
+* Generated parsers and models now use `@tatsu.rule` and `@tatsu.dataclass` as
+appropriate.
+
+* Refactorings to avoid internal dependency cycles aind simplify imports.
 
 ## Model Representations
 
@@ -41,6 +54,15 @@ to generate a new Python parser.
     model = tatsu.compile(grammar)
     rule = mode.rule.start
     ```
+* The multiple representations for a model node:
+    ```python
+    m.pretty()    -> str:   # pretty-printed grammar
+    m.asjson()    -> Any:   # object compatible with json.dumps()
+    m.asjsons()   -> str:   # json.dumps(m.asjson(), indent=2)
+    m.railroads() -> str:   # a railroads diagram in Text/ASCII art
+    repr(m)       -> str:   # can be passed to eval()
+    ```
+
 
 ## Separation of State and Content
 
