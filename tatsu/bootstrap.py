@@ -9,8 +9,8 @@
 #  Any changes you make to it will be overwritten the next time
 #  the file is generated.
 #
-# ruff: noqa: RUF100, C405, COM812, I001, F401, F811, PLR1702, PLC2801, SIM117
-# ruff: noqa: PL2401, PLC2402, PLC2403
+# ruff: noqa: RUF100, RUF102, C405, COM812, I001, F401, F811, PLR1702
+# ruff: noqa: PLC2801, SIM117, PL2401, PLC2402, PLC2403
 # fmt: off
 
 from __future__ import annotations
@@ -585,11 +585,11 @@ class TatSuBootstrapRules:
                 ctx.token(';')
 
             ch.expecting(
+                '(?:\\s*(?:\\r?\\n|\\r)){2,}',
+                '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
                 ';',
                 '<EMPTYLINE>',
-                '<UNINDENTED>',
-                '<tatsu.grammars.pattern.Pattern object at 0x109a1edf0>',
-                '<tatsu.grammars.pattern.Pattern object at 0x109a1f250>'
+                '<UNINDENTED>'
             )
 
     @tatsu.rule
@@ -653,6 +653,7 @@ class TatSuBootstrapRules:
                 self.literal(ctx)
 
             ch.expecting(
+                '(?!\\d)\\w+(?:::(?!\\d)\\w+)+',
                 '<boolean>',
                 '<float>',
                 '<hex>',
@@ -662,7 +663,6 @@ class TatSuBootstrapRules:
                 '<path>',
                 '<raw_string>',
                 '<string>',
-                '<tatsu.grammars.pattern.Pattern object at 0x10976d9f0>',
                 '<word>'
             )
 
@@ -757,6 +757,8 @@ class TatSuBootstrapRules:
                         self.element(ctx)
 
             ch.expecting(
+                '(?:\\s*(?:\\r?\\n|\\r)){2,}',
+                '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
                 ';',
                 '<EMPTYLINE>',
                 '<ENDRULE>',
@@ -765,8 +767,6 @@ class TatSuBootstrapRules:
                 '<named>',
                 '<override>',
                 '<rule_include>',
-                '<tatsu.grammars.pattern.Pattern object at 0x109a1edf0>',
-                '<tatsu.grammars.pattern.Pattern object at 0x109a1f250>',
                 '<term>'
             )
 
@@ -1371,9 +1371,9 @@ class TatSuBootstrapRules:
                 '<raw_string>',
                 '<regexes>',
                 '<string>',
-                '<tatsu.grammars.pattern.Pattern object at 0x108dce0d0>',
                 '<token>',
                 '<word>',
+                '\\^+',
                 '`'
             )
 
@@ -1431,11 +1431,7 @@ class TatSuBootstrapRules:
                 def _():
                     ctx.pattern(r'`(.*?)`')
 
-                ch.expecting(
-                    '<tatsu.grammars.pattern.Pattern object at 0x108dcc7d0>',
-                    '<tatsu.grammars.pattern.Pattern object at 0x108dce8f0>',
-                    '`'
-                )
+                ch.expecting('(?ms)```((?:.|\\n)*?)```', '`', '`(.*?)`')
 
     @tatsu.rule('Alert')
     def alert(self, ctx: Ctx):
@@ -1456,12 +1452,7 @@ class TatSuBootstrapRules:
             def _():
                 self.raw_string(ctx)
 
-            ch.expecting(
-                '<STRING>',
-                '<raw_string>',
-                '<string>',
-                '<tatsu.grammars.pattern.Pattern object at 0x10976f110>'
-            )
+            ch.expecting('<STRING>', '<raw_string>', '<string>', 'r')
 
     @tatsu.rule
     def literal(self, ctx: Ctx):
@@ -1499,6 +1490,8 @@ class TatSuBootstrapRules:
                 self.null(ctx)
 
             ch.expecting(
+                '(?!\\d)\\w+',
+                '0[xX](?:\\d|[a-fA-F])+',
                 '<STRING>',
                 '<boolean>',
                 '<float>',
@@ -1507,15 +1500,13 @@ class TatSuBootstrapRules:
                 '<null>',
                 '<raw_string>',
                 '<string>',
-                '<tatsu.grammars.pattern.Pattern object at 0x10976c370>',
-                '<tatsu.grammars.pattern.Pattern object at 0x10976ead0>',
-                '<tatsu.grammars.pattern.Pattern object at 0x10976f110>',
-                '<tatsu.grammars.pattern.Pattern object at 0x10976f750>',
-                '<tatsu.grammars.pattern.Pattern object at 0x10976f930>',
                 '<word>',
                 'False',
                 'None',
-                'True'
+                'True',
+                '[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?',
+                '[-+]?\\d+',
+                'r'
             )
 
     @tatsu.rule
@@ -1544,8 +1535,8 @@ class TatSuBootstrapRules:
                 ctx.cut()
 
             ch.expecting(
-                '<tatsu.grammars.pattern.Pattern object at 0x10976dbd0>',
-                '<tatsu.grammars.pattern.Pattern object at 0x10976e710>'
+                "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'",
+                '"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"'
             )
 
     @tatsu.rule

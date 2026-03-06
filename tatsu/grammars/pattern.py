@@ -8,6 +8,7 @@ from typing import Any
 
 from ..contexts import Ctx
 from ..objectmodel import tatsudataclass
+from ..util import regexpp
 from ._core import Model
 from .math import ffset
 
@@ -49,3 +50,6 @@ class Pattern(Model):
 
     def _nullable(self) -> bool:
         return bool(self._regex.match(''))
+
+    def __str__(self) -> str:
+        return regexpp(self.pattern)[2:-1]

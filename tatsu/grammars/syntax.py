@@ -258,3 +258,6 @@ class Call(Model):
 
     def is_nullable(self) -> bool:
         return self.grammar.rulemap[self.name].is_nullable()
+
+    def __str__(self):
+        return str(ref(self.name))
