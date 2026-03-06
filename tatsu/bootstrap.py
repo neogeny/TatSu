@@ -591,21 +591,8 @@ class TatSuBootstrapRules:
             ctx.cut()
             with ctx.nameset('base'):
                 self.known_name(ctx)
-        with ctx.group():
-            with ctx.choice() as ch:
-                @ch.option
-                def _():
-                    ctx.token('=')
-
-                @ch.option
-                def _():
-                    ctx.token(':=')
-
-                @ch.option
-                def _():
-                    ctx.token(':')
-
-                ch.expecting(':', ':=', '=')
+        ctx.void()
+        ctx.pattern(r'=|:=?')
         ctx.cut()
         with ctx.nameset('exp'):
             self.expre(ctx)

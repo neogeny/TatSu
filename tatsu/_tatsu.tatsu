@@ -52,8 +52,8 @@ rule[Rule]:
     ~
     [>paramdef]
     ['<' ~ base:known_name]
-    # () /=|:=?/
-    ('=' | ':=' | ':' )
+    () /=|:=?/
+    # ('=' | ':=' | ':' )
     ~
     exp:expre
     ENDRULE
