@@ -67,9 +67,11 @@ generate a Python_ module that implements the parser.
     contributors
     contributing
     license
+    changelog
 
 .. toctree::
-    :hidden:
+
+..    :hidden:
 
 
 
