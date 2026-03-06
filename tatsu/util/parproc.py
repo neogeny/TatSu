@@ -35,6 +35,7 @@ from . import identity, memory_use, startscript, try_read
 from .datetimetools import iso_logpath
 from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
 
+
 __all__: list[str] = ['parallel_proc', 'processing_loop']
 
 EOLCH = '\r' if sys.stderr.isatty() else '\n'
@@ -94,15 +95,17 @@ def _executor_pmap(
     executorcls: type[Executor],
     process: Callable,
     tasks: Sequence[Any],
+    max_workers: int | None = None,
 ) -> Iterable[ParprocResult]:
-    nworkers = 4 * max(1, multiprocessing.cpu_count())
-    n = nworkers * 4
-    chunks = batched(tasks, n)
-    with executorcls() as ex:
-        for chunk in chunks:
-            futures = [ex.submit(process, task) for task in chunk]
-            for future in as_completed(futures):
-                yield future.result()
+    # by Copilot 2026-03-06
+
+    if not tasks:
+        return
+
+    with executorcls(max_workers=max_workers) as ex:  # type: ignore
+        futures = [ex.submit(process, task) for task in tasks]
+        for future in as_completed(futures):
+            yield future.result()
 
 
 def _thread_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocResult]:
@@ -110,7 +113,9 @@ def _thread_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocRes
 
 
 def _process_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocResult]:
-    yield from _executor_pmap(ProcessPoolExecutor, process, tasks)
+    yield from _executor_pmap(
+        ProcessPoolExecutor, process, tasks, max_workers=multiprocessing.cpu_count()
+    )
 
 
 def _imap_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocResult]:
@@ -226,6 +231,7 @@ def processing_loop(
                 # with logctx() as log:
                 #     print(result.payload, file=log)
                 if result.exception:
+                    # noinspection PyBroadException
                     try:
                         with logctx() as log:
                             print('ERROR:', result.payload, file=log)
