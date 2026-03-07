@@ -15,6 +15,7 @@ from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImpor
     task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
 )
 
+
 __copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'
 __license__: str = 'BSD-4-Clause'
 
@@ -23,7 +24,8 @@ __license__: str = 'BSD-4-Clause'
 # and breaking havock on `uv run --python PYTHON`
 # Fun using ord of the hidden STX char for '2'
 # PYTHON: float = float(f'{math.pi:.{ord('')}f}')
-PYTHON: float = round(math.pi, 2)
+PYTHON: float = round(3.15, 2)
+# PYTHON: float = round(math.pi, 2)
 
 LINE_PRE: int = 4
 THIN_LINE: str = '─'
@@ -107,19 +109,19 @@ def boundary_print(banner: str = '', line: str = THIN_LINE):
         print(line * pre, banner, line * (cols - 2 - pre - add - len(banner)))
 
 
-def start_print(task: TaskFun = None, target: str = ''):
-    taskstr = task.name if task else ''  # type: ignore
+def start_print(task_: TaskFun = None, target: str = ''):
+    taskstr = task_.name if task_ else ''  # type: ignore
     print(f'▶ {target}{taskstr}')
 
 
 def success_print(
     target: str = '',
     *,
-    task: TaskFun = None,
+    task_: TaskFun = None,
     line: str = THIN_LINE,
     icon: str = '⏏',
 ):
-    taskstr = task.name if task else ''  # type: ignore
+    taskstr = task_.name if task_ else ''  # type: ignore
     targetstr = ' ' + target if target else ''
     boundary_print(f'{icon} {taskstr}{targetstr}', line=line)
 
@@ -291,12 +293,12 @@ def black(c: Context, python: float = PYTHON):
 
 @task(pre=[begin, clean, ruff, ty, mypy, pyright, black])
 def lint(_c: Context):
-    success_print(task=lint)
+    success_print(task_=lint)
 
 
 @task(pre=[begin, lint, pytest])
 def test(_c: Context):
-    success_print(task=test)
+    success_print(task_=test)
 
 
 @task(pre=[clean])
@@ -316,14 +318,14 @@ def docs(c: Context):
     start_print(docs)
     with c.cd('docs'):
         uv_run(c, 'make -s html', quiet=True, group='doc', hide='stdout')
-    success_print(task=docs)
+    success_print(task_=docs)
 
 
 @task(pre=[clean])
 def build(c: Context):
     start_print(build)
     c.run('uvx hatch build', hide='both')
-    success_print(task=build)
+    success_print(task_=build)
 
 
 def matrix_core(c: Context, python: float = PYTHON):
@@ -366,7 +368,7 @@ def py315(c: Context):
 @task(pre=[py312, py313, py314, py315])
 def matrix(c: Context):
     uv_sync(c)
-    success_print(task=matrix, line=THICK_LINE)
+    success_print(task_=matrix, line=THICK_LINE)
 
 
 def _export_requirements(c: Context, filename: str, group: str = '', nogroup: str = ''):
@@ -409,7 +411,7 @@ def req_doc(c: Context):
 
 @task(pre=[begin, req_base, req_dev, req_test, req_doc])
 def requirements(_c: Context):
-    success_print(task=requirements)
+    success_print(task_=requirements)
 
 
 @task(pre=[requirements])
@@ -450,10 +452,10 @@ def calc(c: Context):
 
 @task(pre=[clean, begin, g2e, calc])
 def examples(_c: Context):
-    success_print(task=examples)
+    success_print(task_=examples)
 
 
 @task(pre=[test, docs, examples, build, requirements], default=True)
-def all(c: Context):
+def default(c: Context):
     uv_sync(c)
     boundary_print('✔ all')
