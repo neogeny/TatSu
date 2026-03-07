@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from ..protocol import Ctx
+from .._protocol import Ctx
 
 
 class ChoiceContext:

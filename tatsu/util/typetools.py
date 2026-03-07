@@ -5,6 +5,8 @@ from __future__ import annotations
 import builtins
 import inspect
 import itertools
+import re
+import types
 import typing
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
@@ -12,6 +14,7 @@ from types import ModuleType
 from typing import Any
 
 from .itertools import CycleError, first, topsort
+
 
 __all__ = [
     'ActualArguments',
@@ -41,7 +44,30 @@ def notnone[T](value: Any | None, default: T) -> T:
     return value if value is not None else default
 
 
-def cast[T](_t: type[T], value: Any) -> T:
+def cast[T](target: type[T], value: Any) -> T:
+    # by Gemini 2026-03-07
+    origin: Any = typing.get_origin(target)
+
+    if origin is types.UnionType or origin is typing.Union:
+        # Recursively get the origin of each member in the Union
+        # e.g., (list[int], str) -> (list, str)
+        base: Any = tuple(
+            typing.get_origin(arg) or arg
+            for arg in typing.get_args(target)
+       )
+    else:
+        base = origin or target
+
+    if not isinstance(value, base):
+        expected = (
+            str(target)
+            .replace("<class '", "")
+            .replace("'>", "")
+        )
+        expected = re.sub(r"\w+\.", "", expected)
+        actual = type(value).__name__
+        raise TypeError(f"Expected {expected}, but got {actual} instead")
+
     return typing.cast(T, value)
 
 

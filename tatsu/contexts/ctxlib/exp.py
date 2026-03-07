@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from ..protocol import Ctx
+from .._protocol import Ctx
 
 
 class InnerExpContext:

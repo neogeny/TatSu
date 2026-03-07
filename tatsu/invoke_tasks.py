@@ -15,7 +15,6 @@ from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImpor
     task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
 )
 
-
 __copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'
 __license__: str = 'BSD-4-Clause'
 
@@ -24,7 +23,8 @@ __license__: str = 'BSD-4-Clause'
 # and breaking havock on `uv run --python PYTHON`
 # Fun using ord of the hidden STX char for '2'
 # PYTHON: float = float(f'{math.pi:.{ord('')}f}')
-PYTHON: float = round(math.pi, 2)
+# PYTHON: float = round(math.pi, 2)
+PYTHON: float = round(3.15, 2)
 
 LINE_PRE: int = 4
 THIN_LINE: str = '─'
@@ -290,7 +290,7 @@ def black(c: Context, python: float = PYTHON):
         print('✖ failed!')
 
 
-@task(pre=[begin, clean, ruff, ty, mypy, pyright, black])
+@task(pre=[begin, clean, black, ruff, ty, mypy, pyright])
 def lint(_c: Context):
     success_print(task=lint)
 

@@ -23,7 +23,7 @@ mdurl==0.1.2
 mypy==1.19.1
 mypy-extensions==1.1.0
     # via mypy
-nodejs-wheel-binaries==22.20.0
+nodejs-wheel-binaries==24.14.0
     # via basedpyright
 packaging==26.0
     # via

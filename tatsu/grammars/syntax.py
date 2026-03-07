@@ -1,7 +1,3 @@
-#  Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-#  SPDX-License-Identifier: BSD-4-Clause
-#
-
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
@@ -13,7 +9,7 @@ from ..ast import AST
 from ..contexts import ParseContext
 from ..exceptions import FailedRef
 from ..objectmodel import tatsudataclass
-from ..util import indent, trim
+from ..util import cast, indent, trim
 from ._core import PEP8_LLEN, Box, Model, Result
 from .math import ffset, kdot, ref
 
@@ -73,7 +69,7 @@ class SkipTo(Box):
 
 @tatsudataclass
 class Choice(Model):
-    options: list[Model] = field(default_factory=list)
+    options: list[Option] = field(default_factory=list)
 
     def __post_init__(self):
         super().__post_init__()
@@ -81,7 +77,7 @@ class Choice(Model):
         assert isinstance(self.options, list), repr(self.options)
 
     def _parse(self, ctx: ParseContext) -> Result:
-        with ctx.choice() as ch:
+        with ctx.choice() as (_, ch):
             ch.options = [lambda o=o: o._parse(ctx) for o in self.options]  # type: ignore
             ch.expecting(*self.lookaheadlist())
         return ch.result
@@ -127,7 +123,7 @@ class Choice(Model):
         return any(o._nullable() for o in self.options)
 
     def callable_at_same_pos(self) -> list[Model]:
-        return self.options
+        return cast(list[Model], self.options)
 
 
 @tatsudataclass
