@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import warnings
 from ast import literal_eval
 from collections.abc import Iterable
 from typing import Any
@@ -62,6 +63,14 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         pattern = ast
         self._validate_pattern(pattern)
         return pattern
+
+    def deprecated_regex(self, ast: str):
+        warnings.warn(
+            message=f'Deprecated syntax for regular "?/{ast}/?',
+            category=DeprecationWarning,
+            stacklevel=2,
+        )
+        return ast
 
     def string(self, ast):
         value = ast
