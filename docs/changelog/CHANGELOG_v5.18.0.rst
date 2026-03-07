@@ -4,28 +4,16 @@
 v5.18.0
 -------
 
-Incompatible Changes
-~~~~~~~~~~~~~~~~~~~~
-
-- Support for very old generated Python parsers is dropped. In most cases
-  it’s best to generate a new Python parser.
-
-- Dropped support in the grammar for ``regex + regex``, adding regular expressions.
-
-- Dropped support for ``?/.../?`` regexes in the grammar.
-
-
-
 Grammars / EBNF
 ~~~~~~~~~~~~~~~
 
 - Now **TatSu**\ ’s own grammar is written in EBNF notation.
 
 - Multi-line string literals in the grammar are now supported. Use triple
-  quotes like ``"""..."""`` or ``'''...'''` for multi-line string literals
+  quotes like ``"""..."""`` or ``'''...'''`` for multi-line string literals
   in the grammar.
 
-- There’s now a copy of the **TatSu** grammar unther the main package at
+- There’s now a copy of the **TatSu** grammar under the main package at
   ``./tatsu/_tatsu.tatsu``. The grammar text is available as
   ``tatsu.grammar``. The grammar remains available at
   ``./grammar/tatsu.tatsu`` by a symbolic link.
@@ -43,24 +31,21 @@ Functional Changes
 - Generated parsers and models now use ``@tatsu.rule`` and
   ``@tatsu.dataclass`` as appropriate.
 
-- Refactorings to avoid internal dependency cycles aind simplify
-  imports.
-
-Model Representations
-~~~~~~~~~~~~~~~~~~~~-
-
-- Now ``str(model)`` returns the standard ``__str__()`` output and no
-  longer returns ``model.pretty()``. To obtain a grammar representation
-  of a grammar model use ``model.pretty()`` directly.
-
-- ``repr(model)`` no longer returns ``asjsons(model)`` but instead
-  returns a representation that can be used to reconstruct the model:
+- Generated parsers now use anonymous functions to implement choices and
+  closures:
 
   .. code:: python
 
-     model = tatsu.parse(grammar, asmodel=True)
-     evalmodel = eval(repr(model), globals=vars(grammars))
-     assert repr(model) == repr(evalmodel)
+        with ctx.choice() as ch:
+            @ch.option
+            def _():
+                self.word(ctx)
+
+            @ch.option
+            def _():
+                self.string(ctx)
+
+            ch.expecting('<string>', '<word>')
 
 - Now in addition to the existing ``rules`` and ``rulemap`` attributes
   of ``Grammar``, there is a ``rule`` attribute that allows access to
@@ -79,8 +64,35 @@ Model Representations
      rule = mode.rule.start
      print(m.rule.longone.exp.token)
 
-- The multiple representations for a model node:
-  ``python   m.pretty()    -> str:   # pretty-printed grammar   m.asjson()    -> Any:   # object compatible with json.dumps()   m.asjsons()   -> str:   # json.dumps(m.asjson(), indent=2)   m.railroads() -> str:   # a railroads diagram in Text/ASCII art   repr(m)       -> str:   # can be passed to eval()``
+- Refactoring to avoid internal dependency cycles and simplify
+  imports.
+
+Model Representations
+~~~~~~~~~~~~~~~~~~~~~
+
+- Now ``str(model)`` returns the standard ``__str__()`` output and no
+  longer returns ``model.pretty()``. To obtain a grammar representation
+  of a grammar model use ``model.pretty()`` directly.
+
+- ``repr(model)`` no longer returns ``asjsons(model)`` but instead
+  returns a representation that can be used to reconstruct the model:
+
+  .. code:: python
+
+     model = tatsu.parse(grammar, asmodel=True)
+     evalmodel = eval(repr(model), globals=vars(grammars))
+     assert repr(model) == repr(evalmodel)
+
+
+- These are the multiple representations for a grammar model or node:
+
+  .. code:: python
+
+    m.pretty()    -> str:   # pretty-printed grammar
+    m.asjson()    -> Any:   # object compatible with json.dumps()
+    m.asjsons()   -> str:   # json.dumps(m.asjson(), indent=2)
+    m.railroads() -> str:   # a railroads diagram in Text/ASCII art
+    repr(m)       -> str:   # can be passed to eval()
 
 Separation of State and Content
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -93,11 +105,11 @@ Separation of State and Content
   ``StateStack`` that only takes a ``Cursor`` as initialization
   parameter. It’s possible to have more than one parse on the same input
   because the state of the parsing is separate from the ``ParseContext``
-  and the \`Tokenizer.
+  and the ``Tokenizer``.
 
 - Methods to represent grammar rules no longer have to be declared in a
-  sublclass of ``Parser``, but can be declared in any class. The
-  convention of naming the methods with a leading and a traling
+  subclass of ``Parser``, but can be declared in any class. The
+  convention of naming the methods with a leading and a trailing
   underscore was removed so methods are now named like the grammar rules
   they represent.
 
@@ -106,9 +118,19 @@ Separation of State and Content
   it.
 
 - Methods that implement grammar rules now use a ``ctx: Ctx`` parameter
-  to caccess and pass the invocation ``ParsContext``. ``Ctx`` is the
+  to access and pass the invocation ``ParsContext``. ``Ctx`` is the
   protocol that defines only the interface that methods for rules
   require to perform a parse according to the input grammar.
+
+Incompatible Changes
+~~~~~~~~~~~~~~~~~~~~
+
+- Support for too old generated Python parsers is dropped. In most cases
+  it’s best to generate a new Python parser.
+
+- Dropped support in the grammar for ``regex + regex``, adding regular expressions.
+
+- Dropped support for ``?/.../?`` regexes in the grammar.
 
 - The undocumented and unmaintained ``ParseContext.substate`` was
   removed.

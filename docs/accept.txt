@@ -28,14 +28,27 @@ Rossum
 Tomassetti
 Wirth
 
+paypal|PayPal
+ANTLR_?
+ASTs?
+DSL[s_]?
+PEG_?
+pdw-mb
+pypi
+uv
+
 [Aa]dditional
 against
 alert
 allows?
 equivalent
 [Mm]odularization
+reimplemented
+repo
 
 alias
+bugfix
+callables?
 Calc
 eol_comments
 ignorecase
@@ -53,6 +66,7 @@ parser's
 pegen
 pythonic
 recurse
+safeeval
 trace_length
 trace_separator
 tokenization
@@ -61,11 +75,3 @@ validate
 we-
 we-like-parsers
 _sourcecode
-
-paypal|PayPal
-ANTLR_?
-ASTs?
-DSL[s_]?
-PEG_?
-pdw-mb
-uv

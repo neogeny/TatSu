@@ -10,7 +10,7 @@ The Refactoring
 Maintenance and contributions to **TatSu** have been more difficult than
 necessary because of the way the code evolved through its lifetime.
 
-- Very long modules and classes that try to do too much
+- Long modules and classes that try to do too much
 - Algorithms difficult to understand or with incorrect semantics
 - Basic features missing, because the above made them hard to implement
 
