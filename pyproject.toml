@@ -43,7 +43,6 @@ dev = [
     "diskcache>=5.6.3",
     "graphviz>=0.21",
     "invoke>=2.2.1",
-    "ipython>=9.10.0",
     "progress>=1.6.1",
     "psutil>=7.2.2",
     "pytest>=9.0.2",
@@ -52,7 +51,6 @@ dev = [
     "rich>=14.3.3",
     "rich-click>=1.9.7",
     "ruff>=0.15.1",
-    "twine>=6.2.0",
     "uv>=0.10.2",
 ]
 test = [
