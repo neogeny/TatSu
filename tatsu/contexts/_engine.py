@@ -29,9 +29,10 @@ from ..util import (
     safe_eval,
     trim,
 )
-from .core import ParserCore
+from ._core import ParserCore
 from .infos import MemoKey, RuleInfo, RuleResult, closure
 from .state import ParseStateStack
+
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]

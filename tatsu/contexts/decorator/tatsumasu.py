@@ -6,8 +6,8 @@ import functools
 from collections.abc import Callable
 from typing import Any
 
+from .._protocol import Ctx
 from ..infos import RuleInfo
-from ..protocol import Ctx
 
 
 def tatsumasu(

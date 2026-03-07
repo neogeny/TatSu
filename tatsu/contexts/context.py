@@ -18,10 +18,10 @@ from ..exceptions import (
 )
 from ..util import deprecated, is_list, left_assoc, right_assoc
 from ..util.string import regexpp
+from ._engine import ParserEngine
+from ._protocol import Ctx
 from .ctxlib import ChoiceContext, InnerExpContext
-from .engine import ParserEngine
 from .infos import closure
-from .protocol import Ctx
 
 
 class ParseContext(ParserEngine, Ctx):
