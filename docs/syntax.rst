@@ -359,17 +359,18 @@ part of names:
 ``r'text'`` or ``r"text"``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A multi-line version of ``token``. The text within the triple quotation marks
-is stripped of trailing whitespace and the common indentation is removed as to
-help with formatting pretty grammars without having to worry about indentation.
-The resulting text is matched as a token.
+Match the token *text* within the triple quotation marks, interpreting *text*
+like `Python`_'s `raw string literal`_\ s. This is useful
 
 
 ``'''text'''`` or ``"""text"""``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Match the token *text* within the triple quotation marks, interpreting *text*
-like `Python`_'s `raw string literal`_\ s. This is useful
+A multi-line version of ``token``. The text within the triple quotation marks
+is stripped of trailing whitespace, and the common indentation is removed as to
+help with pretty formatting grammars without having to worry about indentation.
+The resulting text is matched as a token.
+
 
 
 ``/regexp/``

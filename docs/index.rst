@@ -25,23 +25,56 @@
     language and of Unix_
 
 
-
 |TatSu| is a tool that takes grammars in extended `EBNF`_ as input, and
 outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_. The classic
-variations of EBNF_ (Tomassetti, EasyExtend, Wirth) and `ISO EBNF`_ are also
-supported as input grammar format.
+variations of EBNF_ (Tomassetti, EasyExtend, Wirth) and `ISO EBNF`_ are
+supported as input grammar formats.
 
-Why use a PEG_ parser? Because `regular languages`_ (those that can be parsed
-with Python's ``re`` package) *"cannot count"*. Any language with nested structures
-or with balancing of demarcations requires more than regular expressions to
-be parsed.
+Why use a `PEG`_ parser generator?
+----------------------------------
 
-|TatSu| can compile a grammar stored in a string into a ``tatsu.grammars``
-object model. The model can be used to parse any input, much like the `re`_
-module does with compiled regular expressions. The model can also be used to
-generate a Python_ module that implements the parser.
+Regular expressions are *“memory-less”*—they excel at finding flat patterns
+like email addresses or phone numbers, but they fail once data becomes
+hierarchical. Regular expressions cannot *"count"* or balance demarcations
+(a regex cannot reliably validate whether opening and closing parenthesis are
+matched in a nested math equation).
 
-|TatSu| supports `left-recursive`_  rules in PEG_ grammars, and it honors *left-associativity* in the resulting parse trees.
+Parsing is the essential step up when you need to understand the **logic and
+structure** of information rather than just its appearance. Parsing constructs
+an **Abstract Syntax Tree** (AST_) of the input, a hierarchical map that
+represents how different parts of a sequence relate to one another.
+
+* **Recursive Structures:** Whenever a piece of data can contain
+  a version of itself (like a folder inside a folder, or a conditional
+  ``if`` statement inside another ``if``), you need a parser to track the
+  depth and scope.
+
+* **Translating Formats:** When converting one format into another, a
+  parser ensures that the *meaning* of the original structure is
+  preserved, preventing the *"data soup"* that occurs when using simple
+  find-and-replace tools.
+
+* **Ambiguity Resolution:** In complex sequences, the same sub-sequence might
+  mean different things depending on where it sits in the tree. A parser
+  uses the surrounding context to decide how to treat that sequence,
+  whereas a regex treats every match in isolation.
+
+* **Domain-Specific Languages (DSL):** Parsing allows the creation of
+  specialized *"mini-languages"* tailored to a specific field, such as hardware
+  description, music notation, or complex business rules.
+
+* **Executable Logic:** While a regex can tell you if a string
+  *looks* like a command, a parser turns that string into an object that a
+  computer can actually execute, ensuring the order of operations and
+  dependencies are strictly followed.
+
+|TatSu| can compile a grammar stored in a string into a ``Grammar`` object that
+can be used to parse any given input (much like the `re`_ module does with regular
+expressions). |TatSu| can also generate a Python_ module that implements the parser.
+
+|TatSu| supports `left-recursive`_  rules in PEG_ grammars using the
+algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left associativity.
+
 
 .. toctree::
     :maxdepth: 4

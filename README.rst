@@ -12,6 +12,9 @@
 | |sponsor|
 |
 
+|TatSu|
+=======
+
     *At least for the people who send me mail about a new language that
     they're designing, the general advice is: do it to learn about how
     to write a compiler. Don't have any expectations that anyone will
@@ -24,9 +27,6 @@
     `Dennis Ritchie`_ (1941-2011) Creator of the C_ programming
     language and of Unix_
 
-
-|TatSu|
-=======
 
 |TatSu| is a tool that takes grammars in extended `EBNF`_ as input, and
 outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_. The classic

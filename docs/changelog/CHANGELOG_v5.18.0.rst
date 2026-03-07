@@ -77,6 +77,7 @@ Model Representations
 
      model = tatsu.compile(grammar)
      rule = mode.rule.start
+     print(m.rule.longone.exp.token)
 
 - The multiple representations for a model node:
   ``python   m.pretty()    -> str:   # pretty-printed grammar   m.asjson()    -> Any:   # object compatible with json.dumps()   m.asjsons()   -> str:   # json.dumps(m.asjson(), indent=2)   m.railroads() -> str:   # a railroads diagram in Text/ASCII art   repr(m)       -> str:   # can be passed to eval()``
