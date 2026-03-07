@@ -1522,8 +1522,8 @@ class TatSuBootstrapRules:
                     self.doublequoted(ctx)
 
                 ch.expecting(
-                    "(?ms)'''((?:(?!''').)*)'''",
-                    '(?ms)"""((?:(?!""").)*)"""',
+                    "(?ms)'''((?:\\\\\\\\|\\\\.|(?!''').)*?)'''",
+                    '(?ms)"""((?:\\\\\\\\|\\\\.|(?!""").)*?)"""',
                     '<DOUBLEQUOTED>',
                     '<SINGLEQUOTED>',
                     '<doublequoted>',
@@ -1578,16 +1578,17 @@ class TatSuBootstrapRules:
         with ctx.choice() as ch:
             @ch.option
             def _():
-                ctx.pattern(r"(?ms)'''((?:(?!''').)*)'''")
+                ctx.pattern(r"(?ms)'''((?:\\\\|\\.|(?!''').)*?)'''")
+                ctx.cut()
 
             @ch.option
             def _():
-                ctx.pattern(r'(?ms)"""((?:(?!""").)*)"""')
+                ctx.pattern(r'(?ms)"""((?:\\\\|\\.|(?!""").)*?)"""')
                 ctx.cut()
 
             ch.expecting(
-                "(?ms)'''((?:(?!''').)*)'''",
-                '(?ms)"""((?:(?!""").)*)"""'
+                "(?ms)'''((?:\\\\\\\\|\\\\.|(?!''').)*?)'''",
+                '(?ms)"""((?:\\\\\\\\|\\\\.|(?!""").)*?)"""'
             )
 
     @tatsu.rule

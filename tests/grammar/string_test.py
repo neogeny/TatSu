@@ -16,13 +16,16 @@ def test_multiline_string():
 
         # longone: 'long'
         longone: """
-            this
+            this "" \" \"""
             is a long "string"
             """
     '''
     m = tatsu.compile(grammar)
     m.parse('short')
-    m.parse(trim(r"""
-            this
+    input = trim("""
+            this "" \" \"""
             is a long "string"
-            """).strip())
+            """).strip()
+    print(m.rule.longone.exp.token)
+    print(input)
+    m.parse(input)

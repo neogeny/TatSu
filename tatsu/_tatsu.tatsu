@@ -185,7 +185,9 @@ STRING: SINGLEQUOTED | DOUBLEQUOTED
 SINGLEQUOTED: /'((?:[^'\n]|\\'|\\\\)*?)'/ ~
 DOUBLEQUOTED: /"((?:[^"\n]|\\"|\\\\)*?)"/ ~
 
-multiline_string: /(?ms)'''((?:(?!''').)*)'''/ | /(?ms)"""((?:(?!""").)*)"""/ ~
+multiline_string:
+    | /(?ms)'''((?:\\\\|\\.|(?!''').)*?)'''/ ~
+    | /(?ms)"""((?:\\\\|\\.|(?!""").)*?)"""/ ~
 
 hex: /0[xX](?:\d|[a-fA-F])+/
 
