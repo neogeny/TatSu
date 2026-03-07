@@ -45,6 +45,7 @@ def notnone[T](value: Any | None, default: T) -> T:
 
 
 def cast[T](target: type[T], value: Any) -> T:
+    # by Gemini 2026-03-07
     origin: Any = typing.get_origin(target)
 
     if origin is types.UnionType or origin is typing.Union:
