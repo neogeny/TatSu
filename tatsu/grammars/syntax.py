@@ -77,7 +77,7 @@ class Choice(Model):
         assert isinstance(self.options, list), repr(self.options)
 
     def _parse(self, ctx: ParseContext) -> Result:
-        with ctx.choice() as ch:
+        with ctx.choice() as (_, ch):
             ch.options = [lambda o=o: o._parse(ctx) for o in self.options]  # type: ignore
             ch.expecting(*self.lookaheadlist())
         return ch.result
