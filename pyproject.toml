@@ -240,6 +240,7 @@ ignore = [
     "PERF203", #  try-except within loop
     "PGH003",
     "PLC0415", # import-outside-top-level
+    "PLC2401", # non-ascci in identifier
     "PLR6301", # no-self-use
     "PLR0904", # too-many-public-methods
     "PLR0913", # too-many-arguments

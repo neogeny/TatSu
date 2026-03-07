@@ -7,8 +7,8 @@ import functools
 from collections.abc import Callable
 from typing import Any, cast, overload
 
+from .._protocol import Ctx
 from ..infos import RuleInfo
-from ..protocol import Ctx
 
 
 def __rule_wrapper(func: Callable, *args: Any, **kwargs: Any) -> Callable:

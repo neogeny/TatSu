@@ -9,13 +9,18 @@ from typing import Any
 
 from .. import grammars as g
 from .._version import version, version_info
-from ..contexts.protocol import Ctx
+from ..contexts._protocol import Ctx
 from ..exceptions import CodegenError
 from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..parserconfig import ParserConfig
 from ..util import Undefined, compress_seq, regexpp, safe_name
 from ..walkers import NodeWalker
+
+
+_GREEKTOME = "αβγδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
+GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
+
 
 HEADER = """\
     #!/usr/bin/env python3
@@ -94,19 +99,45 @@ def pythongen(model: Node, parser_name: str = '') -> str:
 
 
 class PythonParserGenerator(IndentPrintMixin, NodeWalker):
-    _counter: Iterator[int] = itertools.count()
 
     def __init__(self, parser_name: str = ''):
         super().__init__()
         self.parser_name = parser_name
+        self._block_counter: Iterator[int] = itertools.count()
+        self._choice_number: int = 0
+        self.ctx_stack: list[str] = ['ctx']
 
-    @classmethod
-    def _next_n(cls) -> int:
-        return next(cls._counter)
+    def new_choice_number(self) -> int:
+        n = self._choice_number
+        self._choice_number += 1
+        return n
 
-    @classmethod
-    def _reset_counter(cls):
-        cls._counter = itertools.count()
+    def prev_choice_number(self):
+        self._choice_number -= 1
+
+    @property
+    def blockn(self) -> int:
+        return next(self._block_counter)
+
+    @property
+    def loopn(self) -> str:
+        n = self.blockn
+        a = GREEKTOME[n]
+        return f'cl{a}' if n > 0 else 'cl'
+
+    def push_ctx(self, ctx: str):
+        self.ctx_stack.append(ctx)
+
+    def pop_ctx(self):
+        self.ctx_stack.pop()
+
+    @property
+    def ctx(self):
+        return self.ctx_stack[-1]
+
+    def reset_counters(self):
+        self._block_counter = itertools.count()
+        self._choice_number = 0
 
     def walk_default(self, node: Any) -> Any:
         return node
@@ -140,7 +171,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             else:
                 return repr(p.split('::')[0])
 
-        self._reset_counter()
+        self.reset_counters()
         params = kwparams = ''
         if rule.params:
             params = ', '.join(param_repr(self.walk(p)) for p in rule.params)
@@ -167,7 +198,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 {leftrec}\
                 {nomemo}\
                 {isname}\
-                \ndef {name}(self, ctx: Ctx):
+                \ndef {name}(self, {self.ctx_stack[0]}: Ctx):
             """)
         with self.indent():
             self.print(self.walk(rule.exp))
@@ -177,22 +208,22 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
 
     def walk_Call(self, call: g.Call):
         name = safe_name(call.name)
-        self.print(f'self.{name}(ctx)')
+        self.print(f'self.{name}({self.ctx})')
 
     def walk_RuleInclude(self, include: g.RuleInclude):
         self.walk(include.rule.exp)
 
     def walk_Void(self, _void: g.Void):
-        self.print('ctx.void()')
+        self.print(f'{self.ctx}.void()')
 
     def walk_Dot(self, _dot: g.Dot):
-        self.print('ctx.dot()')
+        self.print(f'{self.ctx}.dot()')
 
     def walk_Fail(self, _fail: g.Fail):
-        self.print('ctx.fail()')
+        self.print(f'{self.ctx}.fail()')
 
     def walk_Cut(self, _cut: g.Cut):
-        self.print('ctx.cut()')
+        self.print(f'{self.ctx}.cut()')
 
     def walk_Comment(self, comment: g.Comment):
         lines = '\n'.join(f'# {c!s}' for c in comment.comment.splitlines())
@@ -202,28 +233,28 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.walk_Comment(comment)
 
     def walk_EOF(self, _eof: g.EOF):
-        self.print('ctx.eofcheck()')
+        self.print(f'{self.ctx}.eofcheck()')
 
     def walk_Group(self, group: g.Group):
-        self._gen_decor(Ctx.group, group.exp)
+        self._gen_decor(Ctx.group, exp=group.exp)
 
     def walk_Token(self, token: g.Token):
-        self.print(f'ctx.token({token.token!r})')
+        self.print(f'{self.ctx}.token({token.token!r})')
 
     def walk_Constant(self, constant: g.Constant):
-        self.print(f'ctx.constant({constant.literal!r})')
+        self.print(f'{self.ctx}.constant({constant.literal!r})')
 
     def walk_Alert(self, alert: g.Alert):
-        self.print(f'ctx.alert({alert.literal!r}, {alert.level})')
+        self.print(f'{self.ctx}.alert({alert.literal!r}, {alert.level})')
 
     def walk_Pattern(self, pattern: g.Pattern):
-        self.print(f'ctx.pattern({regexpp(pattern.pattern)})')
+        self.print(f'{self.ctx}.pattern({regexpp(pattern.pattern)})')
 
     def walk_Lookahead(self, lookahead: g.Lookahead):
-        self._gen_decor(Ctx.if_, lookahead.exp)
+        self._gen_decor(Ctx.if_, exp=lookahead.exp)
 
     def walk_NegativeLookahead(self, lookahead: g.NegativeLookahead):
-        self._gen_decor(Ctx.ifnot_, lookahead.exp)
+        self._gen_decor(Ctx.ifnot_, exp=lookahead.exp)
 
     def walk_Sequence(self, seq: g.Sequence):
         self._gen_defines_declaration(seq)
@@ -234,73 +265,85 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self.walk(choice.options[0])
             return
 
-        self._gen_decor(Ctx.choice, var='ch')
-        with self.indent():
-            self.walk(choice.options)
+        n = self.new_choice_number()
+        a = GREEKTOME[n]
+        var = f'ch{a}'
+        outerctx = self.ctx
+        self.push_ctx(f'ctx{a}')
+        try:
+            self._gen_decor(Ctx.choice, ctx=outerctx, var=f'({self.ctx}, {var})')
+            with self.indent():
+                for opt in choice.options:
+                    self._gen_anon_block(opt.exp, decor=f'{var}.option')
+                    self.print()
 
-        elements = sorted(repr(f[0]) for f in choice.lookahead() if f)
-        if not elements:
-            return
+            elements = sorted(repr(f[0]) for f in choice.lookahead() if f)
+            if not elements:
+                return
 
-        with self.indent():
-            expectstr = f'ch.expecting({', '.join(elements)})'
-            if self.fitsfmt(expectstr, 3):
-                self.print(expectstr)
-            else:
-                self.print('ch.expecting(')
-                with self.indent():
-                    expectinner = ',\n'.join(elements)
-                    self.print(expectinner)
-                self.print(')')
+            with self.indent():
+                expectstr = f'{var}.expecting({', '.join(elements)})'
+                if self.fitsfmt(expectstr, 3):
+                    self.print(expectstr)
+                else:
+                    self.print(f'{var}.expecting(')
+                    with self.indent():
+                        expectinner = ',\n'.join(elements)
+                        self.print(expectinner)
+                    self.print(')')
+        finally:
+            self.pop_ctx()
+            self.prev_choice_number()
 
     def walk_Option(self, option: g.Option):
+        pass  # handled by walk_Choice
         self._gen_anon_block(option.exp, decor='ch.option')
         self.print()
 
     def walk_Optional(self, optional: g.Optional):
-        self._gen_decor(Ctx.optional, optional.exp)
+        self._gen_decor(Ctx.optional, exp=optional.exp)
 
     def walk_EmptyClosure(self, _closure: g.EmptyClosure):
-        self.print('ctx.empty()')
+        self.print(f'{self.ctx}.empty()')
 
     def walk_Closure(self, closure: g.Closure):
-        self._gen_decor(Ctx.loopopt, closure.exp, var='cl')
+        self._gen_decor(Ctx.loopopt, exp=closure.exp, var=f'{self.loopn}')
 
     def walk_PositiveClosure(self, closure: g.PositiveClosure):
-        self._gen_decor(Ctx.loopplus, closure.exp, var='cl')
+        self._gen_decor(Ctx.loopplus, exp=closure.exp, var=f'{self.loopn}')
 
     def walk_Join(self, join: g.Join):
-        self._gen_decor(Ctx.joinopt, join.exp, sep=join.sep, var='cl')
+        self._gen_decor(Ctx.joinopt, exp=join.exp, sep=join.sep, var=f'{self.loopn}')
 
     def walk_PositiveJoin(self, join: g.PositiveJoin):
-        self._gen_decor(Ctx.joinplus, join.exp, sep=join.sep, var='cl')
+        self._gen_decor(Ctx.joinplus, exp=join.exp, sep=join.sep, var=f'{self.loopn}')
 
     def walk_LeftJoin(self, join: g.LeftJoin):
-        self._gen_decor(Ctx.joinleft, join.exp, sep=join.sep, var='cl')
+        self._gen_decor(Ctx.joinleft, exp=join.exp, sep=join.sep, var=f'{self.loopn}')
 
     def walk_RightJoin(self, join: g.RightJoin):
-        self._gen_decor(Ctx.joinright, join.exp, sep=join.sep, var='cl')
+        self._gen_decor(Ctx.joinright, exp=join.exp, sep=join.sep, var=f'{self.loopn}')
 
     def walk_Gather(self, gather: g.Gather):
-        self._gen_decor(Ctx.gatheropt, gather.exp, sep=gather.sep, var='g')
+        self._gen_decor(Ctx.gatheropt, exp=gather.exp, sep=gather.sep, var='g')
 
     def walk_PositiveGather(self, gather: g.PositiveGather):
-        self._gen_decor(Ctx.gatherplus, gather.exp, sep=gather.sep, var='g')
+        self._gen_decor(Ctx.gatherplus, exp=gather.exp, sep=gather.sep, var='g')
 
     def walk_SkipTo(self, skipto: g.SkipTo):
-        self._gen_decor(Ctx.skipto, skipto.exp)
+        self._gen_decor(Ctx.skipto, exp=skipto.exp)
 
     def walk_Named(self, named: g.Named):
-        self._gen_decor(Ctx.nameset, named.exp, arg=repr(named.name))
+        self._gen_decor(Ctx.nameset, exp=named.exp, arg=repr(named.name))
 
     def walk_NamedList(self, named: g.Named):
-        self._gen_decor(Ctx.nameadd, named.exp, arg=repr(named.name))
+        self._gen_decor(Ctx.nameadd, exp=named.exp, arg=repr(named.name))
 
     def walk_Override(self, o: g.Override):
-        self._gen_decor(Ctx.nameset, o.exp, arg=repr('@'))
+        self._gen_decor(Ctx.nameset, exp=o.exp, arg=repr('@'))
 
     def walk_OverrideList(self, override: g.OverrideList):
-        self._gen_decor(Ctx.nameadd, override.exp, arg=repr('@'))
+        self._gen_decor(Ctx.nameadd, exp=override.exp, arg=repr('@'))
 
     def _gen_keywords(self, grammar: g.Grammar):
         keywords = [str(k) for k in grammar.keywords if k is not None]
@@ -433,11 +476,11 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         sdefs_str = ', '.join(sorted(repr(d) for d in sdefs))
         ldefs_str = ', '.join(sorted(repr(d) for d in ldefs))
 
-        definestr = f'ctx.define([{sdefs_str}], [{ldefs_str}])'
+        definestr = f'{self.ctx}.define([{sdefs_str}], [{ldefs_str}])'
         if not ldefs or self.fitsfmt(definestr, 1):
             self.print(definestr)
         else:
-            self.print('ctx.define(')
+            self.print(f'{self.ctx}.define(')
             with self.indent():
                 self.print(f'[{sdefs_str}],')
                 self.print(f'[{ldefs_str}],')
@@ -449,7 +492,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}',
             )
 
-        n = self._next_n()
+        n = self.blockn
         self.print()
         self.print(f'def {name}{n}():')
         with self.indent():
@@ -477,18 +520,21 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def _gen_decor(
         self,
         mgr: Callable[..., Any],
+        /, *,
         exp: g.Model | None = None,
         sep: g.Model | None = None,
         var: str = '',
         arg: str = '',
+        ctx: str | None = None,
         echeck: bool = True,
     ):
         assert isinstance(mgr, types.FunctionType)
         name = mgr.__name__
+        ctx = ctx or self.ctx
         if var:
-            self.print(f'with ctx.{name}({arg}) as {var}:')
+            self.print(f'with {ctx}.{name}({arg}) as {var}:')
         else:
-            self.print(f'with ctx.{name}({arg}):')
+            self.print(f'with {ctx}.{name}({arg}):')
         with self.indent():
             if sep:
                 self._gen_anon_block(sep, decor=f'{var}.sep', echeck=echeck)
