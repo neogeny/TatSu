@@ -143,8 +143,8 @@ class TatSuBootstrapRules:
                     chα.expecting('<directive>', '<keyword>')
         with ctx.nameadd('rules'):
             self.rule(ctx)
-        with ctx.loopopt() as cl:
-            @cl.exp
+        with ctx.loopopt() as clβ:
+            @clβ.exp
             def _():
                 with ctx.choice() as (ctxα, chα):
                     @chα.option

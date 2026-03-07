@@ -115,8 +115,15 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def prev_choice_number(self):
         self._choice_number -= 1
 
-    def next_block_number(self) -> int:
+    @property
+    def blockn(self) -> int:
         return next(self._block_counter)
+
+    @property
+    def loopn(self) -> str:
+        n = self.blockn
+        a = GREEKTOME[n]
+        return f'cl{a}' if n > 0 else 'cl'
 
     def push_ctx(self, ctx: str):
         self.ctx_stack.append(ctx)
@@ -300,22 +307,22 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'{self.ctx}.empty()')
 
     def walk_Closure(self, closure: g.Closure):
-        self._gen_decor(Ctx.loopopt, exp=closure.exp, var='cl')
+        self._gen_decor(Ctx.loopopt, exp=closure.exp, var=f'{self.loopn}')
 
     def walk_PositiveClosure(self, closure: g.PositiveClosure):
-        self._gen_decor(Ctx.loopplus, exp=closure.exp, var='cl')
+        self._gen_decor(Ctx.loopplus, exp=closure.exp, var=f'{self.loopn}')
 
     def walk_Join(self, join: g.Join):
-        self._gen_decor(Ctx.joinopt, exp=join.exp, sep=join.sep, var='cl')
+        self._gen_decor(Ctx.joinopt, exp=join.exp, sep=join.sep, var=f'{self.loopn}')
 
     def walk_PositiveJoin(self, join: g.PositiveJoin):
-        self._gen_decor(Ctx.joinplus, exp=join.exp, sep=join.sep, var='cl')
+        self._gen_decor(Ctx.joinplus, exp=join.exp, sep=join.sep, var=f'{self.loopn}')
 
     def walk_LeftJoin(self, join: g.LeftJoin):
-        self._gen_decor(Ctx.joinleft, exp=join.exp, sep=join.sep, var='cl')
+        self._gen_decor(Ctx.joinleft, exp=join.exp, sep=join.sep, var=f'{self.loopn}')
 
     def walk_RightJoin(self, join: g.RightJoin):
-        self._gen_decor(Ctx.joinright, exp=join.exp, sep=join.sep, var='cl')
+        self._gen_decor(Ctx.joinright, exp=join.exp, sep=join.sep, var=f'{self.loopn}')
 
     def walk_Gather(self, gather: g.Gather):
         self._gen_decor(Ctx.gatheropt, exp=gather.exp, sep=gather.sep, var='g')
@@ -485,7 +492,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}',
             )
 
-        n = self.next_block_number()
+        n = self.blockn
         self.print()
         self.print(f'def {name}{n}():')
         with self.indent():
