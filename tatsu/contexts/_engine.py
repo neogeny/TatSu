@@ -169,8 +169,7 @@ class ParserEngine(ParserCore):
             self.next_token(ri)
 
             node = self.func_call(ri)
-            parseinfo = self.make_parseinfo(node, key.pos)
-            node = self.semantics_call(ri, node, parseinfo=parseinfo)
+            node = self.semantics_call(ri, node, pos=key.pos)
             self.set_parseinfo(node, ri.name, key.pos)
 
             result = RuleResult(node, self.pos)
@@ -198,14 +197,13 @@ class ParserEngine(ParserCore):
                 ri.func(ri.instance, self)
         return self.state.node
 
-    def semantics_call(
-        self, ri: RuleInfo, node: Any, parseinfo: ParseInfo | None = None
-    ) -> Any:
+    def semantics_call(self, ri: RuleInfo, node: Any, pos: int) -> Any:
         if ri.is_name:
             self.validate_is_not_keyword(node)
 
         action = self.find_semantic_action(ri.name)
         if action:
+            parseinfo = self.make_parseinfo(node, pos)
             return boundcall(
                 action, {}, node, *ri.params, parseinfo=parseinfo, **ri.kwparams,
             )
