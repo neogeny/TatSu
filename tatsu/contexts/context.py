@@ -19,14 +19,15 @@ from ..exceptions import (
     ParseException,
 )
 from ..util import deprecated, is_list, left_assoc, right_assoc
-from ._core import Engine, closure
 from .ctxlib import ChoiceContext, InnerExpContext
+from .engine import ParserEngine
+from .infos import closure
 from .protocol import Ctx
 
 
-class ParseContext(Engine, Ctx):
+class ParseContext(ParserEngine, Ctx):
     # bw compatibility
-    @deprecated(replacement=Engine.newexcept)
+    @deprecated(replacement=ParserEngine.newexcept)
     def _error(
         self,
         item: Any,
@@ -35,12 +36,12 @@ class ParseContext(Engine, Ctx):
         raise self.newexcept(item, exclass)
 
     # bw compatibility
-    @deprecated(replacement=Engine.setname)
+    @deprecated(replacement=ParserEngine.setname)
     def name_last_node(self, name: str):  # bw-compat
         self.setname(name)
 
     # bw compatibility
-    @deprecated(replacement=Engine.addname)
+    @deprecated(replacement=ParserEngine.addname)
     def add_last_node_to_name(self, name: str):  # bw-compat
         self.addname(name)
 
