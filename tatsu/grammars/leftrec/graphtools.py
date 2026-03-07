@@ -6,7 +6,6 @@ from collections.abc import Iterable, Iterator
 
 from .._core import Grammar, Rule
 
-
 type RuleName = str
 type Headmap = dict[RuleName, set[RuleName]]
 type SCC = set[RuleName]  # Strongly Connected Component
