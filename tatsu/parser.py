@@ -9,9 +9,10 @@ from .bootstrap import (
     TatSuBootstrapParser,
     TatSuBootstrapTokenizer,
 )
+from .grammars import GrammarSemantics
 from .infos import ParserConfig
-from .parser_semantics import TatSuGrammarSemantics
 from .semantics import ASTSemantics
+
 
 PRAGMA_RE = r'^\s*#include.*$'
 
@@ -81,7 +82,7 @@ class TatSuParserGenerator(TatSuBootstrapParser):
                 f'semantics must be an object instance or None, not class {semantics!r}',
             )
         if not semantics:
-            semantics = TatSuGrammarSemantics(name=name, context=self)
+            semantics = GrammarSemantics(name=name, context=self)
         config = ParserConfig.new(
             name=name,
             semantics=semantics,

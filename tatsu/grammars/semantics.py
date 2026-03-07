@@ -7,15 +7,15 @@ from ast import literal_eval
 from collections.abc import Iterable
 from typing import Any
 
-from . import grammars as g
-from .builder import ModelBuilderSemantics
-from .contexts import ParseContext
-from .exceptions import FailedSemantics
-from .infos import ParseInfo
-from .util import eval_escapes, flatten, re, safe_name, trim, warning
+from .. import grammars as g
+from ..builder import ModelBuilderSemantics
+from ..contexts import ParseContext
+from ..exceptions import FailedSemantics
+from ..infos import ParseInfo
+from ..util import eval_escapes, flatten, re, safe_name, trim, warning
 
 
-class TatSuGrammarSemantics(ModelBuilderSemantics):
+class GrammarSemantics(ModelBuilderSemantics):
     def __init__(self, name: str | None = None, context: ParseContext | None = None):
         super().__init__(
             basetype=g.Model,

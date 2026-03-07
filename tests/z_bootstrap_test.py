@@ -16,13 +16,14 @@ import pytest
 
 import tatsu
 from tatsu import diagrams
+from tatsu.grammars.semantics import GrammarSemantics
 from tatsu.ngcodegen import pythongen
 from tatsu.parser import TatSuParser, TatSuParserGenerator
-from tatsu.parser_semantics import TatSuGrammarSemantics
 from tatsu.semantics import ASTSemantics
 from tatsu.tool import to_python_sourcecode
 from tatsu.util import asjson
 from tatsu.walkers import DepthFirstWalker
+
 
 tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
@@ -195,7 +196,7 @@ def test_10_with_model_and_semantics():
     g10 = g9.parse(
         text,
         start='start',
-        semantics=TatSuGrammarSemantics('TatSuBootstrap'),
+        semantics=GrammarSemantics('TatSuBootstrap'),
     )
     generated_grammar10 = g10.pretty()
     Path('./tmp/10.tatsu').write_text(generated_grammar10)
@@ -212,7 +213,7 @@ def test_11_with_pickle_and_retry():
     g10 = g9.parse(
         text,
         start='start',
-        semantics=TatSuGrammarSemantics('TatSuBootstrap'),
+        semantics=GrammarSemantics('TatSuBootstrap'),
     )
     with Path('./tmp/11.tatsuc').open('wb') as f:
         pickle.dump(g10, f)
@@ -221,7 +222,7 @@ def test_11_with_pickle_and_retry():
     r11 = g11.parse(
         text,
         start='start',
-        semantics=TatSuGrammarSemantics('TatSuBootstrap'),
+        semantics=GrammarSemantics('TatSuBootstrap'),
     )
     Path('./tmp/11.tatsu').write_text(g11.pretty())
     gencode11 = pythongen(r11)
