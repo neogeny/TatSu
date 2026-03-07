@@ -169,7 +169,8 @@ class ParserEngine(ParserCore):
             self.next_token(ri)
 
             node = self.func_call(ri)
-            node = self.semantics_call(ri, node)
+            parseinfo = self.make_parseinfo(node, key.pos)
+            node = self.semantics_call(ri, node, parseinfo=parseinfo)
             self.set_parseinfo(node, ri.name, key.pos)
 
             result = RuleResult(node, self.pos)
@@ -197,13 +198,17 @@ class ParserEngine(ParserCore):
                 ri.func(ri.instance, self)
         return self.state.node
 
-    def semantics_call(self, ri: RuleInfo, node: Any) -> Any:
+    def semantics_call(
+        self, ri: RuleInfo, node: Any, parseinfo: ParseInfo | None = None
+    ) -> Any:
         if ri.is_name:
             self.validate_is_not_keyword(node)
 
         action = self.find_semantic_action(ri.name)
         if action:
-            return boundcall(action, {}, node, *ri.params, **ri.kwparams)
+            return boundcall(
+                action, {}, node, *ri.params, parseinfo=parseinfo, **ri.kwparams,
+            )
         else:
             return node
 
@@ -214,7 +219,9 @@ class ParserEngine(ParserCore):
         if name_str in self.keywords:
             raise self.newexcept(f'"{name_str}" is a reserved word', KeywordError)
 
-    def make_parseinfo(self, name: str, pos: int) -> ParseInfo:
+    def make_parseinfo(self, name: str, pos: int) -> ParseInfo | None:
+        if not self.config.parseinfo:
+            return None
         endpos = self.pos
         return ParseInfo(
             cursor=self.cursor,
@@ -227,13 +234,12 @@ class ParserEngine(ParserCore):
         )
 
     def set_parseinfo(self, node: Any, name: str, pos: int):
-        if not self.config.parseinfo:
+        parseinfo = self.make_parseinfo(name, pos)
+        if parseinfo is None:
             return
-        if hasattr(node, 'set_parseinfo'):
-            parseinfo = self.make_parseinfo(name, pos)
+        elif hasattr(node, 'set_parseinfo'):
             node.set_parseinfo(parseinfo)
         elif hasattr(node, 'parseinfo'):
-            parseinfo = self.make_parseinfo(name, pos)
             node.parseinfo = parseinfo
 
     def save_result(self, key: MemoKey, result: RuleResult) -> None:
