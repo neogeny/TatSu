@@ -11,6 +11,7 @@ from . import grammars as g
 from .builder import ModelBuilderSemantics
 from .contexts import ParseContext
 from .exceptions import FailedSemantics
+from .infos import ParseInfo
 from .util import eval_escapes, flatten, re, safe_name, trim, warning
 
 
@@ -64,11 +65,21 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         self._validate_pattern(pattern)
         return pattern
 
-    def deprecated_regex(self, ast: str):
+    def deprecated_regex(self, ast: str, parseinfo: ParseInfo | None = None):
+        if parseinfo:
+            pi = parseinfo
+            msg = (
+                f'Deprecated syntax "?/../?" for regular expressions'
+                f' at {pi.cursor.tokenizer.filename} line {pi.line + 1}'
+                f'\n?/"{ast}"/?'
+            )
+        else:
+            msg = 'Deprecated syntax "?/../? for regular expressions"'
+        warnings.filterwarnings('once')
         warnings.warn(
-            message=f'Deprecated syntax for regular "?/{ast}/?',
+            message=msg,
             category=DeprecationWarning,
-            stacklevel=2,
+            stacklevel=12,
         )
         return ast
 
