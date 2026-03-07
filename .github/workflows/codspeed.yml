@@ -30,8 +30,8 @@ jobs:
       - name: install dependencies
         run: uv sync --group dev
 
-      - name: Run z_benchmarks
+      - name: Run benchmarks
         uses: CodSpeedHQ/action@v4
         with:
           mode: simulation
-          run: uv run pytest tests/z_benchmarks/ --codspeed
+          run: uv run pytest tests/benchmarks/ --codspeed

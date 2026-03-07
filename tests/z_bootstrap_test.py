@@ -24,11 +24,10 @@ from tatsu.tool import to_python_sourcecode
 from tatsu.util import asjson
 from tatsu.walkers import DepthFirstWalker
 
-
 tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
 
-_ = pytest.mark.skip(reason="Execute under `bench'")
+# _ = pytest.mark.skip(reason="Execute under `bench'")
 
 
 @pytest.mark.dependency()
