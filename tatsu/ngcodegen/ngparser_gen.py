@@ -17,6 +17,10 @@ from ..parserconfig import ParserConfig
 from ..util import Undefined, compress_seq, regexpp, safe_name
 from ..walkers import NodeWalker
 
+_GREEKTOME = "αβγδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
+GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
+
+
 HEADER = """\
     #!/usr/bin/env python3
     #
@@ -94,19 +98,27 @@ def pythongen(model: Node, parser_name: str = '') -> str:
 
 
 class PythonParserGenerator(IndentPrintMixin, NodeWalker):
-    _counter: Iterator[int] = itertools.count()
 
     def __init__(self, parser_name: str = ''):
         super().__init__()
         self.parser_name = parser_name
+        self._block_counter: Iterator[int] = itertools.count()
+        self._choice_number: int = 0
 
-    @classmethod
-    def _next_n(cls) -> int:
-        return next(cls._counter)
+    def new_choice_number(self) -> int:
+        n = self._choice_number
+        self._choice_number += 1
+        return n
 
-    @classmethod
-    def _reset_counter(cls):
-        cls._counter = itertools.count()
+    def prev_choice_number(self):
+        self._choice_number -= 1
+
+    def next_block_number(self) -> int:
+        return next(self._block_counter)
+
+    def reset_counters(self):
+        self._block_counter = itertools.count()
+        self._choice_number = 0
 
     def walk_default(self, node: Any) -> Any:
         return node
@@ -140,7 +152,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             else:
                 return repr(p.split('::')[0])
 
-        self._reset_counter()
+        self.reset_counters()
         params = kwparams = ''
         if rule.params:
             params = ', '.join(param_repr(self.walk(p)) for p in rule.params)
@@ -234,26 +246,35 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self.walk(choice.options[0])
             return
 
-        self._gen_decor(Ctx.choice, var='ch')
-        with self.indent():
-            self.walk(choice.options)
+        n = self.new_choice_number()
+        try:
+            a = GREEKTOME[n]
+            var = f'ch{a}' if n > 0 else 'ch'
+            self._gen_decor(Ctx.choice, var=var)
+            with self.indent():
+                for opt in choice.options:
+                    self._gen_anon_block(opt.exp, decor=f'{var}.option')
+                    self.print()
 
-        elements = sorted(repr(f[0]) for f in choice.lookahead() if f)
-        if not elements:
-            return
+            elements = sorted(repr(f[0]) for f in choice.lookahead() if f)
+            if not elements:
+                return
 
-        with self.indent():
-            expectstr = f'ch.expecting({', '.join(elements)})'
-            if self.fitsfmt(expectstr, 3):
-                self.print(expectstr)
-            else:
-                self.print('ch.expecting(')
-                with self.indent():
-                    expectinner = ',\n'.join(elements)
-                    self.print(expectinner)
-                self.print(')')
+            with self.indent():
+                expectstr = f'{var}.expecting({', '.join(elements)})'
+                if self.fitsfmt(expectstr, 3):
+                    self.print(expectstr)
+                else:
+                    self.print(f'{var}.expecting(')
+                    with self.indent():
+                        expectinner = ',\n'.join(elements)
+                        self.print(expectinner)
+                    self.print(')')
+        finally:
+            self.prev_choice_number()
 
     def walk_Option(self, option: g.Option):
+        pass  # handled by walk_Choice
         self._gen_anon_block(option.exp, decor='ch.option')
         self.print()
 
@@ -449,7 +470,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}',
             )
 
-        n = self._next_n()
+        n = self.next_block_number()
         self.print()
         self.print(f'def {name}{n}():')
         with self.indent():
