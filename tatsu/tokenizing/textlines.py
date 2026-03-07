@@ -10,6 +10,7 @@ from ..util import Undefined, cached_re_compile, notnone, str_from_match, typena
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
 
+
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 
@@ -177,6 +178,11 @@ class TextLinesTokenizer(Tokenizer):
         return TextLinesCursor(self)
 
     @property
+    def filename(self) -> str:
+        return str(self.config.filename or '')
+
+
+    @property
     def len(self) -> int:
         return self._len
 
@@ -187,10 +193,6 @@ class TextLinesTokenizer(Tokenizer):
     @property
     def text(self) -> str:
         return self._text
-
-    @property
-    def filename(self) -> str:
-        return str(self.config.filename or '')
 
     @property
     def ignorecase(self) -> bool:
@@ -246,6 +248,8 @@ class TextLinesTokenizer(Tokenizer):
         return lines, index
 
     def posline_at(self, pos: int) -> int:
+        if not self._line_cache:
+            return 0
         return self._line_cache[pos].line
 
     def poscol_at(self, pos: int) -> int:
@@ -289,7 +293,7 @@ class TextLinesTokenizer(Tokenizer):
             found.append(x)
         return found
 
-    def match_at(self, token: str, c: Cursor) -> str | None:
+    def match_at(self, token: str | None, c: Cursor) -> str | None:
         if token is None:
             return None
 

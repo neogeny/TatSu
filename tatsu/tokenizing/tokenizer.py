@@ -162,6 +162,11 @@ class Tokenizer(ABC):
     @abstractmethod
     def newcursor(self) -> Cursor: ...
 
+    @property
+    @abstractmethod
+    def filename(self) -> str: ...
+
+
 
 class NullTokenizer(Tokenizer):
     def __init__(self) -> None:
@@ -169,3 +174,7 @@ class NullTokenizer(Tokenizer):
 
     def newcursor(self, pos: int = 0) -> Cursor:
         return NullCursor()
+
+    @property
+    def filename(self) -> str:
+        return ''

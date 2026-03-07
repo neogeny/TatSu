@@ -23,6 +23,7 @@ from ..util import Undefined, cached_re_compile, str_from_match, typename
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
 
+
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 # for backwards compatibility with existing parsers
@@ -282,11 +283,11 @@ class Buffer(Tokenizer):
 
     def process_block(
         self,
-        name: str,
+        _name: str,
         lines: list[str],
         index: list[LineIndexInfo],
         /,
-        **kwargs,
+        **_kwargs,
     ) -> tuple[list[str], list[LineIndexInfo]]:
         return lines, index
 
@@ -476,8 +477,8 @@ class Buffer(Tokenizer):
         goodstart = s[0].isalpha() or s[0] in self._namechar_set
         return goodstart and all(self.is_name_char(c) for c in s[1:])
 
-    def match(self, token: str) -> str | None:
-        if token is None:
+    def match(self, token: str | None) -> str | None:
+        if  token is None:
             return None
 
         p = self.pos
