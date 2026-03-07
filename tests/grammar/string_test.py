@@ -17,12 +17,12 @@ def test_multiline_string():
         # longone: 'long'
         longone: """
             this
-            is a long string
+            is a long "string"
             """
     '''
     m = tatsu.compile(grammar)
     m.parse('short')
     m.parse(trim(r"""
             this
-            is a long string
+            is a long "string"
             """).strip())
