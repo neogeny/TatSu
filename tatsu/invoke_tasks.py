@@ -289,7 +289,7 @@ def black(c: Context, python: float = PYTHON):
         print('✖ failed!')
 
 
-@task(pre=[begin, clean, ruff, ty, mypy, pyright, black])
+@task(pre=[begin, clean, black, ruff, ty, mypy, pyright])
 def lint(_c: Context):
     success_print(task=lint)
 
