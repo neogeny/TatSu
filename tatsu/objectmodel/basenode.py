@@ -9,12 +9,11 @@ from collections.abc import Callable
 from functools import cache
 from typing import Any, overload
 
-from tatsu.util.common import typename
-
 from ..ast import AST
 from ..infos import ParseInfo
 from ..mixins.indent import IndentPrintMixin
-from ..util import AsJSONMixin, asjson, asjsons, isiter, rowselect
+from ..util import AsJSONMixin, asjson, asjsons, isiter, rowselect, typename
+
 
 __all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
 

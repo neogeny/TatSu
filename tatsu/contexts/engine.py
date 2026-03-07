@@ -33,7 +33,6 @@ from .core import ParserCore
 from .infos import MemoKey, RuleInfo, RuleResult, closure
 from .state import ParseStateStack
 
-
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
@@ -77,7 +76,7 @@ class ParserEngine(ParserCore):
             return rule(self)
 
         except FailedParse as e:
-            self._set_furthest_exception(e)
+            self.set_furthest_exception(e)
             if isinstance(self._furthest_exception, Exception):
                 raise self._furthest_exception from e
             raise
@@ -110,7 +109,7 @@ class ParserEngine(ParserCore):
             return result.node
         except FailedParse as e:
             self.goto(pos)
-            self._set_furthest_exception(e)
+            self.set_furthest_exception(e)
             self.tracer.trace_failure(self.cursor, e)
             raise
         finally:
@@ -135,7 +134,7 @@ class ParserEngine(ParserCore):
         initial = self.pos
         lastpos = -1
         while True:
-            self._clear_recursion_errors()
+            self.clear_recursion_errors()
             try:
                 new_result = self.rule_call(ri, key)
                 self.goto(initial)
@@ -143,7 +142,7 @@ class ParserEngine(ParserCore):
                 break
 
             if new_result.newpos > lastpos:
-                self._save_result(key, new_result)
+                self.save_result(key, new_result)
                 lastpos = new_result.newpos
                 result = new_result
             else:
@@ -162,7 +161,7 @@ class ParserEngine(ParserCore):
         if isinstance(result, RuleResult):
             return result
 
-        self._set_left_recursion_guard(key)
+        self.set_left_recursion_guard(key)
 
         self.pushstate(ast=AST())
         try:
@@ -170,7 +169,7 @@ class ParserEngine(ParserCore):
 
             node = self.func_call(ri)
             node = self.semantics_call(ri, node)
-            self._set_parseinfo(node, ri.name, key.pos)
+            self.set_parseinfo(node, ri.name, key.pos)
 
             result = RuleResult(node, self.pos)
             self.memoize(key, result)
@@ -199,7 +198,7 @@ class ParserEngine(ParserCore):
 
     def semantics_call(self, ri: RuleInfo, node: Any) -> Any:
         if ri.is_name:
-            self._check_name(node)
+            self.validate_is_not_keyword(node)
 
         action = self.find_semantic_action(ri.name)
         if action:
@@ -207,14 +206,14 @@ class ParserEngine(ParserCore):
         else:
             return node
 
-    def _check_name(self, name: Any) -> None:
+    def validate_is_not_keyword(self, name: Any) -> None:
         name_str = str(name)
         if self.config.ignorecase:
             name_str = name_str.upper()
         if name_str in self.keywords:
             raise self.newexcept(f'"{name_str}" is a reserved word', KeywordError)
 
-    def _make_parseinfo(self, name: str, pos: int) -> ParseInfo:
+    def make_parseinfo(self, name: str, pos: int) -> ParseInfo:
         endpos = self.pos
         return ParseInfo(
             cursor=self.cursor,
@@ -226,34 +225,34 @@ class ParserEngine(ParserCore):
             alerts=self.state.alerts,
         )
 
-    def _set_parseinfo(self, node: Any, name: str, pos: int):
+    def set_parseinfo(self, node: Any, name: str, pos: int):
         if not self.config.parseinfo:
             return
         if hasattr(node, 'set_parseinfo'):
-            parseinfo = self._make_parseinfo(name, pos)
+            parseinfo = self.make_parseinfo(name, pos)
             node.set_parseinfo(parseinfo)
         elif hasattr(node, 'parseinfo'):
-            parseinfo = self._make_parseinfo(name, pos)
+            parseinfo = self.make_parseinfo(name, pos)
             node.parseinfo = parseinfo
 
-    def _save_result(self, key: MemoKey, result: RuleResult) -> None:
+    def save_result(self, key: MemoKey, result: RuleResult) -> None:
         if is_list(result.node):
             result = result._replace(node=closure(result.node))
         self._results[key] = result
 
-    def _set_left_recursion_guard(self, key: MemoKey) -> None:
+    def set_left_recursion_guard(self, key: MemoKey) -> None:
         if not self.config.left_recursion:
             return
         ex = self.newexcept(key.ruleinfo.name, excls=FailedLeftRecursion)
         self.memoize(key, ex)
 
-    def _clear_recursion_errors(self) -> None:
+    def clear_recursion_errors(self) -> None:
         def filter_func(_key: MemoKey, value: Any) -> bool:
             return isinstance(value, FailedLeftRecursion)
 
         prune_dict(self._memos, filter_func)
 
-    def _cut(self) -> None:
+    def cut(self) -> None:
         self.states.set_cut_seen()
         self.tracer.trace_cut(self.cursor)
 
@@ -266,8 +265,7 @@ class ParserEngine(ParserCore):
         if self.config.prune_memos_on_cut:
             prune(self.pos)
 
-
-    def _constant(self, literal: Any) -> Any:
+    def constant(self, literal: Any) -> Any:
         self.next_token()
         self.tracer.trace_match(self.cursor, literal)
 
@@ -313,3 +311,5 @@ class ParserEngine(ParserCore):
 
         self.states.append(result)
         return result
+
+    _constant = constant

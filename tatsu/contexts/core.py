@@ -24,7 +24,6 @@ from .infos import MemoKey, RuleInfo, RuleResult
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
-
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
@@ -177,9 +176,10 @@ class ParserCore:
         self.tracer = tracer
         return self.tracer
 
-    def _set_furthest_exception(self, e: FailedParse) -> None:
+    def set_furthest_exception(self, e: FailedParse) -> None:
         if not self._furthest_exception or e.pos > self._furthest_exception.pos:
             self._furthest_exception = e
+
     def goto(self, pos: int) -> None:
         self.cursor.goto(pos)
 
@@ -218,7 +218,7 @@ class ParserCore:
     def undostate(self) -> None:
         self.states.pop()
 
-    def _cut(self) -> None:
+    def cut(self) -> None:
         self.states.set_cut_seen()
         self.tracer.trace_cut(self.cursor)
 

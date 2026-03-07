@@ -6,9 +6,7 @@ from collections.abc import Callable, Generator
 from contextlib import contextmanager, suppress
 from typing import Any
 
-from tatsu.ast import AST
-from tatsu.util.string import regexpp
-
+from ..ast import AST
 from ..exceptions import (
     FailedExpectingEndOfText,
     FailedLookahead,
@@ -19,6 +17,7 @@ from ..exceptions import (
     ParseException,
 )
 from ..util import deprecated, is_list, left_assoc, right_assoc
+from ..util.string import regexpp
 from .ctxlib import ChoiceContext, InnerExpContext
 from .engine import ParserEngine
 from .infos import closure
@@ -45,16 +44,11 @@ class ParseContext(ParserEngine, Ctx):
     def add_last_node_to_name(self, name: str):  # bw-compat
         self.addname(name)
 
-    def _fail(self):
-        self.next_token()
-        raise self.newexcept('fail')
-
     def fail(self):
         self.next_token()
         raise self.newexcept('fail')
 
-    def cut(self) -> None:
-        self._cut()
+    _fail = fail
 
     def token(self, token: str) -> str:
         self.next_token()
@@ -65,11 +59,7 @@ class ParseContext(ParserEngine, Ctx):
         self.states.append(token)
         return token
 
-    def _token(self, token: str) -> str:
-        return self.token(token)
-
-    def constant(self, literal: Any) -> Any:
-        return self._constant(literal)
+    _token = token
 
     def alert(self, message: str, level: int) -> None:
         self.next_token()
@@ -80,10 +70,9 @@ class ParseContext(ParserEngine, Ctx):
         )
         self.states.alert(level=level, message=message)
 
-    def _alert(self, message: str, level: int) -> None:
-        self.alert(message, level)
+    _aler = alert
 
-    def _pattern(self, pattern: str) -> Any:
+    def pattern(self, pattern: str) -> Any:
         token = self.cursor.matchre(pattern)
         if token is None:
             self.tracer.trace_match(self.cursor, '', pattern, failed=True)
@@ -92,8 +81,7 @@ class ParseContext(ParserEngine, Ctx):
         self.states.append(token)
         return token
 
-    def pattern(self, pattern: str) -> Any:
-        return self._pattern(pattern)
+    _pattern = pattern
 
     def eof(self) -> bool:
         return self.cursor.atend()
@@ -101,7 +89,7 @@ class ParseContext(ParserEngine, Ctx):
     def eol(self) -> bool:
         return self.cursor.ateol()
 
-    def _check_eof(self) -> None:
+    def eofcheck(self) -> None:
         self.next_token()
         if not self.cursor.atend():
             raise self.newexcept(
@@ -109,8 +97,7 @@ class ParseContext(ParserEngine, Ctx):
                 excls=FailedExpectingEndOfText,
             )
 
-    def eofcheck(self) -> None:
-        self._check_eof()
+    _check_eof = eofcheck
 
     @contextmanager
     def _try(self) -> Any:
@@ -123,14 +110,13 @@ class ParseContext(ParserEngine, Ctx):
             raise
 
     def _no_more_options(self) -> bool:
-        """
-        Used by the Python code generator so there are
-        no unconditional:
-            ```
-            raise self.newexception(...)
-            ```
-        that fool the syntax highlighting of editors
-        """
+        # NOTE:
+        #  In previous versiions, used by the Python code generator
+        #  so there are no unconditional:
+        #  `
+        #      raise self.newexception(...)
+        #  `
+        #  that fool the syntax highlighting of editors
         return True
 
     @contextmanager
@@ -145,10 +131,7 @@ class ParseContext(ParserEngine, Ctx):
             else:
                 raise
 
-    @contextmanager
-    def _option(self) -> Any:
-        with self.option():
-            yield
+    _option = option
 
     @contextmanager
     def choice(self) -> Generator[ChoiceContext, Any, Any]:
@@ -157,20 +140,14 @@ class ParseContext(ParserEngine, Ctx):
             yield ctx
             ctx.run()
 
-    @contextmanager
-    def _choice(self) -> Generator[ChoiceContext, Any, Any]:
-        with self.choice() as ch:
-            yield ch
-
-    @contextmanager
-    def _optional(self) -> Any:
-        with self._choice(), self._option(), self.states.cutscope():
-            yield
+    _choice = choice
 
     @contextmanager
     def optional(self) -> Any:
         with self._choice(), self._option(), self.states.cutscope():
             yield
+
+    _optional = optional
 
     @contextmanager
     def group(self) -> Any:
@@ -183,10 +160,7 @@ class ParseContext(ParserEngine, Ctx):
             self.undostate()
             raise
 
-    @contextmanager
-    def _group(self) -> Any:
-        with self.group():
-            yield
+    _group = group
 
     @contextmanager
     def if_(self) -> Any:
@@ -198,6 +172,8 @@ class ParseContext(ParserEngine, Ctx):
             self.undostate()
             self.lookahead -= 1
 
+    _if = if_
+
     @contextmanager
     def ifnot_(self) -> Any:
         try:
@@ -208,35 +184,21 @@ class ParseContext(ParserEngine, Ctx):
         else:
             raise self.newexcept('', excls=FailedLookahead)
 
-    @contextmanager
-    def _if(self) -> Any:
-        with self.if_():
-            yield
-
-    @contextmanager
-    def _ifnot(self) -> Any:
-        with self.ifnot_():
-            yield
-
-    @contextmanager
-    def _setname(self, name: str) -> Any:
-        yield
-        self.setname(name)
+    _ifnot = ifnot_
 
     @contextmanager
     def nameset(self, name: str) -> Any:
         yield
         self.setname(name)
 
-    @contextmanager
-    def _addname(self, name: str) -> Any:
-        yield
-        self.addname(name)
+    _setname = nameset
 
     @contextmanager
     def nameadd(self, name: str) -> Any:
         yield
         self.addname(name)
+
+    _addname = nameadd
 
     def _isolate(self, exp: Callable[[], Any], _drop: bool = False) -> Any:
         self.pushstate()
@@ -263,7 +225,7 @@ class ParseContext(ParserEngine, Ctx):
                         pcst = self._isolate(prefix, _drop=dropprefix)
                         if not dropprefix:
                             self.states.append(pcst)
-                        self._cut()
+                        self.cut()
 
                     cst = self._isolate(exp)
                     self.states.append(cst)
@@ -386,13 +348,11 @@ class ParseContext(ParserEngine, Ctx):
         self.cst = right_assoc(self._positive_join(exp, sep))
         return self.cst
 
-    def _void(self) -> Any:
-        self.next_token()
-        return ()
-
     def void(self) -> Any:
         self.next_token()
         return ()
+
+    _void = void
 
     def dot(self) -> Any:
         c = self._next()
@@ -403,20 +363,15 @@ class ParseContext(ParserEngine, Ctx):
         self.states.append(c)
         return c
 
-    def _dot(self) -> Any:
-        return self.dot()
-
-    @contextmanager
-    def _skipto(self) -> Any:
-        cl = InnerExpContext(self)
-        yield cl
-        self._skip_to(cl._exp_value())
+    _dot = dot
 
     @contextmanager
     def skipto(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
         self._skip_to(cl._exp_value())
+
+    _skipto = skipto
 
     def _skip_to(self, exp: Callable[[], Any]) -> Any:
         while not self.eof():
