@@ -11,6 +11,7 @@ from .tokenizing.tokenizer import NullTokenizer, Tokenizer
 from .util import Config, Undefined, cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
+
 MEMO_CACHE_SIZE = 4 * 1024
 
 
@@ -129,6 +130,7 @@ class ParserConfig(Config):
     @override
     def override(self, **settings: Any) -> ParserConfig:
         result = super().override(**settings)
+        assert isinstance(result, ParserConfig)
         if 'grammar' in settings:
             result.name = result.grammar
         self._deprecate_and_compile_comments()
