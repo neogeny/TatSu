@@ -11,11 +11,11 @@ from .._protocol import Ctx
 class ChoiceContext:
     def __init__(self, ctx: Ctx):
         self.ctx = ctx
-        self.options: list[Callable[[], Any]] = []
+        self.options: list[Callable[[Ctx], Any]] = []
         self.expected: list[str] = []
         self.result: Any = None
 
-    def option(self, func: Callable[[], Any]) -> Callable[[], None]:
+    def option(self, func: Callable[[Ctx], Any]) -> Callable[[Ctx], None]:
         self.options.append(func)
         return func
 
@@ -27,5 +27,5 @@ class ChoiceContext:
             return
         for opt in self.options:
             with self.ctx.option():
-                self.result = opt()
+                self.result = opt(self.ctx)
         raise self.ctx.newexcept(f"Expected one of: {' '.join(self.expected)}")

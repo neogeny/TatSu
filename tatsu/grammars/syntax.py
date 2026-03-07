@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from dataclasses import field
 from itertools import takewhile
+from typing import Any
 
 from ..ast import AST
 from ..contexts import ParseContext
 from ..exceptions import FailedRef
 from ..objectmodel import tatsudataclass
-from ..util import cast, indent, trim
+from ..util import cast, debug, indent, trim
 from ._core import PEP8_LLEN, Box, Model, Result
 from .math import ffset, kdot, ref
 
@@ -68,6 +69,14 @@ class SkipTo(Box):
 
 
 @tatsudataclass
+class Option(Box):
+    def _parse(self, ctx: ParseContext) -> Result:
+        result = super()._parse(ctx)
+        self._add_defined_attributes(ctx, result)
+        return result
+
+
+@tatsudataclass
 class Choice(Model):
     options: list[Option] = field(default_factory=list)
 
@@ -78,7 +87,15 @@ class Choice(Model):
 
     def _parse(self, ctx: ParseContext) -> Result:
         with ctx.choice() as ch:
-            ch.options = [lambda o=o: o._parse(ctx) for o in self.options]  # type: ignore
+            assert all(isinstance(o, Model) for o in self.options)
+            debug(self.options)
+            def wrap(o) -> Any:
+                assert isinstance(ctx, ParseContext) and isinstance(o, Option)
+                return o._parse
+            # for o in self.options:
+            #     ch.options.append(wrap(o))
+            ch.options = [wrap(o)for o in self.options]
+
             ch.expecting(*self.lookaheadlist())
         return ch.result
 
@@ -124,14 +141,6 @@ class Choice(Model):
 
     def callable_at_same_pos(self) -> list[Model]:
         return cast(list[Model], self.options)
-
-
-@tatsudataclass
-class Option(Box):
-    def _parse(self, ctx: ParseContext) -> Result:
-        result = super()._parse(ctx)
-        self._add_defined_attributes(ctx, result)
-        return result
 
 
 @tatsudataclass

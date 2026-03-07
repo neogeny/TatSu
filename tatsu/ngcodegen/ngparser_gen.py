@@ -274,7 +274,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self._gen_decor(Ctx.choice, ctx=outerctx, var=f'{var}')
             with self.indent():
                 for opt in choice.options:
-                    self._gen_anon_block(opt.exp, decor=f'{var}.option')
+                    self._gen_anon_block(opt.exp, ctx=self.ctx, decor=f'{var}.option')
                     self.print()
 
             elements = sorted(repr(f[0]) for f in choice.lookahead() if f)
@@ -295,10 +295,10 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             # self.pop_ctx()
             self.prev_choice_number()
 
-    def walk_Option(self, option: g.Option):
+    def walk_Option(self, _option: g.Option):
         pass  # handled by walk_Choice
-        self._gen_anon_block(option.exp, decor='ch.option')
-        self.print()
+        # self._gen_anon_block(option.exp, decor='ch.option')
+        # self.print()
 
     def walk_Optional(self, optional: g.Optional):
         self._gen_decor(Ctx.optional, exp=optional.exp)
@@ -505,6 +505,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         exp: g.Model,
         decor: str = '',
         echeck: bool = False,
+        ctx: str | None = None
     ):
         if echeck and () in exp.lookahead():
             raise CodegenError(
@@ -513,7 +514,10 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
 
         if decor:
             self.print(f'@{decor}')
-        self.print('def _():')
+        if ctx:
+            self.print(f'def _({ctx}: Ctx):')
+        else:
+            self.print('def _():')
         with self.indent():
             self.walk(exp)
 
@@ -530,16 +534,15 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     ):
         assert isinstance(mgr, types.FunctionType)
         name = mgr.__name__
-        ctx = ctx or self.ctx
         if var:
-            self.print(f'with {ctx}.{name}({arg}) as {var}:')
+            self.print(f'with ctx.{name}({arg}) as {var}:')
         else:
-            self.print(f'with {ctx}.{name}({arg}):')
+            self.print(f'with ctx.{name}({arg}):')
         with self.indent():
             if sep:
-                self._gen_anon_block(sep, decor=f'{var}.sep', echeck=echeck)
+                self._gen_anon_block(sep, decor=f'{var}.sep', ctx=ctx, echeck=echeck)
                 self.print()
             if exp and var:
-                self._gen_anon_block(exp, decor=f'{var}.exp', echeck=echeck)
+                self._gen_anon_block(exp, decor=f'{var}.exp', ctx=ctx, echeck=echeck)
             elif exp:
                 self.walk(exp)
