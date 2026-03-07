@@ -229,7 +229,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'{self.ctx}.eofcheck()')
 
     def walk_Group(self, group: g.Group):
-        self._gen_decor(Ctx.group, group.exp)
+        self._gen_decor(Ctx.group, exp=group.exp)
 
     def walk_Token(self, token: g.Token):
         self.print(f'{self.ctx}.token({token.token!r})')
@@ -244,10 +244,10 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'{self.ctx}.pattern({regexpp(pattern.pattern)})')
 
     def walk_Lookahead(self, lookahead: g.Lookahead):
-        self._gen_decor(Ctx.if_, lookahead.exp)
+        self._gen_decor(Ctx.if_, exp=lookahead.exp)
 
     def walk_NegativeLookahead(self, lookahead: g.NegativeLookahead):
-        self._gen_decor(Ctx.ifnot_, lookahead.exp)
+        self._gen_decor(Ctx.ifnot_, exp=lookahead.exp)
 
     def walk_Sequence(self, seq: g.Sequence):
         self._gen_defines_declaration(seq)
@@ -260,7 +260,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
 
         n = self.new_choice_number()
         a = GREEKTOME[n]
-        var = f'ch{a}' if n > 0 else 'ch'
+        var = f'ch{a}'
         outerctx = self.ctx
         self.push_ctx(f'ctx{a}')
         try:
@@ -294,49 +294,49 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print()
 
     def walk_Optional(self, optional: g.Optional):
-        self._gen_decor(Ctx.optional, optional.exp)
+        self._gen_decor(Ctx.optional, exp=optional.exp)
 
     def walk_EmptyClosure(self, _closure: g.EmptyClosure):
         self.print(f'{self.ctx}.empty()')
 
     def walk_Closure(self, closure: g.Closure):
-        self._gen_decor(Ctx.loopopt, closure.exp, var='cl')
+        self._gen_decor(Ctx.loopopt, exp=closure.exp, var='cl')
 
     def walk_PositiveClosure(self, closure: g.PositiveClosure):
-        self._gen_decor(Ctx.loopplus, closure.exp, var='cl')
+        self._gen_decor(Ctx.loopplus, exp=closure.exp, var='cl')
 
     def walk_Join(self, join: g.Join):
-        self._gen_decor(Ctx.joinopt, join.exp, sep=join.sep, var='cl')
+        self._gen_decor(Ctx.joinopt, exp=join.exp, sep=join.sep, var='cl')
 
     def walk_PositiveJoin(self, join: g.PositiveJoin):
-        self._gen_decor(Ctx.joinplus, join.exp, sep=join.sep, var='cl')
+        self._gen_decor(Ctx.joinplus, exp=join.exp, sep=join.sep, var='cl')
 
     def walk_LeftJoin(self, join: g.LeftJoin):
-        self._gen_decor(Ctx.joinleft, join.exp, sep=join.sep, var='cl')
+        self._gen_decor(Ctx.joinleft, exp=join.exp, sep=join.sep, var='cl')
 
     def walk_RightJoin(self, join: g.RightJoin):
-        self._gen_decor(Ctx.joinright, join.exp, sep=join.sep, var='cl')
+        self._gen_decor(Ctx.joinright, exp=join.exp, sep=join.sep, var='cl')
 
     def walk_Gather(self, gather: g.Gather):
-        self._gen_decor(Ctx.gatheropt, gather.exp, sep=gather.sep, var='g')
+        self._gen_decor(Ctx.gatheropt, exp=gather.exp, sep=gather.sep, var='g')
 
     def walk_PositiveGather(self, gather: g.PositiveGather):
-        self._gen_decor(Ctx.gatherplus, gather.exp, sep=gather.sep, var='g')
+        self._gen_decor(Ctx.gatherplus, exp=gather.exp, sep=gather.sep, var='g')
 
     def walk_SkipTo(self, skipto: g.SkipTo):
-        self._gen_decor(Ctx.skipto, skipto.exp)
+        self._gen_decor(Ctx.skipto, exp=skipto.exp)
 
     def walk_Named(self, named: g.Named):
-        self._gen_decor(Ctx.nameset, named.exp, arg=repr(named.name))
+        self._gen_decor(Ctx.nameset, exp=named.exp, arg=repr(named.name))
 
     def walk_NamedList(self, named: g.Named):
-        self._gen_decor(Ctx.nameadd, named.exp, arg=repr(named.name))
+        self._gen_decor(Ctx.nameadd, exp=named.exp, arg=repr(named.name))
 
     def walk_Override(self, o: g.Override):
-        self._gen_decor(Ctx.nameset, o.exp, arg=repr('@'))
+        self._gen_decor(Ctx.nameset, exp=o.exp, arg=repr('@'))
 
     def walk_OverrideList(self, override: g.OverrideList):
-        self._gen_decor(Ctx.nameadd, override.exp, arg=repr('@'))
+        self._gen_decor(Ctx.nameadd, exp=override.exp, arg=repr('@'))
 
     def _gen_keywords(self, grammar: g.Grammar):
         keywords = [str(k) for k in grammar.keywords if k is not None]
@@ -513,6 +513,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def _gen_decor(
         self,
         mgr: Callable[..., Any],
+        /, *,
         exp: g.Model | None = None,
         sep: g.Model | None = None,
         var: str = '',
