@@ -10,7 +10,7 @@ from ..ast import AST
 from ..contexts import ParseContext
 from ..exceptions import FailedRef
 from ..objectmodel import tatsudataclass
-from ..util import cast, debug, indent, trim
+from ..util import cast, indent, trim
 from ._core import PEP8_LLEN, Box, Model, Result
 from .math import ffset, kdot, ref
 
@@ -87,14 +87,10 @@ class Choice(Model):
 
     def _parse(self, ctx: ParseContext) -> Result:
         with ctx.choice() as ch:
-            assert all(isinstance(o, Model) for o in self.options)
-            debug(self.options)
             def wrap(o) -> Any:
                 assert isinstance(ctx, ParseContext) and isinstance(o, Option)
                 return o._parse
-            # for o in self.options:
-            #     ch.options.append(wrap(o))
-            ch.options = [wrap(o)for o in self.options]
+            ch.options = [wrap(o) for o in self.options]
 
             ch.expecting(*self.lookaheadlist())
         return ch.result
