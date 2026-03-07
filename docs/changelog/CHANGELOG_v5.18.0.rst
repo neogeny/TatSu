@@ -7,13 +7,23 @@ v5.18.0
 Incompatible Changes
 ~~~~~~~~~~~~~~~~~~~~
 
-- Support for old generated Python parsers is dropped. In most cases
+- Support for very old generated Python parsers is dropped. In most cases
   it’s best to generate a new Python parser.
 
+- Dropped support in the grammar for ``regex + regex``, adding regular expressions.
+
+- Dropped support for ``?/.../?`` regexes in the grammar.
+
+
+
 Grammars / EBNF
-~~~~~~~~~~~~~~-
+~~~~~~~~~~~~~~~
 
 - Now **TatSu**\ ’s own grammar is written in EBNF notation.
+
+- Multi-line string literals in the grammar are now supported. Use triple
+  quotes like ``"""..."""`` or ``'''...'''` for multi-line string literals
+  in the grammar.
 
 - There’s now a copy of the **TatSu** grammar unther the main package at
   ``./tatsu/_tatsu.tatsu``. The grammar text is available as

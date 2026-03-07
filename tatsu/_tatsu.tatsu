@@ -175,7 +175,7 @@ token[Token]: string | raw_string
 
 literal: string | raw_string | boolean | word | hex | float | int | null
 
-string: singlequoted | doublequoted
+string: (multiline_string | singlequoted | doublequoted)
 singlequoted: SINGLEQUOTED
 doublequoted: DOUBLEQUOTED
 
@@ -184,6 +184,8 @@ raw_string: /r/ @:STRING
 STRING: SINGLEQUOTED | DOUBLEQUOTED
 SINGLEQUOTED: /'((?:[^'\n]|\\'|\\\\)*?)'/ ~
 DOUBLEQUOTED: /"((?:[^"\n]|\\"|\\\\)*?)"/ ~
+
+multiline_string: /(?ms)'''((?:[^']|\\.)*?)'''/ ~ | /(?ms)"""((?:[^"]|\\.)*?)"""/ ~
 
 hex: /0[xX](?:\d|[a-fA-F])+/
 
@@ -204,7 +206,7 @@ regex:
     | '?' @:STRING
     | deprecated_regex
 
-REGEX: ?"/((?:[^/\\]|\\/|\\.)*)/" ~
+REGEX: ?"(?ms)/((?:[^/\\]|\\/|\\.)*)/" ~
 
 deprecated_regex: '?/' ~ @:?"(?:.|\n)*?(?=/\?)" ?"/\?+" ~ ^^`deprecated` !() ~
 

@@ -359,8 +359,17 @@ part of names:
 ``r'text'`` or ``r"text"``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Match the token *text* within the quotation marks, interpreting *text*
-like `Python`_'s `raw string literal`_\ s.
+A multi-line version of ``token``. The text within the triple quotation marks
+is stripped of trailing whitespace and the common indentation is removed as to
+help with formatting pretty grammars without having to worry about indentation.
+The resulting text is matched as a token.
+
+
+``'''text'''`` or ``"""text"""``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Match the token *text* within the triple quotation marks, interpreting *text*
+like `Python`_'s `raw string literal`_\ s. This is useful
 
 
 ``/regexp/``

@@ -1441,6 +1441,7 @@ class TatSuBootstrapRules:
 
             ch.expecting(
                 '<doublequoted>',
+                '<multiline_string>',
                 '<raw_string>',
                 '<singlequoted>',
                 '<string>',
@@ -1490,6 +1491,7 @@ class TatSuBootstrapRules:
                 '<float>',
                 '<hex>',
                 '<int>',
+                '<multiline_string>',
                 '<null>',
                 '<raw_string>',
                 '<singlequoted>',
@@ -1505,21 +1507,29 @@ class TatSuBootstrapRules:
 
     @tatsu.rule
     def string(self, ctx: Ctx):
-        with ctx.choice() as ch:
-            @ch.option
-            def _():
-                self.singlequoted(ctx)
+        with ctx.group():
+            with ctx.choice() as ch:
+                @ch.option
+                def _():
+                    self.multiline_string(ctx)
 
-            @ch.option
-            def _():
-                self.doublequoted(ctx)
+                @ch.option
+                def _():
+                    self.singlequoted(ctx)
 
-            ch.expecting(
-                '<DOUBLEQUOTED>',
-                '<SINGLEQUOTED>',
-                '<doublequoted>',
-                '<singlequoted>'
-            )
+                @ch.option
+                def _():
+                    self.doublequoted(ctx)
+
+                ch.expecting(
+                    "(?ms)'''((?:[^']|\\\\.)*?)'''",
+                    '"""((?:[^"]|\\\\.)*?)"""',
+                    '<DOUBLEQUOTED>',
+                    '<SINGLEQUOTED>',
+                    '<doublequoted>',
+                    '<multiline_string>',
+                    '<singlequoted>'
+                )
 
     @tatsu.rule
     def singlequoted(self, ctx: Ctx):
@@ -1562,6 +1572,24 @@ class TatSuBootstrapRules:
     def DOUBLEQUOTED(self, ctx: Ctx):
         ctx.pattern(r'"((?:[^"\n]|\\"|\\\\)*?)"')
         ctx.cut()
+
+    @tatsu.rule
+    def multiline_string(self, ctx: Ctx):
+        with ctx.choice() as ch:
+            @ch.option
+            def _():
+                ctx.pattern(r"(?ms)'''((?:[^']|\\.)*?)'''")
+                ctx.cut()
+
+            @ch.option
+            def _():
+                ctx.pattern(r'"""((?:[^"]|\\.)*?)"""')
+                ctx.cut()
+
+            ch.expecting(
+                "(?ms)'''((?:[^']|\\\\.)*?)'''",
+                '"""((?:[^"]|\\\\.)*?)"""'
+            )
 
     @tatsu.rule
     def hex(self, ctx: Ctx):
@@ -1609,7 +1637,7 @@ class TatSuBootstrapRules:
                 self.deprecated_regex(ctx)
 
             ch.expecting(
-                '/((?:[^/\\\\]|\\\\/|\\\\.)*)/',
+                '(?ms)/((?:[^/\\\\]|\\\\/|\\\\.)*)/',
                 '<REGEX>',
                 '<deprecated_regex>',
                 '?',
@@ -1618,7 +1646,7 @@ class TatSuBootstrapRules:
 
     @tatsu.rule
     def REGEX(self, ctx: Ctx):
-        ctx.pattern(r'/((?:[^/\\]|\\/|\\.)*)/')
+        ctx.pattern(r'(?ms)/((?:[^/\\]|\\/|\\.)*)/')
         ctx.cut()
 
     @tatsu.rule

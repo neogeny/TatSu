@@ -6,6 +6,8 @@ from ast import literal_eval
 from collections.abc import Iterable
 from typing import Any
 
+from tatsu.util.string import trim
+
 from . import grammars as g
 from .builder import ModelBuilderSemantics
 from .contexts import ParseContext
@@ -64,7 +66,14 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
         return pattern
 
     def string(self, ast):
-        return eval_escapes(ast)
+        value = ast
+        return eval_escapes(value)
+
+    def multiline_string(self, ast):
+        value = ast
+        value = trim(value.strip()).rstrip()
+        # raise RuntimeError(f'multiline\n{value!r}\n{ast!r}')
+        return eval_escapes(value)
 
     def hex(self, ast):
         return int(ast, 16)
