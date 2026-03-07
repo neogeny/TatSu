@@ -72,8 +72,6 @@ class TatSuGrammarSemantics(ModelBuilderSemantics):
     def multiline_string(self, ast):
         value = ast
         value = trim(value.strip()).rstrip()
-        # FIXME
-        # raise RuntimeError(f'multiline\n{value!r}\n{ast!r}')
         return eval_escapes(value)
 
     def hex(self, ast):

@@ -281,6 +281,7 @@ def black(c: Context, python: float = PYTHON):
         python=python,
         group='test',
         warn=True,
+        hide=True,
         pty=True,
     )
     if res.exited != 0:
