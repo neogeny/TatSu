@@ -207,10 +207,10 @@ regex:
     | REGEX
     | '?' @:STRING
     | deprecated_regex
-
 REGEX: ?"(?ms)/((?:[^/\\]|\\/|\\.)*)/" ~
-
-deprecated_regex: '?/' ~ @:?"(?:.|\n)*?(?=/\?)" ?"/\?+" ~ ^^`deprecated` !() ~
+deprecated_regex:
+    ?"(?ms)\?/((?:[^/\\]|\\/|\\.)*)/\?" ~
+    ^^`deprecated regex syntax`
 
 boolean: 'True' | 'False'
 
