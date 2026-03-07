@@ -23,7 +23,8 @@ __license__: str = 'BSD-4-Clause'
 # and breaking havock on `uv run --python PYTHON`
 # Fun using ord of the hidden STX char for '2'
 # PYTHON: float = float(f'{math.pi:.{ord('')}f}')
-PYTHON: float = round(math.pi, 2)
+# PYTHON: float = round(math.pi, 2)
+PYTHON: float = round(3.15, 2)
 
 LINE_PRE: int = 4
 THIN_LINE: str = '─'
