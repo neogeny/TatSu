@@ -134,10 +134,10 @@ class ParseContext(ParserEngine, Ctx):
     _option = option
 
     @contextmanager
-    def choice(self) -> Generator[tuple[ParseContext, ChoiceContext], Any, Any]:
+    def choice(self) -> Generator[ChoiceContext, Any, Any]:
         chc = ChoiceContext(self)
         with suppress(OptionSucceeded), self.states.cutscope():
-            yield self, chc
+            yield chc
             chc.run()
 
     _choice = choice

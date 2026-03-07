@@ -269,9 +269,9 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         a = GREEKTOME[n]
         var = f'ch{a}'
         outerctx = self.ctx
-        self.push_ctx(f'ctx{a}')
+        # self.push_ctx(f'ctx{a}')
         try:
-            self._gen_decor(Ctx.choice, ctx=outerctx, var=f'({self.ctx}, {var})')
+            self._gen_decor(Ctx.choice, ctx=outerctx, var=f'{var}')
             with self.indent():
                 for opt in choice.options:
                     self._gen_anon_block(opt.exp, decor=f'{var}.option')
@@ -292,7 +292,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                         self.print(expectinner)
                     self.print(')')
         finally:
-            self.pop_ctx()
+            # self.pop_ctx()
             self.prev_choice_number()
 
     def walk_Option(self, option: g.Option):
