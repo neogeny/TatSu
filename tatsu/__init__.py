@@ -24,7 +24,7 @@ from .tool import (  # pylint: disable=W0622
 
 # HACK!
 # NOTE: this is for backwrds compatibility with legacy generated parsers
-sys.modules.update(
+sys.modules.update(  # noqa: RUF067
     {
         'tatsu.builder': builder,
         'tatsu.buffering': buffer,

@@ -34,7 +34,7 @@ class SynthNode(BaseNode):
 def synthesize(name: str, bases: tuple[type, ...], **kwargs: Any) -> type:
     # by Apalala 2026/02/16 <- 2017
     # by Gemini  2026/02/16
-    if not tuple or not isinstance(bases, tuple):
+    if not isinstance(bases, tuple):
         raise TypeError(f'bases must be a tuple, not {type(bases)}')
 
     if SynthNode not in bases:
