@@ -48,6 +48,9 @@ jobs:
           python3 -c "import pytest"
           python3 -m tatsu --version
 
+      - name: black
+        run: |
+          python3 -m black tatsu tests examples
       - name: ruff
         run: |
           python3 -m ruff check -q --preview tatsu tests examples
