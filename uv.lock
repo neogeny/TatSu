@@ -24,6 +24,12 @@ wheels = [
 ]
 
 [[package]]
+name = "asciitree"
+version = "0.3.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/2d/6a/885bc91484e1aa8f618f6f0228d76d0e67000b0fdd6090673b777e311913/asciitree-0.3.3.tar.gz", hash = "sha256:4aa4b9b649f85e3fcb343363d97564aa1fb62e249677f2e18a96765145cc0f6e", size = 3951, upload-time = "2016-09-05T19:10:42.681Z" }
+
+[[package]]
 name = "astroid"
 version = "3.3.11"
 source = { registry = "https://pypi.org/simple" }
@@ -1478,6 +1484,7 @@ parproc = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "asciitree" },
     { name = "basedpyright" },
     { name = "black" },
     { name = "build" },
@@ -1549,6 +1556,7 @@ provides-extras = ["colorization", "parproc"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "asciitree", specifier = ">=0.3.3" },
     { name = "basedpyright", specifier = ">=1.38.0" },
     { name = "black", specifier = ">=26.1.0" },
     { name = "build", specifier = ">=1.4.0" },

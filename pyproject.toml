@@ -36,6 +36,7 @@ parproc = ["rich"]
 
 [dependency-groups]
 dev = [
+    "asciitree>=0.3.3",
     "basedpyright>=1.38.0",
     "black>=26.1.0",
     "build>=1.4.0",
