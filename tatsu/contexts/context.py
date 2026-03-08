@@ -200,10 +200,10 @@ class ParseContext(ParserEngine, Ctx):
 
     _addname = nameadd
 
-    def _isolate(self, exp: Callable[[], Any], _drop: bool = False) -> Any:
+    def _isolate(self, exp: Callable[[Ctx], Any], _drop: bool = False) -> Any:
         self.pushstate()
         try:
-            exp()
+            exp(self)
             return closure(self.cst) if is_list(self.cst) else self.cst
         finally:
             ast = self.ast
@@ -212,8 +212,8 @@ class ParseContext(ParserEngine, Ctx):
 
     def _repeat(
         self,
-        exp: Callable[[], Any],
-        prefix: Callable[[], Any] | None = None,
+        exp: Callable[[Ctx], Any],
+        prefix: Callable[[Ctx], Any] | None = None,
         dropprefix: bool = False,
     ) -> None:
         while True:
@@ -246,10 +246,10 @@ class ParseContext(ParserEngine, Ctx):
         yield cl
         self._positive_closure(cl._exp_value())
 
-    def _closure(
+    def closure(
         self,
-        exp: Callable[[], Any],
-        sep: Callable[[], Any] | None = None,
+        exp: Callable[[Ctx], Any],
+        sep: Callable[[Ctx], Any] | None = None,
         omitsep: bool = False,
     ) -> Any:
         self.pushstate()
@@ -257,7 +257,7 @@ class ParseContext(ParserEngine, Ctx):
             self.cst = []
             with self.states.cutscope():
                 with self._optional():
-                    exp()
+                    exp(self)
                     self.cst = [self.cst]
                 self._repeat(exp, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
@@ -266,16 +266,18 @@ class ParseContext(ParserEngine, Ctx):
             self.undostate()
             raise
 
-    def _positive_closure(
+    _closure = closure
+
+    def positive_closure(
         self,
-        exp: Callable[[], Any],
-        sep: Callable[[], Any] | None = None,
+        exp: Callable[[Ctx], Any],
+        sep: Callable[[Ctx], Any] | None = None,
         omitsep: bool = False,
     ) -> Any:
         self.pushstate()
         try:
             with self.states.cutscope():
-                exp()
+                exp(self)
                 self.cst = [self.cst]
                 self._repeat(exp, prefix=sep, dropprefix=omitsep)
             self.cst = closure(self.cst)
@@ -283,6 +285,8 @@ class ParseContext(ParserEngine, Ctx):
         except ParseException:
             self.undostate()
             raise
+
+    _positive_closure = positive_closure
 
     def empty(self) -> list:
         cst = closure([])
@@ -304,10 +308,12 @@ class ParseContext(ParserEngine, Ctx):
         yield cl
         self._positive_gather(cl._exp_value(), cl._sep_value())
 
-    def _gather(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+    def _gather(self, exp: Callable[[Ctx], Any], sep: Callable[[Ctx], Any]) -> Any:
         return self._closure(exp, sep=sep, omitsep=True)
 
-    def _positive_gather(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+    def _positive_gather(
+        self, exp: Callable[[Ctx], Any], sep: Callable[[Ctx], Any]
+    ) -> Any:
         return self._positive_closure(exp, sep=sep, omitsep=True)
 
     @contextmanager
@@ -322,10 +328,12 @@ class ParseContext(ParserEngine, Ctx):
         yield cl
         self._positive_join(cl._exp_value(), cl._sep_value())
 
-    def _join(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+    def _join(self, exp: Callable[[Ctx], Any], sep: Callable[[Ctx], Any]) -> Any:
         return self._closure(exp, sep=sep)
 
-    def _positive_join(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+    def _positive_join(
+        self, exp: Callable[[Ctx], Any], sep: Callable[[Ctx], Any]
+    ) -> Any:
         return self._positive_closure(exp, sep=sep)
 
     @contextmanager
@@ -340,11 +348,11 @@ class ParseContext(ParserEngine, Ctx):
         yield cl
         self._right_join(cl._exp_value(), cl._sep_value())
 
-    def _left_join(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+    def _left_join(self, exp: Callable[[Ctx], Any], sep: Callable[[Ctx], Any]) -> Any:
         self.cst = left_assoc(self._positive_join(exp, sep))
         return self.cst
 
-    def _right_join(self, exp: Callable[[], Any], sep: Callable[[], Any]) -> Any:
+    def _right_join(self, exp: Callable[[Ctx], Any], sep: Callable[[Ctx], Any]) -> Any:
         self.cst = right_assoc(self._positive_join(exp, sep))
         return self.cst
 
@@ -373,11 +381,11 @@ class ParseContext(ParserEngine, Ctx):
 
     _skipto = skipto
 
-    def _skip_to(self, exp: Callable[[], Any]) -> Any:
+    def _skip_to(self, exp: Callable[[Ctx], Any]) -> Any:
         while not self.eof():
             try:
                 with self.if_():
-                    exp()
+                    exp(self)
             except FailedParse:
                 pass
             else:
@@ -386,4 +394,4 @@ class ParseContext(ParserEngine, Ctx):
             self.next_token()
             if self.pos == pos:
                 self._next()
-        return exp()
+        return exp(self)

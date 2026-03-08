@@ -17,7 +17,6 @@ from ..parserconfig import ParserConfig
 from ..util import Undefined, compress_seq, regexpp, safe_name
 from ..walkers import NodeWalker
 
-_GREEKTOME = "αβγδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 
 
@@ -35,6 +34,8 @@ HEADER = """\
     #
     # ruff: noqa: RUF100, RUF102, C405, COM812, I001, F401, F811, PLR1702
     # ruff: noqa: PLC2801, SIM117, PL2401, PLC2402, PLC2403
+    # noqa
+    # type: ignore
     # fmt: off
 
     from __future__ import annotations
@@ -265,8 +266,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             return
 
         n = self.new_choice_number()
-        a = GREEKTOME[n]
-        var = f'ch{a}'
+        var = GREEKTOME[n]
         outerctx = self.ctx
         # self.push_ctx(f'ctx{a}')
         try:
@@ -506,6 +506,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         echeck: bool = False,
         ctx: str | None = None,
     ):
+        ctx = ctx or self.ctx
         if echeck and () in exp.lookahead():
             raise CodegenError(
                 f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}',
@@ -514,9 +515,9 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         if decor:
             self.print(f'@{decor}')
         if ctx:
-            self.print(f'def _({ctx}: Ctx):')
+            self.print(f'def 〇({ctx}: Ctx):')
         else:
-            self.print('def _():')
+            self.print('def 〇():')
         with self.indent():
             self.walk(exp)
 

@@ -7,11 +7,12 @@
 from __future__ import annotations
 
 from dataclasses import field
+from typing import Any
 
-from ..contexts import ParseContext
+from ..contexts import Ctx
 from ..objectmodel import nodedataclass
 from ..util import typename
-from ._core import Box, Model, Result, Rule
+from ._core import Box, Model, Rule
 from .syntax import Sequence
 
 
@@ -47,7 +48,7 @@ class BasedRule(Rule):
 
         self.rhs = Sequence(ast=[self.baserule.exp, self.exp])
 
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
         return self._parse_rhs(ctx, self.rhs)
 
     def defines(self):

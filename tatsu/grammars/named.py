@@ -6,11 +6,13 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from typing import Any
+
 from ..ast import AST
-from ..contexts import ParseContext
+from ..contexts import Ctx, ParseContext
 from ..objectmodel import nodedataclass
-from ..util import typename
-from ._core import Box, NamedBox, Result
+from ..util import cast, typename
+from ._core import Box, NamedBox
 
 
 @nodedataclass
@@ -23,7 +25,8 @@ class Named(NamedBox):
             raise TypeError(f"{typename(self)} is missing required: 'name'")
         assert getattr(self, 'name', None) is not None
 
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
+        ctx = cast(ParseContext, ctx)
         value = self.exp._parse(ctx)
         ctx.ast[self.name] = value
         return value
@@ -39,7 +42,8 @@ class Named(NamedBox):
 
 @nodedataclass
 class NamedList(Named):
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
+        ctx = cast(ParseContext, ctx)
         value = self.exp._parse(ctx)
         ctx.ast._setlist(self.name, value)
         return value
@@ -55,7 +59,8 @@ class NamedList(Named):
 
 @nodedataclass
 class Override(Box):
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
+        ctx = cast(ParseContext, ctx)
         value = self.exp._parse(ctx)
         ctx.ast['@'] = value
         return value
@@ -68,7 +73,8 @@ class Override(Box):
 
 @nodedataclass
 class OverrideList(Box):
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
+        ctx = cast(ParseContext, ctx)
         value = self.exp._parse(ctx)
         ctx.ast._setlist('@', value)
         return value

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..contexts import ParseContext
+from ..contexts import Ctx
 from ..objectmodel import nodedataclass
 from ._core import Model
 from .math import ffset
@@ -12,7 +12,7 @@ from .math import ffset
 
 @nodedataclass
 class Dot(Model):
-    def _parse(self, ctx: ParseContext) -> Any:
+    def _parse(self, ctx: Ctx) -> Any:
         return ctx.dot()
 
     def _pretty(self, lean=False):
@@ -24,7 +24,7 @@ class Dot(Model):
 
 @nodedataclass
 class Fail(Model):
-    def _parse(self, ctx: ParseContext) -> Any:
+    def _parse(self, ctx: Ctx) -> Any:
         return ctx.fail()
 
     def _pretty(self, lean=False):
@@ -47,7 +47,7 @@ class EOLComment(Comment):
 
 @nodedataclass
 class EOF(Model):
-    def _parse(self, ctx: ParseContext) -> Any:
+    def _parse(self, ctx: Ctx) -> Any:
         ctx.eofcheck()
 
     def _pretty(self, lean=False):
@@ -62,7 +62,7 @@ class Token(Model):
         super().__post_init__()
         self.token = self.token or self.ast
 
-    def _parse(self, ctx: ParseContext) -> Any:
+    def _parse(self, ctx: Ctx) -> Any:
         return ctx.token(self.token)
 
     def _first(self, k, f) -> ffset:
@@ -80,7 +80,7 @@ class Constant(Model):
         super().__post_init__()
         self.literal = self.literal or self.ast
 
-    def _parse(self, ctx: ParseContext) -> Any:
+    def _parse(self, ctx: Ctx) -> Any:
         return ctx.constant(self.literal)
 
     def _first(self, k, f) -> ffset:
@@ -108,7 +108,7 @@ class Alert(Constant):
 
 @nodedataclass
 class Cut(Model):
-    def _parse(self, ctx: ParseContext) -> Any:
+    def _parse(self, ctx: Ctx) -> Any:
         ctx.cut()
 
     def _first(self, k, f) -> ffset:

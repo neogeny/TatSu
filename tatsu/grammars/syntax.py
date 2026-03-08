@@ -2,22 +2,24 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import field
 from itertools import takewhile
 from typing import Any
 
 from ..ast import AST
-from ..contexts import ParseContext
+from ..contexts import Ctx, ParseContext
 from ..exceptions import FailedRef
 from ..objectmodel import nodedataclass
 from ..util import cast, indent, trim
-from ._core import PEP8_LLEN, Box, Model, Result
+from ._core import PEP8_LLEN, Box, Model
 from .math import ffset, kdot, ref
 
 
 @nodedataclass
 class Group(Box):
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
+        ctx = cast(ParseContext, ctx)
         with ctx.group():
             self.exp._parse(ctx)
             return ctx.last_node
@@ -31,7 +33,7 @@ class Group(Box):
 
 @nodedataclass
 class Lookahead(Box):
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
         with ctx.if_():
             return super()._parse(ctx)
 
@@ -44,7 +46,7 @@ class Lookahead(Box):
 
 @nodedataclass
 class NegativeLookahead(Box):
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
         with ctx.ifnot_():
             return super()._parse(ctx)
 
@@ -57,9 +59,10 @@ class NegativeLookahead(Box):
 
 @nodedataclass
 class SkipTo(Box):
-    def _parse(self, ctx: ParseContext) -> Result:
-        super_parse = super()._parse
-        return ctx._skip_to(lambda: super_parse(ctx))
+    def _parse(self, ctx: Ctx) -> Any:
+        ctx = cast(ParseContext, ctx)
+        super_parse: Callable[[Ctx], Any] = super()._parse  # type: ignore
+        return ctx._skip_to(super_parse)
 
     def _first(self, k, f) -> ffset:
         return {('.',)} | super()._first(k, f)
@@ -70,7 +73,8 @@ class SkipTo(Box):
 
 @nodedataclass
 class Option(Box):
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
+        ctx = cast(ParseContext, ctx)
         result = super()._parse(ctx)
         self._add_defined_attributes(ctx, result)
         return result
@@ -85,11 +89,11 @@ class Choice(Model):
         self.options = self.options or self.ast
         assert isinstance(self.options, list), repr(self.options)
 
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
         with ctx.choice() as ch:
 
             def wrap(o) -> Any:
-                assert isinstance(ctx, ParseContext) and isinstance(o, Option)
+                assert isinstance(ctx, Ctx) and isinstance(o, Option)
                 return o._parse
 
             ch.options = [wrap(o) for o in self.options]
@@ -143,7 +147,8 @@ class Choice(Model):
 
 @nodedataclass
 class Optional(Box):
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
+        ctx = cast(ParseContext, ctx)
         self._add_defined_attributes(ctx, ctx.ast)
         with ctx._optional():
             return self.exp._parse(ctx)
@@ -171,7 +176,7 @@ class Sequence(Model):
             self.sequence = self.ast or []
         assert isinstance(self.sequence, list), self.sequence
 
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
         return [s._parse(ctx) for s in self.sequence]
 
     def defines(self):
@@ -234,7 +239,7 @@ class Call(Model):
     def follow_ref(self) -> Model:
         return self.grammar.rulemap.get(self.name, self)
 
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
         try:
             rule = ctx.find_rule(self.name)
             return rule(ctx)

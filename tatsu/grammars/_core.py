@@ -25,9 +25,7 @@ PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
 
-type Func = Callable[[], Any]
-# type Result = str | Model | AST | list[Result] | tuple[Result, ...]
-type Result = Any
+type Func = Callable[[Ctx], Any]
 
 
 def model_classes() -> list[type[Model]]:
@@ -80,7 +78,8 @@ class Model(Node):
     def follow_ref(self) -> Model:
         return self
 
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
+        assert ctx
         return ()
 
     def defines(self):
@@ -95,7 +94,7 @@ class Model(Node):
             raise TypeError(f'{typename(self)} incorrectly initialized {grammar}')
         return grammar
 
-    def parse(self, text: str, /, **settings) -> Result:
+    def parse(self, text: str, /, **settings) -> Any:
         grammar = self.grammar
         assert isinstance(grammar, Grammar)
         return grammar.parse(text, **settings)
@@ -139,12 +138,15 @@ class Model(Node):
         return self._follow_set
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
+        assert rulenames
         return set()
 
     def _used_rule_names(self):
         return set()
 
-    def _first(self, k: int, f: dict[str, ffset]) -> ffset:
+    def _first(
+        self, k: int, f: dict[str, ffset]
+    ) -> ffset:  # pyright: ignore[reportUnusedParameter]
         return set()
 
     def _follow(self, k, fl, a):
@@ -180,7 +182,7 @@ class Model(Node):
 
 @nodedataclass
 class NULL(Model):
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
         return ctx.fail() or ()
 
     def _pretty(self, lean=False):
@@ -192,7 +194,7 @@ class NULL(Model):
 
 @nodedataclass
 class Void(Model):
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
         return ctx.void()
 
     def _pretty(self, lean=False):
@@ -219,7 +221,7 @@ class Box(Model):
         assert self.exp is not None, f'{typename(self)}({self.exp})'
         assert self.exp, repr(self)
 
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
         return self.exp._parse(ctx)
 
     def defines(self):
@@ -287,10 +289,10 @@ class Rule(NamedBox):
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return self.exp.missing_rules(rulenames)
 
-    def _parse(self, ctx: ParseContext) -> Any:
+    def _parse(self, ctx: Ctx) -> Any:
         return self._parse_rhs(ctx, self.exp)
 
-    def _parse_rhs(self, ctx: ParseContext, exp: Model) -> Result:
+    def _parse_rhs(self, ctx: Ctx, exp: Model) -> Any:
         ruleinfo = RuleInfo(
             name=self.name,
             instance=exp,
@@ -513,7 +515,7 @@ class Grammar(Model):
         config: ParserConfig | None = None,
         asmodel: bool = False,
         **settings,
-    ) -> Result:
+    ) -> Any:
         config = self.config.override_config(config)
         assert isinstance(config, ParserConfig)
         # note: bw-comp: allow overriding directives

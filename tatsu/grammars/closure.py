@@ -6,18 +6,23 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from ..contexts import ParseContext
+from collections.abc import Callable
+from typing import Any
+
+from ..contexts import Ctx, ParseContext
 from ..objectmodel import nodedataclass
-from ..util import indent
-from ._core import Func, Model, Result
+from ..util import cast, indent
+from ._core import Func, Model
 from .math import ffset, kdot
 from .syntax import Box
 
 
 @nodedataclass
 class Closure(Box):
-    def _parse(self, ctx: ParseContext) -> Result:
-        return ctx._closure(lambda: self.exp._parse(ctx))
+    def _parse(self, ctx: Ctx) -> Any:
+        ctx = cast(ParseContext, ctx)
+        parse: Callable[[Ctx], Any] = self.exp._parse  # type: ignore
+        return ctx._closure(parse)
 
     def _first(self, k, f) -> ffset:
         efirst = self.exp._first(k, f)
@@ -39,8 +44,10 @@ class Closure(Box):
 
 @nodedataclass
 class PositiveClosure(Closure):
-    def _parse(self, ctx: ParseContext) -> Result:
-        return ctx._positive_closure(lambda: self.exp._parse(ctx))
+    def _parse(self, ctx: Ctx) -> Any:
+        ctx = cast(ParseContext, ctx)
+        parse: Callable[[Ctx], Any] = self.exp._parse  # type: ignore
+        return ctx._positive_closure(parse)
 
     def _first(self, k, f) -> ffset:
         return self.exp._first(k, f)
@@ -62,16 +69,11 @@ class Join(Box):
         super().__post_init__()
         assert self.sep == self.ast.sep, self.sep
 
-    def _parse(self, ctx: ParseContext) -> Result:
-        def sep():
-            return self.sep._parse(ctx)
+    def _parse(self, ctx: Ctx) -> Any:
+        return self._do_parse(ctx, self.exp._parse, self.sep._parse)
 
-        def exp():
-            return self.exp._parse(ctx)
-
-        return self._do_parse(ctx, exp, sep)
-
-    def _do_parse(self, ctx: ParseContext, exp: Func, sep: Func) -> Result:
+    def _do_parse(self, ctx: Ctx, exp: Func, sep: Func) -> Any:
+        ctx = cast(ParseContext, ctx)
         return ctx._join(exp, sep)
 
     def _pretty(self, lean=False):
@@ -91,6 +93,7 @@ class PositiveJoin(Join):
         return self.exp._first(k, f)
 
     def _do_parse(self, ctx, exp, sep):
+        ctx = cast(ParseContext, ctx)
         return ctx._positive_join(exp, sep)
 
     def _pretty(self, lean=False):
@@ -104,6 +107,7 @@ class LeftJoin(PositiveJoin):
     JOINOP = '<'
 
     def _do_parse(self, ctx, exp, sep):
+        ctx = cast(ParseContext, ctx)
         return ctx._left_join(exp, sep)
 
 
@@ -111,6 +115,7 @@ class RightJoin(PositiveJoin):
     JOINOP = '>'
 
     def _do_parse(self, ctx, exp, sep):
+        ctx = cast(ParseContext, ctx)
         return ctx._right_join(exp, sep)
 
 
@@ -118,6 +123,7 @@ class Gather(Join):
     JOINOP = '.'
 
     def _do_parse(self, ctx, exp, sep):
+        ctx = cast(ParseContext, ctx)
         return ctx._gather(exp, sep)
 
 
@@ -126,6 +132,7 @@ class PositiveGather(Gather):
         return self.exp._first(k, f)
 
     def _do_parse(self, ctx, exp, sep):
+        ctx = cast(ParseContext, ctx)
         return ctx._positive_gather(exp, sep)
 
     def _pretty(self, lean=False):
@@ -137,7 +144,7 @@ class PositiveGather(Gather):
 
 @nodedataclass
 class EmptyClosure(Model):
-    def _parse(self, ctx: ParseContext) -> Result:
+    def _parse(self, ctx: Ctx) -> Any:
         return ctx.empty()
 
     def _first(self, k, f) -> ffset:

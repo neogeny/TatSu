@@ -161,6 +161,11 @@ def clean(_c: Context, plus: bool = False):
 
 
 @task(pre=[clean])
+def clobber(_c: Context, _plus: bool = False):
+    pass
+
+
+@task(pre=[begin])
 def ruff(c: Context, python: float = PYTHON):
     start_print(ruff)
     uv_run(
@@ -171,7 +176,7 @@ def ruff(c: Context, python: float = PYTHON):
     )
 
 
-@task(pre=[clean])
+@task(pre=[begin])
 def ty(c: Context, python: float = PYTHON):
     start_print(ty)
     res = uv_run(
@@ -189,7 +194,7 @@ def ty(c: Context, python: float = PYTHON):
                 print(r)
 
 
-@task(pre=[clean])
+@task(pre=[begin])
 def mypy(c: Context, python: float = PYTHON):
     start_print(mypy)
     res = uv_run(
@@ -215,7 +220,7 @@ def mypy(c: Context, python: float = PYTHON):
                 print(r)
 
 
-@task(pre=[clean])
+@task(pre=[begin])
 def pyright(c: Context, python: float = PYTHON):
     start_print(pyright)
     uv_run(
@@ -228,7 +233,7 @@ def pyright(c: Context, python: float = PYTHON):
     )
 
 
-@task(pre=[clean])
+@task(pre=[begin])
 def pytestfast(c: Context, python: float = PYTHON):
     start_print(pytest, target='fast ')
     Path('./tmp').mkdir(exist_ok=True)
@@ -249,7 +254,7 @@ def pytestfast(c: Context, python: float = PYTHON):
     )
 
 
-@task(pre=[clean])
+@task(pre=[begin])
 def pytestbootstrap(c: Context, python: float = PYTHON):
     start_print(pytest, target='boot ')
     Path('./tmp').mkdir(exist_ok=True)
@@ -268,12 +273,12 @@ def pytestbootstrap(c: Context, python: float = PYTHON):
     )
 
 
-@task(pre=[clean, pytestfast, pytestbootstrap])
+@task(pre=[begin, pytestfast, pytestbootstrap])
 def pytest(_c: Context, _python: float = PYTHON):
     pass
 
 
-@task(pre=[clean])
+@task(pre=[begin])
 def black(c: Context, python: float = PYTHON):
     start_print(black)
     res = uv_run(
@@ -290,7 +295,7 @@ def black(c: Context, python: float = PYTHON):
         print('✖ failed!')
 
 
-@task(pre=[begin, clean, black, ruff, ty, mypy, pyright])
+@task(pre=[begin, black, ruff, ty, mypy, pyright])
 def lint(_c: Context):
     success_print(task_=lint)
 
@@ -300,7 +305,7 @@ def test(_c: Context):
     success_print(task_=test)
 
 
-@task(pre=[clean])
+@task(pre=[begin])
 def doclint(c: Context, _python: float = PYTHON):
     start_print(doclint)
     uv_run(
