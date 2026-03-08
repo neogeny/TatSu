@@ -4,7 +4,7 @@
 import re
 from typing import Any
 
-from .bootstrap import (
+from .bootstrap import (  # type: ignore
     TatSuBootstrapBuffer,
     TatSuBootstrapParser,
     TatSuBootstrapTokenizer,

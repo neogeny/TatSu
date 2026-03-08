@@ -152,10 +152,11 @@ disable_error_code = [
     "union-attr",
 ]
 exclude = [
-    'parsers',
-    'docs',
-    'build',
-    'tmp',
+    "parsers",
+    "docs",
+    "build",
+    "tmp",
+    "tatsu/bootstrap.py",
 ]
 
 [tool.ty.analysis]

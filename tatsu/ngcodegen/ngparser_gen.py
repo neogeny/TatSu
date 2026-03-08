@@ -17,7 +17,6 @@ from ..parserconfig import ParserConfig
 from ..util import Undefined, compress_seq, regexpp, safe_name
 from ..walkers import NodeWalker
 
-
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 
 
@@ -33,10 +32,12 @@ HEADER = """\
     #  Any changes you make to it will be overwritten the next time
     #  the file is generated.
     #
-    # ruff: noqa: RUF100, RUF102, C405, COM812, I001, F401, F811, PGH004
-    # ruff: noqa: PLC2801, SIM117, PL2401, PLC2402, PLC2403, PLR1702
-    # noqa
+    # ruff: noqa
+    # ty: ignore
+    # mypy: ignore-errors
+    # pyright: ignore
     # type: ignore
+    # noqa
     # fmt: off
 
     from __future__ import annotations
@@ -47,14 +48,6 @@ HEADER = """\
     from tatsu.parsing import Parser, generic_main
     from tatsu.tokenizing.buffer import Buffer
     from tatsu.tokenizing.textlines import TextLinesTokenizer
-
-    __all__ = [
-        '{tokenizer_name}',
-        '{buffer_name}',
-        '{parser_name}',
-        '{rules_name}',
-        'main',
-        ]
 
 """
 
