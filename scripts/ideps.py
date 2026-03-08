@@ -21,15 +21,18 @@ def pathtomodulename(path: Path):
     return str(path.with_suffix("")).replace("/", ".").replace(".__init__", "")
 
 
-def moduledeps(name: str, path: Path, level: int = 1) -> ModuleImports:
+def moduledeps(name: str, path: Path, level: int = 0) -> ModuleImports:
     source = path.read_text()
     module = ast.parse(source, filename=name)
     assert isinstance(module, ast.Module), module
 
     def imported(fromimport: ast.ImportFrom) -> tuple[str, ...]:
         if fromimport.module:
+            # Hack out __future__ dependencies
+            if fromimport.module == "__future__":
+                return ()
             return (fromimport.module,)
-        return tuple(alias.name for alias in fromimport.names)
+        return tuple(alias.name for alias in fromimport.names if alias.name != "__future__")
 
     imports = {
         imp
@@ -41,26 +44,39 @@ def moduledeps(name: str, path: Path, level: int = 1) -> ModuleImports:
     return ModuleImports(name=name, path=path, imports=imports)
 
 
-def findeps(paths: list[Path], level: int = 1) -> list[ModuleImports]:
+def findeps(paths: list[Path], level: int = 0) -> list[ModuleImports]:
     modulepaths = sorted((pathtomodulename(path), path) for path in paths)
     return [moduledeps(name, path, level=level) for name, path in modulepaths]
 
 
 def render(results: list[ModuleImports]) -> Tree:
     root = Tree("[bold green]Module Dependencies[/bold green]")
+
     for module in results:
+        # Root node for the specific module being analyzed
         module_label = module.name.split(".")[-1]
         branch = root.add(f"[bold blue]{module_label}[/bold blue]")
 
+        # Build a nested structure for the imports
         for imp in module.imports:
-            leaf_label = imp.split(".")[-1]
-            branch.add(leaf_label)
+            parts = imp.split(".")
+            current = branch
+            for part in parts:
+                # Add or find the existing node for this segment
+                # We search existing children to avoid duplicate branches
+                found = next((child for child in current.children if str(child.label) == part), None)
+                if found:
+                    current = found
+                else:
+                    current = current.add(part)
+
     return root
 
 
 def main(filenames: list[str]) -> None:
     paths = [Path(filename) for filename in filenames]
-    results = findeps(paths)
+    # Level 0 captures absolute imports
+    results = findeps(paths, level=0)
 
     tree = render(results)
     print(tree)
