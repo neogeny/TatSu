@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import glob
 import os
 import sys
 from pathlib import Path
@@ -24,15 +25,24 @@ class ModuleImports(NamedTuple):
 
 
 def pathtomodulename(path: Path) -> str:
-    return str(path.with_suffix("")).replace("/", ".").replace(".__init__", "")
+    """Converts a file path to a Python module name."""
+    return str(path.with_suffix("")).replace(os.path.sep, ".").replace(".__init__", "")
 
 
 def moduledeps(name: str, path: Path) -> ModuleImports:
+    """
+    Parses a Python file to find all its module-level imports, resolving
+    relative imports to their fully qualified names.
+    """
     source = path.read_text()
     module = ast.parse(source, filename=name)
     assert isinstance(module, ast.Module), module
 
     found_imports: set[Dependency] = set()
+
+    package_name_parts = name.split('.')
+    if path.name != '__init__.py':
+        package_name_parts = package_name_parts[:-1]
 
     for node in module.body:
         if isinstance(node, ast.Import):
@@ -42,17 +52,30 @@ def moduledeps(name: str, path: Path) -> ModuleImports:
             if node.module == "__future__":
                 continue
 
-            is_rel = node.level > 0
-            if node.module:
-                found_imports.add(Dependency(node.module, is_relative=is_rel))
-            else:
-                for alias in node.names:
-                    found_imports.add(Dependency(alias.name, is_relative=is_rel))
+            level = node.level
+            if level > 0:  # It's a relative import
+                dot_count = level - 1
+                if dot_count > len(package_name_parts):
+                    continue
+
+                relative_base_parts = package_name_parts[:len(package_name_parts) - dot_count]
+                base = ".".join(relative_base_parts)
+
+                if node.module:
+                    full_name = f"{base}.{node.module}" if base else node.module
+                    found_imports.add(Dependency(full_name, is_relative=True))
+                else:
+                    for alias in node.names:
+                        full_name = f"{base}.{alias.name}" if base else alias.name
+                        found_imports.add(Dependency(full_name, is_relative=True))
+            else:  # It's an absolute import
+                if node.module:
+                    found_imports.add(Dependency(node.module, is_relative=False))
 
     return ModuleImports(
         name=name,
         path=path,
-        imports=tuple(sorted(found_imports, key=lambda x: x.name))
+        imports=tuple(sorted(found_imports, key=lambda x: x.name)),
     )
 
 
@@ -61,71 +84,83 @@ def findeps(paths: list[Path]) -> list[ModuleImports]:
     return [moduledeps(name, path) for name, path in module_data]
 
 
-def add_path(
-    tree: Tree,
+def add_dependency_node(
+    parent: Tree,
     qualified_name: str,
-    is_internal_dependency: bool = False,
-    internal_roots: set[str] | None = None,
-    is_root_module: bool = False
-) -> Tree:
-    parts = qualified_name.split(".")
-    current = tree
-    roots = internal_roots or set()
+    is_internal: bool,
+    importer_name: str,
+    internal_roots: set[str],
+):
+    """Adds a dependency as an intelligently-named leaf node."""
+    style = "cyan" if is_internal else "white"
+    display_name = qualified_name
 
-    for i, part in enumerate(parts):
-        is_leaf = i == len(parts) - 1
-        prefix = ".".join(parts[: i + 1])
-
-        # Internal if:
-        # 1. It's the module we are currently analyzing (is_root_module)
-        # 2. It was flagged as a relative import
-        # 3. It starts with a known project root
-        is_internal = (
-            is_root_module or
-            is_internal_dependency or
-            any(prefix.startswith(root) for root in roots)
-        )
-
-        label = part
-        style = "cyan" if is_internal else "white"
-
-        if is_internal:
-            if is_root_module and i == 0:
-                label = f"◉ {part}"
+    if is_internal:
+        # Check if it's a sibling import
+        importer_prefix = importer_name.rpartition('.')[0]
+        importee_prefix = qualified_name.rpartition('.')[0]
+        if importer_prefix and importer_prefix == importee_prefix:
+            display_name = qualified_name.rpartition('.')[-1]
         else:
-            if is_leaf:
-                label = f"⟨{label}⟩"
+            # If not a sibling, show path relative to project root
+            parts = qualified_name.split('.')
+            if parts[0] in internal_roots and len(parts) > 1:
+                display_name = ".".join(parts[1:])
+        
+        label = f"◉ {display_name}"
+    else:
+        label = f"⟨{qualified_name}⟩"
 
-        # Find or create node
-        found = next((child for child in current.children if str(child.label).strip("◉ ⟨⟩ ") == part), None)
-        if found:
-            current = found
-        else:
-            current = current.add(label, style=style)
-
-    return current
+    parent.add(label, style=style)
 
 
 def render(results: list[ModuleImports]) -> Tree:
-    root = Tree("Module Dependency Analysis")
+    root = Tree("[bold green]Module Dependency Analysis[/bold green]")
+    module_nodes: dict[str, Tree] = {}
+    analyzed_module_names = {m.name for m in results}
     internal_roots = {m.name.split(".")[0] for m in results}
 
-    for module in results:
-        # The module itself is always internal
-        module_branch = add_path(
-            root,
-            module.name,
-            is_root_module=True,
-            internal_roots=internal_roots
-        )
+    # Phase 1: Build the structural skeleton.
+    for module_name in sorted(analyzed_module_names):
+        current = root
+        parts = module_name.split('.')
+        for i, part in enumerate(parts):
+            path_so_far = ".".join(parts[:i + 1])
+            if path_so_far in module_nodes:
+                current = module_nodes[path_so_far]
+            else:
+                new_node = current.add(part, style="cyan")
+                module_nodes[path_so_far] = new_node
+                current = new_node
 
+    # Phase 2: Add true dependencies.
+    for module in results:
+        module_node = module_nodes[module.name]
         for imp in module.imports:
-            add_path(
-                module_branch,
+            imp_parent = ".".join(imp.name.split('.')[:-1])
+            if imp.name in analyzed_module_names and imp_parent == module.name:
+                continue
+
+            imp_root = imp.name.split(".")[0]
+            is_internal_imp = imp.is_relative or (imp_root in internal_roots)
+            add_dependency_node(
+                module_node,
                 imp.name,
-                is_internal_dependency=imp.is_relative,
-                internal_roots=internal_roots
+                is_internal_imp,
+                importer_name=module.name,
+                internal_roots=internal_roots,
             )
+
+    # Phase 3: Recursively sort all nodes.
+    def sort_tree(tree: Tree):
+        tree.children.sort(key=lambda n: (
+            1 if "◉" in str(n.label) else 2 if "⟨" in str(n.label) else 0,
+            str(n.label).strip("◉ ⟨⟩ "),
+        ))
+        for child in tree.children:
+            sort_tree(child)
+
+    sort_tree(root)
     return root
 
 
@@ -136,14 +171,28 @@ def main() -> None:
         args.remove("--color")
 
     if not args:
-        print(f"usage:\n   python3 {Path(__file__).name} [--color] FILENAME...")
+        print(f"usage:\n   python3 {Path(__file__).name} [--color] FILENAME_OR_GLOB...")
         sys.exit(1)
 
     console = Console(force_terminal=force_color or "FORCE_COLOR" in os.environ)
 
-    paths = [Path(filename) for filename in args]
-    results = findeps(paths)
+    paths: list[Path] = []
+    for arg in args:
+        if any(c in arg for c in "*?[]"):
+            expanded = glob.glob(arg, recursive=True)
+            paths.extend(Path(p) for p in expanded if os.path.isfile(p))
+        else:
+            path = Path(arg)
+            if path.is_file():
+                paths.append(path)
 
+    paths = sorted(list(set(paths)))
+
+    if not paths:
+        print("No Python files found matching the given paths.", file=sys.stderr)
+        sys.exit(1)
+
+    results = findeps(paths)
     tree = render(results)
     console.print(tree)
 
