@@ -97,29 +97,40 @@ def add_dependency_node(
     symbol = "◉"
 
     if is_internal:
-        importer_package = importer_name.rpartition('.')[0]
-        importee_package = qualified_name.rpartition('.')[0]
+        importer_parts = importer_name.split('.')
+        importee_parts = qualified_name.split('.')
         
-        # Case 1: Sibling import (same package)
-        if importer_package and importer_package == importee_package:
-            display_name = qualified_name.rpartition('.')[-1]
-            symbol = "○" # Different symbol for siblings
+        # Calculate common prefix length
+        common_len = 0
+        min_len = min(len(importer_parts), len(importee_parts))
+        while common_len < min_len and importer_parts[common_len] == importee_parts[common_len]:
+            common_len += 1
+            
+        # Importer package depth (we are in a module, so package is one level up)
+        importer_pkg_depth = len(importer_parts) - 1
         
-        # Case 2: Importer is a package importing a submodule (e.g., `tatsu.contexts` importing `..._protocol`)
+        # Check for Sibling (Same Package)
+        # Sibling if common_len covers the entire package of importer
+        if common_len == importer_pkg_depth and len(importee_parts) == importer_pkg_depth + 1:
+             display_name = importee_parts[-1]
+             symbol = "○"
+        
+        # Check for Uncle (Parent's Sibling)
+        # Uncle if common_len is one less than package depth
+        elif common_len == importer_pkg_depth - 1:
+             # Use relative notation: ..name
+             suffix = ".".join(importee_parts[common_len:])
+             display_name = f"..{suffix}"
+             symbol = "◉"
+        
+        # Check for Child (Submodule)
         elif qualified_name.startswith(importer_name + '.'):
-            display_name = qualified_name[len(importer_name) + 1:]
-            # This is technically a child, not a sibling. 
-            # Let's keep ◉ for parent->child dependencies (if they are shown at all)
-            # But wait, we skip structural children in render().
-            # So this case might be rare or handled by the structural tree.
-            # If it appears, it's a dependency that wasn't structural?
-            pass
-
-        # Case 3: Any other internal import (e.g., from `_engine` to `tatsu.util`)
+             display_name = qualified_name[len(importer_name) + 1:]
+             
+        # Fallback: Project Relative
         else:
             root_part = qualified_name.split('.')[0]
             if root_part in internal_roots:
-                # Show path relative to the project root (e.g., `util`, `g2e.util`)
                 display_name = qualified_name[len(root_part) + 1:]
                 if display_name.startswith("."):
                      display_name = display_name[1:]
@@ -188,6 +199,11 @@ def render(results: list[ModuleImports]) -> Tree:
             sort_tree(child)
 
     sort_tree(root)
+    
+    # If there is only one top-level node (e.g. 'tatsu'), make it the root
+    if len(root.children) == 1:
+        return root.children[0]
+
     return root
 
 
