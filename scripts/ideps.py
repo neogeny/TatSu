@@ -94,20 +94,37 @@ def add_dependency_node(
     """Adds a dependency as an intelligently-named leaf node."""
     style = "cyan" if is_internal else "white"
     display_name = qualified_name
+    symbol = "◉"
 
     if is_internal:
-        # Check if it's a sibling import
-        importer_prefix = importer_name.rpartition('.')[0]
-        importee_prefix = qualified_name.rpartition('.')[0]
-        if importer_prefix and importer_prefix == importee_prefix:
-            display_name = qualified_name.rpartition('.')[-1]
-        else:
-            # If not a sibling, show path relative to project root
-            parts = qualified_name.split('.')
-            if parts[0] in internal_roots and len(parts) > 1:
-                display_name = ".".join(parts[1:])
+        importer_package = importer_name.rpartition('.')[0]
+        importee_package = qualified_name.rpartition('.')[0]
         
-        label = f"◉ {display_name}"
+        # Case 1: Sibling import (same package)
+        if importer_package and importer_package == importee_package:
+            display_name = qualified_name.rpartition('.')[-1]
+            symbol = "○" # Different symbol for siblings
+        
+        # Case 2: Importer is a package importing a submodule (e.g., `tatsu.contexts` importing `..._protocol`)
+        elif qualified_name.startswith(importer_name + '.'):
+            display_name = qualified_name[len(importer_name) + 1:]
+            # This is technically a child, not a sibling. 
+            # Let's keep ◉ for parent->child dependencies (if they are shown at all)
+            # But wait, we skip structural children in render().
+            # So this case might be rare or handled by the structural tree.
+            # If it appears, it's a dependency that wasn't structural?
+            pass
+
+        # Case 3: Any other internal import (e.g., from `_engine` to `tatsu.util`)
+        else:
+            root_part = qualified_name.split('.')[0]
+            if root_part in internal_roots:
+                # Show path relative to the project root (e.g., `util`, `g2e.util`)
+                display_name = qualified_name[len(root_part) + 1:]
+                if display_name.startswith("."):
+                     display_name = display_name[1:]
+
+        label = f"{symbol} {display_name}"
     else:
         label = f"⟨{qualified_name}⟩"
 
@@ -153,10 +170,20 @@ def render(results: list[ModuleImports]) -> Tree:
 
     # Phase 3: Recursively sort all nodes.
     def sort_tree(tree: Tree):
-        tree.children.sort(key=lambda n: (
-            1 if "◉" in str(n.label) else 2 if "⟨" in str(n.label) else 0,
-            str(n.label).strip("◉ ⟨⟩ "),
-        ))
+        # Sort order:
+        # 0. Structural nodes (no prefix)
+        # 1. Sibling dependencies (○)
+        # 2. Other Internal dependencies (◉)
+        # 3. External dependencies (⟨)
+        
+        def sort_key(n: Tree):
+            label = str(n.label)
+            if "○" in label: return (1, label)
+            if "◉" in label: return (2, label)
+            if "⟨" in label: return (3, label)
+            return (0, label)
+
+        tree.children.sort(key=sort_key)
         for child in tree.children:
             sort_tree(child)
 
