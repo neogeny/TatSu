@@ -44,34 +44,40 @@ def moduledeps(name: str, path: Path) -> ModuleImports:
         package_name_parts = package_name_parts[:-1]
 
     for node in module.body:
+        if not isinstance(node, ast.Import | ast.ImportFrom):
+            continue
+
         if isinstance(node, ast.Import):
             found_imports.update(
                 Dependency(alias.name, is_relative=False) for alias in node.names
             )
-        elif isinstance(node, ast.ImportFrom):
-            if node.module == "__future__":
-                continue
+            continue
 
-            level = node.level
-            if level > 0:  # It's a relative import
-                dot_count = level - 1
-                if dot_count > len(package_name_parts):
-                    continue
+        if node.module == "__future__":
+            continue
 
-                relative_base_parts = package_name_parts[
-                    : len(package_name_parts) - dot_count
-                ]
-                base = ".".join(relative_base_parts)
-
-                if node.module:
-                    full_name = f"{base}.{node.module}" if base else node.module
-                    found_imports.add(Dependency(full_name, is_relative=True))
-                else:
-                    for alias in node.names:
-                        full_name = f"{base}.{alias.name}" if base else alias.name
-                        found_imports.add(Dependency(full_name, is_relative=True))
-            elif node.module:  # It's an absolute import
+        level = node.level
+        if level == 0:
+            if node.module:  # It's an absolute import
                 found_imports.add(Dependency(str(node.module), is_relative=False))
+            continue
+
+        # It's a relative import
+        dot_count = level - 1
+        if dot_count > len(package_name_parts):
+            continue
+
+        relative_base_parts = package_name_parts[: len(package_name_parts) - dot_count]
+        base = ".".join(relative_base_parts)
+
+        if node.module:
+            full_name = f"{base}.{node.module}" if base else node.module
+            found_imports.add(Dependency(full_name, is_relative=True))
+            continue
+
+        for alias in node.names:
+            full_name = f"{base}.{alias.name}" if base else alias.name
+            found_imports.add(Dependency(full_name, is_relative=True))
 
     return ModuleImports(
         name=name,
@@ -99,7 +105,9 @@ def add_dependency_node(
     display_name = qualified_name
     symbol = "◉"
 
-    if is_internal:
+    if not is_internal:
+        label = f"⟨{qualified_name}⟩"
+    else:
         importer_parts = importer_name.split('.')
         importee_parts = qualified_name.split('.')
 
@@ -131,8 +139,6 @@ def add_dependency_node(
                 display_name = display_name.removeprefix(".")
 
         label = f"{symbol} {display_name}"
-    else:
-        label = f"⟨{qualified_name}⟩"
 
     parent.add(label, style=style)
 
@@ -178,15 +184,12 @@ def render(results: list[ModuleImports]) -> Tree:
     def sort_tree(tree: Tree):
         def sort_key(n: Tree):
             label = str(n.label)
-            return (
-                (1, label)
-                if "○" in label
-                else (
-                    (2, label)
-                    if "◉" in label
-                    else (3, label) if "⟨" in label else (0, label)
-                )
-            )
+            return {
+                "○": (1, label),
+                "◉": (2, label),
+                "⟨": (3, label),
+                None: (0, label),
+            }.get(label[0] if label else None, (0, label))
 
         tree.children.sort(key=sort_key)
         for child in tree.children:
