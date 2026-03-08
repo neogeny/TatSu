@@ -7,7 +7,8 @@ import sys
 import warnings
 from typing import Any
 
-from .string import prints
+from .strtools import prints
+
 
 TATSUDEBUG: int | str | None = os.environ.get('TATSUDEBUG', 0)
 

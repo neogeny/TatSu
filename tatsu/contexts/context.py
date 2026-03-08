@@ -17,7 +17,7 @@ from ..exceptions import (
     ParseException,
 )
 from ..util import deprecated, is_list, left_assoc, right_assoc
-from ..util.string import regexpp
+from ..util.strtools import regexpp
 from ._engine import ParserEngine
 from ._protocol import Ctx
 from .ctxlib import ChoiceContext, InnerExpContext

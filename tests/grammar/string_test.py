@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import tatsu
-from tatsu.util.string import trim
+from tatsu.util.strtools import trim
 
 
 def test_multiline_string():

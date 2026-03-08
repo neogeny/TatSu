@@ -3,7 +3,7 @@
 # from: https://www.unicode.org/charts/nameslist/n_2500.html
 from __future__ import annotations
 
-from tatsu.util import string
+from tatsu.util import strtools
 
 
 def test_visible_width():

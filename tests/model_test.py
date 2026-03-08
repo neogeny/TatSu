@@ -13,7 +13,7 @@ from tatsu import grammars as g
 from tatsu.ast import AST
 from tatsu.objectmodel import Node
 from tatsu.util import hasha, typename
-from tatsu.util.string import trim
+from tatsu.util.strtools import trim
 
 
 def test_node_kwargs() -> None:

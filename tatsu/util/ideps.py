@@ -93,12 +93,10 @@ def add_dependency_node(
 ):
     """
     Adds a dependency as an intelligently-named leaf node to the tree.
-    It uses different symbols and naming conventions based on the relationship
-    between the importer and the importee (sibling, uncle, etc.).
     """
     style = "cyan" if is_internal else "white"
     display_name = qualified_name
-    symbol = "◉"  # Default for internal imports
+    symbol = "◉"
 
     if is_internal:
         importer_parts = importer_name.split('.')
@@ -111,21 +109,14 @@ def add_dependency_node(
 
         importer_pkg_depth = len(importer_parts) - 1
 
-        # Case 1: Sibling Import (e.g., `a.b.c` imports `a.b.d`)
         if common_len == importer_pkg_depth and len(importee_parts) == importer_pkg_depth + 1:
              display_name = importee_parts[-1]
-             symbol = "○"  # Use a distinct symbol for siblings
-
-        # Case 2: Uncle Import (e.g., `a.b.c.d` imports `a.b.e`)
+             symbol = "○"
         elif common_len == importer_pkg_depth - 1:
              suffix = ".".join(importee_parts[common_len:])
-             display_name = f"..{suffix}"  # Use relative `..` notation
-
-        # Case 3: Child Import (e.g., `a.b` imports `a.b.c`)
+             display_name = f"..{suffix}"
         elif qualified_name.startswith(importer_name + '.'):
              display_name = qualified_name[len(importer_name) + 1:]
-
-        # Fallback: Other internal imports are shown relative to the project root
         else:
             root_part = qualified_name.split('.')[0]
             if root_part in internal_roots:
@@ -135,7 +126,7 @@ def add_dependency_node(
 
         label = f"{symbol} {display_name}"
     else:
-        label = f"⟨{qualified_name}⟩"  # External imports are bracketed
+        label = f"⟨{qualified_name}⟩"
 
     parent.add(label, style=style)
 
@@ -143,17 +134,12 @@ def add_dependency_node(
 def render(results: list[ModuleImports]) -> Tree:
     """
     Renders the complete dependency tree from the analysis results.
-    It operates in three phases:
-    1. Build the structural skeleton of all analyzed modules.
-    2. Add the dependency links, skipping structural ones.
-    3. Recursively sort the entire tree for consistent output.
     """
     root = Tree("[bold green]Module Dependency Analysis[/bold green]")
     module_nodes: dict[str, Tree] = {}
     analyzed_module_names = {m.name for m in results}
     internal_roots = {m.name.split(".")[0] for m in results}
 
-    # Phase 1: Build the structural skeleton from the qualified names of all analyzed modules.
     for module_name in sorted(analyzed_module_names):
         current = root
         parts = module_name.split('.')
@@ -166,12 +152,9 @@ def render(results: list[ModuleImports]) -> Tree:
                 module_nodes[path_so_far] = new_node
                 current = new_node
 
-    # Phase 2: Add true dependencies, skipping structural ones.
     for module in results:
         module_node = module_nodes[module.name]
         for imp in module.imports:
-            # Skip if the import is a direct structural child we already drew in Phase 1.
-            # This is the key to not showing `a.b` importing `a.b.c` as a dependency.
             imp_parent = ".".join(imp.name.split('.')[:-1])
             if imp.name in analyzed_module_names and imp_parent == module.name:
                 continue
@@ -186,14 +169,13 @@ def render(results: list[ModuleImports]) -> Tree:
                 internal_roots=internal_roots,
             )
 
-    # Phase 3: Recursively sort all nodes in the tree for consistent ordering.
     def sort_tree(tree: Tree):
         def sort_key(n: Tree):
             label = str(n.label)
-            if "○" in label: return (1, label)  # Siblings first
-            if "◉" in label: return (2, label)  # Then other internal
-            if "⟨" in label: return (3, label)  # Then external
-            return (0, label)  # Structural nodes at the top
+            if "○" in label: return (1, label)
+            if "◉" in label: return (2, label)
+            if "⟨" in label: return (3, label)
+            return (0, label)
 
         tree.children.sort(key=sort_key)
         for child in tree.children:
@@ -201,7 +183,6 @@ def render(results: list[ModuleImports]) -> Tree:
 
     sort_tree(root)
 
-    # If there is only one top-level node (e.g. 'tatsu'), make it the root for a cleaner look.
     if len(root.children) == 1:
         return root.children[0]
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from tatsu.util.string import pythonize_name, safe_name
+from tatsu.util.strtools import pythonize_name, safe_name
 
 
 @pytest.mark.parametrize(
