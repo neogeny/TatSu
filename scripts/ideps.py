@@ -28,7 +28,7 @@ def moduledeps(name: str, path: Path, level: int = 0) -> ModuleImports:
 
     def imported(fromimport: ast.ImportFrom) -> tuple[str, ...]:
         if fromimport.module:
-            # Hack out __future__ dependencies
+            # Hack out __future__
             if fromimport.module == "__future__":
                 return ()
             return (fromimport.module,)
@@ -49,33 +49,36 @@ def findeps(paths: list[Path], level: int = 0) -> list[ModuleImports]:
     return [moduledeps(name, path, level=level) for name, path in modulepaths]
 
 
+def add_path(tree: Tree, qualified_name: str, style: str = "") -> Tree:
+    """Recursively adds a qualified name path to a tree node."""
+    current = tree
+    for part in qualified_name.split("."):
+        # Check if the child already exists to avoid duplication
+        found = next((child for child in current.children if str(child.label) == part), None)
+        if found:
+            current = found
+        else:
+            current = current.add(part, style=style)
+    return current
+
+
 def render(results: list[ModuleImports]) -> Tree:
     root = Tree("[bold green]Module Dependencies[/bold green]")
 
     for module in results:
-        # Root node for the specific module being analyzed
-        module_label = module.name.split(".")[-1]
-        branch = root.add(f"[bold blue]{module_label}[/bold blue]")
+        # Create the branch for the module being analyzed (e.g. tatsu.codegen.genmodel)
+        # Using a bold blue style for the "source" modules
+        module_branch = add_path(root, module.name, style="bold blue")
 
-        # Build a nested structure for the imports
+        # Add each import as a nested sub-structure under that module
         for imp in module.imports:
-            parts = imp.split(".")
-            current = branch
-            for part in parts:
-                # Add or find the existing node for this segment
-                # We search existing children to avoid duplicate branches
-                found = next((child for child in current.children if str(child.label) == part), None)
-                if found:
-                    current = found
-                else:
-                    current = current.add(part)
+            add_path(module_branch, imp)
 
     return root
 
 
 def main(filenames: list[str]) -> None:
     paths = [Path(filename) for filename in filenames]
-    # Level 0 captures absolute imports
     results = findeps(paths, level=0)
 
     tree = render(results)
