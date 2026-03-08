@@ -199,7 +199,7 @@ def main() -> None:
         print(f"usage:\n   python3 {Path(__file__).name} [--color] FILENAME_OR_GLOB...")
         sys.exit(1)
 
-    console = Console(force_terminal=force_color or "FORCE_COLOR" in os.environ)
+    console = Console(force_terminal=force_color or None)
 
     paths: list[Path] = []
     for arg in args:
