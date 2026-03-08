@@ -241,6 +241,7 @@ ignore = [
     "FURB189", #  subclassing str
     "PERF203", #  try-except within loop
     "PGH003",
+    "PGH004",  # Use specific rule codes when using `noqa`
     "PLC0415", # import-outside-top-level
     "PLC2401", # non-ascci in identifier
     "PLR6301", # no-self-use
