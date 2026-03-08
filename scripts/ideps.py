@@ -7,6 +7,9 @@ import sys
 from pathlib import Path
 from typing import NamedTuple
 
+from rich import print
+from rich.tree import Tree
+
 
 class ModuleImports(NamedTuple):
     name: str
@@ -15,7 +18,7 @@ class ModuleImports(NamedTuple):
 
 
 def pathtomodulename(path: Path):
-    return str(path.with_suffix('')).replace('/', '.').replace('.__init__', '')
+    return str(path.with_suffix("")).replace("/", ".").replace(".__init__", "")
 
 
 def moduledeps(name: str, path: Path, level: int = 1) -> ModuleImports:
@@ -43,14 +46,28 @@ def findeps(paths: list[Path], level: int = 1) -> list[ModuleImports]:
     return [moduledeps(name, path, level=level) for name, path in modulepaths]
 
 
+def render(results: list[ModuleImports]) -> Tree:
+    root = Tree("[bold green]Module Dependencies[/bold green]")
+    for module in results:
+        module_label = module.name.split(".")[-1]
+        branch = root.add(f"[bold blue]{module_label}[/bold blue]")
+
+        for imp in module.imports:
+            leaf_label = imp.split(".")[-1]
+            branch.add(leaf_label)
+    return root
+
+
 def main(filenames: list[str]) -> None:
     paths = [Path(filename) for filename in filenames]
-    for module in findeps(paths):
-        print(f'{module.name}: {module.imports}')
+    results = findeps(paths)
+
+    tree = render(results)
+    print(tree)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if not sys.argv[1:]:
-        print(f'usage:\n   python3 {Path(__file__).name} FILENAME...')
+        print(f"usage:\n   python3 {Path(__file__).name} FILENAME...")
         sys.exit(1)
     main(sys.argv[1:])
