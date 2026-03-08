@@ -55,6 +55,7 @@ dev = [
 ]
 test = [
     "basedpyright>=1.38.0",
+    "black>=26.3.0",
     "colorama>=0.4.6",
     "graphviz>=0.21",
     "invoke>=2.2.1",

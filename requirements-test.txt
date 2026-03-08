@@ -2,10 +2,15 @@
 #    uv export --group test --no-group dev --no-hashes --format requirements-txt -o requirements-test.txt
 -e .
 basedpyright==1.38.2
+black==26.3.0
 cffi==2.0.0
     # via pytest-codspeed
+click==8.3.1
+    # via black
 colorama==0.4.6
-    # via pytest
+    # via
+    #   click
+    #   pytest
 coverage==7.13.4
     # via pytest-cov
 execnet==2.1.2
@@ -22,15 +27,22 @@ mdurl==0.1.2
     # via markdown-it-py
 mypy==1.19.1
 mypy-extensions==1.1.0
-    # via mypy
+    # via
+    #   black
+    #   mypy
 nodejs-wheel-binaries==24.14.0
     # via basedpyright
 packaging==26.0
     # via
+    #   black
     #   pytest
     #   pytest-rerunfailures
 pathspec==1.0.4
-    # via mypy
+    # via
+    #   black
+    #   mypy
+platformdirs==4.9.4
+    # via black
 pluggy==1.6.0
     # via
     #   pytest
@@ -55,6 +67,8 @@ pytest-cov==7.0.0
 pytest-dependency==0.6.1
 pytest-rerunfailures==16.1
 pytest-xdist==3.8.0
+pytokens==0.4.1
+    # via black
 rich==14.3.3
     # via pytest-codspeed
 ruff==0.15.5

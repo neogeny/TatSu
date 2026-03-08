@@ -1516,6 +1516,7 @@ mkdocs = [
 ]
 test = [
     { name = "basedpyright" },
+    { name = "black" },
     { name = "colorama" },
     { name = "graphviz" },
     { name = "invoke" },
@@ -1586,6 +1587,7 @@ mkdocs = [
 ]
 test = [
     { name = "basedpyright", specifier = ">=1.38.0" },
+    { name = "black", specifier = ">=26.3.0" },
     { name = "colorama", specifier = ">=0.4.6" },
     { name = "graphviz", specifier = ">=0.21" },
     { name = "invoke", specifier = ">=2.2.1" },
