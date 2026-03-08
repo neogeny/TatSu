@@ -6,14 +6,13 @@ import sys
 
 import pytest
 
-from tatsu import synth
 from tatsu.exceptions import FailedParse, FailedToken
 from tatsu.grammars.builder import (
     BuilderConfig,
     ModelBuilderSemantics,
     TypeResolutionError,
 )
-from tatsu.objectmodel import Node
+from tatsu.objectmodel import Node, synth
 from tatsu.tool import compile, parse
 
 

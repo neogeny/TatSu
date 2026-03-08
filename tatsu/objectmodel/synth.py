@@ -5,8 +5,8 @@ from __future__ import annotations
 import types
 from typing import Any
 
-from .ast import AST
-from .objectmodel import BaseNode, tatsudataclass
+from ..ast import AST
+from .basenode import BaseNode, tatsudataclass
 
 __all__ = ['SynthNode', 'registered_synthetics', 'synthesize']
 
@@ -34,7 +34,7 @@ class SynthNode(BaseNode):
 def synthesize(name: str, bases: tuple[type, ...], **kwargs: Any) -> type:
     # by Apalala 2026/02/16 <- 2017
     # by Gemini  2026/02/16
-    if not isinstance(bases, tuple):
+    if not tuple or not isinstance(bases, tuple):
         raise TypeError(f'bases must be a tuple, not {type(bases)}')
 
     if SynthNode not in bases:

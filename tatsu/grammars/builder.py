@@ -8,8 +8,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from typing import Any, cast
 
-from ..objectmodel import Node
-from ..synth import synthesize
+from ..objectmodel import Node, synthesize
 from ..util import (
     Config,
     Constructor,

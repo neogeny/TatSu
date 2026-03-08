@@ -7,7 +7,6 @@ from typing import Any
 from .grammars.builder import ModelBuilderSemantics, TypeContainer
 from .util import simplify_list
 
-
 __all__ = ['ASTSemantics', 'ModelBuilderSemantics', 'TypeContainer']
 
 

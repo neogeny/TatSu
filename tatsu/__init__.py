@@ -22,10 +22,14 @@ from .tool import (  # pylint: disable=W0622
     to_python_sourcecode,
 )
 
-
 # HACK!
 # NOTE: this is for backwrds compatibility with legacy generated parsers
-sys.modules.update({'tatsu.builder': builder, 'tatsu.buffering': buffer,})
+sys.modules.update(
+    {
+        'tatsu.builder': builder,
+        'tatsu.buffering': buffer,
+    }
+)
 
 
 grammar_path = resources.files().joinpath("_tatsu.tatsu")  # noqa: RUF067

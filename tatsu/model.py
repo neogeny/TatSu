@@ -8,7 +8,6 @@ from .grammars.builder import ModelBuilderSemantics
 from .objectmodel import BaseNode, Node, Node as ParseModel
 from .walkers import BreadthFirstWalker, DepthFirstWalker, NodeWalker, PreOrderWalker
 
-
 __all__ = [
     'AST',
     'BaseNode',

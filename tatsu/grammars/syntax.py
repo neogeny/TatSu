@@ -87,9 +87,11 @@ class Choice(Model):
 
     def _parse(self, ctx: ParseContext) -> Result:
         with ctx.choice() as ch:
+
             def wrap(o) -> Any:
                 assert isinstance(ctx, ParseContext) and isinstance(o, Option)
                 return o._parse
+
             ch.options = [wrap(o) for o in self.options]
 
             ch.expecting(*self.lookaheadlist())

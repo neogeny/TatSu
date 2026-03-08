@@ -15,7 +15,6 @@ from typing import Any
 
 from .itertools import CycleError, first, topsort
 
-
 __all__ = [
     'ActualArguments',
     'BoundCallable',
@@ -52,18 +51,13 @@ def cast[T](target: type[T], value: Any) -> T:
         # Recursively get the origin of each member in the Union
         # e.g., (list[int], str) -> (list, str)
         base: Any = tuple(
-            typing.get_origin(arg) or arg
-            for arg in typing.get_args(target)
-       )
+            typing.get_origin(arg) or arg for arg in typing.get_args(target)
+        )
     else:
         base = origin or target
 
     if not isinstance(value, base):
-        expected = (
-            str(target)
-            .replace("<class '", "")
-            .replace("'>", "")
-        )
+        expected = str(target).replace("<class '", "").replace("'>", "")
         expected = re.sub(r"\w+\.", "", expected)
         actual = type(value).__name__
         raise TypeError(f"Expected {expected}, but got {actual} instead")

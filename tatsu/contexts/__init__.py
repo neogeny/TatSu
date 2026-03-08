@@ -6,7 +6,6 @@ from ._protocol import Ctx
 from .context import ParseContext
 from .decorator import isname, leftrec, name, nomemo, rule, tatsumasu
 
-
 __all__ = [
     'ParseContext',
     'Ctx',

@@ -33,7 +33,6 @@ from ._core import ParserCore
 from .infos import MemoKey, RuleInfo, RuleResult, closure
 from .state import ParseStateStack
 
-
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
@@ -205,7 +204,12 @@ class ParserEngine(ParserCore):
         if action:
             parseinfo = self.make_parseinfo(node, pos)
             return boundcall(
-                action, {}, node, *ri.params, parseinfo=parseinfo, **ri.kwparams,
+                action,
+                {},
+                node,
+                *ri.params,
+                parseinfo=parseinfo,
+                **ri.kwparams,
             )
         else:
             return node

@@ -167,7 +167,6 @@ class Tokenizer(ABC):
     def filename(self) -> str: ...
 
 
-
 class NullTokenizer(Tokenizer):
     def __init__(self) -> None:
         super().__init__(None)

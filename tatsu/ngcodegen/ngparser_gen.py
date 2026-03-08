@@ -17,7 +17,6 @@ from ..parserconfig import ParserConfig
 from ..util import Undefined, compress_seq, regexpp, safe_name
 from ..walkers import NodeWalker
 
-
 _GREEKTOME = "αβγδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 
@@ -505,7 +504,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         exp: g.Model,
         decor: str = '',
         echeck: bool = False,
-        ctx: str | None = None
+        ctx: str | None = None,
     ):
         if echeck and () in exp.lookahead():
             raise CodegenError(
@@ -524,7 +523,8 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def _gen_decor(
         self,
         mgr: Callable[..., Any],
-        /, *,
+        /,
+        *,
         exp: g.Model | None = None,
         sep: g.Model | None = None,
         var: str = '',

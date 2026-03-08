@@ -24,7 +24,6 @@ from tatsu.tool import to_python_sourcecode
 from tatsu.util import asjson
 from tatsu.walkers import DepthFirstWalker
 
-
 tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
 

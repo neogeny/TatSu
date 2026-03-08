@@ -23,7 +23,6 @@ from ..util import Undefined, cached_re_compile, str_from_match, typename
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
 
-
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 # for backwards compatibility with existing parsers
@@ -478,7 +477,7 @@ class Buffer(Tokenizer):
         return goodstart and all(self.is_name_char(c) for c in s[1:])
 
     def match(self, token: str | None) -> str | None:
-        if  token is None:
+        if token is None:
             return None
 
         p = self.pos

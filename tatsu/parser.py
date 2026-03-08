@@ -13,7 +13,6 @@ from .grammars import GrammarSemantics
 from .infos import ParserConfig
 from .semantics import ASTSemantics
 
-
 PRAGMA_RE = r'^\s*#include.*$'
 
 

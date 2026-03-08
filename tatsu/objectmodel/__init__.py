@@ -4,5 +4,12 @@ from __future__ import annotations
 
 from .basenode import BaseNode, TatSuDataclassParams, tatsudataclass
 from .node import Node
+from .synth import synthesize
 
-__all__ = ['BaseNode', 'Node', 'TatSuDataclassParams', 'tatsudataclass']
+__all__ = [
+    'BaseNode',
+    'Node',
+    'TatSuDataclassParams',
+    'tatsudataclass',
+    'synthesize',
+]
