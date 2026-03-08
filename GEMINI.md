@@ -6,6 +6,9 @@ This document serves as a persistent context for the collaboration between **Jua
 
 **Juancarlo Añez** (apalala) is an experienced software engineer and the creator of the **TatSu** library. He works primarily in a macOS/Linux environment (often using `xonsh`) and values clean, modern, and efficient code.
 
+**Preferences**:
+*   **Path Handling**: Always prefer `pathlib.Path` over `os.path`.
+
 ## 2. The Project: TatSu
 
 **TatSu** is a tool that generates parsers in Python from grammars written in an extended EBNF format. It specializes in creating memoizing (Packrat) PEG parsers, which are essential for understanding the logic and structure of hierarchical data. TatSu is used to create Domain-Specific Languages (DSLs), translate data formats, and handle complex, recursive structures that regular expressions cannot.
@@ -19,7 +22,7 @@ This document serves as a persistent context for the collaboration between **Jua
 
 **Status**: *Completed (Initial Version)*
 
-This task involved creating a command-line tool (`scripts/ideps.py`) to visualize the internal and external dependencies of Python modules within the TatSu project.
+This task involved creating a command-line tool (`tatsu/util/ideps.py`) to visualize the internal and external dependencies of Python modules within the TatSu project.
 
 ### 3.1. Objective
 Generate a visual dependency tree using `rich.tree` that accurately represents the project's structural hierarchy while clearly distinguishing it from various types of import dependencies.
@@ -53,6 +56,11 @@ The output adheres to a strict visual grammar:
 *   **Structure vs. Dependency**: Solved the issue of conflating submodule containment with imports.
 *   **Intelligent Naming**: Implemented logic to shorten names based on context (siblings, uncles).
 *   **Symbol Differentiation**: Used `○` for siblings and `◉` for other internal imports.
+*   **Module Integration**: Moved script to `tatsu/util/ideps.py` and ensured robust execution as both script and module.
+
+### 3.5. Code Quality & Refactoring
+*   **Linter Fixes**: Removed unused imports (e.g., `os`) to maintain clean code.
+*   **Pathlib Adoption**: Replaced all `os.path` usages with `pathlib.Path` for consistency and robustness.
 
 ---
 
@@ -61,4 +69,3 @@ The output adheres to a strict visual grammar:
 *   **Task**: `ideps.py` implementation is complete and verified.
 *   **Status**: Code committed to branch `pycharm.gemini`.
 *   **Next Step**: Merge `pycharm.gemini` into `master`.
-:q

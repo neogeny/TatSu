@@ -7,7 +7,7 @@ from tatsu.util import strtools
 
 
 def test_visible_width():
-    assert string.unicode_display_len("abc") == 3
-    assert string.unicode_display_len("Python") == 6
-    assert string.unicode_display_len("蛇") == 2
-    assert string.unicode_display_len("🐍 Py") == 5
+    assert strtools.unicode_display_len("abc") == 3
+    assert strtools.unicode_display_len("Python") == 6
+    assert strtools.unicode_display_len("蛇") == 2
+    assert strtools.unicode_display_len("🐍 Py") == 5
