@@ -75,7 +75,6 @@ class GrammarSemantics(ModelBuilderSemantics):
             )
         else:
             msg = 'Deprecated syntax "?/../? for regular expressions"'
-        warnings.filterwarnings('once')
         warnings.warn(
             message=msg,
             category=DeprecationWarning,
