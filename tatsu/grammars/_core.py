@@ -12,14 +12,15 @@ from types import SimpleNamespace
 from typing import Any, override
 
 from ..ast import AST
-from ..builder import ModelBuilderSemantics
 from ..contexts import Ctx, ParseContext
 from ..contexts.infos import RuleInfo
 from ..exceptions import GrammarError
 from ..objectmodel import Node, tatsudataclass
 from ..parserconfig import ParserConfig
 from ..util import chunks, compress_seq, indent, trim, typename
+from .builder import ModelBuilderSemantics
 from .math import ffset, kdot
+
 
 PEP8_LLEN = 72
 

@@ -4,10 +4,10 @@
 from __future__ import annotations
 
 from .ast import AST
-from .builder import ModelBuilderSemantics
-from .objectmodel import BaseNode, Node
-from .objectmodel import Node as ParseModel
+from .grammars.builder import ModelBuilderSemantics
+from .objectmodel import BaseNode, Node, Node as ParseModel
 from .walkers import BreadthFirstWalker, DepthFirstWalker, NodeWalker, PreOrderWalker
+
 
 __all__ = [
     'AST',
