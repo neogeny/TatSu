@@ -12,6 +12,7 @@ from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..util import compress_seq, deprecated_params, safe_name, topsort
 
+
 HEADER = """\
     #!/usr/bin/env python3
 
