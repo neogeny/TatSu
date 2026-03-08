@@ -9,7 +9,13 @@ from ._config import __toolname__, __version__
 from ._version import version, version_info
 from .contexts.decorator import isname, leftrec, name, nomemo, rule, tatsumasu
 from .grammars import builder
-from .objectmodel import TatSuDataclassParams, tatsudataclass as dataclass
+from .objectmodel import (
+    NodeDataclassParams,
+    NodeDataclassParams as TatSuDataclassParams,
+    nodedataclass,
+    nodedataclass as dataclass,
+    nodedataclass as tatsudataclass,
+)
 from .tokenizing import buffer
 from .tool import (  # pylint: disable=W0622
     compile,
@@ -50,8 +56,11 @@ __all__ = [
     'version',
     'version_info',
     'isname',
+    'NodeDataclassParams',
     'TatSuDataclassParams',
     'dataclass',
+    'nodedataclass',
+    'tatsudataclass',
     'name',
     'leftrec',
     'nomemo',

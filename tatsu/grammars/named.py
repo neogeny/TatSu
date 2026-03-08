@@ -8,12 +8,12 @@ from __future__ import annotations
 
 from ..ast import AST
 from ..contexts import ParseContext
-from ..objectmodel import tatsudataclass
+from ..objectmodel import nodedataclass
 from ..util import typename
 from ._core import Box, NamedBox, Result
 
 
-@tatsudataclass
+@nodedataclass
 class Named(NamedBox):
     def __post_init__(self):
         if not self.ast:
@@ -37,7 +37,7 @@ class Named(NamedBox):
         return f'{self.name}:{self.exp._pretty(lean=lean)}'
 
 
-@tatsudataclass
+@nodedataclass
 class NamedList(Named):
     def _parse(self, ctx: ParseContext) -> Result:
         value = self.exp._parse(ctx)
@@ -53,7 +53,7 @@ class NamedList(Named):
         return f'{self.name}+:{self.exp._pretty(lean=lean)!s}'
 
 
-@tatsudataclass
+@nodedataclass
 class Override(Box):
     def _parse(self, ctx: ParseContext) -> Result:
         value = self.exp._parse(ctx)
@@ -66,7 +66,7 @@ class Override(Box):
         return f'@:{self.exp._pretty(lean=lean)!s}'
 
 
-@tatsudataclass
+@nodedataclass
 class OverrideList(Box):
     def _parse(self, ctx: ParseContext) -> Result:
         value = self.exp._parse(ctx)

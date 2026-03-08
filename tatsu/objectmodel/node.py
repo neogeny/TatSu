@@ -8,15 +8,15 @@ import weakref
 from collections.abc import Iterable, Mapping, MutableMapping
 from typing import Any
 
-from .basenode import BaseNode, tatsudataclass
+from .basenode import BaseNode, nodedataclass
 
-__all__ = ['Node', 'tatsudataclass']
+__all__ = ['Node', 'nodedataclass']
 
 
 _children_cache: MutableMapping[Node, tuple[Node, ...]] = weakref.WeakKeyDictionary()
 
 
-@tatsudataclass
+@nodedataclass
 class Node(BaseNode):
     _parent_ref: weakref.ref[Node] | None = dc.field(init=False, default=None)
 

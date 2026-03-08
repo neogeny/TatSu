@@ -9,13 +9,13 @@ from typing import Any
 from ..ast import AST
 from ..contexts import ParseContext
 from ..exceptions import FailedRef
-from ..objectmodel import tatsudataclass
+from ..objectmodel import nodedataclass
 from ..util import cast, indent, trim
 from ._core import PEP8_LLEN, Box, Model, Result
 from .math import ffset, kdot, ref
 
 
-@tatsudataclass
+@nodedataclass
 class Group(Box):
     def _parse(self, ctx: ParseContext) -> Result:
         with ctx.group():
@@ -29,7 +29,7 @@ class Group(Box):
         return f'(\n{indent(exp)}\n)'
 
 
-@tatsudataclass
+@nodedataclass
 class Lookahead(Box):
     def _parse(self, ctx: ParseContext) -> Result:
         with ctx.if_():
@@ -42,7 +42,7 @@ class Lookahead(Box):
         return True
 
 
-@tatsudataclass
+@nodedataclass
 class NegativeLookahead(Box):
     def _parse(self, ctx: ParseContext) -> Result:
         with ctx.ifnot_():
@@ -55,7 +55,7 @@ class NegativeLookahead(Box):
         return True
 
 
-@tatsudataclass
+@nodedataclass
 class SkipTo(Box):
     def _parse(self, ctx: ParseContext) -> Result:
         super_parse = super()._parse
@@ -68,7 +68,7 @@ class SkipTo(Box):
         return '->' + self.exp._pretty(lean=lean)
 
 
-@tatsudataclass
+@nodedataclass
 class Option(Box):
     def _parse(self, ctx: ParseContext) -> Result:
         result = super()._parse(ctx)
@@ -76,7 +76,7 @@ class Option(Box):
         return result
 
 
-@tatsudataclass
+@nodedataclass
 class Choice(Model):
     options: list[Option] = field(default_factory=list)
 
@@ -141,7 +141,7 @@ class Choice(Model):
         return cast(list[Model], self.options)
 
 
-@tatsudataclass
+@nodedataclass
 class Optional(Box):
     def _parse(self, ctx: ParseContext) -> Result:
         self._add_defined_attributes(ctx, ctx.ast)
@@ -161,7 +161,7 @@ class Optional(Box):
         return True
 
 
-@tatsudataclass
+@nodedataclass
 class Sequence(Model):
     sequence: list[Model] = field(default_factory=list)
 
@@ -221,7 +221,7 @@ class Sequence(Model):
         return head
 
 
-@tatsudataclass
+@nodedataclass
 class Call(Model):
     name: str = ''
 

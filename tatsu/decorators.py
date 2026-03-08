@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .contexts.decorator import isname, name, leftrec, nomemo, rule, tatsumasu
-from .objectmodel import TatSuDataclassParams, tatsudataclass as dataclass
+from .contexts.decorator import isname, leftrec, name, nomemo, rule, tatsumasu
+from .objectmodel import NodeDataclassParams, nodedataclass as dataclass
 
 __all__ = [
-    'TatSuDataclassParams',
+    'NodeDataclassParams',
     'dataclass',
     'isname',
     'name',

@@ -6,7 +6,7 @@ import types
 from typing import Any
 
 from ..ast import AST
-from .basenode import BaseNode, tatsudataclass
+from .basenode import BaseNode, nodedataclass
 
 __all__ = ['SynthNode', 'registered_synthetics', 'synthesize']
 
@@ -16,7 +16,7 @@ __all__ = ['SynthNode', 'registered_synthetics', 'synthesize']
 __registry: dict[str, Any] = vars()
 
 
-@tatsudataclass
+@nodedataclass
 class SynthNode(BaseNode):
     def __post_init__(self):
         super().__post_init__()

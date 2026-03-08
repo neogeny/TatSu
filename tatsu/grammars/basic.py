@@ -5,12 +5,12 @@ from __future__ import annotations
 from typing import Any
 
 from ..contexts import ParseContext
-from ..objectmodel import tatsudataclass
+from ..objectmodel import nodedataclass
 from ._core import Model
 from .math import ffset
 
 
-@tatsudataclass
+@nodedataclass
 class Dot(Model):
     def _parse(self, ctx: ParseContext) -> Any:
         return ctx.dot()
@@ -22,7 +22,7 @@ class Dot(Model):
         return {('.',)}
 
 
-@tatsudataclass
+@nodedataclass
 class Fail(Model):
     def _parse(self, ctx: ParseContext) -> Any:
         return ctx.fail()
@@ -31,7 +31,7 @@ class Fail(Model):
         return '!()'
 
 
-@tatsudataclass
+@nodedataclass
 class Comment(Model):
     comment: str = ''
 
@@ -39,13 +39,13 @@ class Comment(Model):
         return f'(* {self.comment} *)'
 
 
-@tatsudataclass
+@nodedataclass
 class EOLComment(Comment):
     def _pretty(self, lean=False):
         return f'  # {self.comment}\n'
 
 
-@tatsudataclass
+@nodedataclass
 class EOF(Model):
     def _parse(self, ctx: ParseContext) -> Any:
         ctx.eofcheck()
@@ -54,7 +54,7 @@ class EOF(Model):
         return '$'
 
 
-@tatsudataclass
+@nodedataclass
 class Token(Model):
     token: str = ''
 
@@ -72,7 +72,7 @@ class Token(Model):
         return repr(self.token)
 
 
-@tatsudataclass
+@nodedataclass
 class Constant(Model):
     literal: str = ''
 
@@ -93,7 +93,7 @@ class Constant(Model):
         return True
 
 
-@tatsudataclass
+@nodedataclass
 class Alert(Constant):
     level: int = 0
 
@@ -106,7 +106,7 @@ class Alert(Constant):
         return f'{"^" * self.level}{super()._pretty()}'
 
 
-@tatsudataclass
+@nodedataclass
 class Cut(Model):
     def _parse(self, ctx: ParseContext) -> Any:
         ctx.cut()

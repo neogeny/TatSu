@@ -9,13 +9,13 @@ from __future__ import annotations
 from dataclasses import field
 
 from ..contexts import ParseContext
-from ..objectmodel import tatsudataclass
+from ..objectmodel import nodedataclass
 from ..util import typename
 from ._core import Box, Model, Result, Rule
 from .syntax import Sequence
 
 
-@tatsudataclass
+@nodedataclass
 class RuleInclude(Box):
     rule: Rule = field(default_factory=Rule)
 
@@ -29,7 +29,7 @@ class RuleInclude(Box):
         return f'>{self.rule.name}'
 
 
-@tatsudataclass
+@nodedataclass
 class BasedRule(Rule):
     baserule: Rule = field(default_factory=Rule)
     rhs: Model = Model()

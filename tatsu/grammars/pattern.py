@@ -7,13 +7,13 @@ import re
 from typing import Any
 
 from ..contexts import Ctx
-from ..objectmodel import tatsudataclass
+from ..objectmodel import nodedataclass
 from ..util import regexpp
 from ._core import Model
 from .math import ffset
 
 
-@tatsudataclass
+@nodedataclass
 class Pattern(Model):
     pattern: str = ""
 

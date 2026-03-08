@@ -15,7 +15,7 @@ from ..ast import AST
 from ..contexts import Ctx, ParseContext
 from ..contexts.infos import RuleInfo
 from ..exceptions import GrammarError
-from ..objectmodel import Node, tatsudataclass
+from ..objectmodel import Node, nodedataclass
 from ..parserconfig import ParserConfig
 from ..util import chunks, compress_seq, indent, trim, typename
 from .builder import ModelBuilderSemantics
@@ -62,7 +62,7 @@ class ModelContext(ParseContext):
         return self.rulemap[name]._parse
 
 
-@tatsudataclass
+@nodedataclass
 class Model(Node):
     _lookahead: ffset = field(init=False, default_factory=set)
     _firstset: ffset = field(init=False, default_factory=set)
@@ -178,7 +178,7 @@ class Model(Node):
         return railroads.text(self)
 
 
-@tatsudataclass
+@nodedataclass
 class NULL(Model):
     def _parse(self, ctx: ParseContext) -> Result:
         return ctx.fail() or ()
@@ -190,7 +190,7 @@ class NULL(Model):
         return False
 
 
-@tatsudataclass
+@nodedataclass
 class Void(Model):
     def _parse(self, ctx: ParseContext) -> Result:
         return ctx.void()
@@ -202,7 +202,7 @@ class Void(Model):
         return True
 
 
-@tatsudataclass
+@nodedataclass
 class Box(Model):
     name: str | None = field(init=False, default=None)
     exp: Model = field(default_factory=NULL)
@@ -254,12 +254,12 @@ class Box(Model):
         return [self.exp]
 
 
-@tatsudataclass
+@nodedataclass
 class NamedBox(Box):
     name: str = field(default='')  # pyright: ignore[reportIncompatibleVariableOverride]
 
 
-@tatsudataclass
+@nodedataclass
 class Rule(NamedBox):
     params: tuple[str, ...] = field(default_factory=tuple)
     kwparams: dict[str, Any] = field(default_factory=dict)
@@ -360,7 +360,7 @@ class Rule(NamedBox):
         )
 
 
-@tatsudataclass
+@nodedataclass
 class Grammar(Model):
     name: str = 'MyTest'
     directives: dict[str, Any] = field(default_factory=dict)

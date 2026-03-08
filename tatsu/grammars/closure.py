@@ -7,14 +7,14 @@
 from __future__ import annotations
 
 from ..contexts import ParseContext
-from ..objectmodel import tatsudataclass
+from ..objectmodel import nodedataclass
 from ..util import indent
 from ._core import Func, Model, Result
 from .math import ffset, kdot
 from .syntax import Box
 
 
-@tatsudataclass
+@nodedataclass
 class Closure(Box):
     def _parse(self, ctx: ParseContext) -> Result:
         return ctx._closure(lambda: self.exp._parse(ctx))
@@ -37,7 +37,7 @@ class Closure(Box):
         return True
 
 
-@tatsudataclass
+@nodedataclass
 class PositiveClosure(Closure):
     def _parse(self, ctx: ParseContext) -> Result:
         return ctx._positive_closure(lambda: self.exp._parse(ctx))
@@ -52,7 +52,7 @@ class PositiveClosure(Closure):
         return self.exp._nullable()
 
 
-@tatsudataclass
+@nodedataclass
 class Join(Box):
     JOINOP = '%'
 
@@ -135,7 +135,7 @@ class PositiveGather(Gather):
         return self.exp._nullable()
 
 
-@tatsudataclass
+@nodedataclass
 class EmptyClosure(Model):
     def _parse(self, ctx: ParseContext) -> Result:
         return ctx.empty()

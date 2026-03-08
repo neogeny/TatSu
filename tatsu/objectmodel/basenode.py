@@ -14,9 +14,9 @@ from ..infos import ParseInfo
 from ..mixins.indent import IndentPrintMixin
 from ..util import AsJSONMixin, asjson, asjsons, isiter, rowselect, typename
 
-__all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
+__all__ = ['BaseNode', 'NodeDataclassParams', 'nodedataclass']
 
-TatSuDataclassParams = dict(
+NodeDataclassParams = dict(
     {},
     eq=False,
     repr=False,
@@ -27,14 +27,14 @@ TatSuDataclassParams = dict(
 
 
 @overload
-def tatsudataclass[T: type](cls: T) -> T: ...
+def nodedataclass[T: type](cls: T) -> T: ...
 
 
 @overload
-def tatsudataclass[T: type](**params: Any) -> Callable[[T], T]: ...
+def nodedataclass[T: type](**params: Any) -> Callable[[T], T]: ...
 
 
-def tatsudataclass[T: type](
+def nodedataclass[T: type](
     cls: T | None = None,
     **params: Any,
 ) -> T | Callable[[T], T]:
@@ -42,7 +42,7 @@ def tatsudataclass[T: type](
     # by [apalala@gmail.com](https://github.com/apalala)
 
     def decorator(target: T) -> T:
-        allparams = {**TatSuDataclassParams, **params}
+        allparams = {**NodeDataclassParams, **params}
         return dc.dataclass(**allparams)(target)  # type: ignore
 
     # If cls is passed, it was used as @tatsudataclass with no arguments
@@ -52,7 +52,7 @@ def tatsudataclass[T: type](
     return decorator
 
 
-@tatsudataclass
+@nodedataclass
 class BaseNode(AsJSONMixin):
     ast: Any = dc.field(kw_only=False, default=None)
     ctx: Any = None
