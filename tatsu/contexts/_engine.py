@@ -261,19 +261,6 @@ class ParserEngine(ParserCore):
 
         prune_dict(self._memos, filter_func)
 
-    def cut(self) -> None:
-        self.states.set_cut_seen()
-        self.tracer.trace_cut(self.cursor)
-
-        def prune(cut_pos: int) -> None:
-            prune_dict(
-                self._memos,
-                lambda k, v: k[0] < cut_pos and not isinstance(v, FailedLeftRecursion),
-            )
-
-        if self.config.prune_memos_on_cut:
-            prune(self.pos)
-
     def constant(self, literal: Any) -> Any:
         self.next_token()
         self.tracer.trace_match(self.cursor, literal)

@@ -73,13 +73,14 @@ class ParserCore:
             cursor=self.tokenizer.newcursor()
         )
         self.semantics: type | None = config.semantics
+        self._furthest_exception: FailedParse | None = None
 
         self._initialize_caches()
         self.tracer: EventTracer = NullEventTracer()
         self.update_tracer()
 
     def _initialize_caches(self) -> None:
-        self._furthest_exception: FailedParse | None = None
+        self._furthest_exception = None
         self._memos: MemoCache = BoundedDict(self.config.memo_cache_size)
         self._results: MemoCache = {}
         self._states = ParseStateStack(cursor=self.tokenizer.newcursor())
@@ -230,6 +231,8 @@ class ParserCore:
 
         if self.config.prune_memos_on_cut:
             prune(self._memos, self.pos)
+
+    _cut = cut
 
     def memoization(self) -> bool:
         if not self.config.memoization:
