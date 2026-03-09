@@ -5,7 +5,6 @@ from __future__ import annotations
 import types
 from typing import Any
 
-from ..ast import AST
 from .basenode import BaseNode, nodedataclass
 
 __all__ = ['SynthNode', 'registered_synthetics', 'synthesize']
@@ -20,7 +19,7 @@ __registry: dict[str, Any] = vars()
 class SynthNode(BaseNode):
     def __post_init__(self):
         super().__post_init__()
-        if not isinstance(self.ast, AST):
+        if not isinstance(self.ast, dict):
             return
         # NOTE:
         #   synthetic objects have no attributes prior to this __init__()

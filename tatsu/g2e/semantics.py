@@ -11,7 +11,7 @@ from itertools import chain
 from typing import Any
 
 from .. import grammars as model
-from ..ast import AST
+from ..contexts import AST
 from ..grammars import Grammar, Model, syntax
 
 

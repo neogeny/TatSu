@@ -9,8 +9,7 @@ from collections.abc import Callable
 from functools import cache
 from typing import Any, overload
 
-from ..ast import AST
-from ..infos import ParseInfo
+from ..contexts.infos import ParseInfo
 from ..mixins.indent import IndentPrintMixin
 from ..util import AsJSONMixin, asjson, asjsons, isiter, rowselect, typename
 
@@ -71,15 +70,10 @@ class BaseNode(AsJSONMixin):
         self.__post_init__()
 
     def __post_init__(self):
-        if self.ast and isinstance(self.ast, dict):
-            self.ast = AST(self.ast)
 
         ast = self.ast
-        if not isinstance(ast, AST):
+        if not isinstance(ast, dict):
             return
-
-        if not self.parseinfo:
-            self.parseinfo = ast.parseinfo
 
         # note:
         #   Node objects are created by a model builer when invoked by he parser,
@@ -134,7 +128,7 @@ class BaseNode(AsJSONMixin):
         wanted = pub.keys() - self._basenode_keys()
         if wanted or self.ast is None:
             pass
-        elif not isinstance(self.ast, AST):
+        elif not isinstance(self.ast, dict):
             wanted = {'ast'}  # self.ast may be all this object has
 
         return rowselect(wanted, pub)

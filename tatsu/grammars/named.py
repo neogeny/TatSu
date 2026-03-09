@@ -8,8 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..ast import AST
-from ..contexts import Ctx
+from ..contexts import AST, Ctx
 from ..objectmodel import nodedataclass
 from ..util import typename
 from ._core import Box, NamedBox

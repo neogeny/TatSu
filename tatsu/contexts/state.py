@@ -7,9 +7,8 @@ from contextlib import contextmanager
 from copy import copy
 from typing import Any
 
-from ..ast import AST
-from ..infos import Alert
-from .infos import RuleInfo
+from .ast import AST
+from .infos import Alert, RuleInfo
 
 __all__ = ['ParseState', 'ParseStateStack']
 

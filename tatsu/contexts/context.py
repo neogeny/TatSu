@@ -2,11 +2,10 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from collections.abc import Callable, Generator
+from collections.abc import Generator
 from contextlib import contextmanager, suppress
 from typing import Any
 
-from ..ast import AST
 from ..exceptions import (
     FailedExpectingEndOfText,
     FailedLookahead,
@@ -20,6 +19,7 @@ from ..util import deprecated, is_list, left_assoc, right_assoc
 from ..util.strtools import regexpp
 from ._engine import ParserEngine
 from ._protocol import Ctx, Func
+from .ast import AST
 from .ctxlib import ChoiceContext, InnerExpContext
 from .infos import listclosure
 

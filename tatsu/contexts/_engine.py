@@ -7,7 +7,6 @@ import inspect
 from contextlib import suppress
 from typing import Any
 
-from ..ast import AST
 from ..exceptions import (
     FailedLeftRecursion,
     FailedParse,
@@ -16,7 +15,7 @@ from ..exceptions import (
     ParseError,
     ParseException,
 )
-from ..infos import ParseInfo, ParserConfig
+from ..infos import ParserConfig
 from ..tokenizing import NullCursor, NullTokenizer, Tokenizer
 from ..tokenizing.textlines import TextLinesTokenizer
 from ..util import (
@@ -30,7 +29,8 @@ from ..util import (
     trim,
 )
 from ._core import ParserCore
-from .infos import MemoKey, RuleInfo, RuleResult, listclosure
+from .ast import AST
+from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult, listclosure
 from .state import ParseStateStack
 
 type RuleOutcome = RuleResult | ParseException

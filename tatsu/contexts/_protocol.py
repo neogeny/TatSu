@@ -5,8 +5,8 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any, Protocol, runtime_checkable
 
-from ..ast import AST
 from ..exceptions import FailedParse
+from .ast import AST
 from .infos import RuleInfo
 from .state import ParseStateStack
 

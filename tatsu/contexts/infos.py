@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any, NamedTuple, Protocol
 
+from ..tokenizing import Cursor
+
 
 class MemoKey(NamedTuple):
     pos: int
@@ -70,3 +72,40 @@ class RuleInfo(NamedTuple):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+
+class ParseInfo(NamedTuple):
+    cursor: Cursor
+    rule: str
+    pos: int
+    endpos: int
+    line: int
+    endline: int
+    alerts: list[Alert] = []  # noqa: RUF012
+
+    @property
+    def tokenizer(self) -> Cursor:
+        # NOTE:
+        #   info.tokenizer provided for bakwards compatibility
+        #   self.cursor.tokenizer:Tokenizer is opaque, so useless
+        return self.cursor
+
+    def text_lines(self) -> list[str]:
+        return self.cursor.get_lines(self.line, self.endline)
+
+    def line_index(self):
+        return self.cursor.line_index(self.line, self.endline)
+
+
+class CommentInfo(NamedTuple):
+    inline: list
+    eol: list
+
+    @staticmethod
+    def new_comment():
+        return CommentInfo([], [])
+
+
+class Alert(NamedTuple):
+    level: int = 1
+    message: str = ''

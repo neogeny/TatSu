@@ -9,8 +9,8 @@ from typing import Any
 
 from .. import grammars as g
 from ..contexts import ParseContext
+from ..contexts.infos import ParseInfo
 from ..exceptions import FailedSemantics
-from ..infos import ParseInfo
 from ..util import eval_escapes, flatten, re, safe_name, trim, warning
 from .builder import ModelBuilderSemantics
 

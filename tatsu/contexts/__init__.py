@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 from ._protocol import Ctx, Func
+from .ast import AST
 from .context import ParseContext
 from .decorator import isname, leftrec, name, nomemo, rule, tatsumasu
 from .infos import RuleInfo
 
 __all__ = [
+    'AST',
     'ParseContext',
     'RuleInfo',
     'Ctx',

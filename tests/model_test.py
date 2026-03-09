@@ -10,7 +10,7 @@ import pytest
 
 import tatsu
 from tatsu import grammars as g
-from tatsu.ast import AST
+from tatsu.contexts.ast import AST
 from tatsu.objectmodel import Node
 from tatsu.util import hasha, typename
 from tatsu.util.strtools import trim

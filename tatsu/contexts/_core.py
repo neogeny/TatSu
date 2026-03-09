@@ -6,7 +6,6 @@ from collections.abc import Callable
 from functools import cache
 from typing import Any
 
-from ..ast import AST
 from ..collections import BoundedDict
 from ..exceptions import (
     FailedLeftRecursion,
@@ -20,6 +19,7 @@ from ..util import (
     prune_dict,
     safe_name,
 )
+from .ast import AST
 from .infos import MemoKey, RuleInfo, RuleResult
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer

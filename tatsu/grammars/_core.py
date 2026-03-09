@@ -11,8 +11,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, override
 
-from ..ast import AST
-from ..contexts import Ctx, Func, ParseContext, RuleInfo
+from ..contexts import AST, Ctx, Func, ParseContext, RuleInfo
 from ..exceptions import GrammarError
 from ..objectmodel import Node, nodedataclass
 from ..parserconfig import ParserConfig

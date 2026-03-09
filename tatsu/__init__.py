@@ -7,7 +7,8 @@ from importlib import resources
 
 from ._config import __toolname__, __version__
 from ._version import version, version_info
-from .contexts.decorator import isname, leftrec, name, nomemo, rule, tatsumasu
+from .contexts import AST, ast
+from .contexts.decorator import name, nomemo, tatsumasu
 from .grammars import builder
 from .objectmodel import (
     NodeDataclassParams,
@@ -32,6 +33,7 @@ from .tool import (  # pylint: disable=W0622
 # NOTE: this is for backwrds compatibility with legacy generated parsers
 sys.modules.update(  # noqa: RUF067
     {
+        'tatsu.ast': ast,
         'tatsu.builder': builder,
         'tatsu.buffering': buffer,
     }
@@ -44,6 +46,7 @@ grammar = grammar_path.read_text()  # noqa: RUF067
 __all__ = [
     '__toolname__',
     '__version__',
+    'AST',
     'builder',
     'compile',
     'gencode',
@@ -55,16 +58,13 @@ __all__ = [
     'to_python_sourcecode',
     'version',
     'version_info',
-    'isname',
     'NodeDataclassParams',
     'TatSuDataclassParams',
     'dataclass',
     'nodedataclass',
     'tatsudataclass',
     'name',
-    'leftrec',
     'nomemo',
-    'rule',
     'tatsumasu',
     'grammar_path',
     'grammar',

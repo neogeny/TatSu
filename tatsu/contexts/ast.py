@@ -5,8 +5,8 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Any, override
 
+from ..util import asjson, is_list, make_hashable
 from .infos import ParseInfo
-from .util import asjson, is_list, make_hashable
 
 
 class AST(dict[str, Any]):

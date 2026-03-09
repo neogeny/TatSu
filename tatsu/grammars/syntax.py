@@ -6,8 +6,7 @@ from dataclasses import field
 from itertools import takewhile
 from typing import Any
 
-from ..ast import AST
-from ..contexts import Ctx, Func, ParseContext
+from ..contexts import AST, Ctx, Func
 from ..exceptions import FailedRef
 from ..objectmodel import nodedataclass
 from ..util import cast, indent, trim
