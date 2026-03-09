@@ -9,6 +9,7 @@ from typing import Any, ClassVar, Concatenate
 
 from .util import deprecated, pythonize_name
 
+
 type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
 
 
@@ -50,9 +51,9 @@ class NodeWalker:
             return node
 
     def children_of(self, node: Any) -> Iterable[Any]:
-        if not hasattr(node, 'children') or not callable(node.children):
+        if not (children := getattr(node, 'children', None)) or not callable(children):
             return ()
-        return node.children()  # pyright: ignore[reportReturnType]
+        return node.children()
 
     def walk_children(self, node: Any, *args, **kwargs) -> tuple[Any, ...]:
         return tuple(
@@ -186,6 +187,8 @@ class PostOrderDepthFirstWalker(NodeWalker):
         yield super().walk(node, *args, children=children, **kwargs)
 
 
+# note: for backwars compatibility
+@deprecated(replacement=None)
 class ContextWalker(NodeWalker):
     def __init__(self, initial_context):
         super().__init__()
@@ -193,7 +196,7 @@ class ContextWalker(NodeWalker):
         self._context_stack = [initial_context]
 
     # abstract
-    def get_node_context(self, node, *args, **kwargs):
+    def get_node_context(self, node, *args, **kwargs) -> Any:
         pass
 
     # abstract
