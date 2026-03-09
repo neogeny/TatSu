@@ -30,6 +30,11 @@ classifiers = [
 ]
 dependencies = []
 
+[tool.pyrefly.errors]
+missing-attribute = "ignore"
+untyped-import = "ignore"
+missing-import = "ignore"
+
 [project.optional-dependencies]
 colorization = ["colorama"]
 parproc = ["rich"]
@@ -46,6 +51,7 @@ dev = [
     "invoke>=2.2.1",
     "progress>=1.6.1",
     "psutil>=7.2.2",
+    "pyrefly>=0.55.0",
     "pytest>=9.0.2",
     "pytest-codspeed>=4.3.0",
     "pytest-dependency>=0.6.0",
@@ -318,6 +324,19 @@ exclude = [
 reportAny = false
 reportExplicitAny = false
 reportUnusedParameter = false
+
+[tool.pyrefly]
+search_path = ["stubs", "."]
+project-excludes = [
+    "**/parsers*",
+    "**/docs*",
+    "**/build*",
+    "**/tmp*",
+    "**/ng*",
+    "**/tatsu/bootstrap.py",
+    "**/tatsu/codegen/**/*",
+]
+python-version = "3.12.0"
 #reportUnnecessaryIsInstance = false
 #reportUnnecessaryCast = false
 #reportUnnecessaryComparison = false
