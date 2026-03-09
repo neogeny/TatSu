@@ -11,6 +11,8 @@ from typing import NamedTuple
 from rich.console import Console
 from rich.tree import Tree
 
+from .misc import pathtomodulename
+
 
 class Dependency(NamedTuple):
     name: str
@@ -23,9 +25,24 @@ class ModuleImports(NamedTuple):
     imports: tuple[Dependency, ...]
 
 
-def pathtomodulename(path: Path) -> str:
-    """Converts a file path to a Python module name."""
-    return ".".join(path.with_suffix("").parts).replace(".__init__", "")
+def programfiles() -> list[Path]:
+    """
+    Return all Python files that belong to the current program's
+    top-level package, if available.
+    """
+    if not __package__:
+        return []
+
+    import importlib
+
+    rootpkgname = __package__.split(".")[0]
+    rootpkg = importlib.import_module(rootpkgname)
+    rootfile = getattr(rootpkg, "__file__", None)
+    if not rootfile:
+        return []
+
+    rootpath = Path(rootfile).parent
+    return [p for p in rootpath.rglob("*.py") if p.is_file()]
 
 
 def moduledeps(name: str, path: Path) -> ModuleImports:
@@ -209,33 +226,28 @@ def main() -> None:
     if force_color:
         args.remove("--color")
 
-    if not args:
-        if __package__:
-            # Placeholder for default module behavior
-            print("Default module behavior to be implemented.")
-            sys.exit(0)
-        else:
-            prog = f"python {Path(__file__).name}"
-            print(f"usage:\n   {prog} [--color] FILENAME_OR_GLOB...")
-            sys.exit(1)
-
     console = Console(force_terminal=force_color or None)
 
     paths: list[Path] = []
+    if not args and __package__:
+        paths = programfiles()
+    elif not args:
+        prog = f"python {Path(__file__).name}"
+        print(f"usage:\n   {prog} [--color] FILENAME_OR_GLOB...")
+        raise SystemExit(1)
+
     for arg in args:
         if any(c in arg for c in "*?[]"):
             expanded = Path().glob(arg)
             paths.extend(Path(p) for p in expanded if Path(p).is_file())
-        else:
-            path = Path(arg)
-            if path.is_file():
-                paths.append(path)
+        elif (path := Path(arg)) and path.is_file():
+            paths.append(path)
 
     paths = sorted(set(paths))
 
     if not paths:
         print("No Python files found matching the given paths.", file=sys.stderr)
-        sys.exit(1)
+        raise SystemExit(1)
 
     results = findeps(paths)
     tree = render(results)

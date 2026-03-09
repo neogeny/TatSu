@@ -10,14 +10,6 @@ from pathlib import Path
 
 from .itertools import first  # bwcompat
 
-__all__ = [
-    'first',
-    'cached_re_compile',
-    'module_available',
-    'module_missing',
-    'platform_has_command',
-]
-
 
 @cache
 def cached_re_compile(
