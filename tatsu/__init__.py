@@ -6,9 +6,10 @@ import sys
 from importlib import resources
 
 from ._config import __toolname__, __version__
+from ._grammar import grammar, grammar_path
 from ._version import version, version_info
-from .contexts import AST, ast as ast
-from .contexts.decorator import name, nomemo, tatsumasu
+from .contexts import ast as ast
+from .contexts.decorator import isname, leftrec, name, nomemo, rule, tatsumasu
 from .grammars import builder as builder
 from .objectmodel import (
     NodeDataclassParams,
@@ -17,7 +18,7 @@ from .objectmodel import (
     nodedataclass as dataclass,
     nodedataclass as tatsudataclass,
 )
-from .tokenizing import buffer, buffer as buffering
+from .tokenizing import buffer as buffering
 from .tool import (  # pylint: disable=W0622
     compile,
     gencode,
@@ -29,14 +30,20 @@ from .tool import (  # pylint: disable=W0622
     to_python_sourcecode,
 )
 
+# HACK!
+# NOTE: this is for backwrds compatibility with legacy generated parsers
+sys.modules.update(  # noqa: RUF067
+    {
+        'tatsu.ast': ast,
+        'tatsu.builder': builder,
+        'tatsu.buffering': buffering,
+    }
+)
 
-grammar_path = resources.files().joinpath("_tatsu.tatsu")  # noqa: RUF067
-grammar = grammar_path.read_text()  # noqa: RUF067
 
 __all__ = [
     '__toolname__',
     '__version__',
-    'AST',
     'builder',
     'compile',
     'gencode',
@@ -48,13 +55,16 @@ __all__ = [
     'to_python_sourcecode',
     'version',
     'version_info',
+    'isname',
     'NodeDataclassParams',
     'TatSuDataclassParams',
     'dataclass',
     'nodedataclass',
     'tatsudataclass',
     'name',
+    'leftrec',
     'nomemo',
+    'rule',
     'tatsumasu',
     'grammar_path',
     'grammar',
