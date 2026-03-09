@@ -35,7 +35,7 @@ class Named(NamedBox):
     def _pretty(self, lean=False):
         if lean:
             return self.exp._pretty(lean=True)
-        return f'{self.name}:{self.exp._pretty(lean=lean)}'
+        return f'{self.name}={self.exp._pretty(lean=lean)}'
 
 
 @nodedataclass
@@ -51,7 +51,7 @@ class NamedList(Named):
     def _pretty(self, lean=False):
         if lean:
             return self.exp._pretty(lean=True)
-        return f'{self.name}+:{self.exp._pretty(lean=lean)!s}'
+        return f'{self.name}+={self.exp._pretty(lean=lean)!s}'
 
 
 @nodedataclass
@@ -64,7 +64,7 @@ class Override(Box):
     def _pretty(self, lean=False):
         if lean:
             return self.exp._pretty(lean=True)
-        return f'@:{self.exp._pretty(lean=lean)!s}'
+        return f'={self.exp._pretty(lean=lean)!s}'
 
 
 @nodedataclass
@@ -77,4 +77,4 @@ class OverrideList(Box):
     def _pretty(self, lean=False):
         if lean:
             return self.exp._pretty(lean=True)
-        return f'@+:{self.exp._pretty(lean=lean)!s}'
+        return f'+={self.exp._pretty(lean=lean)!s}'

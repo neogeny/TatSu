@@ -23,11 +23,11 @@ class PrettyTests(unittest.TestCase):
 
             lisp: sexp | list | symbol
 
-            sexp[SExp]: '(' cons:lisp '.' ~ cdr:lisp ')'
+            sexp[SExp]: '(' cons=lisp '.' ~ cdr=lisp ')'
 
-            list[List]: '(' elements:{sexp} ')'
+            list[List]: '(' elements={sexp} ')'
 
-            symbol[Symbol]: value:/[^\s().]+/
+            symbol[Symbol]: value=/[^\s().]+/
 
         """)
 

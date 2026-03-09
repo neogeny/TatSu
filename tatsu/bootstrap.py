@@ -825,7 +825,7 @@ class TatSuBootstrapRules:
         ctx.define(['exp', 'name'], [])
         with ctx.nameset('name'):
             self.name(ctx)
-        ctx.token('+:')
+        ctx.pattern(r'\+[:=]')
         ctx.cut()
         with ctx.nameset('exp'):
             self.term(ctx)
@@ -835,7 +835,7 @@ class TatSuBootstrapRules:
         ctx.define(['exp', 'name'], [])
         with ctx.nameset('name'):
             self.name(ctx)
-        ctx.token(':')
+        ctx.pattern(r'[:=]')
         ctx.cut()
         with ctx.nameset('exp'):
             self.term(ctx)
@@ -860,20 +860,22 @@ class TatSuBootstrapRules:
                 '<override_single>',
                 '<override_single_deprecated>',
                 '@',
-                '@+:',
-                '@:'
+                '@[:=]|=',
+                '@\\+[:=]|\\+='
             )
 
     @tatsu.rule('OverrideList')
     def override_list(self, ctx: Ctx):
-        ctx.token('@+:')
+        ctx.void()
+        ctx.pattern(r'@\+[:=]|\+=')
         ctx.cut()
         with ctx.nameset('@'):
             self.term(ctx)
 
     @tatsu.rule('Override')
     def override_single(self, ctx: Ctx):
-        ctx.token('@:')
+        ctx.void()
+        ctx.pattern(r'@[:=]|=')
         ctx.cut()
         with ctx.nameset('@'):
             self.term(ctx)
@@ -1021,17 +1023,7 @@ class TatSuBootstrapRules:
         with ctx.nameset('exp'):
             self.expre(ctx)
         ctx.token('}')
-        with ctx.group():
-            with ctx.choice() as α:
-                @α.option
-                def 〇(ctx: Ctx):
-                    ctx.token('+')
-
-                @α.option
-                def 〇(ctx: Ctx):
-                    ctx.token('-')
-
-                α.expecting('+', '-')
+        ctx.pattern(r'(?!\+=)[+-]')
         ctx.cut()
 
     @tatsu.rule('Gather')
@@ -1077,17 +1069,7 @@ class TatSuBootstrapRules:
         with ctx.nameset('exp'):
             self.expre(ctx)
         ctx.token('}')
-        with ctx.group():
-            with ctx.choice() as α:
-                @α.option
-                def 〇(ctx: Ctx):
-                    ctx.token('+')
-
-                @α.option
-                def 〇(ctx: Ctx):
-                    ctx.token('-')
-
-                α.expecting('+', '-')
+        ctx.pattern(r'(?!\+=)[+-]')
         ctx.cut()
 
     @tatsu.rule('Join')
@@ -1115,17 +1097,7 @@ class TatSuBootstrapRules:
         with ctx.nameset('exp'):
             self.expre(ctx)
         ctx.token('}')
-        with ctx.group():
-            with ctx.choice() as α:
-                @α.option
-                def 〇(ctx: Ctx):
-                    ctx.token('+')
-
-                @α.option
-                def 〇(ctx: Ctx):
-                    ctx.token('-')
-
-                α.expecting('+', '-')
+        ctx.pattern(r'(?!\+=)[+-]')
         ctx.cut()
 
     @tatsu.rule('RightJoin')
@@ -1138,17 +1110,7 @@ class TatSuBootstrapRules:
         with ctx.nameset('exp'):
             self.expre(ctx)
         ctx.token('}')
-        with ctx.group():
-            with ctx.choice() as α:
-                @α.option
-                def 〇(ctx: Ctx):
-                    ctx.token('+')
-
-                @α.option
-                def 〇(ctx: Ctx):
-                    ctx.token('-')
-
-                α.expecting('+', '-')
+        ctx.pattern(r'(?!\+=)[+-]')
         ctx.cut()
 
     @tatsu.rule('PositiveClosure')
@@ -1160,24 +1122,14 @@ class TatSuBootstrapRules:
                 with ctx.nameset('@'):
                     self.expre(ctx)
                 ctx.token('}')
-                with ctx.group():
-                    with ctx.choice() as β:
-                        @β.option
-                        def 〇(ctx: Ctx):
-                            ctx.token('-')
-
-                        @β.option
-                        def 〇(ctx: Ctx):
-                            ctx.token('+')
-
-                        β.expecting('+', '-')
+                ctx.pattern(r'(?!\+=)[+-]')
                 ctx.cut()
 
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.nameset('@'):
                     self.atom(ctx)
-                ctx.token('+')
+                ctx.pattern(r'(?!\+=)[+]')
                 ctx.cut()
 
             α.expecting(

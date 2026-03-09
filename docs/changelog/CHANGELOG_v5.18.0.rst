@@ -7,7 +7,11 @@ v5.18.0
 Grammars / EBNF
 ~~~~~~~~~~~~~~~
 
-- Now **TatSu**\ ’s own grammar is written in EBNF notation.
+- Now **TatSu**\ ’s own grammar is written in EBNF notation. Examples and
+  documentation are converging to the syntax used by `pegen`_, the base for
+  the Python PEG parser.
+
+.. _pegen: https://we-like-parsers.github.io/pegen/grammar.html
 
 - Multi-line string literals in the grammar are now supported. Use triple
   quotes like ``"""..."""`` or ``'''...'''`` for multi-line string literals

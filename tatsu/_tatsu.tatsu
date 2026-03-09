@@ -83,15 +83,15 @@ rule_include[RuleInclude]: '>' ~ @:known_name
 
 named: named_list | named_single
 
-named_list[NamedList]: name:name '+:' ~ exp:term
+named_list[NamedList]: name:name /\+[:=]/ ~ exp:term
 
-named_single[Named]: name:name ':' ~ exp:term
+named_single[Named]: name:name /[:=]/ ~ exp:term
 
 override: override_list | override_single | override_single_deprecated
 
-override_list[OverrideList]: '@+:' ~ @:term
+override_list[OverrideList]: /@\+[:=]|\+=/ ~ @:term
 
-override_single[Override]: '@:' ~ @:term
+override_single[Override]: /@[:=]|=/ ~ @:term
 
 override_single_deprecated[Override]: '@' ~ @:term
 
@@ -118,21 +118,23 @@ group[Group]: '(' ~ @:expre ')' ~
 gather: &(atom '.{') ~ (positive_gather | normal_gather)
 
 
-positive_gather[PositiveGather]: sep:atom '.{' exp:expre '}' ('+'|'-') ~
+positive_gather[PositiveGather]: sep:atom '.{' exp:expre '}' /(?!\+=)[+-]/ ~
 
 normal_gather[Gather]: sep:atom '.{' ~ exp:expre '}' ['*' ~] ~
 
 join: &(atom '%{') ~ (positive_join | normal_join)
 
-positive_join[PositiveJoin]: sep:atom '%{' exp:expre '}' ('+'|'-') ~
+positive_join[PositiveJoin]: sep:atom '%{' exp:expre '}' /(?!\+=)[+-]/ ~
 
 normal_join[Join]: sep:atom '%{' ~ exp:expre '}' ['*' ~] ~
 
-left_join[LeftJoin]: sep:atom '<{' ~ exp:expre '}' ('+'|'-') ~
+left_join[LeftJoin]: sep:atom '<{' ~ exp:expre '}' /(?!\+=)[+-]/ ~
 
-right_join[RightJoin]: sep:atom '>{' ~ exp:expre '}' ('+'|'-') ~
+right_join[RightJoin]: sep:atom '>{' ~ exp:expre '}' /(?!\+=)[+-]/ ~
 
-positive_closure[PositiveClosure]: '{' @:expre '}' ('-' | '+') ~ |   @:atom '+' ~
+positive_closure[PositiveClosure]:
+    | '{' @:expre '}' /(?!\+=)[+-]/ ~
+    |  @:atom /(?!\+=)[+]/ ~
 
 closure[Closure]: '{' @:expre '}' ['*'] ~ |   @:atom '*' ~
 

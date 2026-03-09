@@ -206,9 +206,9 @@ class SyntaxTests(unittest.TestCase):
         grammar = """\
             start: b $
 
-            a: @:'a'
+            a: ='a'
 
-            b < a: {@:'b'}
+            b < a: {='b'}
             """
         model = compile(grammar, 'test')
         ast = model.parse('abb', nameguard=False)
