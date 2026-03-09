@@ -30,7 +30,7 @@ from ..util import (
     trim,
 )
 from ._core import ParserCore
-from .infos import MemoKey, RuleInfo, RuleResult, closure
+from .infos import MemoKey, RuleInfo, RuleResult, listclosure
 from .state import ParseStateStack
 
 type RuleOutcome = RuleResult | ParseException
@@ -246,7 +246,7 @@ class ParserEngine(ParserCore):
 
     def save_result(self, key: MemoKey, result: RuleResult) -> None:
         if is_list(result.node):
-            result = result._replace(node=closure(result.node))
+            result = result._replace(node=listclosure(result.node))
         self._results[key] = result
 
     def set_left_recursion_guard(self, key: MemoKey) -> None:

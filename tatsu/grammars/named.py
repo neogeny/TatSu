@@ -9,9 +9,9 @@ from __future__ import annotations
 from typing import Any
 
 from ..ast import AST
-from ..contexts import Ctx, ParseContext
+from ..contexts import Ctx
 from ..objectmodel import nodedataclass
-from ..util import cast, typename
+from ..util import typename
 from ._core import Box, NamedBox
 
 
@@ -26,7 +26,6 @@ class Named(NamedBox):
         assert getattr(self, 'name', None) is not None
 
     def _parse(self, ctx: Ctx) -> Any:
-        ctx = cast(ParseContext, ctx)
         value = self.exp._parse(ctx)
         ctx.ast[self.name] = value
         return value
@@ -43,7 +42,6 @@ class Named(NamedBox):
 @nodedataclass
 class NamedList(Named):
     def _parse(self, ctx: Ctx) -> Any:
-        ctx = cast(ParseContext, ctx)
         value = self.exp._parse(ctx)
         ctx.ast._setlist(self.name, value)
         return value
@@ -60,7 +58,6 @@ class NamedList(Named):
 @nodedataclass
 class Override(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        ctx = cast(ParseContext, ctx)
         value = self.exp._parse(ctx)
         ctx.ast['@'] = value
         return value
@@ -74,7 +71,6 @@ class Override(Box):
 @nodedataclass
 class OverrideList(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        ctx = cast(ParseContext, ctx)
         value = self.exp._parse(ctx)
         ctx.ast._setlist('@', value)
         return value

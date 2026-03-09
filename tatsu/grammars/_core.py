@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import weakref
 from collections import defaultdict
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Iterable, Mapping
 from copy import copy
 from dataclasses import field
 from pathlib import Path
@@ -12,8 +12,7 @@ from types import SimpleNamespace
 from typing import Any, override
 
 from ..ast import AST
-from ..contexts import Ctx, ParseContext
-from ..contexts.infos import RuleInfo
+from ..contexts import Ctx, Func, ParseContext, RuleInfo
 from ..exceptions import GrammarError
 from ..objectmodel import Node, nodedataclass
 from ..parserconfig import ParserConfig
@@ -24,8 +23,6 @@ from .math import ffset, kdot
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
-
-type Func = Callable[[Ctx], Any]
 
 
 def model_classes() -> list[type[Model]]:
@@ -56,7 +53,7 @@ class ModelContext(ParseContext):
     def rulemap(self) -> dict[str, Rule]:
         return self._rulemap
 
-    def find_rule(self, name: str) -> Callable:
+    def find_rule(self, name: str) -> Func:
         return self.rulemap[name]._parse
 
 
@@ -107,7 +104,7 @@ class Model(Node):
             assert isinstance(child, Model)
             child._set_grammar(grammar)
 
-    def _add_defined_attributes(self, ctx: ParseContext, ast: Any | None = None):
+    def _add_defined_attributes(self, ctx: Ctx, ast: Any | None = None):
         if ast is None:
             return
         if not hasattr(ast, '_define'):

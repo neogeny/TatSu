@@ -6,14 +6,12 @@ import functools
 from collections.abc import Callable
 from typing import Any
 
-from .._protocol import Ctx
+from .._protocol import Ctx, Func
 from ..infos import RuleInfo
 
 
-def tatsumasu(
-    *params: Any, **kwparams: Any
-) -> Callable[[Callable[[], None]], Callable[[Ctx], Any]]:
-    def decorator(func: Callable[[], None]) -> Callable[[Ctx], Any]:
+def tatsumasu(*params: Any, **kwparams: Any) -> Callable[[Callable[[], None]], Func]:
+    def decorator(func: Callable[[], None]) -> Func:
         @functools.wraps(func)
         def wrapper(self: Ctx, _ctx: Ctx | None = None) -> Any:
             ruleinfo = RuleInfo.new(self, func, params, kwparams)

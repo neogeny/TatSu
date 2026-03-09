@@ -12,7 +12,7 @@ from collections.abc import Iterable
 from io import StringIO
 from typing import Any
 
-from .common import is_reserved
+from .common import isreserved
 
 if sys.version_info >= (3, 13):
     from re import PatternError
@@ -196,7 +196,7 @@ def safe_name(name: str, plug: str = "_") -> str:
 
     assert res.isidentifier(), f"Failed to sanitize '{name}' into '{res}'"
 
-    while is_reserved(res):
+    while isreserved(res):
         res = f"{res}{plug}"
 
     return res

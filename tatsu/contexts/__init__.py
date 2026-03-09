@@ -2,13 +2,16 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from ._protocol import Ctx
+from ._protocol import Ctx, Func
 from .context import ParseContext
 from .decorator import isname, leftrec, name, nomemo, rule, tatsumasu
+from .infos import RuleInfo
 
 __all__ = [
     'ParseContext',
+    'RuleInfo',
     'Ctx',
+    'Func',
     'isname',
     'name',
     'leftrec',

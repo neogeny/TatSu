@@ -2,13 +2,12 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from collections.abc import Callable
 from dataclasses import field
 from itertools import takewhile
 from typing import Any
 
 from ..ast import AST
-from ..contexts import Ctx, ParseContext
+from ..contexts import Ctx, Func, ParseContext
 from ..exceptions import FailedRef
 from ..objectmodel import nodedataclass
 from ..util import cast, indent, trim
@@ -19,7 +18,6 @@ from .math import ffset, kdot, ref
 @nodedataclass
 class Group(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        ctx = cast(ParseContext, ctx)
         with ctx.group():
             self.exp._parse(ctx)
             return ctx.last_node
@@ -60,9 +58,8 @@ class NegativeLookahead(Box):
 @nodedataclass
 class SkipTo(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        ctx = cast(ParseContext, ctx)
-        super_parse: Callable[[Ctx], Any] = super()._parse  # type: ignore
-        return ctx._skip_to(super_parse)
+        super_parse: Func = super()._parse  # type: ignore
+        return ctx.skip_to(super_parse)
 
     def _first(self, k, f) -> ffset:
         return {('.',)} | super()._first(k, f)
@@ -74,7 +71,6 @@ class SkipTo(Box):
 @nodedataclass
 class Option(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        ctx = cast(ParseContext, ctx)
         result = super()._parse(ctx)
         self._add_defined_attributes(ctx, result)
         return result
@@ -148,9 +144,8 @@ class Choice(Model):
 @nodedataclass
 class Optional(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        ctx = cast(ParseContext, ctx)
         self._add_defined_attributes(ctx, ctx.ast)
-        with ctx._optional():
+        with ctx.optional():
             return self.exp._parse(ctx)
 
     def _first(self, k, f) -> ffset:

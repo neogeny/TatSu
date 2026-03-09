@@ -5,17 +5,17 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from .._protocol import Ctx
+from .._protocol import Ctx, Func
 
 
 class ChoiceContext:
     def __init__(self, ctx: Ctx):
         self.ctx = ctx
-        self.options: list[Callable[[Ctx], Any]] = []
+        self.options: list[Func] = []
         self.expected: list[str] = []
         self.result: Any = None
 
-    def option(self, func: Callable[[Ctx], Any]) -> Callable[[Ctx], None]:
+    def option(self, func: Func) -> Func:
         self.options.append(func)
         return func
 

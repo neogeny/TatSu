@@ -25,7 +25,7 @@ class RuleLike(Protocol):
         pass
 
 
-class closure(list[Any]):
+class listclosure(list[Any]):
     def __hash__(self) -> int:  # type: ignore
         return hash(tuple(self))
 
