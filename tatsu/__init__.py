@@ -7,9 +7,9 @@ from importlib import resources
 
 from ._config import __toolname__, __version__
 from ._version import version, version_info
-from .contexts import AST, ast
+from .contexts import AST, ast as ast
 from .contexts.decorator import name, nomemo, tatsumasu
-from .grammars import builder
+from .grammars import builder as builder
 from .objectmodel import (
     NodeDataclassParams,
     NodeDataclassParams as TatSuDataclassParams,
@@ -17,7 +17,7 @@ from .objectmodel import (
     nodedataclass as dataclass,
     nodedataclass as tatsudataclass,
 )
-from .tokenizing import buffer
+from .tokenizing import buffer, buffer as buffering
 from .tool import (  # pylint: disable=W0622
     compile,
     gencode,
@@ -27,16 +27,6 @@ from .tool import (  # pylint: disable=W0622
     tatsu_main as main,
     to_python_model,
     to_python_sourcecode,
-)
-
-# HACK!
-# NOTE: this is for backwrds compatibility with legacy generated parsers
-sys.modules.update(  # noqa: RUF067
-    {
-        'tatsu.ast': ast,
-        'tatsu.builder': builder,
-        'tatsu.buffering': buffer,
-    }
 )
 
 
