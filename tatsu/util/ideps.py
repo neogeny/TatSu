@@ -25,6 +25,26 @@ class ModuleImports(NamedTuple):
     imports: tuple[Dependency, ...]
 
 
+class DependencyNodeKind(NamedTuple):
+    symbol: str | None
+    style: str
+    prefix: str = ""
+    suffix: str = ""
+    sort_rank: int = 0
+
+    @classmethod
+    def sibling(cls) -> DependencyNodeKind:
+        return cls("○", "cyan", "", "", 1)
+
+    @classmethod
+    def internal(cls) -> DependencyNodeKind:
+        return cls("◉", "cyan", "", "", 2)
+
+    @classmethod
+    def external(cls) -> DependencyNodeKind:
+        return cls(None, "white", "⟨", "⟩", 3)
+
+
 def programfiles() -> list[Path]:
     """
     Return all Python files that belong to the current program's
@@ -118,13 +138,13 @@ def add_dependency_node(
     """
     Adds a dependency as an intelligently-named leaf node to the tree.
     """
-    style = "cyan" if is_internal else "white"
-    display_name = qualified_name
-    symbol = "◉"
-
     if not is_internal:
-        label = f"⟨{qualified_name}⟩"
+        kind = DependencyNodeKind.external()
+        label = f"{kind.prefix}{qualified_name}{kind.suffix}"
     else:
+        kind = DependencyNodeKind.internal()
+        display_name = qualified_name
+
         importer_parts = importer_name.split('.')
         importee_parts = qualified_name.split('.')
 
@@ -143,7 +163,7 @@ def add_dependency_node(
             and len(importee_parts) == importer_pkg_depth + 1
         ):
             display_name = importee_parts[-1]
-            symbol = "○"
+            kind = DependencyNodeKind.sibling()
         elif common_len == importer_pkg_depth - 1:
             suffix = ".".join(importee_parts[common_len:])
             display_name = f"..{suffix}"
@@ -155,9 +175,9 @@ def add_dependency_node(
                 display_name = qualified_name[len(root_part) + 1 :]
                 display_name = display_name.removeprefix(".")
 
-        label = f"{symbol} {display_name}"
+        label = f"{kind.symbol} {display_name}"
 
-    parent.add(label, style=style)
+    parent.add(label, style=kind.style)
 
 
 def render(results: list[ModuleImports]) -> Tree:
@@ -201,12 +221,20 @@ def render(results: list[ModuleImports]) -> Tree:
     def sort_tree(tree: Tree):
         def sort_key(n: Tree):
             label = str(n.label)
-            return {
-                "○": (1, label),
-                "◉": (2, label),
-                "⟨": (3, label),
-                None: (0, label),
-            }.get(label[0] if label else None, (0, label))
+            symbol_map = {
+                DependencyNodeKind.sibling()
+                .symbol: DependencyNodeKind.sibling()
+                .sort_rank,
+                DependencyNodeKind.internal()
+                .symbol: DependencyNodeKind.internal()
+                .sort_rank,
+                DependencyNodeKind.external()
+                .prefix: DependencyNodeKind.external()
+                .sort_rank,
+                None: 0,
+            }
+            key = label[0] if label else None
+            return (symbol_map.get(key, 0), label)
 
         tree.children.sort(key=sort_key)
         for child in tree.children:
