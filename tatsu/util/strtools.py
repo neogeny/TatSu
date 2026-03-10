@@ -20,6 +20,17 @@ else:
     PatternError = re.error
 
 
+def linecount(s: str) -> int:
+    if not s:
+        return 0
+    return 1 + sum(1 for _ in re.finditer(r"(?m)\r?\n|\r", s))
+
+
+def ismultiline(s: str) -> int:
+    return bool(re.search(r"(?m)[\r\n]", s))
+    # return linecount(s) > 0
+
+
 def unicode_display_len(text: str) -> int:
     # by Gemini 2026/02/17 (with many ammendments)
     """

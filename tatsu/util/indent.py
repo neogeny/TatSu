@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import io
-import re
 from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
 
-from tatsu.util import isiter, notnone
-from tatsu.util.strtools import trim
+from .abctools import isiter
+from .strtools import ismultiline, trim
+from .typetools import notnone
 
 BLACK_LINE_LENGTH = 88
 
@@ -44,7 +44,7 @@ class IndentPrintMixin:
 
     def fitsfmt(self, line: str, addlevels: int = 1):
         assert addlevels >= 0
-        if re.search(r"(?m)[\r\n]", line):
+        if ismultiline(line):
             return False
         total = self.indentation + len(line)
         total += addlevels * self.amount
@@ -116,21 +116,16 @@ def fold(
     rbrack = notnone(rbrack, rb)
     assert lbrack is not None and rbrack is not None
 
-    def tostr(s: Any) -> str:
-        if isinstance(s, str):
-            return s
-        return repr(s)
-
     im = IndentPrintMixin(amount=amount, initial=initial)
     if not isiter(value):
         im.print(f'{prefix}{lbrack}{value!r}{rbrack}')
         return im.printed_text().rstrip()
 
     if isinstance(value, dict):
-        repr_list = [
-            f'{(reprs and repr(k)) or k}: {(reprs and repr(v)) or v}'
-            for k, v in value.items()
-        ]
+        if reprs:
+            repr_list = [f'{k!r}: {v!r}' for k, v in value.items()]
+        else:
+            repr_list = [f'{k}: {v}' for k, v in value.items()]
     elif reprs:
         repr_list = [repr(v) for v in value]
     else:
