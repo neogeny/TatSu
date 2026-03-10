@@ -24,6 +24,7 @@ from tatsu.tool import to_python_sourcecode
 from tatsu.util import asjson
 from tatsu.walkers import DepthFirstWalker
 
+
 tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
 
@@ -224,6 +225,7 @@ def test_11_with_pickle_and_retry():
         semantics=GrammarSemantics('TatSuBootstrap'),
     )
     Path('./tmp/11.tatsu').write_text(g11.pretty())
+    Path('./tmp/11_lean.tatsu').write_text(g11.pretty_lean())
     gencode11 = pythongen(r11)
     Path('./tmp/bootstrap_g11.py').write_text(gencode11)
 
