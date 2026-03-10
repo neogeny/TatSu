@@ -167,7 +167,7 @@ class Sequence(Model):
     def __post_init__(self):
         super().__post_init__()
         if not self.sequence:
-            self.sequence = self.ast or []
+            self.sequence = list(self.ast or [])
         assert isinstance(self.sequence, list), self.sequence
 
     def _parse(self, ctx: Ctx) -> Any:

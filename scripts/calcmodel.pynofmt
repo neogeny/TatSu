@@ -4,7 +4,7 @@ Grammar(
   rules=(
     Rule(
       name='start',
-      exp=Sequence(sequence=[Call(name='expression'), EOF(ast='$')]),
+      exp=Sequence(sequence=[Call(name='expression'), EOF()]),
       params=(),
       kwparams={},
       decorators=[],
@@ -34,7 +34,7 @@ Grammar(
         sequence=[
           Named(name='left', exp=Call(name='expression')),
           Named(name='op', exp=Token(token='+')),
-          Cut(ast='~'),
+          Cut(),
           Named(name='right', exp=Call(name='term'))
         ]
       ),
@@ -51,7 +51,7 @@ Grammar(
         sequence=[
           Named(name='left', exp=Call(name='expression')),
           Named(name='op', exp=Token(token='-')),
-          Cut(ast='~'),
+          Cut(),
           Named(name='right', exp=Call(name='term'))
         ]
       ),
@@ -84,7 +84,7 @@ Grammar(
         sequence=[
           Named(name='left', exp=Call(name='term')),
           Named(name='op', exp=Token(token='*')),
-          Cut(ast='~'),
+          Cut(),
           Named(name='right', exp=Call(name='factor'))
         ]
       ),
@@ -101,7 +101,7 @@ Grammar(
         sequence=[
           Named(name='left', exp=Call(name='term')),
           Token(token='/'),
-          Cut(ast='~'),
+          Cut(),
           Named(name='right', exp=Call(name='factor'))
         ]
       ),
@@ -118,12 +118,7 @@ Grammar(
         options=[
           Option(
             exp=Sequence(
-              sequence=[
-                Token(token='('),
-                Cut(ast='~'),
-                Override(exp=Call(name='expression')),
-                Token(token=')')
-              ]
+              sequence=[Token(token='('), Cut(), Override(exp=Call(name='expression')), Token(token=')')]
             )
           ),
           Option(exp=Call(name='number'))

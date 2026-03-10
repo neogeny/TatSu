@@ -10,9 +10,8 @@ from functools import cache
 from typing import Any, overload
 
 from ..contexts.infos import ParseInfo
-from ..mixins.indent import IndentPrintMixin
-from ..util import AsJSONMixin, asjson, asjsons, isiter, rowselect, typename
-
+from ..mixins.indent import fold
+from ..util import AsJSONMixin, asjson, asjsons, rowselect, typename
 
 __all__ = ['BaseNode', 'NodeDataclassParams', 'nodedataclass']
 
@@ -144,43 +143,25 @@ class BaseNode(AsJSONMixin):
         sortedkeys = sorted(pub.keys(), key=fieldorder)
 
         attr_repr_list = []
-        for name in sortedkeys:
-            value = pub[name]
+        values = {name: pub[name] for name in sortedkeys}
+        for name, value in values.items():
             if value is None:
                 continue
 
-            im = IndentPrintMixin(indent_amount=2)
-            reprs = f'{name}={value!r}'
-            if im.fitsfmt(reprs) or not isiter(value):
-                attr_repr_list += [reprs]
-                continue
+            line = fold(
+                prefix=f"{name}=",
+                value=value,
+                amount=2,
+                addlevels=2,
+            )
+            attr_repr_list += [line]
 
-            valuestr = ',\n'.join(repr(v) for v in value)
-            lb, rb = '(', ')'
-            if isinstance(value, list):
-                lb, rb = '[', ']'
-            elif isinstance(value, dict):
-                lb, rb = '{', '}'
-                valuestr = ',\n'.join(f'{k}: {v!r}' for k, v in value.items())
-
-            im.print(f"{name}={lb}")
-            with im.indent():
-                im.print(valuestr)
-            im.print(f'{rb}')
-            attr_repr_list += [im.printed_text().rstrip()]
-
-        im = IndentPrintMixin(indent_amount=2)
-        attrs = ', '.join(attr_repr_list)
-        reprs = f'{typename(self)}({attrs})'
-        if im.fitsfmt(reprs):
-            return reprs
-
-        attrs = ',\n'.join(attr_repr_list)
-        im.print(f'{typename(self)}(')
-        with im.indent():
-            im.print(attrs)
-        im.print(')')
-        return im.printed_text().rstrip()
+        return fold(
+            prefix=f'{typename(self)}',
+            value=tuple(attr_repr_list),
+            reprs=False,
+            amount=2,
+        )
 
     def __str__(self) -> str:
         return super().__repr__()

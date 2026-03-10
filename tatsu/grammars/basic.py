@@ -47,6 +47,10 @@ class EOLComment(Comment):
 
 @nodedataclass
 class EOF(Model):
+    def __post_init__(self):
+        super().__post_init__()
+        self.ast = None
+
     def _parse(self, ctx: Ctx) -> Any:
         ctx.eofcheck()
 
@@ -108,6 +112,10 @@ class Alert(Constant):
 
 @nodedataclass
 class Cut(Model):
+    def __post_init__(self):
+        super().__post_init__()
+        self.ast = None
+
     def _parse(self, ctx: Ctx) -> Any:
         ctx.cut()
 
