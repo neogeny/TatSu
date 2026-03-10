@@ -27,7 +27,7 @@ class Named(NamedBox):
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
         ctx.ast[self.name] = value
-        return value
+        return {self.name: value}
 
     def defines(self):
         return [(self.name, False), *super().defines()]
@@ -43,7 +43,7 @@ class NamedList(Named):
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
         ctx.ast._setlist(self.name, value)
-        return value
+        return {self.name: value}
 
     def defines(self):
         return [(self.name, True), *super().defines()]
@@ -59,7 +59,7 @@ class Override(Box):
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
         ctx.ast['@'] = value
-        return value
+        return {'@': value}
 
     def _pretty(self, lean=False):
         if lean:
@@ -72,7 +72,7 @@ class OverrideList(Box):
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
         ctx.ast._setlist('@', value)
-        return value
+        return {'@': value}
 
     def _pretty(self, lean=False):
         if lean:

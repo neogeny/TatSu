@@ -545,14 +545,14 @@ The *fail* expression. This is actually ``!`` applied to ``()``, which
 always fails.
 
 
-``name:e``
-^^^^^^^^^^
+``name=e`` or``name:e``
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Add the result of ``e`` to the `AST`_ using ``name`` as key. If
 ``name`` collides with any attribute or method of ``dict``, or is a
 `Python`_ keyword, an underscore (``_``) will be appended to the name.
 
-When there are no named items in a rule, the `AST`_ consists of the
+When there are no named items in a rule or choice, the `AST`_ consists of the
 elements parsed by the rule, either a single item or a ``list``. This
 default behavior makes it easier to write simple rules:
 
@@ -566,53 +566,53 @@ Without having to write:
 .. code:: apl
     :force:
 
-    number = number:/[0-9]+/ ;
+    number = number=/[0-9]+/ ;
 
 When a rule has named elements, the unnamed ones are excluded from the
 `AST`_ (they are ignored).
 
 
-``name+:e``
-^^^^^^^^^^^
+``name+=e`` or ``name+:e``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Add the result of ``e`` to the `AST`_ using ``name`` as key. Force the
-entry to be a ``list`` even if only one element is added. Collisions
+AST entry to be a ``list`` even if only one element is added. Collisions
 with ``dict`` attributes or `Python`_ keywords are resolved by
 appending an underscore to ``name``.
 
 
-``@:e``
-^^^^^^^
+``=e`` or ``@:e``
+^^^^^^^^^^^^^^^^^
 
-The override operator. Make the `AST`_ for the complete rule be the
-`AST`_ for ``e``.
+The override operator. Make the `AST`_ for the complete rule or choice be
+the `AST`_ for ``e``.
 
-The override operator is useful to recover only part of the right hand
-side of a rule without the need to name it, or add a semantic
-action. This is a typical use of the override operator:
+This operator is useful to recover only part of the right hand side of a rule
+without the need to name it, or add a semantic action. This is a typical use
+of the override operator:
 
 .. code:: apl
     :force:
 
-    subexp = '(' @:expre ')' ;
+    subexp = '(' =expre ')' ;
 
 The `AST`_ returned for the ``subexp`` rule will be the `AST`_
 recovered from invoking ``expre``.
 
 
-``@+:e``
-^^^^^^^^
+``+=e`` or ``@+:e``
+^^^^^^^^^^^^^^^^^^^
 
-Like ``@:e``, but make the `AST`_ always be a ``list``.
+Like ``=e``, but make the `AST`_ always be a ``list``.
 
-This operator is convenient in cases such as:
+This operator is convenient in cases such as this, in which the delimiting
+tokens are of no interest.
 
 .. code:: apl
     :force:
 
-    arglist = '(' @+:arg {',' @+:arg}* ')' ;
+    arglist = '(' +=arg {',' +=arg}* ')' ;
 
-In which the delimiting tokens are of no interest.
 
 
 ``$``
@@ -641,7 +641,7 @@ The alternative syntax with no *keyword parameters* is deprecated:
 ^^^^^^^^^^^^^^
 
 Another form of the pattern expression that can be used when there
-are slashes (``/``) in the pattern is *deprecated*. Use the ``?"regexp"``
+are slashes ( ``/`` ) in the pattern is *deprecated*. Use the ``?"regexp"``
 or ``?'regexp'`` forms instead.
 
 
@@ -680,7 +680,7 @@ Arguments within parenthesis are also available:
 
 The arguments values are fixed at grammar-compilation time.
 
-Semantic methods for rules with arguments must be ready to receive the
+Semantic methods for rules with arguments can be ready to receive the
 arguments declared in the rule:
 
 .. code:: python
@@ -688,9 +688,8 @@ arguments declared in the rule:
    def addition(self, ast, name, op=None):
        ...
 
-When working with rule arguments, it's good to define a
-``_default()`` method that is ready to take any combination of
-standard and keyword arguments:
+When working with rule arguments, it's good to define a ``_default()`` method
+that is ready to take any combination of standard and keyword arguments:
 
 .. code:: python
 

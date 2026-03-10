@@ -859,23 +859,21 @@ class TatSuBootstrapRules:
                 '<override_list>',
                 '<override_single>',
                 '<override_single_deprecated>',
+                '=|@:',
                 '@',
-                '@[:=]|=',
-                '@\\+[:=]|\\+='
+                '\\+=|@\\+:'
             )
 
     @tatsu.rule('OverrideList')
     def override_list(self, ctx: Ctx):
-        ctx.void()
-        ctx.pattern(r'@\+[:=]|\+=')
+        ctx.pattern(r'\+=|@\+:')
         ctx.cut()
         with ctx.nameset('@'):
             self.term(ctx)
 
     @tatsu.rule('Override')
     def override_single(self, ctx: Ctx):
-        ctx.void()
-        ctx.pattern(r'@[:=]|=')
+        ctx.pattern(r'=|@:')
         ctx.cut()
         with ctx.nameset('@'):
             self.term(ctx)
@@ -1455,29 +1453,28 @@ class TatSuBootstrapRules:
 
     @tatsu.rule
     def string(self, ctx: Ctx):
-        with ctx.group():
-            with ctx.choice() as α:
-                @α.option
-                def 〇(ctx: Ctx):
-                    self.multiline_string(ctx)
+        with ctx.choice() as α:
+            @α.option
+            def 〇(ctx: Ctx):
+                self.multiline_string(ctx)
 
-                @α.option
-                def 〇(ctx: Ctx):
-                    self.singlequoted(ctx)
+            @α.option
+            def 〇(ctx: Ctx):
+                self.singlequoted(ctx)
 
-                @α.option
-                def 〇(ctx: Ctx):
-                    self.doublequoted(ctx)
+            @α.option
+            def 〇(ctx: Ctx):
+                self.doublequoted(ctx)
 
-                α.expecting(
-                    "(?ms)'''((?:\\\\\\\\|\\\\.|(?!''').)*?)'''",
-                    '(?ms)"""((?:\\\\\\\\|\\\\.|(?!""").)*?)"""',
-                    '<DOUBLEQUOTED>',
-                    '<SINGLEQUOTED>',
-                    '<doublequoted>',
-                    '<multiline_string>',
-                    '<singlequoted>'
-                )
+            α.expecting(
+                "(?ms)'''((?:\\\\\\\\|\\\\.|(?!''').)*?)'''",
+                '(?ms)"""((?:\\\\\\\\|\\\\.|(?!""").)*?)"""',
+                '<DOUBLEQUOTED>',
+                '<SINGLEQUOTED>',
+                '<doublequoted>',
+                '<multiline_string>',
+                '<singlequoted>'
+            )
 
     @tatsu.rule
     def singlequoted(self, ctx: Ctx):
@@ -1603,7 +1600,7 @@ class TatSuBootstrapRules:
         ctx.cut()
         ctx.alert('deprecated regex syntax', 2)
 
-    @tatsu.rule
+    @tatsu.rule('bool')
     def boolean(self, ctx: Ctx):
         with ctx.choice() as α:
             @α.option
