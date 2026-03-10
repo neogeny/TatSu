@@ -8,9 +8,9 @@ from collections import namedtuple
 
 from .. import grammars as g
 from .._version import version_info
-from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..util import compress_seq, deprecated_params, safe_name, topsort
+from ..util.indent import IndentPrintMixin
 
 HEADER = """\
     #!/usr/bin/env python3

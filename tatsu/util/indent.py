@@ -8,8 +8,8 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
 
-from ..util import isiter, notnone
-from ..util.strtools import trim
+from tatsu.util import isiter, notnone
+from tatsu.util.strtools import trim
 
 BLACK_LINE_LENGTH = 88
 
@@ -42,7 +42,7 @@ class IndentPrintMixin:
         text = self.io_print(*args, **kwargs)
         return self.indented_lines(text)
 
-    def fitsfmt(self, line: str, addlevels: int = 0):
+    def fitsfmt(self, line: str, addlevels: int = 1):
         assert addlevels >= 0
         if re.search(r"(?m)[\r\n]", line):
             return False

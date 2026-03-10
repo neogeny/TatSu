@@ -11,10 +11,10 @@ from .. import grammars as g
 from .._version import version, version_info
 from ..contexts._protocol import Ctx
 from ..exceptions import CodegenError
-from ..mixins.indent import IndentPrintMixin
 from ..objectmodel import Node
 from ..parserconfig import ParserConfig
 from ..util import Undefined, compress_seq, regexpp, safe_name
+from ..util.indent import IndentPrintMixin
 from ..walkers import NodeWalker
 
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"

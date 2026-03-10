@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import sys
 
-from tatsu.mixins.indent import IndentPrintMixin
 from tatsu.objectmodel import Node
+from tatsu.util.indent import IndentPrintMixin
 from tatsu.walkers import NodeWalker
 
 THIS_MODULE = sys.modules[__name__]

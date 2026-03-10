@@ -9,8 +9,9 @@ from collections.abc import Callable
 from functools import cache
 from typing import Any, overload
 
+from tatsu.util.indent import fold
+
 from ..contexts.infos import ParseInfo
-from ..mixins.indent import fold
 from ..util import AsJSONMixin, asjson, asjsons, rowselect, typename
 
 __all__ = ['BaseNode', 'NodeDataclassParams', 'nodedataclass']
