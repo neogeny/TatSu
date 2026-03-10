@@ -72,7 +72,7 @@ pytokens==0.4.1
 rich==14.3.3
     # via pytest-codspeed
 ruff==0.15.5
-setuptools==82.0.0
+setuptools==82.0.1
     # via pytest-dependency
 ty==0.0.21
 types-colorama==0.4.15.20250801

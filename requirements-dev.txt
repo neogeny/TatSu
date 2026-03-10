@@ -66,6 +66,6 @@ rich==14.3.3
     #   rich-click
 rich-click==1.9.7
 ruff==0.15.5
-setuptools==82.0.0
+setuptools==82.0.1
     # via pytest-dependency
 uv==0.10.9
