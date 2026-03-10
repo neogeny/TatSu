@@ -13,6 +13,7 @@ from ..contexts.infos import ParseInfo
 from ..mixins.indent import IndentPrintMixin
 from ..util import AsJSONMixin, asjson, asjsons, isiter, rowselect, typename
 
+
 __all__ = ['BaseNode', 'NodeDataclassParams', 'nodedataclass']
 
 NodeDataclassParams = dict(
@@ -142,55 +143,39 @@ class BaseNode(AsJSONMixin):
         pub = self.__pub__()
         sortedkeys = sorted(pub.keys(), key=fieldorder)
 
-        im = IndentPrintMixin(indent_amount=2)
-        attr_repr = []
+        attr_repr_list = []
         for name in sortedkeys:
             value = pub[name]
             if value is None:
                 continue
 
-            valuestr = repr(value)
-            reprs = f'{name}={valuestr}'
+            im = IndentPrintMixin(indent_amount=2)
+            reprs = f'{name}={value!r}'
             if im.fitsfmt(reprs) or not isiter(value):
-                attr_repr += [reprs]
+                attr_repr_list += [reprs]
                 continue
 
-            if isinstance(value, dict):
-                valuestr = f'{name}={value!r}'
-                if im.fitsfmt(valuestr):
-                    attr_repr += [valuestr]
-                    continue
+            valuestr = ',\n'.join(repr(v) for v in value)
+            lb, rb = '(', ')'
+            if isinstance(value, list):
+                lb, rb = '[', ']'
+            elif isinstance(value, dict):
+                lb, rb = '{', '}'
                 valuestr = ',\n'.join(f'{k}: {v!r}' for k, v in value.items())
-                im.print(f'{name}={{')
-                with im.indent():
-                    im.print(valuestr)
-                im.print('}')
-                attr_repr += [im.printed_text().rstrip()]
 
-            islist = isinstance(value, list)
-            reprlist = [repr(v) for v in value]
-            valuestr = ', '.join(reprlist)  # type: ignore
-            if im.fitsfmt(valuestr, 3):
-                if islist:
-                    attr_repr += [f'{name}=[{valuestr}]']
-                else:
-                    attr_repr += [f'{name}=({valuestr})']
-                continue
-
-            valuestr = ',\n'.join(reprlist)
-            im.print(f"{name}={'[' if islist else '('}")
+            im.print(f"{name}={lb}")
             with im.indent():
                 im.print(valuestr)
-            im.print(']' if islist else ')')
-            attr_repr += [im.printed_text().rstrip()]
+            im.print(f'{rb}')
+            attr_repr_list += [im.printed_text().rstrip()]
 
-        im.clear()
-        attrs = ', '.join(attr_repr)
+        im = IndentPrintMixin(indent_amount=2)
+        attrs = ', '.join(attr_repr_list)
         reprs = f'{typename(self)}({attrs})'
         if im.fitsfmt(reprs):
             return reprs
 
-        attrs = ',\n'.join(attr_repr)
+        attrs = ',\n'.join(attr_repr_list)
         im.print(f'{typename(self)}(')
         with im.indent():
             im.print(attrs)
