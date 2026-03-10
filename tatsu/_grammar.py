@@ -5,5 +5,5 @@ from __future__ import annotations
 from importlib import resources
 
 
-grammar_path = resources.files().joinpath("_tatsu.tatsu")  # noqa: RUF067
+grammar_path = resources.files().joinpath("_grammar.tatsu")  # noqa: RUF067
 grammar = grammar_path.read_text()  # noqa: RUF067

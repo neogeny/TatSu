@@ -18,12 +18,12 @@ grammar[Grammar]:
 directive: '@@' !'keyword' ~
     (
         | name:('comments' | 'eol_comments') ~ '::' ~ value=regex
-        | name:('whitespace') ~ '::' ~ value:(regex|string|'None'|'False'|`None`)
+        | name:'whitespace' ~ '::' ~ value:(regex|string|'None'|'False'|`None`)
         | name:('nameguard' | 'ignorecase' | 'left_recursion' | 'parseinfo' | 'memoization')
             ~
             ('::' ~ value=boolean|value:`True`)
-        | name:('grammar') ~ '::' ~ value=word
-        | name:('namechars') ~ '::' ~ value=string
+        | name:'grammar' ~ '::' ~ value=word
+        | name:'namechars' ~ '::' ~ value=string
     ) ~
 
 keywords: { keyword }+
