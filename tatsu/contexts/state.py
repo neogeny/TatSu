@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from contextlib import contextmanager
 from copy import copy
-from typing import Any
+from typing import Any, Self
 
 from .ast import AST
 from .infos import Alert, RuleInfo
@@ -15,6 +15,14 @@ __all__ = ['ParseState', 'ParseStateStack']
 
 from ..tokenizing import Cursor
 from ..util import is_list
+
+
+def safelist(node: Any) -> Any:
+    if is_list(node):
+        return type(node)(node)
+    else:
+        return node
+
 
 
 class ParseState:
@@ -37,12 +45,20 @@ class ParseState:
     def clone(self):
         return copy(self)
 
+    def goto(self, pos: int) -> None:
+        self.cursor.goto(pos)
+
+    def merge(self, prev: ParseState) -> Self:
+        pos = self.cursor.pos
+        self.ast = prev.ast
+        self.extend(prev.cst)
+        self.alerts.extend(prev.alerts)
+        self.goto(pos)
+        return self
+
     @property
     def pos(self) -> int:
         return self.cursor.pos
-
-    def goto(self, pos: int) -> None:
-        self.cursor.goto(pos)
 
     @property
     def node(self) -> Any:
@@ -59,6 +75,35 @@ class ParseState:
         new = ParseState(self.cursor)
         new.alerts = self.alerts[:]
         return new
+
+    def append(self, node: Any) -> Any:
+        self.last_node = node
+        previous = self.cst
+        if previous is None:
+            self.cst = safelist(node)
+        elif is_list(previous):
+            previous.append(node)
+        else:
+            self.cst = [previous, node]
+        return node
+
+    def extend(self, node: Any) -> Any:
+        self.last_node = node
+        if node is None:
+            return None
+        previous = self.cst
+        if previous is None:
+            self.cst = safelist(node)
+        elif is_list(node) and is_list(previous):
+            previous += node
+        elif is_list(node):
+            self.cst = [previous, *node]
+        elif is_list(previous):
+            previous += [node]
+        else:
+            self.cst = [previous, node]
+        return node
+
 
 
 class ParseStateStack:
@@ -148,18 +193,11 @@ class ParseStateStack:
         self.top.alerts.append(Alert(level=level, message=message))
         return self.top.alerts[-1]
 
-    @staticmethod
-    def safelist(node: Any) -> Any:
-        if is_list(node):
-            return type(node)(node)
-        else:
-            return node
-
     def append(self, node: Any) -> Any:
         self.last_node = node
         previous = self.cst
         if previous is None:
-            self.cst = self.safelist(node)
+            self.cst = safelist(node)
         elif is_list(previous):
             previous.append(node)
         else:
@@ -172,7 +210,7 @@ class ParseStateStack:
             return None
         previous = self.cst
         if previous is None:
-            self.cst = self.safelist(node)
+            self.cst = safelist(node)
         elif is_list(node) and is_list(previous):
             previous += node
         elif is_list(node):
