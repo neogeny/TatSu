@@ -123,9 +123,14 @@ class ParseStateStack:
             self.state.goto(pos)
         return prev
 
-    def push(self,ast: Any = None) -> ParseState:
-        ast = copy(self.ast) if ast is None else ast
+    def new(self) -> ParseState:
+        ast = AST()
+        newstate = ParseState(self.cursor, ast=ast)
+        self._state_stack.append(newstate)
+        return self.top
 
+    def push(self) -> ParseState:
+        ast = copy(self.ast)
         newstate = ParseState(self.cursor, ast=ast)
         self._state_stack.append(newstate)
 

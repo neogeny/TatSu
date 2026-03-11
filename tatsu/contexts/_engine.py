@@ -33,6 +33,7 @@ from .ast import AST
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult, listclosure
 from .state import ParseStateStack
 
+
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
@@ -163,7 +164,7 @@ class ParserEngine(ParserCore):
 
         self.set_left_recursion_guard(key)
 
-        self.pushstate(ast=AST())
+        self.newstate()
         try:
             self.next_token(ri)
 

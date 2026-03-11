@@ -101,7 +101,7 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def _try(self) -> Any:
-        self.pushstate(ast=AST(self.ast))
+        self.pushstate()
         try:
             yield
             self.mergestate()

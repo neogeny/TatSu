@@ -208,8 +208,11 @@ class ParserCore:
         # NOTE: called by generated parsers
         self.states.addname(name)
 
-    def pushstate(self, ast: Any = None) -> None:
-        self.states.push(ast=ast)
+    def newstate(self) -> None:
+        self.states.new()
+
+    def pushstate(self) -> None:
+        self.states.push()
 
     def popstate(self) -> ParseState:
         return self.states.pop(self.pos)
