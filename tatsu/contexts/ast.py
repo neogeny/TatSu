@@ -5,7 +5,8 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Any, override
 
-from ..util import asjson, is_list, make_hashable
+from ..util import asjson, make_hashable
+from .cst import cstappend
 from .infos import ParseInfo
 
 
@@ -33,18 +34,10 @@ class AST(dict[str, Any]):
     def asjson(self) -> Any:
         return asjson(self)
 
-    def _set(self, key: str, value: Any, aslist: bool = False) -> None:
+    def _set(self, key: str, node: Any, aslist: bool = False) -> None:
         key = self._safekey(key)
-        previous = self.get(key)
-        if previous is None:
-            super().__setitem__(key, [value] if aslist else value)
-        elif is_list(previous):
-            super().__setitem__(key, [*previous, value])
-        else:
-            super().__setitem__(key, [previous, value])
-
-    def _setlist(self, key: str, value: Any) -> None:
-        self._set(key, value, aslist=True)
+        cst = self.get(key)
+        super().__setitem__(key, cstappend(cst, node, aslist=aslist))
 
     def _safekey(self, key: str) -> str:
         while key in dir(self):

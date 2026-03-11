@@ -8,6 +8,7 @@ from copy import copy
 from typing import Any, Self
 
 from .ast import AST
+from .cst import cstappend, cstextend
 from .infos import Alert, RuleInfo
 
 
@@ -67,32 +68,14 @@ class ParseState:
         new.alerts = self.alerts[:]
         return new
 
-    def append(self, node: Any) -> Any:
+    def append(self, node: Any, aslist: bool = False) -> Any:
         self.last_node = node
-        previous = self.cst
-        if previous is None:
-            self.cst = copy(node)
-        elif is_list(previous):
-            previous.append(node)
-        else:
-            self.cst = [previous, node]
+        self.cst = cstappend(self.cst, node, aslist=aslist)
         return node
 
     def extend(self, node: Any) -> Any:
         self.last_node = node
-        if node is None:
-            return None
-        previous = self.cst
-        if previous is None:
-            self.cst = copy(node)
-        elif is_list(node) and is_list(previous):
-            previous += node
-        elif is_list(node):
-            self.cst = [previous, *node]
-        elif is_list(previous):
-            previous += [node]
-        else:
-            self.cst = [previous, node]
+        self.cst = cstextend(self.cst, node)
         return node
 
     def nameset(self, name: str) -> None:

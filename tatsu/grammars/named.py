@@ -71,7 +71,7 @@ class Override(Box):
 class OverrideList(Box):
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
-        ctx.ast._set('@', valuei, aslist=True)
+        ctx.ast._set('@', value, aslist=True)
         return {'@': value}
 
     def _pretty(self, lean=False):
