@@ -9,6 +9,7 @@ from typing import Any, ClassVar, Concatenate
 
 from .util import deprecated, pythonize_name
 
+
 type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
 
 
@@ -187,8 +188,8 @@ class PostOrderDepthFirstWalker(NodeWalker):
 
 
 # note: for backwars compatibility
-@deprecated(replacement=None)
 class ContextWalker(NodeWalker):
+    @deprecated(replacement=None)
     def __init__(self, initial_context):
         super().__init__()
         self._initial_context = initial_context
