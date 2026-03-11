@@ -103,7 +103,7 @@ class ParserEngine(ParserCore):
                 result = self.rule_call(ri, key)
 
             self.goto(result.newpos)
-            self.states.append(result.node)
+            self.state.append(result.node)
 
             self.tracer.trace_success(self.cursor)
 
@@ -267,7 +267,7 @@ class ParserEngine(ParserCore):
         self.tracer.trace_match(self.cursor, literal)
 
         if not isinstance(literal, str):
-            self.states.append(literal)
+            self.state.append(literal)
             return literal
         literal = str(literal)  # for type linters
 
@@ -306,7 +306,7 @@ class ParserEngine(ParserCore):
                     f'Error evaluating constant {literal!r}: {e}',
                 ) from e
 
-        self.states.append(result)
+        self.state.append(result)
         return result
 
     _constant = constant

@@ -17,14 +17,6 @@ from ..tokenizing import Cursor
 from ..util import is_list
 
 
-def safelist(node: Any) -> Any:
-    if is_list(node):
-        return type(node)(node)
-    else:
-        return node
-
-
-
 class ParseState:
     __slots__ = (
         'alerts',
@@ -49,11 +41,10 @@ class ParseState:
         self.cursor.goto(pos)
 
     def merge(self, prev: ParseState) -> Self:
-        pos = self.cursor.pos
         self.ast = prev.ast
         self.extend(prev.cst)
         self.alerts.extend(prev.alerts)
-        self.goto(pos)
+        self.goto(prev.pos)
         return self
 
     @property
@@ -80,7 +71,7 @@ class ParseState:
         self.last_node = node
         previous = self.cst
         if previous is None:
-            self.cst = safelist(node)
+            self.cst = copy(node)
         elif is_list(previous):
             previous.append(node)
         else:
@@ -93,7 +84,7 @@ class ParseState:
             return None
         previous = self.cst
         if previous is None:
-            self.cst = safelist(node)
+            self.cst = copy(node)
         elif is_list(node) and is_list(previous):
             previous += node
         elif is_list(node):
@@ -103,6 +94,24 @@ class ParseState:
         else:
             self.cst = [previous, node]
         return node
+
+    def setname(self, name: str) -> None:
+        self.ast._set(name, self.last_node)
+
+    def addname(self, name: str) -> None:
+        self.ast._setlist(name, self.last_node)
+
+    def define(
+        self,
+        keys: Iterable[str],
+        list_keys: Iterable[str] | None = None,
+    ) -> Any:
+        ast = AST()
+        ast._define(keys, list_keys=list_keys)
+        ast.update(self.ast)
+        self.ast = ast
+        return self.ast
+
 
 
 
@@ -181,62 +190,12 @@ class ParseStateStack:
         return self.top
 
     def merge(self) -> ParseState:
-        pos = self.cursor.pos
         prev = self.pop()
-        self.ast = prev.ast
-        self.extend(prev.cst)
-        self.state.alerts.extend(prev.alerts)
-        self.state.goto(pos)
-        return prev
+        return self.state.merge(prev)
 
     def alert(self, level: int = 1, message: str = '') -> Alert:
         self.top.alerts.append(Alert(level=level, message=message))
         return self.top.alerts[-1]
-
-    def append(self, node: Any) -> Any:
-        self.last_node = node
-        previous = self.cst
-        if previous is None:
-            self.cst = safelist(node)
-        elif is_list(previous):
-            previous.append(node)
-        else:
-            self.cst = [previous, node]
-        return node
-
-    def extend(self, node: Any) -> Any:
-        self.last_node = node
-        if node is None:
-            return None
-        previous = self.cst
-        if previous is None:
-            self.cst = safelist(node)
-        elif is_list(node) and is_list(previous):
-            previous += node
-        elif is_list(node):
-            self.cst = [previous, *node]
-        elif is_list(previous):
-            previous += [node]
-        else:
-            self.cst = [previous, node]
-        return node
-
-    def setname(self, name: str) -> None:
-        self.ast._set(name, self.last_node)
-
-    def addname(self, name: str) -> None:
-        self.ast._setlist(name, self.last_node)
-
-    def define(
-        self,
-        keys: Iterable[str],
-        list_keys: Iterable[str] | None = None,
-    ) -> Any:
-        ast = AST()
-        ast._define(keys, list_keys=list_keys)
-        ast.update(self.ast)
-        self.ast = ast
-        return self.ast
 
     def cut_seen(self) -> bool:
         return self._cut_stack[-1]

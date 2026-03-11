@@ -56,7 +56,7 @@ class ParseContext(ParserEngine, Ctx):
             self.tracer.trace_match(self.cursor, token, failed=True)
             raise self.newexcept(token, excls=FailedToken)
         self.tracer.trace_match(self.cursor, token)
-        self.states.append(token)
+        self.state.append(token)
         return token
 
     _token = token
@@ -78,7 +78,7 @@ class ParseContext(ParserEngine, Ctx):
             self.tracer.trace_match(self.cursor, '', pattern, failed=True)
             raise self.newexcept(f'Expecting {regexpp(pattern)}', excls=FailedPattern)
         self.tracer.trace_match(self.cursor, token, pattern)
-        self.states.append(token)
+        self.state.append(token)
         return token
 
     _pattern = pattern
@@ -224,11 +224,11 @@ class ParseContext(ParserEngine, Ctx):
                     if prefix:
                         pcst = self._isolate(prefix, _drop=dropprefix)
                         if not dropprefix:
-                            self.states.append(pcst)
+                            self.state.append(pcst)
                         self.cut()
 
                     cst = self._isolate(exp)
-                    self.states.append(cst)
+                    self.state.append(cst)
 
                     if self.pos == p:
                         raise self.newexcept('empty closure')
@@ -260,8 +260,9 @@ class ParseContext(ParserEngine, Ctx):
                     exp(self)
                     self.cst = [self.cst]
                 self._repeat(exp, prefix=sep, dropprefix=omitsep)
-            self.cst = listclosure(self.cst)
-            return self.mergestate().cst
+            self.cst = cst =listclosure(self.cst)
+            self.mergestate()
+            return cst
         except ParseException:
             self.undostate()
             raise
@@ -280,8 +281,9 @@ class ParseContext(ParserEngine, Ctx):
                 exp(self)
                 self.cst = [self.cst]
                 self._repeat(exp, prefix=sep, dropprefix=omitsep)
-            self.cst = listclosure(self.cst)
-            return self.mergestate().cst
+            self.cst = cst =listclosure(self.cst)
+            self.mergestate()
+            return cst
         except ParseException:
             self.undostate()
             raise
@@ -290,7 +292,7 @@ class ParseContext(ParserEngine, Ctx):
 
     def empty(self) -> list:
         cst = listclosure([])
-        self.states.append(cst)
+        self.state.append(cst)
         return cst
 
     def _empty_closure(self) -> list:
@@ -376,7 +378,7 @@ class ParseContext(ParserEngine, Ctx):
             self.tracer.trace_match(self.cursor, c, failed=True)
             raise self.newexcept(c, excls=FailedToken) from None
         self.tracer.trace_match(self.cursor, c)
-        self.states.append(c)
+        self.state.append(c)
         return c
 
     _dot = dot

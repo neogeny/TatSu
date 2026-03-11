@@ -194,19 +194,19 @@ class ParserCore:
 
     def _define(self, keys: list[str], addkeys: list[str] | None = None) -> None:
         # NOTE: called by generated parsers
-        return self.states.define(keys, addkeys)
+        return self.state.define(keys, addkeys)
 
     def define(self, keys: list[str], addkeys: list[str] | None = None) -> None:
         # NOTE: called by generated parsers
-        return self.states.define(keys, addkeys)
+        return self.state.define(keys, addkeys)
 
     def setname(self, name: str) -> None:
         # NOTE: called by generated parsers
-        self.states.setname(name)
+        self.state.setname(name)
 
     def addname(self, name: str) -> None:
         # NOTE: called by generated parsers
-        self.states.addname(name)
+        self.state.addname(name)
 
     def newstate(self) -> None:
         self.states.new()
