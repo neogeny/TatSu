@@ -26,12 +26,11 @@ class ParseState:
         'last_node',
     )
 
-    def __init__(self, cursor: Cursor, pos: int = 0, ast: Any = None, cst: Any = None):
+    def __init__(self, cursor: Cursor, ast: Any = None):
         assert isinstance(cursor, Cursor), f'{type(cursor)} != NullCursor'
         self.cursor: Cursor = cursor.clone()
-        self.cursor.goto(pos)
         self.ast: Any = ast or AST()
-        self.cst: Any = cst
+        self.cst: Any = None
         self.last_node: Any = None
         self.alerts: list[Alert] = []
 
@@ -124,12 +123,10 @@ class ParseStateStack:
             self.state.goto(pos)
         return prev
 
-    def push(self, pos: int, ast: Any = None, cst: Any = None) -> ParseState:
+    def push(self,ast: Any = None) -> ParseState:
         ast = copy(self.ast) if ast is None else ast
-        self.state.goto(pos)
 
-        newstate = ParseState(self.cursor, pos=pos, ast=ast, cst=cst)
-        newstate.goto(pos)
+        newstate = ParseState(self.cursor, ast=ast)
         self._state_stack.append(newstate)
 
         return self.top

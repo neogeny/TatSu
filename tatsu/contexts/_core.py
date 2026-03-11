@@ -209,7 +209,7 @@ class ParserCore:
         self.states.addname(name)
 
     def pushstate(self, ast: Any = None) -> None:
-        self.states.push(pos=self.pos, ast=ast)
+        self.states.push(ast=ast)
 
     def popstate(self) -> ParseState:
         return self.states.pop(self.pos)
