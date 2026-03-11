@@ -12,7 +12,6 @@ from typing import Any
 
 from .. import grammars as model
 from ..contexts import AST
-from ..grammars import Grammar, Model, syntax
 
 
 def camel2py(name: Any) -> str:
@@ -30,8 +29,8 @@ class ANTLRSemantics:
         self.token_rules = {}
         self.synthetic_rules = []
 
-    def grammar(self, ast: AST) -> Grammar:
-        return Grammar(
+    def grammar(self, ast: AST) -> model.Grammar:
+        return model.Grammar(
             self.name,
             [r for r in chain(ast.rules, self.synthetic_rules) if r is not None],
         )
@@ -48,7 +47,7 @@ class ANTLRSemantics:
                     self.token_rules[name] = exp
                 return None
             elif not ast.fragment and not isinstance(exp, model.Model):
-                ref = syntax.Call(name.lower())
+                ref = model.Call(name.lower())
                 if name in self.token_rules:
                     self.token_rules[name].exp = ref
                 else:
@@ -72,7 +71,7 @@ class ANTLRSemantics:
         elif len(elements) == 1:
             return elements[0]
         else:
-            return syntax.Sequence(elements)
+            return model.Sequence(elements)
 
     def predicate_or_action(self, _ast: Any) -> None:
         return None
@@ -86,27 +85,27 @@ class ANTLRSemantics:
     def syntactic_predicate(self, _ast: Any) -> None:
         return None
 
-    def optional(self, ast: Model) -> model.Optional:
-        if isinstance(ast, model.Group | model.Optional):
+    def optional(self, ast: model.Optional) -> model.Optional:
+        if isinstance(ast.exp, model.Optional):
             ast = ast.exp
         return model.Optional(ast)
 
-    def closure(self, ast: Model) -> model.Closure:
+    def closure(self, ast: model.Model) -> model.Closure:
         if isinstance(ast, model.Group | model.Optional):
             ast = ast.exp
         return model.Closure(ast)
 
-    def positive_closure(self, ast: Model) -> model.Closure:
+    def positive_closure(self, ast: model.Model) -> model.Closure:
         if isinstance(ast, model.Group):
             ast = ast.exp
         return model.PositiveClosure(ast)
 
-    def negative(self, ast: Model) -> syntax.Sequence:
+    def negative(self, ast: model.Model) -> model.Sequence:
         neg = model.NegativeLookahead(ast)
         any = model.Pattern('.')
-        return syntax.Sequence([neg, any])
+        return model.Sequence([neg, any])
 
-    def subexp(self, ast: Model) -> model.Group:
+    def subexp(self, ast: model.Model) -> model.Group:
         return model.Group(ast)
 
     def regexp(self, ast: AST) -> model.Pattern:
@@ -157,9 +156,9 @@ class ANTLRSemantics:
         re.compile(pattern)
         return pattern
 
-    def call(self, ast: str) -> syntax.Call:
+    def call(self, ast: str) -> model.Call:
         assert ast[0].islower()
-        return syntax.Call(camel2py(ast))
+        return model.Call(camel2py(ast))
 
     def any(self, _ast: AST) -> model.Pattern:
         return model.Pattern(r'\w+|\S+')
@@ -194,6 +193,6 @@ class ANTLRSemantics:
         if name in self.token_rules:
             exp = self.token_rules[name]
         else:
-            exp = model.Box(syntax.Call(name))
+            exp = model.Box(model.Call(name))
             self.token_rules[name] = exp
         return exp

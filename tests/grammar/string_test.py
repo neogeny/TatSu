@@ -26,6 +26,6 @@ def test_multiline_string():
             this "" \" \"""
             is a long "string"
             """).strip()
-    print(m.rule.longone.exp.token)
+    print(m.rule.longone.exp.options[0].exp.token)
     print(input)
     m.parse(input)

@@ -59,7 +59,7 @@ class RailroadNodeWalker(NodeWalker):
 
         kwparams = ''
         if rule.kwparams:
-            kwparams = ','.join(f'{k}={v}' for k, v in rule.kwparams.items())
+            kwparams = ','.join(f'{k}={v}' for k, v in rule.kwparams.items())  # type: ignore
 
         if params and kwparams:
             params = f'{params}, {kwparams}'

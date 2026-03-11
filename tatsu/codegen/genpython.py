@@ -8,6 +8,7 @@ import textwrap
 
 from .. import grammars, ngcodegen
 from ..exceptions import CodegenError
+from ..grammars import choice
 from ..objectmodel import Node
 from ..util import compress_seq, deprecated, indent, safe_name, timestamp, trim
 from .cgbase import CodeGenerator, ModelRenderer
@@ -384,7 +385,7 @@ class Rule(_Decorator):
         fields.update(params=params)
 
         sdefines = ''
-        if not isinstance(self.node, grammars.Choice):
+        if not isinstance(self.node, choice.Choice):
             sdefines = self.make_defines_declaration()
         fields.update(defines=sdefines)
         leftrec = self.node.is_lrec

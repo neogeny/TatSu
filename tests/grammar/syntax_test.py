@@ -369,7 +369,7 @@ def test_no_default_comments():
         # no comments are valid
         a
     """
-    with pytest.raises(FailedToken):
+    with pytest.raises(FailedParse):
         tool.parse(grammar, text)
 
 

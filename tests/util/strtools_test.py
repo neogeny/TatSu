@@ -32,16 +32,19 @@ def test_visual_linecount(text, expected):
     assert linecount(text) == expected
 
 
-@pytest.mark.parametrize("text, delta", [
-    ("", 0),
-    ("hello", 0),
-    ("line1\nline2", 0),
-    ("hello\n", 1),
-    ("\n\n", 1),
-    ("n\ro\r\nw", 0),
-    ("n\ro\r\nw\n", 1),
-    ("win\r\n", 1),
-    ("mac\r", 1),
-])
+@pytest.mark.parametrize(
+    "text, delta",
+    [
+        ("", 0),
+        ("hello", 0),
+        ("line1\nline2", 0),
+        ("hello\n", 1),
+        ("\n\n", 1),
+        ("n\ro\r\nw", 0),
+        ("n\ro\r\nw\n", 1),
+        ("win\r\n", 1),
+        ("mac\r", 1),
+    ],
+)
 def test_linecount_delta(text, delta):
     assert linecount(text) - delta == len(text.splitlines())

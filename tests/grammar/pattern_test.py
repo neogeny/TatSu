@@ -112,10 +112,12 @@ class PatternTests(unittest.TestCase):
         """
         model = compile(grammar=trim(grammar))
 
-        assert isinstance(model.rules[0].exp, g.Sequence)
-        print(pythongen(model.rules[0].exp.sequence[0]))
+        assert isinstance(model.rules[0].exp, g.Choice)
+        exp = model.rules[0].exp.options[0].exp
+        assert isinstance(exp, g.Sequence)
+        print(pythongen(exp.sequence[0]))
         self.assertEqual(
-            pythongen(model.rules[0].exp.sequence[0]).strip(),
+            pythongen(exp.sequence[0]).strip(),
             "ctx.pattern(r'(?x)\\nfoo\\nbar\\n')",
         )
 
@@ -125,9 +127,10 @@ class PatternTests(unittest.TestCase):
             blort/ $ ;
         """
         model = compile(grammar=trim(grammar))
-        assert isinstance(model.rules[0].exp, g.Sequence)
-        print(pythongen(model.rules[0].exp.sequence[0]))
+        exp = model.rules[0].exp.options[0].exp
+        assert isinstance(exp, g.Sequence)
+        print(pythongen(exp.sequence[0]))
         self.assertEqual(
-            trim(pythongen(model.rules[0].exp.sequence[0])),
+            trim(pythongen(exp.sequence[0])),
             "ctx.pattern(r'(?x)foo\\nbar\\nblort')",
         )

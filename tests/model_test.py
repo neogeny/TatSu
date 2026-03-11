@@ -208,7 +208,9 @@ def test_calc_repr():
           rules=(
             Rule(
               name='start',
-              exp=Sequence(sequence=[Call(name='expression'), EOF()]),
+              exp=FirstChoice(
+                options=[FirstOption(exp=Sequence(sequence=[Call(name='expression'), EOF()]))]
+              ),
               params=(),
               kwparams={},
               decorators=[],
@@ -218,11 +220,11 @@ def test_calc_repr():
             ),
             Rule(
               name='expression',
-              exp=Choice(
+              exp=FirstChoice(
                 options=[
-                  Option(exp=Call(name='addition')),
-                  Option(exp=Call(name='subtraction')),
-                  Option(exp=Call(name='term'))
+                  FirstOption(exp=Call(name='addition')),
+                  FirstOption(exp=Call(name='subtraction')),
+                  FirstOption(exp=Call(name='term'))
                 ]
               ),
               params=(),
@@ -234,12 +236,18 @@ def test_calc_repr():
             ),
             Rule(
               name='addition',
-              exp=Sequence(
-                sequence=[
-                  Named(name='left', exp=Call(name='expression')),
-                  Named(name='op', exp=Token(token='+')),
-                  Cut(),
-                  Named(name='right', exp=Call(name='term'))
+              exp=FirstChoice(
+                options=[
+                  FirstOption(
+                    exp=Sequence(
+                      sequence=[
+                        Named(name='left', exp=Call(name='expression')),
+                        Named(name='op', exp=Token(token='+')),
+                        Cut(),
+                        Named(name='right', exp=Call(name='term'))
+                      ]
+                    )
+                  )
                 ]
               ),
               params=['Add'],
@@ -251,12 +259,18 @@ def test_calc_repr():
             ),
             Rule(
               name='subtraction',
-              exp=Sequence(
-                sequence=[
-                  Named(name='left', exp=Call(name='expression')),
-                  Named(name='op', exp=Token(token='-')),
-                  Cut(),
-                  Named(name='right', exp=Call(name='term'))
+              exp=FirstChoice(
+                options=[
+                  FirstOption(
+                    exp=Sequence(
+                      sequence=[
+                        Named(name='left', exp=Call(name='expression')),
+                        Named(name='op', exp=Token(token='-')),
+                        Cut(),
+                        Named(name='right', exp=Call(name='term'))
+                      ]
+                    )
+                  )
                 ]
               ),
               params=['Subtract'],
@@ -268,11 +282,11 @@ def test_calc_repr():
             ),
             Rule(
               name='term',
-              exp=Choice(
+              exp=FirstChoice(
                 options=[
-                  Option(exp=Call(name='multiplication')),
-                  Option(exp=Call(name='division')),
-                  Option(exp=Call(name='factor'))
+                  FirstOption(exp=Call(name='multiplication')),
+                  FirstOption(exp=Call(name='division')),
+                  FirstOption(exp=Call(name='factor'))
                 ]
               ),
               params=(),
@@ -284,12 +298,18 @@ def test_calc_repr():
             ),
             Rule(
               name='multiplication',
-              exp=Sequence(
-                sequence=[
-                  Named(name='left', exp=Call(name='term')),
-                  Named(name='op', exp=Token(token='*')),
-                  Cut(),
-                  Named(name='right', exp=Call(name='factor'))
+              exp=FirstChoice(
+                options=[
+                  FirstOption(
+                    exp=Sequence(
+                      sequence=[
+                        Named(name='left', exp=Call(name='term')),
+                        Named(name='op', exp=Token(token='*')),
+                        Cut(),
+                        Named(name='right', exp=Call(name='factor'))
+                      ]
+                    )
+                  )
                 ]
               ),
               params=['Multiply'],
@@ -301,12 +321,18 @@ def test_calc_repr():
             ),
             Rule(
               name='division',
-              exp=Sequence(
-                sequence=[
-                  Named(name='left', exp=Call(name='term')),
-                  Token(token='/'),
-                  Cut(),
-                  Named(name='right', exp=Call(name='factor'))
+              exp=FirstChoice(
+                options=[
+                  FirstOption(
+                    exp=Sequence(
+                      sequence=[
+                        Named(name='left', exp=Call(name='term')),
+                        Token(token='/'),
+                        Cut(),
+                        Named(name='right', exp=Call(name='factor'))
+                      ]
+                    )
+                  )
                 ]
               ),
               params=['Divide'],
@@ -318,9 +344,9 @@ def test_calc_repr():
             ),
             Rule(
               name='factor',
-              exp=Choice(
+              exp=FirstChoice(
                 options=[
-                  Option(
+                  FirstOption(
                     exp=Sequence(
                       sequence=[
                         Token(token='('),
@@ -330,7 +356,7 @@ def test_calc_repr():
                       ]
                     )
                   ),
-                  Option(exp=Call(name='number'))
+                  FirstOption(exp=Call(name='number'))
                 ]
               ),
               params=(),
@@ -342,7 +368,7 @@ def test_calc_repr():
             ),
             Rule(
               name='number',
-              exp=Pattern(pattern='\\d+'),
+              exp=FirstChoice(options=[FirstOption(exp=Pattern(pattern='\\d+'))]),
               params=['int'],
               kwparams={},
               decorators=[],
@@ -370,7 +396,7 @@ def test_calc_repr():
     assert emodel.name == 'CALC'
     assert emodel.rules[0].name == 'start'
     assert emodel.rules[-1].name == 'number'
-    assert isinstance(emodel.rules[-1].exp, g.Pattern)
+    assert isinstance(emodel.rules[-1].exp.options[0].exp, g.Pattern)
     assert hasha(repr(emodel).strip()) == hasha(refrepr)
 
     exp = emodel.parse('3 * 2 + 1', asmodel=True)
