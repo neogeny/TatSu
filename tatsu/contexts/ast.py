@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from typing import Any, override
 
 from ..util import asjson, make_hashable
-from .cst import cstappend
+from .cst import cstadd
 from .infos import ParseInfo
 
 
@@ -38,7 +38,7 @@ class AST(dict[str, Any]):
     def _set(self, key: str, node: Any, aslist: bool = False) -> None:
         key = self._safekey(key)
         cst = self.get(key)
-        super().__setitem__(key, cstappend(cst, node, aslist=aslist))
+        super().__setitem__(key, cstadd(cst, node, aslist=aslist))
 
     def _safekey(self, key: str) -> str:
         while key in dir(self):

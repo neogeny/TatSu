@@ -27,11 +27,6 @@ class RuleLike(Protocol):
         pass
 
 
-class listclosure(list[Any]):
-    def __hash__(self) -> int:  # type: ignore
-        return hash(tuple(self))
-
-
 class RuleInfo(NamedTuple):
     name: str
     instance: Any

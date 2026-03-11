@@ -8,14 +8,14 @@ from copy import copy
 from typing import Any, Self, overload
 
 from .ast import AST
-from .cst import cstappend, cstextend
+from .cst import cstadd, cstfinal, cstmerge
 from .infos import Alert, RuleInfo
 
 
 __all__ = ['ParseState', 'ParseStateStack']
 
 from ..tokenizing import Cursor
-from ..util import is_list, typename
+from ..util import typename
 
 
 class ParseState:
@@ -67,7 +67,7 @@ class ParseState:
         ast = self.ast
         cst = self.cst
         if not ast:
-            return tuple(cst) if is_list(cst) else cst
+            return cstfinal(cst)
         elif '@' in ast:
             return ast['@']
         else:
@@ -80,12 +80,12 @@ class ParseState:
 
     def append(self, node: Any, aslist: bool = False) -> Any:
         self.last_node = node
-        self.cst = cstappend(self.cst, node, aslist=aslist)
+        self.cst = cstadd(self.cst, node, aslist=aslist)
         return node
 
     def extend(self, node: Any) -> Any:
         self.last_node = node
-        self.cst = cstextend(self.cst, node)
+        self.cst = cstmerge(self.cst, node)
         return node
 
     def nameset(self, name: str) -> None:
@@ -118,7 +118,9 @@ class ParseState:
         if node is not None and kwargs:
             raise TypeError("Cannot provide both a positional and keyword arguments.")
         if node is None and not kwargs:
-            raise TypeError("Must provide either one positional argument or keyword arguments.")
+            raise TypeError(
+                "Must provide either one positional argument or keyword arguments."
+            )
 
         if isinstance(node, ParseState):
             self.merge(node)
@@ -130,8 +132,6 @@ class ParseState:
                 self.nameset(name)
 
         return self
-
-
 
 
 class ParseStateStack:

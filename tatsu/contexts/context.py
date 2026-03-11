@@ -15,13 +15,13 @@ from ..exceptions import (
     OptionSucceeded,
     ParseException,
 )
-from ..util import deprecated, is_list, left_assoc, right_assoc
+from ..util import deprecated, left_assoc, right_assoc
 from ..util.strtools import regexpp
 from ._engine import ParserEngine
 from ._protocol import Ctx, Func
 from .ast import AST
+from .cst import closedlist, islist
 from .ctxlib import ChoiceContext, InnerExpContext
-from .infos import listclosure
 
 
 class ParseContext(ParserEngine, Ctx):
@@ -204,7 +204,7 @@ class ParseContext(ParserEngine, Ctx):
         self.pushstate()
         try:
             exp(self)
-            return listclosure(self.cst) if is_list(self.cst) else self.cst
+            return closedlist(self.cst) if islist(self.cst) else self.cst
         finally:
             ast = self.ast
             self.popstate()
@@ -260,7 +260,7 @@ class ParseContext(ParserEngine, Ctx):
                     exp(self)
                     self.cst = [self.cst]
                 self._repeat(exp, prefix=sep, dropprefix=omitsep)
-            self.cst = cst =listclosure(self.cst)
+            self.cst = cst = closedlist(self.cst)
             self.mergestate()
             return cst
         except ParseException:
@@ -281,7 +281,7 @@ class ParseContext(ParserEngine, Ctx):
                 exp(self)
                 self.cst = [self.cst]
                 self._repeat(exp, prefix=sep, dropprefix=omitsep)
-            self.cst = cst =listclosure(self.cst)
+            self.cst = cst = closedlist(self.cst)
             self.mergestate()
             return cst
         except ParseException:
@@ -291,7 +291,7 @@ class ParseContext(ParserEngine, Ctx):
     _positive_closure = positive_closure
 
     def empty(self) -> list:
-        cst = listclosure([])
+        cst = closedlist([])
         self.state.append(cst)
         return cst
 

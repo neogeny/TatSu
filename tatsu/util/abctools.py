@@ -4,19 +4,16 @@ from __future__ import annotations
 
 import functools
 import operator
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable
 from itertools import zip_longest
 from typing import Any, NamedTuple
+
 
 type Predicate[K, V] = Callable[[K, V], bool]
 
 
 def true(*_: Any, **__: Any) -> bool:
     return True
-
-
-def is_list(o) -> bool:
-    return type(o) is list
 
 
 def to_list(o: Any) -> list[Any]:

@@ -22,7 +22,6 @@ from ..util import (
     Undefined,
     boundcall,
     is_eval_safe,
-    is_list,
     prune_dict,
     safe_builtins,
     safe_eval,
@@ -30,7 +29,8 @@ from ..util import (
 )
 from ._core import ParserCore
 from .ast import AST
-from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult, listclosure
+from .cst import closedlist, islist
+from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
 from .state import ParseStateStack
 
 
@@ -246,8 +246,8 @@ class ParserEngine(ParserCore):
             node.parseinfo = parseinfo
 
     def save_result(self, key: MemoKey, result: RuleResult) -> None:
-        if is_list(result.node):
-            result = result._replace(node=listclosure(result.node))
+        if islist(result.node):
+            result = result._replace(node=closedlist(result.node))
         self._results[key] = result
 
     def set_left_recursion_guard(self, key: MemoKey) -> None:
