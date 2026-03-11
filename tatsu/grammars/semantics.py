@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import warnings
 from ast import literal_eval
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import Any
 
 from .. import grammars as g
@@ -112,12 +112,8 @@ class GrammarSemantics(ModelBuilderSemantics):
         return g.Override(ast)
 
     def sequence(self, ast):
-        # if isinstance(ast, list | tuple):
-        #     seq = ast
-        # else:
-        #     seq = ast.sequence
         seq = ast
-        assert isinstance(seq, list), str(seq)
+        assert isinstance(seq, Sequence), str(seq)
         if len(seq) == 1:
             return seq[0]
         return g.Sequence(ast=ast)
