@@ -95,11 +95,11 @@ class ParseState:
             self.cst = [previous, node]
         return node
 
-    def setname(self, name: str) -> None:
+    def nameset(self, name: str) -> None:
         self.ast._set(name, self.last_node)
 
-    def addname(self, name: str) -> None:
-        self.ast._setlist(name, self.last_node)
+    def nameadd(self, name: str) -> None:
+        self.ast._set(name, self.last_node, aslist=True)
 
     def define(
         self,

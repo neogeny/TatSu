@@ -33,18 +33,18 @@ class AST(dict[str, Any]):
     def asjson(self) -> Any:
         return asjson(self)
 
-    def _set(self, key: str, value: Any, force_list: bool = False) -> None:
+    def _set(self, key: str, value: Any, aslist: bool = False) -> None:
         key = self._safekey(key)
         previous = self.get(key)
         if previous is None:
-            super().__setitem__(key, [value] if force_list else value)
+            super().__setitem__(key, [value] if aslist else value)
         elif is_list(previous):
             super().__setitem__(key, [*previous, value])
         else:
             super().__setitem__(key, [previous, value])
 
     def _setlist(self, key: str, value: Any) -> None:
-        self._set(key, value, force_list=True)
+        self._set(key, value, aslist=True)
 
     def _safekey(self, key: str) -> str:
         while key in dir(self):

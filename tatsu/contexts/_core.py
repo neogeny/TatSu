@@ -202,11 +202,11 @@ class ParserCore:
 
     def setname(self, name: str) -> None:
         # NOTE: called by generated parsers
-        self.state.setname(name)
+        self.state.nameset(name)
 
     def addname(self, name: str) -> None:
         # NOTE: called by generated parsers
-        self.state.addname(name)
+        self.state.nameadd(name)
 
     def newstate(self) -> None:
         self.states.new()
