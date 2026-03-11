@@ -106,6 +106,9 @@ class ParseState:
         return self.ast
 
     @overload
+    def __call__(self, node: ParseState) -> Self: ...
+
+    @overload
     def __call__(self, node: Any) -> Self: ...
 
     @overload
@@ -117,11 +120,14 @@ class ParseState:
         if node is None and not kwargs:
             raise TypeError("Must provide either one positional argument or keyword arguments.")
 
-        if node is not None:
+        if isinstance(node, ParseState):
+            self.merge(node)
+        elif not kwargs:
             self.append(node)
         else:
             for name, value in kwargs.items():
-                self.ast._set(name, value)
+                self.append(value)
+                self.nameset(name)
 
         return self
 
