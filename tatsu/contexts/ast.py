@@ -25,11 +25,12 @@ class AST(dict[str, Any]):
 
     @property
     def parseinfo(self) -> ParseInfo | None:
-        return self.get('parseinfo')
+        return self.get('__parseinfo__')
 
     # NOTE: required to bypass '_frozen'
     def set_parseinfo(self, value: ParseInfo | None) -> None:
         super().__setitem__('parseinfo', value)
+        super().__setitem__('__parseinfo__', value)
 
     def asjson(self) -> Any:
         return asjson(self)
