@@ -346,7 +346,7 @@ class ParseContext(ParserEngine, Ctx):
     def joinleft(self) -> Any:
         cl = InnerExpContext(self)
         yield cl
-        self._left_join(cl._exp_value(), cl._sep_value())
+        self.left_join(cl._exp_value(), cl._sep_value())
 
     @contextmanager
     def joinright(self) -> Any:

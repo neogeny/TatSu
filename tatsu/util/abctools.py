@@ -8,7 +8,6 @@ from collections.abc import Callable, Iterable
 from itertools import zip_longest
 from typing import Any, NamedTuple
 
-
 type Predicate[K, V] = Callable[[K, V], bool]
 
 
@@ -126,7 +125,7 @@ def left_assoc(elements):
     expre = next(it)
     for e in it:
         op = e
-        expre = (op, expre, next(it))
+        expre = [op, expre, next(it)]
     return expre
 
 
@@ -141,7 +140,7 @@ def right_assoc(elements):
         except StopIteration:
             return left
         else:
-            return op, left, assoc(it)
+            return [op, left, assoc(it)]
 
     return assoc(iter(elements))
 

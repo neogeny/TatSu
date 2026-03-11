@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-
 """
 Define the non-AST semantics parging.
 
@@ -21,7 +20,7 @@ class closedlist(list[Any]):
     """
     A `list` that is not a list.
 
-    It is used by closures and friends to keep their results as values that
+    It's used by closures and friends to keep their results as values that
     don't get merged with other lists.
     """
 
@@ -39,7 +38,7 @@ def islist(o: Any) -> bool:
 
 
 def cstfinal(cst: Any) -> Any:
-    return tuple(cst) if islist(cst) else cst
+    return closedlist(cst) if islist(cst) else cst
 
 
 def cstadd(cst: Any, node: Any, aslist: bool = False) -> Any:
@@ -53,10 +52,9 @@ def cstadd(cst: Any, node: Any, aslist: bool = False) -> Any:
     """
     if cst is None:
         return [node] if aslist else copy.copy(node)
-    elif islist(cst):
+    if islist(cst):
         return [*cst, node]
-    else:
-        return [cst, node]
+    return [cst, node]
 
 
 def cstmerge(cst: Any, other: Any) -> Any:
@@ -69,13 +67,12 @@ def cstmerge(cst: Any, other: Any) -> Any:
     """
     if other is None:
         return cst
-    elif cst is None:
+    if cst is None:
         return copy.copy(other)  # avoid shared state of lists
-    elif islist(other) and islist(cst):
+    if islist(other) and islist(cst):
         return cst + other
-    elif islist(other):
+    if islist(other):
         return [cst, *other]
-    elif islist(cst):
+    if islist(cst):
         return [*cst, other]
-    else:
-        return [cst, other]
+    return [cst, other]

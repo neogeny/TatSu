@@ -39,16 +39,16 @@ def test_direct_left_recursion(trace=False):
     model = compile(grammar, 'test')
 
     ast = model.parse('1*2+3*5', trace=trace, colorize=True)
-    assert ast == ((('1', '*', '2'), '+', '3'), '*', '5')
+    assert ast == [[['1', '*', '2'], '+', '3'], '*', '5']
 
     ast = model.parse('10 - 20', trace=trace, colorize=True)
-    assert ast == ('10', '-', '20')
+    assert ast == ['10', '-', '20']
 
     ast = model.parse('( 10 - 20 )', trace=trace, colorize=True)
-    assert ast == ('10', '-', '20')
+    assert ast == ['10', '-', '20']
 
     ast = model.parse('3 + 5 * ( 10 - 20 )', trace=trace, colorize=True)
-    assert ast == (('3', '+', '5'), '*', ('10', '-', '20'))
+    assert ast == [['3', '+', '5'], '*', ['10', '-', '20']]
 
 
 def test_calc(trace=False):
@@ -92,13 +92,13 @@ def test_calc(trace=False):
     model = compile(grammar)
 
     ast = model.parse('10 - 20', trace=trace, colorize=True)
-    assert ast == ('10', '-', '20')
+    assert ast == ['10', '-', '20']
 
     ast = model.parse('( 10 - 20 )', trace=trace, colorize=True)
-    assert ast == ('10', '-', '20')
+    assert ast == ['10', '-', '20']
 
     ast = model.parse('3 + 5 * ( 10 - 20)', trace=trace, colorize=True)
-    assert ast == ('3', '+', ('5', '*', ('10', '-', '20')))
+    assert ast == ['3', '+', ['5', '*', ['10', '-', '20']]]
 
 
 def test_calc_indirect(trace=False):
@@ -119,10 +119,10 @@ def test_calc_indirect(trace=False):
     """
     model = compile(grammar)
     ast = model.parse('1-1+1', trace=trace, colorize=True)
-    assert ast == (('1', '-', '1'), '+', '1')
+    assert ast == [['1', '-', '1'], '+', '1']
 
     ast = model.parse('1+1-1', trace=trace, colorize=True)
-    assert ast == (('1', '+', '1'), '-', '1')
+    assert ast == [['1', '+', '1'], '-', '1']
 
     from tatsu.tool import to_python_sourcecode
 
@@ -143,7 +143,7 @@ def test_indirect_left_recursion(trace=False):
     """
     model = compile(grammar, 'test')
     ast = model.parse('5-87-32', trace=trace, colorize=True)
-    assert ast == (('5', '-', '87'), '-', '32')
+    assert ast == [['5', '-', '87'], '-', '32']
 
 
 def test_indirect_left_recursion_with_cut(trace=False):
@@ -157,7 +157,7 @@ def test_indirect_left_recursion_with_cut(trace=False):
     model = compile(grammar, 'test')
     ast = model.parse('5-87-32', trace=trace, colorize=True)
     print(ast)
-    assert ast == (('5', '-', '87'), '-', '32')
+    assert ast == [['5', '-', '87'], '-', '32']
 
 
 def test_indirect_left_recursion_complex(trace=False):
@@ -238,13 +238,13 @@ def test_indirect_left_recursion_complex(trace=False):
     ast = model.parse('this', trace=trace, colorize=True)
     assert ast == 'this'
     ast = model.parse('this.x', trace=trace, colorize=True)
-    assert ast == ('this', '.', 'x')
+    assert ast == ['this', '.', 'x']
     ast = model.parse('this.x.y', trace=trace, colorize=True)
-    assert ast == (('this', '.', 'x'), '.', 'y')
+    assert ast == [['this', '.', 'x'], '.', 'y']
     ast = model.parse('this.x.m()', trace=trace, colorize=True)
-    assert ast == (('this', '.', 'x'), '.', 'm', '()')
+    assert ast == [['this', '.', 'x'], '.', 'm', '()']
     ast = model.parse('x[i][j].y', trace=trace, colorize=True)
-    assert ast == ((('x', '[', 'i', ']'), '[', 'j', ']'), '.', 'y')
+    assert ast == [[['x', '[', 'i', ']'], '[', 'j', ']'], '.', 'y']
 
 
 def test_no_left_recursion(trace=False):
@@ -294,13 +294,13 @@ def test_nested_left_recursion(trace=False):
     model_a = compile(grammar_a, 'test')
     model_b = compile(grammar_b, 'test')
     ast = model_a.parse('1*2+3*4', trace=trace, colorize=True)
-    assert ast == (('1', '*', '2'), '+', ('3', '*', '4'))
+    assert ast == [['1', '*', '2'], '+', ['3', '*', '4']]
     ast = model_b.parse('(1+2)+(3+4)', trace=trace, colorize=True)
-    assert ast == (('1', '+', '2'), '+', ('3', '+', '4'))
+    assert ast == [['1', '+', '2'], '+', ['3', '+', '4']]
     ast = model_a.parse('1*2*3', trace=trace, colorize=True)
-    assert ast == (('1', '*', '2'), '*', '3')
+    assert ast == [['1', '*', '2'], '*', '3']
     ast = model_b.parse('(((1+2)))', trace=trace, colorize=True)
-    assert ast == ('1', '+', '2')
+    assert ast == ['1', '+', '2']
 
 
 @pytest.mark.skip('For this the seed growing during left recursion is too primitive')
@@ -384,7 +384,7 @@ def test_left_recursion_with_right_associativity(trace=False):
     """
     model = compile(grammar, 'test')
     ast = model.parse('1+2+3', trace=trace, colorize=True)
-    assert ast == ('1', '+', ('2', '+', '3'))
+    assert ast == ['1', '+', ['2', '+', '3']]
 
 
 def test_partial_input_bug(trace=False):
@@ -413,7 +413,7 @@ def test_partial_input_bug(trace=False):
 
     model = compile(grammar)
     ast = model.parse(input, trace=trace, colorize=True)
-    assert ast == ('{', 'size', '}')
+    assert ast == ['{', 'size', '}']
 
 
 def test_dropped_input_bug(trace=False):
@@ -442,7 +442,7 @@ def test_dropped_input_bug(trace=False):
     assert ast == 'foo'
 
     ast = model.parse('foo, bar', trace=trace, colorize=True)
-    assert ast == ('foo', ',', 'bar')
+    assert ast == ['foo', ',', 'bar']
 
 
 def test_change_start_rule(trace=False):
@@ -467,7 +467,7 @@ def test_change_start_rule(trace=False):
     model = compile(grammar)
 
     ast = model.parse('a * b', start='expr', trace=trace, colorize=True)
-    assert ast == ('a', '*', 'b')
+    assert ast == ['a', '*', 'b']
 
     with pytest.raises(FailedParse, match=r'infinite left recursion'):
         model.parse('a * b', start='mul', trace=trace, colorize=True)
@@ -484,7 +484,7 @@ def test_with_gather(trace=False):
     model = compile(grammar)
 
     ast = model.parse('a(b, c)', start='expr', trace=trace, colorize=True)
-    assert ast == ('a', '(', ['b', 'c'], ')')
+    assert ast == ['a', '(', ['b', 'c'], ')']
 
 
 def test_not_at_top_level():
@@ -512,7 +512,7 @@ def test_peg_associativity():
         A = | A 'a' | 'a' ;
     """
 
-    assert parse(left_grammar, 'aaa') == (('a', 'a'), 'a')
+    assert parse(left_grammar, 'aaa') == [['a', 'a'], 'a']
 
     right_grammar = """
         @@left_recursion :: True
@@ -522,7 +522,7 @@ def test_peg_associativity():
         A = | 'a' A | 'a' ;
     """
 
-    assert parse(right_grammar, 'aaa') == ('a', ('a', 'a'))
+    assert parse(right_grammar, 'aaa') == ['a', ['a', 'a']]
 
     mixed_grammar = """
         @@left_recursion :: True
@@ -532,7 +532,7 @@ def test_peg_associativity():
         A = | A 'a' | 'a' A | 'a' ;
     """
 
-    assert parse(mixed_grammar, 'aaa') == ('a', ('a', 'a'))  # associated RIGHT
+    assert parse(mixed_grammar, 'aaa') == ['a', ['a', 'a']]  # associated RIGHT
 
 
 def test_nullable_void():
@@ -544,7 +544,7 @@ def test_nullable_void():
         A = | A 'a' | () ;
     """
 
-    assert parse(left_grammar, 'aaa') == (('a', 'a'), 'a')
+    assert parse(left_grammar, 'aaa') == [['a', 'a'], 'a']
 
 
 def test_leftrec_with_void():
@@ -556,7 +556,7 @@ def test_leftrec_with_void():
         A = | A 'a' | 'a' ;
     """
 
-    assert parse(left_grammar, 'aaa') == (('a', 'a'), 'a')
+    assert parse(left_grammar, 'aaa') == [['a', 'a'], 'a']
     assert parse(left_grammar, '') is None
 
 
@@ -570,4 +570,4 @@ def test_unwanted_leftrec():
     """
 
     with pytest.raises(GrammarError, match=r"left-recursive rules 'A'"):
-        assert parse(left_grammar, 'aaa') == (('a', 'a'), 'a')
+        assert parse(left_grammar, 'aaa') == [('a', 'a'), 'a']

@@ -35,7 +35,7 @@ class PatternTests(unittest.TestCase):
 
         model = compile(grammar, 'test')
         ast = model.parse('\n\n')
-        self.assertEqual(('\n', '\n'), ast)
+        self.assertEqual(['\n', '\n'], ast)
 
     @pytest.mark.skip(reason="deprecated")
     def test_pattern_concatenation(self):

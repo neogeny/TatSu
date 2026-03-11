@@ -302,17 +302,17 @@ def test_cut_scope():
     """
 
     ast = parse(grammar, 'a x')
-    assert ast == ('a', 'x')
+    assert ast == ['a', 'x']
 
     ast = parse(grammar, 'a b')
-    assert ast == ('a', 'b')
+    assert ast == ['a', 'b']
 
     ast = parse(grammar, 'a y')
-    assert ast == ('a', 'y')
+    assert ast == ['a', 'y']
 
     with pytest.raises(FailedToken, match=r"expecting 'y'"):
         ast = parse(grammar, 'a c d')
-        assert ast == ('a', 'c', 'd')
+        assert ast == ['a', 'c', 'd']
 
 
 if __name__ == '__main__':

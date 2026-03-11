@@ -57,13 +57,13 @@ class JoinTests(unittest.TestCase):
         pythongen(model)
 
         ast = model.parse('x y, x y z', nameguard=False)
-        self.assertEqual(([['x', 'y'], ',', ['x', 'y']], 'z'), ast)
+        self.assertEqual([[['x', 'y'], ',', ['x', 'y']], 'z'], ast)
 
         ast = model.parse('x y z', nameguard=False)
-        self.assertEqual(([['x', 'y']], 'z'), ast)
+        self.assertEqual([[['x', 'y']], 'z'], ast)
 
         ast = model.parse('z', nameguard=False)
-        self.assertEqual(([], 'z'), ast)
+        self.assertEqual([[], 'z'], ast)
 
     def test_group_join(self):
         grammar = """
@@ -122,13 +122,13 @@ class JoinTests(unittest.TestCase):
         pythongen(model)
 
         ast = model.parse('x y, x y z', nameguard=False)
-        self.assertEqual(([['x', 'y'], ['x', 'y']], 'z'), ast)
+        self.assertEqual([[['x', 'y'], ['x', 'y']], 'z'], ast)
 
         ast = model.parse('x y z', nameguard=False)
-        self.assertEqual(([['x', 'y']], 'z'), ast)
+        self.assertEqual([[['x', 'y']], 'z'], ast)
 
         ast = model.parse('z', nameguard=False)
-        self.assertEqual(([], 'z'), ast)
+        self.assertEqual([[], 'z'], ast)
 
     def test_group_gather(self):
         grammar = """
@@ -166,7 +166,7 @@ class JoinTests(unittest.TestCase):
         pythongen(model)
 
         ast = model.parse(text)
-        self.assertEqual(('+', ('-', ('+', '1', '2'), '3'), '4'), ast)
+        self.assertEqual(['+', ['-', ['+', '1', '2'], '3'], '4'], ast)
 
     def test_right_join(self):
         grammar = r"""
@@ -193,4 +193,4 @@ class JoinTests(unittest.TestCase):
         pythongen(model)
 
         ast = model.parse(text)
-        self.assertEqual(('+', '1', ('-', '2', ('+', '3', '4'))), ast)
+        self.assertEqual(['+', '1', ['-', '2', ['+', '3', '4']]], ast)

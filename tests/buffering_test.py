@@ -108,4 +108,4 @@ def test_namechars():
             ;
     """
     ast = parse(grammar, 'key-word-extra;')
-    assert ast == ('key-word-extra', ';')
+    assert ast == ['key-word-extra', ';']

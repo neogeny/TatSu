@@ -168,11 +168,11 @@ def test_none_whitespace():
 
     parser = tatsu.compile(grammar)
     output = parser.parse(input)
-    assert output == ('This is a', ' test')
+    assert output == ['This is a', ' test']
 
     parser = generate_and_load_parser('W', grammar)
     output = parser.parse(input, parseinfo=False)
-    assert output == ('This is a', ' test')
+    assert output == ['This is a', ' test']
 
 
 def test_sep_join():

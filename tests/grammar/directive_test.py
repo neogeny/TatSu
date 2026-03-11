@@ -109,7 +109,7 @@ def test_whitespace_no_newlines():
         e f
     """)
 
-    expected = [(['a', 'b'], '\n'), (['c', 'd'], '\n'), (['e', 'f'], '\n')]
+    expected = [[['a', 'b'], '\n'], [['c', 'd'], '\n'], [['e', 'f'], '\n']]
 
     model = tatsu.compile(grammar, 'document')
     ast = model.parse(text, start='document')

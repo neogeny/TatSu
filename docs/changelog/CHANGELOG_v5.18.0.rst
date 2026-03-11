@@ -71,6 +71,12 @@ Functional Changes
 - Refactoring to avoid internal dependency cycles and simplify
   imports.
 
+- Rules and the different forms of closures are back to returning ``list``
+  instead of ``tuple``. The ``tuples`` were introduced as a not-thought-up
+  shortcut and it has taken until now to fix that. Square brackets are much
+  easier to discern in programs and output in a context in which parenthesis
+  are already overloaded.
+
 Model Representations
 ~~~~~~~~~~~~~~~~~~~~~
 
