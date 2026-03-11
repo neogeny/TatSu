@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from contextlib import contextmanager
 from copy import copy
-from typing import Any, Self
+from typing import Any, Self, overload
 
 from .ast import AST
 from .cst import cstappend, cstextend
@@ -15,7 +15,7 @@ from .infos import Alert, RuleInfo
 __all__ = ['ParseState', 'ParseStateStack']
 
 from ..tokenizing import Cursor
-from ..util import is_list
+from ..util import is_list, typename
 
 
 class ParseState:
@@ -27,13 +27,23 @@ class ParseState:
         'last_node',
     )
 
-    def __init__(self, cursor: Cursor) -> None:
-        assert isinstance(cursor, Cursor), f'{type(cursor)} != NullCursor'
-        self.cursor: Cursor = cursor.clone()
+    def __init__(self, base: Cursor | ParseState) -> None:
         self.ast: Any = AST()
         self.cst: Any = None
         self.last_node: Any = None
         self.alerts: list[Alert] = []
+
+        if isinstance(base, Cursor):
+            self.cursor: Cursor = base.clone()
+        elif isinstance(base, ParseState):
+            self.cursor = base.cursor.clone()
+            self.ast = copy(base.ast)
+        else:
+            raise TypeError(  # pyright: ignore[reportUnreachable]
+                f'argument must be a {typename(Cursor)}'
+                f' or {typename(ParseState)}'
+                f', not {typename(base)}'
+            )  # pyright: ignore[reportUnreachable]
 
     def clone(self):
         return copy(self)
@@ -94,6 +104,26 @@ class ParseState:
         ast.update(self.ast)
         self.ast = ast
         return self.ast
+
+    @overload
+    def __call__(self, node: Any) -> Self: ...
+
+    @overload
+    def __call__(self, **kwargs: Any) -> Self: ...
+
+    def __call__(self, node: Any = None, **kwargs: Any) -> Self:
+        if node is not None and kwargs:
+            raise TypeError("Cannot provide both a positional and keyword arguments.")
+        if node is None and not kwargs:
+            raise TypeError("Must provide either one positional argument or keyword arguments.")
+
+        if node is not None:
+            self.append(node)
+        else:
+            for name, value in kwargs.items():
+                self.ast._set(name, value)
+
+        return self
 
 
 
@@ -166,8 +196,7 @@ class ParseStateStack:
         return self.top
 
     def push(self) -> ParseState:
-        newstate = ParseState(self.cursor)
-        newstate.ast = copy(self.ast)
+        newstate = ParseState(self.state)
         self._state_stack.append(newstate)
 
         return self.top
