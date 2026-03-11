@@ -10,6 +10,7 @@ from typing import Any
 from .ast import AST
 from .infos import Alert, RuleInfo
 
+
 __all__ = ['ParseState', 'ParseStateStack']
 
 from ..tokenizing import Cursor
@@ -133,7 +134,8 @@ class ParseStateStack:
 
         return self.top
 
-    def merge(self, pos: int) -> ParseState:
+    def merge(self) -> ParseState:
+        pos = self.cursor.pos
         prev = self.pop()
         self.ast = prev.ast
         self.extend(prev.cst)

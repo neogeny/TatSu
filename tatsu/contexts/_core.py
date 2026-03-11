@@ -24,6 +24,7 @@ from .infos import MemoKey, RuleInfo, RuleResult
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
+
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
@@ -214,7 +215,7 @@ class ParserCore:
         return self.states.pop(self.pos)
 
     def mergestate(self) -> ParseState:
-        return self.states.merge(pos=self.pos)
+        return self.states.merge()
 
     def undostate(self) -> None:
         self.states.pop()
