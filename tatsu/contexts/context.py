@@ -258,7 +258,8 @@ class ParseContext(ParserEngine, Ctx):
     def loopopt(self) -> Any:
         cl = LoopContext(self)
         yield cl
-        self.closure(cl.func)
+        self.closure(cl.func, omitsep=False)
+        # FIXME
         # cst = cl.parse(self)
         # self.state.append(cst)
 
@@ -266,7 +267,8 @@ class ParseContext(ParserEngine, Ctx):
     def loopplus(self) -> Any:
         cl = LoopContext(self, plus=True)
         yield cl
-        self.positive_closure(cl.func)
+        self.positive_closure(cl.func, omitsep=False)
+        # FIXME
         # cst = cl.parse(self)
         # if not cst:
         #     raise cl.expectedexcept(self)
@@ -342,12 +344,12 @@ class ParseContext(ParserEngine, Ctx):
         # self.state.append(cst)
 
     def gather(self, exp: Func, sep: Func) -> Any:
-        return self._closure(exp, sep=sep, omitsep=True)
+        return self.closure(exp, sep=sep, omitsep=True)
 
     _gather = gather
 
     def positive_gather(self, exp: Func, sep: Func) -> Any:
-        return self._positive_closure(exp, sep=sep, omitsep=True)
+        return self.positive_closure(exp, sep=sep, omitsep=True)
 
     _positive_gather = positive_gather
 
@@ -355,21 +357,21 @@ class ParseContext(ParserEngine, Ctx):
     def joinopt(self) -> Any:
         cl = ExpWithSepContext(self)
         yield cl
-        self._join(cl.func, cl.sep_func)
+        self.join(cl.func, cl.sep_func)
 
     @contextmanager
     def joinplus(self) -> Any:
         cl = ExpWithSepContext(self)
         yield cl
-        self._positive_join(cl.func, cl.sep_func)
+        self.positive_join(cl.func, cl.sep_func)
 
     def join(self, exp: Func, sep: Func) -> Any:
-        return self._closure(exp, sep=sep)
+        return self.closure(exp, sep=sep, omitsep=False)
 
     _join = join
 
     def positive_join(self, exp: Func, sep: Func) -> Any:
-        return self.positive_closure(exp, sep=sep)
+        return self.positive_closure(exp, sep=sep, omitsep=False)
 
     _positive_join = positive_join
 
@@ -386,13 +388,13 @@ class ParseContext(ParserEngine, Ctx):
         self._right_join(cl.func, cl.sep_func)
 
     def left_join(self, exp: Func, sep: Func) -> Any:
-        self.cst = left_assoc(self._positive_join(exp, sep))
+        self.cst = left_assoc(self.positive_join(exp, sep))
         return self.cst
 
     _left_join = left_join
 
     def right_join(self, exp: Func, sep: Func) -> Any:
-        self.cst = right_assoc(self._positive_join(exp, sep))
+        self.cst = right_assoc(self.positive_join(exp, sep))
         return self.cst
 
     _right_join = right_join
