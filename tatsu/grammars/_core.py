@@ -15,7 +15,7 @@ from ..contexts import AST, Ctx, Func, ParseContext, RuleInfo
 from ..exceptions import GrammarError
 from ..objectmodel import Node, nodedataclass
 from ..parserconfig import ParserConfig
-from ..util import cast, chunks, compress_seq, indent, trim, typename
+from ..util import cast, chunks, compress_seq, indent, safe_name, trim, typename
 from .builder import ModelBuilderSemantics
 from .math import ffset, kdot
 
@@ -269,6 +269,7 @@ class Rule(NamedBox):
 
     def __post_init__(self):
         super().__post_init__()
+        self.name = safe_name(self.name)
         self.params = self.params or ()
         self.kwparams = self.kwparams or {}
         self.decorators = self.decorators or []

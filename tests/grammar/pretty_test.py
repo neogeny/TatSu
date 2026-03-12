@@ -21,11 +21,11 @@ class PrettyTests(unittest.TestCase):
         pretty = trim(r"""
             start: lisp
 
-            lisp: sexp | list | symbol
+            lisp: sexp | list_ | symbol
 
             sexp[SExp]: '(' cons=lisp '.' ~ cdr=lisp ')'
 
-            list[List]: '(' ={lisp} ')'
+            list_[List]: '(' ={lisp} ')'
 
             symbol[Symbol]: /[^\s().]+/
 
@@ -34,11 +34,11 @@ class PrettyTests(unittest.TestCase):
         pretty_lean = trim(r"""
             start: lisp
 
-            lisp: sexp | list | symbol
+            lisp: sexp | list_ | symbol
 
             sexp: '(' lisp '.' ~ lisp ')'
 
-            list: '(' {lisp} ')'
+            list_: '(' {lisp} ')'
 
             symbol: /[^\s().]+/
 
