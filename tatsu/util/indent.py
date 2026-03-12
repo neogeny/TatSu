@@ -115,7 +115,7 @@ class IndentPrintMixin:
             lbrack=lbrack,
             rbrack=rbrack,
             amount=amount,
-            addlevels=notnone(addlevels, self.indentation),
+            addlevels=addlevels or 0,
         )
         self.print(folded)
 
