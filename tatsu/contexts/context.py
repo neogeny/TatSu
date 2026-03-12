@@ -163,6 +163,19 @@ class ParseContext(ParserEngine, Ctx):
     _group = group
 
     @contextmanager
+    def skip(self) -> Any:
+        self.pushstate()
+        try:
+            with self.states.cutscope():
+                yield
+            self.popstate()
+        except ParseException:
+            self.undostate()
+            raise
+
+    _skip = skip
+
+    @contextmanager
     def if_(self) -> Any:
         self.pushstate()
         self.lookahead += 1

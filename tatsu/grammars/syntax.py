@@ -9,7 +9,7 @@ from typing import Any
 from ..contexts import AST, Ctx, Func
 from ..exceptions import FailedRef
 from ..objectmodel import nodedataclass
-from ..util import indent, trim
+from ..util import indent, safe_name, trim
 from ._core import PEP8_LLEN, Box, Model
 from .math import ffset, kdot, ref
 
@@ -26,6 +26,20 @@ class Group(Box):
         if len(exp.splitlines()) <= 1:
             return f'({trim(exp)})'
         return f'(\n{indent(exp)}\n)'
+
+
+@nodedataclass
+class Skip(Box):
+    def _parse(self, ctx: Ctx) -> Any:
+        with ctx.skip():
+            self.exp._parse(ctx)
+            return None
+
+    def _pretty(self, lean=False):
+        exp = self.exp._pretty(lean=lean)
+        if len(exp.splitlines()) <= 1:
+            return f'(?:{trim(exp)})'
+        return f'(?:\n{indent(exp)}\n)'
 
 
 @nodedataclass
@@ -155,6 +169,7 @@ class Call(Model):
         if not self.name:
             self.ast = AST(name=self.ast)
         super().__post_init__()
+        self.name = safe_name(self.name)
         assert isinstance(self.name, str), self.name
 
     def follow_ref(self) -> Model:

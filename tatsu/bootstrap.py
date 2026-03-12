@@ -116,15 +116,25 @@ class TatSuBootstrapRules:
     @tatsu.rule
     def start(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('<directive>', '<grammar>', '<keyword>', '<rule>')
+
             @α.option
             def 〇(ctx: Ctx):
                 self.grammar(ctx)
 
-            α.expecting('<directive>', '<grammar>', '<keyword>', '<rule>')
-
     @tatsu.rule('Grammar')
     def grammar(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '@@',
+              '@@keyword',
+              '<decorator>',
+              '<directive>',
+              '<keyword>',
+              '<name>',
+              '<rule>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['title'], ['directives', 'keywords', 'rules'])
@@ -134,49 +144,45 @@ class TatSuBootstrapRules:
                     @cl.exp
                     def 〇(ctx: Ctx):
                         with ctx.choice() as β:
+                            β.expecting(
+                              '<directive>',
+                              '<keyword>'
+                            )
+
                             @β.option
                             def 〇(ctx: Ctx):
                                 with ctx.nameadd('directives'):
                                     self.directive(ctx)
-
                             @β.option
                             def 〇(ctx: Ctx):
                                 with ctx.nameadd('keywords'):
                                     self.keyword(ctx)
-
-                            β.expecting('<directive>', '<keyword>')
                 with ctx.nameadd('rules'):
                     self.rule(ctx)
                 with ctx.loopopt() as clβ:
                     @clβ.exp
                     def 〇(ctx: Ctx):
                         with ctx.choice() as β:
+                            β.expecting(
+                              '<keyword>',
+                              '<rule>'
+                            )
+
                             @β.option
                             def 〇(ctx: Ctx):
                                 with ctx.nameadd('rules'):
                                     self.rule(ctx)
-
                             @β.option
                             def 〇(ctx: Ctx):
                                 with ctx.nameadd('keywords'):
                                     self.keyword(ctx)
-
-                            β.expecting('<keyword>', '<rule>')
                 ctx.eofcheck()
-
-            α.expecting(
-                '<decorator>',
-                '<directive>',
-                '<keyword>',
-                '<name>',
-                '<rule>',
-                '@@',
-                '@@keyword'
-            )
 
     @tatsu.rule
     def directive(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('@@')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['name', 'value'], [])
@@ -186,30 +192,41 @@ class TatSuBootstrapRules:
                 ctx.cut()
                 with ctx.group():
                     with ctx.choice() as β:
+                        β.expecting(
+                          'comments',
+                          'eol_comments',
+                          'grammar',
+                          'ignorecase',
+                          'left_recursion',
+                          'memoization',
+                          'namechars',
+                          'nameguard',
+                          'parseinfo',
+                          'whitespace'
+                        )
+
                         @β.option
                         def 〇(ctx: Ctx):
                             ctx.define(['name', 'value'], [])
                             with ctx.nameset('name'):
                                 with ctx.group():
                                     with ctx.choice() as δ:
+                                        δ.expecting(
+                                          'comments',
+                                          'eol_comments'
+                                        )
+
                                         @δ.option
                                         def 〇(ctx: Ctx):
                                             ctx.token('comments')
-
                                         @δ.option
                                         def 〇(ctx: Ctx):
                                             ctx.token('eol_comments')
-
-                                        δ.expecting(
-                                            'comments',
-                                            'eol_comments'
-                                        )
                             ctx.cut()
                             ctx.token('::')
                             ctx.cut()
                             with ctx.nameset('value'):
                                 self.regex(ctx)
-
                         @β.option
                         def 〇(ctx: Ctx):
                             ctx.define(['name', 'value'], [])
@@ -221,69 +238,64 @@ class TatSuBootstrapRules:
                             with ctx.nameset('value'):
                                 with ctx.group():
                                     with ctx.choice() as δ:
+                                        δ.expecting(
+                                          'False',
+                                          'None',
+                                          '<regex>',
+                                          '<string>'
+                                        )
+
                                         @δ.option
                                         def 〇(ctx: Ctx):
                                             self.regex(ctx)
-
                                         @δ.option
                                         def 〇(ctx: Ctx):
                                             self.string(ctx)
-
                                         @δ.option
                                         def 〇(ctx: Ctx):
                                             ctx.token('None')
-
                                         @δ.option
                                         def 〇(ctx: Ctx):
                                             ctx.token('False')
-
                                         @δ.option
                                         def 〇(ctx: Ctx):
                                             ctx.constant('None')
-
-                                        δ.expecting(
-                                            '<regex>',
-                                            '<string>',
-                                            'False',
-                                            'None'
-                                        )
-
                         @β.option
                         def 〇(ctx: Ctx):
                             ctx.define(['name', 'value'], [])
                             with ctx.nameset('name'):
                                 with ctx.group():
                                     with ctx.choice() as δ:
+                                        δ.expecting(
+                                          'ignorecase',
+                                          'left_recursion',
+                                          'memoization',
+                                          'nameguard',
+                                          'parseinfo'
+                                        )
+
                                         @δ.option
                                         def 〇(ctx: Ctx):
                                             ctx.token('nameguard')
-
                                         @δ.option
                                         def 〇(ctx: Ctx):
                                             ctx.token('ignorecase')
-
                                         @δ.option
                                         def 〇(ctx: Ctx):
                                             ctx.token('left_recursion')
-
                                         @δ.option
                                         def 〇(ctx: Ctx):
                                             ctx.token('parseinfo')
-
                                         @δ.option
                                         def 〇(ctx: Ctx):
                                             ctx.token('memoization')
-
-                                        δ.expecting(
-                                            'ignorecase',
-                                            'left_recursion',
-                                            'memoization',
-                                            'nameguard',
-                                            'parseinfo'
-                                        )
                             ctx.cut()
                             with ctx.group():
                                 with ctx.choice() as δ:
+                                    δ.expecting(
+                                      '::'
+                                    )
+
                                     @δ.option
                                     def 〇(ctx: Ctx):
                                         ctx.define(['value'], [])
@@ -291,14 +303,10 @@ class TatSuBootstrapRules:
                                         ctx.cut()
                                         with ctx.nameset('value'):
                                             self.boolean(ctx)
-
                                     @δ.option
                                     def 〇(ctx: Ctx):
                                         with ctx.nameset('value'):
                                             ctx.constant(True)
-
-                                    δ.expecting('::')
-
                         @β.option
                         def 〇(ctx: Ctx):
                             ctx.define(['name', 'value'], [])
@@ -309,7 +317,6 @@ class TatSuBootstrapRules:
                             ctx.cut()
                             with ctx.nameset('value'):
                                 self.word(ctx)
-
                         @β.option
                         def 〇(ctx: Ctx):
                             ctx.define(['name', 'value'], [])
@@ -320,26 +327,13 @@ class TatSuBootstrapRules:
                             ctx.cut()
                             with ctx.nameset('value'):
                                 self.string(ctx)
-
-                        β.expecting(
-                            'comments',
-                            'eol_comments',
-                            'grammar',
-                            'ignorecase',
-                            'left_recursion',
-                            'memoization',
-                            'namechars',
-                            'nameguard',
-                            'parseinfo',
-                            'whitespace'
-                        )
                 ctx.cut()
-
-            α.expecting('@@')
 
     @tatsu.rule
     def keywords(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('@@keyword', '<keyword>')
+
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.loopplus() as cl:
@@ -347,11 +341,11 @@ class TatSuBootstrapRules:
                     def 〇(ctx: Ctx):
                         self.keyword(ctx)
 
-            α.expecting('<keyword>', '@@keyword')
-
     @tatsu.rule
     def keyword(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('@@keyword')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('@@keyword')
@@ -364,33 +358,37 @@ class TatSuBootstrapRules:
                         with ctx.nameadd('@'):
                             with ctx.group():
                                 with ctx.choice() as β:
+                                    β.expecting(
+                                      '<string>',
+                                      '<word>'
+                                    )
+
                                     @β.option
                                     def 〇(ctx: Ctx):
                                         self.word(ctx)
-
                                     @β.option
                                     def 〇(ctx: Ctx):
                                         self.string(ctx)
-
-                                    β.expecting('<string>', '<word>')
                         with ctx.ifnot_():
                             with ctx.group():
                                 with ctx.choice() as β:
+                                    β.expecting(
+                                      ':',
+                                      '='
+                                    )
+
                                     @β.option
                                     def 〇(ctx: Ctx):
                                         ctx.token(':')
-
                                     @β.option
                                     def 〇(ctx: Ctx):
                                         ctx.token('=')
 
-                                    β.expecting(':', '=')
-
-            α.expecting('@@keyword')
-
     @tatsu.rule
     def params(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('<first_param>', '<literal>', '<path>')
+
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.nameadd('@'):
@@ -405,36 +403,35 @@ class TatSuBootstrapRules:
                             ctx.token('=')
                         ctx.cut()
 
-            α.expecting('<first_param>', '<literal>', '<path>')
-
     @tatsu.rule
     def first_param(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?!\\d)\\w+(?:::(?!\\d)\\w+)+',
+              '<boolean>',
+              '<float>',
+              '<hex>',
+              '<int>',
+              '<literal>',
+              '<null>',
+              '<path>',
+              '<raw_string>',
+              '<string>',
+              '<word>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 self.path(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.literal(ctx)
 
-            α.expecting(
-                '(?!\\d)\\w+(?:::(?!\\d)\\w+)+',
-                '<boolean>',
-                '<float>',
-                '<hex>',
-                '<int>',
-                '<literal>',
-                '<null>',
-                '<path>',
-                '<raw_string>',
-                '<string>',
-                '<word>'
-            )
-
     @tatsu.rule
     def kwparams(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('<pair>', '<word>')
+
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.gatherplus() as g:
@@ -446,16 +443,15 @@ class TatSuBootstrapRules:
                     def 〇(ctx: Ctx):
                         self.pair(ctx)
 
-            α.expecting('<pair>', '<word>')
-
     @tatsu.rule
     def the_params_at_last(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('<kwparams>', '<params>')
+
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.nameset('kwparams'):
                     self.kwparams(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['kwparams', 'params'], [])
@@ -465,28 +461,28 @@ class TatSuBootstrapRules:
                 ctx.cut()
                 with ctx.nameset('kwparams'):
                     self.kwparams(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.nameset('params'):
                     self.params(ctx)
 
-            α.expecting('<kwparams>', '<params>')
-
     @tatsu.rule
     def paramdef(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('(', '::', '[')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['kwparams', 'params'], [])
                 ctx.token('[')
                 ctx.cut()
                 with ctx.choice() as β:
+                    β.expecting('<kwparams>', '<params>')
+
                     @β.option
                     def 〇(ctx: Ctx):
                         with ctx.nameset('kwparams'):
                             self.kwparams(ctx)
-
                     @β.option
                     def 〇(ctx: Ctx):
                         ctx.define(['kwparams', 'params'], [])
@@ -496,26 +492,23 @@ class TatSuBootstrapRules:
                         ctx.cut()
                         with ctx.nameset('kwparams'):
                             self.kwparams(ctx)
-
                     @β.option
                     def 〇(ctx: Ctx):
                         with ctx.nameset('params'):
                             self.params(ctx)
-
-                    β.expecting('<kwparams>', '<params>')
                 ctx.token(']')
-
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['kwparams', 'params'], [])
                 ctx.token('(')
                 ctx.cut()
                 with ctx.choice() as β:
+                    β.expecting('<kwparams>', '<params>')
+
                     @β.option
                     def 〇(ctx: Ctx):
                         with ctx.nameset('kwparams'):
                             self.kwparams(ctx)
-
                     @β.option
                     def 〇(ctx: Ctx):
                         ctx.define(['kwparams', 'params'], [])
@@ -525,15 +518,11 @@ class TatSuBootstrapRules:
                         ctx.cut()
                         with ctx.nameset('kwparams'):
                             self.kwparams(ctx)
-
                     @β.option
                     def 〇(ctx: Ctx):
                         with ctx.nameset('params'):
                             self.params(ctx)
-
-                    β.expecting('<kwparams>', '<params>')
                 ctx.token(')')
-
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['params'], [])
@@ -542,11 +531,11 @@ class TatSuBootstrapRules:
                 with ctx.nameset('params'):
                     self.params(ctx)
 
-            α.expecting('(', '::', '[')
-
     @tatsu.rule('Rule')
     def rule(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('@', '<decorator>', '<name>', '<word>')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['base', 'decorators', 'exp', 'kwparams', 'name', 'params'], [])
@@ -560,17 +549,23 @@ class TatSuBootstrapRules:
                 ctx.cut()
                 with ctx.optional():
                     with ctx.choice() as β:
+                        β.expecting('(', '::', '[')
+
                         @β.option
                         def 〇(ctx: Ctx):
                             ctx.define(['kwparams', 'params'], [])
                             ctx.token('[')
                             ctx.cut()
                             with ctx.choice() as δ:
+                                δ.expecting(
+                                  '<kwparams>',
+                                  '<params>'
+                                )
+
                                 @δ.option
                                 def 〇(ctx: Ctx):
                                     with ctx.nameset('kwparams'):
                                         self.kwparams(ctx)
-
                                 @δ.option
                                 def 〇(ctx: Ctx):
                                     ctx.define(['kwparams', 'params'], [])
@@ -580,26 +575,26 @@ class TatSuBootstrapRules:
                                     ctx.cut()
                                     with ctx.nameset('kwparams'):
                                         self.kwparams(ctx)
-
                                 @δ.option
                                 def 〇(ctx: Ctx):
                                     with ctx.nameset('params'):
                                         self.params(ctx)
-
-                                δ.expecting('<kwparams>', '<params>')
                             ctx.token(']')
-
                         @β.option
                         def 〇(ctx: Ctx):
                             ctx.define(['kwparams', 'params'], [])
                             ctx.token('(')
                             ctx.cut()
                             with ctx.choice() as δ:
+                                δ.expecting(
+                                  '<kwparams>',
+                                  '<params>'
+                                )
+
                                 @δ.option
                                 def 〇(ctx: Ctx):
                                     with ctx.nameset('kwparams'):
                                         self.kwparams(ctx)
-
                                 @δ.option
                                 def 〇(ctx: Ctx):
                                     ctx.define(['kwparams', 'params'], [])
@@ -609,15 +604,11 @@ class TatSuBootstrapRules:
                                     ctx.cut()
                                     with ctx.nameset('kwparams'):
                                         self.kwparams(ctx)
-
                                 @δ.option
                                 def 〇(ctx: Ctx):
                                     with ctx.nameset('params'):
                                         self.params(ctx)
-
-                                δ.expecting('<kwparams>', '<params>')
                             ctx.token(')')
-
                         @β.option
                         def 〇(ctx: Ctx):
                             ctx.define(['params'], [])
@@ -625,8 +616,6 @@ class TatSuBootstrapRules:
                             ctx.cut()
                             with ctx.nameset('params'):
                                 self.params(ctx)
-
-                        β.expecting('(', '::', '[')
                 with ctx.optional():
                     ctx.define(['base'], [])
                     ctx.token('<')
@@ -641,59 +630,56 @@ class TatSuBootstrapRules:
                 self.ENDRULE(ctx)
                 ctx.cut()
 
-            α.expecting('<decorator>', '<name>', '<word>', '@')
-
     @tatsu.rule
     def ENDRULE(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?:\\s*(?:\\r?\\n|\\r)){2,}',
+              '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
+              ';',
+              '<EMPTYLINE>',
+              '<UNINDENTED>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.if_():
                     self.UNINDENTED(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.EMPTYLINE(ctx)
                 with ctx.optional():
                     ctx.token(';')
-
             @α.option
             def 〇(ctx: Ctx):
                 ctx.eofcheck()
-
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token(';')
 
-            α.expecting(
-                '(?:\\s*(?:\\r?\\n|\\r)){2,}',
-                '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
-                ';',
-                '<EMPTYLINE>',
-                '<UNINDENTED>'
-            )
-
     @tatsu.rule
     def UNINDENTED(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('(?=\\s*(?:\\r?\\n|\\r)[^\\s])')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r'(?=\s*(?:\r?\n|\r)[^\s])')
 
-            α.expecting('(?=\\s*(?:\\r?\\n|\\r)[^\\s])')
-
     @tatsu.rule
     def EMPTYLINE(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('(?:\\s*(?:\\r?\\n|\\r)){2,}')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r'(?:\s*(?:\r?\n|\r)){2,}')
 
-            α.expecting('(?:\\s*(?:\\r?\\n|\\r)){2,}')
-
     @tatsu.rule
     def decorator(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('@')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('@')
@@ -703,34 +689,31 @@ class TatSuBootstrapRules:
                 with ctx.nameset('@'):
                     with ctx.group():
                         with ctx.choice() as β:
+                            β.expecting(
+                              'isname',
+                              'name',
+                              'nomemo',
+                              'override'
+                            )
+
                             @β.option
                             def 〇(ctx: Ctx):
                                 ctx.token('override')
-
                             @β.option
                             def 〇(ctx: Ctx):
                                 ctx.token('name')
-
                             @β.option
                             def 〇(ctx: Ctx):
                                 ctx.token('isname')
-
                             @β.option
                             def 〇(ctx: Ctx):
                                 ctx.token('nomemo')
 
-                            β.expecting(
-                                'isname',
-                                'name',
-                                'nomemo',
-                                'override'
-                            )
-
-            α.expecting('@')
-
     @tatsu.rule
     def pair(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('(?!\\d)\\w+', '<word>')
+
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.nameadd('@'):
@@ -740,20 +723,20 @@ class TatSuBootstrapRules:
                 with ctx.nameadd('@'):
                     self.literal(ctx)
 
-            α.expecting('(?!\\d)\\w+', '<word>')
-
     @tatsu.rule
     def firstexpre(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('<firstchoice>', '<firstoption>', '|')
+
             @α.option
             def 〇(ctx: Ctx):
                 self.firstchoice(ctx)
 
-            α.expecting('<firstchoice>', '<firstoption>', '|')
-
     @tatsu.rule('FirstChoice')
     def firstchoice(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('<firstoption>', '<sequence>', '|')
+
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.optional():
@@ -770,50 +753,49 @@ class TatSuBootstrapRules:
                         with ctx.nameadd('@'):
                             self.firstoption(ctx)
 
-            α.expecting('<firstoption>', '<sequence>', '|')
-
     @tatsu.rule('FirstOption')
     def firstoption(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              ';',
+              '<EMPTYLINE>',
+              '<ENDRULE>',
+              '<UNINDENTED>',
+              '<element>',
+              '<sequence>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 self.sequence(ctx)
-
-            α.expecting(
-                ';',
-                '<EMPTYLINE>',
-                '<ENDRULE>',
-                '<UNINDENTED>',
-                '<element>',
-                '<sequence>'
-            )
 
     @tatsu.rule
     def expre(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              ';',
+              '<EMPTYLINE>',
+              '<ENDRULE>',
+              '<UNINDENTED>',
+              '<choice>',
+              '<element>',
+              '<option>',
+              '<sequence>',
+              '|'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 self.choice(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.sequence(ctx)
 
-            α.expecting(
-                ';',
-                '<EMPTYLINE>',
-                '<ENDRULE>',
-                '<UNINDENTED>',
-                '<choice>',
-                '<element>',
-                '<option>',
-                '<sequence>',
-                '|'
-            )
-
     @tatsu.rule('Choice')
     def choice(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('<option>', '<sequence>', '|')
+
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.optional():
@@ -829,27 +811,39 @@ class TatSuBootstrapRules:
                         with ctx.nameadd('@'):
                             self.option(ctx)
 
-            α.expecting('<option>', '<sequence>', '|')
-
     @tatsu.rule('Option')
     def option(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              ';',
+              '<EMPTYLINE>',
+              '<ENDRULE>',
+              '<UNINDENTED>',
+              '<element>',
+              '<sequence>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 self.sequence(ctx)
 
-            α.expecting(
-                ';',
-                '<EMPTYLINE>',
-                '<ENDRULE>',
-                '<UNINDENTED>',
-                '<element>',
-                '<sequence>'
-            )
-
     @tatsu.rule('Sequence')
     def sequence(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?:\\s*(?:\\r?\\n|\\r)){2,}',
+              '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
+              ';',
+              '<EMPTYLINE>',
+              '<ENDRULE>',
+              '<UNINDENTED>',
+              '<element>',
+              '<named>',
+              '<override>',
+              '<rule_include>',
+              '<term>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.if_():
@@ -864,7 +858,6 @@ class TatSuBootstrapRules:
                     @g.exp
                     def 〇(ctx: Ctx):
                         self.element(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.loopplus() as cl:
@@ -874,70 +867,55 @@ class TatSuBootstrapRules:
                             self.ENDRULE(ctx)
                         self.element(ctx)
 
-            α.expecting(
-                '(?:\\s*(?:\\r?\\n|\\r)){2,}',
-                '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
-                ';',
-                '<EMPTYLINE>',
-                '<ENDRULE>',
-                '<UNINDENTED>',
-                '<element>',
-                '<named>',
-                '<override>',
-                '<rule_include>',
-                '<term>'
-            )
-
     @tatsu.rule
     def element(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '>',
+              '<atom>',
+              '<closure>',
+              '<cut>',
+              '<cut_deprecated>',
+              '<empty_closure>',
+              '<gather>',
+              '<join>',
+              '<left_join>',
+              '<lookahead>',
+              '<named>',
+              '<named_list>',
+              '<named_single>',
+              '<negative_lookahead>',
+              '<optional>',
+              '<override>',
+              '<override_list>',
+              '<override_single>',
+              '<override_single_deprecated>',
+              '<positive_closure>',
+              '<right_join>',
+              '<rule_include>',
+              '<skip_to>',
+              '<term>',
+              '<void>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 self.rule_include(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.named(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.override(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.term(ctx)
 
-            α.expecting(
-                '<atom>',
-                '<closure>',
-                '<cut>',
-                '<cut_deprecated>',
-                '<empty_closure>',
-                '<gather>',
-                '<join>',
-                '<left_join>',
-                '<lookahead>',
-                '<named>',
-                '<named_list>',
-                '<named_single>',
-                '<negative_lookahead>',
-                '<optional>',
-                '<override>',
-                '<override_list>',
-                '<override_single>',
-                '<override_single_deprecated>',
-                '<positive_closure>',
-                '<right_join>',
-                '<rule_include>',
-                '<skip_to>',
-                '<term>',
-                '<void>',
-                '>'
-            )
-
     @tatsu.rule('RuleInclude')
     def rule_include(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('>')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('>')
@@ -945,24 +923,23 @@ class TatSuBootstrapRules:
                 with ctx.nameset('@'):
                     self.known_name(ctx)
 
-            α.expecting('>')
-
     @tatsu.rule
     def named(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('<name>', '<named_list>', '<named_single>')
+
             @α.option
             def 〇(ctx: Ctx):
                 self.named_list(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.named_single(ctx)
 
-            α.expecting('<name>', '<named_list>', '<named_single>')
-
     @tatsu.rule('NamedList')
     def named_list(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('<name>', '<word>')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['exp', 'name'], [])
@@ -973,11 +950,11 @@ class TatSuBootstrapRules:
                 with ctx.nameset('exp'):
                     self.term(ctx)
 
-            α.expecting('<name>', '<word>')
-
     @tatsu.rule('Named')
     def named_single(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('<name>', '<word>')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['exp', 'name'], [])
@@ -988,35 +965,33 @@ class TatSuBootstrapRules:
                 with ctx.nameset('exp'):
                     self.term(ctx)
 
-            α.expecting('<name>', '<word>')
-
     @tatsu.rule
     def override(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '=|@:',
+              '@',
+              '\\+=|@\\+:',
+              '<override_list>',
+              '<override_single>',
+              '<override_single_deprecated>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 self.override_list(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.override_single(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.override_single_deprecated(ctx)
 
-            α.expecting(
-                '<override_list>',
-                '<override_single>',
-                '<override_single_deprecated>',
-                '=|@:',
-                '@',
-                '\\+=|@\\+:'
-            )
-
     @tatsu.rule('OverrideList')
     def override_list(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('\\+=|@\\+:')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r'\+=|@\+:')
@@ -1024,11 +999,11 @@ class TatSuBootstrapRules:
                 with ctx.nameset('@'):
                     self.term(ctx)
 
-            α.expecting('\\+=|@\\+:')
-
     @tatsu.rule('Override')
     def override_single(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('=|@:')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r'=|@:')
@@ -1036,11 +1011,11 @@ class TatSuBootstrapRules:
                 with ctx.nameset('@'):
                     self.term(ctx)
 
-            α.expecting('=|@:')
-
     @tatsu.rule('Override')
     def override_single_deprecated(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('@')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('@')
@@ -1048,112 +1023,101 @@ class TatSuBootstrapRules:
                 with ctx.nameset('@'):
                     self.term(ctx)
 
-            α.expecting('@')
-
     @tatsu.rule
     def term(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '!',
+              '&',
+              '()',
+              '(?:',
+              '->',
+              '>>',
+              '[',
+              '<alert>',
+              '<atom>',
+              '<call>',
+              '<closure>',
+              '<constant>',
+              '<cut>',
+              '<cut_deprecated>',
+              '<dot>',
+              '<empty_closure>',
+              '<eof>',
+              '<gather>',
+              '<group>',
+              '<join>',
+              '<left_join>',
+              '<lookahead>',
+              '<negative_lookahead>',
+              '<optional>',
+              '<pattern>',
+              '<positive_closure>',
+              '<right_join>',
+              '<skip>',
+              '<skip_to>',
+              '<token>',
+              '<void>',
+              '{',
+              '{}',
+              '~'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 self.void(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.gather(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.join(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.left_join(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.right_join(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.empty_closure(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.positive_closure(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.closure(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.optional(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.skip_to(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.lookahead(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.negative_lookahead(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.cut(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.cut_deprecated(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.atom(ctx)
 
-            α.expecting(
-                '!',
-                '&',
-                '(',
-                '()',
-                '->',
-                '<alert>',
-                '<atom>',
-                '<call>',
-                '<closure>',
-                '<constant>',
-                '<cut>',
-                '<cut_deprecated>',
-                '<dot>',
-                '<empty_closure>',
-                '<eof>',
-                '<gather>',
-                '<group>',
-                '<join>',
-                '<left_join>',
-                '<lookahead>',
-                '<negative_lookahead>',
-                '<optional>',
-                '<pattern>',
-                '<positive_closure>',
-                '<right_join>',
-                '<skip_to>',
-                '<token>',
-                '<void>',
-                '>>',
-                '[',
-                '{',
-                '{}',
-                '~'
-            )
-
     @tatsu.rule('Group')
     def group(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('(?:')
+
             @α.option
             def 〇(ctx: Ctx):
+                with ctx.ifnot_():
+                    ctx.token('(?:')
                 ctx.token('(')
                 ctx.cut()
                 with ctx.nameset('@'):
@@ -1161,11 +1125,37 @@ class TatSuBootstrapRules:
                 ctx.token(')')
                 ctx.cut()
 
-            α.expecting('(')
+    @tatsu.rule('Skip')
+    def skip(self, ctx: Ctx):
+        with ctx.choice() as α:
+            α.expecting('(?:')
+
+            @α.option
+            def 〇(ctx: Ctx):
+                ctx.token('(?:')
+                ctx.cut()
+                with ctx.nameset('@'):
+                    self.expre(ctx)
+                ctx.token(')')
+                ctx.cut()
 
     @tatsu.rule
     def gather(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?:',
+              '<alert>',
+              '<atom>',
+              '<call>',
+              '<constant>',
+              '<dot>',
+              '<eof>',
+              '<group>',
+              '<pattern>',
+              '<skip>',
+              '<token>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.if_():
@@ -1175,32 +1165,35 @@ class TatSuBootstrapRules:
                 ctx.cut()
                 with ctx.group():
                     with ctx.choice() as β:
+                        β.expecting(
+                          '<normal_gather>',
+                          '<positive_gather>'
+                        )
+
                         @β.option
                         def 〇(ctx: Ctx):
                             self.positive_gather(ctx)
-
                         @β.option
                         def 〇(ctx: Ctx):
                             self.normal_gather(ctx)
 
-                        β.expecting('<normal_gather>', '<positive_gather>')
-
-            α.expecting(
-                '(',
-                '<alert>',
-                '<atom>',
-                '<call>',
-                '<constant>',
-                '<dot>',
-                '<eof>',
-                '<group>',
-                '<pattern>',
-                '<token>'
-            )
-
     @tatsu.rule('PositiveGather')
     def positive_gather(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?:',
+              '<alert>',
+              '<atom>',
+              '<call>',
+              '<constant>',
+              '<dot>',
+              '<eof>',
+              '<group>',
+              '<pattern>',
+              '<skip>',
+              '<token>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['exp', 'sep'], [])
@@ -1213,22 +1206,23 @@ class TatSuBootstrapRules:
                 ctx.pattern(r'(?!\+=)[+-]')
                 ctx.cut()
 
-            α.expecting(
-                '(',
-                '<alert>',
-                '<atom>',
-                '<call>',
-                '<constant>',
-                '<dot>',
-                '<eof>',
-                '<group>',
-                '<pattern>',
-                '<token>'
-            )
-
     @tatsu.rule('Gather')
     def normal_gather(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?:',
+              '<alert>',
+              '<atom>',
+              '<call>',
+              '<constant>',
+              '<dot>',
+              '<eof>',
+              '<group>',
+              '<pattern>',
+              '<skip>',
+              '<token>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['exp', 'sep'], [])
@@ -1244,22 +1238,23 @@ class TatSuBootstrapRules:
                     ctx.cut()
                 ctx.cut()
 
-            α.expecting(
-                '(',
-                '<alert>',
-                '<atom>',
-                '<call>',
-                '<constant>',
-                '<dot>',
-                '<eof>',
-                '<group>',
-                '<pattern>',
-                '<token>'
-            )
-
     @tatsu.rule
     def join(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?:',
+              '<alert>',
+              '<atom>',
+              '<call>',
+              '<constant>',
+              '<dot>',
+              '<eof>',
+              '<group>',
+              '<pattern>',
+              '<skip>',
+              '<token>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.if_():
@@ -1269,32 +1264,35 @@ class TatSuBootstrapRules:
                 ctx.cut()
                 with ctx.group():
                     with ctx.choice() as β:
+                        β.expecting(
+                          '<normal_join>',
+                          '<positive_join>'
+                        )
+
                         @β.option
                         def 〇(ctx: Ctx):
                             self.positive_join(ctx)
-
                         @β.option
                         def 〇(ctx: Ctx):
                             self.normal_join(ctx)
 
-                        β.expecting('<normal_join>', '<positive_join>')
-
-            α.expecting(
-                '(',
-                '<alert>',
-                '<atom>',
-                '<call>',
-                '<constant>',
-                '<dot>',
-                '<eof>',
-                '<group>',
-                '<pattern>',
-                '<token>'
-            )
-
     @tatsu.rule('PositiveJoin')
     def positive_join(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?:',
+              '<alert>',
+              '<atom>',
+              '<call>',
+              '<constant>',
+              '<dot>',
+              '<eof>',
+              '<group>',
+              '<pattern>',
+              '<skip>',
+              '<token>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['exp', 'sep'], [])
@@ -1307,22 +1305,23 @@ class TatSuBootstrapRules:
                 ctx.pattern(r'(?!\+=)[+-]')
                 ctx.cut()
 
-            α.expecting(
-                '(',
-                '<alert>',
-                '<atom>',
-                '<call>',
-                '<constant>',
-                '<dot>',
-                '<eof>',
-                '<group>',
-                '<pattern>',
-                '<token>'
-            )
-
     @tatsu.rule('Join')
     def normal_join(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?:',
+              '<alert>',
+              '<atom>',
+              '<call>',
+              '<constant>',
+              '<dot>',
+              '<eof>',
+              '<group>',
+              '<pattern>',
+              '<skip>',
+              '<token>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['exp', 'sep'], [])
@@ -1338,22 +1337,23 @@ class TatSuBootstrapRules:
                     ctx.cut()
                 ctx.cut()
 
-            α.expecting(
-                '(',
-                '<alert>',
-                '<atom>',
-                '<call>',
-                '<constant>',
-                '<dot>',
-                '<eof>',
-                '<group>',
-                '<pattern>',
-                '<token>'
-            )
-
     @tatsu.rule('LeftJoin')
     def left_join(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?:',
+              '<alert>',
+              '<atom>',
+              '<call>',
+              '<constant>',
+              '<dot>',
+              '<eof>',
+              '<group>',
+              '<pattern>',
+              '<skip>',
+              '<token>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['exp', 'sep'], [])
@@ -1367,22 +1367,23 @@ class TatSuBootstrapRules:
                 ctx.pattern(r'(?!\+=)[+-]')
                 ctx.cut()
 
-            α.expecting(
-                '(',
-                '<alert>',
-                '<atom>',
-                '<call>',
-                '<constant>',
-                '<dot>',
-                '<eof>',
-                '<group>',
-                '<pattern>',
-                '<token>'
-            )
-
     @tatsu.rule('RightJoin')
     def right_join(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?:',
+              '<alert>',
+              '<atom>',
+              '<call>',
+              '<constant>',
+              '<dot>',
+              '<eof>',
+              '<group>',
+              '<pattern>',
+              '<skip>',
+              '<token>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['exp', 'sep'], [])
@@ -1396,22 +1397,24 @@ class TatSuBootstrapRules:
                 ctx.pattern(r'(?!\+=)[+-]')
                 ctx.cut()
 
-            α.expecting(
-                '(',
-                '<alert>',
-                '<atom>',
-                '<call>',
-                '<constant>',
-                '<dot>',
-                '<eof>',
-                '<group>',
-                '<pattern>',
-                '<token>'
-            )
-
     @tatsu.rule('PositiveClosure')
     def positive_closure(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?:',
+              '<alert>',
+              '<atom>',
+              '<call>',
+              '<constant>',
+              '<dot>',
+              '<eof>',
+              '<group>',
+              '<pattern>',
+              '<skip>',
+              '<token>',
+              '{'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('{')
@@ -1420,7 +1423,6 @@ class TatSuBootstrapRules:
                 ctx.token('}')
                 ctx.pattern(r'(?!\+=)[+-]')
                 ctx.cut()
-
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.nameset('@'):
@@ -1428,23 +1430,24 @@ class TatSuBootstrapRules:
                 ctx.pattern(r'(?!\+=)[+]')
                 ctx.cut()
 
-            α.expecting(
-                '(',
-                '<alert>',
-                '<atom>',
-                '<call>',
-                '<constant>',
-                '<dot>',
-                '<eof>',
-                '<group>',
-                '<pattern>',
-                '<token>',
-                '{'
-            )
-
     @tatsu.rule('Closure')
     def closure(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?:',
+              '<alert>',
+              '<atom>',
+              '<call>',
+              '<constant>',
+              '<dot>',
+              '<eof>',
+              '<group>',
+              '<pattern>',
+              '<skip>',
+              '<token>',
+              '{'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('{')
@@ -1454,7 +1457,6 @@ class TatSuBootstrapRules:
                 with ctx.optional():
                     ctx.token('*')
                 ctx.cut()
-
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.nameset('@'):
@@ -1462,23 +1464,11 @@ class TatSuBootstrapRules:
                 ctx.token('*')
                 ctx.cut()
 
-            α.expecting(
-                '(',
-                '<alert>',
-                '<atom>',
-                '<call>',
-                '<constant>',
-                '<dot>',
-                '<eof>',
-                '<group>',
-                '<pattern>',
-                '<token>',
-                '{'
-            )
-
     @tatsu.rule('EmptyClosure')
     def empty_closure(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('{}')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('{}')
@@ -1486,11 +1476,24 @@ class TatSuBootstrapRules:
                 with ctx.nameset('@'):
                     ctx.void()
 
-            α.expecting('{}')
-
     @tatsu.rule('Optional')
     def optional(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?:',
+              '[',
+              '<alert>',
+              '<atom>',
+              '<call>',
+              '<constant>',
+              '<dot>',
+              '<eof>',
+              '<group>',
+              '<pattern>',
+              '<skip>',
+              '<token>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('[')
@@ -1499,7 +1502,6 @@ class TatSuBootstrapRules:
                     self.expre(ctx)
                 ctx.token(']')
                 ctx.cut()
-
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.nameset('@'):
@@ -1507,39 +1509,25 @@ class TatSuBootstrapRules:
                 with ctx.ifnot_():
                     with ctx.group():
                         with ctx.choice() as β:
+                            β.expecting('?"', "?'", '?/')
+
                             @β.option
                             def 〇(ctx: Ctx):
                                 ctx.token('?"')
-
                             @β.option
                             def 〇(ctx: Ctx):
                                 ctx.token("?'")
-
                             @β.option
                             def 〇(ctx: Ctx):
                                 ctx.token('?/')
-
-                            β.expecting("?'", '?"', '?/')
                 ctx.token('?')
                 ctx.cut()
-
-            α.expecting(
-                '(',
-                '<alert>',
-                '<atom>',
-                '<call>',
-                '<constant>',
-                '<dot>',
-                '<eof>',
-                '<group>',
-                '<pattern>',
-                '<token>',
-                '['
-            )
 
     @tatsu.rule('Lookahead')
     def lookahead(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('&')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('&')
@@ -1547,11 +1535,11 @@ class TatSuBootstrapRules:
                 with ctx.nameset('@'):
                     self.term(ctx)
 
-            α.expecting('&')
-
     @tatsu.rule('NegativeLookahead')
     def negative_lookahead(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('!')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('!')
@@ -1559,11 +1547,11 @@ class TatSuBootstrapRules:
                 with ctx.nameset('@'):
                     self.term(ctx)
 
-            α.expecting('!')
-
     @tatsu.rule('SkipTo')
     def skip_to(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('->')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('->')
@@ -1571,166 +1559,161 @@ class TatSuBootstrapRules:
                 with ctx.nameset('@'):
                     self.term(ctx)
 
-            α.expecting('->')
-
     @tatsu.rule
     def atom(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '$',
+              '(?:',
+              '/./',
+              '\\^+',
+              '`',
+              '<alert>',
+              '<call>',
+              '<constant>',
+              '<dot>',
+              '<eof>',
+              '<group>',
+              '<pattern>',
+              '<raw_string>',
+              '<regex>',
+              '<skip>',
+              '<string>',
+              '<token>',
+              '<word>'
+            )
+
+            @α.option
+            def 〇(ctx: Ctx):
+                self.skip(ctx)
             @α.option
             def 〇(ctx: Ctx):
                 self.group(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.token(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.alert(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.constant(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.call(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.pattern(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.dot(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.eof(ctx)
 
-            α.expecting(
-                '$',
-                '(',
-                '/./',
-                '<alert>',
-                '<call>',
-                '<constant>',
-                '<dot>',
-                '<eof>',
-                '<group>',
-                '<pattern>',
-                '<raw_string>',
-                '<regex>',
-                '<string>',
-                '<token>',
-                '<word>',
-                '\\^+',
-                '`'
-            )
-
     @tatsu.rule('Call')
     def call(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('(?!\\d)\\w+', '<word>')
+
             @α.option
             def 〇(ctx: Ctx):
                 self.word(ctx)
 
-            α.expecting('(?!\\d)\\w+', '<word>')
-
     @tatsu.rule('Void')
     def void(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('()')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('()')
                 ctx.cut()
 
-            α.expecting('()')
-
     @tatsu.rule('Fail')
     def fail(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('!()')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('!()')
                 ctx.cut()
 
-            α.expecting('!()')
-
     @tatsu.rule('Cut')
     def cut(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('~')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('~')
                 ctx.cut()
 
-            α.expecting('~')
-
     @tatsu.rule('Cut')
     def cut_deprecated(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('>>')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('>>')
                 ctx.cut()
 
-            α.expecting('>>')
-
     @tatsu.rule
     def known_name(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('<name>', '<word>')
+
             @α.option
             def 〇(ctx: Ctx):
                 self.name(ctx)
                 ctx.cut()
 
-            α.expecting('<name>', '<word>')
-
     @tatsu.rule
     def name(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('(?!\\d)\\w+', '<word>')
+
             @α.option
             def 〇(ctx: Ctx):
                 self.word(ctx)
 
-            α.expecting('(?!\\d)\\w+', '<word>')
-
     @tatsu.rule('Constant')
     def constant(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('`')
+
             @α.option
             def 〇(ctx: Ctx):
                 with ctx.if_():
                     ctx.token('`')
                 with ctx.group():
                     with ctx.choice() as β:
+                        β.expecting(
+                          '(?ms)```((?:.|\\n)*?)```',
+                          '`',
+                          '`(.*?)`'
+                        )
+
                         @β.option
                         def 〇(ctx: Ctx):
                             ctx.pattern(r'(?ms)```((?:.|\n)*?)```')
-
                         @β.option
                         def 〇(ctx: Ctx):
                             ctx.token('`')
                             with ctx.nameset('@'):
                                 self.literal(ctx)
                             ctx.token('`')
-
                         @β.option
                         def 〇(ctx: Ctx):
                             ctx.pattern(r'`(.*?)`')
 
-                        β.expecting(
-                            '(?ms)```((?:.|\\n)*?)```',
-                            '`',
-                            '`(.*?)`'
-                        )
-
-            α.expecting('`')
-
     @tatsu.rule('Alert')
     def alert(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('\\^+')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.define(['level', 'message'], [])
@@ -1739,343 +1722,326 @@ class TatSuBootstrapRules:
                 with ctx.nameset('message'):
                     self.constant(ctx)
 
-            α.expecting('\\^+')
-
     @tatsu.rule('Token')
     def token(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '<doublequoted>',
+              '<multiline_string>',
+              'r',
+              '<raw_string>',
+              '<singlequoted>',
+              '<string>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 self.string(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.raw_string(ctx)
-
-            α.expecting(
-                '<doublequoted>',
-                '<multiline_string>',
-                '<raw_string>',
-                '<singlequoted>',
-                '<string>',
-                'r'
-            )
 
     @tatsu.rule
     def literal(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?!\\d)\\w+',
+              '0[xX](?:\\d|[a-fA-F])+',
+              'False',
+              'None',
+              'True',
+              '[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?',
+              '[-+]?\\d+',
+              '<boolean>',
+              '<doublequoted>',
+              '<float>',
+              '<hex>',
+              '<int>',
+              '<multiline_string>',
+              '<null>',
+              'r',
+              '<raw_string>',
+              '<singlequoted>',
+              '<string>',
+              '<word>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 self.string(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.raw_string(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.boolean(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.word(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.hex(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.float(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.int(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.null(ctx)
 
-            α.expecting(
-                '(?!\\d)\\w+',
-                '0[xX](?:\\d|[a-fA-F])+',
-                '<boolean>',
-                '<doublequoted>',
-                '<float>',
-                '<hex>',
-                '<int>',
-                '<multiline_string>',
-                '<null>',
-                '<raw_string>',
-                '<singlequoted>',
-                '<string>',
-                '<word>',
-                'False',
-                'None',
-                'True',
-                '[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?',
-                '[-+]?\\d+',
-                'r'
-            )
-
     @tatsu.rule
     def string(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?ms)"""((?:\\\\\\\\|\\\\.|(?!""").)*?)"""',
+              "(?ms)'''((?:\\\\\\\\|\\\\.|(?!''').)*?)'''",
+              '<DOUBLEQUOTED>',
+              '<SINGLEQUOTED>',
+              '<doublequoted>',
+              '<multiline_string>',
+              '<singlequoted>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 self.multiline_string(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.singlequoted(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.doublequoted(ctx)
 
-            α.expecting(
-                "(?ms)'''((?:\\\\\\\\|\\\\.|(?!''').)*?)'''",
-                '(?ms)"""((?:\\\\\\\\|\\\\.|(?!""").)*?)"""',
-                '<DOUBLEQUOTED>',
-                '<SINGLEQUOTED>',
-                '<doublequoted>',
-                '<multiline_string>',
-                '<singlequoted>'
-            )
-
     @tatsu.rule
     def singlequoted(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'",
+              '<SINGLEQUOTED>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 self.SINGLEQUOTED(ctx)
 
-            α.expecting(
-                "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'",
-                '<SINGLEQUOTED>'
-            )
-
     @tatsu.rule
     def doublequoted(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"',
+              '<DOUBLEQUOTED>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 self.DOUBLEQUOTED(ctx)
 
-            α.expecting(
-                '"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"',
-                '<DOUBLEQUOTED>'
-            )
-
     @tatsu.rule
     def raw_string(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('r')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r'r')
                 with ctx.nameset('@'):
                     self.STRING(ctx)
 
-            α.expecting('r')
-
     @tatsu.rule
     def STRING(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"',
+              "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'",
+              '<DOUBLEQUOTED>',
+              '<SINGLEQUOTED>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 self.SINGLEQUOTED(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.DOUBLEQUOTED(ctx)
 
-            α.expecting(
-                "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'",
-                '"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"',
-                '<DOUBLEQUOTED>',
-                '<SINGLEQUOTED>'
-            )
-
     @tatsu.rule
     def SINGLEQUOTED(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting("'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'")
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r"'((?:[^'\n]|\\'|\\\\)*?)'")
                 ctx.cut()
 
-            α.expecting("'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'")
-
     @tatsu.rule
     def DOUBLEQUOTED(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r'"((?:[^"\n]|\\"|\\\\)*?)"')
                 ctx.cut()
 
-            α.expecting('"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"')
-
     @tatsu.rule
     def multiline_string(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?ms)"""((?:\\\\\\\\|\\\\.|(?!""").)*?)"""',
+              "(?ms)'''((?:\\\\\\\\|\\\\.|(?!''').)*?)'''"
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r"(?ms)'''((?:\\\\|\\.|(?!''').)*?)'''")
                 ctx.cut()
-
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r'(?ms)"""((?:\\\\|\\.|(?!""").)*?)"""')
                 ctx.cut()
 
-            α.expecting(
-                "(?ms)'''((?:\\\\\\\\|\\\\.|(?!''').)*?)'''",
-                '(?ms)"""((?:\\\\\\\\|\\\\.|(?!""").)*?)"""'
-            )
-
     @tatsu.rule
     def hex(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('0[xX](?:\\d|[a-fA-F])+')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r'0[xX](?:\d|[a-fA-F])+')
 
-            α.expecting('0[xX](?:\\d|[a-fA-F])+')
-
     @tatsu.rule
     def float(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r'[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?')
 
-            α.expecting(
-                '[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?'
-            )
-
     @tatsu.rule
     def int(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('[-+]?\\d+')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r'[-+]?\d+')
 
-            α.expecting('[-+]?\\d+')
-
     @tatsu.rule
     def path(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('(?!\\d)\\w+(?:::(?!\\d)\\w+)+')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r'(?!\d)\w+(?:::(?!\d)\w+)+')
 
-            α.expecting('(?!\\d)\\w+(?:::(?!\\d)\\w+)+')
-
     @tatsu.rule
     def word(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('(?!\\d)\\w+')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r'(?!\d)\w+')
 
-            α.expecting('(?!\\d)\\w+')
-
     @tatsu.rule('Dot')
     def dot(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('/./')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('/./')
 
-            α.expecting('/./')
-
     @tatsu.rule('Pattern')
     def pattern(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('?', '<REGEX>', '<deprecated_regex>', '<regex>')
+
             @α.option
             def 〇(ctx: Ctx):
                 self.regex(ctx)
 
-            α.expecting('<REGEX>', '<deprecated_regex>', '<regex>', '?')
-
     @tatsu.rule
     def regex(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting(
+              '(?ms)/((?:[^/\\\\]|\\\\/|\\\\.)*)/',
+              '(?ms)\\?/((?:[^/\\\\]|\\\\/|\\\\.)*)/\\?',
+              '?',
+              '<REGEX>',
+              '<deprecated_regex>'
+            )
+
             @α.option
             def 〇(ctx: Ctx):
                 self.REGEX(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('?')
                 with ctx.nameset('@'):
                     self.STRING(ctx)
-
             @α.option
             def 〇(ctx: Ctx):
                 self.deprecated_regex(ctx)
 
-            α.expecting(
-                '(?ms)/((?:[^/\\\\]|\\\\/|\\\\.)*)/',
-                '(?ms)\\?/((?:[^/\\\\]|\\\\/|\\\\.)*)/\\?',
-                '<REGEX>',
-                '<deprecated_regex>',
-                '?'
-            )
-
     @tatsu.rule
     def REGEX(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('(?ms)/((?:[^/\\\\]|\\\\/|\\\\.)*)/')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r'(?ms)/((?:[^/\\]|\\/|\\.)*)/')
                 ctx.cut()
 
-            α.expecting('(?ms)/((?:[^/\\\\]|\\\\/|\\\\.)*)/')
-
     @tatsu.rule
     def deprecated_regex(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('(?ms)\\?/((?:[^/\\\\]|\\\\/|\\\\.)*)/\\?')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.pattern(r'(?ms)\?/((?:[^/\\]|\\/|\\.)*)/\?')
                 ctx.cut()
                 ctx.alert('deprecated regex syntax', 2)
 
-            α.expecting('(?ms)\\?/((?:[^/\\\\]|\\\\/|\\\\.)*)/\\?')
-
     @tatsu.rule('bool')
     def boolean(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('False', 'True')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('True')
-
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('False')
 
-            α.expecting('False', 'True')
-
     @tatsu.rule
     def null(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('None')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('None')
 
-            α.expecting('None')
-
     @tatsu.rule('EOF')
     def eof(self, ctx: Ctx):
         with ctx.choice() as α:
+            α.expecting('$')
+
             @α.option
             def 〇(ctx: Ctx):
                 ctx.token('$')
                 ctx.cut()
-
-            α.expecting('$')
 
 
 def main(filename, **kwargs):

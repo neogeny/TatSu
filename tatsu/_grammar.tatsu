@@ -124,7 +124,8 @@ term:
     | cut_deprecated
     | atom
 
-group[Group]: '(' ~ =expre ')' ~
+group[Group]: !'(?:' '(' ~ =expre ')' ~
+skip[Skip]: '(?:' ~ =expre ')' ~
 
 
 gather: &(atom '.{') ~ (positive_gather | normal_gather)
@@ -161,6 +162,7 @@ negative_lookahead[NegativeLookahead]: '!' ~ =term
 skip_to[SkipTo]: '->' ~ =term
 
 atom:
+    | skip
     | group
     | token
     | alert

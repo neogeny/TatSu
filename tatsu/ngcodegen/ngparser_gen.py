@@ -14,8 +14,9 @@ from ..exceptions import CodegenError
 from ..objectmodel import Node
 from ..parserconfig import ParserConfig
 from ..util import Undefined, compress_seq, regexpp, safe_name
-from ..util.indent import IndentPrintMixin
+from ..util.indent import IndentPrintMixin, fold
 from ..walkers import NodeWalker
+
 
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 
@@ -232,6 +233,9 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def walk_Group(self, group: g.Group):
         self._gen_decor(Ctx.group, exp=group.exp)
 
+    def walk_Skip(self, skip: g.Skip):
+        self._gen_decor(Ctx.skip, exp=skip.exp)
+
     def walk_Token(self, token: g.Token):
         self.print(f'{self.ctx}.token({token.token!r})')
 
@@ -264,25 +268,15 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         # self.push_ctx(f'ctx{a}')
         try:
             self._gen_decor(Ctx.choice, ctx=outerctx, var=f'{var}')
+
             with self.indent():
-                for opt in choice.options:
-                    self._gen_anon_block(opt.exp, ctx=self.ctx, decor=f'{var}.option')
+                elements = sorted(f[0] for f in choice.lookahead() if f)
+                if elements:
+                    self.pfold(f'{var}.expecting', tuple(elements))
                     self.print()
 
-            elements = sorted(repr(f[0]) for f in choice.lookahead() if f)
-            if not elements:
-                return
-
-            with self.indent():
-                expectstr = f'{var}.expecting({', '.join(elements)})'
-                if self.fitsfmt(expectstr, 3):
-                    self.print(expectstr)
-                else:
-                    self.print(f'{var}.expecting(')
-                    with self.indent():
-                        expectinner = ',\n'.join(elements)
-                        self.print(expectinner)
-                    self.print(')')
+                for opt in choice.options:
+                    self._gen_anon_block(opt.exp, ctx=self.ctx, decor=f'{var}.option')
         finally:
             # self.pop_ctx()
             self.prev_choice_number()

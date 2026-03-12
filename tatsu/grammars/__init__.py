@@ -54,8 +54,10 @@ from .syntax import (
     NegativeLookahead,
     Optional,
     Sequence,
+    Skip,
     SkipTo,
 )
+
 
 __all__ = [
     'Alert',
@@ -98,6 +100,7 @@ __all__ = [
     'Rule',
     'RuleInclude',
     'Sequence',
+    'Skip',
     'SkipTo',
     'GrammarSemantics',
     'Token',

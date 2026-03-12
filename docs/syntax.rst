@@ -105,6 +105,12 @@ Sequence. Match ``e1`` and then match ``e2``.
 
 Grouping. Match ``e``. For example: ``('a' | 'b')``.
 
+``(?: e )``
+^^^^^^^^^^^
+
+Skip. Like, a group, match ``e``, but do not capture what was pared. For
+example: ``(?: delimiters )``.
+
 
 ``[ e ]``
 ^^^^^^^^^
