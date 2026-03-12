@@ -11,9 +11,9 @@ from .loop import LoopContext
 
 
 class LoopWithSepContext(LoopContext):
-    def __init__(self, ctx: Ctx, plus=True, withsep: bool = False):
+    def __init__(self, ctx: Ctx, plus=True, omitsep: bool = True):
         super().__init__(ctx, plus=plus)
-        self.withsep = withsep
+        self.omitsep = omitsep
         self._sep: Func | None = None
 
     @property
@@ -28,15 +28,14 @@ class LoopWithSepContext(LoopContext):
         self._sep = func
         return func
 
-    def parse(self, ctx: Ctx) -> Any:
-        def iter(func) -> Iterator[Any]:
-            with ctx.optional():
-                sep = ctx.isolate(self.sep_func)
-                if self.withsep:
-                    yield sep
-                yield ctx.isolate(func)
-                yield from iter(func)
+    def _inner_iter(self, ctx: Ctx, func: Func) -> Iterator[Any]:
+        sep = ctx.isolate(self.sep_func)
+        if not self.omitsep:
+            yield sep
+        yield ctx.isolate(func)
 
-        with ctx.optional():
-            cst = ctx.isolate(super().func)
-            return closedlist([cst, *iter(super().func)])
+    def parse(self, ctx: Ctx) -> Any:
+        if self.plus:
+            return ctx.positive_closure(self.func, sep=self.sep_func, omitsep=self.omitsep)
+        else:
+            return ctx.closure(self.func, sep=self.sep_func, omitsep=self.omitsep)

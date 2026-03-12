@@ -10,6 +10,7 @@ from .ast import AST
 from .infos import RuleInfo
 from .state import ParseState, ParseStateStack
 
+
 type Func = Callable[[Ctx], Any]
 
 
@@ -20,9 +21,13 @@ class Ctx(Protocol):
 
     @property
     def states(self) -> ParseStateStack: ...
-
     @property
     def state(self) -> ParseState: ...
+
+    def pushstate(self) -> None: ...
+    def mergestate(self) -> ParseState: ...
+    def undostate(self) -> None: ...
+    def popstate(self) -> ParseState: ...
 
     def newexcept(
         self,

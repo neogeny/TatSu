@@ -34,11 +34,8 @@ class ContextBase:
         evalue: BaseException | None,
         traceback: TracebackType | None,
     ) -> bool:
-        # If an exception occurred inside the 'with' block,
-        # returning False re-raises it automatically.
         if etype is not None:
             return False
 
-        # If no exception, execute the parsing logic
         self.parse(self.ctx)
         return True

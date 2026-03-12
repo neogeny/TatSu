@@ -230,7 +230,7 @@ class ParseContext(ParserEngine, Ctx):
 
     _isolate = isolate
 
-    def _repeat(
+    def repeat(
         self,
         exp: Func,
         prefix: Func | None = None,
@@ -254,26 +254,6 @@ class ParseContext(ParserEngine, Ctx):
                         raise self.newexcept('empty closure')
                 return
 
-    @contextmanager
-    def loopopt(self) -> Any:
-        cl = LoopContext(self)
-        yield cl
-        self.closure(cl.func, omitsep=False)
-        # FIXME
-        # cst = cl.parse(self)
-        # self.state.append(cst)
-
-    @contextmanager
-    def loopplus(self) -> Any:
-        cl = LoopContext(self, plus=True)
-        yield cl
-        self.positive_closure(cl.func, omitsep=False)
-        # FIXME
-        # cst = cl.parse(self)
-        # if not cst:
-        #     raise cl.expectedexcept(self)
-        # self.state.append(cst)
-
     def closure(
         self,
         exp: Func,
@@ -286,7 +266,7 @@ class ParseContext(ParserEngine, Ctx):
             with self._optional(), self.states.cutscope():
                 exp(self)
                 self.cst = [self.cst]
-                self._repeat(exp, prefix=sep, dropprefix=omitsep)
+                self.repeat(exp, prefix=sep, dropprefix=omitsep)
             self.cst = cst = closedlist(self.cst)
             self.mergestate()
             return cst
@@ -307,7 +287,7 @@ class ParseContext(ParserEngine, Ctx):
             with self.states.cutscope():
                 exp(self)
                 self.cst = [self.cst]
-                self._repeat(exp, prefix=sep, dropprefix=omitsep)
+                self.repeat(exp, prefix=sep, dropprefix=omitsep)
             self.cst = cst = closedlist(self.cst)
             self.mergestate()
             return cst
@@ -317,6 +297,26 @@ class ParseContext(ParserEngine, Ctx):
 
     _positive_closure = positive_closure
 
+    @contextmanager
+    def loopopt(self) -> Any:
+        cl = LoopContext(self)
+        yield cl
+        self.closure(cl.func, omitsep=False)
+        # FIXME
+        # cst = cl.parse(self)
+        # self.state.append(cst)
+
+    @contextmanager
+    def loopplus(self) -> Any:
+        cl = LoopContext(self, plus=True)
+        yield cl
+        self.positive_closure(cl.func, omitsep=False)
+        # FIXME
+        # cst = cl.parse(self)
+        # if not cst:
+        #     raise cl.expectedexcept(self)
+        # self.state.append(cst)
+
     def empty(self) -> list:
         cst = closedlist([])
         self.state.append(cst)
@@ -325,17 +325,17 @@ class ParseContext(ParserEngine, Ctx):
     def _empty_closure(self) -> list:
         return self.empty()
 
-    @contextmanager
     def gatheropt(self) -> Any:
-        cl = LoopWithSepContext(self)
-        yield cl
-        self.gather(cl.func, cl.sep_func)
+        cl = LoopWithSepContext(self, plus=False, omitsep=True)
+        return cl
+        # yield cl
+        # self.gather(cl.func, cl.sep_func)
         # cst = cl.parse(self)
         # self.state.append(cst)
 
     @contextmanager
     def gatherplus(self) -> Any:
-        cl = LoopWithSepContext(self, plus=True)
+        cl = LoopWithSepContext(self, plus=True, omitsep=True)
         yield cl
         self.positive_gather(cl.func, cl.sep_func)
         # cst = cl.parse(self)

@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import Any
 
+from ...exceptions import ParseException
 from .._protocol import Ctx, Func
 from ..cst import closedlist
 from .exp import ExpContext
@@ -15,18 +16,11 @@ class LoopContext(ExpContext):
         super().__init__(ctx)
         self.plus = plus
 
-    def parse(self, ctx: Ctx) -> Any:
-        def iter(func) -> Iterator[Any]:
-            with ctx.optional():
-                yield ctx.isolate(func)
-                yield from iter(func)
+    def _inner_iter(self, ctx: Ctx, func: Func) -> Iterator[Any]:
+        yield ctx.isolate(func)
 
+    def parse(self, ctx: Ctx) -> Any:
         if self.plus:
-            cst = ctx.isolate(self.func)
-            cst = closedlist([cst, *iter(super().func)])
-            if not cst:
-                raise self.expectedexcept(ctx)
+            return ctx.positive_closure(self.func)
         else:
-            cst = closedlist(iter(super().func))
-        ctx.state.append(cst)
-        return cst
+            return ctx.closure(self.func)
