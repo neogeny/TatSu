@@ -14,8 +14,8 @@ class PrettyTests(unittest.TestCase):
             start = lisp ;
             lisp = sexp | list | symbol;
             sexp[SExp]: '(' cons:lisp '.' ~ cdr:lisp ')' ;
-            list[List]: '(' elements:{sexp}* ')' ;
-            symbol[Symbol]: value:/[^\s().]+/ ;
+            list[List]: '(' @:{lisp}* ')' ;
+            symbol[Symbol]: /[^\s().]+/ ;
         """
 
         pretty = trim(r"""
@@ -25,9 +25,9 @@ class PrettyTests(unittest.TestCase):
 
             sexp[SExp]: '(' cons=lisp '.' ~ cdr=lisp ')'
 
-            list[List]: '(' elements={sexp} ')'
+            list[List]: '(' ={lisp} ')'
 
-            symbol[Symbol]: value=/[^\s().]+/
+            symbol[Symbol]: /[^\s().]+/
 
         """)
 
@@ -38,7 +38,7 @@ class PrettyTests(unittest.TestCase):
 
             sexp: '(' lisp '.' ~ lisp ')'
 
-            list: '(' {sexp} ')'
+            list: '(' {lisp} ')'
 
             symbol: /[^\s().]+/
 
