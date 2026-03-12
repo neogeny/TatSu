@@ -325,23 +325,17 @@ class ParseContext(ParserEngine, Ctx):
     def _empty_closure(self) -> list:
         return self.empty()
 
+    @contextmanager
     def gatheropt(self) -> Any:
         cl = LoopWithSepContext(self, plus=False, omitsep=True)
-        return cl
-        # yield cl
-        # self.gather(cl.func, cl.sep_func)
-        # cst = cl.parse(self)
-        # self.state.append(cst)
+        yield cl
+        self.gather(cl.func, cl.sep_func)
 
     @contextmanager
     def gatherplus(self) -> Any:
         cl = LoopWithSepContext(self, plus=True, omitsep=True)
         yield cl
         self.positive_gather(cl.func, cl.sep_func)
-        # cst = cl.parse(self)
-        # if not cst:
-        #     raise cl.expectedexcept(self)
-        # self.state.append(cst)
 
     def gather(self, exp: Func, sep: Func) -> Any:
         return self.closure(exp, sep=sep, omitsep=True)
