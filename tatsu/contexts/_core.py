@@ -24,6 +24,7 @@ from .infos import MemoKey, RuleInfo, RuleResult
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
+
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
@@ -85,13 +86,12 @@ class ParserCore:
         self._results: MemoCache = {}
         self._states = ParseStateStack(cursor=self.tokenizer.newcursor())
 
-    def _reset(self, config: ParserConfig) -> ParserConfig:
+    def _reset(self) -> None:
         self._initialize_caches()
-        self.keywords: set[str] = set(config.keywords)
-        self.semantics = config.semantics
+        self.keywords: set[str] = set(self.config.keywords)
+        self.semantics = self.config.semantics
         if self.semantics and hasattr(self.semantics, 'set_context'):
             self.semantics.set_context(self)
-        return config
 
     @property
     def config(self):

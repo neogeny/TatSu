@@ -33,6 +33,7 @@ from .cst import closedlist, islist
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
 from .state import ParseStateStack
 
+
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
@@ -66,7 +67,7 @@ class ParserEngine(ParserCore):
             self.tokenizer = tokenizer
             self._states = ParseStateStack(cursor=tokenizer.newcursor())
             assert not isinstance(self.state.cursor, NullCursor)
-            self._reset(config)
+            self._reset()
 
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
                 self.config.semantics.set_context(self)
