@@ -3,7 +3,7 @@
 -e .
 asciitree==0.3.3
 basedpyright==1.38.2
-black==26.3.0
+black==26.3.1
 build==1.4.0
 cffi==2.0.0
     # via pytest-codspeed
@@ -51,7 +51,7 @@ pygments==2.19.2
     #   rich
 pyproject-hooks==1.2.0
     # via build
-pyrefly==0.55.0
+pyrefly==0.56.0
 pytest==9.0.2
     # via
     #   pytest-codspeed
