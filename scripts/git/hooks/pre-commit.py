@@ -23,6 +23,8 @@ def is_header_missing(path: Path, target: Collection[str]) -> bool:
         with path.open('r', encoding='utf-8', errors='ignore') as f:
             # Check the first 1024 bytes for the header
             head = f.read(1024)
+            if 'copyright: ignore' in head:
+                return False
             return any(line not in head for line in target)
     except Exception:
         return False
