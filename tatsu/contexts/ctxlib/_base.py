@@ -6,14 +6,13 @@ from .._protocol import Ctx, Func
 
 
 class ContextBase:
-    def __init__(self, ctx: Ctx):
-        self.ctx = ctx
+    def __init__(self):
         self.expected: list[str] = []
 
     def expecting(self, *tokens: str) -> None:
         self.expected.extend(tokens)
 
-    def expectedexcept(self) -> Exception:
+    def expectedexcept(self, ctx: Ctx) -> Exception:
         if self.expected:
-            return self.ctx.newexcept(f"Expected one of: {' '.join(self.expected)}")
-        return self.ctx.newexcept('Failed')
+            return ctx.newexcept(f"Expected one of: {' '.join(self.expected)}")
+        return ctx.newexcept('Failed')

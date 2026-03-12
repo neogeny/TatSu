@@ -17,6 +17,7 @@ from ..util import Undefined, compress_seq, regexpp, safe_name
 from ..util.indent import IndentPrintMixin
 from ..walkers import NodeWalker
 
+
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 
 
@@ -519,6 +520,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         arg: str = '',
         ctx: str | None = None,
         echeck: bool = True,
+        expecting: bool = False,
     ):
         assert isinstance(mgr, types.FunctionType)
         name = mgr.__name__

@@ -8,7 +8,7 @@ from .exp import ExpContext
 
 class ExpWithSepContext(ExpContext):
     def __init__(self, ctx: Ctx):
-        super().__init__(ctx)
+        super().__init__()
         self._sep: Func | None = None
 
     @property

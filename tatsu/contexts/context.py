@@ -135,10 +135,10 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def choice(self) -> Generator[ChoiceContext, Any, Any]:
-        chc = ChoiceContext(self)
+        chc = ChoiceContext()
         with suppress(OptionSucceeded), self.states.cutscope():
             yield chc
-            chc.run()
+            chc.parse(self)
 
     _choice = choice
 
@@ -251,31 +251,18 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def loopopt(self) -> Any:
-        cl = LoopContext(self)
+        cl = LoopContext()
         yield cl
-        self.state.append(cl.iterate(self))
+        self.state.append(cl.parse(self))
 
     @contextmanager
     def loopplus(self) -> Any:
-        cl = LoopContext(self)
+        cl = LoopContext()
         yield cl
-        cst = cl.iterate(self)
+        cst = cl.parse(self)
         if not cst:
-            raise cl.expectedexcept()
+            raise cl.expectedexcept(self)
         self.state.append(cst)
-
-    def loop_closure(self, exp: Func, positive: bool = False) -> Any:
-        self.pushstate()
-        try:
-            self.cst = cst = cstfinal(exp(self))  # collapse the iterator
-            if positive and not cst:
-                raise self.newexcept('empty closure')
-
-            self.mergestate()
-            return cst
-        except ParseException:
-            self.undostate()
-            raise
 
     def closure(
         self,
@@ -416,7 +403,7 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def skipto(self) -> Any:
-        cl = ExpContext(self)
+        cl = ExpContext()
         yield cl
         self.skip_to(cl.func)
 

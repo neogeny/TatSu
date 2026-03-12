@@ -10,8 +10,8 @@ from ._base import ContextBase
 
 
 class ChoiceContext(ContextBase):
-    def __init__(self, ctx: Ctx):
-        super().__init__(ctx)
+    def __init__(self):
+        super().__init__()
         self.options: list[Func] = []
         self.result: Any = None
 
@@ -19,10 +19,10 @@ class ChoiceContext(ContextBase):
         self.options.append(func)
         return func
 
-    def run(self) -> Any:
+    def parse(self, ctx: Ctx) -> Any:
         if not self.options:
-            return
+            return None
         for opt in self.options:
-            with self.ctx.option():
-                self.result = opt(self.ctx)
-        raise self.expectedexcept()
+            with ctx.option():
+                return opt(ctx)
+        raise self.expectedexcept(ctx)

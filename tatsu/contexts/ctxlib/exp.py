@@ -7,8 +7,8 @@ from ._base import ContextBase
 
 
 class ExpContext(ContextBase):
-    def __init__(self, ctx: Ctx):
-        super().__init__(ctx)
+    def __init__(self):
+        super().__init__()
         self._exp: Func | None = None
 
     @property

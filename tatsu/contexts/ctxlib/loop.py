@@ -11,14 +11,14 @@ from .exp import ExpContext
 
 
 class LoopContext(ExpContext):
-    def __init__(self, ctx: Ctx):
-        super().__init__(ctx)
+    def __init__(self):
+        super().__init__()
 
     @property
     def func(self) -> Func:
-        return self.iterate
+        return self.parse
 
-    def iterate(self, ctx: Ctx) -> Any:
+    def parse(self, ctx: Ctx) -> Any:
         def iter(func) -> Iterator[Any]:
             with ctx.optional():
                 yield ctx.isolate(func)
