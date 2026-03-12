@@ -268,11 +268,6 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self._gen_decor(Ctx.choice, ctx=outerctx, var=f'{var}')
 
             with self.indent():
-                elements = choice.lookaheadlist()
-                if elements:
-                    self.pfold(f'{var}.expecting', tuple(elements))
-                    self.print()
-
                 for opt in choice.options:
                     self._gen_anon_block(opt.exp, ctx=self.ctx, decor=f'{var}.option')
         finally:
@@ -520,7 +515,6 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         arg: str = '',
         ctx: str | None = None,
         echeck: bool = True,
-        expecting: bool = False,
     ):
         assert isinstance(mgr, types.FunctionType)
         name = mgr.__name__
@@ -529,6 +523,9 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         else:
             self.print(f'with ctx.{name}({arg}):')
         with self.indent():
+            if var and (elements := exp.lookaheadlist() if exp else []):
+                self.pfold(f'{var}.expecting', tuple(elements))
+                self.print()
             if sep:
                 self._gen_anon_block(sep, decor=f'{var}.sep', ctx=ctx, echeck=echeck)
                 self.print()
