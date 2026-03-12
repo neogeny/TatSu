@@ -6,10 +6,12 @@ from .choice import ChoiceContext
 from .exp import ExpContext
 from .expsep import ExpWithSepContext
 from .loop import LoopContext
+from .loopsep import LoopWithSepContext
 
 __all__ = [
     'ChoiceContext',
     'ExpContext',
     'ExpWithSepContext',
     'LoopContext',
+    'LoopWithSepContext',
 ]

@@ -10,8 +10,8 @@ from ._base import ContextBase
 
 
 class ChoiceContext(ContextBase):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, ctx: Ctx):
+        super().__init__(ctx)
         self.options: list[Func] = []
         self.result: Any = None
 

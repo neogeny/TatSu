@@ -11,12 +11,9 @@ from .exp import ExpContext
 
 
 class LoopContext(ExpContext):
-    def __init__(self):
-        super().__init__()
-
-    @property
-    def func(self) -> Func:
-        return self.parse
+    def __init__(self, ctx: Ctx, plus: bool = False):
+        super().__init__(ctx)
+        self.plus = plus
 
     def parse(self, ctx: Ctx) -> Any:
         def iter(func) -> Iterator[Any]:
@@ -24,4 +21,12 @@ class LoopContext(ExpContext):
                 yield ctx.isolate(func)
                 yield from iter(func)
 
-        return closedlist(iter(super().func))
+        if self.plus:
+            cst = ctx.isolate(self.func)
+            cst = closedlist([cst, *iter(super().func)])
+            if not cst:
+                raise self.expectedexcept(ctx)
+        else:
+            cst = closedlist(iter(super().func))
+        ctx.state.append(cst)
+        return cst

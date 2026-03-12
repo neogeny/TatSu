@@ -11,8 +11,8 @@ from .loop import LoopContext
 
 
 class LoopWithSepContext(LoopContext):
-    def __init__(self, withsep: bool = False):
-        super().__init__()
+    def __init__(self, ctx: Ctx, plus=True, withsep: bool = False):
+        super().__init__(ctx, plus=plus)
         self.withsep = withsep
         self._sep: Func | None = None
 

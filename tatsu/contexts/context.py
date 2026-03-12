@@ -19,9 +19,14 @@ from ..util import deprecated, left_assoc, right_assoc
 from ..util.strtools import regexpp
 from ._engine import ParserEngine
 from ._protocol import Ctx, Func
-from .ast import AST
-from .cst import closedlist, cstfinal, islist
-from .ctxlib import ChoiceContext, ExpContext, ExpWithSepContext, LoopContext
+from .cst import closedlist, cstfinal
+from .ctxlib import (
+    ChoiceContext,
+    ExpContext,
+    ExpWithSepContext,
+    LoopContext,
+    LoopWithSepContext,
+)
 
 
 class ParseContext(ParserEngine, Ctx):
@@ -135,7 +140,7 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def choice(self) -> Generator[ChoiceContext, Any, Any]:
-        chc = ChoiceContext()
+        chc = ChoiceContext(self)
         with suppress(OptionSucceeded), self.states.cutscope():
             yield chc
             chc.parse(self)
@@ -251,18 +256,21 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def loopopt(self) -> Any:
-        cl = LoopContext()
+        cl = LoopContext(self)
         yield cl
-        self.state.append(cl.parse(self))
+        self.closure(cl.func)
+        # cst = cl.parse(self)
+        # self.state.append(cst)
 
     @contextmanager
     def loopplus(self) -> Any:
-        cl = LoopContext()
+        cl = LoopContext(self, plus=True)
         yield cl
-        cst = cl.parse(self)
-        if not cst:
-            raise cl.expectedexcept(self)
-        self.state.append(cst)
+        self.positive_closure(cl.func)
+        # cst = cl.parse(self)
+        # if not cst:
+        #     raise cl.expectedexcept(self)
+        # self.state.append(cst)
 
     def closure(
         self,
@@ -273,10 +281,9 @@ class ParseContext(ParserEngine, Ctx):
         self.pushstate()
         try:
             self.cst = []
-            with self.states.cutscope():
-                with self._optional():
-                    exp(self)
-                    self.cst = [self.cst]
+            with self._optional(), self.states.cutscope():
+                exp(self)
+                self.cst = [self.cst]
                 self._repeat(exp, prefix=sep, dropprefix=omitsep)
             self.cst = cst = closedlist(self.cst)
             self.mergestate()
@@ -318,15 +325,21 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def gatheropt(self) -> Any:
-        cl = ExpWithSepContext(self)
+        cl = LoopWithSepContext(self)
         yield cl
-        self._gather(cl.func, cl.sep_func)
+        self.gather(cl.func, cl.sep_func)
+        # cst = cl.parse(self)
+        # self.state.append(cst)
 
     @contextmanager
     def gatherplus(self) -> Any:
-        cl = ExpWithSepContext(self)
+        cl = LoopWithSepContext(self, plus=True)
         yield cl
-        self._positive_gather(cl.func, cl.sep_func)
+        self.positive_gather(cl.func, cl.sep_func)
+        # cst = cl.parse(self)
+        # if not cst:
+        #     raise cl.expectedexcept(self)
+        # self.state.append(cst)
 
     def gather(self, exp: Func, sep: Func) -> Any:
         return self._closure(exp, sep=sep, omitsep=True)
@@ -356,7 +369,7 @@ class ParseContext(ParserEngine, Ctx):
     _join = join
 
     def positive_join(self, exp: Func, sep: Func) -> Any:
-        return self._positive_closure(exp, sep=sep)
+        return self.positive_closure(exp, sep=sep)
 
     _positive_join = positive_join
 
@@ -403,7 +416,7 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def skipto(self) -> Any:
-        cl = ExpContext()
+        cl = ExpContext(self)
         yield cl
         self.skip_to(cl.func)
 
