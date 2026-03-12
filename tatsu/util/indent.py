@@ -11,6 +11,7 @@ from .abctools import isiter
 from .strtools import ismultiline, trim
 from .typetools import notnone
 
+
 BLACK_LINE_LENGTH = 88
 
 
@@ -72,6 +73,10 @@ class IndentPrintMixin:
     def indentstr(self) -> str:
         return ' ' * self.indentation
 
+    @property
+    def initial(self) -> int:
+        return self.indent_stack[0]
+
     @staticmethod
     def io_print(*args, **kwargs) -> str:
         kwargs.pop('file', None)  # do not allow redirection of output
@@ -92,6 +97,28 @@ class IndentPrintMixin:
         return [
             (self.indentstr + line).rstrip() for line in text.splitlines(keepends=False)
         ]
+
+    def pfold(
+        self,
+        prefix: str,
+        value: Any,
+        *,
+        reprs: bool = True,
+        lbrack: str | None = None,
+        rbrack: str | None = None,
+        amount: int = 2,
+        addlevels: int | None = None,
+) -> None:
+        folded = fold(
+            prefix,
+            value,
+            reprs=reprs,
+            lbrack=lbrack,
+            rbrack=rbrack,
+            amount=amount,
+            addlevels=notnone(addlevels, self.indentation),
+        )
+        self.print(folded)
 
 
 def fold(
