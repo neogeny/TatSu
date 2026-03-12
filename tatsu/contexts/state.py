@@ -108,12 +108,12 @@ class ParseState:
     def __call__(self, node: ParseState) -> Self: ...
 
     @overload
-    def __call__(self, node: Any) -> Self: ...
+    def __call__(self, node: Any) -> Any: ...
 
     @overload
-    def __call__(self, **kwargs: Any) -> Self: ...
+    def __call__(self, **kwargs: Any) -> Any: ...
 
-    def __call__(self, node: Any = None, **kwargs: Any) -> Self:
+    def __call__(self, node: Any = None, **kwargs: Any) -> Any:
         if node is not None and kwargs:
             raise TypeError("Cannot provide both a positional and keyword arguments.")
         if node is None and not kwargs:
@@ -122,15 +122,16 @@ class ParseState:
             )
 
         if isinstance(node, ParseState):
-            self.merge(node)
-        elif not kwargs:
-            self.append(node)
-        else:
+            return self.merge(node)
+        elif kwargs:
             for name, value in kwargs.items():
                 self.append(value)
                 self.nameset(name)
-
-        return self
+            return self.last_node
+        elif node is None:
+            return None
+        else:
+            return self.append(node)
 
 
 class ParseStateStack:
