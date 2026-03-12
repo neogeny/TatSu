@@ -3,6 +3,13 @@
 from __future__ import annotations
 
 from .choice import ChoiceContext
-from .exp import InnerExpContext
+from .exp import ExpContext
+from .expsep import ExpWithSepContext
+from .loop import LoopContext
 
-__all__ = ['ChoiceContext']
+__all__ = [
+    'ChoiceContext',
+    'ExpContext',
+    'ExpWithSepContext',
+    'LoopContext',
+]

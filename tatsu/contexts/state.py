@@ -209,7 +209,7 @@ class ParseStateStack:
 
     def merge(self) -> ParseState:
         prev = self.pop()
-        return self.state(prev)
+        return self.state.merge(prev)
 
     def alert(self, level: int = 1, message: str = '') -> Alert:
         self.top.alerts.append(Alert(level=level, message=message))

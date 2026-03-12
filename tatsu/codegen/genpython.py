@@ -152,7 +152,7 @@ class Sequence(Base):
 
 class Choice(Base):
     def render_fields(self, fields):
-        firstset = ' '.join(self.node.lookaheadlist())
+        firstset = ' '.join(self.node.expecting())
         if firstset:
             msglines = textwrap.wrap(firstset, width=40)
             error = ['Expected one of: ', *msglines]

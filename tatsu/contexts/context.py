@@ -20,8 +20,8 @@ from ..util.strtools import regexpp
 from ._engine import ParserEngine
 from ._protocol import Ctx, Func
 from .ast import AST
-from .cst import closedlist, islist
-from .ctxlib import ChoiceContext, InnerExpContext
+from .cst import closedlist, cstfinal, islist
+from .ctxlib import ChoiceContext, ExpContext, ExpWithSepContext, LoopContext
 
 
 class ParseContext(ParserEngine, Ctx):
@@ -213,15 +213,17 @@ class ParseContext(ParserEngine, Ctx):
 
     _addname = nameadd
 
-    def _isolate(self, exp: Func, _drop: bool = False) -> Any:
+    def isolate(self, exp: Func) -> Any:
         self.pushstate()
         try:
             exp(self)
-            return closedlist(self.cst) if islist(self.cst) else self.cst
+            return cstfinal(self.cst)
         finally:
             ast = self.ast
             self.popstate()
             self.ast = ast
+
+    _isolate = isolate
 
     def _repeat(
         self,
@@ -235,7 +237,7 @@ class ParseContext(ParserEngine, Ctx):
                     p = self.pos
 
                     if prefix:
-                        pcst = self._isolate(prefix, _drop=dropprefix)
+                        pcst = self._isolate(prefix)
                         if not dropprefix:
                             self.state.append(pcst)
                         self.cut()
@@ -249,15 +251,31 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def loopopt(self) -> Any:
-        cl = InnerExpContext(self)
+        cl = LoopContext(self)
         yield cl
-        self._closure(cl._exp_value())
+        self.state.append(cl.iterate(self))
 
     @contextmanager
     def loopplus(self) -> Any:
-        cl = InnerExpContext(self)
+        cl = LoopContext(self)
         yield cl
-        self._positive_closure(cl._exp_value())
+        cst = cl.iterate(self)
+        if not cst:
+            raise cl.expectedexcept()
+        self.state.append(cst)
+
+    def loop_closure(self, exp: Func, positive: bool = False) -> Any:
+        self.pushstate()
+        try:
+            self.cst = cst = cstfinal(exp(self))  # collapse the iterator
+            if positive and not cst:
+                raise self.newexcept('empty closure')
+
+            self.mergestate()
+            return cst
+        except ParseException:
+            self.undostate()
+            raise
 
     def closure(
         self,
@@ -313,15 +331,15 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def gatheropt(self) -> Any:
-        cl = InnerExpContext(self)
+        cl = ExpWithSepContext(self)
         yield cl
-        self._gather(cl._exp_value(), cl._sep_value())
+        self._gather(cl.func, cl.sep_func)
 
     @contextmanager
     def gatherplus(self) -> Any:
-        cl = InnerExpContext(self)
+        cl = ExpWithSepContext(self)
         yield cl
-        self._positive_gather(cl._exp_value(), cl._sep_value())
+        self._positive_gather(cl.func, cl.sep_func)
 
     def gather(self, exp: Func, sep: Func) -> Any:
         return self._closure(exp, sep=sep, omitsep=True)
@@ -335,15 +353,15 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def joinopt(self) -> Any:
-        cl = InnerExpContext(self)
+        cl = ExpWithSepContext(self)
         yield cl
-        self._join(cl._exp_value(), cl._sep_value())
+        self._join(cl.func, cl.sep_func)
 
     @contextmanager
     def joinplus(self) -> Any:
-        cl = InnerExpContext(self)
+        cl = ExpWithSepContext(self)
         yield cl
-        self._positive_join(cl._exp_value(), cl._sep_value())
+        self._positive_join(cl.func, cl.sep_func)
 
     def join(self, exp: Func, sep: Func) -> Any:
         return self._closure(exp, sep=sep)
@@ -357,15 +375,15 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def joinleft(self) -> Any:
-        cl = InnerExpContext(self)
+        cl = ExpWithSepContext(self)
         yield cl
-        self.left_join(cl._exp_value(), cl._sep_value())
+        self.left_join(cl.func, cl.sep_func)
 
     @contextmanager
     def joinright(self) -> Any:
-        cl = InnerExpContext(self)
+        cl = ExpWithSepContext(self)
         yield cl
-        self._right_join(cl._exp_value(), cl._sep_value())
+        self._right_join(cl.func, cl.sep_func)
 
     def left_join(self, exp: Func, sep: Func) -> Any:
         self.cst = left_assoc(self._positive_join(exp, sep))
@@ -398,9 +416,9 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def skipto(self) -> Any:
-        cl = InnerExpContext(self)
+        cl = ExpContext(self)
         yield cl
-        self.skip_to(cl._exp_value())
+        self.skip_to(cl.func)
 
     _skipto = skipto
 

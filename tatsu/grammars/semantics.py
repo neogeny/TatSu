@@ -135,7 +135,7 @@ class GrammarSemantics(ModelBuilderSemantics):
         return str(ast).lower() in {'true', 'yes', 'ok', '1'}
 
     def rule(self, ast):
-        decorators = ast.decorators
+        decorators = ast.decorators or []
         name = safe_name(ast.name)
         base = ast.base
         params = ast.params

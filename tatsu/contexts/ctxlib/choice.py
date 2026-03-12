@@ -6,21 +6,18 @@ from collections.abc import Callable
 from typing import Any
 
 from .._protocol import Ctx, Func
+from ._base import ContextBase
 
 
-class ChoiceContext:
+class ChoiceContext(ContextBase):
     def __init__(self, ctx: Ctx):
-        self.ctx = ctx
+        super().__init__(ctx)
         self.options: list[Func] = []
-        self.expected: list[str] = []
         self.result: Any = None
 
     def option(self, func: Func) -> Func:
         self.options.append(func)
         return func
-
-    def expecting(self, *tokens: str) -> None:
-        self.expected.extend(tokens)
 
     def run(self) -> Any:
         if not self.options:
@@ -28,4 +25,4 @@ class ChoiceContext:
         for opt in self.options:
             with self.ctx.option():
                 self.result = opt(self.ctx)
-        raise self.ctx.newexcept(f"Expected one of: {' '.join(self.expected)}")
+        raise self.expectedexcept()

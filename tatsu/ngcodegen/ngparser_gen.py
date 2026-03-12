@@ -14,9 +14,8 @@ from ..exceptions import CodegenError
 from ..objectmodel import Node
 from ..parserconfig import ParserConfig
 from ..util import Undefined, compress_seq, regexpp, safe_name
-from ..util.indent import IndentPrintMixin, fold
+from ..util.indent import IndentPrintMixin
 from ..walkers import NodeWalker
-
 
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 
@@ -34,15 +33,12 @@ HEADER = """\
     #  Any changes you make to it will be overwritten the next time
     #  the file is generated.
     #
-    # ruff: noqa
-    # ty: ignore
-    # mypy: ignore-errors
-    # pyright: ignore
-    # type: ignore
-    # noqa
+    # noqa # type: ignore # ruff: noqa
     # fmt: off
 
     from __future__ import annotations
+
+    from typing import Any
 
     from tatsu import decorators as tatsu
     from tatsu.contexts import Ctx
@@ -194,7 +190,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 {leftrec}\
                 {nomemo}\
                 {isname}\
-                \ndef {name}(self, {self.ctx_stack[0]}: Ctx):
+                \ndef {name}(self, {self.ctx_stack[0]}: Ctx) -> Any:
             """)
         with self.indent():
             self.print(self.walk(rule.exp))
@@ -271,7 +267,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self._gen_decor(Ctx.choice, ctx=outerctx, var=f'{var}')
 
             with self.indent():
-                elements = sorted(f[0] for f in choice.lookahead() if f)
+                elements = choice.lookaheadlist()
                 if elements:
                     self.pfold(f'{var}.expecting', tuple(elements))
                     self.print()
@@ -506,9 +502,9 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         if decor:
             self.print(f'@{decor}')
         if ctx:
-            self.print(f'def 〇({ctx}: Ctx):')
+            self.print(f'def 〇({ctx}: Ctx) -> Any:')
         else:
-            self.print('def 〇():')
+            self.print('def 〇() -> Any:')
         with self.indent():
             self.walk(exp)
 

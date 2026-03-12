@@ -122,8 +122,11 @@ class Model(Node):
             self._lookahead = kdot(self.firstset(k), self.followset(k), k)
         return self._lookahead
 
-    def lookaheadlist(self, k: int = 1) -> list[str]:
-        return sorted(repr(fl[0]) if fl else repr(fl) for fl in self.lookahead(k=k))
+    def lookaheadlist(self, k: int = 1) -> list[Any]:
+        return [fl[0] if fl else fl for fl in self.lookahead(k=k)]
+
+    def expecting(self, k: int = 1) -> list[str]:
+        return sorted(repr(la) for la in self.lookaheadlist(k=k))
 
     def firstset(self, k: int = 1) -> ffset:
         if not self._firstset:
@@ -607,7 +610,7 @@ class Choice(Model):
 
             ch.options = [wrap(o) for o in self.options]
 
-            ch.expecting(*self.lookaheadlist())
+            ch.expecting(*self.expecting())
         return ch.result
 
     def defines(self):
