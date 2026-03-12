@@ -36,6 +36,8 @@ class LoopWithSepContext(LoopContext):
 
     def parse(self, ctx: Ctx) -> Any:
         if self.plus:
-            return ctx.positive_closure(self.func, sep=self.sep_func, omitsep=self.omitsep)
+            return ctx.positive_closure(
+                self.func, sep=self.sep_func, omitsep=self.omitsep
+            )
         else:
             return ctx.closure(self.func, sep=self.sep_func, omitsep=self.omitsep)
