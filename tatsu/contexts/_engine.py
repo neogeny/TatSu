@@ -33,7 +33,6 @@ from .cst import closedlist, islist
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
 from .state import ParseStateStack
 
-
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 

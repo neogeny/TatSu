@@ -11,7 +11,6 @@ from .abctools import isiter
 from .strtools import ismultiline, trim
 from .typetools import notnone
 
-
 BLACK_LINE_LENGTH = 88
 
 
@@ -108,7 +107,7 @@ class IndentPrintMixin:
         rbrack: str | None = None,
         amount: int = 2,
         addlevels: int | None = None,
-) -> None:
+    ) -> None:
         folded = fold(
             prefix,
             value,
