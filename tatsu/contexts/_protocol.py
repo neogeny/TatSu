@@ -8,7 +8,7 @@ from typing import Any, Protocol, runtime_checkable
 from ..exceptions import FailedParse
 from .ast import AST
 from .infos import RuleInfo
-from .state import ParseStateStack
+from .state import ParseState, ParseStateStack
 
 type Func = Callable[[Ctx], Any]
 
@@ -20,6 +20,9 @@ class Ctx(Protocol):
 
     @property
     def states(self) -> ParseStateStack: ...
+
+    @property
+    def state(self) -> ParseState: ...
 
     def newexcept(
         self,
