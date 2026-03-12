@@ -123,7 +123,7 @@ class Model(Node):
         return self._lookahead
 
     def lookaheadlist(self, k: int = 1) -> list[Any]:
-        return [fl[0] if fl else fl for fl in self.lookahead(k=k)]
+        return sorted(fl[0] for fl in self.lookahead(k=k) if fl)
 
     def expecting(self, k: int = 1) -> list[str]:
         return sorted(repr(la) for la in self.lookaheadlist(k=k))
