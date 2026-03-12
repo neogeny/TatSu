@@ -55,9 +55,7 @@ def main() -> None:
         '.zip',
     }
 
-    ignored_prefix = [
-        'bootstrap',
-    ]
+    ignored_prefix = []
 
     ignored_paths = [
         Path('./.vale/styles/'),

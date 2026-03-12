@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# copyright: ignore
 #
 # CAVEAT UTILITOR
 #

@@ -17,11 +17,13 @@ from ..util import Undefined, compress_seq, regexpp, safe_name
 from ..util.indent import IndentPrintMixin, fold
 from ..walkers import NodeWalker
 
+
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 
 
 HEADER = """\
     #!/usr/bin/env python3
+    # copyright: ignore
     #
     # CAVEAT UTILITOR
     #
