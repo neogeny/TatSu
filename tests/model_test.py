@@ -181,21 +181,21 @@ def test_calc_repr():
             | subtraction
             | term
 
-        addition[Add]: left:expression op:'+' ~ right:term
+        addition[Add]: left=expression '+' ~ right=term
 
-        subtraction[Subtract]: left:expression op:'-' ~ right:term
+        subtraction[Subtract]: left=expression '-' ~ right=term
 
         term:
             | multiplication
             | division
             | factor
 
-        multiplication[Multiply]: left:term op:'*' ~ right:factor
+        multiplication[Multiply]: left=term '*' ~ right=factor
 
-        division[Divide]: left:term '/' ~ right:factor
+        division[Divide]: left=term '/' ~ right=factor
 
         factor:
-            | '(' ~ @:expression ')'
+            | '(' ~ =expression ')'
             | number
 
         number[int]: /\d+/
@@ -242,7 +242,7 @@ def test_calc_repr():
                     exp=Sequence(
                       sequence=[
                         Named(name='left', exp=Call(name='expression')),
-                        Named(name='op', exp=Token(token='+')),
+                        Token(token='+'),
                         Cut(),
                         Named(name='right', exp=Call(name='term'))
                       ]
@@ -265,7 +265,7 @@ def test_calc_repr():
                     exp=Sequence(
                       sequence=[
                         Named(name='left', exp=Call(name='expression')),
-                        Named(name='op', exp=Token(token='-')),
+                        Token(token='-'),
                         Cut(),
                         Named(name='right', exp=Call(name='term'))
                       ]
@@ -304,7 +304,7 @@ def test_calc_repr():
                     exp=Sequence(
                       sequence=[
                         Named(name='left', exp=Call(name='term')),
-                        Named(name='op', exp=Token(token='*')),
+                        Token(token='*'),
                         Cut(),
                         Named(name='right', exp=Call(name='factor'))
                       ]
@@ -410,7 +410,7 @@ def test_calc_repr():
     assert addmodel.grammar is emodel
 
     addresult = addmodel.parse('2 + 2', asmodel=False)
-    assert addresult == {'left': '2', 'op': '+', 'right': '2'}
+    assert addresult == {'left': '2', 'right': '2'}
 
     exp = emodel.parse('3', start='number', asmodel=True)
     assert isinstance(exp, int)
