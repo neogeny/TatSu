@@ -10,8 +10,9 @@ import importlib
 import itertools
 from pathlib import Path
 
-from .util import misc
+from .util import misc, moduletools
 from .walkers import NodeWalker
+
 
 __all__ = ['draw']
 
@@ -56,7 +57,7 @@ __all__ = ['draw']
 
 
 def available() -> bool:
-    return misc.module_available('graphviz') and misc.platform_has_command('dot')
+    return moduletools.module_available('graphviz') and misc.platform_has_command('dot')
 
 
 def draw(filename, grammar):

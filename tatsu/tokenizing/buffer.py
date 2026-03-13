@@ -16,7 +16,8 @@ from pathlib import Path
 from typing import Any
 
 from ..parserconfig import ParserConfig
-from ..util import Undefined, cached_re_compile, linecount, str_from_match, typename
+from ..util import Undefined, linecount, str_from_match, typename
+from ..util.regextools import cached_re_compile
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
 

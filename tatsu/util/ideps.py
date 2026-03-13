@@ -11,7 +11,7 @@ from typing import NamedTuple
 from rich.console import Console
 from rich.tree import Tree
 
-from .misc import pathtomodulename
+from .moduletools import pathtomodulename
 
 
 class Dependency(NamedTuple):

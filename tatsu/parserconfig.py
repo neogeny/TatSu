@@ -9,7 +9,8 @@ from typing import Any, override
 
 from .tokenizing import NullTokenizer
 from .tokenizing.tokenizer import Tokenizer
-from .util import Config, Undefined, cached_re_compile
+from .util import Config, Undefined
+from .util.regextools import cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
 

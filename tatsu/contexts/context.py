@@ -15,8 +15,7 @@ from ..exceptions import (
     OptionSucceeded,
     ParseException,
 )
-from ..util import deprecated, left_assoc, right_assoc
-from ..util.strtools import regexpp
+from ..util import deprecated, left_assoc, regexpp, right_assoc
 from ._engine import ParserEngine
 from ._protocol import Ctx, Func
 from .cst import closedlist, cstfinal

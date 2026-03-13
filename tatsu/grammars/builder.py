@@ -122,7 +122,11 @@ class ModelBuilder:
         else:
             return []
 
-        type_list = [t for t in contents.values() if isinstance(t, type)]
+        type_list = [
+            typ for name, typ in contents.items()
+            if not name.startswith('_')
+            and isinstance(typ, type)
+        ]
         name = getattr(container, '__module__', None) or getattr(
             container, '__name__', None,
         )
