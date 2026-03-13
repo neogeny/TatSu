@@ -14,6 +14,7 @@ from typing import Any
 
 from .common import isreserved
 
+
 if sys.version_info >= (3, 13):
     from re import PatternError
 else:
@@ -21,14 +22,19 @@ else:
 
 
 def linecount(s: str) -> int:
-    if not s:
-        return 0
+    """
+    Return the number of lines in the string using the "editor view".
+
+    In this convention, a string is treated as a sequence of lines separated
+    by line breaks. An empty string is considered to contain a single
+    empty line (Line 1), ensuring consistency with how IDEs and text
+    editors represent buffers.
+    """
     return 1 + sum(1 for _ in re.finditer(r"(?m)\r?\n|\r", s))
 
 
 def ismultiline(s: str) -> int:
     return bool(re.search(r"(?m)[\r\n]", s))
-    # return linecount(s) > 0
 
 
 def unicode_display_len(text: str) -> int:

@@ -18,7 +18,7 @@ def test_visible_width():
 @pytest.mark.parametrize(
     "text, expected",
     [
-        ("", 0),
+        ("", 1),
         ("hello", 1),
         ("hello\n", 2),
         ("\n\n", 3),
@@ -35,7 +35,7 @@ def test_visual_linecount(text, expected):
 @pytest.mark.parametrize(
     "text, delta",
     [
-        ("", 0),
+        ("", 1),
         ("hello", 0),
         ("line1\nline2", 0),
         ("hello\n", 1),
