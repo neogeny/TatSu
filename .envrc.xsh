@@ -7,6 +7,7 @@ $INVOKE_COLLECTION_NAME = 'invoke_tasks'
 
 
 $PYTHONOPTIMIZE=0
+# $PYTHON_LAZY_IMPORTS = 'all'
 # Value,Equivalent Flag,Effect
 # 0,(Default),No optimization. Assertions are active.
 # 1,python -O,Removes all assert statements and sets __debug__ to False.
