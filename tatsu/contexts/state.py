@@ -11,7 +11,6 @@ from .ast import AST
 from .cst import cstadd, cstfinal, cstmerge
 from .infos import Alert, RuleInfo
 
-
 __all__ = ['ParseState', 'ParseStateStack']
 
 from ..tokenizing import Cursor
