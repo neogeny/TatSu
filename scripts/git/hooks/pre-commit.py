@@ -11,7 +11,7 @@ from collections.abc import Collection
 from datetime import date
 from pathlib import Path
 
-from common import get_staged_files
+from common import black, get_staged_files
 
 
 def is_header_missing(path: Path, target: Collection[str]) -> bool:
@@ -70,6 +70,7 @@ def main() -> None:
             path.suffix in ignored_suffix
             or any(path.stem.startswith(p) for p in ignored_prefix)
             or any(path.is_relative_to(p) for p in ignored_paths)
+            or not black(path)
         )
         if must_ignore:
             continue
@@ -79,7 +80,8 @@ def main() -> None:
 
     if missing_paths:
         print(
-            "ERROR: Commit aborted. The following files are missing the license header:"
+            "ERROR: Commit aborted. "
+            "The following files are missing the license header, or faling black:"
         )
         for f in missing_paths:
             print(f"  - {f}")
