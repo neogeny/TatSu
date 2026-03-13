@@ -1494,6 +1494,15 @@ source = { editable = "." }
 colorization = [
     { name = "colorama" },
 ]
+diagrams = [
+    { name = "graphviz" },
+]
+full = [
+    { name = "colorama" },
+    { name = "graphviz" },
+    { name = "invoke" },
+    { name = "rich" },
+]
 ideps = [
     { name = "rich" },
 ]
@@ -1574,11 +1583,16 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "colorama", marker = "extra == 'colorization'" },
+    { name = "colorama", marker = "extra == 'full'" },
+    { name = "graphviz", marker = "extra == 'diagrams'" },
+    { name = "graphviz", marker = "extra == 'full'" },
+    { name = "invoke", marker = "extra == 'full'" },
     { name = "invoke", marker = "extra == 'tasks'" },
+    { name = "rich", marker = "extra == 'full'" },
     { name = "rich", marker = "extra == 'ideps'" },
     { name = "rich", marker = "extra == 'parproc'" },
 ]
-provides-extras = ["colorization", "ideps", "parproc", "tasks"]
+provides-extras = ["colorization", "diagrams", "full", "ideps", "parproc", "tasks"]
 
 [package.metadata.requires-dev]
 dev = [
