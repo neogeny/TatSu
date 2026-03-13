@@ -61,7 +61,7 @@ def programfiles() -> list[Path]:
     if not rootfile:
         return []
 
-    rootpath = Path(rootfile).parent
+    rootpath = Path(rootfile).parent.relative_to(Path.cwd())
     return [p for p in rootpath.rglob("*.py") if p.is_file()]
 
 
@@ -175,6 +175,8 @@ def add_dependency_node(
                 display_name = qualified_name[len(root_part) + 1 :]
                 display_name = display_name.removeprefix(".")
 
+        if kind.sort_rank == 1:
+            display_name = f".{display_name}"
         label = f"{kind.symbol} {display_name}"
 
     parent.add(label, style=kind.style)
@@ -234,7 +236,7 @@ def render(results: list[ModuleImports]) -> Tree:
                 None: 0,
             }
             key = label[0] if label else None
-            return (symbol_map.get(key, 0), label)
+            return symbol_map.get(key, 0), label
 
         tree.children.sort(key=sort_key)
         for child in tree.children:
