@@ -54,7 +54,7 @@ rule[Rule]:
     ['<' ~ base=known_name]
     () /=|:=?/
     ~
-    exp=firstexpre
+    exp=expre
     ENDRULE
     ~
 
