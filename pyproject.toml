@@ -37,7 +37,11 @@ missing-import = "ignore"
 
 [project.optional-dependencies]
 colorization = ["colorama"]
+diagrams = ["graphviz"]
+ideps = ["rich"]
 parproc = ["rich"]
+tasks = ["invoke"]
+full = ["colorama", "graphviz", "invoke", "rich"]
 
 [dependency-groups]
 dev = [
@@ -57,8 +61,9 @@ dev = [
     "pytest-dependency>=0.6.0",
     "rich>=14.3.3",
     "rich-click>=1.9.7",
-    "ruff>=0.15.1",
-    "uv>=0.10.2",
+    "ruff>=0.15.6",
+    "ty>=0.0.23",
+    "uv>=0.10.10",
 ]
 test = [
     "basedpyright>=1.38.0",
@@ -76,8 +81,8 @@ test = [
     "pytest-dependency>=0.6.0",
     "pytest-rerunfailures>=16.1",
     "pytest-xdist>=3.8.0",
-    "ruff>=0.15.1",
-    "ty>=0.0.17",
+    "ruff>=0.15.6",
+    "ty>=0.0.23",
     "types-colorama>=0.4.15.20250801",
     "types-decorator>=5.2.0.20251101",
     "types-pexpect>=4.9.0.20260127",
