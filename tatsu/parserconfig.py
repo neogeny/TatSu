@@ -13,7 +13,7 @@ from .util import Config, Undefined, cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
 
-MEMO_CACHE_SIZE = 1024
+DEFAULT_MEMO_CACHE_SIZE = 1024
 
 
 @dataclass
@@ -30,7 +30,7 @@ class ParserConfig(Config):
 
     memoization: bool = True
     memoize_lookaheads: bool = True
-    memo_cache_size: int = MEMO_CACHE_SIZE
+    memo_cache_size: int = DEFAULT_MEMO_CACHE_SIZE
     prune_memos_on_cut: bool = True
 
     colorize: bool = True  # INFO: requires the colorama library
