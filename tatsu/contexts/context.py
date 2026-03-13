@@ -149,7 +149,7 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def optional(self) -> Any:
-        with self._choice(), self._option(), self.states.cutscope():
+        with self.choice(), self.option(), self.states.cutscope():
             yield
 
     _optional = optional
@@ -234,25 +234,26 @@ class ParseContext(ParserEngine, Ctx):
         self,
         exp: Func,
         prefix: Func | None = None,
-        dropprefix: bool = False,
+        omitsep: bool = False,
     ) -> None:
         while True:
-            with self._choice():
-                with self._option():
+            with self.choice():
+                with self.option():
                     p = self.pos
 
                     if prefix:
-                        pcst = self._isolate(prefix)
-                        if not dropprefix:
+                        pcst = self.isolate(prefix)
+                        if not omitsep:
                             self.state.append(pcst)
                         self.cut()
 
-                    cst = self._isolate(exp)
+                    cst = self.isolate(exp)
                     self.state.append(cst)
 
                     if self.pos == p:
-                        raise self.newexcept('empty closure')
-                return
+                        raise self.newexcept(f'{self.repeat.__name__} matched on no input')
+                # note: dit not match sep? exp, so quit
+                break
 
     def closure(
         self,
@@ -266,7 +267,7 @@ class ParseContext(ParserEngine, Ctx):
             with self._optional(), self.states.cutscope():
                 exp(self)
                 self.cst = [self.cst]
-                self.repeat(exp, prefix=sep, dropprefix=omitsep)
+                self.repeat(exp, prefix=sep, omitsep=omitsep)
             self.cst = cst = closedlist(self.cst)
             self.mergestate()
             return cst
@@ -287,7 +288,7 @@ class ParseContext(ParserEngine, Ctx):
             with self.states.cutscope():
                 exp(self)
                 self.cst = [self.cst]
-                self.repeat(exp, prefix=sep, dropprefix=omitsep)
+                self.repeat(exp, prefix=sep, omitsep=omitsep)
             self.cst = cst = closedlist(self.cst)
             self.mergestate()
             return cst
