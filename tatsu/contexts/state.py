@@ -11,6 +11,7 @@ from .ast import AST
 from .cst import cstadd, cstfinal, cstmerge
 from .infos import Alert, RuleInfo
 
+
 __all__ = ['ParseState', 'ParseStateStack']
 
 from ..tokenizing import Cursor
@@ -152,7 +153,7 @@ class ParseStateStack:
 
     @property
     def state(self) -> ParseState:
-        return self.top
+        return self._state_stack[-1]
 
     @property
     def ast(self) -> Any:

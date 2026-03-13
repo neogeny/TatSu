@@ -24,6 +24,7 @@ from .infos import MemoKey, RuleInfo, RuleResult
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
+
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
@@ -69,7 +70,7 @@ class ParserCore:
         self._active_config: ParserConfig = self._config
 
         self.tokenizer: Tokenizer = NullTokenizer()
-        self._states: ParseStateStack = ParseStateStack(
+        self.states: ParseStateStack = ParseStateStack(
             cursor=self.tokenizer.newcursor()
         )
         self.semantics: type | None = config.semantics
@@ -83,7 +84,7 @@ class ParserCore:
         self._furthest_exception = None
         self._memos: MemoCache = BoundedDict(self.config.memo_cache_size)
         self._results: MemoCache = {}
-        self._states = ParseStateStack(cursor=self.tokenizer.newcursor())
+        self.states = ParseStateStack(cursor=self.tokenizer.newcursor())
 
     def _reset(self) -> None:
         self._initialize_caches()
@@ -124,19 +125,15 @@ class ParserCore:
 
     @property
     def pos(self) -> int:
-        return self.cursor.pos
+        return self.states.state.cursor.pos
 
     @property
     def line(self) -> int:
         return self.cursor.line
 
     @property
-    def states(self) -> ParseStateStack:
-        return self._states
-
-    @property
     def state(self) -> ParseState:
-        return self.states.top
+        return self.states.state
 
     @property
     def ast(self) -> AST:
@@ -181,7 +178,7 @@ class ParserCore:
             self._furthest_exception = e
 
     def goto(self, pos: int) -> None:
-        self.cursor.goto(pos)
+        self.states.state.cursor.goto(pos)
 
     def _next(self) -> Any:
         return self.cursor.next()
