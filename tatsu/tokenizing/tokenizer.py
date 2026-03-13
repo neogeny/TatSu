@@ -11,14 +11,10 @@ from .infos import LineIndexInfo, LineInfo
 @runtime_checkable
 class Cursor(Protocol):
     pos: int
+    tokenizer: Tokenizer
+    text: str
 
     def clone(self) -> Cursor: ...
-
-    @property
-    def tokenizer(self) -> Tokenizer: ...
-
-    @property
-    def text(self) -> str: ...
 
     @property
     def filename(self) -> str: ...

@@ -11,11 +11,8 @@ about source lines and content.
 from __future__ import annotations
 
 import re
-from collections import defaultdict
 from contextlib import contextmanager
-from functools import cached_property
 from pathlib import Path
-from threading import Lock
 from typing import Any
 
 from ..parserconfig import ParserConfig
@@ -28,47 +25,23 @@ DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 # for backwards compatibility with existing parsers
 LineIndexEntry = LineIndexInfo
 
-_locks: dict[int, Lock] = defaultdict(Lock)
-
 
 class BufferCursor(Cursor):
-    __slots__ = ('_buffer', '_len', '_pos')
+    __slots__ = ('buffer', 'len', 'pos')
 
     def __init__(self, buffer: Buffer, pos: int = 0):
         super().__init__()
-        self._buffer = buffer
-        self._pos = pos
-        self._len = buffer.len
+        self.buffer = buffer
+        self.text = self.buffer.text
+        self.pos = pos
+        self.len = buffer.len
 
     def clone(self) -> Cursor:
         return BufferCursor(self.buffer, pos=self.pos)
 
-    @contextmanager
-    def bind(self):
-        with self.buffer.lock:
-            p = self.buffer.pos
-            try:
-                self.buffer.goto(self.pos)
-                yield
-                self.goto(self.buffer.pos)
-            finally:
-                self.buffer.goto(p)
-
-    @property
-    def buffer(self) -> Buffer:
-        return self._buffer
-
     @property
     def tokenizer(self) -> Tokenizer:
         return self.buffer
-
-    @property
-    def pos(self) -> int:
-        return self._pos
-
-    @property
-    def len(self) -> int:
-        return self._len
 
     @property
     def line(self) -> int:
@@ -79,21 +52,17 @@ class BufferCursor(Cursor):
         return self.buffer.poscol(self.pos)
 
     @property
-    def text(self) -> str:
-        return self.buffer.text
-
-    @property
     def filename(self) -> str:
         return self.buffer.filename
 
     def goto(self, pos: int):
-        self._pos = max(0, min(self.buffer._len, pos))
+        self.pos = max(0, min(self.buffer._len, pos))
 
     def move(self, n: int):
-        self.goto(self._pos + n)
+        self.goto(self.pos + n)
 
     def atend(self) -> bool:
-        return self._pos >= self.len
+        return self.pos >= self.len
 
     def ateol(self) -> bool:
         return self.atend() or self.current in {'\r', '\n', None}
@@ -102,7 +71,7 @@ class BufferCursor(Cursor):
     def current(self) -> str | None:
         if self.pos >= self.len:
             return None
-        return self.text[self._pos]
+        return self.text[self.pos]
 
     def peek(self, n: int = 1) -> str | None:
         p = self.pos + n
@@ -118,18 +87,86 @@ class BufferCursor(Cursor):
         return c
 
     def next_token(self) -> None:
-        self.buffer.next_token_at(self)
+        p = None
+        while self.pos != p:
+            p = self.pos
+            self.eat_whitespace()
+            if self.eat_eol_comments():
+                self.eat_whitespace()
+            self.eat_comments()
+
+    def eat_whitespace(self) -> None:
+        if self.buffer.whitespace_re:
+            self._eat_regex(self.buffer.whitespace_re)
+
+    def eat_comments(self) -> list[str]:
+        return self._eat_regex_list(self.buffer.config.comments)
+
+    def eat_eol_comments(self) -> list[str]:
+        return self._eat_regex_list(self.buffer.config.eol_comments)
 
     def match(self, token: str) -> str | None:
-        return self.buffer.match_at(token, self)
+        if token is None:
+            return None
+
+        p = self.pos
+        text = self.text[p : p + len(token)]
+        if self.buffer.ignorecase:
+            is_match = text.lower() == token.lower()
+        else:
+            is_match = text == token
+        if not is_match:
+            return None
+
+        self.move(len(token))
+        partial_match = (
+            self.buffer.nameguard
+            and self.is_name_char(self.current)
+            and self.is_name(token)
+        )
+        if partial_match:
+            self.goto(p)
+            return None
+
+        return token
 
     def matchre(self, pattern: str) -> str | None:
-        return self.buffer.matchre_at(pattern, self)
+        if not (match := self._scanre(pattern)):
+            return None
+
+        matched = match.group()
+        token = str_from_match(match)
+        self.move(len(matched))
+        return token
 
     def lineinfo(self, pos: int | None = None) -> LineInfo:
         if pos is None:
             pos = self.pos
-        return self.buffer.lineinfo(pos)
+
+        buf = self.buffer
+        if not buf._line_cache or not buf._line_index:
+            return LineInfo(
+                filename=buf.filename,
+                line=0,
+                col=0,
+                start=0,
+                end=len(buf.text),
+                text=buf.text,
+            )
+
+        # -2 to skip over sentinel
+        pos = min(pos, len(buf._line_cache) - 2)
+        start, line, length = buf._line_cache[pos]
+        end = start + length
+        col = pos - start
+
+        text = buf.text[start:end]
+
+        # only required to support includes
+        n = min(len(buf._line_index) - 1, line)
+        filename, line = buf._line_index[n]
+
+        return LineInfo(filename, line, col, start, end, text)
 
     def lookahead_pos(self) -> str:
         if self.atend():
@@ -147,7 +184,13 @@ class BufferCursor(Cursor):
     def posline(self, pos: int | None = None) -> int:
         if pos is None:
             pos = self.pos
-        return self.buffer.posline(pos)
+        return self.buffer._line_cache[pos].line
+
+    def poscol(self, pos: int | None = None) -> int:
+        if pos is None:
+            pos = self.pos
+        start = self.buffer._line_cache[pos].start
+        return pos - start
 
     def get_line(self, n: int | None = None) -> str:
         if n is None:
@@ -163,6 +206,48 @@ class BufferCursor(Cursor):
 
     def line_index(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
         return self.buffer.line_index(start, end)
+
+    def is_name_char(self, c: str | None) -> bool:
+        return c is not None and (c.isalnum() or c in self.buffer._namechar_set)
+
+    def is_name(self, s: str) -> bool:
+        if not s:
+            return False
+        goodstart = s[0].isalpha() or s[0] in self.buffer._namechar_set
+        return goodstart and all(self.is_name_char(c) for c in s[1:])
+
+    def _eat_regex(self, regex: str | re.Pattern | None) -> None:
+        if not regex:
+            return
+        while self._matchre_fast(regex):
+            pass
+
+    def _eat_regex_list(self, regex: str | re.Pattern | None) -> list[str]:
+        if not regex:
+            return []
+
+        r = cached_re_compile(regex)
+        if r is None:
+            return []
+
+        result = []
+        while x := self.matchre(r):
+            result.append(x)
+        return result
+
+    def _matchre_fast(self, pattern: str | re.Pattern | None) -> bool:
+        if not (match := self._scanre(pattern)):
+            return False
+
+        self.move(len(match.group()))
+        return True
+
+    def _scanre(self, pattern: str | re.Pattern | None) -> re.Match[Any] | None:
+        cre = cached_re_compile(pattern)
+        if cre is None:
+            return None
+        else:
+            return cre.match(self.text, self.pos)
 
     def __len__(self) -> int:
         return self.len
@@ -208,10 +293,6 @@ class Buffer(Tokenizer):
 
     def newcursor(self) -> Cursor:
         return BufferCursor(self, pos=self.pos)
-
-    @cached_property
-    def lock(self) -> Lock:
-        return Lock()
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -582,30 +663,6 @@ class Buffer(Tokenizer):
         if end is None:
             end = len(self._line_index)
         return self._line_index[start : 1 + end]
-
-    def eat_whitespace_at(self, c: BufferCursor) -> None:
-        with c.bind():
-            self.eat_whitespace()
-
-    def eat_comments_at(self, c: BufferCursor) -> None:
-        with c.bind():
-            self.eat_comments()
-
-    def eat_eol_comments_at(self, c: BufferCursor) -> None:
-        with c.bind():
-            self.eat_comments()
-
-    def next_token_at(self, c: BufferCursor) -> None:
-        with c.bind():
-            self.next_token()
-
-    def match_at(self, token: str, c: BufferCursor) -> str | None:
-        with c.bind():
-            return self.match(token)
-
-    def matchre_at(self, pattern: str | re.Pattern, c: BufferCursor) -> str | None:
-        with c.bind():
-            return self.matchre(pattern)
 
     def __repr__(self) -> str:
         return f'{type(self).__name__}()'
