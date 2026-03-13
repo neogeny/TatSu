@@ -57,11 +57,12 @@ impact on the parsing times will be minimal.
 If preprocessing is required at some point, it's enough to place
 invocations of empty rules where appropriate:
 
-.. code:: python
+.. code:: ebnf
+   :force:
 
-    myrule = first_part preproc {second_part} ;
+    myrule: first_part preproc {second_part}
 
-    preproc = () ;
+    preproc: ()
 
 The abstract parser will honor as a semantic action a method declared
 as:

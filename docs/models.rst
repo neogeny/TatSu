@@ -32,10 +32,10 @@ rule:
 Builder semantics are enabled by passing `asmodel=True` to the
 ``tatsu.compile()`` or ``tatsu.parse()`` functions.
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    addition[AddOperator] = left:mulexpre '+' right:addition ;
+    addition[AddOperator]: left:mulexpre '+' right:addition
 
 ``ModelBuilderSemantics`` will synthesize a ``class AddOperator(Node):``
 class and use it to construct the node. The synthesized class will have
@@ -45,10 +45,10 @@ You can also use `Python`_'s built-in types as node types, and
 ``ModelBuilderSemantics`` will do the right thing:
 
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    integer[int]: /[0-9]+/ ;
+    integer[int]: /[0-9]+/
 
 ``ModelBuilderSemantics`` acts as any other semantics class, so its
 default behavior can be overridden by defining a method to handle the
@@ -284,7 +284,7 @@ Model Class Hierarchies
 
 It's possible to specify a base class for generated model nodes:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     additive:

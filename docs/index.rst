@@ -98,7 +98,7 @@ algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left ass
     support
     credits
     contributors
-    contributing
+    CONTRIBUTING
     license
     changelog
 
