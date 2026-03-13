@@ -11,6 +11,7 @@ from .ast import AST
 from .cst import cstadd, cstfinal, cstmerge
 from .infos import Alert, RuleInfo
 
+
 __all__ = ['ParseState', 'ParseStateStack']
 
 from ..tokenizing import Cursor
@@ -27,22 +28,17 @@ class ParseState:
     )
 
     def __init__(self, base: Cursor | ParseState) -> None:
-        self.ast: Any = AST()
+        if isinstance(base, ParseState):
+            self.cursor: Cursor = base.cursor.clone()
+            self.ast: AST = copy(base.ast)
+        else:
+            self.cursor = base.clone()
+            self.ast = AST()
+
         self.cst: Any = None
         self.last_node: Any = None
         self.alerts: list[Alert] = []
 
-        if isinstance(base, Cursor):
-            self.cursor: Cursor = base.clone()
-        elif isinstance(base, ParseState):
-            self.cursor = base.cursor.clone()
-            self.ast = copy(base.ast)
-        else:
-            raise TypeError(  # pyright: ignore[reportUnreachable]
-                f'argument must be a {typename(Cursor)}'
-                f' or {typename(ParseState)}'
-                f', not {typename(base)}'
-            )  # pyright: ignore[reportUnreachable]
 
     def clone(self):
         return copy(self)

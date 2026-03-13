@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from functools import cached_property
 from typing import Any, override
 
 from ..util import asjson, make_hashable
@@ -40,8 +41,12 @@ class AST(dict[str, Any]):
         cst = self.get(key)
         super().__setitem__(key, cstadd(cst, node, aslist=aslist))
 
+    @cached_property  # pyright: ignore[reportUndefinedVariable]
+    def _unsafe(self) -> set[str]:
+        return set(self.keys())
+
     def _safekey(self, key: str) -> str:
-        while key in dir(self):
+        while key in self._unsafe:
             key += '_'
         return key
 
