@@ -33,8 +33,4 @@ def module_missing(name: str) -> bool:
 
 def pathtomodulename(path: str | Path) -> str:
     path = Path(path) if isinstance(path, str) else path
-    return (
-        str(path.with_suffix(''))
-        .replace('/', '.')
-        .replace('.__init__', '')
-    )
+    return str(path.with_suffix('')).replace('/', '.').replace('.__init__', '')

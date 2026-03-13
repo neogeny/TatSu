@@ -11,7 +11,6 @@ about source lines and content.
 from __future__ import annotations
 
 import re
-from functools import cached_property
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +19,6 @@ from ..util import Undefined, linecount, str_from_match, typename
 from ..util.regextools import cached_re_compile
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
-
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -340,7 +338,7 @@ class Buffer(Tokenizer):
         self.text = self.join_block_lines(lines)
 
     def _postprocess(self):
-        cache, count = PosLine.build_line_cache(self.lines, len(self.text))
+        cache, _count = PosLine.build_line_cache(self.lines, len(self.text))
         self.linecache = cache
         self.len = len(self.text)
 
@@ -644,12 +642,12 @@ class Buffer(Tokenizer):
             start = 0
         if end is None:
             end = len(self.lines)
-        return self.lines[start: end + 1]
+        return self.lines[start : end + 1]
 
     def line_index(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
         if end is None:
             return self.lineindex
-        return self.lineindex[start: 1 + end]
+        return self.lineindex[start : 1 + end]
 
     def __repr__(self) -> str:
         return f'{type(self).__name__}()'

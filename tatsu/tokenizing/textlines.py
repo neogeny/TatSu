@@ -17,7 +17,6 @@ from ..util.regextools import cached_re_compile
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
 
-
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 
@@ -94,7 +93,7 @@ class TextLinesCursor(Cursor):
             self.eat_comments()
 
     def match(self, token: str) -> str | None:
-        if token is None:
+        if not token:
             return None
 
         p = self.pos
@@ -305,7 +304,7 @@ class TextLinesTokenizer(Tokenizer):
         self.text = self.join_block_lines(lines)
 
     def _postprocess(self):
-        cache, count = PosLine.build_line_cache(self.lines, len(self.text))
+        cache, _count = PosLine.build_line_cache(self.lines, len(self.text))
         self.line_cache = cache
 
     def _preprocess_block(

@@ -7,7 +7,6 @@ import sys
 from functools import cache
 from typing import Any
 
-
 if sys.version_info >= (3, 13):
     from re import PatternError
 else:

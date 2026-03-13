@@ -250,7 +250,9 @@ class ParseContext(ParserEngine, Ctx):
                     self.state.append(cst)
 
                     if self.pos == p:
-                        raise self.newexcept(f'{self.repeat.__name__} matched on no input')
+                        raise self.newexcept(
+                            f'{self.repeat.__name__} matched on no input'
+                        )
                 # note: dit not match sep? exp, so quit
                 break
 
