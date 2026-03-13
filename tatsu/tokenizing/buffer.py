@@ -11,7 +11,6 @@ about source lines and content.
 from __future__ import annotations
 
 import re
-from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +18,7 @@ from ..parserconfig import ParserConfig
 from ..util import Undefined, cached_re_compile, str_from_match, typename
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
+
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -56,7 +56,7 @@ class BufferCursor(Cursor):
         return self.buffer.filename
 
     def goto(self, pos: int):
-        self.pos = max(0, min(self.buffer._len, pos))
+        self.pos = max(0, min(self.buffer.len, pos))
 
     def move(self, n: int):
         self.goto(self.pos + n)
@@ -106,7 +106,7 @@ class BufferCursor(Cursor):
         return self._eat_regex_list(self.buffer.config.eol_comments)
 
     def match(self, token: str) -> str | None:
-        if token is None:
+        if not token:
             return None
 
         p = self.pos
@@ -144,7 +144,7 @@ class BufferCursor(Cursor):
             pos = self.pos
 
         buf = self.buffer
-        if not buf._line_cache or not buf._line_index:
+        if not buf.linecache or not buf.lineindex:
             return LineInfo(
                 filename=buf.filename,
                 line=0,
@@ -155,16 +155,16 @@ class BufferCursor(Cursor):
             )
 
         # -2 to skip over sentinel
-        pos = min(pos, len(buf._line_cache) - 2)
-        start, line, length = buf._line_cache[pos]
+        pos = min(pos, len(buf.linecache) - 2)
+        start, line, length = buf.linecache[pos]
         end = start + length
         col = pos - start
 
         text = buf.text[start:end]
 
         # only required to support includes
-        n = min(len(buf._line_index) - 1, line)
-        filename, line = buf._line_index[n]
+        n = min(len(buf.lineindex) - 1, line)
+        filename, line = buf.lineindex[n]
 
         return LineInfo(filename, line, col, start, end, text)
 
@@ -184,12 +184,12 @@ class BufferCursor(Cursor):
     def posline(self, pos: int | None = None) -> int:
         if pos is None:
             pos = self.pos
-        return self.buffer._line_cache[pos].line
+        return self.buffer.linecache[pos].line
 
     def poscol(self, pos: int | None = None) -> int:
         if pos is None:
             pos = self.pos
-        start = self.buffer._line_cache[pos].start
+        start = self.buffer.linecache[pos].start
         return pos - start
 
     def get_line(self, n: int | None = None) -> str:
@@ -271,7 +271,7 @@ class Buffer(Tokenizer):
         self.config = config
 
         text = str(text)
-        self._text = self.original_text = text
+        self.text = self.original_text = text
 
         self.whitespace_re = self.build_whitespace_re(config.whitespace)
         self.nameguard = (
@@ -281,12 +281,12 @@ class Buffer(Tokenizer):
         )
         self._namechar_set = set(config.namechars or '')
 
-        self._pos = 0
-        self._len = 0
-        self._linecount = 0
-        self._lines: list[str] = []
-        self._line_index: list[LineIndexInfo] = []
-        self._line_cache: list[PosLine] = []
+        self.pos = 0
+        self.len = 0
+        self.linecount = 0
+        self.lines: list[str] = []
+        self.linecache: list[PosLine] = []
+        self.lineindex: list[LineIndexInfo] = []
 
         self._preprocess()
         self._postprocess()
@@ -298,14 +298,6 @@ class Buffer(Tokenizer):
         state = self.__dict__.copy()
         state.pop('lock', None)
         return state
-
-    @property
-    def tokenizer(self) -> Tokenizer:
-        return self
-
-    @property
-    def text(self) -> str:
-        return self._text
 
     @property
     def filename(self) -> str:
@@ -334,15 +326,15 @@ class Buffer(Tokenizer):
 
     def _preprocess(self, /, *_args: Any, **_kwargs: Any):
         lines, index = self._preprocess_block(self.filename, self.text)
-        self._lines = lines
-        self._line_index = index
-        self._text = self.join_block_lines(lines)
+        self.lines = lines
+        self.lineindex = index
+        self.text = self.join_block_lines(lines)
 
     def _postprocess(self):
-        cache, count = PosLine.build_line_cache(self._lines, len(self.text))
-        self._line_cache = cache
-        self._linecount = count
-        self._len = len(self.text)
+        cache, count = PosLine.build_line_cache(self.lines, len(self.text))
+        self.linecache = cache
+        self.linecount = count
+        self.len = len(self.text)
 
     def _preprocess_block(
         self,
@@ -412,28 +404,16 @@ class Buffer(Tokenizer):
 
     def replace_lines(self, i: int, j: int, name: str, block: str) -> tuple[int, str]:
         lines = self.split_block_lines(self.text)
-        index = self._line_index
+        index = self.lineindex
 
         endline = self.include(lines, index, i, j, name, block)
 
-        self._text = self.join_block_lines(lines)
-        self._line_index = index
+        self.text = self.join_block_lines(lines)
+        self.lineindex = index
         self._postprocess()
 
         newtext = self.join_block_lines(lines[j + 1 : endline + 2])
         return endline, newtext
-
-    @property
-    def pos(self) -> int:
-        return self._pos
-
-    @pos.setter
-    def pos(self, p: int):
-        self.goto(p)
-
-    @property
-    def len(self) -> int:
-        return self._len
 
     @property
     def line(self) -> int:
@@ -445,34 +425,34 @@ class Buffer(Tokenizer):
 
     def posline(self, pos: int | None = None) -> int:
         if pos is None:
-            pos = self._pos
-        return self._line_cache[pos].line
+            pos = self.pos
+        return self.linecache[pos].line
 
     def poscol(self, pos: int | None = None) -> int:
         if pos is None:
-            pos = self._pos
-        start = self._line_cache[pos].start
+            pos = self.pos
+        start = self.linecache[pos].start
         return pos - start
 
     def atend(self) -> bool:
-        return self._pos >= self._len
+        return self.pos >= self.len
 
     def ateol(self) -> bool:
         return self.atend() or self.current in {'\r', '\n', None}
 
     @property
     def current(self) -> str | None:
-        if self._pos >= self._len:
+        if self.pos >= self.len:
             return None
-        return self.text[self._pos]
+        return self.text[self.pos]
 
     def at(self, p: int) -> str | None:
-        if p >= self._len:
+        if p >= self.len:
             return None
         return self.text[p]
 
     def peek(self, n: int = 1) -> str | None:
-        return self.at(self._pos + n)
+        return self.at(self.pos + n)
 
     def next(self) -> str | None:
         if self.atend():
@@ -482,16 +462,18 @@ class Buffer(Tokenizer):
         return c
 
     def goto(self, pos: int):
-        self._pos = max(0, min(len(self.text), pos))
+        self.pos = max(0, min(len(self.text), pos))
 
     def move(self, n: int):
         self.goto(self.pos + n)
 
-    def _eat_regex(self, regex: str | re.Pattern | None) -> None:
+    def _eat_regex(self, regex: str | re.Pattern | None) -> bool:
         if not regex:
-            return
+            return False
+        seen = False
         while self._matchre_fast(regex):
-            pass
+            seen = True
+        return seen
 
     def _eat_regex_list(self, regex: str | re.Pattern | None) -> list[str]:
         if not regex:
@@ -507,28 +489,29 @@ class Buffer(Tokenizer):
 
         return list(takewhile_repeat_regex())
 
-    def eat_whitespace(self) -> None:
-        if self.whitespace_re:
-            self._eat_regex(self.whitespace_re)
+    def eat_whitespace(self) -> bool:
+        if not self.whitespace_re:
+            return False
+        return self._eat_regex(self.whitespace_re)
 
-    def eat_comments(self) -> list[str]:
-        return self._eat_regex_list(self.config.comments)
+    def eat_comments(self) -> bool:
+        return self._eat_regex(self.config.comments)
 
-    def eat_eol_comments(self) -> list[str]:
-        return self._eat_regex_list(self.config.eol_comments)
+    def eat_eol_comments(self) -> bool:
+        return self._eat_regex(self.config.eol_comments)
 
     def next_token(self) -> None:
         p = None
         while self.pos != p:
-            p = self._pos
+            p = self.pos
             self.eat_whitespace()
             if self.eat_eol_comments():
                 self.eat_whitespace()
             self.eat_comments()
 
     def skip_to(self, c: str) -> int:
-        p = self._pos
-        le = self._len
+        p = self.pos
+        le = self.len
         while p < le and self.text[p] != c:
             p += 1
         self.goto(p)
@@ -603,14 +586,10 @@ class Buffer(Tokenizer):
         else:
             return cre.match(self.text, self.pos)
 
-    @property
-    def linecount(self) -> int:
-        return self._linecount
-
     def lineinfo(self, pos: int | None = None) -> LineInfo:
         if pos is None:
-            pos = self._pos
-        if not self._line_cache or not self._line_index:
+            pos = self.pos
+        if not self.linecache or not self.lineindex:
             return LineInfo(
                 filename=self.filename,
                 line=0,
@@ -621,16 +600,16 @@ class Buffer(Tokenizer):
             )
 
         # -2 to skip over sentinel
-        pos = min(pos, len(self._line_cache) - 2)
-        start, line, length = self._line_cache[pos]
+        pos = min(pos, len(self.linecache) - 2)
+        start, line, length = self.linecache[pos]
         end = start + length
         col = pos - start
 
         text = self.text[start:end]
 
         # only required to support includes
-        n = min(len(self._line_index) - 1, line)
-        filename, line = self._line_index[n]
+        n = min(len(self.lineindex) - 1, line)
+        filename, line = self.lineindex[n]
 
         return LineInfo(filename, line, col, start, end, text)
 
@@ -650,19 +629,19 @@ class Buffer(Tokenizer):
     def get_line(self, n: int | None = None) -> str:
         if n is None:
             n = self.line
-        return self._lines[n]
+        return self.lines[n]
 
     def get_lines(self, start: int | None = None, end: int | None = None) -> list[str]:
         if start is None:
             start = 0
         if end is None:
-            end = len(self._lines)
-        return self._lines[start : end + 1]
+            end = len(self.lines)
+        return self.lines[start: end + 1]
 
     def line_index(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
         if end is None:
-            end = len(self._line_index)
-        return self._line_index[start : 1 + end]
+            return self.lineindex
+        return self.lineindex[start: 1 + end]
 
     def __repr__(self) -> str:
         return f'{type(self).__name__}()'
