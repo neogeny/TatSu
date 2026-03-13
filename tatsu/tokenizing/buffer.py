@@ -11,11 +11,12 @@ about source lines and content.
 from __future__ import annotations
 
 import re
+from functools import cached_property
 from pathlib import Path
 from typing import Any
 
 from ..parserconfig import ParserConfig
-from ..util import Undefined, cached_re_compile, str_from_match, typename
+from ..util import Undefined, cached_re_compile, linecount, str_from_match, typename
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
 
@@ -46,6 +47,10 @@ class BufferCursor(Cursor):
     @property
     def line(self) -> int:
         return self.buffer.posline(self.pos)
+
+    @property
+    def linecount(self) -> int:
+        return self.buffer.linecount
 
     @property
     def col(self) -> int:
@@ -283,7 +288,6 @@ class Buffer(Tokenizer):
 
         self.pos = 0
         self.len = 0
-        self.linecount = 0
         self.lines: list[str] = []
         self.linecache: list[PosLine] = []
         self.lineindex: list[LineIndexInfo] = []
@@ -302,6 +306,10 @@ class Buffer(Tokenizer):
     @property
     def filename(self) -> str:
         return str(self.config.filename or '')
+
+    @property
+    def linecount(self) -> int:
+        return linecount(self.text)
 
     @property
     def ignorecase(self) -> bool:
@@ -333,7 +341,6 @@ class Buffer(Tokenizer):
     def _postprocess(self):
         cache, count = PosLine.build_line_cache(self.lines, len(self.text))
         self.linecache = cache
-        self.linecount = count
         self.len = len(self.text)
 
     def _preprocess_block(

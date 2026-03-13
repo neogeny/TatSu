@@ -6,9 +6,17 @@ import re
 from typing import Any
 
 from ..parserconfig import ParserConfig
-from ..util import Undefined, cached_re_compile, notnone, str_from_match, typename
+from ..util import (
+    Undefined,
+    cached_re_compile,
+    linecount,
+    notnone,
+    str_from_match,
+    typename,
+)
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
+
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -32,6 +40,10 @@ class TextLinesCursor(Cursor):
     @property
     def line(self) -> int:
         return self.posline(self.pos)
+
+    @property
+    def linecount(self) -> int:
+        return self.tokens.linecount
 
     @property
     def col(self) -> int:
@@ -268,7 +280,7 @@ class TextLinesTokenizer(Tokenizer):
 
     @property
     def linecount(self) -> int:
-        return len(self.lines)
+        return linecount(self.text)
 
     @property
     def ignorecase(self) -> bool:
@@ -295,7 +307,6 @@ class TextLinesTokenizer(Tokenizer):
     def _postprocess(self):
         cache, count = PosLine.build_line_cache(self.lines, len(self.text))
         self.line_cache = cache
-        self._linecount = count
 
     def _preprocess_block(
         self,
