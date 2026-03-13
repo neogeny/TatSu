@@ -20,6 +20,7 @@ class TextLinesCursor(Cursor):
         self.tokens: TextLinesTokenizer = tokens
         self.pos: int = pos
         self.len: int = tokens.len
+        self.text = tokens.text
 
     def clone(self) -> Cursor:
         return TextLinesCursor(self.tokens, self.pos)
@@ -35,10 +36,6 @@ class TextLinesCursor(Cursor):
     @property
     def col(self) -> int:
         return self.poscol(self.pos)
-
-    @property
-    def text(self) -> str:
-        return self.tokens.text
 
     @property
     def filename(self) -> str:
@@ -66,7 +63,7 @@ class TextLinesCursor(Cursor):
         p = self.pos + n
         if p >= self.len or p < 0:
             return None
-        return self.tokens.text[p]
+        return self.text[p]
 
     def next(self) -> str | None:
         if self.atend():
@@ -89,7 +86,7 @@ class TextLinesCursor(Cursor):
             return None
 
         p = self.pos
-        text = self.tokens.text[p : p + len(token)]
+        text = self.text[p : p + len(token)]
 
         if self.tokens.ignorecase:
             is_match = text.lower() == token.lower()
@@ -215,7 +212,7 @@ class TextLinesCursor(Cursor):
     def _scanre(self, pattern: str | re.Pattern | None) -> re.Match[Any] | None:
         if not (cre := cached_re_compile(pattern)):
             return None
-        return cre.match(self.tokens.text, self.pos)
+        return cre.match(self.text, self.pos)
 
     def __len__(self) -> int:
         return self.len

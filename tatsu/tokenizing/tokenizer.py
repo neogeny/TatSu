@@ -11,10 +11,12 @@ from .infos import LineIndexInfo, LineInfo
 @runtime_checkable
 class Cursor(Protocol):
     pos: int
-    tokenizer: Tokenizer
     text: str
 
     def clone(self) -> Cursor: ...
+
+    @property
+    def tokenizer(self) -> Tokenizer: ...
 
     @property
     def filename(self) -> str: ...
@@ -30,17 +32,29 @@ class Cursor(Protocol):
         return self.current
 
     def goto(self, pos) -> None: ...
+
     def move(self, n: int) -> None: ...
+
     def atend(self) -> bool: ...
+
     def ateol(self) -> bool: ...
+
     def next(self) -> str | None: ...
+
     def next_token(self) -> None: ...
+
     def match(self, token: str) -> str | None: ...
+
     def matchre(self, pattern: str) -> str | None: ...
+
     def is_name(self, s: str) -> bool: ...
+
     def is_name_char(self, c: str | None) -> bool: ...
+
     def posline(self, pos: int | None = None) -> int: ...
+
     def lineinfo(self, pos: int | None = None) -> LineInfo: ...
+
     def get_line(self, n: int | None = None) -> str: ...
 
     def get_lines(
@@ -48,6 +62,7 @@ class Cursor(Protocol):
         start: int | None = None,
         end: int | None = None,
     ) -> list[str]: ...
+
     def line_index(
         self,
         start: int = 0,
@@ -55,10 +70,15 @@ class Cursor(Protocol):
     ) -> list[LineIndexInfo]: ...
 
     def lookahead(self) -> str: ...
+
     def lookahead_pos(self) -> str: ...
 
 
 class NullCursor(Cursor):
+    def __init__(self) -> None:
+        self.pos = 0
+        self.text = ''
+
     def clone(self) -> Cursor:
         return self
 
@@ -67,20 +87,12 @@ class NullCursor(Cursor):
         return NullTokenizer()
 
     @property
-    def text(self) -> str:
-        return ''
-
-    @property
     def filename(self) -> str:
         return ''
 
     @property
     def ignorecase(self) -> bool:
         return False
-
-    @property
-    def pos(self) -> int:
-        return 0
 
     @property
     def line(self) -> int:

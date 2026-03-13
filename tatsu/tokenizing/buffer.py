@@ -130,7 +130,7 @@ class BufferCursor(Cursor):
 
         return token
 
-    def matchre(self, pattern: str) -> str | None:
+    def matchre(self, pattern: str | re.Pattern) -> str | None:
         if not (match := self._scanre(pattern)):
             return None
 
