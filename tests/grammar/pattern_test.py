@@ -112,8 +112,8 @@ class PatternTests(unittest.TestCase):
         """
         model = compile(grammar=trim(grammar))
 
-        assert isinstance(model.rules[0].exp, g.Choice)
-        exp = model.rules[0].exp.options[0].exp
+        assert isinstance(model.rules[0].exp, g.Sequence)
+        exp = model.rules[0].exp
         assert isinstance(exp, g.Sequence)
         print(pythongen(exp.sequence[0]))
         self.assertEqual(
@@ -127,8 +127,7 @@ class PatternTests(unittest.TestCase):
             blort/ $ ;
         """
         model = compile(grammar=trim(grammar))
-        assert isinstance(model.rules[0].exp, g.Choice)
-        exp = model.rules[0].exp.options[0].exp
+        exp = model.rules[0].exp
         assert isinstance(exp, g.Sequence)
         print(pythongen(exp.sequence[0]))
         self.assertEqual(

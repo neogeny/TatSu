@@ -37,13 +37,8 @@ def test_optional():
 
     model = tatsu.compile(grammar, asmodel=True)
     exp = model.rulemap['start'].exp
-    assert isinstance(exp, g.Choice | g.Sequence)
-    if isinstance(exp, g.Choice):
-        exp = exp.options[0].exp
     assert isinstance(exp, g.Sequence)
     assert repr(exp.sequence) == "[Token(token='['), Pattern(pattern='abc')]"
 
     exp = model.rulemap['other'].exp
-    assert isinstance(exp, g.FirstChoice)
-    exp = exp.options[0].exp
     assert repr(exp) == "Optional(exp=Token(token='xyz'))"

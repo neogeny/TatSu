@@ -10,6 +10,8 @@ from .infos import LineIndexInfo, LineInfo
 
 @runtime_checkable
 class Cursor(Protocol):
+    pos: int
+
     def clone(self) -> Cursor: ...
 
     @property
@@ -20,9 +22,6 @@ class Cursor(Protocol):
 
     @property
     def filename(self) -> str: ...
-
-    @property
-    def pos(self) -> int: ...
 
     @property
     def line(self) -> int: ...
@@ -49,6 +48,10 @@ class Cursor(Protocol):
     def match(self, token: str) -> str | None: ...
 
     def matchre(self, pattern: str) -> str | None: ...
+
+    def is_name(self, s: str) -> bool: ...
+
+    def is_name_char(self, c: str | None) -> bool: ...
 
     def posline(self, pos: int | None = None) -> int: ...
 
@@ -132,6 +135,12 @@ class NullCursor(Cursor):
 
     def matchre(self, pattern: str) -> str | None:
         return None
+
+    def is_name(self, s: str) -> bool:
+        return False
+
+    def is_name_char(self, c: str | None) -> bool:
+        return False
 
     def posline(self, pos: int | None = None) -> int:
         return 0
