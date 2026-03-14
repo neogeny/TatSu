@@ -9,13 +9,13 @@ from copy import copy
 from dataclasses import field
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, override
+from typing import Any, cast, override
 
 from ..contexts import AST, Ctx, Func, ParseContext, RuleInfo
 from ..exceptions import GrammarError
 from ..objectmodel import Node, nodedataclass
 from ..parserconfig import ParserConfig
-from ..util import cast, chunks, compress_seq, indent, safe_name, trim, typename
+from ..util import chunks, compress_seq, indent, safe_name, trim, typename
 from .builder import ModelBuilderSemantics
 from .math import ffset, kdot
 
@@ -26,34 +26,6 @@ _model_classes: list[type[Model]] = []
 
 def model_classes() -> list[type[Model]]:
     return _model_classes
-
-
-class ModelContext(ParseContext):
-    def __init__(
-        self,
-        rules,
-        /,
-        start: str | None = None,
-        config: ParserConfig | None = None,
-        asmodel: bool = False,
-        **settings,
-    ):
-        config = ParserConfig.new(config, **settings)
-        assert isinstance(config, ParserConfig)
-        config = config.override(start=start)
-
-        super().__init__(config=config)
-        if not self.config.semantics and asmodel:
-            self.config.semantics = ModelBuilderSemantics()
-
-        self._rulemap: dict[str, Rule] = {rule.name: rule for rule in rules}
-
-    @property
-    def rulemap(self) -> dict[str, Rule]:
-        return self._rulemap
-
-    def find_rule(self, name: str) -> Func:
-        return self.rulemap[name]._parse
 
 
 @nodedataclass
@@ -667,3 +639,31 @@ class Choice(Model):
 @nodedataclass
 class FirstChoice(Choice):
     pass
+
+
+class ModelContext(ParseContext):
+    def __init__(
+        self,
+        rules,
+        /,
+        start: str | None = None,
+        config: ParserConfig | None = None,
+        asmodel: bool = False,
+        **settings,
+    ):
+        config = ParserConfig.new(config, **settings)
+        assert isinstance(config, ParserConfig)
+        config = config.override(start=start)
+
+        super().__init__(config=config)
+        if not self.config.semantics and asmodel:
+            self.config.semantics = ModelBuilderSemantics()
+
+        self._rulemap: dict[str, Rule] = {rule.name: rule for rule in rules}
+
+    @property
+    def rulemap(self) -> dict[str, Rule]:
+        return self._rulemap
+
+    def find_rule(self, name: str) -> Func:
+        return self.rulemap[name]._parse
