@@ -41,15 +41,19 @@ __all__: list[str] = ['parallel_proc', 'parproc', 'processing_loop']
 EOLCH = '\r' if sys.stderr.isatty() else '\n'
 sys.setrecursionlimit(2**16)
 
+type Func = Callable[[Any], Any]
 
 class Task(NamedTuple):
+    func: Func
     payload: Any
+    pickable: Callable
+    reraise: bool
     args: Iterable[Any]
     kwargs: Mapping[str, Any]
 
 
 @dataclass(slots=True)
-class ParprocResult:
+class Result:
     payload: Any
     outcome: Any = None
     exception: Any = None
@@ -65,6 +69,7 @@ class ParprocResult:
         return str(self.__dict__)
 
 
+# NOTE: BWCOMP
 def parallel_proc(
     payloads: Iterable[Any],
     process: Callable,
@@ -75,46 +80,42 @@ def parallel_proc(
 
 
 def parproc(
-    process: Callable[[Any], Any],
+    func: Func,
     payloads: Iterable[Any],
     *args: Any,
+    pickable: Func = identity,
+    parallel: bool = True,
+    reraise: bool = False,
     **kwargs: Any,
-) -> Iterable[ParprocResult | None]:
-    pickable = kwargs.pop('pickable', identity)
-    parallel = kwargs.pop('parallel', True)
-    reraise = kwargs.pop('reraise', False)
+) -> Iterable[Result | None]:
 
-    taskprocwrapper = partial(
-        payloadproc,
-        process,
-        pickable=pickable,
-        reraise=reraise,
-    )
-    # def taskprocwrapper(task: Task) -> ParprocResult | None:
-    #     return payloadproc(process, task, pickable=pickable, reraise=reraise)
-
-    tasks = [Task(payload, args, kwargs) for payload in payloads]
+    tasks = [
+        Task(
+            func=func,
+            payload=payload,
+            pickable=pickable,
+            reraise=reraise,
+            args=args,
+            kwargs=kwargs,
+        )
+        for payload in payloads
+    ]
     try:
         if len(tasks) == 1:
-            yield taskprocwrapper(tasks[0])
+            yield taskproc(tasks[0])
             return
 
-        pmap = _active_pmap if parallel else map
-        yield from pmap(taskprocwrapper, tasks)
+        pmap = active_pmap() if parallel else map
+        yield from pmap(taskproc, tasks)
     except KeyboardInterrupt:
         return
 
 
-def payloadproc(
-    process: Callable,
-    task: Task,
-    pickable: Callable = identity,
-    reraise: bool = False,
-) -> ParprocResult | None:
+def taskproc(task: Task) -> Result | None:
     start_time = time.process_time()
-    result = ParprocResult(task.payload)
+    result = Result(task.payload)
     try:
-        outcome = process(task.payload, *task.args, **task.kwargs)
+        outcome = task.func(task.payload, *task.args, **task.kwargs)
         result.memory = memory_use()
         if hasattr(outcome, 'linecount'):
             result.linecount = outcome.linecount
@@ -124,7 +125,7 @@ def payloadproc(
                 for _line in f:
                     count += 1
             result.linecount = count
-        result.outcome = pickable(outcome)
+        result.outcome = task.pickable(outcome)
     except KeyboardInterrupt:
         return None
     except Exception as e:
@@ -135,90 +136,30 @@ def payloadproc(
     return result
 
 
-def _executor_pmap(
-    executorcls: type[Executor],
-    process: Callable,
-    tasks: Sequence[Any],
-    max_workers: int | None = None,
-) -> Iterable[ParprocResult]:
-    # by Copilot 2026-03-06
-
-    if not tasks:
-        return
-
-    with executorcls(max_workers=max_workers) as ex:  # type: ignore
-        futures = [ex.submit(process, task) for task in tasks]
-        for future in as_completed(futures):
-            yield future.result()
-
-
-def _thread_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocResult]:
-    yield from _executor_pmap(ThreadPoolExecutor, process, tasks)
-
-
-def _process_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocResult]:
-    yield from _executor_pmap(
-        ProcessPoolExecutor, process, tasks, max_workers=multiprocessing.cpu_count()
-    )
-
-
-def _imap_pmap(process: Callable, tasks: Sequence[Any]) -> Iterable[ParprocResult]:
-    nworkers = 4 * max(1, multiprocessing.cpu_count())
-
-    n = nworkers * 4
-    chunks = batched(tasks, n)
-
-    count = 0
-    with multiprocessing.Pool(processes=nworkers) as pool:
-        for chunk in chunks:
-            count += len(chunk)
-            yield from pool.imap_unordered(process, chunk)
-    if len(tasks) != count:
-        raise RuntimeError(
-            'number of chunked tasks different %d != %d' % (len(tasks), count),
-        )
-
-
-_active_pmap = _process_pmap
-
-
-def _build_progressbar(total: int) -> tuple[Progress, TaskID]:
-    progress = Progress(
-        TextColumn(f"[progress.description]{startscript()}"),
-        BarColumn(),
-        # *Progress.get_default_columns(),
-        TaskProgressColumn(),
-        TimeElapsedColumn(),
-        TimeRemainingColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        refresh_per_second=1,
-        speed_estimate_period=30.0,
-    )
-    task = progress.add_task('', total=total)
-    return progress, task
-
-
+# NOTE: BWCOMP
 def processing_loop(
-    filenames: Sequence[str],
+    filenames: Iterable[str],
     process: Callable,
     *args: Any,
     reraise: bool = False,
     **kwargs: Any,
-) -> Iterable[ParprocResult]:
+) -> Iterable[Result]:
+    yield from parproc_visual(process, filenames, *args, **kwargs)
+
+
+def parproc_visual(
+    func: Func,
+    filenames: Iterable[str],
+    *args: Any,
+    reraise: bool = False,
+    **kwargs: Any,
+) -> Iterable[Result]:
     try:
-        total = len(filenames)
-        total_time = 0.0
-        run_time = 0.0
-        start_time = time.time()
-        results = parproc(process, filenames, *args, **kwargs)
-        results = results or []
-        count = 0
-        success_count = 0
-        success_linecount = 0
-        progress, progress_task = _build_progressbar(total)
+        # note: resolve iterator now because we know that processing will do it anyway
+        filenames = list(filenames)
 
         logpath = None
-        if total > 1:
+        if len(filenames) > 1:
             prefix = startscript().replace('.', '_')
             logpath = iso_logpath(prefix=prefix)
 
@@ -230,6 +171,17 @@ def processing_loop(
             else:
                 yield sys.stderr
 
+        total = len(filenames)
+        total_time = 0.0
+        run_time = 0.0
+        start_time = time.time()
+        results = parproc(func, filenames, *args, **kwargs)
+        results = results or []
+        count = 0
+        success_count = 0
+        success_linecount = 0
+
+        progress, progress_task = _build_progressbar(total)
         with progress:
             for result in results:
                 if result is None:
@@ -288,8 +240,8 @@ def processing_loop(
         return
 
 
-def file_process_progress(
-    latest_result: ParprocResult,
+def _old_file_process_progress(
+    latest_result: Result,
     count: int,
     total: int,
     total_time: float,
@@ -316,7 +268,23 @@ def file_process_progress(
     )
 
 
-def _format_minutes(result: ParprocResult) -> str:
+def _build_progressbar(total: int) -> tuple[Progress, TaskID]:
+    progress = Progress(
+        TextColumn(f"[progress.description]{startscript()}"),
+        BarColumn(),
+        # *Progress.get_default_columns(),
+        TaskProgressColumn(),
+        TimeElapsedColumn(),
+        TimeRemainingColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        refresh_per_second=1,
+        speed_estimate_period=30.0,
+    )
+    task = progress.add_task('', total=total)
+    return progress, task
+
+
+def _format_minutes(result: Result) -> str:
     return f'{result.time / 60:3.0f}:{result.time % 60:04.1f}'
 
 
@@ -378,3 +346,56 @@ def _file_process_summary(
         rich.print(f'[red bold]FAILURES: [green]{log.name}')
         print(file=sys.stderr)
         sys.exit(1)
+
+
+def active_pmap() -> (
+    Callable[[Func, Iterable[Any]], Iterable[Result]]
+):
+    def executor_pmap(
+        executorcls: type[Executor],
+        process: Func,
+        tasks: Iterable[Any],
+        max_workers: int | None = None,
+    ) -> Iterable[Result]:
+        # by Copilot 2026-03-06
+
+        if not tasks:
+            return
+
+        with executorcls(max_workers=max_workers) as ex:  # type: ignore
+            futures = [ex.submit(process, task) for task in tasks]
+            for future in as_completed(futures):
+                yield future.result()
+
+    def thread_pmap(
+        process: Func, tasks: Iterable[Any]
+    ) -> Iterable[Result]:
+        yield from executor_pmap(ThreadPoolExecutor, process, tasks)
+
+    def process_pmap(
+        process: Func, tasks: Iterable[Any]
+    ) -> Iterable[Result]:
+        yield from executor_pmap(
+            ProcessPoolExecutor, process, tasks, max_workers=multiprocessing.cpu_count()
+        )
+
+    def imap_pmap(
+        process: Func, tasks: Iterable[Any]
+    ) -> Iterable[Result]:
+        tasks = list(tasks)
+        nworkers = 4 * max(1, multiprocessing.cpu_count())
+
+        n = nworkers * 4
+        chunks = batched(tasks, n)
+
+        count = 0
+        with multiprocessing.Pool(processes=nworkers) as pool:
+            for chunk in chunks:
+                count += len(chunk)
+                yield from pool.imap_unordered(process, chunk)
+        if len(tasks) != count:
+            raise RuntimeError(
+                'number of chunked tasks different %d != %d' % (len(tasks), count),
+            )
+
+    return process_pmap

@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 
 from .common import pathlist_from_patterns
-from .parproc import processing_loop
+from .parproc import parproc_visual
 
 
 def parallel_test_run(parse, options):
@@ -34,7 +34,7 @@ def parallel_test_run(parse, options):
         parallel = not kwargs.pop('serial', False)
 
         filepaths = sorted(filepaths, key=lambda p: -p.stat().st_size)
-        return processing_loop(filepaths, parse, parallel=parallel, **kwargs)
+        return parproc_visual(parse, filepaths, parallel=parallel, **kwargs)
 
     except KeyboardInterrupt:
         if options.verbose:
