@@ -7,10 +7,9 @@
 from __future__ import annotations
 
 import re
-from itertools import chain
 from typing import Any
 
-from .. import grammars as model
+from .. import grammars as g
 from ..contexts import AST
 
 
@@ -29,27 +28,27 @@ class ANTLRSemantics:
         self.token_rules = {}
         self.synthetic_rules = []
 
-    def grammar(self, ast: AST) -> model.Grammar:
+    def grammar(self, ast: AST) -> g.Grammar:
         # Add any defined tokens that were not part of a rule
         for name, exp in self.tokens.items():
             if name not in self.token_rules:
-                self.synthetic_rules.append(model.Rule(name=name, exp=exp))
+                self.synthetic_rules.append(g.Rule(name=name, exp=exp))
 
-        # Add any token rules that were referenced but not explicitly defined
-        # (they will still be Synth(...) placeholders)
+        # Resolve or fail any remaining placeholders
         for name, exp in self.token_rules.items():
-            if isinstance(exp, model.Synth):
-                # Create a rule for this placeholder
+            if isinstance(exp, g.Synth):
+                # This placeholder was referenced but never defined.
+                # Create a new rule that fails.
                 rule_name = name.lower()
                 if not any(r.name == rule_name for r in ast.rules):
-                    self.synthetic_rules.append(model.Rule(name=rule_name, exp=exp))
+                    self.synthetic_rules.append(g.Rule(name=rule_name, exp=g.Fail()))
 
-        return model.Grammar(
+        return g.Grammar(
             self.name,
-            [r for r in chain(ast.rules, self.synthetic_rules) if r is not None],
+            [r for r in (*ast.rules, *self.synthetic_rules) if r is not None],
         )
 
-    def rule(self, ast: AST) -> model.Rule | None:
+    def rule(self, ast: AST) -> g.Rule | None:
         name = camel2py(ast.name)
         exp = ast.exp
         if name[0].isupper():
@@ -57,7 +56,7 @@ class ANTLRSemantics:
             # This is a token rule.
             # If a placeholder (Synth) for this token already exists, update it.
             if name in self.token_rules and isinstance(
-                self.token_rules.get(name), model.Synth
+                self.token_rules.get(name), g.Synth
             ):
                 self.token_rules[name].exp = exp
             else:
@@ -66,70 +65,70 @@ class ANTLRSemantics:
 
             # If the expression is not a simple token, it's a fragment rule
             # that defines a token. We need a standard rule for it.
-            if not isinstance(exp, model.Token):
-                return model.Rule(ast=ast, name=name.lower(), exp=exp)
+            if not isinstance(exp, g.Token):
+                return g.Rule(ast=ast, name=name.lower(), exp=exp)
 
-            # Simple token rules do not generate model.Rule objects directly
+            # Simple token rules do not generate g.Rule objects directly
             return None
 
-        return model.Rule(ast=ast, name=name, params=ast.params, kwparams=ast.kwparams)
+        return g.Rule(ast=ast, name=name, params=ast.params, kwparams=ast.kwparams)
 
-    def alternatives(self, ast: AST) -> model.Model:
+    def alternatives(self, ast: AST) -> g.Model:
         options = [o for o in ast.options if o is not None]
         if len(options) == 1:
             return options[0]
         else:
-            options = [model.Option(o) for o in options]
-            return model.Choice(options)
+            options = [g.Option(o) for o in options]
+            return g.Choice(options)
 
-    def elements(self, ast: list[model.Model]) -> model.Model:
+    def elements(self, ast: list[g.Model]) -> g.Model:
         elements = [e for e in ast if e is not None]
         if not elements:
-            return model.Void()
+            return g.Void()
         elif len(elements) == 1:
             return elements[0]
         else:
-            return model.Sequence(elements)
+            return g.Sequence(elements)
 
     def predicate_or_action(self, _ast: Any) -> None:
         return None
 
-    def named(self, ast: AST) -> model.Named:
+    def named(self, ast: AST) -> g.Named:
         if ast.force_list:
-            return model.NamedList(ast)
+            return g.NamedList(ast)
         else:
-            return model.Named(ast)
+            return g.Named(ast)
 
     def syntactic_predicate(self, _ast: Any) -> None:
         return None
 
-    def optional(self, ast: model.Optional) -> model.Optional:
-        return model.Optional(ast)
+    def optional(self, ast: g.Optional) -> g.Optional:
+        return g.Optional(ast)
 
-    def closure(self, ast: model.Model) -> model.Closure:
-        if isinstance(ast, model.Group):
+    def closure(self, ast: g.Model) -> g.Closure:
+        if isinstance(ast, g.Group):
             # noinspection PyUnresolvedReferences
             ast = ast.exp
-        return model.Closure(ast)
+        return g.Closure(ast)
 
-    def positive_closure(self, ast: model.Model) -> model.Closure:
-        if isinstance(ast, model.Group):
+    def positive_closure(self, ast: g.Model) -> g.Closure:
+        if isinstance(ast, g.Group):
             # noinspection PyUnresolvedReferences
             ast = ast.exp
-        return model.PositiveClosure(ast)
+        return g.PositiveClosure(ast)
 
-    def negative(self, ast: model.Model) -> model.Sequence:
-        neg = model.NegativeLookahead(ast)
-        any = model.Pattern('.')
-        return model.Sequence([neg, any])
+    def negative(self, ast: g.Model) -> g.Sequence:
+        neg = g.NegativeLookahead(ast)
+        any = g.Pattern('.')
+        return g.Sequence([neg, any])
 
-    def subexp(self, ast: model.Model) -> model.Group:
-        return model.Group(ast)
+    def subexp(self, ast: g.Model) -> g.Group:
+        return g.Group(ast)
 
-    def regexp(self, ast: AST) -> model.Pattern:
+    def regexp(self, ast: AST) -> g.Pattern:
         pattern = ''.join(ast)
         regex = re.compile(pattern)
-        return model.Pattern(regex.pattern)
+        return g.Pattern(regex.pattern)
 
     def charset_optional(self, ast: AST) -> str:
         return f'{ast}?'
@@ -159,10 +158,10 @@ class ANTLRSemantics:
     def charset_range(self, ast: AST) -> str:
         return f'{ast.first}-{ast.last}'
 
-    def newranges(self, ast: AST) -> model.Pattern:
+    def newranges(self, ast: AST) -> g.Pattern:
         pattern = ''.join(ast)
         regex = re.compile(pattern)
-        return model.Pattern(regex.pattern)
+        return g.Pattern(regex.pattern)
 
     def newrange(self, ast: AST) -> str:
         pattern = '[{}]{}'.format(ast.range, ast.repeat or '')
@@ -174,39 +173,39 @@ class ANTLRSemantics:
         re.compile(pattern)
         return pattern
 
-    def call(self, ast: str) -> model.Call:
+    def call(self, ast: str) -> g.Call:
         assert ast[0].islower()
-        return model.Call(camel2py(ast))
+        return g.Call(camel2py(ast))
 
-    def any(self, _ast: AST) -> model.Pattern:
-        return model.Pattern(r'\w+|\S+')
+    def any(self, _ast: AST) -> g.Pattern:
+        return g.Pattern(r'\w+|\S+')
 
-    def string(self, ast: AST) -> model.Token:
+    def string(self, ast: AST) -> g.Token:
         text = str(ast)
         if isinstance(text, list):
             text = ''.join(text)
-        return model.Token(text)
+        return g.Token(text)
 
-    def eof(self, _ast: AST) -> model.EOF:
-        return model.EOF()
+    def eof(self, _ast: AST) -> g.EOF:
+        return g.EOF()
 
-    def token(self, ast: AST) -> model.Token | model.Void:
+    def token(self, ast: AST) -> g.Token | g.Void:
         name = ast.name
         if ast.exp:
-            exp = model.Token(ast.value)
+            exp = g.Token(ast.value)
             self.tokens[name] = exp
         else:
-            exp = model.Void()  # type: ignore
-            rule = model.Rule(ast=exp, name=name)
+            exp = g.Void()  # type: ignore
+            rule = g.Rule(ast=exp, name=name)
             self.synthetic_rules.append(rule)
         return exp
 
-    def token_ref(self, ast: AST) -> model.Model:
+    def token_ref(self, ast: AST) -> g.Model:
         name = camel2py(ast).upper()
 
         # If the token is already fully defined, return it
         if name in self.token_rules and not isinstance(
-            self.token_rules[name], model.Synth
+            self.token_rules[name], g.Synth
         ):
             return self.token_rules[name]
 
@@ -215,6 +214,6 @@ class ANTLRSemantics:
             return self.token_rules[name]
 
         # Otherwise, create a new placeholder for a future definition
-        exp = model.Synth(model.Call(name.lower()))
+        exp = g.Synth(g.Call(name.lower()))
         self.token_rules[name] = exp
         return exp
