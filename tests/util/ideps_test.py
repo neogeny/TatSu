@@ -86,5 +86,5 @@ def test_render_builds_tree_with_internal_and_external_deps(
     labels = {str(child.label) for child in mod_a.children}
 
     # Internal sibling dependency and external import are both shown.
-    assert "○ b" in labels
+    assert "○ .b" in labels
     assert "⟨os⟩" in labels
