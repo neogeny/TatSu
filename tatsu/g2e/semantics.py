@@ -204,9 +204,7 @@ class ANTLRSemantics:
         name = camel2py(ast).upper()
 
         # If the token is already fully defined, return it
-        if name in self.token_rules and not isinstance(
-            self.token_rules[name], g.Synth
-        ):
+        if name in self.token_rules and not isinstance(self.token_rules[name], g.Synth):
             return self.token_rules[name]
 
         # If a placeholder exists, return it
