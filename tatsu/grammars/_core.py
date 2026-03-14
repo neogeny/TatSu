@@ -256,6 +256,13 @@ class Box(Model):
 
 
 @nodedataclass
+class Synth(Box):
+    """A synthetic placeholder for an unresolved rule."""
+
+    pass
+
+
+@nodedataclass
 class NamedBox(Box):
     name: str = field(default='')  # pyright: ignore[reportIncompatibleVariableOverride]
 

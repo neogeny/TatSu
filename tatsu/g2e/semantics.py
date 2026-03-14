@@ -36,13 +36,13 @@ class ANTLRSemantics:
                 self.synthetic_rules.append(model.Rule(name=name, exp=exp))
 
         # Add any token rules that were referenced but not explicitly defined
-        # (they will still be Box(Call(...)) placeholders)
+        # (they will still be Synth(...) placeholders)
         for name, exp in self.token_rules.items():
-            if isinstance(exp, model.Box):
+            if isinstance(exp, model.Synth):
                 # Create a rule for this placeholder
                 rule_name = name.lower()
                 if not any(r.name == rule_name for r in ast.rules):
-                     self.synthetic_rules.append(model.Rule(name=rule_name, exp=exp))
+                    self.synthetic_rules.append(model.Rule(name=rule_name, exp=exp))
 
         return model.Grammar(
             self.name,
@@ -55,8 +55,10 @@ class ANTLRSemantics:
         if name[0].isupper():
             name = name.upper()
             # This is a token rule.
-            # If a placeholder (Box) for this token already exists, update it.
-            if name in self.token_rules and isinstance(self.token_rules.get(name), model.Box):
+            # If a placeholder (Synth) for this token already exists, update it.
+            if name in self.token_rules and isinstance(
+                self.token_rules.get(name), model.Synth
+            ):
                 self.token_rules[name].exp = exp
             else:
                 # Otherwise, just store the token definition.
@@ -105,12 +107,14 @@ class ANTLRSemantics:
         return model.Optional(ast)
 
     def closure(self, ast: model.Model) -> model.Closure:
-        if isinstance(ast, model.Group | model.Optional):
+        if isinstance(ast, model.Group):
+            # noinspection PyUnresolvedReferences
             ast = ast.exp
         return model.Closure(ast)
 
     def positive_closure(self, ast: model.Model) -> model.Closure:
         if isinstance(ast, model.Group):
+            # noinspection PyUnresolvedReferences
             ast = ast.exp
         return model.PositiveClosure(ast)
 
@@ -201,7 +205,9 @@ class ANTLRSemantics:
         name = camel2py(ast).upper()
 
         # If the token is already fully defined, return it
-        if name in self.token_rules and not isinstance(self.token_rules[name], model.Box):
+        if name in self.token_rules and not isinstance(
+            self.token_rules[name], model.Synth
+        ):
             return self.token_rules[name]
 
         # If a placeholder exists, return it
@@ -209,6 +215,6 @@ class ANTLRSemantics:
             return self.token_rules[name]
 
         # Otherwise, create a new placeholder for a future definition
-        exp = model.Box(model.Call(name.lower()))
+        exp = model.Synth(model.Call(name.lower()))
         self.token_rules[name] = exp
         return exp

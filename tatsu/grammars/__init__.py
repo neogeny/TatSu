@@ -17,6 +17,7 @@ from ._core import (
     ModelContext,
     Option,
     Rule,
+    Synth,
     Void,
     model_classes,
 )
@@ -71,6 +72,7 @@ __all__ = [
     'Constant',
     'Cut',
     'Box',
+    'Synth',
     'Dot',
     'EOF',
     'EOLComment',
