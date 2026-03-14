@@ -93,3 +93,6 @@ celerybeat-schedule
 ### --- Localization ---
 *.mo
 *.pot
+
+### --- Caches ---
+.tmp.driveupload/
