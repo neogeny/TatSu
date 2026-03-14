@@ -8,8 +8,6 @@
 
 .. _ANTLR: http://www.antlr.org/
 .. _AST: http://en.wikipedia.org/wiki/Abstract_syntax_tree
-.. _AST: http://en.wikipedia.org/wiki/Abstract_syntax_tree
-.. _Abstract Syntax Tree: http://en.wikipedia.org/wiki/Abstract_syntax_tree
 .. _Abstract Syntax Tree: http://en.wikipedia.org/wiki/Abstract_syntax_tree
 .. _Algol W: http://en.wikipedia.org/wiki/Algol_W
 .. _Algorithms + Data Structures = Programs: http://www.amazon.com/Algorithms-Structures-Prentice-Hall-Automatic-Computation/dp/0130224189/
@@ -30,7 +28,6 @@
 .. _Japanese: http://en.wikipedia.org/wiki/Japanese_grammar
 .. _Java: https://en.wikipedia.org/wiki/Java
 .. _KLOC: http://en.wikipedia.org/wiki/KLOC
-.. _Keywords: https://en.wikipedia.org/wiki/Reserved_word
 .. _LICENSE: LICENSE
 .. _LL(1): http://en.wikipedia.org/wiki/LL(1)
 .. _MediaWiki: http://www.mediawiki.org/wiki/MediaWiki

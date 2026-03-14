@@ -114,7 +114,7 @@ documentation, and build tasks by default:
 
 .. code:: bash
 
-    $ uv run inv
+    $ uv run invoke -c invoke_tasks
     ────────────────────────────────────────────────────────
     -> clean
     -> ruff
