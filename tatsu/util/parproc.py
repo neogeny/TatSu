@@ -35,13 +35,13 @@ from . import identity, memory_use, startscript, try_read
 from .datetimetools import iso_logpath
 from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
 
-
 __all__: list[str] = ['parallel_proc', 'parproc', 'processing_loop']
 
 EOLCH = '\r' if sys.stderr.isatty() else '\n'
 sys.setrecursionlimit(2**16)
 
 type Func = Callable[[Any], Any]
+
 
 class Task(NamedTuple):
     func: Func
@@ -348,9 +348,7 @@ def _file_process_summary(
         sys.exit(1)
 
 
-def active_pmap() -> (
-    Callable[[Func, Iterable[Any]], Iterable[Result]]
-):
+def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
     def executor_pmap(
         executorcls: type[Executor],
         process: Func,
@@ -367,21 +365,15 @@ def active_pmap() -> (
             for future in as_completed(futures):
                 yield future.result()
 
-    def thread_pmap(
-        process: Func, tasks: Iterable[Any]
-    ) -> Iterable[Result]:
+    def thread_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[Result]:
         yield from executor_pmap(ThreadPoolExecutor, process, tasks)
 
-    def process_pmap(
-        process: Func, tasks: Iterable[Any]
-    ) -> Iterable[Result]:
+    def process_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[Result]:
         yield from executor_pmap(
             ProcessPoolExecutor, process, tasks, max_workers=multiprocessing.cpu_count()
         )
 
-    def imap_pmap(
-        process: Func, tasks: Iterable[Any]
-    ) -> Iterable[Result]:
+    def imap_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[Result]:
         tasks = list(tasks)
         nworkers = 4 * max(1, multiprocessing.cpu_count())
 
