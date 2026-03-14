@@ -28,7 +28,7 @@ mdurl==0.1.2
     # via markdown-it-py
 mypy-extensions==1.1.0
     # via black
-nodejs-wheel-binaries==24.14.0
+nodejs-wheel-binaries==22.20.0
     # via basedpyright
 packaging==26.0
     # via

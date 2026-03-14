@@ -53,6 +53,7 @@ dev = [
     "diskcache>=5.6.3",
     "graphviz>=0.21",
     "invoke>=2.2.1",
+    "nodejs-wheel-binaries<24.11",
     "progress>=1.6.1",
     "psutil>=7.2.2",
     "pyrefly>=0.55.0",

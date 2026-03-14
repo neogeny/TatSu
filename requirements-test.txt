@@ -30,7 +30,7 @@ mypy-extensions==1.1.0
     # via
     #   black
     #   mypy
-nodejs-wheel-binaries==24.14.0
+nodejs-wheel-binaries==22.20.0
     # via basedpyright
 packaging==26.0
     # via
