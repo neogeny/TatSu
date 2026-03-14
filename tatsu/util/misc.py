@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import shutil
 
+from .itertools import first  # noqa  # pyright: ignore[reportUnusedImport]
+
 
 def platform_has_command(name) -> bool:
     # noinspection PyDeprecation
