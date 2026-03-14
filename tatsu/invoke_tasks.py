@@ -454,7 +454,7 @@ def calc(c: Context):
         c.run('uv run make -s clean test', pty=True, hide='both')
 
 
-@task(pre=[clean, begin, calc])
+@task(pre=[clean, begin, g2e, calc])
 def examples(_c: Context):
     success_print(task_=examples)
 

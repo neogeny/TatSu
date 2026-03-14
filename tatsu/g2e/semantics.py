@@ -30,6 +30,20 @@ class ANTLRSemantics:
         self.synthetic_rules = []
 
     def grammar(self, ast: AST) -> model.Grammar:
+        # Add any defined tokens that were not part of a rule
+        for name, exp in self.tokens.items():
+            if name not in self.token_rules:
+                self.synthetic_rules.append(model.Rule(name=name, exp=exp))
+
+        # Add any token rules that were referenced but not explicitly defined
+        # (they will still be Box(Call(...)) placeholders)
+        for name, exp in self.token_rules.items():
+            if isinstance(exp, model.Box):
+                # Create a rule for this placeholder
+                rule_name = name.lower()
+                if not any(r.name == rule_name for r in ast.rules):
+                     self.synthetic_rules.append(model.Rule(name=rule_name, exp=exp))
+
         return model.Grammar(
             self.name,
             [r for r in chain(ast.rules, self.synthetic_rules) if r is not None],
@@ -40,19 +54,21 @@ class ANTLRSemantics:
         exp = ast.exp
         if name[0].isupper():
             name = name.upper()
-            if isinstance(exp, model.Token):
-                if name in self.token_rules:
-                    self.token_rules[name].exp = exp  # it is a model.Box?
-                else:
-                    self.token_rules[name] = exp
-                return None
-            elif not ast.fragment and not isinstance(exp, model.Model):
-                ref = model.Call(name.lower())
-                if name in self.token_rules:
-                    self.token_rules[name].exp = ref
-                else:
-                    self.token_rules[name] = ref
-                name = name.lower()
+            # This is a token rule.
+            # If a placeholder (Box) for this token already exists, update it.
+            if name in self.token_rules and isinstance(self.token_rules.get(name), model.Box):
+                self.token_rules[name].exp = exp
+            else:
+                # Otherwise, just store the token definition.
+                self.token_rules[name] = exp
+
+            # If the expression is not a simple token, it's a fragment rule
+            # that defines a token. We need a standard rule for it.
+            if not isinstance(exp, model.Token):
+                return model.Rule(ast=ast, name=name.lower(), exp=exp)
+
+            # Simple token rules do not generate model.Rule objects directly
+            return None
 
         return model.Rule(ast=ast, name=name, params=ast.params, kwparams=ast.kwparams)
 
@@ -86,8 +102,6 @@ class ANTLRSemantics:
         return None
 
     def optional(self, ast: model.Optional) -> model.Optional:
-        if isinstance(ast.exp, model.Optional):
-            ast = ast.exp
         return model.Optional(ast)
 
     def closure(self, ast: model.Model) -> model.Closure:
@@ -186,13 +200,15 @@ class ANTLRSemantics:
     def token_ref(self, ast: AST) -> model.Model:
         name = camel2py(ast).upper()
 
-        value = self.tokens.get(name)
-        if value and isinstance(value, model.Model):
-            return value
+        # If the token is already fully defined, return it
+        if name in self.token_rules and not isinstance(self.token_rules[name], model.Box):
+            return self.token_rules[name]
 
+        # If a placeholder exists, return it
         if name in self.token_rules:
-            exp = self.token_rules[name]
-        else:
-            exp = model.Box(model.Call(name))
-            self.token_rules[name] = exp
+            return self.token_rules[name]
+
+        # Otherwise, create a new placeholder for a future definition
+        exp = model.Box(model.Call(name.lower()))
+        self.token_rules[name] = exp
         return exp
