@@ -106,10 +106,6 @@ class TatSuBootstrapRules:
         config = config.override(**settings)
         self._config = config
 
-    @property
-    def config(self) -> ParserConfig:
-        assert isinstance(self._config, ParserConfig)
-        return self._config
 
     @tatsu.rule
     def start(self, ctx: Ctx) -> Any:

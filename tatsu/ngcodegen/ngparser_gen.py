@@ -436,12 +436,12 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 self._gen_init(grammar)
                 self.print('self._config = config')
                 self.print()
-            self.print("""
-                @property
-                def config(self) -> ParserConfig:
-                    assert isinstance(self._config, ParserConfig)
-                    return self._config
-                """)
+            # self.print("""
+            #     @property
+            #     def config(self) -> ParserConfig:
+            #         assert isinstance(self._config, ParserConfig)
+            #         return self._config
+            #     """)
             self.print()
             self.walk(grammar.rules)
         self.print()

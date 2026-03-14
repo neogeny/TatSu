@@ -53,7 +53,7 @@ class Parser(ParseContext):
         self.rulesource = rulesource
 
         config = ParserConfig.new(config, **settings)
-        srcconfig = ParserConfig.new(getattr(rulesource, 'config', None))
+        srcconfig = ParserConfig.new(getattr(rulesource, '_config', None))
         config = srcconfig.override_config(config)
 
         super().__init__(config=config)
