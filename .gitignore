@@ -96,3 +96,4 @@ celerybeat-schedule
 
 ### --- Caches ---
 .tmp.driveupload/
+!/.tmp.drivedownload/
