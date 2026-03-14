@@ -30,8 +30,8 @@ Before creating an environment for |TatSu| these must be available:
 
 |TatSu| relies on Invoke_'s ``tasks.py`` to run the tasks for static analysis,
 testing, building, documentation, and publishing the project. ``tasks.py`` resides
-in ``./tatsu/tasks.py`` and there is a symbolic link to it at the project's repository
-root, ``./tasks.py``.
+in ``./tatsu/invoke_tasks.py`` and there is a symbolic link to it at the project's
+repository root, ``./invoke_tasks.py``.
 
 To run the tasks use:
 
@@ -109,9 +109,8 @@ for development and testing:
 testing
 ^^^^^^^
 
-The ``tasks.py`` runs all static analysis (linting), typing, unit test,
-documentation, and build tasks by default.
-as the default:
+``invoke -c invoke_tasks`` runs all static analysis (linting), typing, unit test,
+documentation, and build tasks by default:
 
 .. code:: bash
 
