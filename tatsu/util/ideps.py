@@ -6,7 +6,7 @@ import ast
 import sys
 from itertools import starmap
 from pathlib import Path
-from typing import NamedTuple
+from typing import Any, NamedTuple, cast
 
 from rich.console import Console
 from rich.tree import Tree
@@ -250,8 +250,8 @@ def render(results: list[ModuleImports]) -> Tree:
     return root
 
 
-def main(*args) -> None:
-    args = list(args)
+def main(*argsp: Any) -> None:
+    args = list(argsp)
     force_color = "--color" in args
     if force_color:
         args.remove("--color")
