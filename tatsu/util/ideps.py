@@ -250,8 +250,8 @@ def render(results: list[ModuleImports]) -> Tree:
     return root
 
 
-def main() -> None:
-    args = sys.argv[1:]
+def main(*args) -> None:
+    args = list(args)
     force_color = "--color" in args
     if force_color:
         args.remove("--color")
@@ -285,4 +285,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(*sys.argv[1:])
