@@ -9,6 +9,7 @@ Diagnostic messages are sent to stderr; reversed text is sent to stdout.
 by [apalala@gmail.com](https://github.com/apalala)
 Gemini 3 Flash - 2026-01-28
 """
+
 from __future__ import annotations
 
 import os
