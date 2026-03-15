@@ -5,6 +5,7 @@ from __future__ import annotations
 import codecs
 import functools
 import hashlib
+import itertools
 import re
 import unicodedata
 from collections import namedtuple
@@ -43,43 +44,44 @@ def countlines(s: str, cmtstr: str = r'#') -> lcnt:
     Splits text into lines first, then classifies each line.
     """
     # by Gemini 2026-03-15
-    # if not s:
-    #     return lcnt(totl=0, blnk=0, cmnt=0, code=0)
+    if not s:
+        return lcnt(totl=1, blnk=1, cmnt=0, code=0)
 
-    # Outer loop: Split based on line endings (1 + separators)
-    lines = re.split(r"\r?\n|\r", s)
-
-    # Inner classification regex: check only the start of the line.
-    inner = re.compile(fr"""(?x)
-        ^ [ \t]* (?:
-              (?P<cmnt> [{cmtstr}] )
-            | (?P<code>  \S )
-        )
-    """)
-
-    totl = len(lines)
+    totl = 0
     blnk_count = 0
     cmnt_count = 0
     code_count = 0
 
-    for line in lines:
+    def match_inner(line: str):
+        nonlocal blnk_count, cmnt_count, code_count
+        inner = re.compile(fr"""(?x)
+            ^ [ \t]* (?:
+                  (?P<cmnt> [{cmtstr}] )
+                | (?P<code>  \S )
+            )
+        """)
         match = inner.match(line)
-
         if not match:
             # If the regex didn't find a comment char or a non-whitespace char,
             # the line is effectively blank.
             blnk_count += 1
-            continue
+            return
 
         groups = match.groupdict()
-
         if groups['cmnt'] is not None:
             cmnt_count += 1
         elif groups['code'] is not None:
             code_count += 1
         else:
-            # Fallback for logical completeness
             blnk_count += 1
+
+    for line in s.splitlines():
+        totl += 1
+        match_inner(line)
+
+    if s.endswith(('\r', '\n')):
+        totl += 1
+        blnk_count += 1
 
     result = lcnt(
         totl=totl,

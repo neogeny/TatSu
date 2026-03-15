@@ -86,6 +86,7 @@ def test_sloc_consistency(text, expect, lcount):
     actual = countlines(text)
 
     assert [text, lcount] == [text, linecount(text)]
+    assert [text, actual.totl] == [text, lcount]
 
     # Assert expect against actual quadruple, including text for context
     assert [text, actual] == [text, expect]
