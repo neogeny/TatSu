@@ -32,8 +32,9 @@ from rich.progress import (  # type: ignore
 )
 
 from . import identity, memory_use, startscript, try_read
-from .datetimetools import iso_logpath
+from .timetools import iso_logpath
 from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
+
 
 __all__: list[str] = ['parallel_proc', 'parproc', 'processing_loop']
 

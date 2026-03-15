@@ -8,10 +8,12 @@ import importlib.util
 import sys
 import time
 from collections.abc import Iterable
-from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from types import SimpleNamespace
+
+from .common import try_read
+from .timetools import timer
+
 
 # Add project root to sys.path to ensure tatsu is importable
 project_root = Path(__file__).resolve().parent.parent
@@ -28,53 +30,6 @@ class BenchmarkResult:
     setup_time: float
     total_parsing_time: float
     average_parsing_time: float
-
-
-def try_read(filename: str | Path) -> str:
-    path = Path(filename)
-    for e in ['utf-8', 'utf-16', 'latin-1', 'cp1252', 'ascii']:
-        try:
-            return path.read_text(encoding=e)
-        except UnicodeError:
-            pass
-    raise ValueError(f"cannot find the encoding for '{filename}'")
-
-
-@contextmanager
-def timer():
-    import time
-    from dataclasses import dataclass
-
-    @dataclass(slots=True)
-    class Timing:
-        start: float = 0.0
-        _last_lap: float = 0.0
-        _end: float = -1.0
-
-        def __post_init__(self):
-            now = time.perf_counter()
-            self.start = now
-            self._last_lap = now
-
-        @property
-        def delta(self):
-            if self._end != -1.0:
-                return self._end - self.start
-            return time.perf_counter() - self.start
-
-        def lap(self):
-            if self._end != -1.0:
-                return 0.0
-            now = time.perf_counter()
-            duration = now - self._last_lap
-            self._last_lap = now
-            return duration
-
-    res = Timing()
-    try:
-        yield res
-    finally:
-        res._end = time.perf_counter()
 
 
 def benchmark_in_memory(
