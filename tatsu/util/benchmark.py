@@ -11,6 +11,8 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+from tatsu.util import countlines
+
 from .common import try_read
 from .timetools import timer
 
@@ -29,6 +31,7 @@ class BenchmarkResult:
     setup_time: float
     total_parsing_time: float
     average_parsing_time: float
+    lines_sec: float
 
 
 def benchmark_in_memory(
@@ -44,12 +47,14 @@ def benchmark_in_memory(
 
     total_parsing_time = 0.0
     file_count = 0
+    lines_sec = 0
     for input_path in input_paths:
         print(f"{f'{input_path.name}...':60}", end='\r')
         input_text = try_read(input_path)
         with timer() as t:
             model.parse(input_text)
         total_parsing_time += t.delta
+        lines_sec += countlines(input_text).code / t.delta
         file_count += 1
     print()
 
@@ -58,6 +63,7 @@ def benchmark_in_memory(
         setup_time=compilation_time,
         total_parsing_time=total_parsing_time,
         average_parsing_time=total_parsing_time / file_count if file_count else 0,
+        lines_sec=lines_sec / file_count if file_count else 0,
     )
 
 
@@ -71,6 +77,7 @@ def benchmark_generated_parser(
     # --- One-time setup: Code generation and import ---
     total_parsing_time = 0.0
     file_count = 0
+    lines_sec = 0
     temp_parser_filename = f"temp_parser_{int(time.time())}.py"
     temp_parser_path = Path(temp_parser_filename).resolve()
     try:
@@ -116,6 +123,7 @@ def benchmark_generated_parser(
             with timer() as t:
                 parser_instance.parse(input_text)
             total_parsing_time += t.delta
+            lines_sec += countlines(input_text).code / t.delta
             file_count += 1
         print()
     finally:
@@ -127,6 +135,7 @@ def benchmark_generated_parser(
         setup_time=generation_time,
         total_parsing_time=total_parsing_time,
         average_parsing_time=total_parsing_time / file_count if file_count else 0,
+        lines_sec=lines_sec / file_count if file_count else 0,
     )
 
 
@@ -155,6 +164,7 @@ def print_summary(
         f"{'Average parsing time:':{w}}"
         f"{in_memory_run.average_parsing_time:.4f}s/file"
     )
+    print(f"{'Average speed:':{w}}" f"{in_memory_run.lines_sec:.4f} sloc/sec")
 
     print("\n--- Generated Python Parser ---")
     print(f"{'One-time code generation:':{w}}" f"{generated_run.setup_time:.4f}")
@@ -166,6 +176,7 @@ def print_summary(
         f"{'Average parsing time:':{w}}"
         f"{generated_run.average_parsing_time:.4f}s/file"
     )
+    print(f"{'Average speed:':{w}}" f"{generated_run.lines_sec:.4f} sloc/sec")
 
     print("\n--- Comparison (Average Parsing Time) ---")
     model_avg_time = in_memory_run.average_parsing_time

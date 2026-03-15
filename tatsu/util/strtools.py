@@ -94,7 +94,9 @@ def countlines(s: str, cmtstr: str = r'#') -> lcnt:
         code=code_count,
     )
 
-    assert totl == blnk_count + cmnt_count + code_count, f'{totl} != {blnk_count} + {cmnt_count} + {code_count}'
+    assert (
+        totl == blnk_count + cmnt_count + code_count
+    ), f'{totl} != {blnk_count} + {cmnt_count} + {code_count}'
     return result
 
 
