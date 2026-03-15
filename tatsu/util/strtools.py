@@ -6,8 +6,8 @@ import codecs
 import functools
 import hashlib
 import re
-import sys
 import unicodedata
+from collections import namedtuple
 from collections.abc import Iterable
 from io import StringIO
 from typing import Any
@@ -29,6 +29,73 @@ def linecount(s: str) -> int:
 
 def ismultiline(s: str) -> int:
     return bool(re.search(r"(?m)[\r\n]", s))
+
+
+lcnt = namedtuple('lcnt', 'totl blnk cmnt code')
+
+
+def countlines(s: str, cmtstr: str = r'#') -> lcnt:
+    """
+    Counts Source Lines of Code (SLOC) using an 'Editor View' semantic.
+
+    Categorizes lines as code, comment, or blank based on the first
+    meaningful character. Line totals follow the '1 + separators' rule.
+    An empty string is treated as 0 lines.
+
+    Args:
+        s: The input string to analyze.
+        cmtstr: The character or regex class representing a comment start.
+
+    Returns:
+        An lcnt namedtuple: (totl, blnk, cmnt, code).
+    """
+    # by Gemini 2026-03-15
+    # if not s:
+    #     return lcnt(totl=0, blnk=0, cmnt=0, code=0)
+
+    pattern = re.compile(fr"""(?xm)
+        (?:
+              (?P<cmnt> [ \t]* [{cmtstr}] )
+            | (?P<code> [ \t]* \S )
+            | (?P<blnk> [ \t]* )
+        )
+        .*?
+        (?P<brks> \r?\n | \r | $ )
+    """)
+
+    # Every non-empty string produces one extra zero-width match at EOF.
+    # Initializing at -1 compensates for this phantom match.
+    totl = 0
+    blnk_count = 0
+    cmnt_count = 0
+    code_count = 0
+    brks_count = 0
+
+    for match in pattern.finditer(s):
+        if match.start() == len(s) and totl > 0:
+            break
+        groups = match.groupdict()
+
+        is_cmnt = groups['cmnt'] is not None
+        is_code = groups['code'] is not None
+        is_blnk = groups['blnk'] is not None
+        is_brks = groups['brks'] is not None
+
+        totl += 1
+        cmnt_count += is_cmnt
+        code_count += is_code
+        blnk_count += is_blnk
+        brks_count += is_brks
+
+    result = lcnt(
+        totl=totl,
+        blnk=blnk_count,
+        cmnt=cmnt_count,
+        code=code_count,
+    )
+
+    assert totl == blnk_count + cmnt_count + code_count, f'{totl} != {blnk_count} + {cmnt_count} + {code_count}'
+    return result
 
 
 def unicode_display_len(text: str) -> int:

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from tatsu.util import linecount, strtools
+from tatsu.util import countlines, lcnt, linecount, strtools
 
 
 def test_visible_width():
@@ -48,3 +48,44 @@ def test_visual_linecount(text, expected):
 )
 def test_linecount_delta(text, delta):
     assert linecount(text) - delta == len(text.splitlines())
+
+
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("", False),
+        ("hello", False),
+        ("hello\n", True),
+        ("\n\n", True),
+        ("win\r\nline", True),
+        ("mac\rline", True),
+        ("n\ro\r\nw", True),
+        ("line1\nline2", True),
+    ],
+)
+def test_ismultiline(text, expected):
+    assert strtools.ismultiline(text) == expected
+
+
+@pytest.mark.parametrize(
+    "text, expect, lcount",
+    [
+        ("", lcnt(1, 1, 0, 0), 1),
+        ("x=1", lcnt(1, 0, 0, 1), 1),
+        ("\n", lcnt(1, 1, 0, 0), 2),
+        ("\r\n\r\n", lcnt(2, 2, 0, 0), 3),
+        ("x=1\n", lcnt(1, 0, 0, 1), 2),
+        ("# comment", lcnt(1, 0, 1, 0), 1),
+        ("  # indented", lcnt(1, 0, 1, 0), 1),
+        ("x=1 # inline", lcnt(1, 0, 0, 1), 1),
+        (" \t \n#\ncode", lcnt(3, 1, 1, 1), 3),
+        ("x=1\n#\n\n#\ny=2", lcnt(5, 1, 2, 2), 5),
+    ],
+)
+def test_sloc_consistency(text, expect, lcount):
+    actual = countlines(text)
+
+    assert [text, lcount] == [text, linecount(text)]
+
+    # Assert expect against actual quadruple, including text for context
+    assert [text, actual] == [text, expect]
