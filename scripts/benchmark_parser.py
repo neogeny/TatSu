@@ -11,6 +11,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+
 # Add project root to sys.path to ensure tatsu is importable
 project_root = Path(__file__).resolve().parent.parent
 if str(project_root) not in sys.path:
@@ -28,8 +29,19 @@ class BenchmarkResult:
     average_parsing_time: float
 
 
+def try_read(filename: str | Path) -> str:
+    path = Path(filename)
+    for e in ['utf-8', 'utf-16', 'latin-1', 'cp1252', 'ascii']:
+        try:
+            return path.read_text(encoding=e)
+        except UnicodeError:
+            pass
+    raise ValueError(f"cannot find the encoding for '{filename}'")
+
+
 def benchmark_in_memory(
-    grammar_path: Path, input_paths: Iterable[Path]
+    grammar_path: Path,
+    input_paths: Iterable[Path],
 ) -> BenchmarkResult:
     grammar_text = grammar_path.read_text(encoding='utf-8')
 
@@ -41,13 +53,14 @@ def benchmark_in_memory(
     total_parsing_time = 0.0
     file_count = 0
     for input_path in input_paths:
-        print(f"  Parsing {input_path.name} (in-memory)...")
-        input_text = input_path.read_text(encoding='utf-8')
+        print(f"{f'{input_path.name}...':60}", end='\r')
+        input_text = try_read(input_path)
         start_parse = time.time()
         model.parse(input_text)
         end_parse = time.time()
         total_parsing_time += end_parse - start_parse
         file_count += 1
+    print()
 
     return BenchmarkResult(
         file_count=file_count,
@@ -58,7 +71,8 @@ def benchmark_in_memory(
 
 
 def benchmark_generated_parser(
-    grammar_path: Path, input_paths: Iterable[Path]
+    grammar_path: Path,
+    input_paths: Iterable[Path],
 ) -> BenchmarkResult:
     grammar_name = 'Benchmark'
     grammar_text = grammar_path.read_text(encoding='utf-8')
@@ -111,14 +125,14 @@ def benchmark_generated_parser(
         # --- End one-time setup ---
 
         for input_path in input_paths:
-            print(f"  Parsing {input_path.name} (generated)...")
-            input_text = input_path.read_text(encoding='utf-8')
+            print(f"{f'{input_path.name}...':60}", end='\r')
+            input_text = try_read(input_path)
             start_parse = time.time()
             parser_instance.parse(input_text)
             end_parse = time.time()
             total_parsing_time += end_parse - start_parse
             file_count += 1
-
+        print()
     finally:
         if temp_parser_path.exists():
             temp_parser_path.unlink()
@@ -131,28 +145,48 @@ def benchmark_generated_parser(
     )
 
 
-def print_summary(in_memory_run: BenchmarkResult, generated_run: BenchmarkResult):
+def print_summary(
+    grammar: str,
+    count: int,
+    compile_time: float,
+    in_memory_run: BenchmarkResult,
+    generated_run: BenchmarkResult,
+):
+    print(f"Grammar: {grammar}")
+    print(f"Input files: {count}")
+
+    w = 32
+    print()
+    print("\n--- One-time Grammar Compilation ---")
+    print(f"{'One-time compilation:':{w}}{compile_time:.4f}s")
+
     print("\n--- In-memory Model ---")
-    print(f"One-time compilation: {in_memory_run.setup_time:.4f}s")
+    print(f"{'One-time setup:':{w}}{in_memory_run.setup_time:.4f}s")
     print(
-        f"Total parsing time ({in_memory_run.file_count} files): "
+        f"{f'Total parsing time ({in_memory_run.file_count} files):':{w}}"
         f"{in_memory_run.total_parsing_time:.4f}s"
     )
-    print(f"Average parsing time: {in_memory_run.average_parsing_time:.4f}s/file")
+    print(
+        f"{'Average parsing time:':{w}}"
+        f"{in_memory_run.average_parsing_time:.4f}s/file"
+    )
 
     print("\n--- Generated Python Parser ---")
-    print(f"One-time code generation: {generated_run.setup_time:.4f}s")
+    print(f"{'One-time code generation:':{w}}" f"{generated_run.setup_time:.4f}")
     print(
-        f"Total parsing time ({generated_run.file_count} files): "
+        f"{f'Total parsing time ({generated_run.file_count} files):':{w}}"
         f"{generated_run.total_parsing_time:.4f}s"
     )
-    print(f"Average parsing time: {generated_run.average_parsing_time:.4f}s/file")
+    print(
+        f"{'Average parsing time:':{w}}"
+        f"{generated_run.average_parsing_time:.4f}s/file"
+    )
 
     print("\n--- Comparison (Average Parsing Time) ---")
     model_avg_time = in_memory_run.average_parsing_time
     gen_avg_time = generated_run.average_parsing_time
-    print(f"In-memory: {model_avg_time:.4f}s/file")
-    print(f"Generated: {gen_avg_time:.4f}s/file")
+    print(f"{'In-memory':{w}}{model_avg_time:.4f}s/file")
+    print(f"{'Generated:':{w}}{gen_avg_time:.4f}s/file")
 
     if gen_avg_time < model_avg_time:
         factor = model_avg_time / gen_avg_time
@@ -179,11 +213,22 @@ def main():
     print(f"Input files: {len(args.inputs)}")
 
     try:
+        sys.setrecursionlimit(2**16)
+        start_time = time.time()
+        tatsu.compile(Path(args.grammar).read_text())
+        one_time_time = time.time() - start_time
         in_memory_run = benchmark_in_memory(args.grammar, args.inputs)
         generated_run = benchmark_generated_parser(args.grammar, args.inputs)
-        print_summary(in_memory_run, generated_run)
+        print_summary(
+            args.grammar,
+            len(args.inputs),
+            one_time_time,
+            in_memory_run,
+            generated_run,
+        )
     except Exception as e:
         print(f"\nAn error occurred: {e}", file=sys.stderr)
+        raise
         sys.exit(1)
 
 
