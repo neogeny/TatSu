@@ -72,9 +72,9 @@ def test_ismultiline(text, expected):
     [
         ("", lcnt(1, 1, 0, 0), 1),
         ("x=1", lcnt(1, 0, 0, 1), 1),
-        ("\n", lcnt(1, 1, 0, 0), 2),
-        ("\r\n\r\n", lcnt(2, 2, 0, 0), 3),
-        ("x=1\n", lcnt(1, 0, 0, 1), 2),
+        ("\n", lcnt(2, 2, 0, 0), 2),
+        ("\r\n\r\n", lcnt(3, 3, 0, 0), 3),
+        ("x=1\n", lcnt(2, 1, 0, 1), 2),
         ("# comment", lcnt(1, 0, 1, 0), 1),
         ("  # indented", lcnt(1, 0, 1, 0), 1),
         ("x=1 # inline", lcnt(1, 0, 0, 1), 1),

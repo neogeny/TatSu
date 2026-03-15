@@ -31,61 +31,55 @@ def ismultiline(s: str) -> int:
     return bool(re.search(r"(?m)[\r\n]", s))
 
 
-lcnt = namedtuple('lcnt', 'totl blnk cmnt code')
+import re
+from collections import namedtuple
 
+
+lcnt = namedtuple('lcnt', 'totl blnk cmnt code')
 
 def countlines(s: str, cmtstr: str = r'#') -> lcnt:
     """
     Counts Source Lines of Code (SLOC) using an 'Editor View' semantic.
-
-    Categorizes lines as code, comment, or blank based on the first
-    meaningful character. Line totals follow the '1 + separators' rule.
-    An empty string is treated as 0 lines.
-
-    Args:
-        s: The input string to analyze.
-        cmtstr: The character or regex class representing a comment start.
-
-    Returns:
-        An lcnt namedtuple: (totl, blnk, cmnt, code).
+    Splits text into lines first, then classifies each line.
     """
     # by Gemini 2026-03-15
     # if not s:
     #     return lcnt(totl=0, blnk=0, cmnt=0, code=0)
 
-    pattern = re.compile(fr"""(?xm)
-        (?:
-              (?P<cmnt> [ \t]* [{cmtstr}] )
-            | (?P<code> [ \t]* \S )
-            | (?P<blnk> [ \t]* )
+    # Outer loop: Split based on line endings (1 + separators)
+    lines = re.split(r"\r?\n|\r", s)
+
+    # Inner classification regex: check only the start of the line.
+    inner = re.compile(fr"""(?x)
+        ^ [ \t]* (?:
+              (?P<cmnt> [{cmtstr}] )
+            | (?P<code>  \S )
         )
-        .*?
-        (?P<brks> \r?\n | \r | $ )
     """)
 
-    # Every non-empty string produces one extra zero-width match at EOF.
-    # Initializing at -1 compensates for this phantom match.
-    totl = 0
+    totl = len(lines)
     blnk_count = 0
     cmnt_count = 0
     code_count = 0
-    brks_count = 0
 
-    for match in pattern.finditer(s):
-        if match.start() == len(s) and totl > 0:
-            break
+    for line in lines:
+        match = inner.match(line)
+
+        if not match:
+            # If the regex didn't find a comment char or a non-whitespace char,
+            # the line is effectively blank.
+            blnk_count += 1
+            continue
+
         groups = match.groupdict()
 
-        is_cmnt = groups['cmnt'] is not None
-        is_code = groups['code'] is not None
-        is_blnk = groups['blnk'] is not None
-        is_brks = groups['brks'] is not None
-
-        totl += 1
-        cmnt_count += is_cmnt
-        code_count += is_code
-        blnk_count += is_blnk
-        brks_count += is_brks
+        if groups['cmnt'] is not None:
+            cmnt_count += 1
+        elif groups['code'] is not None:
+            code_count += 1
+        else:
+            # Fallback for logical completeness
+            blnk_count += 1
 
     result = lcnt(
         totl=totl,
@@ -94,9 +88,7 @@ def countlines(s: str, cmtstr: str = r'#') -> lcnt:
         code=code_count,
     )
 
-    assert (
-        totl == blnk_count + cmnt_count + code_count
-    ), f'{totl} != {blnk_count} + {cmnt_count} + {code_count}'
+    assert totl == blnk_count + cmnt_count + code_count
     return result
 
 
