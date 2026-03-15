@@ -11,6 +11,7 @@ import os.path
 from pathlib import Path
 from typing import Any
 
+
 __all__ = [
     'startscript',
     'is_posix',
@@ -74,12 +75,11 @@ else:
         return process.memory_info().rss
 
 
-def try_read(filename):
-    if isinstance(filename, Path):
-        filename = str(filename)
-    for e in ['utf-16', 'utf-8', 'latin-1', 'cp1252', 'ascii']:
+def try_read(filename: str | Path) -> str:
+    path = Path(filename)
+    for e in ['utf-8', 'utf-16', 'latin-1', 'cp1252', 'ascii']:
         try:
-            return Path(filename).read_text(encoding=e)
+            return path.read_text(encoding=e)
         except UnicodeError:
             pass
     raise ValueError(f"cannot find the encoding for '{filename}'")
