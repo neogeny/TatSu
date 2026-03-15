@@ -16,6 +16,7 @@ from tatsu.util import countlines
 from .common import try_read
 from .timetools import timer
 
+
 # Add project root to sys.path to ensure tatsu is importable
 project_root = Path(__file__).resolve().parent.parent
 if str(project_root) not in sys.path:
@@ -30,8 +31,8 @@ class BenchmarkResult:
     file_count: int
     setup_time: float
     total_parsing_time: float
-    average_parsing_time: float
-    lines_sec: float
+    avg_parsing_time: float
+    avg_lines_sec: float
 
 
 def benchmark_in_memory(
@@ -62,8 +63,8 @@ def benchmark_in_memory(
         file_count=file_count,
         setup_time=compilation_time,
         total_parsing_time=total_parsing_time,
-        average_parsing_time=total_parsing_time / file_count if file_count else 0,
-        lines_sec=lines_sec / file_count if file_count else 0,
+        avg_parsing_time=total_parsing_time / file_count if file_count else 0,
+        avg_lines_sec=lines_sec / file_count if file_count else 0,
     )
 
 
@@ -134,8 +135,8 @@ def benchmark_generated_parser(
         file_count=file_count,
         setup_time=generation_time,
         total_parsing_time=total_parsing_time,
-        average_parsing_time=total_parsing_time / file_count if file_count else 0,
-        lines_sec=lines_sec / file_count if file_count else 0,
+        avg_parsing_time=total_parsing_time / file_count if file_count else 0,
+        avg_lines_sec=lines_sec / file_count if file_count else 0,
     )
 
 
@@ -152,44 +153,44 @@ def print_summary(
     w = 32
     print()
     print("\n--- One-time Grammar Compilation ---")
-    print(f"{'One-time compilation:':{w}}{compile_time:.4f}s")
+    print(f"{'One-time compilation:':{w}}{compile_time:.2f} s")
 
     print("\n--- In-memory Model ---")
-    print(f"{'One-time setup:':{w}}{in_memory_run.setup_time:.4f}s")
+    print(f"{'One-time setup:':{w}}{in_memory_run.setup_time:.2f} s")
     print(
         f"{f'Total parsing time ({in_memory_run.file_count} files):':{w}}"
-        f"{in_memory_run.total_parsing_time:.4f}s"
+        f"{in_memory_run.total_parsing_time:.2f} s"
     )
     print(
         f"{'Average parsing time:':{w}}"
-        f"{in_memory_run.average_parsing_time:.4f}s/file"
+        f"{in_memory_run.avg_parsing_time:.2f} s/file"
     )
-    print(f"{'Average speed:':{w}}" f"{in_memory_run.lines_sec:.4f} sloc/sec")
+    print(f"{'Average speed:':{w-3}}" f"{in_memory_run.avg_lines_sec:.0f} sloc/sec")
 
     print("\n--- Generated Python Parser ---")
-    print(f"{'One-time code generation:':{w}}" f"{generated_run.setup_time:.4f}")
+    print(f"{'One-time code generation:':{w}}" f"{generated_run.setup_time:.2f}")
     print(
         f"{f'Total parsing time ({generated_run.file_count} files):':{w}}"
-        f"{generated_run.total_parsing_time:.4f}s"
+        f"{generated_run.total_parsing_time:.2f} s"
     )
     print(
         f"{'Average parsing time:':{w}}"
-        f"{generated_run.average_parsing_time:.4f}s/file"
+        f"{generated_run.avg_parsing_time:.2f} s/file"
     )
-    print(f"{'Average speed:':{w}}" f"{generated_run.lines_sec:.4f} sloc/sec")
+    print(f"{'Average speed:':{w-3}}" f"{generated_run.avg_lines_sec:.0f} sloc/sec")
 
     print("\n--- Comparison (Average Parsing Time) ---")
-    model_avg_time = in_memory_run.average_parsing_time
-    gen_avg_time = generated_run.average_parsing_time
-    print(f"{'In-memory':{w}}{model_avg_time:.4f}s/file")
-    print(f"{'Generated:':{w}}{gen_avg_time:.4f}s/file")
+    model_avg_sloc = in_memory_run.avg_lines_sec
+    gen_avg_sloc = generated_run.avg_lines_sec
+    print(f"{'In-memory':{w-3}}{model_avg_sloc:.0f} sloc/sec")
+    print(f"{'Generated:':{w-3}}{gen_avg_sloc:.0f} sloc/sec")
 
-    if gen_avg_time < model_avg_time:
-        factor = model_avg_time / gen_avg_time
-        print(f"Generated parser is {factor:.2f}x FASTER on average")
-    else:
-        factor = gen_avg_time / model_avg_time
+    if gen_avg_sloc < model_avg_sloc:
+        factor = model_avg_sloc / gen_avg_sloc
         print(f"Generated parser is {factor:.2f}x SLOWER on average")
+    else:
+        factor = gen_avg_sloc / model_avg_sloc
+        print(f"Generated parser is {factor:.2f}x FASTER on average")
 
 
 def benchmark(
