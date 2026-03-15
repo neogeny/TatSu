@@ -14,7 +14,6 @@ from pathlib import Path
 from .common import try_read
 from .timetools import timer
 
-
 # Add project root to sys.path to ensure tatsu is importable
 project_root = Path(__file__).resolve().parent.parent
 if str(project_root) not in sys.path:
