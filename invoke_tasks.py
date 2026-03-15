@@ -283,7 +283,7 @@ def black(c: Context, python: float = PYTHON):
     start_print(black)
     res = uv_run(
         c,
-        ["black", "tatsu", "tests", "examples"],
+        ["black", "tatsu", "tests", "examples", "scripts", "ng"],
         python=python,
         group='test',
         warn=True,
