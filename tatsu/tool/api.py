@@ -152,7 +152,7 @@ def to_python_sourcecode(
     **settings: Any,
 ):
     config = ParserConfig.new(config=config, name=name, filename=filename, **settings)
-    model = compile(grammar, name=name, filename=filename, config=config)
+    model = compile(grammar, config=config, name=name, filename=filename)
     return pythongen(model)
 
 
