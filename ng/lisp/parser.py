@@ -10,15 +10,12 @@
 #  Any changes you make to it will be overwritten the next time
 #  the file is generated.
 #
-# ruff: noqa
-# ty: ignore
-# mypy: ignore-errors
-# pyright: ignore
-# type: ignore
-# noqa
+# noqa # type: ignore # ruff: noqa
 # fmt: off
 
 from __future__ import annotations
+
+from typing import Any
 
 from tatsu import decorators as tatsu
 from tatsu.contexts import Ctx
@@ -109,101 +106,58 @@ class LISPRules:
         config = config.override(**settings)
         self._config = config
 
-    @property
-    def config(self) -> ParserConfig:
-        assert isinstance(self._config, ParserConfig)
-        return self._config
 
     @tatsu.rule
-    def start(self, ctx: Ctx):
-        with ctx.choice() as α:
-            α.expecting(
-              '<lisp>',
-              '<list_>',
-              '<number>',
-              '<sexp>',
-              '<symbol>'
-            )
-
-            @α.option
-                def 〇(ctx: Ctx):
-                self.lisp(ctx)
+    def start(self, ctx: Ctx) -> Any:
+        self.lisp(ctx)
 
     @tatsu.rule
-    def lisp(self, ctx: Ctx):
+    def lisp(self, ctx: Ctx) -> Any:
         with ctx.choice() as α:
-            α.expecting(
-              '(',
-              '[_\\w][_\\w\\d]*',
-              '\\d+(?:\\.\\d+)',
-              '<list_>',
-              '<number>',
-              '<sexp>',
-              '<symbol>'
-            )
-
             @α.option
-            def 〇(ctx: Ctx):
+            def 〇(ctx: Ctx) -> Any:
                 self.sexp(ctx)
             @α.option
-            def 〇(ctx: Ctx):
+            def 〇(ctx: Ctx) -> Any:
                 self.list_(ctx)
             @α.option
-            def 〇(ctx: Ctx):
+            def 〇(ctx: Ctx) -> Any:
                 self.symbol(ctx)
             @α.option
-            def 〇(ctx: Ctx):
+            def 〇(ctx: Ctx) -> Any:
                 self.number(ctx)
 
     @tatsu.rule('SExp')
-    def sexp(self, ctx: Ctx):
-        with ctx.choice() as α:
-            α.expecting('(')
-
-            @α.option
-            def 〇(ctx: Ctx):
-                ctx.define(['cdr', 'cons'], [])
-                ctx.token('(')
-                with ctx.nameset('cons'):
-                    self.lisp(ctx)
-                ctx.token('.')
-                ctx.cut()
-                with ctx.nameset('cdr'):
-                    self.lisp(ctx)
-                ctx.token(')')
+    def sexp(self, ctx: Ctx) -> Any:
+        ctx.define(['cdr', 'cons'], [])
+        ctx.token('(')
+        with ctx.nameset('cons'):
+            self.lisp(ctx)
+        ctx.token('.')
+        ctx.cut()
+        with ctx.nameset('cdr'):
+            self.lisp(ctx)
+        ctx.token(')')
 
     @tatsu.rule('List')
-    def list_(self, ctx: Ctx):
-        with ctx.choice() as α:
-            α.expecting('(')
+    def list_(self, ctx: Ctx) -> Any:
+        ctx.token('(')
+        with ctx.nameset('@'):
+            with ctx.loopopt() as cl:
+                cl.expecting('<lisp>')
 
-            @α.option
-            def 〇(ctx: Ctx):
-                ctx.token('(')
-                with ctx.nameset('@'):
-                    with ctx.loopopt() as cl:
-                        @cl.exp
-                        def 〇(ctx: Ctx):
-                            self.lisp(ctx)
-                ctx.token(')')
+                @cl.exp
+                def 〇(ctx: Ctx) -> Any:
+                    self.lisp(ctx)
+        ctx.token(')')
 
     @tatsu.rule('Symbol')
-    def symbol(self, ctx: Ctx):
-        with ctx.choice() as α:
-            α.expecting('[_\\w][_\\w\\d]*')
-
-            @α.option
-            def 〇(ctx: Ctx):
-                ctx.pattern(r'[_\w][_\w\d]*')
+    def symbol(self, ctx: Ctx) -> Any:
+        ctx.pattern(r'[_\w][_\w\d]*')
 
     @tatsu.rule('Number')
-    def number(self, ctx: Ctx):
-        with ctx.choice() as α:
-            α.expecting('\\d+(?:\\.\\d+)')
-
-            @α.option
-            def 〇(ctx: Ctx):
-                ctx.pattern(r'\d+(?:\.\d+)')
+    def number(self, ctx: Ctx) -> Any:
+        ctx.pattern(r'\d+(?:\.\d+)')
 
 
 def main(filename, **kwargs):

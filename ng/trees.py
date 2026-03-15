@@ -8,19 +8,10 @@ from asciitree import LeftAligned
 from rich import print
 from rich.tree import Tree
 
-
 type ASCIITree = dict[str, str | ASCIITree]
 
 tree: ASCIITree = {
-    'TatSu': {
-        'parsers': {
-            'base.py': {},
-            'ebnf.py': {}
-        },
-        'codegen': {
-            'python.py': {}
-        }
-    }
+    'TatSu': {'parsers': {'base.py': {}, 'ebnf.py': {}}, 'codegen': {'python.py': {}}}
 }
 
 
