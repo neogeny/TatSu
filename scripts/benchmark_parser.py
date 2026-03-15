@@ -8,9 +8,10 @@ import importlib.util
 import sys
 import time
 from collections.abc import Iterable
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-
+from types import SimpleNamespace
 
 # Add project root to sys.path to ensure tatsu is importable
 project_root = Path(__file__).resolve().parent.parent
@@ -39,26 +40,62 @@ def try_read(filename: str | Path) -> str:
     raise ValueError(f"cannot find the encoding for '{filename}'")
 
 
+@contextmanager
+def timer():
+    import time
+    from dataclasses import dataclass
+
+    @dataclass(slots=True)
+    class Timing:
+        start: float = 0.0
+        _last_lap: float = 0.0
+        _end: float = -1.0
+
+        def __post_init__(self):
+            now = time.perf_counter()
+            self.start = now
+            self._last_lap = now
+
+        @property
+        def delta(self):
+            if self._end != -1.0:
+                return self._end - self.start
+            return time.perf_counter() - self.start
+
+        def lap(self):
+            if self._end != -1.0:
+                return 0.0
+            now = time.perf_counter()
+            duration = now - self._last_lap
+            self._last_lap = now
+            return duration
+
+    res = Timing()
+    try:
+        yield res
+    finally:
+        res._end = time.perf_counter()
+
+
 def benchmark_in_memory(
-    grammar_path: Path,
+    grammar_path: str | Path,
     input_paths: Iterable[Path],
 ) -> BenchmarkResult:
+    grammar_path = Path(grammar_path)
     grammar_text = grammar_path.read_text(encoding='utf-8')
 
-    start_compile = time.time()
-    model = tatsu.compile(grammar_text)
-    end_compile = time.time()
-    compilation_time = end_compile - start_compile
+    with timer() as t:
+        model = tatsu.compile(grammar_text)
+    compilation_time = t.delta
 
     total_parsing_time = 0.0
     file_count = 0
     for input_path in input_paths:
         print(f"{f'{input_path.name}...':60}", end='\r')
         input_text = try_read(input_path)
-        start_parse = time.time()
-        model.parse(input_text)
-        end_parse = time.time()
-        total_parsing_time += end_parse - start_parse
+        with timer() as t:
+            model.parse(input_text)
+        total_parsing_time += t.delta
         file_count += 1
     print()
 
@@ -78,59 +115,53 @@ def benchmark_generated_parser(
     grammar_text = grammar_path.read_text(encoding='utf-8')
 
     # --- One-time setup: Code generation and import ---
-    start_gen = time.time()
-    python_source = tatsu.to_python_sourcecode(grammar_text, name=grammar_name)
-
-    # FIXME
-    # We still need the model to get the grammar name for the parser class
-    # model = tatsu.compile(grammar_text, name=default_name)
-    # grammar_name = model.name or default_name
-
-    temp_parser_filename = f"temp_parser_{int(time.time())}.py"
-    temp_parser_path = Path(temp_parser_filename).resolve()
-    temp_parser_path.write_text(python_source, encoding='utf-8')
-
     total_parsing_time = 0.0
     file_count = 0
+    temp_parser_filename = f"temp_parser_{int(time.time())}.py"
+    temp_parser_path = Path(temp_parser_filename).resolve()
     try:
-        spec = importlib.util.spec_from_file_location(
-            "temp_generated_parser", temp_parser_path
-        )
-        if not (spec and spec.loader):
-            raise ImportError("Could not create module spec")
+        with timer() as tgen:
+            python_source = tatsu.to_python_sourcecode(grammar_text, name=grammar_name)
+            temp_parser_path.write_text(python_source, encoding='utf-8')
 
-        module = importlib.util.module_from_spec(spec)
-        sys.modules["temp_generated_parser"] = module
-        spec.loader.exec_module(module)
+            spec = importlib.util.spec_from_file_location(
+                "temp_generated_parser", temp_parser_path
+            )
+            if not (spec and spec.loader):
+                raise ImportError("Could not create module spec")
 
-        expected_class_name = f"{grammar_name}Parser"
-        parser_class = getattr(module, expected_class_name, None)
+            module = importlib.util.module_from_spec(spec)
+            sys.modules["temp_generated_parser"] = module
+            spec.loader.exec_module(module)
 
-        if not parser_class:
-            for obj in vars(module).values():
-                if (
-                    isinstance(obj, type)
-                    and issubclass(obj, Parser)
-                    and obj is not Parser
-                ):
-                    parser_class = obj
-                    break
+            expected_class_name = f"{grammar_name}Parser"
+            parser_class = getattr(module, expected_class_name, None)
 
-        if not parser_class:
-            raise RuntimeError("Could not find a generated Parser class in the module.")
+            if not parser_class:
+                for obj in vars(module).values():
+                    if (
+                        isinstance(obj, type)
+                        and issubclass(obj, Parser)
+                        and obj is not Parser
+                    ):
+                        parser_class = obj
+                        break
 
-        parser_instance = parser_class()
-        end_gen = time.time()
-        generation_time = end_gen - start_gen
+            if not parser_class:
+                raise RuntimeError(
+                    "Could not find a generated Parser class in the module."
+                )
+
+            parser_instance = parser_class()
+        generation_time = tgen.delta
         # --- End one-time setup ---
 
         for input_path in input_paths:
             print(f"{f'{input_path.name}...':60}", end='\r')
             input_text = try_read(input_path)
-            start_parse = time.time()
-            parser_instance.parse(input_text)
-            end_parse = time.time()
-            total_parsing_time += end_parse - start_parse
+            with timer() as t:
+                parser_instance.parse(input_text)
+            total_parsing_time += t.delta
             file_count += 1
         print()
     finally:
@@ -196,6 +227,22 @@ def print_summary(
         print(f"Generated parser is {factor:.2f}x SLOWER on average")
 
 
+def benchmark(
+    grammar: str | Path,
+    filenames: Iterable[str | Path],
+) -> tuple[BenchmarkResult, BenchmarkResult]:
+    grammar = Path(grammar)
+    prevreclimit = sys.getrecursionlimit()
+    sys.setrecursionlimit(2**16)
+    try:
+        filepaths = [Path(f) for f in filenames]
+        in_memory_run = benchmark_in_memory(grammar, filepaths)
+        generated_run = benchmark_generated_parser(grammar, filepaths)
+        return in_memory_run, generated_run
+    finally:
+        sys.setrecursionlimit(prevreclimit)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Benchmark TatSu parsing methods")
     parser.add_argument("grammar", type=Path, help="Path to the grammar file")
@@ -209,16 +256,11 @@ def main():
             print(f"Error: File '{p}' not found.")
             sys.exit(1)
 
-    print(f"Grammar: {args.grammar}")
-    print(f"Input files: {len(args.inputs)}")
-
     try:
-        sys.setrecursionlimit(2**16)
-        start_time = time.time()
-        tatsu.compile(Path(args.grammar).read_text())
-        one_time_time = time.time() - start_time
-        in_memory_run = benchmark_in_memory(args.grammar, args.inputs)
-        generated_run = benchmark_generated_parser(args.grammar, args.inputs)
+        with timer() as t:
+            tatsu.compile(Path(args.grammar).read_text())
+        one_time_time = t.delta
+        in_memory_run, generated_run = benchmark(args.grammar, args.inputs)
         print_summary(
             args.grammar,
             len(args.inputs),
