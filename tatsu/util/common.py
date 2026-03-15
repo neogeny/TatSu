@@ -12,23 +12,6 @@ from pathlib import Path
 from typing import Any
 
 
-__all__ = [
-    'startscript',
-    'is_posix',
-    'identity',
-    'format_if',
-    'timestamp',
-    'memory_use',
-    'try_read',
-    'pathlist_from_patterns',
-    'short_relative_path',
-    'fqn',
-    'fqntype',
-    'isreserved',
-    'typename',
-]
-
-
 def startscript() -> str:
     import __main__ as main  # noqa: type: ignore
 
