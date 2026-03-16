@@ -163,7 +163,7 @@ def print_summary(
     print(
         f"{'Average parsing time:':{w}}" f"{in_memory_run.avg_parsing_time:.2f} s/file"
     )
-    print(f"{'Average speed:':{w-3}}" f"{in_memory_run.avg_lines_sec:.0f} sloc/sec")
+    print(f"{'Average speed:':{w - 3}}" f"{in_memory_run.avg_lines_sec:.0f} sloc/sec")
 
     print("\n--- Generated Python Parser ---")
     print(f"{'One-time code generation:':{w}}" f"{generated_run.setup_time:.2f}")
@@ -174,13 +174,13 @@ def print_summary(
     print(
         f"{'Average parsing time:':{w}}" f"{generated_run.avg_parsing_time:.2f} s/file"
     )
-    print(f"{'Average speed:':{w-3}}" f"{generated_run.avg_lines_sec:.0f} sloc/sec")
+    print(f"{'Average speed:':{w - 3}}" f"{generated_run.avg_lines_sec:.0f} sloc/sec")
 
     print("\n--- Comparison (Average Parsing Time) ---")
     model_avg_sloc = in_memory_run.avg_lines_sec
     gen_avg_sloc = generated_run.avg_lines_sec
-    print(f"{'In-memory':{w-3}}{model_avg_sloc:.0f} sloc/sec")
-    print(f"{'Generated:':{w-3}}{gen_avg_sloc:.0f} sloc/sec")
+    print(f"{'In-memory':{w - 3}}{model_avg_sloc:.0f} sloc/sec")
+    print(f"{'Generated:':{w - 3}}{gen_avg_sloc:.0f} sloc/sec")
 
     if gen_avg_sloc < model_avg_sloc:
         factor = model_avg_sloc / gen_avg_sloc

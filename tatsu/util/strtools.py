@@ -25,11 +25,11 @@ def linecount(s: str) -> int:
     empty line (Line 1), ensuring consistency with how IDEs and text
     editors represent buffers.
     """
-    return countlines(s).totl
+    return 1 + sum(1 for _ in re.finditer(r"(?m)\r?\n|\r", s))
 
 
 def ismultiline(s: str) -> int:
-    return bool(re.search(r"(?m)[\r\n]", s))
+    return linecount(s) > 1
 
 
 lcnt = namedtuple('lcnt', 'totl blnk cmnt code')
