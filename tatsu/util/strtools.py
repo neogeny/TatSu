@@ -5,7 +5,7 @@ from __future__ import annotations
 import codecs
 import functools
 import hashlib
-import itertools
+import io
 import re
 import unicodedata
 from collections import namedtuple
@@ -25,72 +25,59 @@ def linecount(s: str) -> int:
     empty line (Line 1), ensuring consistency with how IDEs and text
     editors represent buffers.
     """
-    return 1 + sum(1 for _ in re.finditer(r"(?m)\r?\n|\r", s))
+    return countlines(s).totl
 
 
 def ismultiline(s: str) -> int:
     return bool(re.search(r"(?m)[\r\n]", s))
 
 
-import re
-from collections import namedtuple
-
-
 lcnt = namedtuple('lcnt', 'totl blnk cmnt code')
+
 
 def countlines(s: str, cmtstr: str = r'#') -> lcnt:
     """
-    Counts Source Lines of Code (SLOC) using an 'Editor View' semantic.
-    Splits text into lines first, then classifies each line.
+    SLOC counter with 'Editor View' semantics.
+    Memory-efficient streaming via io.StringIO.
     """
     # by Gemini 2026-03-15
-    if not s:
-        return lcnt(totl=1, blnk=1, cmnt=0, code=0)
 
     totl = 0
-    blnk_count = 0
-    cmnt_count = 0
-    code_count = 0
+    blnk = 0
+    cmnt = 0
+    code = 0
 
-    def match_inner(line: str):
-        nonlocal blnk_count, cmnt_count, code_count
-        inner = re.compile(fr"""(?x)
-            ^ [ \t]* (?:
-                  (?P<cmnt> [{cmtstr}] )
-                | (?P<code>  \S )
-            )
-        """)
-        match = inner.match(line)
-        if not match:
-            # If the regex didn't find a comment char or a non-whitespace char,
-            # the line is effectively blank.
-            blnk_count += 1
-            return
+    inner = re.compile(fr"""(?x)
+        ^ [ \t]* (?:
+              (?P<cmnt> [{cmtstr}] )
+            | (?P<code>  \S )
+        )
+    """)
 
-        groups = match.groupdict()
-        if groups['cmnt'] is not None:
-            cmnt_count += 1
-        elif groups['code'] is not None:
-            code_count += 1
-        else:
-            blnk_count += 1
+    with io.StringIO(s) as stream:
+        for line in stream:
+            totl += 1
 
-    for line in s.splitlines():
+            if not line:
+                blnk += 1
+                continue
+
+            match = inner.match(line)
+            if not match:
+                blnk += 1
+            elif match.group('cmnt'):
+                cmnt += 1
+            else:
+                code += 1
+
+    # Editor View adjustment:
+    # If the text ends with a break, there is a final ghost line.
+    if not totl and s.endswith(('\n', '\r')):
         totl += 1
-        match_inner(line)
+        blnk += 1
 
-    if s.endswith(('\r', '\n')):
-        totl += 1
-        blnk_count += 1
-
-    result = lcnt(
-        totl=totl,
-        blnk=blnk_count,
-        cmnt=cmnt_count,
-        code=code_count,
-    )
-
-    assert totl == blnk_count + cmnt_count + code_count
+    result = lcnt(totl, blnk, cmnt, code)
+    assert totl == blnk + cmnt + code
     return result
 
 

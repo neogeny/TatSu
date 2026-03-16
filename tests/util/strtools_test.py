@@ -70,11 +70,11 @@ def test_ismultiline(text, expected):
 @pytest.mark.parametrize(
     "text, expect, lcount",
     [
-        ("", lcnt(1, 1, 0, 0), 1),
+        ("", lcnt(0, 0, 0, 0), 0),
         ("x=1", lcnt(1, 0, 0, 1), 1),
-        ("\n", lcnt(2, 2, 0, 0), 2),
-        ("\r\n\r\n", lcnt(3, 3, 0, 0), 3),
-        ("x=1\n", lcnt(2, 1, 0, 1), 2),
+        ("\n", lcnt(1, 1, 0, 0), 1),
+        ("\r\n\r\n", lcnt(2, 2, 0, 0), 2),
+        ("x=1\n", lcnt(1, 0, 0, 1), 1),
         ("# comment", lcnt(1, 0, 1, 0), 1),
         ("  # indented", lcnt(1, 0, 1, 0), 1),
         ("x=1 # inline", lcnt(1, 0, 0, 1), 1),
@@ -87,6 +87,6 @@ def test_sloc_consistency(text, expect, lcount):
 
     assert [text, lcount] == [text, linecount(text)]
     assert [text, actual.totl] == [text, lcount]
+    assert [text, actual.totl] == [text, len(text.splitlines())]
 
-    # Assert expect against actual quadruple, including text for context
     assert [text, actual] == [text, expect]

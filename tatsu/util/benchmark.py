@@ -16,7 +16,6 @@ from tatsu.util import countlines
 from .common import try_read
 from .timetools import timer
 
-
 # Add project root to sys.path to ensure tatsu is importable
 project_root = Path(__file__).resolve().parent.parent
 if str(project_root) not in sys.path:
@@ -162,8 +161,7 @@ def print_summary(
         f"{in_memory_run.total_parsing_time:.2f} s"
     )
     print(
-        f"{'Average parsing time:':{w}}"
-        f"{in_memory_run.avg_parsing_time:.2f} s/file"
+        f"{'Average parsing time:':{w}}" f"{in_memory_run.avg_parsing_time:.2f} s/file"
     )
     print(f"{'Average speed:':{w-3}}" f"{in_memory_run.avg_lines_sec:.0f} sloc/sec")
 
@@ -174,8 +172,7 @@ def print_summary(
         f"{generated_run.total_parsing_time:.2f} s"
     )
     print(
-        f"{'Average parsing time:':{w}}"
-        f"{generated_run.avg_parsing_time:.2f} s/file"
+        f"{'Average parsing time:':{w}}" f"{generated_run.avg_parsing_time:.2f} s/file"
     )
     print(f"{'Average speed:':{w-3}}" f"{generated_run.avg_lines_sec:.0f} sloc/sec")
 
