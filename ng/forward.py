@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 
-def forward[T:Callable](fun: T) -> T:
+def forward[T: Callable](fun: T) -> T:
     return fun
 
 
