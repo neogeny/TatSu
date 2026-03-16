@@ -82,10 +82,6 @@ backups/
 .obsidian/
 
 ### --- Tools & Apps (Gemini, GitHub, etc.) ---
-.gemini/
-gha-creds-*.json
-.github/commands/gemini*
-.github/workflows/gemini*
 .scrapy/
 celerybeat-schedule
 .envrc*
@@ -97,3 +93,11 @@ celerybeat-schedule
 ### --- Caches ---
 .tmp.driveupload/
 !/.tmp.drivedownload/
+
+
+### --- AI Agents ---
+gha-creds-*.json
+.continue/
+.gemini/
+.github/commands/gemini*
+.github/workflows/gemini*
