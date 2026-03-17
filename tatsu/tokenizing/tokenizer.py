@@ -13,8 +13,6 @@ class Cursor(Protocol):
     pos: int
     text: str
 
-    def clone(self) -> Cursor: ...
-
     @property
     def tokenizer(self) -> Tokenizer: ...
 

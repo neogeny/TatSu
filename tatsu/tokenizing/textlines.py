@@ -29,9 +29,6 @@ class TextLinesCursor(Cursor):
         self.len: int = tokens.len
         self.text = tokens.text
 
-    def clone(self) -> Cursor:
-        return TextLinesCursor(self.tokens, self.pos)
-
     @property
     def tokenizer(self) -> TextLinesTokenizer:
         return self.tokens

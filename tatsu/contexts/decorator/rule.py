@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import functools
 from collections.abc import Callable
-from typing import Any, cast, overload
+from typing import Any, cast
 
 from .._protocol import Ctx
 from ..infos import RuleInfo

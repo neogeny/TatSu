@@ -18,7 +18,7 @@ from .contexts import (
 )
 from .exceptions import FailedRef
 from .parserconfig import ParserConfig
-from .util import generic_main, safe_name, typename
+from .util import generic_main, safe_name
 
 __all__ = [
     'Parser',

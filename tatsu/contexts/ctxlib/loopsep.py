@@ -6,7 +6,6 @@ from collections.abc import Iterator
 from typing import Any
 
 from .._protocol import Ctx, Func
-from ..cst import closedlist
 from .loop import LoopContext
 
 

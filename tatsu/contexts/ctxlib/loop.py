@@ -5,9 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import Any
 
-from ...exceptions import ParseException
 from .._protocol import Ctx, Func
-from ..cst import closedlist
 from .exp import ExpContext
 
 

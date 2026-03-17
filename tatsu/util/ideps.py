@@ -6,7 +6,7 @@ import ast
 import sys
 from itertools import starmap
 from pathlib import Path
-from typing import Any, NamedTuple, cast
+from typing import Any, NamedTuple
 
 from rich.console import Console
 from rich.tree import Tree

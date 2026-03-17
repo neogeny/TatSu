@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import dataclasses as dc
-import functools
 import weakref
 from collections.abc import Iterable, Mapping, MutableMapping
 from typing import Any
@@ -27,10 +26,11 @@ class Node(BaseNode):
     @property
     def parent(self) -> Node | None:
         ref = self._parent_ref
-        if ref is None:
-            return None
-        else:
+        if ref is not None:
+            # noinspection PyCallingNonCallable
             return ref()
+        else:
+            return None
 
     @property
     def comments(self) -> Any:

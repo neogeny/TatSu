@@ -14,7 +14,6 @@ from .infos import Alert, RuleInfo
 __all__ = ['ParseState', 'ParseStateStack']
 
 from ..tokenizing import Cursor
-from ..util import typename
 
 
 class ParseState:
@@ -28,18 +27,15 @@ class ParseState:
 
     def __init__(self, base: Cursor | ParseState) -> None:
         if isinstance(base, ParseState):
-            self.cursor: Cursor = base.cursor.clone()
+            self.cursor: Cursor = copy(base.cursor)
             self.ast: AST = copy(base.ast)
         else:
-            self.cursor = base.clone()
+            self.cursor = copy(base)
             self.ast = AST()
 
         self.cst: Any = None
         self.last_node: Any = None
         self.alerts: list[Alert] = []
-
-    def clone(self):
-        return copy(self)
 
     def goto(self, pos: int) -> None:
         self.cursor.goto(pos)
@@ -136,9 +132,6 @@ class ParseStateStack:
         self._state_stack: list[ParseState] = [ParseState(cursor)]
         self._cut_stack: list[bool] = [False]
         self._ruleinfo_stack: list[RuleInfo] = []
-
-    def clone(self):
-        return copy(self)
 
     @property
     def top(self) -> ParseState:

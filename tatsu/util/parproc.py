@@ -15,7 +15,6 @@ from concurrent.futures import (
 )
 from contextlib import contextmanager
 from dataclasses import dataclass
-from functools import partial
 from itertools import batched
 from pathlib import Path
 from typing import Any, NamedTuple

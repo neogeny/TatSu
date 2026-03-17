@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from functools import cache, cached_property
+from functools import cache
 from typing import Any, override
 
 from ..util import asjson, make_hashable
@@ -58,9 +58,6 @@ class AST(dict[str, Any]):
         for key in (self._safekey(k) for k in list_keys or []):
             if key not in self:
                 super().__setitem__(key, [])
-
-    def __copy__(self) -> AST:
-        return type(self)(self)
 
     def __getitem__(self, key: str) -> Any:
         if key in self:

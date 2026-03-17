@@ -11,7 +11,7 @@ import typing
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from types import ModuleType
-from typing import Any
+from typing import Any, Self
 
 from .itertools import CycleError, first, topsort
 
@@ -101,7 +101,7 @@ class ActualArguments:
     def add_kwargs(self, kwargs: Mapping[str, Any]):
         self.kwargs.update(kwargs)
 
-    def unique(self) -> ActualArguments:
+    def unique(self) -> Self:
         clone = replace(self)
         for name in list(clone.kwargs):
             if name in clone.arg_names:

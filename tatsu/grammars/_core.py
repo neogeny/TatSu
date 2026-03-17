@@ -15,7 +15,7 @@ from ..contexts import AST, Ctx, Func, ParseContext, RuleInfo
 from ..exceptions import GrammarError
 from ..objectmodel import Node, nodedataclass
 from ..parserconfig import ParserConfig
-from ..util import chunks, compress_seq, indent, safe_name, trim, typename
+from ..util import chunks, compress_seq, indent, trim, typename
 from .builder import ModelBuilderSemantics
 from .math import ffset, kdot
 

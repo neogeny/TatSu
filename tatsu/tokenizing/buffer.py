@@ -36,9 +36,6 @@ class BufferCursor(Cursor):
         self.pos = pos
         self.len = buffer.len
 
-    def clone(self) -> Cursor:
-        return BufferCursor(self.buffer, pos=self.pos)
-
     @property
     def tokenizer(self) -> Tokenizer:
         return self.buffer

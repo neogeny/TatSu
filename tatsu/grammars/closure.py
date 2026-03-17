@@ -8,9 +8,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..contexts import Ctx, ParseContext
+from ..contexts import Ctx
 from ..objectmodel import nodedataclass
-from ..util import cast, indent
+from ..util import indent
 from ._core import Box, Func, Model
 from .math import ffset, kdot
 

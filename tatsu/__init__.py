@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import sys
-from importlib import resources
 
 from ._config import __toolname__, __version__
 from ._grammar import grammar, grammar_path

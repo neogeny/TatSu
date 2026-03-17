@@ -11,9 +11,6 @@ class NullCursor(Cursor):
         self.pos = 0
         self.text = ''
 
-    def clone(self) -> Cursor:
-        return self
-
     @property
     def tokenizer(self) -> Tokenizer:
         return NullTokenizer()

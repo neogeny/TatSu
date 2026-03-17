@@ -7,7 +7,7 @@ import unittest
 import pytest
 
 from tatsu import tool
-from tatsu.exceptions import FailedParse, FailedToken
+from tatsu.exceptions import FailedParse
 from tatsu.ngcodegen import pythongen
 from tatsu.parser import TatSuBuffer
 from tatsu.tool import compile

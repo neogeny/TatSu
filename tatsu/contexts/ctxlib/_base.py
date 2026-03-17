@@ -5,7 +5,7 @@ from __future__ import annotations
 from types import TracebackType
 from typing import Any
 
-from .._protocol import Ctx, Func
+from .._protocol import Ctx
 
 
 class ContextBase:
