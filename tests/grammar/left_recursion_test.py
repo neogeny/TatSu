@@ -324,7 +324,7 @@ def test_interlocking_cycles(trace=False):
 
 
 @pytest.mark.skip('Similar to the one above')
-def test_mutual_left_recursion(trace=False):
+def test_mutual_left_recursion(_trace=False):
     # See https://github.com/PhilippeSigaud/Pegged/wiki/Left-Recursion
     grammar = """
         @@left_recursion :: True
