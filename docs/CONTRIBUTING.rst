@@ -64,8 +64,8 @@ features in the standard library. Avoid all deprecated features.
   type BinaryFunc = Callable[[float, float], float]
 
 - Prefer ``pathlib`` over ``os.path`` for path manipulation when feasible.
-- Avoid type annotations for simple variables inside functions unless type
-  linters such as ``pyright``, ``ty``, ``mypy``, or ``ruff`` require them.
+- Avoid type annotations for local variables inside functions unless a type
+  checker/linter such as ``pyright``, ``ty``, ``mypy``, or ``ruff`` requests them.
 
 bootstrap
 ^^^^^^^^^
