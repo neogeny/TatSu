@@ -16,6 +16,7 @@ from tatsu.util import countlines
 from .common import try_read
 from .timetools import timer
 
+
 # Add project root to sys.path to ensure tatsu is importable
 project_root = Path(__file__).resolve().parent.parent
 if str(project_root) not in sys.path:
@@ -97,7 +98,8 @@ def print_summary(
     memory_run: BenchmarkResult,
     gen_run: BenchmarkResult,
 ):
-    print(f"grammar: {grammar}")
+    relgrammar = Path(grammar).resolve().relative_to(Path.cwd())
+    print(f"grammar: {relgrammar}")
     print(f"input files: {count}")
 
     all_numbers = [
@@ -166,8 +168,9 @@ def benchmark(
             nfiles = 0
 
             filepaths = [Path(f) for f in filenames]
-            for path in filepaths:
-                print(f"{f'{path.name}...':60}", end='\r')
+            for i, path in enumerate(filepaths):
+                pct = int((i + 1) / len(filepaths) * 100)
+                print(f"[{pct:3d}%] {f'{path.name}...':60}", end='\r')
                 text = try_read(path)
                 total_lines += countlines(text).code
 
@@ -180,7 +183,7 @@ def benchmark(
                 gen_time_total += t.delta
 
                 nfiles += 1
-            print(" " * 60)  # Clear the filename feedback
+            print(" " * 70)  # Clear the filename feedback
 
             memory_run = BenchmarkResult(
                 file_count=nfiles,
@@ -219,9 +222,6 @@ def main():
 
     try:
         grammar_path = args.grammar.resolve()
-        print(f"grammar: {grammar_path.relative_to(Path.cwd())}")
-        print(f"input files: {len(args.inputs)}")
-
         memory_run, gen_run = benchmark(args.grammar, args.inputs)
         print_summary(
             str(args.grammar),
