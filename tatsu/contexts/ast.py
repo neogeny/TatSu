@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from functools import cache
 from typing import Any, override
 
-from ..util import asjson, make_hashable
+from ..util import asjson, make_hashable, typename
 from .cst import cstadd
 from .infos import ParseInfo
 
@@ -20,15 +20,15 @@ class AST(dict[str, Any]):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__()
-        self.__dict__['_frozen'] = False
+        self.__dict__['__frozen__'] = False
         self.update(*args, **kwargs)
-        self.__dict__['_frozen'] = True
+        self.__dict__['__frozen__'] = True
 
     @property
     def parseinfo(self) -> ParseInfo | None:
         return self.get('__parseinfo__')
 
-    # NOTE: required to bypass '_frozen'
+    # NOTE: required to bypass '__frozen__'
     def set_parseinfo(self, value: ParseInfo | None) -> None:
         super().__setitem__('parseinfo', value)
         super().__setitem__('__parseinfo__', value)
@@ -74,8 +74,8 @@ class AST(dict[str, Any]):
         if name.startswith('_'):
             self.__dict__[name] = value
             return
-        if self.__dict__.get('_frozen'):
-            raise AttributeError(f'AST attributes are fixed. Cannot set "{name}".')
+        if self.__dict__.get('__frozen__'):
+            raise AttributeError(f'{typename(self)} attributes are frozen. Cannot set "{name}".')
         self[name] = value
 
     def __getattr__(self, name: str) -> Any:
