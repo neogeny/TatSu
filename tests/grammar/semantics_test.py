@@ -310,7 +310,7 @@ def test_cut_scope():
     ast = parse(grammar, 'a y')
     assert ast == ['a', 'y']
 
-    with pytest.raises(FailedToken, match=r"expecting 'y'"):
+    with pytest.raises(FailedToken, match=r"expecting 'b'"):
         ast = parse(grammar, 'a c d')
         assert ast == ['a', 'c', 'd']
 

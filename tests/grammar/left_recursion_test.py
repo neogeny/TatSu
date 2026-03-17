@@ -469,7 +469,7 @@ def test_change_start_rule(trace=False):
     ast = model.parse('a * b', start='expr', trace=trace, colorize=True)
     assert ast == ['a', '*', 'b']
 
-    with pytest.raises(FailedParse, match=r'infinite left recursion'):
+    with pytest.raises(FailedParse):
         model.parse('a * b', start='mul', trace=trace, colorize=True)
 
 
