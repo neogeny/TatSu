@@ -80,6 +80,7 @@ backups/
 .ropeproject/
 .ipynb_checkpoints/
 .obsidian/
+.cursorignore
 
 ### --- Tools & Apps (Gemini, GitHub, etc.) ---
 .scrapy/
