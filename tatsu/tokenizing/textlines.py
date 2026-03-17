@@ -14,7 +14,8 @@ from ..util import (
     typename,
 )
 from ..util.regextools import cached_re_compile
-from .infos import LineIndexInfo, LineInfo, PosLine
+from . import LineInfo
+from .infos import LineIndexInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
 
 
@@ -51,7 +52,9 @@ class TextLinesCursor(Cursor):
 
     @property
     def filename(self) -> str:
-        return self.tokens.filename
+        n = min(len(self.tokenizer.line_index) - 1, self.line)
+        filename, _actual_line = self.tokenizer.line_index[n]
+        return filename
 
     def goto(self, pos: int):
         self.pos = max(0, min(self.len, pos))
@@ -143,7 +146,15 @@ class TextLinesCursor(Cursor):
         tokenizer = self.tokens
 
         if not tokenizer.line_cache or not tokenizer.line_index:
-            return LineInfo(tokenizer.filename, 0, 0, 0, tokenizer.len, tokenizer.text)
+            return LineInfo(
+                cursor=self,
+                filename=tokenizer.filename,
+                line=0,
+                col=0,
+                start=0,
+                end=tokenizer.len,
+                text=tokenizer.text,
+            )
 
         # Ensure pos is within bounds for cache lookup
         # The cache has an extra entry at the end, so len - 2 is the last valid index for content
@@ -155,7 +166,15 @@ class TextLinesCursor(Cursor):
 
         n = min(len(tokenizer.line_index) - 1, line)
         filename, actual_line = tokenizer.line_index[n]
-        return LineInfo(filename, actual_line, col, start, end, text)
+        return LineInfo(
+            cursor=self,
+            filename=filename,
+            line=actual_line,
+            col=col,
+            start=start,
+            end=end,
+            text=text,
+        )
 
     def lookahead_pos(self) -> str:
         if self.atend():

@@ -17,7 +17,8 @@ from typing import Any
 from ..parserconfig import ParserConfig
 from ..util import Undefined, linecount, str_from_match, typename
 from ..util.regextools import cached_re_compile
-from .infos import LineIndexInfo, LineInfo, PosLine
+from . import LineInfo
+from .infos import LineIndexInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
 
 
@@ -55,7 +56,9 @@ class BufferCursor(Cursor):
 
     @property
     def filename(self) -> str:
-        return self.buffer.filename
+        n = min(len(self.buffer.lineindex) - 1, self.line)
+        filename, _line = self.buffer.lineindex[n]
+        return filename
 
     def goto(self, pos: int):
         self.pos = max(0, min(self.buffer.len, pos))
@@ -148,6 +151,7 @@ class BufferCursor(Cursor):
         buf = self.buffer
         if not buf.linecache or not buf.lineindex:
             return LineInfo(
+                cursor=self,
                 filename=buf.filename,
                 line=0,
                 col=0,
@@ -168,7 +172,14 @@ class BufferCursor(Cursor):
         n = min(len(buf.lineindex) - 1, line)
         filename, line = buf.lineindex[n]
 
-        return LineInfo(filename, line, col, start, end, text)
+        return LineInfo(
+            cursor=self,
+            filename=filename,
+            line=line,
+            col=col,
+            start=start,
+            end=end, text=text,
+        )
 
     def lookahead_pos(self) -> str:
         if self.atend():
@@ -302,7 +313,11 @@ class Buffer(Tokenizer):
 
     @property
     def filename(self) -> str:
-        return str(self.config.filename or '')
+        if not self.lineindex:
+            return ''
+        n = max(0, min(len(self.lineindex) - 1, self.line))
+        filename, _line = self.lineindex[n]
+        return filename
 
     @property
     def linecount(self) -> int:
@@ -428,8 +443,11 @@ class Buffer(Tokenizer):
         return self.poscol()
 
     def posline(self, pos: int | None = None) -> int:
+        if not self.linecache:
+            return 0
         if pos is None:
             pos = self.pos
+        pos = max(0, min(pos, len(self.linecache) - 2))
         return self.linecache[pos].lineno
 
     def poscol(self, pos: int | None = None) -> int:
@@ -590,11 +608,15 @@ class Buffer(Tokenizer):
         else:
             return cre.match(self.text, self.pos)
 
+    def indexed(self) -> bool:
+        return bool(self.linecache) and bool(self.lineindex)
+
     def lineinfo(self, pos: int | None = None) -> LineInfo:
         if pos is None:
             pos = self.pos
-        if not self.linecache or not self.lineindex:
+        if not self.indexed():
             return LineInfo(
+                cursor=self.newcursor(),
                 filename=self.filename,
                 line=0,
                 col=0,
@@ -615,7 +637,14 @@ class Buffer(Tokenizer):
         n = min(len(self.lineindex) - 1, line)
         filename, line = self.lineindex[n]
 
-        return LineInfo(filename, line, col, start, end, text)
+        return LineInfo(
+            cursor=self.newcursor(),
+            filename=filename,
+            line=line, col=col,
+            start=start,
+            end=end,
+            text=text,
+        )
 
     def lookahead_pos(self) -> str:
         if self.atend():

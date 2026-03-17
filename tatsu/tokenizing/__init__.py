@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .infos import LineIndexInfo, LineInfo, PosLine
+from .infos import LineIndexInfo, PosLine
 from .null import NullCursor, NullTokenizer
-from .tokenizer import Cursor, Tokenizer
+from .tokenizer import Cursor, LineInfo, Tokenizer
+
 
 __all__ = [
     'Cursor',

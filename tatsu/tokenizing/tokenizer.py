@@ -2,10 +2,36 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import copy
+import dataclasses as dc
 from abc import ABC, abstractmethod
 from typing import Any, Protocol, runtime_checkable
 
-from .infos import LineIndexInfo, LineInfo
+from .infos import LineIndexInfo
+
+
+@dc.dataclass
+class LineInfo:
+    __slots__ = (
+        '__weakref__',
+        'col',
+        'cursor',
+        'end',
+        'filename',
+        'line',
+        'start',
+        'text',
+    )
+    cursor: Cursor
+    filename: str
+    line: int
+    col: int
+    start: int
+    end: int
+    text: str
+
+    def __post_init__(self):
+        self.cursor = copy.copy(self.cursor)
 
 
 @runtime_checkable
@@ -33,31 +59,21 @@ class Cursor(Protocol):
         return self.current
 
     def goto(self, pos) -> None: ...
-
     def move(self, n: int) -> None: ...
-
     def atend(self) -> bool: ...
-
     def ateol(self) -> bool: ...
-
     def next(self) -> str | None: ...
 
     def next_token(self) -> None: ...
-
     def match(self, token: str) -> str | None: ...
-
     def matchre(self, pattern: str) -> str | None: ...
 
     def is_name(self, s: str) -> bool: ...
-
     def is_name_char(self, c: str | None) -> bool: ...
 
     def posline(self, pos: int | None = None) -> int: ...
-
     def lineinfo(self, pos: int | None = None) -> LineInfo: ...
-
     def get_line(self, n: int | None = None) -> str: ...
-
     def get_lines(
         self,
         start: int | None = None,
@@ -71,7 +87,6 @@ class Cursor(Protocol):
     ) -> list[LineIndexInfo]: ...
 
     def lookahead(self) -> str: ...
-
     def lookahead_pos(self) -> str: ...
 
 

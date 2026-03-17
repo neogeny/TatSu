@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .infos import LineIndexInfo, LineInfo
-from .tokenizer import Cursor, Tokenizer
+from .infos import LineIndexInfo
+from .tokenizer import Cursor, LineInfo, Tokenizer
 
 
 class NullCursor(Cursor):
@@ -73,7 +73,7 @@ class NullCursor(Cursor):
         return 0
 
     def lineinfo(self, pos: int | None = None) -> LineInfo:
-        return LineInfo('', 0, 0, 0, 0, '')
+        return LineInfo('', 0, 0, 0, 0, '', cursor=self)
 
     def get_line(self, n: int | None = None) -> str:
         return ''

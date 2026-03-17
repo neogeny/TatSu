@@ -6,15 +6,6 @@ from itertools import starmap
 from typing import NamedTuple
 
 
-class LineInfo(NamedTuple):
-    filename: str
-    line: int
-    col: int
-    start: int
-    end: int
-    text: str
-
-
 class LineIndexInfo(NamedTuple):
     filename: str
     line: int
