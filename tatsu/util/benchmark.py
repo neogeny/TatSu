@@ -4,12 +4,15 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import importlib.util
 import sys
 import time
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
+
+from tatsu.exceptions import FailedParse
 
 from .. import grammars
 from ..parsing import Parser
@@ -22,19 +25,20 @@ from .timetools import timer
 @dataclass
 class BenchmarkResult:
     file_count: int
+    error_count: int
     setup_time: float
     total_parsing_time: float
     avg_parsing_time: float
     avg_lines_sec: float
 
 
-def _setup_memory_parser(grammar_src: str) -> tuple[grammars.Grammar, float]:
+def _setup_mem_parser(grammar_src: str) -> tuple[grammars.Grammar, float]:
     with timer() as t:
         model = compile(grammar_src)
     return model, t.delta
 
 
-def _setup_generated_parser(
+def _setup_gen_parser(
     grammar_src: str, grammar_name: str
 ) -> tuple[Parser, float, Path]:
     parser_file = f"temp_parser_{int(time.time())}.py"
@@ -45,13 +49,13 @@ def _setup_generated_parser(
         parser_path.write_text(python_source, encoding='utf-8')
 
         spec = importlib.util.spec_from_file_location(
-            "temp_generated_parser", parser_path
+            "temp_gen_parser", parser_path
         )
         if not (spec and spec.loader):
             raise ImportError("could not create module spec")
 
         module = importlib.util.module_from_spec(spec)
-        sys.modules["temp_generated_parser"] = module
+        sys.modules["temp_gen_parser"] = module
         spec.loader.exec_module(module)
 
         parser_class = getattr(module, f"{grammar_name}Parser", None)
@@ -80,6 +84,10 @@ def _print_run_details(title: str, result: BenchmarkResult, lbl_w: int, num_fmt:
         f"{num_fmt.format(result.total_parsing_time)} s"
     )
     print(
+        f"{f'errors ({result.file_count} files):':<{lbl_w}}"
+        f"{num_fmt.format(result.error_count)} s"
+    )
+    print(
         f"{'average parsing time:':<{lbl_w}}{num_fmt.format(result.avg_parsing_time)} s/file"
     )
     print(f"{'average speed:':<{lbl_w}}{num_fmt.format(result.avg_lines_sec)} sloc/sec")
@@ -88,7 +96,7 @@ def _print_run_details(title: str, result: BenchmarkResult, lbl_w: int, num_fmt:
 def print_summary(
     grammar: str,
     count: int,
-    memory_run: BenchmarkResult,
+    mem_run: BenchmarkResult,
     gen_run: BenchmarkResult,
 ):
     relgrammar = Path(grammar).resolve().relative_to(Path.cwd())
@@ -96,10 +104,10 @@ def print_summary(
     print(f"input files: {count}")
 
     all_numbers = [
-        memory_run.setup_time,
-        memory_run.total_parsing_time,
-        memory_run.avg_parsing_time,
-        memory_run.avg_lines_sec,
+        mem_run.setup_time,
+        mem_run.total_parsing_time,
+        mem_run.avg_parsing_time,
+        mem_run.avg_lines_sec,
         gen_run.setup_time,
         gen_run.total_parsing_time,
         gen_run.avg_parsing_time,
@@ -109,7 +117,7 @@ def print_summary(
     num_width = int_width + 3
     num_fmt = f"{{:>{num_width}.2f}}"
 
-    count_width = len(str(max(memory_run.file_count, gen_run.file_count)))
+    count_width = len(str(max(mem_run.file_count, gen_run.file_count)))
     longest_label = f"total parsing time ({'9' * count_width} files):"
     labels = [
         "one-time setup:",
@@ -121,20 +129,20 @@ def print_summary(
     ]
     lbl_w = max(len(lbl) for lbl in labels) + 2
 
-    _print_run_details("in-memory model", memory_run, lbl_w, num_fmt)
+    _print_run_details("in-memory model", mem_run, lbl_w, num_fmt)
     _print_run_details("generated python parser", gen_run, lbl_w, num_fmt)
 
     print("\n--- comparison (average parsing time) ---")
-    memory_sloc = memory_run.avg_lines_sec
+    mem_sloc = mem_run.avg_lines_sec
     gen_sloc = gen_run.avg_lines_sec
-    print(f"{'in-memory:':<{lbl_w}}{num_fmt.format(memory_sloc)} sloc/sec")
+    print(f"{'in-memory:':<{lbl_w}}{num_fmt.format(mem_sloc)} sloc/sec")
     print(f"{'generated:':<{lbl_w}}{num_fmt.format(gen_sloc)} sloc/sec")
 
-    if gen_sloc < memory_sloc:
-        factor = memory_sloc / gen_sloc
+    if gen_sloc < mem_sloc:
+        factor = mem_sloc / gen_sloc
         print(f"generated parser is {factor:.2f}x slower on average")
     else:
-        factor = gen_sloc / memory_sloc
+        factor = gen_sloc / mem_sloc
         print(f"generated parser is {factor:.2f}x faster on average")
 
 
@@ -148,17 +156,19 @@ def benchmark(
         grammar_path = Path(grammar)
         grammar_src = grammar_path.read_text(encoding='utf-8')
 
-        model, compile_time = _setup_memory_parser(grammar_src)
+        model, compile_time = _setup_mem_parser(grammar_src)
         grammar_name = model.name or 'Benchmark'
-        parser, gen_time, parser_path = _setup_generated_parser(
+        parser, gen_time, parser_path = _setup_gen_parser(
             grammar_src, grammar_name
         )
 
         try:
-            memory_time = 0.0
-            gen_time_total = 0.0
+            mem_time = 0.0
+            gen_time = 0.0
             total_lines = 0
             nfiles = 0
+            mem_errors = 0
+            gen_errors =0
 
             filepaths = [Path(f) for f in filenames]
             for i, path in enumerate(filepaths):
@@ -168,31 +178,39 @@ def benchmark(
                 total_lines += countlines(text).code
 
                 with timer() as t:
-                    model.parse(text)
-                memory_time += t.delta
+                    try:
+                        model.parse(text)
+                    except FailedParse:
+                        mem_errors += 1
+                    mem_time += t.delta
 
                 with timer() as t:
-                    parser.parse(text)
-                gen_time_total += t.delta
+                    try:
+                        parser.parse(text)
+                    except FailedParse:
+                        gen_errors += 1
+                    gen_time += t.delta
 
-                nfiles += 1
+            nfiles += 1
             print(" " * 70)  # Clear the filename feedback
 
-            memory_run = BenchmarkResult(
+            mem_run = BenchmarkResult(
                 file_count=nfiles,
+                error_count=mem_errors,
                 setup_time=compile_time,
-                total_parsing_time=memory_time,
-                avg_parsing_time=memory_time / nfiles if nfiles else 0,
-                avg_lines_sec=(total_lines / memory_time if memory_time else 0),
+                total_parsing_time=mem_time,
+                avg_parsing_time=mem_time / nfiles if nfiles else 0,
+                avg_lines_sec=(total_lines / mem_time if mem_time else 0),
             )
             gen_run = BenchmarkResult(
                 file_count=nfiles,
+                error_count=gen_errors,
                 setup_time=gen_time,
-                total_parsing_time=gen_time_total,
-                avg_parsing_time=gen_time_total / nfiles if nfiles else 0,
-                avg_lines_sec=(total_lines / gen_time_total if gen_time_total else 0),
+                total_parsing_time=gen_time,
+                avg_parsing_time=gen_time / nfiles if nfiles else 0,
+                avg_lines_sec=(total_lines / gen_time if gen_time else 0),
             )
-            return memory_run, gen_run
+            return mem_run, gen_run
         finally:
             if parser_path.exists():
                 parser_path.unlink()
@@ -216,11 +234,11 @@ def main():
     try:
         grammar_path = args.grammar.resolve()
         input_paths = [p.resolve() for p in args.inputs]
-        memory_run, gen_run = benchmark(grammar_path, input_paths)
+        mem_run, gen_run = benchmark(grammar_path, input_paths)
         print_summary(
             str(args.grammar),
             len(args.inputs),
-            memory_run,
+            mem_run,
             gen_run,
         )
     except Exception as e:
