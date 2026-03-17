@@ -177,7 +177,7 @@ def safe_name(name: str, plug: str = "_") -> str:
     """
     Utility to transform a string into a valid Python identifier.
     Raises ValueError for empty inputs or illegal plugs. Handles
-    leading digits and reserved hard/soft keywords.
+    leading digits, whitespace, and reserved hard/soft keywords.
     """
     # with Gemini - January 24, 2026
 
