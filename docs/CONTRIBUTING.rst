@@ -38,13 +38,34 @@ To run the tasks use:
 
 .. code:: bash
 
-    $ uv run inv
+    $ uv run invoke
 
-Or fun ``inv`` directly if it's installed on the system's ``python3``:
+Or fun ``invoke`` directly if it's installed on the system's ``python3``:
 
 .. code:: bash
 
-    $ inv
+    $ invoke
+
+Coding Standard
+^^^^^^^^^^^^^^^
+
+|TatSu| targets **Python 3.12** and uses the corresponding syntax. Use the
+latest features allowed in the syntax, and use any new and recommended
+features in the standard library. Avoid all deprecated features.
+
+- Adhere to the **Black** formatting standard.
+- Use **pythonic names**; avoid underscores unless necessary for clarity.
+- Use the ``|`` operator for ``Union`` in typing annotations.
+- Add type annotations to all functions and methods. When types involving
+  ``Callable`` are required, use a type alias for the ``Callable`` signature.
+
+.. code:: python
+
+  type BinaryFunc = Callable[[float, float], float]
+
+- Prefer ``pathlib`` over ``os.path`` for path manipulation when feasible.
+- Avoid type annotations for simple variables inside functions unless type
+  linters such as ``pyright``, ``ty``, ``mypy``, or ``ruff`` require them.
 
 bootstrap
 ^^^^^^^^^
