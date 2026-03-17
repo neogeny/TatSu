@@ -212,8 +212,9 @@ def benchmark(
             )
             return mem_run, gen_run
         finally:
-            if parser_path.exists():
-                parser_path.unlink()
+            pass
+            # if parser_path.exists():
+            #     parser_path.unlink()
     finally:
         sys.setrecursionlimit(old_limit)
 
