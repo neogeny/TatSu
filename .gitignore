@@ -99,6 +99,7 @@ celerybeat-schedule
 ### --- AI Agents ---
 gha-creds-*.json
 .continue/
+.cursor/
 .gemini/
 .github/commands/gemini*
 .github/workflows/gemini*
