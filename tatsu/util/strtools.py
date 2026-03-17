@@ -188,7 +188,10 @@ def safe_name(name: str, plug: str = "_") -> str:
     if not plug.isidentifier():
         raise ValueError(f"Invalid plug: '{plug}'. Must be valid in identifiers.")
 
-    res = re.sub(r"\W", plug, name)
+    res: str = name
+
+    if not res.isidentifier():
+        res = re.sub(r"\W", plug, name)
 
     if not res.isidentifier():
         res = ''.join(c if c.isalnum() or c == '_' else plug for c in name)

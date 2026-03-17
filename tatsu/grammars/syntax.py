@@ -9,7 +9,7 @@ from typing import Any
 from ..contexts import AST, Ctx, Func
 from ..exceptions import FailedRef
 from ..objectmodel import nodedataclass
-from ..util import indent, safe_name, trim
+from ..util import indent, trim
 from ._core import PEP8_LLEN, Box, Model
 from .math import ffset, kdot, ref
 
@@ -169,7 +169,6 @@ class Call(Model):
         if not self.name:
             self.ast = AST(name=self.ast)
         super().__post_init__()
-        self.name = safe_name(self.name)
         assert isinstance(self.name, str), self.name
 
     def follow_ref(self) -> Model:

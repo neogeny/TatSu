@@ -251,7 +251,6 @@ class Rule(NamedBox):
 
     def __post_init__(self):
         super().__post_init__()
-        self.name = safe_name(self.name)
         self.params = self.params or ()
         self.kwparams = self.kwparams or {}
         self.decorators = self.decorators or []

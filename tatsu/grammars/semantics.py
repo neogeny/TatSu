@@ -136,7 +136,7 @@ class GrammarSemantics(ModelBuilderSemantics):
 
     def rule(self, ast):
         decorators = ast.decorators or []
-        name = safe_name(ast.name)
+        name = ast.name
         base = ast.base
         params = ast.params
         kwparams = dict(ast.kwparams) if ast.kwparams else {}
