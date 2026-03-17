@@ -16,7 +16,6 @@ from tatsu.util import countlines
 from .common import try_read
 from .timetools import timer
 
-
 # Add project root to sys.path to ensure tatsu is importable
 project_root = Path(__file__).resolve().parent.parent
 if str(project_root) not in sys.path:
@@ -222,7 +221,8 @@ def main():
 
     try:
         grammar_path = args.grammar.resolve()
-        memory_run, gen_run = benchmark(args.grammar, args.inputs)
+        input_paths = [p.resolve() for p in args.inputs]
+        memory_run, gen_run = benchmark(grammar_path, input_paths)
         print_summary(
             str(args.grammar),
             len(args.inputs),

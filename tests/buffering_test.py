@@ -25,7 +25,7 @@ def buf(text):
 def test_pos_consistency(text, buf):
     line = col = 0
     for p, c in enumerate(text):
-        info = buf.lineinfo()
+        info = buf.lineinfo(p)
         bl, bc = info.line, info.col
         d = buf.next()
         # print('tx', line, col, repr(c))
@@ -43,8 +43,11 @@ def test_pos_consistency(text, buf):
 def test_next_consisntency(buf):
     while not buf.atend():
         info = buf.lineinfo()
-        assert buf.line == info.line
-        assert buf.col == info.col
+        bl, bc = info.line, info.col
+        #            print('li', bl, bc)
+        #            print('bu', buf.line, buf.col)
+        assert buf.line == bl
+        assert buf.col == bc
         buf.next()
 
 
@@ -52,8 +55,11 @@ def test_goto_consistency(text, buf):
     for _ in range(100):
         buf.goto(random.randrange(len(text)))  # noqa: S311
         info = buf.lineinfo()
-        assert buf.line == info.line
-        assert buf.col == info.col
+        bl, bc = info.line, info.col
+        #            print('li', bl, bc)
+        #            print('bu', buf.line, buf.col)
+        assert buf.line == bl
+        assert buf.col == bc
 
 
 def test_line_consistency(text, buf):

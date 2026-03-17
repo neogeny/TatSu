@@ -18,7 +18,6 @@ from . import LineInfo
 from .infos import LineIndexInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
 
-
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 
@@ -358,7 +357,7 @@ class TextLinesTokenizer(Tokenizer):
     def get_lines(self, start: int | None = None, end: int | None = None) -> list[str]:
         if start is None:
             start = 0
-        return self.lines[start : notnone(end, len(self.lines)) + 1]
+        return self.lines[start : notnone(end, start + 1)]
 
     def line_index_at(
         self, start: int = 0, end: int | None = None

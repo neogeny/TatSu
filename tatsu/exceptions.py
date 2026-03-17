@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import re
-
 from .tokenizing import LineInfo
 
 
@@ -52,21 +50,18 @@ class FailedParse(ParseException):
         return self.msg
 
     def __str__(self):
+        import re
+
         info = self.lineinfo
-        template = '{}({}:{}) {} :\n{}\n{}^\n{}'
         text = info.text.rstrip()
         leading = re.sub(r'[^\t]', ' ', text)[: info.col]
 
         text = text.expandtabs()
         leading = leading.expandtabs()
-        return template.format(
-            info.filename,
-            info.line + 1,
-            info.col + 1,
-            self.message.rstrip(),
-            text,
-            leading,
-            '\n'.join(self.stack),
+        return (
+            f'{info.filename}({info.line + 1}:{info.col + 1})'
+            f' {self.message.rstrip()} :'
+            f'\n{text}\n{leading}^\n{'\n'.join(self.stack)}'
         )
 
 

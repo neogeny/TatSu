@@ -15,8 +15,14 @@ from pathlib import Path
 from typing import Any
 
 from ..parserconfig import ParserConfig
-from ..util import Undefined, linecount, str_from_match, typename
-from ..util.regextools import cached_re_compile
+from ..util import (
+    Undefined,
+    cached_re_compile,
+    linecount,
+    notnone,
+    str_from_match,
+    typename,
+)
 from . import LineInfo
 from .infos import LineIndexInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
@@ -178,7 +184,8 @@ class BufferCursor(Cursor):
             line=line,
             col=col,
             start=start,
-            end=end, text=text,
+            end=end,
+            text=text,
         )
 
     def lookahead_pos(self) -> str:
@@ -640,7 +647,8 @@ class Buffer(Tokenizer):
         return LineInfo(
             cursor=self.newcursor(),
             filename=filename,
-            line=line, col=col,
+            line=line,
+            col=col,
             start=start,
             end=end,
             text=text,
@@ -665,11 +673,8 @@ class Buffer(Tokenizer):
         return self.lines[n]
 
     def get_lines(self, start: int | None = None, end: int | None = None) -> list[str]:
-        if start is None:
-            start = 0
-        if end is None:
-            end = len(self.lines)
-        return self.lines[start : end + 1]
+        start = notnone(start, 0)
+        return self.lines[start : notnone(end, start + 1)]
 
     def line_index(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
         if end is None:

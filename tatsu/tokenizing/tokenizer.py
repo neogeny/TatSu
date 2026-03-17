@@ -2,36 +2,11 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import copy
-import dataclasses as dc
 from abc import ABC, abstractmethod
 from typing import Any, Protocol, runtime_checkable
 
+from . import LineInfo
 from .infos import LineIndexInfo
-
-
-@dc.dataclass
-class LineInfo:
-    __slots__ = (
-        '__weakref__',
-        'col',
-        'cursor',
-        'end',
-        'filename',
-        'line',
-        'start',
-        'text',
-    )
-    cursor: Cursor
-    filename: str
-    line: int
-    col: int
-    start: int
-    end: int
-    text: str
-
-    def __post_init__(self):
-        self.cursor = copy.copy(self.cursor)
 
 
 @runtime_checkable
