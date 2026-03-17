@@ -2,24 +2,17 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import copy
-import dataclasses as dc
 from itertools import starmap
-from typing import Any, NamedTuple
+from typing import NamedTuple
 
 
-@dc.dataclass(slots=True)
-class LineInfo:
-    cursor: Any
+class LineInfo(NamedTuple):
     filename: str
     line: int
     col: int
     start: int
     end: int
     text: str
-
-    def __post_init__(self):
-        self.cursor = copy.copy(self.cursor)
 
 
 class LineIndexInfo(NamedTuple):

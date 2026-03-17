@@ -173,7 +173,7 @@ class ParserCore:
         return self.tracer
 
     def set_furthest_exception(self, e: FailedParse) -> None:
-        if not self._furthest_exception or e.pos > self._furthest_exception.pos:
+        if not self._furthest_exception or e.pos >= self._furthest_exception.pos:
             self._furthest_exception = e
 
     def goto(self, pos: int) -> None:
@@ -249,11 +249,7 @@ class ParserCore:
         msg: Any,
         excls: type[FailedParse] = FailedParse,
     ) -> FailedParse:
-        if issubclass(excls, FailedLeftRecursion):
-            rulestack: list[str] = []
-        else:
-            rulestack = [r.name for r in reversed(self.ruleinfo_stack)]
-        return excls(self.cursor.lineinfo(), rulestack, msg)
+        return excls(self.cursor, self.ruleinfo_stack, msg)
 
     @property
     def ruleinfo(self) -> RuleInfo:

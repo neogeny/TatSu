@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, Self
 
 from ..parserconfig import ParserConfig
 from ..util import (
@@ -30,8 +30,11 @@ class TextLinesCursor(Cursor):
         self.len: int = tokens.len
         self.text = tokens.text
 
-    def __copy__(self):
-        return TextLinesCursor(self.tokens, pos=self.pos)
+    def clone(self) -> Self:
+        return type(self)(self.tokens, pos=self.pos)
+
+    def __copy__(self) -> Self:
+        return type(self)(self.tokens, pos=self.pos)
 
     @property
     def tokenizer(self) -> TextLinesTokenizer:
@@ -146,7 +149,6 @@ class TextLinesCursor(Cursor):
 
         if not tokenizer.line_cache or not tokenizer.line_index:
             return LineInfo(
-                cursor=self,
                 filename=tokenizer.filename,
                 line=0,
                 col=0,
@@ -166,7 +168,6 @@ class TextLinesCursor(Cursor):
         n = min(len(tokenizer.line_index) - 1, line)
         filename, actual_line = tokenizer.line_index[n]
         return LineInfo(
-            cursor=self,
             filename=filename,
             line=actual_line,
             col=col,

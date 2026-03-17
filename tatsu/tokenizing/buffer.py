@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 from ..parserconfig import ParserConfig
 from ..util import (
@@ -26,7 +26,6 @@ from ..util import (
 from . import LineInfo
 from .infos import LineIndexInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
-
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -43,6 +42,9 @@ class BufferCursor(Cursor):
         self.text = self.buffer.text
         self.pos = pos
         self.len = buffer.len
+
+    def clone(self) -> Self:
+        return type(self)(self.buffer, pos=self.pos)
 
     @property
     def tokenizer(self) -> Tokenizer:
@@ -157,7 +159,6 @@ class BufferCursor(Cursor):
         buf = self.buffer
         if not buf.linecache or not buf.lineindex:
             return LineInfo(
-                cursor=self,
                 filename=buf.filename,
                 line=0,
                 col=0,
@@ -179,7 +180,6 @@ class BufferCursor(Cursor):
         filename, line = buf.lineindex[n]
 
         return LineInfo(
-            cursor=self,
             filename=filename,
             line=line,
             col=col,
@@ -623,7 +623,6 @@ class Buffer(Tokenizer):
             pos = self.pos
         if not self.indexed():
             return LineInfo(
-                cursor=self.newcursor(),
                 filename=self.filename,
                 line=0,
                 col=0,
@@ -645,7 +644,6 @@ class Buffer(Tokenizer):
         filename, line = self.lineindex[n]
 
         return LineInfo(
-            cursor=self.newcursor(),
             filename=filename,
             line=line,
             col=col,
