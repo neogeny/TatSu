@@ -11,18 +11,12 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
-from tatsu.util import countlines
-
+from .. import grammars
+from ..parsing import Parser
+from ..tool.api import compile, to_python_sourcecode
 from .common import try_read
+from .strtools import countlines
 from .timetools import timer
-
-# Add project root to sys.path to ensure tatsu is importable
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-import tatsu
-from tatsu.parsing import Parser
 
 
 @dataclass
@@ -34,9 +28,9 @@ class BenchmarkResult:
     avg_lines_sec: float
 
 
-def _setup_memory_parser(grammar_src: str) -> tuple[tatsu.grammars.Grammar, float]:
+def _setup_memory_parser(grammar_src: str) -> tuple[grammars.Grammar, float]:
     with timer() as t:
-        model = tatsu.compile(grammar_src)
+        model = compile(grammar_src)
     return model, t.delta
 
 
@@ -47,7 +41,7 @@ def _setup_generated_parser(
     parser_path = Path(parser_file).resolve()
 
     with timer() as tgen:
-        python_source = tatsu.to_python_sourcecode(grammar_src, name=grammar_name)
+        python_source = to_python_sourcecode(grammar_src, name=grammar_name)
         parser_path.write_text(python_source, encoding='utf-8')
 
         spec = importlib.util.spec_from_file_location(
