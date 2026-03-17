@@ -20,6 +20,7 @@ from ..util.regextools import cached_re_compile
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
 
+
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 # for backwards compatibility with existing parsers
@@ -185,12 +186,12 @@ class BufferCursor(Cursor):
     def posline(self, pos: int | None = None) -> int:
         if pos is None:
             pos = self.pos
-        return self.buffer.linecache[pos].line
+        return self.buffer.linecache[pos].lineno
 
     def poscol(self, pos: int | None = None) -> int:
         if pos is None:
             pos = self.pos
-        start = self.buffer.linecache[pos].start
+        start = self.buffer.linecache[pos].startpos
         return pos - start
 
     def get_line(self, n: int | None = None) -> str:
@@ -429,12 +430,12 @@ class Buffer(Tokenizer):
     def posline(self, pos: int | None = None) -> int:
         if pos is None:
             pos = self.pos
-        return self.linecache[pos].line
+        return self.linecache[pos].lineno
 
     def poscol(self, pos: int | None = None) -> int:
         if pos is None:
             pos = self.pos
-        start = self.linecache[pos].start
+        start = self.linecache[pos].startpos
         return pos - start
 
     def atend(self) -> bool:

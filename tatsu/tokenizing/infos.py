@@ -25,8 +25,8 @@ class LineIndexInfo(NamedTuple):
 
 
 class PosLine(NamedTuple):
-    start: int
-    line: int
+    startpos: int
+    lineno: int
     length: int
 
     @staticmethod

@@ -17,6 +17,7 @@ from ..util.regextools import cached_re_compile
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .tokenizer import Cursor, Tokenizer
 
+
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 
@@ -28,6 +29,9 @@ class TextLinesCursor(Cursor):
         self.pos: int = pos
         self.len: int = tokens.len
         self.text = tokens.text
+
+    def __copy__(self):
+        return TextLinesCursor(self.tokens, pos=self.pos)
 
     @property
     def tokenizer(self) -> TextLinesTokenizer:
@@ -170,13 +174,13 @@ class TextLinesCursor(Cursor):
         pos = notnone(pos, self.pos)
         if not self.tokens.line_cache:
             return 0
-        return self.tokens.line_cache[pos].line
+        return self.tokens.line_cache[pos].lineno
 
     def poscol(self, pos: int | None = None) -> int:
         pos = notnone(pos, self.pos)
         if not self.tokens.line_cache:
             return 0
-        start = self.tokens.line_cache[pos].start
+        start = self.tokens.line_cache[pos].startpos
         return pos - start
 
     def get_line(self, n: int | None = None) -> str:
