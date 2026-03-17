@@ -37,6 +37,14 @@ class ParseState:
         self.last_node: Any = None
         self.alerts: list[Alert] = []
 
+    def clone(self) -> Self:
+        return copy(self)
+
+    def __copy__(self) -> Self:
+        new = type(self)(self.cursor)
+        new.alerts = self.alerts[:]
+        return new
+
     def goto(self, pos: int) -> None:
         self.cursor.goto(pos)
 
@@ -61,11 +69,6 @@ class ParseState:
             return ast['@']
         else:
             return ast
-
-    def __copy__(self) -> ParseState:
-        new = ParseState(self.cursor)
-        new.alerts = self.alerts[:]
-        return new
 
     def append(self, node: Any, aslist: bool = False) -> Any:
         self.last_node = node
@@ -132,6 +135,9 @@ class ParseStateStack:
         self._state_stack: list[ParseState] = [ParseState(cursor)]
         self._cut_stack: list[bool] = [False]
         self._ruleinfo_stack: list[RuleInfo] = []
+
+    def clone(self) -> Self:
+        return copy(self)
 
     @property
     def top(self) -> ParseState:
