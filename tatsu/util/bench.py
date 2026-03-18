@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import contextlib
 import importlib.util
 import sys
 import time
@@ -48,9 +47,7 @@ def _setup_gen_parser(
         python_source = to_python_sourcecode(grammar_src, name=grammar_name)
         parser_path.write_text(python_source, encoding='utf-8')
 
-        spec = importlib.util.spec_from_file_location(
-            "temp_gen_parser", parser_path
-        )
+        spec = importlib.util.spec_from_file_location("temp_gen_parser", parser_path)
         if not (spec and spec.loader):
             raise ImportError("could not create module spec")
 
@@ -158,9 +155,7 @@ def benchmark(
 
         model, compile_time = _setup_mem_parser(grammar_src)
         grammar_name = model.name or 'Benchmark'
-        parser, gen_time, parser_path = _setup_gen_parser(
-            grammar_src, grammar_name
-        )
+        parser, gen_time, _parser_path = _setup_gen_parser(grammar_src, grammar_name)
 
         try:
             mem_time = 0.0
@@ -168,7 +163,7 @@ def benchmark(
             total_lines = 0
             nfiles = 0
             mem_errors = 0
-            gen_errors =0
+            gen_errors = 0
 
             filepaths = [Path(f) for f in filenames]
             for i, path in enumerate(filepaths):
