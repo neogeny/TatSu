@@ -23,5 +23,5 @@ class ChoiceContext(ContextBase):
             return None
         for opt in self.options:
             with ctx.option():
-                return opt(ctx)
+                ctx.expcall(opt)
         raise self.expectedexcept(ctx)

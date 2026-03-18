@@ -14,7 +14,7 @@ from .contexts import (
     name,
     nomemo,
     tatsumasu,
-    tatsumasu as rule,  # note: this suppors v5.16-v5.17 parsers
+    tatsumasu as rule,  # note: this supports v5.16-v5.17 parsers
 )
 from .exceptions import FailedRef
 from .parserconfig import ParserConfig
@@ -22,6 +22,7 @@ from .util import generic_main, safe_name
 
 __all__ = [
     'Parser',
+    'NGParser',
     'generic_main',
     'isname',
     'name',
@@ -75,3 +76,7 @@ class Parser(ParseContext):
 
         methods = inspect.getmembers(source, predicate=inspect.ismethod)
         return [m[0] for m in methods if not isdunder(m[0])]
+
+
+# NOTE: backwards compatibility
+NGParser = Parser

@@ -82,7 +82,7 @@ def countlines(s: str, cmtstr: str = r'#') -> lcnt:
 
 
 def unicode_display_len(text: str) -> int:
-    # by Gemini 2026/02/17 (with many ammendments)
+    # by Gemini 2026/02/17 (with many amendments)
     """
     Calculates the display width of a string in a terminal or
     fixed-width font context.

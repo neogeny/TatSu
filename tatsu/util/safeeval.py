@@ -8,6 +8,7 @@ from collections.abc import Iterable, Mapping
 from functools import lru_cache
 from typing import Any
 
+from . import as_namedtuple
 from .undefined import Undefined, UndefinedType
 
 __all__ = [
@@ -93,29 +94,27 @@ def make_hashable(source: Any) -> Any:
     # by Gemini (2026-01-26)
     # by [apalala@gmail.com](https://github.com/apalala)
     """
-    memo: dict[int, Any] = {}
 
-    def dfs(obj: Any, visiting: set[int]) -> Any:
+    visiting: set[int] = set()
+
+    def dfs(obj: Any) -> Any:
         obj_id = id(obj)
 
         if obj_id in visiting:
             return (f"<circular_ref_{obj_id}>",)
 
-        if obj_id in memo:
-            return memo[obj_id]
-
-        is_mutable = isinstance(obj, dict | list | set | tuple)
+        is_mutable = isinstance(obj, dict | list | set)
         if is_mutable:
             visiting.add(obj_id)
 
         def one_hash(one: Any) -> Any:
             match one:
+                case _ if nt := as_namedtuple(obj):
+                    return dfs(nt._asdict())
                 case list() | set() | tuple() as sequence:
-                    return tuple(dfs(e, visiting) for e in sequence)
+                    return tuple(dfs(e) for e in sequence)
                 case dict() as mapping:
-                    return tuple(
-                        (name, dfs(value, visiting)) for name, value in mapping.items()
-                    )
+                    return tuple((name, dfs(value)) for name, value in mapping.items())
                 case node if not hashable(node):
                     return (obj_id,)
                 case _:
@@ -126,10 +125,9 @@ def make_hashable(source: Any) -> Any:
         if is_mutable:
             visiting.remove(obj_id)
 
-        memo[obj_id] = result
         return result
 
-    return dfs(source, set())
+    return dfs(source)
 
 
 @lru_cache(maxsize=1024)

@@ -74,7 +74,9 @@ class AST(dict[str, Any]):
         if name.startswith('_'):
             self.__dict__[name] = value
             return
-        if self.__dict__.get('__frozen__'):
+        # HACK AHEAD'!
+        #   allow some attributes for backwards compatibility with legacy
+        if name != 'linecount' and self.__dict__.get('__frozen__'):
             raise AttributeError(
                 f'{typename(self)} attributes are frozen. Cannot set "{name}".'
             )

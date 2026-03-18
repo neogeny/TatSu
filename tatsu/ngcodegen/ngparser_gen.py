@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import itertools
+import string
 import types
 from collections.abc import Callable, Iterator
 from typing import Any
@@ -18,6 +19,7 @@ from ..util.indent import IndentPrintMixin
 from ..walkers import NodeWalker
 
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
+ANON = '_'
 
 
 HEADER = """\
@@ -114,7 +116,8 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     @property
     def loopn(self) -> str:
         n = self.blockn
-        a = GREEKTOME[n]
+        # a = GREEKTOME[n]
+        a = string.ascii_letters[n]
         return f'cl{a}' if n > 0 else 'cl'
 
     def push_ctx(self, ctx: str):
@@ -278,8 +281,6 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
 
     def walk_Option(self, _option: g.Option):
         pass  # handled by walk_Choice
-        # self._gen_anon_block(option.exp, decor='ch.option')
-        # self.print()
 
     def walk_Optional(self, optional: g.Optional):
         self._gen_decor(Ctx.optional, exp=optional.exp)
@@ -497,9 +498,9 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         if decor:
             self.print(f'@{decor}')
         if ctx:
-            self.print(f'def 〇({ctx}: Ctx) -> Any:')
+            self.print(f'def {ANON}({ctx}: Ctx) -> Any:')
         else:
-            self.print('def 〇() -> Any:')
+            self.print(f'def {ANON}() -> Any:')
         with self.indent():
             self.walk(exp)
 

@@ -15,7 +15,7 @@ from ..exceptions import (
     OptionSucceeded,
     ParseException,
 )
-from ..util import deprecated, left_assoc, regexpp, right_assoc
+from ..util import boundcall, deprecated, left_assoc, regexpp, right_assoc
 from ._engine import ParserEngine
 from .cst import closedlist, cstfinal
 from .ctx import Ctx, Func
@@ -41,12 +41,12 @@ class ParseContext(ParserEngine, Ctx):
 
     # bw compatibility
     @deprecated(replacement=ParserEngine.setname)
-    def name_last_node(self, name: str):  # bw-compat
+    def name_last_node(self, name: str):  # backwards compatibility
         self.setname(name)
 
     # bw compatibility
     @deprecated(replacement=ParserEngine.addname)
-    def add_last_node_to_name(self, name: str):  # bw-compat
+    def add_last_node_to_name(self, name: str):  # backwards compatibility
         self.addname(name)
 
     def fail(self):
@@ -115,13 +115,7 @@ class ParseContext(ParserEngine, Ctx):
             raise
 
     def _no_more_options(self) -> bool:
-        # NOTE:
-        #  In previous versiions, used by the Python code generator
-        #  so there are no unconditional:
-        #  `
-        #      raise self.newexception(...)
-        #  `
-        #  that fool the syntax highlighting of editors
+        # NOTE: Legacy. Used in previous versions of the parser generator
         return True
 
     @contextmanager
@@ -228,10 +222,16 @@ class ParseContext(ParserEngine, Ctx):
         yield
         self.state.nameadd(_AT_)
 
+    def expcall(self, exp: Func) -> Any:
+        try:
+            return exp(self)
+        except TypeError:
+            return boundcall(exp, {}, self)
+
     def isolate(self, exp: Func) -> Any:
         self.pushstate()
         try:
-            exp(self)
+            self.expcall(exp)
             return cstfinal(self.cst)
         finally:
             ast = self.ast
@@ -277,7 +277,7 @@ class ParseContext(ParserEngine, Ctx):
         try:
             self.cst = []
             with self._optional(), self.states.cutscope():
-                exp(self)
+                self.expcall(exp)
                 self.cst = [self.cst]
                 self.repeat(exp, prefix=sep, omitsep=omitsep)
             self.cst = cst = closedlist(self.cst)
@@ -298,7 +298,7 @@ class ParseContext(ParserEngine, Ctx):
         self.pushstate()
         try:
             with self.states.cutscope():
-                exp(self)
+                self.expcall(exp)
                 self.cst = [self.cst]
                 self.repeat(exp, prefix=sep, omitsep=omitsep)
             self.cst = cst = closedlist(self.cst)
@@ -315,20 +315,12 @@ class ParseContext(ParserEngine, Ctx):
         cl = LoopContext(self)
         yield cl
         self.closure(cl.func, omitsep=False)
-        # FIXME
-        # cst = cl.parse(self)
-        # self.state.append(cst)
 
     @contextmanager
     def loopplus(self) -> Any:
         cl = LoopContext(self, plus=True)
         yield cl
         self.positive_closure(cl.func, omitsep=False)
-        # FIXME
-        # cst = cl.parse(self)
-        # if not cst:
-        #     raise cl.expectedexcept(self)
-        # self.state.append(cst)
 
     def empty(self) -> list:
         cst = closedlist([])
@@ -435,7 +427,7 @@ class ParseContext(ParserEngine, Ctx):
         while not self.eof():
             try:
                 with self.if_():
-                    exp(self)
+                    self.expcall(exp)
             except FailedParse:
                 pass
             else:
@@ -444,6 +436,6 @@ class ParseContext(ParserEngine, Ctx):
             self.next_token()
             if self.pos == pos:
                 self._next()
-        return exp(self)
+        return self.expcall(exp)
 
     _skip_to = skip_to

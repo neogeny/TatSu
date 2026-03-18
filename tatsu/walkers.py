@@ -7,13 +7,13 @@ from collections.abc import Callable, Iterable
 from contextlib import contextmanager
 from typing import Any, ClassVar, Concatenate
 
-from .util import deprecated, pythonize_name
+from .util import as_namedtuple, deprecated, pythonize_name
 
 type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
 
 
 class NodeWalker:
-    # note: this is shared among all instances of the same sublass of NodeWalker
+    # note: this is shared among all instances of the same subclass of NodeWalker
     _walker_cache: ClassVar[dict[str, WalkerMethod | None]] = {}  # type: ignore
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
@@ -26,7 +26,7 @@ class NodeWalker:
         return self._walker_cache
 
     # CAVEAT:
-    #  in general: do not override this mehod
+    #  in general: do not override this method
     #  instead: define walk_xyz() methods
     def walk(self, node: Any, *args, **kwargs) -> Any:
         if isinstance(node, dict):
@@ -37,6 +37,9 @@ class NodeWalker:
                     if value != node
                 },
             )
+
+        elif nt := as_namedtuple(node):
+            return self.walk(nt._asdict(), *args, **kwargs)
         elif isinstance(node, list | tuple | set):
             return type(node)(self.walk(n, *args, **kwargs) for n in node if n != node)
         elif (walker := self._find_walker(node)) and callable(walker):
@@ -121,7 +124,7 @@ class BreadthFirstWalker(NodeWalker):
         self.queue: deque[Any] | None = None
 
     # CAVEAT:
-    #  in general: do not override this mehod
+    #  in general: do not override this method
     #  instead: define walk_xyz() methods
     def walk(self, node: Any, *args, **kwargs) -> tuple[Any, ...]:
         """Flattens the bfs_walk generator into a tuple of results."""
@@ -151,7 +154,7 @@ class BreadthFirstWalker(NodeWalker):
         )
 
 
-# note: for backwars compatibility
+# note: for backwards compatibility
 @deprecated(replacement=BreadthFirstWalker)
 class PreOrderWalker(BreadthFirstWalker):
     pass
@@ -186,7 +189,7 @@ class PostOrderDepthFirstWalker(NodeWalker):
         yield super().walk(node, *args, children=children, **kwargs)
 
 
-# note: for backwars compatibility
+# note: for backwards compatibility
 class ContextWalker(NodeWalker):
     @deprecated(replacement=None)
     def __init__(self, initial_context):
