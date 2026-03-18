@@ -34,7 +34,13 @@ from . import identity, memory_use, startscript, try_read
 from .timetools import iso_logpath
 from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
 
-__all__: list[str] = ['parallel_proc', 'parproc', 'processing_loop']
+
+__all__ = [
+    'parallel_proc',
+    'parproc',
+    'processing_loop',
+    '_old_file_process_progress',
+]
 
 EOLCH = '\r' if sys.stderr.isatty() else '\n'
 sys.setrecursionlimit(2**16)
@@ -68,14 +74,25 @@ class Result:
         return str(self.__dict__)
 
 
-# NOTE: BWCOMP
+# NOTE: backwards compatibility
 def parallel_proc(
     payloads: Iterable[Any],
     process: Callable,
     *args: Any,
+    pickable: Func = identity,
+    parallel: bool = True,
+    reraise: bool = False,
     **kwargs: Any,
 ):
-    yield from parproc(process, payloads, *args, **kwargs)
+    yield from parproc(
+        process,
+        payloads,
+        *args,
+        pickable=pickable,
+        parallel=parallel,
+        reraise=reraise,
+        **kwargs,
+    )
 
 
 def parproc(
@@ -135,7 +152,7 @@ def taskproc(task: Task) -> Result | None:
     return result
 
 
-# NOTE: BWCOMP
+# NOTE: backwards compatibility
 def processing_loop(
     filenames: Iterable[str],
     process: Callable,
@@ -143,7 +160,7 @@ def processing_loop(
     reraise: bool = False,
     **kwargs: Any,
 ) -> Iterable[Result]:
-    yield from parproc_visual(process, filenames, *args, **kwargs)
+    yield from parproc_visual(process, filenames, *args, reraise=reraise, **kwargs)
 
 
 def parproc_visual(
@@ -389,4 +406,5 @@ def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
                 'number of chunked tasks different %d != %d' % (len(tasks), count),
             )
 
+    assert imap_pmap, thread_pmap
     return process_pmap
