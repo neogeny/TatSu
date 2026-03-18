@@ -1,45 +1,59 @@
 .. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 .. SPDX-License-Identifier: BSD-4-Clause
 
+.. include:: links.rst
+.. highlight:: none
+
 v5.18.0
 -------
 
 Grammars / EBNF
 ~~~~~~~~~~~~~~~
 
-- Now **TatSu**’s own grammar is written in EBNF notation. Examples and
-  documentation are converging to the syntax used by `pegen`_, the base for
-  the Python PEG parser.
+-   Now |TatSu|’s own grammar is written in EBNF_ notation. Examples and
+    documentation are converging to the syntax used by `pegen`_, the base for
+    the Python PEG parser.
 
 .. _pegen: https://we-like-parsers.github.io/pegen/grammar.html
 
-- Multi-line string literals in the grammar are now supported. Use triple
-  quotes like ``"""..."""`` or ``'''...'''`` for multi-line string literals
-  in the grammar.
+-   Multi-line string literals in the grammar are now supported. Use triple
+    quotes like ``"""…"""`` or ``'''…'''`` for multi-line string literals
+    in the grammar.
 
-- The ``(?:...)`` expression was added to grammars. It works lik a ``()``group
-  but the expression parsed is not captured.
+-   The ``(?:…)`` expression was added to grammars. It works like a ``(…)`` group
+    but the expression parsed is not captured.
 
-- There’s now a copy of the **TatSu** grammar under the main package at
-  ``./tatsu/_tatsu.tatsu``. The grammar text is available as
-  ``tatsu.grammar``. The grammar remains available at
-  ``./grammar/tatsu.tatsu`` by a symbolic link.
+-   There’s now a copy of the |TatSu| grammar under the main package at
+    ``./tatsu/_grammar.tatsu``. The grammar text is available as ``tatsu.grammar``.
+    The grammar remains available at ``./grammar/tatsu.tatsu`` by a symbolic link.
 
-Functional Changes
-~~~~~~~~~~~~~~~~~~
 
-- Left recursion is detected at grammar model creation time, and a
-  ``GrammarError`` is raised if left recursion was not enabled in the
-  grammar or configuration parameters.
+Semantics and Module Hierarchy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Large Python modules continue to be factored into smaller modules
-  within a package.
+-   The semantics of grammar representations and parsing where spread all over the
+    codebase, in a way that made them hard to understand and maintain. Now each
+    aspect of the semantics is defined in a single module tha is as brief as
+    possible.
 
-- Generated parsers and models now use ``@tatsu.rule`` and
-  ``@tatsu.dataclass`` as appropriate.
+.. _tatsu.contexts.ast: https://github.com/neogeny/TatSu/blob/master/tatsu/contexts/ast.py
+.. _tatsu.contexts.cst: https://github.com/neogeny/TatSu/blob/master/tatsu/contexts/cst.py
+.. _tatsu.contexts.state: https://github.com/neogeny/TatSu/blob/master/tatsu/contexts/state.py
 
-- Generated parsers now use anonymous functions to implement choices and
-  closures:
+-   The module hierarchy has been refactored to avoid internal dependency
+    cycles, to simplify imports, and to not need partial module parses by Python.
+    Large modules have been factored at semantic boundaries into smaller modules
+    within a package.
+
+-   Left recursion is detected at grammar model creation time, and a ``GrammarError``
+    is raised if left recursion was not enabled in the grammar or configuration
+    parameters.
+
+-   Generated parsers and models now use ``@tatsu.rule`` and ``@tatsu.dataclass``
+    as appropriate.
+
+-   Generated parsers now use anonymous functions to implement choices and
+    closures:
 
   .. code:: python
 
@@ -54,11 +68,12 @@ Functional Changes
 
             ch.expecting('<string>', '<word>')
 
-- Now in addition to the existing ``rules`` and ``rulemap`` attributes
-  of ``Grammar``, there is a ``rule`` attribute that allows access to
-  rules as attributes:
+-   Now in addition to the existing ``rules`` and ``rulemap`` attributes
+    of ``Grammar``, there is a ``rule`` attribute that allows access to
+    rules as attributes:
 
   .. code:: python
+    :force:
 
      class Grammar(Model):
          rules: tuple[Rule, ...]
@@ -71,14 +86,12 @@ Functional Changes
      rule = mode.rule.start
      print(m.rule.longone.exp.token)
 
-- Refactoring to avoid internal dependency cycles and simplify
-  imports.
+-   Rules and the different forms of closures are back to returning ``list``
+    instead of ``tuple``. The ``tuples`` were introduced as a not-thought-up
+    shortcut and it has taken until now to fix that. Square brackets are much
+    easier to discern in programs and output in a context in which parenthesis
+    are already overloaded.
 
-- Rules and the different forms of closures are back to returning ``list``
-  instead of ``tuple``. The ``tuples`` were introduced as a not-thought-up
-  shortcut and it has taken until now to fix that. Square brackets are much
-  easier to discern in programs and output in a context in which parenthesis
-  are already overloaded.
 
 Model Representations
 ~~~~~~~~~~~~~~~~~~~~~
@@ -96,7 +109,6 @@ Model Representations
      evalmodel = eval(repr(model), globals=vars(grammars))
      assert repr(model) == repr(evalmodel)
 
-
 - These are the multiple representations for a grammar model or node:
 
   .. code:: python
@@ -106,6 +118,7 @@ Model Representations
     m.asjsons()   -> str:   # json.dumps(m.asjson(), indent=2)
     m.railroads() -> str:   # a railroads diagram in Text/ASCII art
     repr(m)       -> str:   # can be passed to eval()
+
 
 Separation of State and Content
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -135,15 +148,17 @@ Separation of State and Content
   protocol that defines only the interface that methods for rules
   require to perform a parse according to the input grammar.
 
-Incompatible Changes
-~~~~~~~~~~~~~~~~~~~~
 
-- Support for too old generated Python parsers is dropped. In most cases
-  it’s best to generate a new Python parser.
+Deprecations and Removals
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Support for generated parsers from legacy versions of |TatSu| has been dropped.
+  The parsers may still work, but no effort to maintain compatibility is made
+  any longer. In most cases it’s best to generate a new Python parser.
 
 - Dropped support in the grammar for ``regex + regex``, adding regular expressions.
 
-- Dropped support for ``?/.../?`` regexes in the grammar.
+- Dropped support for ``?/…/?`` regexes in the grammar.
 
 - The undocumented and unmaintained ``ParseContext.substate`` was
   removed.

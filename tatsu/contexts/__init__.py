@@ -2,12 +2,13 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .ctx import Ctx, Func
 from .ast import AST
 from .context import ParseContext
+from .ctx import Ctx, Func
 from .decorator import isname, leftrec, name, nomemo, rule, tatsumasu
 from .infos import RuleInfo
-from .stt import _AT_, ParseState, ParseStateStack
+from .sts import _AT_, ParseState, ParseStateStack
+
 
 __all__ = [
     'AST',

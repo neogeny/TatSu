@@ -541,15 +541,28 @@ is the empty tuple ``()``.
 ``!()``
 ^^^^^^^
 
-The *fail* expression. This is ``!`` applied to ``()``, which always fails.
+The *fail* expression. This is ``!`` applied to ``()``, which always fails, and
+thus has no value. This is useful to prevent the parser from accepting certain
+input, for example in placeholders for rules that are not yet defined.
 
 
-``name=e`` or``name:e``
-^^^^^^^^^^^^^^^^^^^^^^^
+``name=e`` or ``name:e``
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Add the result of ``e`` to the `AST`_ using ``name`` as key. If
 ``name`` collides with any attribute or method of ``dict``, or is a
 `Python`_ keyword, an underscore (``_``) will be appended to the name.
+
+.. note::
+
+    ``name`` is bound in the *option* in which it appears, or in the rule when
+    there are no options. When options define different names, only the names
+    in the option that parses will be present in the resulting AST_. A ``name``
+    will be bound to ``None`` when the expresion ``e`` fails to parse. For ``name``
+    used in enclosing expressions like *group*, *optional*, or *closure*, ``name``
+    will be bound in the rule-level AST_ only if the complete enclosure parses
+    (they have local scope, and are transfered to the outer scope only on success).
+    The same criteria applies to expressions nested to any level.
 
 When there are no named items in a rule or choice, the `AST`_ consists of the
 elements parsed by the rule, either a single item or a ``list``. This
@@ -586,7 +599,13 @@ appending an underscore to ``name``.
 The override operator. Make the `AST`_ for the complete rule or choice be
 the `AST`_ for ``e``.
 
-This operator is useful to recover only part of the right hand side of a rule
+.. note::
+
+    As with ``name=e``, the effect of ``=e`` is scoped to the enclosing
+    *option*, *group*, *optional*, or *closure*, and will apply ony when the
+    enclosure parses successfully.
+
+This expression is useful to recover only part of the right hand side of a rule
 without the need to name it, or add a semantic action. This is a typical use
 of the override operator:
 

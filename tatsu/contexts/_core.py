@@ -21,8 +21,9 @@ from ..util import (
 )
 from .ast import AST
 from .infos import MemoKey, RuleInfo, RuleResult
-from .stt import ParseState, ParseStateStack
+from .sts import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
+
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
