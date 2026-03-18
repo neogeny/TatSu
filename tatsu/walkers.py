@@ -9,7 +9,6 @@ from typing import Any, ClassVar, Concatenate
 
 from .util import as_namedtuple, deprecated, pythonize_name
 
-
 type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
 
 
