@@ -1,6 +1,8 @@
 .. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 .. SPDX-License-Identifier: BSD-4-Clause
 
+:orphan:
+
 .. include:: links_contributors.rst
 
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
@@ -8,8 +10,6 @@
 
 .. _ANTLR: http://www.antlr.org/
 .. _AST: http://en.wikipedia.org/wiki/Abstract_syntax_tree
-.. _AST: http://en.wikipedia.org/wiki/Abstract_syntax_tree
-.. _Abstract Syntax Tree: http://en.wikipedia.org/wiki/Abstract_syntax_tree
 .. _Abstract Syntax Tree: http://en.wikipedia.org/wiki/Abstract_syntax_tree
 .. _Algol W: http://en.wikipedia.org/wiki/Algol_W
 .. _Algorithms + Data Structures = Programs: http://www.amazon.com/Algorithms-Structures-Prentice-Hall-Automatic-Computation/dp/0130224189/
@@ -30,7 +30,6 @@
 .. _Japanese: http://en.wikipedia.org/wiki/Japanese_grammar
 .. _Java: https://en.wikipedia.org/wiki/Java
 .. _KLOC: http://en.wikipedia.org/wiki/KLOC
-.. _Keywords: https://en.wikipedia.org/wiki/Reserved_word
 .. _LICENSE: LICENSE
 .. _LL(1): http://en.wikipedia.org/wiki/LL(1)
 .. _MediaWiki: http://www.mediawiki.org/wiki/MediaWiki
@@ -70,6 +69,7 @@
 .. _Wirth: http://en.wikipedia.org/wiki/Niklaus_Wirth
 .. _`left-recursive`: https://en.wikipedia.org/wiki/Left_recursion
 .. _`make a donation`: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=2TW56SV6WNJV6
+.. _algorithm: https://arxiv.org/pdf/1509.02439
 .. _blog post: http://dietbuddha.blogspot.com/2012/12/52python-encapsulating-exceptions-with.html
 .. _colorama: https://pypi.python.org/pypi/colorama/
 .. _context managers: http://docs.python.org/2/library/contextlib.html

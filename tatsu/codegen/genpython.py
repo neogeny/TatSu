@@ -9,9 +9,7 @@ import textwrap
 from .. import grammars, ngcodegen
 from ..exceptions import CodegenError
 from ..objectmodel import Node
-from ..util import indent, safe_name, timestamp, trim
-from ..util.abctools import compress_seq
-from ..util.deprecate import deprecated
+from ..util import compress_seq, deprecated, indent, safe_name, timestamp, trim
 from .cgbase import CodeGenerator, ModelRenderer
 
 
@@ -154,10 +152,10 @@ class Sequence(Base):
 
 class Choice(Base):
     def render_fields(self, fields):
-        firstset = self.node.lookahead_str()
+        firstset = ' '.join(self.node.expecting())
         if firstset:
             msglines = textwrap.wrap(firstset, width=40)
-            error = ['expecting one of: ', *msglines]
+            error = ['Expected one of: ', *msglines]
         else:
             error = ['no available options']
         error = [repr(e) for e in error]
@@ -389,10 +387,10 @@ class Rule(_Decorator):
         if not isinstance(self.node, grammars.Choice):
             sdefines = self.make_defines_declaration()
         fields.update(defines=sdefines)
-        leftrec = self.node.is_leftrec
+        leftrec = self.node.is_lrec
         fields.update(leftrec='\n@leftrec' if leftrec else '')
         fields.update(
-            nomemo='\n@nomemo' if not self.node.is_memoizable and not leftrec else '',
+            nomemo='\n@nomemo' if not self.node.is_memo and not leftrec else '',
         )
         fields.update(isname='\n@isname' if self.node.is_name else '')
 

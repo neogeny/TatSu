@@ -1,0 +1,99 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
+from collections.abc import Iterable
+from functools import cache
+from typing import Any, override
+
+from ..util import asjson, make_hashable, typename
+from .cst import cstadd
+from .infos import ParseInfo
+
+
+class AST(dict[str, Any]):
+    """
+    A dictionary that allows attribute-style access to its keys.
+    # by Gemini (2026-01-26)
+    # by [apalala@gmail.com](https://github.com/apalala)
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__()
+        self.__dict__['__frozen__'] = False
+        self.update(*args, **kwargs)
+        self.__dict__['__frozen__'] = True
+
+    @property
+    def parseinfo(self) -> ParseInfo | None:
+        return self.get('__parseinfo__')
+
+    # NOTE: required to bypass '__frozen__'
+    def set_parseinfo(self, value: ParseInfo | None) -> None:
+        super().__setitem__('parseinfo', value)
+        super().__setitem__('__parseinfo__', value)
+
+    def asjson(self) -> Any:
+        return asjson(self)
+
+    def _set(self, key: str, node: Any, aslist: bool = False) -> None:
+        key = self._safekey(key)
+        cst = self.get(key)
+        super().__setitem__(key, cstadd(cst, node, aslist=aslist))
+
+    @staticmethod
+    @cache
+    def _unsafe() -> frozenset[str]:
+        return frozenset(vars(dict).keys())
+
+    def _safekey(self, key: str) -> str:
+        while key in self._unsafe():
+            key += '_'
+        return key
+
+    def _define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None):
+        for key in (self._safekey(k) for k in keys):
+            if key not in self:
+                super().__setitem__(key, None)
+        for key in (self._safekey(k) for k in list_keys or []):
+            if key not in self:
+                super().__setitem__(key, [])
+
+    def __getitem__(self, key: str) -> Any:
+        if key in self:
+            return super().__getitem__(key)
+        return super().get(self._safekey(key))
+
+    def __setitem__(self, key: Any, value: Any) -> None:
+        self._set(key, value)
+
+    def __delitem__(self, key: Any) -> None:
+        super().__delitem__(self._safekey(key))
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name.startswith('_'):
+            self.__dict__[name] = value
+            return
+        # HACK AHEAD'!
+        #   allow some attributes for backwards compatibility with legacy
+        if name != 'linecount' and self.__dict__.get('__frozen__'):
+            raise AttributeError(
+                f'{typename(self)} attributes are frozen. Cannot set "{name}".'
+            )
+        self[name] = value
+
+    def __getattr__(self, name: str) -> Any:
+        return self[name]
+
+    def __reduce__(self) -> tuple[Any, Any]:
+        return AST, (tuple(self.items()),)
+
+    def __repr__(self) -> str:
+        return f'AST({super().__repr__()})'
+
+    def __str__(self) -> str:
+        return str(self.asjson())
+
+    @override
+    def __hash__(self) -> int:  # type: ignore
+        return hash(make_hashable(self))

@@ -3,99 +3,80 @@
 from __future__ import annotations
 
 import inspect
-import sys
-from types import MethodType
+from collections.abc import Callable
+from functools import cache
+from typing import Any
 
-from .contexts import ParseContext, isname, leftrec, nomemo, rule
-from .contexts import rule as tatsumasu
+from .contexts import (
+    ParseContext,
+    isname,
+    leftrec,
+    name,
+    nomemo,
+    tatsumasu,
+    tatsumasu as rule,  # note: this supports v5.16-v5.17 parsers
+)
 from .exceptions import FailedRef
+from .parserconfig import ParserConfig
+from .util import generic_main, safe_name
 
-__all__ = ['Parser', 'generic_main', 'isname', 'leftrec', 'nomemo', 'rule', 'tatsumasu']
+__all__ = [
+    'Parser',
+    'NGParser',
+    'generic_main',
+    'isname',
+    'name',
+    'leftrec',
+    'nomemo',
+    'rule',
+    'tatsumasu',
+]
+
+
+@cache
+def find_rule(source: Any, name: str) -> Callable[[ParseContext], Any] | None:
+    for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:
+        action = getattr(source, safe_name(rulename), None)
+        if callable(action):
+            return action
+    return None
 
 
 class Parser(ParseContext):
-    def _find_rule(self, name: str) -> MethodType:
-        for rulename in (f'_{name}_', name):
-            rule = getattr(self, rulename, None)
-            if inspect.ismethod(rule):
-                return rule
-        raise self.newexcept(name, exclass=FailedRef)
+    def __init__(
+        self,
+        rulesource: Any = None,
+        /,
+        *,
+        config: ParserConfig | None = None,
+        **settings: Any,
+    ) -> None:
+        self.rulesource = rulesource
 
-    @classmethod
-    def rule_list(cls) -> list[str]:
-        methods = inspect.getmembers(cls, predicate=inspect.ismethod)
-        result = []
-        for m in methods:
-            name = m[0]
-            if len(name) < 3:
-                continue
-            if name.startswith('__') or name.endswith('__'):
-                continue
-            if name.startswith('_') and name.endswith('_'):
-                result.append(name[1:-1])
-        return result
+        config = ParserConfig.new(config, **settings)
+        srcconfig = ParserConfig.new(getattr(rulesource, '_config', None))
+        config = srcconfig.override_config(config)
+
+        super().__init__(config=config)
+
+    def find_rule(self, name: str) -> Callable[[ParseContext], Any]:
+        if self.rulesource:
+            action = find_rule(self.rulesource, name)
+        else:
+            action = find_rule(self, name)
+        if not action:
+            raise self.newexcept(f'{name}', excls=FailedRef)
+        return action
+
+    def rule_list(self) -> list[str]:
+        source = self.rulesource or type(self)
+
+        def isdunder(name: str) -> bool:
+            return name.startswith('__') and name.endswith('__')
+
+        methods = inspect.getmembers(source, predicate=inspect.ismethod)
+        return [m[0] for m in methods if not isdunder(m[0])]
 
 
-def generic_main(custom_main, parser_class, name='Unknown'):
-    import argparse
-
-    class ListRules(argparse.Action):
-        def __call__(self, parser, namespace, values, option_string=None):
-            print('Rules:')
-            for r in parser_class.rule_list():
-                print(r)
-            print()
-            sys.exit(0)
-
-    argp = argparse.ArgumentParser(description=f'Simple parser for {name}.')
-    addarg = argp.add_argument
-
-    addarg(
-        '-c',
-        '--color',
-        help='use color in traces (requires the colorama library)',
-        action='store_true',
-    )
-    addarg('-l', '--list', action=ListRules, nargs=0, help='list all rules and exit')
-    addarg(
-        '-n',
-        '--no-nameguard',
-        action='store_true',
-        dest='no_nameguard',
-        help="disable the 'nameguard' feature",
-    )
-    addarg('-t', '--trace', action='store_true', help='output trace information')
-    addarg(
-        '-w',
-        '--whitespace',
-        type=str,
-        default=None,
-        help='whitespace specification',
-    )
-    addarg(
-        'file',
-        metavar='FILE',
-        help="the input file to parse or '-' for standard input",
-        nargs='?',
-        default='-',
-    )
-    addarg(
-        'startrule',
-        metavar='STARTRULE',
-        nargs='?',
-        help='the start rule for parsing',
-        default=None,
-    )
-
-    args = argp.parse_args()
-    try:
-        return custom_main(
-            args.file,
-            start=args.startrule,
-            trace=args.trace,
-            whitespace=args.whitespace,
-            nameguard=not args.no_nameguard,
-            colorize=args.color,
-        )
-    except KeyboardInterrupt:
-        pass
+# NOTE: backwards compatibility
+NGParser = Parser

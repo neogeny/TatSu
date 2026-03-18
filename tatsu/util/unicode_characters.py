@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from .common import is_posix
 
-# ruff: noqa: RUF001
-
 U_LARROW = '←'
 U_DLARROW = '↙'
 U_LDARROW = '⇐'

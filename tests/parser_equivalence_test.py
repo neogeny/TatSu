@@ -7,7 +7,7 @@ import types
 import pytest
 
 import tatsu
-from tatsu.exceptions import FailedParse
+from tatsu.exceptions import FailedParse, KeywordError
 
 INPUT = """
     1d3
@@ -45,7 +45,7 @@ GRAMMAR = r"""
 
 def generate_and_load_parser(name, grammar):
     code = tatsu.to_python_sourcecode(grammar, name='Test')
-    print(code)
+    # print(code)
     module = types.ModuleType(name)
     module.__file__ = '<generated>'
     exec(compile(code, module.__file__, 'exec'), module.__dict__)
@@ -81,8 +81,7 @@ def test_error_messages():
     except FailedParse as e:
         e1 = str(e)
         assert (
-            "expecting one of: 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o'"
-            in e1
+            "Expected one of: 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o'" in e1
         )
 
 
@@ -101,7 +100,7 @@ def test_name_checked():
 
     def subtest(parser):
         parser.parse('nonIF if 1', trace=False)
-        with pytest.raises(FailedParse):
+        with pytest.raises(KeywordError):
             parser.parse('if if 1', trace=False)
         with pytest.raises(FailedParse):
             parser.parse('IF if 1', trace=False)
@@ -169,11 +168,11 @@ def test_none_whitespace():
 
     parser = tatsu.compile(grammar)
     output = parser.parse(input)
-    assert output == ('This is a', ' test')
+    assert output == ['This is a', ' test']
 
     parser = generate_and_load_parser('W', grammar)
     output = parser.parse(input, parseinfo=False)
-    assert output == ('This is a', ' test')
+    assert output == ['This is a', ' test']
 
 
 def test_sep_join():

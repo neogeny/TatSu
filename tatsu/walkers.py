@@ -7,27 +7,26 @@ from collections.abc import Callable, Iterable
 from contextlib import contextmanager
 from typing import Any, ClassVar, Concatenate
 
-from .util.deprecate import deprecated
-from .util.string import pythonize_name
+from .util import as_namedtuple, deprecated, pythonize_name
 
 type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
 
 
 class NodeWalker:
-    # note: this is shared among all instances of the same sublass of NodeWalker
-    _walker_cache: ClassVar[dict[str, WalkerMethod | None]] = {}  # pyright: ignore[reportRedeclaration]
+    # note: this is shared among all instances of the same subclass of NodeWalker
+    _walker_cache: ClassVar[dict[str, WalkerMethod | None]] = {}  # type: ignore
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
         # note: a different cache for each subclass
-        cls._walker_cache: dict[str, WalkerMethod | None] = {}
+        cls._walker_cache: dict[str, WalkerMethod | None] = {}  # type: ignore
 
     @property
     def walker_cache(self):
         return self._walker_cache
 
     # CAVEAT:
-    #  in general: do not override this mehod
+    #  in general: do not override this method
     #  instead: define walk_xyz() methods
     def walk(self, node: Any, *args, **kwargs) -> Any:
         if isinstance(node, dict):
@@ -38,6 +37,9 @@ class NodeWalker:
                     if value != node
                 },
             )
+
+        elif nt := as_namedtuple(node):
+            return self.walk(nt._asdict(), *args, **kwargs)
         elif isinstance(node, list | tuple | set):
             return type(node)(self.walk(n, *args, **kwargs) for n in node if n != node)
         elif (walker := self._find_walker(node)) and callable(walker):
@@ -51,9 +53,9 @@ class NodeWalker:
             return node
 
     def children_of(self, node: Any) -> Iterable[Any]:
-        if not hasattr(node, 'children') or not callable(node.children):
+        if not (children := getattr(node, 'children', None)) or not callable(children):
             return ()
-        return node.children()  # pyright: ignore[reportReturnType]
+        return node.children()
 
     def walk_children(self, node: Any, *args, **kwargs) -> tuple[Any, ...]:
         return tuple(
@@ -122,7 +124,7 @@ class BreadthFirstWalker(NodeWalker):
         self.queue: deque[Any] | None = None
 
     # CAVEAT:
-    #  in general: do not override this mehod
+    #  in general: do not override this method
     #  instead: define walk_xyz() methods
     def walk(self, node: Any, *args, **kwargs) -> tuple[Any, ...]:
         """Flattens the bfs_walk generator into a tuple of results."""
@@ -152,7 +154,7 @@ class BreadthFirstWalker(NodeWalker):
         )
 
 
-# note: for backwars compatibility
+# note: for backwards compatibility
 @deprecated(replacement=BreadthFirstWalker)
 class PreOrderWalker(BreadthFirstWalker):
     pass
@@ -187,14 +189,16 @@ class PostOrderDepthFirstWalker(NodeWalker):
         yield super().walk(node, *args, children=children, **kwargs)
 
 
+# note: for backwards compatibility
 class ContextWalker(NodeWalker):
+    @deprecated(replacement=None)
     def __init__(self, initial_context):
         super().__init__()
         self._initial_context = initial_context
         self._context_stack = [initial_context]
 
     # abstract
-    def get_node_context(self, node, *args, **kwargs):
+    def get_node_context(self, node, *args, **kwargs) -> Any:
         pass
 
     # abstract

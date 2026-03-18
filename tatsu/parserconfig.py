@@ -4,17 +4,16 @@ from __future__ import annotations
 
 import re
 import warnings
-from collections.abc import Collection
 from dataclasses import dataclass, field
 from typing import Any, override
 
-from .tokenizing import NullTokenizer, Tokenizer
-from .util.configs import Config
-from .util.misc import cached_re_compile
-from .util.undefined import Undefined
+from .tokenizing import NullTokenizer
+from .tokenizing.tokenizer import Tokenizer
+from .util import Config, Undefined
+from .util.regextools import cached_re_compile
 from .util.unicode_characters import C_DERIVE
 
-MEMO_CACHE_SIZE = 4 * 1024
+DEFAULT_MEMO_CACHE_SIZE = 1024
 
 
 @dataclass
@@ -31,7 +30,7 @@ class ParserConfig(Config):
 
     memoization: bool = True
     memoize_lookaheads: bool = True
-    memo_cache_size: int = MEMO_CACHE_SIZE
+    memo_cache_size: int = DEFAULT_MEMO_CACHE_SIZE
     prune_memos_on_cut: bool = True
 
     colorize: bool = True  # INFO: requires the colorama library
@@ -46,9 +45,9 @@ class ParserConfig(Config):
 
     comments: str | None = None
     eol_comments: str | None = None
-    keywords: Collection[str] = field(default_factory=set)
+    keywords: set[str] = field(default_factory=set)
 
-    ignorecase: bool = False
+    ignorecase: bool | None = None
     namechars: str | None = None
     nameguard: bool | None = None  # implied by namechars
     whitespace: str | None = Undefined  # type: ignore
@@ -132,6 +131,7 @@ class ParserConfig(Config):
     @override
     def override(self, **settings: Any) -> ParserConfig:
         result = super().override(**settings)
+        assert isinstance(result, ParserConfig)
         if 'grammar' in settings:
             result.name = result.grammar
         self._deprecate_and_compile_comments()

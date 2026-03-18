@@ -478,69 +478,39 @@ The first step to create an object model is to annotate the rule names with the 
     @@grammar::Calc
 
 
-    start
-        =
-        expression $
-        ;
+    start: expression $
 
-
-    expression
-        =
+    expression:
         | addition
         | subtraction
         | term
-        ;
 
-
-    addition::Add
-        =
+    addition[Add]:
         left:term op:'+' ~ right:expression
-        ;
 
-
-    subtraction::Subtract
-        =
+    subtraction[Subtract]:
         left:term op:'-' ~ right:expression
-        ;
 
-
-    term
-        =
+    term:
         | multiplication
         | division
         | factor
-        ;
 
-
-    multiplication::Multiply
-        =
+    multiplication[Multiply]:
         left:factor op:'*' ~ right:term
-        ;
 
-
-    division::Divide
-        =
+    division[Divide]:
         left:factor op:'/' ~ right:term
-        ;
 
-
-    factor
-        =
+    factor:
         | subexpression
         | number
-        ;
 
-
-    subexpression
-        =
+    subexpression:
         '(' ~ @:expression ')'
-        ;
 
-
-    number::int
-        =
+    number[int]:
         /\d+/
-        ;
 
 Save the grammar in a file name ``calc_model.tatsu``.
 

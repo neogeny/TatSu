@@ -80,15 +80,26 @@ backups/
 .ropeproject/
 .ipynb_checkpoints/
 .obsidian/
+.cursorignore
 
 ### --- Tools & Apps (Gemini, GitHub, etc.) ---
-.gemini/
-gha-creds-*.json
-.github/commands/gemini*
-.github/workflows/gemini*
 .scrapy/
 celerybeat-schedule
+.envrc*
 
 ### --- Localization ---
 *.mo
 *.pot
+
+### --- Caches ---
+.tmp.driveupload/
+!/.tmp.drivedownload/
+
+
+### --- AI Agents ---
+gha-creds-*.json
+.continue/
+.cursor/
+.gemini/
+.github/commands/gemini*
+.github/workflows/gemini*

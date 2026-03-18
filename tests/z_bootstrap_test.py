@@ -14,10 +14,11 @@ from pathlib import Path
 
 import pytest
 
+import tatsu
 from tatsu import diagrams
+from tatsu.grammars.semantics import GrammarSemantics
 from tatsu.ngcodegen import pythongen
 from tatsu.parser import TatSuParser, TatSuParserGenerator
-from tatsu.parser_semantics import TatSuGrammarSemantics
 from tatsu.semantics import ASTSemantics
 from tatsu.tool import to_python_sourcecode
 from tatsu.util import asjson
@@ -25,6 +26,8 @@ from tatsu.walkers import DepthFirstWalker
 
 tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
+
+# _ = pytest.mark.skip(reason="Execute under `bench'")
 
 
 @pytest.mark.dependency()
@@ -35,7 +38,7 @@ def test_00_with_boostrap_grammar():
     if (tmp / '00.ast').is_file():
         shutil.rmtree('./tmp')
     tmp.mkdir(exist_ok=True)
-    text = Path('grammar/tatsu.tatsu').read_text()
+    text = tatsu.grammar
     g = TatSuParser('TatSuBootstrap')
     grammar0 = g.parse(text, semantics=ASTSemantics(), parseinfo=False)
     ast0 = json.dumps(asjson(grammar0), indent=2)
@@ -45,25 +48,25 @@ def test_00_with_boostrap_grammar():
 @pytest.mark.dependency('test_00_with_boostrap_grammar')
 def test_01_with_parser_generator():
     print('-' * 20, 'phase 01 - parse with parser generator')
-    text = Path('grammar/tatsu.tatsu').read_text()
+    text = tatsu.grammar
     g = TatSuParserGenerator('TatSuBootstrap')
     result = g.parse(text)
-    generated_grammar1 = str(result)
+    generated_grammar1 = result.pretty()
     Path('./tmp/01.tatsu').write_text(generated_grammar1)
 
 
 @pytest.mark.dependency('test_01_with_parser_generator')
 def test_02_previous_output_generator():
     print('-' * 20, 'phase 02 - parse previous output with the parser generator')
-    text = Path('grammar/tatsu.tatsu').read_text()
+    text = tatsu.grammar
     g = TatSuParserGenerator('TatSuBootstrap')
     result = g.parse(text)
-    generated_grammar1 = str(result)
+    generated_grammar1 = result.pretty()
 
     text = Path('./tmp/01.tatsu').read_text()
     g = TatSuParserGenerator('TatSuBootstrap')
     result = g.parse(text)
-    generated_grammar2 = str(result)
+    generated_grammar2 = result.pretty()
     Path('./tmp/02.tatsu').write_text(generated_grammar2)
     assert generated_grammar2 == generated_grammar1
 
@@ -83,12 +86,12 @@ def test_04_repeat_03():
     text = Path('./tmp/01.tatsu').read_text()
     g = TatSuParserGenerator('TatSuBootstrap')
     result = g.parse(text)
-    generated_grammar2 = str(result)
+    generated_grammar2 = result.pretty()
 
     text = Path('./tmp/02.tatsu').read_text()
     g = TatSuParserGenerator('TatSuBootstrap')
     parser = g.parse(text)
-    generated_grammar4 = str(parser)
+    generated_grammar4 = parser.pretty()
     Path('./tmp/04.tatsu').write_text(generated_grammar4)
     assert generated_grammar4 == generated_grammar2
 
@@ -119,7 +122,7 @@ def test_06_generate_code():
 def test_07_import_generated_code():
     print('-' * 20, 'phase 07 - import generated code')
 
-    text = Path('grammar/tatsu.tatsu').read_text()
+    text = tatsu.grammar
     gencode7 = to_python_sourcecode(text)
     Path('./tmp/g07.py').write_text(gencode7)
     assert Path('./tmp/g07.py').is_file()
@@ -159,7 +162,7 @@ def test_08_compile_with_generated():
     ast0 = Path('./tmp/00.ast').read_text()
 
     parser = generated_parser(trace=False)
-    text = Path('grammar/tatsu.tatsu').read_text()
+    text = tatsu.grammar
     result = parser.parse(text, semantics=ASTSemantics(), parseinfo=False)
     ast8 = json.dumps(asjson(result), indent=2)
     Path('./tmp/08.ast').write_text(ast8)
@@ -171,30 +174,30 @@ def test_08_compile_with_generated():
 @pytest.mark.dependency('test_08_compile_with_generated')
 def test_09_parser_with_semantics():
     print('-' * 20, 'phase 09 - Generate parser with semantics')
-    text = Path('grammar/tatsu.tatsu').read_text()
+    text = tatsu.grammar
     parser = TatSuParserGenerator('TatSuBootstrap')
     g9 = parser.parse(text)
-    generated_grammar9 = str(g9)
+    generated_grammar9 = g9.pretty()
     Path('./tmp/09.tatsu').write_text(generated_grammar9)
-    text = Path('grammar/tatsu.tatsu').read_text()
+    text = tatsu.grammar
     g = TatSuParserGenerator('TatSuBootstrap')
     result = g.parse(text)
-    generated_grammar1 = str(result)
+    generated_grammar1 = result.pretty()
     assert generated_grammar9 == generated_grammar1
 
 
 @pytest.mark.dependency('test_09_parser_with_semantics')
 def test_10_with_model_and_semantics():
     print('-' * 20, 'phase 10 - Parse with a model using a semantics')
-    text = Path('grammar/tatsu.tatsu').read_text()
+    text = tatsu.grammar
     parser = TatSuParserGenerator('TatSuBootstrap')
     g9 = parser.parse(text)
     g10 = g9.parse(
         text,
         start='start',
-        semantics=TatSuGrammarSemantics('TatSuBootstrap'),
+        semantics=GrammarSemantics('TatSuBootstrap'),
     )
-    generated_grammar10 = str(g10)
+    generated_grammar10 = g10.pretty()
     Path('./tmp/10.tatsu').write_text(generated_grammar10)
     gencode10 = pythongen(g10)
     Path('./tmp/g10.py').write_text(gencode10)
@@ -203,13 +206,13 @@ def test_10_with_model_and_semantics():
 @pytest.mark.dependency('test_10_with_model_and_semantics')
 def test_11_with_pickle_and_retry():
     print('-' * 20, 'phase 11 - Pickle the model and try again.')
-    text = Path('grammar/tatsu.tatsu').read_text()
+    text = tatsu.grammar
     parser = TatSuParserGenerator('TatSuBootstrap')
     g9 = parser.parse(text)
     g10 = g9.parse(
         text,
         start='start',
-        semantics=TatSuGrammarSemantics('TatSuBootstrap'),
+        semantics=GrammarSemantics('TatSuBootstrap'),
     )
     with Path('./tmp/11.tatsuc').open('wb') as f:
         pickle.dump(g10, f)
@@ -218,9 +221,10 @@ def test_11_with_pickle_and_retry():
     r11 = g11.parse(
         text,
         start='start',
-        semantics=TatSuGrammarSemantics('TatSuBootstrap'),
+        semantics=GrammarSemantics('TatSuBootstrap'),
     )
-    Path('./tmp/11.tatsu').write_text(str(g11))
+    Path('./tmp/11.tatsu').write_text(g11.pretty())
+    Path('./tmp/11_lean.tatsu').write_text(g11.pretty_lean())
     gencode11 = pythongen(r11)
     Path('./tmp/bootstrap_g11.py').write_text(gencode11)
 

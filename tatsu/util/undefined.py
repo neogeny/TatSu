@@ -4,11 +4,7 @@ from __future__ import annotations
 
 from typing import Any, cast
 
-__all__ = ['UndefinedType', 'Undefined', 'notnone']
-
-
-def notnone[T](value: T | None, default: T) -> T:
-    return value if value is not None else default
+__all__ = ['UndefinedType', 'Undefined']
 
 
 class UndefinedType[T]:
@@ -58,4 +54,4 @@ class UndefinedType[T]:
         return hash(id(self))
 
 
-Undefined = UndefinedType()
+Undefined: UndefinedType = UndefinedType()

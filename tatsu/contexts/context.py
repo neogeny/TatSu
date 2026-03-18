@@ -1,0 +1,435 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
+from collections.abc import Generator
+from contextlib import contextmanager, suppress
+from typing import Any
+
+from ..exceptions import (
+    FailedExpectingEndOfText,
+    FailedLookahead,
+    FailedParse,
+    FailedPattern,
+    FailedToken,
+    OptionSucceeded,
+    ParseException,
+)
+from ..util import boundcall, deprecated, left_assoc, regexpp, right_assoc
+from ._engine import ParserEngine
+from .cst import closedlist, cstfinal
+from .ctx import Ctx, Func
+from .ctxlib import (
+    ChoiceContext,
+    ExpContext,
+    ExpWithSepContext,
+    LoopContext,
+    LoopWithSepContext,
+)
+from .sts import _AT_
+
+
+class ParseContext(ParserEngine, Ctx):
+    # bw compatibility
+    @deprecated(replacement=ParserEngine.newexcept)
+    def _error(
+        self,
+        item: Any,
+        exclass: type[FailedParse] = FailedParse,
+    ) -> FailedParse:
+        raise self.newexcept(item, exclass)
+
+    # bw compatibility
+    @deprecated(replacement=ParserEngine.setname)
+    def name_last_node(self, name: str):  # backwards compatibility
+        self.setname(name)
+
+    # bw compatibility
+    @deprecated(replacement=ParserEngine.addname)
+    def add_last_node_to_name(self, name: str):  # backwards compatibility
+        self.addname(name)
+
+    def fail(self):
+        self.next_token()
+        raise self.newexcept('fail')
+
+    _fail = fail
+
+    def token(self, token: str) -> str:
+        self.next_token()
+        if self.cursor.match(token) is None:
+            self.tracer.trace_match(self.cursor, token, failed=True)
+            raise self.newexcept(token, excls=FailedToken)
+        self.tracer.trace_match(self.cursor, token)
+        self.state.append(token)
+        return token
+
+    _token = token
+
+    def alert(self, message: str, level: int) -> None:
+        self.next_token()
+        self.tracer.trace_match(
+            self.cursor,
+            f'{"^" * level}`{message}`',
+            failed=True,
+        )
+        self.states.alert(level=level, message=message)
+
+    _aler = alert
+
+    def pattern(self, pattern: str) -> Any:
+        token = self.cursor.matchre(pattern)
+        if token is None:
+            self.tracer.trace_match(self.cursor, '', pattern, failed=True)
+            raise self.newexcept(f'Expecting {regexpp(pattern)}', excls=FailedPattern)
+        self.tracer.trace_match(self.cursor, token, pattern)
+        self.state.append(token)
+        return token
+
+    _pattern = pattern
+
+    def eof(self) -> bool:
+        return self.cursor.atend()
+
+    def eol(self) -> bool:
+        return self.cursor.ateol()
+
+    def eofcheck(self) -> None:
+        self.next_token()
+        if not self.cursor.atend():
+            raise self.newexcept(
+                'Expecting end of text',
+                excls=FailedExpectingEndOfText,
+            )
+
+    _check_eof = eofcheck
+
+    @contextmanager
+    def _try(self) -> Any:
+        self.pushstate()
+        try:
+            yield
+            self.mergestate()
+        except FailedParse:
+            self.undostate()
+            raise
+
+    def _no_more_options(self) -> bool:
+        # NOTE: Legacy. Used in previous versions of the parser generator
+        return True
+
+    @contextmanager
+    def option(self) -> Any:
+        try:
+            with self._try():
+                yield
+            raise OptionSucceeded()
+        except FailedParse:
+            if not self.states.cut_seen():
+                pass
+            else:
+                raise
+
+    _option = option
+
+    @contextmanager
+    def choice(self) -> Generator[ChoiceContext, Any, Any]:
+        chc = ChoiceContext(self)
+        with suppress(OptionSucceeded), self.states.cutscope():
+            yield chc
+            chc.parse(self)
+
+    _choice = choice
+
+    @contextmanager
+    def optional(self) -> Any:
+        with self.choice(), self.option(), self.states.cutscope():
+            yield
+
+    _optional = optional
+
+    @contextmanager
+    def group(self) -> Any:
+        self.pushstate()
+        try:
+            with self.states.cutscope():
+                yield
+            self.mergestate()
+        except ParseException:
+            self.undostate()
+            raise
+
+    _group = group
+
+    @contextmanager
+    def skip(self) -> Any:
+        self.pushstate()
+        try:
+            with self.states.cutscope():
+                yield
+            self.popstate()
+        except ParseException:
+            self.undostate()
+            raise
+
+    _skip = skip
+
+    @contextmanager
+    def if_(self) -> Any:
+        self.pushstate()
+        self.lookahead += 1
+        try:
+            yield
+        finally:
+            self.undostate()
+            self.lookahead -= 1
+
+    _if = if_
+
+    @contextmanager
+    def ifnot_(self) -> Any:
+        try:
+            with self.if_():
+                yield
+        except ParseException:
+            pass
+        else:
+            raise self.newexcept('', excls=FailedLookahead)
+
+    _ifnot = ifnot_
+
+    @contextmanager
+    def nameset(self, name: str) -> Any:
+        yield
+        self.state.nameset(name)
+
+    _setname = nameset
+
+    @contextmanager
+    def nameadd(self, name: str) -> Any:
+        yield
+        self.state.nameadd(name)
+
+    _addname = nameadd
+
+    @contextmanager
+    def result(self) -> Any:
+        yield
+        self.state.nameset(_AT_)
+
+    @contextmanager
+    def resultadd(self) -> Any:
+        yield
+        self.state.nameadd(_AT_)
+
+    def isolate(self, exp: Func) -> Any:
+        self.pushstate()
+        try:
+            boundcall(exp, {}, self)
+            return cstfinal(self.cst)
+        finally:
+            ast = self.ast
+            self.popstate()
+            self.ast = ast
+
+    _isolate = isolate
+
+    def repeat(
+        self,
+        exp: Func,
+        prefix: Func | None = None,
+        omitsep: bool = False,
+    ) -> None:
+        while True:
+            with self.choice():
+                with self.option():
+                    p = self.pos
+
+                    if prefix:
+                        pcst = self.isolate(prefix)
+                        if not omitsep:
+                            self.state.append(pcst)
+                        self.cut()
+
+                    cst = self.isolate(exp)
+                    self.state.append(cst)
+
+                    if self.pos == p:
+                        raise self.newexcept(
+                            f'{self.repeat.__name__} matched on no input'
+                        )
+                # note: dit not match sep? exp, so quit
+                break
+
+    def closure(
+        self,
+        exp: Func,
+        sep: Func | None = None,
+        omitsep: bool = False,
+    ) -> Any:
+        self.pushstate()
+        try:
+            self.cst = []
+            with self._optional(), self.states.cutscope():
+                boundcall(exp, {}, self)
+                self.cst = [self.cst]
+                self.repeat(exp, prefix=sep, omitsep=omitsep)
+            self.cst = cst = closedlist(self.cst)
+            self.mergestate()
+            return cst
+        except ParseException:
+            self.undostate()
+            raise
+
+    _closure = closure
+
+    def positive_closure(
+        self,
+        exp: Func,
+        sep: Func | None = None,
+        omitsep: bool = False,
+    ) -> Any:
+        self.pushstate()
+        try:
+            with self.states.cutscope():
+                boundcall(exp, {}, self)
+                self.cst = [self.cst]
+                self.repeat(exp, prefix=sep, omitsep=omitsep)
+            self.cst = cst = closedlist(self.cst)
+            self.mergestate()
+            return cst
+        except ParseException:
+            self.undostate()
+            raise
+
+    _positive_closure = positive_closure
+
+    @contextmanager
+    def loopopt(self) -> Any:
+        cl = LoopContext(self)
+        yield cl
+        self.closure(cl.func, omitsep=False)
+
+    @contextmanager
+    def loopplus(self) -> Any:
+        cl = LoopContext(self, plus=True)
+        yield cl
+        self.positive_closure(cl.func, omitsep=False)
+
+    def empty(self) -> list:
+        cst = closedlist([])
+        self.state.append(cst)
+        return cst
+
+    def _empty_closure(self) -> list:
+        return self.empty()
+
+    @contextmanager
+    def gatheropt(self) -> Any:
+        cl = LoopWithSepContext(self, plus=False, omitsep=True)
+        yield cl
+        self.gather(cl.func, cl.sep_func)
+
+    @contextmanager
+    def gatherplus(self) -> Any:
+        cl = LoopWithSepContext(self, plus=True, omitsep=True)
+        yield cl
+        self.positive_gather(cl.func, cl.sep_func)
+
+    def gather(self, exp: Func, sep: Func) -> Any:
+        return self.closure(exp, sep=sep, omitsep=True)
+
+    _gather = gather
+
+    def positive_gather(self, exp: Func, sep: Func) -> Any:
+        return self.positive_closure(exp, sep=sep, omitsep=True)
+
+    _positive_gather = positive_gather
+
+    @contextmanager
+    def joinopt(self) -> Any:
+        cl = ExpWithSepContext(self)
+        yield cl
+        self.join(cl.func, cl.sep_func)
+
+    @contextmanager
+    def joinplus(self) -> Any:
+        cl = ExpWithSepContext(self)
+        yield cl
+        self.positive_join(cl.func, cl.sep_func)
+
+    def join(self, exp: Func, sep: Func) -> Any:
+        return self.closure(exp, sep=sep, omitsep=False)
+
+    _join = join
+
+    def positive_join(self, exp: Func, sep: Func) -> Any:
+        return self.positive_closure(exp, sep=sep, omitsep=False)
+
+    _positive_join = positive_join
+
+    @contextmanager
+    def joinleft(self) -> Any:
+        cl = ExpWithSepContext(self)
+        yield cl
+        self.left_join(cl.func, cl.sep_func)
+
+    @contextmanager
+    def joinright(self) -> Any:
+        cl = ExpWithSepContext(self)
+        yield cl
+        self._right_join(cl.func, cl.sep_func)
+
+    def left_join(self, exp: Func, sep: Func) -> Any:
+        self.cst = left_assoc(self.positive_join(exp, sep))
+        return self.cst
+
+    _left_join = left_join
+
+    def right_join(self, exp: Func, sep: Func) -> Any:
+        self.cst = right_assoc(self.positive_join(exp, sep))
+        return self.cst
+
+    _right_join = right_join
+
+    def void(self) -> Any:
+        self.next_token()
+        return ()
+
+    _void = void
+
+    def dot(self) -> Any:
+        c = self._next()
+        if c is None:
+            self.tracer.trace_match(self.cursor, c, failed=True)
+            raise self.newexcept(c, excls=FailedToken) from None
+        self.tracer.trace_match(self.cursor, c)
+        self.state.append(c)
+        return c
+
+    _dot = dot
+
+    @contextmanager
+    def skipto(self) -> Any:
+        cl = ExpContext(self)
+        yield cl
+        self.skip_to(cl.func)
+
+    _skipto = skipto
+
+    def skip_to(self, exp: Func) -> Any:
+        while not self.eof():
+            try:
+                with self.if_():
+                    boundcall(exp, {}, self)
+            except FailedParse:
+                pass
+            else:
+                break
+            pos = self.pos
+            self.next_token()
+            if self.pos == pos:
+                self._next()
+        return boundcall(exp, {}, self)
+
+    _skip_to = skip_to

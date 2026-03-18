@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import functools
 import operator
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable
 from itertools import zip_longest
 from typing import Any, NamedTuple
 
@@ -13,10 +13,6 @@ type Predicate[K, V] = Callable[[K, V], bool]
 
 def true(*_: Any, **__: Any) -> bool:
     return True
-
-
-def is_list(o) -> bool:
-    return type(o) is list
 
 
 def to_list(o: Any) -> list[Any]:
@@ -98,8 +94,10 @@ def isiter(obj: Any) -> bool:
     # by Gemini (2026-01-26)
     # by [apalala@gmail.com](https://github.com/apalala)
     """
-    if isinstance(obj, str | bytes | bytearray | Mapping):
+    if isinstance(obj, str | bytes | bytearray):
         return False
+    if isinstance(obj, list | set | tuple | dict):
+        return True
     try:
         iter(obj)
         return True
@@ -127,7 +125,7 @@ def left_assoc(elements):
     expre = next(it)
     for e in it:
         op = e
-        expre = (op, expre, next(it))
+        expre = [op, expre, next(it)]
     return expre
 
 
@@ -142,7 +140,7 @@ def right_assoc(elements):
         except StopIteration:
             return left
         else:
-            return op, left, assoc(it)
+            return [op, left, assoc(it)]
 
     return assoc(iter(elements))
 

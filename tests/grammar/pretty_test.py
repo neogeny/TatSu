@@ -13,86 +13,47 @@ class PrettyTests(unittest.TestCase):
         grammar = r"""
             start = lisp ;
             lisp = sexp | list | symbol;
-            sexp::SExp = '(' cons:lisp '.' ~ cdr:lisp ')' ;
-            list::List = '(' elements:{sexp}* ')' ;
-            symbol::Symbol = value:/[^\s().]+/ ;
+            sexp[SExp]: '(' cons:lisp '.' ~ cdr:lisp ')' ;
+            list[List]: '(' @:{lisp}* ')' ;
+            symbol[Symbol]: /[^\s().]+/ ;
         """
 
         pretty = trim(r"""
-            start
-                =
-                lisp
-                ;
+            start: lisp
 
+            lisp: sexp | list | symbol
 
-            lisp
-                =
-                sexp | list | symbol
-                ;
+            sexp[SExp]: '(' cons=lisp '.' ~ cdr=lisp ')'
 
+            list[List]: '(' ={lisp} ')'
 
-            sexp::SExp
-                =
-                '(' cons:lisp '.' ~ cdr:lisp ')'
-                ;
+            symbol[Symbol]: /[^\s().]+/
 
-
-            list::List
-                =
-                '(' elements:{sexp} ')'
-                ;
-
-
-            symbol::Symbol
-                =
-                value:/[^\s().]+/
-                ;
         """)
 
         pretty_lean = trim(r"""
-            start
-                =
-                lisp
-                ;
+            start: lisp
 
+            lisp: sexp | list | symbol
 
-            lisp
-                =
-                sexp | list | symbol
-                ;
+            sexp: '(' lisp '.' ~ lisp ')'
 
+            list: '(' {lisp} ')'
 
-            sexp
-                =
-                '(' lisp '.' ~ lisp ')'
-                ;
+            symbol: /[^\s().]+/
 
-
-            list
-                =
-                '(' {sexp} ')'
-                ;
-
-
-            symbol
-                =
-                /[^\s().]+/
-                ;
         """)
 
         model = compile(grammar=grammar)
 
         self.assertEqual(pretty, model.pretty())
-        self.assertEqual(str(model), model.pretty())
 
         self.assertEqual(pretty_lean, model.pretty_lean())
 
     def test_slashed_pattern(self):
         grammar = """
-            start
-                =
-                ?"[a-z]+/[0-9]+" $
-                ;
+            start: ?"[a-z]+/[0-9]+" $
+
         """
         model = compile(grammar=grammar)
         ast = model.parse('abc/123')

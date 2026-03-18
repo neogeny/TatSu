@@ -2,48 +2,45 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import functools
+import dataclasses as dc
 import weakref
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, MutableMapping
 from typing import Any
 
-from .basenode import BaseNode, tatsudataclass
+from .basenode import BaseNode, nodedataclass
 
-__all__ = ['Node', 'tatsudataclass']
-
-from ..util.deprecate import deprecated
+__all__ = ['Node', 'nodedataclass']
 
 
-@tatsudataclass
+_children_cache: MutableMapping[Node, tuple[Node, ...]] = weakref.WeakKeyDictionary()
+
+
+@nodedataclass
 class Node(BaseNode):
+    _parent_ref: weakref.ref[Node] | None = dc.field(init=False, default=None)
+
     def __init__(self, ast: Any = None, **kwargs: Any):
         super().__init__(ast=ast, **kwargs)
-        self.__parent_ref: weakref.ref[Node] | None = (  # pyright: ignore[reportRedeclaration]
-            None
-        )
-
-    def __post_init__(self):
-        super().__post_init__()
-        self.__parent_ref: weakref.ref[Node] | None = None
+        self._parent_ref = None
 
     @property
     def parent(self) -> Node | None:
-        ref = self.__parent_ref
-        if ref is None:
-            return None
-        else:
+        ref = self._parent_ref
+        if ref is not None:
+            # noinspection PyCallingNonCallable
             return ref()
+        else:
+            return None
 
     @property
     def comments(self) -> Any:
-        deprecated(replacement=None)(self.comments)
         return None
 
     @property
     def text(self) -> str | None:
         pi = self.parseinfo
-        if pi and hasattr(pi.tokenizer, "text"):
-            return pi.tokenizer.text[pi.pos : pi.endpos]
+        if pi and hasattr(pi.cursor, "text"):
+            return pi.cursor.text[pi.pos : pi.endpos]
         return None
 
     @property
@@ -60,29 +57,32 @@ class Node(BaseNode):
         return tuple(reversed(ancestors))
 
     def children(self) -> tuple[Node, ...]:
-        return self._cached_children
+        return self._cached_children()
 
     def children_list(self) -> list[Node]:
-        return list(self._cached_children)
+        return list(self._cached_children())
 
-    @functools.cached_property
     def _cached_children(self) -> tuple[Node, ...]:
         def dfs(obj: Any) -> Iterable[Node]:
             match obj:
                 case Node() as node:
-                    node.__parent_ref = weakref.ref(self)
+                    node._parent_ref = weakref.ref(self)
                     yield node
-                case Mapping() as map:
-                    for name, value in map.items():
-                        if name.startswith("_"):
+                case Mapping() as mapping:
+                    for name, value in mapping.items():
+                        if name.startswith('_'):
                             continue
                         if value is None:
                             continue
                         yield from dfs(value)
-                case (list() | tuple()) as seq:
+                case bytes() | str():
+                    pass
+                case Iterable() as seq:
                     for item in seq:
                         yield from dfs(item)
                 case _:
                     pass
 
-        return tuple(dfs(self.__pub__()))
+        if self not in _children_cache:
+            _children_cache[self] = tuple(dfs(self.__pub__()))
+        return _children_cache[self]

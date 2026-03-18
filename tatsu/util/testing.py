@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import argparse
 
-from .common import filelist_from_patterns
-from .parproc import processing_loop
+from .common import pathlist_from_patterns
+from .parproc import parproc_visual
 
 
 def parallel_test_run(parse, options):
@@ -20,8 +20,8 @@ def parallel_test_run(parse, options):
             return pattern + '*.py'
 
     try:
-        patterns = [pysearch(p) for p in options.patterns]
-        filenames = filelist_from_patterns(
+        patterns = [pysearch(p) for p in options._patterns]
+        filepaths = pathlist_from_patterns(
             patterns,
             sizesort=options.sort,
             ignore=options.ignore,
@@ -33,7 +33,8 @@ def parallel_test_run(parse, options):
         kwargs.pop('ignore', None)
         parallel = not kwargs.pop('serial', False)
 
-        return processing_loop(filenames, parse, parallel=parallel, **kwargs)
+        filepaths = sorted(filepaths, key=lambda p: -p.stat().st_size)
+        return parproc_visual(parse, filepaths, parallel=parallel, **kwargs)
 
     except KeyboardInterrupt:
         if options.verbose:

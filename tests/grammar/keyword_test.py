@@ -60,12 +60,12 @@ def test_define_keywords():
     c = pythongen(model)
     parse(c)
 
-    grammar2 = str(model)
+    grammar2 = model.pretty()
     model2 = compile(grammar2, 'test')
     c2 = pythongen(model2)
     parse(c2)
 
-    assert grammar2 == str(model2)
+    assert grammar2 == model2.pretty()
 
 
 def test_check_keywords():

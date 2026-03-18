@@ -1,3 +1,8 @@
+.. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+.. SPDX-License-Identifier: BSD-4-Clause
+
+:orphan:
+
 
 .. _Alberto Berti: https://github.com/azazel75
 .. _Andrzej Fiedukowicz: https://github.com/fiedukow

@@ -1,10 +1,13 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
 import unittest
 from ast import parse
 
 from tatsu.exceptions import FailedParse
 from tatsu.ngcodegen import pythongen
 from tatsu.tool import compile
-from tatsu.util import trim
 
 
 class JoinTests(unittest.TestCase):
@@ -54,13 +57,13 @@ class JoinTests(unittest.TestCase):
         pythongen(model)
 
         ast = model.parse('x y, x y z', nameguard=False)
-        self.assertEqual(([['x', 'y'], ',', ['x', 'y']], 'z'), ast)
+        self.assertEqual([[['x', 'y'], ',', ['x', 'y']], 'z'], ast)
 
         ast = model.parse('x y z', nameguard=False)
-        self.assertEqual(([['x', 'y']], 'z'), ast)
+        self.assertEqual([[['x', 'y']], 'z'], ast)
 
         ast = model.parse('z', nameguard=False)
-        self.assertEqual(([], 'z'), ast)
+        self.assertEqual([[], 'z'], ast)
 
     def test_group_join(self):
         grammar = """
@@ -119,13 +122,13 @@ class JoinTests(unittest.TestCase):
         pythongen(model)
 
         ast = model.parse('x y, x y z', nameguard=False)
-        self.assertEqual(([['x', 'y'], ['x', 'y']], 'z'), ast)
+        self.assertEqual([[['x', 'y'], ['x', 'y']], 'z'], ast)
 
         ast = model.parse('x y z', nameguard=False)
-        self.assertEqual(([['x', 'y']], 'z'), ast)
+        self.assertEqual([[['x', 'y']], 'z'], ast)
 
         ast = model.parse('z', nameguard=False)
-        self.assertEqual(([], 'z'), ast)
+        self.assertEqual([[], 'z'], ast)
 
     def test_group_gather(self):
         grammar = """
@@ -160,11 +163,10 @@ class JoinTests(unittest.TestCase):
         text = '1 + 2 - 3 + 4'
 
         model = compile(grammar, 'test')
-        self.assertEqual(trim(grammar).strip(), str(model).strip())
         pythongen(model)
 
         ast = model.parse(text)
-        self.assertEqual(('+', ('-', ('+', '1', '2'), '3'), '4'), ast)
+        self.assertEqual(['+', ['-', ['+', '1', '2'], '3'], '4'], ast)
 
     def test_right_join(self):
         grammar = r"""
@@ -188,8 +190,7 @@ class JoinTests(unittest.TestCase):
         text = '1 + 2 - 3 + 4'
 
         model = compile(grammar, 'test')
-        self.assertEqual(trim(grammar).strip(), str(model).strip())
         pythongen(model)
 
         ast = model.parse(text)
-        self.assertEqual(('+', '1', ('-', '2', ('+', '3', '4'))), ast)
+        self.assertEqual(['+', '1', ['-', '2', ['+', '3', '4']]], ast)

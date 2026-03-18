@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from tatsu import grammars
-from tatsu.grammars import ref
+from tatsu import grammars as g
 from tatsu.tool import compile
 
 
@@ -43,18 +42,18 @@ class FirstFollowTests(unittest.TestCase):
         factor = model.rulemap['factor']
         number = model.rulemap['number']
 
-        assert isinstance(expre.exp, grammars.Choice)
+        assert isinstance(expre.exp, g.Choice)
 
         assert expre.is_leftrec
 
-        assert ref('expre') in expre.lookahead()
+        assert g.ref('expre') in expre.lookahead()
 
-        assert ref('factor') in expre.lookahead()
-        assert ref('factor') not in factor.lookahead()
+        assert g.ref('factor') in expre.lookahead()
+        assert g.ref('factor') not in factor.lookahead()
 
-        assert ref('number') in expre.lookahead()
-        assert ref('number') in factor.lookahead()
-        assert ref('number') not in number.lookahead()
+        assert g.ref('number') in expre.lookahead()
+        assert g.ref('number') in factor.lookahead()
+        assert g.ref('number') not in number.lookahead()
 
     def test_indirect_left_recursion(self, trace=False):
         grammar = """
@@ -81,10 +80,10 @@ class FirstFollowTests(unittest.TestCase):
         print('x', x.lookahead())
         print('expr', expr.lookahead())
 
-        assert ref('x') in x.lookahead()
-        assert ref('expr') in expr.lookahead()
+        assert g.ref('x') in x.lookahead()
+        assert g.ref('expr') in expr.lookahead()
 
-        assert ref('start') not in start.lookahead()
+        assert g.ref('start') not in start.lookahead()
 
     def test_nullability(self):
         grammar = """
@@ -104,8 +103,8 @@ class FirstFollowTests(unittest.TestCase):
         assert p.is_nullable()
         assert not p.is_memoizable  # it is part of a recursive loop
 
-        assert ref('e') in e.lookahead()
-        assert ref('p') in p.lookahead()
+        assert g.ref('e') in e.lookahead()
+        assert g.ref('p') in p.lookahead()
 
         print(p.lookahead())
         print(p.exp.lookahead())

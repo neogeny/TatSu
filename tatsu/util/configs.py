@@ -5,11 +5,18 @@ from __future__ import annotations
 import dataclasses
 import importlib
 import types
-from typing import Any, Self
+from typing import Any, Protocol, Self, runtime_checkable
 
 from .asjson import asjson, asjsons
 from .deprecate import deprecated
 from .undefined import Undefined
+
+__all__ = ['Config', 'HasConfig']
+
+
+@runtime_checkable
+class HasConfig(Protocol):
+    config: Config
 
 
 @dataclasses.dataclass
@@ -22,18 +29,24 @@ class Config:
         result = cls()
         result = result.override_config(config)
         result = result.override(**settings)
-        assert isinstance(result, cls) and dataclasses.is_dataclass(result)
+        assert isinstance(result, cls)
+        assert isinstance(result, Config)
+        assert dataclasses.is_dataclass(result)
         return result
 
     def _find_common(self, **settings: Any) -> dict[str, Any]:
+        def erases(name: str, value: Any) -> bool:
+            if value is None or value is Undefined:
+                return True
+            if isinstance(value, list | set | dict):
+                return getattr(self, name) and not value
+            return False
+
         hard = settings.pop('hard', False)
         return {
             name: value
             for name, value in settings.items()
-            if (
-                hasattr(self, name)
-                and (hard or not (value is None or value is Undefined))
-            )
+            if hasattr(self, name) and (hard or not erases(name, value))
         }
 
     def override_config(self, other: Config | None = None) -> Self:
@@ -56,7 +69,7 @@ class Config:
         else:
             return self.merge(**other.asdict())
 
-    def override(self, **settings: Any) -> Self:
+    def override(self, /, **settings: Any) -> Self:
         self._check_unknowns(**settings)
         settings = self._filter_non_init_fields(settings)
         overrides = self._find_common(**settings)
@@ -64,15 +77,15 @@ class Config:
         return dataclasses.replace(self, **overrides)
 
     @deprecated(replacement=override)
-    def replace(self, *args, **kwargs):
-        return self.override(*args, **kwargs)
+    def replace(self, *_args, **kwargs):
+        return self.override(**kwargs)
 
-    def hard_override(self, **settings: Any) -> Self:
+    def hard_override(self, /, **settings: Any) -> Self:
         return self.override(**settings)
 
     @deprecated(replacement=hard_override)
-    def hard_replace(self, *args, **kwargs):
-        return self.hard_override(*args, **kwargs)
+    def hard_replace(self, *_args, **kwargs):
+        return self.hard_override(**kwargs)
 
     def merge(self, **settings: Any) -> Self:
         self._check_unknowns(**settings)

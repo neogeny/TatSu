@@ -9,7 +9,7 @@ from pprint import pprint
 from codegen import PostfixCodeGenerator
 
 import tatsu
-from tatsu.ast import AST
+from tatsu.contexts.ast import AST
 from tatsu.util import asjsons
 from tatsu.walkers import NodeWalker
 

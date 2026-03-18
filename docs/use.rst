@@ -40,31 +40,25 @@ This is an example of how to use **TatSu** as a library:
 .. code:: python
 
     GRAMMAR = '''
-        @@grammar::Calc
+        @@grammar[Calc]
 
-        start = expression $ ;
+        start: expression $
 
-        expression
-            =
+        expression:
             | term '+' ~ expression
             | term '-' ~ expression
             | term
-            ;
 
-        term
-            =
+        term:
             | factor '*' ~ term
             | factor '/' ~ term
             | factor
-            ;
 
-        factor
-            =
+        factor:
             | '(' ~ @:expression ')'
             | number
-            ;
 
-        number = /\d+/ ;
+        number = /\d+/
     '''
 
 
@@ -166,7 +160,7 @@ The *-h* and *--help* parameters provide full usage information:
       --object-model, -g    generate object model from the class names given as
                             rule arguments
       --pretty, -p          generate a prettified version of the input grammar
-      --pretty-lean         like --pretty, but without name: or ::Parameter
+      --pretty-lean         like --pretty, but without name: or [Parameter]
                             annotations
 
     parse-time options:

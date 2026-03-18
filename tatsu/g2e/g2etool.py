@@ -6,7 +6,8 @@ import sys
 from importlib import resources
 from pathlib import Path
 
-from .. import compile, grammars
+from .. import compile, grammars as g
+from ..util import cast
 from .semantics import ANTLRSemantics
 
 
@@ -21,11 +22,10 @@ def translate(
     name: str | None = None,
     encoding: str = 'utf-8',
     trace: bool = False,
-) -> grammars.Grammar:
+) -> g.Grammar:
     if text is None and filename is None:
         raise ValueError('either `text` or `filename` must be provided')
-    if filename:
-        filepath = Path(filename)
+    filepath = Path(filename) if filename else Path()
 
     if text is None:
         name = name or filepath.stem
@@ -35,7 +35,7 @@ def translate(
 
     semantics = ANTLRSemantics(name)
     grammar = compile(antlr_grammar())
-    return grammar.parse(
+    model = grammar.parse(
         text,
         name=name,
         filename=filename,
@@ -43,6 +43,7 @@ def translate(
         trace=trace,
         colorize=True,
     )
+    return cast(g.Grammar, model)
 
 
 def main():
@@ -56,7 +57,7 @@ def main():
         filename=sys.argv[1],
         trace='--trace' in sys.argv or '-t' in sys.argv,
     )
-    print(model)
+    print(model.pretty())
 
 
 if __name__ == '__main__':

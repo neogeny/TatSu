@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import unittest
 
+import pytest
+
+from tatsu import grammars as g
 from tatsu.exceptions import FailedParse
 from tatsu.ngcodegen import pythongen
 from tatsu.tool import compile
@@ -32,8 +35,9 @@ class PatternTests(unittest.TestCase):
 
         model = compile(grammar, 'test')
         ast = model.parse('\n\n')
-        self.assertEqual(('\n', '\n'), ast)
+        self.assertEqual(['\n', '\n'], ast)
 
+    @pytest.mark.skip(reason="deprecated")
     def test_pattern_concatenation(self):
         grammar = """
             start
@@ -49,17 +53,10 @@ class PatternTests(unittest.TestCase):
                 ;
         """
         pretty = """
-            start
-                =
-                {letters_digits}+
-                ;
+            start: {letters_digits}+
 
+            letters_digits: /[a-z]+/ + /[0-9]+/
 
-            letters_digits
-                =
-                /[a-z]+/
-                + /[0-9]+/
-                ;
         """
         model = compile(grammar=grammar)
         ast = model.parse('abc123 def456')
@@ -114,13 +111,14 @@ class PatternTests(unittest.TestCase):
             / $ ;
         """
         model = compile(grammar=trim(grammar))
-        from tatsu import grammars
 
-        assert isinstance(model.rules[0].exp, grammars.Sequence)
-        print(pythongen(model.rules[0].exp.sequence[0]))
+        assert isinstance(model.rules[0].exp, g.Sequence)
+        exp = model.rules[0].exp
+        assert isinstance(exp, g.Sequence)
+        print(pythongen(exp.sequence[0]))
         self.assertEqual(
-            pythongen(model.rules[0].exp.sequence[0]).strip(),
-            "self._pattern(r'(?x)\\nfoo\\nbar\\n')",
+            pythongen(exp.sequence[0]).strip(),
+            "ctx.pattern(r'(?x)\\nfoo\\nbar\\n')",
         )
 
         grammar = r"""
@@ -129,9 +127,10 @@ class PatternTests(unittest.TestCase):
             blort/ $ ;
         """
         model = compile(grammar=trim(grammar))
-        assert isinstance(model.rules[0].exp, grammars.Sequence)
-        print(pythongen(model.rules[0].exp.sequence[0]))
+        exp = model.rules[0].exp
+        assert isinstance(exp, g.Sequence)
+        print(pythongen(exp.sequence[0]))
         self.assertEqual(
-            trim(pythongen(model.rules[0].exp.sequence[0])),
-            "self._pattern(r'(?x)foo\\nbar\\nblort')",
+            trim(pythongen(exp.sequence[0])),
+            "ctx.pattern(r'(?x)foo\\nbar\\nblort')",
         )

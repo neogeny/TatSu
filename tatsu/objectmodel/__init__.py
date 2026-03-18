@@ -2,7 +2,24 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .basenode import BaseNode, TatSuDataclassParams, tatsudataclass
+from .basenode import (
+    BaseNode,
+    NodeDataclassParams,
+    NodeDataclassParams as TatSuDataclassParams,
+    nodedataclass,
+    nodedataclass as tatsudataclass,
+)
 from .node import Node
+from .synth import SynthNode, registered_synthetics, synthesize
 
-__all__ = ['BaseNode', 'Node', 'TatSuDataclassParams', 'tatsudataclass']
+__all__ = [
+    'BaseNode',
+    'Node',
+    'SynthNode',
+    'NodeDataclassParams',
+    'nodedataclass',
+    'registered_synthetics',
+    'synthesize',
+    'tatsudataclass',
+    'TatSuDataclassParams',
+]

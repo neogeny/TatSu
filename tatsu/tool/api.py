@@ -1,31 +1,30 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
-"""
-Parse and translate a TatSu grammar into a Python parser for
-the described language.
-"""
-
 from __future__ import annotations
 
 from collections.abc import Callable
 from typing import Any
 
-from .. import grammars
-from ..builder import BuilderConfig, Constructor, ModelBuilderSemantics, TypeContainer
+from .. import grammars as g
 from ..exceptions import ParseException
+from ..grammars.builder import (
+    BuilderConfig,
+    Constructor,
+    ModelBuilderSemantics,
+    TypeContainer,
+)
 from ..infos import ParserConfig
-from ..ngcodegen.walkgen_model import modelgen
-from ..ngcodegen.walkgen_parser import pythongen
+from ..ngcodegen.ngmodel_gen import modelgen
+from ..ngcodegen.ngparser_gen import pythongen
 from ..objectmodel import Node
 from ..parser import TatSuParserGenerator
 from ..tokenizing import Tokenizer
-from ..util.string import hashsha
+from ..util import hasha
 
 __all__ = [
     'compile',
     'gencode',
     'genmodel',
-    'grammars',
     'modelgen',
     'parse',
     'pythongen',
@@ -33,7 +32,7 @@ __all__ = [
     'to_python_sourcecode',
 ]
 
-__compiled_grammar_cache = {}
+__compiled_grammar_cache: dict[tuple[str | None, str, int], g.Grammar] = {}
 
 
 def compile(
@@ -50,7 +49,7 @@ def compile(
     typedefs: list[TypeContainer] | None = None,
     constructors: list[Constructor] | None = None,
     **settings: Any,
-) -> grammars.Grammar:
+) -> g.Grammar:
     # check parameters
     ParserConfig.new(
         config=config,
@@ -65,7 +64,7 @@ def compile(
         )
     cache = __compiled_grammar_cache
 
-    key = (name, hashsha(grammar), id(semantics))
+    key = (name, hasha(grammar), id(semantics))
     if key in cache:
         model = cache[key]
     else:
@@ -153,7 +152,7 @@ def to_python_sourcecode(
     **settings: Any,
 ):
     config = ParserConfig.new(config=config, name=name, filename=filename, **settings)
-    model = compile(grammar, name=name, filename=filename, config=config)
+    model = compile(grammar, config=config, name=name, filename=filename)
     return pythongen(model)
 
 

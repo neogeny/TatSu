@@ -2,11 +2,21 @@
 # SPDX-License-Identifier: BSD-4-Clause
 
 # NOTE: re-exports mostly for bw compatibility
+
 from .abctools import *  # noqa: F403
 from .asjson import *  # noqa: F403
 from .common import *  # noqa: F403
+from .configs import *  # noqa: F403
 from .debugging import *  # noqa: F403
+from .deprecate import *  # noqa: F403
+from .genericmain import generic_main as generic_main  # noqa: F403
+from .indent import *  # noqa: F403
+from .itertools import *  # noqa: F403
 from .misc import *  # noqa: F403
-from .string import *  # noqa: F403
-from .typing import *  # noqa: F403
+from .moduletools import *  # noqa: F403
+from .regextools import *  # noqa: F403
+from .safeeval import *  # noqa: F403
+from .strtools import *  # noqa: F403
+from .typetools import *  # noqa: F403
 from .undefined import *  # noqa: F403
+from .version import *  # noqa: F403

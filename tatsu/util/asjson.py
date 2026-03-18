@@ -20,18 +20,24 @@ class JSONSerializable(Protocol):
 
 
 class AsJSONMixin:
-    __slots__ = ()
+    __slots__ = ('__weakref__',)
 
     def __json__(self, seen: set[int] | None = None) -> Any:
         pub = self.__pub__()
         return {'__class__': type(self).__name__, **asjson(pub, seen=seen)}
 
-    def __pub__(self) -> dict[str, Any]:
-        # Gemini (2026-01-26)
-        def is_public(name: str, value: Any) -> bool:
-            return not (name.startswith('_') or inspect.isroutine(value))
+    def __pub__(self, sunderok: bool = False) -> dict[str, Any]:
 
-        return rowselect(dir(self), vars(self), where=is_public)
+        def is_public(name: str, value: Any) -> bool:
+            return (
+                not name.startswith('__')
+                and (sunderok or not name.startswith('_'))
+                and hasattr(self, name)
+                and not inspect.ismethod(value)
+                and not isinstance(value, (weakref.ReferenceType, *weakref.ProxyTypes))
+            )
+
+        return rowselect(vars(self), vars(self), where=is_public)
 
 
 def asjson(obj: Any, seen: set[int] | None = None) -> Any:
@@ -47,7 +53,7 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
 
         node_id = id(node)
         if node_id in seen:
-            return f"{type(node).__name__}@0x{hex(node_id).upper()[2:]}"
+            return f'{type(node).__name__}@0x{hex(node_id).upper()[2:]}'
 
         seen.add(node_id)
         try:
@@ -63,7 +69,7 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
                     node,
                     (weakref.ReferenceType, *weakref.ProxyTypes),
                 ):
-                    result = f"{type(node).__name__}@0x{hex(node_id).upper()[2:]}"
+                    result = f'{type(node).__name__}@0x{hex(node_id).upper()[2:]}'
                 case _ if nt := as_namedtuple(node):
                     result = dfs(nt._asdict())
                 case Mapping() as mapping:

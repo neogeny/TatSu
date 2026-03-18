@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from .builder import ModelBuilderSemantics, TypeContainer
-from .util.abctools import simplify_list
+from .grammars.builder import ModelBuilderSemantics, TypeContainer
+from .util import simplify_list
 
 __all__ = ['ASTSemantics', 'ModelBuilderSemantics', 'TypeContainer']
 

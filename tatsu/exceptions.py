@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import re
-
-from .tokenizing import LineInfo
+from .contexts.infos import RuleInfo
+from .tokenizing import Cursor
+from .util import typename
 
 
 class TatSuException(Exception):
@@ -36,43 +36,44 @@ class FailedSemantics(ParseException):
 
 
 class FailedParse(ParseException):
-    def __init__(self, lineinfo: LineInfo, stack: list[str], msg: str):
+    def __init__(self, cursor: Cursor, stack: list[RuleInfo], msg: str):
         # NOTE:
-        #   Pass all arguments to super() to avoid pickling problems
-        #       https://stackoverflow.com/questions/27993567/
-        super().__init__(lineinfo, stack, msg)
+        #  Pass all arguments to super() to avoid pickling problems
+        #  https://stackoverflow.com/a/28335286/545637
+        super().__init__(cursor, stack, msg)
 
-        self.lineinfo = lineinfo
-        self.stack = stack
+        self.cursor = cursor.clone()
+        self.stack = stack.copy()
         self.msg = msg
-        self.pos = lineinfo.end
+
+    @property
+    def pos(self) -> int:
+        return self.cursor.pos
 
     @property
     def message(self):
         return self.msg
 
     def __str__(self):
-        info = self.lineinfo
-        template = '{}({}:{}) {} :\n{}\n{}^\n{}'
+        import re
+
+        info = self.cursor.lineinfo()
         text = info.text.rstrip()
         leading = re.sub(r'[^\t]', ' ', text)[: info.col]
 
         text = text.expandtabs()
         leading = leading.expandtabs()
-        return template.format(
-            info.filename,
-            info.line + 1,
-            info.col + 1,
-            self.message.rstrip(),
-            text,
-            leading,
-            '\n'.join(self.stack),
+        rulestack = [r.name for r in reversed(self.stack)]
+        return (
+            f'{info.filename}({info.line + 1}:{info.col + 1})'
+            f' [{typename(self)}] {self.message.rstrip()} :'
+            f'\n{text}\n{leading}^\n{'\n'.join(rulestack)}'
         )
 
 
 class FailedToken(FailedParse):
-    def __init__(self, tokenizer, stack, token):
-        super().__init__(tokenizer, stack, token)
+    def __init__(self, cursor: Cursor, stack: list[RuleInfo], token: str):
+        super().__init__(cursor, stack, token)
         self.token = token
 
     @property
@@ -85,8 +86,8 @@ class FailedPattern(FailedParse):
 
 
 class FailedRef(FailedParse):
-    def __init__(self, tokenizer, stack, name):
-        super().__init__(tokenizer, stack, name)
+    def __init__(self, cursor: Cursor, stack: list[RuleInfo], name: str):
+        super().__init__(cursor, stack, name)
         self.name = name
 
     @property

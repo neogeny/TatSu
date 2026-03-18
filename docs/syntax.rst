@@ -16,20 +16,20 @@ Rules
 
 A grammar consists of a sequence of one or more rules of the form:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    name = <expre> ;
+    rulename: <expre>
 
-If a *name* collides with a `Python`_ keyword, an underscore (``_``)
+If a *name* collides with a `Python`_ keyword or builtin, an underscore (``_``)
 will be appended to it on the generated parser.
 
 Rule names that start with an uppercase character:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    FRAGMENT = /[a-z]+/ ;
+    FRAGMENT: /[a-z]+/
 
 *do not* advance over whitespace before beginning to parse. This feature
 becomes handy when defining complex lexical elements, as it allows
@@ -83,15 +83,13 @@ Choice. Match either ``e1`` or ``e2``.
 
 A ``|`` may be used before the first option if desired:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    choices
-      =
+    choices:
       | e1
       | e2
       | e3
-      ;
 
 
 ``e1 e2``
@@ -104,6 +102,12 @@ Sequence. Match ``e1`` and then match ``e2``.
 ^^^^^^^^^
 
 Grouping. Match ``e``. For example: ``('a' | 'b')``.
+
+``(?: e )``
+^^^^^^^^^^^
+
+Skip. Like, a group, match ``e``, but do not capture what was pared. For
+example: ``(?: delimiters )``.
 
 
 ``[ e ]``
@@ -142,14 +146,13 @@ parse.
 In this example, other options won't be considered if a parenthesis is
 parsed:
 
-.. code:: apl
+.. code:: ebnf
+    :force:
 
-      atom
-          =
+      atom:
           | '(' ~ @:expre ')'
           | int
           | bool
-          ;
 
 Cut expression may be used anywhere. The effect of ``~`` is scoped to the nearest
 enclosing brackets (*group*, *optional*, *closure*), the enclosing *choice*, or
@@ -169,10 +172,10 @@ choices in some expressions:
 This is a common use of ``~``. The *closure* doesn't allow a partial assignment
 expressions to escape it:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    parameters = ','.{name '=' ~ expression} ;
+    parameters: ','.{name '=' ~ expression}
 
 
 ``s%{ e }+``
@@ -181,21 +184,21 @@ expressions to escape it:
 Positive join. Inspired by `Python`_'s ``str.join()``, it parses the
 same as this expression:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     e {s ~ e}
 
 yet the result is a single list of the form:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     [e, s, e, s, e, ...]
 
 Use grouping if `s` is more complex than a *token* or a *pattern*:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     (s t)%{ e }+
@@ -207,7 +210,7 @@ Use grouping if `s` is more complex than a *token* or a *pattern*:
 Join. Parses the list of ``s``-separated expressions, or the empty
 closure. It's equivalent to:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     s%{e}+|{}
@@ -223,21 +226,21 @@ operands.
 
 The expression:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     '+'<{/\d+/}+
 
 Will parse this input:
 
-.. code:: apl
+.. code:: python
     :force:
 
     1 + 2 + 3 + 4
 
 To this tree:
 
-.. code:: apl
+.. code:: python
     :force:
 
     (
@@ -265,14 +268,14 @@ operands.
 
 The expression:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     '+'>{/\d+/}+
 
 Will parse this input:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     1 + 2 + 3 + 4
@@ -308,7 +311,7 @@ included in the resulting `AST`_.
 *Gather*. Like the *join*, but the separator is not included in the
 resulting `AST`_. It's equivalent to:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     s.{e}+|{}
@@ -342,7 +345,7 @@ pattern expression (see below) instead of a token expression.
 The ``@@nameguard`` and ``@@namechars`` directives may be specified
 in the grammar for the same effect:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     @@nameguard :: False
@@ -350,7 +353,7 @@ in the grammar for the same effect:
 or to specify additional characters that should also be considered
 part of names:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     @@namechars :: '$-.'
@@ -359,8 +362,18 @@ part of names:
 ``r'text'`` or ``r"text"``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Match the token *text* within the quotation marks, interpreting *text*
-like `Python`_'s `raw string literal`_\ s.
+Match the token *text* within the triple quotation marks, interpreting *text*
+like `Python`_'s `raw string literal`_\ s. This is useful
+
+
+``'''text'''`` or ``"""text"""``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A multi-line version of ``token``. The text within the triple quotation marks
+is stripped of trailing whitespace, and the common indentation is removed as to
+help with pretty formatting grammars without having to worry about indentation.
+The resulting text is matched as a token.
+
 
 
 ``/regexp/``
@@ -402,14 +415,14 @@ expressions involved.
 
 The expression is equivalent to:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     { !e /./ } e
 
 A common form of the expression is ``->&e``, which is equivalent to:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     { !e /./ } &e
@@ -417,21 +430,18 @@ A common form of the expression is ``->&e``, which is equivalent to:
 This is an example of the use of the "*skip to*" expression for
 recovery:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    statement =
+    statement:
         | if_statement
         # ...
-        ;
 
-    if_statement
-        =
+    if_statement:
         | 'if' condition 'then' statement ['else' statement]
         | 'if' statement_recovery
-        ;
 
-    statement_recovery = ->&statement ;
+    statement_recovery: ->&statement
 
 
 ```constant```
@@ -443,10 +453,10 @@ Constants can be used to inject elements into the concrete and
 abstract syntax trees, perhaps avoiding having to write a
 semantic action. For example:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    boolean_option = name ['=' (boolean|`true`) ] ;
+    boolean_option: name ['=' (boolean|`true`) ]
 
 
 If the text evaluates to a Python literal (with ``ast.literal_eval()``), that
@@ -456,7 +466,7 @@ will be the returned value. Otherwise, string interpolation in the style of
 ``\{`` if they are not intended for interpolation. A *constant* expression
 that hast type ``str`` is evaluated using:
 
-.. code:: apl
+.. code:: python
     :force:
 
     eval(f'{"f" + repr(text)}', {}, ast)
@@ -478,10 +488,10 @@ to the current node's ``parseinfo``.
 The ``^`` character may appear more than once to encode the *alert
 level*:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    assignment = identifier '=' (
+    assignment: identifier '=' (
         | value
         | -> &';' ^^^`could not parse value in assignment to {identifier}`
     )
@@ -503,19 +513,19 @@ The include operator. Include the *right hand side* of rule
 
 The following set of declarations:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    includable = exp1 ;
+    includable: exp1
 
-    expanded = exp0 >includable exp2 ;
+    expanded: exp0 >includable exp2
 
 Has the same effect as defining *expanded* as:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    expanded = exp0 exp1 exp2 ;
+    expanded: exp0 exp1 exp2
 
 Note that the included rule must be defined before the rule that
 includes it.
@@ -525,84 +535,102 @@ includes it.
 ^^^^^^
 
 The empty expression. Succeed without advancing over input. Its value
-is ``None``.
+is the empty tuple ``()``.
 
 
 ``!()``
 ^^^^^^^
 
-The *fail* expression. This is actually ``!`` applied to ``()``, which
-always fails.
+The *fail* expression. This is ``!`` applied to ``()``, which always fails, and
+thus has no value. This is useful to prevent the parser from accepting certain
+input, for example in placeholders for rules that are not yet defined.
 
 
-``name:e``
-^^^^^^^^^^
+``name=e`` or ``name:e``
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Add the result of ``e`` to the `AST`_ using ``name`` as key. If
 ``name`` collides with any attribute or method of ``dict``, or is a
 `Python`_ keyword, an underscore (``_``) will be appended to the name.
 
-When there are no named items in a rule, the `AST`_ consists of the
+.. note::
+
+    ``name`` is bound in the *option* in which it appears, or in the rule when
+    there are no options. When options define different names, only the names
+    in the option that parses will be present in the resulting AST_. A ``name``
+    will be bound to ``None`` when the expresion ``e`` fails to parse. For ``name``
+    used in enclosing expressions like *group*, *optional*, or *closure*, ``name``
+    will be bound in the rule-level AST_ only if the complete enclosure parses
+    (they have local scope, and are transfered to the outer scope only on success).
+    The same criteria applies to expressions nested to any level.
+
+When there are no named items in a rule or choice, the `AST`_ consists of the
 elements parsed by the rule, either a single item or a ``list``. This
 default behavior makes it easier to write simple rules:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    number = /[0-9]+/ ;
+    number: /[0-9]+/
 
 Without having to write:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    number = number:/[0-9]+/ ;
+    number: number=/[0-9]+/
 
 When a rule has named elements, the unnamed ones are excluded from the
 `AST`_ (they are ignored).
 
 
-``name+:e``
-^^^^^^^^^^^
+``name+=e`` or ``name+:e``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Add the result of ``e`` to the `AST`_ using ``name`` as key. Force the
-entry to be a ``list`` even if only one element is added. Collisions
+AST entry to be a ``list`` even if only one element is added. Collisions
 with ``dict`` attributes or `Python`_ keywords are resolved by
 appending an underscore to ``name``.
 
 
-``@:e``
-^^^^^^^
+``=e`` or ``@:e``
+^^^^^^^^^^^^^^^^^
 
-The override operator. Make the `AST`_ for the complete rule be the
-`AST`_ for ``e``.
+The override operator. Make the `AST`_ for the complete rule or choice be
+the `AST`_ for ``e``.
 
-The override operator is useful to recover only part of the right hand
-side of a rule without the need to name it, or add a semantic
-action. This is a typical use of the override operator:
+.. note::
 
-.. code:: apl
+    As with ``name=e``, the effect of ``=e`` is scoped to the enclosing
+    *option*, *group*, *optional*, or *closure*, and will apply ony when the
+    enclosure parses successfully.
+
+This expression is useful to recover only part of the right hand side of a rule
+without the need to name it, or add a semantic action. This is a typical use
+of the override operator:
+
+.. code:: ebnf
     :force:
 
-    subexp = '(' @:expre ')' ;
+    subexp: '(' =expre ')'
 
 The `AST`_ returned for the ``subexp`` rule will be the `AST`_
 recovered from invoking ``expre``.
 
 
-``@+:e``
-^^^^^^^^
+``+=e`` or ``@+:e``
+^^^^^^^^^^^^^^^^^^^
 
-Like ``@:e``, but make the `AST`_ always be a ``list``.
+Like ``=e``, but make the `AST`_ always be a ``list``.
 
-This operator is convenient in cases such as:
+This operator is convenient in cases such as this, in which the delimiting
+tokens are of no interest.
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    arglist = '(' @+:arg {',' @+:arg}* ')' ;
+    arglist: '(' +=arg {',' +=arg}* ')'
 
-In which the delimiting tokens are of no interest.
 
 
 ``$``
@@ -618,20 +646,28 @@ The following expressions are still recognized in grammars, but they are
 considered deprecated, and will be removed in a future version of
 |TatSu|.
 
+The alternative syntax with no *keyword parameters* is deprecated:
+
+.. code:: ebnf
+    :force:
+
+    addition[Add, '+']: addend '+' addend
+
+
 
 ``?/regexp/?``
 ^^^^^^^^^^^^^^
 
 Another form of the pattern expression that can be used when there
-are slashes (``/``) in the pattern is *deprecated*. Use the ``?"regexp"``
+are slashes ( ``/`` ) in the pattern is *deprecated*. Use the ``?"regexp"``
 or ``?'regexp'`` forms instead.
 
 
 ``+/regexp/``
 ^^^^^^^^^^^^^
 
-Also  or ``+?"regexp"`` or ``+?'regexp'``, concatenate the given pattern
-with the preceding one is *deprecated*. Use ``?" ..."`` string concatenations
+Also  ``+?"regexp"`` or ``+?'regexp'``, concatenate the given pattern with
+the preceding one is *deprecated*. Use ``?" ..."`` string concatenations
 instead.
 
 
@@ -645,39 +681,33 @@ comments instead.
 Rules with Arguments
 ~~~~~~~~~~~~~~~~~~~~
 
-|TatSu| allows rules to specify `Python`_-style arguments:
+Rules may specify a list of arguments and keyword arguments by enclosing
+them in square brackets right after the rule name:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    addition(Add, op='+')
-      =
-      addend '+' addend
-      ;
+    addition[Add, op='+']: addend '+' addend
 
-The arguments values are fixed at grammar-compilation time. An
-alternative syntax is available if no *keyword parameters* are
-required:
+Arguments within parenthesis are also available:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    addition::Add, '+'
-      =
-      addend '+' addend
-      ;
+    addition(Add, op='+'): addend '+' addend
 
-Semantic methods must be ready to receive any arguments declared in
-the corresponding rule:
+The arguments values are fixed at grammar-compilation time.
+
+Semantic methods for rules with arguments can be ready to receive the
+arguments declared in the rule:
 
 .. code:: python
 
    def addition(self, ast, name, op=None):
        ...
 
-When working with rule arguments, it's good to define a
-``_default()`` method that is ready to take any combination of
-standard and keyword arguments:
+When working with rule arguments, it's good to define a ``_default()`` method
+that is ready to take any combination of standard and keyword arguments:
 
 .. code:: python
 
@@ -692,19 +722,19 @@ Rules may extend rules defined before by using the ``<`` operator.
 
 The following set of declarations:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    base::Param = exp1 ;
+    base[Param]: exp1
 
-    extended < base = exp2 ;
+    extended < base: exp2
 
 Has the same effect as defining *extended* as:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    extended::Param = exp1 exp2 ;
+    extended[Param]: exp1 exp2
 
 Parameters from the *base rule* are copied to the new rule if the new
 rule doesn't define its own. Repeated inheritance should be possible,
@@ -725,14 +755,14 @@ not* be memoized.
 
 The ``@nomemo`` decorator turns off memoization for a particular rule:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     @nomemo
-    INDENT = () ;
+    INDENT: ()
 
     @nomemo
-    DEDENT = () ;
+    DEDENT: ()
 
 
 Rule Overrides
@@ -740,15 +770,15 @@ Rule Overrides
 
 A grammar rule may be redefined by using the ``@override`` decorator:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    start = ab $;
+    start: ab $
 
-    ab = 'xyz' ;
+    ab: 'xyz'
 
     @override
-    ab = @:'a' {@:'b'} ;
+    ab: @:'a' {@:'b'}
 
 When combined with the ``#include`` directive, rule overrides can be
 used to create a modified grammar without altering the original.
@@ -774,7 +804,7 @@ will generate:
 The name can also be specified within the grammar using the
 ``@@grammar`` directive:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     @@grammar :: MyLanguage
@@ -789,14 +819,14 @@ the regular expression ``r'\s+'``, but you can change that behavior.
 Whitespace may be specified within the grammar using the
 ``@@whitespace`` directive in the grammar:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     @@whitespace :: /[\t ]+/
 
 or:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     @@whitespace :: None
@@ -811,7 +841,7 @@ characters such as *newline* (``\n``):
 
 .. code:: python
 
-   parser = tatsu.parse(grammar, text, whitespace='\t ')
+   parser: tatsu.parse(grammar, text, whitespace='\t ')
 
 The character string is converted into a regular expression character
 set before starting to parse.
@@ -821,7 +851,7 @@ The following is equivalent to the previous example:
 
 .. code:: python
 
-   parser = tatsu.parse(grammar, text, whitespace=re.compile(r'[\t ]+'))
+   parser: tatsu.parse(grammar, text, whitespace=re.compile(r'[\t ]+'))
 
 Note that the regular expression must be pre-compiled to let |TatSu|
 distinguish it from plain string.
@@ -832,12 +862,12 @@ parsers):
 
 .. code:: python
 
-   parser = tatsu.parse(grammar, text, whitespace='')
+   parser: tatsu.parse(grammar, text, whitespace='')
 
 
 .. code:: python
 
-   parser = tatsu.parse(grammar, text, whitespace=None)
+   parser: tatsu.parse(grammar, text, whitespace=None)
 
 Case Sensitivity
 ~~~~~~~~~~~~~~~~
@@ -845,7 +875,7 @@ Case Sensitivity
 You may specify case insensitivity within the grammar using the
 ``@@ignorecase`` directive:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     @@ignorecase :: True
@@ -858,7 +888,7 @@ parameter when instantiating a parser:
 
 .. code:: python
 
-   parser = tatsu.parse(grammar, text, ignorecase=True)
+   parser: tatsu.parse(grammar, text, ignorecase=True)
 
 Comments
 ~~~~~~~~
@@ -868,7 +898,7 @@ the ``comments`` parameter:
 
 .. code:: python
 
-   parser = tatsu.parse(grammar, text, comments="\(\*.*?\*\)")
+   parser: tatsu.parse(grammar, text, comments="\(\*.*?\*\)")
 
 For more complex comment handling, you can override the
 ``Buffer.eat_comments()`` method.
@@ -878,7 +908,7 @@ comments:
 
 .. code:: python
 
-   parser = tatsu.compile(
+   parser: tatsu.compile(
        grammar,
        comments="\(\*.*?\*\)",
        eol_comments="#.*?$"
@@ -887,7 +917,7 @@ comments:
 Both patterns may also be specified within a grammar using the
 ``@@comments`` and ``@@eol_comments`` directives:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     @@comments :: /\(\*.*?\*\)/
@@ -909,7 +939,7 @@ decorator.
 A grammar may specify reserved tokens providing a list of them in one or
 more ``@@keyword`` directives:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     @@keyword :: if endif
@@ -918,11 +948,11 @@ more ``@@keyword`` directives:
 The ``@name`` decorator checks that the result of a grammar rule does
 not match a token defined as a `keyword`_:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     @name
-    identifier = /(?!\d)\w+/ ;
+    identifier: /(?!\d)\w+/
 
 Note that the rule decorated with ``@name`` must produce a single string as result
 (no named expressions that will produce a dict, and no rule arguments).
@@ -930,27 +960,29 @@ Note that the rule decorated with ``@name`` must produce a single string as resu
 In some situations a token is reserved only in a specific context. In those
 cases, a negative lookahead will prevent the use of that token:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
-    statements = {!'END' statement}+ ;
+    statements: {!'END' statement}+
 
-Include Directive
-~~~~~~~~~~~~~~~~~
 
-|TatSu| grammars support file inclusion through the include directive:
+..
+    Include Directive
+    ~~~~~~~~~~~~~~~~~
 
-.. code:: apl
-    :force:
+    |TatSu| grammars support file inclusion through the include directive:
 
-    #include :: "filename"
+    .. code:: ebnf
+        :force:
 
-The resolution of the *filename* is relative to the directory/folder of
-the source. Absolute paths and ``../`` navigation are honored.
+        #include :: "filename"
 
-The base for implementing includes is available to |TatSu|-generated
-parsers through the ``Buffer`` class. See the ``EBNFBuffer`` class in
-``tatsu.parser`` module for an example.
+    The resolution of the *filename* is relative to the directory/folder of
+    the source. Absolute paths and ``../`` navigation are honored.
+
+    The base for implementing includes is available to |TatSu|-generated
+    parsers through the ``Buffer`` class. See the ``EBNFBuffer`` class in
+    ``tatsu.parser`` module for an example.
 
 
 Left Recursion
@@ -962,7 +994,7 @@ Left Recursion
 Left recursion can be turned *on* or *off* from within the grammar using the
 ``@@left_recursion`` directive:
 
-.. code:: apl
+.. code:: ebnf
     :force:
 
     @@left_recursion :: False
@@ -972,4 +1004,4 @@ support *on* or *off* in the code:
 
 .. code:: python
 
-   parser = tatsu.parse(grammar, text, left_recursion=True)
+   parser: tatsu.parse(grammar, text, left_recursion=True)

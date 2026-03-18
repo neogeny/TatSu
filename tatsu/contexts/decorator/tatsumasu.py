@@ -1,0 +1,22 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
+import functools
+from collections.abc import Callable
+from typing import Any
+
+from ..ctx import Ctx, Func
+from ..infos import RuleInfo
+
+
+def tatsumasu(*params: Any, **kwparams: Any) -> Callable[[Callable[[], None]], Func]:
+    def decorator(func: Callable[[], None]) -> Func:
+        @functools.wraps(func)
+        def wrapper(self: Ctx, _ctx: Ctx | None = None) -> Any:
+            ruleinfo = RuleInfo.new(self, func, params, kwparams)
+            return self.call(ruleinfo)
+
+        return wrapper
+
+    return decorator  # pyright: ignore[reportReturnType]

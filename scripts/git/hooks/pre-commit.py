@@ -11,7 +11,7 @@ from collections.abc import Collection
 from datetime import date
 from pathlib import Path
 
-from common import get_staged_files
+from common import black, get_staged_files
 
 
 def is_header_missing(path: Path, target: Collection[str]) -> bool:
@@ -23,6 +23,8 @@ def is_header_missing(path: Path, target: Collection[str]) -> bool:
         with path.open('r', encoding='utf-8', errors='ignore') as f:
             # Check the first 1024 bytes for the header
             head = f.read(1024)
+            if 'copyright: ignore' in head:
+                return False
             return any(line not in head for line in target)
     except Exception:
         return False
@@ -46,18 +48,18 @@ def main() -> None:
         '.lock',
         '.md',
         '.pdf',
+        '.peg',
         '.png',
         '.pyc',
         '.txt',
         '.zip',
     }
 
-    ignored_prefix = [
-        'bootstrap',
-    ]
+    ignored_prefix = []
 
     ignored_paths = [
         Path('./.vale/styles/'),
+        Path('./scripts/calcmodel.pynofmt'),
     ]
 
     staged = get_staged_files()
@@ -68,6 +70,7 @@ def main() -> None:
             path.suffix in ignored_suffix
             or any(path.stem.startswith(p) for p in ignored_prefix)
             or any(path.is_relative_to(p) for p in ignored_paths)
+            or not black(path)
         )
         if must_ignore:
             continue
@@ -77,7 +80,8 @@ def main() -> None:
 
     if missing_paths:
         print(
-            "ERROR: Commit aborted. The following files are missing the license header:"
+            "ERROR: Commit aborted. "
+            "The following files are missing the license header, or faling black:"
         )
         for f in missing_paths:
             print(f"  - {f}")

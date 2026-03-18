@@ -2,23 +2,21 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import dataclasses
+import dataclasses as dc
 import inspect
 import warnings
-import weakref
 from collections.abc import Callable
 from functools import cache
 from typing import Any, overload
 
-from ..ast import AST
-from ..infos import ParseInfo
-from ..util.abctools import rowselect
-from ..util.asjson import AsJSONMixin, asjson, asjsons
+from ..contexts.infos import ParseInfo
+from ..util import AsJSONMixin, asjson, asjsons, rowselect, typename
+from ..util.indent import fold
 
-__all__ = ['BaseNode', 'TatSuDataclassParams', 'tatsudataclass']
+__all__ = ['BaseNode', 'NodeDataclassParams', 'nodedataclass']
 
-
-TatSuDataclassParams = dict(  # noqa: C408
+NodeDataclassParams = dict(
+    {},
     eq=False,
     repr=False,
     match_args=False,
@@ -28,14 +26,14 @@ TatSuDataclassParams = dict(  # noqa: C408
 
 
 @overload
-def tatsudataclass[T: type](cls: T) -> T: ...
+def nodedataclass[T: type](cls: T) -> T: ...
 
 
 @overload
-def tatsudataclass[T: type](**params: Any) -> Callable[[T], T]: ...
+def nodedataclass[T: type](**params: Any) -> Callable[[T], T]: ...
 
 
-def tatsudataclass[T: type](
+def nodedataclass[T: type](
     cls: T | None = None,
     **params: Any,
 ) -> T | Callable[[T], T]:
@@ -43,20 +41,19 @@ def tatsudataclass[T: type](
     # by [apalala@gmail.com](https://github.com/apalala)
 
     def decorator(target: T) -> T:
-        allparams = {**TatSuDataclassParams, **params}
-        return dataclasses.dataclass(**allparams)(target)
+        allparams = {**NodeDataclassParams, **params}
+        return dc.dataclass(**allparams)(target)  # type: ignore
 
     # If cls is passed, it was used as @tatsudataclass with no arguments
-    if cls is not None:
+    if cls is not None and not params:
         return decorator(cls)
 
     return decorator
 
 
-@tatsudataclass
+@nodedataclass
 class BaseNode(AsJSONMixin):
-    ast: Any = dataclasses.field(kw_only=False, default=None)
-    # _: dataclasses.KW_ONLY
+    ast: Any = dc.field(kw_only=False, default=None)
     ctx: Any = None
     parseinfo: ParseInfo | None = None
 
@@ -67,19 +64,16 @@ class BaseNode(AsJSONMixin):
         super().__init__()
 
         self.ast = ast
+        self.ctx = None
+        self.parseinfo = None
         self.__set_attributes(**attributes)
         self.__post_init__()
 
     def __post_init__(self):
-        if self.ast and isinstance(self.ast, dict):
-            self.ast = AST(self.ast)
 
         ast = self.ast
-        if not isinstance(ast, AST):
+        if not isinstance(ast, dict):
             return
-
-        if not self.parseinfo:
-            self.parseinfo = ast.parseinfo
 
         # note:
         #   Node objects are created by a model builer when invoked by he parser,
@@ -95,62 +89,82 @@ class BaseNode(AsJSONMixin):
                 continue
             setattr(self, name, ast[name])
 
-    def asjson(self) -> Any:
-        return asjson(self)
-
     def __set_attributes(self, **attrs) -> None:
         if not isinstance(attrs, dict):
             return
 
         for name, value in attrs.items():
-            if not hasattr(self, name):
+            if not hasattr(type(self), name):
                 raise ValueError(f'Unknown argument {name}={value!r}')
-            if inspect.ismethod(method := getattr(self, name)):
+            if inspect.isroutine(method := getattr(type(self), name)):
                 raise TypeError(f'Overriding method {name}={method!r}')
 
             if (prev := getattr(self, name, None)) and inspect.ismethod(prev):
                 warnings.warn(
-                    f'`{name}` in keyword arguments will shadow'
-                    f' `{type(self).__name__}.{name}`',
+                    f'`{name}` in keyword arguments will override'
+                    f' `{typename(self)}.{name}`: {prev!r}',
                     stacklevel=2,
                 )
             setattr(self, name, value)
+
+    def asjson(self) -> Any:
+        return asjson(self)
+
+    def asjsons(self) -> str:
+        return asjsons(self)
 
     @staticmethod
     @cache
     def _basenode_keys() -> frozenset[str]:
         # Gemini (2026-02-14)
-        return frozenset(dir(BaseNode))
+        return frozenset(vars(BaseNode).keys())
 
-    def __pub__(self) -> dict[str, Any]:
-        pub = super().__pub__()
+    def __pub__(self, sunderok: bool = False) -> dict[str, Any]:
+        pub = super().__pub__(sunderok=sunderok)
+        if sunderok:
+            return pub  # we're being called from __getstate__ not __repr__
 
         # Gemini (2026-02-14)
         wanted = pub.keys() - self._basenode_keys()
         if wanted or self.ast is None:
             pass
-        elif not isinstance(self.ast, AST):
+        elif not isinstance(self.ast, dict):
             wanted = {'ast'}  # self.ast may be all this object has
 
         return rowselect(wanted, pub)
 
     def __repr__(self) -> str:
-        fieldindex = {
-            f.name: i for i, f in enumerate(dataclasses.fields(self))  # type: ignore
-        }
+        fieldindex = {f.name: i for i, f in enumerate(dc.fields(self))}  # type: ignore
 
         def fieldorder(n) -> int:
             return fieldindex.get(n, len(fieldindex))
 
         pub = self.__pub__()
         sortedkeys = sorted(pub.keys(), key=fieldorder)
-        attrs = ', '.join(
-            f'{name}={pub[name]!r}' for name in sortedkeys if pub[name] is not None
+
+        attr_repr_list = []
+        values = {name: pub[name] for name in sortedkeys}
+        for name, value in values.items():
+            if value is None:
+                continue
+
+            line = fold(
+                prefix=f"{name}=",
+                value=value,
+                amount=2,
+                addlevels=2,
+            )
+            attr_repr_list += [line]
+
+        return fold(
+            prefix=f'{typename(self)}',
+            value=tuple(attr_repr_list),
+            reprs=False,
+            amount=2,
         )
-        return f'{type(self).__name__}({attrs})'
 
     def __str__(self) -> str:
-        return asjsons(self)
+        return super().__repr__()
 
     def __eq__(self, other) -> bool:
         # NOTE: No use case for structural equality
@@ -161,14 +175,8 @@ class BaseNode(AsJSONMixin):
         return hash(id(self))
 
     def __getstate__(self) -> Any:
-        return {
-            name: (
-                value
-                if not isinstance(value, (weakref.ReferenceType, *weakref.ProxyTypes))
-                else None
-            )
-            for name, value in vars(self).items()
-        }
+        return self.__pub__(sunderok=True)
 
-    def __setstate__(self, state):
-        self.__dict__.update(state)
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        for name, value in state.items():
+            setattr(self, name, value)

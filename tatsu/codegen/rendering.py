@@ -11,11 +11,11 @@ import itertools
 import string
 
 from ..util import indent, trim
-from ..util.abctools import isiter
+from ..util import isiter
 
 
 def render(item, join='', **fields):
-    """Render the given item"""
+    """Render the given msg"""
     if item is None:
         return ''
     elif isinstance(item, str):

@@ -1,0 +1,14 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+
+start: lisp
+
+lisp: sexp | list | symbol | number
+
+sexp[SExp]: '(' cons=lisp '.' ~ cdr=lisp ')'
+
+list[List]: '(' ={lisp} ')'
+
+symbol[Symbol]: /[_\w][_\w\d]*/
+
+number[Number] = /\d+(?:\.\d+)/

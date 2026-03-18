@@ -3,7 +3,7 @@
 import pickle
 import unittest
 
-from tatsu.ast import AST
+from tatsu.contexts.ast import AST
 
 
 def test_ast_pickling():

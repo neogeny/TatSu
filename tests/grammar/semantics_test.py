@@ -6,10 +6,13 @@ import sys
 
 import pytest
 
-from tatsu import synth
-from tatsu.builder import BuilderConfig, ModelBuilderSemantics, TypeResolutionError
 from tatsu.exceptions import FailedParse, FailedToken
-from tatsu.objectmodel import Node
+from tatsu.grammars.builder import (
+    BuilderConfig,
+    ModelBuilderSemantics,
+    TypeResolutionError,
+)
+from tatsu.objectmodel import Node, synth
 from tatsu.tool import compile, parse
 
 
@@ -286,7 +289,7 @@ def test_ast_names_accumulate():
 
 def test_cut_scope():
     grammar = """
-        start = failcut | failchoice | succeed $ ;
+        start = (failcut | failchoice | succeed) $ ;
 
         failcut = 'a' ~ 'y' ;
 
@@ -299,14 +302,18 @@ def test_cut_scope():
     """
 
     ast = parse(grammar, 'a x')
-    assert ast == ('a', 'x')
+    assert ast == ['a', 'x']
 
     ast = parse(grammar, 'a b')
-    assert ast == ('a', 'b')
+    assert ast == ['a', 'b']
 
     ast = parse(grammar, 'a y')
-    assert ast == ('a', 'y')
+    assert ast == ['a', 'y']
 
-    with pytest.raises(FailedToken, match=r"expecting 'y'"):
+    with pytest.raises(FailedToken, match=r"expecting 'b'"):
         ast = parse(grammar, 'a c d')
-        assert ast == ('a', 'c', 'd')
+        assert ast == ['a', 'c', 'd']
+
+
+if __name__ == '__main__':
+    test_cut_scope()

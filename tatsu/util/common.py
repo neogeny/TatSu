@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import builtins
 import datetime
+import importlib
 import keyword
 import os
 import os.path
@@ -11,7 +13,7 @@ from typing import Any
 
 
 def startscript() -> str:
-    import __main__ as main
+    import __main__ as main  # noqa: type: ignore
 
     if main.__package__:
         return main.__package__
@@ -42,6 +44,7 @@ def timestamp():
 
 
 try:
+    # noinspection PyUnusedImports
     import psutil
 except ImportError:
 
@@ -55,18 +58,17 @@ else:
         return process.memory_info().rss
 
 
-def try_read(filename):
-    if isinstance(filename, Path):
-        filename = str(filename)
-    for e in ['utf-16', 'utf-8', 'latin-1', 'cp1252', 'ascii']:
+def try_read(filename: str | Path) -> str:
+    path = Path(filename)
+    for e in ['utf-8', 'utf-16', 'latin-1', 'cp1252', 'ascii']:
         try:
-            return Path(filename).read_text(encoding=e)
+            return path.read_text(encoding=e)
         except UnicodeError:
             pass
     raise ValueError(f"cannot find the encoding for '{filename}'")
 
 
-def filelist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
+def pathlist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
     ignore = ignore or ()
     base = Path(base or '.').expanduser()
 
@@ -127,19 +129,29 @@ def short_relative_path(path: str | Path, base: str | Path = '.') -> Path:
 
 
 def fqn(obj: Any) -> str:
-    # by [apalala@gmail.com](https://github.com/apalala)
     # by Gemini (2026-01-30)
-
     """Helper to safely retrieve the fully qualified name of a callable."""
-    module = getattr(obj, "__module__", None)
-    qualname = getattr(obj, "__qualname__", None)
 
-    if module and qualname and module != "builtins":
-        return f"{module}.{qualname}"
+    module = getattr(obj, '__module__', None) or getattr(obj, '__package__', None)
+    qualname = getattr(obj, '__qualname__', None) or getattr(obj, '__name__', None)
+
+    if module and qualname and module != builtins.__name__:
+        return f'{module}.{qualname}'
     return qualname or str(obj)
 
 
-def is_reserved(name) -> bool:
+def fqntype(fqn: str, default_module: str = 'builtins') -> type:
+    if '.' in fqn:
+        module_name, class_name = fqn.rsplit('.', 1)
+    else:
+        module_name = default_module
+        class_name = fqn
+
+    module = importlib.import_module(module_name)
+    return getattr(module, class_name)
+
+
+def isreserved(name) -> bool:
     return (
         keyword.iskeyword(name)
         or keyword.issoftkeyword(name)

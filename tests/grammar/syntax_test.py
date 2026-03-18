@@ -7,7 +7,7 @@ import unittest
 import pytest
 
 from tatsu import tool
-from tatsu.exceptions import FailedParse, FailedToken
+from tatsu.exceptions import FailedParse
 from tatsu.ngcodegen import pythongen
 from tatsu.parser import TatSuBuffer
 from tatsu.tool import compile
@@ -110,7 +110,7 @@ class SyntaxTests(unittest.TestCase):
         """
         model = compile(grammar, 'test')
         ast = model.parse('1234', nameguard=False)
-        self.assertEqual(('1', '2', '3', '4'), ast)
+        self.assertEqual(['1', '2', '3', '4'], ast)
 
         grammar = """
             start = '1' foo:['2' '3'] '4' $ ;
@@ -125,7 +125,7 @@ class SyntaxTests(unittest.TestCase):
         """
         model = compile(grammar, 'test')
         ast = model.parse('1234', nameguard=False)
-        self.assertEqual(('1', '2', '3', '4'), ast)
+        self.assertEqual(['1', '2', '3', '4'], ast)
 
     def test_partial_options(self):
         grammar = """
@@ -146,7 +146,7 @@ class SyntaxTests(unittest.TestCase):
         """
         model = compile(grammar, 'test')
         ast = model.parse('AB', nameguard=False)
-        self.assertEqual(('A', 'B'), ast)
+        self.assertEqual(['A', 'B'], ast)
 
     def test_partial_choice(self):
         grammar = """
@@ -204,27 +204,16 @@ class SyntaxTests(unittest.TestCase):
 
     def test_based_rule(self):
         grammar = """\
-            start
-                =
-                b $
-                ;
+            start: b $
 
+            a: ='a'
 
-            a
-                =
-                @:'a'
-                ;
-
-
-            b < a
-                =
-                {@:'b'}
-                ;
+            b < a: {='b'}
             """
         model = compile(grammar, 'test')
         ast = model.parse('abb', nameguard=False)
-        self.assertEqual(('a', 'b', 'b'), ast)
-        self.assertEqual(trim(grammar), str(model))
+        self.assertEqual(['a', 'b', 'b'], ast)
+        self.assertEqual(trim(grammar), trim(model.pretty()))
 
     def test_rule_include(self):
         grammar = """
@@ -235,7 +224,7 @@ class SyntaxTests(unittest.TestCase):
         """
         model = compile(grammar, 'test')
         ast = model.parse('abb', nameguard=False)
-        self.assertEqual(('a', 'b', 'b'), ast)
+        self.assertEqual(['a', 'b', 'b'], ast)
 
     def test_48_rule_override(self):
         grammar = """
@@ -248,7 +237,7 @@ class SyntaxTests(unittest.TestCase):
         """
         model = compile(grammar, 'test')
         ast = model.parse('abb', nameguard=False)
-        self.assertEqual(('a', 'b', 'b'), ast)
+        self.assertEqual(['a', 'b', 'b'], ast)
 
     def test_failed_ref(self):
         grammar = r"""
@@ -289,7 +278,7 @@ class SyntaxTests(unittest.TestCase):
         model = compile(grammar, 'test')
         pythongen(model)
         ast = model.parse('xxxy', nameguard=False)
-        self.assertEqual((['x', 'x', 'x'], [], 'y'), ast)
+        self.assertEqual([['x', 'x', 'x'], [], 'y'], ast)
 
     def test_parseinfo(self):
         grammar = """
@@ -304,13 +293,14 @@ class SyntaxTests(unittest.TestCase):
 
     def test_raw_string(self):
         grammar = r"""
-            start = r'am\nraw' ;
-        """
-        pretty = r"""
             start
                 =
-                'am\\nraw'
+                r'am\nraw'
                 ;
+        """
+        pretty = r"""
+            start: 'am\\nraw'
+
         """
         model = compile(grammar, 'start')
         print(model.pretty())
@@ -322,7 +312,7 @@ class SyntaxTests(unittest.TestCase):
         """
         model = compile(grammar, 'start')
         ast = model.parse('1xx 2 yy')
-        self.assertEqual(('1', 'xx', ' ', '2', 'yy'), ast)
+        self.assertEqual(['1', 'xx', ' ', '2', 'yy'], ast)
 
     def test_constant(self):
         grammar = """
@@ -379,7 +369,7 @@ def test_no_default_comments():
         # no comments are valid
         a
     """
-    with pytest.raises(FailedToken):
+    with pytest.raises(FailedParse):
         tool.parse(grammar, text)
 
 

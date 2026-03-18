@@ -10,11 +10,11 @@ build-backend = "hatchling.build"
 [project]
 name = "TatSu"
 dynamic = ["version"]
-authors = [{name = "Juancarlo Añez", email = "apalala@gmail.com"}]
+authors = [{ name = "Juancarlo Añez", email = "apalala@gmail.com" }]
 description = "TatSu takes a grammar in a variation of EBNF as input, and outputs a memoizing PEG/Packrat parser in Python."
 readme = "README.rst"
 requires-python = ">=3.12"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 keywords = ["PEG", "parser", "grammar", "EBNF", "packrat"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -30,12 +30,22 @@ classifiers = [
 ]
 dependencies = []
 
+[tool.pyrefly.errors]
+missing-attribute = "ignore"
+untyped-import = "ignore"
+missing-import = "ignore"
+
 [project.optional-dependencies]
 colorization = ["colorama"]
+diagrams = ["graphviz"]
+ideps = ["rich"]
 parproc = ["rich"]
+tasks = ["invoke"]
+full = ["colorama", "graphviz", "invoke", "rich"]
 
 [dependency-groups]
 dev = [
+    "asciitree>=0.3.3",
     "basedpyright>=1.38.0",
     "black>=26.1.0",
     "build>=1.4.0",
@@ -43,33 +53,43 @@ dev = [
     "diskcache>=5.6.3",
     "graphviz>=0.21",
     "invoke>=2.2.1",
-    "ipython>=9.10.0",
+    "nodejs-wheel-binaries<24.11",
     "progress>=1.6.1",
     "psutil>=7.2.2",
+    "pyrefly>=0.55.0",
     "pytest>=9.0.2",
+    "pytest-codspeed>=4.3.0",
     "pytest-dependency>=0.6.0",
     "rich>=14.3.3",
     "rich-click>=1.9.7",
-    "ruff>=0.15.1",
-    "twine>=6.2.0",
-    "uv>=0.10.2",
+    "ruff>=0.15.6",
+    "ty>=0.0.23",
+    "uv>=0.10.10",
 ]
 test = [
     "basedpyright>=1.38.0",
+    "black>=26.3.0",
     "colorama>=0.4.6",
     "graphviz>=0.21",
     "invoke>=2.2.1",
     "mypy>=1.19.1",
-    "nodejs-wheel-binaries<=24",
+    "nodejs-wheel-binaries<24.11",
     "progress>=1.6.1",
     "psutil>=7.2.2",
     "pytest>=9.0.2",
+    "pytest-codspeed>=4.3.0",
     "pytest-cov>=7.0.0",
     "pytest-dependency>=0.6.0",
     "pytest-rerunfailures>=16.1",
     "pytest-xdist>=3.8.0",
-    "ruff>=0.15.1",
-    "ty>=0.0.17",
+    "ruff>=0.15.6",
+    "ty>=0.0.23",
+    "types-colorama>=0.4.15.20250801",
+    "types-decorator>=5.2.0.20251101",
+    "types-pexpect>=4.9.0.20260127",
+    "types-psutil>=7.2.2.20260130",
+    "types-pygments>=2.19.0.20251121",
+    "types-pyyaml>=6.0.12.20250915",
 ]
 doc = [
     "docutils>=0.22.4",
@@ -106,9 +126,26 @@ path = "tatsu/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["tatsu"]
+artifacts = [
+    "*.tatsu",
+    "*.json",
+    "*.toml",
+]
 
 [tool.hatch.build.targets.sdist]
-exclude = ["/backup", "/parsers", "/deprecated"]
+#artifacts = [
+#    "*.tatsu",
+#    "*.json",
+#    "*.toml",
+#]
+exclude = [
+    ".github",
+    "backups",
+    "deprecated",
+    "ng",
+    "parsers",
+    "tmp",
+]
 
 [tool.pytest.ini_options]
 log_cli = true
@@ -118,9 +155,21 @@ testpaths = ["tests"]
 norecursedirs = ["*.egg", ".git", ".venv", "build", "dist"]
 
 [tool.mypy]
-python_version = "3.14"
-exclude = "backup|parsers|docs|dist|build|tmp"
-ignore_missing_imports = true
+python_version = "3.12"
+ignore_missing_imports = false
+disable_error_code = [
+    "safe-super",
+    "import-untyped",
+    "import-not-found",
+    "union-attr",
+]
+exclude = [
+    "parsers",
+    "docs",
+    "build",
+    "tmp",
+    "tatsu/bootstrap.py",
+]
 
 [tool.ty.analysis]
 respect-type-ignore-comments = true
@@ -128,6 +177,8 @@ respect-type-ignore-comments = true
 [tool.ty.rules]
 unresolved-import = "ignore"
 unused-ignore-comment = "ignore"
+unused-type-ignore-comment = "ignore"
+#unresolved-attribute = "ignore"
 
 [tool.coverage.run]
 omit = ["tests/*", "tatsu/diagrams.py", "tatsu/codegen/*", "**/test.py"]
@@ -194,26 +245,36 @@ select = [
 ]
 
 ignore = [
-    "COM819", #  [*] Trailing comma prohibited"
+#    "F401", # `XYZ` imported but unused
+    "COM812", #  Trailing comma missing"
+    "COM819", #  Trailing comma prohibited
     "E501", #    line-too-long
     "E402", #    module-import-not-at-top-of-file
-    "I001", #    [*] Import block is un-sorted or un-formatted
+    "I001", #    Import block is un-sorted or un-formatted
+#    "FURB145".  # Prefer `copy` method over slicing"
     "FURB189", #  subclassing str
     "PERF203", #  try-except within loop
     "PGH003",
+    "PLR0914", # Too many local variables (17/15)"
+    "PGH004",  # Use specific rule codes when using `noqa`
     "PLC0415", # import-outside-top-level
+    "PLC2401", # non-ascci in identifier
     "PLR6301", # no-self-use
     "PLR0904", # too-many-public-methods
     "PLR0913", # too-many-arguments
     "PLR0915", # too-many-statements
     "PLR0917", # too many positional arguments
     "PLR2004", # magic-value-comparison
+    "PLW1508", # Invalid type for environment variable default; expected `str` or `None`
     "PLW1514", # unspecified-encoding
     "PLW3201", # bad-dunder-method-name
     "RET504", #  assign before return
     "RET505", #  superfluous-else-return
+    "RUF001", #  string contains ambiguous `＄` (FULLWIDTH DOLLAR SIGN). Did you mean `$` (DOLLAR SIGN)?
     "RUF022", #  __all__ sorting
     "RUF027", #  possible f-string
+    "RUF102", # Invalid rule code in `# noqa`: "
+    "RUF100", #  Unused `noqa` directive (non-enabled: `RUF001`)
     "S102", #    exec-builtin
     "S101", #    use of assert
     "S301", #    suspicious-pickle-usage
@@ -227,3 +288,69 @@ ignore = [
     "UP046", #   generic class uses `Generic` subclass instead of type parameters
     "UP047", #   should use tyope in 3.12+ type parameters
 ]
+
+[tool.basedpyright]
+typeCheckingMode = "standard"
+# Possible values for typeCheckingMode:
+# "off":         Only reports syntax errors.
+# "basic":       Basic type checking; similar to default mypy.
+# "standard":    Recommended middle ground; more "Any" checks.
+# "recommended": High-quality type safety without being pedantic.
+# "strict":      All Pyright strict rules; "Any" is mostly forbidden.
+# "all":         Enables every single diagnostic rule Basedpyright has.
+
+pythonVersion = "3.12"
+include = ["."]
+ignore = [
+    "tatsu/codegen/*",
+    "tatsu/g2e/*"
+]
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.venv",
+    "**/.git",
+    "examples/calc",
+    "parsers/"
+]
+
+#reportCallIssue = false
+#reportMissingImports = false
+#reportOptionalMemberAccess = false
+#reportAttributeAccessIssue = false
+#reportMissingParameterType = false
+#reportImplicitOverride = false
+#reportUnhashable = false
+#reportUnreachable = false
+#reportMissingTypeStubs = false
+#reportUnknownMemberType = false
+#reportUnknownVariableType = false
+#reportUnknownArgumentType = false
+#reportUnknownParameterType = false
+#reportUnknownLambdaType = false
+#reportUnknownReturnType = false
+reportAny = false
+reportExplicitAny = false
+reportUnusedParameter = false
+
+[tool.pyrefly]
+search_path = ["stubs", "."]
+project-excludes = [
+    "**/parsers*",
+    "**/docs*",
+    "**/build*",
+    "**/tmp*",
+    "**/ng*",
+    "**/tatsu/bootstrap.py",
+    "**/tatsu/codegen/**/*",
+]
+python-version = "3.12.0"
+#reportUnnecessaryIsInstance = false
+#reportUnnecessaryCast = false
+#reportUnnecessaryComparison = false
+#reportUnusedClass = false
+#reportUnusedFunction = false
+#reportUnusedVariable = false
+
+# From your previous request
+#reportInvalidTypeForm = false

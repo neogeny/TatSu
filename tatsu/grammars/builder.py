@@ -1,0 +1,289 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
+import builtins
+import types
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass, field
+from typing import Any, cast
+
+from ..objectmodel import Node, synthesize
+from ..util import (
+    Config,
+    Constructor,
+    TypeContainer,
+    boundcall,
+    deprecated_params,
+    fqn,
+    fqntype,
+    least_upper_bound_type,
+    mangle,
+)
+
+
+class TypeResolutionError(TypeError):
+    """Raised when a constructor for a node type cannot be found or synthesized"""
+
+    pass
+
+
+def types_defined_in(container: TypeContainer) -> list[type]:
+    return ModelBuilder.types_defined_in(container)
+
+
+@dataclass
+class BuilderConfig(Config):
+    basetype: type = Node
+    synthok: bool = True
+    typedefs: list = field(default_factory=list)
+    constructors: list = field(default_factory=list)
+
+    def __getstate__(self) -> dict[str, Any]:
+        state = super().__getstate__()
+
+        state['typedefs'] = [fqn(t) for t in self.typedefs]
+        state['constructors'] = [fqn(c) for c in self.constructors]
+
+        return state
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        super().__setstate__(state)
+
+        self.typedefs = [fqntype(t) for t in state.get('typedefs', [])]
+        self.constructors = [fqntype(c) for c in state.get('constructors', [])]
+
+
+class ModelBuilder:
+    """Intended as a semantic action for parsing. A ModelBuildercreates
+    nodes using the class name given as first parameter to a grammar
+    rule, and synthesizes the class/type if it's not known.
+    """
+
+    def __init__(
+        self,
+        config: BuilderConfig | None = None,
+        synthok: bool = True,
+        basetype: type | None = None,
+        typedefs: list[TypeContainer] | None = None,
+        constructors: list[Constructor] | None = None,
+    ) -> None:
+
+        config = BuilderConfig.new(
+            config=config,
+            basetype=basetype,
+            synthok=synthok,
+            typedefs=typedefs,
+            constructors=constructors,
+        )
+        self._registry: dict[str, Constructor] = {}
+
+        config = self._typedefs_to_constructors(config)
+        config = self._narrow_basetype(config)
+        self._register_constructors(config)
+
+        self.config = config
+        # HACK!
+        self.config = self.config.override(synthok=not constructors)
+
+    def instanceof(
+        self, typename, /, known: dict[str, Any], *args: Any, **kwargs: Any,
+    ) -> Any:
+        return self._instanceof(typename, known, *args, **kwargs)
+
+    def _instanceof(
+        self,
+        typename: str,
+        known: dict[str, Any],
+        /,
+        *args: Any,
+        base: type | None = None,
+        **kwargs: Any,
+    ) -> Any:
+        constructor = self._get_constructor(typename, base=base)
+        return boundcall(constructor, known, *args, **kwargs)
+
+    def safe_context(self, *other: Mapping[str, Any]) -> Mapping[str, Any]:
+        context: dict[str, Any] = {}
+        for ctx in other:
+            context |= ctx
+
+        return {name: value for name, value in context.items() if callable(value)}
+
+    @staticmethod
+    def types_defined_in(container: TypeContainer, /) -> list[type]:
+        contents: dict[str, Any] = {}
+        if isinstance(container, types.ModuleType):
+            contents.update(vars(container))
+        elif isinstance(container, Mapping):
+            contents.update(container)  # ty:ignore[no-matching-overload]
+        elif hasattr(container, '__dict__'):
+            contents.update(vars(container))
+        else:
+            return []
+
+        type_list = [
+            typ for name, typ in contents.items()
+            if not name.startswith('_')
+            and isinstance(typ, type)
+        ]
+        name = getattr(container, '__module__', None) or getattr(
+            container, '__name__', None,
+        )
+        if name is None:
+            return type_list
+        return [t for t in type_list if t.__module__ == name]
+
+    def _funname(self, obj: Any) -> str | None:
+        name = getattr(obj, '__name__', None)
+        if not name and callable(obj):
+            name = type(obj).__name__
+        return name
+
+    def _typedefs_to_constructors(self, config: BuilderConfig) -> BuilderConfig:
+        if not config.typedefs:
+            return config
+
+        contained = []
+        for container in config.typedefs:
+            contained += self.types_defined_in(container)
+
+        all_constructors = [*config.constructors, *contained]
+        return config.override(constructors=all_constructors)
+
+    def _narrow_basetype(self, config: BuilderConfig) -> BuilderConfig:
+        if config.basetype and config.basetype is not object:
+            return config
+        basetype = least_upper_bound_type(config.constructors)
+        return config.override(basetype=basetype)
+
+    def _register_constructors(self, config: BuilderConfig) -> None:
+        for t in config.constructors:
+            if not callable(t):
+                raise TypeResolutionError(
+                    f'Expected callable in constructors, got: {type(t)!r}',
+                )
+
+            name = self._funname(t)
+            if not name:
+                raise TypeResolutionError(
+                    f'Expected __name__ in constructor, got: {type(t)!r}',
+                )
+
+            # NOTE: this allows for standalone functions as constructors
+            self._register_constructor(t)
+
+    def _register_constructor(self, constructor: Constructor) -> Constructor:
+        name = self._funname(constructor)
+        if not name:
+            return constructor
+
+        existing = self._registry.get(name)
+        if existing and existing is not constructor:
+            raise TypeResolutionError(
+                f"Conflict for constructor name {name!r}:"
+                f" attempted to register {constructor!r},"
+                f" but {existing!r} is already registered"
+                f"{id(existing)=} {id(constructor)=}."
+            )
+
+        self._registry[name] = constructor
+        return constructor
+
+    def _find_existing_constructor(self, typename: str) -> Constructor | None:
+        return self._registry.get(typename) or vars(builtins).get(typename)
+
+    def _get_constructor(
+        self, typename: str, base: type | None, **args: Any,
+    ) -> Constructor:
+        if constructor := self._find_existing_constructor(typename):
+            return constructor
+
+        if not self.config.synthok:
+            synthok = bool(self.config.synthok)
+            raise TypeResolutionError(
+                f'Could not find constructor for type {typename!r}, and {synthok=} ',
+            )
+
+        if base is None:
+            constructor = synthesize(typename, (), **args)
+        else:
+            constructor = synthesize(typename, (base,), **args)
+
+        return self._register_constructor(constructor)
+
+    def __getstate__(self) -> dict[str, Any]:
+        state: dict[str, Any] = cast(dict, super().__getstate__())
+        state['__registry'] = [fqn(t) for t in self._registry]
+        return state
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        state['_registry'] = [fqntype(t) for t in state.get('_registrt', [])]
+        for name, value in state.items():
+            setattr(self, name, value)
+
+
+class ModelBuilderSemantics:
+    @deprecated_params(base_type='basetype', types='constructors', context=None)
+    def __init__(
+        self,
+        config: BuilderConfig | None = None,
+        synthok: bool = True,
+        basetype: type | None = None,
+        typedefs: list[TypeContainer] | None = None,
+        constructors: list[Constructor] | None = None,
+        # deprecations
+        context: Any | None = None,
+        base_type: type | None = None,
+        types: list[Callable] | None = None,  # for bw compatibility
+    ) -> None:
+        config = BuilderConfig.new(
+            config=config,
+            basetype=basetype,
+            synthok=synthok,
+            typedefs=typedefs,
+            constructors=constructors,
+        )
+        # handle deeprecations
+        assert context is None
+        if isinstance(base_type, type):
+            config = config.override(basetype=base_type)
+        if types is not None:
+            constructors = [*(config.constructors or []), *types]
+            config = config.override(constructors=constructors)
+
+        self.config = config
+        self._builder = ModelBuilder(
+            config=config,
+            synthok=synthok,
+            basetype=basetype,
+            typedefs=typedefs,
+            constructors=constructors,
+        )
+
+    @property
+    def builder(self) -> ModelBuilder:
+        return self._builder
+
+    @staticmethod
+    def types_defined_in(container: TypeContainer, /) -> list[type]:
+        return ModelBuilder.types_defined_in(container)
+
+    def _default(self, ast: Any, *args: Any, **kwargs: Any) -> Any:
+        if not args:
+            return ast
+
+        typespec = [mangle(s) for s in args[0].split('::')]
+        typename = typespec[0]
+        basenames = reversed(typespec)
+
+        base = self.config.basetype
+        for basename in basenames:
+            defined = self._builder._get_constructor(basename, base=base)
+            if isinstance(defined, type):
+                base = defined
+
+        known = {'ast': ast, 'exp': ast}
+        return self._builder._instanceof(
+            typename, known, ast, *args[1:], base=base, **kwargs,
+        )

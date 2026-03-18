@@ -24,7 +24,6 @@ class UC(NamedTuple):
 
 
 # fmt: off
-# ruff: noqa: RUF001
 BOX_DRAWING = {
     '🔚': UC(0x1F51A, '\U0001F51A', "END WITH LEFTWARDS ARROW ABOVE"),
 
