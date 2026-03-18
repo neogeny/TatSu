@@ -8,7 +8,9 @@ from collections.abc import Iterable, Mapping
 from functools import lru_cache
 from typing import Any
 
+from . import as_namedtuple
 from .undefined import Undefined, UndefinedType
+
 
 __all__ = [
     'SecurityError',
@@ -94,7 +96,9 @@ def make_hashable(source: Any) -> Any:
     # by [apalala@gmail.com](https://github.com/apalala)
     """
 
-    def dfs(obj: Any, visiting: set[int]) -> Any:
+    visiting: set[int] = set()
+
+    def dfs(obj: Any) -> Any:
         obj_id = id(obj)
 
         if obj_id in visiting:
@@ -106,11 +110,13 @@ def make_hashable(source: Any) -> Any:
 
         def one_hash(one: Any) -> Any:
             match one:
-                case list() | set() as sequence:
-                    return tuple(dfs(e, visiting) for e in sequence)
+                case _ if nt := as_namedtuple(obj):
+                    return dfs(nt._asdict())
+                case list() | set() | tuple() as sequence:
+                    return tuple(dfs(e) for e in sequence)
                 case dict() as mapping:
                     return tuple(
-                        (name, dfs(value, visiting)) for name, value in mapping.items()
+                        (name, dfs(value)) for name, value in mapping.items()
                     )
                 case node if not hashable(node):
                     return (obj_id,)
@@ -124,7 +130,7 @@ def make_hashable(source: Any) -> Any:
 
         return result
 
-    return dfs(source, set())
+    return dfs(source)
 
 
 @lru_cache(maxsize=1024)
