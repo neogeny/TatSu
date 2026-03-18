@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .._protocol import Ctx, Func
+from ..ctx import Ctx, Func
 from ._base import ContextBase
 
 

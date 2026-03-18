@@ -7,7 +7,7 @@ import functools
 from collections.abc import Callable
 from typing import Any, cast
 
-from .._protocol import Ctx
+from ..ctx import Ctx
 from ..infos import RuleInfo
 
 

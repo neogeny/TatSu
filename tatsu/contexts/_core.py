@@ -21,7 +21,7 @@ from ..util import (
 )
 from .ast import AST
 from .infos import MemoKey, RuleInfo, RuleResult
-from .state import ParseState, ParseStateStack
+from .stt import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
 type RuleOutcome = RuleResult | ParseException

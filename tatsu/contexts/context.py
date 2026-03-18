@@ -17,7 +17,7 @@ from ..exceptions import (
 )
 from ..util import deprecated, left_assoc, regexpp, right_assoc
 from ._engine import ParserEngine
-from ._protocol import Ctx, Func
+from .ctx import Ctx, Func
 from .cst import closedlist, cstfinal
 from .ctxlib import (
     ChoiceContext,
@@ -26,7 +26,7 @@ from .ctxlib import (
     LoopContext,
     LoopWithSepContext,
 )
-from .state import _AT_
+from .stt import _AT_
 
 
 class ParseContext(ParserEngine, Ctx):

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .._protocol import Ctx, Func
+from ..ctx import Ctx, Func
 from ._base import ContextBase
 
 

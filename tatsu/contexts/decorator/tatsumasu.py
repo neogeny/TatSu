@@ -6,7 +6,7 @@ import functools
 from collections.abc import Callable
 from typing import Any
 
-from .._protocol import Ctx, Func
+from ..ctx import Ctx, Func
 from ..infos import RuleInfo
 
 

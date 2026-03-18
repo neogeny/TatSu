@@ -31,7 +31,7 @@ from ._core import ParserCore
 from .ast import AST
 from .cst import closedlist, islist
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
-from .state import ParseStateStack
+from .stt import ParseStateStack
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]

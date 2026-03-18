@@ -9,7 +9,7 @@ from typing import Any
 
 from .. import grammars as g
 from .._version import version, version_info
-from ..contexts._protocol import Ctx
+from ..contexts.ctx import Ctx
 from ..exceptions import CodegenError
 from ..objectmodel import Node
 from ..parserconfig import ParserConfig
