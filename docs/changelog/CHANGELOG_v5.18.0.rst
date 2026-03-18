@@ -33,15 +33,23 @@ Semantics and Module Hierarchy
 
 -   The semantics of grammar representations and parsing where spread all over the
     codebase, in a way that made them hard to understand and maintain. Now each
-    aspect of the semantics is defined in a single module tha is as brief as
-    possible.
+    aspect of the semantics is defined in a single, small module. Some modules of
+    interest, worth studying, are:
+
+    -   `tatsu.contexts.cst`_ values for unnamed expressions and for AST_ entries
+    -   `tatsu.contexts.ast`_ values for expressions with named elements
+    -   `tatsu.contexts.sts`_ state and scope management during parsing
+    -   `tatsu.objectmodel.node`_ the structured representation of parse results
+    -   `tatsu.grammars.model`_ the structured representation of grammars
 
 .. _tatsu.contexts.ast: https://github.com/neogeny/TatSu/blob/master/tatsu/contexts/ast.py
 .. _tatsu.contexts.cst: https://github.com/neogeny/TatSu/blob/master/tatsu/contexts/cst.py
-.. _tatsu.contexts.state: https://github.com/neogeny/TatSu/blob/master/tatsu/contexts/state.py
+.. _tatsu.contexts.sts: https://github.com/neogeny/TatSu/blob/master/tatsu/contexts/sts.py
+.. _tatsu.grammars.model: https://github.com/neogeny/TatSu/blob/master/tatsu/grammars/model.py
+.. _tatsu.objectmodel.node: https://github.com/neogeny/TatSu/blob/master/tatsu/objectmodel/node.py
 
 -   The module hierarchy has been refactored to avoid internal dependency
-    cycles, to simplify imports, and to not need partial module parses by Python.
+    cycles, to simplify imports, and to not require partial module parses by Python.
     Large modules have been factored at semantic boundaries into smaller modules
     within a package.
 
@@ -55,7 +63,8 @@ Semantics and Module Hierarchy
 -   Generated parsers now use anonymous functions to implement choices and
     closures:
 
-  .. code:: python
+    .. code:: python
+        :force:
 
         with ctx.choice() as ch:
             @ch.option
@@ -72,19 +81,20 @@ Semantics and Module Hierarchy
     of ``Grammar``, there is a ``rule`` attribute that allows access to
     rules as attributes:
 
-  .. code:: python
-    :force:
+    .. code:: python
+        :force:
 
-     class Grammar(Model):
-         rules: tuple[Rule, ...]
-         rulemap: dict[str, Rule]
-         rule: SimpleNamespace
+         class Grammar(Model):
+             rules: tuple[Rule, ...]
+             rulemap: dict[str, Rule]
+             rule: SimpleNamespace
 
-  .. code:: python
+    .. code:: python
+        :force:
 
-     model = tatsu.compile(grammar)
-     rule = mode.rule.start
-     print(m.rule.longone.exp.token)
+         model = tatsu.compile(grammar)
+         rule = mode.rule.start
+         print(m.rule.longone.exp.token)
 
 -   Rules and the different forms of closures are back to returning ``list``
     instead of ``tuple``. The ``tuples`` were introduced as a not-thought-up
@@ -100,24 +110,26 @@ Model Representations
   longer returns ``model.pretty()``. To obtain a grammar representation
   of a grammar model use ``model.pretty()`` directly.
 
-- ``repr(model)`` no longer returns ``asjsons(model)`` but instead
-  returns a representation that can be used to reconstruct the model:
+-   ``repr(model)`` no longer returns ``asjsons(model)`` but instead
+    returns a representation that can be used to reconstruct the model:
 
-  .. code:: python
+    .. code:: python
+        :force:
 
-     model = tatsu.parse(grammar, asmodel=True)
-     evalmodel = eval(repr(model), globals=vars(grammars))
-     assert repr(model) == repr(evalmodel)
+         model = tatsu.parse(grammar, asmodel=True)
+         evalmodel = eval(repr(model), globals=vars(grammars))
+         assert repr(model) == repr(evalmodel)
 
-- These are the multiple representations for a grammar model or node:
+-   These are the multiple representations for a grammar model or node:
 
-  .. code:: python
+    .. code:: python
+        :force:
 
-    m.pretty()    -> str:   # pretty-printed grammar
-    m.asjson()    -> Any:   # object compatible with json.dumps()
-    m.asjsons()   -> str:   # json.dumps(m.asjson(), indent=2)
-    m.railroads() -> str:   # a railroads diagram in Text/ASCII art
-    repr(m)       -> str:   # can be passed to eval()
+        m.pretty()    -> str:   # pretty-printed grammar
+        m.asjson()    -> Any:   # object compatible with json.dumps()
+        m.asjsons()   -> str:   # json.dumps(m.asjson(), indent=2)
+        m.railroads() -> str:   # a railroads diagram in Text/ASCII art
+        repr(m)       -> str:   # as an expression can reconstruct the model
 
 
 Separation of State and Content
