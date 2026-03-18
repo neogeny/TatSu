@@ -17,6 +17,12 @@ from .basic import (
     Fail,
     Token,
 )
+from .choice import (
+    Choice,
+    FirstChoice,
+    FirstOption,
+    Option,
+)
 from .closure import (
     Closure,
     EmptyClosure,
@@ -32,13 +38,9 @@ from .math import _ref, ref
 from .model import (
     NULL,
     Box,
-    Choice,
-    FirstChoice,
-    FirstOption,
     Grammar,
     Model,
     ModelContext,
-    Option,
     Rule,
     Synth,
     Void,
