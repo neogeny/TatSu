@@ -11,7 +11,6 @@ from typing import Any
 from . import as_namedtuple
 from .undefined import Undefined, UndefinedType
 
-
 __all__ = [
     'SecurityError',
     'is_eval_safe',
@@ -115,9 +114,7 @@ def make_hashable(source: Any) -> Any:
                 case list() | set() | tuple() as sequence:
                     return tuple(dfs(e) for e in sequence)
                 case dict() as mapping:
-                    return tuple(
-                        (name, dfs(value)) for name, value in mapping.items()
-                    )
+                    return tuple((name, dfs(value)) for name, value in mapping.items())
                 case node if not hashable(node):
                     return (obj_id,)
                 case _:
