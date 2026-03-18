@@ -277,7 +277,7 @@ class TatSuBootstrapRules:
 
             @cl.exp
             def 〇(ctx: Ctx) -> Any:
-                with ctx.nameadd('@'):
+                with ctx.resultadd():
                     with ctx.group():
                         with ctx.choice() as α:
                             @α.option
@@ -298,7 +298,7 @@ class TatSuBootstrapRules:
 
     @tatsu.rule
     def params(self, ctx: Ctx) -> Any:
-        with ctx.nameadd('@'):
+        with ctx.resultadd():
             self.first_param(ctx)
         with ctx.loopopt() as cl:
             cl.expecting(',')
@@ -306,7 +306,7 @@ class TatSuBootstrapRules:
             @cl.exp
             def 〇(ctx: Ctx) -> Any:
                 ctx.token(',')
-                with ctx.nameadd('@'):
+                with ctx.resultadd():
                     self.literal(ctx)
                 with ctx.ifnot_():
                     ctx.token('=')
@@ -532,7 +532,7 @@ class TatSuBootstrapRules:
         with ctx.ifnot_():
             ctx.token('@')
         ctx.cut()
-        with ctx.nameset('@'):
+        with ctx.result():
             with ctx.group():
                 with ctx.choice() as α:
                     @α.option
@@ -550,11 +550,11 @@ class TatSuBootstrapRules:
 
     @tatsu.rule
     def pair(self, ctx: Ctx) -> Any:
-        with ctx.nameadd('@'):
+        with ctx.resultadd():
             self.word(ctx)
         ctx.token('=')
         ctx.cut()
-        with ctx.nameadd('@'):
+        with ctx.resultadd():
             self.literal(ctx)
 
     @tatsu.rule
@@ -566,7 +566,7 @@ class TatSuBootstrapRules:
         with ctx.optional():
             ctx.token('|')
             ctx.cut()
-        with ctx.nameadd('@'):
+        with ctx.resultadd():
             self.firstoption(ctx)
         ctx.cut()
         with ctx.loopopt() as cl:
@@ -576,7 +576,7 @@ class TatSuBootstrapRules:
             def 〇(ctx: Ctx) -> Any:
                 ctx.token('|')
                 ctx.cut()
-                with ctx.nameadd('@'):
+                with ctx.resultadd():
                     self.firstoption(ctx)
 
     @tatsu.rule('FirstOption')
@@ -598,7 +598,7 @@ class TatSuBootstrapRules:
         with ctx.optional():
             ctx.token('|')
             ctx.cut()
-        with ctx.nameadd('@'):
+        with ctx.resultadd():
             self.option(ctx)
         with ctx.loopplus() as cl:
             cl.expecting('|')
@@ -607,7 +607,7 @@ class TatSuBootstrapRules:
             def 〇(ctx: Ctx) -> Any:
                 ctx.token('|')
                 ctx.cut()
-                with ctx.nameadd('@'):
+                with ctx.resultadd():
                     self.option(ctx)
 
     @tatsu.rule('Option')
@@ -671,7 +671,7 @@ class TatSuBootstrapRules:
     def rule_include(self, ctx: Ctx) -> Any:
         ctx.token('>')
         ctx.cut()
-        with ctx.nameset('@'):
+        with ctx.result():
             self.known_name(ctx)
 
     @tatsu.rule
@@ -721,21 +721,21 @@ class TatSuBootstrapRules:
     def override_list(self, ctx: Ctx) -> Any:
         ctx.pattern(r'\+=|@\+:')
         ctx.cut()
-        with ctx.nameset('@'):
+        with ctx.result():
             self.term(ctx)
 
     @tatsu.rule('Override')
     def override_single(self, ctx: Ctx) -> Any:
         ctx.pattern(r'=|@:')
         ctx.cut()
-        with ctx.nameset('@'):
+        with ctx.result():
             self.term(ctx)
 
     @tatsu.rule('Override')
     def override_single_deprecated(self, ctx: Ctx) -> Any:
         ctx.token('@')
         ctx.cut()
-        with ctx.nameset('@'):
+        with ctx.result():
             self.term(ctx)
 
     @tatsu.rule
@@ -793,7 +793,7 @@ class TatSuBootstrapRules:
             ctx.token('(?:')
         ctx.token('(')
         ctx.cut()
-        with ctx.nameset('@'):
+        with ctx.result():
             self.expre(ctx)
         ctx.token(')')
         ctx.cut()
@@ -802,7 +802,7 @@ class TatSuBootstrapRules:
     def skip(self, ctx: Ctx) -> Any:
         ctx.token('(?:')
         ctx.cut()
-        with ctx.nameset('@'):
+        with ctx.result():
             self.expre(ctx)
         ctx.token(')')
         ctx.cut()
@@ -925,14 +925,14 @@ class TatSuBootstrapRules:
             @α.option
             def 〇(ctx: Ctx) -> Any:
                 ctx.token('{')
-                with ctx.nameset('@'):
+                with ctx.result():
                     self.expre(ctx)
                 ctx.token('}')
                 ctx.pattern(r'(?!\+=)[+-]')
                 ctx.cut()
             @α.option
             def 〇(ctx: Ctx) -> Any:
-                with ctx.nameset('@'):
+                with ctx.result():
                     self.atom(ctx)
                 ctx.pattern(r'(?!\+=)[+]')
                 ctx.cut()
@@ -943,7 +943,7 @@ class TatSuBootstrapRules:
             @α.option
             def 〇(ctx: Ctx) -> Any:
                 ctx.token('{')
-                with ctx.nameset('@'):
+                with ctx.result():
                     self.expre(ctx)
                 ctx.token('}')
                 with ctx.optional():
@@ -951,7 +951,7 @@ class TatSuBootstrapRules:
                 ctx.cut()
             @α.option
             def 〇(ctx: Ctx) -> Any:
-                with ctx.nameset('@'):
+                with ctx.result():
                     self.atom(ctx)
                 ctx.token('*')
                 ctx.cut()
@@ -960,7 +960,7 @@ class TatSuBootstrapRules:
     def empty_closure(self, ctx: Ctx) -> Any:
         ctx.token('{}')
         ctx.cut()
-        with ctx.nameset('@'):
+        with ctx.result():
             ctx.void()
 
     @tatsu.rule('Optional')
@@ -970,13 +970,13 @@ class TatSuBootstrapRules:
             def 〇(ctx: Ctx) -> Any:
                 ctx.token('[')
                 ctx.cut()
-                with ctx.nameset('@'):
+                with ctx.result():
                     self.expre(ctx)
                 ctx.token(']')
                 ctx.cut()
             @α.option
             def 〇(ctx: Ctx) -> Any:
-                with ctx.nameset('@'):
+                with ctx.result():
                     self.atom(ctx)
                 with ctx.ifnot_():
                     with ctx.group():
@@ -997,21 +997,21 @@ class TatSuBootstrapRules:
     def lookahead(self, ctx: Ctx) -> Any:
         ctx.token('&')
         ctx.cut()
-        with ctx.nameset('@'):
+        with ctx.result():
             self.term(ctx)
 
     @tatsu.rule('NegativeLookahead')
     def negative_lookahead(self, ctx: Ctx) -> Any:
         ctx.token('!')
         ctx.cut()
-        with ctx.nameset('@'):
+        with ctx.result():
             self.term(ctx)
 
     @tatsu.rule('SkipTo')
     def skip_to(self, ctx: Ctx) -> Any:
         ctx.token('->')
         ctx.cut()
-        with ctx.nameset('@'):
+        with ctx.result():
             self.term(ctx)
 
     @tatsu.rule
@@ -1090,7 +1090,7 @@ class TatSuBootstrapRules:
                 @α.option
                 def 〇(ctx: Ctx) -> Any:
                     ctx.token('`')
-                    with ctx.nameset('@'):
+                    with ctx.result():
                         self.literal(ctx)
                     ctx.token('`')
                 @α.option
@@ -1167,7 +1167,7 @@ class TatSuBootstrapRules:
     @tatsu.rule
     def raw_string(self, ctx: Ctx) -> Any:
         ctx.pattern(r'r')
-        with ctx.nameset('@'):
+        with ctx.result():
             self.STRING(ctx)
 
     @tatsu.rule
@@ -1239,7 +1239,7 @@ class TatSuBootstrapRules:
             @α.option
             def 〇(ctx: Ctx) -> Any:
                 ctx.token('?')
-                with ctx.nameset('@'):
+                with ctx.result():
                     self.STRING(ctx)
             @α.option
             def 〇(ctx: Ctx) -> Any:

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..contexts import AST, Ctx
+from ..contexts import _AT_, AST, Ctx
 from ..objectmodel import nodedataclass
 from ..util import typename
 from ._core import Box, NamedBox
@@ -60,8 +60,8 @@ class NamedList(Named):
 class Override(Box):
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
-        ctx.ast['@'] = value
-        return {'@': value}
+        ctx.ast[_AT_] = value
+        return {_AT_: value}
 
     def _pretty(self, lean=False):
         if lean:
@@ -73,10 +73,10 @@ class Override(Box):
 class OverrideList(Box):
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
-        if '@' not in ctx.ast:
+        if _AT_ not in ctx.ast:
             value = [value]
-        ctx.ast['@'] = value
-        return {'@': value}
+        ctx.ast[_AT_] = value
+        return {_AT_: value}
 
     def _pretty(self, lean=False):
         if lean:

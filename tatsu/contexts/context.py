@@ -26,6 +26,7 @@ from .ctxlib import (
     LoopContext,
     LoopWithSepContext,
 )
+from .state import _AT_
 
 
 class ParseContext(ParserEngine, Ctx):
@@ -206,16 +207,26 @@ class ParseContext(ParserEngine, Ctx):
     @contextmanager
     def nameset(self, name: str) -> Any:
         yield
-        self.setname(name)
+        self.state.nameset(name)
 
     _setname = nameset
 
     @contextmanager
     def nameadd(self, name: str) -> Any:
         yield
-        self.addname(name)
+        self.state.nameadd(name)
 
     _addname = nameadd
+
+    @contextmanager
+    def result(self) -> Any:
+        yield
+        self.state.nameset(_AT_)
+
+    @contextmanager
+    def resultadd(self) -> Any:
+        yield
+        self.state.nameadd(_AT_)
 
     def isolate(self, exp: Func) -> Any:
         self.pushstate()

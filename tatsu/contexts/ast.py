@@ -75,7 +75,9 @@ class AST(dict[str, Any]):
             self.__dict__[name] = value
             return
         if self.__dict__.get('__frozen__'):
-            raise AttributeError(f'{typename(self)} attributes are frozen. Cannot set "{name}".')
+            raise AttributeError(
+                f'{typename(self)} attributes are frozen. Cannot set "{name}".'
+            )
         self[name] = value
 
     def __getattr__(self, name: str) -> Any:

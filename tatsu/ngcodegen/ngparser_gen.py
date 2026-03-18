@@ -17,6 +17,7 @@ from ..util import Undefined, compress_seq, regexpp, safe_name
 from ..util.indent import IndentPrintMixin
 from ..walkers import NodeWalker
 
+
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 
 
@@ -321,10 +322,10 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self._gen_decor(Ctx.nameadd, exp=named.exp, arg=repr(named.name))
 
     def walk_Override(self, o: g.Override):
-        self._gen_decor(Ctx.nameset, exp=o.exp, arg=repr('@'))
+        self._gen_decor(Ctx.result, exp=o.exp)
 
     def walk_OverrideList(self, override: g.OverrideList):
-        self._gen_decor(Ctx.nameadd, exp=override.exp, arg=repr('@'))
+        self._gen_decor(Ctx.resultadd, exp=override.exp)
 
     def _gen_keywords(self, grammar: g.Grammar):
         keywords = [str(k) for k in grammar.keywords if k is not None]

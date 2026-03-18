@@ -11,9 +11,13 @@ from .ast import AST
 from .cst import cstadd, cstfinal, cstmerge
 from .infos import Alert, RuleInfo
 
+
 __all__ = ['ParseState', 'ParseStateStack']
 
 from ..tokenizing import Cursor
+
+
+_AT_ = '__vallue__'
 
 
 class ParseState:
@@ -65,8 +69,8 @@ class ParseState:
         cst = self.cst
         if not ast:
             return cstfinal(cst)
-        elif '@' in ast:
-            return ast['@']
+        elif _AT_ in ast:
+            return ast[_AT_]
         else:
             return ast
 
