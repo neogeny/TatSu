@@ -8,8 +8,8 @@ from typing import Any
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
 from ..util import cast, indent
-from ._core import PEP8_LLEN, Box, Model
 from .math import ffset
+from .model import PEP8_LLEN, Box, Model
 
 
 @nodedataclass

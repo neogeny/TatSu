@@ -9,7 +9,6 @@ from .decorator import isname, leftrec, name, nomemo, rule, tatsumasu
 from .infos import RuleInfo
 from .sts import _AT_, ParseState, ParseStateStack
 
-
 __all__ = [
     'AST',
     'ParseContext',

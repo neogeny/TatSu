@@ -6,21 +6,6 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from ._core import (
-    NULL,
-    Box,
-    Choice,
-    FirstChoice,
-    FirstOption,
-    Grammar,
-    Model,
-    ModelContext,
-    Option,
-    Rule,
-    Synth,
-    Void,
-    model_classes,
-)
 from .basic import (
     EOF,
     Alert,
@@ -44,6 +29,21 @@ from .closure import (
     RightJoin,
 )
 from .math import _ref, ref
+from .model import (
+    NULL,
+    Box,
+    Choice,
+    FirstChoice,
+    FirstOption,
+    Grammar,
+    Model,
+    ModelContext,
+    Option,
+    Rule,
+    Synth,
+    Void,
+    model_classes,
+)
 from .named import Named, NamedList, Override, OverrideList
 from .pattern import Pattern
 from .rulelike import BasedRule, RuleInclude

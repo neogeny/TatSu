@@ -11,7 +11,7 @@ from typing import Any
 from ..contexts import _AT_, AST, Ctx
 from ..objectmodel import nodedataclass
 from ..util import typename
-from ._core import Box, NamedBox
+from .model import Box, NamedBox
 
 
 @nodedataclass

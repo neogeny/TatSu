@@ -6,7 +6,7 @@ from typing import Any
 
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
-from ._core import Model
+from .model import Model
 from .math import ffset
 
 

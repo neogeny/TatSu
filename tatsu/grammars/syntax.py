@@ -10,7 +10,7 @@ from ..contexts import AST, Ctx, Func
 from ..exceptions import FailedRef
 from ..objectmodel import nodedataclass
 from ..util import indent, trim
-from ._core import PEP8_LLEN, Box, Model
+from .model import PEP8_LLEN, Box, Model
 from .math import ffset, kdot, ref
 
 

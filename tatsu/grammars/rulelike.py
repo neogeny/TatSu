@@ -12,7 +12,7 @@ from typing import Any
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
 from ..util import typename
-from ._core import Box, Model, Rule
+from .model import Box, Model, Rule
 from .syntax import Sequence
 
 

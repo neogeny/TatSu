@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Iterator
 
-from .._core import Grammar, Rule
+from ..model import Grammar, Rule
 
 type RuleName = str
 type Headmap = dict[RuleName, set[RuleName]]

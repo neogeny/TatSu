@@ -8,7 +8,7 @@ from collections.abc import Iterable
 from enum import Enum, auto
 from typing import cast
 
-from .._core import Model, Rule
+from ..model import Model, Rule
 
 __all__ = ['mark_left_recursion']
 

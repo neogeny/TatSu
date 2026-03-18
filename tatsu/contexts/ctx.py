@@ -10,7 +10,6 @@ from .ast import AST
 from .infos import RuleInfo
 from .sts import ParseState, ParseStateStack
 
-
 type Func = Callable[[Ctx], Any]
 
 

@@ -8,8 +8,8 @@ from typing import Any
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
 from ..util import regexpp
-from ._core import Model
 from .math import ffset
+from .model import Model
 
 
 @nodedataclass
