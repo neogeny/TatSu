@@ -5,6 +5,6 @@ from __future__ import annotations
 
 from .util import Version
 
-__version__ = '5.18.0'
+__version__ = '5.18.1b1'
 version = __version__
 version_info = Version.parse(version).astuple()
