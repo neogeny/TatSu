@@ -93,7 +93,6 @@ def make_hashable(source: Any) -> Any:
     # by Gemini (2026-01-26)
     # by [apalala@gmail.com](https://github.com/apalala)
     """
-    memo: dict[int, Any] = {}
 
     def dfs(obj: Any, visiting: set[int]) -> Any:
         obj_id = id(obj)
@@ -101,16 +100,13 @@ def make_hashable(source: Any) -> Any:
         if obj_id in visiting:
             return (f"<circular_ref_{obj_id}>",)
 
-        if obj_id in memo:
-            return memo[obj_id]
-
-        is_mutable = isinstance(obj, dict | list | set | tuple)
+        is_mutable = isinstance(obj, dict | list | set)
         if is_mutable:
             visiting.add(obj_id)
 
         def one_hash(one: Any) -> Any:
             match one:
-                case list() | set() | tuple() as sequence:
+                case list() | set() as sequence:
                     return tuple(dfs(e, visiting) for e in sequence)
                 case dict() as mapping:
                     return tuple(
@@ -126,7 +122,6 @@ def make_hashable(source: Any) -> Any:
         if is_mutable:
             visiting.remove(obj_id)
 
-        memo[obj_id] = result
         return result
 
     return dfs(source, set())
