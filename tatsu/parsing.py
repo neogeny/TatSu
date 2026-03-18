@@ -20,7 +20,6 @@ from .exceptions import FailedRef
 from .parserconfig import ParserConfig
 from .util import generic_main, safe_name
 
-
 __all__ = [
     'Parser',
     'NGParser',
@@ -77,6 +76,7 @@ class Parser(ParseContext):
 
         methods = inspect.getmembers(source, predicate=inspect.ismethod)
         return [m[0] for m in methods if not isdunder(m[0])]
+
 
 # NOTE: backwards compatibility
 NGParser = Parser
