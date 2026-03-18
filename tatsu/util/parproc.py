@@ -34,7 +34,6 @@ from . import identity, memory_use, startscript, try_read
 from .timetools import iso_logpath
 from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
 
-
 __all__ = [
     'parallel_proc',
     'parproc',
@@ -406,5 +405,4 @@ def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
                 'number of chunked tasks different %d != %d' % (len(tasks), count),
             )
 
-    assert imap_pmap, thread_pmap
     return process_pmap
