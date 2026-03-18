@@ -10,8 +10,8 @@ from ..contexts import AST, Ctx, Func
 from ..exceptions import FailedRef
 from ..objectmodel import nodedataclass
 from ..util import indent, trim
-from .model import PEP8_LLEN, Box, Model
 from .math import ffset, kdot, ref
+from .model import PEP8_LLEN, Box, Model
 
 
 @nodedataclass
@@ -177,7 +177,7 @@ class Call(Model):
     def _parse(self, ctx: Ctx) -> Any:
         try:
             rule = ctx.find_rule(self.name)
-            return rule(ctx)
+            return ctx.expcall(rule)
         except KeyError as e:
             raise ctx.newexcept(self.name, excls=FailedRef) from e
 

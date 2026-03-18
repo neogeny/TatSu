@@ -222,10 +222,16 @@ class ParseContext(ParserEngine, Ctx):
         yield
         self.state.nameadd(_AT_)
 
+    def expcall(self, exp: Func) -> Any:
+        try:
+            return exp(self)
+        except TypeError:
+            return boundcall(exp, {}, self)
+
     def isolate(self, exp: Func) -> Any:
         self.pushstate()
         try:
-            boundcall(exp, {}, self)
+            self.expcall(exp)
             return cstfinal(self.cst)
         finally:
             ast = self.ast
@@ -271,7 +277,7 @@ class ParseContext(ParserEngine, Ctx):
         try:
             self.cst = []
             with self._optional(), self.states.cutscope():
-                boundcall(exp, {}, self)
+                self.expcall(exp)
                 self.cst = [self.cst]
                 self.repeat(exp, prefix=sep, omitsep=omitsep)
             self.cst = cst = closedlist(self.cst)
@@ -292,7 +298,7 @@ class ParseContext(ParserEngine, Ctx):
         self.pushstate()
         try:
             with self.states.cutscope():
-                boundcall(exp, {}, self)
+                self.expcall(exp)
                 self.cst = [self.cst]
                 self.repeat(exp, prefix=sep, omitsep=omitsep)
             self.cst = cst = closedlist(self.cst)
@@ -421,7 +427,7 @@ class ParseContext(ParserEngine, Ctx):
         while not self.eof():
             try:
                 with self.if_():
-                    boundcall(exp, {}, self)
+                    self.expcall(exp)
             except FailedParse:
                 pass
             else:
@@ -430,6 +436,6 @@ class ParseContext(ParserEngine, Ctx):
             self.next_token()
             if self.pos == pos:
                 self._next()
-        return boundcall(exp, {}, self)
+        return self.expcall(exp)
 
     _skip_to = skip_to
