@@ -9,7 +9,7 @@ from copy import copy
 from dataclasses import field
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, cast, override
+from typing import Any, override
 
 from ..contexts import AST, Ctx, Func, ParseContext, RuleInfo
 from ..exceptions import GrammarError

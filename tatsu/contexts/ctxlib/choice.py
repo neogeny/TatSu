@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from ...util.typetools import boundcall
 from ..ctx import Ctx, Func
 from ._base import ContextBase
 
@@ -23,5 +24,5 @@ class ChoiceContext(ContextBase):
             return None
         for opt in self.options:
             with ctx.option():
-                return opt(ctx)
+                boundcall(opt, {}, ctx)
         raise self.expectedexcept(ctx)

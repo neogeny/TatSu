@@ -11,9 +11,10 @@ import typing
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from types import ModuleType
-from typing import Any, Self
+from typing import Any, ClassVar, Self
 
 from .itertools import CycleError, first, topsort
+
 
 __all__ = [
     'ActualArguments',
@@ -128,8 +129,64 @@ class BoundCallable:
         actual = BoundCallable.bind(fun, known, *args, **kwargs)
         return fun(*actual.args, **actual.kwargs)
 
+    _BIND_CACHE: ClassVar[dict[Any, ActualArguments]] = {}
+    _HIT_COUNT: int = 0
+
     @staticmethod
     def bind(
+        fun: Callable,
+        known: dict[str, Any],
+        *args: Any,
+        **kwargs: Any,
+    ) -> ActualArguments:
+        key = BoundCallable._arg_key(fun, known, args, kwargs)
+        if (cached := BoundCallable._BIND_CACHE.get(key)) is not None:
+            # FIXME
+            # BoundCallable._HIT_COUNT += 1
+            # if BoundCallable._HIT_COUNT % (16 * 1024) == 0:
+            #     debug(f'\nHIT {id(fun)} {BoundCallable._HIT_COUNT}')
+            return cached
+
+        result = BoundCallable._actual_bind(fun, known, *args, **kwargs)
+        BoundCallable._BIND_CACHE[key] = result
+        return result
+
+    @staticmethod
+    def _arg_key(
+        fun: Callable[..., Any],
+        known: dict[str, Any],
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+    ) -> tuple[
+        int,
+        tuple[tuple[str, Any], ...] | None,
+        tuple[Any, ...] | None,
+        tuple[tuple[str, Any], ...] | None,
+    ]:
+        # with Gemini 2026-03-18
+        try:
+            key = (
+                id(fun),
+                tuple(sorted(known.items())) if known else None,
+                args or None,
+                tuple(sorted(kwargs.items())) if kwargs else None,
+            )
+            hash(key)
+        except TypeError:
+            key = (
+                id(fun),
+                tuple((k, id(v)) for k, v in sorted(known.items())) if known else None,
+                tuple(id(a) for a in args) if args else None,
+                (
+                    tuple((k, id(v)) for k, v in sorted(kwargs.items()))
+                    if kwargs
+                    else None
+                ),
+            )
+        return key
+
+    @staticmethod
+    def _actual_bind(
         fun: Callable,
         known: dict[str, Any],
         *args: Any,
