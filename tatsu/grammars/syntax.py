@@ -2,16 +2,16 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from dataclasses import field
+from dataclasses import field, replace
 from itertools import takewhile
 from typing import Any
 
+from .math import ffset, kdot, ref
+from .model import Box, Model, PEP8_LLEN
 from ..contexts import AST, Ctx, Func
 from ..exceptions import FailedRef
 from ..objectmodel import nodedataclass
 from ..util import indent, trim
-from .math import ffset, kdot, ref
-from .model import PEP8_LLEN, Box, Model
 
 
 @nodedataclass
@@ -26,6 +26,13 @@ class Group(Box):
         if len(exp.splitlines()) <= 1:
             return f'({trim(exp)})'
         return f'(\n{indent(exp)}\n)'
+
+    def optimized(self) -> Model:
+        from .closure import Closure, Join, EmptyClosure
+        exp = self.exp.optimized()
+        if isinstance(exp, Closure | Join | EmptyClosure | Optional):
+            return exp
+        return replace(self, exp=exp)  # pyright: ignore[reportArgumentType]
 
 
 @nodedataclass
@@ -100,6 +107,13 @@ class Optional(Box):
     def _nullable(self) -> bool:
         return True
 
+    def optimized(self) -> Model:
+        from .closure import Closure, Join
+        exp = self.exp.optimized()
+        if isinstance(exp, Group | Closure | Join):
+            exp = exp.exp
+        return replace(self, exp=exp)  # pyright: ignore[reportArgumentType]
+
 
 @nodedataclass
 class Sequence(Model):
@@ -159,6 +173,12 @@ class Sequence(Model):
         if len(head) < len(self.sequence):
             head.append(self.sequence[len(head)])
         return head
+
+    def optimized(self) -> Model:
+        seq = [e.optimized() for e in self.sequence]
+        if len(seq) == 1:
+            return seq[0]
+        return replace(self, sequence=seq)  # pyright: ignore[reportArgumentType]
 
 
 @nodedataclass

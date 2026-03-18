@@ -6,18 +6,18 @@ import weakref
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
 from copy import copy
-from dataclasses import field
+from dataclasses import field, replace
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, override
 
+from .builder import ModelBuilderSemantics
+from .math import ffset, kdot
 from ..contexts import AST, Ctx, Func, ParseContext, RuleInfo
 from ..exceptions import GrammarError
 from ..objectmodel import Node, nodedataclass
 from ..parserconfig import ParserConfig
 from ..util import chunks, compress_seq, indent, trim, typename
-from .builder import ModelBuilderSemantics
-from .math import ffset, kdot
 
 PEP8_LLEN = 72
 
@@ -150,6 +150,9 @@ class Model(Node):
 
         return railroads.text(self)
 
+    def optimized(self) -> Model:
+        return self
+
 
 @nodedataclass
 class NULL(Model):
@@ -225,6 +228,9 @@ class Box(Model):
         rulemap: Mapping[str, Rule] | None = None,
     ) -> list[Model]:
         return [self.exp]
+
+    def optimized(self) -> Model:
+        return replace(self, exp=self.exp.optimized())  # pyright: ignore[reportArgumentType]
 
 
 @nodedataclass
@@ -555,6 +561,15 @@ class Grammar(Model):
             '\n\n'.join(str(rule._pretty(lean=lean)) for rule in self.rules)
         ).rstrip() + '\n\n'
         return directives + keywords + rules
+
+    def optimized(self) -> Model:
+        rules = [r.optimized() for r in self.rules]
+        return Grammar(
+            name=self.name,
+            rules=rules,
+            config=self.config,
+            directives=self.directives,
+        )
 
 
 class ModelContext(ParseContext):

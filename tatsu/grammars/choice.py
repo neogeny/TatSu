@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from dataclasses import field
+from dataclasses import field, replace
 from typing import Any
 
+from .math import ffset
+from .model import Box, Model, PEP8_LLEN
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
 from ..util import cast, indent
-from .math import ffset
-from .model import PEP8_LLEN, Box, Model
 
 
 @nodedataclass
@@ -88,6 +88,12 @@ class Choice(Model):
 
     def callable_at_same_pos(self) -> list[Model]:
         return cast(list[Model], self.options)
+
+    def optimized(self) -> Model:
+        opt = [o.optimized() for o in self.options]
+        if len(opt) == 1:
+            return opt[0]
+        return replace(self, options=opt)  # pyright: ignore[reportArgumentType]
 
 
 @nodedataclass
