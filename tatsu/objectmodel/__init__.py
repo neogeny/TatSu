@@ -5,6 +5,7 @@ from __future__ import annotations
 from .basenode import (
     BaseNode,
     NodeDataclassParams,
+    NodeDataclassParams as TatSuDataclassParams,
     nodedataclass,
     nodedataclass as tatsudataclass,
 )
@@ -17,7 +18,8 @@ __all__ = [
     'SynthNode',
     'NodeDataclassParams',
     'nodedataclass',
-    'tatsudataclass',
     'registered_synthetics',
     'synthesize',
+    'tatsudataclass',
+    'TatSuDataclassParams',
 ]
