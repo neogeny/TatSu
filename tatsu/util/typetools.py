@@ -15,7 +15,6 @@ from typing import Any, ClassVar, Self
 
 from .itertools import CycleError, first, topsort
 
-
 __all__ = [
     'ActualArguments',
     'BoundCallable',

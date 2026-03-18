@@ -870,6 +870,21 @@ wheels = [
 ]
 
 [[package]]
+name = "myst-docutils"
+version = "5.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "jinja2" },
+    { name = "markdown-it-py" },
+    { name = "mdit-py-plugins" },
+    { name = "pyyaml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d1/19/fa38a41942b9106b35637b80d83015093a93949b4d1dfca4f3198d3fbb6f/myst_docutils-5.0.0.tar.gz", hash = "sha256:ce1f87cf0e79ff25e103c935226b6f98a5d29276b7cb6781b497efea1c19a6e0", size = 98653, upload-time = "2026-01-15T09:08:35.123Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/74/1a/65f61ae2f8d6a5ec36d277dde95072a44597c64ddab7461579fee5d0515c/myst_docutils-5.0.0-py3-none-any.whl", hash = "sha256:7ed8f9c898aac976a9a9bc52f12d4aeb4de456200cb67f34222c1cd49c33dce3", size = 84605, upload-time = "2026-01-15T09:08:33.906Z" },
+]
+
+[[package]]
 name = "myst-parser"
 version = "5.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1411,6 +1426,20 @@ wheels = [
 ]
 
 [[package]]
+name = "sphinx-markdown-builder"
+version = "0.6.10"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "docutils" },
+    { name = "sphinx" },
+    { name = "tabulate" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a0/58/0b7b9a7d071140b3705885d51932e8b62f520388c2772e4952189971727b/sphinx_markdown_builder-0.6.10.tar.gz", hash = "sha256:cd5acf88d52ea0146a712fd557404f10326dff3428a78ba928e59b1727fd4a86", size = 22688, upload-time = "2026-03-11T10:56:57.639Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c2/8f/9fecf3d081d5cd49eff83a17b9fef50ed741e6223ab3bb906de4ab0068f9/sphinx_markdown_builder-0.6.10-py3-none-any.whl", hash = "sha256:16d86738b9ac69fcbc86e373c31c6402c30af1fa8d98d0f62cc5f38bfe5fc26e", size = 16700, upload-time = "2026-03-11T10:56:56.135Z" },
+]
+
+[[package]]
 name = "sphinx-rtd-theme"
 version = "3.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1503,6 +1532,15 @@ wheels = [
 ]
 
 [[package]]
+name = "tabulate"
+version = "0.10.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/46/58/8c37dea7bbf769b20d58e7ace7e5edfe65b849442b00ffcdd56be88697c6/tabulate-0.10.0.tar.gz", hash = "sha256:e2cfde8f79420f6deeffdeda9aaec3b6bc5abce947655d17ac662b126e48a60d", size = 91754, upload-time = "2026-03-04T18:55:34.402Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/99/55/db07de81b5c630da5cbf5c7df646580ca26dfaefa593667fc6f2fe016d2e/tabulate-0.10.0-py3-none-any.whl", hash = "sha256:f0b0622e567335c8fabaaa659f1b33bcb6ddfe2e496071b743aa113f8774f2d3", size = 39814, upload-time = "2026-03-04T18:55:31.284Z" },
+]
+
+[[package]]
 name = "tatsu"
 source = { editable = "." }
 
@@ -1554,11 +1592,13 @@ dev = [
 ]
 doc = [
     { name = "docutils" },
+    { name = "myst-docutils" },
     { name = "myst-parser" },
     { name = "pydata-sphinx-theme" },
     { name = "sphinx" },
     { name = "sphinx-autodoc2" },
     { name = "sphinx-copybutton" },
+    { name = "sphinx-markdown-builder" },
     { name = "sphinx-rtd-theme" },
 ]
 mkdocs = [
@@ -1636,11 +1676,13 @@ dev = [
 ]
 doc = [
     { name = "docutils", specifier = ">=0.22.4" },
+    { name = "myst-docutils", specifier = ">=5.0.0" },
     { name = "myst-parser", specifier = ">=5.0.0" },
     { name = "pydata-sphinx-theme", specifier = ">=0.16.1" },
     { name = "sphinx", specifier = ">=9.1.0" },
     { name = "sphinx-autodoc2", specifier = ">=0.5.0" },
     { name = "sphinx-copybutton", specifier = ">=0.5.2" },
+    { name = "sphinx-markdown-builder", specifier = ">=0.6.10" },
     { name = "sphinx-rtd-theme", specifier = ">=3.1.0" },
 ]
 mkdocs = [

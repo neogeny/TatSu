@@ -44,6 +44,7 @@ extensions = [
 
     "myst_parser",
     "sphinx_copybutton",  # Recommended for "Copy" icons on code blocks
+    'sphinx_markdown_builder',
 ]
 
 # MyST-Parser Settings

@@ -24,6 +24,7 @@ docutils==0.22.4
     #   myst-parser
     #   pydata-sphinx-theme
     #   sphinx
+    #   sphinx-markdown-builder
     #   sphinx-rtd-theme
 idna==3.11
     # via requests
@@ -31,18 +32,23 @@ imagesize==2.0.0
     # via sphinx
 jinja2==3.1.6
     # via
+    #   myst-docutils
     #   myst-parser
     #   sphinx
 markdown-it-py==4.0.0
     # via
     #   mdit-py-plugins
+    #   myst-docutils
     #   myst-parser
 markupsafe==3.0.3
     # via jinja2
 mdit-py-plugins==0.5.0
-    # via myst-parser
+    # via
+    #   myst-docutils
+    #   myst-parser
 mdurl==0.1.2
     # via markdown-it-py
+myst-docutils==5.0.0
 myst-parser==5.0.0
 packaging==26.0
     # via sphinx
@@ -53,7 +59,9 @@ pygments==2.19.2
     #   pydata-sphinx-theme
     #   sphinx
 pyyaml==6.0.3
-    # via myst-parser
+    # via
+    #   myst-docutils
+    #   myst-parser
 requests==2.32.5
     # via sphinx
 roman-numerals==4.1.0
@@ -67,10 +75,12 @@ sphinx==9.1.0
     #   myst-parser
     #   pydata-sphinx-theme
     #   sphinx-copybutton
+    #   sphinx-markdown-builder
     #   sphinx-rtd-theme
     #   sphinxcontrib-jquery
 sphinx-autodoc2==0.5.0
 sphinx-copybutton==0.5.2
+sphinx-markdown-builder==0.6.10
 sphinx-rtd-theme==3.1.0
 sphinxcontrib-applehelp==2.0.0
     # via sphinx
@@ -86,6 +96,8 @@ sphinxcontrib-qthelp==2.0.0
     # via sphinx
 sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
+tabulate==0.10.0
+    # via sphinx-markdown-builder
 typing-extensions==4.15.0
     # via
     #   beautifulsoup4
