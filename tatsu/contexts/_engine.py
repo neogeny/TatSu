@@ -7,6 +7,11 @@ import inspect
 from contextlib import suppress
 from typing import Any
 
+from ._core import ParserCore
+from .ast import AST
+from .cst import closedlist, islist
+from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
+from .sts import ParseStateStack
 from ..exceptions import (
     FailedLeftRecursion,
     FailedParse,
@@ -27,11 +32,6 @@ from ..util import (
     safe_eval,
     trim,
 )
-from ._core import ParserCore
-from .ast import AST
-from .cst import closedlist, islist
-from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
-from .sts import ParseStateStack
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
@@ -186,15 +186,15 @@ class ParserEngine(ParserCore):
             self.undostate()
 
     def func_call(self, ri: RuleInfo) -> Any:
-        is_legacy_parser = ri.instance is self
-        with self.states.cutscope():
+        with self.statescope():
+            is_legacy_parser = ri.instance is self
             if is_legacy_parser:
                 ri.func(ri.instance)
             elif inspect.ismethod(ri.func):
                 ri.func(self)
             else:
                 ri.func(ri.instance, self)
-        return self.state.node
+            return self.state.node
 
     def semantics_call(self, ri: RuleInfo, node: Any, pos: int) -> Any:
         if ri.is_name:

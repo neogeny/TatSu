@@ -134,7 +134,7 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def optional(self) -> Any:
-        with self.choice(), self.option(), self.states.cutscope():
+        with self.choice(), self.option():
             yield
 
     _optional = optional
