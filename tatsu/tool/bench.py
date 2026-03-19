@@ -11,14 +11,13 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
-from tatsu.exceptions import FailedParse
-
 from .. import grammars
+from ..exceptions import FailedParse
 from ..parsing import Parser
 from ..tool.api import compile, to_python_sourcecode
-from .common import try_read
-from .strtools import countlines
-from .timetools import timer
+from ..util.common import try_read
+from ..util.strtools import countlines
+from ..util.timetools import timer
 
 
 @dataclass
