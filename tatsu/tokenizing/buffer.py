@@ -3,7 +3,7 @@
 """
 The Buffer class provides the functionality required by a parser-driven lexer.
 
-Line analysis and caching are done so the parser can freely move with goto(p)
+Line analysis and caching are done so the parser can freely move with goto(parser)
 to any position in the parsed text, and still recover accurate information
 about source lines and content.
 """
@@ -14,7 +14,10 @@ import re
 from pathlib import Path
 from typing import Any, Self
 
-from ..parserconfig import ParserConfig
+from . import LineInfo
+from .infos import LineIndexInfo, PosLine
+from .tokenizer import Cursor, Tokenizer
+from ..config import ParserConfig
 from ..util import (
     Undefined,
     cached_re_compile,
@@ -23,9 +26,6 @@ from ..util import (
     str_from_match,
     typename,
 )
-from . import LineInfo
-from .infos import LineIndexInfo, PosLine
-from .tokenizer import Cursor, Tokenizer
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 

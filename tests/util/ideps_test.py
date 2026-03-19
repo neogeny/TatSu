@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from tatsu.util.ideps import Dependency, findeps, moduledeps, render
+from tatsu.tool.ideps import Dependency, findeps, moduledeps, render
 
 
 def test_moduledeps_collects_absolute_and_relative_imports(tmp_path: Path) -> None:

@@ -6,11 +6,11 @@ from __future__ import annotations
 import re
 import textwrap
 
+from .cgbase import CodeGenerator, ModelRenderer
 from .. import grammars, ngcodegen
 from ..exceptions import CodegenError
 from ..objectmodel import Node
 from ..util import compress_seq, deprecated, indent, safe_name, timestamp, trim
-from .cgbase import CodeGenerator, ModelRenderer
 
 
 @deprecated(replacement=ngcodegen.codegen)
@@ -503,7 +503,7 @@ class Grammar(Base):
                 from tatsu.parsing import Parser
                 from tatsu.parsing import rule
                 from tatsu.parsing import isname, generic_main, leftrec, nomemo
-                from tatsu.infos import ParserConfig
+                from tatsu.config import ParserConfig
 
 
                 KEYWORDS: set[str] = set({keywords})

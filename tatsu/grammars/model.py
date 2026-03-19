@@ -13,10 +13,10 @@ from typing import Any, override
 
 from .builder import ModelBuilderSemantics
 from .math import ffset, kdot
+from ..config import ParserConfig
 from ..contexts import AST, Ctx, Func, ParseContext, RuleInfo
 from ..exceptions import GrammarError
 from ..objectmodel import Node, nodedataclass
-from ..parserconfig import ParserConfig
 from ..util import chunks, compress_seq, indent, trim, typename
 
 PEP8_LLEN = 72

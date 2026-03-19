@@ -8,7 +8,7 @@ Parser Configuration
 --------------------
 
 |TatSu| has many configuration options. They are all defined in
-``tatsu.parserconfig.ParserConfig``. With the introduction of ``ParserConfig``
+``tatsu.config.ParserConfig``. With the introduction of ``ParserConfig``
 there's no need to declare every configuration parameter as an optional named
 argument in entry points and internal methods.
 
@@ -80,11 +80,11 @@ These are different ways to apply a configuration setting:
 
 .. code:: Python
 
-    config = tatsu.parserconfig.ParserConfig()
+    config = tatsu.config.ParserConfig()
     config.left_recursion = False
     ast = tatsu.parse(grammar, text, config=config)
 
-    config = tatsu.parserconfig.ParserConfig(left_recursion=False)
+    config = tatsu.config.ParserConfig(left_recursion=False)
     ast = tatsu.parse(grammar, text, config=config)
 
     ast = tatsu.parse(grammar, text, left_recursion=False)
@@ -352,4 +352,3 @@ where. See `Abstract Syntax Trees <ast.html>`_ for more information.
         @property
         def buffer(self):
             return self.tokenizer
-
