@@ -225,8 +225,10 @@ class ParseContext(ParserEngine, Ctx):
     def expcall(self, exp: Func) -> Any:
         try:
             return exp(self)
-        except TypeError:
-            return boundcall(exp, {}, self)
+        except TypeError as e:
+            if "arguments" in str(e):
+                return boundcall(exp, {}, self)
+            raise
 
     def isolate(self, exp: Func) -> Any:
         self.pushstate()
