@@ -117,9 +117,7 @@ class ParseContext(ParserEngine, Ctx):
             raise OptionSucceeded()
         except FailedParse:
             self.undostate()
-            if not self.states.cut_seen():
-                pass
-            else:
+            if self.states.cut_seen():
                 raise
 
     _option = option
@@ -127,15 +125,10 @@ class ParseContext(ParserEngine, Ctx):
     @contextmanager
     def choice(self) -> Generator[ChoiceContext, Any, Any]:
         chc = ChoiceContext(self)
-        self.pushstate()
-        try:
-            with suppress(OptionSucceeded), self.states.cutscope():
+        with self.statescope():
+            with suppress(OptionSucceeded):
                 yield chc
                 chc.parse(self)
-            self.mergestate()
-        except FailedParse:
-            self.undostate()
-            raise
 
     _choice = choice
 
@@ -148,27 +141,15 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def group(self) -> Any:
-        self.pushstate()
-        try:
-            with self.states.cutscope():
-                yield
-            self.mergestate()
-        except ParseException:
-            self.undostate()
-            raise
+        with self.statescope():
+            yield
 
     _group = group
 
     @contextmanager
     def skip(self) -> Any:
-        self.pushstate()
-        try:
-            with self.states.cutscope():
-                yield
-            self.popstate()
-        except ParseException:
-            self.undostate()
-            raise
+        with self.statescope(merge=False):
+            yield
 
     _skip = skip
 
@@ -273,19 +254,14 @@ class ParseContext(ParserEngine, Ctx):
         sep: Func | None = None,
         omitsep: bool = False,
     ) -> Any:
-        self.pushstate()
-        try:
+        with self.statescope():
             self.cst = []
-            with self._optional(), self.states.cutscope():
+            with self._optional():
                 self.expcall(exp)
                 self.cst = [self.cst]
                 self.repeat(exp, prefix=sep, omitsep=omitsep)
             self.cst = cst = closedlist(self.cst)
-            self.mergestate()
             return cst
-        except ParseException:
-            self.undostate()
-            raise
 
     _closure = closure
 
@@ -295,18 +271,12 @@ class ParseContext(ParserEngine, Ctx):
         sep: Func | None = None,
         omitsep: bool = False,
     ) -> Any:
-        self.pushstate()
-        try:
-            with self.states.cutscope():
-                self.expcall(exp)
-                self.cst = [self.cst]
-                self.repeat(exp, prefix=sep, omitsep=omitsep)
+        with self.statescope():
+            self.expcall(exp)
+            self.cst = [self.cst]
+            self.repeat(exp, prefix=sep, omitsep=omitsep)
             self.cst = cst = closedlist(self.cst)
-            self.mergestate()
             return cst
-        except ParseException:
-            self.undostate()
-            raise
 
     _positive_closure = positive_closure
 

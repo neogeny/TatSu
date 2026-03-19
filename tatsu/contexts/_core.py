@@ -2,10 +2,15 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Generator
+from contextlib import contextmanager
 from functools import cache
 from typing import Any
 
+from .ast import AST
+from .infos import MemoKey, RuleInfo, RuleResult
+from .sts import ParseState, ParseStateStack
+from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 from ..collections import BoundedDict
 from ..exceptions import (
     FailedLeftRecursion,
@@ -19,10 +24,6 @@ from ..util import (
     prune_dict,
     safe_name,
 )
-from .ast import AST
-from .infos import MemoKey, RuleInfo, RuleResult
-from .sts import ParseState, ParseStateStack
-from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
@@ -216,6 +217,20 @@ class ParserCore:
 
     def undostate(self) -> None:
         self.states.pop()
+
+    @contextmanager
+    def statescope(self, merge: bool = True) -> Generator[None, None, None]:
+        self.pushstate()
+        with self.states.cutscope():
+            try:
+                yield
+                if merge:
+                    self.mergestate()
+                else:
+                    self.popstate()
+            except FailedParse:
+                self.undostate()
+                raise
 
     def cut(self) -> None:
         self.states.set_cut_seen()
