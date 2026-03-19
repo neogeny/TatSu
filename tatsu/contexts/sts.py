@@ -131,23 +131,22 @@ class ParseState:
 
 
 class ParseStateStack:
-    __slots__ = ('_ruleinfo_stack', '_state_stack', 'lookahead')
+    __slots__ = ('ruleinfo_stack', 'state_stack')
 
     def __init__(self, cursor: Cursor) -> None:
-        self.lookahead: int = 0
-        self._state_stack: list[ParseState] = [ParseState(cursor)]
-        self._ruleinfo_stack: list[RuleInfo] = []
+        self.state_stack: list[ParseState] = [ParseState(cursor)]
+        self.ruleinfo_stack: list[RuleInfo] = []
 
     def clone(self) -> Self:
         return copy(self)
 
     @property
     def top(self) -> ParseState:
-        return self._state_stack[-1]
+        return self.state_stack[-1]
 
     @property
     def state(self) -> ParseState:
-        return self._state_stack[-1]
+        return self.state_stack[-1]
 
     @property
     def ast(self) -> Any:
@@ -186,19 +185,19 @@ class ParseStateStack:
         return self.top.node
 
     def pop(self, pos: int | None = None) -> ParseState:
-        prev = self._state_stack.pop()
+        prev = self.state_stack.pop()
         if pos is not None:
             self.state.goto(pos)
         return prev
 
     def new(self) -> ParseState:
         newstate = ParseState(self.cursor)
-        self._state_stack.append(newstate)
+        self.state_stack.append(newstate)
         return self.top
 
     def push(self) -> ParseState:
         newstate = ParseState(self.state)
-        self._state_stack.append(newstate)
+        self.state_stack.append(newstate)
 
         return self.top
 
@@ -210,14 +209,10 @@ class ParseStateStack:
         self.top.alerts.append(Alert(level=level, message=message))
         return self.top.alerts[-1]
 
-    @property
-    def ruleinfo_stack(self) -> list[RuleInfo]:
-        return self._ruleinfo_stack
-
     def __copy__(self) -> ParseStateStack:
         new = self.__class__.__new__(self.__class__)
 
-        new._state_stack = self._state_stack[:]
-        new._ruleinfo_stack = self._ruleinfo_stack[:]
+        new.state_stack = self.state_stack[:]
+        new.ruleinfo_stack = self.ruleinfo_stack[:]
 
         return new
