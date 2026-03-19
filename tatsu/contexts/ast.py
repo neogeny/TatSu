@@ -89,9 +89,6 @@ class AST(dict[str, Any]):
     def __reduce__(self) -> tuple[Any, Any]:
         return AST, (tuple(self.items()),)
 
-    def __repr__(self) -> str:
-        return f'AST({super().__repr__()})'
-
     def __str__(self) -> str:
         return str(self.asjson())
 

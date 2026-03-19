@@ -7,13 +7,13 @@ import importlib
 import sys
 from pathlib import Path
 
+from . import api
 from .. import railroads
 from .._version import __version__
+from ..config import ParserConfig
 from ..exceptions import ParseException
 from ..ngcodegen import modelgen, pythongen
-from ..parserconfig import ParserConfig
 from ..util import eval_escapes
-from . import api
 
 __all__ = ['tatsu_main']
 
@@ -62,7 +62,7 @@ def parse_args():
     )
     main_mode.add_argument(
         '--pretty',
-        '-p',
+        '-parser',
         help='generate a prettified version of the input grammar',
         action='store_true',
     )

@@ -5,7 +5,10 @@ from __future__ import annotations
 import re
 from typing import Any, Self
 
-from ..parserconfig import ParserConfig
+from . import LineInfo
+from .infos import LineIndexInfo, PosLine
+from .tokenizer import Cursor, Tokenizer
+from ..config import ParserConfig
 from ..util import (
     Undefined,
     linecount,
@@ -14,9 +17,6 @@ from ..util import (
     typename,
 )
 from ..util.regextools import cached_re_compile
-from . import LineInfo
-from .infos import LineIndexInfo, PosLine
-from .tokenizer import Cursor, Tokenizer
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 

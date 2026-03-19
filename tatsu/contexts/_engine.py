@@ -7,11 +7,12 @@ import inspect
 from contextlib import suppress
 from typing import Any
 
-from ._core import ParserCore
+from ._base import ParserCore
 from .ast import AST
 from .cst import closedlist, islist
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
 from .sts import ParseStateStack
+from ..config import ParserConfig
 from ..exceptions import (
     FailedLeftRecursion,
     FailedParse,
@@ -20,7 +21,6 @@ from ..exceptions import (
     ParseError,
     ParseException,
 )
-from ..infos import ParserConfig
 from ..tokenizing import NullCursor, NullTokenizer, Tokenizer
 from ..tokenizing.textlines import TextLinesTokenizer
 from ..util import (

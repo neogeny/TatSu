@@ -12,12 +12,12 @@ from .infos import MemoKey, RuleInfo, RuleResult
 from .sts import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 from ..collections import BoundedDict
+from ..config import ParserConfig
 from ..exceptions import (
     FailedLeftRecursion,
     FailedParse,
     ParseException,
 )
-from ..infos import ParserConfig
 from ..tokenizing import Cursor, NullTokenizer, Tokenizer
 from ..tokenizing.textlines import TextLinesTokenizer
 from ..util import (

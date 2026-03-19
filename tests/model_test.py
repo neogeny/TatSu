@@ -131,13 +131,13 @@ def test_model_repr():
     assert repr(node) == 'Node()'
 
     node = Node('hello')
-    assert repr(node) == "Node(ast='hello')"
+    assert repr(node) == "Node('hello')"
 
-    node = Node(ast='hello')
-    assert repr(node) == "Node(ast='hello')"
+    node = Node('hello')
+    assert repr(node) == "Node('hello')"
 
     node = Node(ast='hello', ctx='world')
-    assert repr(node) == "Node(ast='hello')"
+    assert repr(node) == "Node('hello')"
 
     with pytest.raises(ValueError, match=r'world='):
         Node(ast='hello', world='world')

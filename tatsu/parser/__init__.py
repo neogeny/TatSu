@@ -2,7 +2,4 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .config import ParserConfig  # for backwards compatibility
-from .tokenizing import PosLine
-
-__all__ = ['ParserConfig', 'PosLine']
+from .baseparser import *  # noqa: F403

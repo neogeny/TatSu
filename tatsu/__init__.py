@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import sys
 
-from ._config import __toolname__, __version__
+from . import config as parserconfig
 from ._grammar import grammar, grammar_path
-from ._version import version, version_info
+from ._version import __toolname__, __version__, version, version_info
 from .contexts import ast as ast
 from .contexts.decorator import isname, leftrec, name, nomemo, rule, tatsumasu
 from .grammars import builder as builder
@@ -36,6 +36,7 @@ sys.modules.update(  # noqa: RUF067
         'tatsu.ast': ast,
         'tatsu.builder': builder,
         'tatsu.buffering': buffering,
+        'tatsu.parserconfig': parserconfig,
     }
 )
 

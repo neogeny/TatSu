@@ -10,10 +10,10 @@ from typing import Any
 
 from .. import grammars as g
 from .._version import version, version_info
+from ..config import ParserConfig
 from ..contexts.ctx import Ctx
 from ..exceptions import CodegenError
 from ..objectmodel import Node
-from ..parserconfig import ParserConfig
 from ..util import Undefined, compress_seq, regexpp, safe_name
 from ..util.indent import IndentPrintMixin
 from ..walkers import NodeWalker
@@ -44,7 +44,7 @@ HEADER = """\
 
     from tatsu import decorators as tatsu
     from tatsu.contexts import Ctx
-    from tatsu.parserconfig import ParserConfig
+    from tatsu.config import ParserConfig
     from tatsu.parsing import Parser, generic_main
     from tatsu.tokenizing.buffer import Buffer
     from tatsu.tokenizing.textlines import TextLinesTokenizer

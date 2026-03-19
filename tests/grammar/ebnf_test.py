@@ -42,3 +42,27 @@ def test_optional():
 
     exp = model.rulemap['other'].exp
     assert repr(exp) == "Optional(exp=Token(token='xyz'))"
+
+
+def test_one_line_grammar():
+    grammar = r"""
+            start: lisp
+
+            lisp: sexp | list | symbol
+
+            sexp[SExp]: '(' cons=lisp '.' ~ cdr=lisp ')'
+
+            list[List]: '(' ={lisp} ')'
+
+            symbol[Symbol]: /[^\s().]+/
+
+        """
+
+    one_line_grammar = ' ; '.join(s for s in grammar.splitlines() if s.strip())
+    parser = tatsu.compile(one_line_grammar)
+    model = parser.parse("( abc (x . y))", asmodel=True)
+    # FIXME: the order of arguments should be stable in NodeBase.__repr__
+    assert repr(model) in {
+        "List(Symbol('abc'), SExp(cons=Symbol('x'), cdr=Symbol('y')))",
+        "List(Symbol('abc'), SExp(cdr=Symbol('y'), cons=Symbol('x')))",
+    }

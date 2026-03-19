@@ -19,7 +19,7 @@ from typing import Any
 
 from tatsu import decorators as tatsu
 from tatsu.contexts import Ctx
-from tatsu.parserconfig import ParserConfig
+from tatsu.config import ParserConfig
 from tatsu.parsing import Parser, generic_main
 from tatsu.tokenizing.buffer import Buffer
 from tatsu.tokenizing.textlines import TextLinesTokenizer
