@@ -6,7 +6,7 @@ import weakref
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
 from copy import copy
-from dataclasses import field, replace
+from dataclasses import field
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, override
@@ -230,7 +230,7 @@ class Box(Model):
         return [self.exp]
 
     def optimized(self) -> Model:
-        return replace(self, exp=self.exp.optimized())  # pyright: ignore[reportArgumentType]
+        return self.clone(exp=self.exp.optimized())
 
 
 @nodedataclass

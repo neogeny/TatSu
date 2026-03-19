@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from dataclasses import field, replace
+from dataclasses import field
 from typing import Any
 
 from .math import ffset
@@ -93,7 +93,7 @@ class Choice(Model):
         opt = [o.optimized() for o in self.options]
         if len(opt) == 1:
             return opt[0]
-        return replace(self, options=opt)  # pyright: ignore[reportArgumentType]
+        return self.clone(options=opt)  # pyright: ignore[reportArgumentType]
 
 
 @nodedataclass

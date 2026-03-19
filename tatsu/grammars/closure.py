@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from dataclasses import replace
 from typing import Any
 
 from .math import ffset, kdot
@@ -41,10 +40,11 @@ class Closure(Box):
 
     def optimized(self) -> Model:
         from .syntax import Group
+
         exp = self.exp.optimized()
         if isinstance(exp, Group):
             exp = exp.exp
-        return replace(self, exp=exp)  # pyright: ignore[reportArgumentType]
+        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
 
 
 @nodedataclass
@@ -92,10 +92,11 @@ class Join(Box):
 
     def optimized(self) -> Model:
         from .syntax import Group
+
         exp = self.exp.optimized()
         if isinstance(exp, Group):
             exp = exp.exp
-        return replace(self, exp=exp)  # pyright: ignore[reportArgumentType]
+        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
 
 
 class PositiveJoin(Join):
