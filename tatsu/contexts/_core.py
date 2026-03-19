@@ -155,14 +155,6 @@ class ParserCore:
     def ruleinfo_stack(self) -> list[RuleInfo]:
         return self.states.ruleinfo_stack
 
-    @property
-    def lookahead(self) -> int:
-        return self.states.lookahead
-
-    @lookahead.setter
-    def lookahead(self, value: Any) -> None:
-        self.states.lookahead = value
-
     def update_tracer(self) -> EventTracer:
         if self.active_config.trace:
             tracer: EventTracer = InfoEventTracer(
@@ -203,11 +195,11 @@ class ParserCore:
         # NOTE: called by generated parsers
         self.state.nameadd(name)
 
-    def newstate(self) -> None:
-        self.states.new()
+    def newstate(self) -> ParseState:
+        return self.states.new()
 
-    def pushstate(self) -> None:
-        self.states.push()
+    def pushstate(self) -> ParseState:
+        return self.states.push()
 
     def popstate(self) -> ParseState:
         return self.states.pop(self.pos)
@@ -246,11 +238,6 @@ class ParserCore:
 
     _cut = cut
 
-    def memoization(self) -> bool:
-        if not self.config.memoization:
-            return False
-        return self.config.memoize_lookaheads or self.lookahead == 0
-
     def find_rule(self, name: str) -> Callable[..., Any]:
         assert name
         raise NotImplementedError
@@ -277,6 +264,6 @@ class ParserCore:
         key: MemoKey,
         memo: RuleResult | ParseException,
     ) -> RuleResult | ParseException:
-        if self.memoization() and key.ruleinfo.is_memo:
+        if self.config.memoization and key.ruleinfo.is_memo:
             self._memos[key] = memo
         return memo

@@ -124,10 +124,9 @@ class ParseContext(ParserEngine, Ctx):
     @contextmanager
     def choice(self) -> Generator[ChoiceContext, Any, Any]:
         chc = ChoiceContext(self)
-        with self.statescope():
-            with suppress(OptionSucceeded):
-                yield chc
-                chc.parse(self)
+        with self.statescope(), suppress(OptionSucceeded):
+            yield chc
+            chc.parse(self)
 
     _choice = choice
 
@@ -155,12 +154,10 @@ class ParseContext(ParserEngine, Ctx):
     @contextmanager
     def if_(self) -> Any:
         self.pushstate()
-        self.lookahead += 1
         try:
             yield
         finally:
             self.undostate()
-            self.lookahead -= 1
 
     _if = if_
 
