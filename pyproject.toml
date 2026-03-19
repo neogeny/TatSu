@@ -101,6 +101,7 @@ doc = [
     "sphinx-copybutton>=0.5.2",
     "sphinx-markdown-builder>=0.6.10",
     "sphinx-rtd-theme>=3.1.0",
+    "vale>=3.13.0.0",
 ]
 mkdocs = [
     "mkdocs>=1.6.1",
