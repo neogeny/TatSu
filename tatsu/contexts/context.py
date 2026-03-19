@@ -6,16 +6,6 @@ from collections.abc import Generator
 from contextlib import contextmanager, suppress
 from typing import Any
 
-from ..exceptions import (
-    FailedExpectingEndOfText,
-    FailedLookahead,
-    FailedParse,
-    FailedPattern,
-    FailedToken,
-    OptionSucceeded,
-    ParseException,
-)
-from ..util import boundcall, deprecated, left_assoc, regexpp, right_assoc
 from ._engine import ParserEngine
 from .cst import closedlist, cstfinal
 from .ctx import Ctx, Func
@@ -27,6 +17,16 @@ from .ctxlib import (
     LoopWithSepContext,
 )
 from .sts import _AT_
+from ..exceptions import (
+    FailedExpectingEndOfText,
+    FailedLookahead,
+    FailedParse,
+    FailedPattern,
+    FailedToken,
+    OptionSucceeded,
+    ParseException,
+)
+from ..util import boundcall, deprecated, left_assoc, regexpp, right_assoc
 
 
 class ParseContext(ParserEngine, Ctx):
@@ -104,27 +104,19 @@ class ParseContext(ParserEngine, Ctx):
 
     _check_eof = eofcheck
 
-    @contextmanager
-    def _try(self) -> Any:
-        self.pushstate()
-        try:
-            yield
-            self.mergestate()
-        except FailedParse:
-            self.undostate()
-            raise
-
     def _no_more_options(self) -> bool:
         # NOTE: Legacy. Used in previous versions of the parser generator
         return True
 
     @contextmanager
     def option(self) -> Any:
+        self.pushstate()
         try:
-            with self._try():
-                yield
+            yield
+            self.mergestate()
             raise OptionSucceeded()
         except FailedParse:
+            self.undostate()
             if not self.states.cut_seen():
                 pass
             else:
@@ -135,9 +127,15 @@ class ParseContext(ParserEngine, Ctx):
     @contextmanager
     def choice(self) -> Generator[ChoiceContext, Any, Any]:
         chc = ChoiceContext(self)
-        with suppress(OptionSucceeded), self.states.cutscope():
-            yield chc
-            chc.parse(self)
+        self.pushstate()
+        try:
+            with suppress(OptionSucceeded), self.states.cutscope():
+                yield chc
+                chc.parse(self)
+            self.mergestate()
+        except FailedParse:
+            self.undostate()
+            raise
 
     _choice = choice
 
