@@ -215,31 +215,30 @@ class ParserCore:
     def mergestate(self) -> ParseState:
         return self.states.merge()
 
-    def undostate(self) -> None:
-        self.states.pop()
+    def undostate(self) -> ParseState:
+        return self.states.pop()
 
     @contextmanager
     def statescope(self, merge: bool = True) -> Generator[None, None, None]:
         self.pushstate()
-        with self.states.cutscope():
-            try:
-                yield
-                if merge:
-                    self.mergestate()
-                else:
-                    self.popstate()
-            except FailedParse:
-                self.undostate()
-                raise
+        try:
+            yield
+            if merge:
+                self.mergestate()
+            else:
+                self.popstate()
+        except FailedParse:
+            self.undostate()
+            raise
 
     def cut(self) -> None:
-        self.states.set_cut_seen()
+        self.state.cutseen = True
         self.tracer.trace_cut(self.cursor)
 
-        def prune(cache: dict[Any, Any], cut_pos: int) -> None:
+        def prune(cache: dict[Any, Any], cutpos: int) -> None:
             prune_dict(
                 cache,
-                lambda k, v: k[0] < cut_pos and not isinstance(v, FailedLeftRecursion),
+                lambda k, v: k[0] < cutpos and not isinstance(v, FailedLeftRecursion),
             )
 
         if self.config.prune_memos_on_cut:

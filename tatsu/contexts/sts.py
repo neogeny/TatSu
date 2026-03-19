@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from contextlib import contextmanager
 from copy import copy
 from typing import Any, Self, overload
 
@@ -24,6 +23,7 @@ class ParseState:
         'ast',
         'cst',
         'cursor',
+        'cutseen',
         'last_node',
     )
 
@@ -36,6 +36,7 @@ class ParseState:
             self.ast = AST()
 
         self.cst: Any = None
+        self.cutseen: bool = False
         self.last_node: Any = None
         self.alerts: list[Alert] = []
 
@@ -130,12 +131,11 @@ class ParseState:
 
 
 class ParseStateStack:
-    __slots__ = ('_cut_stack', '_ruleinfo_stack', '_state_stack', 'lookahead')
+    __slots__ = ('_ruleinfo_stack', '_state_stack', 'lookahead')
 
     def __init__(self, cursor: Cursor) -> None:
         self.lookahead: int = 0
         self._state_stack: list[ParseState] = [ParseState(cursor)]
-        self._cut_stack: list[bool] = [False]
         self._ruleinfo_stack: list[RuleInfo] = []
 
     def clone(self) -> Self:
@@ -210,26 +210,6 @@ class ParseStateStack:
         self.top.alerts.append(Alert(level=level, message=message))
         return self.top.alerts[-1]
 
-    def cut_seen(self) -> bool:
-        return self._cut_stack[-1]
-
-    def push_cut(self):
-        self._cut_stack.append(False)
-
-    def pop_cut(self) -> bool:
-        return self._cut_stack.pop()
-
-    def set_cut_seen(self) -> None:
-        self._cut_stack[-1] = True
-
-    @contextmanager
-    def cutscope(self):
-        self.push_cut()
-        try:
-            yield
-        finally:
-            self.pop_cut()
-
     @property
     def ruleinfo_stack(self) -> list[RuleInfo]:
         return self._ruleinfo_stack
@@ -238,7 +218,6 @@ class ParseStateStack:
         new = self.__class__.__new__(self.__class__)
 
         new._state_stack = self._state_stack[:]
-        new._cut_stack = self._cut_stack[:]
         new._ruleinfo_stack = self._ruleinfo_stack[:]
 
         return new

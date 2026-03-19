@@ -116,8 +116,7 @@ class ParseContext(ParserEngine, Ctx):
             self.mergestate()
             raise OptionSucceeded()
         except FailedParse:
-            self.undostate()
-            if self.states.cut_seen():
+            if self.undostate().cutseen:
                 raise
 
     _option = option
