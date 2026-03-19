@@ -107,7 +107,7 @@ class ParserConfig(Config):
                 DeprecationWarning,
                 stacklevel=3,
             )
-        del self.memoize_lookaheads
+            del self.memoize_lookaheads
 
     def _compile_comments(self):
         if self.comments and isinstance(self.comments, str):
@@ -145,5 +145,6 @@ class ParserConfig(Config):
         assert isinstance(result, ParserConfig)
         if 'grammar' in settings:
             result.name = result.grammar
+        self._check_deprecations()
         self._compile_comments()
         return result
