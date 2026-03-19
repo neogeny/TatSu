@@ -32,7 +32,7 @@ class Group(Box):
         exp = self.exp.optimized()
         if isinstance(exp, Closure | Join | EmptyClosure | Optional):
             return exp
-        return replace(self, exp=exp)  # pyright: ignore[reportArgumentType]
+        return replace(self, exp=exp)  # type: ignore
 
 
 @nodedataclass
@@ -112,7 +112,7 @@ class Optional(Box):
         exp = self.exp.optimized()
         if isinstance(exp, Group | Closure | Join):
             exp = exp.exp
-        return replace(self, exp=exp)  # pyright: ignore[reportArgumentType]
+        return replace(self, exp=exp)  # type: ignore
 
 
 @nodedataclass
@@ -178,7 +178,7 @@ class Sequence(Model):
         seq = [e.optimized() for e in self.sequence]
         if len(seq) == 1:
             return seq[0]
-        return replace(self, sequence=seq)  # pyright: ignore[reportArgumentType]
+        return replace(self, sequence=seq)  # type: ignore
 
 
 @nodedataclass

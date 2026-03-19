@@ -230,7 +230,7 @@ class Box(Model):
         return [self.exp]
 
     def optimized(self) -> Model:
-        return replace(self, exp=self.exp.optimized())  # pyright: ignore[reportArgumentType]
+        return replace(self, exp=self.exp.optimized())  # type: ignore
 
 
 @nodedataclass

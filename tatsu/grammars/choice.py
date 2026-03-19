@@ -93,7 +93,7 @@ class Choice(Model):
         opt = [o.optimized() for o in self.options]
         if len(opt) == 1:
             return opt[0]
-        return replace(self, options=opt)  # pyright: ignore[reportArgumentType]
+        return replace(self, options=opt)  # type: ignore
 
 
 @nodedataclass

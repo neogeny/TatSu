@@ -44,7 +44,7 @@ class Closure(Box):
         exp = self.exp.optimized()
         if isinstance(exp, Group):
             exp = exp.exp
-        return replace(self, exp=exp)  # pyright: ignore[reportArgumentType]
+        return replace(self, exp=exp)  # type: ignore
 
 
 @nodedataclass
@@ -95,7 +95,7 @@ class Join(Box):
         exp = self.exp.optimized()
         if isinstance(exp, Group):
             exp = exp.exp
-        return replace(self, exp=exp)  # pyright: ignore[reportArgumentType]
+        return replace(self, exp=exp)  # type: ignore
 
 
 class PositiveJoin(Join):
