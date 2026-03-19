@@ -5,10 +5,10 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any, Protocol, runtime_checkable
 
-from ..exceptions import FailedParse
 from .ast import AST
 from .infos import RuleInfo
 from .sts import ParseState, ParseStateStack
+from ..exceptions import FailedParse
 
 type Func = Callable[[Ctx], Any]
 
@@ -22,9 +22,9 @@ class Ctx(Protocol):
     @property
     def state(self) -> ParseState: ...
 
-    def pushstate(self) -> None: ...
+    def pushstate(self) -> ParseState: ...
     def mergestate(self) -> ParseState: ...
-    def undostate(self) -> None: ...
+    def undostate(self) -> ParseState: ...
     def popstate(self) -> ParseState: ...
 
     def newexcept(

@@ -2,10 +2,15 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Generator
+from contextlib import contextmanager
 from functools import cache
 from typing import Any
 
+from .ast import AST
+from .infos import MemoKey, RuleInfo, RuleResult
+from .sts import ParseState, ParseStateStack
+from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 from ..collections import BoundedDict
 from ..exceptions import (
     FailedLeftRecursion,
@@ -19,10 +24,6 @@ from ..util import (
     prune_dict,
     safe_name,
 )
-from .ast import AST
-from .infos import MemoKey, RuleInfo, RuleResult
-from .sts import ParseState, ParseStateStack
-from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
@@ -154,14 +155,6 @@ class ParserCore:
     def ruleinfo_stack(self) -> list[RuleInfo]:
         return self.states.ruleinfo_stack
 
-    @property
-    def lookahead(self) -> int:
-        return self.states.lookahead
-
-    @lookahead.setter
-    def lookahead(self, value: Any) -> None:
-        self.states.lookahead = value
-
     def update_tracer(self) -> EventTracer:
         if self.active_config.trace:
             tracer: EventTracer = InfoEventTracer(
@@ -202,11 +195,11 @@ class ParserCore:
         # NOTE: called by generated parsers
         self.state.nameadd(name)
 
-    def newstate(self) -> None:
-        self.states.new()
+    def newstate(self) -> ParseState:
+        return self.states.new()
 
-    def pushstate(self) -> None:
-        self.states.push()
+    def pushstate(self) -> ParseState:
+        return self.states.push()
 
     def popstate(self) -> ParseState:
         return self.states.pop(self.pos)
@@ -214,28 +207,36 @@ class ParserCore:
     def mergestate(self) -> ParseState:
         return self.states.merge()
 
-    def undostate(self) -> None:
-        self.states.pop()
+    def undostate(self) -> ParseState:
+        return self.states.pop()
+
+    @contextmanager
+    def statescope(self, merge: bool = True) -> Generator[None, None, None]:
+        self.pushstate()
+        try:
+            yield
+            if merge:
+                self.mergestate()
+            else:
+                self.popstate()
+        except FailedParse:
+            self.undostate()
+            raise
 
     def cut(self) -> None:
-        self.states.set_cut_seen()
+        self.state.cutseen = True
         self.tracer.trace_cut(self.cursor)
 
-        def prune(cache: dict[Any, Any], cut_pos: int) -> None:
+        def prune(cache: dict[Any, Any], cutpos: int) -> None:
             prune_dict(
                 cache,
-                lambda k, v: k[0] < cut_pos and not isinstance(v, FailedLeftRecursion),
+                lambda k, v: k[0] < cutpos and not isinstance(v, FailedLeftRecursion),
             )
 
         if self.config.prune_memos_on_cut:
             prune(self._memos, self.pos)
 
     _cut = cut
-
-    def memoization(self) -> bool:
-        if not self.config.memoization:
-            return False
-        return self.config.memoize_lookaheads or self.lookahead == 0
 
     def find_rule(self, name: str) -> Callable[..., Any]:
         assert name
@@ -263,6 +264,6 @@ class ParserCore:
         key: MemoKey,
         memo: RuleResult | ParseException,
     ) -> RuleResult | ParseException:
-        if self.memoization() and key.ruleinfo.is_memo:
+        if key.ruleinfo.is_memo and self.config.memoization:
             self._memos[key] = memo
         return memo

@@ -6,16 +6,6 @@ from collections.abc import Generator
 from contextlib import contextmanager, suppress
 from typing import Any
 
-from ..exceptions import (
-    FailedExpectingEndOfText,
-    FailedLookahead,
-    FailedParse,
-    FailedPattern,
-    FailedToken,
-    OptionSucceeded,
-    ParseException,
-)
-from ..util import boundcall, deprecated, left_assoc, regexpp, right_assoc
 from ._engine import ParserEngine
 from .cst import closedlist, cstfinal
 from .ctx import Ctx, Func
@@ -27,6 +17,16 @@ from .ctxlib import (
     LoopWithSepContext,
 )
 from .sts import _AT_
+from ..exceptions import (
+    FailedExpectingEndOfText,
+    FailedLookahead,
+    FailedParse,
+    FailedPattern,
+    FailedToken,
+    OptionSucceeded,
+    ParseException,
+)
+from ..util import boundcall, deprecated, left_assoc, regexpp, right_assoc
 
 
 class ParseContext(ParserEngine, Ctx):
@@ -104,30 +104,19 @@ class ParseContext(ParserEngine, Ctx):
 
     _check_eof = eofcheck
 
-    @contextmanager
-    def _try(self) -> Any:
-        self.pushstate()
-        try:
-            yield
-            self.mergestate()
-        except FailedParse:
-            self.undostate()
-            raise
-
     def _no_more_options(self) -> bool:
         # NOTE: Legacy. Used in previous versions of the parser generator
         return True
 
     @contextmanager
     def option(self) -> Any:
+        self.pushstate()
         try:
-            with self._try():
-                yield
+            yield
+            self.mergestate()
             raise OptionSucceeded()
         except FailedParse:
-            if not self.states.cut_seen():
-                pass
-            else:
+            if self.undostate().cutseen:
                 raise
 
     _option = option
@@ -135,7 +124,7 @@ class ParseContext(ParserEngine, Ctx):
     @contextmanager
     def choice(self) -> Generator[ChoiceContext, Any, Any]:
         chc = ChoiceContext(self)
-        with suppress(OptionSucceeded), self.states.cutscope():
+        with self.statescope(), suppress(OptionSucceeded):
             yield chc
             chc.parse(self)
 
@@ -143,46 +132,32 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def optional(self) -> Any:
-        with self.choice(), self.option(), self.states.cutscope():
+        with self.choice(), self.option():
             yield
 
     _optional = optional
 
     @contextmanager
     def group(self) -> Any:
-        self.pushstate()
-        try:
-            with self.states.cutscope():
-                yield
-            self.mergestate()
-        except ParseException:
-            self.undostate()
-            raise
+        with self.statescope():
+            yield
 
     _group = group
 
     @contextmanager
     def skip(self) -> Any:
-        self.pushstate()
-        try:
-            with self.states.cutscope():
-                yield
-            self.popstate()
-        except ParseException:
-            self.undostate()
-            raise
+        with self.statescope(merge=False):
+            yield
 
     _skip = skip
 
     @contextmanager
     def if_(self) -> Any:
         self.pushstate()
-        self.lookahead += 1
         try:
             yield
         finally:
             self.undostate()
-            self.lookahead -= 1
 
     _if = if_
 
@@ -275,19 +250,14 @@ class ParseContext(ParserEngine, Ctx):
         sep: Func | None = None,
         omitsep: bool = False,
     ) -> Any:
-        self.pushstate()
-        try:
+        with self.statescope():
             self.cst = []
-            with self._optional(), self.states.cutscope():
+            with self._optional():
                 self.expcall(exp)
                 self.cst = [self.cst]
                 self.repeat(exp, prefix=sep, omitsep=omitsep)
             self.cst = cst = closedlist(self.cst)
-            self.mergestate()
             return cst
-        except ParseException:
-            self.undostate()
-            raise
 
     _closure = closure
 
@@ -297,18 +267,12 @@ class ParseContext(ParserEngine, Ctx):
         sep: Func | None = None,
         omitsep: bool = False,
     ) -> Any:
-        self.pushstate()
-        try:
-            with self.states.cutscope():
-                self.expcall(exp)
-                self.cst = [self.cst]
-                self.repeat(exp, prefix=sep, omitsep=omitsep)
+        with self.statescope():
+            self.expcall(exp)
+            self.cst = [self.cst]
+            self.repeat(exp, prefix=sep, omitsep=omitsep)
             self.cst = cst = closedlist(self.cst)
-            self.mergestate()
             return cst
-        except ParseException:
-            self.undostate()
-            raise
 
     _positive_closure = positive_closure
 

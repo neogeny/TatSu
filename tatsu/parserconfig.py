@@ -77,13 +77,14 @@ class ParserConfig(Config):
                 f'semantics must be an object instance or None, not class {self.semantics!r}',
             )
 
-        self._deprecate_and_compile_comments()
+        self._check_deprecations()
+        self._compile_comments()
 
-    def _deprecate_and_compile_comments(self):
-        # note: handle deprecations gracefully
+    def _check_deprecations(self):
         if self.comments_re:
             warnings.warn(
                 'ParserConfig.comments_re is deprecated: use `comments`',
+                DeprecationWarning,
                 stacklevel=3,
             )
             if not self.comments:
@@ -93,12 +94,22 @@ class ParserConfig(Config):
         if self.eol_comments_re:
             warnings.warn(
                 'ParserConfig.eol_comments_re is deprecated: use `eol_comments`',
+                DeprecationWarning,
                 stacklevel=3,
             )
             if not self.eol_comments:
                 self.eol_comments = str(self.eol_comments_re)
             del self.eol_comments_re
 
+        if not self.memoize_lookaheads:
+            warnings.warn(
+                'ParserConfig.memoize_lookaheads is deprecated and has no effect',
+                DeprecationWarning,
+                stacklevel=3,
+            )
+            del self.memoize_lookaheads
+
+    def _compile_comments(self):
         if self.comments and isinstance(self.comments, str):
             cached_re_compile(self.comments)
         if self.eol_comments and not isinstance(self.eol_comments, re.Pattern):
@@ -134,5 +145,6 @@ class ParserConfig(Config):
         assert isinstance(result, ParserConfig)
         if 'grammar' in settings:
             result.name = result.grammar
-        self._deprecate_and_compile_comments()
+        self._check_deprecations()
+        self._compile_comments()
         return result

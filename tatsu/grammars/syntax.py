@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from dataclasses import field, replace
+from dataclasses import field
 from itertools import takewhile
 from typing import Any
 
@@ -29,10 +29,11 @@ class Group(Box):
 
     def optimized(self) -> Model:
         from .closure import Closure, Join, EmptyClosure
+
         exp = self.exp.optimized()
         if isinstance(exp, Closure | Join | EmptyClosure | Optional):
             return exp
-        return replace(self, exp=exp)  # type: ignore
+        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
 
 
 @nodedataclass
@@ -109,10 +110,11 @@ class Optional(Box):
 
     def optimized(self) -> Model:
         from .closure import Closure, Join
+
         exp = self.exp.optimized()
         if isinstance(exp, Group | Closure | Join):
             exp = exp.exp
-        return replace(self, exp=exp)  # type: ignore
+        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
 
 
 @nodedataclass
@@ -178,7 +180,7 @@ class Sequence(Model):
         seq = [e.optimized() for e in self.sequence]
         if len(seq) == 1:
             return seq[0]
-        return replace(self, sequence=seq)  # type: ignore
+        return self.clone(sequence=seq)  # pyright: ignore[reportArgumentType]
 
 
 @nodedataclass

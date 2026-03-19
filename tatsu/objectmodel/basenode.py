@@ -7,7 +7,7 @@ import inspect
 import warnings
 from collections.abc import Callable
 from functools import cache
-from typing import Any, overload
+from typing import Any, Self, overload
 
 from ..contexts.infos import ParseInfo
 from ..util import AsJSONMixin, asjson, asjsons, rowselect, typename
@@ -106,6 +106,9 @@ class BaseNode(AsJSONMixin):
                     stacklevel=2,
                 )
             setattr(self, name, value)
+
+    def clone(self, **attrs: Any) -> Self:
+        return dc.replace(self, **attrs)  # type: ignore # pyright: ignore[reportArgumentType]
 
     def asjson(self) -> Any:
         return asjson(self)
