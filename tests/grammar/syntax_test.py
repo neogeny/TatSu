@@ -422,11 +422,11 @@ def test_non_capturing_group_exclusion():
     # A grammar where 'header' is captured, but 'delimiter' is skipped
     grammar = """
     start: header (?: delimiter ) body
-    
+
     header: /[A-Z]+/
-    
+
     delimiter: /[:,-]+/
-    
+
     body: /[a-z]+/
     """
     parser = compile(grammar)
@@ -457,7 +457,7 @@ def test_non_capturing_group_failure():
 def test_nested_non_capturing_groups():
     grammar = """
     start: (?: '(' (?: inner ) ')' )
-    
+
     inner: 'content'
     """
     parser = compile(grammar)

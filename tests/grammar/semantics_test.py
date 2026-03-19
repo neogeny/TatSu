@@ -17,7 +17,7 @@ from tatsu.tool import compile, parse
 
 
 class MyNode:
-    def __init__(self, ast):
+    def __init__(self, _ast):
         pass
 
 
