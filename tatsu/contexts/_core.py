@@ -264,6 +264,6 @@ class ParserCore:
         key: MemoKey,
         memo: RuleResult | ParseException,
     ) -> RuleResult | ParseException:
-        if self.config.memoization and key.ruleinfo.is_memo:
+        if key.ruleinfo.is_memo and self.config.memoization:
             self._memos[key] = memo
         return memo
