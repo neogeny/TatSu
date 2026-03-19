@@ -5,9 +5,9 @@ from __future__ import annotations
 import dataclasses as dc
 import inspect
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from functools import cache
-from typing import Any, Iterable, Self, overload
+from typing import Any, Self, overload
 
 from ..contexts.infos import ParseInfo
 from ..util import rowselect, typename
@@ -144,7 +144,6 @@ class BaseNode(AsJSONMixin):
 
         return sorted(keys, key=fieldorder)
 
-
     def __repr__(self) -> str:
         pub = self.__pub__()
         sortedkeys = self._in_field_order(pub.keys())
@@ -155,7 +154,7 @@ class BaseNode(AsJSONMixin):
             if value is None:
                 continue
 
-            if name == 'ast'and len(values) == 1:
+            if name == 'ast' and len(values) == 1:
                 prefix = ''
             else:
                 prefix = f"{name}="
