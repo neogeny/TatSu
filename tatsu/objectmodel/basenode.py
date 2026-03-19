@@ -7,7 +7,7 @@ import inspect
 import warnings
 from collections.abc import Callable
 from functools import cache
-from typing import Any, Self, overload
+from typing import Any, Iterable, Self, overload
 
 from ..contexts.infos import ParseInfo
 from ..util import rowselect, typename
@@ -68,7 +68,6 @@ class BaseNode(AsJSONMixin):
         self.__post_init__()
 
     def __post_init__(self):
-
         ast = self.ast
         if not isinstance(ast, dict):
             return
@@ -82,7 +81,8 @@ class BaseNode(AsJSONMixin):
         #   Here the key,value pairs in the AST are injected into the corresponding
         #   attributes declared by the Node subclass. Synthetic classes
         #   override this to create the attributes.
-        for name in ast:
+        keys = self._in_field_order(ast)
+        for name in keys:
             if not hasattr(self, name) or inspect.ismethod(getattr(self, name)):
                 continue
             setattr(self, name, ast[name])
@@ -134,23 +134,33 @@ class BaseNode(AsJSONMixin):
 
         return rowselect(wanted, pub)
 
-    def __repr__(self) -> str:
+    def _in_field_order(self, keys: Iterable[str] | None) -> list[str]:
+        if keys is None:
+            keys = dir(self)
         fieldindex = {f.name: i for i, f in enumerate(dc.fields(self))}  # type: ignore
 
         def fieldorder(n) -> int:
             return fieldindex.get(n, len(fieldindex))
 
+        return sorted(keys, key=fieldorder)
+
+
+    def __repr__(self) -> str:
         pub = self.__pub__()
-        sortedkeys = sorted(pub.keys(), key=fieldorder)
+        sortedkeys = self._in_field_order(pub.keys())
+        values = {name: pub[name] for name in sortedkeys if name in pub}
 
         attr_repr_list = []
-        values = {name: pub[name] for name in sortedkeys}
         for name, value in values.items():
             if value is None:
                 continue
 
+            if name == 'ast'and len(values) == 1:
+                prefix = ''
+            else:
+                prefix = f"{name}="
             line = fold(
-                prefix=f"{name}=",
+                prefix=prefix,
                 value=value,
                 amount=2,
                 addlevels=2,
