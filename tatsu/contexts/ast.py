@@ -6,9 +6,10 @@ from collections.abc import Iterable
 from functools import cache
 from typing import Any, override
 
-from ..util import asjson, make_hashable, typename
 from .cst import cstadd
 from .infos import ParseInfo
+from ..util import make_hashable, typename
+from ..util.asjson import asjson
 
 
 class AST(dict[str, Any]):

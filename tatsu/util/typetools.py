@@ -11,7 +11,7 @@ import typing
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from types import ModuleType
-from typing import Any, ClassVar, Self
+from typing import Any, ClassVar
 
 from .itertools import CycleError, first, topsort
 
@@ -101,8 +101,8 @@ class ActualArguments:
     def add_kwargs(self, kwargs: Mapping[str, Any]):
         self.kwargs.update(kwargs)
 
-    def unique(self) -> Self:
-        clone = replace(self)
+    def unique(self) -> ActualArguments:
+        clone: ActualArguments = replace(self)
         for name in list(clone.kwargs):
             if name in clone.arg_names:
                 del clone.kwargs[name]
@@ -156,15 +156,10 @@ class BoundCallable:
         known: dict[str, Any],
         args: tuple[Any, ...],
         kwargs: dict[str, Any],
-    ) -> tuple[
-        int,
-        tuple[tuple[str, Any], ...] | None,
-        tuple[Any, ...] | None,
-        tuple[tuple[str, Any], ...] | None,
-    ]:
+    ) -> Any:
         # with Gemini 2026-03-18
         try:
-            key = (
+            key: Any = (
                 id(fun),
                 tuple(sorted(known.items())) if known else None,
                 args or None,

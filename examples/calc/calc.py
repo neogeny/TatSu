@@ -6,11 +6,10 @@ import json
 from pathlib import Path
 from pprint import pprint
 
-from codegen import PostfixCodeGenerator
-
 import tatsu
+from codegen import PostfixCodeGenerator
 from tatsu.contexts.ast import AST
-from tatsu.util import asjsons
+from tatsu.util.asjson import asjsons
 from tatsu.walkers import NodeWalker
 
 

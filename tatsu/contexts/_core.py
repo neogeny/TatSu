@@ -51,6 +51,8 @@ def find_cached_semantic_action(semantics: Any, name: str) -> Callable[..., Any]
 
 
 class ParserCore:
+    states: ParseStateStack  # type: ignore
+
     def __init__(
         self,
         /,

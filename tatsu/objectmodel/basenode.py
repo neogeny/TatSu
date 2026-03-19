@@ -10,7 +10,8 @@ from functools import cache
 from typing import Any, Self, overload
 
 from ..contexts.infos import ParseInfo
-from ..util import AsJSONMixin, asjson, asjsons, rowselect, typename
+from ..util import rowselect, typename
+from ..util.asjson import AsJSONMixin, asjson, asjsons
 from ..util.indent import fold
 
 __all__ = ['BaseNode', 'NodeDataclassParams', 'nodedataclass']
@@ -33,10 +34,7 @@ def nodedataclass[T: type](cls: T) -> T: ...
 def nodedataclass[T: type](**params: Any) -> Callable[[T], T]: ...
 
 
-def nodedataclass[T: type](
-    cls: T | None = None,
-    **params: Any,
-) -> T | Callable[[T], T]:
+def nodedataclass[T: type](cls: T | None = None, **params) -> T | Callable[[T], T]:  # type: ignore
     # by Gemini (2026-02-07)
     # by [apalala@gmail.com](https://github.com/apalala)
 

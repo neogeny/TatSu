@@ -65,7 +65,7 @@ rich==14.3.3
     #   pytest-codspeed
     #   rich-click
 rich-click==1.9.7
-ruff==0.15.6
+ruff==0.15.7
 setuptools==82.0.1
     # via pytest-dependency
 ty==0.0.23
