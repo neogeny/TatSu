@@ -105,3 +105,4 @@ typing-extensions==4.15.0
     #   sphinx-autodoc2
 urllib3==2.6.3
     # via requests
+vale==3.13.0.0
