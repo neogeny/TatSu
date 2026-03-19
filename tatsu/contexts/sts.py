@@ -109,7 +109,7 @@ class ParseState:
     @overload
     def __call__(self, **kwargs: Any) -> Any: ...
 
-    def __call__(self, node: Any = None, **kwargs: Any) -> Any:
+    def __call__(self, *args, node: Any = None, **kwargs: Any) -> Any:
         if node is not None and kwargs:
             raise TypeError("Cannot provide both a positional and keyword arguments.")
         if node is None and not kwargs:

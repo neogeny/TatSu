@@ -21,7 +21,7 @@ from tatsu.ngcodegen import pythongen
 from tatsu.parser import TatSuParser, TatSuParserGenerator
 from tatsu.semantics import ASTSemantics
 from tatsu.tool import to_python_sourcecode
-from tatsu.util import asjson
+from tatsu.util.asjson import asjson
 from tatsu.walkers import DepthFirstWalker
 
 tmp = Path('./tmp').resolve()

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from tatsu.tool import compile
-from tatsu.util import asjsons  # noqa: F401
+from tatsu.util.asjson import asjsons  # noqa: F401
 
 
 def test_alert_interpolation(trace=False):

@@ -51,6 +51,9 @@ jobs:
       - name: black
         run: |
           python3 -m black tatsu tests examples
+      - name: zuban
+        run: |
+          zuban check tatsu tests examples
       - name: ruff
         run: |
           python3 -m ruff check -q --preview tatsu tests examples

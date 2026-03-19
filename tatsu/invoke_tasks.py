@@ -234,6 +234,24 @@ def pyright(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin])
+def zuban(c: Context, python: float = PYTHON):
+    start_print(zuban)
+    res = uv_run(
+        c,
+        'zuban check tatsu tests examples',
+        python=python,
+        group='test',
+        warn=True,
+        hide='both',
+    )
+
+    if 'Success:' not in res.stdout:
+        for r in [res.stdout, res.stderr]:
+            if r.strip():
+                print(r)
+
+
+@task(pre=[begin])
 def pytestfast(c: Context, python: float = PYTHON):
     start_print(pytest, target='fast ')
     Path('./tmp').mkdir(exist_ok=True)
@@ -295,7 +313,7 @@ def black(c: Context, python: float = PYTHON):
         print('✖ failed!')
 
 
-@task(pre=[begin, black, ruff, ty, mypy, pyright])
+@task(pre=[begin, black, zuban, ruff, ty, mypy, pyright])
 def lint(_c: Context):
     success_print(task_=lint)
 
@@ -335,6 +353,7 @@ def build(c: Context):
 def matrix_core(c: Context, python: float = PYTHON):
     version_boundary_print(c, target='ᝰ', python=python)
 
+    zuban(c, python=python)
     ruff(c, python=python)
     ty(c, python=python)
     pyright(c, python=python)
