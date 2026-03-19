@@ -106,8 +106,19 @@ Grouping. Match ``e``. For example: ``('a' | 'b')``.
 ``(?: e )``
 ^^^^^^^^^^^
 
-Skip. Like, a group, match ``e``, but do not capture what was pared. For
-example: ``(?: delimiters )``.
+A non-capturing group. Like in a ``()`` group, match ``e``, but this time do not
+capture what was parsed. For example:
+
+.. code:: apl
+    :force:
+
+    start: header (?: delimiter ) body
+
+    header: /[A-Z]+/
+
+    delimiter: /[:,-]+/
+
+    body: /[a-z]+/
 
 
 ``[ e ]``

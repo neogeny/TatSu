@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import unittest
 
-import pytest
+import pytest  # pyright: ignore [reportMissingImports]
 
-from tatsu import tool
+from tatsu import compile, tool
 from tatsu.exceptions import FailedParse
 from tatsu.ngcodegen import pythongen
 from tatsu.parser import TatSuBuffer
-from tatsu.tool import compile
 from tatsu.util import trim
 
 
@@ -40,8 +39,8 @@ class SyntaxTests(unittest.TestCase):
         overridden = "%s@override\nplu = 'plu';"
         inclusion = f'#include :: {gr}.tatsu\n'
 
-        including_grammar = overridden % (inclusion)
-        whole_grammar = overridden % (included_grammar)
+        including_grammar = overridden % inclusion
+        whole_grammar = overridden % included_grammar
 
         class FakeIncludesBuffer(TatSuBuffer):
             def get_include(self, source, filename):
@@ -413,7 +412,58 @@ def test_deprecated_comments_override_failures(comment, option):
         a
     """
     with pytest.warns(
-        UserWarning,
+        DeprecationWarning,
         match=r'ParserConfig\..*?comments_re.*?is deprecated',
     ):
         tool.parse(grammar, text, **option)
+
+
+def test_non_capturing_group_exclusion():
+    # A grammar where 'header' is captured, but 'delimiter' is skipped
+    grammar = """
+    start: header (?: delimiter ) body
+    
+    header: /[A-Z]+/
+    
+    delimiter: /[:,-]+/
+    
+    body: /[a-z]+/
+    """
+    parser = compile(grammar)
+
+    input_str = "INFO---data"
+    ast = parser.parse(input_str)
+
+    # Assertions
+    assert ast[0] == "INFO"
+    assert ast[1] == "data"
+    # The AST should only have 2 elements because the delimiter was (?: ...)
+    assert len(ast) == 2
+
+    # Verify the delimiter is not present in the values
+    assert "---" not in ast
+
+
+def test_non_capturing_group_failure():
+    # Verify that even if not captured, the expression must still match
+    grammar = r"start = (?: 'FIX' ) value ; value = /\d+/"
+    parser = compile(grammar)
+
+    # This should fail because 'BUG' does not match 'FIX'
+    with pytest.raises(FailedParse):
+        parser.parse("BUG123")
+
+
+def test_nested_non_capturing_groups():
+    grammar = """
+    start: (?: '(' (?: inner ) ')' )
+    
+    inner: 'content'
+    """
+    parser = compile(grammar)
+
+    ast = parser.parse("(content)")
+
+    # Since the outer group is non-capturing, the AST for 'start'
+    # should be None or empty depending on the surrounding context.
+    assert ast is None
