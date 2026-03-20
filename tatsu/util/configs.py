@@ -34,7 +34,7 @@ class Config:
         assert dataclasses.is_dataclass(result)
         return result
 
-    def _find_common(self, **settings: Any) -> dict[str, Any]:
+    def _find_common(self, hard: bool = False, **settings: Any) -> dict[str, Any]:
         def erases(name: str, value: Any) -> bool:
             if value is None or value is Undefined:
                 return True
@@ -42,7 +42,6 @@ class Config:
                 return getattr(self, name) and not value
             return False
 
-        hard = settings.pop('hard', False)
         return {
             name: value
             for name, value in settings.items()
@@ -69,10 +68,10 @@ class Config:
         else:
             return self.merge(**other.asdict())
 
-    def override(self, /, **settings: Any) -> Self:
+    def override(self, /, hard: bool = False, **settings: Any) -> Self:
         self._check_unknowns(**settings)
         settings = self._filter_non_init_fields(settings)
-        overrides = self._find_common(**settings)
+        overrides = self._find_common(hard=hard, **settings)
         assert dataclasses.is_dataclass(self)
         return dataclasses.replace(self, **overrides)
 
@@ -81,7 +80,7 @@ class Config:
         return self.override(**kwargs)
 
     def hard_override(self, /, **settings: Any) -> Self:
-        return self.override(**settings)
+        return self.override(hard=True, **settings)
 
     @deprecated(replacement=hard_override)
     def hard_replace(self, *_args, **kwargs):
