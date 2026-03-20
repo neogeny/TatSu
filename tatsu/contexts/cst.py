@@ -12,7 +12,6 @@ If a CST is to be returned from a grammar rule invocation, it is first converted
 to a `tuple` (elseqwhere) so it doesn't play these games.
 """
 
-import copy
 from typing import Any
 
 
@@ -51,7 +50,7 @@ def cstadd(cst: Any, node: Any, aslist: bool = False) -> Any:
     :return: the new CST value
     """
     if cst is None:
-        return [node] if aslist else copy.copy(node)
+        return [node] if aslist else node
     if islist(cst):
         return [*cst, node]
     return [cst, node]
@@ -68,7 +67,7 @@ def cstmerge(cst: Any, other: Any) -> Any:
     if other is None:
         return cst
     if cst is None:
-        return copy.copy(other)  # avoid shared state of lists
+        return other  # avoid shared state of lists
     if islist(other) and islist(cst):
         return cst + other
     if islist(other):
