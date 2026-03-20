@@ -7,11 +7,6 @@ import inspect
 from contextlib import suppress
 from typing import Any
 
-from ._base import ParserCore
-from .ast import AST
-from .cst import closedlist, islist
-from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
-from .sts import ParseStateStack
 from ..config import ParserConfig
 from ..exceptions import (
     FailedLeftRecursion,
@@ -32,6 +27,12 @@ from ..util import (
     safe_eval,
     trim,
 )
+from ._base import ParserCore
+from .ast import AST
+from .cst import closedlist, islist
+from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
+from .sts import ParseStateStack
+
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
@@ -43,12 +44,14 @@ class ParserEngine(ParserCore):
         text: Any,
         /,
         *,
+        start: str | None = None,
         config: ParserConfig | None = None,
+        asmodel: bool = False,
         **settings: Any,
     ) -> Any:
         config = self.config.override_config(config)
         assert isinstance(config, ParserConfig)
-        config = config.override(**settings)
+        config = config.override(start=start, **settings)
         assert isinstance(config, ParserConfig)
         self._active_config = config
         self.update_tracer()
@@ -68,11 +71,15 @@ class ParserEngine(ParserCore):
             assert not isinstance(self.state.cursor, NullCursor)
             self._reset()
 
+            if not self.config.semantics and asmodel:
+                from ..grammars.builder import ModelBuilderSemantics
+
+                self.config.semantics = ModelBuilderSemantics()
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
                 self.config.semantics.set_context(self)
 
-            start: str = self.config.effective_start_rule_name() or 'start'
-            rule = self.find_rule(start)
+            actual_start: str = self.config.effective_start_rule_name() or 'start'
+            rule = self.find_rule(actual_start)
             return rule(self)
 
         except FailedParse as e:

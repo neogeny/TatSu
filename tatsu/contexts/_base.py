@@ -7,11 +7,6 @@ from contextlib import contextmanager
 from functools import cache
 from typing import Any
 
-from .ast import AST
-from .infos import MemoKey, RuleInfo, RuleResult
-from .sts import ParseState, ParseStateStack
-from .tracing import EventTracer, InfoEventTracer, NullEventTracer
-from ..collections import BoundedDict
 from ..config import ParserConfig
 from ..exceptions import (
     FailedLeftRecursion,
@@ -24,6 +19,12 @@ from ..util import (
     prune_dict,
     safe_name,
 )
+from ..util.boundeddict import BoundedDict
+from .ast import AST
+from .infos import MemoKey, RuleInfo, RuleResult
+from .sts import ParseState, ParseStateStack
+from .tracing import EventTracer, InfoEventTracer, NullEventTracer
+
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
@@ -58,6 +59,7 @@ class ParserCore:
         /,
         *,
         config: ParserConfig | None = None,
+        asmodel: bool = False,
         **settings: Any,
     ) -> None:
         super().__init__()
@@ -75,6 +77,10 @@ class ParserCore:
         self.states: ParseStateStack = ParseStateStack(
             cursor=self.tokenizer.newcursor()
         )
+        if not self.config.semantics and asmodel:
+            from ..grammars.builder import ModelBuilderSemantics
+
+            self.config.semantics = ModelBuilderSemantics()
         self.semantics: type | None = config.semantics
         self._furthest_exception: FailedParse | None = None
 
