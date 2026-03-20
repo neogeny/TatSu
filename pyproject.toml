@@ -185,7 +185,16 @@ unused-type-ignore-comment = "ignore"
 #unresolved-attribute = "ignore"
 
 [tool.coverage.run]
-omit = ["tests/*", "tatsu/diagrams.py", "tatsu/codegen/*", "**/test.py"]
+omit = [
+    "tests/*",
+    "tmp/*",
+    "ng/*",
+    "tatsu/diagrams.py",
+    "tatsu/codegen/*",
+    "**/__init__.py",
+    "**/*_test.py",
+    "**/bootstrap.py",
+]
 data_file = ".cache/coverage/.coverage"
 
 [tool.black]
