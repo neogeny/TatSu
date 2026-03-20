@@ -77,6 +77,7 @@ class Result:
 def parallel_proc(
     payloads: Iterable[Any],
     process: Callable,
+    /,
     *args: Any,
     pickable: Func = identity,
     parallel: bool = True,
@@ -97,6 +98,7 @@ def parallel_proc(
 def parproc(
     func: Func,
     payloads: Iterable[Any],
+    /,
     *args: Any,
     pickable: Func = identity,
     parallel: bool = True,
@@ -155,17 +157,31 @@ def taskproc(task: Task) -> Result | None:
 def processing_loop(
     filenames: Iterable[str],
     process: Callable,
+    /,
     *args: Any,
+    pickable: Func = identity,
+    parallel: bool = True,
     reraise: bool = False,
     **kwargs: Any,
 ) -> Iterable[Result]:
-    yield from parproc_visual(process, filenames, *args, reraise=reraise, **kwargs)
+    yield from parproc_visual(
+        process,
+        filenames,
+        *args,
+        pickable=pickable,
+        parallel=parallel,
+        reraise=reraise,
+        **kwargs,
+    )
 
 
 def parproc_visual(
     func: Func,
     filenames: Iterable[str],
+    /,
     *args: Any,
+    pickable: Func = identity,
+    parallel: bool = True,
     reraise: bool = False,
     **kwargs: Any,
 ) -> Iterable[Result]:
@@ -190,7 +206,15 @@ def parproc_visual(
         total_time = 0.0
         run_time = 0.0
         start_time = time.time()
-        results = parproc(func, filenames, *args, **kwargs)
+        results = parproc(
+            func,
+            filenames,
+            *args,
+            pickable=pickable,
+            parallel=parallel,
+            reraise=reraise,
+            **kwargs,
+        )
         results = results or []
         count = 0
         success_count = 0

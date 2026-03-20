@@ -29,11 +29,12 @@ def parallel_test_run(parse, options):
 
         kwargs = vars(options)
         kwargs.pop('patterns', None)
-        kwargs.pop('sort', None)
+        sort = not kwargs.pop('no_sort', False)
         kwargs.pop('ignore', None)
         parallel = not kwargs.pop('serial', False)
 
-        filepaths = sorted(filepaths, key=lambda p: -p.stat().st_size)
+        if sort:
+            filepaths = sorted(filepaths, key=lambda p: -p.stat().st_size)
         return parproc_visual(parse, filepaths, parallel=parallel, **kwargs)
 
     except KeyboardInterrupt:
@@ -68,14 +69,14 @@ def parse_args():
         action='append',
     )
     argparser.add_argument(
-        '--sort',
-        '-s',
-        help='sort files by size',
+        '--no-sort',
+        '-S',
+        help='do not sort files by size',
         action='store_true',
     )
     argparser.add_argument(
         '--serial',
-        '-S',
+        '-s',
         help='do not run in parallel',
         action='store_true',
     )
