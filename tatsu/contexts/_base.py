@@ -84,7 +84,9 @@ class ParserCore:
 
     def _initialize_caches(self) -> None:
         self._furthest_exception = None
-        self._memos: MemoCache = BoundedDict(16 * self.cursor.linecount)
+        self._memos: MemoCache = BoundedDict(
+            int(max(1, self.config.perlinememos) * self.cursor.linecount)
+        )
         self._results: MemoCache = {}
         self.states = ParseStateStack(cursor=self.tokenizer.newcursor())
 

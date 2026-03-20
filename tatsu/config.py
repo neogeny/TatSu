@@ -5,15 +5,16 @@ from __future__ import annotations
 import re
 import warnings
 from dataclasses import dataclass, field
-from typing import Any, override
+from typing import Any, Self, override
 
 from .tokenizing import NullTokenizer
 from .tokenizing.tokenizer import Tokenizer
-from .util import Config, Undefined
+from .util.configs import Config
 from .util.regextools import cached_re_compile
+from .util.undefined import Undefined
 from .util.unicode_characters import C_DERIVE
 
-DEFAULT_MEMO_CACHE_SIZE = 1024
+DEFAULT_PERLINEMEMOS = 8
 
 
 @dataclass
@@ -29,8 +30,9 @@ class ParserConfig(Config):
     comment_recovery: bool = False
 
     memoization: bool = True
-    memoize_lookaheads: bool = True
-    memo_cache_size: int = DEFAULT_MEMO_CACHE_SIZE
+    perlinememos: float = DEFAULT_PERLINEMEMOS
+    memoize_lookaheads: bool | None = None
+    memo_cache_size: int | None = None
     prune_memos_on_cut: bool = True
 
     colorize: bool = True  # INFO: requires the colorama library
@@ -101,13 +103,21 @@ class ParserConfig(Config):
                 self.eol_comments = str(self.eol_comments_re)
             del self.eol_comments_re
 
-        if not self.memoize_lookaheads:
+        if self.memoize_lookaheads is not None:
             warnings.warn(
                 'ParserConfig.memoize_lookaheads is deprecated and has no effect',
                 DeprecationWarning,
                 stacklevel=3,
             )
             del self.memoize_lookaheads
+
+        if self.memo_cache_size is not None:
+            warnings.warn(
+                'ParserConfig.memo_cache_size is deprecated and has no effect',
+                DeprecationWarning,
+                stacklevel=3,
+            )
+            del self.memo_cache_size
 
     def _compile_comments(self):
         if self.comments and isinstance(self.comments, str):
@@ -140,8 +150,8 @@ class ParserConfig(Config):
         )
 
     @override
-    def override(self, **settings: Any) -> ParserConfig:
-        result = super().override(**settings)
+    def override(self, /, hard: bool = False, **settings: Any) -> Self:
+        result = super().override(hard=hard, **settings)
         assert isinstance(result, ParserConfig)
         if 'grammar' in settings:
             result.name = result.grammar

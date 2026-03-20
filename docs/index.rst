@@ -83,7 +83,7 @@ algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left ass
     rationale
     install
     use
-    parserconfig
+    config
     syntax
     directives
     ast

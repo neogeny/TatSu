@@ -12,6 +12,9 @@
 - Lookaheads are always memoized. Configuration settings for disabling it 
   have been deprecated and disabled. 
 
+- A new `PaserConfig.perlinememos: float` configuration sets a `(perlinememos * linecount) ` 
+  bound on the total number of memoization entries that are allowed on each parse.
+
 - Incorporated [zuban][] to the set of type linters.
 
 [zuban]: https://github.com/zubanls/zuban 

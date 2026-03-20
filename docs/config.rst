@@ -34,8 +34,7 @@ to validate when called.
         comment_recovery: bool = False   # warning: not implemented
 
         memoization: bool = True
-        memoize_lookaheads: bool = True
-        memo_cache_size: int = MEMO_CACHE_SIZE
+        perlinememos: float = DEFAULT_MEMOS_PER_LINE
 
         colorize: bool = True  # INFO: requires the colorama library
         trace: bool = False
@@ -48,7 +47,7 @@ to validate when called.
 
         comments: str | None = None
         eol_comments: str | None = None
-        keywords: Collection[str] = field(default_factory=set)
+        keywords: set[str] = field(default_factory=set)
 
         ignorecase: bool | None = False
         namechars: str = ''
@@ -158,29 +157,16 @@ memoization
     memoization: bool = True
 
 Enable or disable memoization in the parser. Only specific input languages
-require this to be ``False``.
+require this to be ``False``. Note that parsing times cease t o be linear when
+memoization is disabled.
 
 
-memoize_lookaheads
-~~~~~~~~~~~~~~~~~~
+perlinememos
+~~~~~~~~~~~~~
 
-.. code:: Python
+Sets a `(perlinememos * linecount) ` bound on the total number of memoization
+entries that are allowed.
 
-    memoize_lookaheads: bool = True
-
-Enables or disables memoization for lookaheads. Only specific input languages
-require this to be ``False``.
-
-memo_cache_size
-~~~~~~~~~~~~~~~
-
-.. code:: Python
-
-    memo_cache_size: int = MEMO_CACHE_SIZE
-
-The size of the cache for memos. As parsing progresses, previous memos
-are seldom needed, so there's a bound to the number of memos saved
-(currently 1024).
 
 colorize
 ~~~~~~~~
@@ -274,7 +260,7 @@ keywords
 
 .. code:: Python
 
-    keywords: Collection[str] = field(default_factory=set)
+    keywords: set[str] = field(default_factory=set)
 
 The list of keywords in the input language. See
 `Reserved Words and Keywords <syntax.html#reserved-words-and-keywords>`_
