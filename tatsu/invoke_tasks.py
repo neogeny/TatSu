@@ -262,6 +262,8 @@ def pytestfast(c: Context, python: float = PYTHON):
             'pytest',
             '--quiet',
             '-n auto',
+            # '--cov=coverage',
+            # '--cov-report=json',
             'tests/',
             '--ignore-glob=tests/z*',
         ],
