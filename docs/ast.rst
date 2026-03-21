@@ -27,7 +27,7 @@ with the parse information for the node:
 .. code:: python
 
     class ParseInfo(NamedTuple):
-        tokenizer: Any
+        cursor: Cursor
         rule: str
         pos: int
         endpos: int
@@ -35,20 +35,8 @@ with the parse information for the node:
         endline: int
         alerts: list[Alert] = []  # noqa: RUF012
 
-        def text_lines(self):
-            return self.tokenizer.get_lines(self.line, self.endline)
-
-        def line_index(self):
-            return self.tokenizer.line_index(self.line, self.endline)
-
-        @property
-        def buffer(self):
-            return self.tokenizer
-
-With the help of the ``Tokenizer.line_info()`` method, it's possible to
-recover the line, column, and original text parsed for the node. Note
-that when ``ParseInfo`` is generated, the ``Tokenizer`` used during parsing
-is kept in memory for the lifetime of the `AST`_.
+With the help of the ``cursor: Cusrosr`` attribute, it's possible to
+recover the line, column, and original text parsed for the node.
 
 Generation of ``parseinfo`` can also be controlled using the
 ``@@parseinfo :: True`` grammar directive.

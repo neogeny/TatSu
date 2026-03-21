@@ -270,16 +270,18 @@ method:
     model = parser.parse(text, start='start', semantics=MySemantics())
 
 If special lexical treatment is required (as in *80 column* languages),
-then a descendant of ``tatsu.tokenizing.Tokenizer`` can be passed instead of
+then an implementation of ``tatsu.input.Text`` can be passed instead of
 the text:
 
 .. code:: python
 
-    class MySpecialTokenizer(Tokenizer):
+    from tatsu.input.text import Text
+
+    class MySpecialInput(Text):
         ...
 
-    tokenizer = MySpecialTokenizer(text)
-    model = parser.parse(tokenizer, start='start', semantics=MySemantics())
+    input = MySpecialInput(text)
+    model = parser.parse(input, start='start', semantics=MySemantics())
 
 The generated parser's module can also be invoked as a script:
 
