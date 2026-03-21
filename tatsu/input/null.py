@@ -75,7 +75,7 @@ class NullCursor(Cursor):
     def is_name_char(self, c: str | None) -> bool:
         return False
 
-    def posline(self, pos: int | None = None) -> int:
+    def lineat(self, pos: int | None = None) -> int:
         return 0
 
     def lineinfo(self, pos: int | None = None) -> LineInfo:

@@ -78,12 +78,6 @@ class ParseInfo(NamedTuple):
     endline: int
     alerts: list[Alert] = []  # noqa: RUF012
 
-    def text_lines(self) -> list[str]:
-        return self.cursor.get_lines(self.line, self.endline)
-
-    def line_index(self):
-        return self.cursor.line_index(self.line, self.endline)
-
 
 class CommentInfo(NamedTuple):
     inline: list

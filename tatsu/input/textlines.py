@@ -42,7 +42,7 @@ class TextLinesCursor(Cursor):
 
     @property
     def line(self) -> int:
-        return self.posline(self.pos)
+        return self.lineat(self.pos)
 
     @property
     def linecount(self) -> int:
@@ -189,7 +189,7 @@ class TextLinesCursor(Cursor):
         text = info.text[info.col : info.col + 1 + 80]
         return self.input.split_block_lines(text)[0].rstrip()
 
-    def posline(self, pos: int | None = None) -> int:
+    def lineat(self, pos: int | None = None) -> int:
         pos = notnone(pos, self.pos)
         if not self.input.line_cache:
             return 0

@@ -201,7 +201,7 @@ class BufferCursor(Cursor):
         text = info.text[info.col : info.col + 1 + 80]
         return self.buffer.split_block_lines(text)[0].rstrip()
 
-    def posline(self, pos: int | None = None) -> int:
+    def lineat(self, pos: int | None = None) -> int:
         if pos is None:
             pos = self.pos
         return self.buffer.linecache[pos].lineno

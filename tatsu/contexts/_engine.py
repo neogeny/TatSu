@@ -230,8 +230,8 @@ class ParserEngine(ParserCore, CanParse):
             rule=name,
             pos=pos,
             endpos=endpos,
-            line=self.cursor.posline(pos),
-            endline=self.cursor.posline(endpos),
+            line=self.cursor.lineat(pos),
+            endline=self.cursor.lineat(endpos),
             alerts=self.state.alerts,
         )
 
