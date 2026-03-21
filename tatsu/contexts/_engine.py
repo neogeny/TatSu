@@ -34,7 +34,6 @@ from .ctx import CanParse
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
 from .sts import ParseStateStack
 
-
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
@@ -195,7 +194,7 @@ class ParserEngine(ParserCore, CanParse):
                 ri.func(self)
             else:
                 ri.func(ri.instance, self)
-            return self.state.parsed
+            return self.state.node
 
     def semantics_call(self, ri: RuleInfo, node: Any, pos: int) -> Any:
         if ri.is_name:

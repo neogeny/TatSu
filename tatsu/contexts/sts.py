@@ -10,11 +10,9 @@ from .ast import AST
 from .cst import cstadd, cstfinal, cstmerge
 from .infos import Alert, RuleInfo
 
-
 __all__ = ['ParseState', 'ParseStateStack']
 
 from ..input import Cursor
-
 
 _AT_ = '__vallue__'
 
@@ -65,7 +63,7 @@ class ParseState:
         return self.cursor.pos
 
     @property
-    def parsed(self) -> Any:
+    def node(self) -> Any:
         ast = self.ast
         cst = self.cst
         if not ast:
@@ -183,8 +181,8 @@ class ParseStateStack:
         self.top.last_node = value
 
     @property
-    def parsed(self) -> Any:
-        return self.top.parsed
+    def node(self) -> Any:  # this is Parsed
+        return self.top.node
 
     def pop(self, pos: int | None = None) -> ParseState:
         prev = self.state_stack.pop()
