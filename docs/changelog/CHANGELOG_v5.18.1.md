@@ -20,4 +20,9 @@
 - Introduced `objectmodel.ctx.CanParse(Protocol)` defining the `parse()` method
   for entry point to parsing.
 
+- An important refactoring was done to get rid of the legacy names *"tokenizing"*
+  and *"tokenizer"* which didn't abide to theory and practice of parsing. Now the
+  names are `tatsu.input`, `tatsu.input.text`, and `tatsu.input.text.Text`. The
+  olde names are still available as legacy for backwards compatibility.
+
 [zuban]: https://github.com/zubanls/zuban 
