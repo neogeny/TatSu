@@ -28,7 +28,6 @@ to validate when called.
 
         start: str | None = None
 
-        tokenizercls: type[Tokenizer] | None = None
         semantics: type | None = None
 
         comment_recovery: bool = False   # warning: not implemented
@@ -122,20 +121,6 @@ only a specific part of the parser.
 .. code:: Python
 
     ast = parse(grammar, '(2+2)*2', start='expression')
-
-
-tokenizercls
-~~~~~~~~~~~~
-
-.. code:: Python
-
-    tokenizercls: type[Tokenizer] | None = None
-
-The class that implements tokenization for the parser. If it's not defined
-then the parsing modules will default to ``buffering.Buffer``.
-
-This option was applied in the prototype PEG parser for Python to be
-able to reuse the native Python tokenizer.
 
 
 semantics

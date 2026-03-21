@@ -21,13 +21,13 @@ from tatsu import decorators as tatsu
 from tatsu.config import ParserConfig
 from tatsu.contexts import Ctx
 from tatsu.parsing import Parser, generic_main
-from tatsu.tokenizing.buffer import Buffer
-from tatsu.tokenizing.textlines import TextLinesTokenizer
+from tatsu.input.buffer import Buffer
+from tatsu.input.textlines import TextLines
 
 KEYWORDS: set[str] = set()
 
 
-class LISPTokenizer(TextLinesTokenizer):
+class LISPTokenizer(TextLines):
     def __init__(
         self,
         text, /,
@@ -82,9 +82,8 @@ class LISPParser(Parser):
         config = ParserConfig.new(config, **settings)
         rulessource = LISPRules()
         assert isinstance(config, ParserConfig)
-        tokenizercls = config.tokenizercls or LISPTokenizer
 
-        super().__init__(rulessource, config=config, tokenizercls=tokenizercls)
+        super().__init__(rulessource, config=config)
 
 
 class LISPRules:

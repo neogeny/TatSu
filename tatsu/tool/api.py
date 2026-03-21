@@ -8,6 +8,7 @@ from typing import Any
 from .. import grammars as g
 from ..exceptions import ParseException
 from ..infos import ParserConfig
+from ..input import Text
 from ..ngcodegen.ngmodel_gen import modelgen
 from ..ngcodegen.ngparser_gen import pythongen
 from ..objectmodel import Node
@@ -18,7 +19,6 @@ from ..objectmodel.builder import (
     TypeContainer,
 )
 from ..parser import TatSuParserGenerator
-from ..tokenizing import Tokenizer
 from ..util import hasha
 
 __all__ = [
@@ -36,7 +36,7 @@ __compiled_grammar_cache: dict[tuple[str | None, str, int], g.Grammar] = {}
 
 
 def compile(
-    grammar: str | Tokenizer,
+    grammar: str | Text,
     name: str | None = None,
     *,
     config: ParserConfig | None = None,

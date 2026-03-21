@@ -70,7 +70,7 @@ class GrammarSemantics(ModelBuilderSemantics):
             pi = parseinfo
             msg = (
                 f'Deprecated syntax "?/../?" for regular expressions'
-                f' at {pi.cursor.tokenizer.filename} line {pi.line + 1}'
+                f' at {pi.cursor.input.name} line {pi.line + 1}'
                 f'\n?/"{ast}"/?'
             )
         else:

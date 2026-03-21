@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from typing import Any, Protocol
 
-from .infos import RuleInfo
 from ..config import ParserConfig
 from ..exceptions import FailedLeftRecursion
-from ..tokenizing import Cursor
+from ..input import Cursor
 from ..util import color, info
 from ..util.unicode_characters import C_CUT, C_ENTRY, C_FAILURE, C_RECURSION, C_SUCCESS
+from .infos import RuleInfo
 
 
 class EventColor(color.Color):

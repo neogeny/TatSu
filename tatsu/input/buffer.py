@@ -14,9 +14,6 @@ import re
 from pathlib import Path
 from typing import Any, Self
 
-from . import LineInfo
-from .infos import LineIndexInfo, PosLine
-from .tokenizer import Cursor, Tokenizer
 from ..config import ParserConfig
 from ..util import (
     Undefined,
@@ -26,6 +23,9 @@ from ..util import (
     str_from_match,
     typename,
 )
+from . import LineInfo
+from .infos import LineIndexInfo, PosLine
+from .text import Cursor, Text
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -47,7 +47,7 @@ class BufferCursor(Cursor):
         return type(self)(self.buffer, pos=self.pos)
 
     @property
-    def tokenizer(self) -> Tokenizer:
+    def input(self) -> Text:
         return self.buffer
 
     @property
@@ -159,7 +159,7 @@ class BufferCursor(Cursor):
         buf = self.buffer
         if not buf.linecache or not buf.lineindex:
             return LineInfo(
-                filename=buf.filename,
+                filename=buf.name,
                 line=0,
                 col=0,
                 start=0,
@@ -277,7 +277,7 @@ class BufferCursor(Cursor):
         return f'{typename(self)}({pos=})'
 
 
-class Buffer(Tokenizer):
+class Buffer(Text):
     def __init__(
         self,
         text: str,
@@ -285,7 +285,6 @@ class Buffer(Tokenizer):
         config: ParserConfig | None = None,
         **settings: Any,
     ):
-        super().__init__(text)
         config = ParserConfig.new(config=config, **settings)
         assert isinstance(config, ParserConfig)
         self.config = config
@@ -319,7 +318,7 @@ class Buffer(Tokenizer):
         return state
 
     @property
-    def filename(self) -> str:
+    def name(self) -> str:
         if not self.lineindex:
             return ''
         n = max(0, min(len(self.lineindex) - 1, self.line))
@@ -352,7 +351,7 @@ class Buffer(Tokenizer):
             return None
 
     def _preprocess(self, /, *_args: Any, **_kwargs: Any):
-        lines, index = self._preprocess_block(self.filename, self.text)
+        lines, index = self._preprocess_block(self.name, self.text)
         self.lines = lines
         self.lineindex = index
         self.text = self.join_block_lines(lines)
@@ -623,7 +622,7 @@ class Buffer(Tokenizer):
             pos = self.pos
         if not self.indexed():
             return LineInfo(
-                filename=self.filename,
+                filename=self.name,
                 line=0,
                 col=0,
                 start=0,

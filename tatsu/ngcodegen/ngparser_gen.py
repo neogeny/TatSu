@@ -46,9 +46,8 @@ HEADER = """\
     from tatsu.contexts import Ctx
     from tatsu.config import ParserConfig
     from tatsu.parsing import Parser, generic_main
-    from tatsu.tokenizing.buffer import Buffer
-    from tatsu.tokenizing.textlines import TextLinesTokenizer
-
+    from tatsu.input.buffer import Buffer
+    from tatsu.input.textlines import TextLines
 """
 
 
@@ -56,9 +55,8 @@ PARSER_BODY = """\
     config = ParserConfig.new(config, **settings)
     rulessource = {rules_name}()
     assert isinstance(config, ParserConfig)
-    tokenizercls = config.tokenizercls or {tokenizer_name}
 
-    super().__init__(rulessource, config=config, tokenizercls=tokenizercls)
+    super().__init__(rulessource, config=config)
 """
 
 FOOTER = """\
@@ -142,7 +140,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print(
             HEADER.format(
                 basename=basename,
-                tokenizer_name=self._tokenizer_name(basename),
+                input_name=self._input_name(basename),
                 buffer_name=self._buffer_name(basename),
                 parser_name=self._parser_name(basename),
                 rules_name=self._rules_name(basename),
@@ -268,6 +266,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         # self.push_ctx(f'ctx{a}')
         try:
             self._gen_decor(Ctx.choice, ctx=outerctx, var=f'{var}')
+            self.print()
 
             with self.indent():
                 for opt in choice.options:
@@ -368,7 +367,10 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 config = config.override(**settings)
             ''')
 
-    def _tokenizer_name(self, basename) -> str:
+    def _input_name(self, basename) -> str:
+        return f'{basename}Text'
+
+    def _legacy_input_name(self, basename) -> str:
         return f'{basename}Tokenizer'
 
     def _buffer_name(self, basename) -> str:
@@ -387,7 +389,8 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 self.print(
                     """
                     self,
-                    text, /,
+                    text,
+                    /,
                     config: ParserConfig | None = None,
                     **settings,
                     """,
@@ -400,8 +403,13 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print()
 
     def _gen_buffering(self, grammar: g.Grammar, basename: str):
-        self.print(f'class {self._tokenizer_name(basename)}(TextLinesTokenizer):')
+        self.print(f'class {self._input_name(basename)}(TextLines):')
         self._gen_buffering_init(grammar)
+        self.print(
+            f'{self._legacy_input_name(basename)} = {self._input_name(basename)}'
+        )
+        self.print()
+        self.print()
 
         self.print()
         self.print(
@@ -422,7 +430,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                     + PARSER_BODY.format(
                         parser_name=self._parser_name(basename),
                         rules_name=self._rules_name(basename),
-                        tokenizer_name=self._tokenizer_name(basename),
+                        input_name=self._input_name(basename),
                     )
                 )
         self.print()

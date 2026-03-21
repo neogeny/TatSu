@@ -13,12 +13,11 @@ from ..exceptions import (
     FailedParse,
     FailedSemantics,
     KeywordError,
-    ParseError,
     ParseException,
 )
+from ..input import NullCursor, NullText, Text
+from ..input.textlines import TextLines
 from ..objectmodel import ModelBuilderSemantics
-from ..tokenizing import NullCursor, NullTokenizer, Tokenizer
-from ..tokenizing.textlines import TextLinesTokenizer
 from ..util import (
     Undefined,
     boundcall,
@@ -57,25 +56,20 @@ class ParserEngine(ParserCore, CanParse):
         self._active_config = config
         self.update_tracer()
         try:
-            if isinstance(text, Tokenizer):
-                tokenizer = text
-            elif issubclass(config.tokenizercls, NullTokenizer):
-                tokenizer = TextLinesTokenizer(text=text, config=config, **settings)
-            elif text is not None:
-                cls = self.tokenizercls
-                tokenizer = cls(str(text), config=config, **settings)
+            if isinstance(text, Text):
+                input = text
             else:
-                raise ParseError('No tokenizer or text')  # type: ignore  # pyright: ignore[reportUnreachable]
-            assert not isinstance(tokenizer, NullTokenizer)
-            self.tokenizer = tokenizer
-            self.states = ParseStateStack(cursor=tokenizer.newcursor())
+                input = TextLines(text=text, config=config, **settings)
+            assert not isinstance(input, NullText)
+            self.input = input
+            self.states = ParseStateStack(cursor=input.newcursor())
             assert not isinstance(self.state.cursor, NullCursor)
             self._reset()
 
             if not self.config.semantics and asmodel:
                 self.config.semantics = ModelBuilderSemantics()
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
-                self.config.semantics.set_context(self)
+                self.config.semantics.set_context(self)  # ty: ignore[call-non-callable]
 
             actual_start: str = self.config.effective_start_rule_name() or 'start'
             rule = self.find_rule(actual_start)

@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any, NamedTuple, Protocol
 
-from ..tokenizing import Cursor
+from ..input import Cursor
 
 
 class MemoKey(NamedTuple):
@@ -77,13 +77,6 @@ class ParseInfo(NamedTuple):
     line: int
     endline: int
     alerts: list[Alert] = []  # noqa: RUF012
-
-    @property
-    def tokenizer(self) -> Cursor:
-        # NOTE:
-        #   info.tokenizer provided for bakwards compatibility
-        #   self.cursor.tokenizer:Tokenizer is opaque, so useless
-        return self.cursor
 
     def text_lines(self) -> list[str]:
         return self.cursor.get_lines(self.line, self.endline)

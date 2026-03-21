@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import sys
 
-from . import config as parserconfig
+from . import config as parserconfig, input as tokenizing
 from ._grammar import grammar, grammar_path
 from ._version import __toolname__, __version__, version, version_info
 from .contexts import ast as ast
 from .contexts.decorator import isname, leftrec, name, nomemo, rule, tatsumasu
+from .input import buffer as buffer, buffer as buffering, textlines as textlines
 from .objectmodel import (
     NodeDataclassParams,
     NodeDataclassParams as TatSuDataclassParams,
@@ -17,7 +18,6 @@ from .objectmodel import (
     nodedataclass as dataclass,
     nodedataclass as tatsudataclass,
 )
-from .tokenizing import buffer as buffering
 from .tool import (  # pylint: disable=W0622
     compile,
     gencode,
@@ -37,6 +37,9 @@ sys.modules.update(  # noqa: RUF067
         'tatsu.builder': builder,
         'tatsu.buffering': buffering,
         'tatsu.parserconfig': parserconfig,
+        'tatsu.tokenizing': tokenizing,
+        'tatsu.tokenizing.buffer': buffer,
+        'tatsu.tokenizing.textlines': textlines,
     }
 )
 
