@@ -20,7 +20,7 @@ DEFAULT_PERLINEMEMOS = 8
 @dataclass
 class ParserConfig(Config):
     name: str | None = 'Test'
-    filename: str = ''
+    source: str = ''
 
     start: str | None = None
 
@@ -62,6 +62,7 @@ class ParserConfig(Config):
     comments_re: re.Pattern | str | None = None
     eol_comments_re: re.Pattern | str | None = None
     tokenizercls: type[Text] = NullText
+    filename: str | None = None
 
     def __post_init__(self):  # pylint: disable=W0235
         if self.ignorecase:
@@ -125,7 +126,16 @@ class ParserConfig(Config):
                 DeprecationWarning,
                 stacklevel=3,
             )
-            del self.memo_cache_size
+            del self.tokenizercls
+
+        if self.filename is not None:
+            self.source = self.filename
+            warnings.warn(
+                'ParserConfig.filename is deprecated. Use .source instead',
+                DeprecationWarning,
+                stacklevel=3,
+            )
+            del self.filename
 
     def _compile_comments(self):
         if self.comments and isinstance(self.comments, str):

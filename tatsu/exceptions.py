@@ -65,7 +65,7 @@ class FailedParse(ParseException):
         leading = leading.expandtabs()
         rulestack = [r.name for r in reversed(self.stack)]
         return (
-            f'{info.filename}({info.line + 1}:{info.col + 1})'
+            f'{info.source}({info.line + 1}:{info.col + 1})'
             f' [{typename(self)}] {self.message.rstrip()} :'
             f'\n{text}\n{leading}^\n{'\n'.join(rulestack)}'
         )

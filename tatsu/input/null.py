@@ -106,5 +106,5 @@ class NullText(Text):
         return ''
 
     @property
-    def name(self) -> str:
+    def source(self) -> str:
         return ''

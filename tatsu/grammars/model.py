@@ -449,8 +449,8 @@ class Grammar(Model):
             name = self.directives.get('grammar')
         if name is None:
             name = self.config.name
-        if name is None and self.config.filename is not None:
-            name = Path(self.config.filename).stem
+        if name is None and self.config.source is not None:
+            name = Path(self.config.source).stem
         if name is None:
             name = 'My'
         return name

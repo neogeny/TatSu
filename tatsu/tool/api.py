@@ -50,12 +50,12 @@ def compile(
     constructors: list[Constructor] | None = None,
     **settings: Any,
 ) -> g.Grammar:
-    # check parameters
+    filename = filename or settings.pop('source', None)
     ParserConfig.new(
         config=config,
         semantics=semantics,
         name=name,
-        filename=filename,
+        source=filename,
         **settings,
     )
     if isinstance(semantics, type):
@@ -112,11 +112,12 @@ def parse(
     constructors: list[Constructor] | None = None,
     **settings: Any,
 ):
+    filename = filename or settings.pop('source', None)
     config = ParserConfig.new(
         config=config,
         start=start,
         name=name,
-        filename=filename,
+        source=filename,
         semantics=semantics,
         **settings,
     )
@@ -151,8 +152,9 @@ def to_python_sourcecode(
     config: ParserConfig | None = None,
     **settings: Any,
 ):
-    config = ParserConfig.new(config=config, name=name, filename=filename, **settings)
-    model = compile(grammar, config=config, name=name, filename=filename)
+    filename = filename or settings.pop('source', None)
+    config = ParserConfig.new(config=config, name=name, source=filename, **settings)
+    model = compile(grammar, config=config, name=name, source=filename)
     return pythongen(model)
 
 
@@ -166,8 +168,9 @@ def to_python_model(
     config: ParserConfig | None = None,
     **settings: Any,
 ):
-    config = ParserConfig.new(config=config, name=name, filename=filename, **settings)
-    model = compile(grammar, name=name, filename=filename, config=config)
+    filename = filename or settings.pop('source', None)
+    config = ParserConfig.new(config=config, name=name, source=filename, **settings)
+    model = compile(grammar, name=name, source=filename, config=config)
     return modelgen(model, basetype=basetype)
 
 
@@ -196,10 +199,11 @@ def gencode(
     config: ParserConfig | None = None,
     **settings: Any,
 ):
+    filename = filename or settings.pop('source', None)
     model = compile(
         grammar,
         name=name,
-        filename=filename,
+        source=filename,
         trace=trace,
         config=config,
         **settings,

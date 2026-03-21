@@ -29,7 +29,8 @@ class TatSuBuffer(TatSuBootstrapBuffer):
         config: ParserConfig | None = None,
         **settings: Any,
     ):
-        config = ParserConfig.new(config=config, filename=filename, **settings)
+        filename = filename or settings.pop('source', None)
+        config = ParserConfig.new(config=config, source=filename, **settings)
         super().__init__(text, config=config)
 
     def process_block(self, name, lines, index, **kwargs):
