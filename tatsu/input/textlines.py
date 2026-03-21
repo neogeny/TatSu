@@ -53,7 +53,7 @@ class TextLinesCursor(Cursor):
         return self.poscol(self.pos)
 
     @property
-    def filename(self) -> str:
+    def source(self) -> str:
         n = min(len(self.input.line_index) - 1, self.line)
         filename, _actual_line = self.input.line_index[n]
         return filename

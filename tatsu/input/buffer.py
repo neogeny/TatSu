@@ -63,7 +63,7 @@ class BufferCursor(Cursor):
         return self.buffer.poscol(self.pos)
 
     @property
-    def filename(self) -> str:
+    def source(self) -> str:
         n = min(len(self.buffer.lineindex) - 1, self.line)
         filename, _line = self.buffer.lineindex[n]
         return filename
