@@ -314,6 +314,11 @@ class Rule(NamedBox):
     def _nullable(self) -> bool:
         return self.exp._nullable()
 
+    def optimized(self) -> Rule:
+        clone = copy(self)
+        clone.exp = self.exp.optimized()
+        return clone
+
     @staticmethod
     def param_repr(p):
         if isinstance(p, int | float) or (isinstance(p, str) and p.isalnum()):
@@ -370,11 +375,11 @@ class Grammar(Model):
     def __init__(
         self,
         name=None,
-        rules: Iterable | None = None,
+        rules: Iterable[Rule] | None = None,
         *,
         config: Any = None,
         directives: dict | None = None,
-        **settings,
+        **settings: Any,
     ):
         super().__init__()
         config = config if isinstance(config, ParserConfig) else ParserConfig()
@@ -589,12 +594,12 @@ class Grammar(Model):
 class ModelContext(ParseContext):
     def __init__(
         self,
-        rules,
+        rules: Iterable[Rule],
         /,
         start: str | None = None,
         config: ParserConfig | None = None,
         asmodel: bool = False,
-        **settings,
+        **settings: Any,
     ):
         config = ParserConfig.new(config, **settings)
         assert isinstance(config, ParserConfig)
