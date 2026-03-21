@@ -169,8 +169,8 @@ class ParsingTests(unittest.TestCase):
 
             start::Test = true | false ;
 
-            true = "test" @:`True` $;
-            false = "test" @:`False` $;
+            true::bool = "test" @:`True` $;
+            false::bool = "test" @:`False` $;
         """
 
         text = 'test'

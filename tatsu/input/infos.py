@@ -7,7 +7,7 @@ from typing import NamedTuple
 
 
 class LineInfo(NamedTuple):
-    filename: str
+    source: str
     line: int
     col: int
     start: int

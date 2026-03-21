@@ -26,7 +26,7 @@ class NullCursor(Cursor):
         return 1  # note: editor view
 
     @property
-    def filename(self) -> str:
+    def source(self) -> str:
         return ''
 
     @property
@@ -106,5 +106,5 @@ class NullText(Text):
         return ''
 
     @property
-    def name(self) -> str:
+    def source(self) -> str:
         return ''

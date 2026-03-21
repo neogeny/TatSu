@@ -63,10 +63,10 @@ class BufferCursor(Cursor):
         return self.buffer.poscol(self.pos)
 
     @property
-    def filename(self) -> str:
+    def source(self) -> str:
         n = min(len(self.buffer.lineindex) - 1, self.line)
-        filename, _line = self.buffer.lineindex[n]
-        return filename
+        source, _line = self.buffer.lineindex[n]
+        return source
 
     def goto(self, pos: int):
         self.pos = max(0, min(self.buffer.len, pos))
@@ -159,7 +159,7 @@ class BufferCursor(Cursor):
         buf = self.buffer
         if not buf.linecache or not buf.lineindex:
             return LineInfo(
-                filename=buf.name,
+                source=buf.source,
                 line=0,
                 col=0,
                 start=0,
@@ -177,10 +177,10 @@ class BufferCursor(Cursor):
 
         # only required to support includes
         n = min(len(buf.lineindex) - 1, line)
-        filename, line = buf.lineindex[n]
+        source, line = buf.lineindex[n]
 
         return LineInfo(
-            filename=filename,
+            source=source,
             line=line,
             col=col,
             start=start,
@@ -318,7 +318,7 @@ class Buffer(Text):
         return state
 
     @property
-    def name(self) -> str:
+    def source(self) -> str:
         if not self.lineindex:
             return ''
         n = max(0, min(len(self.lineindex) - 1, self.line))
@@ -351,7 +351,7 @@ class Buffer(Text):
             return None
 
     def _preprocess(self, /, *_args: Any, **_kwargs: Any):
-        lines, index = self._preprocess_block(self.name, self.text)
+        lines, index = self._preprocess_block(self.source, self.text)
         self.lines = lines
         self.lineindex = index
         self.text = self.join_block_lines(lines)
@@ -622,7 +622,7 @@ class Buffer(Text):
             pos = self.pos
         if not self.indexed():
             return LineInfo(
-                filename=self.name,
+                source=self.source,
                 line=0,
                 col=0,
                 start=0,
@@ -640,10 +640,10 @@ class Buffer(Text):
 
         # only required to support includes
         n = min(len(self.lineindex) - 1, line)
-        filename, line = self.lineindex[n]
+        source, line = self.lineindex[n]
 
         return LineInfo(
-            filename=filename,
+            source=source,
             line=line,
             col=col,
             start=start,

@@ -82,18 +82,18 @@ class InfoEventTracer(EventTracer):
         if not self.config.trace:
             return
 
-        fname = ''
+        source = ''
         if self.config.trace_filename:
-            fname = cursor.lineinfo().filename
-        if fname:
-            fname += '\n'
+            source = cursor.lineinfo().source
+        if source:
+            source += '\n'
 
         lookahead = cursor.lookahead().rstrip()
         lookahead = '\n' + lookahead if lookahead else ''
 
         message = (
             f'{event}{self.rulestack()}'
-            f' {C.DIM}{fname}'
+            f' {C.DIM}{source}'
             f'{cursor.lookahead_pos()}{C.RESET}'
             f'{C.RESET_ALL}{lookahead}{C.RESET_ALL}'
         )
@@ -129,9 +129,9 @@ class InfoEventTracer(EventTracer):
 
         name_str = f'/{name}/' if name else ''
         if self.config.trace_filename:
-            fname = cursor.lineinfo().filename + '\n'
+            source = cursor.lineinfo().source + '\n'
         else:
-            fname = ''
+            source = ''
 
         mark = f'{C.FAILURE}' if failed else f'{C.SUCCESS}'
 
@@ -141,7 +141,7 @@ class InfoEventTracer(EventTracer):
         message = (
             f'{mark}'
             f"'{token}{name_str}"
-            f'{C.DIM}{fname}'
+            f'{C.DIM}{source}'
             f'{C.RESET_ALL}{lookahead}{C.RESET_ALL}'
         )
         self.trace(message)

@@ -53,10 +53,10 @@ class TextLinesCursor(Cursor):
         return self.poscol(self.pos)
 
     @property
-    def filename(self) -> str:
+    def source(self) -> str:
         n = min(len(self.input.line_index) - 1, self.line)
-        filename, _actual_line = self.input.line_index[n]
-        return filename
+        source, _actual_line = self.input.line_index[n]
+        return source
 
     def goto(self, pos: int):
         self.pos = max(0, min(self.len, pos))
@@ -149,7 +149,7 @@ class TextLinesCursor(Cursor):
 
         if not input.line_cache or not input.line_index:
             return LineInfo(
-                filename=input.name,
+                source=input.source,
                 line=0,
                 col=0,
                 start=0,
@@ -166,9 +166,9 @@ class TextLinesCursor(Cursor):
         text = input.text[start:end]
 
         n = min(len(input.line_index) - 1, line)
-        filename, actual_line = input.line_index[n]
+        source, actual_line = input.line_index[n]
         return LineInfo(
-            filename=filename,
+            source=source,
             line=actual_line,
             col=col,
             start=start,
@@ -289,8 +289,8 @@ class TextLines(Text):
         return TextLinesCursor(self)
 
     @property
-    def name(self) -> str:
-        return str(self.config.filename or '')
+    def source(self) -> str:
+        return str(self.config.source or '')
 
     @property
     def len(self) -> int:
@@ -317,7 +317,7 @@ class TextLines(Text):
         return None
 
     def _preprocess(self):
-        lines, index = self._preprocess_block(self.name, self.original_text)
+        lines, index = self._preprocess_block(self.source, self.original_text)
         self.lines = lines
         self.line_index = index
         self.text = self.join_block_lines(lines)
