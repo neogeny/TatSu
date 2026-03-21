@@ -5,9 +5,6 @@ from __future__ import annotations
 import re
 from typing import Any, Self
 
-from . import LineInfo
-from .infos import LineIndexInfo, PosLine
-from .tokenizer import Cursor, Tokenizer
 from ..config import ParserConfig
 from ..util import (
     Undefined,
@@ -17,6 +14,9 @@ from ..util import (
     typename,
 )
 from ..util.regextools import cached_re_compile
+from . import LineInfo
+from .infos import LineIndexInfo, PosLine
+from .text import Cursor, Text
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -24,8 +24,8 @@ DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 class TextLinesCursor(Cursor):
     __slots__ = ('len', 'pos', 'tokens')
 
-    def __init__(self, tokens: TextLinesTokenizer, pos: int = 0):
-        self.tokens: TextLinesTokenizer = tokens
+    def __init__(self, tokens: TextLines, pos: int = 0):
+        self.tokens: TextLines = tokens
         self.pos: int = pos
         self.len: int = tokens.len
         self.text = tokens.text
@@ -37,7 +37,7 @@ class TextLinesCursor(Cursor):
         return type(self)(self.tokens, pos=self.pos)
 
     @property
-    def tokenizer(self) -> TextLinesTokenizer:
+    def tokenizer(self) -> TextLines:
         return self.tokens
 
     @property
@@ -253,7 +253,7 @@ class TextLinesCursor(Cursor):
         return f'{typename(self)}({pos=})'
 
 
-class TextLinesTokenizer(Tokenizer):
+class TextLines(Text):
     def __init__(
         self,
         text: str,

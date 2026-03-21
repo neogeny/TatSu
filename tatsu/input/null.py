@@ -6,7 +6,7 @@ from typing import Self
 
 from . import LineInfo
 from .infos import LineIndexInfo
-from .tokenizer import Cursor, Tokenizer
+from .text import Cursor, Text
 
 
 class NullCursor(Cursor):
@@ -18,8 +18,8 @@ class NullCursor(Cursor):
         return type(self)()
 
     @property
-    def tokenizer(self) -> Tokenizer:
-        return NullTokenizer()
+    def tokenizer(self) -> Text:
+        return NullText()
 
     @property
     def linecount(self) -> int:
@@ -97,12 +97,16 @@ class NullCursor(Cursor):
         return ''
 
 
-class NullTokenizer(Tokenizer):
+class NullText(Text):
     def __init__(self) -> None:
         super().__init__(None)
 
     def newcursor(self, pos: int = 0) -> Cursor:
         return NullCursor()
+
+    @property
+    def text(self) -> str:
+        return ''
 
     @property
     def filename(self) -> str:

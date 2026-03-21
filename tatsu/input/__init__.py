@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 from .infos import LineIndexInfo, LineInfo, PosLine
-from .null import NullCursor, NullTokenizer
-from .tokenizer import Cursor, Tokenizer
+from .null import NullCursor, NullText
+from .text import Cursor, Text
+
 
 __all__ = [
     'Cursor',
     'NullCursor',
-    'Tokenizer',
-    'NullTokenizer',
+    'Text',
+    'NullText',
     'LineIndexInfo',
     'LineInfo',
     'PosLine',

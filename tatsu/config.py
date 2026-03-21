@@ -7,12 +7,13 @@ import warnings
 from dataclasses import dataclass, field
 from typing import Any, Self, override
 
-from .tokenizing import NullTokenizer
-from .tokenizing.tokenizer import Tokenizer
+from .input import NullText
+from .input.text import Text
 from .util.configs import Config
 from .util.regextools import cached_re_compile
 from .util.undefined import Undefined
 from .util.unicode_characters import C_DERIVE
+
 
 DEFAULT_PERLINEMEMOS = 8
 
@@ -24,7 +25,7 @@ class ParserConfig(Config):
 
     start: str | None = None
 
-    tokenizercls: type[Tokenizer] = NullTokenizer
+    tokenizercls: type[Text] = NullText
     semantics: Any = None
 
     comment_recovery: bool = False

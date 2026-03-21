@@ -17,7 +17,7 @@ class Cursor(Protocol):
     def clone(self) -> Self: ...
 
     @property
-    def tokenizer(self) -> Tokenizer: ...
+    def tokenizer(self) -> Text: ...
 
     @property
     def filename(self) -> str: ...
@@ -67,7 +67,7 @@ class Cursor(Protocol):
     def lookahead_pos(self) -> str: ...
 
 
-class Tokenizer(ABC):
+class Text(ABC):
     def __init__(self, text: Any, /, *args, **kwargs) -> None:
         assert text is None or text is not None
 

@@ -13,9 +13,9 @@ from ..exceptions import (
     FailedParse,
     ParseException,
 )
+from ..input import Cursor, NullText, Text
+from ..input.textlines import TextLines
 from ..objectmodel import ModelBuilderSemantics
-from ..tokenizing import Cursor, NullTokenizer, Tokenizer
-from ..tokenizing.textlines import TextLinesTokenizer
 from ..util import (
     prune_dict,
     safe_name,
@@ -25,6 +25,7 @@ from .ast import AST
 from .infos import MemoKey, RuleInfo, RuleResult
 from .sts import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
+
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
@@ -67,13 +68,13 @@ class ParserCore:
         config = ParserConfig.new(config, **settings)
         assert isinstance(config, ParserConfig)
         tokcls = config.tokenizercls
-        if tokcls is None or isinstance(tokcls, NullTokenizer):
-            config = config.override(tokenizercls=TextLinesTokenizer)
+        if tokcls is None or isinstance(tokcls, NullText):
+            config = config.override(tokenizercls=TextLines)
         assert isinstance(config, ParserConfig)
         self._config: ParserConfig = config
         self._active_config: ParserConfig = self._config
 
-        self.tokenizer: Tokenizer = NullTokenizer()
+        self.tokenizer: Text = NullText()
         self.states: ParseStateStack = ParseStateStack(
             cursor=self.tokenizer.newcursor()
         )
@@ -118,9 +119,9 @@ class ParserCore:
         return self.state.cursor
 
     @property
-    def tokenizercls(self) -> type[Tokenizer]:
+    def tokenizercls(self) -> type[Text]:
         if self.config.tokenizercls is None:
-            return TextLinesTokenizer
+            return TextLines
         return self.config.tokenizercls
 
     @property

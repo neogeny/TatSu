@@ -9,6 +9,7 @@ from ._grammar import grammar, grammar_path
 from ._version import __toolname__, __version__, version, version_info
 from .contexts import ast as ast
 from .contexts.decorator import isname, leftrec, name, nomemo, rule, tatsumasu
+from .input import buffer as buffering
 from .objectmodel import (
     NodeDataclassParams,
     NodeDataclassParams as TatSuDataclassParams,
@@ -17,7 +18,6 @@ from .objectmodel import (
     nodedataclass as dataclass,
     nodedataclass as tatsudataclass,
 )
-from .tokenizing import buffer as buffering
 from .tool import (  # pylint: disable=W0622
     compile,
     gencode,

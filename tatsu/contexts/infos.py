@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any, NamedTuple, Protocol
 
-from ..tokenizing import Cursor
+from ..input import Cursor
 
 
 class MemoKey(NamedTuple):

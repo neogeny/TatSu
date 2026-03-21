@@ -16,7 +16,7 @@ from typing import Any, Self
 
 from . import LineInfo
 from .infos import LineIndexInfo, PosLine
-from .tokenizer import Cursor, Tokenizer
+from .text import Cursor, Text
 from ..config import ParserConfig
 from ..util import (
     Undefined,
@@ -47,7 +47,7 @@ class BufferCursor(Cursor):
         return type(self)(self.buffer, pos=self.pos)
 
     @property
-    def tokenizer(self) -> Tokenizer:
+    def tokenizer(self) -> Text:
         return self.buffer
 
     @property
@@ -277,7 +277,7 @@ class BufferCursor(Cursor):
         return f'{typename(self)}({pos=})'
 
 
-class Buffer(Tokenizer):
+class Buffer(Text):
     def __init__(
         self,
         text: str,

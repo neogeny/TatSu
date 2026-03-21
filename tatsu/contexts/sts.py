@@ -12,7 +12,7 @@ from .infos import Alert, RuleInfo
 
 __all__ = ['ParseState', 'ParseStateStack']
 
-from ..tokenizing import Cursor
+from ..input import Cursor
 
 _AT_ = '__vallue__'
 

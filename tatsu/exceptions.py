@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from .contexts.infos import RuleInfo
-from .tokenizing import Cursor
+from .input import Cursor
 from .util import typename
 
 
