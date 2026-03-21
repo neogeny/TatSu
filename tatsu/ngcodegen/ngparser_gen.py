@@ -266,6 +266,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         # self.push_ctx(f'ctx{a}')
         try:
             self._gen_decor(Ctx.choice, ctx=outerctx, var=f'{var}')
+            self.print()
 
             with self.indent():
                 for opt in choice.options:
@@ -404,11 +405,11 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def _gen_buffering(self, grammar: g.Grammar, basename: str):
         self.print(f'class {self._input_name(basename)}(TextLines):')
         self._gen_buffering_init(grammar)
-        self.print()
-        self.print()
         self.print(
             f'{self._legacy_input_name(basename)} = {self._input_name(basename)}'
         )
+        self.print()
+        self.print()
 
         self.print()
         self.print(
