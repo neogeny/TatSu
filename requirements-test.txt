@@ -74,7 +74,7 @@ rich==14.3.3
 ruff==0.15.7
 setuptools==82.0.1
     # via pytest-dependency
-ty==0.0.23
+ty==0.0.24
 types-colorama==0.4.15.20250801
 types-decorator==5.2.0.20251101
 types-docutils==0.22.3.20260316
