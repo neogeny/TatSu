@@ -25,7 +25,6 @@ from .infos import MemoKey, RuleInfo, RuleResult
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
-
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
@@ -256,7 +255,7 @@ class ParserCore:
     def memokey(self) -> MemoKey:
         return MemoKey(self.pos, self.ruleinfo)
 
-    def memo(self,  key) -> RuleOutcome | None:
+    def memo(self, key: MemoKey) -> RuleOutcome | None:
         return self._memos.get(key)
 
     def memoize(
