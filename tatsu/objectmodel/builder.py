@@ -8,7 +8,6 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from typing import Any, cast
 
-from ..objectmodel import Node, synthesize
 from ..util import (
     Config,
     Constructor,
@@ -20,6 +19,8 @@ from ..util import (
     least_upper_bound_type,
     mangle,
 )
+from .node import Node
+from .synth import synthesize
 
 
 class TypeResolutionError(TypeError):

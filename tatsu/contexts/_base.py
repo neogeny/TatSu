@@ -13,6 +13,7 @@ from ..exceptions import (
     FailedParse,
     ParseException,
 )
+from ..objectmodel import ModelBuilderSemantics
 from ..tokenizing import Cursor, NullTokenizer, Tokenizer
 from ..tokenizing.textlines import TextLinesTokenizer
 from ..util import (
@@ -24,7 +25,6 @@ from .ast import AST
 from .infos import MemoKey, RuleInfo, RuleResult
 from .sts import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
-
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
@@ -78,8 +78,6 @@ class ParserCore:
             cursor=self.tokenizer.newcursor()
         )
         if not self.config.semantics and asmodel:
-            from ..grammars.builder import ModelBuilderSemantics
-
             self.config.semantics = ModelBuilderSemantics()
         self.semantics: type | None = config.semantics
         self._furthest_exception: FailedParse | None = None

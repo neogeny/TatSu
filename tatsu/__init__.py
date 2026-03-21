@@ -9,10 +9,10 @@ from ._grammar import grammar, grammar_path
 from ._version import __toolname__, __version__, version, version_info
 from .contexts import ast as ast
 from .contexts.decorator import isname, leftrec, name, nomemo, rule, tatsumasu
-from .grammars import builder as builder
 from .objectmodel import (
     NodeDataclassParams,
     NodeDataclassParams as TatSuDataclassParams,
+    builder as builder,
     nodedataclass,
     nodedataclass as dataclass,
     nodedataclass as tatsudataclass,

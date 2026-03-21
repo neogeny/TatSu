@@ -11,13 +11,12 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, override
 
-from .builder import ModelBuilderSemantics
-from .math import ffset, kdot
 from ..config import ParserConfig
 from ..contexts import AST, Ctx, Func, ParseContext, RuleInfo
 from ..exceptions import GrammarError
-from ..objectmodel import Node, nodedataclass
+from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import chunks, compress_seq, indent, trim, typename
+from .math import ffset, kdot
 
 PEP8_LLEN = 72
 
@@ -495,7 +494,6 @@ class Grammar(Model):
         /,
         *,
         start: str | None = None,
-        ctx: Ctx | None = None,
         config: ParserConfig | None = None,
         asmodel: bool = False,
         **settings,
@@ -521,7 +519,7 @@ class Grammar(Model):
             )
 
         self._config = config
-        ctx = ctx or self.newctx(asmodel=asmodel)
+        ctx = self.newctx(asmodel=asmodel)
         assert isinstance(ctx, Ctx)
         return ctx.parse(text, config=config)
 

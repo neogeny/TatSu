@@ -9,6 +9,11 @@ from .basenode import (
     nodedataclass,
     nodedataclass as tatsudataclass,
 )
+from .builder import (
+    BuilderConfig,
+    ModelBuilderSemantics,
+    TypeResolutionError,
+)
 from .node import Node
 from .synth import SynthNode, registered_synthetics, synthesize
 
@@ -22,4 +27,7 @@ __all__ = [
     'synthesize',
     'tatsudataclass',
     'TatSuDataclassParams',
+    'BuilderConfig',
+    'ModelBuilderSemantics',
+    'TypeResolutionError',
 ]

@@ -51,7 +51,6 @@ from .syntax import (
     SkipTo,
 )
 
-
 __all__ = [
     'Alert',
     'BasedRule',

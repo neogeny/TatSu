@@ -11,8 +11,8 @@ from .. import grammars as g
 from ..contexts import ParseContext
 from ..contexts.infos import ParseInfo
 from ..exceptions import FailedSemantics
+from ..objectmodel.builder import ModelBuilderSemantics
 from ..util import eval_escapes, flatten, re, trim, warning
-from .builder import ModelBuilderSemantics
 
 
 class GrammarSemantics(ModelBuilderSemantics):

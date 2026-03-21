@@ -16,6 +16,7 @@ from ..exceptions import (
     ParseError,
     ParseException,
 )
+from ..objectmodel import ModelBuilderSemantics
 from ..tokenizing import NullCursor, NullTokenizer, Tokenizer
 from ..tokenizing.textlines import TextLinesTokenizer
 from ..util import (
@@ -32,7 +33,6 @@ from .ast import AST
 from .cst import closedlist, islist
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
 from .sts import ParseStateStack
-
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
@@ -72,8 +72,6 @@ class ParserEngine(ParserCore):
             self._reset()
 
             if not self.config.semantics and asmodel:
-                from ..grammars.builder import ModelBuilderSemantics
-
                 self.config.semantics = ModelBuilderSemantics()
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
                 self.config.semantics.set_context(self)

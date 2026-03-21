@@ -7,12 +7,12 @@ import sys
 import pytest
 
 from tatsu.exceptions import FailedParse, FailedToken
-from tatsu.grammars.builder import (
+from tatsu.objectmodel import Node, synth
+from tatsu.objectmodel.builder import (
     BuilderConfig,
     ModelBuilderSemantics,
     TypeResolutionError,
 )
-from tatsu.objectmodel import Node, synth
 from tatsu.tool import compile, parse
 
 

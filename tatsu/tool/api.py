@@ -7,16 +7,16 @@ from typing import Any
 
 from .. import grammars as g
 from ..exceptions import ParseException
-from ..grammars.builder import (
+from ..infos import ParserConfig
+from ..ngcodegen.ngmodel_gen import modelgen
+from ..ngcodegen.ngparser_gen import pythongen
+from ..objectmodel import Node
+from ..objectmodel.builder import (
     BuilderConfig,
     Constructor,
     ModelBuilderSemantics,
     TypeContainer,
 )
-from ..infos import ParserConfig
-from ..ngcodegen.ngmodel_gen import modelgen
-from ..ngcodegen.ngparser_gen import pythongen
-from ..objectmodel import Node
 from ..parser import TatSuParserGenerator
 from ..tokenizing import Tokenizer
 from ..util import hasha

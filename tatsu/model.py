@@ -4,8 +4,7 @@
 from __future__ import annotations
 
 from .contexts import AST
-from .grammars.builder import ModelBuilderSemantics
-from .objectmodel import BaseNode, Node, Node as ParseModel
+from .objectmodel import BaseNode, ModelBuilderSemantics, Node, Node as ParseModel
 from .walkers import BreadthFirstWalker, DepthFirstWalker, NodeWalker, PreOrderWalker
 
 __all__ = [
