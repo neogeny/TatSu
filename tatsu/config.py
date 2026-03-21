@@ -24,7 +24,6 @@ class ParserConfig(Config):
 
     start: str | None = None
 
-    tokenizercls: type[Text] = NullText
     semantics: Any = None
 
     comment_recovery: bool = False
@@ -62,6 +61,7 @@ class ParserConfig(Config):
     rule_name: str | None = None
     comments_re: re.Pattern | str | None = None
     eol_comments_re: re.Pattern | str | None = None
+    tokenizercls: type[Text] = NullText
 
     def __post_init__(self):  # pylint: disable=W0235
         if self.ignorecase:
@@ -114,6 +114,14 @@ class ParserConfig(Config):
         if self.memo_cache_size is not None:
             warnings.warn(
                 'ParserConfig.memo_cache_size is deprecated and has no effect',
+                DeprecationWarning,
+                stacklevel=3,
+            )
+            del self.memo_cache_size
+
+        if not issubclass(self.tokenizercls, NullText):
+            warnings.warn(
+                'ParserConfig.tokenizercls is deprecated and has no effect',
                 DeprecationWarning,
                 stacklevel=3,
             )

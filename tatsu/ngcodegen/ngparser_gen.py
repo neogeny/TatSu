@@ -18,6 +18,7 @@ from ..util import Undefined, compress_seq, regexpp, safe_name
 from ..util.indent import IndentPrintMixin
 from ..walkers import NodeWalker
 
+
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 ANON = '_'
 
@@ -56,9 +57,8 @@ PARSER_BODY = """\
     config = ParserConfig.new(config, **settings)
     rulessource = {rules_name}()
     assert isinstance(config, ParserConfig)
-    tokenizercls = config.tokenizercls or {tokenizer_name}
 
-    super().__init__(rulessource, config=config, tokenizercls=tokenizercls)
+    super().__init__(rulessource, config=config)
 """
 
 FOOTER = """\
@@ -142,7 +142,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print(
             HEADER.format(
                 basename=basename,
-                tokenizer_name=self._tokenizer_name(basename),
+                input_name=self._input_name(basename),
                 buffer_name=self._buffer_name(basename),
                 parser_name=self._parser_name(basename),
                 rules_name=self._rules_name(basename),
@@ -368,8 +368,8 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 config = config.override(**settings)
             ''')
 
-    def _tokenizer_name(self, basename) -> str:
-        return f'{basename}Tokenizer'
+    def _input_name(self, basename) -> str:
+        return f'{basename}Text'
 
     def _buffer_name(self, basename) -> str:
         return f'{basename}Buffer'
@@ -400,7 +400,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print()
 
     def _gen_buffering(self, grammar: g.Grammar, basename: str):
-        self.print(f'class {self._tokenizer_name(basename)}(TextLines):')
+        self.print(f'class {self._input_name(basename)}(TextLines):')
         self._gen_buffering_init(grammar)
 
         self.print()
@@ -422,7 +422,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                     + PARSER_BODY.format(
                         parser_name=self._parser_name(basename),
                         rules_name=self._rules_name(basename),
-                        tokenizer_name=self._tokenizer_name(basename),
+                        input_name=self._input_name(basename),
                     )
                 )
         self.print()

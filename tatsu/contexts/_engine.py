@@ -13,7 +13,6 @@ from ..exceptions import (
     FailedParse,
     FailedSemantics,
     KeywordError,
-    ParseError,
     ParseException,
 )
 from ..input import NullCursor, NullText, Text
@@ -34,7 +33,6 @@ from .cst import closedlist, islist
 from .ctx import CanParse
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
 from .sts import ParseStateStack
-
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
@@ -59,17 +57,12 @@ class ParserEngine(ParserCore, CanParse):
         self.update_tracer()
         try:
             if isinstance(text, Text):
-                tokenizer = text
-            elif issubclass(config.tokenizercls, NullText):
-                tokenizer = TextLines(text=text, config=config, **settings)
-            elif text is not None:
-                cls = self.tokenizercls
-                tokenizer = cls(str(text), config=config, **settings)
+                input = text
             else:
-                raise ParseError('No tokenizer or text')  # type: ignore  # pyright: ignore[reportUnreachable]
-            assert not isinstance(tokenizer, NullText)
-            self.tokenizer = tokenizer
-            self.states = ParseStateStack(cursor=tokenizer.newcursor())
+                input = TextLines(text=text, config=config, **settings)
+            assert not isinstance(input, NullText)
+            self.input = input
+            self.states = ParseStateStack(cursor=input.newcursor())
             assert not isinstance(self.state.cursor, NullCursor)
             self._reset()
 

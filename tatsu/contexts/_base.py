@@ -14,7 +14,6 @@ from ..exceptions import (
     ParseException,
 )
 from ..input import Cursor, NullText, Text
-from ..input.textlines import TextLines
 from ..objectmodel import ModelBuilderSemantics
 from ..util import (
     prune_dict,
@@ -66,17 +65,12 @@ class ParserCore:
 
         config = ParserConfig.new(config, **settings)
         assert isinstance(config, ParserConfig)
-        tokcls = config.tokenizercls
-        if tokcls is None or isinstance(tokcls, NullText):
-            config = config.override(tokenizercls=TextLines)
         assert isinstance(config, ParserConfig)
         self._config: ParserConfig = config
         self._active_config: ParserConfig = self._config
 
-        self.tokenizer: Text = NullText()
-        self.states: ParseStateStack = ParseStateStack(
-            cursor=self.tokenizer.newcursor()
-        )
+        self.input: Text = NullText()
+        self.states: ParseStateStack = ParseStateStack(cursor=self.input.newcursor())
         if not self.config.semantics and asmodel:
             self.config.semantics = ModelBuilderSemantics()
         self.semantics: type | None = config.semantics
@@ -92,7 +86,7 @@ class ParserCore:
             int(max(1, self.config.perlinememos) * self.cursor.linecount)
         )
         self._results: MemoCache = {}
-        self.states = ParseStateStack(cursor=self.tokenizer.newcursor())
+        self.states = ParseStateStack(cursor=self.input.newcursor())
 
     def _reset(self) -> None:
         self._initialize_caches()
@@ -116,12 +110,6 @@ class ParserCore:
     @property
     def cursor(self) -> Cursor:
         return self.state.cursor
-
-    @property
-    def tokenizercls(self) -> type[Text]:
-        if self.config.tokenizercls is None:
-            return TextLines
-        return self.config.tokenizercls
 
     @property
     def last_node(self) -> Any:

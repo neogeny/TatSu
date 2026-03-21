@@ -2,8 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import Any, Protocol, Self, runtime_checkable
+from typing import Protocol, Self, runtime_checkable
 
 from . import LineInfo
 from .infos import LineIndexInfo
@@ -17,7 +16,7 @@ class Cursor(Protocol):
     def clone(self) -> Self: ...
 
     @property
-    def tokenizer(self) -> Text: ...
+    def input(self) -> Text: ...
 
     @property
     def filename(self) -> str: ...
@@ -67,16 +66,13 @@ class Cursor(Protocol):
     def lookahead_pos(self) -> str: ...
 
 
-class Text(ABC):
-    def __init__(self, text: Any, /, *args, **kwargs) -> None:
-        assert text is None or text is not None
+@runtime_checkable
+class Text(Protocol):
 
-    @abstractmethod
     def newcursor(self) -> Cursor: ...
 
     @property
-    @abstractmethod
-    def filename(self) -> str: ...
+    def name(self) -> str: ...
 
 
 Tokenizer = Text

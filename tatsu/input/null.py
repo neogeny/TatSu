@@ -18,7 +18,7 @@ class NullCursor(Cursor):
         return type(self)()
 
     @property
-    def tokenizer(self) -> Text:
+    def input(self) -> Text:
         return NullText()
 
     @property
@@ -98,9 +98,6 @@ class NullCursor(Cursor):
 
 
 class NullText(Text):
-    def __init__(self) -> None:
-        super().__init__(None)
-
     def newcursor(self, pos: int = 0) -> Cursor:
         return NullCursor()
 
@@ -109,5 +106,5 @@ class NullText(Text):
         return ''
 
     @property
-    def filename(self) -> str:
+    def name(self) -> str:
         return ''

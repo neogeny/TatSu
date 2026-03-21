@@ -22,23 +22,23 @@ DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 
 class TextLinesCursor(Cursor):
-    __slots__ = ('len', 'pos', 'tokens')
+    __slots__ = ('_input', 'len', 'pos')
 
-    def __init__(self, tokens: TextLines, pos: int = 0):
-        self.tokens: TextLines = tokens
+    def __init__(self, input: TextLines, pos: int = 0):
+        self._input: TextLines = input
         self.pos: int = pos
-        self.len: int = tokens.len
-        self.text = tokens.text
+        self.len: int = input.len
+        self.text = input.text
 
     def clone(self) -> Self:
-        return type(self)(self.tokens, pos=self.pos)
+        return type(self)(self.input, pos=self.pos)
 
     def __copy__(self) -> Self:
-        return type(self)(self.tokens, pos=self.pos)
+        return type(self)(self.input, pos=self.pos)
 
     @property
-    def tokenizer(self) -> TextLines:
-        return self.tokens
+    def input(self) -> TextLines:
+        return self._input
 
     @property
     def line(self) -> int:
@@ -46,7 +46,7 @@ class TextLinesCursor(Cursor):
 
     @property
     def linecount(self) -> int:
-        return self.tokens.linecount
+        return self.input.linecount
 
     @property
     def col(self) -> int:
@@ -54,8 +54,8 @@ class TextLinesCursor(Cursor):
 
     @property
     def filename(self) -> str:
-        n = min(len(self.tokenizer.line_index) - 1, self.line)
-        filename, _actual_line = self.tokenizer.line_index[n]
+        n = min(len(self.input.line_index) - 1, self.line)
+        filename, _actual_line = self.input.line_index[n]
         return filename
 
     def goto(self, pos: int):
@@ -105,7 +105,7 @@ class TextLinesCursor(Cursor):
         p = self.pos
         text = self.text[p : p + len(token)]
 
-        if self.tokens.ignorecase:
+        if self.input.ignorecase:
             is_match = text.lower() == token.lower()
         else:
             is_match = text == token
@@ -115,7 +115,7 @@ class TextLinesCursor(Cursor):
 
         self.move(len(token))
         partial_match = (
-            self.tokens.nameguard
+            self.input.nameguard
             and self.is_name_char(self.current)
             and self.is_name(token)
         )
@@ -134,39 +134,39 @@ class TextLinesCursor(Cursor):
         return token
 
     def is_name_char(self, c: str | None) -> bool:
-        return c is not None and (c.isalnum() or c in self.tokens._namechar_set)
+        return c is not None and (c.isalnum() or c in self.input._namechar_set)
 
     def is_name(self, s: str) -> bool:
         if not s:
             return False
 
-        goodstart = s[0].isalpha() or s[0] in self.tokens._namechar_set
+        goodstart = s[0].isalpha() or s[0] in self.input._namechar_set
         return goodstart and all(self.is_name_char(c) for c in s[1:])
 
     def lineinfo(self, pos: int | None = None) -> LineInfo:
         pos = notnone(pos, self.pos)
-        tokenizer = self.tokens
+        input = self.input
 
-        if not tokenizer.line_cache or not tokenizer.line_index:
+        if not input.line_cache or not input.line_index:
             return LineInfo(
-                filename=tokenizer.filename,
+                filename=input.name,
                 line=0,
                 col=0,
                 start=0,
-                end=tokenizer.len,
-                text=tokenizer.text,
+                end=input.len,
+                text=input.text,
             )
 
         # Ensure pos is within bounds for cache lookup
         # The cache has an extra entry at the end, so len - 2 is the last valid index for content
-        pos = min(pos, len(tokenizer.line_cache) - 2)
-        start, line, length = tokenizer.line_cache[pos]
+        pos = min(pos, len(input.line_cache) - 2)
+        start, line, length = input.line_cache[pos]
         end = start + length
         col = pos - start
-        text = tokenizer.text[start:end]
+        text = input.text[start:end]
 
-        n = min(len(tokenizer.line_index) - 1, line)
-        filename, actual_line = tokenizer.line_index[n]
+        n = min(len(input.line_index) - 1, line)
+        filename, actual_line = input.line_index[n]
         return LineInfo(
             filename=filename,
             line=actual_line,
@@ -187,44 +187,44 @@ class TextLinesCursor(Cursor):
             return ''
         info = self.lineinfo(self.pos)
         text = info.text[info.col : info.col + 1 + 80]
-        return self.tokens.split_block_lines(text)[0].rstrip()
+        return self.input.split_block_lines(text)[0].rstrip()
 
     def posline(self, pos: int | None = None) -> int:
         pos = notnone(pos, self.pos)
-        if not self.tokens.line_cache:
+        if not self.input.line_cache:
             return 0
-        return self.tokens.line_cache[pos].lineno
+        return self.input.line_cache[pos].lineno
 
     def poscol(self, pos: int | None = None) -> int:
         pos = notnone(pos, self.pos)
-        if not self.tokens.line_cache:
+        if not self.input.line_cache:
             return 0
-        start = self.tokens.line_cache[pos].startpos
+        start = self.input.line_cache[pos].startpos
         return pos - start
 
     def get_line(self, n: int | None = None) -> str:
-        return self.tokens.get_line(notnone(n, self.line))
+        return self.input.get_line(notnone(n, self.line))
 
     def get_lines(
         self,
         start: int | None = None,
         end: int | None = None,
     ) -> list[str]:
-        return self.tokens.get_lines(start, end)
+        return self.input.get_lines(start, end)
 
     def line_index(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
-        return self.tokens.line_index_at(start, end)
+        return self.input.line_index_at(start, end)
 
     def eat_whitespace(self) -> bool:
-        if self.tokens.whitespace_re:
-            return self._eat_regex(self.tokens.whitespace_re)
+        if self.input.whitespace_re:
+            return self._eat_regex(self.input.whitespace_re)
         return False
 
     def eat_comments(self) -> bool:
-        return self._eat_regex(self.tokens.config.comments)
+        return self._eat_regex(self.input.config.comments)
 
     def eat_eol_comments(self) -> bool:
-        return self._eat_regex(self.tokens.config.eol_comments)
+        return self._eat_regex(self.input.config.eol_comments)
 
     def _eat_regex(self, regex: str | re.Pattern | None) -> bool:
         if not regex:
@@ -261,7 +261,6 @@ class TextLines(Text):
         config: ParserConfig | None = None,
         **settings: Any,
     ):
-        super().__init__(text, config=config)
         config = ParserConfig.new(config=config, **settings)
         assert isinstance(config, ParserConfig)
         self.config = config
@@ -290,7 +289,7 @@ class TextLines(Text):
         return TextLinesCursor(self)
 
     @property
-    def filename(self) -> str:
+    def name(self) -> str:
         return str(self.config.filename or '')
 
     @property
@@ -318,7 +317,7 @@ class TextLines(Text):
         return None
 
     def _preprocess(self):
-        lines, index = self._preprocess_block(self.filename, self.original_text)
+        lines, index = self._preprocess_block(self.name, self.original_text)
         self.lines = lines
         self.line_index = index
         self.text = self.join_block_lines(lines)

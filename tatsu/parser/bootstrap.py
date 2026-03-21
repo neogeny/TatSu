@@ -28,7 +28,7 @@ from tatsu.input.textlines import TextLines
 KEYWORDS: set[str] = set()
 
 
-class TatSuBootstrapTokenizer(TextLines):
+class TatSuBootstrapText(TextLines):
     def __init__(
         self,
         text, /,
@@ -83,9 +83,8 @@ class TatSuBootstrapParser(Parser):
         config = ParserConfig.new(config, **settings)
         rulessource = TatSuBootstrapRules()
         assert isinstance(config, ParserConfig)
-        tokenizercls = config.tokenizercls or TatSuBootstrapTokenizer
 
-        super().__init__(rulessource, config=config, tokenizercls=tokenizercls)
+        super().__init__(rulessource, config=config)
 
 
 class TatSuBootstrapRules:

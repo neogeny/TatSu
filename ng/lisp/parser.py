@@ -82,9 +82,8 @@ class LISPParser(Parser):
         config = ParserConfig.new(config, **settings)
         rulessource = LISPRules()
         assert isinstance(config, ParserConfig)
-        tokenizercls = config.tokenizercls or LISPTokenizer
 
-        super().__init__(rulessource, config=config, tokenizercls=tokenizercls)
+        super().__init__(rulessource, config=config)
 
 
 class LISPRules:
