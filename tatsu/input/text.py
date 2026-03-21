@@ -10,7 +10,7 @@ from . import LineInfo
 @runtime_checkable
 class Cursor(Protocol):
     pos: int
-    text: str
+    textstr: str
 
     def clone(self) -> Self: ...
 

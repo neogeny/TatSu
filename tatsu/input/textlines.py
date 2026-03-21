@@ -18,6 +18,7 @@ from . import LineInfo
 from .infos import LineIndexInfo, PosLine
 from .text import Cursor, Text
 
+
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 
@@ -28,7 +29,7 @@ class TextLinesCursor(Cursor):
         self._input: TextLines = input
         self.pos: int = pos
         self.len: int = input.len
-        self.text = input.text
+        self.textstr = input.textstr
 
     def clone(self) -> Self:
         return type(self)(self.input, pos=self.pos)
@@ -74,13 +75,13 @@ class TextLinesCursor(Cursor):
     def current(self) -> str | None:
         if self.pos >= self.len:
             return None
-        return self.text[self.pos]
+        return self.textstr[self.pos]
 
     def peek(self, n: int = 1) -> str | None:
         p = self.pos + n
         if p >= self.len or p < 0:
             return None
-        return self.text[p]
+        return self.textstr[p]
 
     def next(self) -> str | None:
         if self.atend():
@@ -103,7 +104,7 @@ class TextLinesCursor(Cursor):
             return None
 
         p = self.pos
-        text = self.text[p : p + len(token)]
+        text = self.textstr[p: p + len(token)]
 
         if self.input.ignorecase:
             is_match = text.lower() == token.lower()
@@ -154,7 +155,7 @@ class TextLinesCursor(Cursor):
                 col=0,
                 start=0,
                 end=input.len,
-                text=input.text,
+                text=input.textstr,
             )
 
         # Ensure pos is within bounds for cache lookup
@@ -163,7 +164,7 @@ class TextLinesCursor(Cursor):
         start, line, length = input.line_cache[pos]
         end = start + length
         col = pos - start
-        text = input.text[start:end]
+        text = input.textstr[start:end]
 
         n = min(len(input.line_index) - 1, line)
         source, actual_line = input.line_index[n]
@@ -243,7 +244,7 @@ class TextLinesCursor(Cursor):
     def _scanre(self, pattern: str | re.Pattern | None) -> re.Match[Any] | None:
         if not (cre := cached_re_compile(pattern)):
             return None
-        return cre.match(self.text, self.pos)
+        return cre.match(self.textstr, self.pos)
 
     def __len__(self) -> int:
         return self.len
@@ -277,7 +278,7 @@ class TextLines(Text):
         self._namechar_set = set(config.namechars or '')
 
         # Structural data
-        self.text = ""
+        self.textstr = ""
         self.lines: list[str] = []
         self.line_index: list[LineIndexInfo] = []
         self.line_cache: list[PosLine] = []
@@ -294,11 +295,11 @@ class TextLines(Text):
 
     @property
     def len(self) -> int:
-        return len(self.text)
+        return len(self.textstr)
 
     @property
     def linecount(self) -> int:
-        return linecount(self.text)
+        return linecount(self.textstr)
 
     @property
     def ignorecase(self) -> bool:
@@ -320,10 +321,10 @@ class TextLines(Text):
         lines, index = self._preprocess_block(self.source, self.original_text)
         self.lines = lines
         self.line_index = index
-        self.text = self.join_block_lines(lines)
+        self.textstr = self.join_block_lines(lines)
 
     def _postprocess(self):
-        cache, _count = PosLine.build_line_cache(self.lines, len(self.text))
+        cache, _count = PosLine.build_line_cache(self.lines, len(self.textstr))
         self.line_cache = cache
 
     def _preprocess_block(
