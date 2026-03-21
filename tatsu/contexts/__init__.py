@@ -7,7 +7,7 @@ from .context import ParseContext
 from .ctx import CanParse, Ctx, Func
 from .decorator import isname, leftrec, name, nomemo, rule, tatsumasu
 from .infos import RuleInfo
-from .sts import _AT_, ParseState, ParseStateStack
+from .state import _AT_, ParseState, ParseStateStack
 
 __all__ = [
     'AST',

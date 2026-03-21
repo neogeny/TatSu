@@ -22,7 +22,7 @@ from ..util import (
 from ..util.boundeddict import BoundedDict
 from .ast import AST
 from .infos import MemoKey, RuleInfo, RuleResult
-from .sts import ParseState, ParseStateStack
+from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
 type RuleOutcome = RuleResult | ParseException

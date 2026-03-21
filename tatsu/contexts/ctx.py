@@ -8,7 +8,7 @@ from typing import Any, Protocol, runtime_checkable
 from ..exceptions import FailedParse
 from .ast import AST
 from .infos import RuleInfo
-from .sts import ParseState, ParseStateStack
+from .state import ParseState, ParseStateStack
 
 type Func = Callable[[Ctx], Any]
 

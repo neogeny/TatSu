@@ -32,7 +32,7 @@ from .ast import AST
 from .cst import closedlist, islist
 from .ctx import CanParse
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
-from .sts import ParseStateStack
+from .state import ParseStateStack
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
