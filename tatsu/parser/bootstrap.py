@@ -31,7 +31,8 @@ KEYWORDS: set[str] = set()
 class TatSuBootstrapText(TextLines):
     def __init__(
         self,
-        text, /,
+        text,
+        /,
         config: ParserConfig | None = None,
         **settings,
     ) -> None:
@@ -53,10 +54,14 @@ class TatSuBootstrapText(TextLines):
         super().__init__(text, config=config)
 
 
+
+TatSuBootstrapTokenizer = TatSuBootstrapText
+
 class TatSuBootstrapBuffer(Buffer):  # NOTE: backwards compatibility
     def __init__(
         self,
-        text, /,
+        text,
+        /,
         config: ParserConfig | None = None,
         **settings,
     ) -> None:

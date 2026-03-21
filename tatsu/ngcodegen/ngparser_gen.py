@@ -18,7 +18,6 @@ from ..util import Undefined, compress_seq, regexpp, safe_name
 from ..util.indent import IndentPrintMixin
 from ..walkers import NodeWalker
 
-
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 ANON = '_'
 
@@ -49,7 +48,6 @@ HEADER = """\
     from tatsu.parsing import Parser, generic_main
     from tatsu.input.buffer import Buffer
     from tatsu.input.textlines import TextLines
-
 """
 
 
@@ -371,6 +369,9 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def _input_name(self, basename) -> str:
         return f'{basename}Text'
 
+    def _legacy_input_name(self, basename) -> str:
+        return f'{basename}Tokenizer'
+
     def _buffer_name(self, basename) -> str:
         return f'{basename}Buffer'
 
@@ -387,7 +388,8 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 self.print(
                     """
                     self,
-                    text, /,
+                    text,
+                    /,
                     config: ParserConfig | None = None,
                     **settings,
                     """,
@@ -402,6 +404,11 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def _gen_buffering(self, grammar: g.Grammar, basename: str):
         self.print(f'class {self._input_name(basename)}(TextLines):')
         self._gen_buffering_init(grammar)
+        self.print()
+        self.print()
+        self.print(
+            f'{self._legacy_input_name(basename)} = {self._input_name(basename)}'
+        )
 
         self.print()
         self.print(

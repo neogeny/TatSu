@@ -11,13 +11,13 @@ from ..semantics import ASTSemantics
 from .bootstrap import (  # type: ignore
     TatSuBootstrapBuffer,
     TatSuBootstrapParser,
-    TatSuBootstrapTokenizer,
+    TatSuBootstrapText,
 )
 
 PRAGMA_RE = r'^\s*#include.*$'
 
 
-class TatSuTokenizer(TatSuBootstrapTokenizer): ...
+class TatSuText(TatSuBootstrapText): ...
 
 
 class TatSuBuffer(TatSuBootstrapBuffer):
