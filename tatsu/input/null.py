@@ -12,7 +12,7 @@ from .text import Cursor, Text
 class NullCursor(Cursor):
     def __init__(self) -> None:
         self.pos = 0
-        self.text = ''
+        self.textstr = ''
 
     def clone(self) -> Self:
         return type(self)()

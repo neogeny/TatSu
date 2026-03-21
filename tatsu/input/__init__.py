@@ -6,7 +6,6 @@ from .infos import LineIndexInfo, LineInfo, PosLine
 from .null import NullCursor, NullText
 from .text import Cursor, Text, Tokenizer
 
-
 __all__ = [
     'Cursor',
     'NullCursor',

@@ -27,7 +27,6 @@ from . import LineInfo
 from .infos import LineIndexInfo, PosLine
 from .text import Cursor, Text
 
-
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 # for backwards compatibility with existing parsers
@@ -40,7 +39,7 @@ class BufferCursor(Cursor):
     def __init__(self, buffer: Buffer, pos: int = 0):
         super().__init__()
         self.buffer = buffer
-        self.text = self.buffer.text
+        self.textstr = self.buffer.text
         self.pos = pos
         self.len = buffer.len
 
@@ -85,7 +84,7 @@ class BufferCursor(Cursor):
     def current(self) -> str | None:
         if self.pos >= self.len:
             return None
-        return self.text[self.pos]
+        return self.textstr[self.pos]
 
     def peek(self, n: int = 1) -> str | None:
         p = self.pos + n
@@ -124,7 +123,7 @@ class BufferCursor(Cursor):
             return None
 
         p = self.pos
-        text = self.text[p : p + len(token)]
+        text = self.textstr[p : p + len(token)]
         if self.buffer.ignorecase:
             is_match = text.lower() == token.lower()
         else:
@@ -268,7 +267,7 @@ class BufferCursor(Cursor):
         if cre is None:
             return None
         else:
-            return cre.match(self.text, self.pos)
+            return cre.match(self.textstr, self.pos)
 
     def __len__(self) -> int:
         return self.len

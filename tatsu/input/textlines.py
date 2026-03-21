@@ -18,7 +18,6 @@ from . import LineInfo
 from .infos import LineIndexInfo, PosLine
 from .text import Cursor, Text
 
-
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 
@@ -104,7 +103,7 @@ class TextLinesCursor(Cursor):
             return None
 
         p = self.pos
-        text = self.textstr[p: p + len(token)]
+        text = self.textstr[p : p + len(token)]
 
         if self.input.ignorecase:
             is_match = text.lower() == token.lower()
