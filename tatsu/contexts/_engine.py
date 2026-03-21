@@ -35,6 +35,7 @@ from .ctx import CanParse
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
 from .sts import ParseStateStack
 
+
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
@@ -75,7 +76,7 @@ class ParserEngine(ParserCore, CanParse):
             if not self.config.semantics and asmodel:
                 self.config.semantics = ModelBuilderSemantics()
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
-                self.config.semantics.set_context(self)
+                self.config.semantics.set_context(self)  # ty: ignore[call-non-callable]
 
             actual_start: str = self.config.effective_start_rule_name() or 'start'
             rule = self.find_rule(actual_start)
