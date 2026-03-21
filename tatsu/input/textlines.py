@@ -366,3 +366,6 @@ class TextLines(Text):
         if end is None:
             end = len(self.line_index)
         return self.line_index[start : 1 + end]
+
+
+TextLinesTokenizer = TextLines

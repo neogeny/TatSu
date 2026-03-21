@@ -77,3 +77,6 @@ class Text(ABC):
     @property
     @abstractmethod
     def filename(self) -> str: ...
+
+
+Tokenizer = Text

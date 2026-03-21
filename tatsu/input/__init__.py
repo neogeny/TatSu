@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from .infos import LineIndexInfo, LineInfo, PosLine
 from .null import NullCursor, NullText
-from .text import Cursor, Text
+from .text import Cursor, Text, Tokenizer
 
 __all__ = [
     'Cursor',
@@ -14,4 +14,5 @@ __all__ = [
     'LineIndexInfo',
     'LineInfo',
     'PosLine',
+    'Tokenizer',
 ]
