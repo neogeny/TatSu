@@ -31,21 +31,23 @@ from ..util import (
 from ._base import ParserCore
 from .ast import AST
 from .cst import closedlist, islist
+from .ctx import CanParse
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
 from .sts import ParseStateStack
+
 
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
 
-class ParserEngine(ParserCore):
+class ParserEngine(ParserCore, CanParse):
     def parse(
         self,
         text: Any,
         /,
         *,
         start: str | None = None,
-        config: ParserConfig | None = None,
+        config: Any = None,
         asmodel: bool = False,
         **settings: Any,
     ) -> Any:

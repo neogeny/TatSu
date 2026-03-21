@@ -5,12 +5,25 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any, Protocol, runtime_checkable
 
+from ..exceptions import FailedParse
 from .ast import AST
 from .infos import RuleInfo
 from .sts import ParseState, ParseStateStack
-from ..exceptions import FailedParse
 
 type Func = Callable[[Ctx], Any]
+
+
+class CanParse(Protocol):
+    def parse(
+        self,
+        text: Any,
+        /,
+        *,
+        start: str | None = None,
+        config: Any = None,
+        asmodel: bool = False,
+        **settings: Any,
+    ) -> Any: ...
 
 
 @runtime_checkable

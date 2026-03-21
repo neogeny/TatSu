@@ -17,4 +17,7 @@
 
 - Incorporated [zuban][] to the set of type linters.
 
+- Introduced `objectmodel.ctx.CanParse(Protocol)` defining the `parse()` method
+  for entry point to parsing.
+
 [zuban]: https://github.com/zubanls/zuban 

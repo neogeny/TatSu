@@ -9,14 +9,15 @@ from copy import copy
 from dataclasses import field
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, override
+from typing import Any
 
 from ..config import ParserConfig
-from ..contexts import AST, Ctx, Func, ParseContext, RuleInfo
+from ..contexts import AST, CanParse, Ctx, Func, ParseContext, RuleInfo
 from ..exceptions import GrammarError
 from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import chunks, compress_seq, indent, trim, typename
 from .math import ffset, kdot
+
 
 PEP8_LLEN = 72
 
@@ -28,7 +29,7 @@ def model_classes() -> list[type[Model]]:
 
 
 @nodedataclass
-class Model(Node):
+class Model(Node, CanParse):
     _lookahead: ffset = field(init=False, default_factory=set)
     _firstset: ffset = field(init=False, default_factory=set)
     _follow_set: ffset = field(init=False, default_factory=set)
@@ -45,10 +46,6 @@ class Model(Node):
     def follow_ref(self) -> Model:
         return self
 
-    def _parse(self, ctx: Ctx) -> Any:
-        assert ctx
-        return ()
-
     def defines(self):
         return []
 
@@ -61,10 +58,29 @@ class Model(Node):
             raise TypeError(f'{typename(self)} incorrectly initialized {grammar}')
         return grammar
 
-    def parse(self, text: str, /, **settings) -> Any:
+    def parse(
+        self,
+        text: Any,
+        /,
+        *,
+        start: str | None = None,
+        config: Any = None,
+        asmodel: bool = False,
+        **settings: Any,
+    ) -> Any:
         grammar = self.grammar
         assert isinstance(grammar, Grammar)
-        return grammar.parse(text, **settings)
+        return grammar.parse(
+            text,
+            start=start,
+            config=config,
+            asmodel=asmodel,
+            **settings,
+        )
+
+    def _parse(self, ctx: Ctx) -> Any:
+        assert ctx
+        return ()
 
     def _set_grammar(self, grammar: Grammar):
         assert isinstance(grammar, Grammar)
@@ -356,11 +372,12 @@ class Grammar(Model):
         name=None,
         rules: Iterable | None = None,
         *,
-        config: ParserConfig | None = None,
+        config: Any = None,
         directives: dict | None = None,
         **settings,
     ):
         super().__init__()
+        config = config if isinstance(config, ParserConfig) else ParserConfig()
         assert isinstance(rules, Iterable), f'{type(rules)!r} {rules!r}'
         directives = directives or {}
         assert isinstance(directives, dict)
@@ -487,16 +504,15 @@ class Grammar(Model):
         for rule in self.rules:
             rule._follow_set = fl[rule.name]
 
-    @override
     def parse(
         self,
-        text: str,
+        text: Any,
         /,
         *,
         start: str | None = None,
-        config: ParserConfig | None = None,
+        config: Any = None,
         asmodel: bool = False,
-        **settings,
+        **settings: Any,
     ) -> Any:
         config = self.config.override_config(config)
         assert isinstance(config, ParserConfig)
@@ -582,9 +598,7 @@ class ModelContext(ParseContext):
     ):
         config = ParserConfig.new(config, **settings)
         assert isinstance(config, ParserConfig)
-        config = config.override(start=start)
-
-        super().__init__(config=config)
+        super().__init__(start=start, config=config, asmodel=asmodel)
         if not self.config.semantics and asmodel:
             self.config.semantics = ModelBuilderSemantics()
 

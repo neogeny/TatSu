@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from .ast import AST
 from .context import ParseContext
-from .ctx import Ctx, Func
+from .ctx import CanParse, Ctx, Func
 from .decorator import isname, leftrec, name, nomemo, rule, tatsumasu
 from .infos import RuleInfo
 from .sts import _AT_, ParseState, ParseStateStack
@@ -13,6 +13,7 @@ __all__ = [
     'AST',
     'ParseContext',
     'RuleInfo',
+    'CanParse',
     'Ctx',
     'Func',
     'isname',
