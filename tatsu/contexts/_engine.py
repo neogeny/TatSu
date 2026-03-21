@@ -35,7 +35,6 @@ from .ctx import CanParse
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
 from .sts import ParseStateStack
 
-
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 

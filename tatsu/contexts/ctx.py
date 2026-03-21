@@ -13,6 +13,7 @@ from .sts import ParseState, ParseStateStack
 type Func = Callable[[Ctx], Any]
 
 
+@runtime_checkable
 class CanParse(Protocol):
     def parse(
         self,
@@ -27,7 +28,7 @@ class CanParse(Protocol):
 
 
 @runtime_checkable
-class Ctx(Protocol):
+class Ctx(CanParse, Protocol):
     ast: AST
     cst: Any
     states: ParseStateStack
@@ -46,7 +47,6 @@ class Ctx(Protocol):
         excls: type[FailedParse] = FailedParse,
     ) -> FailedParse: ...
 
-    def parse(self, text: Any, /, **settings: Any) -> Any: ...
     def call(self, ri: RuleInfo) -> Any: ...
     def find_rule(self, name: str) -> Callable[..., Any]: ...
 
