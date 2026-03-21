@@ -34,6 +34,7 @@ from .ctx import CanParse
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
 from .state import ParseStateStack
 
+
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
@@ -90,7 +91,7 @@ class ParserEngine(ParserCore, CanParse):
     def call(self, ri: RuleInfo) -> Any:
         self.ruleinfo_stack.append(ri)
         self.next_token(ri)
-        key: MemoKey = self.memokey()
+        key = self.memokey()
 
         pos = self.pos
         try:
@@ -155,7 +156,7 @@ class ParserEngine(ParserCore, CanParse):
         return result
 
     def rule_call(self, ri: RuleInfo, key: MemoKey) -> RuleResult:
-        result = self._memos.get(key)
+        result = self.memo(key)
         if isinstance(result, Exception):
             raise result
         if isinstance(result, RuleResult):
