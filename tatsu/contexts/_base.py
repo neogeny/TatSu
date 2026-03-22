@@ -229,8 +229,15 @@ class ParserCore:
                 lambda k, v: k[0] < cutpos and not isinstance(v, FailedLeftRecursion),
             )
 
-        if self.config.prune_memos_on_cut:
-            prune(self._memos, self.pos)
+        if not self.config.prune_memos_on_cut:
+            return
+
+        cutpos = self.pos
+
+        def unwanted(key: MemoKey, value: RuleResult | ParseException) -> bool:
+            return key.pos < cutpos and not isinstance(value, FailedLeftRecursion)
+
+        prune_dict(self._memos, unwanted)
 
     _cut = cut
 

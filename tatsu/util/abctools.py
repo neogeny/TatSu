@@ -105,7 +105,7 @@ def isiter(obj: Any) -> bool:
         return False
 
 
-def prune_dict(d, predicate):
+def prune_dict[K, V](d: dict[K, V], predicate: Callable[[K, V], bool]):
     """Remove all items x where predicate(x, d[x])"""
 
     keys = [k for k, v in d.items() if predicate(k, v)]
