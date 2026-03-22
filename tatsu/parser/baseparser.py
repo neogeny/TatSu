@@ -9,9 +9,8 @@ from ..config import ParserConfig
 from ..grammars import GrammarSemantics
 from ..semantics import ASTSemantics
 from .bootparser import TatSuBootstrapParser
-from .bootstrap import (  # type: ignore
+from .bootstrap import (
     TatSuBootstrapBuffer,
-    # TatSuBootstrapParser,
     TatSuBootstrapText,
 )
 
