@@ -177,10 +177,10 @@ class GrammarSemantics(ModelBuilderSemantics):
         return g.RuleInclude(ast=ast, rule=rule)
 
     def grammar(self, ast):
-        directives = {d.name: d.value for d in flatten(ast.directives)}
+        directives = {d.name: d.value for d in flatten(ast.directives) if d}
         for value in directives.values():
             literal_eval(repr(value))
-        keywords = list(flatten(ast.keywords)) or []
+        keywords = tuple(flatten(ast.keywords)) or ()
 
         if directives.get('whitespace') in {'None', 'False'}:
             # NOTE: use '' because None will _not_ override defaults in configuration

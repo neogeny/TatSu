@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import json  # noqa: F401
-import pprint  # noqa: F401
+import json  # noqa: F401  # type: ignore
+import pprint  # noqa: F401 # type: ignore
 from typing import Any
 
 import pytest
@@ -205,6 +205,7 @@ def test_calc_repr():
         Grammar(
           name='CALC',
           directives={'grammar': 'CALC'},
+          keywords=(),
           rules=(
             Rule(
               name='start',
@@ -349,7 +350,7 @@ def test_calc_repr():
     # Path('calcmodel.py').write_text(modelrepr)
 
     refrepr = trim(calc_repr).rstrip()
-    assert hasha(modelrepr) == hasha(refrepr)
+    # assert hasha(modelrepr) == hasha(refrepr)
     assert modelrepr == refrepr
     emodel = eval(modelrepr, vars(g), {})  # type: ignore # noqa: S307
     assert isinstance(emodel, g.Grammar)

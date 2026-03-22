@@ -8,6 +8,8 @@ from typing import Any
 from ..config import ParserConfig
 from ..grammars import GrammarSemantics
 from ..semantics import ASTSemantics
+
+# from .bootparser import TatSuBootstrapParser
 from .bootstrap import (  # type: ignore
     TatSuBootstrapBuffer,
     TatSuBootstrapParser,
@@ -72,20 +74,25 @@ class TatSuParser(TatSuBootstrapParser):
             semantics=semantics,
             **settings,
         )
-        super().__init__(config)
+        super().__init__(config=config)
 
 
 class TatSuParserGenerator(TatSuBootstrapParser):
-    def __init__(self, name: str | None = None, semantics=None, **settings: Any):
+    def __init__(
+        self,
+        name: str | None = None,
+        semantics: Any = None,
+        **settings: Any,
+    ):
         if isinstance(semantics, type):
             raise TypeError(
                 f'semantics must be an object instance or None, not class {semantics!r}',
             )
         if not semantics:
-            semantics = GrammarSemantics(name=name, context=self)
+            semantics = GrammarSemantics(name=name)
         config = ParserConfig.new(
             name=name,
             semantics=semantics,
             **settings,
         )
-        super().__init__(config)
+        super().__init__(config=config)

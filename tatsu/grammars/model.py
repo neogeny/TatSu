@@ -7,6 +7,7 @@ from collections import defaultdict
 from collections.abc import Iterable, Mapping
 from copy import copy
 from dataclasses import field
+from itertools import batched
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -16,8 +17,9 @@ from ..contexts import AST, CanParse, Ctx, Func, ParseContext, RuleInfo
 from ..exceptions import GrammarError
 from ..input import Text
 from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
-from ..util import chunks, compress_seq, indent, trim, typename
+from ..util import compress_seq, indent, trim, typename
 from .math import ffset, kdot
+
 
 PEP8_LLEN = 72
 
@@ -370,6 +372,7 @@ class Rule(NamedBox):
 class Grammar(Model):
     name: str = 'MyTest'
     directives: dict[str, Any] = field(default_factory=dict)
+    keywords: tuple[str, ...] = field(default_factory=tuple)
     rules: tuple[Rule, ...] = field(default_factory=tuple)
 
     def __init__(
@@ -379,11 +382,13 @@ class Grammar(Model):
         *,
         config: Any = None,
         directives: dict | None = None,
+        keywords: tuple[str, ...] | None = None,
         **settings: Any,
     ):
         super().__init__()
         config = config if isinstance(config, ParserConfig) else ParserConfig()
         assert isinstance(rules, Iterable), f'{type(rules)!r} {rules!r}'
+
         directives = directives or {}
         assert isinstance(directives, dict)
         self.directives = directives
@@ -391,6 +396,17 @@ class Grammar(Model):
         config = ParserConfig.new(config=config, **settings)
         config = config.hard_override(**directives)
         self._config: ParserConfig = config
+
+        keywords = keywords or config.keywords or ()
+        assert isinstance(keywords, tuple)
+        if self.config.ignorecase:
+            keywords = tuple(k.upper() for k in keywords)
+        keywords = tuple(sorted(set(keywords)))
+        assert isinstance(keywords, tuple)
+        self.keywords = keywords
+
+        # note: Ctx needs keywords in config
+        self._config = self._config.override(keywords=self.keywords)
 
         self.rules = tuple(rules)  # type: ignore
         rulemap = {rule.name: rule for rule in rules}
@@ -423,10 +439,6 @@ class Grammar(Model):
     @property
     def rule(self) -> SimpleNamespace:
         return self._rule
-
-    @property
-    def keywords(self) -> set[str]:
-        return self.config.keywords
 
     @property
     def semantics(self) -> Any:
@@ -572,11 +584,10 @@ class Grammar(Model):
         if directives:
             directives += '\n'
 
-        keywords = '\n'.join(
-            '@@keyword :: ' + ' '.join(repr(k) for k in c if k is not None)
-            for c in chunks(sorted(self.keywords), 8)
-        ).strip()
-        keywords = '\n\n' + keywords + '\n' if keywords else ''
+        keywordsets = []
+        for batch in batched(sorted(self.keywords), 8):
+            keywordsets += [f'@@keyword :: {' '.join(repr(k) for k in batch if k)}']
+        keywords = f"\n\n{'\n'.join(keywordsets)}\n\n" if keywordsets else ""
 
         rules = (
             '\n\n'.join(str(rule._pretty(lean=lean)) for rule in self.rules)

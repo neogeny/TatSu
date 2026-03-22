@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import warnings
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Self, override
 
 from .input import NullText
@@ -46,7 +46,7 @@ class ParserConfig(Config):
 
     comments: str | None = None
     eol_comments: str | None = None
-    keywords: set[str] = field(default_factory=set)
+    keywords: tuple[str, ...] | None = None
 
     ignorecase: bool | None = None
     namechars: str | None = None
@@ -65,8 +65,8 @@ class ParserConfig(Config):
     filename: str | None = None
 
     def __post_init__(self):  # pylint: disable=W0235
-        if self.ignorecase:
-            self.keywords = {k.upper() for k in self.keywords}
+        if self.ignorecase and self.keywords:
+            self.keywords = tuple({k.upper() for k in self.keywords})
         super().__post_init__()
 
         if not self.memoization:

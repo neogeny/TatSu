@@ -90,7 +90,7 @@ class ParserCore:
 
     def _reset(self) -> None:
         self._initialize_caches()
-        self.keywords: set[str] = set(self.config.keywords)
+        self.keywords: set[str] = set(self.config.keywords or ())
         self.semantics = self.config.semantics
         if self.semantics and hasattr(self.semantics, 'set_context'):
             self.semantics.set_context(self)
@@ -222,12 +222,6 @@ class ParserCore:
     def cut(self) -> None:
         self.state.cutseen = True
         self.tracer.trace_cut(self.cursor)
-
-        def prune(cache: dict[Any, Any], cutpos: int) -> None:
-            prune_dict(
-                cache,
-                lambda k, v: k[0] < cutpos and not isinstance(v, FailedLeftRecursion),
-            )
 
         if not self.config.prune_memos_on_cut:
             return

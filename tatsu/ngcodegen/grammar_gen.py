@@ -17,13 +17,15 @@ def PARSER(name: str) -> str:
     return f"""\
     from typing import Any
 
+    from tatsu.config import ParserConfig
     from tatsu.contexts import CanParse
     from tatsu.input import Text
     from tatsu.grammars import *
 
 
     class {name}Parser(CanParse):
-        def __init__(self):
+        def __init__(self, config: Any = None, **settings: Any):
+            self.config = ParserConfig.new(config, **settings)
             self.model = GRAMMAR_MODEL
 
         def parse(
@@ -32,17 +34,13 @@ def PARSER(name: str) -> str:
             /,
             *,
             start: str | None = None,
+            asmodel: bool = True,
             config: Any = None,
-            asmodel: bool = False,
             **settings: Any,
         ) -> Any:
-            return self.model.parse(
-                text,
-                start=start,
-                config=config,
-                asmodel=asmodel,
-                **settings,
-            )
+            config = ParserConfig.new(config, start=start, **settings)
+            config = self.config.override(config)
+            return self.model.parse(text, asmodel=asmodel, config=config)
     """
 
 

@@ -17,13 +17,15 @@ from __future__ import annotations
 
 from typing import Any
 
+from tatsu.config import ParserConfig
 from tatsu.contexts import CanParse
 from tatsu.input import Text
 from tatsu.grammars import *
 
 
 class TatSuBootstrapParser(CanParse):
-    def __init__(self):
+    def __init__(self, config: Any = None, **settings: Any):
+        self.config = ParserConfig.new(config, **settings)
         self.model = GRAMMAR_MODEL
 
     def parse(
@@ -32,17 +34,13 @@ class TatSuBootstrapParser(CanParse):
         /,
         *,
         start: str | None = None,
+        asmodel: bool = True,
         config: Any = None,
-        asmodel: bool = False,
         **settings: Any,
     ) -> Any:
-        return self.model.parse(
-            text,
-            start=start,
-            config=config,
-            asmodel=asmodel,
-            **settings,
-        )
+        config = ParserConfig.new(config, start=start, **settings)
+        config = self.config.override(config)
+        return self.model.parse(text, asmodel=asmodel, config=config)
 
 
 GRAMMAR_MODEL: Grammar = (
@@ -56,6 +54,7 @@ GRAMMAR_MODEL: Grammar = (
         'parseinfo': True,
         'left_recursion': False
       },
+      keywords=(),
       rules=(
         Rule(
           name='start',
@@ -229,7 +228,7 @@ GRAMMAR_MODEL: Grammar = (
               Cut(),
               Token('::'),
               Cut(),
-              Closure(
+              PositiveClosure(
                 Sequence(
                   [
                     OverrideList(Group(Choice([Option(Call('word')), Option(Call('string'))]))),
