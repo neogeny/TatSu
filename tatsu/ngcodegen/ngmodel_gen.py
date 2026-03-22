@@ -10,7 +10,7 @@ from .. import grammars as g
 from ..objectmodel import Node
 from ..util import compress_seq, deprecated_params, safe_name, topsort
 from ..util.indent import IndentPrintMixin
-from .boilerplate import header
+from .boilerplt import HEADER
 
 
 def _imports_and_class(name: str, basetype: str, basetype_import: str) -> str:
@@ -62,13 +62,13 @@ class PythonModelGenerator(IndentPrintMixin):
         self.basetype = basetype
         self.name = name or None
 
-    def generate_model(self, grammar: g.Grammar):
+    def generate_model(self, grammar: g.Grammar) -> str:
         basetype = self.basetype
         basetype_name = basetype.__name__.split('.')[-1]
         basetype_import = f"from {basetype.__module__} import {basetype_name}"
 
         self.name = self.name or grammar.name
-        self.print(header())
+        self.print(HEADER)
         self.print(
             _imports_and_class(
                 name=self.name,

@@ -16,7 +16,7 @@ from ..objectmodel import Node
 from ..util import Undefined, compress_seq, regexpp, safe_name
 from ..util.indent import IndentPrintMixin
 from ..walkers import NodeWalker
-from .boilerplate import footer, header, imports, parser_body
+from .boilerplt import FOOTER, HEADER, IMPORTS, PARSER_BODY
 
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 ANON = '_'
@@ -75,16 +75,16 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
 
     def walk_Grammar(self, grammar: g.Grammar):
         basename = self.parser_name or grammar.name
-        self.print(header())
+        self.print(HEADER)
         self.print()
-        self.print(imports())
+        self.print(IMPORTS)
         self.print()
 
         self._gen_keywords(grammar)
         self._gen_buffering(grammar, basename)
         self._gen_parsing(grammar, basename)
 
-        self.print(footer(name=basename))
+        self.print(FOOTER(name=basename))
 
     def walk_Rule(self, rule: g.Rule):
         def param_repr(p):
@@ -353,7 +353,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 'def __init__(self, /, config: ParserConfig | None = None, **settings):'
             )
             with self.indent():
-                self.print('\n' + parser_body(rules_name=self._rules_name(basename)))
+                self.print('\n' + PARSER_BODY(rules_name=self._rules_name(basename)))
         self.print()
         self.print()
 

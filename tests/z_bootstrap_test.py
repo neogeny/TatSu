@@ -18,6 +18,7 @@ import tatsu
 from tatsu import compile, diagrams, grammars
 from tatsu.grammars.semantics import GrammarSemantics
 from tatsu.ngcodegen import pythongen
+from tatsu.ngcodegen.grammar_gen import parsermodel_gen
 from tatsu.parser import TatSuParser, TatSuParserGenerator
 from tatsu.semantics import ASTSemantics
 from tatsu.tool import to_python_sourcecode
@@ -39,7 +40,8 @@ def test_00_with_boostrap_grammar():
         shutil.rmtree('./tmp')
     tmp.mkdir(exist_ok=True)
     text = tatsu.grammar
-    g = TatSuParser('TatSuBootstrap')
+    name = 'TatSuBootstrap'
+    g = TatSuParser(name)
     grammar0 = g.parse(text, semantics=ASTSemantics(), parseinfo=False)
     ast0 = json.dumps(asjson(grammar0), indent=2)
     Path('./tmp/00.ast').write_text(ast0)
@@ -48,6 +50,8 @@ def test_00_with_boostrap_grammar():
     Path('./tmp/model_00.py').write_text(repr(model0))
     g00 = eval(repr(model0), locals=vars(grammars))  # noqa # type: ignore
     g00.parse(text)
+
+    Path('./tmp/parser_00.py').write_text(parsermodel_gen(model0, name=name))
 
 
 @pytest.mark.dependency('test_00_with_boostrap_grammar')
