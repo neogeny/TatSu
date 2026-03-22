@@ -14,6 +14,7 @@ from ..util import rowselect, typename
 from ..util.asjson import AsJSONMixin, asjson, asjsons
 from ..util.indent import fold
 
+
 __all__ = ['BaseNode', 'NodeDataclassParams', 'nodedataclass']
 
 NodeDataclassParams = dict(
@@ -154,7 +155,7 @@ class BaseNode(AsJSONMixin):
             if value is None:
                 continue
 
-            if name == 'ast' and len(values) == 1:
+            if len(values) == 1:
                 prefix = ''
             else:
                 prefix = f"{name}="
@@ -162,7 +163,7 @@ class BaseNode(AsJSONMixin):
                 prefix=prefix,
                 value=value,
                 amount=2,
-                addlevels=2,
+                addlevels=4,
             )
             attr_repr_list += [line]
 
@@ -171,6 +172,7 @@ class BaseNode(AsJSONMixin):
             value=tuple(attr_repr_list),
             reprs=False,
             amount=2,
+            addlevels=2,
         )
 
     def __str__(self) -> str:
