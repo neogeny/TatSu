@@ -41,7 +41,7 @@ class GrammarSemantics(ModelBuilderSemantics):
         try:
             re.compile(str(ast))
         except (TypeError, re.error) as e:
-            raise FailedSemantics('pattern error: ' + str(e)) from e
+            raise FailedSemantics(f'"{ast!r}"pattern error: {e!s}') from e
 
     def token(self, ast: str) -> g.Token:
         token = ast
