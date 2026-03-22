@@ -143,13 +143,13 @@ def test_model_repr():
         Node(ast='hello', world='world')
 
     token = g.Token(ast='hello')
-    assert repr(token) == "Token(token='hello')"
+    assert repr(token) == "Token('hello')"
 
     token = g.Token(token='hello')
-    assert repr(token) == "Token(token='hello')"
+    assert repr(token) == "Token('hello')"
 
     g.Token('hello')
-    assert repr(token) == "Token(token='hello')"
+    assert repr(token) == "Token('hello')"
 
     with pytest.raises(TypeError, match=r'unexpected keyword argument'):
         g.Token(x='x')
@@ -208,7 +208,7 @@ def test_calc_repr():
           rules=(
             Rule(
               name='start',
-              exp=Sequence(sequence=[Call(name='expression'), EOF()]),
+              exp=Sequence([Call('expression'), EOF()]),
               params=(),
               kwparams={},
               decorators=[],
@@ -219,11 +219,7 @@ def test_calc_repr():
             Rule(
               name='expression',
               exp=Choice(
-                options=[
-                  Option(exp=Call(name='addition')),
-                  Option(exp=Call(name='subtraction')),
-                  Option(exp=Call(name='term'))
-                ]
+                [Option(Call('addition')), Option(Call('subtraction')), Option(Call('term'))]
               ),
               params=(),
               kwparams={},
@@ -235,11 +231,11 @@ def test_calc_repr():
             Rule(
               name='addition',
               exp=Sequence(
-                sequence=[
-                  Named(name='left', exp=Call(name='expression')),
-                  Token(token='+'),
+                [
+                  Named(name='left', exp=Call('expression')),
+                  Token('+'),
                   Cut(),
-                  Named(name='right', exp=Call(name='term'))
+                  Named(name='right', exp=Call('term'))
                 ]
               ),
               params=['Add'],
@@ -252,11 +248,11 @@ def test_calc_repr():
             Rule(
               name='subtraction',
               exp=Sequence(
-                sequence=[
-                  Named(name='left', exp=Call(name='expression')),
-                  Token(token='-'),
+                [
+                  Named(name='left', exp=Call('expression')),
+                  Token('-'),
                   Cut(),
-                  Named(name='right', exp=Call(name='term'))
+                  Named(name='right', exp=Call('term'))
                 ]
               ),
               params=['Subtract'],
@@ -269,10 +265,10 @@ def test_calc_repr():
             Rule(
               name='term',
               exp=Choice(
-                options=[
-                  Option(exp=Call(name='multiplication')),
-                  Option(exp=Call(name='division')),
-                  Option(exp=Call(name='factor'))
+                [
+                  Option(Call('multiplication')),
+                  Option(Call('division')),
+                  Option(Call('factor'))
                 ]
               ),
               params=(),
@@ -285,11 +281,11 @@ def test_calc_repr():
             Rule(
               name='multiplication',
               exp=Sequence(
-                sequence=[
-                  Named(name='left', exp=Call(name='term')),
-                  Token(token='*'),
+                [
+                  Named(name='left', exp=Call('term')),
+                  Token('*'),
                   Cut(),
-                  Named(name='right', exp=Call(name='factor'))
+                  Named(name='right', exp=Call('factor'))
                 ]
               ),
               params=['Multiply'],
@@ -302,11 +298,11 @@ def test_calc_repr():
             Rule(
               name='division',
               exp=Sequence(
-                sequence=[
-                  Named(name='left', exp=Call(name='term')),
-                  Token(token='/'),
+                [
+                  Named(name='left', exp=Call('term')),
+                  Token('/'),
                   Cut(),
-                  Named(name='right', exp=Call(name='factor'))
+                  Named(name='right', exp=Call('factor'))
                 ]
               ),
               params=['Divide'],
@@ -319,18 +315,9 @@ def test_calc_repr():
             Rule(
               name='factor',
               exp=Choice(
-                options=[
-                  Option(
-                    exp=Sequence(
-                      sequence=[
-                        Token(token='('),
-                        Cut(),
-                        Override(exp=Call(name='expression')),
-                        Token(token=')')
-                      ]
-                    )
-                  ),
-                  Option(exp=Call(name='number'))
+                [
+                  Option(Sequence([Token('('), Cut(), Override(Call('expression')), Token(')')])),
+                  Option(Call('number'))
                 ]
               ),
               params=(),
@@ -342,7 +329,7 @@ def test_calc_repr():
             ),
             Rule(
               name='number',
-              exp=Pattern(pattern='\\d+'),
+              exp=Pattern('\\d+'),
               params=['int'],
               kwparams={},
               decorators=[],
