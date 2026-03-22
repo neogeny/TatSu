@@ -59,7 +59,7 @@ class ParserEngine(ParserCore, CanParse):
             if isinstance(text, Text):
                 input = text
             else:
-                input = TextLines(text=text, config=config, **settings)
+                input = TextLines(text=text, config=config)
             assert not isinstance(input, NullText)
             self.input = input
             self.states = ParseStateStack(cursor=input.newcursor())
