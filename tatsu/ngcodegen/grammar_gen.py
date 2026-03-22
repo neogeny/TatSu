@@ -8,7 +8,7 @@ from ..util.indent import IndentPrintMixin
 from .boilerplt import FOOTER, HEADER
 
 
-def parsermodel_gen(model: g.Grammar, name: str = '') -> str:
+def parse_with_model_gen(model: g.Grammar, name: str = '') -> str:
     generator = ParseWithModelGenerator()
     return generator.generate_parser(model, name=name)
 

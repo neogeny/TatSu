@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
+from tatsu.ngcodegen.grammar_gen import parse_with_model_gen
+
 from .. import grammars as g
 from ..exceptions import ParseException
 from ..infos import ParserConfig
@@ -20,6 +22,7 @@ from ..objectmodel.builder import (
 )
 from ..parser import TatSuParserGenerator
 from ..util import hasha
+
 
 __all__ = [
     'compile',
@@ -172,6 +175,19 @@ def to_python_model(
     config = ParserConfig.new(config=config, name=name, source=filename, **settings)
     model = compile(grammar, name=name, source=filename, config=config)
     return modelgen(model, basetype=basetype)
+
+
+def to_parse_with_model_sourcecode(
+    grammar: str,
+    /,
+    *,
+    name: str | None = None,
+    filename: str | None = None,
+    config: ParserConfig | None = None,
+    **settings: Any,
+):
+    model = compile(grammar, config=config, name=name, source=filename, **settings)
+    return parse_with_model_gen(model, name=name)
 
 
 # for backwards compatibility. Use `compile()` instead
