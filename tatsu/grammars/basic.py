@@ -107,6 +107,9 @@ class Alert(Constant):
             self.literal = self.ast.message.literal
             self.level = len(self.ast.level)
 
+    def _parse(self, ctx: Ctx) -> Any:
+        return ctx.alert(message=self.literal, level=self.leve)
+
     def _pretty(self, lean=False):
         return f'{"^" * self.level}{super()._pretty()}'
 

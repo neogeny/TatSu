@@ -34,6 +34,7 @@ from .ctx import CanParse
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
 from .state import ParseStateStack
 
+
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
@@ -261,7 +262,7 @@ class ParserEngine(ParserCore, CanParse):
 
         prune_dict(self._memos, filter_func)
 
-    def constant(self, literal: Any) -> Any:
+    def constant(self, literal: Any, capture: bool = True) -> Any:
         self.next_token()
         self.tracer.trace_match(self.cursor, literal)
 
@@ -305,7 +306,8 @@ class ParserEngine(ParserCore, CanParse):
                     f'Error evaluating constant {literal!r}: {e}',
                 ) from e
 
-        self.state.append(result)
+        if capture:
+            self.state.append(result)
         return result
 
     _constant = constant
