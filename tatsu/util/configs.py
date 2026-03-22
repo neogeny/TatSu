@@ -26,6 +26,7 @@ class Config:
 
     @classmethod
     def new(cls, config: Self | None = None, **settings: Any) -> Self:
+        config = config or settings.pop('config', None)
         result = cls()
         result = result.override_config(config)
         result = result.override(**settings)
@@ -48,7 +49,7 @@ class Config:
             if hasattr(self, name) and (hard or not erases(name, value))
         }
 
-    def override_config(self, other: Config | None = None) -> Self:
+    def override_config(self, other: Self | None = None) -> Self:
         if other is None:
             return self
         elif not isinstance(other, type(self)):
