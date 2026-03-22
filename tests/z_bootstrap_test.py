@@ -26,6 +26,7 @@ from tatsu.semantics import ASTSemantics
 from tatsu.util.asjson import asjson
 from tatsu.walkers import DepthFirstWalker
 
+
 tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
 
@@ -49,7 +50,7 @@ def test_00_with_boostrap_grammar():
 
     model0 = compile(text)
     Path('./tmp/model_00.py').write_text(repr(model0))
-    g00 = eval(repr(model0), locals=vars(grammars))  # noqa # type: ignore
+    g00 = eval(repr(model0), {}, vars(grammars))  # noqa # type: ignore
     g00.parse(text)
 
     Path('./tmp/parser_00.py').write_text(parsermodel_gen(model0, name=name))
