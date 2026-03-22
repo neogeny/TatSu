@@ -3,6 +3,14 @@
 
 # v5.18.1
 
+- The benchmark in `tatsu.tool.bench` was used over several large grammars and
+  large input sets. The result is that there is no performance advantage in
+  renerating a procedural Python program for the parser, because the in-memory
+  model of the parsed **TatSu** grammar performs equally well. Now **TatSu**
+  uses for bootstrap a module that loads its grammar model to perform the parse.
+  The old kind of parser can still be generated with `to_python_sourcecode(()`
+  but **TatSu** uses the new type of parser wich is generated with the new
+  `to_modelparser_sourcecode()`.
 
 - There's no longer a separate stack for the state of `cut`. The state of `cut`
   is kept in the general state stack.
