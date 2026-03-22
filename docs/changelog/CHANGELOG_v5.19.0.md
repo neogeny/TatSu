@@ -6,12 +6,15 @@
 - The benchmark in `tatsu.tool.bench` was used over several large grammars and
   large input sets. The result as that there is no performance advantage in
   renerating a procedural Python program for a parser because the in-memory
-  model of the parsed **TatSu** grammar performs equally well. 
+  model of the parsed **TatSu** grammar performs equally well. The [codspeed][]
+  benchmark that runs with unit tests confrms those findings
+
+    [codspeed]: https://codspeed.io
 
   Now **TatSu** uses for bootstrap a module that loads its own grammar model to 
   ase main parser (the one used by `tatsu.compile()`). The previous kind of parser 
   can still be generated with `to_python_sourcecode()`. The new kind of parser  
-  can be generated with `to_parse_with_model_sourcecode()`.
+  can be generated with `to_parsermodel_sourcecode()`.
 
   Note that you don't need to generate any source code for a parser in your own 
   projects. **TatSu** does generate a module to make it faster to bootstrap 
@@ -44,7 +47,7 @@
 
 - Incorporated [zuban][] to the set of type linters.
 
-[zuban]: https://github.com/zubanls/zuban 
+    [zuban]: https://github.com/zubanls/zuban 
 
 - Introduced `objectmodel.ctx.CanParse(Protocol)` defining the `parse()` method
   for entry point to parsing.
