@@ -15,6 +15,7 @@ from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImpor
     task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
 )
 
+
 __copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'
 __license__: str = 'BSD-4-Clause'
 
@@ -46,7 +47,7 @@ def uv(
     args: str | list[str],
     *,
     quiet: bool = True,
-    python: float = PYTHON,
+    python: float | str = PYTHON,
     group: str = 'dev',
     nogroup: str = '',
     **kwargs: Any,
@@ -66,7 +67,7 @@ def uv_run(
     c: Context,
     args: str | list[str],
     *,
-    python: float = PYTHON,
+    python: float | str = PYTHON,
     group: str = 'dev',
     quiet: bool = True,
     **kwargs: Any,
@@ -78,7 +79,7 @@ def uv_sync(c: Context):
     uv_run(c, 'sync', group='dev', quiet=True)
 
 
-def version_python(c: Context, python: float = PYTHON) -> str:
+def version_python(c: Context, python: float | str = PYTHON) -> str:
     return uv_run(
         c,
         'python3 --version',
@@ -88,7 +89,7 @@ def version_python(c: Context, python: float = PYTHON) -> str:
     ).stdout.strip()
 
 
-def version_tatsu(c: Context, python: float = PYTHON) -> str:
+def version_tatsu(c: Context, python: float | str = PYTHON) -> str:
     return uv_run(
         c,
         'python3 -m tatsu --version',
@@ -128,7 +129,7 @@ def success_print(
 def version_boundary_print(
     c: Context,
     target: str = '',
-    python: float = PYTHON,
+    python: float | str = PYTHON,
     line: str = THICK_LINE,
 ):
     verpython = version_python(c, python=python)
@@ -166,7 +167,7 @@ def clobber(_c: Context, _plus: bool = False):
 
 
 @task(pre=[begin])
-def ruff(c: Context, python: float = PYTHON):
+def ruff(c: Context, python: float | str = PYTHON):
     start_print(ruff)
     uv_run(
         c,
@@ -177,7 +178,7 @@ def ruff(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin])
-def ty(c: Context, python: float = PYTHON):
+def ty(c: Context, python: float | str = PYTHON):
     start_print(ty)
     res = uv_run(
         c,
@@ -195,7 +196,7 @@ def ty(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin])
-def mypy(c: Context, python: float = PYTHON):
+def mypy(c: Context, python: float | str = PYTHON):
     start_print(mypy)
     res = uv_run(
         c,
@@ -221,7 +222,7 @@ def mypy(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin])
-def pyright(c: Context, python: float = PYTHON):
+def pyright(c: Context, python: float | str = PYTHON):
     start_print(pyright)
     uv_run(
         c,
@@ -234,7 +235,7 @@ def pyright(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin])
-def zuban(c: Context, python: float = PYTHON):
+def zuban(c: Context, python: float | str = PYTHON):
     start_print(zuban)
     res = uv_run(
         c,
@@ -252,7 +253,7 @@ def zuban(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin])
-def pytestfast(c: Context, python: float = PYTHON):
+def pytestfast(c: Context, python: float | str = PYTHON):
     start_print(pytest, target='fast ')
     Path('./tmp').mkdir(exist_ok=True)
     Path('./tmp/__init__.py').touch()
@@ -275,7 +276,7 @@ def pytestfast(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin])
-def pytestbootstrap(c: Context, python: float = PYTHON):
+def pytestbootstrap(c: Context, python: float | str = PYTHON):
     start_print(pytest, target='boot ')
     Path('./tmp').mkdir(exist_ok=True)
     Path('./tmp/__init__.py').touch()
@@ -294,12 +295,12 @@ def pytestbootstrap(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin, pytestfast, pytestbootstrap])
-def pytest(_c: Context, _python: float = PYTHON):
+def pytest(_c: Context, _python: float | str = PYTHON):
     pass
 
 
 @task(pre=[begin])
-def black(c: Context, python: float = PYTHON):
+def black(c: Context, python: float | str = PYTHON):
     start_print(black)
     res = uv_run(
         c,
@@ -326,7 +327,7 @@ def test(_c: Context):
 
 
 @task(pre=[begin])
-def doclint(c: Context, _python: float = PYTHON):
+def doclint(c: Context, _python: float | str = PYTHON):
     start_print(doclint)
     uv_run(
         c,
@@ -352,7 +353,7 @@ def build(c: Context):
     success_print(task_=build)
 
 
-def matrix_core(c: Context, python: float = PYTHON):
+def matrix_core(c: Context, python: float | str = PYTHON):
     version_boundary_print(c, target='ᝰ', python=python)
 
     zuban(c, python=python)
@@ -380,7 +381,7 @@ def py313(c: Context):
 
 @task
 def py314(c: Context):
-    matrix_core(c, python=round(math.pi, 2))
+    matrix_core(c, python=round(math.pi, 2))  # pyright: ignore[reportUndefinedVariable]
     uv_sync(c)
 
 
@@ -390,7 +391,13 @@ def py315(c: Context):
     uv_sync(c)
 
 
-@task(pre=[py312, py313, py314, py315])
+@task
+def py315t(c: Context):
+    matrix_core(c, python='3.15t')
+    uv_sync(c)
+
+
+@task(pre=[py312, py313, py314, py315, py315t])
 def matrix(c: Context):
     uv_sync(c)
     success_print(task_=matrix, line=THICK_LINE)
