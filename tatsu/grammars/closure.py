@@ -8,11 +8,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from .math import ffset, kdot
-from .model import Box, Func, Model
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
 from ..util import indent
+from .math import ffset, kdot
+from .model import Box, Func, Model
 
 
 @nodedataclass
@@ -71,7 +71,7 @@ class Join(Box):
 
     def __post_init__(self):
         super().__post_init__()
-        assert self.sep == self.ast.sep, self.sep
+        assert not self.ast or self.sep == self.ast.sep, self.sep
 
     def _parse(self, ctx: Ctx) -> Any:
         return self._do_parse(ctx, self.exp._parse, self.sep._parse)

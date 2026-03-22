@@ -103,8 +103,9 @@ class Alert(Constant):
 
     def __post_init__(self):
         super().__post_init__()
-        self.literal = self.ast.message.literal
-        self.level = len(self.ast.level)
+        if self.ast:
+            self.literal = self.ast.message.literal
+            self.level = len(self.ast.level)
 
     def _pretty(self, lean=False):
         return f'{"^" * self.level}{super()._pretty()}'

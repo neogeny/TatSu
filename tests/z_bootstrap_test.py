@@ -15,7 +15,7 @@ from pathlib import Path
 import pytest
 
 import tatsu
-from tatsu import diagrams
+from tatsu import compile, diagrams, grammars
 from tatsu.grammars.semantics import GrammarSemantics
 from tatsu.ngcodegen import pythongen
 from tatsu.parser import TatSuParser, TatSuParserGenerator
@@ -23,6 +23,7 @@ from tatsu.semantics import ASTSemantics
 from tatsu.tool import to_python_sourcecode
 from tatsu.util.asjson import asjson
 from tatsu.walkers import DepthFirstWalker
+
 
 tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
@@ -43,6 +44,11 @@ def test_00_with_boostrap_grammar():
     grammar0 = g.parse(text, semantics=ASTSemantics(), parseinfo=False)
     ast0 = json.dumps(asjson(grammar0), indent=2)
     Path('./tmp/00.ast').write_text(ast0)
+
+    model0 = compile(text)
+    Path('./tmp/model_00.py').write_text(repr(model0))
+    g00 = eval(repr(model0), locals=vars(grammars))  # noqa: S307  # pyright: ignore[reportCallIssue]
+    g00.parse(text)
 
 
 @pytest.mark.dependency('test_00_with_boostrap_grammar')
