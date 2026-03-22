@@ -63,7 +63,7 @@ pytest==9.0.2
     #   pytest-rerunfailures
     #   pytest-xdist
 pytest-codspeed==4.3.0
-pytest-cov==7.0.0
+pytest-cov==7.1.0
 pytest-dependency==0.6.1
 pytest-rerunfailures==16.1
 pytest-xdist==3.8.0
@@ -77,7 +77,7 @@ setuptools==82.0.1
 ty==0.0.24
 types-colorama==0.4.15.20250801
 types-decorator==5.2.0.20251101
-types-docutils==0.22.3.20260316
+types-docutils==0.22.3.20260322
     # via types-pygments
 types-pexpect==4.9.0.20260127
 types-psutil==7.2.2.20260130
