@@ -38,6 +38,10 @@ class TatSuBootstrapParser(CanParse):
         config: Any = None,
         **settings: Any,
     ) -> Any:
+        # NOTE:
+        #   Copy the grammar so the configuration is unike to this parse,
+        #   and one parse doesn't leak the configuration to another.
+        #   There may be also configurations that are unique to this parse.
         model = Grammar(
             name=self.model.name,
             rules=self.model.rules,
@@ -46,6 +50,7 @@ class TatSuBootstrapParser(CanParse):
             config=self.config,
             **settings,
         )
+        config = ParserConfig.new(config, **settings)
         return model.parse(text, asmodel=asmodel, config=config)
 
 

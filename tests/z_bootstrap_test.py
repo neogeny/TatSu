@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import difflib
+import difflib  # noqa # pyright: ignore[reportUnusedImport, reportUnusedImport]
 import importlib
 import json
 import pickle
-import pprint
+import pprint  # noqa # pyright: ignore[reportUnusedImport, reportUnusedImport]
 import py_compile
 import shutil
 import sys
@@ -25,6 +25,7 @@ from tatsu.semantics import ASTSemantics
 # noinspection PyUnusedImports
 from tatsu.util.asjson import asjson
 from tatsu.walkers import DepthFirstWalker
+
 
 tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
@@ -178,8 +179,8 @@ def test_08_compile_with_generated():
     result = parser.parse(text, semantics=ASTSemantics(), parseinfo=False)
     ast8 = json.dumps(asjson(result), indent=2)
     Path('./tmp/08.ast').write_text(ast8)
-    print('DIFF')
-    pprint.pprint(list(difflib.unified_diff(ast0.splitlines(), ast8.splitlines())))
+    # print('DIFF')
+    # pprint.pprint(list(difflib.unified_diff(ast0.splitlines(), ast8.splitlines())))
     assert ast0 == ast8
 
 
