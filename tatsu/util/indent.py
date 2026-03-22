@@ -11,7 +11,6 @@ from .abctools import isiter
 from .strtools import ismultiline, trim
 from .typetools import notnone
 
-
 BLACK_LINE_LENGTH = 88
 
 
