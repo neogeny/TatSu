@@ -513,7 +513,7 @@ class TatSuBootstrapRules:
             with ctx.nameset('base'):
                 self.known_name(ctx)
         ctx.void()
-        ctx.pattern(r'=|:=?')
+        ctx.pattern(r'=|::=|:=?')
         ctx.cut()
         with ctx.nameset('exp'):
             self.expre(ctx)
