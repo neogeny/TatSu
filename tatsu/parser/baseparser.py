@@ -8,11 +8,10 @@ from typing import Any
 from ..config import ParserConfig
 from ..grammars import GrammarSemantics
 from ..semantics import ASTSemantics
-
-# from .bootparser import TatSuBootstrapParser
+from .bootparser import TatSuBootstrapParser
 from .bootstrap import (  # type: ignore
     TatSuBootstrapBuffer,
-    TatSuBootstrapParser,
+    # TatSuBootstrapParser,
     TatSuBootstrapText,
 )
 

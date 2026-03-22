@@ -20,7 +20,6 @@ from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import compress_seq, indent, trim, typename
 from .math import ffset, kdot
 
-
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []

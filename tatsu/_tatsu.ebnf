@@ -28,7 +28,7 @@ directive: '@@' !'keyword' ~
 
 keywords: { keyword }+
 
-keyword: '@@keyword' ~ '::' ~ { +=(word|string) !(':'|'=')}+
+keyword: '@@keyword' ~ '::' { +=(word|string) !(':'|'=')}+
 
 params: +=first_param {',' +=literal !'=' ~ }
 

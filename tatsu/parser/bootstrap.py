@@ -280,7 +280,6 @@ class TatSuBootstrapRules:
         ctx.token('@@keyword')
         ctx.cut()
         ctx.token('::')
-        ctx.cut()
         with ctx.loopplus() as cl:
             cl.expecting('<string>', '<word>')
 

@@ -21,7 +21,8 @@ from tatsu.ngcodegen import pythongen
 from tatsu.ngcodegen.grammar_gen import parsermodel_gen
 from tatsu.parser import TatSuParser, TatSuParserGenerator
 from tatsu.semantics import ASTSemantics
-from tatsu.tool import to_python_sourcecode
+
+# noinspection PyUnusedImports
 from tatsu.util.asjson import asjson
 from tatsu.walkers import DepthFirstWalker
 
@@ -132,7 +133,9 @@ def test_07_import_generated_code():
     print('-' * 20, 'phase 07 - import generated code')
 
     text = tatsu.grammar
-    gencode7 = to_python_sourcecode(text)
+    # gencode7 = to_python_sourcecode(text)
+    model = compile(text)
+    gencode7 = parsermodel_gen(model, name='TatSu')
     Path('./tmp/g07.py').write_text(gencode7)
     assert Path('./tmp/g07.py').is_file()
 

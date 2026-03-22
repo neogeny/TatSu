@@ -38,9 +38,15 @@ class TatSuBootstrapParser(CanParse):
         config: Any = None,
         **settings: Any,
     ) -> Any:
-        config = ParserConfig.new(config, start=start, **settings)
-        config = self.config.override(config)
-        return self.model.parse(text, asmodel=asmodel, config=config)
+        model = Grammar(
+            name=self.model.name,
+            rules=self.model.rules,
+            directives=self.model.directives,
+            keywords=self.model.keywords,
+            config=self.config,
+            **settings,
+        )
+        return model.parse(text, asmodel=asmodel, config=config)
 
 
 GRAMMAR_MODEL: Grammar = (
@@ -227,7 +233,6 @@ GRAMMAR_MODEL: Grammar = (
               Token('@@keyword'),
               Cut(),
               Token('::'),
-              Cut(),
               PositiveClosure(
                 Sequence(
                   [
