@@ -41,7 +41,7 @@ type MemoCache = dict[MemoKey, RuleOutcome]
 class ParserEngine(ParserCore, CanParse):
     def parse(
         self,
-        text: Any,
+        text: str | Text,
         /,
         *,
         start: str | None = None,

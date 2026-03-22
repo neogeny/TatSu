@@ -6,6 +6,7 @@ from collections.abc import Callable
 from typing import Any, Protocol, runtime_checkable
 
 from ..exceptions import FailedParse
+from ..input import Text
 from .ast import AST
 from .infos import RuleInfo
 from .state import ParseState, ParseStateStack
@@ -17,7 +18,7 @@ type Func = Callable[[Ctx], Any]
 class CanParse(Protocol):
     def parse(
         self,
-        text: Any,
+        text: str | Text,
         /,
         *,
         start: str | None = None,

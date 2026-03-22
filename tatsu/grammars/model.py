@@ -14,6 +14,7 @@ from typing import Any
 from ..config import ParserConfig
 from ..contexts import AST, CanParse, Ctx, Func, ParseContext, RuleInfo
 from ..exceptions import GrammarError
+from ..input import Text
 from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import chunks, compress_seq, indent, trim, typename
 from .math import ffset, kdot
@@ -59,7 +60,7 @@ class Model(Node, CanParse):
 
     def parse(
         self,
-        text: Any,
+        text: str | Text,
         /,
         *,
         start: str | None = None,
@@ -512,7 +513,7 @@ class Grammar(Model):
 
     def parse(
         self,
-        text: Any,
+        text: str | Text,
         /,
         *,
         start: str | None = None,
