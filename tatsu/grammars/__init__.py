@@ -47,7 +47,7 @@ from .syntax import (
     NegativeLookahead,
     Optional,
     Sequence,
-    Skip,
+    SkipGroup,
     SkipTo,
 )
 
@@ -93,7 +93,7 @@ __all__ = [
     'Rule',
     'RuleInclude',
     'Sequence',
-    'Skip',
+    'SkipGroup',
     'SkipTo',
     'GrammarSemantics',
     'Token',

@@ -231,8 +231,8 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def walk_Group(self, group: g.Group):
         self._gen_decor(Ctx.group, exp=group.exp)
 
-    def walk_Skip(self, skip: g.Skip):
-        self._gen_decor(Ctx.skip, exp=skip.exp)
+    def walk_SkipGroup(self, skip: g.SkipGroup):
+        self._gen_decor(Ctx.skipgroup, exp=skip.exp)
 
     def walk_Token(self, token: g.Token):
         self.print(f'{self.ctx}.token({token.token!r})')

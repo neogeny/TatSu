@@ -145,11 +145,11 @@ class ParseContext(ParserEngine, Ctx):
     _group = group
 
     @contextmanager
-    def skip(self) -> Any:
+    def skipgroup(self) -> Any:
         with self.statescope(merge=False):
             yield
 
-    _skip = skip
+    _skipgroup = skipgroup
 
     @contextmanager
     def if_(self) -> Any:

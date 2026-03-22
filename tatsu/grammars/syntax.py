@@ -6,12 +6,12 @@ from dataclasses import field
 from itertools import takewhile
 from typing import Any
 
-from .math import ffset, kdot, ref
-from .model import Box, Model, PEP8_LLEN
 from ..contexts import AST, Ctx, Func
 from ..exceptions import FailedRef
 from ..objectmodel import nodedataclass
 from ..util import indent, trim
+from .math import ffset, kdot, ref
+from .model import PEP8_LLEN, Box, Model
 
 
 @nodedataclass
@@ -28,7 +28,7 @@ class Group(Box):
         return f'(\n{indent(exp)}\n)'
 
     def optimized(self) -> Model:
-        from .closure import Closure, Join, EmptyClosure
+        from .closure import Closure, EmptyClosure, Join
 
         exp = self.exp.optimized()
         if isinstance(exp, Closure | Join | EmptyClosure | Optional):
@@ -37,9 +37,9 @@ class Group(Box):
 
 
 @nodedataclass
-class Skip(Box):
+class SkipGroup(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        with ctx.skip():
+        with ctx.skipgroup():
             self.exp._parse(ctx)
             return None
 

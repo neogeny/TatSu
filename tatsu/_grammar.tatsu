@@ -125,7 +125,7 @@ term:
     | atom
 
 group[Group]: !'(?:' '(' ~ =expre ')' ~
-skip[Skip]: '(?:' ~ =expre ')' ~
+skip[SkipGroup]: '(?:' ~ =expre ')' ~
 
 
 gather: &(atom '.{') ~ (positive_gather | normal_gather)
