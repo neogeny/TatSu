@@ -398,9 +398,10 @@ class Grammar(Model):
         self._config: ParserConfig = config
 
         keywords = keywords or config.keywords or ()
+        keywords = tuple(k for k in keywords or () if k)
         assert isinstance(keywords, tuple)
         if self.config.ignorecase:
-            keywords = tuple(k.upper() for k in keywords)
+            keywords = tuple(k.upper() for k in keywords if k)
         keywords = tuple(sorted(set(keywords)))
         assert isinstance(keywords, tuple)
         self.keywords = keywords
@@ -586,7 +587,10 @@ class Grammar(Model):
 
         keywordsets = []
         for batch in batched(sorted(self.keywords), 8):
-            keywordsets += [f'@@keyword :: {' '.join(repr(k) for k in batch if k)}']
+            b = [repr(k) for k in batch if k and k.strip()]
+            if not b:
+                continue
+            keywordsets += [f'@@keyword :: {' '.join(b)}']
         keywords = f"\n\n{'\n'.join(keywordsets)}\n\n" if keywordsets else ""
 
         rules = (
