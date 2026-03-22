@@ -107,11 +107,11 @@ def parse_args():
         help='Name for the grammar (defaults to GRAMMAR base name)',
     )
     generation_opts.add_argument(
-        '--nameguard',
+        '--no-nameguard',
         '-n',
         help='allow tokens that are prefixes of others',
-        dest='nameguard',
-        action='store_false',
+        dest='no_nameguard',
+        action='store_true',
         default=None,  # None allows grammar specified
     )
     generation_opts.add_argument(
@@ -209,7 +209,7 @@ def tatsu_main():
             source=args.filename,
             colorize=args.color,
             left_recursion=args.left_recursion,
-            nameguard=args.nameguard,
+            nameguard=not args.no_nameguard,
             whitespace=str(args.whitespace),
         )
         model = api.compile(grammar, args.name, asmodel=True, config=config)
