@@ -15,6 +15,9 @@ from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImpor
     task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
 )
 
+from tatsu.util.timetools import timer
+
+
 __copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'
 __license__: str = 'BSD-4-Clause'
 
@@ -355,15 +358,16 @@ def build(c: Context):
 def matrix_core(c: Context, python: float | str = PYTHON):
     version_boundary_print(c, target='ᝰ', python=python)
 
-    zuban(c, python=python)
-    ruff(c, python=python)
-    ty(c, python=python)
-    pyright(c, python=python)
+    with timer() as t:
+        zuban(c, python=python)
+        ruff(c, python=python)
+        ty(c, python=python)
+        pyright(c, python=python)
 
-    pytestfast(c, python=python)
-    pytestbootstrap(c, python=python)
+        pytestfast(c, python=python)
+        pytestbootstrap(c, python=python)
 
-    success_print(str(python), icon='✓')
+    success_print(f'{python!s} @ {t!s}', icon='✓')
 
 
 @task
