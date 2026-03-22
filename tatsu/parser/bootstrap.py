@@ -24,7 +24,6 @@ from tatsu.parsing import Parser, generic_main
 from tatsu.input.buffer import Buffer
 from tatsu.input.textlines import TextLines
 
-
 KEYWORDS: set[str] = set()
 
 
@@ -54,7 +53,6 @@ class TatSuBootstrapText(TextLines):
         super().__init__(text, config=config)
 
 TatSuBootstrapTokenizer = TatSuBootstrapText
-
 
 
 class TatSuBootstrapBuffer(Buffer):  # NOTE: backwards compatibility
