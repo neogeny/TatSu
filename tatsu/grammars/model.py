@@ -398,16 +398,18 @@ class Grammar(Model):
 
         self.name = self._resolve_name(name)
 
-        for rule in self.rules:
-            rule._set_grammar(self)
-
         missing: set[str] = self.missing_rules(set(self.rulemap))
         if missing:
             msg = '\n'.join(['', *sorted(missing)])
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
+        self._set_grammar(self)
         self._calc_lookahead_sets()
         self._mark_left_recursion()
+
+    def configure(self, config: ParserConfig | None = None, **settings: Any):
+        self._config.merge_config(config)
+        self._config.merge(**settings)
 
     @property
     def config(self) -> ParserConfig:
