@@ -27,7 +27,6 @@ from . import identity, memory_use, startscript, try_read
 from .timetools import iso_logpath
 from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
 
-
 __all__ = [
     'parallel_proc',
     'parproc',
