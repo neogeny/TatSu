@@ -3,16 +3,9 @@
 from __future__ import annotations
 
 import io
-import multiprocessing
 import sys
 import time
 from collections.abc import Callable, Generator, Iterable, Mapping, Sequence
-from concurrent.futures import (
-    Executor,
-    ProcessPoolExecutor,
-    ThreadPoolExecutor,
-    as_completed,
-)
 from contextlib import contextmanager
 from dataclasses import dataclass
 from itertools import batched
@@ -389,6 +382,14 @@ def _file_process_summary(
 
 
 def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
+    import multiprocessing
+    from concurrent.futures import (
+        Executor,
+        ProcessPoolExecutor,
+        ThreadPoolExecutor,
+        as_completed,
+    )
+
     def executor_pmap(
         executorcls: type[Executor],
         process: Func,
