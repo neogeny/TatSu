@@ -18,14 +18,13 @@ import tatsu
 from tatsu import compile, diagrams, grammars
 from tatsu.grammars.semantics import GrammarSemantics
 from tatsu.ngcodegen import pythongen
-from tatsu.ngcodegen.grammar_gen import parse_with_model_gen
+from tatsu.ngcodegen.grammar_gen import parsermodel_gen
 from tatsu.parser import TatSuParser, TatSuParserGenerator
 from tatsu.semantics import ASTSemantics
 
 # noinspection PyUnusedImports
 from tatsu.util.asjson import asjson
 from tatsu.walkers import DepthFirstWalker
-
 
 tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
@@ -50,10 +49,10 @@ def test_00_with_boostrap_grammar():
 
     model0 = compile(text)
     Path('./tmp/model_00.py').write_text(repr(model0))
-    g00 = eval(repr(model0), locals=vars(grammars))  # noqa # type: ignore
+    g00 = eval(repr(model0), {}, vars(grammars))  # noqa # type: ignore
     g00.parse(text)
 
-    Path('./tmp/parser_00.py').write_text(parse_with_model_gen(model0, name=name))
+    Path('./tmp/parser_00.py').write_text(parsermodel_gen(model0, name=name))
 
 
 @pytest.mark.dependency('test_00_with_boostrap_grammar')
@@ -136,7 +135,7 @@ def test_07_import_generated_code():
     text = tatsu.grammar
     # gencode7 = to_python_sourcecode(text)
     model = compile(text)
-    gencode7 = parse_with_model_gen(model, name='TatSu')
+    gencode7 = parsermodel_gen(model, name='TatSu')
     Path('./tmp/g07.py').write_text(gencode7)
     assert Path('./tmp/g07.py').is_file()
 

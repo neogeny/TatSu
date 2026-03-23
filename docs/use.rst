@@ -11,11 +11,11 @@ As a Library
 
 |TatSu| can be used as a library, much like `Python`_'s ``re``, by embedding grammars as strings and generating grammar models instead of generating Python_ code.
 
--   ``tatsu.compile(grammar, name=None, **kwargs)``
+-   ``tatsu.compile(grammar, name=None, **settings)``
 
     Compiles the grammar and generates a *model* that can subsequently be used for parsing input with.
 
--   ``tatsu.parse(grammar, input, start=None, **kwargs)``
+-   ``tatsu.parse(grammar, input, start=None, **settings)``
 
     Compiles the grammar and parses the given input producing an AST_ as result.
     The result is equivalent to calling::
@@ -25,15 +25,21 @@ As a Library
 
     Compiled grammars are cached for efficiency.
 
--   ``tatsu.to_python_sourcecode(grammar, name=None, filename=None, **kwargs)``
-
-    Compiles the grammar to the `Python`_ source code that implements the
-    parser.
-
--   ``to_python_model(grammar, name=None, filename=None, **kwargs)``
+-   ``to_python_model(grammar, name=None, filename=None, **settings)``
 
     Compiles the grammar and generates the `Python`_ source code that
     implements the object model defined by rule annotations.
+
+-   ``tatsu.to_parsermodel_sourcecode(grammar, name=None, filename=None, **settings)``
+
+    Compiles the grammar to the `Python`_ source code that for a recursive-descent
+    implementation of the parser.
+
+-   ``tatsu.to_python_sourcecode(grammar, name=None, filename=None, **settings)``
+
+    Compiles the grammar to the `Python`_ source code that for a recursive-descent
+    implementation of the parser.
+
 
 This is an example of how to use **TatSu** as a library:
 

@@ -17,7 +17,7 @@ def test_cli_python():
     output = subprocess.check_output(['tatsu', './grammar/tatsu.tatsu'])  # noqa: S607
     output = output.decode('utf-8')
     pattern = (
-        r'(?ms)CAVEAT UTILITOR.*?竜TatSu.*?KEYWORDS: set\['
+        r'(?ms)CAVEAT UTILITOR.*?竜TatSu.*?KEYWORDS = \('
         r'.*?class \w*?Parser\(\w*Parser\):'
     )
     assert bool(re.search(pattern, output))
