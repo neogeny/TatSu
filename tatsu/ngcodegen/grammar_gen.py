@@ -6,9 +6,10 @@ from .. import grammars as g
 from ..util.common import typename
 from ..util.indent import IndentPrintMixin
 from .boilerplt import FOOTER, HEADER
+from .ngparser_gen import keywordsgen, textinputgen
 
 
-def parse_with_model_gen(model: g.Grammar, name: str = '') -> str:
+def parsermodel_gen(model: g.Grammar, name: str | None = None) -> str:
     generator = ParseWithModelGenerator()
     return generator.generate_parser(model, name=name)
 
@@ -19,8 +20,10 @@ def PARSER(name: str) -> str:
 
     from tatsu.config import ParserConfig
     from tatsu.contexts import CanParse
-    from tatsu.input import Text
     from tatsu.grammars import *
+    from tatsu.input import Text
+    from tatsu.input.buffer import Buffer
+    from tatsu.input.textlines import TextLines
 
 
     class {name}Parser(CanParse):
@@ -39,8 +42,8 @@ def PARSER(name: str) -> str:
             **settings: Any,
         ) -> Any:
             # NOTE:
-            #   Copy the grammar so the configuration is unike to this parse,
-            #   and one parse doesn't leak the configuration to another.
+            #   Copy the grammar so the configuration is unike to this parse
+            #   and one parse doesn't leak settings to another.
             #   There may be also configurations that are unique to this parse.
             model = Grammar(
                 name=self.model.name,
@@ -48,7 +51,6 @@ def PARSER(name: str) -> str:
                 directives=self.model.directives,
                 keywords=self.model.keywords,
                 config=self.config,
-                **settings,
             )
             config = ParserConfig.new(config, **settings)
             return model.parse(text, asmodel=asmodel, config=config)
@@ -56,7 +58,8 @@ def PARSER(name: str) -> str:
 
 
 class ParseWithModelGenerator(IndentPrintMixin):
-    def generate_parser(self, model: g.Grammar, name: str = '') -> str:
+    def generate_parser(self, model: g.Grammar, name: str | None = None) -> str:
+        name = name or model.name or ''
         self.clear()
         self.print(HEADER)
         self.print()
@@ -65,12 +68,17 @@ class ParseWithModelGenerator(IndentPrintMixin):
         self.print()
         self.print()
 
-        name = name or model.name
         self.print(f'GRAMMAR_MODEL: {typename(model)} = (')
         with self.indent():
             self.print(repr(model))
         self.print(')')
         self.print()
+        self.print()
+
+        self.print(textinputgen(model, name))
+        self.print()
+
+        self.print(keywordsgen(model))
         self.print()
 
         self.print(FOOTER(name))

@@ -73,6 +73,8 @@ class ParseContext(ParserEngine, Ctx):
             f'{"^" * level}`{message}`',
             failed=True,
         )
+        # note: capture=False, nothing appended to state
+        message = self.constant(message, capture=False)
         self.states.alert(level=level, message=message)
 
     _aler = alert
