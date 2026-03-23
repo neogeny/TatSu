@@ -71,7 +71,7 @@ def compile(
         model = cache[key]
     else:
         gen = TatSuParserGenerator(name, **settings)
-        model = cache[key] = gen.parse(grammar, **settings).optimized()
+        model = cache[key] = gen.parse(grammar, **settings)
 
     asmodel = not semantics and (
         asmodel

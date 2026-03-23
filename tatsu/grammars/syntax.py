@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import field
+from functools import cached_property
 from itertools import takewhile
 from typing import Any
 
@@ -93,7 +94,7 @@ class SkipTo(Box):
 class Optional(Box):
     def _parse(self, ctx: Ctx) -> Any:
         with ctx.optional():
-            self._add_defined_attributes(ctx)
+            self._add_defined(ctx)
             return self.exp._parse(ctx)
 
     def _first(self, k, f) -> ffset:
@@ -128,16 +129,22 @@ class Sequence(Model):
         assert isinstance(self.sequence, list), self.sequence
 
     def _parse(self, ctx: Ctx) -> Any:
+        self._add_defined(ctx)
         return [s._parse(ctx) for s in self.sequence]
 
-    def defines(self):
-        return [d for s in self.sequence for d in s.defines()]
+    @cached_property
+    def defines_single(self) -> set[str]:
+        return set().union(*(s.defines_single for s in self.sequence))
+
+    @cached_property
+    def defines_list(self) -> set[str]:
+        return set().union(*(s.defines_list for s in self.sequence))
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
-        return set().union(*[s.missing_rules(rulenames) for s in self.sequence])
+        return set().union(*(s.missing_rules(rulenames) for s in self.sequence))
 
     def _used_rule_names(self):
-        return set().union(*[s._used_rule_names() for s in self.sequence])
+        return set().union(*(s._used_rule_names() for s in self.sequence))
 
     def _first(self, k, f) -> ffset:
         result: ffset = {()}

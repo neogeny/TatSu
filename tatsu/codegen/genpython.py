@@ -32,7 +32,7 @@ class PythonCodeGenerator(CodeGenerator):
 
 class Base(ModelRenderer):
     def defines(self):
-        return self.node.defines()
+        return self.node.defines_single()
 
     def make_defines_declaration(self):
         defines = compress_seq(self.defines())
@@ -413,7 +413,7 @@ class Rule(_Decorator):
 
 class BasedRule(Rule):
     def defines(self):
-        return self.rhs.defines()
+        return self.rhs.defines_single()
 
     def render_fields(self, fields):
         super().render_fields(fields)

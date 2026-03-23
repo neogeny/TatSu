@@ -7,6 +7,7 @@ from collections import defaultdict
 from collections.abc import Iterable, Mapping
 from copy import copy
 from dataclasses import field
+from functools import cached_property
 from itertools import batched
 from pathlib import Path
 from types import SimpleNamespace
@@ -17,7 +18,7 @@ from ..contexts import AST, CanParse, Ctx, Func, ParseContext, RuleInfo
 from ..exceptions import GrammarError
 from ..input import Text
 from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
-from ..util import compress_seq, indent, trim, typename
+from ..util import indent, trim, typename
 from .math import ffset, kdot
 
 PEP8_LLEN = 72
@@ -47,8 +48,13 @@ class Model(Node, CanParse):
     def follow_ref(self) -> Model:
         return self
 
-    def defines(self):
-        return []
+    @cached_property
+    def defines_single(self) -> set[str]:
+        return set()
+
+    @cached_property
+    def defines_list(self) -> set[str]:
+        return set()
 
     @property
     def grammar(self) -> Grammar:
@@ -91,14 +97,12 @@ class Model(Node, CanParse):
             assert isinstance(child, Model)
             child._set_grammar(grammar)
 
-    def _add_defined_attributes(self, ctx: Ctx, ast: Any | None = None):
-        defines = dict(compress_seq(self.defines()))
-
-        keys = [k for k, ll in defines.items() if not ll]
-        list_keys = [k for k, ll in defines.items() if ll]
-        ctx.define(keys, list_keys)
+    def _add_defined(self, ctx: Ctx, ast: Any | None = None):
+        keys_single = list(self.defines_single)
+        keys_list = list(self.defines_list)
+        ctx.define(keys_single, keys_list)
         if isinstance(ast, AST):
-            ast._define(keys, list_keys)
+            ast._define(keys_single, keys_list)
 
     def lookahead(self, k: int = 1) -> ffset:
         if not self._lookahead:
@@ -209,8 +213,13 @@ class Box(Model):
     def _parse(self, ctx: Ctx) -> Any:
         return self.exp._parse(ctx)
 
-    def defines(self):
-        return self.exp.defines()
+    @cached_property
+    def defines_single(self) -> set[str]:
+        return self.exp.defines_single
+
+    @cached_property
+    def defines_list(self) -> set[str]:
+        return self.exp.defines_list
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         assert isinstance(self.exp, Model), f'{self!r}:{self.exp=!r}'
@@ -285,10 +294,6 @@ class Rule(NamedBox):
         return self.exp.missing_rules(rulenames)
 
     def _parse(self, ctx: Ctx) -> Any:
-        from .choice import Choice
-
-        if not isinstance(self.exp, Choice):
-            self._add_defined_attributes(ctx)
         return self._parse_rhs(ctx, self.exp)
 
     def _parse_rhs(self, ctx: Ctx, exp: Model) -> Any:

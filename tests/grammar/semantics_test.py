@@ -256,18 +256,22 @@ def test_ast_per_option():
 
 def test_ast_names_accumulate():
     grammar = """
-        start = options $ ;
+        start: options $
 
-        options =
-            | a:'a' ([b:'b'] {x:'x'})
-            | c:'c' ([d:'d'] y:{'y'})
-            ;
+        options:
+            | a='a' ([b='b'] {x='x'})
+            | c='c' ([d='d'] y={'y'})
+            | w={} f='f'
+            | g=() g='g'
+            | h={} h='h'
+            | i+='i'
+            | [j+='j'] k='k'
     """
 
     # NOTE:
     #   Prove named elements accumulat
     ast = parse(grammar, 'a')
-    assert ast == {'a': 'a', 'b': None}
+    assert ast == {'a': 'a', 'b': None, 'x': None}
 
     ast = parse(grammar, 'a x')
     assert ast == {'a': 'a', 'b': None, 'x': 'x'}
@@ -285,6 +289,21 @@ def test_ast_names_accumulate():
 
     ast = parse(grammar, 'c y y')
     assert ast == {'c': 'c', 'd': None, 'y': ['y', 'y']}
+
+    ast = parse(grammar, 'f')
+    assert ast == {'f': 'f', 'w': []}
+
+    ast = parse(grammar, 'g')
+    assert ast == {'g': [(), 'g']}
+
+    ast = parse(grammar, 'h')
+    assert ast == {'h': [[], 'h']}
+
+    ast = parse(grammar, 'i')
+    assert ast == {'i': ['i']}
+
+    ast = parse(grammar, 'k')
+    assert ast == {'j': [], 'k': 'k'}
 
 
 def test_cut_scope():

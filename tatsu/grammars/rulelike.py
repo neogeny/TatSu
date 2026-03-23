@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from dataclasses import field
+from functools import cached_property
 from typing import Any
 
 from ..contexts import Ctx
@@ -51,5 +52,10 @@ class BasedRule(Rule):
     def _parse(self, ctx: Ctx) -> Any:
         return self._parse_rhs(ctx, self.rhs)
 
-    def defines(self):
-        return super().defines() + self.rhs.defines()
+    @cached_property
+    def defines_single(self) -> set[str]:
+        return super().defines_single | self.rhs.defines_single
+
+    @cached_property
+    def defines_list(self) -> set[str]:
+        return super().defines_list | self.rhs.defines_list

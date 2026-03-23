@@ -8,7 +8,7 @@ from collections import namedtuple
 
 from .. import grammars as g
 from ..objectmodel import Node
-from ..util import compress_seq, deprecated_params, safe_name, topsort
+from ..util import deprecated_params, safe_name, topsort
 from ..util.indent import IndentPrintMixin
 from .boilerplt import HEADER
 
@@ -130,7 +130,9 @@ class PythonModelGenerator(IndentPrintMixin):
         if not specs:
             return
         spec = specs[0]
-        arguments = sorted({safe_name(d) for d, _ in compress_seq(rule.defines())})
+        arguments = sorted(
+            {safe_name(d) for d in rule.defines_single | rule.defines_list}
+        )
 
         self.print()
         self.print()
