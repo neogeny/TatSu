@@ -1,7 +1,7 @@
 [//]: Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 [//]: SPDX-License-Identifier: BSD-4-Clause
 
-# v5.19.0
+# v5.18.1rc1
 
 - The benchmark in `tatsu.tool.bench` was used over several large grammars and
   large input sets. The result as that there is no performance advantage in
