@@ -15,7 +15,6 @@ from ..ngcodegen import modelgen, parsergen, pythongen
 from ..util import eval_escapes
 from . import api
 
-
 __all__ = ['tatsu_main']
 
 
