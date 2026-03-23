@@ -6,6 +6,7 @@ from .. import grammars as g
 from ..util.common import typename
 from ..util.indent import IndentPrintMixin
 from .boilerplt import FOOTER, HEADER
+from .ngparser_gen import keywordsgen, textinputgen
 
 
 def parsermodel_gen(model: g.Grammar, name: str | None = None) -> str:
@@ -19,8 +20,10 @@ def PARSER(name: str) -> str:
 
     from tatsu.config import ParserConfig
     from tatsu.contexts import CanParse
-    from tatsu.input import Text
     from tatsu.grammars import *
+    from tatsu.input import Text
+    from tatsu.input.buffer import Buffer
+    from tatsu.input.textlines import TextLines
 
 
     class {name}Parser(CanParse):
@@ -70,6 +73,12 @@ class ParseWithModelGenerator(IndentPrintMixin):
             self.print(repr(model))
         self.print(')')
         self.print()
+        self.print()
+
+        self.print(textinputgen(model, name))
+        self.print()
+
+        self.print(keywordsgen(model))
         self.print()
 
         self.print(FOOTER(name))

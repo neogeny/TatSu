@@ -18,6 +18,7 @@ from ..util.indent import IndentPrintMixin
 from ..walkers import NodeWalker
 from .boilerplt import FOOTER, HEADER, IMPORTS, PARSER_BODY
 
+
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 ANON = '_'
 
@@ -28,8 +29,19 @@ def pythongen(model: Node, parser_name: str = '') -> str:
     return generator.printed_text()
 
 
-class PythonParserGenerator(IndentPrintMixin, NodeWalker):
+def textinputgen(model: Node, basename: str) -> str:
+    generator = PythonParserGenerator(parser_name=basename)
+    generator.gen_buffering(model, basename)
+    return generator.printed_text()
 
+
+def keywordsgen(model: Node) -> str:
+    generator = PythonParserGenerator()
+    generator.gen_keywords(model)
+    return generator.printed_text()
+
+
+class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def __init__(self, parser_name: str = ''):
         super().__init__()
         self.parser_name = parser_name
@@ -80,8 +92,8 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print(IMPORTS)
         self.print()
 
-        self._gen_keywords(grammar)
-        self._gen_buffering(grammar, basename)
+        self.gen_keywords(grammar)
+        self.gen_buffering(grammar, basename)
         self._gen_parsing(grammar, basename)
 
         self.print(FOOTER(name=basename))
@@ -255,16 +267,16 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def walk_OverrideList(self, override: g.OverrideList):
         self._gen_decor(Ctx.resultadd, exp=override.exp)
 
-    def _gen_keywords(self, grammar: g.Grammar):
+    def gen_keywords(self, grammar: g.Grammar):
         keywords = [str(k) for k in grammar.keywords if k is not None]
         if not keywords:
-            self.print('KEYWORDS: set[str] = set()')
+            self.print('KEYWORDS = ()')
         else:
-            self.print('KEYWORDS: set[str] = {')
+            self.print('KEYWORDS = (')
             with self.indent():
                 keywords_str = '\n'.join(f'    {k!r},' for k in sorted(keywords))
                 self.print(keywords_str)
-            self.print('}')
+            self.print(')')
 
         self.print()
         self.print()
@@ -331,7 +343,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                 self.print('super().__init__(text, config=config)')
         self.print()
 
-    def _gen_buffering(self, grammar: g.Grammar, basename: str):
+    def gen_buffering(self, grammar: g.Grammar, basename: str):
         self.print(f'class {self._input_name(basename)}(TextLines):')
         self._gen_buffering_init(grammar)
         self.print(
