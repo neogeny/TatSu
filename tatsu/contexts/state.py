@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from copy import copy
 from typing import Any, Self, overload
 
 from .ast import AST
@@ -29,10 +28,10 @@ class ParseState:
 
     def __init__(self, base: Cursor | ParseState) -> None:
         if isinstance(base, ParseState):
-            self.cursor: Cursor = copy(base.cursor)
-            self.ast: AST = copy(base.ast)
+            self.cursor: Cursor = base.cursor.clone()
+            self.ast: AST = AST(base.ast)
         else:
-            self.cursor = copy(base)
+            self.cursor = base.clone()
             self.ast = AST()
 
         self.cst: Any = None
@@ -41,7 +40,7 @@ class ParseState:
         self.alerts: list[Alert] = []
 
     def clone(self) -> Self:
-        return copy(self)
+        return type(self)(self)
 
     def __copy__(self) -> Self:
         new = type(self)(self.cursor)
@@ -138,7 +137,10 @@ class ParseStateStack:
         self.ruleinfo_stack: list[RuleInfo] = []
 
     def clone(self) -> Self:
-        return copy(self)
+        new = type(self)(self.cursor)
+        new.state_stack = self.state_stack[:]
+        new.ruleinfo_stack = self.ruleinfo_stack[:]
+        return new
 
     @property
     def top(self) -> ParseState:
