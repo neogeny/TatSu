@@ -50,7 +50,7 @@ class BasedRule(Rule):
         self.rhs = Sequence(ast=[self.baserule.exp, self.exp])
 
     def _parse(self, ctx: Ctx) -> Any:
-        return self.rhs._parse(ctx)
+        return self._parse_rhs(ctx, self.rhs)
 
     @cached_property
     def defines_single(self) -> set[str]:

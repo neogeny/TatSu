@@ -21,6 +21,7 @@ from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import indent, trim, typename
 from .math import ffset, kdot
 
+
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
@@ -290,22 +291,25 @@ class Rule(NamedBox):
             self.kwparams = dict(self.kwparams)
         assert isinstance(self.kwparams, dict), f'{typename(self)}: {self.kwparams=!r}'
 
-        self._ruleinfo = RuleInfo(
+    def missing_rules(self, rulenames: set[str]) -> set[str]:
+        return self.exp.missing_rules(rulenames)
+
+    def _parse(self, ctx: Ctx) -> Any:
+        return self._parse_rhs(ctx, self.exp)
+
+    def _parse_rhs(self, ctx: Ctx, exp: Model) -> Any:
+        # note: BasedRule._parse() calls _parse_rhs() so ruleinfo is a mix
+        ruleinfo = RuleInfo(
             name=self.name,
-            instance=self.exp,
-            func=self.exp._parse,
+            instance=exp,
+            func=exp._parse,
             is_lrec=self.is_leftrec,
             is_memo=self.is_memoizable,
             is_name=self.is_name,
             params=self.params,
             kwparams=self.kwparams,
         )
-
-    def missing_rules(self, rulenames: set[str]) -> set[str]:
-        return self.exp.missing_rules(rulenames)
-
-    def _parse(self, ctx: Ctx) -> Any:
-        return ctx.call(self._ruleinfo)
+        return ctx.call(ruleinfo)
 
     def _first(self, k, f) -> ffset:
         self._firstset = self.exp._first(k, f) | f[self.name]
