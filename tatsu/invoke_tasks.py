@@ -17,7 +17,6 @@ from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImpor
 
 from tatsu.util.timetools import timer
 
-
 __copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'
 __license__: str = 'BSD-4-Clause'
 
@@ -306,7 +305,7 @@ def black(c: Context, python: float | str = PYTHON):
     start_print(black)
     res = uv_run(
         c,
-        ["black", "tatsu", "tests", "examples", "scripts", "ng"],
+        ["black", "--no-cache", "tatsu", "tests", "examples", "scripts", "ng"],
         python=python,
         group='test',
         warn=True,
