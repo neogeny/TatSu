@@ -18,7 +18,6 @@ from ..util.indent import IndentPrintMixin
 from ..walkers import NodeWalker
 from .boilerplt import FOOTER, HEADER, IMPORTS, PARSER_BODY
 
-
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 ANON = '_'
 
@@ -29,13 +28,13 @@ def pythongen(model: Node, parser_name: str = '') -> str:
     return generator.printed_text()
 
 
-def textinputgen(model: Node, basename: str) -> str:
+def textinputgen(model: g.Grammar, basename: str) -> str:
     generator = PythonParserGenerator(parser_name=basename)
     generator.gen_buffering(model, basename)
     return generator.printed_text()
 
 
-def keywordsgen(model: Node) -> str:
+def keywordsgen(model: g.Grammar) -> str:
     generator = PythonParserGenerator()
     generator.gen_keywords(model)
     return generator.printed_text()

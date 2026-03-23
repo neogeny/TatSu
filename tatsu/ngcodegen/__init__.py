@@ -6,5 +6,4 @@ from .grammar_gen import parsermodel_gen as parsergen
 from .ngmodel_gen import modelgen
 from .ngparser_gen import pythongen, pythongen as codegen
 
-
 __all__ = ['codegen', 'parsergen', 'pythongen', 'modelgen']
