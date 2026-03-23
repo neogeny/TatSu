@@ -6,10 +6,10 @@ from collections.abc import Iterable
 from functools import cache
 from typing import Any, override
 
-from .cst import cstadd
-from .infos import ParseInfo
 from ..util import make_hashable, typename
 from ..util.asjson import asjson
+from .cst import cstadd
+from .infos import ParseInfo
 
 
 class AST(dict[str, Any]):
@@ -53,12 +53,12 @@ class AST(dict[str, Any]):
         return key
 
     def _define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None):
-        for key in (self._safekey(k) for k in keys):
-            if key not in self:
-                super().__setitem__(key, None)
         for key in (self._safekey(k) for k in list_keys or []):
             if key not in self:
                 super().__setitem__(key, [])
+        for key in (self._safekey(k) for k in keys):
+            if key not in self:
+                super().__setitem__(key, None)
 
     def __getitem__(self, key: str) -> Any:
         if key in self:
