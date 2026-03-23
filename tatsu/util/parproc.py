@@ -34,6 +34,7 @@ from . import identity, memory_use, startscript, try_read
 from .timetools import iso_logpath
 from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
 
+
 __all__ = [
     'parallel_proc',
     'parproc',
@@ -128,7 +129,7 @@ def parproc(
         return
 
 
-def taskproc(task: Task) -> Result | None:
+def taskproc(task: Task) -> Result:
     start_time = time.process_time()
     result = Result(task.payload)
     try:
@@ -144,7 +145,7 @@ def taskproc(task: Task) -> Result | None:
             result.linecount = count
         result.outcome = task.pickable(outcome)
     except KeyboardInterrupt:
-        return None
+        raise
     except Exception as e:
         result.exception = e
     finally:
