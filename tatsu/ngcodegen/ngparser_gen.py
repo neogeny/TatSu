@@ -13,7 +13,7 @@ from ..config import ParserConfig
 from ..contexts.ctx import Ctx
 from ..exceptions import CodegenError
 from ..objectmodel import Node
-from ..util import Undefined, compress_seq, regexpp, safe_name
+from ..util import Undefined, regexpp, safe_name
 from ..util.indent import IndentPrintMixin
 from ..walkers import NodeWalker
 from .boilerplt import FOOTER, HEADER, IMPORTS, PARSER_BODY
@@ -388,9 +388,8 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print()
 
     def _gen_defines_declaration(self, node: g.Model):
-        defines = compress_seq(node.defines())
-        ldefs = {safe_name(d) for d, value in defines if value}
-        sdefs = {safe_name(d) for d, value in defines if not value and d not in ldefs}
+        sdefs = node.defines_single
+        ldefs = node.defines_list
 
         if not (sdefs or ldefs):
             return

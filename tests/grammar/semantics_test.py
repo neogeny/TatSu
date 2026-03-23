@@ -267,7 +267,7 @@ def test_ast_names_accumulate():
     # NOTE:
     #   Prove named elements accumulat
     ast = parse(grammar, 'a')
-    assert ast == {'a': 'a', 'b': None}
+    assert ast == {'a': 'a', 'b': None, 'x': None}
 
     ast = parse(grammar, 'a x')
     assert ast == {'a': 'a', 'b': None, 'x': 'x'}

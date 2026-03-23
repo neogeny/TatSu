@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import field
+from functools import cached_property
 from typing import Any
 
 from ..contexts import Ctx
@@ -15,7 +16,6 @@ from .model import PEP8_LLEN, Box, Model
 @nodedataclass
 class Option(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        self._add_defined_attributes(ctx)
         result = super()._parse(ctx)
         return result
 
@@ -46,8 +46,13 @@ class Choice(Model):
             ch.expecting(*self.expecting())
         return ch.result
 
-    def defines(self):
-        return [d for o in self.options for d in o.defines()]
+    @cached_property
+    def defines_single(self) -> set[str]:
+        return set().union(*(o.defines_single for o in self.options))
+
+    @cached_property
+    def defines_list(self) -> set[str]:
+        return set().union(*(o.defines_list for o in self.options))
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return set().union(*[o.missing_rules(rulenames) for o in self.options])

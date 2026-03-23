@@ -23,6 +23,7 @@ from ..objectmodel.builder import (
 from ..parser import TatSuParserGenerator
 from ..util import hasha
 
+
 __all__ = [
     'compile',
     'gencode',
@@ -71,7 +72,7 @@ def compile(
         model = cache[key]
     else:
         gen = TatSuParserGenerator(name, **settings)
-        model = cache[key] = gen.parse(grammar, **settings).optimized()
+        model = cache[key] = gen.parse(grammar, **settings)
 
     asmodel = not semantics and (
         asmodel
