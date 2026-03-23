@@ -140,8 +140,9 @@ class Model(Node, CanParse):
         return a
 
     def is_nullable(self) -> bool:
-        return self._nullable()
+        return self._nullable
 
+    @cached_property
     def _nullable(self) -> bool:
         return False
 
@@ -178,6 +179,7 @@ class NULL(Model):
     def _pretty(self, lean=False):
         return NULL.__name__
 
+    @cached_property
     def _nullable(self) -> bool:
         return False
 
@@ -190,6 +192,7 @@ class Void(Model):
     def _pretty(self, lean=False):
         return '()'
 
+    @cached_property
     def _nullable(self) -> bool:
         return True
 
@@ -241,8 +244,9 @@ class Box(Model):
     def _pretty(self, lean=False):
         return self.exp._pretty(lean=lean)
 
+    @cached_property
     def _nullable(self) -> bool:
-        return self.exp._nullable()
+        return self.exp._nullable
 
     def callable_at_same_pos(
         self,
@@ -318,8 +322,9 @@ class Rule(NamedBox):
     def _follow(self, k, fl, a):
         return self.exp._follow(k, fl, fl[self.name])
 
+    @cached_property
     def _nullable(self) -> bool:
-        return self.exp._nullable()
+        return self.exp._nullable
 
     def optimized(self) -> Rule:
         clone = copy(self)

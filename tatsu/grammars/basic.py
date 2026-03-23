@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from functools import cached_property
 from typing import Any
 
 from ..contexts import Ctx
@@ -93,6 +94,7 @@ class Constant(Model):
     def _pretty(self, lean=False):
         return f'`{self.literal!r}`'
 
+    @cached_property
     def _nullable(self) -> bool:
         return True
 
@@ -129,5 +131,6 @@ class Cut(Model):
     def _pretty(self, lean=False):
         return '~'
 
+    @cached_property
     def _nullable(self) -> bool:
         return True

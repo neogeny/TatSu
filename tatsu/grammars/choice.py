@@ -88,8 +88,9 @@ class Choice(Model):
         else:
             return single
 
+    @cached_property
     def _nullable(self) -> bool:
-        return any(o._nullable() for o in self.options)
+        return any(o._nullable for o in self.options)
 
     def callable_at_same_pos(self) -> list[Model]:
         return cast(list[Model], self.options)

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from functools import cached_property
 from typing import Any
 
 from ..contexts import Ctx
@@ -43,6 +44,7 @@ class Pattern(Model):
             regex = f'/{pat}/'
         return regex
 
+    @cached_property
     def _nullable(self) -> bool:
         return bool(self._regex.match(''))
 

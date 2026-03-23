@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from functools import cached_property
 from typing import Any
 
 from ..contexts import Ctx
@@ -35,6 +36,7 @@ class Closure(Box):
         else:
             return f'{{\n{indent(sexp)}\n}}'
 
+    @cached_property
     def _nullable(self) -> bool:
         return True
 
@@ -59,8 +61,9 @@ class PositiveClosure(Closure):
     def _pretty(self, lean=False):
         return super()._pretty(lean=lean) + '+'
 
+    @cached_property
     def _nullable(self) -> bool:
-        return self.exp._nullable()
+        return self.exp.is_nullable()
 
 
 @nodedataclass
@@ -87,6 +90,7 @@ class Join(Box):
         else:
             return f'{ssep}{self.JOINOP}{{\n{sexp}\n}}'
 
+    @cached_property
     def _nullable(self) -> bool:
         return True
 
@@ -109,8 +113,9 @@ class PositiveJoin(Join):
     def _pretty(self, lean=False):
         return super()._pretty(lean=lean) + '+'
 
+    @cached_property
     def _nullable(self) -> bool:
-        return self.exp._nullable()
+        return self.exp._nullable
 
 
 class LeftJoin(PositiveJoin):
@@ -144,8 +149,9 @@ class PositiveGather(Gather):
     def _pretty(self, lean=False):
         return super()._pretty(lean=lean) + '+'
 
+    @cached_property
     def _nullable(self) -> bool:
-        return self.exp._nullable()
+        return self.exp.is_nullable()
 
 
 @nodedataclass
@@ -159,5 +165,6 @@ class EmptyClosure(Model):
     def _pretty(self, lean=False):
         return '{}'
 
+    @cached_property
     def _nullable(self) -> bool:
         return True

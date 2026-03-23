@@ -60,6 +60,7 @@ class Lookahead(Box):
     def _pretty(self, lean=False):
         return '&' + self.exp._pretty(lean=lean)
 
+    @cached_property
     def _nullable(self) -> bool:
         return True
 
@@ -73,6 +74,7 @@ class NegativeLookahead(Box):
     def _pretty(self, lean=False):
         return '!' + str(self.exp._pretty(lean=lean))
 
+    @cached_property
     def _nullable(self) -> bool:
         return True
 
@@ -106,6 +108,7 @@ class Optional(Box):
             return f'[{exp}]'
         return f'[\n{exp}\n]'
 
+    @cached_property
     def _nullable(self) -> bool:
         return True
 
@@ -174,8 +177,9 @@ class Sequence(Model):
         else:
             return '\n'.join(seq)
 
+    @cached_property
     def _nullable(self) -> bool:
-        return all(s._nullable() for s in self.sequence)
+        return all(s._nullable for s in self.sequence)
 
     def callable_at_same_pos(self) -> list[Model]:
         head = list(takewhile(lambda c: c.is_nullable(), self.sequence))
@@ -229,7 +233,7 @@ class Call(Model):
         return self.name
 
     def is_nullable(self) -> bool:
-        return self.grammar.rulemap[self.name].is_nullable()
+        return self.grammar.rulemap[self.name]._nullable
 
     def __str__(self):
         return str(ref(self.name))
