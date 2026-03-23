@@ -290,24 +290,22 @@ class Rule(NamedBox):
             self.kwparams = dict(self.kwparams)
         assert isinstance(self.kwparams, dict), f'{typename(self)}: {self.kwparams=!r}'
 
-    def missing_rules(self, rulenames: set[str]) -> set[str]:
-        return self.exp.missing_rules(rulenames)
-
-    def _parse(self, ctx: Ctx) -> Any:
-        return self._parse_rhs(ctx, self.exp)
-
-    def _parse_rhs(self, ctx: Ctx, exp: Model) -> Any:
-        ruleinfo = RuleInfo(
+        self._ruleinfo = RuleInfo(
             name=self.name,
-            instance=exp,
-            func=exp._parse,
+            instance=self.exp,
+            func=self.exp._parse,
             is_lrec=self.is_leftrec,
             is_memo=self.is_memoizable,
             is_name=self.is_name,
             params=self.params,
             kwparams=self.kwparams,
         )
-        return ctx.call(ruleinfo)
+
+    def missing_rules(self, rulenames: set[str]) -> set[str]:
+        return self.exp.missing_rules(rulenames)
+
+    def _parse(self, ctx: Ctx) -> Any:
+        return ctx.call(self._ruleinfo)
 
     def _first(self, k, f) -> ffset:
         self._firstset = self.exp._first(k, f) | f[self.name]
