@@ -11,9 +11,10 @@ from .. import railroads
 from .._version import __version__
 from ..config import ParserConfig
 from ..exceptions import ParseException
-from ..ngcodegen import modelgen, pythongen
+from ..ngcodegen import modelgen, parsergen, pythongen
 from ..util import eval_escapes
 from . import api
+
 
 __all__ = ['tatsu_main']
 
@@ -35,7 +36,13 @@ def parse_args():
     main_mode = argparser.add_mutually_exclusive_group()
     main_mode.add_argument(
         '--generate-parser',
-        help='generate parser code from the grammar (default)',
+        help='generate parser from the grammar (default)',
+        action='store_true',
+    )
+    main_mode.add_argument(
+        '--parser-model',
+        '-x',
+        help='generate model-based parser from the grammar',
         action='store_true',
     )
     main_mode.add_argument(
@@ -62,7 +69,7 @@ def parse_args():
     )
     main_mode.add_argument(
         '--pretty',
-        '-parser',
+        '-p',
         help='generate a prettified version of the input grammar',
         action='store_true',
     )
@@ -231,6 +238,8 @@ def tatsu_main():
                 result = model.pretty_lean()
             elif args.object_model:
                 result = modelgen(model, basetype=args.base_type)
+            elif args.parser_model:
+                result = parsergen(model)
             else:
                 result = pythongen(model)
 
