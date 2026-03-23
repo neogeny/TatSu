@@ -92,11 +92,6 @@ class Model(Node, CanParse):
             child._set_grammar(grammar)
 
     def _add_defined_attributes(self, ctx: Ctx, ast: Any | None = None):
-        if ast is None:
-            return
-        if not hasattr(ast, '_define'):
-            return
-
         defines = dict(compress_seq(self.defines()))
 
         keys = [k for k, ll in defines.items() if not ll]
@@ -290,6 +285,10 @@ class Rule(NamedBox):
         return self.exp.missing_rules(rulenames)
 
     def _parse(self, ctx: Ctx) -> Any:
+        from .choice import Choice
+
+        if not isinstance(self.exp, Choice):
+            self._add_defined_attributes(ctx)
         return self._parse_rhs(ctx, self.exp)
 
     def _parse_rhs(self, ctx: Ctx, exp: Model) -> Any:

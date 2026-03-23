@@ -92,8 +92,8 @@ class SkipTo(Box):
 @nodedataclass
 class Optional(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        self._add_defined_attributes(ctx, ctx.ast)
         with ctx.optional():
+            self._add_defined_attributes(ctx)
             return self.exp._parse(ctx)
 
     def _first(self, k, f) -> ffset:

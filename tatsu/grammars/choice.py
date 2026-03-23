@@ -5,18 +5,18 @@ from __future__ import annotations
 from dataclasses import field
 from typing import Any
 
-from .math import ffset
-from .model import Box, Model, PEP8_LLEN
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
 from ..util import cast, indent
+from .math import ffset
+from .model import PEP8_LLEN, Box, Model
 
 
 @nodedataclass
 class Option(Box):
     def _parse(self, ctx: Ctx) -> Any:
+        self._add_defined_attributes(ctx)
         result = super()._parse(ctx)
-        self._add_defined_attributes(ctx, result)
         return result
 
 
