@@ -26,8 +26,8 @@ class Named(NamedBox):
 
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
-        ctx.nameset(self.name)
-        return ctx.last_node
+        ctx.ast._set(self.name, value)
+        return value
 
     def defines(self):
         return [(self.name, False), *super().defines()]
@@ -42,8 +42,8 @@ class Named(NamedBox):
 class NamedList(Named):
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
-        ctx.nameadd(self.name)
-        return ctx.last_node
+        ctx.ast._set(self.name, value, aslist=True)
+        return value
 
     def defines(self):
         return [(self.name, True), *super().defines()]
