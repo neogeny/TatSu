@@ -33,10 +33,6 @@ class Node(BaseNode):
             return None
 
     @property
-    def comments(self) -> Any:
-        return None
-
-    @property
     def text(self) -> str | None:
         pi = self.parseinfo
         if pi and hasattr(pi.cursor, "text"):
