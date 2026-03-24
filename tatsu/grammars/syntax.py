@@ -18,9 +18,7 @@ from .model import PEP8_LLEN, Box, Model
 @nodedataclass
 class Group(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        with ctx.group():
-            self.exp._parse(ctx)
-            return ctx.last_node
+        return ctx.groupexp(self.exp._parse)
 
     def _pretty(self, lean=False):
         exp = self.exp._pretty(lean=lean)

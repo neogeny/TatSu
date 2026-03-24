@@ -112,14 +112,6 @@ class ParserCore:
         return self.state.cursor
 
     @property
-    def last_node(self) -> Any:
-        return self.state.last_node
-
-    @last_node.setter
-    def last_node(self, value: Any) -> None:
-        self.state.last_node = value
-
-    @property
     def pos(self) -> int:
         return self.states.state.cursor.pos
 

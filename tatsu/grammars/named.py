@@ -28,7 +28,7 @@ class Named(NamedBox):
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
         ctx.ast._set(self.name, value)
-        return ctx.last_node
+        return value
 
     @cached_property
     def defines_single(self) -> set[str]:
@@ -45,7 +45,7 @@ class NamedList(Named):
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
         ctx.ast._set(self.name, value, aslist=True)
-        return ctx.last_node
+        return value
 
     @cached_property
     def defines_list(self) -> set[str]:
