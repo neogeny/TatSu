@@ -86,7 +86,6 @@ class Model(Node, CanParse):
         )
 
     def _parse(self, ctx: Ctx) -> Any:
-        assert ctx
         return ()
 
     def _set_grammar(self, grammar: Grammar):

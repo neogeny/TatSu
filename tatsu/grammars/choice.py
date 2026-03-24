@@ -36,13 +36,7 @@ class Choice(Model):
 
     def _parse(self, ctx: Ctx) -> Any:
         with ctx.choice() as ch:
-
-            def wrap(o) -> Any:
-                assert isinstance(ctx, Ctx) and isinstance(o, Option)
-                return o._parse
-
-            ch.options = [wrap(o) for o in self.options]
-
+            ch.options = [o._parse for o in self.options]
             ch.expecting(*self.expecting())
         return ch.result
 
