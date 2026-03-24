@@ -156,7 +156,9 @@ def benchmark(
 
         model, compile_time = _setup_mem_parser(grammar_src)
         grammar_name = model.name or 'Benchmark'
-        parser, generation_time, _parser_path = _setup_gen_parser(grammar_src, grammar_name)
+        parser, generation_time, _parser_path = _setup_gen_parser(
+            grammar_src, grammar_name
+        )
 
         try:
             mem_time = 0.0
