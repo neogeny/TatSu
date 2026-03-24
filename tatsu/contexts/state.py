@@ -47,19 +47,12 @@ class ParseState:
         new.alerts = self.alerts[:]
         return new
 
-    def goto(self, pos: int) -> None:
-        self.cursor.goto(pos)
-
     def merge(self, prev: ParseState) -> Self:
         self.ast = prev.ast
         self.extend(prev.cst)
         self.alerts.extend(prev.alerts)
-        self.goto(prev.pos)
+        self.cursor.goto(prev.cursor.pos)
         return self
-
-    @property
-    def pos(self) -> int:
-        return self.cursor.pos
 
     @property
     def node(self) -> Any:
@@ -137,81 +130,45 @@ class ParseStateStack:
         self.ruleinfo_stack: list[RuleInfo] = []
 
     def clone(self) -> Self:
-        new = type(self)(self.cursor)
+        new = type(self)(self.state.cursor)
         new.state_stack = self.state_stack[:]
         new.ruleinfo_stack = self.ruleinfo_stack[:]
         return new
-
-    @property
-    def top(self) -> ParseState:
-        return self.state_stack[-1]
 
     @property
     def state(self) -> ParseState:
         return self.state_stack[-1]
 
     @property
-    def ast(self) -> Any:
-        return self.top.ast
-
-    @ast.setter
-    def ast(self, value: Any) -> None:
-        self.top.ast = value
-
-    @property
-    def cst(self) -> Any:
-        return self.top.cst
-
-    @cst.setter
-    def cst(self, value: Any):
-        self.top.cst = value
-
-    @property
-    def cursor(self) -> Cursor:
-        return self.top.cursor
-
-    @property
-    def pos(self) -> int:
-        return self.top.pos
-
-    @property
-    def last_node(self) -> Any:
-        return self.top.last_node
-
-    @last_node.setter
-    def last_node(self, value: Any) -> None:
-        self.top.last_node = value
-
-    @property
     def node(self) -> Any:  # this is Parsed
-        return self.top.node
+        return self.state.node
 
     def undo(self) -> ParseState:
         return self.state_stack.pop()
 
     def pop(self) -> ParseState:
         prev = self.state_stack.pop()
-        self.state.goto(prev.pos)
+        self.state.cursor.goto(prev.cursor.pos)
         return prev
 
     def new(self) -> ParseState:
-        newstate = ParseState(self.cursor)
+        newstate = ParseState(self.state.cursor)
         self.state_stack.append(newstate)
-        return self.top
+        return self.state
 
     def push(self) -> ParseState:
         newstate = ParseState(self.state)
         self.state_stack.append(newstate)
 
-        return self.top
+        return self.state
 
     def merge(self) -> ParseState:
         prev = self.pop()
         return self.state.merge(prev)
 
     def alert(self, level: int = 1, message: str = '') -> Alert:
-        self.top.alerts.append(Alert(level=level, message=message))
-        return self.top.alerts[-1]
+        self.state.alerts.append(Alert(level=level, message=message))
+        return self.state.alerts[-1]
 
     def __copy__(self) -> ParseStateStack:
         new = self.__class__.__new__(self.__class__)

@@ -113,11 +113,11 @@ class ParserCore:
 
     @property
     def last_node(self) -> Any:
-        return self.states.last_node
+        return self.state.last_node
 
     @last_node.setter
     def last_node(self, value: Any) -> None:
-        self.states.last_node = value
+        self.state.last_node = value
 
     @property
     def pos(self) -> int:
@@ -133,19 +133,19 @@ class ParserCore:
 
     @property
     def ast(self) -> AST:
-        return self.state.ast
+        return self.states.state.ast
 
     @ast.setter
     def ast(self, value: AST) -> None:
-        self.state.ast = value
+        self.states.state.ast = value
 
     @property
     def cst(self) -> Any:
-        return self.state.cst
+        return self.states.state.cst
 
     @cst.setter
     def cst(self, value: Any) -> None:
-        self.state.cst = value
+        self.states.state.cst = value
 
     @property
     def ruleinfo_stack(self) -> list[RuleInfo]:
@@ -173,7 +173,7 @@ class ParserCore:
 
     def next_token(self, ri: RuleInfo | None = None) -> None:
         if not (ri and ri.is_token_rule()):
-            self.cursor.next_token()
+            self.state.cursor.next_token()
 
     def _define(self, keys: list[str], addkeys: list[str] | None = None) -> None:
         # NOTE: called by generated parsers
