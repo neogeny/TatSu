@@ -112,13 +112,13 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def option(self) -> Any:
-        self.pushstate()
+        self.states.push()
         try:
             yield
-            self.mergestate()
+            self.states.merge()
             raise OptionSucceeded()
         except FailedParse:
-            if self.undostate().cutseen:
+            if self.states.undo().cutseen:
                 raise
 
     _option = option
@@ -155,11 +155,11 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def if_(self) -> Any:
-        self.pushstate()
+        self.states.push()
         try:
             yield
         finally:
-            self.undostate()
+            self.states.undo()
 
     _if = if_
 
@@ -208,13 +208,13 @@ class ParseContext(ParserEngine, Ctx):
             raise
 
     def isolate(self, exp: Func) -> Any:
-        self.pushstate()
+        self.states.push()
         try:
             self.expcall(exp)
             return cstfinal(self.cst)
         finally:
             ast = self.ast
-            self.popstate()
+            self.states.pop()
             self.ast = ast
 
     _isolate = isolate

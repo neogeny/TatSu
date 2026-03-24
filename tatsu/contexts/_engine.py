@@ -163,7 +163,7 @@ class ParserEngine(ParserCore, CanParse):
 
         self.set_left_recursion_guard(key)
 
-        self.newstate()
+        self.states.new()
         try:
             self.next_token(ri)
 
@@ -183,7 +183,7 @@ class ParserEngine(ParserCore, CanParse):
             self.memoize(key, e)
             raise
         finally:
-            self.undostate()
+            self.states.undo()
 
     def func_call(self, ri: RuleInfo) -> Any:
         with self.statescope():

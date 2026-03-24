@@ -186,10 +186,12 @@ class ParseStateStack:
     def node(self) -> Any:  # this is Parsed
         return self.top.node
 
-    def pop(self, pos: int | None = None) -> ParseState:
+    def undo(self) -> ParseState:
+        return self.state_stack.pop()
+
+    def pop(self) -> ParseState:
         prev = self.state_stack.pop()
-        if pos is not None:
-            self.state.goto(pos)
+        self.state.goto(prev.pos)
         return prev
 
     def new(self) -> ParseState:

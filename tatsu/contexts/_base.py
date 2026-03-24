@@ -191,32 +191,17 @@ class ParserCore:
         # NOTE: called by generated parsers
         self.state.nameadd(name)
 
-    def newstate(self) -> ParseState:
-        return self.states.new()
-
-    def pushstate(self) -> ParseState:
-        return self.states.push()
-
-    def popstate(self) -> ParseState:
-        return self.states.pop(self.pos)
-
-    def mergestate(self) -> ParseState:
-        return self.states.merge()
-
-    def undostate(self) -> ParseState:
-        return self.states.pop()
-
     @contextmanager
     def statescope(self, merge: bool = True) -> Generator[None, None, None]:
-        self.pushstate()
+        self.states.push()
         try:
             yield
             if merge:
-                self.mergestate()
+                self.states.merge()
             else:
-                self.popstate()
+                self.states.pop()
         except FailedParse:
-            self.undostate()
+            self.states.undo()
             raise
 
     def cut(self) -> None:
