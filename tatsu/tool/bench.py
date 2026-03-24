@@ -15,13 +15,14 @@ from .. import grammars
 from ..exceptions import FailedParse
 from ..parsing import Parser
 from ..tool.api import compile, to_python_sourcecode
-from ..util.common import try_read
+from ..util.common import try_read, typename
 from ..util.strtools import countlines
 from ..util.timetools import timer
 
 
 @dataclass
 class BenchmarkResult:
+    typename: str
     file_count: int
     error_count: int
     setup_time: float
@@ -74,6 +75,7 @@ def _setup_gen_parser(
 
 def _print_run_details(title: str, result: BenchmarkResult, lbl_w: int, num_fmt: str):
     print(f"\n--- {title} ---")
+    print(f"typename: {result.typename}")
     print(f"{'one-time setup:':<{lbl_w}}{num_fmt.format(result.setup_time)} s")
     print(
         f"{f'total parsing time ({result.file_count} files):':<{lbl_w}}"
@@ -154,7 +156,7 @@ def benchmark(
 
         model, compile_time = _setup_mem_parser(grammar_src)
         grammar_name = model.name or 'Benchmark'
-        parser, gen_time, _parser_path = _setup_gen_parser(grammar_src, grammar_name)
+        parser, generation_time, _parser_path = _setup_gen_parser(grammar_src, grammar_name)
 
         try:
             mem_time = 0.0
@@ -173,22 +175,23 @@ def benchmark(
 
                 with timer() as t:
                     try:
-                        model.parse(text)
+                        model.parse(text, asmodel=True)
                     except FailedParse:
                         mem_errors += 1
                     mem_time += t.delta
 
                 with timer() as t:
                     try:
-                        parser.parse(text)
+                        parser.parse(text, asmodel=True)
                     except FailedParse:
                         gen_errors += 1
                     gen_time += t.delta
 
-            nfiles += 1
+                nfiles += 1
             print(" " * 70)  # Clear the filename feedback
 
             mem_run = BenchmarkResult(
+                typename(model),
                 file_count=nfiles,
                 error_count=mem_errors,
                 setup_time=compile_time,
@@ -197,9 +200,10 @@ def benchmark(
                 avg_lines_sec=(total_lines / mem_time if mem_time else 0),
             )
             gen_run = BenchmarkResult(
+                typename(parser),
                 file_count=nfiles,
                 error_count=gen_errors,
-                setup_time=gen_time,
+                setup_time=generation_time,
                 total_parsing_time=gen_time,
                 avg_parsing_time=gen_time / nfiles if nfiles else 0,
                 avg_lines_sec=(total_lines / gen_time if gen_time else 0),
