@@ -71,6 +71,7 @@ def main():
         p = IndentPrintMixin()
         if not path.is_file():
             p.print("""\
+            use crate::engine::{Cst, Ctx};
             use super::model::Model
 
             """)
