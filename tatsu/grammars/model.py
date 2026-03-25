@@ -21,6 +21,7 @@ from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import indent, trim, typename
 from .math import ffset, kdot
 
+
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
@@ -375,11 +376,6 @@ class Rule(NamedBox):
             exp=exp,
             is_name='@name\n' if self.is_name else '',
         )
-
-
-@nodedataclass
-class TokenRule(Rule):
-    is_tokn: bool = True
 
 
 @nodedataclass
