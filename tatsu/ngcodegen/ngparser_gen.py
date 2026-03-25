@@ -121,8 +121,8 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         if params:
             params = f'({params})'
 
-        leftrec = '\n@tatsu.leftrec' if rule.is_leftrec else ''
-        nomemo = '\n@tatsu.nomemo' if not rule.is_memoizable and not leftrec else ''
+        leftrec = '\n@tatsu.leftrec' if rule.is_lrec else ''
+        nomemo = '\n@tatsu.nomemo' if not rule.is_memo and not leftrec else ''
         isname = '\n@tatsu.name' if rule.is_name else ''
 
         name = safe_name(rule.name)

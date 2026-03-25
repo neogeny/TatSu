@@ -19,9 +19,10 @@ class RuleResult(NamedTuple):
 
 
 class RuleLike(Protocol):
-    is_leftrec: bool = False
-    is_memoizable: bool = False
+    is_lrec: bool = False
+    is_memo: bool = False
     is_name: bool = False
+    is_tokn: bool = False
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         pass
@@ -43,8 +44,8 @@ class RuleInfo(NamedTuple):
             name=getattr(func, '__name__', '<?>'),
             instance=instance,
             func=func,
-            is_lrec=getattr(func, 'is_leftrec', False),
-            is_memo=getattr(func, 'is_memoizable', True),
+            is_lrec=getattr(func, 'is_lrec', False),
+            is_memo=getattr(func, 'is_memo', True),
             is_name=getattr(func, 'is_name', False),
             params=params or (),
             kwparams=kwparams or {},

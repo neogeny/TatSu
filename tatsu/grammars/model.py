@@ -275,8 +275,9 @@ class Rule(NamedBox):
     decorators: list[str] = field(default_factory=list)
     base: str | None = None
     is_name: bool = False
-    is_leftrec: bool = False
-    is_memoizable: bool = True
+    is_lrec: bool = False
+    is_memo: bool = True
+    is_tokn: bool = False
 
     def __post_init__(self):
         super().__post_init__()
@@ -305,8 +306,8 @@ class Rule(NamedBox):
             name=self.name,
             instance=exp,
             func=exp._parse,
-            is_lrec=self.is_leftrec,
-            is_memo=self.is_memoizable,
+            is_lrec=self.is_lrec,
+            is_memo=self.is_memo,
             is_name=self.is_name,
             params=self.params,
             kwparams=self.kwparams,
@@ -374,6 +375,11 @@ class Rule(NamedBox):
             exp=exp,
             is_name='@name\n' if self.is_name else '',
         )
+
+
+@nodedataclass
+class TokenRule(Rule):
+    is_tokn: bool = True
 
 
 @nodedataclass

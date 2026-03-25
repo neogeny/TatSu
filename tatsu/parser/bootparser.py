@@ -73,8 +73,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='grammar',
@@ -105,8 +105,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='directive',
@@ -217,8 +217,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='keywords',
@@ -227,8 +227,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='keyword',
@@ -251,8 +251,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='params',
@@ -275,8 +275,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='first_param',
@@ -285,8 +285,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='kwparams',
@@ -295,8 +295,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='the_params_at_last',
@@ -320,8 +320,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='paramdef',
@@ -371,8 +371,8 @@ GRAMMAR_MODEL: Grammar = (
                         kwparams={},
                         decorators=[],
                         is_name=False,
-                        is_leftrec=False,
-                        is_memoizable=True
+                        is_lrec=False,
+                        is_memo=True
                       )
                     ),
                     Token(']')
@@ -423,8 +423,8 @@ GRAMMAR_MODEL: Grammar = (
                         kwparams={},
                         decorators=[],
                         is_name=False,
-                        is_leftrec=False,
-                        is_memoizable=True
+                        is_lrec=False,
+                        is_memo=True
                       )
                     ),
                     Token(')')
@@ -438,8 +438,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='rule',
@@ -496,8 +496,8 @@ GRAMMAR_MODEL: Grammar = (
                                 kwparams={},
                                 decorators=[],
                                 is_name=False,
-                                is_leftrec=False,
-                                is_memoizable=True
+                                is_lrec=False,
+                                is_memo=True
                               )
                             ),
                             Token(']')
@@ -548,8 +548,8 @@ GRAMMAR_MODEL: Grammar = (
                                 kwparams={},
                                 decorators=[],
                                 is_name=False,
-                                is_leftrec=False,
-                                is_memoizable=True
+                                is_lrec=False,
+                                is_memo=True
                               )
                             ),
                             Token(')')
@@ -607,8 +607,8 @@ GRAMMAR_MODEL: Grammar = (
                                   kwparams={},
                                   decorators=[],
                                   is_name=False,
-                                  is_leftrec=False,
-                                  is_memoizable=True
+                                  is_lrec=False,
+                                  is_memo=True
                                 )
                               ),
                               Token(']')
@@ -659,8 +659,8 @@ GRAMMAR_MODEL: Grammar = (
                                   kwparams={},
                                   decorators=[],
                                   is_name=False,
-                                  is_leftrec=False,
-                                  is_memoizable=True
+                                  is_lrec=False,
+                                  is_memo=True
                                 )
                               ),
                               Token(')')
@@ -674,8 +674,8 @@ GRAMMAR_MODEL: Grammar = (
                     kwparams={},
                     decorators=[],
                     is_name=False,
-                    is_leftrec=False,
-                    is_memoizable=True
+                    is_lrec=False,
+                    is_memo=True
                   )
                 )
               ),
@@ -692,8 +692,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='ENDRULE',
@@ -709,8 +709,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='UNINDENTED',
@@ -719,8 +719,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='EMPTYLINE',
@@ -729,8 +729,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='decorator',
@@ -757,8 +757,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='pair',
@@ -769,8 +769,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='firstexpre',
@@ -779,8 +779,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='firstchoice',
@@ -796,8 +796,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='firstoption',
@@ -806,8 +806,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='expre',
@@ -816,8 +816,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='choice',
@@ -832,8 +832,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='option',
@@ -842,8 +842,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='sequence',
@@ -866,8 +866,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='element',
@@ -883,8 +883,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='rule_include',
@@ -893,8 +893,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='named',
@@ -903,8 +903,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='named_list',
@@ -920,8 +920,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='named_single',
@@ -937,8 +937,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='override',
@@ -953,8 +953,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='override_list',
@@ -963,8 +963,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='override_single',
@@ -973,8 +973,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='override_single_deprecated',
@@ -983,8 +983,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='term',
@@ -1011,8 +1011,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='group',
@@ -1030,8 +1030,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='skip',
@@ -1040,8 +1040,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='gather',
@@ -1056,8 +1056,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='positive_gather',
@@ -1075,8 +1075,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='normal_gather',
@@ -1095,8 +1095,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='join',
@@ -1111,8 +1111,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='positive_join',
@@ -1130,8 +1130,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='normal_join',
@@ -1150,8 +1150,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='left_join',
@@ -1170,8 +1170,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='right_join',
@@ -1190,8 +1190,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='positive_closure',
@@ -1215,8 +1215,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='closure',
@@ -1234,8 +1234,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='empty_closure',
@@ -1244,8 +1244,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='optional',
@@ -1270,8 +1270,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='lookahead',
@@ -1280,8 +1280,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='negative_lookahead',
@@ -1290,8 +1290,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='skip_to',
@@ -1300,8 +1300,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='atom',
@@ -1322,8 +1322,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='call',
@@ -1332,8 +1332,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='void',
@@ -1342,8 +1342,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='fail',
@@ -1352,8 +1352,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='cut',
@@ -1362,8 +1362,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='cut_deprecated',
@@ -1372,8 +1372,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='known_name',
@@ -1382,8 +1382,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='name',
@@ -1392,8 +1392,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='constant',
@@ -1415,8 +1415,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='alert',
@@ -1430,8 +1430,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='token',
@@ -1440,8 +1440,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='literal',
@@ -1461,8 +1461,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='string',
@@ -1477,8 +1477,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='singlequoted',
@@ -1487,8 +1487,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='doublequoted',
@@ -1497,8 +1497,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='raw_string',
@@ -1507,8 +1507,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='STRING',
@@ -1517,8 +1517,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='SINGLEQUOTED',
@@ -1527,8 +1527,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='DOUBLEQUOTED',
@@ -1537,8 +1537,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='multiline_string',
@@ -1552,8 +1552,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='hex',
@@ -1562,8 +1562,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='float',
@@ -1572,8 +1572,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='int',
@@ -1582,8 +1582,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='path',
@@ -1592,8 +1592,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='word',
@@ -1602,8 +1602,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='dot',
@@ -1612,8 +1612,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='pattern',
@@ -1622,8 +1622,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='regex',
@@ -1638,8 +1638,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='REGEX',
@@ -1648,8 +1648,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='deprecated_regex',
@@ -1664,8 +1664,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='boolean',
@@ -1674,8 +1674,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='null',
@@ -1684,8 +1684,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         ),
         Rule(
           name='eof',
@@ -1694,8 +1694,8 @@ GRAMMAR_MODEL: Grammar = (
           kwparams={},
           decorators=[],
           is_name=False,
-          is_leftrec=False,
-          is_memoizable=True
+          is_lrec=False,
+          is_memo=True
         )
       )
     )

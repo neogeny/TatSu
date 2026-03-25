@@ -70,9 +70,9 @@ class RailroadNodeWalker(NodeWalker):
             params = f'[{params}]'
 
         leftrec = ''
-        if rule.is_leftrec:
+        if rule.is_lrec:
             leftrec = '⟳'
-        elif not rule.is_memoizable:
+        elif not rule.is_memo:
             leftrec = '⊬'
 
         base = ''
