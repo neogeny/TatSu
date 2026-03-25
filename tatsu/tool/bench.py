@@ -96,6 +96,7 @@ def print_summary(
     count: int,
     mem_run: BenchmarkResult,
     gen_run: BenchmarkResult,
+    mode: str = 'both',
 ):
     relgrammar = Path(grammar).resolve().relative_to(Path.cwd())
     print(f"grammar: {relgrammar}")
@@ -127,26 +128,30 @@ def print_summary(
     ]
     lbl_w = max(len(lbl) for lbl in labels) + 2
 
-    _print_run_details("in-memory model", mem_run, lbl_w, num_fmt)
-    _print_run_details("generated python parser", gen_run, lbl_w, num_fmt)
+    if mode in {'mem', 'both'}:
+        _print_run_details("in-memory model", mem_run, lbl_w, num_fmt)
+    if mode in {'gen', 'both'}:
+        _print_run_details("generated python parser", gen_run, lbl_w, num_fmt)
 
-    print("\n--- comparison (average parsing time) ---")
-    mem_sloc = mem_run.avg_lines_sec
-    gen_sloc = gen_run.avg_lines_sec
-    print(f"{'in-memory:':<{lbl_w}}{num_fmt.format(mem_sloc)} sloc/sec")
-    print(f"{'generated:':<{lbl_w}}{num_fmt.format(gen_sloc)} sloc/sec")
+    if mode == 'both':
+        print("\n--- comparison (average parsing time) ---")
+        mem_sloc = mem_run.avg_lines_sec
+        gen_sloc = gen_run.avg_lines_sec
+        print(f"{'in-memory:':<{lbl_w}}{num_fmt.format(mem_sloc)} sloc/sec")
+        print(f"{'generated:':<{lbl_w}}{num_fmt.format(gen_sloc)} sloc/sec")
 
-    if gen_sloc < mem_sloc:
-        factor = mem_sloc / gen_sloc
-        print(f"generated parser is {factor:.2f}x slower on average")
-    else:
-        factor = gen_sloc / mem_sloc
-        print(f"generated parser is {factor:.2f}x faster on average")
+        if gen_sloc < mem_sloc:
+            factor = mem_sloc / gen_sloc
+            print(f"generated parser is {factor:.2f}x slower on average")
+        else:
+            factor = gen_sloc / mem_sloc
+            print(f"generated parser is {factor:.2f}x faster on average")
 
 
 def benchmark(
     grammar: str | Path,
     filenames: Iterable[str | Path],
+    mode: str = 'both',
 ) -> tuple[BenchmarkResult, BenchmarkResult]:
     oldlimit = sys.getrecursionlimit()
     sys.setrecursionlimit(2**16)
@@ -167,30 +172,32 @@ def benchmark(
         # --- Loop 1: Memory Parser ---
         memtime = 0.0
         memerrs = 0
-        for i, text in enumerate(texts):
-            pct = int((i + 1) / nfiles * 100)
-            print(f"[Mem {pct:3d}%] Benchmarking memory parser...", end="\r")
-            with timer() as t:
-                try:
-                    model.parse(text, asmodel=True)
-                except FailedParse:
-                    memerrs += 1
-                memtime += t.delta
+        if mode in {'mem', 'both'}:
+            for i, text in enumerate(texts):
+                pct = int((i + 1) / nfiles * 100)
+                print(f"[Mem {pct:3d}%] Benchmarking memory parser...", end="\r")
+                with timer() as t:
+                    try:
+                        model.parse(text, asmodel=True)
+                    except FailedParse:
+                        memerrs += 1
+                    memtime += t.delta
 
         # --- Loop 2: Generated Parser ---
         gentime = 0.0
         generrs = 0
-        for i, text in enumerate(texts):
-            pct = int((i + 1) / nfiles * 100)
-            print(f"[Gen {pct:3d}%] Benchmarking generated parser...", end="\r")
-            with timer() as t:
-                try:
-                    parser.parse(text, asmodel=True)
-                except FailedParse:
-                    generrs += 1
-                gentime += t.delta
+        if mode in {'gen', 'both'}:
+            for i, text in enumerate(texts):
+                pct = int((i + 1) / nfiles * 100)
+                print(f"[Gen {pct:3d}%] Benchmarking generated parser...", end="\r")
+                with timer() as t:
+                    try:
+                        parser.parse(text, asmodel=True)
+                    except FailedParse:
+                        generrs += 1
+                    gentime += t.delta
 
-        print(" " * 75)  # Clear the status line
+            print(" " * 75)  # Clear the status line
 
         memrun = BenchmarkResult(
             typename(model),
@@ -217,6 +224,30 @@ def benchmark(
 
 def main():
     parser = argparse.ArgumentParser(description="benchmark tatsu parsing methods")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        '--both',
+        help='benchmark both types of parser (default)',
+        dest='mode',
+        action='store_const',
+        const='both',
+        default='both',
+    )
+    mode.add_argument(
+        '--mem',
+        help='benchmark in-memory parser',
+        dest='mode',
+        action='store_const',
+        const='mem',
+    )
+    mode.add_argument(
+        '--gen',
+        help='benchmark generated parser',
+        dest='mode',
+        action='store_const',
+        const='gen',
+    )
+
     parser.add_argument("grammar", type=Path, help="path to the grammar file")
     parser.add_argument(
         "inputs", type=Path, nargs='+', help="path to one or more input text files"
@@ -231,12 +262,13 @@ def main():
     try:
         grammar_path = args.grammar.resolve()
         input_paths = [p.resolve() for p in args.inputs]
-        mem_run, gen_run = benchmark(grammar_path, input_paths)
+        mem_run, gen_run = benchmark(grammar_path, input_paths, mode=args.mode)
         print_summary(
             str(args.grammar),
             len(args.inputs),
             mem_run,
             gen_run,
+            mode=args.mode,
         )
     except Exception as e:
         print(f"\nan error occurred: {e}", file=sys.stderr)
