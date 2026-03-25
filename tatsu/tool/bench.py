@@ -148,75 +148,71 @@ def benchmark(
     grammar: str | Path,
     filenames: Iterable[str | Path],
 ) -> tuple[BenchmarkResult, BenchmarkResult]:
-    old_limit = sys.getrecursionlimit()
+    oldlimit = sys.getrecursionlimit()
     sys.setrecursionlimit(2**16)
     try:
-        grammar_path = Path(grammar)
-        grammar_src = grammar_path.read_text(encoding='utf-8')
+        grampath = Path(grammar)
+        gramsrc = grampath.read_text(encoding="utf-8")
 
-        model, compile_time = _setup_mem_parser(grammar_src)
-        grammar_name = model.name or 'Benchmark'
-        parser, generation_time, _parser_path = _setup_gen_parser(
-            grammar_src, grammar_name
+        model, memsetup = _setup_mem_parser(gramsrc)
+        gramname = model.name or "Benchmark"
+        parser, gensetup, _ = _setup_gen_parser(gramsrc, gramname)
+
+        # Pre-load data to isolate parsing logic from I/O overhead
+        filepaths = [Path(f) for f in filenames]
+        texts = [try_read(p) for p in filepaths]
+        totallines = sum(countlines(t).code for t in texts)
+        nfiles = len(texts)
+
+        # --- Loop 1: Memory Parser ---
+        memtime = 0.0
+        memerrs = 0
+        for i, text in enumerate(texts):
+            pct = int((i + 1) / nfiles * 100)
+            print(f"[Mem {pct:3d}%] Benchmarking memory parser...", end="\r")
+            with timer() as t:
+                try:
+                    model.parse(text, asmodel=True)
+                except FailedParse:
+                    memerrs += 1
+                memtime += t.delta
+
+        # --- Loop 2: Generated Parser ---
+        gentime = 0.0
+        generrs = 0
+        for i, text in enumerate(texts):
+            pct = int((i + 1) / nfiles * 100)
+            print(f"[Gen {pct:3d}%] Benchmarking generated parser...", end="\r")
+            with timer() as t:
+                try:
+                    parser.parse(text, asmodel=True)
+                except FailedParse:
+                    generrs += 1
+                gentime += t.delta
+
+        print(" " * 75)  # Clear the status line
+
+        memrun = BenchmarkResult(
+            typename(model),
+            file_count=nfiles,
+            error_count=memerrs,
+            setup_time=memsetup,
+            total_parsing_time=memtime,
+            avg_parsing_time=memtime / nfiles if nfiles else 0,
+            avg_lines_sec=totallines / memtime if memtime else 0,
         )
-
-        try:
-            mem_time = 0.0
-            gen_time = 0.0
-            total_lines = 0
-            nfiles = 0
-            mem_errors = 0
-            gen_errors = 0
-
-            filepaths = [Path(f) for f in filenames]
-            for i, path in enumerate(filepaths):
-                pct = int((i + 1) / len(filepaths) * 100)
-                print(f"[{pct:3d}%] {f'{path.name}...':60}", end='\r')
-                text = try_read(path)
-                total_lines += countlines(text).code
-
-                with timer() as t:
-                    try:
-                        model.parse(text, asmodel=True)
-                    except FailedParse:
-                        mem_errors += 1
-                    mem_time += t.delta
-
-                with timer() as t:
-                    try:
-                        parser.parse(text, asmodel=True)
-                    except FailedParse:
-                        gen_errors += 1
-                    gen_time += t.delta
-
-                nfiles += 1
-            print(" " * 70)  # Clear the filename feedback
-
-            mem_run = BenchmarkResult(
-                typename(model),
-                file_count=nfiles,
-                error_count=mem_errors,
-                setup_time=compile_time,
-                total_parsing_time=mem_time,
-                avg_parsing_time=mem_time / nfiles if nfiles else 0,
-                avg_lines_sec=(total_lines / mem_time if mem_time else 0),
-            )
-            gen_run = BenchmarkResult(
-                typename(parser),
-                file_count=nfiles,
-                error_count=gen_errors,
-                setup_time=generation_time,
-                total_parsing_time=gen_time,
-                avg_parsing_time=gen_time / nfiles if nfiles else 0,
-                avg_lines_sec=(total_lines / gen_time if gen_time else 0),
-            )
-            return mem_run, gen_run
-        finally:
-            pass
-            # if parser_path.exists():
-            #     parser_path.unlink()
+        genrun = BenchmarkResult(
+            typename(parser),
+            file_count=nfiles,
+            error_count=generrs,
+            setup_time=gensetup,
+            total_parsing_time=gentime,
+            avg_parsing_time=gentime / nfiles if nfiles else 0,
+            avg_lines_sec=totallines / gentime if gentime else 0,
+        )
+        return memrun, genrun
     finally:
-        sys.setrecursionlimit(old_limit)
+        sys.setrecursionlimit(oldlimit)
 
 
 def main():
