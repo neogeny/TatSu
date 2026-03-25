@@ -121,16 +121,18 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         if params:
             params = f'({params})'
 
-        leftrec = '\n@tatsu.leftrec' if rule.is_leftrec else ''
-        nomemo = '\n@tatsu.nomemo' if not rule.is_memoizable and not leftrec else ''
+        islrec = '\n@tatsu.leftrec' if rule.is_lrec else ''
+        nomemo = '\n@tatsu.nomemo' if not rule.is_memo and not islrec else ''
         isname = '\n@tatsu.name' if rule.is_name else ''
+        istokn = '\n@tatsu.token' if rule.is_tokn else ''
 
         name = safe_name(rule.name)
         self.print(f"""
                 @tatsu.rule{params}\
-                {leftrec}\
+                {islrec}\
                 {nomemo}\
                 {isname}\
+                {istokn}\
                 \ndef {name}(self, {self.ctx_stack[0]}: Ctx) -> Any:
             """)
         with self.indent():

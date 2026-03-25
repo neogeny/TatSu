@@ -214,8 +214,9 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=False,
-              is_memoizable=False
+              is_lrec=False,
+              is_memo=False,
+              is_tokn=False
             ),
             Rule(
               name='expression',
@@ -226,8 +227,9 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=True,
-              is_memoizable=False
+              is_lrec=True,
+              is_memo=False,
+              is_tokn=False
             ),
             Rule(
               name='addition',
@@ -243,8 +245,9 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=False,
-              is_memoizable=False
+              is_lrec=False,
+              is_memo=False,
+              is_tokn=False
             ),
             Rule(
               name='subtraction',
@@ -260,8 +263,9 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=False,
-              is_memoizable=False
+              is_lrec=False,
+              is_memo=False,
+              is_tokn=False
             ),
             Rule(
               name='term',
@@ -276,8 +280,9 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=True,
-              is_memoizable=False
+              is_lrec=True,
+              is_memo=False,
+              is_tokn=False
             ),
             Rule(
               name='multiplication',
@@ -293,8 +298,9 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=False,
-              is_memoizable=False
+              is_lrec=False,
+              is_memo=False,
+              is_tokn=False
             ),
             Rule(
               name='division',
@@ -310,8 +316,9 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=False,
-              is_memoizable=False
+              is_lrec=False,
+              is_memo=False,
+              is_tokn=False
             ),
             Rule(
               name='factor',
@@ -325,8 +332,9 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=False,
-              is_memoizable=True
+              is_lrec=False,
+              is_memo=True,
+              is_tokn=False
             ),
             Rule(
               name='number',
@@ -335,8 +343,9 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=False,
-              is_memoizable=True
+              is_lrec=False,
+              is_memo=True,
+              is_tokn=False
             )
           )
         )

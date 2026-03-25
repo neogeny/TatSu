@@ -35,7 +35,7 @@ def mark_left_recursion(rules: Iterable[Rule]) -> list[Rule]:
         node_state[node] = State.CUTOFF
 
         # beforeNode
-        leftrec = isinstance(node, Rule) and node.is_leftrec
+        leftrec = isinstance(node, Rule) and node.is_lrec
         if leftrec:
             depth_stack.append(depth)
 
@@ -56,11 +56,11 @@ def mark_left_recursion(rules: Iterable[Rule]) -> list[Rule]:
                     child = cast(Rule, child)
                     child_rules = (n for n in node_depth if isinstance(n, Rule))
                     for childrule in child_rules:
-                        childrule.is_memoizable = False
+                        childrule.is_memo = False
 
                     nonlocal leftrec_rules
                     assert isinstance(child, Rule)
-                    child.is_leftrec = True
+                    child.is_lrec = True
                     leftrec_rules.append(child)
         finally:
             # afterNode
