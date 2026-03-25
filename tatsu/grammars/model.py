@@ -108,11 +108,13 @@ class Model(Node, CanParse):
             self._lookahead = kdot(self.firstset(k), self.followset(k), k)
         return self._lookahead
 
-    def lookaheadlist(self, k: int = 1) -> list[Any]:
-        return sorted(fl[0] for fl in self.lookahead(k=k) if fl)
+    @cached_property
+    def lookaheadlist(self) -> list[Any]:
+        return sorted(fl[0] for fl in self.lookahead(1) if fl)
 
-    def expecting(self, k: int = 1) -> list[str]:
-        return sorted(repr(la) for la in self.lookaheadlist(k=k))
+    @cached_property
+    def expecting(self) -> list[str]:
+        return sorted(repr(la) for la in self.lookaheadlist)
 
     def firstset(self, k: int = 1) -> ffset:
         if not self._firstset:
@@ -510,6 +512,9 @@ class Grammar(Model):
     def _calc_lookahead_sets(self, k: int = 1):
         self._calc_first_sets(k=k)
         self._calc_follow_sets(k=k)
+        for rule in self.rules:
+            if rule.lookaheadlist is None:
+                raise GrammarError(f'Impossible lookahead in rule {rule.name}')
 
     def _calc_first_sets(self, k: int = 1):
         f: dict[str, ffset] = defaultdict(set)

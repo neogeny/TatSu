@@ -37,7 +37,7 @@ class Choice(Model):
     def _parse(self, ctx: Ctx) -> Any:
         with ctx.choice() as ch:
             ch.options = [o._parse for o in self.options]
-            ch.expecting(*self.expecting())
+            ch.expecting(*self.expecting)
         return ch.result
 
     @cached_property

@@ -410,9 +410,9 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             self.print(')')
 
     def _gen_block(self, exp: g.Model, name='block'):
-        if () in exp.lookahead():
+        if () in exp.lookaheadlist:
             raise CodegenError(
-                f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}',
+                f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead!r}',
             )
 
         n = self.blockn
@@ -431,9 +431,9 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         ctx: str | None = None,
     ):
         ctx = ctx or self.ctx
-        if echeck and () in exp.lookahead():
+        if echeck and () in exp.lookaheadlist:
             raise CodegenError(
-                f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead()!r}',
+                f'{exp!r} may repeat empty sequence @{exp.line} {exp.lookahead!r}',
             )
 
         if decor:
@@ -464,7 +464,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         else:
             self.print(f'with ctx.{name}({arg}):')
         with self.indent():
-            if var and (elements := exp.lookaheadlist() if exp else []):
+            if var and exp and (elements := exp.lookaheadlist):
                 self.pfold(f'{var}.expecting', tuple(elements))
                 self.print()
             if sep:
