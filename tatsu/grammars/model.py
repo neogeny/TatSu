@@ -49,12 +49,12 @@ class Model(Node, CanParse):
         return self
 
     @cached_property
-    def defines_single(self) -> set[str]:
-        return set()
+    def defines_single(self) -> list[str]:
+        return []
 
     @cached_property
-    def defines_list(self) -> set[str]:
-        return set()
+    def defines_list(self) -> list[str]:
+        return []
 
     @property
     def grammar(self) -> Grammar:
@@ -97,8 +97,8 @@ class Model(Node, CanParse):
             child._set_grammar(grammar)
 
     def _add_defined(self, ctx: Ctx, ast: Any | None = None):
-        keys_single = list(self.defines_single)
-        keys_list = list(self.defines_list)
+        keys_single = self.defines_single
+        keys_list = self.defines_list
         ctx.define(keys_single, keys_list)
         if isinstance(ast, AST):
             ast._define(keys_single, keys_list)
@@ -218,11 +218,11 @@ class Box(Model):
         return self.exp._parse(ctx)
 
     @cached_property
-    def defines_single(self) -> set[str]:
+    def defines_single(self) -> list[str]:
         return self.exp.defines_single
 
     @cached_property
-    def defines_list(self) -> set[str]:
+    def defines_list(self) -> list[str]:
         return self.exp.defines_list
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:

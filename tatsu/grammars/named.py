@@ -31,8 +31,8 @@ class Named(NamedBox):
         return value
 
     @cached_property
-    def defines_single(self) -> set[str]:
-        return {self.name, *super().defines_single}
+    def defines_single(self) -> list[str]:
+        return list({self.name, *super().defines_single})
 
     def _pretty(self, lean=False):
         if lean:
@@ -48,8 +48,8 @@ class NamedList(Named):
         return value
 
     @cached_property
-    def defines_list(self) -> set[str]:
-        return {self.name, *super().defines_list}
+    def defines_list(self) -> list[str]:
+        return list({self.name, *super().defines_list})
 
     def _pretty(self, lean=False):
         if lean:

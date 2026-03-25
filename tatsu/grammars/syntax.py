@@ -134,12 +134,12 @@ class Sequence(Model):
         return [s._parse(ctx) for s in self.sequence]
 
     @cached_property
-    def defines_single(self) -> set[str]:
-        return set().union(*(s.defines_single for s in self.sequence))
+    def defines_single(self) -> list[str]:
+        return list(set().union(*(s.defines_single for s in self.sequence)))
 
     @cached_property
-    def defines_list(self) -> set[str]:
-        return set().union(*(s.defines_list for s in self.sequence))
+    def defines_list(self) -> list[str]:
+        return list(set().union(*(s.defines_list for s in self.sequence)))
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return set().union(*(s.missing_rules(rulenames) for s in self.sequence))

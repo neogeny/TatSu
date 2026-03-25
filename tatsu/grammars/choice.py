@@ -41,12 +41,12 @@ class Choice(Model):
         return ch.result
 
     @cached_property
-    def defines_single(self) -> set[str]:
-        return set().union(*(o.defines_single for o in self.options))
+    def defines_single(self) -> list[str]:
+        return list(set().union(*(o.defines_single for o in self.options)))
 
     @cached_property
-    def defines_list(self) -> set[str]:
-        return set().union(*(o.defines_list for o in self.options))
+    def defines_list(self) -> list[str]:
+        return list(set().union(*(o.defines_list for o in self.options)))
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return set().union(*[o.missing_rules(rulenames) for o in self.options])
