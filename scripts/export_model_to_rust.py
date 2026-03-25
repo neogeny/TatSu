@@ -41,10 +41,17 @@ def main():
         name = cls.__name__
         modelnames.add(name)
 
-    n = 1
+    n = 0
     for cls in g.Model.model_classes():
         name = cls.__name__
-        if 'Comment' in name or 'First' in name:
+        if (
+            name.endswith('Box')
+            or 'Comment' in name
+            or 'First' in name
+            or 'Choice' in name
+            or 'Sequence' in name
+            or name in {'Option', 'Group'}
+        ):
             continue
 
         fields = []
@@ -60,12 +67,14 @@ def main():
         module = cls.__module__.split('.')[-1]
         path = root / f'{module.lower()}.rs'
 
+        n += 1
         p = IndentPrintMixin()
         if not path.is_file():
             p.print("""\
             use super::model::Model
 
             """)
+        p.print(f'// #{n}')
         p.print("#[derive(Debug, Clone, Copy, PartialEq)]")
         p.print(f"struct {name} {{")
 
