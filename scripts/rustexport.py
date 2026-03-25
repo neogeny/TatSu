@@ -1,0 +1,94 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
+import dataclasses as dc
+from pathlib import Path
+from typing import Any
+
+from tatsu import grammars as g
+from tatsu.util.indent import IndentPrintMixin
+
+
+def rstype(type: Any, modelnames: set[str]) -> str:
+    type = str(type)
+    type = str(type).split('|')[0].strip()
+    if type.startswith('tuple['):
+        type = type.replace('tuple[', 'Vec<').replace('...]', '>')
+    elif type.startswith('dict['):
+        type = type.replace('dict[', 'HashMap<').replace(']', '>')
+    elif type.startswith('list['):
+        type = type.replace('list[', 'Vec<').replace(']', '>')
+    else:
+        type = type.replace('[', '{').replace(']', '}')
+    if type == 'Model':
+        type = 'Box<dyn Model>'
+    if type == 'Vec<Model>':
+        type = 'Vec<Box<dyn Model>>'
+    # if type in modelnames:
+    #     type = 'Box<dyn Model>'
+    # type= type.replace('str', "'static &str")
+    type= type.replace('str', "String")
+    return type
+
+
+def main():
+    root = Path('./rustsrc')
+    root.mkdir(exist_ok=True)
+
+    modelnames = set()
+    for cls in g.Model.model_classes():
+        name = cls.__name__
+        modelnames.add(name)
+
+    n = 1
+    for cls in g.Model.model_classes():
+        name = cls.__name__
+        if 'Comment' in name or 'First' in name:
+            continue
+
+        fields = []
+        for field in dc.fields(cls):  # pyright: ignore[reportArgumentType]
+            if not field.init:
+                continue
+            if field.name.startswith('_'):
+                continue
+            if field.name in {'ast', 'ctx', 'parseinfo'}:
+                continue
+            fields.append(field)
+
+        module = cls.__module__.split('.')[-1]
+        path = root / f'{module.lower()}.rs'
+
+        p = IndentPrintMixin()
+        if not path.is_file():
+            p.print("""\
+            use super::model::Model
+
+            """)
+        p.print("#[derive(Debug, Clone, Copy, PartialEq)]")
+        p.print(f"struct {name} {{")
+
+        for field in fields:
+            type = rstype(field.type, modelnames)
+            with p.indent():
+                p.print(f'pub {field.name}: {type},')
+
+        p.print("}")
+        p.print()
+
+        p.print(f"""\
+            impl Model for {name} {{
+                fn parse(&self, mut ctx: Ctx) -> ParseResult {{
+                    unimplemented!()
+                }}
+            }}
+        """)
+        p.print()
+
+        print(p.printed_text())
+
+
+
+if __name__ == '__main__':
+    main()
