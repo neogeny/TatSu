@@ -164,7 +164,7 @@ class ParserCore:
         return self.cursor.next()
 
     def next_token(self, ri: RuleInfo | None = None) -> None:
-        if not (ri and ri.is_token_rule()):
+        if not (ri and ri.is_tokn):
             self.state.cursor.next_token()
 
     def _define(self, keys: list[str], addkeys: list[str] | None = None) -> None:

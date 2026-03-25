@@ -21,7 +21,6 @@ from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import indent, trim, typename
 from .math import ffset, kdot
 
-
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
@@ -294,6 +293,7 @@ class Rule(NamedBox):
         elif not isinstance(self.kwparams, dict):
             self.kwparams = dict(self.kwparams)
         assert isinstance(self.kwparams, dict), f'{typename(self)}: {self.kwparams=!r}'
+        self.is_tokn = self.is_tokn or self.name.lstrip('_')[:1].isupper()
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return self.exp.missing_rules(rulenames)
@@ -310,6 +310,7 @@ class Rule(NamedBox):
             is_lrec=self.is_lrec,
             is_memo=self.is_memo,
             is_name=self.is_name,
+            is_tokn=self.is_tokn,
             params=self.params,
             kwparams=self.kwparams,
         )

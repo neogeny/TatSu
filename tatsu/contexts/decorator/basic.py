@@ -31,3 +31,9 @@ def name(impl: Callable) -> Callable:
     over: RuleLike = cast(RuleLike, impl)
     over.is_name = True
     return impl
+
+
+def token(impl: Callable) -> Callable:
+    over: RuleLike = cast(RuleLike, impl)
+    over.is_tokn = True
+    return impl

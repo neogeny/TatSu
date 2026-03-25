@@ -35,18 +35,22 @@ class RuleInfo(NamedTuple):
     is_lrec: bool
     is_memo: bool
     is_name: bool
+    is_tokn: bool
     params: tuple[Any, ...]
     kwparams: dict[str, Any]
 
     @staticmethod
     def new(instance: Any, func: Callable, params=None, kwparams=None) -> RuleInfo:
+        name = getattr(func, '__name__', '<?>')
+        is_tokn = name.lstrip('_')[:1].isupper()
         return RuleInfo(
-            name=getattr(func, '__name__', '<?>'),
+            name=name,
             instance=instance,
             func=func,
             is_lrec=getattr(func, 'is_lrec', False),
             is_memo=getattr(func, 'is_memo', True),
             is_name=getattr(func, 'is_name', False),
+            is_tokn=getattr(func, 'is_tokn', is_tokn),
             params=params or (),
             kwparams=kwparams or {},
         )
@@ -54,9 +58,6 @@ class RuleInfo(NamedTuple):
     @staticmethod
     def bind(ri: RuleInfo, instance: Any) -> RuleInfo:
         return ri._replace(instance=instance)
-
-    def is_token_rule(self):
-        return self.name.lstrip('_')[:1].isupper()
 
     def __hash__(self):
         return hash(self.name)
