@@ -227,89 +227,6 @@ closure. It's equivalent to:
     s%{e}+|{}
 
 
-``op<{ e }+``
-^^^^^^^^^^^^^
-
-Left join. Like the *join expression*, but the result is a
-left-associative tree built with ``tuple()``, in which the first
-element is the separator (``op``), and the other two elements are the
-operands.
-
-The expression:
-
-.. code:: ebnf
-    :force:
-
-    '+'<{/\d+/}+
-
-Will parse this input:
-
-.. code:: python
-    :force:
-
-    1 + 2 + 3 + 4
-
-To this tree:
-
-.. code:: python
-    :force:
-
-    (
-        '+',
-        (
-            '+',
-            (
-                '+',
-                '1',
-                '2'
-            ),
-            '3'
-        ),
-        '4'
-    )
-
-
-``op>{ e }+``
-^^^^^^^^^^^^^
-
-Right join. Like the *join expression*, but the result is a
-right-associative tree built with ``tuple()``, in which the first
-element is the separator (``op``), and the other two elements are the
-operands.
-
-The expression:
-
-.. code:: ebnf
-    :force:
-
-    '+'>{/\d+/}+
-
-Will parse this input:
-
-.. code:: ebnf
-    :force:
-
-    1 + 2 + 3 + 4
-
-To this tree:
-
-.. code:: python
-
-   (
-      '+',
-      '1',
-      (
-          '+',
-          '2',
-          (
-              '+',
-              '3',
-              '4'
-          )
-      )
-   )
-
-
 ``s.{ e }+``
 ^^^^^^^^^^^^
 
@@ -687,6 +604,89 @@ instead.
 
 `Pascal`_-style multi-line comments are *deprecated*. Use `Java`_-style
 comments instead.
+
+
+``op<{ e }+``
+^^^^^^^^^^^^^
+
+Left join. Like the *join expression*, but the result is a
+left-associative tree built with ``tuple()``, in which the first
+element is the separator (``op``), and the other two elements are the
+operands.
+
+The expression:
+
+.. code:: ebnf
+    :force:
+
+    '+'<{/\d+/}+
+
+Will parse this input:
+
+.. code:: python
+    :force:
+
+    1 + 2 + 3 + 4
+
+To this tree:
+
+.. code:: python
+    :force:
+
+    (
+        '+',
+        (
+            '+',
+            (
+                '+',
+                '1',
+                '2'
+            ),
+            '3'
+        ),
+        '4'
+    )
+
+
+``op>{ e }+``
+^^^^^^^^^^^^^
+
+Right join. Like the *join expression*, but the result is a
+right-associative tree built with ``tuple()``, in which the first
+element is the separator (``op``), and the other two elements are the
+operands.
+
+The expression:
+
+.. code:: ebnf
+    :force:
+
+    '+'>{/\d+/}+
+
+Will parse this input:
+
+.. code:: ebnf
+    :force:
+
+    1 + 2 + 3 + 4
+
+To this tree:
+
+.. code:: python
+
+   (
+      '+',
+      '1',
+      (
+          '+',
+          '2',
+          (
+              '+',
+              '3',
+              '4'
+          )
+      )
+   )
 
 
 Rules with Arguments
