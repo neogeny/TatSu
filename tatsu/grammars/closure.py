@@ -118,20 +118,6 @@ class PositiveJoin(Join):
         return self.exp._nullable
 
 
-class LeftJoin(PositiveJoin):
-    JOINOP = '<'
-
-    def _do_parse(self, ctx, exp, sep):
-        return ctx.left_join(exp, sep)
-
-
-class RightJoin(PositiveJoin):
-    JOINOP = '>'
-
-    def _do_parse(self, ctx, exp, sep):
-        return ctx.right_join(exp, sep)
-
-
 class Gather(Join):
     JOINOP = '.'
 
