@@ -591,15 +591,15 @@ class Grammar(Model):
 
         directives = ''
         for name, value in self.directives.items():
-            strvalue = value
             if name in regex_directives:
                 if '/' in value:
-                    strvalue = f'?{value!r}'
+                    directives += f'@@{name} :: ?"{value}"\n'
                 else:
-                    strvalue = f'/{value}/'
+                    directives += f'@@{name} :: /{value}/\n'
             elif name in string_directives:
-                strvalue = repr(value)
-            directives += f'@@{name} :: {strvalue}\n'
+                directives += f'@@{name} :: {value!r}\n'
+            else:
+                directives += f'@@{name} :: {value}\n'
         if directives:
             directives += '\n'
 
