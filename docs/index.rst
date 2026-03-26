@@ -93,7 +93,6 @@ algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left ass
     left_recursion
     mini-tutorial
     traces
-    antlr
     examples
     support
     credits

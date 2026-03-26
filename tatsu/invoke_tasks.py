@@ -490,21 +490,13 @@ def publish(c: Context, _dry_run: bool = True):
 
 
 @task
-def g2e(c: Context):
-    start_print(g2e, target='examples/')
-    with c.cd('examples/g2e'):
-        c.run('uv run make -s clean test', pty=True, hide='both')
-        c.run('uv run make -s clean', pty=True, hide='both')
-
-
-@task
 def calc(c: Context):
     start_print(calc, target='examples/')
     with c.cd('examples/calc'):
         c.run('uv run make -s clean test', pty=True, hide='both')
 
 
-@task(pre=[clean, begin, g2e, calc])
+@task(pre=[clean, begin, calc])
 def examples(_c: Context):
     success_print(task_=examples)
 

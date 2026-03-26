@@ -12,6 +12,17 @@
 
     [pyrefly]: https://pypi.org/project/pyrefly/
 
+- The `g2e` example in `./examples/g2e` was removed. The example had become irrelevant
+  now that the new PEG parser in Python uses [pegen][]-style grammar for the 
+  language which less than a 1000 lines long. The **TatSu** grammar for ANTLR in 
+  `./examples/g2e/antlr.tatsu` can still parse ANTLR grammars, but there's no
+  test case for it. The semantics in `g2e.semanrics.ANTLRSemantics` try to do
+  everything on a single pass (like substituting simple TOKEN rules by their value), 
+  when transformation of the parsed input grammar model should be more stable and 
+  easier to understand.
+
+    [pegen]: https://we-like-parsers.github.io/pegen/grammar.html
+
 - The benchmark in `tatsu.tool.bench` was used over several large grammars and
   large input sets. The result as that there is no performance advantage in
   renerating a procedural Python program for a parser because the in-memory
