@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from pprint import pprint
 
-from codegen import PostfixCodeGenerator
+from codegen import PostfixCodeGenerator  # type: ignore
 
 import tatsu
 from tatsu.contexts.ast import AST

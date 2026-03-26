@@ -10,11 +10,11 @@ from typing import Any
 
 from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     Context,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
-    Exit,
     Result,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     Task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
 )
+from invoke.exceptions import Exit
 
 from tatsu.util.timetools import timer
 
@@ -263,13 +263,14 @@ def pyrefly(c: Context, python: float | str = PYTHON):
         python=python,
         group='test',
         hide='both',
+        pty=True,
     )
 
-    if not res.ok or '0 errors' not in res.stdout:
-        for r in [res.stdout, res.stderr]:
+    if res.exited != 0 or '0 errors' not in res.stdout:
+        for r in [res.stdout]:
             if r.strip():
                 print(r)
-        raise Exit()
+        raise Exit(f'{pyrefly.__name__} errors', code=res.exited)
 
 
 @task(pre=[begin])
