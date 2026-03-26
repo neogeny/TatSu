@@ -19,8 +19,7 @@ from .model import Box, Func, Model
 @nodedataclass
 class Closure(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        parse: Func = self.exp._parse  # type: ignore
-        return ctx.closure(parse)
+        return ctx.closure(self.exp._parse)
 
     def _first(self, k, f) -> ffset:
         efirst = self.exp._first(k, f)

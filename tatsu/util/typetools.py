@@ -16,7 +16,6 @@ from typing import Any, ClassVar
 
 from .itertools import CycleError, first, topsort
 
-
 __all__ = [
     'ActualArguments',
     'BoundCallable',
@@ -172,11 +171,7 @@ class BoundCallable:
             id(fun),
             tuple((k, id(v)) for k, v in sorted(known.items())) if known else None,
             tuple(id(a) for a in args) if args else None,
-            (
-                tuple((k, id(v)) for k, v in sorted(kwargs.items()))
-                if kwargs
-                else None
-            ),
+            (tuple((k, id(v)) for k, v in sorted(kwargs.items())) if kwargs else None),
         )
 
     @staticmethod
