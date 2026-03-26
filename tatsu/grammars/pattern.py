@@ -38,7 +38,8 @@ class Pattern(Model):
     def _pretty(self, lean=False):
         pat = self.pattern or ""
         if '/' in pat:
-            regex = f'?{pat!r}'
+            newpat = pat.replace('"', r'\"')
+            regex = f'?"{newpat}"'
         else:
             regex = f'/{pat}/'
         return regex
