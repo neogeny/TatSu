@@ -3,6 +3,15 @@
 
 # v5.18.1rc1
 
+- The old parser and model generator modules in `tatsu.codegen` have been deleted. 
+  Using [pyrefly][] revealed that they are both incorrect and non-working. Their 
+  defunctness was caused by the lack of unit tests and their lack of use since 
+  `tatsu.ngcodegen` was introduced several years ago. The helper modules
+  `codegen.cgbase` and `codegen.rendering` remain in case any old projects use
+  them for their own code generation.
+
+    [pyrefly]: https://pypi.org/project/pyrefly/
+
 - The benchmark in `tatsu.tool.bench` was used over several large grammars and
   large input sets. The result as that there is no performance advantage in
   renerating a procedural Python program for a parser because the in-memory

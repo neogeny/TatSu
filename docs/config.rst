@@ -149,7 +149,7 @@ memoization is disabled.
 perlinememos
 ~~~~~~~~~~~~~
 
-Sets a `(perlinememos * linecount) ` bound on the total number of memoization
+Sets a ``(perlinememos * linecount)`` bound on the total number of memoization
 entries that are allowed.
 
 
