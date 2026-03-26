@@ -6,6 +6,8 @@ from dataclasses import field
 from functools import cached_property
 from typing import Any
 
+from tatsu.exceptions import FailedParse
+
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
 from ..util import cast, indent
@@ -21,11 +23,6 @@ class Option(Box):
 
 
 @nodedataclass
-class FirstOption(Option):
-    pass
-
-
-@nodedataclass
 class Choice(Model):
     options: list[Option] = field(default_factory=list)
 
@@ -33,12 +30,20 @@ class Choice(Model):
         super().__post_init__()
         self.options = self.options or self.ast
         assert isinstance(self.options, list), repr(self.options)
+        assert self.options, repr(self.options)
 
     def _parse(self, ctx: Ctx) -> Any:
-        with ctx.choice() as ch:
-            ch.options = [o._parse for o in self.options]
-            ch.expecting(*self.expecting)
-        return ch.result
+        # ctx.expecting(*self.expecting)
+        for o in self.options:
+            ctx.states.push()
+            try:
+                value = o._parse(ctx)
+                ctx.states.merge()
+                return value
+            except FailedParse:
+                if ctx.states.undo().cutseen:
+                    raise
+        raise ctx.newexcept(self.expectingstr)
 
     @cached_property
     def defines_single(self) -> list[str]:
@@ -94,8 +99,3 @@ class Choice(Model):
         if len(opt) == 1:
             return opt[0]
         return self.clone(options=opt)  # pyright: ignore[reportArgumentType]
-
-
-@nodedataclass
-class FirstChoice(Choice):
-    pass
