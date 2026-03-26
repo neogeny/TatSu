@@ -7,7 +7,7 @@ from functools import cached_property
 from itertools import takewhile
 from typing import Any
 
-from ..contexts import AST, Ctx, Func
+from ..contexts import AST, Ctx
 from ..exceptions import FailedRef
 from ..objectmodel import nodedataclass
 from ..util import indent, trim
@@ -53,7 +53,7 @@ class SkipGroup(Box):
 class Lookahead(Box):
     def _parse(self, ctx: Ctx) -> Any:
         with ctx.if_():
-            return super()._parse(ctx)
+            return self.exp._parse(ctx)
 
     def _pretty(self, lean=False):
         return '&' + self.exp._pretty(lean=lean)
@@ -67,7 +67,7 @@ class Lookahead(Box):
 class NegativeLookahead(Box):
     def _parse(self, ctx: Ctx) -> Any:
         with ctx.ifnot_():
-            return super()._parse(ctx)
+            return self.exp._parse(ctx)
 
     def _pretty(self, lean=False):
         return '!' + str(self.exp._pretty(lean=lean))
@@ -80,8 +80,7 @@ class NegativeLookahead(Box):
 @nodedataclass
 class SkipTo(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        super_parse: Func = super()._parse  # type: ignore
-        return ctx.skip_to(super_parse)
+        return ctx.skip_to(self.exp._parse)
 
     def _first(self, k, f) -> ffset:
         return {('.',)} | super()._first(k, f)
@@ -134,12 +133,12 @@ class Sequence(Model):
         return [s._parse(ctx) for s in self.sequence]
 
     @cached_property
-    def defines_single(self) -> set[str]:
-        return set().union(*(s.defines_single for s in self.sequence))
+    def defines_single(self) -> list[str]:
+        return list(set().union(*(s.defines_single for s in self.sequence)))
 
     @cached_property
-    def defines_list(self) -> set[str]:
-        return set().union(*(s.defines_list for s in self.sequence))
+    def defines_list(self) -> list[str]:
+        return list(set().union(*(s.defines_list for s in self.sequence)))
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return set().union(*(s.missing_rules(rulenames) for s in self.sequence))

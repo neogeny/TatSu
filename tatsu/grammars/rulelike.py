@@ -53,9 +53,9 @@ class BasedRule(Rule):
         return self._parse_rhs(ctx, self.rhs)
 
     @cached_property
-    def defines_single(self) -> set[str]:
-        return super().defines_single | self.rhs.defines_single
+    def defines_single(self) -> list[str]:
+        return list(set(super().defines_single) | set(self.exp.defines_single))
 
     @cached_property
-    def defines_list(self) -> set[str]:
-        return super().defines_list | self.rhs.defines_list
+    def defines_list(self) -> list[str]:
+        return list(set(super().defines_list) | set(self.rhs.defines_list))

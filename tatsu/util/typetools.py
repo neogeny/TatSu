@@ -10,6 +10,7 @@ import types
 import typing
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
+from functools import cached_property
 from types import ModuleType
 from typing import Any, ClassVar
 
@@ -23,6 +24,7 @@ __all__ = [
     'boundcall',
     'cast',
     'isproperty',
+    'is_readonly_property',
     'least_upper_bound_type',
     'notnone',
 ]
@@ -36,7 +38,14 @@ def boundcall(fun: Callable, known: dict[str, Any], *args: Any, **kwargs: Any) -
 
 
 def isproperty(obj: Any, name: str) -> bool:
-    return isinstance(getattr(type(obj), name, None), property)
+    return isinstance(getattr(type(obj), name, None), property | cached_property)
+
+
+def is_readonly_property(obj: Any, name: str) -> bool:
+    value = getattr(type(obj), name, None)
+    if not isinstance(value, property | cached_property):
+        return False
+    return value is not None and not getattr(value, '__set__', None)
 
 
 def notnone[T](value: Any | None, default: T) -> T:

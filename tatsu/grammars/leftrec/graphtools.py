@@ -34,7 +34,7 @@ class GrammarAnalysis:
 
         return {
             rule.name: {
-                str(la[0]) for la in rule.lookahead() if la and is_rule_name(str(la[0]))
+                str(la) for la in rule.lookaheadlist if la and is_rule_name(str(la))
             }
             for rule in self.grammar.rules
         }

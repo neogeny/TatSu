@@ -10,6 +10,7 @@ from collections.abc import Mapping
 from typing import Any, Protocol, runtime_checkable
 
 from .abctools import as_namedtuple, isiter, rowselect
+from .typetools import is_readonly_property
 
 __all__ = ['AsJSONMixin', 'JSONSerializable', 'asjson', 'asjsons', 'plainjson']
 
@@ -35,6 +36,7 @@ class AsJSONMixin:
                 and hasattr(self, name)
                 and not inspect.ismethod(value)
                 and not isinstance(value, (weakref.ReferenceType, *weakref.ProxyTypes))
+                and not is_readonly_property(self, name)
             )
 
         return rowselect(vars(self), vars(self), where=is_public)

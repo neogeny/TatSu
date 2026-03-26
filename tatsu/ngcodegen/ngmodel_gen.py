@@ -131,7 +131,7 @@ class PythonModelGenerator(IndentPrintMixin):
             return
         spec = specs[0]
         arguments = sorted(
-            {safe_name(d) for d in rule.defines_single | rule.defines_list}
+            {safe_name(d) for d in rule.defines_single + rule.defines_list}
         )
 
         self.print()

@@ -9,7 +9,7 @@ from tatsu.tool import compile
 
 
 class FirstFollowTests(unittest.TestCase):
-    def test_direct_left_recursion(self, trace=False):
+    def test_direct_left_recursion(self, _trace=False):
         grammar = """
             @@left_recursion :: True
             start
@@ -55,7 +55,7 @@ class FirstFollowTests(unittest.TestCase):
         assert g.ref('number') in factor.lookahead()
         assert g.ref('number') not in number.lookahead()
 
-    def test_indirect_left_recursion(self, trace=False):
+    def test_indirect_left_recursion(self, _trace=False):
         grammar = """
             @@left_recursion :: True
             start = x $ ;
