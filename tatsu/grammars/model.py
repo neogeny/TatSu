@@ -21,7 +21,6 @@ from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import indent, trim, typename
 from .math import ffset, kdot
 
-
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
@@ -588,14 +587,16 @@ class Grammar(Model):
 
     def _pretty(self, lean: bool = False) -> str:
         regex_directives = {'comments', 'eol_comments', 'whitespace'}
-        str_directives = {'grammar'}
         string_directives = {'namechars'}
 
         directives = ''
         for name, value in self.directives.items():
             strvalue = value
             if name in regex_directives:
-                strvalue = f'?{value!r}'
+                if '/' in value:
+                    strvalue = f'?{value!r}'
+                else:
+                    strvalue = f'/{value}/'
             elif name in string_directives:
                 strvalue = repr(value)
             directives += f'@@{name} :: {strvalue}\n'
