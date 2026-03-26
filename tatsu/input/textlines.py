@@ -22,7 +22,7 @@ DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 
 class TextLinesCursor(Cursor):
-    __slots__ = ('_input', 'len', 'pos')
+    __slots__ = ('_input', 'len', 'pos', 'textstr')
 
     def __init__(self, input: TextLines, pos: int = 0):
         self._input: TextLines = input
@@ -144,7 +144,7 @@ class TextLinesCursor(Cursor):
         return goodstart and all(self.is_name_char(c) for c in s[1:])
 
     def lineinfo(self, pos: int | None = None) -> LineInfo:
-        pos = notnone(pos, self.pos)
+        pos = notnone(pos, self.pos) or 0
         input = self.input
 
         if not input.line_cache or not input.line_index:
@@ -190,13 +190,13 @@ class TextLinesCursor(Cursor):
         return self.input.split_block_lines(text)[0].rstrip()
 
     def lineat(self, pos: int | None = None) -> int:
-        pos = notnone(pos, self.pos)
+        pos = notnone(pos, self.pos) or 0
         if not self.input.line_cache:
             return 0
         return self.input.line_cache[pos].lineno
 
     def poscol(self, pos: int | None = None) -> int:
-        pos = notnone(pos, self.pos)
+        pos = notnone(pos, self.pos) or 0
         if not self.input.line_cache:
             return 0
         start = self.input.line_cache[pos].startpos

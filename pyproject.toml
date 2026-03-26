@@ -30,11 +30,6 @@ classifiers = [
 ]
 dependencies = []
 
-[tool.pyrefly.errors]
-missing-attribute = "ignore"
-untyped-import = "ignore"
-missing-import = "ignore"
-
 [project.optional-dependencies]
 colorization = ["colorama"]
 diagrams = ["graphviz"]
@@ -358,12 +353,8 @@ project-excludes = [
     "**/tatsu/codegen/**/*",
 ]
 python-version = "3.12.0"
-#reportUnnecessaryIsInstance = false
-#reportUnnecessaryCast = false
-#reportUnnecessaryComparison = false
-#reportUnusedClass = false
-#reportUnusedFunction = false
-#reportUnusedVariable = false
 
-# From your previous request
-#reportInvalidTypeForm = false
+[tool.pyrefly.errors]
+# missing-attribute = "ignore"
+# untyped-import = "ignore"
+# missing-import = "ignore"

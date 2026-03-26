@@ -225,6 +225,8 @@ class BoundCallable:
                     actual.add_kwarg(name, value)
                 case p.POSITIONAL_ONLY:
                     actual.add_arg(name, value)
+                case _:
+                    pass
 
         return actual.unique()
 

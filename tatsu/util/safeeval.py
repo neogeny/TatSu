@@ -79,7 +79,7 @@ def safe_builtins() -> dict[str, Any]:
             or name.startswith('_')
             or name.endswith('Error')
             or name.endswith('Warning')
-            or isinstance(value, type | BaseException)
+            or isinstance(value, type | BaseException)  # type: ignore
         )
 
     return dict(

@@ -117,23 +117,23 @@ def chunks(iterable, size, fillvalue=None):
     return zip_longest(*[iter(iterable)] * size, fillvalue=fillvalue)
 
 
-def left_assoc(elements):
+def left_assoc(elements) -> Any:
     if not elements:
         return ()
 
     it = iter(elements)
     expre = next(it)
-    for e in it:
+    for e in it:  # type: ignore
         op = e
-        expre = [op, expre, next(it)]
+        expre = [op, expre, next(it)]  # type: ignore
     return expre
 
 
-def right_assoc(elements):
+def right_assoc(elements) -> Any:
     if not elements:
         return ()
 
-    def assoc(it):
+    def assoc(it) -> Any:
         left = next(it)
         try:
             op = next(it)

@@ -10,8 +10,7 @@ from __future__ import annotations
 import itertools
 import string
 
-from ..util import indent, trim
-from ..util import isiter
+from ..util import indent, isiter, trim
 
 
 def render(item, join='', **fields):
@@ -23,7 +22,7 @@ def render(item, join='', **fields):
     elif isinstance(item, Renderer):
         return item.render(join=join, **fields)
     elif isiter(item):
-        return join.join(render(e, **fields) for e in iter(item) if e is not None)
+        return join.join(render(e, **fields) for e in iter(item) if e is not None)  # type: ignore
     elif isinstance(item, int | float):
         return item
     else:

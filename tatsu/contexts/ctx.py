@@ -30,9 +30,13 @@ class CanParse(Protocol):
 
 @runtime_checkable
 class Ctx(CanParse, Protocol):
-    ast: AST
-    cst: Any
     states: ParseStateStack
+
+    @property
+    def ast(self) -> AST: ...
+
+    @property
+    def cst(self) -> Any: ...
 
     @property
     def state(self) -> ParseState: ...

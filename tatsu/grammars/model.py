@@ -271,7 +271,7 @@ class Synth(Box):
 
 @nodedataclass
 class NamedBox(Box):
-    name: str = field(default='')  # pyright: ignore[reportIncompatibleVariableOverride]
+    name: str = field(default='')  # type: ignore
 
 
 @nodedataclass

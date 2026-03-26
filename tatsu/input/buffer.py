@@ -34,7 +34,7 @@ LineIndexEntry = LineIndexInfo
 
 
 class BufferCursor(Cursor):
-    __slots__ = ('buffer', 'len', 'pos')
+    __slots__ = ('buffer', 'len', 'pos', 'textstr')
 
     def __init__(self, buffer: Buffer, pos: int = 0):
         super().__init__()
@@ -670,7 +670,7 @@ class Buffer(Text):
         return self.lines[n]
 
     def get_lines(self, start: int | None = None, end: int | None = None) -> list[str]:
-        start = notnone(start, 0)
+        start = notnone(start, 0) or 0
         return self.lines[start : notnone(end, start + 1)]
 
     def line_index(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:

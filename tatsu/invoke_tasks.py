@@ -10,6 +10,7 @@ from typing import Any
 
 from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     Context,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
+    Exit,
     Result,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     Task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
@@ -254,6 +255,24 @@ def zuban(c: Context, python: float | str = PYTHON):
 
 
 @task(pre=[begin])
+def pyrefly(c: Context, python: float | str = PYTHON):
+    start_print(pyrefly)
+    res = uv_run(
+        c,
+        ['pyrefly', 'check', 'tatsu', 'tests', 'examples'],
+        python=python,
+        group='test',
+        hide='both',
+    )
+
+    if not res.ok or '0 errors' not in res.stdout:
+        for r in [res.stdout, res.stderr]:
+            if r.strip():
+                print(r)
+        raise Exit()
+
+
+@task(pre=[begin])
 def pytestfast(c: Context, python: float | str = PYTHON):
     start_print(pytest, target='fast ')
     Path('./tmp').mkdir(exist_ok=True)
@@ -317,7 +336,7 @@ def black(c: Context, python: float | str = PYTHON):
         print('✖ failed!')
 
 
-@task(pre=[begin, black, zuban, ruff, ty, mypy, pyright])
+@task(pre=[begin, black, pyrefly, zuban, ruff, ty, mypy, pyright])
 def lint(_c: Context):
     success_print(task_=lint)
 
