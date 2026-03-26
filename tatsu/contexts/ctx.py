@@ -36,6 +36,7 @@ class Ctx(CanParse, Protocol):
 
     @property
     def state(self) -> ParseState: ...
+    def statescope(self, merge: bool = True) -> Any: ...
 
     def newexcept(
         self,

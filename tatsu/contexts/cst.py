@@ -40,7 +40,7 @@ def cstfinal(cst: Any) -> Any:
     return closedlist(cst) if islist(cst) else cst
 
 
-def cstadd(cst: Any, node: Any, aslist: bool = False) -> Any:
+def cstadd(cst: Any, node: Any) -> Any:
     """
     This is how the values of subexpressions are added to the result of the
     enclosing context: a rule, group, closure, ...
@@ -50,7 +50,23 @@ def cstadd(cst: Any, node: Any, aslist: bool = False) -> Any:
     :return: the new CST value
     """
     if cst is None:
-        return [node] if aslist else node
+        return node
+    if islist(cst):
+        return [*cst, node]
+    return [cst, node]
+
+
+def cstaddlist(cst: Any, node: Any) -> Any:
+    """
+    This is how the values of subexpressions are added to the result of the
+    enclosing context: a rule, group, closure, ...
+    :param cst: the previous CST value
+    :param node: the node to add
+    :param aslist: for rules that require that the final CST is a list
+    :return: the new CST value
+    """
+    if cst is None:
+        return [node]
     if islist(cst):
         return [*cst, node]
     return [cst, node]

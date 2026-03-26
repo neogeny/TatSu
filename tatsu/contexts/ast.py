@@ -8,7 +8,7 @@ from typing import Any, override
 
 from ..util import make_hashable, typename
 from ..util.asjson import asjson
-from .cst import cstadd
+from .cst import cstadd, cstaddlist
 from .infos import ParseInfo
 
 
@@ -37,10 +37,15 @@ class AST(dict[str, Any]):
     def asjson(self) -> Any:
         return asjson(self)
 
-    def _set(self, key: str, node: Any, aslist: bool = False) -> None:
+    def _set(self, key: str, node: Any) -> None:
         key = self._safekey(key)
         cst = self.get(key)
-        super().__setitem__(key, cstadd(cst, node, aslist=aslist))
+        super().__setitem__(key, cstadd(cst, node))
+
+    def _setlist(self, key: str, node: Any) -> None:
+        key = self._safekey(key)
+        cst = self.get(key)
+        super().__setitem__(key, cstaddlist(cst, node))
 
     @staticmethod
     @cache

@@ -114,7 +114,11 @@ class Model(Node, CanParse):
 
     @cached_property
     def expecting(self) -> list[str]:
-        return sorted(repr(la) for la in self.lookaheadlist)
+        return sorted(str(la) for la in self.lookaheadlist)
+
+    @cached_property
+    def expectingstr(self) -> str:
+        return f'Expected one of: {' '.join(repr(s) for s in self.expecting)}'
 
     def firstset(self, k: int = 1) -> ffset:
         if not self._firstset:
