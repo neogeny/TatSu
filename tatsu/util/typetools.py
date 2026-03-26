@@ -16,6 +16,7 @@ from typing import Any, ClassVar
 
 from .itertools import CycleError, first, topsort
 
+
 __all__ = [
     'ActualArguments',
     'BoundCallable',
@@ -167,26 +168,16 @@ class BoundCallable:
         kwargs: dict[str, Any],
     ) -> Any:
         # with Gemini 2026-03-18
-        try:
-            key: Any = (
-                id(fun),
-                tuple(sorted(known.items())) if known else None,
-                args or None,
-                tuple(sorted(kwargs.items())) if kwargs else None,
-            )
-            hash(key)
-        except TypeError:
-            key = (
-                id(fun),
-                tuple((k, id(v)) for k, v in sorted(known.items())) if known else None,
-                tuple(id(a) for a in args) if args else None,
-                (
-                    tuple((k, id(v)) for k, v in sorted(kwargs.items()))
-                    if kwargs
-                    else None
-                ),
-            )
-        return key
+        return (
+            id(fun),
+            tuple((k, id(v)) for k, v in sorted(known.items())) if known else None,
+            tuple(id(a) for a in args) if args else None,
+            (
+                tuple((k, id(v)) for k, v in sorted(kwargs.items()))
+                if kwargs
+                else None
+            ),
+        )
 
     @staticmethod
     def _actual_bind(
