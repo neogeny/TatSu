@@ -9,8 +9,6 @@ from __future__ import annotations
 from .basic import EOF, Alert, Comment, Constant, Cut, Dot, EOLComment, Fail, Token
 from .choice import (
     Choice,
-    FirstChoice,
-    FirstOption,
     Option,
 )
 from .closure import (
@@ -56,9 +54,7 @@ __all__ = [
     'BasedRule',
     'Call',
     'Choice',
-    'FirstChoice',
     'Option',
-    'FirstOption',
     'Closure',
     'Comment',
     'Constant',

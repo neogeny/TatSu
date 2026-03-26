@@ -148,8 +148,7 @@ class ParseContext(ParserEngine, Ctx):
 
     def groupexp(self, exp: Func) -> Any:
         with self.statescope():
-            exp(self)
-            return self.state.last_node
+            return exp(self)
 
     @contextmanager
     def skipgroup(self) -> Any:

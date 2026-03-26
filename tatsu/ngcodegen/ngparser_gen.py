@@ -198,9 +198,6 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self._gen_defines_declaration(seq)
         self.walk(seq.sequence)
 
-    def walk_FirstChoice(self, choice: g.FirstChoice):
-        self.walk_Choice(choice)
-
     def walk_Choice(self, choice: g.Choice):
         n = self.new_choice_number()
         var = GREEKTOME[n]
@@ -216,9 +213,6 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         finally:
             # self.pop_ctx()
             self.prev_choice_number()
-
-    def walk_FirstOption(self, option: g.FirstOption):
-        self.walk_Option(option)
 
     def walk_Option(self, _option: g.Option):
         pass  # handled by walk_Choice

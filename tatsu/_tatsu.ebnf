@@ -66,10 +66,6 @@ decorator: '@' !'@' ~ =('override'|'name'|'isname'|'nomemo')
 
 pair: +=word '=' ~ +=literal
 
-firstexpre: firstchoice
-firstchoice[FirstChoice]: ['|' ~] +=firstoption ~  {'|' ~ +=firstoption}*
-firstoption[FirstOption]: sequence
-
 expre:
     | choice
     | sequence
