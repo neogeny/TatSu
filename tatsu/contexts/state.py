@@ -65,9 +65,9 @@ class ParseState:
         else:
             return ast
 
-    def append(self, node: Any, aslist: bool = False) -> Any:
+    def append(self, node: Any) -> Any:
         self.last_node = node
-        self.cst = cstadd(self.cst, node, aslist=aslist)
+        self.cst = cstadd(self.cst, node)
         return node
 
     def extend(self, node: Any) -> Any:
@@ -79,7 +79,7 @@ class ParseState:
         self.ast._set(name, self.last_node)
 
     def nameadd(self, name: str) -> None:
-        self.ast._set(name, self.last_node, aslist=True)
+        self.ast._setlist(name, self.last_node)
 
     def define(
         self,

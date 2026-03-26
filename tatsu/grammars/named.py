@@ -27,7 +27,7 @@ class Named(NamedBox):
 
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
-        ctx.ast._set(self.name, value)
+        ctx.ast[self.name] = value
         return value
 
     @cached_property
@@ -44,7 +44,7 @@ class Named(NamedBox):
 class NamedList(Named):
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
-        ctx.ast._set(self.name, value, aslist=True)
+        ctx.ast._setlist(self.name, value)
         return value
 
     @cached_property
