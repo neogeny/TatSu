@@ -6,8 +6,9 @@ import json
 from pathlib import Path
 from pprint import pprint
 
-import tatsu
 from codegen import PostfixCodeGenerator
+
+import tatsu
 from tatsu.contexts.ast import AST
 from tatsu.util.asjson import asjsons
 from tatsu.walkers import NodeWalker
