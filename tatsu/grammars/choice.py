@@ -16,7 +16,7 @@ from .model import PEP8_LLEN, Box, Model
 @nodedataclass
 class Option(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        result = super()._parse(ctx)
+        result = self.exp._parse(ctx)
         return result
 
 
