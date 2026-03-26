@@ -15,11 +15,13 @@ from typing import Any
 
 from ..config import ParserConfig
 from ..contexts import AST, CanParse, Ctx, Func, ParseContext, RuleInfo
+from ..contexts.cst import cstfinal
 from ..exceptions import GrammarError
 from ..input import Text
 from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import indent, trim, typename
 from .math import ffset, kdot
+
 
 PEP8_LLEN = 72
 
@@ -305,7 +307,7 @@ class Rule(NamedBox):
         return self.exp.missing_rules(rulenames)
 
     def _parse(self, ctx: Ctx) -> Any:
-        return self._parse_rhs(ctx, self.exp)
+        return cstfinal(self._parse_rhs(ctx, self.exp))
 
     def _parse_rhs(self, ctx: Ctx, exp: Model) -> Any:
         # note: BasedRule._parse() calls _parse_rhs() so ruleinfo is a mix
