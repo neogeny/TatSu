@@ -8,7 +8,7 @@ from itertools import takewhile
 from typing import Any
 
 from ..contexts import AST, Ctx
-from ..exceptions import FailedRef
+from ..exceptions import FailedParse, FailedRef
 from ..objectmodel import nodedataclass
 from ..util import indent, trim
 from .math import ffset, kdot, ref
@@ -92,9 +92,15 @@ class SkipTo(Box):
 @nodedataclass
 class Optional(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        with ctx.optional():
+        ctx.states.push()
+        try:
             self._add_defined(ctx)
-            return self.exp._parse(ctx)
+            value = self.exp._parse(ctx)
+            ctx.states.merge()
+            return value
+        except FailedParse:
+            ctx.states.undo()
+            return None
 
     def _first(self, k, f) -> ffset:
         return {()} | self.exp._first(k, f)
@@ -130,7 +136,7 @@ class Sequence(Model):
 
     def _parse(self, ctx: Ctx) -> Any:
         self._add_defined(ctx)
-        return [s._parse(ctx) for s in self.sequence]
+        return [r for r in (s._parse(ctx) for s in self.sequence) if r is not None]
 
     @cached_property
     def defines_single(self) -> list[str]:
