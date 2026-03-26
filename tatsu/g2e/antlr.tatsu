@@ -8,6 +8,7 @@
     License to keep in the spirit of ANTLR.
 *)
 
+@@grammar:: ANTLRv4
 @@comments :: ?'/\*(?:.|\n)*?\*/'
 @@eol_comments :: ?'//[^\n]*?\n'
 @@namechars:: '_'
