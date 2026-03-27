@@ -91,6 +91,17 @@ def _print_run_details(title: str, result: BenchmarkResult, lbl_w: int, num_fmt:
     print(f"{'average speed:':<{lbl_w}}{num_fmt.format(result.avg_lines_sec)} sloc/sec")
 
 
+def print_performance_comparison(mem_sloc: float, gen_sloc: float):
+    if gen_sloc < mem_sloc:
+        slow_name = "generated"
+        factor = mem_sloc / gen_sloc
+    else:
+        slow_name = "in-memory"
+        factor = gen_sloc / mem_sloc
+    percent_extra = (factor - 1) * 100
+    print(f"The {slow_name} parser takes {factor:.2f}x time (+{percent_extra:.1f}%)")
+
+
 def print_summary(
     grammar: str,
     count: int,
@@ -140,12 +151,7 @@ def print_summary(
         print(f"{'in-memory:':<{lbl_w}}{num_fmt.format(mem_sloc)} sloc/sec")
         print(f"{'generated:':<{lbl_w}}{num_fmt.format(gen_sloc)} sloc/sec")
 
-        if gen_sloc < mem_sloc:
-            factor = mem_sloc / gen_sloc
-            print(f"generated parser is {factor:.2f}x slower on average")
-        else:
-            factor = gen_sloc / mem_sloc
-            print(f"generated parser is {factor:.2f}x faster on average")
+        print_performance_comparison(mem_sloc, gen_sloc)
 
 
 def benchmark(
@@ -161,7 +167,11 @@ def benchmark(
 
         model, memsetup = _setup_mem_parser(gramsrc)
         gramname = model.name or "Benchmark"
-        parser, gensetup, _ = _setup_gen_parser(gramsrc, gramname)
+        if mode in {'gen', 'both'}:
+            parser, gensetup, _ = _setup_gen_parser(gramsrc, gramname)
+            gensetup += memsetup
+        else:
+            parser, gensetup = None, 0
 
         # Pre-load data to isolate parsing logic from I/O overhead
         filepaths = [Path(f) for f in filenames]
