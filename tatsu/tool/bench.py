@@ -196,7 +196,7 @@ def benchmark(
         # --- Loop 2: Generated Parser ---
         gentime = 0.0
         generrs = 0
-        if mode in {'gen', 'both'}:
+        if mode in {'gen', 'both'} and parser is not None:
             for i, text in enumerate(texts):
                 pct = int((i + 1) / nfiles * 100)
                 print(f"[Gen {pct:3d}%] Benchmarking generated parser...", end="\r")
