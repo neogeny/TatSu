@@ -47,7 +47,7 @@ def countlines(s: str, cmtstr: str = r'#') -> lcnt:
     cmnt = 0
     code = 0
 
-    inner = re.compile(fr"""(?x)
+    inner = re.compile(rf"""(?x)
         ^ [ \t]* (?:
               (?P<cmnt> [{cmtstr}] )
             | (?P<code>  \S )

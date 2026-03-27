@@ -9,6 +9,7 @@ import pytest
 import tatsu
 from tatsu.exceptions import FailedParse, KeywordError
 
+
 INPUT = """
     1d3
 """

@@ -18,6 +18,7 @@ from invoke.exceptions import Exit
 
 from tatsu.util.timetools import timer
 
+
 __copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'
 __license__: str = 'BSD-4-Clause'
 
@@ -321,8 +322,8 @@ def pytest(_c: Context, _python: float | str = PYTHON):
 
 
 @task(pre=[begin])
-def black(c: Context, python: float | str = PYTHON):
-    start_print(black)
+def _black(c: Context, python: float | str = PYTHON):
+    start_print(_black)
     res = uv_run(
         c,
         ["black", "--no-cache", "tatsu", "tests", "examples", "scripts", "ng"],
@@ -337,7 +338,55 @@ def black(c: Context, python: float | str = PYTHON):
         print('✖ failed!')
 
 
-@task(pre=[begin, black, pyrefly, zuban, ruff, ty, mypy, pyright])
+@task(pre=[begin])
+def format(c: Context, python: float | str = PYTHON):
+    start_print(format)
+    res = uv_run(
+        c,
+        [
+            "ruff",
+            "check",
+            "--select",
+            "I",
+            "--fix",
+            "tatsu",
+            "tests",
+            "examples",
+            "scripts",
+            "ng",
+        ],
+        python=python,
+        group='test',
+        warn=True,
+        hide=True,
+        pty=True,
+    )
+    if res.exited != 0:
+        print(res.stdout.splitlines()[-1])
+        print('✖ failed!')
+    res = uv_run(
+        c,
+        [
+            "ruff",
+            "format",
+            "tatsu",
+            "tests",
+            "examples",
+            "scripts",
+            "ng",
+        ],
+        python=python,
+        group='test',
+        warn=True,
+        hide=True,
+        pty=True,
+    )
+    if res.exited != 0:
+        print(res.stdout.splitlines()[-1])
+        print('✖ failed!')
+
+
+@task(pre=[begin, format, pyrefly, zuban, ruff, ty, mypy, pyright])
 def lint(_c: Context):
     success_print(task_=lint)
 

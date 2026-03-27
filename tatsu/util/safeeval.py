@@ -11,6 +11,7 @@ from typing import Any
 from . import as_namedtuple
 from .undefined import Undefined, UndefinedType
 
+
 __all__ = [
     'SecurityError',
     'is_eval_safe',

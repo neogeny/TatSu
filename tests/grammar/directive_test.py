@@ -9,6 +9,7 @@ from tatsu.exceptions import FailedParse
 from tatsu.ngcodegen import pythongen
 from tatsu.util import trim
 
+
 EXEC = 'exec'
 
 

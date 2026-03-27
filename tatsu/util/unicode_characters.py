@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from .common import is_posix
 
+
 U_LARROW = '←'
 U_DLARROW = '↙'
 U_LDARROW = '⇐'

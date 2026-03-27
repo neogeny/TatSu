@@ -8,6 +8,7 @@ from .api import (
 )
 from .cli import tatsu_main
 
+
 __all__ = [
     'compile',
     'gencode',

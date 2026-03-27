@@ -12,6 +12,7 @@ from typing import Any, Protocol, runtime_checkable
 from .abctools import as_namedtuple, isiter, rowselect
 from .typetools import is_readonly_property
 
+
 __all__ = ['AsJSONMixin', 'JSONSerializable', 'asjson', 'asjsons', 'plainjson']
 
 
@@ -28,7 +29,6 @@ class AsJSONMixin:
         return {'__class__': type(self).__name__, **asjson(pub, seen=seen)}
 
     def __pub__(self, sunderok: bool = False) -> dict[str, Any]:
-
         def is_public(name: str, value: Any) -> bool:
             return (
                 not name.startswith('__')

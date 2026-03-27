@@ -6,6 +6,7 @@ import itertools
 
 from .walkers import NodeWalker
 
+
 __all__ = ['draw']
 
 

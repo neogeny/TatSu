@@ -10,12 +10,12 @@ from typing import cast
 
 from ..model import Model, Rule
 
+
 __all__ = ['mark_left_recursion']
 
 
 # note: based on https://github.com/ncellar/autumn_v1/
 def mark_left_recursion(rules: Iterable[Rule]) -> list[Rule]:
-
     class State(Enum):
         FIRST = auto()
         CUTOFF = auto()

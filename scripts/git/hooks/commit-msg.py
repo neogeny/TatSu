@@ -8,6 +8,7 @@ import subprocess
 import sys
 from collections.abc import Sequence
 
+
 # by [apalala@gmail.com](https://github.com/apalala)
 # by Gemini (2026-02-03)
 

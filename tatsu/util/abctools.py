@@ -8,6 +8,7 @@ from collections.abc import Callable, Iterable
 from itertools import zip_longest
 from typing import Any, NamedTuple
 
+
 type Predicate[K, V] = Callable[[K, V], bool]
 
 

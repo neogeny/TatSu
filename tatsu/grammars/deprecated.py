@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from tatsu.contexts import Ctx
-from tatsu.grammars import PositiveJoin
+from ..contexts import Ctx
+from .closure import PositiveJoin
 
 
 class LeftJoin(PositiveJoin):

@@ -29,6 +29,7 @@ from .tool import (  # pylint: disable=W0622
     to_python_sourcecode,
 )
 
+
 # HACK!
 # NOTE: this is for backwrds compatibility with legacy generated parsers
 sys.modules.update(  # noqa: RUF067

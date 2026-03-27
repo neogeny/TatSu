@@ -13,6 +13,7 @@ from typing import Any
 
 from .common import fqn
 
+
 type Decorator = Callable[[Callable[..., Any]], Callable[..., Any]]
 type AnyCallable = Callable[..., Any]
 

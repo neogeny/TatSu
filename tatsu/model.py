@@ -12,6 +12,7 @@ from .walkers import (
     PreOrderWalker,  # pyrefly: ignore
 )
 
+
 __all__ = [
     'AST',
     'BaseNode',

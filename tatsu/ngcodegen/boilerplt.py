@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from .._version import version
 
+
 HEADER: str = f"""\
         #!/usr/bin/env python3
         #

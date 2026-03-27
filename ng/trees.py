@@ -8,6 +8,7 @@ from asciitree import LeftAligned
 from rich import print
 from rich.tree import Tree
 
+
 type ASCIITree = dict[str, str | ASCIITree]
 
 tree: ASCIITree = {

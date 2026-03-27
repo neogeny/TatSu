@@ -14,6 +14,7 @@ from .util.regextools import cached_re_compile
 from .util.undefined import Undefined
 from .util.unicode_characters import C_DERIVE
 
+
 DEFAULT_PERLINEMEMOS = 8
 
 

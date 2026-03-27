@@ -6,4 +6,5 @@ from __future__ import annotations
 from ..exceptions import CodegenError
 from .cgbase import CodeGenerator, ModelRenderer
 
+
 __all__ = ['CodeGenerator', 'ModelRenderer', 'CodegenError']

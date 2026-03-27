@@ -26,6 +26,7 @@ from tatsu.semantics import ASTSemantics
 from tatsu.util.asjson import asjson
 from tatsu.walkers import DepthFirstWalker
 
+
 tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
 

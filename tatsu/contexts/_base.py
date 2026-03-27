@@ -25,6 +25,7 @@ from .infos import MemoKey, RuleInfo, RuleResult
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
+
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 

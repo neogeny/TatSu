@@ -5,12 +5,11 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from tatsu.ngcodegen.grammar_gen import parsermodel_gen
-
 from .. import grammars as g
 from ..exceptions import ParseException
 from ..infos import ParserConfig
 from ..input import Text
+from ..ngcodegen.grammar_gen import parsermodel_gen
 from ..ngcodegen.ngmodel_gen import modelgen
 from ..ngcodegen.ngparser_gen import pythongen
 from ..objectmodel import Node
@@ -22,6 +21,7 @@ from ..objectmodel.builder import (
 )
 from ..parser import TatSuParserGenerator
 from ..util import hasha
+
 
 __all__ = [
     'compile',
