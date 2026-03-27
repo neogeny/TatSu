@@ -96,6 +96,37 @@ def compile(
     return model
 
 
+def asmodel(
+    grammar: str | Text,
+    name: str | None = None,
+    *,
+    config: ParserConfig | None = None,
+    filename: str | None = None,
+    basetype: type | None = None,
+    semantics: Any = None,
+    builderconfig: BuilderConfig | None = None,
+    synthok: bool = True,
+    typedefs: list[TypeContainer] | None = None,
+    constructors: list[Constructor] | None = None,
+    **settings: Any,
+) -> g.Grammar:
+    return compile(
+        grammar,
+        name=name,
+        config=config,
+        filename=filename,
+        basetype=basetype,
+        semantics=semantics,
+        asmodel=True,
+        builderconfig=builderconfig,
+        synthok=synthok,
+        typedefs=typedefs,
+        constructors=constructors,
+        **settings,
+    )
+
+
+
 def parse(
     grammar: str,
     text: str,

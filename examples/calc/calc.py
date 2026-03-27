@@ -113,7 +113,7 @@ def parse_factored():
 def parse_to_model():
     grammar = Path('grammars/calc_model.tatsu').read_text()
 
-    parser = tatsu.compile(grammar, asmodel=True)
+    parser = tatsu.asmodel(grammar)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
     print()
@@ -142,7 +142,7 @@ class CalcWalker(NodeWalker):
 def parse_and_walk_model():
     grammar = Path('grammars/calc_model.tatsu').read_text()
 
-    parser = tatsu.compile(grammar, asmodel=True)
+    parser = tatsu.asmodel(grammar)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
     print()
@@ -156,7 +156,7 @@ def parse_and_walk_model():
 def parse_and_translate():
     grammar = Path('grammars/calc_model.tatsu').read_text()
 
-    parser = tatsu.compile(grammar, asmodel=True)
+    parser = tatsu.asmodel(grammar)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
     codegen = PostfixCodeGenerator()

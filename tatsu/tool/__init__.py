@@ -1,4 +1,5 @@
 from .api import (
+    asmodel,
     compile,
     gencode,
     genmodel,
@@ -10,6 +11,7 @@ from .cli import tatsu_main
 
 
 __all__ = [
+    'asmodel',
     'compile',
     'gencode',
     'genmodel',

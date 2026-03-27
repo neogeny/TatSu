@@ -19,6 +19,7 @@ from .objectmodel import (
     nodedataclass as tatsudataclass,
 )
 from .tool import (  # pylint: disable=W0622
+    asmodel,
     compile,
     gencode,
     genmodel,
@@ -48,6 +49,7 @@ sys.modules.update(  # noqa: RUF067
 __all__ = [
     '__toolname__',
     '__version__',
+    'asmodel',
     'builder',
     'compile',
     'gencode',
