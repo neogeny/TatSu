@@ -28,7 +28,7 @@ def rstype(type: Any, modelnames: set[str]) -> str:
     # if type in modelnames:
     #     type = 'Box<dyn Model>'
     # type= type.replace('str', "'static &str")
-    type= type.replace('str', "String")
+    type = type.replace('str', "String")
     return type
 
 
@@ -97,7 +97,6 @@ def main():
         p.print()
 
         print(p.printed_text())
-
 
 
 if __name__ == '__main__':
