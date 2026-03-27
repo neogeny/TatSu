@@ -35,7 +35,7 @@ def test_optional():
         other := 'xyz'?
     """
 
-    model = tatsu.compile(grammar, asmodel=True)
+    model = tatsu.asmodel(grammar)
     exp = model.rulemap['start'].exp
     assert isinstance(exp, g.Sequence)
     assert repr(exp.sequence) == "[Token('['), Pattern('abc')]"
