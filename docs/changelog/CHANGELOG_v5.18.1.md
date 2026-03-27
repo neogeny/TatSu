@@ -3,38 +3,21 @@
 
 # v5.18.1rc1
 
-- The old parser and model generator modules in `tatsu.codegen` have been deleted. 
-  Using [pyrefly][] revealed that they are both incorrect and non-working. Their 
-  defunctness was caused by the lack of unit tests and their lack of use since 
-  `tatsu.ngcodegen` was introduced several years ago. The helper modules
-  `codegen.cgbase` and `codegen.rendering` remain in case any old projects use
-  them for their own code generation.
-
-    [pyrefly]: https://pypi.org/project/pyrefly/
-
-- The `g2e` example in `./examples/g2e` was removed. The example had become irrelevant
-  now that the new PEG parser in Python uses [pegen][]-style grammar for the 
-  language which less than a 1000 lines long. The **TatSu** grammar for ANTLR in 
-  `./examples/g2e/antlr.tatsu` can still parse ANTLR grammars, but there's no
-  test case for it. The semantics in `g2e.semanrics.ANTLRSemantics` try to do
-  everything on a single pass (like substituting simple TOKEN rules by their value), 
-  when transformation of the parsed input grammar model should be more stable and 
-  easier to understand.
-
-    [pegen]: https://we-like-parsers.github.io/pegen/grammar.html
-
 - The benchmark in `tatsu.tool.bench` was used over several large grammars and
-  large input sets. The result as that there is no performance advantage in
-  renerating a procedural Python program for a parser because the in-memory
-  model of the parsed **TatSu** grammar performs equally well. The [codspeed][]
-  benchmark that runs with unit tests confrms those findings
+  large input sets to evaluate parser strategies. The result is that there is a 
+  1.3x performance advantage in generating a Python program versus using the
+  in-memory model of the parsed **TatSu** grammar for parsing. In tests with 
+  complex projects (Java) the performance difference is not perceivable. The
+  [codspeed][] benchmark that runs with unit tests on GitHub doesn't see the
+  performance difference either.
 
     [codspeed]: https://codspeed.io
 
-  Now **TatSu** uses for bootstrap a module that loads its own grammar model to 
-  ase main parser (the one used by `tatsu.compile()`). The previous kind of parser 
-  can still be generated with `to_python_sourcecode()`. The new kind of parser  
-  can be generated with `to_parsermodel_sourcecode()`.
+  Now **TatSu** uses for bootstrap a module that loads its own grammar model
+  as the main parser (the one used by `tatsu.compile()`). The previous kind of 
+  parser can still be generated with `tatsu.to_python_sourcecode()`, which 
+  remains well tested in several unit tests. The new model-based kind of parser
+  can be generated with `tatsu.to_parsermodel_sourcecode()`.
 
   Note that you don't need to generate any source code for a parser in your own 
   projects. **TatSu** does generate a module to make it faster to bootstrap 
@@ -53,6 +36,26 @@
     Path('./modelclases.py').write_text(sourcecode)
     ```
   still be useful:
+
+- The old parser and model generator modules in `tatsu.codegen` have been deleted. 
+  Using [pyrefly][] revealed that they are both incorrect and non-working. Their 
+  defunctness was caused by the lack of unit tests and their lack of use since 
+  `tatsu.ngcodegen` was introduced several years ago. The helper modules
+  `codegen.cgbase` and `codegen.rendering` remain in case any old projects use
+  them for their own code generation.
+
+    [pyrefly]: https://pypi.org/project/pyrefly/
+
+- The `g2e` example in `./examples/g2e` was removed. The example had become
+ irrelevant now that the new PEG parser in Python uses a [pegen][]-style grammar 
+ for the language that is less than a 1000 lines long. The **TatSu** grammar 
+ for ANTLR in `./examples/g2e/antlr.tatsu` can still parse ANTLR grammars, but
+ there's no test case for it. The semantics in `g2e.semanrics.ANTLRSemantics` 
+ try to do everything on a single pass (like substituting simple TOKEN rules by
+ their value), when transformation of the parsed input grammar model should be
+ more stable and easier to understand with a simplerr approach.
+
+    [pegen]: https://we-like-parsers.github.io/pegen/grammar.html
 
 - There's no longer a separate stack for the state of `cut`. The state of `cut`
   is kept in the general state stack.
@@ -75,4 +78,4 @@
 - An important refactoring was done to get rid of the legacy names *"tokenizing"*
   and *"tokenizer"* which didn't abide to theory and practice of parsing. Now the
   names are `tatsu.input`, `tatsu.input.text`, and `tatsu.input.text.Text`. The
-  olde names are still available as legacy for backwards compatibility.
+  old names are still available as legacy for backwards compatibility.
