@@ -30,11 +30,6 @@ classifiers = [
 ]
 dependencies = []
 
-[tool.pyrefly.errors]
-missing-attribute = "ignore"
-untyped-import = "ignore"
-missing-import = "ignore"
-
 [project.optional-dependencies]
 colorization = ["colorama"]
 diagrams = ["graphviz"]
@@ -221,21 +216,20 @@ exclude = '''
 [tool.ruff]
 line-length = 88
 target-version = "py312"
+include = ["*.py", "*.pyi"]
 exclude = [".git", "__pycache__", "dist", "docs"]
 
 [tool.ruff.format]
-# Tell Ruff to match your Black preferences
-quote-style = "preserve"
 indent-style = "space"
+quote-style = "preserve"
 skip-magic-trailing-comma = false
+docstring-code-format = false
 
 [tool.ruff.lint.isort]
-# These settings define the "criteria" for how Ruff handles imports
 combine-as-imports = true
 force-single-line = false
 lines-after-imports = 2
-known-first-party = ["tatsu"] # Replace with your project name
-
+known-first-party = ["tatsu"]
 
 [tool.ruff.lint.pylint]
 max-branches = 21
@@ -358,12 +352,8 @@ project-excludes = [
     "**/tatsu/codegen/**/*",
 ]
 python-version = "3.12.0"
-#reportUnnecessaryIsInstance = false
-#reportUnnecessaryCast = false
-#reportUnnecessaryComparison = false
-#reportUnusedClass = false
-#reportUnusedFunction = false
-#reportUnusedVariable = false
 
-# From your previous request
-#reportInvalidTypeForm = false
+[tool.pyrefly.errors]
+# missing-attribute = "ignore"
+# untyped-import = "ignore"
+# missing-import = "ignore"

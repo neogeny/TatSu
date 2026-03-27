@@ -9,6 +9,7 @@ from typing import Any
 
 from .basenode import BaseNode, nodedataclass
 
+
 __all__ = ['Node', 'nodedataclass']
 
 

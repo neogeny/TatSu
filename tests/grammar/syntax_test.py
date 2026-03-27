@@ -75,12 +75,12 @@ class SyntaxTests(unittest.TestCase):
         e([['a', 'a']], p('aa', 'f'))
 
         for r in ('nn', 'nf', 'fn', 'ff'):
-            e([[], []], p('', r))
-            e([['a'], []], p('a', r))
-            e([[], ['b']], p('b', r))
-            e([['a', 'a'], []], p('aa', r))
-            e([[], ['b', 'b']], p('bb', r))
-            e([['a', 'a'], ['b']], p('aab', r))
+            e([[], []], p('', r), r)
+            e([['a'], []], p('a', r), r)
+            e([[], ['b']], p('b', r), r)
+            e([['a', 'a'], []], p('aa', r), r)
+            e([[], ['b', 'b']], p('bb', r), r)
+            e([['a', 'a'], ['b']], p('aab', r), r)
 
     def test_optional_closure(self):
         grammar = 'start = foo+:"x" foo:{"y"}* {foo:"z"}* ;'

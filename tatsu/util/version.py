@@ -16,6 +16,7 @@ from typing import Any
 
 from .abctools import rowselect
 
+
 __all__ = ['Version']
 
 

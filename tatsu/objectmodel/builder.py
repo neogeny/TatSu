@@ -69,7 +69,6 @@ class ModelBuilder:
         typedefs: list[TypeContainer] | None = None,
         constructors: list[Constructor] | None = None,
     ) -> None:
-
         config = BuilderConfig.new(
             config=config,
             basetype=basetype,
@@ -88,7 +87,12 @@ class ModelBuilder:
         self.config = self.config.override(synthok=not constructors)
 
     def instanceof(
-        self, typename, /, known: dict[str, Any], *args: Any, **kwargs: Any,
+        self,
+        typename,
+        /,
+        known: dict[str, Any],
+        *args: Any,
+        **kwargs: Any,
     ) -> Any:
         return self._instanceof(typename, known, *args, **kwargs)
 
@@ -124,12 +128,14 @@ class ModelBuilder:
             return []
 
         type_list = [
-            typ for name, typ in contents.items()
-            if not name.startswith('_')
-            and isinstance(typ, type)
+            typ
+            for name, typ in contents.items()
+            if not name.startswith('_') and isinstance(typ, type)
         ]
         name = getattr(container, '__module__', None) or getattr(
-            container, '__name__', None,
+            container,
+            '__name__',
+            None,
         )
         if name is None:
             return type_list
@@ -195,7 +201,10 @@ class ModelBuilder:
         return self._registry.get(typename) or vars(builtins).get(typename)
 
     def _get_constructor(
-        self, typename: str, base: type | None, **args: Any,
+        self,
+        typename: str,
+        base: type | None,
+        **args: Any,
     ) -> Constructor:
         if constructor := self._find_existing_constructor(typename):
             return constructor
@@ -286,5 +295,10 @@ class ModelBuilderSemantics:
 
         known = {'ast': ast, 'exp': ast}
         return self._builder._instanceof(
-            typename, known, ast, *args[1:], base=base, **kwargs,
+            typename,
+            known,
+            ast,
+            *args[1:],
+            base=base,
+            **kwargs,
         )

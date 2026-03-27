@@ -6,6 +6,7 @@ import sys
 
 import pytest
 
+import tatsu
 from tatsu.exceptions import FailedParse, FailedToken
 from tatsu.objectmodel import Node, synth
 from tatsu.objectmodel.builder import (
@@ -97,7 +98,7 @@ def test_builder_subclassing():
         start::A::B::C = $ ;
     """
 
-    model = compile(grammar, asmodel=True)
+    model = tatsu.asmodel(grammar)
     model.parse('')
 
     print(f'{registry=}')

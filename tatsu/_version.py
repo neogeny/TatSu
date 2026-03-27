@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from .util import Version
 
+
 __toolname__ = 'TatSu'
 __version__ = '5.18.1rc1'
 version = __version__

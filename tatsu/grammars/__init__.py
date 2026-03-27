@@ -16,12 +16,11 @@ from .closure import (
     EmptyClosure,
     Gather,
     Join,
-    LeftJoin,
     PositiveClosure,
     PositiveGather,
     PositiveJoin,
-    RightJoin,
 )
+from .deprecated import LeftJoin, RightJoin
 from .math import _ref, ref
 from .model import (
     NULL,
@@ -48,6 +47,7 @@ from .syntax import (
     SkipGroup,
     SkipTo,
 )
+
 
 __all__ = [
     'Alert',

@@ -6,6 +6,7 @@ import itertools
 
 from .walkers import NodeWalker
 
+
 __all__ = ['draw']
 
 
@@ -22,7 +23,7 @@ def draw(filename, grammar):
 class DiagramNodeWalker(NodeWalker):
     def __init__(self):
         super().__init__()
-        import pygraphviz as pgv  # pyright: ignore[reportMissingImports]
+        import pygraphviz as pgv  # type: ignore
 
         self.top_graph = pgv.AGraph(
             directed=True,

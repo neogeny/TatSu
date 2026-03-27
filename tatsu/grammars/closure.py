@@ -19,8 +19,7 @@ from .model import Box, Func, Model
 @nodedataclass
 class Closure(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        parse: Func = self.exp._parse  # type: ignore
-        return ctx.closure(parse)
+        return ctx.closure(self.exp._parse)
 
     def _first(self, k, f) -> ffset:
         efirst = self.exp._first(k, f)
@@ -116,20 +115,6 @@ class PositiveJoin(Join):
     @cached_property
     def _nullable(self) -> bool:
         return self.exp._nullable
-
-
-class LeftJoin(PositiveJoin):
-    JOINOP = '<'
-
-    def _do_parse(self, ctx, exp, sep):
-        return ctx.left_join(exp, sep)
-
-
-class RightJoin(PositiveJoin):
-    JOINOP = '>'
-
-    def _do_parse(self, ctx, exp, sep):
-        return ctx.right_join(exp, sep)
 
 
 class Gather(Join):

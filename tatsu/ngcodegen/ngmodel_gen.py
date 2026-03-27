@@ -48,7 +48,6 @@ def modelgen(
 
 
 class PythonModelGenerator(IndentPrintMixin):
-
     def __init__(
         self,
         name: str = '',

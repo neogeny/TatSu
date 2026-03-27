@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+
 """
 Define the non-AST semantics parging.
 

@@ -9,6 +9,7 @@ from typing import Any, ClassVar, Concatenate
 
 from .util import as_namedtuple, deprecated, pythonize_name
 
+
 type WalkerMethod = Callable[Concatenate[NodeWalker, Any, ...], Any]
 
 
@@ -66,7 +67,6 @@ class NodeWalker:
     _walk_children = walk_children
 
     def _find_walker(self, node: Any, prefix: str = 'walk_') -> WalkerMethod | None:
-
         def get_callable(acls: type, aname: str) -> WalkerMethod | None:
             result = getattr(acls, aname, None)
             return result if callable(result) else None

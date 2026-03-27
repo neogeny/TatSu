@@ -25,6 +25,7 @@ from .infos import MemoKey, RuleInfo, RuleResult
 from .state import ParseState, ParseStateStack
 from .tracing import EventTracer, InfoEventTracer, NullEventTracer
 
+
 type RuleOutcome = RuleResult | ParseException
 type MemoCache = dict[MemoKey, RuleOutcome]
 
@@ -83,7 +84,7 @@ class ParserCore:
     def _initialize_caches(self) -> None:
         self._furthest_exception = None
         self._memos: MemoCache = BoundedDict(
-            int(max(1, self.config.perlinememos) * self.cursor.linecount)
+            int(max(1.0, self.config.perlinememos) * self.cursor.linecount)
         )
         self._results: MemoCache = {}
         self.states = ParseStateStack(cursor=self.input.newcursor())

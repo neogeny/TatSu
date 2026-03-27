@@ -5,7 +5,13 @@ from __future__ import annotations
 
 from .contexts import AST
 from .objectmodel import BaseNode, ModelBuilderSemantics, Node, Node as ParseModel
-from .walkers import BreadthFirstWalker, DepthFirstWalker, NodeWalker, PreOrderWalker
+from .walkers import (
+    BreadthFirstWalker,
+    DepthFirstWalker,
+    NodeWalker,
+    PreOrderWalker,  # pyrefly: ignore
+)
+
 
 __all__ = [
     'AST',

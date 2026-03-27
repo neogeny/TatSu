@@ -172,11 +172,7 @@ class BoundCallable:
             id(fun),
             tuple((k, id(v)) for k, v in sorted(known.items())) if known else None,
             tuple(id(a) for a in args) if args else None,
-            (
-                tuple((k, id(v)) for k, v in sorted(kwargs.items()))
-                if kwargs
-                else None
-            ),
+            (tuple((k, id(v)) for k, v in sorted(kwargs.items())) if kwargs else None),
         )
 
     @staticmethod
@@ -230,6 +226,8 @@ class BoundCallable:
                     actual.add_kwarg(name, value)
                 case p.POSITIONAL_ONLY:
                     actual.add_arg(name, value)
+                case _:
+                    pass
 
         return actual.unique()
 

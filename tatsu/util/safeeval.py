@@ -11,6 +11,7 @@ from typing import Any
 from . import as_namedtuple
 from .undefined import Undefined, UndefinedType
 
+
 __all__ = [
     'SecurityError',
     'is_eval_safe',
@@ -79,7 +80,7 @@ def safe_builtins() -> dict[str, Any]:
             or name.startswith('_')
             or name.endswith('Error')
             or name.endswith('Warning')
-            or isinstance(value, type | BaseException)
+            or isinstance(value, type | BaseException)  # type: ignore
         )
 
     return dict(

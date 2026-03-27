@@ -6,9 +6,8 @@ from dataclasses import field
 from functools import cached_property
 from typing import Any
 
-from tatsu.exceptions import FailedParse
-
 from ..contexts import Ctx
+from ..exceptions import FailedParse
 from ..objectmodel import nodedataclass
 from ..util import cast, indent
 from .math import ffset

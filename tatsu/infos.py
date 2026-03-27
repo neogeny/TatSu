@@ -5,4 +5,5 @@ from __future__ import annotations
 from .config import ParserConfig  # for backwards compatibility
 from .input import PosLine
 
+
 __all__ = ['ParserConfig', 'PosLine']

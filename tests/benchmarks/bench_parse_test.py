@@ -8,6 +8,7 @@ import tatsu
 from tatsu.parser import TatSuParserGenerator
 from tatsu.tool import to_python_sourcecode
 
+
 CALC_GRAMMAR = r"""
     @@grammar::CALC
 

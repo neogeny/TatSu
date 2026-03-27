@@ -224,15 +224,9 @@ def render(results: list[ModuleImports]) -> Tree:
         def sort_key(n: Tree):
             label = str(n.label)
             symbol_map = {
-                DependencyNodeKind.sibling()
-                .symbol: DependencyNodeKind.sibling()
-                .sort_rank,
-                DependencyNodeKind.internal()
-                .symbol: DependencyNodeKind.internal()
-                .sort_rank,
-                DependencyNodeKind.external()
-                .prefix: DependencyNodeKind.external()
-                .sort_rank,
+                DependencyNodeKind.sibling().symbol: DependencyNodeKind.sibling().sort_rank,
+                DependencyNodeKind.internal().symbol: DependencyNodeKind.internal().sort_rank,
+                DependencyNodeKind.external().prefix: DependencyNodeKind.external().sort_rank,
                 None: 0,
             }
             key = label[0] if label else None

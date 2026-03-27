@@ -24,7 +24,7 @@ def test_parse_ebnf():
         number := /\d+/
     """
 
-    model = tatsu.compile(grammar, asmodel=True)
+    model = tatsu.asmodel(grammar)
     assert isinstance(model, g.Grammar)
 
 

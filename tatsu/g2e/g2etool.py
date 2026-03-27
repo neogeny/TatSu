@@ -7,7 +7,7 @@ from importlib import resources
 from pathlib import Path
 
 from .. import compile, grammars as g
-from ..util import cast
+from ..util import cast, startscript
 from .semantics import ANTLRSemantics
 
 
@@ -48,7 +48,7 @@ def translate(
 
 def main():
     if len(sys.argv) < 2:
-        thisprog = Path(sys.argv[0]).name
+        thisprog = startscript()
         print(thisprog)
         print('Usage:')
         print('\t', thisprog, 'FILENAME.g [--trace]')

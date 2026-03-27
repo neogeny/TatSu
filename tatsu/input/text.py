@@ -55,7 +55,6 @@ class Cursor(Protocol):
 
 @runtime_checkable
 class Text(Protocol):
-
     def newcursor(self) -> Cursor: ...
 
     @property

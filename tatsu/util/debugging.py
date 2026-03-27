@@ -9,6 +9,7 @@ from typing import Any
 
 from .strtools import prints
 
+
 TATSUDEBUG: int | str | None = os.environ.get('TATSUDEBUG', 0)
 
 

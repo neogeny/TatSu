@@ -5,6 +5,7 @@ from __future__ import annotations
 from .contexts.decorator import isname, leftrec, name, nomemo, rule, tatsumasu, token
 from .objectmodel import NodeDataclassParams, nodedataclass as dataclass
 
+
 __all__ = [
     'NodeDataclassParams',
     'dataclass',

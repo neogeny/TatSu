@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from typing import NamedTuple
 
+
 """ Box Drawing
     © 2003–2025 Unicode, Inc.
     Unicode and the Unicode Logo are registered trademarks of Unicode, Inc.,

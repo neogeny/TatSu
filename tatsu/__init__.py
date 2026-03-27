@@ -19,6 +19,7 @@ from .objectmodel import (
     nodedataclass as tatsudataclass,
 )
 from .tool import (  # pylint: disable=W0622
+    asmodel,
     compile,
     gencode,
     genmodel,
@@ -28,6 +29,7 @@ from .tool import (  # pylint: disable=W0622
     to_python_model,
     to_python_sourcecode,
 )
+
 
 # HACK!
 # NOTE: this is for backwrds compatibility with legacy generated parsers
@@ -47,6 +49,7 @@ sys.modules.update(  # noqa: RUF067
 __all__ = [
     '__toolname__',
     '__version__',
+    'asmodel',
     'builder',
     'compile',
     'gencode',

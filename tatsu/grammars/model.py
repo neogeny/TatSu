@@ -21,6 +21,7 @@ from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import indent, trim, typename
 from .math import ffset, kdot
 
+
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
@@ -135,9 +136,7 @@ class Model(Node, CanParse):
     def _used_rule_names(self):
         return set()
 
-    def _first(
-        self, k: int, f: dict[str, ffset]
-    ) -> ffset:  # pyright: ignore[reportUnusedParameter]
+    def _first(self, k: int, f: dict[str, ffset]) -> ffset:  # pyright: ignore[reportUnusedParameter]
         return set()
 
     def _follow(self, k, fl, a):
@@ -271,7 +270,7 @@ class Synth(Box):
 
 @nodedataclass
 class NamedBox(Box):
-    name: str = field(default='')  # pyright: ignore[reportIncompatibleVariableOverride]
+    name: str = field(default='')  # type: ignore
 
 
 @nodedataclass
@@ -587,21 +586,19 @@ class Grammar(Model):
 
     def _pretty(self, lean: bool = False) -> str:
         regex_directives = {'comments', 'eol_comments', 'whitespace'}
-        str_directives = {'comments', 'grammar'}
         string_directives = {'namechars'}
 
         directives = ''
-        for directive, value in self.directives.items():
-            fmt = dict(  # noqa: C408
-                name=directive,
-                frame='/' if directive in regex_directives else '',
-                value=(
-                    repr(value)
-                    if directive in string_directives
-                    else str(value) if directive in str_directives else value
-                ),
-            )
-            directives += '@@{name} :: {frame}{value}{frame}\n'.format(**fmt)
+        for name, value in self.directives.items():
+            if name in regex_directives:
+                if '/' in value:
+                    directives += f'@@{name} :: ?"{value}"\n'
+                else:
+                    directives += f'@@{name} :: /{value}/\n'
+            elif name in string_directives:
+                directives += f'@@{name} :: {value!r}\n'
+            else:
+                directives += f'@@{name} :: {value}\n'
         if directives:
             directives += '\n'
 

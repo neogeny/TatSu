@@ -69,9 +69,7 @@ def test_render_builds_tree_with_internal_and_external_deps(
 
     a = pkg / "a.py"
     b = pkg / "b.py"
-    a.write_text(
-        "from __future__ import annotations\n" "import os\n" "from . import b\n"
-    )
+    a.write_text("from __future__ import annotations\nimport os\nfrom . import b\n")
     b.write_text("import sys\n")
 
     monkeypatch.chdir(tmp_path)

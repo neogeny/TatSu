@@ -14,6 +14,7 @@ from .bootstrap import (
     TatSuBootstrapText,
 )
 
+
 PRAGMA_RE = r'^\s*#include.*$'
 
 

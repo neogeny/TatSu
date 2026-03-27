@@ -1,26 +1,15 @@
-(*
-    # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
-    # SPDX-License-Identifier: BSD-4-Clause
-    ANTLR v3 grammar written in Tatsu syntax.
+@@grammar :: ANTLRv4
+@@comments :: ?"/\*(?:.|\n)*?\*/"
+@@eol_comments :: ?"//[^\n]*?\n"
+@@namechars :: '_'
 
-    This grammar is inspired in, but different one by the one created
-    by Terence Parr using ANTLR syntax. It is licensed under the BSD
-    License to keep in the spirit of ANTLR.
-*)
+start: grammar
 
-@@comments :: ?'/\*(?:.|\n)*?\*/'
-@@eol_comments :: ?'//[^\n]*?\n'
-@@namechars:: '_'
-
-
-start
-    =
-    grammar
-    ;
-
-grammar
-    =
-    [('lexer'|'parser')] 'grammar'  name:name ';'
+grammar: 
+    [('lexer' | 'parser')]
+    'grammar'
+    name=name
+    ';'
     [options]
     [header]
     [members]
@@ -28,413 +17,182 @@ grammar
     [tokens]
     {scope}
     {action}
-    rules:{rule}+
+    rules={rule}+
     $
-    ;
 
-options
-    =
-    'options' ~ '{' ~ {option}+ '}' ~
-    ;
+options: 'options' ~ '{' ~ {option}+ '}' ~
 
-option
-    =
-    id '='   (id|string|char|int|'*') ';' ~
-    ;
+option: id '=' (id | string | char | int | '*') ';' ~
 
-imports
-    =
-    'import'  name {',' name} ';'
-    ;
+imports: 'import' name {',' name} ';'
 
-header
-    =
-    '@header' block
-    ;
+header: '@header' block
 
-members
-    =
-    '@members' block
-    ;
+members: '@members' block
 
-tokens
-    =
-    'tokens'  '{' {[','] token}+ '}'
-    ;
+tokens: 'tokens' '{' {[','] token}+ '}'
 
-token
-    =
-    name:token_name ['='  ~ exp:token_value ] [';'] ~
-    ;
+token: name=token_name ['=' ~ exp=token_value] [';'] ~
 
-token_value
-    =
-    literal
-    ;
+token_value: literal
 
-scope
-    =
-    'scope' ~
-    (
-      block ['scope'  id {',' id} ';' ]
-    | id {','  id} ';'
-    | id block
-    )
-    ;
+scope: 'scope' ~ (block ['scope' id {',' id} ';'] | id {',' id} ';' | id block)
 
-action
-    =
-    '@'  ('lexer'|'parser'|id)
-    ['::'  id]
-    block
-    ;
+action: '@' ('lexer' | 'parser' | id) ['::' id] block
 
-block
-    =
-    '{' {block|/[^{}]*/} '}'
-    ;
+block: '{' {block | /[^{}]*/} '}'
 
-rule
-    =
-    ['protected'|'public'|'private'|fragment:'fragment']
-    name:id ['!'] [arg]
+rule: 
+    ['protected' | 'public' | 'private' | fragment='fragment']
+    name=id
+    ['!']
+    [arg]
     ['returns' arg]
-    ['trhows' id {',' id}* ]
+    ['trhows' id {',' id}]
     [options]
     [scope]
     {action}
-    ':'  exp:alternatives ';' ~
+    ':'
+    exp=alternatives
+    ';'
+    ~
     [exceptions]
-    ;
 
-arg
-    =
-    '[' ~
-        {
-            arg
-        |
-            /[^\]]*/
-        }*
-    ']'
-    ;
+arg: '[' ~ {arg | /[^\]]*/} ']'
 
-exceptions
-    =
-    {'catch'  arg block}
-    ['finally'  block]
-    ;
+exceptions: {'catch' arg block} ['finally' block]
 
-alternatives
-    =
-    '|'.{[annotation] options+:alternative}+
-    ;
+alternatives: '|'.{[annotation] options+=alternative}+
 
-alternative
-    =
-    @:elements ['->' ~ rewrite]
-    ;
+alternative: =elements ['->' ~ rewrite]
 
-elements
-    =
-    {element}*
-    ;
+elements: {element}
 
-element
-    =
+element: 
     | named
     | predicate_or_action
     | optional
     | closure
     | positive_closure
     | atom
-    ;
 
-named
-    =
-    name:id (force_list:'+='| '=') ~  exp:atom
-    ;
+named: name=id (force_list='+=' | '=') ~ exp=atom
 
-
-predicate_or_action
-    =
+predicate_or_action: 
     | syntactic_predicate
     | gated_predicate
     | semantic_predicate
     | semantic_action
-    ;
 
+gated_predicate: block '?=>' ~
 
-gated_predicate
-    =
-    block '?=>' ~
-    ;
+semantic_predicate: block '?' ~
 
-semantic_predicate
-    =
-    block '?' ~
-    ;
+semantic_action: '{' ~ {semantic_action | /[^}]/} '}'
 
-semantic_action
-    =
-    '{' ~
-        {
-            semantic_action
-        |
-            /[^}]/
-        }
-    '}'
-    ;
+syntactic_predicate: =subexp '=>' ~
 
-syntactic_predicate
-    =
-    @:subexp '=>' ~
-    ;
+optional: =(closure | positive_closure | atom) '?' ~
 
-optional
-    =
-    @:(closure|positive_closure|atom) '?' ~
-    ;
+closure: =atom '*' ~
 
-closure
-    =
-    @:atom '*' ~
-    ;
+positive_closure: =atom '+' ~
 
-positive_closure
-    =
-    @:atom '+' ~
-    ;
-
-atom
-    =
-    @:(
-    | subexp
-    | eof
-    | newranges
-    | negative
-    | regexp
-    | terminal
-    | non_terminal
-    )
-    ['^'|'!']
+atom: 
+    =(subexp | eof | newranges | negative | regexp | terminal | non_terminal)
+    ['^' | '!']
     [annotation]
-    ;
 
-annotation
-    =
-    '<' ','.{id ['=' id]}+ '>'
-    ;
+annotation: '<' ','.{id ['=' id]}+ '>'
 
-eof
-    =
-    'EOF'
-    ;
+eof: 'EOF'
 
-regexp
-    =
-    {charset}+
-    ;
+regexp: {charset}+
 
-
-charset
-    =
+charset: 
     | charset_optional
     | charset_closure
     | charset_positive_closure
     | charset_term
-    ;
 
+charset_optional: '(' =charset ')' '?' ~
 
-charset_optional
-    =
-    '(' @:charset ')' '?' ~
-    ;
+charset_closure: '(' =charset ')' '*' ~
 
+charset_positive_closure: '(' =charset ')' '+' ~
 
-charset_closure
-    =
-    '(' @:charset ')' '*' ~
-    ;
+charset_term: '(' =charset ')' | charset_negative_or | charset_or
 
+charset_or: 
+    | +=charset_range {'|' +=charset_atom}
+    | +=charset_char {'|' +=charset_atom}+
 
-charset_positive_closure
-    =
-    '(' @:charset ')' '+' ~
-    ;
-
-
-charset_term
-    =
-    | '(' @:charset ')'
-    | charset_negative_or
-    | charset_or
-    ;
-
-
-charset_or
-    =
-    | @+:charset_range {'|' @+:charset_atom }
-    | @+:charset_char {'|' @+:charset_atom }+
-    ;
-
-
-charset_negative_or
-    =
-    '~' '('
-        (
-        | @+:charset_range {'|' @+:charset_atom }
-        | @+:charset_char {'|' @+:charset_atom }+
-        )
-    ')'
-    ;
-
-
-charset_atom
-    =
-    | charset_range
-    | char
-    ;
-
-
-charset_char
-    =
-    char
-    ;
-
-
-charset_range
-    =
-    first:charset_char '..'  last:charset_char
-    ;
-
-
-newranges
-    =
-    {negative_newrange|newrange}+
-    ;
-
-newrange
-    =
-    '['  range:/(?:[^\]]|\\u[a-fA-F0-9]{4}|\\.)+/ ']' repeat:[/[+*?][?]?/]
-    ;
-
-negative_newrange
-    =
-    '~' '['  range:/(?:[^\]]|\\u[a-fA-F0-9]{4}|\\.)+/ ']' repeat:[/[+*?][?]?/]
-    ;
-
-
-subexp
-    =
+charset_negative_or: 
+    '~'
     '('
-        [options ':' ~ ]
-        @:alternatives
-    ')'
-    ;
-
-negative
-    =
-    '~'  @:atom
-    ;
-
-non_terminal
-    =
-    @:(
-      token_ref
-    | call
+    (
+        | +=charset_range {'|' +=charset_atom}
+        | +=charset_char {'|' +=charset_atom}+
     )
-    [arg]
-    ;
+    ')'
 
-terminal
-    =
-    | string
-    | any
-    ;
+charset_atom: charset_range | char
 
-any
-    =
-    !'..' '.' ~
-    ;
+charset_char: char
+
+charset_range: first=charset_char '..' last=charset_char
+
+newranges: {negative_newrange | newrange}+
+
+newrange: '[' range=/(?:[^\]]|\\u[a-fA-F0-9]{4}|\\.)+/ ']' repeat=[/[+*?][?]?/]
+
+negative_newrange: 
+    '~'
+    '['
+    range=/(?:[^\]]|\\u[a-fA-F0-9]{4}|\\.)+/
+    ']'
+    repeat=[/[+*?][?]?/]
+
+subexp: '(' [options ':' ~] =alternatives ')'
+
+negative: '~' =atom
+
+non_terminal: =(token_ref | call) [arg]
+
+terminal: string | any
+
+any: !'..' '.' ~
+
+rewrite: {rewrite_term}
+
+rewrite_term: '^(' {rewrite_term}+ ')' | /[^|;^]*/
+
+call: lower_name [annotation]
+
+token_ref: upper_name
+
+token_name: upper_name
+
+literal: id | string | int
+
+id: name
+
+name: /(?i)[a-z][\w_]*/
+
+lower_name: /[a-z][A-Za-z0-9_]*/
+
+upper_name: /[A-Z][A-Za-z0-9_]*/
+
+char: "'" =/[^'\n\\]|\\'|\\u[a-fA-F0-9]{4}|\\./ "'"
+
+string: STRING
+
+STRING: 
+    | '"' =/(?:[^"\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ '"'
+    | "'" =/(?:[^'\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ "'"
+
+int: /[0-9]+/
+
+ESC: /\\['"\\nrtbfv]/ | /\\u[a-fA-F0-9]{4}/
 
 
-rewrite
-    =
-    {rewrite_term}*
-    ;
-
-rewrite_term
-    =
-      '^(' {rewrite_term}+ ')'
-    | /[^|;^]*/
-    ;
-
-call
-    =
-    lower_name [annotation]
-    ;
-
-token_ref
-    =
-    upper_name
-    ;
-
-token_name
-    =
-    upper_name
-    ;
-
-literal
-    =
-    id | string | int
-    ;
-
-
-id
-    =
-    name
-    ;
-
-name
-    =
-    /(?i)[a-z][\w_]*/
-    ;
-
-lower_name
-    =
-    /[a-z][A-Za-z0-9_]*/
-    ;
-
-upper_name
-    =
-    /[A-Z][A-Za-z0-9_]*/
-    ;
-
-char
-    =
-    "'"  @:/[^'\n\\]|\\'|\\u[a-fA-F0-9]{4}|\\./ "'"
-    ;
-
-string
-    =
-    STRING
-    ;
-
-STRING
-    =
-    '"'  @:/(?:[^"\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ '"'
-    |
-    "'"  @:/(?:[^'\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ "'"
-    ;
-
-int
-    =
-    /[0-9]+/
-    ;
-
-ESC
-    =
-    /\\['"\\nrtbfv]/
-    |
-    /\\u[a-fA-F0-9]{4}/
-    ;

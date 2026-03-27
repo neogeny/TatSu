@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import io
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from typing import Any
 
 from .abctools import isiter
 from .strtools import ismultiline, trim
 from .typetools import notnone
+
 
 BLACK_LINE_LENGTH = 88
 
@@ -58,7 +59,7 @@ class IndentPrintMixin:
         return addindents * self.amount + self.indentation
 
     @contextmanager
-    def indent(self, amount: int = -1, levels: int = 1) -> Iterator:
+    def indent(self, amount: int = -1, levels: int = 1) -> Generator:
         self.indent_stack.append(
             self.indent_amount(amount=amount, levels=levels),
         )

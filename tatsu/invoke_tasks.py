@@ -14,8 +14,10 @@ from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImpor
     Task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
 )
+from invoke.exceptions import Exit
 
 from tatsu.util.timetools import timer
+
 
 __copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'
 __license__: str = 'BSD-4-Clause'
@@ -254,6 +256,25 @@ def zuban(c: Context, python: float | str = PYTHON):
 
 
 @task(pre=[begin])
+def pyrefly(c: Context, python: float | str = PYTHON):
+    start_print(pyrefly)
+    res = uv_run(
+        c,
+        ['pyrefly', 'check', 'tatsu', 'tests', 'examples'],
+        python=python,
+        group='test',
+        hide='both',
+        pty=True,
+    )
+
+    if res.exited != 0 or '0 errors' not in res.stdout:
+        for r in [res.stdout]:
+            if r.strip():
+                print(r)
+        raise Exit(f'{pyrefly.__name__} errors', code=res.exited)
+
+
+@task(pre=[begin])
 def pytestfast(c: Context, python: float | str = PYTHON):
     start_print(pytest, target='fast ')
     Path('./tmp').mkdir(exist_ok=True)
@@ -301,8 +322,8 @@ def pytest(_c: Context, _python: float | str = PYTHON):
 
 
 @task(pre=[begin])
-def black(c: Context, python: float | str = PYTHON):
-    start_print(black)
+def _black(c: Context, python: float | str = PYTHON):
+    start_print(_black)
     res = uv_run(
         c,
         ["black", "--no-cache", "tatsu", "tests", "examples", "scripts", "ng"],
@@ -317,7 +338,55 @@ def black(c: Context, python: float | str = PYTHON):
         print('✖ failed!')
 
 
-@task(pre=[begin, black, zuban, ruff, ty, mypy, pyright])
+@task(pre=[begin])
+def format(c: Context, python: float | str = PYTHON):
+    start_print(format)
+    res = uv_run(
+        c,
+        [
+            "ruff",
+            "check",
+            "--select",
+            "I",
+            "--fix",
+            "tatsu",
+            "tests",
+            "examples",
+            "scripts",
+            "ng",
+        ],
+        python=python,
+        group='test',
+        warn=True,
+        hide=True,
+        pty=True,
+    )
+    if res.exited != 0:
+        print(res.stdout.splitlines()[-1])
+        print('✖ failed!')
+    res = uv_run(
+        c,
+        [
+            "ruff",
+            "format",
+            "tatsu",
+            "tests",
+            "examples",
+            "scripts",
+            "ng",
+        ],
+        python=python,
+        group='test',
+        warn=True,
+        hide=True,
+        pty=True,
+    )
+    if res.exited != 0:
+        print(res.stdout.splitlines()[-1])
+        print('✖ failed!')
+
+
+@task(pre=[begin, format, pyrefly, zuban, ruff, ty, mypy, pyright])
 def lint(_c: Context):
     success_print(task_=lint)
 
@@ -470,21 +539,13 @@ def publish(c: Context, _dry_run: bool = True):
 
 
 @task
-def g2e(c: Context):
-    start_print(g2e, target='examples/')
-    with c.cd('examples/g2e'):
-        c.run('uv run make -s clean test', pty=True, hide='both')
-        c.run('uv run make -s clean', pty=True, hide='both')
-
-
-@task
 def calc(c: Context):
     start_print(calc, target='examples/')
     with c.cd('examples/calc'):
         c.run('uv run make -s clean test', pty=True, hide='both')
 
 
-@task(pre=[clean, begin, g2e, calc])
+@task(pre=[clean, begin, calc])
 def examples(_c: Context):
     success_print(task_=examples)
 
