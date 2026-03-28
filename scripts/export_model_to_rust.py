@@ -22,9 +22,9 @@ def rstype(type: Any, modelnames: set[str]) -> str:
     else:
         type = type.replace('[', '{').replace(']', '}')
     if type == 'Model':
-        type = 'Box<dyn Model>'
+        type = 'Box<Model>'
     if type == 'Vec<Model>':
-        type = 'Vec<Box<dyn Model>>'
+        type = 'Vec<Box<Model>>'
     # if type in modelnames:
     #     type = 'Box<dyn Model>'
     # type= type.replace('str', "'static &str")
@@ -71,32 +71,43 @@ def main():
         p = IndentPrintMixin()
         if not path.is_file():
             p.print("""\
-            use crate::engine::{Cst, Ctx};
-            use super::model::Model
+                // Copyright (c) 2026 Juancarlo Añez (apalala@gmail.com)
+                // SPDX-License-Identifier: AGPL-3.0-or-later
 
+                use crate::input::Cursor;
+                use super::model::{CanParse, ParseResult};
+                use crate::engine::{Cst, Ctx};
             """)
+        p.print()
         p.print(f'// #{n}')
-        p.print("#[derive(Debug, Clone, Copy, PartialEq)]")
-        p.print(f"struct {name} {{")
-
-        for field in fields:
-            type = rstype(field.type, modelnames)
-            with p.indent():
-                p.print(f'pub {field.name}: {type},')
-
-        p.print("}")
+        p.print(f"""\
+            pub struct {name}<M> {{
+                pub exp: Box<M>,
+            }}
+        """)
         p.print()
 
+        # for field in fields:
+        #     type = rstype(field.type, modelnames)
+        #     with p.indent():
+        #         p.print(f'pub {field.name}: {type},')
+        #
+        # p.print("}")
+
         p.print(f"""\
-            impl Model for {name} {{
-                fn parse(&self, mut ctx: Ctx) -> ParseResult {{
+            impl<M, C> CanParse<C> for {name}<M>
+            where
+                M: CanParse<C>,
+                C: Cursor,
+            {{
+                fn parse(&self, mut ctx: Ctx<C>) -> ParseResult<C> {{
                     unimplemented!()
                 }}
             }}
         """)
         p.print()
-
-        print(p.printed_text())
+        with path.open('a') as f:
+            f.write(p.printed_text())
 
 
 if __name__ == '__main__':
