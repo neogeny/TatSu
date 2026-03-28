@@ -97,12 +97,10 @@ class Model(Node, CanParse):
             assert isinstance(child, Model)
             child._set_grammar(grammar)
 
-    def _add_defined(self, ctx: Ctx, ast: Any | None = None):
+    def _add_defined(self, ctx: Ctx):
         keys_single = self.defines_single
         keys_list = self.defines_list
         ctx.define(keys_single, keys_list)
-        if isinstance(ast, AST):
-            ast._define(keys_single, keys_list)
 
     def lookahead(self, k: int = 1) -> ffset:
         if not self._lookahead:

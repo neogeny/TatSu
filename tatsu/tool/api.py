@@ -126,7 +126,6 @@ def asmodel(
     )
 
 
-
 def parse(
     grammar: str,
     text: str,
