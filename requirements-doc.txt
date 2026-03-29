@@ -53,7 +53,7 @@ myst-parser==5.0.0
 packaging==26.0
     # via sphinx
 pydata-sphinx-theme==0.16.1
-pygments==2.19.2
+pygments==2.20.0
     # via
     #   accessible-pygments
     #   pydata-sphinx-theme
