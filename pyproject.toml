@@ -177,7 +177,7 @@ respect-type-ignore-comments = true
 unresolved-import = "ignore"
 unused-ignore-comment = "ignore"
 unused-type-ignore-comment = "ignore"
-#unresolved-attribute = "ignore"
+unresolved-attribute = "ignore"
 
 [tool.coverage.run]
 omit = [
