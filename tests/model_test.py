@@ -355,8 +355,9 @@ def test_calc_repr():
     modelrepr = trim(repr(model)).rstrip()
 
     # HACK FIXME
-    # from pathlib import Path
+    from pathlib import Path
     # Path('calcmodel.py').write_text(modelrepr)
+    # Path('asjsonmodel.json').write_text(model.asjsons())
 
     refrepr = trim(calc_repr).rstrip()
     # assert hasha(modelrepr) == hasha(refrepr)
