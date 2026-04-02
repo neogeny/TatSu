@@ -73,7 +73,7 @@ class Version:
         notnone = {
             name: value for name, value in asdict(self).items() if value is not None
         }
-        return namedtuple('version_info', notnone.keys())(*notnone.values())
+        return namedtuple('version_info', notnone.keys())(*notnone.values())  # type: ignore
 
     @staticmethod
     def parse(versionstr: str) -> Version:
