@@ -2,7 +2,7 @@
 #    uv export --group dev --no-hashes --format requirements-txt -o requirements-dev.txt
 -e .
 asciitree==0.3.3
-basedpyright==1.38.4
+basedpyright==1.39.0
 black==26.3.1
 build==1.4.2
 cffi==2.0.0
@@ -51,7 +51,7 @@ pygments==2.20.0
     #   rich
 pyproject-hooks==1.2.0
     # via build
-pyrefly==0.58.0
+pyrefly==0.59.1
 pytest==9.0.2
     # via
     #   pytest-codspeed
@@ -65,8 +65,8 @@ rich==14.3.3
     #   pytest-codspeed
     #   rich-click
 rich-click==1.9.7
-ruff==0.15.8
+ruff==0.15.9
 setuptools==82.0.1
     # via pytest-dependency
-ty==0.0.26
-uv==0.11.2
+ty==0.0.27
+uv==0.11.3
