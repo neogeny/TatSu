@@ -8,6 +8,7 @@ from contextlib import contextmanager
 from typing import Any
 
 from .abctools import isiter
+from .common import typename
 from .strtools import ismultiline, trim
 from .typetools import notnone
 
@@ -136,12 +137,12 @@ def fold(
     initial: int = 0,
 ) -> str:
     brackets = {
-        dict: ('{', '}'),
-        list: ('[', ']'),
-        tuple: ('(', ')'),
-        None: ('', ''),
+        'dict': ('{', '}'),
+        'list': ('[', ']'),
+        'tuple': ('(', ')'),
+        'None': ('', ''),
     }
-    lb, rb = brackets.get(type(value), ('', ''))
+    lb, rb = brackets.get(typename(value), ('', ''))
     lbrack = notnone(lbrack, lb)
     rbrack = notnone(rbrack, rb)
     assert lbrack is not None and rbrack is not None
