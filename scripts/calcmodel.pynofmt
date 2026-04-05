@@ -1,6 +1,7 @@
 Grammar(
   name='CALC',
   directives={'grammar': 'CALC'},
+  keywords=(),
   rules=(
     Rule(
       name='start',
@@ -9,8 +10,10 @@ Grammar(
       kwparams={},
       decorators=[],
       is_name=False,
-      is_leftrec=False,
-      is_memoizable=False
+      is_tokn=False,
+      no_memo=False,
+      is_memo=False,
+      is_lrec=False
     ),
     Rule(
       name='expression',
@@ -21,8 +24,10 @@ Grammar(
       kwparams={},
       decorators=[],
       is_name=False,
-      is_leftrec=True,
-      is_memoizable=False
+      is_tokn=False,
+      no_memo=False,
+      is_memo=False,
+      is_lrec=True
     ),
     Rule(
       name='addition',
@@ -38,8 +43,10 @@ Grammar(
       kwparams={},
       decorators=[],
       is_name=False,
-      is_leftrec=False,
-      is_memoizable=False
+      is_tokn=False,
+      no_memo=False,
+      is_memo=False,
+      is_lrec=False
     ),
     Rule(
       name='subtraction',
@@ -55,8 +62,10 @@ Grammar(
       kwparams={},
       decorators=[],
       is_name=False,
-      is_leftrec=False,
-      is_memoizable=False
+      is_tokn=False,
+      no_memo=False,
+      is_memo=False,
+      is_lrec=False
     ),
     Rule(
       name='term',
@@ -71,8 +80,10 @@ Grammar(
       kwparams={},
       decorators=[],
       is_name=False,
-      is_leftrec=True,
-      is_memoizable=False
+      is_tokn=False,
+      no_memo=False,
+      is_memo=False,
+      is_lrec=True
     ),
     Rule(
       name='multiplication',
@@ -88,8 +99,10 @@ Grammar(
       kwparams={},
       decorators=[],
       is_name=False,
-      is_leftrec=False,
-      is_memoizable=False
+      is_tokn=False,
+      no_memo=False,
+      is_memo=False,
+      is_lrec=False
     ),
     Rule(
       name='division',
@@ -105,8 +118,10 @@ Grammar(
       kwparams={},
       decorators=[],
       is_name=False,
-      is_leftrec=False,
-      is_memoizable=False
+      is_tokn=False,
+      no_memo=False,
+      is_memo=False,
+      is_lrec=False
     ),
     Rule(
       name='factor',
@@ -120,8 +135,10 @@ Grammar(
       kwparams={},
       decorators=[],
       is_name=False,
-      is_leftrec=False,
-      is_memoizable=True
+      is_tokn=False,
+      no_memo=False,
+      is_memo=True,
+      is_lrec=False
     ),
     Rule(
       name='number',
@@ -130,8 +147,10 @@ Grammar(
       kwparams={},
       decorators=[],
       is_name=False,
-      is_leftrec=False,
-      is_memoizable=True
+      is_tokn=False,
+      no_memo=False,
+      is_memo=True,
+      is_lrec=False
     )
   )
 )

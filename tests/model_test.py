@@ -214,9 +214,10 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_lrec=False,
+              is_tokn=False,
+              no_memo=False,
               is_memo=False,
-              is_tokn=False
+              is_lrec=False
             ),
             Rule(
               name='expression',
@@ -227,9 +228,10 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_lrec=True,
+              is_tokn=False,
+              no_memo=False,
               is_memo=False,
-              is_tokn=False
+              is_lrec=True
             ),
             Rule(
               name='addition',
@@ -245,9 +247,10 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_lrec=False,
+              is_tokn=False,
+              no_memo=False,
               is_memo=False,
-              is_tokn=False
+              is_lrec=False
             ),
             Rule(
               name='subtraction',
@@ -263,9 +266,10 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_lrec=False,
+              is_tokn=False,
+              no_memo=False,
               is_memo=False,
-              is_tokn=False
+              is_lrec=False
             ),
             Rule(
               name='term',
@@ -280,9 +284,10 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_lrec=True,
+              is_tokn=False,
+              no_memo=False,
               is_memo=False,
-              is_tokn=False
+              is_lrec=True
             ),
             Rule(
               name='multiplication',
@@ -298,9 +303,10 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_lrec=False,
+              is_tokn=False,
+              no_memo=False,
               is_memo=False,
-              is_tokn=False
+              is_lrec=False
             ),
             Rule(
               name='division',
@@ -316,9 +322,10 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_lrec=False,
+              is_tokn=False,
+              no_memo=False,
               is_memo=False,
-              is_tokn=False
+              is_lrec=False
             ),
             Rule(
               name='factor',
@@ -332,9 +339,10 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_lrec=False,
+              is_tokn=False,
+              no_memo=False,
               is_memo=True,
-              is_tokn=False
+              is_lrec=False
             ),
             Rule(
               name='number',
@@ -343,9 +351,10 @@ def test_calc_repr():
               kwparams={},
               decorators=[],
               is_name=False,
-              is_lrec=False,
+              is_tokn=False,
+              no_memo=False,
               is_memo=True,
-              is_tokn=False
+              is_lrec=False
             )
           )
         )
@@ -355,8 +364,9 @@ def test_calc_repr():
     modelrepr = trim(repr(model)).rstrip()
 
     # HACK FIXME
-    # from pathlib import Path
-    # Path('calcmodel.py').write_text(modelrepr)
+    from pathlib import Path
+
+    Path('./scripts/calcmodel.pynofmt').write_text(modelrepr)
     # Path('asjsonmodel.json').write_text(model.asjsons())
 
     refrepr = trim(calc_repr).rstrip()

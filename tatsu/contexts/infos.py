@@ -19,10 +19,11 @@ class RuleResult(NamedTuple):
 
 
 class RuleLike(Protocol):
-    is_lrec: bool = False
-    is_memo: bool = False
+    no_memo: bool = False
     is_name: bool = False
     is_tokn: bool = False
+    is_memo: bool = True
+    is_lrec: bool = False
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         pass
@@ -32,10 +33,13 @@ class RuleInfo(NamedTuple):
     name: str
     instance: Any
     func: Callable[..., Any]
-    is_lrec: bool
-    is_memo: bool
+    no_memo: bool
     is_name: bool
     is_tokn: bool
+
+    is_lrec: bool
+    is_memo: bool
+
     params: tuple[Any, ...]
     kwparams: dict[str, Any]
 
@@ -47,10 +51,11 @@ class RuleInfo(NamedTuple):
             name=name,
             instance=instance,
             func=func,
-            is_lrec=getattr(func, 'is_lrec', False),
-            is_memo=getattr(func, 'is_memo', True),
+            no_memo=getattr(func, 'no_memo', False),
             is_name=getattr(func, 'is_name', False),
             is_tokn=getattr(func, 'is_tokn', is_tokn),
+            is_lrec=getattr(func, 'is_lrec', False),
+            is_memo=getattr(func, 'is_memo', True),
             params=params or (),
             kwparams=kwparams or {},
         )
