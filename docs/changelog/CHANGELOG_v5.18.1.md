@@ -79,3 +79,13 @@
   and *"tokenizer"* which didn't abide to theory and practice of parsing. Now the
   names are `tatsu.input`, `tatsu.input.text`, and `tatsu.input.text.Text`. The
   old names are still available as legacy for backwards compatibility.
+
+- Rule invludes (`RuleInclude`) kept an atcutal copy of the included rule in the
+  model. To preserve consistent semantics, the only mentions of `Rule` in a model
+  are at the top-level, in `Grammar.rules` and `Grammar.rulemap`.
+
+- Grammar models that haven't been compiled from a grammar but instead loaded from
+  the JSON or Python representations don't need to be analyzed for left recursion,
+  because the markers of the analysis are already in the loaded models. A new 
+  `Grammar.analyzed: bool` attribute was added to quickly check if a grammar model 
+  from any source has already been analyzed.
