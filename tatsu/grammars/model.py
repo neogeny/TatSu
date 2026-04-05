@@ -383,6 +383,13 @@ class Rule(NamedBox):
 
 
 @nodedataclass
+class Patterns(Model):
+    whitespace: str | None = None
+    comments: str | None = None
+    eol_comments: str | None = None
+
+
+@nodedataclass
 class Grammar(Model):
     name: str = 'MyTest'
     directives: dict[str, Any] = field(default_factory=dict)
@@ -442,6 +449,25 @@ class Grammar(Model):
     def configure(self, config: ParserConfig | None = None, **settings: Any):
         self._config.merge_config(config)
         self._config.merge(**settings)
+
+    def _update_patterns(self):
+        if not hasattr(self, 'patterns'):
+            self.patterns = Patterns()
+        self.patterns.whitespace = (
+            self.patterns.whitespace
+            or self.config.whitespace
+            or self.directives.get('whitespace')
+        )
+        self.patterns.comments = (
+            self.patterns.comments
+            or self.config.comments
+            or self.directives.get('comments')
+        )
+        self.patterns.eol_comments = (
+            self.patterns.eol_comments
+            or self.config.eol_comments
+            or self.directives.get('eol_comments')
+        )
 
     @property
     def config(self) -> ParserConfig:
