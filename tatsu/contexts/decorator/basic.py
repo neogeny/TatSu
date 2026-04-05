@@ -17,6 +17,7 @@ def leftrec(impl: Callable) -> Callable:
 
 def nomemo(impl: Callable) -> Callable:
     over: RuleLike = cast(RuleLike, impl)
+    over.no_memo = True
     over.is_memo = False
     return impl
 

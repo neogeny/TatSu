@@ -70,6 +70,12 @@ def mark_left_recursion(rules: Iterable[Rule]) -> list[Rule]:
             depth -= 1
             node_state[node] = State.VISITED
 
+    # cleare up the status to be set
+    for rule in rules:
+        rule.is_lrec = False
+        # nomemo is a grammar decorator by the user
+        rule.is_memo = not rule.no_memo
+
     for rule in rules:
         dfs(rule)
     return leftrec_rules

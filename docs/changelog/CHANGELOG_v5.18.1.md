@@ -21,7 +21,7 @@
 
   Note that you don't need to generate any source code for a parser in your own 
   projects. **TatSu** does generate a module to make it faster to bootstrap 
-  a parser from it's own grammar. In your projects you can run the usual steps
+  a parser from its own grammar. In your projects you can run the usual steps
   to have a performant parser:
 
     ```python

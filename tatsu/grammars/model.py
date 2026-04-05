@@ -277,10 +277,15 @@ class Rule(NamedBox):
     kwparams: dict[str, Any] = field(default_factory=dict)
     decorators: list[str] = field(default_factory=list)
     base: str | None = None
+
+    # these come from parsing a grammar
     is_name: bool = False
-    is_lrec: bool = False
-    is_memo: bool = True
     is_tokn: bool = False
+    no_memo: bool = False
+
+    # these are used by left recursion analisis
+    is_memo: bool = True
+    is_lrec: bool = False
 
     def __post_init__(self):
         super().__post_init__()
@@ -310,12 +315,13 @@ class Rule(NamedBox):
             name=self.name,
             instance=exp,
             func=exp._parse,
-            is_lrec=self.is_lrec,
-            is_memo=self.is_memo,
+            no_memo=self.no_memo,
             is_name=self.is_name,
             is_tokn=self.is_tokn,
             params=self.params,
             kwparams=self.kwparams,
+            is_lrec=self.is_lrec,
+            is_memo=self.memoizable,
         )
         return ctx.call(ruleinfo)
 
@@ -329,6 +335,10 @@ class Rule(NamedBox):
     @cached_property
     def _nullable(self) -> bool:
         return self.exp._nullable
+
+    @property
+    def memoizable(self):
+        return self.is_memo and not self.no_memo and not self.is_lrec
 
     def optimized(self) -> Rule:
         clone = copy(self)

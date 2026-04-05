@@ -365,6 +365,7 @@ def test_calc_repr():
 
     # HACK FIXME
     from pathlib import Path
+
     Path('./scripts/calcmodel.pynofmt').write_text(modelrepr)
     # Path('asjsonmodel.json').write_text(model.asjsons())
 
