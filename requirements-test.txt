@@ -5,7 +5,7 @@ basedpyright==1.39.0
 black==26.3.1
 cffi==2.0.0
     # via pytest-codspeed
-click==8.3.1
+click==8.3.2
     # via black
 colorama==0.4.6
     # via
@@ -74,14 +74,14 @@ rich==14.3.3
 ruff==0.15.9
 setuptools==82.0.1
     # via pytest-dependency
-ty==0.0.27
+ty==0.0.29
 types-colorama==0.4.15.20250801
 types-decorator==5.2.0.20251101
 types-docutils==0.22.3.20260322
     # via types-pygments
 types-pexpect==4.9.0.20260127
 types-psutil==7.2.2.20260402
-types-pygments==2.19.0.20260402
+types-pygments==2.20.0.20260405
 types-pyyaml==6.0.12.20250915
 typing-extensions==4.15.0
     # via mypy
