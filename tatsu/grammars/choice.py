@@ -9,7 +9,7 @@ from typing import Any
 from ..contexts import Ctx
 from ..exceptions import FailedParse
 from ..objectmodel import nodedataclass
-from ..util import cast, indent
+from ..util import cast
 from .math import ffset
 from .model import PEP8_LLEN, Box, Model
 
@@ -76,12 +76,11 @@ class Choice(Model):
     def _pretty(self, lean=False):
         options = [str(o._pretty(lean=lean)) for o in self.options]
 
-        multi = any(len(o.splitlines()) > 1 for o in options)
+        multi = options and any(len(o.splitlines()) > 1 for o in options)
         single = ' | '.join(o for o in options)
+        multi = multi or len(single) > PEP8_LLEN * 0.6  # WARNING: magic number !
 
         if multi:
-            return '\n|\n'.join(indent(o) for o in options)
-        elif options and len(single) > PEP8_LLEN:
             return '| ' + '\n| '.join(o for o in options)
         else:
             return single
