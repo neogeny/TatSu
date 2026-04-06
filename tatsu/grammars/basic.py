@@ -92,7 +92,7 @@ class Constant(Model):
         return {()}
 
     def _pretty(self, lean=False):
-        return f'`{self.literal!r}`'
+        return f'`{self.literal!s}`'
 
     @cached_property
     def _nullable(self) -> bool:

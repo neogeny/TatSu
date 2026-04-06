@@ -353,7 +353,7 @@ class Rule(NamedBox):
             return repr(p)
 
     def _pretty(self, lean=False):
-        str_template = "{is_name}{name}{base}{params}: {exp}"
+        str_template = "{is_name}{name}{base}{params}:{exp}"
 
         if lean:
             params = ''
@@ -382,6 +382,8 @@ class Rule(NamedBox):
         exp = self.exp._pretty(lean=lean)
         if len(exp.splitlines()) > 1:
             exp = '\n' + indent(exp)
+        else:
+            exp = ' ' + exp
 
         return trim(str_template).format(
             name=self.name,
