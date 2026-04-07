@@ -131,7 +131,7 @@ def eval_escapes(s: str | bytes) -> str | bytes:
     def decode_match(match):
         return codecs.decode(match.group(0), 'unicode-escape')
 
-    return escape_sequence_re.sub(decode_match, s)  # type: ignore[no-matching-overload]
+    return escape_sequence_re.sub(decode_match, s)  # type: ignore
 
 
 def trim(text, tabwidth=4):
