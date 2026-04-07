@@ -486,10 +486,10 @@ Add the result of ``e`` to the `AST`_ using ``name`` as key. If
     ``name`` is bound in the *option* in which it appears, or in the rule when
     there are no options. When options define different names, only the names
     in the option that parses will be present in the resulting AST_. A ``name``
-    will be bound to ``None`` when the expresion ``e`` fails to parse. For ``name``
+    will be bound to ``None`` when the expression ``e`` fails to parse. For ``name``
     used in enclosing expressions like *group*, *optional*, or *closure*, ``name``
     will be bound in the rule-level AST_ only if the complete enclosure parses
-    (they have local scope, and are transfered to the outer scope only on success).
+    (they have local scope, and are transferred to the outer scope only on success).
     The same criteria applies to expressions nested to any level.
 
 When there are no named items in a rule or choice, the `AST`_ consists of the
@@ -530,7 +530,7 @@ the `AST`_ for ``e``.
 .. note::
 
     As with ``name=e``, the effect of ``=e`` is scoped to the enclosing
-    *option*, *group*, *optional*, or *closure*, and will apply ony when the
+    *option*, *group*, *optional*, or *closure*, and will apply only when the
     enclosure parses successfully.
 
 This expression is useful to recover only part of the right hand side of a rule
