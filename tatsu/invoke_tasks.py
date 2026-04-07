@@ -538,7 +538,7 @@ def publish(c: Context, _dry_run: bool = True):
     c.run(f'gh run list --workflow={workflow}')
 
 
-@task
+@task()
 def calc(c: Context):
     start_print(calc, target='examples/')
     with c.cd('examples/calc'):
