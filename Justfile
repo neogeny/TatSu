@@ -4,12 +4,16 @@ set shell := [shell, "-c"]
 
 py := "3.15"
 
+# Macro-like expansions for consistent uv flag placement
+run_test := "uv run --quiet --python " + py + " --group test "
+run_doc  := "uv run --quiet --group doc "
+export   := "uv export --quiet --no-hashes --format requirements-txt "
+
 default: test docs examples requirements build
     @echo "✔ all"
 
 @shell:
     {{shell}} --version
-
 
 # --- Environment Management ---
 
@@ -25,19 +29,19 @@ reqs: requirements
 
 @req-base:
     echo "▶ requirements.txt"
-    uv export --quiet --no-hashes --format requirements-txt -o requirements.txt --no-dev
+    {{export}} -o requirements.txt --no-dev
 
 @req-dev:
     echo "▶ requirements-dev.txt"
-    uv export --quiet --no-hashes --format requirements-txt -o requirements-dev.txt --group dev
+    {{export}} -o requirements-dev.txt --group dev
 
 @req-test:
     echo "▶ requirements-test.txt"
-    uv export --quiet --no-hashes --format requirements-txt -o requirements-test.txt --group test --no-group dev
+    {{export}} -o requirements-test.txt --group test --no-group dev
 
 @req-doc:
     echo "▶ requirements-doc.txt"
-    uv export --quiet --no-hashes --format requirements-txt -o requirements-doc.txt --group doc --no-group dev
+    {{export}} -o requirements-doc.txt --group doc --no-group dev
 
 # --- Cleaning ---
 
@@ -53,35 +57,31 @@ clobber: (clean "true")
 
 @format:
     echo "▶ format {{py}}"
-    uv run --quiet --python {{py}} --group test ruff check --select I --fix tatsu tests examples scripts ng
-    uv run --quiet --python {{py}} --group test ruff format tatsu tests examples scripts ng
+    {{run_test}} ruff check --select I --fix tatsu tests examples scripts ng > /dev/null
+    {{run_test}} ruff format tatsu tests examples scripts ng > /dev/null
 
 @lint: format ruff ty mypy pyright pyrefly
     echo "━ lint ⏏ ━"
 
 @ruff:
     echo "▶ ruff {{py}}"
-    uv run --quiet --python {{py}} --group test ruff check -q --preview tatsu tests examples
+    {{run_test}} ruff check -q --preview tatsu tests examples > /dev/null
 
 @ty:
     echo "▶ ty {{py}}"
-    uv run --quiet --python {{py}} --group test ty check tatsu tests examples > /dev/null
+    {{run_test}} ty check tatsu tests examples > /dev/null
 
 @mypy:
     echo "▶ mypy {{py}}"
-    uv run --quiet --python {{py}} --group test mypy tatsu tests examples --install-types --exclude "dist|parsers|backup" > /dev/null
+    {{run_test}} mypy tatsu tests examples --install-types --exclude "dist|parsers|backup" > /dev/null
 
 @pyright:
-    echo "▶ pyrighti {{py}}"
-    uv run --quiet --python {{py}} --group test basedpyright tatsu tests examples
-
-@zuban:
-    echo "▶ zuban {{py}}"
-    uv run --quiet --python {{py}} --group test zuban check tatsu tests examples
+    echo "▶ pyright {{py}}"
+    {{run_test}} basedpyright tatsu tests examples > /dev/null
 
 @pyrefly:
     echo "▶ pyrefly {{py}}"
-    uv run --quiet --python {{py}} --group test pyrefly check tatsu tests examples > /dev/null
+    {{run_test}} pyrefly check tatsu tests examples 2>&1 > /dev/null
 
 # --- Testing ---
 
@@ -89,23 +89,23 @@ clobber: (clean "true")
     echo "━ test ⏏ ━"
 
 @pytest_fast:
-    echo "▶ fast pytest"
+    echo "▶ fast pytest {{py}}"
     mkdir -p tmp && touch tmp/__init__.py
-    uv run --quiet --python {{py}} --group test pytest --quiet -n auto tests/ --ignore-glob=tests/z* > /dev/null
+    {{run_test}} pytest --quiet -n auto tests/ --ignore-glob=tests/z* > /dev/null
 
 @pytest_boot:
-    echo "▶ boot pytest"
-    uv run --quiet --python {{py}} --group test pytest --quiet tests/z_bootstrap_test.py > /dev/null
+    echo "▶ boot pytest {{py}}"
+    {{run_test}} pytest --quiet tests/z_bootstrap_test.py > /dev/null
 
 # --- Documentation & Examples ---
 
 @docs: doclint
     echo "▶ docs"
-    cd docs && uv run --group doc make -s html > /dev/null
+    cd docs && {{run_doc}} make -s html > /dev/null
 
 @doclint:
     echo "▶ doclint"
-    uv run --group doc vale README.rst docs/**/*.rst > /dev/null
+    {{run_doc}} vale README.rst docs/**/*.rst > /dev/null
 
 @examples:
     echo "▶ examples/calc"
@@ -125,8 +125,12 @@ clobber: (clean "true")
     gh workflow run publish.yml
     gh run list --workflow=publish.yml
 
+# --- Matrix Execution ---
+
 @matrix: py312 py313 py314 py315 py315t
     echo '⏏ matrix'
+
+@matrix-core: version test
 
 @py312:
     just py=3.12 matrix-core
@@ -145,5 +149,3 @@ clobber: (clean "true")
 
 @version:
     echo "━ ᝰ {{py}} ━"
-
-@matrix-core: version test
