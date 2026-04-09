@@ -1258,15 +1258,22 @@ class TatSuBootstrapRules:
 
             @α.option
             def _(ctx: Ctx) -> Any:
-                self.REGEX(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                ctx.token('?')
-                with ctx.result():
-                    self.STRING(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
                 self.deprecated_regex(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                with ctx.ifnot_():
+                    ctx.token('?/')
+                with ctx.group():
+                    with ctx.choice() as β:
+
+                        @β.option
+                        def _(ctx: Ctx) -> Any:
+                            self.REGEX(ctx)
+                        @β.option
+                        def _(ctx: Ctx) -> Any:
+                            ctx.token('?')
+                            with ctx.result():
+                                self.STRING(ctx)
 
     @tatsu.rule
     @tatsu.token
@@ -1276,10 +1283,12 @@ class TatSuBootstrapRules:
 
     @tatsu.rule
     def deprecated_regex(self, ctx: Ctx) -> Any:
-        with ctx.result():
-            ctx.pattern(r'(?ms)\?/((?:[^/\\]|\\/|\\.)*)/\?')
+        ctx.token('?/')
         ctx.cut()
-        ctx.alert('deprecated regex syntax', 2)
+        with ctx.result():
+            ctx.pattern(r'(?ms)((?:[^/\\]|\\/|\\.)*)')
+        ctx.cut()
+        ctx.token('/?')
 
     @tatsu.rule('bool')
     def boolean(self, ctx: Ctx) -> Any:

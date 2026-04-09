@@ -247,16 +247,14 @@ dot[Dot]: '/./'
 
 pattern[Pattern]: regex
 
-regex: REGEX | '?' =STRING | deprecated_regex
+regex: deprecated_regex | !'?/' ( REGEX | '?' =STRING)
 
 REGEX: ?"(?ms)/((?:[^/\\]|\\/|\\.)*)/" ~
 
-deprecated_regex: =?"(?ms)\?/((?:[^/\\]|\\/|\\.)*)/\?" ~ ^^`deprecated regex syntax`
+deprecated_regex: '?/' ~ =?"(?ms)((?:[^/\\]|\\/|\\.)*)" ~ '/?'
 
 boolean[bool]: 'True' | 'False'
 
 null: 'None'
 
 eof[EOF]: '$' ~
-
-

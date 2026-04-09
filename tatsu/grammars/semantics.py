@@ -66,21 +66,22 @@ class GrammarSemantics(ModelBuilderSemantics):
         return pattern
 
     def deprecated_regex(self, ast: str, parseinfo: ParseInfo | None = None):
-        if parseinfo:
-            pi = parseinfo
-            msg = (
-                f'Deprecated syntax "?/../?" for regular expressions'
-                f' at {pi.cursor.input.source} line {pi.line + 1}'
-                f'\n?/"{ast}"/?'
-            )
-        else:
-            msg = 'Deprecated syntax "?/../? for regular expressions"'
-        warnings.warn(
-            message=msg,
-            category=DeprecationWarning,
-            stacklevel=12,
-        )
-        return ast
+        return self.regex(self, ast)
+        # if parseinfo:
+        #     pi = parseinfo
+        #     msg = (
+        #         f'Deprecated syntax "?/../?" for regular expressions'
+        #         f' at {pi.cursor.input.source} line {pi.line + 1}'
+        #         f'\n?/"{ast}"/?'
+        #     )
+        # else:
+        #     msg = 'Deprecated syntax "?/../? for regular expressions"'
+        # warnings.warn(
+        #     message=msg,
+        #     category=DeprecationWarning,
+        #     stacklevel=12,
+        # )
+        # return ast
 
     def string(self, ast):
         value = ast
