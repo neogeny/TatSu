@@ -91,11 +91,11 @@ clobber: (clean "true")
 @pytest_fast:
     echo "▶ fast pytest {{py}}"
     mkdir -p tmp && touch tmp/__init__.py
-    {{run_test}} pytest --quiet -n auto tests/ --ignore-glob=tests/z* > /dev/null
+    {{run_test}} pytest --quiet -n auto tests/ --ignore-glob=tests/z*
 
 @pytest_boot:
     echo "▶ boot pytest {{py}}"
-    {{run_test}} pytest --quiet tests/z_bootstrap_test.py > /dev/null
+    {{run_test}} pytest --quiet tests/z_bootstrap_test.py
 
 # --- Documentation & Examples ---
 
