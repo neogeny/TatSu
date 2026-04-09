@@ -364,13 +364,15 @@ def test_calc_repr():
     modelrepr = trim(repr(model)).rstrip()
 
     # HACK FIXME
-    from pathlib import Path
-
-    Path('./scripts/calcmodel.pynofmt').write_text(modelrepr)
+    # from pathlib import Path
+    # simple = tatsu.compile(calc_grammar, asmodel=False)
+    # assert simple.asjson() == []
+    # Path('calctree.json').write_text(simple.asjsons())
+    # Path('./scripts/calcmodel.pynofmt').write_text(modelrepr)
     # Path('asjsonmodel.json').write_text(model.asjsons())
 
     refrepr = trim(calc_repr).rstrip()
-    # assert hasha(modelrepr) == hasha(refrepr)
+    assert hasha(modelrepr) == hasha(refrepr)
     assert modelrepr == refrepr
     emodel = eval(modelrepr, vars(g), {})  # type: ignore # noqa: S307
     assert isinstance(emodel, g.Grammar)
