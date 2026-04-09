@@ -18,7 +18,7 @@ execnet==2.1.2
 graphviz==0.21
 iniconfig==2.3.0
     # via pytest
-invoke==3.0.2
+invoke==3.0.3
 librt==0.8.1 ; platform_python_implementation != 'PyPy'
     # via mypy
 markdown-it-py==4.0.0
@@ -41,7 +41,7 @@ pathspec==1.0.4
     # via
     #   black
     #   mypy
-platformdirs==4.9.4
+platformdirs==4.9.6
     # via black
 pluggy==1.6.0
     # via
@@ -55,7 +55,7 @@ pygments==2.20.0
     # via
     #   pytest
     #   rich
-pytest==9.0.2
+pytest==9.0.3
     # via
     #   pytest-codspeed
     #   pytest-cov
@@ -75,14 +75,14 @@ ruff==0.15.9
 setuptools==82.0.1
     # via pytest-dependency
 ty==0.0.29
-types-colorama==0.4.15.20250801
-types-decorator==5.2.0.20251101
-types-docutils==0.22.3.20260322
+types-colorama==0.4.15.20260408
+types-decorator==5.2.0.20260408
+types-docutils==0.22.3.20260408
     # via types-pygments
-types-pexpect==4.9.0.20260127
-types-psutil==7.2.2.20260402
-types-pygments==2.20.0.20260407
-types-pyyaml==6.0.12.20250915
+types-pexpect==4.9.0.20260408
+types-psutil==7.2.2.20260408
+types-pygments==2.20.0.20260408
+types-pyyaml==6.0.12.20260408
 typing-extensions==4.15.0
     # via mypy
 zuban==0.7.0
