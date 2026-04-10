@@ -49,7 +49,7 @@ reqs: requirements
     echo "▶ clean"
     /bin/rm -rf build dist tatsu.egg-info .tox
     if {{plus}} : $[/bin/rm -rf .cache .pytest_cache .ruff_cache]
-    find tatsu tests examples scripts -type d -name __pycache__ -delete
+    find tatsu tests examples scripts -type d -name "__pycache__" -print0 | xargs -0 /bin/rm -rf
 
 clobber: (clean "true")
 
