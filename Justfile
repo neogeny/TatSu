@@ -47,8 +47,8 @@ reqs: requirements
 
 @clean plus="False":
     echo "▶ clean"
-    grm -rf build dist tatsu.egg-info .tox
-    if {{plus}} : $[grm -rf .cache .pytest_cache .ruff_cache]
+    /bin/rm -rf build dist tatsu.egg-info .tox
+    if {{plus}} : $[/bin/rm -rf .cache .pytest_cache .ruff_cache]
     find tatsu tests examples scripts -type d -name __pycache__ -delete
 
 clobber: (clean "true")
