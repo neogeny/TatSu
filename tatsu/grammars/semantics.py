@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import warnings
 from ast import literal_eval
 from collections.abc import Iterable, Sequence
 from typing import Any
@@ -66,7 +65,8 @@ class GrammarSemantics(ModelBuilderSemantics):
         return pattern
 
     def deprecated_regex(self, ast: str, parseinfo: ParseInfo | None = None):
-        return self.regex(self, ast)
+        return self.regex(ast)
+        # import warnings
         # if parseinfo:
         #     pi = parseinfo
         #     msg = (
