@@ -175,7 +175,7 @@ class GrammarSemantics(ModelBuilderSemantics):
         self.known_name(name)
 
         rule = self.rulemap[name]
-        return g.RuleInclude(ast=ast, rule=rule)
+        return g.RuleInclude(name=name, exp=rule.exp, rule=rule)
 
     def grammar(self, ast):
         directives = {d.name: d.value for d in flatten(ast.directives) if d}

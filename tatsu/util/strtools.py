@@ -134,7 +134,7 @@ def eval_escapes(s: str | bytes) -> str | bytes:
     return escape_sequence_re.sub(decode_match, s)  # type: ignore
 
 
-def trim(text, tabwidth=4):
+def trim(text: str, /, *, all: bool = False, tabwidth: int =4):
     """
     Trim text of common, leading whitespace.
 
@@ -146,7 +146,8 @@ def trim(text, tabwidth=4):
     lines = text.expandtabs(tabwidth).splitlines()
     maxindent = len(text)
     indent = maxindent
-    for line in lines[1:]:
+    start = 0 if all else 1
+    for line in lines[start:]:
         stripped = line.lstrip()
         if stripped:
             indent = min(indent, len(line) - len(stripped))

@@ -1,7 +1,7 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 
-# NOTE: re-exports mostly for bw compatibility
+# NOTE: pyre-exports mostly for bw compatibility
 
 from .abctools import *  # noqa: F403
 from .asjson import *  # noqa: F403

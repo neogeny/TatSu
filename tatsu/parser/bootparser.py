@@ -737,7 +737,7 @@ GRAMMAR_MODEL: Grammar = (
           name='ENDRULE',
           exp=Choice(
             [
-              Option(Lookahead(Call('UNINDENTED'))),
+              Option(Call('UNINDENTED')),
               Option(Sequence([Call('EMPTYLINE'), Optional(Token(';'))])),
               Option(EOF()),
               Option(Token(';'))
@@ -754,7 +754,7 @@ GRAMMAR_MODEL: Grammar = (
         ),
         Rule(
           name='UNINDENTED',
-          exp=Pattern('(?=\\s*(?:\\r?\\n|\\r)[^\\s])'),
+          exp=Pattern('(?=\\s*(?:\\r?\\n|\\r)\\S)'),
           params=(),
           kwparams={},
           decorators=[],

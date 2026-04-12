@@ -527,8 +527,7 @@ class TatSuBootstrapRules:
 
             @α.option
             def _(ctx: Ctx) -> Any:
-                with ctx.if_():
-                    self.UNINDENTED(ctx)
+                self.UNINDENTED(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
                 self.EMPTYLINE(ctx)
@@ -544,7 +543,7 @@ class TatSuBootstrapRules:
     @tatsu.rule
     @tatsu.token
     def UNINDENTED(self, ctx: Ctx) -> Any:
-        ctx.pattern(r'(?=\s*(?:\r?\n|\r)[^\s])')
+        ctx.pattern(r'(?=\s*(?:\r?\n|\r)\S)')
 
     @tatsu.rule
     @tatsu.token
@@ -640,7 +639,7 @@ class TatSuBootstrapRules:
                 with ctx.loopplus() as cl:
                     cl.expecting(
                       '(?:\\s*(?:\\r?\\n|\\r)){2,}',
-                      '(?=\\s*(?:\\r?\\n|\\r)[^\\s])',
+                      '(?=\\s*(?:\\r?\\n|\\r)\\S)',
                       ';',
                       '<EMPTYLINE>',
                       '<ENDRULE>',

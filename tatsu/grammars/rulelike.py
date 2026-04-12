@@ -13,13 +13,18 @@ from typing import Any
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
 from ..util import typename
-from .model import Box, Model, Rule
+from .model import Box, Model, NamedBox, Rule
 from .syntax import Sequence
 
 
 @nodedataclass
-class RuleInclude(Box):
+class RuleInclude(NamedBox):
+    name: str = field(default='')  # type: ignore
     rule: Rule = field(default_factory=Rule)
+
+    def __pub__(self, sunderok: bool = False):
+        pub = super().__pub__(sunderok=sunderok)
+        return pub
 
     def __post_init__(self):
         super().__post_init__()
