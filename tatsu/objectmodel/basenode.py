@@ -113,7 +113,7 @@ class BaseNode(AsJSONMixin):
         return asjson(self)
 
     def asjsons(self) -> str:
-        return asjsons(self)
+        return asjsons(self.asjson())
 
     @staticmethod
     @cache
@@ -124,7 +124,7 @@ class BaseNode(AsJSONMixin):
     def __pub__(self, sunderok: bool = False) -> dict[str, Any]:
         pub = super().__pub__(sunderok=sunderok)
         if sunderok:
-            return pub  # we're being called from __getstate__ not __repr__
+            return pub  # we'pyre being called from __getstate__ not __repr__
 
         # Gemini (2026-02-14)
         wanted = pub.keys() - self._basenode_keys()
@@ -133,7 +133,9 @@ class BaseNode(AsJSONMixin):
         elif not isinstance(self.ast, dict):
             wanted = {'ast'}  # self.ast may be all this object has
 
-        return rowselect(wanted, pub)
+        pub = rowselect(wanted, pub)
+        sortedkeys = self._in_field_order(pub.keys())
+        return {name: pub[name] for name in sortedkeys if name in pub}
 
     def _in_field_order(self, keys: Iterable[str] | None) -> list[str]:
         if keys is None:
@@ -146,9 +148,7 @@ class BaseNode(AsJSONMixin):
         return sorted(keys, key=fieldorder)
 
     def __repr__(self) -> str:
-        pub = self.__pub__()
-        sortedkeys = self._in_field_order(pub.keys())
-        values = {name: pub[name] for name in sortedkeys if name in pub}
+        values = self.__pub__()
 
         attr_repr_list = []
         for name, value in values.items():
