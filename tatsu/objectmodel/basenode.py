@@ -124,7 +124,7 @@ class BaseNode(AsJSONMixin):
     def __pub__(self, sunderok: bool = False) -> dict[str, Any]:
         pub = super().__pub__(sunderok=sunderok)
         if sunderok:
-            return pub  # we'pyre being called from __getstate__ not __repr__
+            return pub  # we're being called from __getstate__ not __repr__
 
         # Gemini (2026-02-14)
         wanted = pub.keys() - self._basenode_keys()
