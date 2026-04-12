@@ -4,7 +4,7 @@
 asciitree==0.3.3
 basedpyright==1.39.0
 black==26.3.1
-build==1.4.2
+build==1.4.3
 cffi==2.0.0
     # via pytest-codspeed
 click==8.3.2
@@ -51,7 +51,7 @@ pygments==2.20.0
     #   rich
 pyproject-hooks==1.2.0
     # via build
-pyrefly==0.60.0
+pyrefly==0.60.2
 pytest==9.0.3
     # via
     #   pytest-codspeed
@@ -60,13 +60,13 @@ pytest-codspeed==4.3.0
 pytest-dependency==0.6.1
 pytokens==0.4.1
     # via black
-rich==14.3.3
+rich==15.0.0
     # via
     #   pytest-codspeed
     #   rich-click
 rich-click==1.9.7
-ruff==0.15.9
+ruff==0.15.10
 setuptools==82.0.1
     # via pytest-dependency
 ty==0.0.29
-uv==0.11.5
+uv==0.11.6
