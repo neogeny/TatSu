@@ -527,6 +527,29 @@ class TatSuBootstrapRules:
 
             @α.option
             def _(ctx: Ctx) -> Any:
+                ctx.pattern(r'(?=\s*(?:\r?\n|\r)\S)|(?:\s*(?:\r?\n|\r)){2,}[;]?')
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                self.endrule(ctx)
+
+    @tatsu.rule
+    def endrule(self, ctx: Ctx) -> Any:
+        with ctx.choice() as α:
+
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                ctx.token(';')
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                ctx.eofcheck()
+
+    @tatsu.rule
+    @tatsu.token
+    def _ENDRULE(self, ctx: Ctx) -> Any:
+        with ctx.choice() as α:
+
+            @α.option
+            def _(ctx: Ctx) -> Any:
                 self.UNINDENTED(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
@@ -638,12 +661,10 @@ class TatSuBootstrapRules:
             def _(ctx: Ctx) -> Any:
                 with ctx.loopplus() as cl:
                     cl.expecting(
-                      '(?:\\s*(?:\\r?\\n|\\r)){2,}',
-                      '(?=\\s*(?:\\r?\\n|\\r)\\S)',
+                      '(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?',
                       ';',
-                      '<EMPTYLINE>',
                       '<ENDRULE>',
-                      '<UNINDENTED>'
+                      '<endrule>'
                     )
 
                     @cl.exp

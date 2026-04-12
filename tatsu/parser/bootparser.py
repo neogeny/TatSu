@@ -347,114 +347,8 @@ GRAMMAR_MODEL: Grammar = (
           name='paramdef',
           exp=Choice(
             [
-              Option(
-                Sequence(
-                  [
-                    Token('['),
-                    Cut(),
-                    RuleInclude(
-                      exp=Choice(
-                        [
-                          Option(Named(name='kwparams', exp=Call('kwparams'))),
-                          Option(
-                            Sequence(
-                              [
-                                Named(name='params', exp=Call('params')),
-                                Token(','),
-                                Cut(),
-                                Named(name='kwparams', exp=Call('kwparams'))
-                              ]
-                            )
-                          ),
-                          Option(Named(name='params', exp=Call('params')))
-                        ]
-                      ),
-                      rule=Rule(
-                        name='the_params_at_last',
-                        exp=Choice(
-                          [
-                            Option(Named(name='kwparams', exp=Call('kwparams'))),
-                            Option(
-                              Sequence(
-                                [
-                                  Named(name='params', exp=Call('params')),
-                                  Token(','),
-                                  Cut(),
-                                  Named(name='kwparams', exp=Call('kwparams'))
-                                ]
-                              )
-                            ),
-                            Option(Named(name='params', exp=Call('params')))
-                          ]
-                        ),
-                        params=(),
-                        kwparams={},
-                        decorators=[],
-                        is_name=False,
-                        is_tokn=False,
-                        no_memo=False,
-                        is_memo=True,
-                        is_lrec=False
-                      )
-                    ),
-                    Token(']')
-                  ]
-                )
-              ),
-              Option(
-                Sequence(
-                  [
-                    Token('('),
-                    Cut(),
-                    RuleInclude(
-                      exp=Choice(
-                        [
-                          Option(Named(name='kwparams', exp=Call('kwparams'))),
-                          Option(
-                            Sequence(
-                              [
-                                Named(name='params', exp=Call('params')),
-                                Token(','),
-                                Cut(),
-                                Named(name='kwparams', exp=Call('kwparams'))
-                              ]
-                            )
-                          ),
-                          Option(Named(name='params', exp=Call('params')))
-                        ]
-                      ),
-                      rule=Rule(
-                        name='the_params_at_last',
-                        exp=Choice(
-                          [
-                            Option(Named(name='kwparams', exp=Call('kwparams'))),
-                            Option(
-                              Sequence(
-                                [
-                                  Named(name='params', exp=Call('params')),
-                                  Token(','),
-                                  Cut(),
-                                  Named(name='kwparams', exp=Call('kwparams'))
-                                ]
-                              )
-                            ),
-                            Option(Named(name='params', exp=Call('params')))
-                          ]
-                        ),
-                        params=(),
-                        kwparams={},
-                        decorators=[],
-                        is_name=False,
-                        is_tokn=False,
-                        no_memo=False,
-                        is_memo=True,
-                        is_lrec=False
-                      )
-                    ),
-                    Token(')')
-                  ]
-                )
-              ),
+              Option(Sequence([Token('['), Cut(), RuleInclude('the_params_at_last'), Token(']')])),
+              Option(Sequence([Token('('), Cut(), RuleInclude('the_params_at_last'), Token(')')])),
               Option(Sequence([Token('::'), Cut(), Named(name='params', exp=Call('params'))]))
             ]
           ),
@@ -474,247 +368,7 @@ GRAMMAR_MODEL: Grammar = (
               Named(name='decorators', exp=Closure(Call('decorator'))),
               Named(name='name', exp=Call('name')),
               Cut(),
-              Optional(
-                RuleInclude(
-                  exp=Choice(
-                    [
-                      Option(
-                        Sequence(
-                          [
-                            Token('['),
-                            Cut(),
-                            RuleInclude(
-                              exp=Choice(
-                                [
-                                  Option(Named(name='kwparams', exp=Call('kwparams'))),
-                                  Option(
-                                    Sequence(
-                                      [
-                                        Named(name='params', exp=Call('params')),
-                                        Token(','),
-                                        Cut(),
-                                        Named(name='kwparams', exp=Call('kwparams'))
-                                      ]
-                                    )
-                                  ),
-                                  Option(Named(name='params', exp=Call('params')))
-                                ]
-                              ),
-                              rule=Rule(
-                                name='the_params_at_last',
-                                exp=Choice(
-                                  [
-                                    Option(Named(name='kwparams', exp=Call('kwparams'))),
-                                    Option(
-                                      Sequence(
-                                        [
-                                          Named(name='params', exp=Call('params')),
-                                          Token(','),
-                                          Cut(),
-                                          Named(name='kwparams', exp=Call('kwparams'))
-                                        ]
-                                      )
-                                    ),
-                                    Option(Named(name='params', exp=Call('params')))
-                                  ]
-                                ),
-                                params=(),
-                                kwparams={},
-                                decorators=[],
-                                is_name=False,
-                                is_tokn=False,
-                                no_memo=False,
-                                is_memo=True,
-                                is_lrec=False
-                              )
-                            ),
-                            Token(']')
-                          ]
-                        )
-                      ),
-                      Option(
-                        Sequence(
-                          [
-                            Token('('),
-                            Cut(),
-                            RuleInclude(
-                              exp=Choice(
-                                [
-                                  Option(Named(name='kwparams', exp=Call('kwparams'))),
-                                  Option(
-                                    Sequence(
-                                      [
-                                        Named(name='params', exp=Call('params')),
-                                        Token(','),
-                                        Cut(),
-                                        Named(name='kwparams', exp=Call('kwparams'))
-                                      ]
-                                    )
-                                  ),
-                                  Option(Named(name='params', exp=Call('params')))
-                                ]
-                              ),
-                              rule=Rule(
-                                name='the_params_at_last',
-                                exp=Choice(
-                                  [
-                                    Option(Named(name='kwparams', exp=Call('kwparams'))),
-                                    Option(
-                                      Sequence(
-                                        [
-                                          Named(name='params', exp=Call('params')),
-                                          Token(','),
-                                          Cut(),
-                                          Named(name='kwparams', exp=Call('kwparams'))
-                                        ]
-                                      )
-                                    ),
-                                    Option(Named(name='params', exp=Call('params')))
-                                  ]
-                                ),
-                                params=(),
-                                kwparams={},
-                                decorators=[],
-                                is_name=False,
-                                is_tokn=False,
-                                no_memo=False,
-                                is_memo=True,
-                                is_lrec=False
-                              )
-                            ),
-                            Token(')')
-                          ]
-                        )
-                      ),
-                      Option(Sequence([Token('::'), Cut(), Named(name='params', exp=Call('params'))]))
-                    ]
-                  ),
-                  rule=Rule(
-                    name='paramdef',
-                    exp=Choice(
-                      [
-                        Option(
-                          Sequence(
-                            [
-                              Token('['),
-                              Cut(),
-                              RuleInclude(
-                                exp=Choice(
-                                  [
-                                    Option(Named(name='kwparams', exp=Call('kwparams'))),
-                                    Option(
-                                      Sequence(
-                                        [
-                                          Named(name='params', exp=Call('params')),
-                                          Token(','),
-                                          Cut(),
-                                          Named(name='kwparams', exp=Call('kwparams'))
-                                        ]
-                                      )
-                                    ),
-                                    Option(Named(name='params', exp=Call('params')))
-                                  ]
-                                ),
-                                rule=Rule(
-                                  name='the_params_at_last',
-                                  exp=Choice(
-                                    [
-                                      Option(Named(name='kwparams', exp=Call('kwparams'))),
-                                      Option(
-                                        Sequence(
-                                          [
-                                            Named(name='params', exp=Call('params')),
-                                            Token(','),
-                                            Cut(),
-                                            Named(name='kwparams', exp=Call('kwparams'))
-                                          ]
-                                        )
-                                      ),
-                                      Option(Named(name='params', exp=Call('params')))
-                                    ]
-                                  ),
-                                  params=(),
-                                  kwparams={},
-                                  decorators=[],
-                                  is_name=False,
-                                  is_tokn=False,
-                                  no_memo=False,
-                                  is_memo=True,
-                                  is_lrec=False
-                                )
-                              ),
-                              Token(']')
-                            ]
-                          )
-                        ),
-                        Option(
-                          Sequence(
-                            [
-                              Token('('),
-                              Cut(),
-                              RuleInclude(
-                                exp=Choice(
-                                  [
-                                    Option(Named(name='kwparams', exp=Call('kwparams'))),
-                                    Option(
-                                      Sequence(
-                                        [
-                                          Named(name='params', exp=Call('params')),
-                                          Token(','),
-                                          Cut(),
-                                          Named(name='kwparams', exp=Call('kwparams'))
-                                        ]
-                                      )
-                                    ),
-                                    Option(Named(name='params', exp=Call('params')))
-                                  ]
-                                ),
-                                rule=Rule(
-                                  name='the_params_at_last',
-                                  exp=Choice(
-                                    [
-                                      Option(Named(name='kwparams', exp=Call('kwparams'))),
-                                      Option(
-                                        Sequence(
-                                          [
-                                            Named(name='params', exp=Call('params')),
-                                            Token(','),
-                                            Cut(),
-                                            Named(name='kwparams', exp=Call('kwparams'))
-                                          ]
-                                        )
-                                      ),
-                                      Option(Named(name='params', exp=Call('params')))
-                                    ]
-                                  ),
-                                  params=(),
-                                  kwparams={},
-                                  decorators=[],
-                                  is_name=False,
-                                  is_tokn=False,
-                                  no_memo=False,
-                                  is_memo=True,
-                                  is_lrec=False
-                                )
-                              ),
-                              Token(')')
-                            ]
-                          )
-                        ),
-                        Option(Sequence([Token('::'), Cut(), Named(name='params', exp=Call('params'))]))
-                      ]
-                    ),
-                    params=(),
-                    kwparams={},
-                    decorators=[],
-                    is_name=False,
-                    is_tokn=False,
-                    no_memo=False,
-                    is_memo=True,
-                    is_lrec=False
-                  )
-                )
-              ),
+              Optional(RuleInclude('paramdef')),
               Optional(Sequence([Token('<'), Cut(), Named(name='base', exp=Call('known_name'))])),
               Void('()'),
               Pattern('=|::=|:=?'),
@@ -735,6 +389,35 @@ GRAMMAR_MODEL: Grammar = (
         ),
         Rule(
           name='ENDRULE',
+          exp=Choice(
+            [
+              Option(Pattern('(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?')),
+              Option(Call('endrule'))
+            ]
+          ),
+          params=(),
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=True,
+          no_memo=False,
+          is_memo=True,
+          is_lrec=False
+        ),
+        Rule(
+          name='endrule',
+          exp=Choice([Option(Token(';')), Option(EOF())]),
+          params=(),
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=False,
+          no_memo=False,
+          is_memo=True,
+          is_lrec=False
+        ),
+        Rule(
+          name='_ENDRULE',
           exp=Choice(
             [
               Option(Call('UNINDENTED')),
