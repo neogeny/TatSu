@@ -21,7 +21,6 @@ from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import indent, trim, typename
 from .math import ffset, kdot
 
-
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
@@ -449,14 +448,15 @@ class Grammar(Model):
 
         self.name = self._resolve_name(name)
 
+        self._set_grammar(self)
+        self._calc_lookahead_sets()
+        self._mark_left_recursion()
+
         missing: set[str] = self.missing_rules(set(self.rulemap))
         if missing:
             msg = '\n'.join(['', *sorted(missing)])
             raise GrammarError('Unknown rules, no parser generated:' + msg)
 
-        self._set_grammar(self)
-        self._calc_lookahead_sets()
-        self._mark_left_recursion()
 
     def configure(self, config: ParserConfig | None = None, **settings: Any):
         self._config.merge_config(config)
