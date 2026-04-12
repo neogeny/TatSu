@@ -134,7 +134,7 @@ def eval_escapes(s: str | bytes) -> str | bytes:
     return escape_sequence_re.sub(decode_match, s)  # type: ignore
 
 
-def trim(text: str, /, *, all: bool = False, tabwidth: int =4):
+def trim(text: str, /, *, all: bool = False, tabwidth: int = 4):
     """
     Trim text of common, leading whitespace.
 
