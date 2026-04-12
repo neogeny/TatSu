@@ -72,7 +72,12 @@ rule[Rule]:
     ENDRULE
     ~
 
-ENDRULE: UNINDENTED | EMPTYLINE [';'] | $ | ';'
+ENDRULE:
+    /(?=\s*(?:\r?\n|\r)\S)|(?:\s*(?:\r?\n|\r)){2,}[;]?/ | endrule
+
+endrule: ';' | $
+
+_ENDRULE: UNINDENTED | EMPTYLINE [';'] | $ | ';'
 
 UNINDENTED: /(?=\s*(?:\r?\n|\r)\S)/
 
