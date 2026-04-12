@@ -21,6 +21,7 @@ from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import indent, trim, typename
 from .math import ffset, kdot
 
+
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
@@ -456,7 +457,6 @@ class Grammar(Model):
         if missing:
             msg = '\n'.join(['', *sorted(missing)])
             raise GrammarError('Unknown rules, no parser generated:' + msg)
-
 
     def configure(self, config: ParserConfig | None = None, **settings: Any):
         self._config.merge_config(config)
