@@ -391,65 +391,13 @@ GRAMMAR_MODEL: Grammar = (
           name='ENDRULE',
           exp=Choice(
             [
-              Option(Pattern('(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?')),
-              Option(Call('endrule'))
-            ]
-          ),
-          params=(),
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=True,
-          no_memo=False,
-          is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='endrule',
-          exp=Choice([Option(Token(';')), Option(EOF())]),
-          params=(),
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=False,
-          no_memo=False,
-          is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='_ENDRULE',
-          exp=Choice(
-            [
-              Option(Call('UNINDENTED')),
-              Option(Sequence([Call('EMPTYLINE'), Optional(Token(';'))])),
+              Option(
+                Pattern('\\s*[;]|(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?')
+              ),
               Option(EOF()),
               Option(Token(';'))
             ]
           ),
-          params=(),
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=True,
-          no_memo=False,
-          is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='UNINDENTED',
-          exp=Pattern('(?=\\s*(?:\\r?\\n|\\r)\\S)'),
-          params=(),
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=True,
-          no_memo=False,
-          is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='EMPTYLINE',
-          exp=Pattern('(?:\\s*(?:\\r?\\n|\\r)){2,}'),
           params=(),
           kwparams={},
           decorators=[],

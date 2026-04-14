@@ -527,51 +527,13 @@ class TatSuBootstrapRules:
 
             @α.option
             def _(ctx: Ctx) -> Any:
-                ctx.pattern(r'(?=\s*(?:\r?\n|\r)\S)|(?:\s*(?:\r?\n|\r)){2,}[;]?')
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                self.endrule(ctx)
-
-    @tatsu.rule
-    def endrule(self, ctx: Ctx) -> Any:
-        with ctx.choice() as α:
-
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                ctx.token(';')
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                ctx.eofcheck()
-
-    @tatsu.rule
-    @tatsu.token
-    def _ENDRULE(self, ctx: Ctx) -> Any:
-        with ctx.choice() as α:
-
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                self.UNINDENTED(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                self.EMPTYLINE(ctx)
-                with ctx.optional():
-                    ctx.token(';')
+                ctx.pattern(r'\s*[;]|(?=\s*(?:\r?\n|\r)\S)|(?:\s*(?:\r?\n|\r)){2,}[;]?')
             @α.option
             def _(ctx: Ctx) -> Any:
                 ctx.eofcheck()
             @α.option
             def _(ctx: Ctx) -> Any:
                 ctx.token(';')
-
-    @tatsu.rule
-    @tatsu.token
-    def UNINDENTED(self, ctx: Ctx) -> Any:
-        ctx.pattern(r'(?=\s*(?:\r?\n|\r)\S)')
-
-    @tatsu.rule
-    @tatsu.token
-    def EMPTYLINE(self, ctx: Ctx) -> Any:
-        ctx.pattern(r'(?:\s*(?:\r?\n|\r)){2,}')
 
     @tatsu.rule
     def decorator(self, ctx: Ctx) -> Any:
@@ -661,10 +623,9 @@ class TatSuBootstrapRules:
             def _(ctx: Ctx) -> Any:
                 with ctx.loopplus() as cl:
                     cl.expecting(
-                      '(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?',
                       ';',
                       '<ENDRULE>',
-                      '<endrule>'
+                      '\\s*[;]|(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?'
                     )
 
                     @cl.exp

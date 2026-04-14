@@ -73,15 +73,7 @@ rule[Rule]:
     ~
 
 ENDRULE:
-    /(?=\s*(?:\r?\n|\r)\S)|(?:\s*(?:\r?\n|\r)){2,}[;]?/ | endrule
-
-endrule: ';' | $
-
-_ENDRULE: UNINDENTED | EMPTYLINE [';'] | $ | ';'
-
-UNINDENTED: /(?=\s*(?:\r?\n|\r)\S)/
-
-EMPTYLINE: /(?:\s*(?:\r?\n|\r)){2,}/
+    /\s*[;]|(?=\s*(?:\r?\n|\r)\S)|(?:\s*(?:\r?\n|\r)){2,}[;]?/ |  $ | ';'
 
 decorator: '@' !'@' ~ =('override' | 'name' | 'isname' | 'nomemo')
 
