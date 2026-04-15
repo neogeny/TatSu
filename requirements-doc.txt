@@ -50,7 +50,7 @@ mdurl==0.1.2
     # via markdown-it-py
 myst-docutils==5.0.0
 myst-parser==5.0.0
-packaging==26.0
+packaging==26.1
     # via sphinx
 pydata-sphinx-theme==0.17.0
 pygments==2.20.0

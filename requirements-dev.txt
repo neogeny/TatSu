@@ -30,7 +30,7 @@ mypy-extensions==1.1.0
     # via black
 nodejs-wheel-binaries==22.20.0
     # via basedpyright
-packaging==26.0
+packaging==26.1
     # via
     #   black
     #   build
@@ -51,12 +51,12 @@ pygments==2.20.0
     #   rich
 pyproject-hooks==1.2.0
     # via build
-pyrefly==0.60.2
+pyrefly==0.61.0
 pytest==9.0.3
     # via
     #   pytest-codspeed
     #   pytest-dependency
-pytest-codspeed==4.3.0
+pytest-codspeed==4.4.0
 pytest-dependency==0.6.1
 pytokens==0.4.1
     # via black
@@ -68,5 +68,5 @@ rich-click==1.9.7
 ruff==0.15.10
 setuptools==82.0.1
     # via pytest-dependency
-ty==0.0.29
+ty==0.0.30
 uv==0.11.6
