@@ -220,6 +220,13 @@ def to_parsermodel_sourcecode(
     return parsermodel_gen(model, name=name)
 
 
+def to_grammar_json(grammar: str) -> str:
+    from tatsu.parser.bootparser import TatSuBootstrapParser
+    parser = TatSuBootstrapParser()
+    model = parser.parse(grammar)
+    return model.asjson()
+
+
 # for backwards compatibility. Use `compile()` instead
 def genmodel(
     *,

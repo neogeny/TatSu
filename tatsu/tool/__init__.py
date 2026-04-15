@@ -4,6 +4,7 @@ from .api import (
     gencode,
     genmodel,
     parse,
+    to_grammar_json,
     to_python_model,
     to_python_sourcecode,
 )
@@ -19,4 +20,5 @@ __all__ = [
     'parse',
     'to_python_model',
     'to_python_sourcecode',
+    'to_grammar_json',
 ]
