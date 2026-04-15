@@ -527,7 +527,7 @@ class TatSuBootstrapRules:
 
             @α.option
             def _(ctx: Ctx) -> Any:
-                ctx.pattern(r'\s*[;]|(?=\s*(?:\r?\n|\r)\S)|(?:\s*(?:\r?\n|\r)){2,}[;]?')
+                ctx.pattern(r'\s*[;]|(?=\s*(?:\r?\n|\r)\S)|(?:\s*(?:\r?\n|\r)){2,}[;]?|[\s\t\r\n]*$')
             @α.option
             def _(ctx: Ctx) -> Any:
                 ctx.eofcheck()
@@ -625,7 +625,12 @@ class TatSuBootstrapRules:
                     cl.expecting(
                       ';',
                       '<ENDRULE>',
-                      '\\s*[;]|(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?'
+                      '\\s*[;]|(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?|[\\s\\t\\r\\n]*$',
+                      '<element>',
+                      '<named>',
+                      '<override>',
+                      '<rule_include>',
+                      '<term>'
                     )
 
                     @cl.exp

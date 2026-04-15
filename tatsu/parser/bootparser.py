@@ -392,7 +392,9 @@ GRAMMAR_MODEL: Grammar = (
           exp=Choice(
             [
               Option(
-                Pattern('\\s*[;]|(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?')
+                Pattern(
+                  '\\s*[;]|(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?|[\\s\\t\\r\\n]*$'
+                )
               ),
               Option(EOF()),
               Option(Token(';'))

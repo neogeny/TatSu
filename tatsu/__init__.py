@@ -18,7 +18,7 @@ from .objectmodel import (
     nodedataclass as dataclass,
     nodedataclass as tatsudataclass,
 )
-from .tool import (  # pylint: disable=W0622
+from .tool import (
     asmodel,
     compile,
     gencode,
@@ -26,9 +26,10 @@ from .tool import (  # pylint: disable=W0622
     parse,
     tatsu_main,
     tatsu_main as main,
+    to_grammar_json,
     to_python_model,
     to_python_sourcecode,
-)
+)  # pylint: disable=W0622
 
 
 # HACK!
