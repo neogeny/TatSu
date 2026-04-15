@@ -58,6 +58,7 @@ __all__ = [
     'main',  # some unit tests want this
     'parse',
     'tatsu_main',
+    'to_grammar_json',
     'to_python_model',
     'to_python_sourcecode',
     'version',

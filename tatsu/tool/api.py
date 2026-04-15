@@ -222,6 +222,7 @@ def to_parsermodel_sourcecode(
 
 def to_grammar_json(grammar: str) -> str:
     from tatsu.parser.bootparser import TatSuBootstrapParser
+
     parser = TatSuBootstrapParser()
     model = parser.parse(grammar)
     return model.asjson()
