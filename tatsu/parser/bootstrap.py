@@ -1036,10 +1036,10 @@ class TatSuBootstrapRules:
                 self.call(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
-                self.pattern(ctx)
+                self.dot(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
-                self.dot(ctx)
+                self.pattern(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
                 self.eof(ctx)

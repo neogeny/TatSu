@@ -174,8 +174,8 @@ atom:
     | alert
     | constant
     | call
-    | pattern
     | dot
+    | pattern
     | eof
 
 call[Call]: word

@@ -1019,8 +1019,8 @@ GRAMMAR_MODEL: Grammar = (
               Option(Call('alert')),
               Option(Call('constant')),
               Option(Call('call')),
-              Option(Call('pattern')),
               Option(Call('dot')),
+              Option(Call('pattern')),
               Option(Call('eof'))
             ]
           ),
