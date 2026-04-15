@@ -946,89 +946,7 @@
             "__class__": "Option",
             "exp": {
               "__class__": "Pattern",
-              "pattern": "\\s*[;]|(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?"
-            }
-          },
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "Call",
-              "name": "endrule"
-            }
-          }
-        ]
-      },
-      "params": [],
-      "kwparams": {},
-      "decorators": [],
-      "base": null,
-      "is_name": false,
-      "is_tokn": true,
-      "no_memo": false,
-      "is_memo": true,
-      "is_lrec": false
-    },
-    {
-      "__class__": "Rule",
-      "name": "endrule",
-      "exp": {
-        "__class__": "Choice",
-        "options": [
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "Token",
-              "token": ";"
-            }
-          },
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "EOF"
-            }
-          }
-        ]
-      },
-      "params": [],
-      "kwparams": {},
-      "decorators": [],
-      "base": null,
-      "is_name": false,
-      "is_tokn": false,
-      "no_memo": false,
-      "is_memo": true,
-      "is_lrec": false
-    },
-    {
-      "__class__": "Rule",
-      "name": "_ENDRULE",
-      "exp": {
-        "__class__": "Choice",
-        "options": [
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "Call",
-              "name": "UNINDENTED"
-            }
-          },
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "Sequence",
-              "sequence": [
-                {
-                  "__class__": "Call",
-                  "name": "EMPTYLINE"
-                },
-                {
-                  "__class__": "Optional",
-                  "exp": {
-                    "__class__": "Token",
-                    "token": ";"
-                  }
-                }
-              ]
+              "pattern": "\\s*[;]|(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?|[\\s\\t\\r\\n]*$"
             }
           },
           {
@@ -1045,40 +963,6 @@
             }
           }
         ]
-      },
-      "params": [],
-      "kwparams": {},
-      "decorators": [],
-      "base": null,
-      "is_name": false,
-      "is_tokn": true,
-      "no_memo": false,
-      "is_memo": true,
-      "is_lrec": false
-    },
-    {
-      "__class__": "Rule",
-      "name": "UNINDENTED",
-      "exp": {
-        "__class__": "Pattern",
-        "pattern": "(?=\\s*(?:\\r?\\n|\\r)\\S)"
-      },
-      "params": [],
-      "kwparams": {},
-      "decorators": [],
-      "base": null,
-      "is_name": false,
-      "is_tokn": true,
-      "no_memo": false,
-      "is_memo": true,
-      "is_lrec": false
-    },
-    {
-      "__class__": "Rule",
-      "name": "EMPTYLINE",
-      "exp": {
-        "__class__": "Pattern",
-        "pattern": "(?:\\s*(?:\\r?\\n|\\r)){2,}"
       },
       "params": [],
       "kwparams": {},
@@ -2848,14 +2732,14 @@
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
-              "name": "pattern"
+              "name": "dot"
             }
           },
           {
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
-              "name": "dot"
+              "name": "pattern"
             }
           },
           {
