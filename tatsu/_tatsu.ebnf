@@ -171,15 +171,15 @@ negative_lookahead[NegativeLookahead]: '!' ~ =term
 skip_to[SkipTo]: '->' ~ =term
 
 atom:
+    | eof
     | skip
     | group
     | token
     | alert
     | constant
-    | call
     | dot
     | pattern
-    | eof
+    | call
 
 call[Call]: word
 
@@ -217,7 +217,7 @@ literal:
     | int
     | null
 
-string: multiline_string | singlequoted | doublequoted
+string: &('"'|"'") (multiline_string | singlequoted | doublequoted)
 
 singlequoted: SINGLEQUOTED
 
@@ -251,7 +251,7 @@ pattern[Pattern]: regex
 
 regex: deprecated_regex | !'?/' ( REGEX | '?' =STRING)
 
-REGEX: ?"(?ms)/((?:[^/\\]|\\/|\\.)*)/" ~
+REGEX: &'/' ?"(?ms)/((?:[^/\\]|\\/|\\.)*)/" ~
 
 deprecated_regex: '?/' ~ =?"(?ms)((?:[^/\\]|\\/|\\.)*)" ~ '/?'
 

@@ -391,15 +391,48 @@ GRAMMAR_MODEL: Grammar = (
           name='ENDRULE',
           exp=Choice(
             [
-              Option(
-                Pattern(
-                  '\\s*[;]|(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?|[\\s\\t\\r\\n]*$'
-                )
-              ),
-              Option(EOF()),
-              Option(Token(';'))
+              Option(Call('DEDENT')),
+              Option(Call('BLANK')),
+              Option(Token(';')),
+              Option(EOF())
             ]
           ),
+          params=(),
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=True,
+          no_memo=False,
+          is_memo=True,
+          is_lrec=False
+        ),
+        Rule(
+          name='DEDENT',
+          exp=Sequence([Call('EOL'), Pattern('\\S')]),
+          params=(),
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=True,
+          no_memo=False,
+          is_memo=True,
+          is_lrec=False
+        ),
+        Rule(
+          name='BLANK',
+          exp=Sequence([Call('EOL'), Call('EOL')]),
+          params=(),
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=True,
+          no_memo=False,
+          is_memo=True,
+          is_lrec=False
+        ),
+        Rule(
+          name='EOL',
+          exp=Sequence([Pattern('(?m)[ \\t]*$'), Pattern('(?m)(?:\\r?\\n|\\r)?')]),
           params=(),
           kwparams={},
           decorators=[],
@@ -1013,15 +1046,15 @@ GRAMMAR_MODEL: Grammar = (
           name='atom',
           exp=Choice(
             [
+              Option(Call('eof')),
               Option(Call('skip')),
               Option(Call('group')),
               Option(Call('token')),
               Option(Call('alert')),
               Option(Call('constant')),
-              Option(Call('call')),
               Option(Call('dot')),
               Option(Call('pattern')),
-              Option(Call('eof'))
+              Option(Call('call'))
             ]
           ),
           params=(),
@@ -1196,11 +1229,18 @@ GRAMMAR_MODEL: Grammar = (
         ),
         Rule(
           name='string',
-          exp=Choice(
+          exp=Sequence(
             [
-              Option(Call('multiline_string')),
-              Option(Call('singlequoted')),
-              Option(Call('doublequoted'))
+              Lookahead(Group(Choice([Option(Token('"')), Option(Token("'"))]))),
+              Group(
+                Choice(
+                  [
+                    Option(Call('multiline_string')),
+                    Option(Call('singlequoted')),
+                    Option(Call('doublequoted'))
+                  ]
+                )
+              )
             ]
           ),
           params=(),
@@ -1418,7 +1458,9 @@ GRAMMAR_MODEL: Grammar = (
         ),
         Rule(
           name='REGEX',
-          exp=Sequence([Pattern('(?ms)/((?:[^/\\\\]|\\\\/|\\\\.)*)/'), Cut()]),
+          exp=Sequence(
+            [Lookahead(Token('/')), Pattern('(?ms)/((?:[^/\\\\]|\\\\/|\\\\.)*)/'), Cut()]
+          ),
           params=(),
           kwparams={},
           decorators=[],

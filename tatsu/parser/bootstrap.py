@@ -527,13 +527,34 @@ class TatSuBootstrapRules:
 
             @α.option
             def _(ctx: Ctx) -> Any:
-                ctx.pattern(r'\s*[;]|(?=\s*(?:\r?\n|\r)\S)|(?:\s*(?:\r?\n|\r)){2,}[;]?|[\s\t\r\n]*$')
+                self.DEDENT(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
-                ctx.eofcheck()
+                self.BLANK(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
                 ctx.token(';')
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                ctx.eofcheck()
+
+    @tatsu.rule
+    @tatsu.token
+    def DEDENT(self, ctx: Ctx) -> Any:
+        self.EOL(ctx)
+        ctx.pattern(r'\S')
+
+    @tatsu.rule
+    @tatsu.token
+    def BLANK(self, ctx: Ctx) -> Any:
+        self.EOL(ctx)
+        self.EOL(ctx)
+
+    @tatsu.rule
+    @tatsu.token
+    def EOL(self, ctx: Ctx) -> Any:
+        ctx.pattern(r'(?m)[ \t]*$')
+        ctx.pattern(r'(?m)(?:\r?\n|\r)?')
 
     @tatsu.rule
     def decorator(self, ctx: Ctx) -> Any:
@@ -622,16 +643,7 @@ class TatSuBootstrapRules:
             @α.option
             def _(ctx: Ctx) -> Any:
                 with ctx.loopplus() as cl:
-                    cl.expecting(
-                      ';',
-                      '<ENDRULE>',
-                      '\\s*[;]|(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?|[\\s\\t\\r\\n]*$',
-                      '<element>',
-                      '<named>',
-                      '<override>',
-                      '<rule_include>',
-                      '<term>'
-                    )
+                    cl.expecting(';', '<BLANK>', '<DEDENT>', '<ENDRULE>', '<EOL>')
 
                     @cl.exp
                     def _(ctx: Ctx) -> Any:
@@ -1018,6 +1030,9 @@ class TatSuBootstrapRules:
 
             @α.option
             def _(ctx: Ctx) -> Any:
+                self.eof(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
                 self.skip(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
@@ -1033,16 +1048,13 @@ class TatSuBootstrapRules:
                 self.constant(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
-                self.call(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
                 self.dot(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
                 self.pattern(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
-                self.eof(ctx)
+                self.call(ctx)
 
     @tatsu.rule('Call')
     def call(self, ctx: Ctx) -> Any:
@@ -1147,17 +1159,28 @@ class TatSuBootstrapRules:
 
     @tatsu.rule
     def string(self, ctx: Ctx) -> Any:
-        with ctx.choice() as α:
+        with ctx.if_():
+            with ctx.group():
+                with ctx.choice() as α:
 
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                self.multiline_string(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                self.singlequoted(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                self.doublequoted(ctx)
+                    @α.option
+                    def _(ctx: Ctx) -> Any:
+                        ctx.token('"')
+                    @α.option
+                    def _(ctx: Ctx) -> Any:
+                        ctx.token("'")
+        with ctx.group():
+            with ctx.choice() as α:
+
+                @α.option
+                def _(ctx: Ctx) -> Any:
+                    self.multiline_string(ctx)
+                @α.option
+                def _(ctx: Ctx) -> Any:
+                    self.singlequoted(ctx)
+                @α.option
+                def _(ctx: Ctx) -> Any:
+                    self.doublequoted(ctx)
 
     @tatsu.rule
     def singlequoted(self, ctx: Ctx) -> Any:
@@ -1264,6 +1287,8 @@ class TatSuBootstrapRules:
     @tatsu.rule
     @tatsu.token
     def REGEX(self, ctx: Ctx) -> Any:
+        with ctx.if_():
+            ctx.token('/')
         ctx.pattern(r'(?ms)/((?:[^/\\]|\\/|\\.)*)/')
         ctx.cut()
 
