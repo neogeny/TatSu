@@ -69,7 +69,7 @@ clobber: (clean "true")
 
 @ty:
     echo "▶ ty {{py}}"
-    {{run_test}} ty check tatsu tests examples | rg --color=always -v "All checks passed!"
+    {{run_test}} ty check tatsu tests examples | rg -q --color=always "All checks passed!" > /dev/null
 
 @mypy:
     echo "▶ mypy {{py}}"

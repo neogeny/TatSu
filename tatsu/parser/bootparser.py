@@ -102,7 +102,7 @@ GRAMMAR_MODEL: Grammar = (
                   ]
                 )
               ),
-              Eof()
+              EOF()
             ]
           ),
           params=['Grammar'],
@@ -394,7 +394,7 @@ GRAMMAR_MODEL: Grammar = (
               Option(Call('DEDENT')),
               Option(Call('BLANK')),
               Option(Token(';')),
-              Option(Eof())
+              Option(EOF())
             ]
           ),
           params=(),
@@ -1047,6 +1047,7 @@ GRAMMAR_MODEL: Grammar = (
           exp=Choice(
             [
               Option(Call('eof')),
+              Option(Call('eol')),
               Option(Call('skip')),
               Option(Call('group')),
               Option(Call('token')),
@@ -1517,7 +1518,19 @@ GRAMMAR_MODEL: Grammar = (
         Rule(
           name='eof',
           exp=Sequence([Token('$'), Cut()]),
-          params=['Eof'],
+          params=['EOF'],
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=False,
+          no_memo=False,
+          is_memo=True,
+          is_lrec=False
+        ),
+        Rule(
+          name='eol',
+          exp=Token('$->'),
+          params=['EOL'],
           kwparams={},
           decorators=[],
           is_name=False,

@@ -476,7 +476,7 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
 
     null ●─'None'─■
 
-    eof[Eof] ●─'$' ✂ ──■
+    eof[EOF] ●─'$' ✂ ──■
 
 
 .. _ANTLR: http://www.antlr.org/

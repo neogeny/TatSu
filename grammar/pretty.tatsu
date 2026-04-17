@@ -257,4 +257,4 @@ boolean[bool]: 'True' | 'False'
 
 null: 'None'
 
-eof[Eof]: '$' ~
+eof[EOF]: '$' ~

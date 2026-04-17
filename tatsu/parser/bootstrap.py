@@ -1033,6 +1033,9 @@ class TatSuBootstrapRules:
                 self.eof(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
+                self.eol(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
                 self.skip(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
@@ -1316,10 +1319,14 @@ class TatSuBootstrapRules:
     def null(self, ctx: Ctx) -> Any:
         ctx.token('None')
 
-    @tatsu.rule('Eof')
+    @tatsu.rule('EOF')
     def eof(self, ctx: Ctx) -> Any:
         ctx.token('$')
         ctx.cut()
+
+    @tatsu.rule('EOL')
+    def eol(self, ctx: Ctx) -> Any:
+        ctx.token('$->')
 
 
 def main(filename, **kwargs):

@@ -1268,7 +1268,7 @@ class TatSuBootstrapRules:
     def null(self, ctx: Ctx) -> Any:
         ctx.token('None')
 
-    @tatsu.rule('Eof')
+    @tatsu.rule('EOF')
     def eof(self, ctx: Ctx) -> Any:
         ctx.token('$')
         ctx.cut()

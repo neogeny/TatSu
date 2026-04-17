@@ -186,8 +186,8 @@ class ANTLRSemantics:
             text = ''.join(text)
         return g.Token(text)
 
-    def eof(self, _ast: AST) -> g.Eof:
-        return g.Eof()
+    def eof(self, _ast: AST) -> g.EOF:
+        return g.EOF()
 
     def token(self, ast: AST) -> g.Token | g.Void:
         name = ast.name

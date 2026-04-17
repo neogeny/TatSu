@@ -13,7 +13,6 @@ from pathlib import Path
 from .util import misc, moduletools
 from .walkers import NodeWalker
 
-
 __all__ = ['draw']
 
 
@@ -260,7 +259,7 @@ class DiagramNodeWalker(NodeWalker):
         return n, n
 
     def walk_eof(self, _v):
-        n = self.node('$Eof')
+        n = self.node('$EOF')
         return n, n
 
     def walk_lookahead(self, v):

@@ -18,7 +18,6 @@ from ..util.indent import IndentPrintMixin
 from ..walkers import NodeWalker
 from .boilerplt import FOOTER, HEADER, IMPORTS, PARSER_BODY
 
-
 GREEKTOME = "αβδεζηθικλμνξοπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"
 ANON = '_'
 
@@ -170,10 +169,10 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def walk_EOLComment(self, comment: g.EOLComment):
         self.walk_Comment(comment)
 
-    def walk_Eof(self, _eof: g.Eof):
+    def walk_EOF(self, _eof: g.EOF):
         self.print(f'{self.ctx}.eofcheck()')
 
-    def walk_Eol(self, _eof: g.Eof):
+    def walk_EOL(self, _eof: g.EOF):
         self.print(f'{self.ctx}.eolcheck()')
 
     def walk_Group(self, group: g.Group):

@@ -10,6 +10,8 @@ from ..objectmodel import nodedataclass
 from .math import ffset
 from .model import Model
 
+EOL_SYM = '$->'
+
 
 @nodedataclass
 class Dot(Model):
@@ -47,7 +49,7 @@ class EOLComment(Comment):
 
 
 @nodedataclass
-class Eof(Model):
+class EOF(Model):
     def __post_init__(self):
         super().__post_init__()
         self.ast = None
@@ -60,7 +62,7 @@ class Eof(Model):
 
 
 @nodedataclass
-class Eol(Model):
+class EOL(Model):
     def __post_init__(self):
         super().__post_init__()
         self.ast = None
@@ -69,7 +71,7 @@ class Eol(Model):
         ctx.eolcheck()
 
     def _pretty(self, lean=False):
-        return '->|'
+        return EOL_SYM
 
 
 @nodedataclass

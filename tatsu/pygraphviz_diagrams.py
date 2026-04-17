@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import itertools
 
+from ..grammars import EOL_SYM
 from .walkers import NodeWalker
-
 
 __all__ = ['draw']
 
@@ -288,9 +288,9 @@ class DiagramNodeWalker(NodeWalker):
         return (n, n)
 
     def walk__eof(self, v):
-        n = self.node('$Eof')
+        n = self.node('$EOF')
         return (n, n)
 
     def walk__eol(self, v):
-        n = self.node('->|')
+        n = self.node(EOL_SYM)
         return (n, n)
