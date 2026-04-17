@@ -65,7 +65,7 @@ clobber: (clean "true")
 
 @ruff:
     echo "▶ ruff {{py}}"
-    {{run_test}} ruff check -q --preview tatsu tests examples > /dev/null
+    {{run_test}} ruff check -q --preview tatsu tests examples
 
 @ty:
     echo "▶ ty {{py}}"
