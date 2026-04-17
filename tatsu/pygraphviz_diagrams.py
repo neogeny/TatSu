@@ -288,5 +288,9 @@ class DiagramNodeWalker(NodeWalker):
         return (n, n)
 
     def walk__eof(self, v):
-        n = self.node('$EOF')
+        n = self.node('$Eof')
+        return (n, n)
+
+    def walk__eol(self, v):
+        n = self.node('->|')
         return (n, n)

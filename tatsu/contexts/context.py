@@ -7,6 +7,7 @@ from contextlib import contextmanager, suppress
 from typing import Any
 
 from ..exceptions import (
+    FailedExpectingEndOfLine,
     FailedExpectingEndOfText,
     FailedLookahead,
     FailedParse,
@@ -102,6 +103,13 @@ class ParseContext(ParserEngine, Ctx):
             raise self.newexcept(
                 'Expecting end of text',
                 excls=FailedExpectingEndOfText,
+            )
+
+    def eolcheck(self):
+        if not self.state.cursor.matcheol():
+            raise self.newexcept(
+                'Expecting end of line',
+                excls=FailedExpectingEndOfLine,
             )
 
     _check_eof = eofcheck

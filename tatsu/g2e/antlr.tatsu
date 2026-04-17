@@ -5,7 +5,7 @@
 
 start: grammar
 
-grammar: 
+grammar:
     [('lexer' | 'parser')]
     'grammar'
     name=name
@@ -42,7 +42,7 @@ action: '@' ('lexer' | 'parser' | id) ['::' id] block
 
 block: '{' {block | /[^{}]*/} '}'
 
-rule: 
+rule:
     ['protected' | 'public' | 'private' | fragment='fragment']
     name=id
     ['!']
@@ -68,7 +68,7 @@ alternative: =elements ['->' ~ rewrite]
 
 elements: {element}
 
-element: 
+element:
     | named
     | predicate_or_action
     | optional
@@ -78,7 +78,7 @@ element:
 
 named: name=id (force_list='+=' | '=') ~ exp=atom
 
-predicate_or_action: 
+predicate_or_action:
     | syntactic_predicate
     | gated_predicate
     | semantic_predicate
@@ -98,18 +98,18 @@ closure: =atom '*' ~
 
 positive_closure: =atom '+' ~
 
-atom: 
+atom:
     =(subexp | eof | newranges | negative | regexp | terminal | non_terminal)
     ['^' | '!']
     [annotation]
 
 annotation: '<' ','.{id ['=' id]}+ '>'
 
-eof: 'EOF'
+eof: 'Eof'
 
 regexp: {charset}+
 
-charset: 
+charset:
     | charset_optional
     | charset_closure
     | charset_positive_closure
@@ -123,11 +123,11 @@ charset_positive_closure: '(' =charset ')' '+' ~
 
 charset_term: '(' =charset ')' | charset_negative_or | charset_or
 
-charset_or: 
+charset_or:
     | +=charset_range {'|' +=charset_atom}
     | +=charset_char {'|' +=charset_atom}+
 
-charset_negative_or: 
+charset_negative_or:
     '~'
     '('
     (
@@ -146,7 +146,7 @@ newranges: {negative_newrange | newrange}+
 
 newrange: '[' range=/(?:[^\]]|\\u[a-fA-F0-9]{4}|\\.)+/ ']' repeat=[/[+*?][?]?/]
 
-negative_newrange: 
+negative_newrange:
     '~'
     '['
     range=/(?:[^\]]|\\u[a-fA-F0-9]{4}|\\.)+/
@@ -187,12 +187,10 @@ char: "'" =/[^'\n\\]|\\'|\\u[a-fA-F0-9]{4}|\\./ "'"
 
 string: STRING
 
-STRING: 
+STRING:
     | '"' =/(?:[^"\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ '"'
     | "'" =/(?:[^'\n\\]|\\u[a-fA-F0-9]{4}|\\['"\\nrtbfv])+/ "'"
 
 int: /[0-9]+/
 
 ESC: /\\['"\\nrtbfv]/ | /\\u[a-fA-F0-9]{4}/
-
-

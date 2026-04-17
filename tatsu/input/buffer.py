@@ -23,6 +23,7 @@ from ..util import (
     str_from_match,
     typename,
 )
+from ..util.newlines import empty_line
 from . import LineInfo
 from .infos import LineIndexInfo, PosLine
 from .text import Cursor, Text
@@ -152,6 +153,13 @@ class BufferCursor(Cursor):
         token = str_from_match(match)
         self.move(len(matched))
         return token
+
+    def matcheol(self) -> bool:
+        eol_len = empty_line(self.textstr[self.pos :])
+        if eol_len is None:
+            return False
+        self.move(eol_len)
+        return True
 
     def lineinfo(self, pos: int | None = None) -> LineInfo:
         if pos is None:

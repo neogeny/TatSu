@@ -47,7 +47,7 @@ class EOLComment(Comment):
 
 
 @nodedataclass
-class EOF(Model):
+class Eof(Model):
     def __post_init__(self):
         super().__post_init__()
         self.ast = None
@@ -57,6 +57,19 @@ class EOF(Model):
 
     def _pretty(self, lean=False):
         return '$'
+
+
+@nodedataclass
+class Eol(Model):
+    def __post_init__(self):
+        super().__post_init__()
+        self.ast = None
+
+    def _parse(self, ctx: Ctx) -> Any:
+        ctx.eolcheck()
+
+    def _pretty(self, lean=False):
+        return '->|'
 
 
 @nodedataclass

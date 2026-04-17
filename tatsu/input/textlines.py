@@ -13,6 +13,7 @@ from ..util import (
     str_from_match,
     typename,
 )
+from ..util.newlines import empty_line
 from ..util.regextools import cached_re_compile
 from . import LineInfo
 from .infos import LineIndexInfo, PosLine
@@ -133,6 +134,13 @@ class TextLinesCursor(Cursor):
         token = str_from_match(match)
         self.move(len(matched))
         return token
+
+    def matcheol(self) -> bool:
+        eol_len = empty_line(self.textstr[self.pos :])
+        if eol_len is None:
+            return False
+        self.move(eol_len)
+        return True
 
     def is_name_char(self, c: str | None) -> bool:
         return c is not None and (c.isalnum() or c in self.input._namechar_set)

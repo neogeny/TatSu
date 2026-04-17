@@ -170,8 +170,11 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def walk_EOLComment(self, comment: g.EOLComment):
         self.walk_Comment(comment)
 
-    def walk_EOF(self, _eof: g.EOF):
+    def walk_Eof(self, _eof: g.Eof):
         self.print(f'{self.ctx}.eofcheck()')
+
+    def walk_Eol(self, _eof: g.Eof):
+        self.print(f'{self.ctx}.eolcheck()')
 
     def walk_Group(self, group: g.Group):
         self._gen_decor(Ctx.group, exp=group.exp)

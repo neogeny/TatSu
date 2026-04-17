@@ -260,7 +260,7 @@ class DiagramNodeWalker(NodeWalker):
         return n, n
 
     def walk_eof(self, _v):
-        n = self.node('$EOF')
+        n = self.node('$Eof')
         return n, n
 
     def walk_lookahead(self, v):

@@ -5,7 +5,7 @@ Grammar(
   rules=(
     Rule(
       name='start',
-      exp=Sequence([Call('expression'), EOF()]),
+      exp=Sequence([Call('expression'), Eof()]),
       params=(),
       kwparams={},
       decorators=[],

@@ -117,6 +117,10 @@ class FailedExpectingEndOfText(FailedParse):
     pass
 
 
+class FailedExpectingEndOfLine(FailedParse):
+    pass
+
+
 class KeywordError(FailedParse):
     pass
 

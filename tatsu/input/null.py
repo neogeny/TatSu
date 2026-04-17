@@ -69,6 +69,9 @@ class NullCursor(Cursor):
     def matchre(self, pattern: str) -> str | None:
         return None
 
+    def matcheol(self) -> bool:
+        return False
+
     def is_name(self, s: str) -> bool:
         return False
 

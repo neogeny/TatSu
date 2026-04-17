@@ -209,7 +209,7 @@ def test_calc_repr():
           rules=(
             Rule(
               name='start',
-              exp=Sequence([Call('expression'), EOF()]),
+              exp=Sequence([Call('expression'), Eof()]),
               params=(),
               kwparams={},
               decorators=[],

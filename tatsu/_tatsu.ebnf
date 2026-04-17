@@ -259,4 +259,6 @@ boolean[bool]: 'True' | 'False'
 
 null: 'None'
 
-eof[EOF]: '$' ~
+eof[Eof]: '$' ~
+
+eol[Eol]: '->|'

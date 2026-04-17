@@ -69,11 +69,11 @@ clobber: (clean "true")
 
 @ty:
     echo "▶ ty {{py}}"
-    {{run_test}} ty check tatsu tests examples > /dev/null
+    {{run_test}} ty check tatsu tests examples
 
 @mypy:
     echo "▶ mypy {{py}}"
-    {{run_test}} mypy tatsu tests examples --install-types --exclude "dist|parsers|backup" > /dev/null
+    {{run_test}} mypy tatsu tests examples --install-types --exclude "dist|parsers|backup"
 
 @pyright:
     echo "▶ pyright {{py}}"
@@ -81,7 +81,7 @@ clobber: (clean "true")
 
 @pyrefly:
     echo "▶ pyrefly {{py}}"
-    {{run_test}} pyrefly check tatsu tests examples 2>&1 > /dev/null
+    {{run_test}} pyrefly check tatsu tests examples 2>&1
 
 # --- Testing ---
 

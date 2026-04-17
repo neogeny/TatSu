@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .basic import EOF, Alert, Comment, Constant, Cut, Dot, EOLComment, Fail, Token
+from .basic import Alert, Comment, Constant, Cut, Dot, Eof, Eol, EOLComment, Fail, Token
 from .choice import (
     Choice,
     Option,
@@ -62,7 +62,8 @@ __all__ = [
     'Box',
     'Synth',
     'Dot',
-    'EOF',
+    'Eol',
+    'Eof',
     'EOLComment',
     'EmptyClosure',
     'Fail',

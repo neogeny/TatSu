@@ -124,8 +124,11 @@ class RailroadNodeWalker(NodeWalker):
     def walk_token(self, token: g.Token) -> Rails:
         return [f"{token.token!r}"]
 
-    def walk_eof(self, _eof: g.EOF) -> Rails:
+    def walk_eof(self, _eof: g.Eof) -> Rails:
         return [f"⇥{ETX} "]
+
+    def walk_eol(self, _eof: g.Eol) -> Rails:
+        return ["->| "]
 
     def walk_lookahead(self, la: g.Lookahead) -> Rails:
         out = weld(['─ &['], self.walk(la.exp))
