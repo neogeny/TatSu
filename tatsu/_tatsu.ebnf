@@ -72,10 +72,13 @@ rule[Rule]:
     ENDRULE
     ~
 
-ENDRULE:
-    | /\s*[;]|(?=\s*(?:\r?\n|\r)\S)|(?:\s*(?:\r?\n|\r)){2,}[;]?|[\s\t\r\n]*$/
-    | $
-    | ';'
+ENDRULE: DEDENT | BLANK | ';' | $
+
+DEDENT: EOL /\S/
+
+BLANK: EOL EOL
+
+EOL: /(?m)[ \t]*$/ /(?m)(?:\r?\n|\r)?/
 
 decorator: '@' !'@' ~ =('override' | 'name' | 'isname' | 'nomemo')
 

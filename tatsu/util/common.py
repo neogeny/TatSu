@@ -13,7 +13,7 @@ from typing import Any
 
 
 def startscript() -> str:
-    import __main__ as main  # noqa: type: ignore
+    import __main__ as main
 
     if main.__package__:
         return main.__package__
