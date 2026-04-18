@@ -51,7 +51,7 @@ pygments==2.20.0
     #   rich
 pyproject-hooks==1.2.0
     # via build
-pyrefly==0.61.0
+pyrefly==0.61.1
 pytest==9.0.3
     # via
     #   pytest-codspeed
