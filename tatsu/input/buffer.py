@@ -28,6 +28,7 @@ from . import LineInfo
 from .infos import LineIndexInfo, PosLine
 from .text import Cursor, Text
 
+
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 # for backwards compatibility with existing parsers
@@ -154,7 +155,7 @@ class BufferCursor(Cursor):
         return token
 
     def matcheol(self) -> bool:
-        eol_len = empty_line(self.textstr, self.pos)
+        eol_len = empty_line(self.textstr[self.pos :])
         if eol_len is None:
             return False
         self.move(eol_len)
