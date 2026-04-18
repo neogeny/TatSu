@@ -10,6 +10,7 @@ from ..objectmodel import nodedataclass
 from .math import ffset
 from .model import Model
 
+
 EOL_SYM = '$->'
 
 
@@ -69,6 +70,13 @@ class EOL(Model):
 
     def _parse(self, ctx: Ctx) -> Any:
         ctx.eolcheck()
+
+    @cached_property
+    def _nullable(self) -> bool:
+        return True
+
+    def _first(self, k: int, f: dict[str, ffset]) -> ffset:
+        return {('$->',)}
 
     def _pretty(self, lean=False):
         return EOL_SYM

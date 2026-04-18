@@ -1030,10 +1030,10 @@ class TatSuBootstrapRules:
 
             @α.option
             def _(ctx: Ctx) -> Any:
-                self.eof(ctx)
+                self.eol(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
-                self.eol(ctx)
+                self.eof(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
                 self.skip(ctx)

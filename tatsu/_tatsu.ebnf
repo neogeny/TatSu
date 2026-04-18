@@ -76,9 +76,10 @@ ENDRULE: DEDENT | BLANK | ';' | $
 
 DEDENT: EOL /\S/
 
-# BLANK: $-> $-> | EOL EOL
-
 BLANK: EOL EOL
+
+# BLANK: $-> $-> ;
+
 
 EOL: /(?m)[ \t]*$/ /(?m)(?:\r?\n|\r)?/
 
@@ -173,8 +174,8 @@ negative_lookahead[NegativeLookahead]: '!' ~ =term
 skip_to[SkipTo]: '->' ~ =term
 
 atom:
-    | eof
     | eol
+    | eof
     | skip
     | group
     | token

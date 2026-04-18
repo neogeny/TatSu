@@ -1046,8 +1046,8 @@ GRAMMAR_MODEL: Grammar = (
           name='atom',
           exp=Choice(
             [
-              Option(Call('eof')),
               Option(Call('eol')),
+              Option(Call('eof')),
               Option(Call('skip')),
               Option(Call('group')),
               Option(Call('token')),

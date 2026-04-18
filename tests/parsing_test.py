@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 import tatsu
+from tatsu.exceptions import FailedExpectingEndOfLine
 from tatsu.parser import TatSuBuffer
 from tatsu.util import asjson, eval_escapes, trim
 
@@ -184,3 +185,27 @@ class ParsingTests(unittest.TestCase):
         node = tatsu.parse(grammar, text, asmodel=True)
         assert type(node).__name__ == 'Test'
         assert node.parseinfo is None
+
+    def test_eol(self):
+        grammar = """
+            @@grammar :: TestEOL
+
+            start: a $-> b
+
+            a:  'a'
+
+            b: 'b'
+        """
+
+        # brak required
+        model = tatsu.compile(grammar, asmodel=True)
+        with pytest.raises(FailedExpectingEndOfLine):
+            node = model.parse('a b')
+
+        # OK
+        node = model.parse('a \nb')
+        assert node == ['a', 'b']
+
+        # OK too because \n is whitespace
+        node = model.parse('a\n \nb', asmodel=True, parseinfo=True)
+        assert node == ['a', 'b']

@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import itertools
 
-from ..grammars import EOL_SYM
+from .grammars import EOL_SYM
 from .walkers import NodeWalker
+
 
 __all__ = ['draw']
 
