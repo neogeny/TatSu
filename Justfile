@@ -57,8 +57,8 @@ clobber: (clean "true")
 
 @format:
     echo "▶ format {{py}}"
-    {{run_test}} ruff check --select I --fix tatsu tests examples scripts ng > /dev/null
-    {{run_test}} ruff format tatsu tests examples scripts ng > /dev/null
+    {{run_test}} ruff check --select I --fix tatsu tests examples scripts ng
+    {{run_test}} ruff format tatsu tests examples scripts ng
 
 @lint: format ruff ty mypy pyright pyrefly
     echo "━ lint ⏏ ━"
@@ -69,7 +69,7 @@ clobber: (clean "true")
 
 @ty:
     echo "▶ ty {{py}}"
-    {{run_test}} ty check tatsu tests examples | rg -q --color=always "All checks passed!" > /dev/null
+    {{run_test}} ty check tatsu tests examples | rg -q --color=always "All checks passed!"
 
 @mypy:
     echo "▶ mypy {{py}}"
@@ -77,7 +77,7 @@ clobber: (clean "true")
 
 @pyright:
     echo "▶ pyright {{py}}"
-    {{run_test}} basedpyright tatsu tests examples > /dev/null
+    {{run_test}} basedpyright tatsu tests examples
 
 @pyrefly:
     echo "▶ pyrefly {{py}}"
