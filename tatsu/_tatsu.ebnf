@@ -74,14 +74,9 @@ rule[Rule]:
 
 ENDRULE: DEDENT | BLANK | ';' | $
 
-DEDENT: EOL /\S/
+DEDENT: $-> /\S/
 
-BLANK: EOL EOL
-
-# BLANK: $-> $-> ;
-
-
-EOL: /(?m)[ \t]*$/ /(?m)(?:\r?\n|\r)?/
+BLANK: $->
 
 decorator: '@' !'@' ~ =('override' | 'name' | 'isname' | 'nomemo')
 
