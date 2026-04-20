@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from .basic import (
     EOF,
+    EOF_SYM,
     EOL,
     EOL_SYM,
     Alert,
@@ -62,6 +63,10 @@ from .syntax import (
 
 
 __all__ = [
+    'EOL',
+    'EOF',
+    'EOF_SYM',
+    'EOLComment',
     'EOL_SYM',
     'Alert',
     'BasedRule',
@@ -75,9 +80,6 @@ __all__ = [
     'Box',
     'Synth',
     'Dot',
-    'EOL',
-    'EOF',
-    'EOLComment',
     'EmptyClosure',
     'Fail',
     'Gather',

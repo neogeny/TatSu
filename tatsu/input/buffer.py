@@ -28,6 +28,7 @@ from . import LineInfo
 from .infos import LineIndexInfo, PosLine
 from .text import Cursor, Text
 
+
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
 # for backwards compatibility with existing parsers

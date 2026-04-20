@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 
+
 _LS = os.linesep
 _LS_LEN = len(_LS)
 

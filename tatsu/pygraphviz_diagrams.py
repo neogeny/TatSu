@@ -131,7 +131,7 @@ class DiagramNodeWalker(NodeWalker):
         return self.walk(d.exp)
 
     def walk_default(self, node):
-        pass
+        return None, None
 
     def walk__decorator(self, d):
         return self.walk(d.exp)
@@ -162,7 +162,7 @@ class DiagramNodeWalker(NodeWalker):
             self.edge(s, i)
             t = self.end_node()
             self.edge(e, t)
-            return (s, t)
+            return s, t
         finally:
             self.pop_graph()
 
@@ -171,11 +171,11 @@ class DiagramNodeWalker(NodeWalker):
 
     def walk__call(self, rr):
         n = self.ref_node(rr.name)
-        return (n, n)
+        return n, n
 
     def walk__special(self, s):
         n = self.node(s.special)
-        return (n, n)
+        return n, n
 
     def walk__override(self, o):
         return self._walk_decorator(o)
@@ -274,24 +274,24 @@ class DiagramNodeWalker(NodeWalker):
 
     def walk__pattern(self, p):
         n = self.tnode(p.pattern)
-        return (n, n)
+        return n, n
 
     def walk__token(self, t):
         n = self.tnode(t.token)
-        return (n, n)
+        return n, n
 
     def walk__void(self, v):
         n = self.dot()
-        return (n, n)
+        return n, n
 
     def walk__constant(self, t):
         n = self.tnode(f'`{t.ast}`')
-        return (n, n)
+        return n, n
 
     def walk__eof(self, v):
-        n = self.node('$EOF')
-        return (n, n)
+        n = self.node('＄')
+        return n, n
 
     def walk__eol(self, v):
         n = self.node(EOL_SYM)
-        return (n, n)
+        return n, n

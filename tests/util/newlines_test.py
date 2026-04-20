@@ -1,6 +1,12 @@
 import pytest  # noqa
 
-from tatsu.util.newlines import indent_len, take_blankline_len, take_dedent_len, take_indent_len, take_linebreak_len
+from tatsu.util.newlines import (
+    indent_len,
+    take_blankline_len,
+    take_dedent_len,
+    take_indent_len,
+    take_linebreak_len,
+)
 
 
 def test_empty_line():
