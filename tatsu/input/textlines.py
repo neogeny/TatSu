@@ -13,12 +13,11 @@ from ..util import (
     str_from_match,
     typename,
 )
-from ..util.newlines import empty_line
+from ..util.newlines import take_linebreak_len
 from ..util.regextools import cached_re_compile
 from . import LineInfo
 from .infos import LineIndexInfo, PosLine
 from .text import Cursor, Text
-
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -136,7 +135,7 @@ class TextLinesCursor(Cursor):
         return token
 
     def matcheol(self) -> bool:
-        eol_len = empty_line(self.textstr[self.pos :])
+        eol_len = take_linebreak_len(self.textstr, self.pos)
         if eol_len is None:
             return False
         self.move(eol_len)
@@ -166,7 +165,7 @@ class TextLinesCursor(Cursor):
                 text=input.textstr,
             )
 
-        # Ensure pos is within bounds for cache lookup
+        # Ensure start is within bounds for cache lookup
         # The cache has an extra entry at the end, so len - 2 is the last valid index for content
         pos = min(pos, len(input.line_cache) - 2)
         start, line, length = input.line_cache[pos]

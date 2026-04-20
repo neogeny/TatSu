@@ -3,60 +3,55 @@
 from __future__ import annotations
 
 
-def empty_line(text: str, pos: int = 0) -> int | None:
+def take_linebreak_len(text: str, start: int = 0) -> int | None:
     """Matches a whitespace-only line or EOT without slicing."""
-    if pos >= len(text):
+    if start >= len(text):
         return 0
+    text = text[start:]
 
-    nl_pos = text.find('\n', pos)
-
-    if nl_pos == -1:
-        # Check if the remainder of the string is only whitespace
-        return len(text) if text[pos:].isspace() or pos == len(text) else None
-
-    # Check the segment from 'pos' to 'nl_pos'
-    if not text[pos:nl_pos].strip():
-        return nl_pos + 1
-
+    lines = text.splitlines(True)
+    first = lines[0]
+    if not first.strip():
+        return len(first)
     return None
 
 
-def indent_len(text: str, pos: int = 0) -> int:
-    """Counts leading whitespace of the current line starting at pos."""
-    # Find end of current line
-    nl_pos = text.find('\n', pos)
-    end = nl_pos if nl_pos != -1 else len(text)
+def take_blankline_len(text: str, start: int = 0) -> int | None:
+    text = text[start:]
+    if not text:
+        return 0
+    if (off1 := take_linebreak_len(text)) is None:
+        return None
 
-    # Use lstrip on the segment (slicing here is O(line_length), which is fine)
-    line = text[pos:end]
-    return len(line) - len(line.lstrip(' \t\f\v'))
+    text = text[off1:]
+    if not text:
+        return off1
+
+    if (off2 := take_linebreak_len(text)) is None:
+        return None
+    return off1 + off2
 
 
-def indent(text: str, pos: int = 0) -> int | None:
-    """Matches a line break followed by leading indentation."""
-    offset = empty_line(text, pos)
+def indent_len(text: str, start: int = 0) -> int | None:
+    text = text[start:].splitlines(True)[0]
+    print('TEXT:', repr(text))
+    if (stripped_len := len(text.lstrip())) == 0:
+        return None  # an empty line
+    return len(text) - stripped_len
+
+
+def take_indent_len(text: str, start: int = 0) -> int | None:
+    offset = take_linebreak_len(text, start)
     if offset is None:
         return None
 
-    amount = indent_len(text, offset)
-    return amount if amount > 0 else None
+    return offset + indent_len(text[start + offset:])
 
 
-def dedent(text: str, pos: int = 0) -> int | None:
+def take_dedent_len(text: str, pos: int = 0) -> int | None:
     """Matches a line break that returns to the zero-margin."""
-    offset = empty_line(text, pos)
+    offset = take_linebreak_len(text, pos)
     if offset is None:
         return None
 
     return offset if indent_len(text, offset) == 0 else None
-
-
-def blank_line(text: str, pos: int = 0) -> int | None:
-    """Two empty line boundaries in a row."""
-    off1 = empty_line(text, pos)
-    if off1 is None:
-        return None
-
-    # Note: off1 is already the absolute position for the next call
-    off2 = empty_line(text, off1)
-    return off2  # Returns the absolute position of the end of the second line

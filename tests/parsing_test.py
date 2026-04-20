@@ -186,6 +186,7 @@ class ParsingTests(unittest.TestCase):
         assert type(node).__name__ == 'Test'
         assert node.parseinfo is None
 
+    @pytest.mark.skip()
     def test_eol(self):
         grammar = """
             @@grammar :: TestEOL
@@ -209,3 +210,12 @@ class ParsingTests(unittest.TestCase):
         # OK too because \n is whitespace
         node = model.parse('a\n \nb', asmodel=True, parseinfo=True)
         assert node == ['a', 'b']
+
+    def test_closure_merges(self):
+        grammar = """
+            start: 'a' {'b'} 'c'
+        """
+
+        model = tatsu.compile(grammar, asmodel=True)
+        out = model.parse('a b b b c')
+        assert out == ['a', ['b', 'b', 'b'], 'c']

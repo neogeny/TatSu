@@ -23,11 +23,10 @@ from ..util import (
     str_from_match,
     typename,
 )
-from ..util.newlines import empty_line
+from ..util.newlines import take_linebreak_len
 from . import LineInfo
 from .infos import LineIndexInfo, PosLine
 from .text import Cursor, Text
-
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -155,7 +154,7 @@ class BufferCursor(Cursor):
         return token
 
     def matcheol(self) -> bool:
-        eol_len = empty_line(self.textstr[self.pos :])
+        eol_len = take_linebreak_len(self.textstr, self.pos)
         if eol_len is None:
             return False
         self.move(eol_len)
