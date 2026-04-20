@@ -3,6 +3,16 @@
 
 # v5.18.1rc1
 
+- The `$->` (EOL) expression was introduced in the grammar language to match and 
+  consume the whitespace up to and including the next line break, using the 
+  Python semantics of `os.linesep`. The match interprets whitespace using the 
+  Python definition as implemented by `str.isspace()`, so beware when 
+  a particular definition of _whitespace_ is part of the language to parse.
+
+- The file extension for **TatSu** grammars is no `.ebnf`. The grammar language 
+  is, after all, an _extension_ of the most known forms of EBNF syntax. Syntax 
+  highlighters may recognize the extension 
+
 - The benchmark in `tatsu.tool.bench` was used over several large grammars and
   large input sets to evaluate parser strategies. The result is that there is a 
   1.3x performance advantage in generating a Python program versus using the
@@ -25,6 +35,10 @@
   to have a performant parser:
 
     ```python
+    import tatsu
+
+    grammartext = ...
+
     model = tatsu.compile(grammartext, asmodel=True)
     output = model.parse(input)
     ```
@@ -32,7 +46,12 @@
   still useful.
 
     ```python
-    sourcecode = to_python_model(grammartext)
+    from pathlib import Path
+    import tatsu
+
+    grammartext = ...
+
+    sourcecode = tatsu.to_python_model(grammartext)
     Path('./modelclases.py').write_text(sourcecode)
     ```
   still be useful:
