@@ -6,20 +6,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .basic import (
-    EOF,
-    EOF_SYM,
-    EOL,
-    EOL_SYM,
-    Alert,
-    Comment,
-    Constant,
-    Cut,
-    Dot,
-    EOLComment,
-    Fail,
-    Token,
-)
+from .basic import (Alert, Comment, Constant, Cut, Dot, EOF, EOF_SYM, EOL, EOLComment, EOL_SYM, Fail, Token)
 from .choice import (
     Choice,
     Option,
@@ -35,17 +22,7 @@ from .closure import (
 )
 from .deprecated import LeftJoin, RightJoin
 from .math import _ref, ref
-from .model import (
-    NULL,
-    Box,
-    Grammar,
-    Model,
-    ModelContext,
-    Rule,
-    Synth,
-    Void,
-    model_classes,
-)
+from .model import (Box, Grammar, Model, ModelContext, NULL, Rule, Synth, Void, model_classes)
 from .named import Named, NamedList, Override, OverrideList
 from .pattern import Pattern
 from .rulelike import BasedRule, RuleInclude
@@ -61,13 +38,12 @@ from .syntax import (
     SkipTo,
 )
 
-
 __all__ = [
     'EOL',
     'EOF',
     'EOF_SYM',
     'EOLComment',
-    'EOL_SYM',
+        'EOL_SYM',
     'Alert',
     'BasedRule',
     'Call',

@@ -26,7 +26,7 @@ docutils==0.22.4
     #   sphinx
     #   sphinx-markdown-builder
     #   sphinx-rtd-theme
-idna==3.11
+idna==3.12
     # via requests
 imagesize==2.0.0
     # via sphinx
@@ -52,7 +52,7 @@ myst-docutils==5.0.0
 myst-parser==5.0.0
 packaging==26.1
     # via sphinx
-pydata-sphinx-theme==0.17.0
+pydata-sphinx-theme==0.17.1
 pygments==2.20.0
     # via
     #   accessible-pygments
