@@ -22,7 +22,6 @@ from ..objectmodel.builder import (
 from ..parser import TatSuParserGenerator
 from ..util import hasha
 
-
 __all__ = [
     'compile',
     'gencode',
@@ -96,7 +95,7 @@ def compile(
     return model
 
 
-def asmodel(
+def compile_to_parser(
     grammar: str | Text,
     name: str | None = None,
     *,

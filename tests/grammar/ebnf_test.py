@@ -24,7 +24,7 @@ def test_parse_ebnf():
         number := /\d+/
     """
 
-    model = tatsu.asmodel(grammar)
+    model = tatsu.compile_to_parser(grammar)
     assert isinstance(model, g.Grammar)
 
 
@@ -35,7 +35,7 @@ def test_optional():
         other := 'xyz'?
     """
 
-    model = tatsu.asmodel(grammar)
+    model = tatsu.compile_to_parser(grammar)
     exp = model.rulemap['start'].exp
     assert isinstance(exp, g.Sequence)
     assert repr(exp.sequence) == "[Token('['), Pattern('abc')]"

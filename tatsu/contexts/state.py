@@ -131,7 +131,7 @@ class ParseStateStack:
         self.state_stack: list[ParseState] = [ParseState(cursor)]
         self.ruleinfo_stack: list[RuleInfo] = []
 
-    def clone(self) -> Self:
+    def _clone(self) -> Self:
         new = type(self)(self.state.cursor)
         new.state_stack = self.state_stack[:]
         new.ruleinfo_stack = self.ruleinfo_stack[:]

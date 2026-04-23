@@ -98,7 +98,7 @@ def test_builder_subclassing():
         start::A::B::C = $ ;
     """
 
-    model = tatsu.asmodel(grammar)
+    model = tatsu.compile_to_parser(grammar)
     model.parse('')
 
     print(f'{registry=}')
