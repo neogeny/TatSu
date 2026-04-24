@@ -28,8 +28,9 @@ from .tool import (
     tatsu_main as main,
     to_grammar_json,
     to_python_model,
-    to_python_sourcecode
+    to_python_sourcecode,
 )  # pylint: disable=W0622
+
 
 # HACK!
 # NOTE: this is for backwrds compatibility with legacy generated parsers

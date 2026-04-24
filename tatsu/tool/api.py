@@ -22,6 +22,7 @@ from ..objectmodel.builder import (
 from ..parser import TatSuParserGenerator
 from ..util import hasha
 
+
 __all__ = [
     'compile',
     'gencode',

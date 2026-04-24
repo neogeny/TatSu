@@ -6,9 +6,10 @@ from .api import (
     parse,
     to_grammar_json,
     to_python_model,
-    to_python_sourcecode
+    to_python_sourcecode,
 )
 from .cli import tatsu_main
+
 
 __all__ = [
     'compile_to_parser',
