@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from os import linesep
 
+
 LS_LEN = len(linesep)
+
 
 def take_non_newline_whitespace_len(text: str, start: int = 0) -> int:
     if start >= len(text):
@@ -14,11 +16,12 @@ def take_non_newline_whitespace_len(text: str, start: int = 0) -> int:
     while i < len(text):
         c = text[i]
         # beware of multi-character os.linesep
-        if  not c.isspace() or text.startswith(linesep, i):
+        if not c.isspace() or text.startswith(linesep, i):
             break
         i += 1
 
     return i - start
+
 
 def take_linebreak_len(text: str, start: int = 0) -> int | None:
     """Matches a whitespace-only line or EOT without slicing."""

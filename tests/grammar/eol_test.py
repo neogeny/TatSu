@@ -13,17 +13,17 @@ def test_basic_eol():
         start = 'hello' $-> 'world' ;
     """
     model = compile(grammar)
-    ast = model.parse(f'hello\nworld')
+    ast = model.parse('hello\nworld')
     assert ast == ['hello', 'world']
 
-    ast = model.parse(f'hello  \nworld')
+    ast = model.parse('hello  \nworld')
     assert ast == ['hello', 'world']
 
     with pytest.raises(FailedParse):
         model.parse('hello world')  # No line break
 
     with pytest.raises(FailedParse):
-        model.parse(f'helloX\nworld')  # Non-whitespace before EOL
+        model.parse('helloX\nworld')  # Non-whitespace before EOL
 
 
 def test_eol_at_end_of_text():
@@ -31,10 +31,10 @@ def test_eol_at_end_of_text():
         start = 'hello' $-> $ ;
     """
     model = compile(grammar)
-    ast = model.parse(f'hello\n')
+    ast = model.parse('hello\n')
     assert ast == 'hello'
 
-    ast = model.parse(f'hello  \n')
+    ast = model.parse('hello  \n')
     assert ast == 'hello'
 
     with pytest.raises(FailedParse):
@@ -46,10 +46,10 @@ def test_multiple_eols():
         start = 'line1' $-> 'line2' $-> 'line3' ;
     """
     model = compile(grammar)
-    ast = model.parse(f'line1\nline2\nline3')
+    ast = model.parse('line1\nline2\nline3')
     assert ast == ['line1', 'line2', 'line3']
 
-    ast = model.parse(f'line1  \nline2\n  line3')
+    ast = model.parse('line1  \nline2\n  line3')
     assert ast == ['line1', 'line2', 'line3']
 
 
@@ -58,10 +58,10 @@ def test_eol_with_indentation():
         start = 'start' $-> 'indented' $-> 'end' ;
     """
     model = compile(grammar)
-    ast = model.parse(f'start\n  indented\nend')
+    ast = model.parse('start\n  indented\nend')
     assert ast == ['start', 'indented', 'end']
 
-    model.parse(f'start\nindented\nend')  # Missing indentation
+    model.parse('start\nindented\nend')  # Missing indentation
     assert ast == ['start', 'indented', 'end']
 
 
@@ -71,31 +71,37 @@ def test_eol_in_closure():
         item = 'item' ;
     """
     model = compile(grammar)
-    ast = model.parse(f'item\nitem\nend')
+    ast = model.parse('item\nitem\nend')
     assert ast == [['item', 'item'], 'end']
 
-    ast = model.parse(f'item  \nitem\nend')
+    ast = model.parse('item  \nitem\nend')
     assert ast == [['item', 'item'], 'end']
 
     ast = model.parse('end')
     assert ast == [[], 'end']
 
-@pytest.mark.skip()
+
 def test_eol_with_comments():
     grammar = r"""
+        @@eol_comments :: /(?m)#.*$/
         start = 'hello' $-> 'world' ;
     """
     model = compile(grammar)
-    ast = model.parse(f'hello # comment\nworld')
+
+    ast = model.parse('hello # comment\nworld')
     assert ast == ['hello', 'world']
 
-    model.parse(f'hello   # another comment\n\nworld')
+    ast = model.parse("""
+        hello   # another comment
+
+        world
+        """)
     assert ast == ['hello', 'world']
 
-    model.parse(f'hello # comment\n# another comment\nworld')
+    ast = model.parse('hello # comment\n# another comment\nworld')
     assert ast == ['hello', 'world']
 
-    ast = model.parse(f'hello \n  # another comment\n\nworld')
+    ast = model.parse('hello \n  # another comment\n\nworld')
     assert ast == ['hello', 'world']
 
 
@@ -105,15 +111,15 @@ def test_eol_with_mixed_whitespace():
     """
     model = compile(grammar)
     # Test with spaces and tabs
-    ast = model.parse(f'start \t \nnext')
+    ast = model.parse('start \t \nnext')
     assert ast == ['start', 'next']
 
     # Test with only spaces
-    ast = model.parse(f'start   \nnext')
+    ast = model.parse('start   \nnext')
     assert ast == ['start', 'next']
 
     # Test with only tabs
-    ast = model.parse(f'start\t\nnext')
+    ast = model.parse('start\t\nnext')
     assert ast == ['start', 'next']
 
 
@@ -122,7 +128,7 @@ def test_eol_no_whitespace_before_linebreak():
         start = 'start' $-> 'next' ;
     """
     model = compile(grammar)
-    ast = model.parse(f'start\nnext')
+    ast = model.parse('start\nnext')
     assert ast == ['start', 'next']
 
 
@@ -132,7 +138,7 @@ def test_eol_followed_by_non_whitespace():
     """
     model = compile(grammar)
     with pytest.raises(FailedParse):
-        model.parse(f'startX\nnext')
+        model.parse('startX\nnext')
 
 
 def test_eol_followed_by_non_linebreak():
@@ -149,6 +155,7 @@ def test_eol_followed_by_non_linebreak():
 # to focus on the $-> behavior within a rule definition context.
 # This assumes that the problem is with the $-> expression itself
 # and not other parts of the tatsu.ebnf grammar.
+
 
 # Simplified grammar that mimics the structure of ENDRULE
 # ENDRULE in tatsu.ebnf is defined as:
@@ -185,7 +192,7 @@ def test_eol_in_tatsu_ebnf_endrule():
     """
     model_complex = compile(grammar_complex_endrule)
 
-    ast = model_complex.parse(f'rule_name some_definition \nnext_rule')
+    ast = model_complex.parse('rule_name some_definition \nnext_rule')
     assert ast == ['rule_name', 'some_definition', 'next_rule']
 
     ast = model_complex.parse('rule_name some_definition ; next_rule')
