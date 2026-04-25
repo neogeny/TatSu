@@ -387,12 +387,7 @@ semantic action. For example:
     boolean_option: name ['=' (boolean|`true`) ]
 
 
-If the text evaluates to a Python literal (with ``ast.literal_eval()``), that
-will be the returned value. Otherwise, string interpolation in the style of
-``str.format()`` over the names in the current `AST`_ is applied for
-*constant* elements. Occurrences of the ``{`` character must be escaped to
-``\{`` if they are not intended for interpolation. A *constant* expression
-that hast type ``str`` is evaluated using:
+If the text evaluates to a Python literal (with ``ast.literal_eval()``), that will be the returned value. Otherwise, string interpolation in the style of ``str.format()`` over the names in the current `AST`_ is applied for *constant* elements. Occurrences of the ``{`` character must be escaped to ``\{`` if they are not intended for interpolation. A *constant* expression that hast type ``str`` is evaluated using:
 
 .. code:: python
     :force:
@@ -566,6 +561,18 @@ tokens are of no interest.
 
 The *end of text* symbol. Verify that the end of the input text has
 been reached.
+
+``$->``
+^^^^^^^
+
+The *end of line* symbol. Verify that the end of the current line has
+been reached. This is useful for parsing line-based formats, such as
+configuration files, or for parsing comments.
+
+The ``$->`` (EOL) expression will consume the whitespace up to and including the next line break, using the Python semantics of ``os.linesep``. The match interprets whitespace using the Python definition as implemented by ``str .isspace()``, so beware when a particular definition of *whitespace* is part of the language being parsed.
+
+Comments, as defined for the grammar, will also be skipped by the ``$->`` expression in search of a newline, which means that newlines consummed by the comments patterns will not be *"seen"* by ``$->``.
+
 
 Deprecated Expressions
 ~~~~~~~~~~~~~~~~~~~~~~

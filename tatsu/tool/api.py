@@ -96,7 +96,7 @@ def compile(
     return model
 
 
-def asmodel(
+def compile_to_parser(
     grammar: str | Text,
     name: str | None = None,
     *,

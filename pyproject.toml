@@ -252,18 +252,18 @@ select = [
 ]
 
 ignore = [
-#    "F401", # `XYZ` imported but unused
+    #    "F401", # `XYZ` imported but unused
     "COM812", #  Trailing comma missing"
     "COM819", #  Trailing comma prohibited
     "E501", #    line-too-long
     "E402", #    module-import-not-at-top-of-file
     "I001", #    Import block is un-sorted or un-formatted
-#    "FURB145".  # Prefer `copy` method over slicing"
+    #    "FURB145".  # Prefer `copy` method over slicing"
     "FURB189", #  subclassing str
     "PERF203", #  try-except within loop
     "PGH003",
     "PLR0914", # Too many local variables (17/15)"
-    "PGH004",  # Use specific rule codes when using `noqa`
+    "PGH004", # Use specific rule codes when using `noqa`
     "PLC0415", # import-outside-top-level
     "PLC2401", # non-ascci in identifier
     "PLR6301", # no-self-use
@@ -287,6 +287,8 @@ ignore = [
     "S301", #    suspicious-pickle-usage
     "S106", #    possible password
     "S403", #    insecure modules
+    "S603", # `subprocess` call: check for execution of untrusted input
+    "S607", # Starting a process with a partial executable path
     "SIM108", #  use ternary instead of if-else
     "SIM114", #  if-with-same-arms
     "TRY003", #  raise-vanilla-args

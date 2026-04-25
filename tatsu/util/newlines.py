@@ -2,10 +2,25 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import os
+from os import linesep
 
-_LS = os.linesep
-_LS_LEN = len(_LS)
+
+LS_LEN = len(linesep)
+
+
+def take_non_newline_whitespace_len(text: str, start: int = 0) -> int:
+    if start >= len(text):
+        return 0
+
+    i = start
+    while i < len(text):
+        c = text[i]
+        # beware of multi-character os.linesep
+        if not c.isspace() or text.startswith(linesep, i):
+            break
+        i += 1
+
+    return i - start
 
 
 def take_linebreak_len(text: str, start: int = 0) -> int | None:
@@ -14,7 +29,7 @@ def take_linebreak_len(text: str, start: int = 0) -> int | None:
     if start >= n:
         return 0
 
-    newline_pos = text.find(_LS, start)
+    newline_pos = text.find(linesep, start)
     # The segment to check is from start to newline_pos (exclusive) or to end of text
     end_of_line = newline_pos if newline_pos != -1 else n
 
@@ -24,7 +39,7 @@ def take_linebreak_len(text: str, start: int = 0) -> int | None:
             return None
 
     if newline_pos != -1:
-        return newline_pos - start + _LS_LEN
+        return newline_pos - start + LS_LEN
     return n - start
 
 
@@ -49,9 +64,9 @@ def indent_len(text: str, start: int = 0) -> int | None:
     if start >= n:
         return None
 
-    newline_pos = text.find(_LS, start)
+    newline_pos = text.find(linesep, start)
     # Original behavior included the newline in the lstrip() check, so we search up to it
-    search_limit = newline_pos + _LS_LEN if newline_pos != -1 else n
+    search_limit = newline_pos + LS_LEN if newline_pos != -1 else n
 
     for i in range(start, search_limit):
         if not text[i].isspace():

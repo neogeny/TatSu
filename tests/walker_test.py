@@ -29,7 +29,7 @@ def test_walk_node_ast():
         number::int = /\d+/;
     """
 
-    parser = tatsu.asmodel(grammar)
+    parser = tatsu.compile_to_parser(grammar)
     model = parser.parse('Seq(1,1)')
     assert isinstance(model, Node)
     assert model.ast is not None

@@ -19,8 +19,8 @@ from .objectmodel import (
     nodedataclass as tatsudataclass,
 )
 from .tool import (
-    asmodel,
     compile,
+    compile_to_parser,
     gencode,
     genmodel,
     parse,
@@ -50,7 +50,7 @@ sys.modules.update(  # noqa: RUF067
 __all__ = [
     '__toolname__',
     '__version__',
-    'asmodel',
+    'compile_to_parser',
     'builder',
     'compile',
     'gencode',

@@ -11,7 +11,8 @@ from .math import ffset
 from .model import Model
 
 
-EOL_SYM = '$->'
+EOF_SYM = '$'
+EOL_SYM = '⏎'
 
 
 @nodedataclass

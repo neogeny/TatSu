@@ -13,11 +13,12 @@ from ..util import (
     str_from_match,
     typename,
 )
-from ..util.newlines import take_linebreak_len
+from ..util.newlines import take_linebreak_len, take_non_newline_whitespace_len
 from ..util.regextools import cached_re_compile
 from . import LineInfo
 from .infos import LineIndexInfo, PosLine
 from .text import Cursor, Text
+
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -99,6 +100,26 @@ class TextLinesCursor(Cursor):
                 self.eat_whitespace()
             self.eat_comments()
 
+    def eat_spaces_no_newlines(self):
+        p = None
+        while self.pos != p:
+            p = self.pos
+            self.pos += take_non_newline_whitespace_len(self.textstr, self.pos)
+            if self.eat_eol_comments():
+                self.pos += take_non_newline_whitespace_len(self.textstr, self.pos)
+            self.eat_comments()
+
+    def matcheol(self) -> bool:
+        mark = self.pos
+        self.eat_spaces_no_newlines()
+        eol_len = take_linebreak_len(self.textstr, self.pos)
+        if eol_len is None:
+            self.pos = mark
+            return False
+        self.move(eol_len)
+        self.eat_spaces_no_newlines()
+        return True
+
     def match(self, token: str) -> str | None:
         if not token:
             return None
@@ -133,13 +154,6 @@ class TextLinesCursor(Cursor):
         token = str_from_match(match)
         self.move(len(matched))
         return token
-
-    def matcheol(self) -> bool:
-        eol_len = take_linebreak_len(self.textstr, self.pos)
-        if eol_len is None:
-            return False
-        self.move(eol_len)
-        return True
 
     def is_name_char(self, c: str | None) -> bool:
         return c is not None and (c.isalnum() or c in self.input._namechar_set)

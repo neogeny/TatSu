@@ -117,7 +117,7 @@ def test_children():
             ;
     """
 
-    parser = tatsu.asmodel(grammar)
+    parser = tatsu.compile_to_parser(grammar)
     assert parser
     model = parser.parse('3 + 5 * ( 10 - 20 )')
     assert isinstance(model, AST)
@@ -360,7 +360,7 @@ def test_calc_repr():
         )
     """
 
-    model = tatsu.asmodel(calc_grammar)
+    model = tatsu.compile_to_parser(calc_grammar)
     modelrepr = trim(repr(model)).rstrip()
 
     # HACK FIXME
