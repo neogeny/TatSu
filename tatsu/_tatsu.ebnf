@@ -76,7 +76,7 @@ ENDRULE: DEDENT | BLANK | ';' | $
 
 DEDENT: $-> /\S/
 
-BLANK: $->
+BLANK: $-> $->
 
 decorator: '@' !'@' ~ =('override' | 'name' | 'isname' | 'nomemo')
 
