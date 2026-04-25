@@ -23,11 +23,10 @@ from ..util import (
     str_from_match,
     typename,
 )
-from ..util.newlines import take_linebreak_len
+from ..util.newlines import take_linebreak_len, take_non_newline_whitespace_len
 from . import LineInfo
 from .infos import LineIndexInfo, PosLine
 from .text import Cursor, Text
-
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
 
@@ -154,11 +153,24 @@ class BufferCursor(Cursor):
         self.move(len(matched))
         return token
 
+    def eat_spaces_no_newlines(self):
+        p = None
+        while self.pos != p:
+            p = self.pos
+            self.move(take_non_newline_whitespace_len(self.textstr, self.pos))
+            if self.eat_eol_comments():
+                self.move(take_non_newline_whitespace_len(self.textstr, self.pos))
+            self.eat_comments()
+
     def matcheol(self) -> bool:
+        mark = self.pos
+        self.eat_spaces_no_newlines()
         eol_len = take_linebreak_len(self.textstr, self.pos)
         if eol_len is None:
+            self.pos = mark
             return False
         self.move(eol_len)
+        self.eat_spaces_no_newlines()
         return True
 
     def lineinfo(self, pos: int | None = None) -> LineInfo:
