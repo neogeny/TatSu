@@ -5,7 +5,7 @@ basedpyright==1.39.3
 black==26.3.1
 cffi==2.0.0
     # via pytest-codspeed
-click==8.3.2
+click==8.3.3
     # via black
 colorama==0.4.6
     # via
@@ -25,19 +25,19 @@ markdown-it-py==4.0.0
     # via rich
 mdurl==0.1.2
     # via markdown-it-py
-mypy==1.20.1
+mypy==1.20.2
 mypy-extensions==1.1.0
     # via
     #   black
     #   mypy
 nodejs-wheel-binaries==22.20.0
     # via basedpyright
-packaging==26.1
+packaging==26.2
     # via
     #   black
     #   pytest
     #   pytest-rerunfailures
-pathspec==1.0.4
+pathspec==1.1.0
     # via
     #   black
     #   mypy
@@ -71,7 +71,7 @@ pytokens==0.4.1
     # via black
 rich==15.0.0
     # via pytest-codspeed
-ruff==0.15.11
+ruff==0.15.12
 setuptools==82.0.1
     # via pytest-dependency
 ty==0.0.32
@@ -85,4 +85,4 @@ types-pygments==2.20.0.20260408
 types-pyyaml==6.0.12.20260408
 typing-extensions==4.15.0
     # via mypy
-zuban==0.7.0
+zuban==0.7.1

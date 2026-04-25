@@ -4,10 +4,10 @@
 asciitree==0.3.3
 basedpyright==1.39.3
 black==26.3.1
-build==1.4.3
+build==1.4.4
 cffi==2.0.0
     # via pytest-codspeed
-click==8.3.2
+click==8.3.3
     # via
     #   black
     #   rich-click
@@ -30,12 +30,12 @@ mypy-extensions==1.1.0
     # via black
 nodejs-wheel-binaries==22.20.0
     # via basedpyright
-packaging==26.1
+packaging==26.2
     # via
     #   black
     #   build
     #   pytest
-pathspec==1.0.4
+pathspec==1.1.0
     # via black
 platformdirs==4.9.6
     # via black
@@ -65,7 +65,7 @@ rich==15.0.0
     #   pytest-codspeed
     #   rich-click
 rich-click==1.9.7
-ruff==0.15.11
+ruff==0.15.12
 setuptools==82.0.1
     # via pytest-dependency
 ty==0.0.32
