@@ -567,6 +567,16 @@ tokens are of no interest.
 The *end of text* symbol. Verify that the end of the input text has
 been reached.
 
+``$->``
+^^^^^^^
+
+The *end of line* symbol. Verify that the end of the current line has
+been reached. This is useful for parsing line-based formats, such as
+configuration files, or for parsing comments.
+
+The ``$->`` (EOL) expression will consume the whitespace up to and including the next line break, using the Python semantics of ``os.linesep``. The match interprets whitespace using the Python definition as implemented by ``str.isspace()``, so beware when a particular definition of *whitespace* is part of the language to is part of the language to parse.
+
+
 Deprecated Expressions
 ~~~~~~~~~~~~~~~~~~~~~~
 
