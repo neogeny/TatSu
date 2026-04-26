@@ -58,6 +58,7 @@ dev = [
     "rich>=14.3.3",
     "rich-click>=1.9.7",
     "ruff>=0.15.6",
+    "tiexiu",
     "ty>=0.0.23",
     "uv>=0.10.10",
 ]
@@ -356,6 +357,9 @@ project-excludes = [
 python-version = "3.12.0"
 
 [tool.pyrefly.errors]
+
+[tool.uv.sources]
+tiexiu = { path = "../tiexiu" }
 # missing-attribute = "ignore"
 # untyped-import = "ignore"
 # missing-import = "ignore"
