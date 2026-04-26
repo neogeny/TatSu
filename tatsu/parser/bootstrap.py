@@ -1036,6 +1036,9 @@ class TatSuBootstrapRules:
                 self.call(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
+                self.dot(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
                 self.pattern(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
@@ -1055,9 +1058,6 @@ class TatSuBootstrapRules:
             @α.option
             def _(ctx: Ctx) -> Any:
                 self.constant(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                self.dot(ctx)
 
     @tatsu.rule('Call')
     def call(self, ctx: Ctx) -> Any:

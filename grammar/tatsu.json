@@ -1374,14 +1374,14 @@
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
-              "name": "rule_include"
+              "name": "named"
             }
           },
           {
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
-              "name": "named"
+              "name": "term"
             }
           },
           {
@@ -1395,7 +1395,7 @@
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
-              "name": "term"
+              "name": "rule_include"
             }
           }
         ]
@@ -1713,13 +1713,6 @@
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
-              "name": "void"
-            }
-          },
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "Call",
               "name": "gather"
             }
           },
@@ -1776,6 +1769,20 @@
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
+              "name": "atom"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "void"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
               "name": "skip_to"
             }
           },
@@ -1805,13 +1812,6 @@
             "exp": {
               "__class__": "Call",
               "name": "cut_deprecated"
-            }
-          },
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "Call",
-              "name": "atom"
             }
           }
         ]
@@ -2789,6 +2789,13 @@
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
+              "name": "dot"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
               "name": "pattern"
             }
           },
@@ -2832,13 +2839,6 @@
             "exp": {
               "__class__": "Call",
               "name": "constant"
-            }
-          },
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "Call",
-              "name": "dot"
             }
           }
         ]

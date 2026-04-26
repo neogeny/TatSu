@@ -1048,14 +1048,14 @@ GRAMMAR_MODEL: Grammar = (
             [
               Option(Call('token')),
               Option(Call('call')),
+              Option(Call('dot')),
               Option(Call('pattern')),
               Option(Call('group')),
               Option(Call('eol')),
               Option(Call('eof')),
               Option(Call('skip')),
               Option(Call('alert')),
-              Option(Call('constant')),
-              Option(Call('dot'))
+              Option(Call('constant'))
             ]
           ),
           params=(),

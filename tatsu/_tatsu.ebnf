@@ -176,6 +176,7 @@ skip_to[SkipTo]: '->' ~ =term
 atom:
     | token
     | call
+    | dot
     | pattern
     | group
     | eol
@@ -183,7 +184,6 @@ atom:
     | skip
     | alert
     | constant
-    | dot
 
 call[Call]: word
 
