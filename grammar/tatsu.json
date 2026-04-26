@@ -945,14 +945,15 @@
           {
             "__class__": "Option",
             "exp": {
-              "__class__": "Pattern",
-              "pattern": "\\s*[;]|(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?|[\\s\\t\\r\\n]*$"
+              "__class__": "Call",
+              "name": "DEDENT"
             }
           },
           {
             "__class__": "Option",
             "exp": {
-              "__class__": "EOF"
+              "__class__": "Call",
+              "name": "BLANK"
             }
           },
           {
@@ -961,6 +962,90 @@
               "__class__": "Token",
               "token": ";"
             }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "EOF"
+            }
+          }
+        ]
+      },
+      "params": [],
+      "kwparams": {},
+      "decorators": [],
+      "base": null,
+      "is_name": false,
+      "is_tokn": true,
+      "no_memo": false,
+      "is_memo": true,
+      "is_lrec": false
+    },
+    {
+      "__class__": "Rule",
+      "name": "DEDENT",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Call",
+            "name": "EOL"
+          },
+          {
+            "__class__": "Pattern",
+            "pattern": "\\S"
+          }
+        ]
+      },
+      "params": [],
+      "kwparams": {},
+      "decorators": [],
+      "base": null,
+      "is_name": false,
+      "is_tokn": true,
+      "no_memo": false,
+      "is_memo": true,
+      "is_lrec": false
+    },
+    {
+      "__class__": "Rule",
+      "name": "BLANK",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Call",
+            "name": "EOL"
+          },
+          {
+            "__class__": "Call",
+            "name": "EOL"
+          }
+        ]
+      },
+      "params": [],
+      "kwparams": {},
+      "decorators": [],
+      "base": null,
+      "is_name": false,
+      "is_tokn": true,
+      "no_memo": false,
+      "is_memo": true,
+      "is_lrec": false
+    },
+    {
+      "__class__": "Rule",
+      "name": "EOL",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Pattern",
+            "pattern": "(?m)[ \\t]*$"
+          },
+          {
+            "__class__": "Pattern",
+            "pattern": "(?m)(?:\\r?\\n|\\r)?"
           }
         ]
       },
@@ -2690,7 +2775,21 @@
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
-              "name": "skip"
+              "name": "token"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "call"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "pattern"
             }
           },
           {
@@ -2704,7 +2803,21 @@
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
-              "name": "token"
+              "name": "eol"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "eof"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "skip"
             }
           },
           {
@@ -2725,28 +2838,7 @@
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
-              "name": "call"
-            }
-          },
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "Call",
               "name": "dot"
-            }
-          },
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "Call",
-              "name": "pattern"
-            }
-          },
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "Call",
-              "name": "eof"
             }
           }
         ]
@@ -3150,27 +3242,60 @@
       "__class__": "Rule",
       "name": "string",
       "exp": {
-        "__class__": "Choice",
-        "options": [
+        "__class__": "Sequence",
+        "sequence": [
           {
-            "__class__": "Option",
+            "__class__": "Lookahead",
             "exp": {
-              "__class__": "Call",
-              "name": "multiline_string"
+              "__class__": "Group",
+              "exp": {
+                "__class__": "Choice",
+                "options": [
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "Token",
+                      "token": "\""
+                    }
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "Token",
+                      "token": "'"
+                    }
+                  }
+                ]
+              }
             }
           },
           {
-            "__class__": "Option",
+            "__class__": "Group",
             "exp": {
-              "__class__": "Call",
-              "name": "singlequoted"
-            }
-          },
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "Call",
-              "name": "doublequoted"
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "multiline_string"
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "singlequoted"
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "doublequoted"
+                  }
+                }
+              ]
             }
           }
         ]
@@ -3227,7 +3352,7 @@
         "sequence": [
           {
             "__class__": "Pattern",
-            "pattern": "r"
+            "pattern": "r(?=[\"'])"
           },
           {
             "__class__": "Override",
@@ -3582,6 +3707,13 @@
         "__class__": "Sequence",
         "sequence": [
           {
+            "__class__": "Lookahead",
+            "exp": {
+              "__class__": "Token",
+              "token": "/"
+            }
+          },
+          {
             "__class__": "Pattern",
             "pattern": "(?ms)/((?:[^/\\\\]|\\\\/|\\\\.)*)/"
           },
@@ -3707,6 +3839,25 @@
       },
       "params": [
         "EOF"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "base": null,
+      "is_name": false,
+      "is_tokn": false,
+      "no_memo": false,
+      "is_memo": true,
+      "is_lrec": false
+    },
+    {
+      "__class__": "Rule",
+      "name": "eol",
+      "exp": {
+        "__class__": "Token",
+        "token": "$->"
+      },
+      "params": [
+        "EOL"
       ],
       "kwparams": {},
       "decorators": [],
