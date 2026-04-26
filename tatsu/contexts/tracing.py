@@ -6,10 +6,9 @@ from typing import Any, Protocol
 
 from ..config import ParserConfig
 from ..exceptions import FailedLeftRecursion
-from ..input import Cursor
 from ..util import color, info
 from ..util.unicode_characters import C_CUT, C_ENTRY, C_FAILURE, C_RECURSION, C_SUCCESS
-from .infos import RuleInfo
+from .ctx import Ctx
 
 
 class EventColor(color.Color):
@@ -24,44 +23,36 @@ class EventColor(color.Color):
 C = EventColor()
 
 
-class EventTracer(Protocol):
+class Tracer(Protocol):
     def trace(self, msg: str, *args: Any, **kwargs: Any) -> None: ...
 
-    def trace_event(self, cursor: Cursor, event: str) -> None: ...
+    def trace_event(self, ctx: Ctx, event: str) -> None: ...
 
-    def trace_entry(self, cursor: Cursor) -> None: ...
+    def trace_entry(self, ctx: Ctx) -> None: ...
 
-    def trace_success(self, cursor: Cursor) -> None: ...
+    def trace_success(self, ctx: Ctx) -> None: ...
 
-    def trace_failure(self, cursor: Cursor, ex: Exception | None = None) -> None: ...
+    def trace_failure(self, ctx, ex: Exception | None = None) -> None: ...
 
-    def trace_recursion(self, cursor: Cursor) -> None: ...
+    def trace_recursion(self, ctx: Ctx) -> None: ...
 
-    def trace_cut(self, cursor: Cursor) -> None: ...
+    def trace_cut(self, ctx: Ctx) -> None: ...
 
     def trace_match(
-        self,
-        cursor: Cursor,
-        token: Any,
-        name: str | None = None,
-        failed: bool = False,
+        self, ctx: Ctx, token: Any, name: str | None = None, failed: bool = False
     ) -> None: ...
 
-    def rulestack(self) -> str: ...
+    def rulestack(self, ctx: Ctx) -> str: ...
 
 
-class InfoEventTracer(EventTracer):
+class ConsoleTracer(Tracer):
     def __init__(
         self,
-        ruleinfos: list[RuleInfo],
         *,
         config: ParserConfig | None = None,
         **settings: Any,
     ) -> None:
         self.config = ParserConfig.new(config, **settings)
-
-        # NOTE: not copying / sharing same list with caller
-        self.ruleinfos = ruleinfos
 
         if self.config.colorize:
             color.init()
@@ -74,13 +65,11 @@ class InfoEventTracer(EventTracer):
 
         info(msg, *args, **kwargs)
 
-    def trace_event(
-        self,
-        cursor: Cursor,
-        event: str,
-    ) -> None:
+    def trace_event(self, ctx: Ctx, event: str) -> None:
         if not self.config.trace:
             return
+
+        cursor = ctx.cursor
 
         source = ''
         if self.config.trace_filename:
@@ -89,43 +78,43 @@ class InfoEventTracer(EventTracer):
             source += '\n'
 
         lookahead = cursor.lookahead().rstrip()
-        lookahead = '\n' + lookahead if lookahead else ''
+        # lookahead = '\n' + lookahead if lookahead else ''
+
+        pos = cursor.lookahead_pos()
 
         message = (
-            f'{event}{self.rulestack()}'
+            f'{event}{self.rulestack(ctx)}'
             f' {C.DIM}{source}'
-            f'{cursor.lookahead_pos()}{C.RESET}'
-            f'{C.RESET_ALL}{lookahead}{C.RESET_ALL}'
+            # f'{C.RESET}'
+            f'\n{pos}->{C.RESET_ALL}{lookahead}{C.RESET_ALL}'
         )
         self.trace(message)
 
-    def trace_entry(self, cursor: Cursor) -> None:
-        self.trace_event(cursor, f'{C.ENTRY}')
+    def trace_entry(self, ctx: Ctx) -> None:
+        self.trace_event(ctx, f'{C.ENTRY}')
 
-    def trace_success(self, cursor: Cursor) -> None:
-        self.trace_event(cursor, f'{C.SUCCESS}')
+    def trace_success(self, ctx: Ctx) -> None:
+        self.trace_event(ctx, f'{C.SUCCESS}')
 
-    def trace_failure(self, cursor: Cursor, ex: Exception | None = None) -> None:
+    def trace_failure(self, ctx: Ctx, ex: Exception | None = None) -> None:
         if isinstance(ex, FailedLeftRecursion):
-            self.trace_recursion(cursor)
+            self.trace_recursion(ctx)
         else:
-            self.trace_event(cursor, f'{C.FAILURE}')
+            self.trace_event(ctx, f'{C.FAILURE}')
 
-    def trace_recursion(self, cursor: Cursor) -> None:
-        self.trace_event(cursor, f'{C.RECURSION}')
+    def trace_recursion(self, ctx: Ctx) -> None:
+        self.trace_event(ctx, f'{C.RECURSION}')
 
-    def trace_cut(self, cursor: Cursor) -> None:
-        self.trace_event(cursor, f'{C.CUT}')
+    def trace_cut(self, ctx: Ctx) -> None:
+        self.trace_event(ctx, f'{C.CUT}')
 
     def trace_match(
-        self,
-        cursor: Cursor,
-        token: Any,
-        name: str | None = None,
-        failed: bool = False,
+        self, ctx: Ctx, token: Any, name: str | None = None, failed: bool = False
     ) -> None:
         if not self.config.trace:
             return
+
+        cursor = ctx.cursor
 
         name_str = f'/{name}/' if name else ''
         if self.config.trace_filename:
@@ -146,8 +135,9 @@ class InfoEventTracer(EventTracer):
         )
         self.trace(message)
 
-    def rulestack(self) -> str:
-        rulestack = [r.name for r in reversed(self.ruleinfos)]
+    def rulestack(self, ctx: Ctx) -> str:
+        ruleinfos = ctx.callstack
+        rulestack = [f'{r.name}' for r in reversed(ruleinfos)]
         stack = self.config.trace_separator.join(rulestack)
         if (
             max((len(s) for s in stack.splitlines()), default=0)
@@ -159,36 +149,32 @@ class InfoEventTracer(EventTracer):
         return stack
 
 
-class NullEventTracer(EventTracer):
+class NullTracer(Tracer):
     def trace(self, msg: str, *args: Any, **kwargs: Any) -> None:
         pass
 
-    def trace_event(self, cursor: Cursor, event: str) -> None:
+    def trace_event(self, ctx: Ctx, event: str) -> None:
         pass
 
-    def trace_entry(self, cursor: Cursor) -> None:
+    def trace_entry(self, ctx: Ctx) -> None:
         pass
 
-    def trace_success(self, cursor: Cursor) -> None:
+    def trace_success(self, ctx: Ctx) -> None:
         pass
 
-    def trace_failure(self, cursor: Cursor, ex: Exception | None = None) -> None:
+    def trace_failure(self, ctx: Ctx, ex: Exception | None = None) -> None:
         pass
 
-    def trace_recursion(self, cursor: Cursor) -> None:
+    def trace_recursion(self, ctx: Ctx) -> None:
         pass
 
-    def trace_cut(self, cursor: Cursor) -> None:
+    def trace_cut(self, ctx: Ctx) -> None:
         pass
 
     def trace_match(
-        self,
-        cursor: Cursor,
-        token: Any,
-        name: str | None = None,
-        failed: bool = False,
+        self, ctx: Ctx, token: Any, name: str | None = None, failed: bool = False
     ) -> None:
         pass
 
-    def rulestack(self) -> str:
+    def rulestack(self, ctx) -> str:
         return ""

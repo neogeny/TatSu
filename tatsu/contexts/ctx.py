@@ -6,7 +6,7 @@ from collections.abc import Callable
 from typing import Any, Protocol, runtime_checkable
 
 from ..exceptions import FailedParse
-from ..input import Text
+from ..input import Cursor, Text
 from .ast import AST
 from .infos import RuleInfo
 from .state import ParseState, ParseStateStack
@@ -42,6 +42,11 @@ class Ctx(CanParse, Protocol):
     @property
     def state(self) -> ParseState: ...
     def statescope(self, merge: bool = True) -> Any: ...
+
+    @property
+    def cursor(self) -> Cursor: ...
+    @property
+    def callstack(self) -> list[RuleInfo]: ...
 
     def newexcept(
         self,
