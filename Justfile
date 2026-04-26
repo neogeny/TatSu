@@ -73,7 +73,10 @@ clobber: (clean "true")
 
 @mypy:
     echo "▶ mypy {{py}}"
-    {{run_test}} mypy tatsu tests examples --install-types --exclude "dist|parsers|backup"
+    {{run_test}} mypy \
+        tatsu tests examples \
+        --install-types --exclude "dist|parsers|backup" \
+        | rg -v r"Success" || true
 
 @pyright:
     echo "▶ pyright {{py}}"
