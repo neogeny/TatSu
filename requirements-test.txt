@@ -37,7 +37,7 @@ packaging==26.2
     #   black
     #   pytest
     #   pytest-rerunfailures
-pathspec==1.1.0
+pathspec==1.1.1
     # via
     #   black
     #   mypy

@@ -36,7 +36,7 @@ packaging==26.2
     #   black
     #   build
     #   pytest
-pathspec==1.1.0
+pathspec==1.1.1
     # via black
 platformdirs==4.9.6
     # via black
@@ -70,4 +70,4 @@ ruff==0.15.12
 setuptools==82.0.1
     # via pytest-dependency
 ty==0.0.32
-uv==0.11.7
+uv==0.11.8
