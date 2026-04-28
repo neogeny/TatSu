@@ -56,7 +56,7 @@ pytest==9.0.3
     # via
     #   pytest-codspeed
     #   pytest-dependency
-pytest-codspeed==4.4.0
+pytest-codspeed==4.5.0
 pytest-dependency==0.6.1
 pytokens==0.4.1
     # via black
@@ -68,6 +68,6 @@ rich-click==1.9.7
 ruff==0.15.12
 setuptools==82.0.1
     # via pytest-dependency
-tiexiu==0.1.1a7
+tiexiu==0.1.1a8
 ty==0.0.33
 uv==0.11.8

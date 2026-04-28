@@ -62,7 +62,7 @@ pytest==9.0.3
     #   pytest-dependency
     #   pytest-rerunfailures
     #   pytest-xdist
-pytest-codspeed==4.4.0
+pytest-codspeed==4.5.0
 pytest-cov==7.1.0
 pytest-dependency==0.6.1
 pytest-rerunfailures==16.1
