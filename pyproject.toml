@@ -23,8 +23,8 @@ classifiers = [
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
-    "Programming Language :: Python :: 3.15",
+#    "Programming Language :: Python :: 3.14",
+#    "Programming Language :: Python :: 3.15",
     "Topic :: Software Development :: Compilers",
     "Topic :: Text Processing :: General",
 ]
@@ -58,7 +58,7 @@ dev = [
     "rich>=14.3.3",
     "rich-click>=1.9.7",
     "ruff>=0.15.6",
-    "tiexiu",
+    "tiexiu>=0.1.1a6",
     "ty>=0.0.23",
     "uv>=0.10.10",
 ]
@@ -357,9 +357,6 @@ project-excludes = [
 python-version = "3.12.0"
 
 [tool.pyrefly.errors]
-
-[tool.uv.sources]
-tiexiu = { path = "../tiexiu" }
 # missing-attribute = "ignore"
 # untyped-import = "ignore"
 # missing-import = "ignore"
