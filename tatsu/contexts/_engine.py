@@ -86,7 +86,7 @@ class ParserEngine(ParserCore, CanParse):
             self._active_config = self._config
             self.update_tracer()
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
-                self.config.semantics.set_context(None)
+                self.config.semantics.set_context(None)  # ty: ignore[call-non-callable]
 
     def call(self, ri: RuleInfo) -> Any:
         self.callstack.append(ri)
