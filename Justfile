@@ -55,8 +55,8 @@ clobber: (clean "true")
 
 # --- Linting & Formatting ---
 
-@format:
-    echo "▶ format {{py}}"
+@fmt:
+    echo "▶ fmt {{py}}"
     {{run_test}} ruff check \
         --select I --fix \
         tatsu tests examples scripts ng \
@@ -65,7 +65,7 @@ clobber: (clean "true")
     {{run_test}} ruff format tatsu tests examples scripts ng \
         | grep -v "checks passed|left unchanged" | cat
 
-@lint: format ruff ty mypy pyright pyrefly
+@lint: fmt ruff ty mypy pyright pyrefly
     echo "━ lint ⏏ ━"
 
 @ruff:
