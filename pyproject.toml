@@ -85,7 +85,6 @@ test = [
     "types-psutil>=7.2.2.20260130",
     "types-pygments>=2.19.0.20251121",
     "types-pyyaml>=6.0.12.20250915",
-    "zuban>=0.6.2",
 ]
 doc = [
     "docutils>=0.22.4",
