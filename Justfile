@@ -57,8 +57,13 @@ clobber: (clean "true")
 
 @format:
     echo "▶ format {{py}}"
-    {{run_test}} ruff check --select I --fix tatsu tests examples scripts ng
-    {{run_test}} ruff format tatsu tests examples scripts ng
+    {{run_test}} ruff check \
+        --select I --fix \
+        tatsu tests examples scripts ng \
+        | rg -v "checks passed|left unchanged" | cat
+
+    {{run_test}} ruff format tatsu tests examples scripts ng \
+        | rg -v "checks passed|left unchanged" | cat
 
 @lint: format ruff ty mypy pyright pyrefly
     echo "━ lint ⏏ ━"
@@ -80,11 +85,13 @@ clobber: (clean "true")
 
 @pyright:
     echo "▶ pyright {{py}}"
-    {{run_test}} basedpyright tatsu tests examples
+    {{run_test}} basedpyright tatsu tests examples \
+        | rg -v "^0 errors" | cat
 
 @pyrefly:
     echo "▶ pyrefly {{py}}"
-    {{run_test}} pyrefly check tatsu tests examples 2>&1
+    {{run_test}} pyrefly check tatsu tests examples 2>&1 \
+        | rg -v "INFO 0 errors" | cat
 
 # --- Testing ---
 
@@ -94,11 +101,20 @@ clobber: (clean "true")
 @pytest_fast:
     echo "▶ fast pytest {{py}}"
     mkdir -p tmp && touch tmp/__init__.py
-    {{run_test}} pytest --quiet -n auto tests/ --ignore-glob=tests/z*
+    {{run_test}} pytest \
+        --quiet -n auto  \
+        --tb=no --no-header --no-summary \
+        --ignore-glob=tests/z* \
+        tests \
+        | rg -v "^.|^$" | cat
 
 @pytest_boot:
     echo "▶ boot pytest {{py}}"
-    {{run_test}} pytest --quiet tests/z_bootstrap_test.py
+    {{run_test}} pytest \
+        --quiet \
+        --tb=no --no-header --no-summary \
+        tests/z_bootstrap_test.py \
+        | rg -v "^." | cat
 
 # --- Documentation & Examples ---
 
