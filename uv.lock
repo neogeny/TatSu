@@ -1782,14 +1782,14 @@ wheels = [
 
 [[package]]
 name = "tiexiu"
-version = "0.1.1a9"
+version = "0.1.1a10"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/6d/82/ec5a460f7e261231c245719cc90020ef8da3566db1b68bb3db04bad14f78/tiexiu-0.1.1a9.tar.gz", hash = "sha256:6eb7e2498b6b146c381d2ae20e1cce2dc392da8a0b181c6b9654bf88d3878e0c", size = 588430, upload-time = "2026-04-28T17:59:03.568Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/57/d4/e78b4dc78950d5bd6edf8ed92cdb14f8d28758f5d9f6350bdacaa415cbab/tiexiu-0.1.1a10.tar.gz", hash = "sha256:d8727cbe3c936f119325374d1d04bdc92cae96bc1e6561f26c1cfcf06c1b75ff", size = 588461, upload-time = "2026-04-28T18:20:49.114Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e2/04/73a0d348272462b1e8bcc4b91b4b14fa911d0bea86651abae48a0b7c9350/tiexiu-0.1.1a9-cp312-abi3-macosx_10_12_x86_64.whl", hash = "sha256:ff0ce8f1bcab5910dbfc8d3070f27f02ce7642984c8bfa4b4390d4535f3881f8", size = 2325458, upload-time = "2026-04-28T17:58:56.69Z" },
-    { url = "https://files.pythonhosted.org/packages/2b/8a/8204ab8c0c7ca8023fba9187f78946fb02e48ebb1f503e99f7332c8fb8be/tiexiu-0.1.1a9-cp312-abi3-macosx_11_0_arm64.whl", hash = "sha256:4e650cf1ab86c0be30b233f00d7a50bbc7da9d861b6a25e0dbb4ead7f5185113", size = 2263762, upload-time = "2026-04-28T17:58:58.583Z" },
-    { url = "https://files.pythonhosted.org/packages/27/b0/4eeb8a26bc85aded216ceb7adf75c19b9b84707dc8fe357fa3e5f4597e01/tiexiu-0.1.1a9-cp312-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:da52f91ea385f02bd9f3787e07eddf9ee991d7f3205f014e52d71506add2272d", size = 1366817, upload-time = "2026-04-28T17:59:00.297Z" },
-    { url = "https://files.pythonhosted.org/packages/af/60/e753de7909e4525368ec55b663e0018bcdb422ef015b09285f5b0bda22c9/tiexiu-0.1.1a9-cp312-abi3-win_amd64.whl", hash = "sha256:93044c95424b89049e6f81cb5c12ae11834b4b83852f19e2e8341b9e678420c4", size = 1256780, upload-time = "2026-04-28T17:59:01.866Z" },
+    { url = "https://files.pythonhosted.org/packages/42/8f/c16f24f57f50a17b60ecfce8f928bf3502d3cb2391e4bdca9fdf0568fc33/tiexiu-0.1.1a10-cp312-abi3-macosx_10_12_x86_64.whl", hash = "sha256:493d8c6cba2acc7d53ca400fb7dc0577934f657b8e80850f2fe2be93563ac80e", size = 2325822, upload-time = "2026-04-28T18:20:41.922Z" },
+    { url = "https://files.pythonhosted.org/packages/97/85/f104d81c131ee5fe3109bb067ef2094bdbbb31bc7abee7fb358a7fcb4469/tiexiu-0.1.1a10-cp312-abi3-macosx_11_0_arm64.whl", hash = "sha256:c2146188268a3545f55b74af0e07d01e2fc2c1f5e1e7d7ccc6d254736dd26703", size = 2263127, upload-time = "2026-04-28T18:20:43.928Z" },
+    { url = "https://files.pythonhosted.org/packages/09/c9/1e95eefbdacfe2892876ce1d2c5ba7318abe2261ec565cad32fdf0e92f24/tiexiu-0.1.1a10-cp312-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:46353194467c852ce9c89a9b1123a8a4a7bcda2650eb875c86f869b4b7e5a37f", size = 1365116, upload-time = "2026-04-28T18:20:45.807Z" },
+    { url = "https://files.pythonhosted.org/packages/4f/c9/f6eb4bffe41fda4112dab5d76228c291e8a1da36f7a6db42c391df096de2/tiexiu-0.1.1a10-cp312-abi3-win_amd64.whl", hash = "sha256:854a8f75d1a422712e55978f7932f81fdc28132a795237b3a919a794b8b0464c", size = 1257768, upload-time = "2026-04-28T18:20:47.442Z" },
 ]
 
 [[package]]
