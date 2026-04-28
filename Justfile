@@ -100,7 +100,6 @@ clobber: (clean "true")
 
 @pytest_fast:
     echo "▶ fast pytest {{py}}"
-    mkdir -p tmp && touch tmp/__init__.py
     {{run_test}} pytest \
         --quiet -n auto  \
         --tb=no --no-header --no-summary \
