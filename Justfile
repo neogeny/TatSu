@@ -2,7 +2,7 @@
 shell := "xonsh"
 set shell := [shell, "-c"]
 
-py := "3.15"
+py := "3.14"
 
 # Macro-like expansions for consistent uv flag placement
 run_test := "uv run --quiet --python " + py + " --group test "
