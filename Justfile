@@ -60,10 +60,10 @@ clobber: (clean "true")
     {{run_test}} ruff check \
         --select I --fix \
         tatsu tests examples scripts ng \
-        | rg -v "checks passed|left unchanged" | cat
+        | grep -v "checks passed|left unchanged" | cat
 
     {{run_test}} ruff format tatsu tests examples scripts ng \
-        | rg -v "checks passed|left unchanged" | cat
+        | grep -v "checks passed|left unchanged" | cat
 
 @lint: format ruff ty mypy pyright pyrefly
     echo "━ lint ⏏ ━"
@@ -74,24 +74,24 @@ clobber: (clean "true")
 
 @ty:
     echo "▶ ty {{py}}"
-    {{run_test}} ty check tatsu tests examples | rg --color=always -v r"Checking|All checks passed!" || true
+    {{run_test}} ty check tatsu tests examples | grep --color=always -v r"Checking|All checks passed!" || true
 
 @mypy:
     echo "▶ mypy {{py}}"
     {{run_test}} mypy \
         tatsu tests examples \
         --install-types --exclude "dist|parsers|backup" \
-        | rg -v r"Success" || true
+        | grep -v r"Success" || true
 
 @pyright:
     echo "▶ pyright {{py}}"
     {{run_test}} basedpyright tatsu tests examples \
-        | rg -v "^0 errors" | cat
+        | grep -v "^0 errors" | cat
 
 @pyrefly:
     echo "▶ pyrefly {{py}}"
     {{run_test}} pyrefly check tatsu tests examples 2>&1 \
-        | rg -v "INFO 0 errors" | cat
+        | grep -v "INFO 0 errors" | cat
 
 # --- Testing ---
 
@@ -106,7 +106,7 @@ clobber: (clean "true")
         --tb=no --no-header --no-summary \
         --ignore-glob=tests/z* \
         tests \
-        | rg -v "^.|^$" | cat
+        | grep -v "^.|^$" | cat
 
 @pytest_boot:
     echo "▶ boot pytest {{py}}"
@@ -114,7 +114,7 @@ clobber: (clean "true")
         --quiet \
         --tb=no --no-header --no-summary \
         tests/z_bootstrap_test.py \
-        | rg -v "^." | cat
+        | grep -v "^." | cat
 
 # --- Documentation & Examples ---
 
