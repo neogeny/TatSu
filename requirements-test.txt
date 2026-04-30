@@ -85,4 +85,3 @@ types-pygments==2.20.0.20260408
 types-pyyaml==6.0.12.20260408
 typing-extensions==4.15.0
     # via mypy
-zuban==0.7.1
