@@ -11,6 +11,11 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+try:
+    import tiexiu
+except ImportError:
+    tiexiu = None
+
 from .. import grammars
 from ..exceptions import FailedParse
 from ..parsing import Parser
@@ -25,6 +30,7 @@ class BenchmarkResult:
     typename: str
     file_count: int
     error_count: int
+    failed_files: list[str]  # Added this field
     setup_time: float
     total_parsing_time: float
     avg_parsing_time: float
@@ -83,51 +89,59 @@ def _print_run_details(title: str, result: BenchmarkResult, lbl_w: int, num_fmt:
     )
     print(
         f"{f'errors ({result.file_count} files):':<{lbl_w}}"
-        f"{num_fmt.format(result.error_count)} s"
+        f"{result.error_count}"  # Changed to simple integer display
     )
+    if result.failed_files:
+        print(f"{'failed files:':<{lbl_w}}{', '.join(result.failed_files)}")
     print(
         f"{'average parsing time:':<{lbl_w}}{num_fmt.format(result.avg_parsing_time)} s/file"
     )
     print(f"{'average speed:':<{lbl_w}}{num_fmt.format(result.avg_lines_sec)} sloc/sec")
 
 
-def print_performance_comparison(mem_sloc: float, gen_sloc: float):
-    if gen_sloc < mem_sloc:
-        slow_name = "generated"
-        factor = mem_sloc / gen_sloc
-    else:
-        slow_name = "in-memory"
-        factor = gen_sloc / mem_sloc
-    percent_extra = (factor - 1) * 100
-    print(f"The {slow_name} parser takes {factor:.2f}x time (+{percent_extra:.1f}%)")
+def print_performance_comparison(results: list[tuple[str, BenchmarkResult]]):
+    if not results:
+        return
+
+    # Sort by performance (sloc/sec) descending
+    sorted_results = sorted(results, key=lambda x: x[1].avg_lines_sec, reverse=True)
+
+    best_name, best_res = sorted_results[0]
+    print(f"\nBest performer: {best_name} ({best_res.avg_lines_sec:.2f} sloc/sec)")
+
+    for name, res in sorted_results[1:]:
+        factor = best_res.avg_lines_sec / res.avg_lines_sec if res.avg_lines_sec else float('inf')
+        percent_slower = (factor - 1) * 100
+        print(f"{best_name} is {factor:.2f}x faster than {name} (+{percent_slower:.1f}%)")
 
 
 def print_summary(
     grammar: str,
     count: int,
-    mem_run: BenchmarkResult,
-    gen_run: BenchmarkResult,
-    mode: str = 'both',
+    mem_run: BenchmarkResult | None,
+    gen_run: BenchmarkResult | None,
+    tiexiu_run: BenchmarkResult | None,
+    mode: str = 'all',
 ):
     relgrammar = Path(grammar).resolve().relative_to(Path.cwd())
     print(f"grammar: {relgrammar}")
     print(f"input files: {count}")
 
-    all_numbers = [
-        mem_run.setup_time,
-        mem_run.total_parsing_time,
-        mem_run.avg_parsing_time,
-        mem_run.avg_lines_sec,
-        gen_run.setup_time,
-        gen_run.total_parsing_time,
-        gen_run.avg_parsing_time,
-        gen_run.avg_lines_sec,
-    ]
+    all_runs = [r for r in [mem_run, gen_run, tiexiu_run] if r is not None]
+    all_numbers = []
+    for r in all_runs:
+        all_numbers.extend([
+            r.setup_time,
+            r.total_parsing_time,
+            r.avg_parsing_time,
+            r.avg_lines_sec,
+        ])
+
     int_width = max(len(str(int(abs(n)))) for n in all_numbers) if all_numbers else 0
     num_width = int_width + 3
     num_fmt = f"{{:>{num_width}.2f}}"
 
-    count_width = len(str(max(mem_run.file_count, gen_run.file_count)))
+    count_width = len(str(count))
     longest_label = f"total parsing time ({'9' * count_width} files):"
     labels = [
         "one-time setup:",
@@ -136,42 +150,48 @@ def print_summary(
         "average speed:",
         "in-memory:",
         "generated:",
+        "tiexiu:",
+        "failed files:", # Added for label width calculation
     ]
     lbl_w = max(len(lbl) for lbl in labels) + 2
 
-    if mode in {'mem', 'both'}:
+    if mem_run:
         _print_run_details("in-memory model", mem_run, lbl_w, num_fmt)
-    if mode in {'gen', 'both'}:
+    if gen_run:
         _print_run_details("generated python parser", gen_run, lbl_w, num_fmt)
+    if tiexiu_run:
+        _print_run_details("tiexiu (rust) parser", tiexiu_run, lbl_w, num_fmt)
 
-    if mode == 'both':
+    comparison_results = []
+    if mem_run:
+        comparison_results.append(("in-memory", mem_run))
+    if gen_run:
+        comparison_results.append(("generated", gen_run))
+    if tiexiu_run:
+        comparison_results.append(("tiexiu", tiexiu_run))
+
+    if len(comparison_results) > 1:
         print("\n--- comparison (average parsing time) ---")
-        mem_sloc = mem_run.avg_lines_sec
-        gen_sloc = gen_run.avg_lines_sec
-        print(f"{'in-memory:':<{lbl_w}}{num_fmt.format(mem_sloc)} sloc/sec")
-        print(f"{'generated:':<{lbl_w}}{num_fmt.format(gen_sloc)} sloc/sec")
+        for name, res in comparison_results:
+            print(f"{name + ':':<{lbl_w}}{num_fmt.format(res.avg_lines_sec)} sloc/sec")
 
-        print_performance_comparison(mem_sloc, gen_sloc)
+        print_performance_comparison(comparison_results)
 
 
 def benchmark(
     grammar: str | Path,
     filenames: Iterable[str | Path],
-    mode: str = 'both',
-) -> tuple[BenchmarkResult, BenchmarkResult]:
+    mode: str = 'all',
+) -> tuple[BenchmarkResult | None, BenchmarkResult | None, BenchmarkResult | None]:
     oldlimit = sys.getrecursionlimit()
     sys.setrecursionlimit(2**16)
     try:
         grampath = Path(grammar)
         gramsrc = grampath.read_text(encoding="utf-8")
 
+        # Memory parser setup (always needed for gramname and as baseline)
         model, memsetup = _setup_mem_parser(gramsrc)
         gramname = model.name or "Benchmark"
-        if mode in {'gen', 'both'}:
-            parser, gensetup, _ = _setup_gen_parser(gramsrc, gramname)
-            gensetup += memsetup
-        else:
-            parser, gensetup = None, 0
 
         # Pre-load data to isolate parsing logic from I/O overhead
         filepaths = [Path(f) for f in filenames]
@@ -180,9 +200,11 @@ def benchmark(
         nfiles = len(texts)
 
         # --- Loop 1: Memory Parser ---
-        memtime = 0.0
-        memerrs = 0
-        if mode in {'mem', 'both'}:
+        memrun = None
+        if mode in {'mem', 'both', 'all'}:
+            memtime = 0.0
+            memerrs = 0
+            mem_failed: list[str] = []
             for i, text in enumerate(texts):
                 pct = int((i + 1) / nfiles * 100)
                 print(f"[Mem {pct:3d}%] Benchmarking memory parser...", end="\r")
@@ -191,12 +213,27 @@ def benchmark(
                         model.parse(text, asmodel=True)
                     except FailedParse:
                         memerrs += 1
+                        mem_failed.append(str(filepaths[i]))
                     memtime += t.delta
+            memrun = BenchmarkResult(
+                typename(model),
+                file_count=nfiles,
+                error_count=memerrs,
+                failed_files=mem_failed,
+                setup_time=memsetup,
+                total_parsing_time=memtime,
+                avg_parsing_time=memtime / nfiles if nfiles else 0,
+                avg_lines_sec=totallines / memtime if memtime else 0,
+            )
 
         # --- Loop 2: Generated Parser ---
-        gentime = 0.0
-        generrs = 0
-        if mode in {'gen', 'both'} and parser is not None:
+        genrun = None
+        if mode in {'gen', 'both', 'all'}:
+            parser, gensetup, _ = _setup_gen_parser(gramsrc, gramname)
+            gensetup += memsetup  # Account for initial grammar compilation
+            gentime = 0.0
+            generrs = 0
+            gen_failed: list[str] = []
             for i, text in enumerate(texts):
                 pct = int((i + 1) / nfiles * 100)
                 print(f"[Gen {pct:3d}%] Benchmarking generated parser...", end="\r")
@@ -205,29 +242,54 @@ def benchmark(
                         parser.parse(text, asmodel=True)
                     except FailedParse:
                         generrs += 1
+                        gen_failed.append(str(filepaths[i]))
                     gentime += t.delta
+            genrun = BenchmarkResult(
+                typename(parser),
+                file_count=nfiles,
+                error_count=generrs,
+                failed_files=gen_failed,
+                setup_time=gensetup,
+                total_parsing_time=gentime,
+                avg_parsing_time=gentime / nfiles if nfiles else 0,
+                avg_lines_sec=totallines / gentime if gentime else 0,
+            )
 
-            print(" " * 75)  # Clear the status line
+        # --- Loop 3: Tiexiu Parser ---
+        tiexiu_run = None
+        if mode in {'tiexiu', 'all'} and tiexiu is not None:
+            tiexiu_time = 0.0
+            tiexiu_errs = 0
+            tiexiu_failed: list[str] = []
+            # Tiexiu setup is basically zero (it parses the grammar on every call currently)
+            # or it might have a one-time overhead for the first call
+            for i, text in enumerate(texts):
+                pct = int((i + 1) / nfiles * 100)
+                print(f"[Tie {pct:3d}%] Benchmarking tiexiu parser...", end="\r")
+                with timer() as t:
+                    try:
+                        tiexiu.parse(gramsrc, text)
+                    except ValueError as e:  # Catching ValueError for expected parsing errors
+                        tiexiu_errs += 1
+                        tiexiu_failed.append(f"{filepaths[i]} (Error: {e})")
+                    except Exception as e:  # Catching other unexpected errors
+                        tiexiu_errs += 1
+                        tiexiu_failed.append(f"{filepaths[i]} (Unexpected: {type(e).__name__}: {e})")
+                    tiexiu_time += t.delta
+            tiexiu_run = BenchmarkResult(
+                "tiexiu.parse",
+                file_count=nfiles,
+                error_count=tiexiu_errs,
+                failed_files=tiexiu_failed,
+                setup_time=0.0,
+                total_parsing_time=tiexiu_time,
+                avg_parsing_time=tiexiu_time / nfiles if nfiles else 0,
+                avg_lines_sec=totallines / tiexiu_time if tiexiu_time else 0,
+            )
 
-        memrun = BenchmarkResult(
-            typename(model),
-            file_count=nfiles,
-            error_count=memerrs,
-            setup_time=memsetup,
-            total_parsing_time=memtime,
-            avg_parsing_time=memtime / nfiles if nfiles else 0,
-            avg_lines_sec=totallines / memtime if memtime else 0,
-        )
-        genrun = BenchmarkResult(
-            typename(parser),
-            file_count=nfiles,
-            error_count=generrs,
-            setup_time=gensetup,
-            total_parsing_time=gentime,
-            avg_parsing_time=gentime / nfiles if nfiles else 0,
-            avg_lines_sec=totallines / gentime if gentime else 0,
-        )
-        return memrun, genrun
+        print(" " * 75)  # Clear the status line
+
+        return memrun, genrun, tiexiu_run
     finally:
         sys.setrecursionlimit(oldlimit)
 
@@ -236,12 +298,19 @@ def main():
     parser = argparse.ArgumentParser(description="benchmark tatsu parsing methods")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument(
+        '--all',
+        help='benchmark all types of parser (default)',
+        dest='mode',
+        action='store_const',
+        const='all',
+        default='all',
+    )
+    mode.add_argument(
         '--both',
-        help='benchmark both types of parser (default)',
+        help='benchmark both tatsu types of parser (mem and gen)',
         dest='mode',
         action='store_const',
         const='both',
-        default='both',
     )
     mode.add_argument(
         '--mem',
@@ -257,6 +326,13 @@ def main():
         action='store_const',
         const='gen',
     )
+    mode.add_argument(
+        '--tiexiu',
+        help='benchmark tiexiu parser',
+        dest='mode',
+        action='store_const',
+        const='tiexiu',
+    )
 
     parser.add_argument("grammar", type=Path, help="path to the grammar file")
     parser.add_argument(
@@ -269,15 +345,21 @@ def main():
             print(f"error: file '{p}' not found.")
             sys.exit(1)
 
+    if args.mode in {'tiexiu', 'all'} and tiexiu is None:
+        print("warning: tiexiu not found, skipping tiexiu benchmark.")
+        if args.mode == 'tiexiu':
+            sys.exit(1)
+
     try:
         grammar_path = args.grammar.resolve()
         input_paths = [p.resolve() for p in args.inputs]
-        mem_run, gen_run = benchmark(grammar_path, input_paths, mode=args.mode)
+        mem_run, gen_run, tiexiu_run = benchmark(grammar_path, input_paths, mode=args.mode)
         print_summary(
             str(args.grammar),
             len(args.inputs),
             mem_run,
             gen_run,
+            tiexiu_run,
             mode=args.mode,
         )
     except Exception as e:
