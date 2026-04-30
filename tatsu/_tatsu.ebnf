@@ -259,7 +259,7 @@ REGEX: &'/' ?"(?ms)/((?:[^/\\]|\\/|\\.)*)/" ~
 
 deprecated_regex: '?/' ~ =?"(?ms)((?:[^/\\]|\\/|\\.)*)" ~ '/?'
 
-boolean[bool]: 'True' | 'False'
+boolean: 'True' | 'False'
 
 null: 'None'
 
