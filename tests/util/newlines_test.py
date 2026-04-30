@@ -6,6 +6,7 @@ import os
 
 import pytest  # noqa
 
+
 NL = os.linesep
 LNL = len(NL)
 
