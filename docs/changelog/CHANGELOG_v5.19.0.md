@@ -1,7 +1,7 @@
 [//]: Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 [//]: SPDX-License-Identifier: BSD-4-Clause
 
-# v5.18.1rc1
+# v5.19.0
 
 - The `$->` (EOL) expression was introduced in the grammar language to match and 
   consume the whitespace up to and including the next line break, using the 
@@ -108,3 +108,12 @@
   because the markers of the analysis are already in the loaded models. A new 
   `Grammar.analyzed: bool` attribute was added to quickly check if a grammar model 
   from any source has already been analyzed.
+- Support for `#include` in grammars has been dropped. It was always a bad idea. 
+  Text-to-text preprocessing doesn't belong in the grammar in part because it 
+  doesn't apply to input sources that are not text, like that of tokenizers or
+  streams. The class `tatsu.input.buffer.Buffer` still has all the infrastrucure for 
+  supporting C-style or COBOL-style textual includes, and its definition of 
+  `BufferCursor` honors it. `Buffer` keeps track of which file was the source of
+  each line of input, something essential for good error reporting. During 
+  compilation of grammar text to a `Grammar` object, the grammar text is the
+  parser's input, so the `Cursor` semantics regarding the parsing still apply.
