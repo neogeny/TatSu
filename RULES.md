@@ -1,1 +1,1 @@
-/Users/apalala/.etc/aia/RULES.md
+../../.etc/aia/RULES.md
