@@ -25,6 +25,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -124,6 +125,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -460,6 +462,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -480,6 +483,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -567,6 +571,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -621,6 +626,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -653,6 +659,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -677,6 +684,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -748,6 +756,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -835,6 +844,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -933,6 +943,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -978,6 +989,7 @@
       "is_name": false,
       "is_tokn": true,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1004,6 +1016,7 @@
       "is_name": false,
       "is_tokn": true,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1030,6 +1043,7 @@
       "is_name": false,
       "is_tokn": true,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1056,6 +1070,7 @@
       "is_name": false,
       "is_tokn": true,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1082,40 +1097,8 @@
           {
             "__class__": "Override",
             "exp": {
-              "__class__": "Group",
-              "exp": {
-                "__class__": "Choice",
-                "options": [
-                  {
-                    "__class__": "Option",
-                    "exp": {
-                      "__class__": "Token",
-                      "token": "override"
-                    }
-                  },
-                  {
-                    "__class__": "Option",
-                    "exp": {
-                      "__class__": "Token",
-                      "token": "name"
-                    }
-                  },
-                  {
-                    "__class__": "Option",
-                    "exp": {
-                      "__class__": "Token",
-                      "token": "isname"
-                    }
-                  },
-                  {
-                    "__class__": "Option",
-                    "exp": {
-                      "__class__": "Token",
-                      "token": "nomemo"
-                    }
-                  }
-                ]
-              }
+              "__class__": "Pattern",
+              "pattern": "(override|name|isname|nomemo|nostak)\\b"
             }
           }
         ]
@@ -1127,6 +1110,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1166,6 +1150,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1198,6 +1183,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1262,6 +1248,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1281,6 +1268,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1361,6 +1349,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1407,6 +1396,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1441,6 +1431,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1473,6 +1464,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1516,6 +1508,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1559,6 +1552,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1598,6 +1592,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1632,6 +1627,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1666,6 +1662,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1700,6 +1697,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1823,6 +1821,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1871,6 +1870,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1912,6 +1912,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -1974,6 +1975,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2025,6 +2027,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2090,6 +2093,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2152,6 +2156,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2203,6 +2208,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2268,6 +2274,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2322,6 +2329,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2376,6 +2384,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2448,6 +2457,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2523,6 +2533,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2557,6 +2568,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2660,6 +2672,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2694,6 +2707,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2728,6 +2742,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2762,6 +2777,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2850,6 +2866,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2869,6 +2886,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2896,6 +2914,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2923,6 +2942,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2950,6 +2970,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -2977,6 +2998,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3002,6 +3024,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3019,6 +3042,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3091,6 +3115,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3127,6 +3152,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3161,6 +3187,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3235,6 +3262,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3307,6 +3335,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3324,6 +3353,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3341,6 +3371,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3370,6 +3401,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3402,6 +3434,7 @@
       "is_name": false,
       "is_tokn": true,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3427,6 +3460,7 @@
       "is_name": false,
       "is_tokn": true,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3452,6 +3486,7 @@
       "is_name": false,
       "is_tokn": true,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3500,6 +3535,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3517,6 +3553,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3534,6 +3571,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3551,6 +3589,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3568,6 +3607,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3585,6 +3625,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3604,6 +3645,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3623,6 +3665,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3697,6 +3740,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3729,6 +3773,7 @@
       "is_name": false,
       "is_tokn": true,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3768,6 +3813,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3793,15 +3839,14 @@
           }
         ]
       },
-      "params": [
-        "bool"
-      ],
+      "params": [],
       "kwparams": {},
       "decorators": [],
       "base": null,
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3819,6 +3864,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3846,6 +3892,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     },
@@ -3865,6 +3912,7 @@
       "is_name": false,
       "is_tokn": false,
       "no_memo": false,
+      "no_stak": false,
       "is_memo": true,
       "is_lrec": false
     }
