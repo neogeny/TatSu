@@ -11,10 +11,15 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+
+have_tiexiu: bool = False
 try:
+    # noinspection PyUnusedImports
     import tiexiu
+
+    have_tiexiu = True
 except ImportError:
-    tiexiu = None
+    pass
 
 from .. import grammars
 from ..exceptions import FailedParse
@@ -135,7 +140,6 @@ def print_summary(
     mem_run: BenchmarkResult | None,
     gen_run: BenchmarkResult | None,
     tiexiu_run: BenchmarkResult | None,
-    mode: str = 'all',
     verbose: bool = False,
 ):
     relgrammar = Path(grammar).resolve().relative_to(Path.cwd())
@@ -213,7 +217,6 @@ def benchmark(
         # Pre-load data to isolate parsing logic from I/O overhead
         filepaths = [Path(f) for f in filenames]
         texts = [try_read(p) for p in filepaths]
-        totallines = sum(countlines(t).code for t in texts)
         nfiles = len(texts)
 
         # --- Loop 1: Memory Parser ---
@@ -280,14 +283,14 @@ def benchmark(
 
         # --- Loop 3: Tiexiu Parser ---
         tiexiu_run = None
-        if mode in {'tiexiu', 'all'} and tiexiu is not None:
+        if mode in {'tiexiu', 'all'} and have_tiexiu:
             tiexiu_time = 0.0
             tiexiu_errs = 0
             lines_parsed = 0
             tiexiu_failed: list[str] = []
             # Tiexiu setup is basically zero (it parses the grammar on every call currently)
             # or it might have a one-time overhead for the first call
-            peg = tiexiu.pegapi()
+            peg = tiexiu.pegapi()  # type: ignore
             for i, text in enumerate(texts):
                 pct = int((i + 1) / nfiles * 100)
                 print(f"[Tie {pct:3d}%] Benchmarking tiexiu parser...", end="\r")
@@ -380,7 +383,7 @@ def main():
             print(f"error: file '{p}' not found.")
             sys.exit(1)
 
-    if args.mode in {'tiexiu', 'all'} and tiexiu is None:
+    if args.mode in {'tiexiu', 'all'} and have_tiexiu:
         print("warning: tiexiu not found, skipping tiexiu benchmark.")
         if args.mode == 'tiexiu':
             sys.exit(1)
@@ -397,7 +400,6 @@ def main():
             mem_run,
             gen_run,
             tiexiu_run,
-            mode=args.mode,
             verbose=args.verbose,
         )
     except Exception as e:
