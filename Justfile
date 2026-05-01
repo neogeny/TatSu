@@ -85,13 +85,11 @@ clobber: (clean "true")
 
 @pyright:
     echo "▶ pyright {{py}}"
-    {{run_test}} basedpyright tatsu tests examples \
-        | grep -v "^0 errors" | cat
+    {{run_test}} basedpyright tatsu tests examples
 
 @pyrefly:
     echo "▶ pyrefly {{py}}"
-    {{run_test}} pyrefly check tatsu tests examples 2>&1 \
-        | grep -v "INFO 0 errors" | cat
+    {{run_test}} pyrefly check tatsu tests examples
 
 # --- Testing ---
 
