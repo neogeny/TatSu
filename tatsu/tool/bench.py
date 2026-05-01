@@ -29,6 +29,7 @@ from ..util.timetools import timer
 class BenchmarkResult:
     typename: str
     file_count: int
+    lines_parsed: int
     error_count: int
     failed_files: list[str]  # Added this field
     setup_time: float
@@ -79,7 +80,13 @@ def _setup_gen_parser(
     return parser, gen_time, parser_path
 
 
-def _print_run_details(title: str, result: BenchmarkResult, lbl_w: int, num_fmt: str):
+def _print_run_details(
+    title: str,
+    result: BenchmarkResult,
+    lbl_w: int,
+    num_fmt: str,
+    verbose: bool,
+):
     print(f"\n--- {title} ---")
     print(f"typename: {result.typename}")
     print(f"{'one-time setup:':<{lbl_w}}{num_fmt.format(result.setup_time)} s")
@@ -87,11 +94,12 @@ def _print_run_details(title: str, result: BenchmarkResult, lbl_w: int, num_fmt:
         f"{f'total parsing time ({result.file_count} files):':<{lbl_w}}"
         f"{num_fmt.format(result.total_parsing_time)} s"
     )
+    err_pct = 100 * result.error_count / result.file_count
     print(
-        f"{f'errors ({result.file_count} files):':<{lbl_w}}"
-        f"{result.error_count}"  # Changed to simple integer display
+        f"{f'errors ({result.error_count}/{result.file_count} files):':<{lbl_w}}"
+        f"{num_fmt.format(err_pct)} %"
     )
-    if result.failed_files:
+    if verbose and result.failed_files:
         print(f"{'failed files:':<{lbl_w}}{', '.join(result.failed_files)}")
     print(
         f"{'average parsing time:':<{lbl_w}}{num_fmt.format(result.avg_parsing_time)} s/file"
@@ -110,9 +118,15 @@ def print_performance_comparison(results: list[tuple[str, BenchmarkResult]]):
     print(f"\nBest performer: {best_name} ({best_res.avg_lines_sec:.2f} sloc/sec)")
 
     for name, res in sorted_results[1:]:
-        factor = best_res.avg_lines_sec / res.avg_lines_sec if res.avg_lines_sec else float('inf')
+        factor = (
+            best_res.avg_lines_sec / res.avg_lines_sec
+            if res.avg_lines_sec
+            else float('inf')
+        )
         percent_slower = (factor - 1) * 100
-        print(f"{best_name} is {factor:.2f}x faster than {name} (+{percent_slower:.1f}%)")
+        print(
+            f"{best_name} is {factor:.2f}x faster than {name} (+{percent_slower:.1f}%)"
+        )
 
 
 def print_summary(
@@ -122,6 +136,7 @@ def print_summary(
     gen_run: BenchmarkResult | None,
     tiexiu_run: BenchmarkResult | None,
     mode: str = 'all',
+    verbose: bool = False,
 ):
     relgrammar = Path(grammar).resolve().relative_to(Path.cwd())
     print(f"grammar: {relgrammar}")
@@ -130,12 +145,14 @@ def print_summary(
     all_runs = [r for r in [mem_run, gen_run, tiexiu_run] if r is not None]
     all_numbers = []
     for r in all_runs:
-        all_numbers.extend([
-            r.setup_time,
-            r.total_parsing_time,
-            r.avg_parsing_time,
-            r.avg_lines_sec,
-        ])
+        all_numbers.extend(
+            [
+                r.setup_time,
+                r.total_parsing_time,
+                r.avg_parsing_time,
+                r.avg_lines_sec,
+            ]
+        )
 
     int_width = max(len(str(int(abs(n)))) for n in all_numbers) if all_numbers else 0
     num_width = int_width + 3
@@ -151,16 +168,16 @@ def print_summary(
         "in-memory:",
         "generated:",
         "tiexiu:",
-        "failed files:", # Added for label width calculation
+        "failed files:",  # Added for label width calculation
     ]
     lbl_w = max(len(lbl) for lbl in labels) + 2
 
     if mem_run:
-        _print_run_details("in-memory model", mem_run, lbl_w, num_fmt)
+        _print_run_details("in-memory model", mem_run, lbl_w, num_fmt, verbose)
     if gen_run:
-        _print_run_details("generated python parser", gen_run, lbl_w, num_fmt)
+        _print_run_details("generated python parser", gen_run, lbl_w, num_fmt, verbose)
     if tiexiu_run:
-        _print_run_details("tiexiu (rust) parser", tiexiu_run, lbl_w, num_fmt)
+        _print_run_details("tiexiu (rust) parser", tiexiu_run, lbl_w, num_fmt, verbose)
 
     comparison_results = []
     if mem_run:
@@ -204,6 +221,7 @@ def benchmark(
         if mode in {'mem', 'both', 'all'}:
             memtime = 0.0
             memerrs = 0
+            lines_parsed = 0
             mem_failed: list[str] = []
             for i, text in enumerate(texts):
                 pct = int((i + 1) / nfiles * 100)
@@ -211,6 +229,7 @@ def benchmark(
                 with timer() as t:
                     try:
                         model.parse(text, asmodel=True)
+                        lines_parsed += countlines(text).code
                     except FailedParse:
                         memerrs += 1
                         mem_failed.append(str(filepaths[i]))
@@ -219,11 +238,12 @@ def benchmark(
                 typename(model),
                 file_count=nfiles,
                 error_count=memerrs,
+                lines_parsed=lines_parsed,
                 failed_files=mem_failed,
                 setup_time=memsetup,
                 total_parsing_time=memtime,
                 avg_parsing_time=memtime / nfiles if nfiles else 0,
-                avg_lines_sec=totallines / memtime if memtime else 0,
+                avg_lines_sec=lines_parsed / memtime if memtime else 0,
             )
 
         # --- Loop 2: Generated Parser ---
@@ -234,12 +254,14 @@ def benchmark(
             gentime = 0.0
             generrs = 0
             gen_failed: list[str] = []
+            lines_parsed = 0
             for i, text in enumerate(texts):
                 pct = int((i + 1) / nfiles * 100)
                 print(f"[Gen {pct:3d}%] Benchmarking generated parser...", end="\r")
                 with timer() as t:
                     try:
                         parser.parse(text, asmodel=True)
+                        lines_parsed += countlines(text).code
                     except FailedParse:
                         generrs += 1
                         gen_failed.append(str(filepaths[i]))
@@ -248,11 +270,12 @@ def benchmark(
                 typename(parser),
                 file_count=nfiles,
                 error_count=generrs,
+                lines_parsed=lines_parsed,
                 failed_files=gen_failed,
                 setup_time=gensetup,
                 total_parsing_time=gentime,
                 avg_parsing_time=gentime / nfiles if nfiles else 0,
-                avg_lines_sec=totallines / gentime if gentime else 0,
+                avg_lines_sec=lines_parsed / gentime if gentime else 0,
             )
 
         # --- Loop 3: Tiexiu Parser ---
@@ -260,31 +283,37 @@ def benchmark(
         if mode in {'tiexiu', 'all'} and tiexiu is not None:
             tiexiu_time = 0.0
             tiexiu_errs = 0
+            lines_parsed = 0
             tiexiu_failed: list[str] = []
             # Tiexiu setup is basically zero (it parses the grammar on every call currently)
             # or it might have a one-time overhead for the first call
+            peg = tiexiu.pegapi()
             for i, text in enumerate(texts):
                 pct = int((i + 1) / nfiles * 100)
                 print(f"[Tie {pct:3d}%] Benchmarking tiexiu parser...", end="\r")
                 with timer() as t:
                     try:
-                        tiexiu.parse(gramsrc, text)
-                    except ValueError as e:  # Catching ValueError for expected parsing errors
+                        peg.parse(gramsrc, text)
+                        lines_parsed += countlines(text).code
+                    except ValueError as e:
                         tiexiu_errs += 1
                         tiexiu_failed.append(f"{filepaths[i]} (Error: {e})")
                     except Exception as e:  # Catching other unexpected errors
                         tiexiu_errs += 1
-                        tiexiu_failed.append(f"{filepaths[i]} (Unexpected: {type(e).__name__}: {e})")
+                        tiexiu_failed.append(
+                            f"{filepaths[i]} (Unexpected: {type(e).__name__}: {e})"
+                        )
                     tiexiu_time += t.delta
             tiexiu_run = BenchmarkResult(
                 "tiexiu.parse",
                 file_count=nfiles,
                 error_count=tiexiu_errs,
+                lines_parsed=lines_parsed,
                 failed_files=tiexiu_failed,
                 setup_time=0.0,
                 total_parsing_time=tiexiu_time,
                 avg_parsing_time=tiexiu_time / nfiles if nfiles else 0,
-                avg_lines_sec=totallines / tiexiu_time if tiexiu_time else 0,
+                avg_lines_sec=lines_parsed / tiexiu_time if tiexiu_time else 0,
             )
 
         print(" " * 75)  # Clear the status line
@@ -333,6 +362,12 @@ def main():
         action='store_const',
         const='tiexiu',
     )
+    mode.add_argument(
+        '--verbose',
+        help='show error output from failed parses',
+        type=bool,
+        default=False,
+    )
 
     parser.add_argument("grammar", type=Path, help="path to the grammar file")
     parser.add_argument(
@@ -353,7 +388,9 @@ def main():
     try:
         grammar_path = args.grammar.resolve()
         input_paths = [p.resolve() for p in args.inputs]
-        mem_run, gen_run, tiexiu_run = benchmark(grammar_path, input_paths, mode=args.mode)
+        mem_run, gen_run, tiexiu_run = benchmark(
+            grammar_path, input_paths, mode=args.mode
+        )
         print_summary(
             str(args.grammar),
             len(args.inputs),
@@ -361,6 +398,7 @@ def main():
             gen_run,
             tiexiu_run,
             mode=args.mode,
+            verbose=args.verbose,
         )
     except Exception as e:
         print(f"\nan error occurred: {e}", file=sys.stderr)
