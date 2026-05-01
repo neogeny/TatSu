@@ -1630,7 +1630,6 @@ dev = [
     { name = "rich" },
     { name = "rich-click" },
     { name = "ruff" },
-    { name = "tiexiu" },
     { name = "ty" },
     { name = "uv" },
 ]
@@ -1715,7 +1714,6 @@ dev = [
     { name = "rich", specifier = ">=14.3.3" },
     { name = "rich-click", specifier = ">=1.9.7" },
     { name = "ruff", specifier = ">=0.15.6" },
-    { name = "tiexiu", specifier = ">=0.1.1a11" },
     { name = "ty", specifier = ">=0.0.23" },
     { name = "uv", specifier = ">=0.10.10" },
 ]
@@ -1774,18 +1772,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/46/79/cf31d7a93a8fdc6aa0fbb665be84426a8c5a557d9240b6239e9e11e35fc5/termcolor-3.3.0.tar.gz", hash = "sha256:348871ca648ec6a9a983a13ab626c0acce02f515b9e1983332b17af7979521c5", size = 14434, upload-time = "2025-12-29T12:55:21.882Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/33/d1/8bb87d21e9aeb323cc03034f5eaf2c8f69841e40e4853c2627edf8111ed3/termcolor-3.3.0-py3-none-any.whl", hash = "sha256:cf642efadaf0a8ebbbf4bc7a31cec2f9b5f21a9f726f4ccbb08192c9c26f43a5", size = 7734, upload-time = "2025-12-29T12:55:20.718Z" },
-]
-
-[[package]]
-name = "tiexiu"
-version = "0.1.1a12"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/04/b6/a64ca015495164252b23a2da3c9d84a646a653028cb61fd577a50feb1fad/tiexiu-0.1.1a12.tar.gz", hash = "sha256:2897882cf232f04566837b9ef5cc37c93b2253690402b0b8192639898b8cb8c4", size = 597820, upload-time = "2026-04-30T01:50:19.447Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/72/5d/b951d1c74b1ed1bce4a2100bc2fdb91a5c76173ea7575279a9e558cf30d3/tiexiu-0.1.1a12-cp312-abi3-macosx_10_12_x86_64.whl", hash = "sha256:0845fb0c1472f499fd31cb8737c0389d67bedd84ba25db0baa5039b3579927b0", size = 1190764, upload-time = "2026-04-30T01:50:11.566Z" },
-    { url = "https://files.pythonhosted.org/packages/74/93/9486cd664ba34e0885bc1db26ff420e30145b9a9b202aa1d31513541bb5c/tiexiu-0.1.1a12-cp312-abi3-macosx_11_0_arm64.whl", hash = "sha256:7e6731e8b5286df2aef797f331486e655dde8adb674f5d4d03e9a46d4d83cdf2", size = 1103387, upload-time = "2026-04-30T01:50:13.619Z" },
-    { url = "https://files.pythonhosted.org/packages/63/73/9f46ac7a4691f2e64a8099109ffbff8f05633c82270885b1d9f307fdd53a/tiexiu-0.1.1a12-cp312-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:8cef5ea9ac08fb43da95a2d154112b3f43645315aae73d42c3445c4beb4d80b6", size = 1199432, upload-time = "2026-04-30T01:50:15.615Z" },
-    { url = "https://files.pythonhosted.org/packages/ea/5b/1d127a9c5ea050f986f8412e23749fd8033d02931f18b18812548779d81a/tiexiu-0.1.1a12-cp312-abi3-win_amd64.whl", hash = "sha256:cfec3309950c3b671151fbaefdb8c9e076c487890972c4631afc32155add66eb", size = 1048170, upload-time = "2026-04-30T01:50:17.536Z" },
 ]
 
 [[package]]

@@ -59,6 +59,5 @@ rich-click==1.9.7
 ruff==0.15.12
 setuptools==82.0.1
     # via pytest-dependency
-tiexiu==0.1.1a12
 ty==0.0.33
 uv==0.11.8
