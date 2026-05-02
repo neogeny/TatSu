@@ -49,7 +49,8 @@ def _setup_mem_parser(grammar_src: str) -> tuple[grammars.Grammar, float]:
 
 
 def _setup_gen_parser(
-    grammar_src: str, grammar_name: str,
+    grammar_src: str,
+    grammar_name: str,
 ) -> tuple[Parser, float, Path]:
     parser_file = f"temp_parser_{int(time.time())}.py"
     parser_path = Path(parser_file).resolve()
@@ -209,16 +210,13 @@ def benchmark(
         grampath = Path(grammar)
         gramsrc = grampath.read_text(encoding="utf-8")
 
-        # Memory parser setup (always needed for gramname and as baseline)
         model, memsetup = _setup_mem_parser(gramsrc)
         gramname = model.name or "Benchmark"
 
-        # Pre-load data to isolate parsing logic from I/O overhead
         filepaths = [Path(f) for f in filenames]
         texts = [try_read(p) for p in filepaths]
         nfiles = len(texts)
 
-        # --- Loop 1: Memory Parser ---
         memrun = None
         if mode in {'mem', 'both', 'all'}:
             memtime = 0.0
@@ -280,7 +278,6 @@ def benchmark(
                 avg_lines_sec=lines_parsed / gentime if gentime else 0,
             )
 
-        # --- Loop 3: Tiexiu Parser ---
         tiexiu_run = None
         if mode in {'tiexiu', 'all'} and have_tiexiu:
             tiexiu_time = 0.0
@@ -295,7 +292,7 @@ def benchmark(
                 print(f"[Tie {pct:3d}%] Benchmarking tiexiu parser...", end="\r")
                 with timer() as t:
                     try:
-                        peg.parse(gramsrc, text)
+                        peg.parse_to_json_string(gramsrc, text)
                         lines_parsed += countlines(text).code
                     except ValueError as e:
                         tiexiu_errs += 1
@@ -373,7 +370,10 @@ def main():
 
     parser.add_argument("grammar", type=Path, help="path to the grammar file")
     parser.add_argument(
-        "inputs", type=Path, nargs='+', help="path to one or more input text files",
+        "inputs",
+        type=Path,
+        nargs='+',
+        help="path to one or more input text files",
     )
     args = parser.parse_args()
 
@@ -382,7 +382,7 @@ def main():
             print(f"error: file '{p}' not found.")
             sys.exit(1)
 
-    if args.mode in {'tiexiu', 'all'} and have_tiexiu:
+    if args.mode in {'tiexiu', 'all'} and not have_tiexiu:
         print("warning: tiexiu not found, skipping tiexiu benchmark.")
         if args.mode == 'tiexiu':
             sys.exit(1)
@@ -391,7 +391,9 @@ def main():
         grammar_path = args.grammar.resolve()
         input_paths = [p.resolve() for p in args.inputs]
         mem_run, gen_run, tiexiu_run = benchmark(
-            grammar_path, input_paths, mode=args.mode,
+            grammar_path,
+            input_paths,
+            mode=args.mode,
         )
         print_summary(
             str(args.grammar),
