@@ -59,11 +59,9 @@ clobber: (clean "true")
     echo "▶ fmt {{py}}"
     {{run_test}} ruff check \
         --select I --fix \
-        tatsu tests examples scripts ng \
-        | grep -v "checks passed|left unchanged" | cat
+        tatsu tests examples scripts ng
 
-    {{run_test}} ruff format tatsu tests examples scripts ng \
-        | grep -v "checks passed|left unchanged" | cat
+    {{run_test}} ruff format tatsu tests examples scripts ng
 
 @lint: fmt ruff ty mypy pyright pyrefly
     echo "━ lint ⏏ ━"
@@ -74,14 +72,13 @@ clobber: (clean "true")
 
 @ty:
     echo "▶ ty {{py}}"
-    {{run_test}} ty check tatsu tests examples | grep --color=always -v r"Checking|All checks passed!" || true
+    {{run_test}} ty check tatsu tests examples
 
 @mypy:
     echo "▶ mypy {{py}}"
     {{run_test}} mypy \
         tatsu tests examples \
-        --install-types --exclude "dist|parsers|backup" \
-        | grep -v r"Success" || true
+        --install-types --exclude "dist|parsers|backup"
 
 @pyright:
     echo "▶ pyright {{py}}"
@@ -102,16 +99,14 @@ clobber: (clean "true")
         --quiet -n auto  \
         --tb=no --no-header --no-summary \
         --ignore-glob=tests/z* \
-        tests \
-        | grep -v "^.|^$" | cat
+        tests
 
 @pytest_boot:
     echo "▶ boot pytest {{py}}"
     {{run_test}} pytest \
         --quiet \
         --tb=no --no-header --no-summary \
-        tests/z_bootstrap_test.py \
-        | grep -v "^." | cat
+        tests/z_bootstrap_test.py
 
 # --- Documentation & Examples ---
 
