@@ -11,6 +11,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+
 have_tiexiu: bool = False
 try:
     # noinspection PyUnusedImports
@@ -205,7 +206,7 @@ def benchmark(
     mode: str = 'all',
 ) -> tuple[BenchmarkResult | None, BenchmarkResult | None, BenchmarkResult | None]:
     oldlimit = sys.getrecursionlimit()
-    sys.setrecursionlimit(2 ** 16)
+    sys.setrecursionlimit(2**16)
     try:
         grampath = Path(grammar)
         gramsrc = grampath.read_text(encoding="utf-8")
