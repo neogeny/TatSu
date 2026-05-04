@@ -250,7 +250,7 @@ def benchmark(
         # --- Loop 2: Generated Parser ---
         genrun = None
         if mode in {'gen', 'both', 'all'}:
-            parser, gensetup, _ = _setup_gen_parser(gramsrc, gramname)
+            parser, gensetup, parserpath = _setup_gen_parser(gramsrc, gramname)
             gensetup += memsetup  # Account for initial grammar compilation
             gentime = 0.0
             generrs = 0
@@ -278,6 +278,7 @@ def benchmark(
                 avg_parsing_time=gentime / nfiles if nfiles else 0,
                 avg_lines_sec=lines_parsed / gentime if gentime else 0,
             )
+            parserpath.unlink()
 
         tiexiu_run = None
         if mode in {'tiexiu', 'all'} and have_tiexiu:
@@ -288,6 +289,9 @@ def benchmark(
             # Tiexiu setup is basically zero (it parses the grammar on every call currently)
             # or it might have a one-time overhead for the first call
             peg = tiexiu.pegapi()  # type: ignore
+            with timer() as t:
+                peg.compile(gramsrc)
+                tiesetup = t.delta
             for i, text in enumerate(texts):
                 pct = int((i + 1) / nfiles * 100)
                 print(f"[Tie {pct:3d}%] Benchmarking tiexiu parser...", end="\r")
@@ -310,7 +314,7 @@ def benchmark(
                 error_count=tiexiu_errs,
                 lines_parsed=lines_parsed,
                 failed_files=tiexiu_failed,
-                setup_time=0.0,
+                setup_time=tiesetup,
                 total_parsing_time=tiexiu_time,
                 avg_parsing_time=tiexiu_time / nfiles if nfiles else 0,
                 avg_lines_sec=lines_parsed / tiexiu_time if tiexiu_time else 0,
@@ -362,13 +366,11 @@ def main():
         action='store_const',
         const='tiexiu',
     )
-    mode.add_argument(
+    parser.add_argument(
         '--verbose',
         help='show error output from failed parses',
-        type=bool,
-        default=False,
+        action='store_true',
     )
-
     parser.add_argument("grammar", type=Path, help="path to the grammar file")
     parser.add_argument(
         "inputs",
