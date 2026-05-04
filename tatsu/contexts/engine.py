@@ -27,8 +27,8 @@ from ..util import (
     safe_eval,
     trim,
 )
-from ._base import ParserCore
 from .ast import AST
+from .core import ParserCore
 from .cst import closedlist, islist
 from .ctx import CanParse
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
