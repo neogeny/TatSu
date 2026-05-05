@@ -11,7 +11,6 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
-
 have_tiexiu: bool = False
 try:
     # noinspection PyUnusedImports
@@ -117,22 +116,54 @@ def print_performance_comparison(results: list[tuple[str, BenchmarkResult]]):
     if not results:
         return
 
-    # Sort by performance (sloc/sec) descending
-    sorted_results = sorted(results, key=lambda x: x[1].avg_lines_sec, reverse=True)
+    # Map full names to mnemonics and collect speeds
+    mnemonic_map = {
+        "in-memory": "mem",
+        "generated": "gen",
+        "tiexiu": "xiu",
+    }
 
-    best_name, best_res = sorted_results[0]
-    print(f"\nBest performer: {best_name} ({best_res.avg_lines_sec:.2f} sloc/sec)")
+    # Filter out results that don't have a mnemonic mapping
+    # and create a list of (mnemonic, speed) tuples
+    parsed_results = []
+    for name, res in results:
+        mnemonic = mnemonic_map.get(name.lower())
+        if mnemonic:
+            parsed_results.append((mnemonic, res.avg_lines_sec))
 
-    for name, res in sorted_results[1:]:
-        factor = (
-            best_res.avg_lines_sec / res.avg_lines_sec
-            if res.avg_lines_sec
-            else float('inf')
-        )
-        percent_slower = (factor - 1) * 100
-        print(
-            f"{best_name} is {factor:.2f}x faster than {name} (+{percent_slower:.1f}%)",
-        )
+    if len(parsed_results) < 2:
+        # Not enough results for a comparison table
+        return
+
+    # Prepare data for the table
+    mnemonics = [r[0] for r in parsed_results]
+    speeds = [r[1] for r in parsed_results]
+
+    # Determine column width for numbers
+    max_mnemonic_len = max(len(m) for m in mnemonics)
+    col_width = max(max_mnemonic_len + 4, 7)  # Mnemonic (N) + padding, or min width for numbers
+
+    # Print header row
+    header = f"{'':<{col_width}}"
+    for mnem in mnemonics:
+        header += f"{mnem + ' ':>{col_width}}"
+    print(header)
+
+    # Print data rows
+    for i, (row_mnemonic, row_speed) in enumerate(parsed_results):
+        row_str = f"{row_mnemonic}"
+        row_str = f"{row_str:>{col_width - 1}}"
+        for j, (col_mnemonic, col_speed) in enumerate(parsed_results):
+            if i == j:
+                row_str += f"{'-':>{col_width}}"
+            else:
+                if col_speed == 0:
+                    ratio_str = "inf"
+                else:
+                    ratio = row_speed / col_speed
+                    ratio_str = f"{ratio:>{col_width}.2f}"
+                row_str += ratio_str
+        print(row_str)
 
 
 def print_summary(
@@ -193,10 +224,9 @@ def print_summary(
         comparison_results.append(("tiexiu", tiexiu_run))
 
     if len(comparison_results) > 1:
-        print("\n--- comparison (average parsing time) ---")
-        for name, res in comparison_results:
-            print(f"{name + ':':<{lbl_w}}{num_fmt.format(res.avg_lines_sec)} sloc/sec")
-
+        print("\n--- comparison (sloc/sec ratios) ---")
+        # The previous verbose comparison printout is removed,
+        # and now print_performance_comparison will handle the table.
         print_performance_comparison(comparison_results)
 
 
@@ -206,7 +236,7 @@ def benchmark(
     mode: str = 'all',
 ) -> tuple[BenchmarkResult | None, BenchmarkResult | None, BenchmarkResult | None]:
     oldlimit = sys.getrecursionlimit()
-    sys.setrecursionlimit(2**16)
+    sys.setrecursionlimit(2 ** 16)
     try:
         grampath = Path(grammar)
         gramsrc = grampath.read_text(encoding="utf-8")
@@ -281,7 +311,7 @@ def benchmark(
             parserpath.unlink()
 
         tiexiu_run = None
-        if mode in {'tiexiu', 'all'} and have_tiexiu:
+        if mode in {'Xiu', 'all'} and have_tiexiu:
             tiexiu_time = 0.0
             tiexiu_errs = 0
             lines_parsed = 0
@@ -294,7 +324,7 @@ def benchmark(
                 tiesetup = t.delta
             for i, text in enumerate(texts):
                 pct = int((i + 1) / nfiles * 100)
-                print(f"[Tie {pct:3d}%] Benchmarking tiexiu parser...", end="\r")
+                print(f"[Xiu {pct:3d}%] Benchmarking tiexiu parser...", end="\r")
                 with timer() as t:
                     try:
                         peg.parse_to_json_string(gramsrc, text)
