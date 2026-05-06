@@ -1,0 +1,111 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+
+### --- Python Environment & Bytecode ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+.python-version
+.hypothesis/
+.webassets-cache/
+
+### --- Build & Distribution ---
+build/
+dist/
+sdist/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+var/
+wheels/
+*.egg-info/
+*.egg
+develop-eggs/
+downloads/
+.installed.cfg
+target/
+*.manifest
+*.spec
+
+### --- Testing & Coverage ---
+.tox/
+.coverage
+.coverage.*
+.*cache/
+nosetests.xml
+coverage.xml
+*,cover
+htmlcov/
+tach.toml
+.tach/
+
+### --- Generated Files & Parsers ---
+/parsers/
+examples/g2e/*.tatsu
+examples/g2e/python3_parser.py
+*.sage.py
+tmp/
+
+### --- Documentation & Site ---
+docs/_build/
+mkdocs/docs/_build/
+mkdocs/site/
+mkdocs/tmp/
+/site/
+.vale/styles/
+
+### --- Logs & Local Configs ---
+*.log
+pip-log.txt
+pip-delete-this-directory.txt
+.env
+local_settings.py
+instance/
+.deprecated/
+backups/
+
+### --- IDEs & Editors ---
+.idea/
+.vscode/
+.spyderproject/
+.spyproject/
+.ropeproject/
+.ipynb_checkpoints/
+.obsidian/
+.cursorignore
+
+### --- Tools & Apps (Gemini, GitHub, etc.) ---
+.scrapy/
+celerybeat-schedule
+.envrc*
+
+### --- Localization ---
+*.mo
+*.pot
+
+### --- Caches ---
+.tmp.driveupload/
+!/.tmp.drivedownload/
+
+
+### --- AI Agents ---
+gha-creds-*.json
+.continue/
+.cursor/
+.gemini/
+.github/commands/gemini*
+.github/workflows/gemini*
+GEMINI.md
+tiexiu
+
+
+### --- Other ---
+# tiexiu
