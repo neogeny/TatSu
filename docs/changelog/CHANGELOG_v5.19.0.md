@@ -1,14 +1,22 @@
 [//]: Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 [//]: SPDX-License-Identifier: BSD-4-Clause
 
-# v5.19.0
+# v5.19.0 Refactoring and Modernization
+
+## Grammar Syntax
 
 - The `$->` (EOL) expression was introduced in the grammar language to match and consume the whitespace up to and including the next line break, using the Python semantics of `os.linesep`. The match interprets whitespace using the Python definition as implemented by `str.isspace()`, so beware when
   a particular definition of _whitespace_ is part of the language to parse.
 
 - The `@nostak` decorator for rules was added to the grammar. The setting hints the tracer and error handler that the rule should not be part of the call stack. The setting is useful to avoid noise in traces when low-level rules (like those for qualified or attributed identifiers) form their own small hierarchy.
 
-- The file extension for **TatSu** grammars is now `.ebnf`. The grammar language is, after all, an _extension_ of the most known forms of EBNF syntax. Syntax highlighters may recognize the extension
+- The file extension for **TatSu** grammars is now `.ebnf`. The grammar language is, after all, an _extension_ of the most known forms of EBNF syntax. Syntax highlighters may recognize the extension better than the previous `.tatsu`.
+
+## Command Line
+
+- The CLI tool now has a `--json` option to produce the JSON version of the model for a grammar. Re-importing of a JSON model is not yet implemented in **TatSu**, but **[TieXiu](https://github.com/neogeny/tiexiu)** uses them successfully as the fast way to import a **TatSu** grammar model.
+
+## Generated Parsers
 
 - The benchmark in `tatsu.tool.bench` was used over several large grammars and large input sets to evaluate parser strategies. The result is that there is a 1.3x performance advantage in generating a Python program versus using the in-memory model of the parsed **TatSu** grammar for parsing. In tests with complex projects (Java) the performance difference is not perceivable. The [codspeed][] benchmark that runs with unit tests on GitHub doesn't see the performance difference either.
 
@@ -44,11 +52,7 @@
 
   [pyrefly]: https://pypi.org/project/pyrefly/
 
-- The `g2e` example in `./examples/g2e` was removed. The example had become irrelevant now that the new PEG parser in Python uses a [pegen][]-style grammar for the language that is less than a 1000 lines long. The **TatSu** grammar for ANTLR in `./examples/g2e/antlr.tatsu` can still parse ANTLR grammars, but there's no test case for it. The semantics in `g2e.semanrics.ANTLRSemantics` try to do everything on a single pass (like substituting simple TOKEN rules by their value), when transformation of the parsed input grammar model should be more stable and easier to understand with a simplerr approach.
-
-  [pegen]: https://we-like-parsers.github.io/pegen/grammar.html
-
-- There's no longer a separate stack for the state of `cut`. The state of `cut` is kept in the general state stack.
+## Implementation
 
 - A new `@statescope` context manager takes care of handling the state stack in most cases.
 
@@ -58,17 +62,21 @@
 - A new `PaserConfig.perlinememos: float` configuration sets a `(perlinememos * linecount) `
   bound on the total number of memoization entries that are allowed on each parse.
 
-- Incorporated [zuban][] to the set of type linters.
-
-  [zuban]: https://github.com/zubanls/zuban
-
 - Introduced `objectmodel.ctx.CanParse(Protocol)` defining the `parse()` method
   for entry point to parsing.
 
 - An important refactoring was done to get rid of the legacy names *"tokenizing"* and *"tokenizer"* which didn't abide to theory and practice of parsing. Now the names are `tatsu.input`, `tatsu.input.text`, and `tatsu.input.text.Text`. The old names are still available as legacy for backwards compatibility.
 
-- Rule invludes (`RuleInclude`) kept an atcutal copy of the included rule in the model. To preserve consistent semantics, the only mentions of `Rule` in a model are at the top-level, in `Grammar.rules` and `Grammar.rulemap`.
+- Rule includes (`RuleInclude`) kept an atcutal copy of the included rule in the model. To preserve consistent semantics, the only mentions of `Rule` in a model are at the top-level, in `Grammar.rules` and `Grammar.rulemap`.
 
-- Grammar models that haven't been compiled from a grammar but instead loaded from the JSON or Python representations don't need to be analyzed for left recursion, because the markers of the analysis are already in the loaded models. A new `Grammar.analyzed: bool` attribute was added to quickly check if a grammar model from any source has already been analyzed.
+- Grammar models that haven't been compiled from a grammar but instead loaded from the JSON or Python representations need to be analyzed for left recursion and resolution of `Call` and `RuleInclude` nodes. A new `Grammar.analyzed: bool` attribute was added to quickly check if a grammar model from any source has already been analyzed. The markers for left-recursion are persisted to Python model and JSON representations, but cross-reference resolution of rules must be performed before parsing.
+
+## Deprecations
+
 - Support for `#include` in grammars has been dropped. It was always a bad idea. Text-to-text preprocessing doesn't belong in the grammar in part because it doesn't apply to input sources that are not text, like that of tokenizers or streams. The class `tatsu.input.buffer.Buffer` still has all the infrastrucure for supporting C-style or COBOL-style textual includes, and its definition of `BufferCursor` honors it. `Buffer` keeps track of which file was the source of each line of input, something essential for good error reporting. During compilation of grammar text to a `Grammar` object, the grammar text is the parser's input, so the `Cursor` semantics regarding the parsing still apply.
-- The CLI tool now has a `--json` option to produce the JSON version of the model for a grammar. Re-importing of a JSON model is not yet implemented in **TatSu**, but **[TieXiu](https://github.com/neogeny/tiexiu)** uses them successfully as the fast way to import a **TatSu** grammar model.
+
+- The `g2e` example in `./examples/g2e` was removed. The example had become irrelevant now that the new PEG parser in Python uses a [pegen][]-style grammar for the language that is less than a 1000 lines long. The **TatSu** grammar for ANTLR in `./examples/g2e/antlr.tatsu` can still parse ANTLR grammars, but there's no test case for it. The semantics in `g2e.semanrics.ANTLRSemantics` try to do everything on a single pass (like substituting simple TOKEN rules by their value), when transformation of the parsed input grammar model should be more stable and easier to understand with a simplerr approach.
+
+  [pegen]: https://we-like-parsers.github.io/pegen/grammar.html
+
+- There's no longer a separate stack for the state of `cut`. The state of `cut` is kept in the general state stack.
