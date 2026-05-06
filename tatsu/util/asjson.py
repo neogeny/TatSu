@@ -10,6 +10,8 @@ from collections.abc import Mapping
 from typing import Any, Protocol, runtime_checkable
 
 from .abctools import as_namedtuple, isiter, rowselect
+from .typetools import is_readonly_property
+
 
 __all__ = ['AsJSONMixin', 'JSONSerializable', 'asjson', 'asjsons', 'plainjson']
 
@@ -24,10 +26,13 @@ class AsJSONMixin:
 
     def __json__(self, seen: set[int] | None = None) -> Any:
         pub = self.__pub__()
-        return {'__class__': type(self).__name__, **asjson(pub, seen=seen)}
+        # noinspection PyDictCreation
+        pub = {'__class__': None, **asjson(pub, seen=seen)}
+        # noinspection PyTypeChecker
+        pub['__class__'] = type(self).__name__
+        return pub
 
     def __pub__(self, sunderok: bool = False) -> dict[str, Any]:
-
         def is_public(name: str, value: Any) -> bool:
             return (
                 not name.startswith('__')
@@ -35,6 +40,7 @@ class AsJSONMixin:
                 and hasattr(self, name)
                 and not inspect.ismethod(value)
                 and not isinstance(value, (weakref.ReferenceType, *weakref.ProxyTypes))
+                and not is_readonly_property(self, name)
             )
 
         return rowselect(vars(self), vars(self), where=is_public)
@@ -52,9 +58,11 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
             return node
 
         node_id = id(node)
+        # noinspection PyUnresolvedReferences
         if node_id in seen:
             return f'{type(node).__name__}@0x{hex(node_id).upper()[2:]}'
 
+        # noinspection PyUnresolvedReferences
         seen.add(node_id)
         try:
             match node:
@@ -71,6 +79,7 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
                 ):
                     result = f'{type(node).__name__}@0x{hex(node_id).upper()[2:]}'
                 case _ if nt := as_namedtuple(node):
+                    # noinspection PyUnresolvedReferences
                     result = dfs(nt._asdict())
                 case Mapping() as mapping:
                     result = {str(k): dfs(v) for k, v in mapping.items()}
@@ -82,6 +91,7 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
                     result = repr(node)
             return result
         finally:
+            # noinspection PyUnresolvedReferences
             seen.discard(node_id)
 
     return dfs(obj)

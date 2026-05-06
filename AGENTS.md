@@ -1,0 +1,1 @@
+../../.etc/aia/AGENTS.md

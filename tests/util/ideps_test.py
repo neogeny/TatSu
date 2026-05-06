@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from tatsu.util.ideps import Dependency, findeps, moduledeps, render
+from tatsu.tool.ideps import Dependency, findeps, moduledeps, render
 
 
 def test_moduledeps_collects_absolute_and_relative_imports(tmp_path: Path) -> None:
@@ -69,9 +69,7 @@ def test_render_builds_tree_with_internal_and_external_deps(
 
     a = pkg / "a.py"
     b = pkg / "b.py"
-    a.write_text(
-        "from __future__ import annotations\n" "import os\n" "from . import b\n"
-    )
+    a.write_text("from __future__ import annotations\nimport os\nfrom . import b\n")
     b.write_text("import sys\n")
 
     monkeypatch.chdir(tmp_path)

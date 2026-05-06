@@ -1,0 +1,352 @@
+{
+  "__class__": "Grammar",
+  "patterns": {
+    "__class__": "Patterns",
+    "whitespace": null,
+    "comments": null,
+    "eol_comments": null
+  },
+  "keywords": [],
+  "rules": [
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Call",
+            "name": "expression"
+          },
+          {
+            "__class__": "EOF"
+          }
+        ]
+      },
+      "kwparams": {},
+      "is_name": false,
+      "is_memo": false,
+      "is_lrec": false,
+      "decorators": [],
+      "params": [],
+      "base": null,
+      "name": "start"
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "addition"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "subtraction"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "term"
+            }
+          }
+        ]
+      },
+      "kwparams": {},
+      "is_name": false,
+      "is_memo": false,
+      "is_lrec": true,
+      "decorators": [],
+      "params": [],
+      "base": null,
+      "name": "expression"
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "expression"
+            },
+            "name": "left"
+          },
+          {
+            "__class__": "Token",
+            "token": "+"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "term"
+            },
+            "name": "right"
+          }
+        ]
+      },
+      "kwparams": {},
+      "is_name": false,
+      "is_memo": false,
+      "is_lrec": false,
+      "decorators": [],
+      "params": [
+        "Add"
+      ],
+      "base": null,
+      "name": "addition"
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "expression"
+            },
+            "name": "left"
+          },
+          {
+            "__class__": "Token",
+            "token": "-"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "term"
+            },
+            "name": "right"
+          }
+        ]
+      },
+      "kwparams": {},
+      "is_name": false,
+      "is_memo": false,
+      "is_lrec": false,
+      "decorators": [],
+      "params": [
+        "Subtract"
+      ],
+      "base": null,
+      "name": "subtraction"
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "multiplication"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "division"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "factor"
+            }
+          }
+        ]
+      },
+      "kwparams": {},
+      "is_name": false,
+      "is_memo": false,
+      "is_lrec": true,
+      "decorators": [],
+      "params": [],
+      "base": null,
+      "name": "term"
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "term"
+            },
+            "name": "left"
+          },
+          {
+            "__class__": "Token",
+            "token": "*"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "factor"
+            },
+            "name": "right"
+          }
+        ]
+      },
+      "kwparams": {},
+      "is_name": false,
+      "is_memo": false,
+      "is_lrec": false,
+      "decorators": [],
+      "params": [
+        "Multiply"
+      ],
+      "base": null,
+      "name": "multiplication"
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "term"
+            },
+            "name": "left"
+          },
+          {
+            "__class__": "Token",
+            "token": "/"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "factor"
+            },
+            "name": "right"
+          }
+        ]
+      },
+      "kwparams": {},
+      "is_name": false,
+      "is_memo": false,
+      "is_lrec": false,
+      "decorators": [],
+      "params": [
+        "Divide"
+      ],
+      "base": null,
+      "name": "division"
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Token",
+                  "token": "("
+                },
+                {
+                  "__class__": "Cut"
+                },
+                {
+                  "__class__": "Override",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "expression"
+                  }
+                },
+                {
+                  "__class__": "Token",
+                  "token": ")"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "number"
+            }
+          }
+        ]
+      },
+      "kwparams": {},
+      "is_name": false,
+      "is_memo": true,
+      "is_lrec": false,
+      "decorators": [],
+      "params": [],
+      "base": null,
+      "name": "factor"
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "exp": {
+        "__class__": "Pattern",
+        "pattern": "\\d+"
+      },
+      "kwparams": {},
+      "is_name": false,
+      "is_memo": true,
+      "is_lrec": false,
+      "decorators": [],
+      "params": [
+        "int"
+      ],
+      "base": null,
+      "name": "number"
+    }
+  ],
+  "directives": {
+    "grammar": "CALC"
+  },
+  "name": "CALC"
+}

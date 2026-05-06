@@ -7,6 +7,7 @@ from contextlib import contextmanager, suppress
 from typing import Any
 
 from ..exceptions import (
+    FailedExpectingEndOfLine,
     FailedExpectingEndOfText,
     FailedLookahead,
     FailedParse,
@@ -16,9 +17,8 @@ from ..exceptions import (
     ParseException,
 )
 from ..util import boundcall, deprecated, left_assoc, regexpp, right_assoc
-from ._engine import ParserEngine
 from .cst import closedlist, cstfinal
-from .ctx import Ctx, Func
+from .ctx import Func
 from .ctxlib import (
     ChoiceContext,
     ExpContext,
@@ -26,10 +26,11 @@ from .ctxlib import (
     LoopContext,
     LoopWithSepContext,
 )
-from .sts import _AT_
+from .engine import ParserEngine
+from .state import _AT_
 
 
-class ParseContext(ParserEngine, Ctx):
+class ParseContext(ParserEngine):
     # bw compatibility
     @deprecated(replacement=ParserEngine.newexcept)
     def _error(
@@ -58,9 +59,9 @@ class ParseContext(ParserEngine, Ctx):
     def token(self, token: str) -> str:
         self.next_token()
         if self.cursor.match(token) is None:
-            self.tracer.trace_match(self.cursor, token, failed=True)
+            self.tracer.trace_match(self, token, failed=True)
             raise self.newexcept(token, excls=FailedToken)
-        self.tracer.trace_match(self.cursor, token)
+        self.tracer.trace_match(self, token)
         self.state.append(token)
         return token
 
@@ -68,11 +69,9 @@ class ParseContext(ParserEngine, Ctx):
 
     def alert(self, message: str, level: int) -> None:
         self.next_token()
-        self.tracer.trace_match(
-            self.cursor,
-            f'{"^" * level}`{message}`',
-            failed=True,
-        )
+        self.tracer.trace_match(self, f'{"^" * level}`{message}`', failed=True)
+        # note: capture=False, nothing appended to state
+        message = self.constant(message, capture=False)
         self.states.alert(level=level, message=message)
 
     _aler = alert
@@ -80,9 +79,9 @@ class ParseContext(ParserEngine, Ctx):
     def pattern(self, pattern: str) -> Any:
         token = self.cursor.matchre(pattern)
         if token is None:
-            self.tracer.trace_match(self.cursor, '', pattern, failed=True)
+            self.tracer.trace_match(self, '', pattern, failed=True)
             raise self.newexcept(f'Expecting {regexpp(pattern)}', excls=FailedPattern)
-        self.tracer.trace_match(self.cursor, token, pattern)
+        self.tracer.trace_match(self, token, pattern)
         self.state.append(token)
         return token
 
@@ -102,17 +101,14 @@ class ParseContext(ParserEngine, Ctx):
                 excls=FailedExpectingEndOfText,
             )
 
-    _check_eof = eofcheck
+    def eolcheck(self):
+        if not self.state.cursor.matcheol():
+            raise self.newexcept(
+                'Expecting end of line',
+                excls=FailedExpectingEndOfLine,
+            )
 
-    @contextmanager
-    def _try(self) -> Any:
-        self.pushstate()
-        try:
-            yield
-            self.mergestate()
-        except FailedParse:
-            self.undostate()
-            raise
+    _check_eof = eofcheck
 
     def _no_more_options(self) -> bool:
         # NOTE: Legacy. Used in previous versions of the parser generator
@@ -120,14 +116,13 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def option(self) -> Any:
+        self.states.push()
         try:
-            with self._try():
-                yield
+            yield
+            self.states.merge()
             raise OptionSucceeded()
         except FailedParse:
-            if not self.states.cut_seen():
-                pass
-            else:
+            if self.states.undo().cutseen:
                 raise
 
     _option = option
@@ -135,7 +130,7 @@ class ParseContext(ParserEngine, Ctx):
     @contextmanager
     def choice(self) -> Generator[ChoiceContext, Any, Any]:
         chc = ChoiceContext(self)
-        with suppress(OptionSucceeded), self.states.cutscope():
+        with self.statescope(), suppress(OptionSucceeded):
             yield chc
             chc.parse(self)
 
@@ -143,46 +138,36 @@ class ParseContext(ParserEngine, Ctx):
 
     @contextmanager
     def optional(self) -> Any:
-        with self.choice(), self.option(), self.states.cutscope():
+        with self.choice(), self.option():
             yield
 
     _optional = optional
 
     @contextmanager
     def group(self) -> Any:
-        self.pushstate()
-        try:
-            with self.states.cutscope():
-                yield
-            self.mergestate()
-        except ParseException:
-            self.undostate()
-            raise
+        with self.statescope():
+            yield
 
     _group = group
 
-    @contextmanager
-    def skip(self) -> Any:
-        self.pushstate()
-        try:
-            with self.states.cutscope():
-                yield
-            self.popstate()
-        except ParseException:
-            self.undostate()
-            raise
+    def groupexp(self, exp: Func) -> Any:
+        with self.statescope():
+            return exp(self)
 
-    _skip = skip
+    @contextmanager
+    def skipgroup(self) -> Any:
+        with self.statescope(merge=False):
+            yield
+
+    _skipgroup = skipgroup
 
     @contextmanager
     def if_(self) -> Any:
-        self.pushstate()
-        self.lookahead += 1
+        self.states.push()
         try:
             yield
         finally:
-            self.undostate()
-            self.lookahead -= 1
+            self.states.undo()
 
     _if = if_
 
@@ -225,17 +210,19 @@ class ParseContext(ParserEngine, Ctx):
     def expcall(self, exp: Func) -> Any:
         try:
             return exp(self)
-        except TypeError:
-            return boundcall(exp, {}, self)
+        except TypeError as e:
+            if "arguments" in str(e):
+                return boundcall(exp, {}, self)
+            raise
 
     def isolate(self, exp: Func) -> Any:
-        self.pushstate()
+        self.states.push()
         try:
             self.expcall(exp)
             return cstfinal(self.cst)
         finally:
             ast = self.ast
-            self.popstate()
+            self.states.pop()
             self.ast = ast
 
     _isolate = isolate
@@ -262,7 +249,7 @@ class ParseContext(ParserEngine, Ctx):
 
                     if self.pos == p:
                         raise self.newexcept(
-                            f'{self.repeat.__name__} matched on no input'
+                            f'{self.repeat.__name__} matched on no input',
                         )
                 # note: dit not match sep? exp, so quit
                 break
@@ -273,19 +260,14 @@ class ParseContext(ParserEngine, Ctx):
         sep: Func | None = None,
         omitsep: bool = False,
     ) -> Any:
-        self.pushstate()
-        try:
+        with self.statescope():
             self.cst = []
-            with self._optional(), self.states.cutscope():
+            with self._optional():
                 self.expcall(exp)
                 self.cst = [self.cst]
                 self.repeat(exp, prefix=sep, omitsep=omitsep)
             self.cst = cst = closedlist(self.cst)
-            self.mergestate()
             return cst
-        except ParseException:
-            self.undostate()
-            raise
 
     _closure = closure
 
@@ -295,18 +277,12 @@ class ParseContext(ParserEngine, Ctx):
         sep: Func | None = None,
         omitsep: bool = False,
     ) -> Any:
-        self.pushstate()
-        try:
-            with self.states.cutscope():
-                self.expcall(exp)
-                self.cst = [self.cst]
-                self.repeat(exp, prefix=sep, omitsep=omitsep)
+        with self.statescope():
+            self.expcall(exp)
+            self.cst = [self.cst]
+            self.repeat(exp, prefix=sep, omitsep=omitsep)
             self.cst = cst = closedlist(self.cst)
-            self.mergestate()
             return cst
-        except ParseException:
-            self.undostate()
-            raise
 
     _positive_closure = positive_closure
 
@@ -407,9 +383,9 @@ class ParseContext(ParserEngine, Ctx):
     def dot(self) -> Any:
         c = self._next()
         if c is None:
-            self.tracer.trace_match(self.cursor, c, failed=True)
+            self.tracer.trace_match(self, c, failed=True)
             raise self.newexcept(c, excls=FailedToken) from None
-        self.tracer.trace_match(self.cursor, c)
+        self.tracer.trace_match(self, c)
         self.state.append(c)
         return c
 

@@ -14,6 +14,10 @@ from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImpor
     Task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
     task,  # pyright: ignore[reportMissingImports, reportPrivateImportUsage]
 )
+from invoke.exceptions import Exit
+
+from tatsu.util.timetools import timer
+
 
 __copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'
 __license__: str = 'BSD-4-Clause'
@@ -23,8 +27,8 @@ __license__: str = 'BSD-4-Clause'
 # and breaking havock on `uv run --python PYTHON`
 # Fun using ord of the hidden STX char for '2'
 # PYTHON: float = float(f'{math.pi:.{ord('')}f}')
-# PYTHON: float = round(math.pi, 2)
-PYTHON: float = round(3.15, 2)
+PYTHON: float = round(math.pi, 2)
+# PYTHON: float = round(3.15, 2)
 
 LINE_PRE: int = 4
 THIN_LINE: str = '─'
@@ -46,7 +50,7 @@ def uv(
     args: str | list[str],
     *,
     quiet: bool = True,
-    python: float = PYTHON,
+    python: float | str = PYTHON,
     group: str = 'dev',
     nogroup: str = '',
     **kwargs: Any,
@@ -66,7 +70,7 @@ def uv_run(
     c: Context,
     args: str | list[str],
     *,
-    python: float = PYTHON,
+    python: float | str = PYTHON,
     group: str = 'dev',
     quiet: bool = True,
     **kwargs: Any,
@@ -78,7 +82,7 @@ def uv_sync(c: Context):
     uv_run(c, 'sync', group='dev', quiet=True)
 
 
-def version_python(c: Context, python: float = PYTHON) -> str:
+def version_python(c: Context, python: float | str = PYTHON) -> str:
     return uv_run(
         c,
         'python3 --version',
@@ -88,7 +92,7 @@ def version_python(c: Context, python: float = PYTHON) -> str:
     ).stdout.strip()
 
 
-def version_tatsu(c: Context, python: float = PYTHON) -> str:
+def version_tatsu(c: Context, python: float | str = PYTHON) -> str:
     return uv_run(
         c,
         'python3 -m tatsu --version',
@@ -128,7 +132,7 @@ def success_print(
 def version_boundary_print(
     c: Context,
     target: str = '',
-    python: float = PYTHON,
+    python: float | str = PYTHON,
     line: str = THICK_LINE,
 ):
     verpython = version_python(c, python=python)
@@ -166,7 +170,7 @@ def clobber(_c: Context, _plus: bool = False):
 
 
 @task(pre=[begin])
-def ruff(c: Context, python: float = PYTHON):
+def ruff(c: Context, python: float | str = PYTHON):
     start_print(ruff)
     uv_run(
         c,
@@ -177,7 +181,7 @@ def ruff(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin])
-def ty(c: Context, python: float = PYTHON):
+def ty(c: Context, python: float | str = PYTHON):
     start_print(ty)
     res = uv_run(
         c,
@@ -195,7 +199,7 @@ def ty(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin])
-def mypy(c: Context, python: float = PYTHON):
+def mypy(c: Context, python: float | str = PYTHON):
     start_print(mypy)
     res = uv_run(
         c,
@@ -221,7 +225,7 @@ def mypy(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin])
-def pyright(c: Context, python: float = PYTHON):
+def pyright(c: Context, python: float | str = PYTHON):
     start_print(pyright)
     uv_run(
         c,
@@ -234,7 +238,44 @@ def pyright(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin])
-def pytestfast(c: Context, python: float = PYTHON):
+def zuban(c: Context, python: float | str = PYTHON):
+    start_print(zuban)
+    res = uv_run(
+        c,
+        'zuban check tatsu tests examples',
+        python=python,
+        group='test',
+        warn=True,
+        hide='both',
+    )
+
+    if 'Success:' not in res.stdout:
+        for r in [res.stdout, res.stderr]:
+            if r.strip():
+                print(r)
+
+
+@task(pre=[begin])
+def pyrefly(c: Context, python: float | str = PYTHON):
+    start_print(pyrefly)
+    res = uv_run(
+        c,
+        ['pyrefly', 'check', 'tatsu', 'tests', 'examples'],
+        python=python,
+        group='test',
+        hide='both',
+        pty=True,
+    )
+
+    if res.exited != 0 or '0 errors' not in res.stdout:
+        for r in [res.stdout]:
+            if r.strip():
+                print(r)
+        raise Exit(f'{pyrefly.__name__} errors', code=res.exited)
+
+
+@task(pre=[begin])
+def pytestfast(c: Context, python: float | str = PYTHON):
     start_print(pytest, target='fast ')
     Path('./tmp').mkdir(exist_ok=True)
     Path('./tmp/__init__.py').touch()
@@ -244,6 +285,8 @@ def pytestfast(c: Context, python: float = PYTHON):
             'pytest',
             '--quiet',
             '-n auto',
+            # '--cov=coverage',
+            # '--cov-report=json',
             'tests/',
             '--ignore-glob=tests/z*',
         ],
@@ -255,7 +298,7 @@ def pytestfast(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin])
-def pytestbootstrap(c: Context, python: float = PYTHON):
+def pytestbootstrap(c: Context, python: float | str = PYTHON):
     start_print(pytest, target='boot ')
     Path('./tmp').mkdir(exist_ok=True)
     Path('./tmp/__init__.py').touch()
@@ -274,16 +317,16 @@ def pytestbootstrap(c: Context, python: float = PYTHON):
 
 
 @task(pre=[begin, pytestfast, pytestbootstrap])
-def pytest(_c: Context, _python: float = PYTHON):
+def pytest(_c: Context, _python: float | str = PYTHON):
     pass
 
 
 @task(pre=[begin])
-def black(c: Context, python: float = PYTHON):
-    start_print(black)
+def _black(c: Context, python: float | str = PYTHON):
+    start_print(_black)
     res = uv_run(
         c,
-        ["black", "tatsu", "tests", "examples", "scripts", "ng"],
+        ["black", "--no-cache", "tatsu", "tests", "examples", "scripts", "ng"],
         python=python,
         group='test',
         warn=True,
@@ -295,7 +338,55 @@ def black(c: Context, python: float = PYTHON):
         print('✖ failed!')
 
 
-@task(pre=[begin, black, ruff, ty, mypy, pyright])
+@task(pre=[begin])
+def format(c: Context, python: float | str = PYTHON):
+    start_print(format)
+    res = uv_run(
+        c,
+        [
+            "ruff",
+            "check",
+            "--select",
+            "I",
+            "--fix",
+            "tatsu",
+            "tests",
+            "examples",
+            "scripts",
+            "ng",
+        ],
+        python=python,
+        group='test',
+        warn=True,
+        hide=True,
+        pty=True,
+    )
+    if res.exited != 0:
+        print(res.stdout.splitlines()[-1])
+        print('✖ failed!')
+    res = uv_run(
+        c,
+        [
+            "ruff",
+            "format",
+            "tatsu",
+            "tests",
+            "examples",
+            "scripts",
+            "ng",
+        ],
+        python=python,
+        group='test',
+        warn=True,
+        hide=True,
+        pty=True,
+    )
+    if res.exited != 0:
+        print(res.stdout.splitlines()[-1])
+        print('✖ failed!')
+
+
+@task(pre=[begin, format, pyrefly, zuban, ruff, ty, mypy, pyright])
 def lint(_c: Context):
     success_print(task_=lint)
 
@@ -306,7 +397,7 @@ def test(_c: Context):
 
 
 @task(pre=[begin])
-def doclint(c: Context, _python: float = PYTHON):
+def doclint(c: Context, _python: float | str = PYTHON):
     start_print(doclint)
     uv_run(
         c,
@@ -332,17 +423,19 @@ def build(c: Context):
     success_print(task_=build)
 
 
-def matrix_core(c: Context, python: float = PYTHON):
+def matrix_core(c: Context, python: float | str = PYTHON):
     version_boundary_print(c, target='ᝰ', python=python)
 
-    ruff(c, python=python)
-    ty(c, python=python)
-    pyright(c, python=python)
+    with timer() as t:
+        zuban(c, python=python)
+        ruff(c, python=python)
+        ty(c, python=python)
+        pyright(c, python=python)
 
-    pytestfast(c, python=python)
-    pytestbootstrap(c, python=python)
+        pytestfast(c, python=python)
+        pytestbootstrap(c, python=python)
 
-    success_print(str(python), icon='✓')
+    success_print(f'{python!s} @ {t!s}', icon='✓')
 
 
 @task
@@ -359,7 +452,7 @@ def py313(c: Context):
 
 @task
 def py314(c: Context):
-    matrix_core(c, python=round(math.pi, 2))
+    matrix_core(c, python=round(math.pi, 2))  # pyright: ignore[reportUndefinedVariable]
     uv_sync(c)
 
 
@@ -369,7 +462,13 @@ def py315(c: Context):
     uv_sync(c)
 
 
-@task(pre=[py312, py313, py314, py315])
+@task
+def py315t(c: Context):
+    matrix_core(c, python='3.15t')
+    uv_sync(c)
+
+
+@task(pre=[py312, py313, py314, py315, py315t])
 def matrix(c: Context):
     uv_sync(c)
     success_print(task_=matrix, line=THICK_LINE)
@@ -439,22 +538,14 @@ def publish(c: Context, _dry_run: bool = True):
     c.run(f'gh run list --workflow={workflow}')
 
 
-@task
-def g2e(c: Context):
-    start_print(g2e, target='examples/')
-    with c.cd('examples/g2e'):
-        c.run('uv run make -s clean test', pty=True, hide='both')
-        c.run('uv run make -s clean', pty=True, hide='both')
-
-
-@task
+@task()
 def calc(c: Context):
     start_print(calc, target='examples/')
     with c.cd('examples/calc'):
         c.run('uv run make -s clean test', pty=True, hide='both')
 
 
-@task(pre=[clean, begin, g2e, calc])
+@task(pre=[clean, begin, calc])
 def examples(_c: Context):
     success_print(task_=examples)
 

@@ -9,6 +9,7 @@ import pytest
 import tatsu
 from tatsu.exceptions import FailedParse, KeywordError
 
+
 INPUT = """
     1d3
 """
@@ -74,7 +75,6 @@ def test_error_messages():
     """
     input = 'a b'
 
-    e1 = None
     model = tatsu.compile(grammar)
     try:
         model.parse(input)

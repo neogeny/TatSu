@@ -18,17 +18,16 @@ from __future__ import annotations
 from typing import Any
 
 from tatsu import decorators as tatsu
+from tatsu.config import ParserConfig
 from tatsu.contexts import Ctx
-from tatsu.parserconfig import ParserConfig
 from tatsu.parsing import Parser, generic_main
-from tatsu.tokenizing.buffer import Buffer
-from tatsu.tokenizing.textlines import TextLinesTokenizer
-
+from tatsu.input.buffer import Buffer
+from tatsu.input.textlines import TextLines
 
 KEYWORDS: set[str] = set()
 
 
-class TatSuBootstrapTokenizer(TextLinesTokenizer):
+class TatSuBootstrapTokenizer(TextLines):
     def __init__(
         self,
         text, /,
@@ -83,9 +82,8 @@ class TatSuBootstrapParser(Parser):
         config = ParserConfig.new(config, **settings)
         rulessource = TatSuBootstrapRules()
         assert isinstance(config, ParserConfig)
-        tokenizercls = config.tokenizercls or TatSuBootstrapTokenizer
 
-        super().__init__(rulessource, config=config, tokenizercls=tokenizercls)
+        super().__init__(rulessource, config=config)
 
 
 class TatSuBootstrapRules:

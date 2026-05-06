@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import field
+from functools import cached_property
 from typing import Any
 
 from ..contexts import Ctx
+from ..exceptions import FailedParse
 from ..objectmodel import nodedataclass
-from ..util import cast, indent
+from ..util import cast
 from .math import ffset
 from .model import PEP8_LLEN, Box, Model
 
@@ -15,14 +17,8 @@ from .model import PEP8_LLEN, Box, Model
 @nodedataclass
 class Option(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        result = super()._parse(ctx)
-        self._add_defined_attributes(ctx, result)
+        result = self.exp._parse(ctx)
         return result
-
-
-@nodedataclass
-class FirstOption(Option):
-    pass
 
 
 @nodedataclass
@@ -33,21 +29,28 @@ class Choice(Model):
         super().__post_init__()
         self.options = self.options or self.ast
         assert isinstance(self.options, list), repr(self.options)
+        assert self.options, repr(self.options)
 
     def _parse(self, ctx: Ctx) -> Any:
-        with ctx.choice() as ch:
+        # ctx.expecting(*self.expecting)
+        for o in self.options:
+            ctx.states.push()
+            try:
+                value = o._parse(ctx)
+                ctx.states.merge()
+                return value
+            except FailedParse:
+                if ctx.states.undo().cutseen:
+                    raise
+        raise ctx.newexcept(self.expectingstr)
 
-            def wrap(o) -> Any:
-                assert isinstance(ctx, Ctx) and isinstance(o, Option)
-                return o._parse
+    @cached_property
+    def defines_single(self) -> list[str]:
+        return list(set().union(*(o.defines_single for o in self.options)))
 
-            ch.options = [wrap(o) for o in self.options]
-
-            ch.expecting(*self.expecting())
-        return ch.result
-
-    def defines(self):
-        return [d for o in self.options for d in o.defines()]
+    @cached_property
+    def defines_list(self) -> list[str]:
+        return list(set().union(*(o.defines_list for o in self.options)))
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return set().union(*[o.missing_rules(rulenames) for o in self.options])
@@ -73,23 +76,24 @@ class Choice(Model):
     def _pretty(self, lean=False):
         options = [str(o._pretty(lean=lean)) for o in self.options]
 
-        multi = any(len(o.splitlines()) > 1 for o in options)
+        multi = options and any(len(o.splitlines()) > 1 for o in options)
         single = ' | '.join(o for o in options)
+        multi = multi or len(single) > PEP8_LLEN * 0.6  # WARNING: magic number !
 
         if multi:
-            return '\n|\n'.join(indent(o) for o in options)
-        elif options and len(single) > PEP8_LLEN:
             return '| ' + '\n| '.join(o for o in options)
         else:
             return single
 
+    @cached_property
     def _nullable(self) -> bool:
-        return any(o._nullable() for o in self.options)
+        return any(o._nullable for o in self.options)
 
     def callable_at_same_pos(self) -> list[Model]:
         return cast(list[Model], self.options)
 
-
-@nodedataclass
-class FirstChoice(Choice):
-    pass
+    def optimized(self) -> Model:
+        opt = [o.optimized() for o in self.options]
+        if len(opt) == 1:
+            return opt[0]
+        return self.clone(options=opt)  # pyright: ignore[reportArgumentType]

@@ -70,9 +70,9 @@ class RailroadNodeWalker(NodeWalker):
             params = f'[{params}]'
 
         leftrec = ''
-        if rule.is_leftrec:
+        if rule.is_lrec:
             leftrec = '⟳'
-        elif not rule.is_memoizable:
+        elif not rule.is_memo:
             leftrec = '⊬'
 
         base = ''
@@ -126,6 +126,9 @@ class RailroadNodeWalker(NodeWalker):
 
     def walk_eof(self, _eof: g.EOF) -> Rails:
         return [f"⇥{ETX} "]
+
+    def walk_eol(self, _eof: g.EOL) -> Rails:
+        return ["->| "]
 
     def walk_lookahead(self, la: g.Lookahead) -> Rails:
         out = weld(['─ &['], self.walk(la.exp))

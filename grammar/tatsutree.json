@@ -1,0 +1,4663 @@
+{
+  "__class__": "Grammar",
+  "rules": [
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "start",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Call",
+        "name": "grammar"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "grammar",
+      "kwparams": {},
+      "params": [
+        "Grammar"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Constant",
+              "literal": "TATSU"
+            },
+            "name": "title"
+          },
+          {
+            "__class__": "Closure",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "NamedList",
+                    "exp": {
+                      "__class__": "Call",
+                      "name": "directive"
+                    },
+                    "name": "directives"
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "NamedList",
+                    "exp": {
+                      "__class__": "Call",
+                      "name": "keyword"
+                    },
+                    "name": "keywords"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "NamedList",
+            "exp": {
+              "__class__": "Call",
+              "name": "rule"
+            },
+            "name": "rules"
+          },
+          {
+            "__class__": "Closure",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "NamedList",
+                    "exp": {
+                      "__class__": "Call",
+                      "name": "rule"
+                    },
+                    "name": "rules"
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "NamedList",
+                    "exp": {
+                      "__class__": "Call",
+                      "name": "keyword"
+                    },
+                    "name": "keywords"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "EOF"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "directive",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "@@"
+          },
+          {
+            "__class__": "NegativeLookahead",
+            "exp": {
+              "__class__": "Token",
+              "token": "keyword"
+            }
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Group",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Sequence",
+                    "sequence": [
+                      {
+                        "__class__": "Named",
+                        "exp": {
+                          "__class__": "Group",
+                          "exp": {
+                            "__class__": "Choice",
+                            "options": [
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Token",
+                                  "token": "comments"
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Token",
+                                  "token": "eol_comments"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "name": "name"
+                      },
+                      {
+                        "__class__": "Cut"
+                      },
+                      {
+                        "__class__": "Token",
+                        "token": "::"
+                      },
+                      {
+                        "__class__": "Cut"
+                      },
+                      {
+                        "__class__": "Named",
+                        "exp": {
+                          "__class__": "Call",
+                          "name": "regex"
+                        },
+                        "name": "value"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Sequence",
+                    "sequence": [
+                      {
+                        "__class__": "Named",
+                        "exp": {
+                          "__class__": "Token",
+                          "token": "whitespace"
+                        },
+                        "name": "name"
+                      },
+                      {
+                        "__class__": "Cut"
+                      },
+                      {
+                        "__class__": "Token",
+                        "token": "::"
+                      },
+                      {
+                        "__class__": "Cut"
+                      },
+                      {
+                        "__class__": "Named",
+                        "exp": {
+                          "__class__": "Group",
+                          "exp": {
+                            "__class__": "Choice",
+                            "options": [
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Call",
+                                  "name": "regex"
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Call",
+                                  "name": "string"
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Token",
+                                  "token": "None"
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Token",
+                                  "token": "False"
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Constant",
+                                  "literal": "None"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "name": "value"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Sequence",
+                    "sequence": [
+                      {
+                        "__class__": "Named",
+                        "exp": {
+                          "__class__": "Group",
+                          "exp": {
+                            "__class__": "Choice",
+                            "options": [
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Token",
+                                  "token": "nameguard"
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Token",
+                                  "token": "ignorecase"
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Token",
+                                  "token": "left_recursion"
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Token",
+                                  "token": "parseinfo"
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Token",
+                                  "token": "memoization"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "name": "name"
+                      },
+                      {
+                        "__class__": "Cut"
+                      },
+                      {
+                        "__class__": "Group",
+                        "exp": {
+                          "__class__": "Choice",
+                          "options": [
+                            {
+                              "__class__": "Option",
+                              "exp": {
+                                "__class__": "Sequence",
+                                "sequence": [
+                                  {
+                                    "__class__": "Token",
+                                    "token": "::"
+                                  },
+                                  {
+                                    "__class__": "Cut"
+                                  },
+                                  {
+                                    "__class__": "Named",
+                                    "exp": {
+                                      "__class__": "Call",
+                                      "name": "boolean"
+                                    },
+                                    "name": "value"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "__class__": "Option",
+                              "exp": {
+                                "__class__": "Named",
+                                "exp": {
+                                  "__class__": "Constant",
+                                  "literal": true
+                                },
+                                "name": "value"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Sequence",
+                    "sequence": [
+                      {
+                        "__class__": "Named",
+                        "exp": {
+                          "__class__": "Token",
+                          "token": "grammar"
+                        },
+                        "name": "name"
+                      },
+                      {
+                        "__class__": "Cut"
+                      },
+                      {
+                        "__class__": "Token",
+                        "token": "::"
+                      },
+                      {
+                        "__class__": "Cut"
+                      },
+                      {
+                        "__class__": "Named",
+                        "exp": {
+                          "__class__": "Call",
+                          "name": "word"
+                        },
+                        "name": "value"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Sequence",
+                    "sequence": [
+                      {
+                        "__class__": "Named",
+                        "exp": {
+                          "__class__": "Token",
+                          "token": "namechars"
+                        },
+                        "name": "name"
+                      },
+                      {
+                        "__class__": "Cut"
+                      },
+                      {
+                        "__class__": "Token",
+                        "token": "::"
+                      },
+                      {
+                        "__class__": "Cut"
+                      },
+                      {
+                        "__class__": "Named",
+                        "exp": {
+                          "__class__": "Call",
+                          "name": "string"
+                        },
+                        "name": "value"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "keywords",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "PositiveClosure",
+        "exp": {
+          "__class__": "Call",
+          "name": "keyword"
+        }
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "keyword",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "@@keyword"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Token",
+            "token": "::"
+          },
+          {
+            "__class__": "PositiveClosure",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "OverrideList",
+                  "exp": {
+                    "__class__": "Group",
+                    "exp": {
+                      "__class__": "Choice",
+                      "options": [
+                        {
+                          "__class__": "Option",
+                          "exp": {
+                            "__class__": "Call",
+                            "name": "word"
+                          }
+                        },
+                        {
+                          "__class__": "Option",
+                          "exp": {
+                            "__class__": "Call",
+                            "name": "string"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "__class__": "NegativeLookahead",
+                  "exp": {
+                    "__class__": "Group",
+                    "exp": {
+                      "__class__": "Choice",
+                      "options": [
+                        {
+                          "__class__": "Option",
+                          "exp": {
+                            "__class__": "Token",
+                            "token": ":"
+                          }
+                        },
+                        {
+                          "__class__": "Option",
+                          "exp": {
+                            "__class__": "Token",
+                            "token": "="
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "params",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "OverrideList",
+            "exp": {
+              "__class__": "Call",
+              "name": "first_param"
+            }
+          },
+          {
+            "__class__": "Closure",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Token",
+                  "token": ","
+                },
+                {
+                  "__class__": "OverrideList",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "literal"
+                  }
+                },
+                {
+                  "__class__": "NegativeLookahead",
+                  "exp": {
+                    "__class__": "Token",
+                    "token": "="
+                  }
+                },
+                {
+                  "__class__": "Cut"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "first_param",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "path"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "literal"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "kwparams",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "PositiveGather",
+        "exp": {
+          "__class__": "Call",
+          "name": "pair"
+        },
+        "sep": {
+          "__class__": "Token",
+          "token": ","
+        }
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "the_params_at_last",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Named",
+              "exp": {
+                "__class__": "Call",
+                "name": "kwparams"
+              },
+              "name": "kwparams"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Named",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "params"
+                  },
+                  "name": "params"
+                },
+                {
+                  "__class__": "Token",
+                  "token": ","
+                },
+                {
+                  "__class__": "Cut"
+                },
+                {
+                  "__class__": "Named",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "kwparams"
+                  },
+                  "name": "kwparams"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Named",
+              "exp": {
+                "__class__": "Call",
+                "name": "params"
+              },
+              "name": "params"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "paramdef",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Token",
+                  "token": "["
+                },
+                {
+                  "__class__": "Cut"
+                },
+                {
+                  "__class__": "RuleInclude",
+                  "rule": {
+                    "__class__": "Rule",
+                    "is_tokn": false,
+                    "is_name": false,
+                    "base": null,
+                    "name": "the_params_at_last",
+                    "kwparams": {},
+                    "params": [],
+                    "is_lrec": false,
+                    "exp": {
+                      "__class__": "Choice",
+                      "options": [
+                        {
+                          "__class__": "Option",
+                          "exp": {
+                            "__class__": "Named",
+                            "exp": {
+                              "__class__": "Call",
+                              "name": "kwparams"
+                            },
+                            "name": "kwparams"
+                          }
+                        },
+                        {
+                          "__class__": "Option",
+                          "exp": {
+                            "__class__": "Sequence",
+                            "sequence": [
+                              {
+                                "__class__": "Named",
+                                "exp": {
+                                  "__class__": "Call",
+                                  "name": "params"
+                                },
+                                "name": "params"
+                              },
+                              {
+                                "__class__": "Token",
+                                "token": ","
+                              },
+                              {
+                                "__class__": "Cut"
+                              },
+                              {
+                                "__class__": "Named",
+                                "exp": {
+                                  "__class__": "Call",
+                                  "name": "kwparams"
+                                },
+                                "name": "kwparams"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "__class__": "Option",
+                          "exp": {
+                            "__class__": "Named",
+                            "exp": {
+                              "__class__": "Call",
+                              "name": "params"
+                            },
+                            "name": "params"
+                          }
+                        }
+                      ]
+                    },
+                    "no_memo": false,
+                    "decorators": [],
+                    "is_memo": true
+                  },
+                  "exp": {
+                    "__class__": "Choice",
+                    "options": [
+                      {
+                        "__class__": "Option",
+                        "exp": {
+                          "__class__": "Named",
+                          "exp": {
+                            "__class__": "Call",
+                            "name": "kwparams"
+                          },
+                          "name": "kwparams"
+                        }
+                      },
+                      {
+                        "__class__": "Option",
+                        "exp": {
+                          "__class__": "Sequence",
+                          "sequence": [
+                            {
+                              "__class__": "Named",
+                              "exp": {
+                                "__class__": "Call",
+                                "name": "params"
+                              },
+                              "name": "params"
+                            },
+                            {
+                              "__class__": "Token",
+                              "token": ","
+                            },
+                            {
+                              "__class__": "Cut"
+                            },
+                            {
+                              "__class__": "Named",
+                              "exp": {
+                                "__class__": "Call",
+                                "name": "kwparams"
+                              },
+                              "name": "kwparams"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "__class__": "Option",
+                        "exp": {
+                          "__class__": "Named",
+                          "exp": {
+                            "__class__": "Call",
+                            "name": "params"
+                          },
+                          "name": "params"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Token",
+                  "token": "]"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Token",
+                  "token": "("
+                },
+                {
+                  "__class__": "Cut"
+                },
+                {
+                  "__class__": "RuleInclude",
+                  "rule": {
+                    "__class__": "Rule",
+                    "is_tokn": false,
+                    "is_name": false,
+                    "base": null,
+                    "name": "the_params_at_last",
+                    "kwparams": {},
+                    "params": [],
+                    "is_lrec": false,
+                    "exp": {
+                      "__class__": "Choice",
+                      "options": [
+                        {
+                          "__class__": "Option",
+                          "exp": {
+                            "__class__": "Named",
+                            "exp": {
+                              "__class__": "Call",
+                              "name": "kwparams"
+                            },
+                            "name": "kwparams"
+                          }
+                        },
+                        {
+                          "__class__": "Option",
+                          "exp": {
+                            "__class__": "Sequence",
+                            "sequence": [
+                              {
+                                "__class__": "Named",
+                                "exp": {
+                                  "__class__": "Call",
+                                  "name": "params"
+                                },
+                                "name": "params"
+                              },
+                              {
+                                "__class__": "Token",
+                                "token": ","
+                              },
+                              {
+                                "__class__": "Cut"
+                              },
+                              {
+                                "__class__": "Named",
+                                "exp": {
+                                  "__class__": "Call",
+                                  "name": "kwparams"
+                                },
+                                "name": "kwparams"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "__class__": "Option",
+                          "exp": {
+                            "__class__": "Named",
+                            "exp": {
+                              "__class__": "Call",
+                              "name": "params"
+                            },
+                            "name": "params"
+                          }
+                        }
+                      ]
+                    },
+                    "no_memo": false,
+                    "decorators": [],
+                    "is_memo": true
+                  },
+                  "exp": {
+                    "__class__": "Choice",
+                    "options": [
+                      {
+                        "__class__": "Option",
+                        "exp": {
+                          "__class__": "Named",
+                          "exp": {
+                            "__class__": "Call",
+                            "name": "kwparams"
+                          },
+                          "name": "kwparams"
+                        }
+                      },
+                      {
+                        "__class__": "Option",
+                        "exp": {
+                          "__class__": "Sequence",
+                          "sequence": [
+                            {
+                              "__class__": "Named",
+                              "exp": {
+                                "__class__": "Call",
+                                "name": "params"
+                              },
+                              "name": "params"
+                            },
+                            {
+                              "__class__": "Token",
+                              "token": ","
+                            },
+                            {
+                              "__class__": "Cut"
+                            },
+                            {
+                              "__class__": "Named",
+                              "exp": {
+                                "__class__": "Call",
+                                "name": "kwparams"
+                              },
+                              "name": "kwparams"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "__class__": "Option",
+                        "exp": {
+                          "__class__": "Named",
+                          "exp": {
+                            "__class__": "Call",
+                            "name": "params"
+                          },
+                          "name": "params"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Token",
+                  "token": ")"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Token",
+                  "token": "::"
+                },
+                {
+                  "__class__": "Cut"
+                },
+                {
+                  "__class__": "Named",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "params"
+                  },
+                  "name": "params"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "rule",
+      "kwparams": {},
+      "params": [
+        "Rule"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "Call",
+                "name": "decorator"
+              }
+            },
+            "name": "decorators"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "name"
+            },
+            "name": "name"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Optional",
+            "exp": {
+              "__class__": "RuleInclude",
+              "rule": {
+                "__class__": "Rule",
+                "is_tokn": false,
+                "is_name": false,
+                "base": null,
+                "name": "paramdef",
+                "kwparams": {},
+                "params": [],
+                "is_lrec": false,
+                "exp": {
+                  "__class__": "Choice",
+                  "options": [
+                    {
+                      "__class__": "Option",
+                      "exp": {
+                        "__class__": "Sequence",
+                        "sequence": [
+                          {
+                            "__class__": "Token",
+                            "token": "["
+                          },
+                          {
+                            "__class__": "Cut"
+                          },
+                          {
+                            "__class__": "RuleInclude",
+                            "rule": {
+                              "__class__": "Rule",
+                              "is_tokn": false,
+                              "is_name": false,
+                              "base": null,
+                              "name": "the_params_at_last",
+                              "kwparams": {},
+                              "params": [],
+                              "is_lrec": false,
+                              "exp": {
+                                "__class__": "Choice",
+                                "options": [
+                                  {
+                                    "__class__": "Option",
+                                    "exp": {
+                                      "__class__": "Named",
+                                      "exp": {
+                                        "__class__": "Call",
+                                        "name": "kwparams"
+                                      },
+                                      "name": "kwparams"
+                                    }
+                                  },
+                                  {
+                                    "__class__": "Option",
+                                    "exp": {
+                                      "__class__": "Sequence",
+                                      "sequence": [
+                                        {
+                                          "__class__": "Named",
+                                          "exp": {
+                                            "__class__": "Call",
+                                            "name": "params"
+                                          },
+                                          "name": "params"
+                                        },
+                                        {
+                                          "__class__": "Token",
+                                          "token": ","
+                                        },
+                                        {
+                                          "__class__": "Cut"
+                                        },
+                                        {
+                                          "__class__": "Named",
+                                          "exp": {
+                                            "__class__": "Call",
+                                            "name": "kwparams"
+                                          },
+                                          "name": "kwparams"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "__class__": "Option",
+                                    "exp": {
+                                      "__class__": "Named",
+                                      "exp": {
+                                        "__class__": "Call",
+                                        "name": "params"
+                                      },
+                                      "name": "params"
+                                    }
+                                  }
+                                ]
+                              },
+                              "no_memo": false,
+                              "decorators": [],
+                              "is_memo": true
+                            },
+                            "exp": {
+                              "__class__": "Choice",
+                              "options": [
+                                {
+                                  "__class__": "Option",
+                                  "exp": {
+                                    "__class__": "Named",
+                                    "exp": {
+                                      "__class__": "Call",
+                                      "name": "kwparams"
+                                    },
+                                    "name": "kwparams"
+                                  }
+                                },
+                                {
+                                  "__class__": "Option",
+                                  "exp": {
+                                    "__class__": "Sequence",
+                                    "sequence": [
+                                      {
+                                        "__class__": "Named",
+                                        "exp": {
+                                          "__class__": "Call",
+                                          "name": "params"
+                                        },
+                                        "name": "params"
+                                      },
+                                      {
+                                        "__class__": "Token",
+                                        "token": ","
+                                      },
+                                      {
+                                        "__class__": "Cut"
+                                      },
+                                      {
+                                        "__class__": "Named",
+                                        "exp": {
+                                          "__class__": "Call",
+                                          "name": "kwparams"
+                                        },
+                                        "name": "kwparams"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "__class__": "Option",
+                                  "exp": {
+                                    "__class__": "Named",
+                                    "exp": {
+                                      "__class__": "Call",
+                                      "name": "params"
+                                    },
+                                    "name": "params"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "__class__": "Token",
+                            "token": "]"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "__class__": "Option",
+                      "exp": {
+                        "__class__": "Sequence",
+                        "sequence": [
+                          {
+                            "__class__": "Token",
+                            "token": "("
+                          },
+                          {
+                            "__class__": "Cut"
+                          },
+                          {
+                            "__class__": "RuleInclude",
+                            "rule": {
+                              "__class__": "Rule",
+                              "is_tokn": false,
+                              "is_name": false,
+                              "base": null,
+                              "name": "the_params_at_last",
+                              "kwparams": {},
+                              "params": [],
+                              "is_lrec": false,
+                              "exp": {
+                                "__class__": "Choice",
+                                "options": [
+                                  {
+                                    "__class__": "Option",
+                                    "exp": {
+                                      "__class__": "Named",
+                                      "exp": {
+                                        "__class__": "Call",
+                                        "name": "kwparams"
+                                      },
+                                      "name": "kwparams"
+                                    }
+                                  },
+                                  {
+                                    "__class__": "Option",
+                                    "exp": {
+                                      "__class__": "Sequence",
+                                      "sequence": [
+                                        {
+                                          "__class__": "Named",
+                                          "exp": {
+                                            "__class__": "Call",
+                                            "name": "params"
+                                          },
+                                          "name": "params"
+                                        },
+                                        {
+                                          "__class__": "Token",
+                                          "token": ","
+                                        },
+                                        {
+                                          "__class__": "Cut"
+                                        },
+                                        {
+                                          "__class__": "Named",
+                                          "exp": {
+                                            "__class__": "Call",
+                                            "name": "kwparams"
+                                          },
+                                          "name": "kwparams"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "__class__": "Option",
+                                    "exp": {
+                                      "__class__": "Named",
+                                      "exp": {
+                                        "__class__": "Call",
+                                        "name": "params"
+                                      },
+                                      "name": "params"
+                                    }
+                                  }
+                                ]
+                              },
+                              "no_memo": false,
+                              "decorators": [],
+                              "is_memo": true
+                            },
+                            "exp": {
+                              "__class__": "Choice",
+                              "options": [
+                                {
+                                  "__class__": "Option",
+                                  "exp": {
+                                    "__class__": "Named",
+                                    "exp": {
+                                      "__class__": "Call",
+                                      "name": "kwparams"
+                                    },
+                                    "name": "kwparams"
+                                  }
+                                },
+                                {
+                                  "__class__": "Option",
+                                  "exp": {
+                                    "__class__": "Sequence",
+                                    "sequence": [
+                                      {
+                                        "__class__": "Named",
+                                        "exp": {
+                                          "__class__": "Call",
+                                          "name": "params"
+                                        },
+                                        "name": "params"
+                                      },
+                                      {
+                                        "__class__": "Token",
+                                        "token": ","
+                                      },
+                                      {
+                                        "__class__": "Cut"
+                                      },
+                                      {
+                                        "__class__": "Named",
+                                        "exp": {
+                                          "__class__": "Call",
+                                          "name": "kwparams"
+                                        },
+                                        "name": "kwparams"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "__class__": "Option",
+                                  "exp": {
+                                    "__class__": "Named",
+                                    "exp": {
+                                      "__class__": "Call",
+                                      "name": "params"
+                                    },
+                                    "name": "params"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "__class__": "Token",
+                            "token": ")"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "__class__": "Option",
+                      "exp": {
+                        "__class__": "Sequence",
+                        "sequence": [
+                          {
+                            "__class__": "Token",
+                            "token": "::"
+                          },
+                          {
+                            "__class__": "Cut"
+                          },
+                          {
+                            "__class__": "Named",
+                            "exp": {
+                              "__class__": "Call",
+                              "name": "params"
+                            },
+                            "name": "params"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "no_memo": false,
+                "decorators": [],
+                "is_memo": true
+              },
+              "exp": {
+                "__class__": "Choice",
+                "options": [
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "Sequence",
+                      "sequence": [
+                        {
+                          "__class__": "Token",
+                          "token": "["
+                        },
+                        {
+                          "__class__": "Cut"
+                        },
+                        {
+                          "__class__": "RuleInclude",
+                          "rule": {
+                            "__class__": "Rule",
+                            "is_tokn": false,
+                            "is_name": false,
+                            "base": null,
+                            "name": "the_params_at_last",
+                            "kwparams": {},
+                            "params": [],
+                            "is_lrec": false,
+                            "exp": {
+                              "__class__": "Choice",
+                              "options": [
+                                {
+                                  "__class__": "Option",
+                                  "exp": {
+                                    "__class__": "Named",
+                                    "exp": {
+                                      "__class__": "Call",
+                                      "name": "kwparams"
+                                    },
+                                    "name": "kwparams"
+                                  }
+                                },
+                                {
+                                  "__class__": "Option",
+                                  "exp": {
+                                    "__class__": "Sequence",
+                                    "sequence": [
+                                      {
+                                        "__class__": "Named",
+                                        "exp": {
+                                          "__class__": "Call",
+                                          "name": "params"
+                                        },
+                                        "name": "params"
+                                      },
+                                      {
+                                        "__class__": "Token",
+                                        "token": ","
+                                      },
+                                      {
+                                        "__class__": "Cut"
+                                      },
+                                      {
+                                        "__class__": "Named",
+                                        "exp": {
+                                          "__class__": "Call",
+                                          "name": "kwparams"
+                                        },
+                                        "name": "kwparams"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "__class__": "Option",
+                                  "exp": {
+                                    "__class__": "Named",
+                                    "exp": {
+                                      "__class__": "Call",
+                                      "name": "params"
+                                    },
+                                    "name": "params"
+                                  }
+                                }
+                              ]
+                            },
+                            "no_memo": false,
+                            "decorators": [],
+                            "is_memo": true
+                          },
+                          "exp": {
+                            "__class__": "Choice",
+                            "options": [
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Named",
+                                  "exp": {
+                                    "__class__": "Call",
+                                    "name": "kwparams"
+                                  },
+                                  "name": "kwparams"
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Sequence",
+                                  "sequence": [
+                                    {
+                                      "__class__": "Named",
+                                      "exp": {
+                                        "__class__": "Call",
+                                        "name": "params"
+                                      },
+                                      "name": "params"
+                                    },
+                                    {
+                                      "__class__": "Token",
+                                      "token": ","
+                                    },
+                                    {
+                                      "__class__": "Cut"
+                                    },
+                                    {
+                                      "__class__": "Named",
+                                      "exp": {
+                                        "__class__": "Call",
+                                        "name": "kwparams"
+                                      },
+                                      "name": "kwparams"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Named",
+                                  "exp": {
+                                    "__class__": "Call",
+                                    "name": "params"
+                                  },
+                                  "name": "params"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "__class__": "Token",
+                          "token": "]"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "Sequence",
+                      "sequence": [
+                        {
+                          "__class__": "Token",
+                          "token": "("
+                        },
+                        {
+                          "__class__": "Cut"
+                        },
+                        {
+                          "__class__": "RuleInclude",
+                          "rule": {
+                            "__class__": "Rule",
+                            "is_tokn": false,
+                            "is_name": false,
+                            "base": null,
+                            "name": "the_params_at_last",
+                            "kwparams": {},
+                            "params": [],
+                            "is_lrec": false,
+                            "exp": {
+                              "__class__": "Choice",
+                              "options": [
+                                {
+                                  "__class__": "Option",
+                                  "exp": {
+                                    "__class__": "Named",
+                                    "exp": {
+                                      "__class__": "Call",
+                                      "name": "kwparams"
+                                    },
+                                    "name": "kwparams"
+                                  }
+                                },
+                                {
+                                  "__class__": "Option",
+                                  "exp": {
+                                    "__class__": "Sequence",
+                                    "sequence": [
+                                      {
+                                        "__class__": "Named",
+                                        "exp": {
+                                          "__class__": "Call",
+                                          "name": "params"
+                                        },
+                                        "name": "params"
+                                      },
+                                      {
+                                        "__class__": "Token",
+                                        "token": ","
+                                      },
+                                      {
+                                        "__class__": "Cut"
+                                      },
+                                      {
+                                        "__class__": "Named",
+                                        "exp": {
+                                          "__class__": "Call",
+                                          "name": "kwparams"
+                                        },
+                                        "name": "kwparams"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "__class__": "Option",
+                                  "exp": {
+                                    "__class__": "Named",
+                                    "exp": {
+                                      "__class__": "Call",
+                                      "name": "params"
+                                    },
+                                    "name": "params"
+                                  }
+                                }
+                              ]
+                            },
+                            "no_memo": false,
+                            "decorators": [],
+                            "is_memo": true
+                          },
+                          "exp": {
+                            "__class__": "Choice",
+                            "options": [
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Named",
+                                  "exp": {
+                                    "__class__": "Call",
+                                    "name": "kwparams"
+                                  },
+                                  "name": "kwparams"
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Sequence",
+                                  "sequence": [
+                                    {
+                                      "__class__": "Named",
+                                      "exp": {
+                                        "__class__": "Call",
+                                        "name": "params"
+                                      },
+                                      "name": "params"
+                                    },
+                                    {
+                                      "__class__": "Token",
+                                      "token": ","
+                                    },
+                                    {
+                                      "__class__": "Cut"
+                                    },
+                                    {
+                                      "__class__": "Named",
+                                      "exp": {
+                                        "__class__": "Call",
+                                        "name": "kwparams"
+                                      },
+                                      "name": "kwparams"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "exp": {
+                                  "__class__": "Named",
+                                  "exp": {
+                                    "__class__": "Call",
+                                    "name": "params"
+                                  },
+                                  "name": "params"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "__class__": "Token",
+                          "token": ")"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "Sequence",
+                      "sequence": [
+                        {
+                          "__class__": "Token",
+                          "token": "::"
+                        },
+                        {
+                          "__class__": "Cut"
+                        },
+                        {
+                          "__class__": "Named",
+                          "exp": {
+                            "__class__": "Call",
+                            "name": "params"
+                          },
+                          "name": "params"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "__class__": "Optional",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Token",
+                  "token": "<"
+                },
+                {
+                  "__class__": "Cut"
+                },
+                {
+                  "__class__": "Named",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "known_name"
+                  },
+                  "name": "base"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Void",
+            "ast": "()"
+          },
+          {
+            "__class__": "Pattern",
+            "pattern": "=|::=|:=?"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "expre"
+            },
+            "name": "exp"
+          },
+          {
+            "__class__": "Call",
+            "name": "ENDRULE"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": true,
+      "is_name": false,
+      "base": null,
+      "name": "ENDRULE",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Lookahead",
+              "exp": {
+                "__class__": "Call",
+                "name": "UNINDENTED"
+              }
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Call",
+                  "name": "EMPTYLINE"
+                },
+                {
+                  "__class__": "Optional",
+                  "exp": {
+                    "__class__": "Token",
+                    "token": ";"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "EOF"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": ";"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": true,
+      "is_name": false,
+      "base": null,
+      "name": "UNINDENTED",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Pattern",
+        "pattern": "(?=\\s*(?:\\r?\\n|\\r)[^\\s])"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": true,
+      "is_name": false,
+      "base": null,
+      "name": "EMPTYLINE",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Pattern",
+        "pattern": "(?:\\s*(?:\\r?\\n|\\r)){2,}"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "decorator",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "@"
+          },
+          {
+            "__class__": "NegativeLookahead",
+            "exp": {
+              "__class__": "Token",
+              "token": "@"
+            }
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "Group",
+              "exp": {
+                "__class__": "Choice",
+                "options": [
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "Token",
+                      "token": "override"
+                    }
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "Token",
+                      "token": "name"
+                    }
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "Token",
+                      "token": "isname"
+                    }
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "Token",
+                      "token": "nomemo"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "pair",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "OverrideList",
+            "exp": {
+              "__class__": "Call",
+              "name": "word"
+            }
+          },
+          {
+            "__class__": "Token",
+            "token": "="
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "OverrideList",
+            "exp": {
+              "__class__": "Call",
+              "name": "literal"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "expre",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "choice"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "sequence"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "choice",
+      "kwparams": {},
+      "params": [
+        "Choice"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Optional",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Token",
+                  "token": "|"
+                },
+                {
+                  "__class__": "Cut"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "OverrideList",
+            "exp": {
+              "__class__": "Call",
+              "name": "option"
+            }
+          },
+          {
+            "__class__": "PositiveClosure",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Token",
+                  "token": "|"
+                },
+                {
+                  "__class__": "Cut"
+                },
+                {
+                  "__class__": "OverrideList",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "option"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "option",
+      "kwparams": {},
+      "params": [
+        "Option"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Call",
+        "name": "sequence"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "sequence",
+      "kwparams": {},
+      "params": [
+        "Sequence"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Lookahead",
+                  "exp": {
+                    "__class__": "Group",
+                    "exp": {
+                      "__class__": "Sequence",
+                      "sequence": [
+                        {
+                          "__class__": "Call",
+                          "name": "element"
+                        },
+                        {
+                          "__class__": "Token",
+                          "token": ","
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "__class__": "PositiveGather",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "element"
+                  },
+                  "sep": {
+                    "__class__": "Token",
+                    "token": ","
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "PositiveClosure",
+              "exp": {
+                "__class__": "Sequence",
+                "sequence": [
+                  {
+                    "__class__": "NegativeLookahead",
+                    "exp": {
+                      "__class__": "Call",
+                      "name": "ENDRULE"
+                    }
+                  },
+                  {
+                    "__class__": "Call",
+                    "name": "element"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "element",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "rule_include"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "named"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "override"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "term"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "rule_include",
+      "kwparams": {},
+      "params": [
+        "RuleInclude"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": ">"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "Call",
+              "name": "known_name"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "named",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "named_list"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "named_single"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "named_list",
+      "kwparams": {},
+      "params": [
+        "NamedList"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "name"
+            },
+            "name": "name"
+          },
+          {
+            "__class__": "Pattern",
+            "pattern": "\\+[:=]"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "term"
+            },
+            "name": "exp"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "named_single",
+      "kwparams": {},
+      "params": [
+        "Named"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "name"
+            },
+            "name": "name"
+          },
+          {
+            "__class__": "Pattern",
+            "pattern": "[:=]"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "term"
+            },
+            "name": "exp"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "override",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "override_list"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "override_single"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "override_single_deprecated"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "override_list",
+      "kwparams": {},
+      "params": [
+        "OverrideList"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Pattern",
+            "pattern": "\\+=|@\\+:"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "Call",
+              "name": "term"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "override_single",
+      "kwparams": {},
+      "params": [
+        "Override"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Pattern",
+            "pattern": "=|@:"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "Call",
+              "name": "term"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "override_single_deprecated",
+      "kwparams": {},
+      "params": [
+        "Override"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "@"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "Call",
+              "name": "term"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "term",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "void"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "gather"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "join"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "left_join"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "right_join"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "empty_closure"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "positive_closure"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "closure"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "optional"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "skip_to"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "lookahead"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "negative_lookahead"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "cut"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "cut_deprecated"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "atom"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "group",
+      "kwparams": {},
+      "params": [
+        "Group"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "NegativeLookahead",
+            "exp": {
+              "__class__": "Token",
+              "token": "(?:"
+            }
+          },
+          {
+            "__class__": "Token",
+            "token": "("
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "Call",
+              "name": "expre"
+            }
+          },
+          {
+            "__class__": "Token",
+            "token": ")"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "skip",
+      "kwparams": {},
+      "params": [
+        "SkipGroup"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "(?:"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "Call",
+              "name": "expre"
+            }
+          },
+          {
+            "__class__": "Token",
+            "token": ")"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "gather",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Lookahead",
+            "exp": {
+              "__class__": "Group",
+              "exp": {
+                "__class__": "Sequence",
+                "sequence": [
+                  {
+                    "__class__": "Call",
+                    "name": "atom"
+                  },
+                  {
+                    "__class__": "Token",
+                    "token": ".{"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Group",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "positive_gather"
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "normal_gather"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "positive_gather",
+      "kwparams": {},
+      "params": [
+        "PositiveGather"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "atom"
+            },
+            "name": "sep"
+          },
+          {
+            "__class__": "Token",
+            "token": ".{"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "expre"
+            },
+            "name": "exp"
+          },
+          {
+            "__class__": "Token",
+            "token": "}"
+          },
+          {
+            "__class__": "Pattern",
+            "pattern": "(?!\\+=)[+-]"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "normal_gather",
+      "kwparams": {},
+      "params": [
+        "Gather"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "atom"
+            },
+            "name": "sep"
+          },
+          {
+            "__class__": "Token",
+            "token": ".{"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "expre"
+            },
+            "name": "exp"
+          },
+          {
+            "__class__": "Token",
+            "token": "}"
+          },
+          {
+            "__class__": "Optional",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Token",
+                  "token": "*"
+                },
+                {
+                  "__class__": "Cut"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "join",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Lookahead",
+            "exp": {
+              "__class__": "Group",
+              "exp": {
+                "__class__": "Sequence",
+                "sequence": [
+                  {
+                    "__class__": "Call",
+                    "name": "atom"
+                  },
+                  {
+                    "__class__": "Token",
+                    "token": "%{"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Group",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "positive_join"
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "normal_join"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "positive_join",
+      "kwparams": {},
+      "params": [
+        "PositiveJoin"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "atom"
+            },
+            "name": "sep"
+          },
+          {
+            "__class__": "Token",
+            "token": "%{"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "expre"
+            },
+            "name": "exp"
+          },
+          {
+            "__class__": "Token",
+            "token": "}"
+          },
+          {
+            "__class__": "Pattern",
+            "pattern": "(?!\\+=)[+-]"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "normal_join",
+      "kwparams": {},
+      "params": [
+        "Join"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "atom"
+            },
+            "name": "sep"
+          },
+          {
+            "__class__": "Token",
+            "token": "%{"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "expre"
+            },
+            "name": "exp"
+          },
+          {
+            "__class__": "Token",
+            "token": "}"
+          },
+          {
+            "__class__": "Optional",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Token",
+                  "token": "*"
+                },
+                {
+                  "__class__": "Cut"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "left_join",
+      "kwparams": {},
+      "params": [
+        "LeftJoin"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "atom"
+            },
+            "name": "sep"
+          },
+          {
+            "__class__": "Token",
+            "token": "<{"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "expre"
+            },
+            "name": "exp"
+          },
+          {
+            "__class__": "Token",
+            "token": "}"
+          },
+          {
+            "__class__": "Pattern",
+            "pattern": "(?!\\+=)[+-]"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "right_join",
+      "kwparams": {},
+      "params": [
+        "RightJoin"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "atom"
+            },
+            "name": "sep"
+          },
+          {
+            "__class__": "Token",
+            "token": ">{"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "expre"
+            },
+            "name": "exp"
+          },
+          {
+            "__class__": "Token",
+            "token": "}"
+          },
+          {
+            "__class__": "Pattern",
+            "pattern": "(?!\\+=)[+-]"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "positive_closure",
+      "kwparams": {},
+      "params": [
+        "PositiveClosure"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Token",
+                  "token": "{"
+                },
+                {
+                  "__class__": "Override",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "expre"
+                  }
+                },
+                {
+                  "__class__": "Token",
+                  "token": "}"
+                },
+                {
+                  "__class__": "Pattern",
+                  "pattern": "(?!\\+=)[+-]"
+                },
+                {
+                  "__class__": "Cut"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Override",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "atom"
+                  }
+                },
+                {
+                  "__class__": "Pattern",
+                  "pattern": "(?!\\+=)[+]"
+                },
+                {
+                  "__class__": "Cut"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "closure",
+      "kwparams": {},
+      "params": [
+        "Closure"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Token",
+                  "token": "{"
+                },
+                {
+                  "__class__": "Override",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "expre"
+                  }
+                },
+                {
+                  "__class__": "Token",
+                  "token": "}"
+                },
+                {
+                  "__class__": "Optional",
+                  "exp": {
+                    "__class__": "Token",
+                    "token": "*"
+                  }
+                },
+                {
+                  "__class__": "Cut"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Override",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "atom"
+                  }
+                },
+                {
+                  "__class__": "Token",
+                  "token": "*"
+                },
+                {
+                  "__class__": "Cut"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "empty_closure",
+      "kwparams": {},
+      "params": [
+        "EmptyClosure"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "{}"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "Void",
+              "ast": "()"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "optional",
+      "kwparams": {},
+      "params": [
+        "Optional"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Token",
+                  "token": "["
+                },
+                {
+                  "__class__": "Cut"
+                },
+                {
+                  "__class__": "Override",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "expre"
+                  }
+                },
+                {
+                  "__class__": "Token",
+                  "token": "]"
+                },
+                {
+                  "__class__": "Cut"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Override",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "atom"
+                  }
+                },
+                {
+                  "__class__": "NegativeLookahead",
+                  "exp": {
+                    "__class__": "Group",
+                    "exp": {
+                      "__class__": "Choice",
+                      "options": [
+                        {
+                          "__class__": "Option",
+                          "exp": {
+                            "__class__": "Token",
+                            "token": "?\""
+                          }
+                        },
+                        {
+                          "__class__": "Option",
+                          "exp": {
+                            "__class__": "Token",
+                            "token": "?'"
+                          }
+                        },
+                        {
+                          "__class__": "Option",
+                          "exp": {
+                            "__class__": "Token",
+                            "token": "?/"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "__class__": "Token",
+                  "token": "?"
+                },
+                {
+                  "__class__": "Cut"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "lookahead",
+      "kwparams": {},
+      "params": [
+        "Lookahead"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "&"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "Call",
+              "name": "term"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "negative_lookahead",
+      "kwparams": {},
+      "params": [
+        "NegativeLookahead"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "!"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "Call",
+              "name": "term"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "skip_to",
+      "kwparams": {},
+      "params": [
+        "SkipTo"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "->"
+          },
+          {
+            "__class__": "Cut"
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "Call",
+              "name": "term"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "atom",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "skip"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "group"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "token"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "alert"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "constant"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "call"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "pattern"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "dot"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "eof"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "call",
+      "kwparams": {},
+      "params": [
+        "Call"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Call",
+        "name": "word"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "void",
+      "kwparams": {},
+      "params": [
+        "Void"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "()"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "fail",
+      "kwparams": {},
+      "params": [
+        "Fail"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "!()"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "cut",
+      "kwparams": {},
+      "params": [
+        "Cut"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "~"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "cut_deprecated",
+      "kwparams": {},
+      "params": [
+        "Cut"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": ">>"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "known_name",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Call",
+            "name": "name"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "name",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Call",
+        "name": "word"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "constant",
+      "kwparams": {},
+      "params": [
+        "Constant"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Lookahead",
+            "exp": {
+              "__class__": "Token",
+              "token": "`"
+            }
+          },
+          {
+            "__class__": "Group",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Pattern",
+                    "pattern": "(?ms)```((?:.|\\n)*?)```"
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Sequence",
+                    "sequence": [
+                      {
+                        "__class__": "Token",
+                        "token": "`"
+                      },
+                      {
+                        "__class__": "Override",
+                        "exp": {
+                          "__class__": "Call",
+                          "name": "literal"
+                        }
+                      },
+                      {
+                        "__class__": "Token",
+                        "token": "`"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Pattern",
+                    "pattern": "`(.*?)`"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "alert",
+      "kwparams": {},
+      "params": [
+        "Alert"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Pattern",
+              "pattern": "\\^+"
+            },
+            "name": "level"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Call",
+              "name": "constant"
+            },
+            "name": "message"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "token",
+      "kwparams": {},
+      "params": [
+        "Token"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "string"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "raw_string"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "literal",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "string"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "raw_string"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "boolean"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "word"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "hex"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "float"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "int"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "null"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "string",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "multiline_string"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "singlequoted"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "doublequoted"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "singlequoted",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Call",
+        "name": "SINGLEQUOTED"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "doublequoted",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Call",
+        "name": "DOUBLEQUOTED"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "raw_string",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Pattern",
+            "pattern": "r"
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "Call",
+              "name": "STRING"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": true,
+      "is_name": false,
+      "base": null,
+      "name": "STRING",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "SINGLEQUOTED"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "DOUBLEQUOTED"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": true,
+      "is_name": false,
+      "base": null,
+      "name": "SINGLEQUOTED",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Pattern",
+            "pattern": "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": true,
+      "is_name": false,
+      "base": null,
+      "name": "DOUBLEQUOTED",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Pattern",
+            "pattern": "\"((?:[^\"\\n]|\\\\\"|\\\\\\\\)*?)\""
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "multiline_string",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Pattern",
+                  "pattern": "(?ms)'''((?:\\\\\\\\|\\\\.|(?!''').)*?)'''"
+                },
+                {
+                  "__class__": "Cut"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Pattern",
+                  "pattern": "(?ms)\"\"\"((?:\\\\\\\\|\\\\.|(?!\"\"\").)*?)\"\"\""
+                },
+                {
+                  "__class__": "Cut"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "hex",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Pattern",
+        "pattern": "0[xX](?:\\d|[a-fA-F])+"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "float",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Pattern",
+        "pattern": "[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "int",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Pattern",
+        "pattern": "[-+]?\\d+"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "path",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Pattern",
+        "pattern": "(?!\\d)\\w+(?:::(?!\\d)\\w+)+"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "word",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Pattern",
+        "pattern": "(?!\\d)\\w+"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "dot",
+      "kwparams": {},
+      "params": [
+        "Dot"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Token",
+        "token": "/./"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "pattern",
+      "kwparams": {},
+      "params": [
+        "Pattern"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Call",
+        "name": "regex"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "regex",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "REGEX"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "deprecated_regex"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Token",
+                  "token": "?"
+                },
+                {
+                  "__class__": "Override",
+                  "exp": {
+                    "__class__": "Call",
+                    "name": "STRING"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": true,
+      "is_name": false,
+      "base": null,
+      "name": "REGEX",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Pattern",
+            "pattern": "(?ms)/((?:[^/\\\\]|\\\\/|\\\\.)*)/"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "deprecated_regex",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Override",
+        "exp": {
+          "__class__": "Pattern",
+          "pattern": "(?ms)\\?/((?:[^/\\\\]|\\\\/|\\\\.)*)/\\?"
+        }
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "boolean",
+      "kwparams": {},
+      "params": [
+        "bool"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": "True"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": "False"
+            }
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "null",
+      "kwparams": {},
+      "params": [],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Token",
+        "token": "None"
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    },
+    {
+      "__class__": "Rule",
+      "is_tokn": false,
+      "is_name": false,
+      "base": null,
+      "name": "eof",
+      "kwparams": {},
+      "params": [
+        "EOF"
+      ],
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "$"
+          },
+          {
+            "__class__": "Cut"
+          }
+        ]
+      },
+      "no_memo": false,
+      "decorators": [],
+      "is_memo": true
+    }
+  ],
+  "keywords": [],
+  "name": "TatSu",
+  "directives": {
+    "grammar": "TatSu",
+    "whitespace": "(?m)\\s+",
+    "comments": "(?ms)[(][*]\\s*((?:.|\\n)*?)\\s*[*][)]|[\\/][*]\\s*((?:.|\\n)*?)\\s*[*][\\/]",
+    "eol_comments": "(?ms)(?:[#]|[\\/][\\/])(.*?)$",
+    "parseinfo": true,
+    "left_recursion": false
+  }
+}

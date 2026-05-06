@@ -23,17 +23,12 @@ classifiers = [
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
-    "Programming Language :: Python :: 3.15",
+    #    "Programming Language :: Python :: 3.14",
+    #    "Programming Language :: Python :: 3.15",
     "Topic :: Software Development :: Compilers",
     "Topic :: Text Processing :: General",
 ]
 dependencies = []
-
-[tool.pyrefly.errors]
-missing-attribute = "ignore"
-untyped-import = "ignore"
-missing-import = "ignore"
 
 [project.optional-dependencies]
 colorization = ["colorama"]
@@ -58,7 +53,6 @@ dev = [
     "psutil>=7.2.2",
     "pyrefly>=0.55.0",
     "pytest>=9.0.2",
-    "pytest-codspeed>=4.3.0",
     "pytest-dependency>=0.6.0",
     "rich>=14.3.3",
     "rich-click>=1.9.7",
@@ -101,6 +95,7 @@ doc = [
     "sphinx-copybutton>=0.5.2",
     "sphinx-markdown-builder>=0.6.10",
     "sphinx-rtd-theme>=3.1.0",
+    "vale>=3.13.0.0",
 ]
 mkdocs = [
     "mkdocs>=1.6.1",
@@ -147,6 +142,9 @@ exclude = [
     "ng",
     "parsers",
     "tmp",
+    "tiexiu",
+    "AGENTS.md",
+    "RULES.md",
 ]
 
 [tool.pytest.ini_options]
@@ -180,10 +178,19 @@ respect-type-ignore-comments = true
 unresolved-import = "ignore"
 unused-ignore-comment = "ignore"
 unused-type-ignore-comment = "ignore"
-#unresolved-attribute = "ignore"
+unresolved-attribute = "ignore"
 
 [tool.coverage.run]
-omit = ["tests/*", "tatsu/diagrams.py", "tatsu/codegen/*", "**/test.py"]
+omit = [
+    "tests/*",
+    "tmp/*",
+    "ng/*",
+    "tatsu/diagrams.py",
+    "tatsu/codegen/*",
+    "**/__init__.py",
+    "**/*_test.py",
+    "**/bootstrap.py",
+]
 data_file = ".cache/coverage/.coverage"
 
 [tool.black]
@@ -210,21 +217,20 @@ exclude = '''
 [tool.ruff]
 line-length = 88
 target-version = "py312"
+include = ["*.py", "*.pyi"]
 exclude = [".git", "__pycache__", "dist", "docs"]
 
 [tool.ruff.format]
-# Tell Ruff to match your Black preferences
-quote-style = "preserve"
 indent-style = "space"
+quote-style = "preserve"
 skip-magic-trailing-comma = false
+docstring-code-format = false
 
 [tool.ruff.lint.isort]
-# These settings define the "criteria" for how Ruff handles imports
 combine-as-imports = true
 force-single-line = false
 lines-after-imports = 2
-known-first-party = ["tatsu"] # Replace with your project name
-
+known-first-party = ["tatsu"]
 
 [tool.ruff.lint.pylint]
 max-branches = 21
@@ -247,18 +253,18 @@ select = [
 ]
 
 ignore = [
-#    "F401", # `XYZ` imported but unused
+    #    "F401", # `XYZ` imported but unused
     "COM812", #  Trailing comma missing"
     "COM819", #  Trailing comma prohibited
     "E501", #    line-too-long
     "E402", #    module-import-not-at-top-of-file
     "I001", #    Import block is un-sorted or un-formatted
-#    "FURB145".  # Prefer `copy` method over slicing"
+    #    "FURB145".  # Prefer `copy` method over slicing"
     "FURB189", #  subclassing str
     "PERF203", #  try-except within loop
     "PGH003",
     "PLR0914", # Too many local variables (17/15)"
-    "PGH004",  # Use specific rule codes when using `noqa`
+    "PGH004", # Use specific rule codes when using `noqa`
     "PLC0415", # import-outside-top-level
     "PLC2401", # non-ascci in identifier
     "PLR6301", # no-self-use
@@ -282,6 +288,8 @@ ignore = [
     "S301", #    suspicious-pickle-usage
     "S106", #    possible password
     "S403", #    insecure modules
+    "S603", # `subprocess` call: check for execution of untrusted input
+    "S607", # Starting a process with a partial executable path
     "SIM108", #  use ternary instead of if-else
     "SIM114", #  if-with-same-arms
     "TRY003", #  raise-vanilla-args
@@ -347,12 +355,8 @@ project-excludes = [
     "**/tatsu/codegen/**/*",
 ]
 python-version = "3.12.0"
-#reportUnnecessaryIsInstance = false
-#reportUnnecessaryCast = false
-#reportUnnecessaryComparison = false
-#reportUnusedClass = false
-#reportUnusedFunction = false
-#reportUnusedVariable = false
 
-# From your previous request
-#reportInvalidTypeForm = false
+[tool.pyrefly.errors]
+# missing-attribute = "ignore"
+# untyped-import = "ignore"
+# missing-import = "ignore"

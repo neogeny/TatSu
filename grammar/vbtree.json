@@ -1,0 +1,3589 @@
+{
+  "__class__": "Grammar",
+  "value": null,
+  "directives": {
+    "grammar": "VBForms",
+    "comments": "(REM\\s|\\')[^\\r\\n]*(\\r?\\n|\\r)",
+    "eol_comments": "\\'[^\\r\\n]*(\\r?\\n|\\r)",
+    "left_recursion": false,
+    "ignorecase": false
+  },
+  "config": "ParserConfig(name='VBForms', filename='', encoding='utf-8', start=None, start_rule=None, rule_name=None, comments_re=None, eol_comments_re=None, tokenizercls=<class 'tatsu.tokenizing.NullTokenizer'>, semantics=None, comment_recovery=False, memoization=True, memoize_lookaheads=True, memo_cache_size=1024, colorize=True, trace=False, trace_filename='', trace_length=72, trace_separator='\u2199', grammar='VBForms', left_recursion=False, comments=\"(REM\\\\s|\\\\')[^\\\\r\\\\n]*(\\\\r?\\\\n|\\\\r)\", eol_comments=\"\\\\'[^\\\\r\\\\n]*(\\\\r?\\\\n|\\\\r)\", keywords=['AddHandler', 'AddressOf', 'Alias', 'And', 'AndAlso', 'As', 'Boolean', 'ByRef', 'Byte', 'ByVal', 'Call', 'Case', 'Catch', 'CBool', 'CByte', 'CChar', 'CDate', 'CDec', 'CDbl', 'Char', 'CInt', 'Class', 'CLng', 'CObj', 'Const', 'Continue', 'CSByte', 'CShort', 'CSng', 'CStr', 'CType', 'CUInt', 'CULng', 'CUShort', 'Date', 'Decimal', 'Declare', 'Delegate', 'Dim', 'DirectCast', 'Do', 'Double', 'Each', 'Else', 'ElseIf', 'End', 'EndIf', 'Enum', 'Erase', 'Error', 'Event', 'Exit', 'False', 'Finally', 'For', 'Friend', 'Function', 'Get', 'GetType', 'GetXMLNamespace', 'Global', 'GoSub', 'GoTo', 'Handles', 'If', 'Implements', 'Imports', 'In', 'Inherits', 'Interface', 'Is', 'IsNot', 'Let', 'Lib', 'Like', 'Long', 'Loop', 'Me', 'Mod', 'Module', 'MustInherit', 'MustOverride', 'MyBase', 'MyClass', 'Namespace', 'Narrowing', 'New', 'Next', 'Not', 'Nothing', 'NotInheritable', 'NotOverridable', 'Of', 'On', 'Operator', 'Option', 'Optional', 'Or', 'OrElse', 'Overloads', 'Overridable', 'Overrides', 'ParamArray', 'Partial', 'Private', 'Property', 'Protected', 'Public', 'RaiseEvent', 'ReadOnly', 'ReDim', 'REM', 'RemoveHandler', 'Resume', 'Return', 'SByte', 'Select', 'Set', 'Shadows', 'Shared', 'Short', 'Single', 'Static', 'Step', 'Stop', 'Structure', 'Sub', 'SyncLock', 'Then', 'Throw', 'To', 'True', 'Try', 'TryCast', 'TypeOf', 'Variant', 'Wend', 'UInteger', 'ULong', 'UShort', 'Using', 'When', 'While', 'Widening', 'With', 'WithEvents', 'WriteOnly', 'Xor', '#Const', '#Else', '#ElseIf', '#End', '#If'], ignorecase=False, namechars='', nameguard=None, whitespace='>>undefined<<', parseinfo=False)",
+  "rules": [
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "form",
+              "value": null
+            },
+            "value": null,
+            "name": "@"
+          },
+          {
+            "__class__": "Group",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "EOF",
+                    "value": null
+                  },
+                  "value": null
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "RuleRef",
+                    "name": "logic_header",
+                    "value": null
+                  },
+                  "value": null
+                }
+              ],
+              "value": null
+            },
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "start",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": "Option Explicit",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Optional",
+                  "exp": {
+                    "__class__": "RuleRef",
+                    "name": "access",
+                    "value": null
+                  },
+                  "value": null
+                },
+                {
+                  "__class__": "Group",
+                  "exp": {
+                    "__class__": "Choice",
+                    "options": [
+                      {
+                        "__class__": "Option",
+                        "exp": {
+                          "__class__": "Token",
+                          "token": "Sub",
+                          "value": null
+                        },
+                        "value": null
+                      },
+                      {
+                        "__class__": "Option",
+                        "exp": {
+                          "__class__": "Token",
+                          "token": "Function",
+                          "value": null
+                        },
+                        "value": null
+                      }
+                    ],
+                    "value": null
+                  },
+                  "value": null
+                }
+              ],
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Optional",
+                  "exp": {
+                    "__class__": "RuleRef",
+                    "name": "access",
+                    "value": null
+                  },
+                  "value": null
+                },
+                {
+                  "__class__": "RuleRef",
+                  "name": "identifier",
+                  "value": null
+                },
+                {
+                  "__class__": "Token",
+                  "token": "As",
+                  "value": null
+                },
+                {
+                  "__class__": "Optional",
+                  "exp": {
+                    "__class__": "Token",
+                    "token": "New",
+                    "value": null
+                  },
+                  "value": null
+                },
+                {
+                  "__class__": "RuleRef",
+                  "name": "identifier",
+                  "value": null
+                }
+              ],
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": "Dim",
+              "value": null
+            },
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "logic_header",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": "Public",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": "Private",
+              "value": null
+            },
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "access",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "form_version",
+              "value": null
+            },
+            "value": null,
+            "name": "version"
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "ocx_import",
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "imports"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "form_declaration",
+              "value": null
+            },
+            "value": null,
+            "name": "header"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "form_body",
+              "value": null
+            },
+            "value": null,
+            "name": "body"
+          },
+          {
+            "__class__": "Token",
+            "token": "End",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "form_attribute",
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "attributes"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form",
+      "params": [
+        "Form"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "Choice",
+                "options": [
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "form_control_property",
+                      "value": null
+                    },
+                    "value": null
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "form_parameter",
+                      "value": null
+                    },
+                    "value": null
+                  }
+                ],
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "parameters"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "form_control",
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "controls"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form_body",
+      "params": [
+        "Body"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "VERSION",
+            "value": null
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "floating_point_literal",
+              "value": null
+            },
+            "value": null,
+            "name": "@"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form_version",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "Begin",
+            "value": null
+          },
+          {
+            "__class__": "Group",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Token",
+                    "token": "VB.Form",
+                    "value": null
+                  },
+                  "value": null
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Token",
+                    "token": "VB.MDIForm",
+                    "value": null
+                  },
+                  "value": null
+                }
+              ],
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form_declaration",
+      "params": [
+        "FormDeclaration"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Group",
+              "exp": {
+                "__class__": "Choice",
+                "options": [
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "qualified_name",
+                      "value": null
+                    },
+                    "value": null
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "identifier",
+                      "value": null
+                    },
+                    "value": null
+                  }
+                ],
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          },
+          {
+            "__class__": "Token",
+            "token": "=",
+            "value": null
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "parameter_value",
+              "value": null
+            },
+            "value": null,
+            "name": "value"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form_parameter",
+      "params": [
+        "FormParameter"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "Begin",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "qualified_name",
+              "value": null
+            },
+            "value": null,
+            "name": "type"
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "Choice",
+                "options": [
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "form_control_property",
+                      "value": null
+                    },
+                    "value": null
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "form_parameter",
+                      "value": null
+                    },
+                    "value": null
+                  }
+                ],
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "attributes"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "form_control",
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "controls"
+          },
+          {
+            "__class__": "Token",
+            "token": "End",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form_control",
+      "params": [
+        "FormControl"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "BeginProperty",
+            "value": null
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "property_hex_value",
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "hex_value"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "form_parameter",
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "parameters"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "form_control_property",
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "properties"
+          },
+          {
+            "__class__": "Token",
+            "token": "EndProperty",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form_control_property",
+      "params": [
+        "FormProperty"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "Attribute",
+            "value": null
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          },
+          {
+            "__class__": "Token",
+            "token": "=",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "parameter_value",
+              "value": null
+            },
+            "value": null,
+            "name": "value"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form_attribute",
+      "params": [
+        "FormAttribute"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "tag"
+          },
+          {
+            "__class__": "Token",
+            "token": "=",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "string_literal",
+              "value": null
+            },
+            "value": null,
+            "name": "class_id"
+          },
+          {
+            "__class__": "Token",
+            "token": ";",
+            "value": null
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "string_literal",
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "ocx_import",
+      "params": [
+        "OcxImport"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "{",
+            "value": null
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "PositiveGather",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "hex_integer_literal",
+                "value": null
+              },
+              "value": null,
+              "sep": {
+                "__class__": "Token",
+                "token": "-",
+                "value": null
+              }
+            },
+            "value": null,
+            "name": "@"
+          },
+          {
+            "__class__": "Token",
+            "token": "}",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "property_hex_value",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "string_colon_value",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "string_literal",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "integer_literal",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "floating_point_literal",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "shortcut_value",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "caret_letter",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "character_literal",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "boolean_literal",
+              "value": null
+            },
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "parameter_value",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Named",
+        "exp": {
+          "__class__": "Group",
+          "exp": {
+            "__class__": "Choice",
+            "options": [
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "RuleRef",
+                  "name": "background_color",
+                  "value": null
+                },
+                "value": null
+              },
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "RuleRef",
+                  "name": "floating_point_literal",
+                  "value": null
+                },
+                "value": null
+              },
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "RuleRef",
+                  "name": "hex_integer_literal",
+                  "value": null
+                },
+                "value": null
+              },
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "RuleRef",
+                  "name": "octal_integer_literal",
+                  "value": null
+                },
+                "value": null
+              },
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "RuleRef",
+                  "name": "binary_integer_literal",
+                  "value": null
+                },
+                "value": null
+              },
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "RuleRef",
+                  "name": "decimal_integer_literal",
+                  "value": null
+                },
+                "value": null
+              }
+            ],
+            "value": null
+          },
+          "value": null
+        },
+        "value": null,
+        "name": "value"
+      },
+      "value": null,
+      "name": "integer_literal",
+      "params": [
+        "Integer"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Closure",
+            "exp": {
+              "__class__": "Token",
+              "token": "$",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "string_literal",
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          },
+          {
+            "__class__": "Token",
+            "token": ":",
+            "value": null
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Group",
+              "exp": {
+                "__class__": "Choice",
+                "options": [
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "hex_integer_literal",
+                      "value": null
+                    },
+                    "value": null
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "integer_literal",
+                      "value": null
+                    },
+                    "value": null
+                  }
+                ],
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "value"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "string_colon_value",
+      "params": [
+        "StringColonValue"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "&",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "value"
+          },
+          {
+            "__class__": "Token",
+            "token": "&",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "background_color",
+      "params": [
+        "BackGroundColor"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "^",
+            "value": null
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "@"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "caret_letter",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Closure",
+            "exp": {
+              "__class__": "Token",
+              "token": "^",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Token",
+            "token": "{",
+            "value": null
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "@"
+          },
+          {
+            "__class__": "Token",
+            "token": "}",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "shortcut_value",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Pattern",
+        "patterns": [
+          "([+-]*[0-9]([_]*[0-9])*)[lL]?"
+        ],
+        "regex": "re.compile('([+-]*[0-9]([_]*[0-9])*)[lL]?')",
+        "value": null
+      },
+      "value": null,
+      "name": "decimal_integer_literal",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Pattern",
+        "patterns": [
+          "\\b[0-9A-Fa-f]+\\b"
+        ],
+        "regex": "re.compile('\\\\b[0-9A-Fa-f]+\\\\b')",
+        "value": null
+      },
+      "value": null,
+      "name": "hex_integer_literal",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Pattern",
+        "patterns": [
+          "0[_]*[0-7]([_]*[0-7])*[lL]?"
+        ],
+        "regex": "re.compile('0[_]*[0-7]([_]*[0-7])*[lL]?')",
+        "value": null
+      },
+      "value": null,
+      "name": "octal_integer_literal",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Pattern",
+        "patterns": [
+          "0[bB][01]([01_]*[01])*[lL]?"
+        ],
+        "regex": "re.compile('0[bB][01]([01_]*[01])*[lL]?')",
+        "value": null
+      },
+      "value": null,
+      "name": "binary_integer_literal",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "RuleRef",
+        "name": "decimal_floating_point_literal",
+        "value": null
+      },
+      "value": null,
+      "name": "floating_point_literal",
+      "params": [
+        "Float"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Named",
+        "exp": {
+          "__class__": "Group",
+          "exp": {
+            "__class__": "Choice",
+            "options": [
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "Pattern",
+                  "patterns": [
+                    "[+-]*[0-9][0-9_]*[.][0-9]*([eE][-+]?[0-9]+)?"
+                  ],
+                  "regex": "re.compile('[+-]*[0-9][0-9_]*[.][0-9]*([eE][-+]?[0-9]+)?')",
+                  "value": null
+                },
+                "value": null
+              },
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "Pattern",
+                  "patterns": [
+                    "[+-]*[.][0-9]+([eE][-+]?[0-9]+)?"
+                  ],
+                  "regex": "re.compile('[+-]*[.][0-9]+([eE][-+]?[0-9]+)?')",
+                  "value": null
+                },
+                "value": null
+              },
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "Pattern",
+                  "patterns": [
+                    "[+-]*[0-9][0-9_]*[eE][-+]?[0-9]+"
+                  ],
+                  "regex": "re.compile('[+-]*[0-9][0-9_]*[eE][-+]?[0-9]+')",
+                  "value": null
+                },
+                "value": null
+              }
+            ],
+            "value": null
+          },
+          "value": null
+        },
+        "value": null,
+        "name": "value"
+      },
+      "value": null,
+      "name": "decimal_floating_point_literal",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "'",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Pattern",
+              "patterns": [
+                "[^'\\n\\r\\\\]|\\\\[btnfr\"'\\\\]|\\\\[0-7]{1,3}|\\\\u[0-9a-fA-F]{4}"
+              ],
+              "regex": "re.compile('[^\\'\\\\n\\\\r\\\\\\\\]|\\\\\\\\[btnfr\"\\'\\\\\\\\]|\\\\\\\\[0-7]{1,3}|\\\\\\\\u[0-9a-fA-F]{4}')",
+              "value": null
+            },
+            "value": null,
+            "name": "value"
+          },
+          {
+            "__class__": "Token",
+            "token": "'",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "character_literal",
+      "params": [
+        "Char"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Named",
+        "exp": {
+          "__class__": "Pattern",
+          "patterns": [
+            "\"([^\"\\n\\r\\\\]|\"\"|\\\\[btnfr\"'\\\\]|\\\\[0-7]{1,3}|\\\\u[0-9a-fA-F]{4})*\""
+          ],
+          "regex": "re.compile('\"([^\"\\\\n\\\\r\\\\\\\\]|\"\"|\\\\\\\\[btnfr\"\\'\\\\\\\\]|\\\\\\\\[0-7]{1,3}|\\\\\\\\u[0-9a-fA-F]{4})*\"')",
+          "value": null
+        },
+        "value": null,
+        "name": "value"
+      },
+      "value": null,
+      "name": "string_literal",
+      "params": [
+        "String"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Group",
+              "exp": {
+                "__class__": "Choice",
+                "options": [
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "Token",
+                      "token": "True",
+                      "value": null
+                    },
+                    "value": null
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "Token",
+                      "token": "False",
+                      "value": null
+                    },
+                    "value": null
+                  }
+                ],
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "value"
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "boolean_literal",
+      "params": [
+        "Boolean"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Override",
+        "exp": {
+          "__class__": "Pattern",
+          "patterns": [
+            "(REM [\\d\\D]*?[\\r\\n])|(\\'[\\d\\D]*?[\\r\\n])"
+          ],
+          "regex": "re.compile(\"(REM [\\\\d\\\\D]*?[\\\\r\\\\n])|(\\\\'[\\\\d\\\\D]*?[\\\\r\\\\n])\")",
+          "value": null
+        },
+        "value": null,
+        "name": "@"
+      },
+      "value": null,
+      "name": "optional_comment",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": "+",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": "-",
+              "value": null
+            },
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "operator",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "(",
+            "value": null
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "integer_literal",
+              "value": null
+            },
+            "value": null,
+            "name": "@"
+          },
+          {
+            "__class__": "Token",
+            "token": ")",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "identifier_index",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Closure",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "NamedList",
+                  "exp": {
+                    "__class__": "RuleRef",
+                    "name": "identifier",
+                    "value": null
+                  },
+                  "value": null,
+                  "name": "qualifiers"
+                },
+                {
+                  "__class__": "Token",
+                  "token": ".",
+                  "value": null
+                },
+                {
+                  "__class__": "Cut",
+                  "value": null
+                }
+              ],
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "qualified_name",
+      "params": [
+        "QualifiedName"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "IDENTIFIER",
+              "value": null
+            },
+            "value": null,
+            "name": "value"
+          },
+          {
+            "__class__": "Closure",
+            "exp": {
+              "__class__": "Named",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "identifier_index",
+                "value": null
+              },
+              "value": null,
+              "name": "identifier_index"
+            },
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "identifier",
+      "params": [
+        "Identifier"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Pattern",
+        "patterns": [
+          "(?!\\d)[\\w$][\\w$]*"
+        ],
+        "regex": "re.compile('(?!\\\\d)[\\\\w$][\\\\w$]*')",
+        "value": null
+      },
+      "value": null,
+      "name": "IDENTIFIER",
+      "params": null,
+      "kwparams": {},
+      "decorators": [
+        "name"
+      ],
+      "is_name": true,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    }
+  ],
+  "rulemap": {
+    "start": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "form",
+              "value": null
+            },
+            "value": null,
+            "name": "@"
+          },
+          {
+            "__class__": "Group",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "EOF",
+                    "value": null
+                  },
+                  "value": null
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "RuleRef",
+                    "name": "logic_header",
+                    "value": null
+                  },
+                  "value": null
+                }
+              ],
+              "value": null
+            },
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "start",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "logic_header": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": "Option Explicit",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Optional",
+                  "exp": {
+                    "__class__": "RuleRef",
+                    "name": "access",
+                    "value": null
+                  },
+                  "value": null
+                },
+                {
+                  "__class__": "Group",
+                  "exp": {
+                    "__class__": "Choice",
+                    "options": [
+                      {
+                        "__class__": "Option",
+                        "exp": {
+                          "__class__": "Token",
+                          "token": "Sub",
+                          "value": null
+                        },
+                        "value": null
+                      },
+                      {
+                        "__class__": "Option",
+                        "exp": {
+                          "__class__": "Token",
+                          "token": "Function",
+                          "value": null
+                        },
+                        "value": null
+                      }
+                    ],
+                    "value": null
+                  },
+                  "value": null
+                }
+              ],
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "Optional",
+                  "exp": {
+                    "__class__": "RuleRef",
+                    "name": "access",
+                    "value": null
+                  },
+                  "value": null
+                },
+                {
+                  "__class__": "RuleRef",
+                  "name": "identifier",
+                  "value": null
+                },
+                {
+                  "__class__": "Token",
+                  "token": "As",
+                  "value": null
+                },
+                {
+                  "__class__": "Optional",
+                  "exp": {
+                    "__class__": "Token",
+                    "token": "New",
+                    "value": null
+                  },
+                  "value": null
+                },
+                {
+                  "__class__": "RuleRef",
+                  "name": "identifier",
+                  "value": null
+                }
+              ],
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": "Dim",
+              "value": null
+            },
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "logic_header",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "access": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": "Public",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": "Private",
+              "value": null
+            },
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "access",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "form": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "form_version",
+              "value": null
+            },
+            "value": null,
+            "name": "version"
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "ocx_import",
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "imports"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "form_declaration",
+              "value": null
+            },
+            "value": null,
+            "name": "header"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "form_body",
+              "value": null
+            },
+            "value": null,
+            "name": "body"
+          },
+          {
+            "__class__": "Token",
+            "token": "End",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "form_attribute",
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "attributes"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form",
+      "params": [
+        "Form"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "form_body": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "Choice",
+                "options": [
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "form_control_property",
+                      "value": null
+                    },
+                    "value": null
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "form_parameter",
+                      "value": null
+                    },
+                    "value": null
+                  }
+                ],
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "parameters"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "form_control",
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "controls"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form_body",
+      "params": [
+        "Body"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "form_version": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "VERSION",
+            "value": null
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "floating_point_literal",
+              "value": null
+            },
+            "value": null,
+            "name": "@"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form_version",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "form_declaration": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "Begin",
+            "value": null
+          },
+          {
+            "__class__": "Group",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Token",
+                    "token": "VB.Form",
+                    "value": null
+                  },
+                  "value": null
+                },
+                {
+                  "__class__": "Option",
+                  "exp": {
+                    "__class__": "Token",
+                    "token": "VB.MDIForm",
+                    "value": null
+                  },
+                  "value": null
+                }
+              ],
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form_declaration",
+      "params": [
+        "FormDeclaration"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "form_parameter": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Group",
+              "exp": {
+                "__class__": "Choice",
+                "options": [
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "qualified_name",
+                      "value": null
+                    },
+                    "value": null
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "identifier",
+                      "value": null
+                    },
+                    "value": null
+                  }
+                ],
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          },
+          {
+            "__class__": "Token",
+            "token": "=",
+            "value": null
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "parameter_value",
+              "value": null
+            },
+            "value": null,
+            "name": "value"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form_parameter",
+      "params": [
+        "FormParameter"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "form_control": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "Begin",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "qualified_name",
+              "value": null
+            },
+            "value": null,
+            "name": "type"
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "Choice",
+                "options": [
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "form_control_property",
+                      "value": null
+                    },
+                    "value": null
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "form_parameter",
+                      "value": null
+                    },
+                    "value": null
+                  }
+                ],
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "attributes"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "form_control",
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "controls"
+          },
+          {
+            "__class__": "Token",
+            "token": "End",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form_control",
+      "params": [
+        "FormControl"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "form_control_property": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "BeginProperty",
+            "value": null
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "property_hex_value",
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "hex_value"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "form_parameter",
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "parameters"
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Closure",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "form_control_property",
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "properties"
+          },
+          {
+            "__class__": "Token",
+            "token": "EndProperty",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form_control_property",
+      "params": [
+        "FormProperty"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "form_attribute": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "Attribute",
+            "value": null
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          },
+          {
+            "__class__": "Token",
+            "token": "=",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "parameter_value",
+              "value": null
+            },
+            "value": null,
+            "name": "value"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "form_attribute",
+      "params": [
+        "FormAttribute"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "ocx_import": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "tag"
+          },
+          {
+            "__class__": "Token",
+            "token": "=",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "string_literal",
+              "value": null
+            },
+            "value": null,
+            "name": "class_id"
+          },
+          {
+            "__class__": "Token",
+            "token": ";",
+            "value": null
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "string_literal",
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "ocx_import",
+      "params": [
+        "OcxImport"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "property_hex_value": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "{",
+            "value": null
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "PositiveGather",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "hex_integer_literal",
+                "value": null
+              },
+              "value": null,
+              "sep": {
+                "__class__": "Token",
+                "token": "-",
+                "value": null
+              }
+            },
+            "value": null,
+            "name": "@"
+          },
+          {
+            "__class__": "Token",
+            "token": "}",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "property_hex_value",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "parameter_value": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "string_colon_value",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "string_literal",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "integer_literal",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "floating_point_literal",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "shortcut_value",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "caret_letter",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "character_literal",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "boolean_literal",
+              "value": null
+            },
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "parameter_value",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "integer_literal": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Named",
+        "exp": {
+          "__class__": "Group",
+          "exp": {
+            "__class__": "Choice",
+            "options": [
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "RuleRef",
+                  "name": "background_color",
+                  "value": null
+                },
+                "value": null
+              },
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "RuleRef",
+                  "name": "floating_point_literal",
+                  "value": null
+                },
+                "value": null
+              },
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "RuleRef",
+                  "name": "hex_integer_literal",
+                  "value": null
+                },
+                "value": null
+              },
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "RuleRef",
+                  "name": "octal_integer_literal",
+                  "value": null
+                },
+                "value": null
+              },
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "RuleRef",
+                  "name": "binary_integer_literal",
+                  "value": null
+                },
+                "value": null
+              },
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "RuleRef",
+                  "name": "decimal_integer_literal",
+                  "value": null
+                },
+                "value": null
+              }
+            ],
+            "value": null
+          },
+          "value": null
+        },
+        "value": null,
+        "name": "value"
+      },
+      "value": null,
+      "name": "integer_literal",
+      "params": [
+        "Integer"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "string_colon_value": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Closure",
+            "exp": {
+              "__class__": "Token",
+              "token": "$",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "string_literal",
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          },
+          {
+            "__class__": "Token",
+            "token": ":",
+            "value": null
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Group",
+              "exp": {
+                "__class__": "Choice",
+                "options": [
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "hex_integer_literal",
+                      "value": null
+                    },
+                    "value": null
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "RuleRef",
+                      "name": "integer_literal",
+                      "value": null
+                    },
+                    "value": null
+                  }
+                ],
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "value"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "string_colon_value",
+      "params": [
+        "StringColonValue"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "background_color": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "&",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "value"
+          },
+          {
+            "__class__": "Token",
+            "token": "&",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "background_color",
+      "params": [
+        "BackGroundColor"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "caret_letter": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "^",
+            "value": null
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "@"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "caret_letter",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "shortcut_value": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Closure",
+            "exp": {
+              "__class__": "Token",
+              "token": "^",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Token",
+            "token": "{",
+            "value": null
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "@"
+          },
+          {
+            "__class__": "Token",
+            "token": "}",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "shortcut_value",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "decimal_integer_literal": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Pattern",
+        "patterns": [
+          "([+-]*[0-9]([_]*[0-9])*)[lL]?"
+        ],
+        "regex": "re.compile('([+-]*[0-9]([_]*[0-9])*)[lL]?')",
+        "value": null
+      },
+      "value": null,
+      "name": "decimal_integer_literal",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "hex_integer_literal": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Pattern",
+        "patterns": [
+          "\\b[0-9A-Fa-f]+\\b"
+        ],
+        "regex": "re.compile('\\\\b[0-9A-Fa-f]+\\\\b')",
+        "value": null
+      },
+      "value": null,
+      "name": "hex_integer_literal",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "octal_integer_literal": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Pattern",
+        "patterns": [
+          "0[_]*[0-7]([_]*[0-7])*[lL]?"
+        ],
+        "regex": "re.compile('0[_]*[0-7]([_]*[0-7])*[lL]?')",
+        "value": null
+      },
+      "value": null,
+      "name": "octal_integer_literal",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "binary_integer_literal": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Pattern",
+        "patterns": [
+          "0[bB][01]([01_]*[01])*[lL]?"
+        ],
+        "regex": "re.compile('0[bB][01]([01_]*[01])*[lL]?')",
+        "value": null
+      },
+      "value": null,
+      "name": "binary_integer_literal",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "floating_point_literal": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "RuleRef",
+        "name": "decimal_floating_point_literal",
+        "value": null
+      },
+      "value": null,
+      "name": "floating_point_literal",
+      "params": [
+        "Float"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "decimal_floating_point_literal": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Named",
+        "exp": {
+          "__class__": "Group",
+          "exp": {
+            "__class__": "Choice",
+            "options": [
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "Pattern",
+                  "patterns": [
+                    "[+-]*[0-9][0-9_]*[.][0-9]*([eE][-+]?[0-9]+)?"
+                  ],
+                  "regex": "re.compile('[+-]*[0-9][0-9_]*[.][0-9]*([eE][-+]?[0-9]+)?')",
+                  "value": null
+                },
+                "value": null
+              },
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "Pattern",
+                  "patterns": [
+                    "[+-]*[.][0-9]+([eE][-+]?[0-9]+)?"
+                  ],
+                  "regex": "re.compile('[+-]*[.][0-9]+([eE][-+]?[0-9]+)?')",
+                  "value": null
+                },
+                "value": null
+              },
+              {
+                "__class__": "Option",
+                "exp": {
+                  "__class__": "Pattern",
+                  "patterns": [
+                    "[+-]*[0-9][0-9_]*[eE][-+]?[0-9]+"
+                  ],
+                  "regex": "re.compile('[+-]*[0-9][0-9_]*[eE][-+]?[0-9]+')",
+                  "value": null
+                },
+                "value": null
+              }
+            ],
+            "value": null
+          },
+          "value": null
+        },
+        "value": null,
+        "name": "value"
+      },
+      "value": null,
+      "name": "decimal_floating_point_literal",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "character_literal": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "'",
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Pattern",
+              "patterns": [
+                "[^'\\n\\r\\\\]|\\\\[btnfr\"'\\\\]|\\\\[0-7]{1,3}|\\\\u[0-9a-fA-F]{4}"
+              ],
+              "regex": "re.compile('[^\\'\\\\n\\\\r\\\\\\\\]|\\\\\\\\[btnfr\"\\'\\\\\\\\]|\\\\\\\\[0-7]{1,3}|\\\\\\\\u[0-9a-fA-F]{4}')",
+              "value": null
+            },
+            "value": null,
+            "name": "value"
+          },
+          {
+            "__class__": "Token",
+            "token": "'",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "character_literal",
+      "params": [
+        "Char"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "string_literal": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Named",
+        "exp": {
+          "__class__": "Pattern",
+          "patterns": [
+            "\"([^\"\\n\\r\\\\]|\"\"|\\\\[btnfr\"'\\\\]|\\\\[0-7]{1,3}|\\\\u[0-9a-fA-F]{4})*\""
+          ],
+          "regex": "re.compile('\"([^\"\\\\n\\\\r\\\\\\\\]|\"\"|\\\\\\\\[btnfr\"\\'\\\\\\\\]|\\\\\\\\[0-7]{1,3}|\\\\\\\\u[0-9a-fA-F]{4})*\"')",
+          "value": null
+        },
+        "value": null,
+        "name": "value"
+      },
+      "value": null,
+      "name": "string_literal",
+      "params": [
+        "String"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "boolean_literal": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "Group",
+              "exp": {
+                "__class__": "Choice",
+                "options": [
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "Token",
+                      "token": "True",
+                      "value": null
+                    },
+                    "value": null
+                  },
+                  {
+                    "__class__": "Option",
+                    "exp": {
+                      "__class__": "Token",
+                      "token": "False",
+                      "value": null
+                    },
+                    "value": null
+                  }
+                ],
+                "value": null
+              },
+              "value": null
+            },
+            "value": null,
+            "name": "value"
+          },
+          {
+            "__class__": "Cut",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "boolean_literal",
+      "params": [
+        "Boolean"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "optional_comment": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Override",
+        "exp": {
+          "__class__": "Pattern",
+          "patterns": [
+            "(REM [\\d\\D]*?[\\r\\n])|(\\'[\\d\\D]*?[\\r\\n])"
+          ],
+          "regex": "re.compile(\"(REM [\\\\d\\\\D]*?[\\\\r\\\\n])|(\\\\'[\\\\d\\\\D]*?[\\\\r\\\\n])\")",
+          "value": null
+        },
+        "value": null,
+        "name": "@"
+      },
+      "value": null,
+      "name": "optional_comment",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "operator": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": "+",
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Token",
+              "token": "-",
+              "value": null
+            },
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "operator",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "identifier_index": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "(",
+            "value": null
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "integer_literal",
+              "value": null
+            },
+            "value": null,
+            "name": "@"
+          },
+          {
+            "__class__": "Token",
+            "token": ")",
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "identifier_index",
+      "params": null,
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "qualified_name": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Closure",
+            "exp": {
+              "__class__": "Sequence",
+              "sequence": [
+                {
+                  "__class__": "NamedList",
+                  "exp": {
+                    "__class__": "RuleRef",
+                    "name": "identifier",
+                    "value": null
+                  },
+                  "value": null,
+                  "name": "qualifiers"
+                },
+                {
+                  "__class__": "Token",
+                  "token": ".",
+                  "value": null
+                },
+                {
+                  "__class__": "Cut",
+                  "value": null
+                }
+              ],
+              "value": null
+            },
+            "value": null
+          },
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "identifier",
+              "value": null
+            },
+            "value": null,
+            "name": "name"
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "qualified_name",
+      "params": [
+        "QualifiedName"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "identifier": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Named",
+            "exp": {
+              "__class__": "RuleRef",
+              "name": "IDENTIFIER",
+              "value": null
+            },
+            "value": null,
+            "name": "value"
+          },
+          {
+            "__class__": "Closure",
+            "exp": {
+              "__class__": "Named",
+              "exp": {
+                "__class__": "RuleRef",
+                "name": "identifier_index",
+                "value": null
+              },
+              "value": null,
+              "name": "identifier_index"
+            },
+            "value": null
+          }
+        ],
+        "value": null
+      },
+      "value": null,
+      "name": "identifier",
+      "params": [
+        "Identifier"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "is_name": false,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    },
+    "IDENTIFIER": {
+      "__class__": "Rule",
+      "exp": {
+        "__class__": "Pattern",
+        "patterns": [
+          "(?!\\d)[\\w$][\\w$]*"
+        ],
+        "regex": "re.compile('(?!\\\\d)[\\\\w$][\\\\w$]*')",
+        "value": null
+      },
+      "value": null,
+      "name": "IDENTIFIER",
+      "params": null,
+      "kwparams": {},
+      "decorators": [
+        "name"
+      ],
+      "is_name": true,
+      "base": null,
+      "is_leftrec": false,
+      "is_memoizable": true
+    }
+  },
+  "name": "VBForms"
+}

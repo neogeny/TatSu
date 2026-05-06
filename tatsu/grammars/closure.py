@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from functools import cached_property
 from typing import Any
 
 from ..contexts import Ctx
@@ -18,8 +19,7 @@ from .model import Box, Func, Model
 @nodedataclass
 class Closure(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        parse: Func = self.exp._parse  # type: ignore
-        return ctx.closure(parse)
+        return ctx.closure(self.exp._parse)
 
     def _first(self, k, f) -> ffset:
         efirst = self.exp._first(k, f)
@@ -35,8 +35,17 @@ class Closure(Box):
         else:
             return f'{{\n{indent(sexp)}\n}}'
 
+    @cached_property
     def _nullable(self) -> bool:
         return True
+
+    def optimized(self) -> Model:
+        from .syntax import Group
+
+        exp = self.exp.optimized()
+        if isinstance(exp, Group):
+            exp = exp.exp
+        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
 
 
 @nodedataclass
@@ -51,8 +60,9 @@ class PositiveClosure(Closure):
     def _pretty(self, lean=False):
         return super()._pretty(lean=lean) + '+'
 
+    @cached_property
     def _nullable(self) -> bool:
-        return self.exp._nullable()
+        return self.exp.is_nullable()
 
 
 @nodedataclass
@@ -63,7 +73,7 @@ class Join(Box):
 
     def __post_init__(self):
         super().__post_init__()
-        assert self.sep == self.ast.sep, self.sep
+        assert not self.ast or self.sep == self.ast.sep, self.sep
 
     def _parse(self, ctx: Ctx) -> Any:
         return self._do_parse(ctx, self.exp._parse, self.sep._parse)
@@ -79,8 +89,17 @@ class Join(Box):
         else:
             return f'{ssep}{self.JOINOP}{{\n{sexp}\n}}'
 
+    @cached_property
     def _nullable(self) -> bool:
         return True
+
+    def optimized(self) -> Model:
+        from .syntax import Group
+
+        exp = self.exp.optimized()
+        if isinstance(exp, Group):
+            exp = exp.exp
+        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
 
 
 class PositiveJoin(Join):
@@ -93,22 +112,9 @@ class PositiveJoin(Join):
     def _pretty(self, lean=False):
         return super()._pretty(lean=lean) + '+'
 
+    @cached_property
     def _nullable(self) -> bool:
-        return self.exp._nullable()
-
-
-class LeftJoin(PositiveJoin):
-    JOINOP = '<'
-
-    def _do_parse(self, ctx, exp, sep):
-        return ctx.left_join(exp, sep)
-
-
-class RightJoin(PositiveJoin):
-    JOINOP = '>'
-
-    def _do_parse(self, ctx, exp, sep):
-        return ctx.right_join(exp, sep)
+        return self.exp._nullable
 
 
 class Gather(Join):
@@ -128,8 +134,9 @@ class PositiveGather(Gather):
     def _pretty(self, lean=False):
         return super()._pretty(lean=lean) + '+'
 
+    @cached_property
     def _nullable(self) -> bool:
-        return self.exp._nullable()
+        return self.exp.is_nullable()
 
 
 @nodedataclass
@@ -143,5 +150,6 @@ class EmptyClosure(Model):
     def _pretty(self, lean=False):
         return '{}'
 
+    @cached_property
     def _nullable(self) -> bool:
         return True

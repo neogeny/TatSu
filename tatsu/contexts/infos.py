@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any, NamedTuple, Protocol
 
-from ..tokenizing import Cursor
+from ..input import Cursor
 
 
 class MemoKey(NamedTuple):
@@ -19,9 +19,12 @@ class RuleResult(NamedTuple):
 
 
 class RuleLike(Protocol):
-    is_leftrec: bool = False
-    is_memoizable: bool = False
+    no_memo: bool = False
+    no_stak: bool = False
     is_name: bool = False
+    is_tokn: bool = False
+    is_memo: bool = True
+    is_lrec: bool = False
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         pass
@@ -31,21 +34,31 @@ class RuleInfo(NamedTuple):
     name: str
     instance: Any
     func: Callable[..., Any]
+    no_memo: bool
+    no_stak: bool
+    is_name: bool
+    is_tokn: bool
+
     is_lrec: bool
     is_memo: bool
-    is_name: bool
+
     params: tuple[Any, ...]
     kwparams: dict[str, Any]
 
     @staticmethod
     def new(instance: Any, func: Callable, params=None, kwparams=None) -> RuleInfo:
+        name = getattr(func, '__name__', '<?>')
+        is_tokn = name.lstrip('_')[:1].isupper()
         return RuleInfo(
-            name=getattr(func, '__name__', '<?>'),
+            name=name,
             instance=instance,
             func=func,
-            is_lrec=getattr(func, 'is_leftrec', False),
-            is_memo=getattr(func, 'is_memoizable', True),
+            no_memo=getattr(func, 'no_memo', False),
+            no_stak=getattr(func, 'no_stak', False),
             is_name=getattr(func, 'is_name', False),
+            is_tokn=getattr(func, 'is_tokn', is_tokn),
+            is_lrec=getattr(func, 'is_lrec', False),
+            is_memo=getattr(func, 'is_memo', True),
             params=params or (),
             kwparams=kwparams or {},
         )
@@ -54,8 +67,13 @@ class RuleInfo(NamedTuple):
     def bind(ri: RuleInfo, instance: Any) -> RuleInfo:
         return ri._replace(instance=instance)
 
-    def is_token_rule(self):
-        return self.name.lstrip('_')[:1].isupper()
+    @property
+    def memoizable(self) -> bool:
+        return self.is_memo and not self.no_memo
+
+    @property
+    def should_trace(self) -> bool:
+        return not self.no_stak
 
     def __hash__(self):
         return hash(self.name)
@@ -77,19 +95,6 @@ class ParseInfo(NamedTuple):
     line: int
     endline: int
     alerts: list[Alert] = []  # noqa: RUF012
-
-    @property
-    def tokenizer(self) -> Cursor:
-        # NOTE:
-        #   info.tokenizer provided for bakwards compatibility
-        #   self.cursor.tokenizer:Tokenizer is opaque, so useless
-        return self.cursor
-
-    def text_lines(self) -> list[str]:
-        return self.cursor.get_lines(self.line, self.endline)
-
-    def line_index(self):
-        return self.cursor.line_index(self.line, self.endline)
 
 
 class CommentInfo(NamedTuple):

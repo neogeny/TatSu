@@ -6,11 +6,11 @@ import json
 from pathlib import Path
 from pprint import pprint
 
-from codegen import PostfixCodeGenerator
+from codegen import PostfixCodeGenerator  # type: ignore
 
 import tatsu
 from tatsu.contexts.ast import AST
-from tatsu.util import asjsons
+from tatsu.util.asjson import asjsons
 from tatsu.walkers import NodeWalker
 
 
@@ -113,7 +113,7 @@ def parse_factored():
 def parse_to_model():
     grammar = Path('grammars/calc_model.tatsu').read_text()
 
-    parser = tatsu.compile(grammar, asmodel=True)
+    parser = tatsu.compile_to_parser(grammar)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
     print()
@@ -142,7 +142,7 @@ class CalcWalker(NodeWalker):
 def parse_and_walk_model():
     grammar = Path('grammars/calc_model.tatsu').read_text()
 
-    parser = tatsu.compile(grammar, asmodel=True)
+    parser = tatsu.compile_to_parser(grammar)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
     print()
@@ -156,7 +156,7 @@ def parse_and_walk_model():
 def parse_and_translate():
     grammar = Path('grammars/calc_model.tatsu').read_text()
 
-    parser = tatsu.compile(grammar, asmodel=True)
+    parser = tatsu.compile_to_parser(grammar)
     model = parser.parse('3 + 5 * ( 10 - 20 )')
 
     codegen = PostfixCodeGenerator()

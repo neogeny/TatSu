@@ -2,22 +2,28 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from typing import cast
 from collections.abc import Callable
+from typing import cast
 
 from ..infos import RuleLike
 
 
 def leftrec(impl: Callable) -> Callable:
     over: RuleLike = cast(RuleLike, impl)
-    over.is_leftrec = True
-    over.is_memoizable = False
+    over.is_lrec = True
+    over.is_memo = False
     return impl
 
 
 def nomemo(impl: Callable) -> Callable:
     over: RuleLike = cast(RuleLike, impl)
-    over.is_memoizable = False
+    over.no_memo = True
+    return impl
+
+
+def nostak(impl: Callable) -> Callable:
+    over: RuleLike = cast(RuleLike, impl)
+    over.no_stak = True
     return impl
 
 
@@ -30,4 +36,10 @@ def isname(impl: Callable) -> Callable:
 def name(impl: Callable) -> Callable:
     over: RuleLike = cast(RuleLike, impl)
     over.is_name = True
+    return impl
+
+
+def token(impl: Callable) -> Callable:
+    over: RuleLike = cast(RuleLike, impl)
+    over.is_tokn = True
     return impl

@@ -6,8 +6,9 @@ from collections.abc import Iterable
 from functools import cache
 from typing import Any, override
 
-from ..util import asjson, make_hashable, typename
-from .cst import cstadd
+from ..util import make_hashable, typename
+from ..util.asjson import asjson
+from .cst import cstadd, cstaddlist
 from .infos import ParseInfo
 
 
@@ -36,10 +37,15 @@ class AST(dict[str, Any]):
     def asjson(self) -> Any:
         return asjson(self)
 
-    def _set(self, key: str, node: Any, aslist: bool = False) -> None:
+    def _set(self, key: str, node: Any) -> None:
         key = self._safekey(key)
         cst = self.get(key)
-        super().__setitem__(key, cstadd(cst, node, aslist=aslist))
+        super().__setitem__(key, cstadd(cst, node))
+
+    def _setlist(self, key: str, node: Any) -> None:
+        key = self._safekey(key)
+        cst = self.get(key)
+        super().__setitem__(key, cstaddlist(cst, node))
 
     @staticmethod
     @cache
@@ -52,12 +58,12 @@ class AST(dict[str, Any]):
         return key
 
     def _define(self, keys: Iterable[str], list_keys: Iterable[str] | None = None):
-        for key in (self._safekey(k) for k in keys):
-            if key not in self:
-                super().__setitem__(key, None)
         for key in (self._safekey(k) for k in list_keys or []):
             if key not in self:
                 super().__setitem__(key, [])
+        for key in (self._safekey(k) for k in keys):
+            if key not in self:
+                super().__setitem__(key, None)
 
     def __getitem__(self, key: str) -> Any:
         if key in self:
@@ -87,9 +93,6 @@ class AST(dict[str, Any]):
 
     def __reduce__(self) -> tuple[Any, Any]:
         return AST, (tuple(self.items()),)
-
-    def __repr__(self) -> str:
-        return f'AST({super().__repr__()})'
 
     def __str__(self) -> str:
         return str(self.asjson())

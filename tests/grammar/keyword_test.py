@@ -41,7 +41,7 @@ def test_python_keywords_in_rule_names():
         def __init__(self):
             self.called = False
 
-        def not_(self, ast):
+        def not_(self, _ast):
             self.called = True
 
     semantics = Semantics()
@@ -86,7 +86,7 @@ def test_check_keywords():
     assert ast == ['hello', 'world']
 
     with pytest.raises(FailedKeywordSemantics, match=r'"A" is a reserved word'):
-        ast = model.parse('hello A world')
+        _ast = model.parse('hello A world')
 
 
 def test_check_unicode_name():
@@ -162,5 +162,5 @@ def test_keywords_are_str():
         start = $ ;
     """
     model = compile(grammar, 'test')
-    assert model.keywords == ['True', 'False']
+    assert model.keywords == ('False', 'True')
     assert all(isinstance(k, str) for k in model.keywords)

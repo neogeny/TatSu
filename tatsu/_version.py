@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from .util import Version
 
-__version__ = '5.18.0'
+
+__toolname__ = 'TatSu'
+__version__ = '5.19.0'
 version = __version__
 version_info = Version.parse(version).astuple()

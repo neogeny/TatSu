@@ -8,6 +8,9 @@ from __future__ import annotations
 
 from .basic import (
     EOF,
+    EOF_SYM,
+    EOL,
+    EOL_SYM,
     Alert,
     Comment,
     Constant,
@@ -19,8 +22,6 @@ from .basic import (
 )
 from .choice import (
     Choice,
-    FirstChoice,
-    FirstOption,
     Option,
 )
 from .closure import (
@@ -28,12 +29,11 @@ from .closure import (
     EmptyClosure,
     Gather,
     Join,
-    LeftJoin,
     PositiveClosure,
     PositiveGather,
     PositiveJoin,
-    RightJoin,
 )
+from .deprecated import LeftJoin, RightJoin
 from .math import _ref, ref
 from .model import (
     NULL,
@@ -57,18 +57,22 @@ from .syntax import (
     NegativeLookahead,
     Optional,
     Sequence,
-    Skip,
+    SkipGroup,
     SkipTo,
 )
 
+
 __all__ = [
+    'EOL',
+    'EOF',
+    'EOF_SYM',
+    'EOLComment',
+    'EOL_SYM',
     'Alert',
     'BasedRule',
     'Call',
     'Choice',
-    'FirstChoice',
     'Option',
-    'FirstOption',
     'Closure',
     'Comment',
     'Constant',
@@ -76,8 +80,6 @@ __all__ = [
     'Box',
     'Synth',
     'Dot',
-    'EOF',
-    'EOLComment',
     'EmptyClosure',
     'Fail',
     'Gather',
@@ -103,7 +105,7 @@ __all__ = [
     'Rule',
     'RuleInclude',
     'Sequence',
-    'Skip',
+    'SkipGroup',
     'SkipTo',
     'GrammarSemantics',
     'Token',

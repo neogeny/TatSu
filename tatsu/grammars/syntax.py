@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import field
+from functools import cached_property
 from itertools import takewhile
 from typing import Any
 
-from ..contexts import AST, Ctx, Func
-from ..exceptions import FailedRef
+from ..contexts import AST, Ctx
+from ..exceptions import FailedParse, FailedRef
 from ..objectmodel import nodedataclass
 from ..util import indent, trim
 from .math import ffset, kdot, ref
@@ -17,9 +18,7 @@ from .model import PEP8_LLEN, Box, Model
 @nodedataclass
 class Group(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        with ctx.group():
-            self.exp._parse(ctx)
-            return ctx.last_node
+        return ctx.groupexp(self.exp._parse)
 
     def _pretty(self, lean=False):
         exp = self.exp._pretty(lean=lean)
@@ -27,11 +26,19 @@ class Group(Box):
             return f'({trim(exp)})'
         return f'(\n{indent(exp)}\n)'
 
+    def optimized(self) -> Model:
+        from .closure import Closure, EmptyClosure, Join
+
+        exp = self.exp.optimized()
+        if isinstance(exp, Closure | Join | EmptyClosure | Optional):
+            return exp
+        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
+
 
 @nodedataclass
-class Skip(Box):
+class SkipGroup(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        with ctx.skip():
+        with ctx.skipgroup():
             self.exp._parse(ctx)
             return None
 
@@ -46,11 +53,12 @@ class Skip(Box):
 class Lookahead(Box):
     def _parse(self, ctx: Ctx) -> Any:
         with ctx.if_():
-            return super()._parse(ctx)
+            return self.exp._parse(ctx)
 
     def _pretty(self, lean=False):
         return '&' + self.exp._pretty(lean=lean)
 
+    @cached_property
     def _nullable(self) -> bool:
         return True
 
@@ -59,11 +67,12 @@ class Lookahead(Box):
 class NegativeLookahead(Box):
     def _parse(self, ctx: Ctx) -> Any:
         with ctx.ifnot_():
-            return super()._parse(ctx)
+            return self.exp._parse(ctx)
 
     def _pretty(self, lean=False):
         return '!' + str(self.exp._pretty(lean=lean))
 
+    @cached_property
     def _nullable(self) -> bool:
         return True
 
@@ -71,8 +80,7 @@ class NegativeLookahead(Box):
 @nodedataclass
 class SkipTo(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        super_parse: Func = super()._parse  # type: ignore
-        return ctx.skip_to(super_parse)
+        return ctx.skip_to(self.exp._parse)
 
     def _first(self, k, f) -> ffset:
         return {('.',)} | super()._first(k, f)
@@ -84,9 +92,15 @@ class SkipTo(Box):
 @nodedataclass
 class Optional(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        self._add_defined_attributes(ctx, ctx.ast)
-        with ctx.optional():
-            return self.exp._parse(ctx)
+        ctx.states.push()
+        try:
+            self._add_defined(ctx)
+            value = self.exp._parse(ctx)
+            ctx.states.merge()
+            return value
+        except FailedParse:
+            ctx.states.undo()
+            return None
 
     def _first(self, k, f) -> ffset:
         return {()} | self.exp._first(k, f)
@@ -97,8 +111,17 @@ class Optional(Box):
             return f'[{exp}]'
         return f'[\n{exp}\n]'
 
+    @cached_property
     def _nullable(self) -> bool:
         return True
+
+    def optimized(self) -> Model:
+        from .closure import Closure, Join
+
+        exp = self.exp.optimized()
+        if isinstance(exp, Group | Closure | Join):
+            exp = exp.exp
+        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
 
 
 @nodedataclass
@@ -112,16 +135,22 @@ class Sequence(Model):
         assert isinstance(self.sequence, list), self.sequence
 
     def _parse(self, ctx: Ctx) -> Any:
-        return [s._parse(ctx) for s in self.sequence]
+        self._add_defined(ctx)
+        return [r for r in (s._parse(ctx) for s in self.sequence) if r is not None]
 
-    def defines(self):
-        return [d for s in self.sequence for d in s.defines()]
+    @cached_property
+    def defines_single(self) -> list[str]:
+        return list(set().union(*(s.defines_single for s in self.sequence)))
+
+    @cached_property
+    def defines_list(self) -> list[str]:
+        return list(set().union(*(s.defines_list for s in self.sequence)))
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
-        return set().union(*[s.missing_rules(rulenames) for s in self.sequence])
+        return set().union(*(s.missing_rules(rulenames) for s in self.sequence))
 
     def _used_rule_names(self):
-        return set().union(*[s._used_rule_names() for s in self.sequence])
+        return set().union(*(s._used_rule_names() for s in self.sequence))
 
     def _first(self, k, f) -> ffset:
         result: ffset = {()}
@@ -151,14 +180,21 @@ class Sequence(Model):
         else:
             return '\n'.join(seq)
 
+    @cached_property
     def _nullable(self) -> bool:
-        return all(s._nullable() for s in self.sequence)
+        return all(s._nullable for s in self.sequence)
 
     def callable_at_same_pos(self) -> list[Model]:
         head = list(takewhile(lambda c: c.is_nullable(), self.sequence))
         if len(head) < len(self.sequence):
             head.append(self.sequence[len(head)])
         return head
+
+    def optimized(self) -> Model:
+        seq = [e.optimized() for e in self.sequence]
+        if len(seq) == 1:
+            return seq[0]
+        return self.clone(sequence=seq)  # pyright: ignore[reportArgumentType]
 
 
 @nodedataclass
@@ -200,7 +236,7 @@ class Call(Model):
         return self.name
 
     def is_nullable(self) -> bool:
-        return self.grammar.rulemap[self.name].is_nullable()
+        return self.grammar.rulemap[self.name]._nullable
 
     def __str__(self):
         return str(ref(self.name))

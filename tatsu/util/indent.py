@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import io
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from typing import Any
 
 from .abctools import isiter
+from .common import typename
 from .strtools import ismultiline, trim
 from .typetools import notnone
+
 
 BLACK_LINE_LENGTH = 88
 
@@ -42,23 +44,26 @@ class IndentPrintMixin:
         text = self.io_print(*args, **kwargs)
         return self.indented_lines(text)
 
+    def indent_amount(self, amount: int = -1, levels: int = 1) -> int:
+        assert amount < 0 or amount > 0
+        amount = amount if amount > 0 else self.amount
+        return amount * levels + self.indentation
+
     def fitsfmt(self, line: str, addlevels: int = 1):
         assert addlevels >= 0
         if ismultiline(line):
             return False
-        total = self.indentation + len(line)
-        total += addlevels * self.amount
+        total = len(line) + self.indent_amount(levels=addlevels)
         return total <= BLACK_LINE_LENGTH
 
     def prefixlen(self, addindents: int = 0):
         return addindents * self.amount + self.indentation
 
     @contextmanager
-    def indent(self, amount: int = -1, levels: int = 1) -> Iterator:
-        assert amount < 0 or amount > 0
-        amount = amount if amount > 0 else self.amount
-
-        self.indent_stack.append(amount * levels + self.indent_stack[-1])
+    def indent(self, amount: int = -1, levels: int = 1) -> Generator:
+        self.indent_stack.append(
+            self.indent_amount(amount=amount, levels=levels),
+        )
         try:
             yield
         finally:
@@ -132,12 +137,12 @@ def fold(
     initial: int = 0,
 ) -> str:
     brackets = {
-        dict: ('{', '}'),
-        list: ('[', ']'),
-        tuple: ('(', ')'),
-        None: ('', ''),
+        'dict': ('{', '}'),
+        'list': ('[', ']'),
+        'tuple': ('(', ')'),
+        'None': ('', ''),
     }
-    lb, rb = brackets.get(type(value), ('', ''))
+    lb, rb = brackets.get(typename(value), ('', ''))
     lbrack = notnone(lbrack, lb)
     rbrack = notnone(rbrack, rb)
     assert lbrack is not None and rbrack is not None

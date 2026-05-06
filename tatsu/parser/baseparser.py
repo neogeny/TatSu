@@ -1,0 +1,97 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
+import re
+from typing import Any
+
+from ..config import ParserConfig
+from ..grammars import GrammarSemantics
+from ..semantics import ASTSemantics
+from .bootparser import TatSuBootstrapParser
+from .bootstrap import (
+    TatSuBootstrapBuffer,
+    TatSuBootstrapText,
+)
+
+
+PRAGMA_RE = r'^\s*#include.*$'
+
+
+class TatSuText(TatSuBootstrapText): ...
+
+
+class TatSuBuffer(TatSuBootstrapBuffer):
+    def __init__(
+        self,
+        text: str,
+        /,
+        filename: str | None = None,
+        config: ParserConfig | None = None,
+        **settings: Any,
+    ):
+        filename = filename or settings.pop('source', None)
+        config = ParserConfig.new(config=config, source=filename, **settings)
+        super().__init__(text, config=config)
+
+    def process_block(self, name, lines, index, **kwargs):
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+            if re.match(PRAGMA_RE, line):
+                directive, arg = line.split('#', 1)[1], ''
+                if '::' in directive:
+                    directive, arg = directive.split('::', 1)
+                directive, arg = directive.strip(), arg.strip()
+                i = self.pragma(name, directive, arg, lines, index, i)
+            else:
+                i += 1
+        return lines, index
+
+    def pragma(self, source, name, arg, lines, index, i):
+        # we only recognize the 'include' pragama
+        if name == 'include':
+            filename = arg.strip('\'"')
+            return self.include_file(source, filename, lines, index, i, i + 1)
+        else:
+            return i + 1  # will be treated as a directive by the parser
+
+
+class TatSuParser(TatSuBootstrapParser):
+    def __init__(
+        self,
+        name: str | None = None,
+        config: ParserConfig | None = None,
+        semantics=None,
+        **settings: Any,
+    ):
+        if semantics is None:
+            semantics = ASTSemantics()
+        config = ParserConfig.new(
+            config=config,
+            name=name,
+            semantics=semantics,
+            **settings,
+        )
+        super().__init__(config=config)
+
+
+class TatSuParserGenerator(TatSuBootstrapParser):
+    def __init__(
+        self,
+        name: str | None = None,
+        semantics: Any = None,
+        **settings: Any,
+    ):
+        if isinstance(semantics, type):
+            raise TypeError(
+                f'semantics must be an object instance or None, not class {semantics!r}',
+            )
+        if not semantics:
+            semantics = GrammarSemantics(name=name)
+        config = ParserConfig.new(
+            name=name,
+            semantics=semantics,
+            **settings,
+        )
+        super().__init__(config=config)

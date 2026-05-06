@@ -11,11 +11,11 @@ As a Library
 
 |TatSu| can be used as a library, much like `Python`_'s ``re``, by embedding grammars as strings and generating grammar models instead of generating Python_ code.
 
--   ``tatsu.compile(grammar, name=None, **kwargs)``
+-   ``tatsu.compile(grammar, name=None, **settings)``
 
     Compiles the grammar and generates a *model* that can subsequently be used for parsing input with.
 
--   ``tatsu.parse(grammar, input, start=None, **kwargs)``
+-   ``tatsu.parse(grammar, input, start=None, **settings)``
 
     Compiles the grammar and parses the given input producing an AST_ as result.
     The result is equivalent to calling::
@@ -25,15 +25,21 @@ As a Library
 
     Compiled grammars are cached for efficiency.
 
--   ``tatsu.to_python_sourcecode(grammar, name=None, filename=None, **kwargs)``
-
-    Compiles the grammar to the `Python`_ source code that implements the
-    parser.
-
--   ``to_python_model(grammar, name=None, filename=None, **kwargs)``
+-   ``to_python_model(grammar, name=None, filename=None, **settings)``
 
     Compiles the grammar and generates the `Python`_ source code that
     implements the object model defined by rule annotations.
+
+-   ``tatsu.to_parsermodel_sourcecode(grammar, name=None, filename=None, **settings)``
+
+    Compiles the grammar to the `Python`_ source code that for a recursive-descent
+    implementation of the parser.
+
+-   ``tatsu.to_python_sourcecode(grammar, name=None, filename=None, **settings)``
+
+    Compiles the grammar to the `Python`_ source code that for a recursive-descent
+    implementation of the parser.
+
 
 This is an example of how to use **TatSu** as a library:
 
@@ -270,16 +276,18 @@ method:
     model = parser.parse(text, start='start', semantics=MySemantics())
 
 If special lexical treatment is required (as in *80 column* languages),
-then a descendant of ``tatsu.tokenizing.Tokenizer`` can be passed instead of
+then an implementation of ``tatsu.input.Text`` can be passed instead of
 the text:
 
 .. code:: python
 
-    class MySpecialTokenizer(Tokenizer):
+    from tatsu.input.text import Text
+
+    class MySpecialInput(Text):
         ...
 
-    tokenizer = MySpecialTokenizer(text)
-    model = parser.parse(tokenizer, start='start', semantics=MySemantics())
+    input = MySpecialInput(text)
+    model = parser.parse(input, start='start', semantics=MySemantics())
 
 The generated parser's module can also be invoked as a script:
 

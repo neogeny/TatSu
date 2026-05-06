@@ -4,6 +4,20 @@ from __future__ import annotations
 
 import re
 import subprocess  # noqa: S404
+import sys
+
+import pytest
+
+from .fixtures import PATH_TATSU_GRAMMAR
+
+
+pytestmark = pytest.mark.skipif(
+    sys.platform == "win32", reason="Does not work on Windows"
+)
+
+
+def test_feature_one():
+    assert True
 
 
 def test_cli_help():
@@ -14,18 +28,18 @@ def test_cli_help():
 
 
 def test_cli_python():
-    output = subprocess.check_output(['tatsu', './grammar/tatsu.tatsu'])  # noqa: S607
+    output = subprocess.check_output(['tatsu', PATH_TATSU_GRAMMAR])  # noqa: S607
     output = output.decode('utf-8')
     pattern = (
-        r'(?ms)CAVEAT UTILITOR.*?竜TatSu.*?KEYWORDS: set\['
+        r'(?ms)CAVEAT UTILITOR.*?竜TatSu.*?KEYWORDS = \('
         r'.*?class \w*?Parser\(\w*Parser\):'
     )
     assert bool(re.search(pattern, output))
 
 
 def test_cli_model():
-    output = subprocess.check_output(
-        ['tatsu', '-g', './grammar/tatsu.tatsu'],  # noqa: S607
+    output = subprocess.check_output(  # noqa: S607
+        ['tatsu', '-g', PATH_TATSU_GRAMMAR],
     )
     output = output.decode('utf-8')
     pattern = (

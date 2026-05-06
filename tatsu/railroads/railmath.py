@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from ..util import unicode_display_len as ulen
 
+
 type Rails = list[str]
 
 ETX = '＄'  # was '␃'

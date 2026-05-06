@@ -2,12 +2,17 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from functools import cached_property
 from typing import Any
 
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
-from .model import Model
 from .math import ffset
+from .model import Model
+
+
+EOF_SYM = '$'
+EOL_SYM = '⏎'
 
 
 @nodedataclass
@@ -59,6 +64,26 @@ class EOF(Model):
 
 
 @nodedataclass
+class EOL(Model):
+    def __post_init__(self):
+        super().__post_init__()
+        self.ast = None
+
+    def _parse(self, ctx: Ctx) -> Any:
+        ctx.eolcheck()
+
+    @cached_property
+    def _nullable(self) -> bool:
+        return True
+
+    def _first(self, k: int, f: dict[str, ffset]) -> ffset:
+        return {('$->',)}
+
+    def _pretty(self, lean=False):
+        return EOL_SYM
+
+
+@nodedataclass
 class Token(Model):
     token: str = ''
 
@@ -91,8 +116,9 @@ class Constant(Model):
         return {()}
 
     def _pretty(self, lean=False):
-        return f'`{self.literal!r}`'
+        return f'`{self.literal!s}`'
 
+    @cached_property
     def _nullable(self) -> bool:
         return True
 
@@ -103,8 +129,12 @@ class Alert(Constant):
 
     def __post_init__(self):
         super().__post_init__()
-        self.literal = self.ast.message.literal
-        self.level = len(self.ast.level)
+        if self.ast:
+            self.literal = self.ast.message.literal
+            self.level = len(self.ast.level)
+
+    def _parse(self, ctx: Ctx) -> Any:
+        return ctx.alert(message=self.literal, level=self.level)
 
     def _pretty(self, lean=False):
         return f'{"^" * self.level}{super()._pretty()}'
@@ -125,5 +155,6 @@ class Cut(Model):
     def _pretty(self, lean=False):
         return '~'
 
+    @cached_property
     def _nullable(self) -> bool:
         return True

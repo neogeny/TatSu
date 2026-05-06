@@ -7,6 +7,7 @@ from collections.abc import Callable
 from functools import cache
 from typing import Any
 
+from .config import ParserConfig
 from .contexts import (
     ParseContext,
     isname,
@@ -17,8 +18,8 @@ from .contexts import (
     tatsumasu as rule,  # note: this supports v5.16-v5.17 parsers
 )
 from .exceptions import FailedRef
-from .parserconfig import ParserConfig
 from .util import generic_main, safe_name
+
 
 __all__ = [
     'Parser',

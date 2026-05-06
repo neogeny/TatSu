@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import warnings
 from ast import literal_eval
 from collections.abc import Iterable, Sequence
 from typing import Any
@@ -11,8 +10,8 @@ from .. import grammars as g
 from ..contexts import ParseContext
 from ..contexts.infos import ParseInfo
 from ..exceptions import FailedSemantics
+from ..objectmodel.builder import ModelBuilderSemantics
 from ..util import eval_escapes, flatten, re, trim, warning
-from .builder import ModelBuilderSemantics
 
 
 class GrammarSemantics(ModelBuilderSemantics):
@@ -41,7 +40,7 @@ class GrammarSemantics(ModelBuilderSemantics):
         try:
             re.compile(str(ast))
         except (TypeError, re.error) as e:
-            raise FailedSemantics('pattern error: ' + str(e)) from e
+            raise FailedSemantics(f'"{ast!r}"pattern error: {e!s}') from e
 
     def token(self, ast: str) -> g.Token:
         token = ast
@@ -65,22 +64,24 @@ class GrammarSemantics(ModelBuilderSemantics):
         self._validate_pattern(pattern)
         return pattern
 
-    def deprecated_regex(self, ast: str, parseinfo: ParseInfo | None = None):
-        if parseinfo:
-            pi = parseinfo
-            msg = (
-                f'Deprecated syntax "?/../?" for regular expressions'
-                f' at {pi.cursor.tokenizer.filename} line {pi.line + 1}'
-                f'\n?/"{ast}"/?'
-            )
-        else:
-            msg = 'Deprecated syntax "?/../? for regular expressions"'
-        warnings.warn(
-            message=msg,
-            category=DeprecationWarning,
-            stacklevel=12,
-        )
-        return ast
+    def deprecated_regex(self, ast: str, _parseinfo: ParseInfo | None = None):
+        return self.regex(ast)
+        # import warnings
+        # if parseinfo:
+        #     pi = parseinfo
+        #     msg = (
+        #         f'Deprecated syntax "?/../?" for regular expressions'
+        #         f' at {pi.cursor.input.source} line {pi.line + 1}'
+        #         f'\n?/"{ast}"/?'
+        #     )
+        # else:
+        #     msg = 'Deprecated syntax "?/../? for regular expressions"'
+        # warnings.warn(
+        #     message=msg,
+        #     category=DeprecationWarning,
+        #     stacklevel=12,
+        # )
+        # return ast
 
     def string(self, ast):
         value = ast
@@ -174,13 +175,13 @@ class GrammarSemantics(ModelBuilderSemantics):
         self.known_name(name)
 
         rule = self.rulemap[name]
-        return g.RuleInclude(ast=ast, rule=rule)
+        return g.RuleInclude(ast=ast, name=name, exp=rule.exp, rule=rule)
 
     def grammar(self, ast):
-        directives = {d.name: d.value for d in flatten(ast.directives)}
+        directives = {d.name: d.value for d in flatten(ast.directives) if d}
         for value in directives.values():
             literal_eval(repr(value))
-        keywords = list(flatten(ast.keywords)) or []
+        keywords = tuple(flatten(ast.keywords)) or ()
 
         if directives.get('whitespace') in {'None', 'False'}:
             # NOTE: use '' because None will _not_ override defaults in configuration

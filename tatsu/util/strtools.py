@@ -47,7 +47,7 @@ def countlines(s: str, cmtstr: str = r'#') -> lcnt:
     cmnt = 0
     code = 0
 
-    inner = re.compile(fr"""(?x)
+    inner = re.compile(rf"""(?x)
         ^ [ \t]* (?:
               (?P<cmnt> [{cmtstr}] )
             | (?P<code>  \S )
@@ -131,10 +131,10 @@ def eval_escapes(s: str | bytes) -> str | bytes:
     def decode_match(match):
         return codecs.decode(match.group(0), 'unicode-escape')
 
-    return escape_sequence_re.sub(decode_match, s)  # type: ignore[no-matching-overload]
+    return escape_sequence_re.sub(decode_match, s)  # type: ignore
 
 
-def trim(text, tabwidth=4):
+def trim(text: str, /, *, all: bool = False, tabwidth: int = 4):
     """
     Trim text of common, leading whitespace.
 
@@ -146,7 +146,8 @@ def trim(text, tabwidth=4):
     lines = text.expandtabs(tabwidth).splitlines()
     maxindent = len(text)
     indent = maxindent
-    for line in lines[1:]:
+    start = 0 if all else 1
+    for line in lines[start:]:
         stripped = line.lstrip()
         if stripped:
             indent = min(indent, len(line) - len(stripped))

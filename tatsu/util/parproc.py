@@ -3,16 +3,9 @@
 from __future__ import annotations
 
 import io
-import multiprocessing
 import sys
 import time
 from collections.abc import Callable, Generator, Iterable, Mapping, Sequence
-from concurrent.futures import (
-    Executor,
-    ProcessPoolExecutor,
-    ThreadPoolExecutor,
-    as_completed,
-)
 from contextlib import contextmanager
 from dataclasses import dataclass
 from itertools import batched
@@ -33,6 +26,7 @@ from rich.progress import (  # type: ignore
 from . import identity, memory_use, startscript, try_read
 from .timetools import iso_logpath
 from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
+
 
 __all__ = [
     'parallel_proc',
@@ -77,6 +71,7 @@ class Result:
 def parallel_proc(
     payloads: Iterable[Any],
     process: Callable,
+    /,
     *args: Any,
     pickable: Func = identity,
     parallel: bool = True,
@@ -97,13 +92,13 @@ def parallel_proc(
 def parproc(
     func: Func,
     payloads: Iterable[Any],
+    /,
     *args: Any,
     pickable: Func = identity,
     parallel: bool = True,
     reraise: bool = False,
     **kwargs: Any,
 ) -> Iterable[Result | None]:
-
     tasks = [
         Task(
             func=func,
@@ -126,7 +121,7 @@ def parproc(
         return
 
 
-def taskproc(task: Task) -> Result | None:
+def taskproc(task: Task) -> Result:
     start_time = time.process_time()
     result = Result(task.payload)
     try:
@@ -142,7 +137,7 @@ def taskproc(task: Task) -> Result | None:
             result.linecount = count
         result.outcome = task.pickable(outcome)
     except KeyboardInterrupt:
-        return None
+        raise
     except Exception as e:
         result.exception = e
     finally:
@@ -155,17 +150,31 @@ def taskproc(task: Task) -> Result | None:
 def processing_loop(
     filenames: Iterable[str],
     process: Callable,
+    /,
     *args: Any,
+    pickable: Func = identity,
+    parallel: bool = True,
     reraise: bool = False,
     **kwargs: Any,
 ) -> Iterable[Result]:
-    yield from parproc_visual(process, filenames, *args, reraise=reraise, **kwargs)
+    yield from parproc_visual(
+        process,
+        filenames,
+        *args,
+        pickable=pickable,
+        parallel=parallel,
+        reraise=reraise,
+        **kwargs,
+    )
 
 
 def parproc_visual(
     func: Func,
     filenames: Iterable[str],
+    /,
     *args: Any,
+    pickable: Func = identity,
+    parallel: bool = True,
     reraise: bool = False,
     **kwargs: Any,
 ) -> Iterable[Result]:
@@ -190,7 +199,15 @@ def parproc_visual(
         total_time = 0.0
         run_time = 0.0
         start_time = time.time()
-        results = parproc(func, filenames, *args, **kwargs)
+        results = parproc(
+            func,
+            filenames,
+            *args,
+            pickable=pickable,
+            parallel=parallel,
+            reraise=reraise,
+            **kwargs,
+        )
         results = results or []
         count = 0
         success_count = 0
@@ -364,6 +381,14 @@ def _file_process_summary(
 
 
 def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
+    import multiprocessing
+    from concurrent.futures import (
+        Executor,
+        ProcessPoolExecutor,
+        ThreadPoolExecutor,
+        as_completed,
+    )
+
     def executor_pmap(
         executorcls: type[Executor],
         process: Func,

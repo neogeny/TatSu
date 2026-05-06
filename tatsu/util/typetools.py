@@ -10,10 +10,12 @@ import types
 import typing
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
+from functools import cached_property
 from types import ModuleType
-from typing import Any, ClassVar, Self
+from typing import Any, ClassVar
 
 from .itertools import CycleError, first, topsort
+
 
 __all__ = [
     'ActualArguments',
@@ -23,6 +25,7 @@ __all__ = [
     'boundcall',
     'cast',
     'isproperty',
+    'is_readonly_property',
     'least_upper_bound_type',
     'notnone',
 ]
@@ -36,7 +39,14 @@ def boundcall(fun: Callable, known: dict[str, Any], *args: Any, **kwargs: Any) -
 
 
 def isproperty(obj: Any, name: str) -> bool:
-    return isinstance(getattr(type(obj), name, None), property)
+    return isinstance(getattr(type(obj), name, None), property | cached_property)
+
+
+def is_readonly_property(obj: Any, name: str) -> bool:
+    value = getattr(type(obj), name, None)
+    if not isinstance(value, property | cached_property):
+        return False
+    return value is not None and not getattr(value, '__set__', None)
 
 
 def notnone[T](value: Any | None, default: T) -> T:
@@ -101,8 +111,8 @@ class ActualArguments:
     def add_kwargs(self, kwargs: Mapping[str, Any]):
         self.kwargs.update(kwargs)
 
-    def unique(self) -> Self:
-        clone = replace(self)
+    def unique(self) -> ActualArguments:
+        clone: ActualArguments = replace(self)
         for name in list(clone.kwargs):
             if name in clone.arg_names:
                 del clone.kwargs[name]
@@ -156,33 +166,14 @@ class BoundCallable:
         known: dict[str, Any],
         args: tuple[Any, ...],
         kwargs: dict[str, Any],
-    ) -> tuple[
-        int,
-        tuple[tuple[str, Any], ...] | None,
-        tuple[Any, ...] | None,
-        tuple[tuple[str, Any], ...] | None,
-    ]:
+    ) -> Any:
         # with Gemini 2026-03-18
-        try:
-            key = (
-                id(fun),
-                tuple(sorted(known.items())) if known else None,
-                args or None,
-                tuple(sorted(kwargs.items())) if kwargs else None,
-            )
-            hash(key)
-        except TypeError:
-            key = (
-                id(fun),
-                tuple((k, id(v)) for k, v in sorted(known.items())) if known else None,
-                tuple(id(a) for a in args) if args else None,
-                (
-                    tuple((k, id(v)) for k, v in sorted(kwargs.items()))
-                    if kwargs
-                    else None
-                ),
-            )
-        return key
+        return (
+            id(fun),
+            tuple((k, id(v)) for k, v in sorted(known.items())) if known else None,
+            tuple(id(a) for a in args) if args else None,
+            (tuple((k, id(v)) for k, v in sorted(kwargs.items())) if kwargs else None),
+        )
 
     @staticmethod
     def _actual_bind(
@@ -235,6 +226,8 @@ class BoundCallable:
                     actual.add_kwarg(name, value)
                 case p.POSITIONAL_ONLY:
                     actual.add_arg(name, value)
+                case _:
+                    pass
 
         return actual.unique()
 

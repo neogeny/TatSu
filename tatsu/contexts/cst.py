@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+
 """
 Define the non-AST semantics parging.
 
@@ -12,7 +13,6 @@ If a CST is to be returned from a grammar rule invocation, it is first converted
 to a `tuple` (elseqwhere) so it doesn't play these games.
 """
 
-import copy
 from typing import Any
 
 
@@ -41,7 +41,7 @@ def cstfinal(cst: Any) -> Any:
     return closedlist(cst) if islist(cst) else cst
 
 
-def cstadd(cst: Any, node: Any, aslist: bool = False) -> Any:
+def cstadd(cst: Any, node: Any) -> Any:
     """
     This is how the values of subexpressions are added to the result of the
     enclosing context: a rule, group, closure, ...
@@ -51,7 +51,23 @@ def cstadd(cst: Any, node: Any, aslist: bool = False) -> Any:
     :return: the new CST value
     """
     if cst is None:
-        return [node] if aslist else copy.copy(node)
+        return node
+    if islist(cst):
+        return [*cst, node]
+    return [cst, node]
+
+
+def cstaddlist(cst: Any, node: Any) -> Any:
+    """
+    This is how the values of subexpressions are added to the result of the
+    enclosing context: a rule, group, closure, ...
+    :param cst: the previous CST value
+    :param node: the node to add
+    :param aslist: for rules that require that the final CST is a list
+    :return: the new CST value
+    """
+    if cst is None:
+        return [node]
     if islist(cst):
         return [*cst, node]
     return [cst, node]
@@ -68,7 +84,7 @@ def cstmerge(cst: Any, other: Any) -> Any:
     if other is None:
         return cst
     if cst is None:
-        return copy.copy(other)  # avoid shared state of lists
+        return other  # avoid shared state of lists
     if islist(other) and islist(cst):
         return cst + other
     if islist(other):

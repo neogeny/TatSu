@@ -9,6 +9,7 @@ from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 
+
 __all__ = [
     'iso_logpath',
     'iso_timestamp',
@@ -61,10 +62,19 @@ class Timing:
         self._last_lap = now
         return duration
 
+    def __str__(self) -> str:
+        d = self.delta
+        return (
+            f"{int(d // 60)}m {d % 60:.2f}s"
+            if d >= 60
+            else f"{d:.3f}s"
+            if d >= 1
+            else f"{d * 1000:.2f}ms"
+        )
+
 
 @contextmanager
 def timer() -> Generator[Timing, None, None]:
-
     res = Timing()
     try:
         yield res

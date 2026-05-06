@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import difflib
+import difflib  # noqa # pyright: ignore[reportUnusedImport, reportUnusedImport]
 import importlib
 import json
 import pickle
-import pprint
+import pprint  # noqa # pyright: ignore[reportUnusedImport, reportUnusedImport]
 import py_compile
 import shutil
 import sys
@@ -15,14 +15,17 @@ from pathlib import Path
 import pytest
 
 import tatsu
-from tatsu import diagrams
+from tatsu import compile, diagrams, grammars
 from tatsu.grammars.semantics import GrammarSemantics
 from tatsu.ngcodegen import pythongen
+from tatsu.ngcodegen.grammar_gen import parsermodel_gen
 from tatsu.parser import TatSuParser, TatSuParserGenerator
 from tatsu.semantics import ASTSemantics
-from tatsu.tool import to_python_sourcecode
-from tatsu.util import asjson
+
+# noinspection PyUnusedImports
+from tatsu.util.asjson import asjson
 from tatsu.walkers import DepthFirstWalker
+
 
 tmp = Path('./tmp').resolve()
 sys.path.insert(0, str(tmp))
@@ -39,10 +42,18 @@ def test_00_with_boostrap_grammar():
         shutil.rmtree('./tmp')
     tmp.mkdir(exist_ok=True)
     text = tatsu.grammar
-    g = TatSuParser('TatSuBootstrap')
+    name = 'TatSuBootstrap'
+    g = TatSuParser(name)
     grammar0 = g.parse(text, semantics=ASTSemantics(), parseinfo=False)
     ast0 = json.dumps(asjson(grammar0), indent=2)
     Path('./tmp/00.ast').write_text(ast0)
+
+    model0 = compile(text)
+    Path('./tmp/model_00.py').write_text(repr(model0))
+    g00 = eval(repr(model0), {}, vars(grammars))  # noqa # type: ignore
+    g00.parse(text, trace=True)
+
+    Path('./tmp/parser_00.py').write_text(parsermodel_gen(model0, name=name))
 
 
 @pytest.mark.dependency('test_00_with_boostrap_grammar')
@@ -123,7 +134,9 @@ def test_07_import_generated_code():
     print('-' * 20, 'phase 07 - import generated code')
 
     text = tatsu.grammar
-    gencode7 = to_python_sourcecode(text)
+    # gencode7 = to_python_sourcecode(text)
+    model = compile(text)
+    gencode7 = parsermodel_gen(model, name='TatSu')
     Path('./tmp/g07.py').write_text(gencode7)
     assert Path('./tmp/g07.py').is_file()
 
@@ -166,8 +179,8 @@ def test_08_compile_with_generated():
     result = parser.parse(text, semantics=ASTSemantics(), parseinfo=False)
     ast8 = json.dumps(asjson(result), indent=2)
     Path('./tmp/08.ast').write_text(ast8)
-    print('DIFF')
-    pprint.pprint(list(difflib.unified_diff(ast0.splitlines(), ast8.splitlines())))
+    # print('DIFF')
+    # pprint.pprint(list(difflib.unified_diff(ast0.splitlines(), ast8.splitlines())))
     assert ast0 == ast8
 
 
@@ -209,6 +222,7 @@ def test_11_with_pickle_and_retry():
     text = tatsu.grammar
     parser = TatSuParserGenerator('TatSuBootstrap')
     g9 = parser.parse(text)
+    g9 = g9.optimized()
     g10 = g9.parse(
         text,
         start='start',

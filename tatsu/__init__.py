@@ -4,30 +4,33 @@ from __future__ import annotations
 
 import sys
 
-from ._config import __toolname__, __version__
+from . import config as parserconfig, input as tokenizing
 from ._grammar import grammar, grammar_path
-from ._version import version, version_info
+from ._version import __toolname__, __version__, version, version_info
 from .contexts import ast as ast
 from .contexts.decorator import isname, leftrec, name, nomemo, rule, tatsumasu
-from .grammars import builder as builder
+from .input import buffer as buffer, buffer as buffering, textlines as textlines
 from .objectmodel import (
     NodeDataclassParams,
     NodeDataclassParams as TatSuDataclassParams,
+    builder as builder,
     nodedataclass,
     nodedataclass as dataclass,
     nodedataclass as tatsudataclass,
 )
-from .tokenizing import buffer as buffering
-from .tool import (  # pylint: disable=W0622
+from .tool import (
     compile,
+    compile_to_parser,
     gencode,
     genmodel,
     parse,
     tatsu_main,
     tatsu_main as main,
+    to_grammar_json,
     to_python_model,
     to_python_sourcecode,
-)
+)  # pylint: disable=W0622
+
 
 # HACK!
 # NOTE: this is for backwrds compatibility with legacy generated parsers
@@ -36,6 +39,10 @@ sys.modules.update(  # noqa: RUF067
         'tatsu.ast': ast,
         'tatsu.builder': builder,
         'tatsu.buffering': buffering,
+        'tatsu.parserconfig': parserconfig,
+        'tatsu.tokenizing': tokenizing,
+        'tatsu.tokenizing.buffer': buffer,
+        'tatsu.tokenizing.textlines': textlines,
     }
 )
 
@@ -43,6 +50,7 @@ sys.modules.update(  # noqa: RUF067
 __all__ = [
     '__toolname__',
     '__version__',
+    'compile_to_parser',
     'builder',
     'compile',
     'gencode',
@@ -50,6 +58,7 @@ __all__ = [
     'main',  # some unit tests want this
     'parse',
     'tatsu_main',
+    'to_grammar_json',
     'to_python_model',
     'to_python_sourcecode',
     'version',

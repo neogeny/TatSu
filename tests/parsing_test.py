@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 import tatsu
+from tatsu.exceptions import FailedExpectingEndOfLine
 from tatsu.parser import TatSuBuffer
 from tatsu.util import asjson, eval_escapes, trim
 
@@ -144,7 +145,7 @@ class ParsingTests(unittest.TestCase):
         subject = ast[1]
         assert subject['name'] == 'bar'
         parseinfo = subject['parseinfo']
-        assert parseinfo.pos == parseinfo.cursor.text.index('bar')
+        assert parseinfo.pos == parseinfo.cursor.textstr.index('bar')
 
     def test_cut_scope(self):
         grammar = '''
@@ -169,8 +170,8 @@ class ParsingTests(unittest.TestCase):
 
             start::Test = true | false ;
 
-            true = "test" @:`True` $;
-            false = "test" @:`False` $;
+            true::bool = "test" @:`True` $;
+            false::bool = "test" @:`False` $;
         """
 
         text = 'test'
@@ -184,3 +185,37 @@ class ParsingTests(unittest.TestCase):
         node = tatsu.parse(grammar, text, asmodel=True)
         assert type(node).__name__ == 'Test'
         assert node.parseinfo is None
+
+    @pytest.mark.skip()
+    def test_eol(self):
+        grammar = """
+            @@grammar :: TestEOL
+
+            start: a $-> b
+
+            a:  'a'
+
+            b: 'b'
+        """
+
+        # brak required
+        model = tatsu.compile(grammar, asmodel=True)
+        with pytest.raises(FailedExpectingEndOfLine):
+            node = model.parse('a b')
+
+        # OK
+        node = model.parse('a \nb')
+        assert node == ['a', 'b']
+
+        # OK too because \n is whitespace
+        node = model.parse('a\n \nb', asmodel=True, parseinfo=True)
+        assert node == ['a', 'b']
+
+    def test_closure_merges(self):
+        grammar = """
+            start: 'a' {'b'} 'c'
+        """
+
+        model = tatsu.compile(grammar, asmodel=True)
+        out = model.parse('a b b b c')
+        assert out == ['a', ['b', 'b', 'b'], 'c']

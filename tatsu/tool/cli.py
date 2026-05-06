@@ -9,14 +9,14 @@ from pathlib import Path
 
 from .. import railroads
 from .._version import __version__
+from ..config import ParserConfig
 from ..exceptions import ParseException
-from ..ngcodegen import modelgen, pythongen
-from ..parserconfig import ParserConfig
+from ..ngcodegen import modelgen, parsergen, pythongen
 from ..util import eval_escapes
 from . import api
 
-__all__ = ['tatsu_main']
 
+__all__ = ['tatsu_main']
 
 DESCRIPTION = (
     '竜TatSu takes a grammar in extended EBNF'
@@ -35,7 +35,13 @@ def parse_args():
     main_mode = argparser.add_mutually_exclusive_group()
     main_mode.add_argument(
         '--generate-parser',
-        help='generate parser code from the grammar (default)',
+        help='generate parser from the grammar (default)',
+        action='store_true',
+    )
+    main_mode.add_argument(
+        '--parser-model',
+        '-x',
+        help='generate model-based parser from the grammar',
         action='store_true',
     )
     main_mode.add_argument(
@@ -69,6 +75,13 @@ def parse_args():
     main_mode.add_argument(
         '--pretty-lean',
         help='like --pretty, but without name: or [Parameter] annotations',
+        action='store_true',
+    )
+
+    main_mode.add_argument(
+        '--json',
+        '-j',
+        help='the JSON version of the grammar',
         action='store_true',
     )
 
@@ -107,11 +120,11 @@ def parse_args():
         help='Name for the grammar (defaults to GRAMMAR base name)',
     )
     generation_opts.add_argument(
-        '--nameguard',
+        '--no-nameguard',
         '-n',
         help='allow tokens that are prefixes of others',
-        dest='nameguard',
-        action='store_false',
+        dest='no_nameguard',
+        action='store_true',
         default=None,  # None allows grammar specified
     )
     generation_opts.add_argument(
@@ -206,10 +219,10 @@ def tatsu_main():
     try:
         config = ParserConfig(
             trace=args.trace,
-            filename=args.filename,
+            source=args.filename,
             colorize=args.color,
             left_recursion=args.left_recursion,
-            nameguard=args.nameguard,
+            nameguard=not args.no_nameguard,
             whitespace=str(args.whitespace),
         )
         model = api.compile(grammar, args.name, asmodel=True, config=config)
@@ -225,12 +238,16 @@ def tatsu_main():
             else:
                 print(railroad)
         else:
-            if args.pretty:
+            if args.json:
+                result = model.asjsons()
+            elif args.pretty:
                 result = model.pretty()
             elif args.pretty_lean:
                 result = model.pretty_lean()
             elif args.object_model:
                 result = modelgen(model, basetype=args.base_type)
+            elif args.parser_model:
+                result = parsergen(model)
             else:
                 result = pythongen(model)
 

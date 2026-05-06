@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from functools import cached_property
 from typing import Any
 
 from ..contexts import _AT_, AST, Ctx
@@ -27,10 +28,11 @@ class Named(NamedBox):
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
         ctx.ast[self.name] = value
-        return {self.name: value}
+        return value
 
-    def defines(self):
-        return [(self.name, False), *super().defines()]
+    @cached_property
+    def defines_single(self) -> list[str]:
+        return list({self.name, *super().defines_single})
 
     def _pretty(self, lean=False):
         if lean:
@@ -42,13 +44,12 @@ class Named(NamedBox):
 class NamedList(Named):
     def _parse(self, ctx: Ctx) -> Any:
         value = self.exp._parse(ctx)
-        if self.name not in ctx.ast:
-            value = [value]
-        ctx.ast[self.name] = value
-        return {self.name: value}
+        ctx.ast._setlist(self.name, value)
+        return value
 
-    def defines(self):
-        return [(self.name, True), *super().defines()]
+    @cached_property
+    def defines_list(self) -> list[str]:
+        return list({self.name, *super().defines_list})
 
     def _pretty(self, lean=False):
         if lean:

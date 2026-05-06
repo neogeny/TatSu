@@ -9,7 +9,7 @@ from tatsu.tool import compile
 
 
 class FirstFollowTests(unittest.TestCase):
-    def test_direct_left_recursion(self, trace=False):
+    def test_direct_left_recursion(self, _trace=False):
         grammar = """
             @@left_recursion :: True
             start
@@ -44,7 +44,7 @@ class FirstFollowTests(unittest.TestCase):
 
         assert isinstance(expre.exp, g.Choice)
 
-        assert expre.is_leftrec
+        assert expre.is_lrec
 
         assert g.ref('expre') in expre.lookahead()
 
@@ -55,7 +55,7 @@ class FirstFollowTests(unittest.TestCase):
         assert g.ref('number') in factor.lookahead()
         assert g.ref('number') not in number.lookahead()
 
-    def test_indirect_left_recursion(self, trace=False):
+    def test_indirect_left_recursion(self, _trace=False):
         grammar = """
             @@left_recursion :: True
             start = x $ ;
@@ -69,13 +69,13 @@ class FirstFollowTests(unittest.TestCase):
         expr = model.rulemap['expr']
         num = model.rulemap['num']
 
-        assert x.is_leftrec
-        assert not expr.is_leftrec
-        assert not num.is_leftrec
+        assert x.is_lrec
+        assert not expr.is_lrec
+        assert not num.is_lrec
 
-        assert not x.is_memoizable
-        assert not expr.is_memoizable
-        assert num.is_memoizable
+        assert not x.is_memo
+        assert not expr.is_memo
+        assert num.is_memo
 
         print('x', x.lookahead())
         print('expr', expr.lookahead())
@@ -98,10 +98,10 @@ class FirstFollowTests(unittest.TestCase):
         f = model.rulemap['f']
         assert f  # to avoid linters
 
-        assert e.is_leftrec
-        assert not p.is_leftrec
+        assert e.is_lrec
+        assert not p.is_lrec
         assert p.is_nullable()
-        assert not p.is_memoizable  # it is part of a recursive loop
+        assert not p.is_memo  # it is part of a recursive loop
 
         assert g.ref('e') in e.lookahead()
         assert g.ref('p') in p.lookahead()

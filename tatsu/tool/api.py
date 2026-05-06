@@ -7,19 +7,21 @@ from typing import Any
 
 from .. import grammars as g
 from ..exceptions import ParseException
-from ..grammars.builder import (
+from ..infos import ParserConfig
+from ..input import Text
+from ..ngcodegen.grammar_gen import parsermodel_gen
+from ..ngcodegen.ngmodel_gen import modelgen
+from ..ngcodegen.ngparser_gen import pythongen
+from ..objectmodel import Node
+from ..objectmodel.builder import (
     BuilderConfig,
     Constructor,
     ModelBuilderSemantics,
     TypeContainer,
 )
-from ..infos import ParserConfig
-from ..ngcodegen.ngmodel_gen import modelgen
-from ..ngcodegen.ngparser_gen import pythongen
-from ..objectmodel import Node
 from ..parser import TatSuParserGenerator
-from ..tokenizing import Tokenizer
 from ..util import hasha
+
 
 __all__ = [
     'compile',
@@ -36,7 +38,7 @@ __compiled_grammar_cache: dict[tuple[str | None, str, int], g.Grammar] = {}
 
 
 def compile(
-    grammar: str | Tokenizer,
+    grammar: str | Text,
     name: str | None = None,
     *,
     config: ParserConfig | None = None,
@@ -50,12 +52,12 @@ def compile(
     constructors: list[Constructor] | None = None,
     **settings: Any,
 ) -> g.Grammar:
-    # check parameters
+    filename = filename or settings.pop('source', None)
     ParserConfig.new(
         config=config,
         semantics=semantics,
         name=name,
-        filename=filename,
+        source=filename,
         **settings,
     )
     if isinstance(semantics, type):
@@ -94,6 +96,36 @@ def compile(
     return model
 
 
+def compile_to_parser(
+    grammar: str | Text,
+    name: str | None = None,
+    *,
+    config: ParserConfig | None = None,
+    filename: str | None = None,
+    basetype: type | None = None,
+    semantics: Any = None,
+    builderconfig: BuilderConfig | None = None,
+    synthok: bool = True,
+    typedefs: list[TypeContainer] | None = None,
+    constructors: list[Constructor] | None = None,
+    **settings: Any,
+) -> g.Grammar:
+    return compile(
+        grammar,
+        name=name,
+        config=config,
+        filename=filename,
+        basetype=basetype,
+        semantics=semantics,
+        asmodel=True,
+        builderconfig=builderconfig,
+        synthok=synthok,
+        typedefs=typedefs,
+        constructors=constructors,
+        **settings,
+    )
+
+
 def parse(
     grammar: str,
     text: str,
@@ -112,11 +144,12 @@ def parse(
     constructors: list[Constructor] | None = None,
     **settings: Any,
 ):
+    filename = filename or settings.pop('source', None)
     config = ParserConfig.new(
         config=config,
         start=start,
         name=name,
-        filename=filename,
+        source=filename,
         semantics=semantics,
         **settings,
     )
@@ -151,8 +184,9 @@ def to_python_sourcecode(
     config: ParserConfig | None = None,
     **settings: Any,
 ):
-    config = ParserConfig.new(config=config, name=name, filename=filename, **settings)
-    model = compile(grammar, config=config, name=name, filename=filename)
+    filename = filename or settings.pop('source', None)
+    config = ParserConfig.new(config=config, name=name, source=filename, **settings)
+    model = compile(grammar, config=config, name=name, source=filename)
     return pythongen(model)
 
 
@@ -166,9 +200,32 @@ def to_python_model(
     config: ParserConfig | None = None,
     **settings: Any,
 ):
-    config = ParserConfig.new(config=config, name=name, filename=filename, **settings)
-    model = compile(grammar, name=name, filename=filename, config=config)
+    filename = filename or settings.pop('source', None)
+    config = ParserConfig.new(config=config, name=name, source=filename, **settings)
+    model = compile(grammar, name=name, source=filename, config=config)
     return modelgen(model, basetype=basetype)
+
+
+def to_parsermodel_sourcecode(
+    grammar: str,
+    /,
+    *,
+    name: str | None = None,
+    filename: str | None = None,
+    config: ParserConfig | None = None,
+    **settings: Any,
+):
+    filename = filename or settings.pop('source', None)
+    model = compile(grammar, config=config, name=name, source=filename, **settings)
+    return parsermodel_gen(model, name=name)
+
+
+def to_grammar_json(grammar: str) -> str:
+    from tatsu.parser.bootparser import TatSuBootstrapParser
+
+    parser = TatSuBootstrapParser()
+    model = parser.parse(grammar)
+    return model.asjson()
 
 
 # for backwards compatibility. Use `compile()` instead
@@ -196,10 +253,11 @@ def gencode(
     config: ParserConfig | None = None,
     **settings: Any,
 ):
+    filename = filename or settings.pop('source', None)
     model = compile(
         grammar,
         name=name,
-        filename=filename,
+        source=filename,
         trace=trace,
         config=config,
         **settings,

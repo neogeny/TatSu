@@ -1,0 +1,4015 @@
+{
+  "__class__": "Grammar",
+  "rules": [
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "start",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Call",
+            "ast": "grammar"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Grammar"
+      ],
+      "kwparams": null,
+      "name": "grammar",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Named",
+            "name": "title",
+            "exp": {
+              "__class__": "Constant",
+              "ast": "TATSU"
+            }
+          },
+          {
+            "__class__": "Closure",
+            "ast": {
+              "__class__": "Choice",
+              "ast": [
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "NamedList",
+                        "name": "directives",
+                        "exp": {
+                          "__class__": "Call",
+                          "ast": "directive"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "NamedList",
+                        "name": "keywords",
+                        "exp": {
+                          "__class__": "Call",
+                          "ast": "keyword"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "NamedList",
+            "name": "rules",
+            "exp": {
+              "__class__": "Call",
+              "ast": "rule"
+            }
+          },
+          {
+            "__class__": "Closure",
+            "ast": {
+              "__class__": "Choice",
+              "ast": [
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "NamedList",
+                        "name": "rules",
+                        "exp": {
+                          "__class__": "Call",
+                          "ast": "rule"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "NamedList",
+                        "name": "keywords",
+                        "exp": {
+                          "__class__": "Call",
+                          "ast": "keyword"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "EOF",
+            "ast": "$"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "directive",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "@@"
+          },
+          {
+            "__class__": "NegativeLookahead",
+            "ast": {
+              "__class__": "Token",
+              "ast": "keyword"
+            }
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Group",
+            "ast": {
+              "__class__": "Choice",
+              "ast": [
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "Named",
+                        "name": "name",
+                        "exp": {
+                          "__class__": "Group",
+                          "ast": {
+                            "__class__": "Choice",
+                            "ast": [
+                              {
+                                "__class__": "Option",
+                                "ast": {
+                                  "__class__": "Sequence",
+                                  "ast": [
+                                    {
+                                      "__class__": "Token",
+                                      "ast": "comments"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "ast": {
+                                  "__class__": "Sequence",
+                                  "ast": [
+                                    {
+                                      "__class__": "Token",
+                                      "ast": "eol_comments"
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "__class__": "Cut",
+                        "ast": "~"
+                      },
+                      {
+                        "__class__": "Token",
+                        "ast": "::"
+                      },
+                      {
+                        "__class__": "Cut",
+                        "ast": "~"
+                      },
+                      {
+                        "__class__": "Named",
+                        "name": "value",
+                        "exp": {
+                          "__class__": "Call",
+                          "ast": "regex"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "Named",
+                        "name": "name",
+                        "exp": {
+                          "__class__": "Token",
+                          "ast": "whitespace"
+                        }
+                      },
+                      {
+                        "__class__": "Cut",
+                        "ast": "~"
+                      },
+                      {
+                        "__class__": "Token",
+                        "ast": "::"
+                      },
+                      {
+                        "__class__": "Cut",
+                        "ast": "~"
+                      },
+                      {
+                        "__class__": "Named",
+                        "name": "value",
+                        "exp": {
+                          "__class__": "Group",
+                          "ast": {
+                            "__class__": "Choice",
+                            "ast": [
+                              {
+                                "__class__": "Option",
+                                "ast": {
+                                  "__class__": "Sequence",
+                                  "ast": [
+                                    {
+                                      "__class__": "Call",
+                                      "ast": "regex"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "ast": {
+                                  "__class__": "Sequence",
+                                  "ast": [
+                                    {
+                                      "__class__": "Call",
+                                      "ast": "string"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "ast": {
+                                  "__class__": "Sequence",
+                                  "ast": [
+                                    {
+                                      "__class__": "Token",
+                                      "ast": "None"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "ast": {
+                                  "__class__": "Sequence",
+                                  "ast": [
+                                    {
+                                      "__class__": "Token",
+                                      "ast": "False"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "ast": {
+                                  "__class__": "Sequence",
+                                  "ast": [
+                                    {
+                                      "__class__": "Constant",
+                                      "ast": "None"
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "Named",
+                        "name": "name",
+                        "exp": {
+                          "__class__": "Group",
+                          "ast": {
+                            "__class__": "Choice",
+                            "ast": [
+                              {
+                                "__class__": "Option",
+                                "ast": {
+                                  "__class__": "Sequence",
+                                  "ast": [
+                                    {
+                                      "__class__": "Token",
+                                      "ast": "nameguard"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "ast": {
+                                  "__class__": "Sequence",
+                                  "ast": [
+                                    {
+                                      "__class__": "Token",
+                                      "ast": "ignorecase"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "ast": {
+                                  "__class__": "Sequence",
+                                  "ast": [
+                                    {
+                                      "__class__": "Token",
+                                      "ast": "left_recursion"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "ast": {
+                                  "__class__": "Sequence",
+                                  "ast": [
+                                    {
+                                      "__class__": "Token",
+                                      "ast": "parseinfo"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "__class__": "Option",
+                                "ast": {
+                                  "__class__": "Sequence",
+                                  "ast": [
+                                    {
+                                      "__class__": "Token",
+                                      "ast": "memoization"
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "__class__": "Cut",
+                        "ast": "~"
+                      },
+                      {
+                        "__class__": "Group",
+                        "ast": {
+                          "__class__": "Choice",
+                          "ast": [
+                            {
+                              "__class__": "Option",
+                              "ast": {
+                                "__class__": "Sequence",
+                                "ast": [
+                                  {
+                                    "__class__": "Token",
+                                    "ast": "::"
+                                  },
+                                  {
+                                    "__class__": "Cut",
+                                    "ast": "~"
+                                  },
+                                  {
+                                    "__class__": "Named",
+                                    "name": "value",
+                                    "exp": {
+                                      "__class__": "Call",
+                                      "ast": "boolean"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "__class__": "Option",
+                              "ast": {
+                                "__class__": "Sequence",
+                                "ast": [
+                                  {
+                                    "__class__": "Named",
+                                    "name": "value",
+                                    "exp": {
+                                      "__class__": "Constant",
+                                      "ast": true
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "Named",
+                        "name": "name",
+                        "exp": {
+                          "__class__": "Token",
+                          "ast": "grammar"
+                        }
+                      },
+                      {
+                        "__class__": "Cut",
+                        "ast": "~"
+                      },
+                      {
+                        "__class__": "Token",
+                        "ast": "::"
+                      },
+                      {
+                        "__class__": "Cut",
+                        "ast": "~"
+                      },
+                      {
+                        "__class__": "Named",
+                        "name": "value",
+                        "exp": {
+                          "__class__": "Call",
+                          "ast": "word"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "Named",
+                        "name": "name",
+                        "exp": {
+                          "__class__": "Token",
+                          "ast": "namechars"
+                        }
+                      },
+                      {
+                        "__class__": "Cut",
+                        "ast": "~"
+                      },
+                      {
+                        "__class__": "Token",
+                        "ast": "::"
+                      },
+                      {
+                        "__class__": "Cut",
+                        "ast": "~"
+                      },
+                      {
+                        "__class__": "Named",
+                        "name": "value",
+                        "exp": {
+                          "__class__": "Call",
+                          "ast": "string"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "keywords",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "PositiveClosure",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "keyword"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "keyword",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "@@keyword"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Token",
+            "ast": "::"
+          },
+          {
+            "__class__": "PositiveClosure",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "OverrideList",
+                  "ast": {
+                    "__class__": "Group",
+                    "ast": {
+                      "__class__": "Choice",
+                      "ast": [
+                        {
+                          "__class__": "Option",
+                          "ast": {
+                            "__class__": "Sequence",
+                            "ast": [
+                              {
+                                "__class__": "Call",
+                                "ast": "word"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "__class__": "Option",
+                          "ast": {
+                            "__class__": "Sequence",
+                            "ast": [
+                              {
+                                "__class__": "Call",
+                                "ast": "string"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "__class__": "NegativeLookahead",
+                  "ast": {
+                    "__class__": "Group",
+                    "ast": {
+                      "__class__": "Choice",
+                      "ast": [
+                        {
+                          "__class__": "Option",
+                          "ast": {
+                            "__class__": "Sequence",
+                            "ast": [
+                              {
+                                "__class__": "Token",
+                                "ast": ":"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "__class__": "Option",
+                          "ast": {
+                            "__class__": "Sequence",
+                            "ast": [
+                              {
+                                "__class__": "Token",
+                                "ast": "="
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "params",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "OverrideList",
+            "ast": {
+              "__class__": "Call",
+              "ast": "first_param"
+            }
+          },
+          {
+            "__class__": "Closure",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": ","
+                },
+                {
+                  "__class__": "OverrideList",
+                  "ast": {
+                    "__class__": "Call",
+                    "ast": "literal"
+                  }
+                },
+                {
+                  "__class__": "NegativeLookahead",
+                  "ast": {
+                    "__class__": "Token",
+                    "ast": "="
+                  }
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "first_param",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "path"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "literal"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "kwparams",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "PositiveGather",
+            "exp": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "pair"
+                }
+              ]
+            },
+            "sep": {
+              "__class__": "Token",
+              "ast": ","
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "the_params_at_last",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Named",
+                  "name": "kwparams",
+                  "exp": {
+                    "__class__": "Call",
+                    "ast": "kwparams"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Named",
+                  "name": "params",
+                  "exp": {
+                    "__class__": "Call",
+                    "ast": "params"
+                  }
+                },
+                {
+                  "__class__": "Token",
+                  "ast": ","
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                },
+                {
+                  "__class__": "Named",
+                  "name": "kwparams",
+                  "exp": {
+                    "__class__": "Call",
+                    "ast": "kwparams"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Named",
+                  "name": "params",
+                  "exp": {
+                    "__class__": "Call",
+                    "ast": "params"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "paramdef",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": "["
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                },
+                {
+                  "__class__": "RuleInclude",
+                  "ast": "the_params_at_last"
+                },
+                {
+                  "__class__": "Token",
+                  "ast": "]"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": "("
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                },
+                {
+                  "__class__": "RuleInclude",
+                  "ast": "the_params_at_last"
+                },
+                {
+                  "__class__": "Token",
+                  "ast": ")"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": "::"
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                },
+                {
+                  "__class__": "Named",
+                  "name": "params",
+                  "exp": {
+                    "__class__": "Call",
+                    "ast": "params"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Rule"
+      ],
+      "kwparams": null,
+      "name": "rule",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Named",
+            "name": "decorators",
+            "exp": {
+              "__class__": "Closure",
+              "ast": {
+                "__class__": "Sequence",
+                "ast": [
+                  {
+                    "__class__": "Call",
+                    "ast": "decorator"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "__class__": "Named",
+            "name": "name",
+            "exp": {
+              "__class__": "Call",
+              "ast": "name"
+            }
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Optional",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "RuleInclude",
+                  "ast": "paramdef"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Optional",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": "<"
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                },
+                {
+                  "__class__": "Named",
+                  "name": "base",
+                  "exp": {
+                    "__class__": "Call",
+                    "ast": "known_name"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Void",
+            "ast": "()"
+          },
+          {
+            "__class__": "Pattern",
+            "ast": "=|::=|:=?"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Named",
+            "name": "exp",
+            "exp": {
+              "__class__": "Call",
+              "ast": "expre"
+            }
+          },
+          {
+            "__class__": "Call",
+            "ast": "ENDRULE"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "ENDRULE",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Pattern",
+                  "ast": "\\s*[;]|(?=\\s*(?:\\r?\\n|\\r)\\S)|(?:\\s*(?:\\r?\\n|\\r)){2,}[;]?"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "EOF",
+                  "ast": "$"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": ";"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "decorator",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "@"
+          },
+          {
+            "__class__": "NegativeLookahead",
+            "ast": {
+              "__class__": "Token",
+              "ast": "@"
+            }
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Override",
+            "ast": {
+              "__class__": "Group",
+              "ast": {
+                "__class__": "Choice",
+                "ast": [
+                  {
+                    "__class__": "Option",
+                    "ast": {
+                      "__class__": "Sequence",
+                      "ast": [
+                        {
+                          "__class__": "Token",
+                          "ast": "override"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "__class__": "Option",
+                    "ast": {
+                      "__class__": "Sequence",
+                      "ast": [
+                        {
+                          "__class__": "Token",
+                          "ast": "name"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "__class__": "Option",
+                    "ast": {
+                      "__class__": "Sequence",
+                      "ast": [
+                        {
+                          "__class__": "Token",
+                          "ast": "isname"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "__class__": "Option",
+                    "ast": {
+                      "__class__": "Sequence",
+                      "ast": [
+                        {
+                          "__class__": "Token",
+                          "ast": "nomemo"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "pair",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "OverrideList",
+            "ast": {
+              "__class__": "Call",
+              "ast": "word"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": "="
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "OverrideList",
+            "ast": {
+              "__class__": "Call",
+              "ast": "literal"
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "expre",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "choice"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "sequence"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Choice"
+      ],
+      "kwparams": null,
+      "name": "choice",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Optional",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": "|"
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "OverrideList",
+            "ast": {
+              "__class__": "Call",
+              "ast": "option"
+            }
+          },
+          {
+            "__class__": "PositiveClosure",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": "|"
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                },
+                {
+                  "__class__": "OverrideList",
+                  "ast": {
+                    "__class__": "Call",
+                    "ast": "option"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Option"
+      ],
+      "kwparams": null,
+      "name": "option",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Call",
+            "ast": "sequence"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Sequence"
+      ],
+      "kwparams": null,
+      "name": "sequence",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Lookahead",
+                  "ast": {
+                    "__class__": "Group",
+                    "ast": {
+                      "__class__": "Sequence",
+                      "ast": [
+                        {
+                          "__class__": "Call",
+                          "ast": "element"
+                        },
+                        {
+                          "__class__": "Token",
+                          "ast": ","
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "__class__": "PositiveGather",
+                  "exp": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "Call",
+                        "ast": "element"
+                      }
+                    ]
+                  },
+                  "sep": {
+                    "__class__": "Token",
+                    "ast": ","
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "PositiveClosure",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "NegativeLookahead",
+                        "ast": {
+                          "__class__": "Call",
+                          "ast": "ENDRULE"
+                        }
+                      },
+                      {
+                        "__class__": "Call",
+                        "ast": "element"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "element",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "rule_include"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "named"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "override"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "term"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "RuleInclude"
+      ],
+      "kwparams": null,
+      "name": "rule_include",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": ">"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Override",
+            "ast": {
+              "__class__": "Call",
+              "ast": "known_name"
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "named",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "named_list"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "named_single"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "NamedList"
+      ],
+      "kwparams": null,
+      "name": "named_list",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Named",
+            "name": "name",
+            "exp": {
+              "__class__": "Call",
+              "ast": "name"
+            }
+          },
+          {
+            "__class__": "Pattern",
+            "ast": "\\+[:=]"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Named",
+            "name": "exp",
+            "exp": {
+              "__class__": "Call",
+              "ast": "term"
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Named"
+      ],
+      "kwparams": null,
+      "name": "named_single",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Named",
+            "name": "name",
+            "exp": {
+              "__class__": "Call",
+              "ast": "name"
+            }
+          },
+          {
+            "__class__": "Pattern",
+            "ast": "[:=]"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Named",
+            "name": "exp",
+            "exp": {
+              "__class__": "Call",
+              "ast": "term"
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "override",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "override_list"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "override_single"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "override_single_deprecated"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "OverrideList"
+      ],
+      "kwparams": null,
+      "name": "override_list",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Pattern",
+            "ast": "\\+=|@\\+:"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Override",
+            "ast": {
+              "__class__": "Call",
+              "ast": "term"
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Override"
+      ],
+      "kwparams": null,
+      "name": "override_single",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Pattern",
+            "ast": "=|@:"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Override",
+            "ast": {
+              "__class__": "Call",
+              "ast": "term"
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Override"
+      ],
+      "kwparams": null,
+      "name": "override_single_deprecated",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "@"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Override",
+            "ast": {
+              "__class__": "Call",
+              "ast": "term"
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "term",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "void"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "gather"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "join"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "left_join"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "right_join"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "empty_closure"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "positive_closure"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "closure"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "optional"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "skip_to"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "lookahead"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "negative_lookahead"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "cut"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "cut_deprecated"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "atom"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Group"
+      ],
+      "kwparams": null,
+      "name": "group",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "NegativeLookahead",
+            "ast": {
+              "__class__": "Token",
+              "ast": "(?:"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": "("
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Override",
+            "ast": {
+              "__class__": "Call",
+              "ast": "expre"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": ")"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "SkipGroup"
+      ],
+      "kwparams": null,
+      "name": "skip",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "(?:"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Override",
+            "ast": {
+              "__class__": "Call",
+              "ast": "expre"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": ")"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "gather",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Lookahead",
+            "ast": {
+              "__class__": "Group",
+              "ast": {
+                "__class__": "Sequence",
+                "ast": [
+                  {
+                    "__class__": "Call",
+                    "ast": "atom"
+                  },
+                  {
+                    "__class__": "Token",
+                    "ast": ".{"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Group",
+            "ast": {
+              "__class__": "Choice",
+              "ast": [
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "Call",
+                        "ast": "positive_gather"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "Call",
+                        "ast": "normal_gather"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "PositiveGather"
+      ],
+      "kwparams": null,
+      "name": "positive_gather",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Named",
+            "name": "sep",
+            "exp": {
+              "__class__": "Call",
+              "ast": "atom"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": ".{"
+          },
+          {
+            "__class__": "Named",
+            "name": "exp",
+            "exp": {
+              "__class__": "Call",
+              "ast": "expre"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": "}"
+          },
+          {
+            "__class__": "Pattern",
+            "ast": "(?!\\+=)[+-]"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Gather"
+      ],
+      "kwparams": null,
+      "name": "normal_gather",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Named",
+            "name": "sep",
+            "exp": {
+              "__class__": "Call",
+              "ast": "atom"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": ".{"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Named",
+            "name": "exp",
+            "exp": {
+              "__class__": "Call",
+              "ast": "expre"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": "}"
+          },
+          {
+            "__class__": "Optional",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": "*"
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "join",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Lookahead",
+            "ast": {
+              "__class__": "Group",
+              "ast": {
+                "__class__": "Sequence",
+                "ast": [
+                  {
+                    "__class__": "Call",
+                    "ast": "atom"
+                  },
+                  {
+                    "__class__": "Token",
+                    "ast": "%{"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Group",
+            "ast": {
+              "__class__": "Choice",
+              "ast": [
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "Call",
+                        "ast": "positive_join"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "Call",
+                        "ast": "normal_join"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "PositiveJoin"
+      ],
+      "kwparams": null,
+      "name": "positive_join",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Named",
+            "name": "sep",
+            "exp": {
+              "__class__": "Call",
+              "ast": "atom"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": "%{"
+          },
+          {
+            "__class__": "Named",
+            "name": "exp",
+            "exp": {
+              "__class__": "Call",
+              "ast": "expre"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": "}"
+          },
+          {
+            "__class__": "Pattern",
+            "ast": "(?!\\+=)[+-]"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Join"
+      ],
+      "kwparams": null,
+      "name": "normal_join",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Named",
+            "name": "sep",
+            "exp": {
+              "__class__": "Call",
+              "ast": "atom"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": "%{"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Named",
+            "name": "exp",
+            "exp": {
+              "__class__": "Call",
+              "ast": "expre"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": "}"
+          },
+          {
+            "__class__": "Optional",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": "*"
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "LeftJoin"
+      ],
+      "kwparams": null,
+      "name": "left_join",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Named",
+            "name": "sep",
+            "exp": {
+              "__class__": "Call",
+              "ast": "atom"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": "<{"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Named",
+            "name": "exp",
+            "exp": {
+              "__class__": "Call",
+              "ast": "expre"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": "}"
+          },
+          {
+            "__class__": "Pattern",
+            "ast": "(?!\\+=)[+-]"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "RightJoin"
+      ],
+      "kwparams": null,
+      "name": "right_join",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Named",
+            "name": "sep",
+            "exp": {
+              "__class__": "Call",
+              "ast": "atom"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": ">{"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Named",
+            "name": "exp",
+            "exp": {
+              "__class__": "Call",
+              "ast": "expre"
+            }
+          },
+          {
+            "__class__": "Token",
+            "ast": "}"
+          },
+          {
+            "__class__": "Pattern",
+            "ast": "(?!\\+=)[+-]"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "PositiveClosure"
+      ],
+      "kwparams": null,
+      "name": "positive_closure",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": "{"
+                },
+                {
+                  "__class__": "Override",
+                  "ast": {
+                    "__class__": "Call",
+                    "ast": "expre"
+                  }
+                },
+                {
+                  "__class__": "Token",
+                  "ast": "}"
+                },
+                {
+                  "__class__": "Pattern",
+                  "ast": "(?!\\+=)[+-]"
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Override",
+                  "ast": {
+                    "__class__": "Call",
+                    "ast": "atom"
+                  }
+                },
+                {
+                  "__class__": "Pattern",
+                  "ast": "(?!\\+=)[+]"
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Closure"
+      ],
+      "kwparams": null,
+      "name": "closure",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": "{"
+                },
+                {
+                  "__class__": "Override",
+                  "ast": {
+                    "__class__": "Call",
+                    "ast": "expre"
+                  }
+                },
+                {
+                  "__class__": "Token",
+                  "ast": "}"
+                },
+                {
+                  "__class__": "Optional",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "Token",
+                        "ast": "*"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Override",
+                  "ast": {
+                    "__class__": "Call",
+                    "ast": "atom"
+                  }
+                },
+                {
+                  "__class__": "Token",
+                  "ast": "*"
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "EmptyClosure"
+      ],
+      "kwparams": null,
+      "name": "empty_closure",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "{}"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Override",
+            "ast": {
+              "__class__": "Void",
+              "ast": "()"
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Optional"
+      ],
+      "kwparams": null,
+      "name": "optional",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": "["
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                },
+                {
+                  "__class__": "Override",
+                  "ast": {
+                    "__class__": "Call",
+                    "ast": "expre"
+                  }
+                },
+                {
+                  "__class__": "Token",
+                  "ast": "]"
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Override",
+                  "ast": {
+                    "__class__": "Call",
+                    "ast": "atom"
+                  }
+                },
+                {
+                  "__class__": "NegativeLookahead",
+                  "ast": {
+                    "__class__": "Group",
+                    "ast": {
+                      "__class__": "Choice",
+                      "ast": [
+                        {
+                          "__class__": "Option",
+                          "ast": {
+                            "__class__": "Sequence",
+                            "ast": [
+                              {
+                                "__class__": "Token",
+                                "ast": "?\""
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "__class__": "Option",
+                          "ast": {
+                            "__class__": "Sequence",
+                            "ast": [
+                              {
+                                "__class__": "Token",
+                                "ast": "?'"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "__class__": "Option",
+                          "ast": {
+                            "__class__": "Sequence",
+                            "ast": [
+                              {
+                                "__class__": "Token",
+                                "ast": "?/"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "__class__": "Token",
+                  "ast": "?"
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Lookahead"
+      ],
+      "kwparams": null,
+      "name": "lookahead",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "&"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Override",
+            "ast": {
+              "__class__": "Call",
+              "ast": "term"
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "NegativeLookahead"
+      ],
+      "kwparams": null,
+      "name": "negative_lookahead",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "!"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Override",
+            "ast": {
+              "__class__": "Call",
+              "ast": "term"
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "SkipTo"
+      ],
+      "kwparams": null,
+      "name": "skip_to",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "->"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Override",
+            "ast": {
+              "__class__": "Call",
+              "ast": "term"
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "atom",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "skip"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "group"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "token"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "alert"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "constant"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "call"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "pattern"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "dot"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "eof"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Call"
+      ],
+      "kwparams": null,
+      "name": "call",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Call",
+            "ast": "word"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Void"
+      ],
+      "kwparams": null,
+      "name": "void",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "()"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Fail"
+      ],
+      "kwparams": null,
+      "name": "fail",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "!()"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Cut"
+      ],
+      "kwparams": null,
+      "name": "cut",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "~"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Cut"
+      ],
+      "kwparams": null,
+      "name": "cut_deprecated",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": ">>"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "known_name",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Call",
+            "ast": "name"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "name",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Call",
+            "ast": "word"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Constant"
+      ],
+      "kwparams": null,
+      "name": "constant",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Lookahead",
+            "ast": {
+              "__class__": "Token",
+              "ast": "`"
+            }
+          },
+          {
+            "__class__": "Group",
+            "ast": {
+              "__class__": "Choice",
+              "ast": [
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "Pattern",
+                        "ast": "(?ms)```((?:.|\\n)*?)```"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "Token",
+                        "ast": "`"
+                      },
+                      {
+                        "__class__": "Override",
+                        "ast": {
+                          "__class__": "Call",
+                          "ast": "literal"
+                        }
+                      },
+                      {
+                        "__class__": "Token",
+                        "ast": "`"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "__class__": "Option",
+                  "ast": {
+                    "__class__": "Sequence",
+                    "ast": [
+                      {
+                        "__class__": "Pattern",
+                        "ast": "`(.*?)`"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Alert"
+      ],
+      "kwparams": null,
+      "name": "alert",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Named",
+            "name": "level",
+            "exp": {
+              "__class__": "Pattern",
+              "ast": "\\^+"
+            }
+          },
+          {
+            "__class__": "Named",
+            "name": "message",
+            "exp": {
+              "__class__": "Call",
+              "ast": "constant"
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Token"
+      ],
+      "kwparams": null,
+      "name": "token",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "string"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "raw_string"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "literal",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "string"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "raw_string"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "boolean"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "word"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "hex"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "float"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "int"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "null"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "string",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "multiline_string"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "singlequoted"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "doublequoted"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "singlequoted",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Call",
+            "ast": "SINGLEQUOTED"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "doublequoted",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Call",
+            "ast": "DOUBLEQUOTED"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "raw_string",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Pattern",
+            "ast": "r"
+          },
+          {
+            "__class__": "Override",
+            "ast": {
+              "__class__": "Call",
+              "ast": "STRING"
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "STRING",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "SINGLEQUOTED"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "DOUBLEQUOTED"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "SINGLEQUOTED",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Pattern",
+            "ast": "'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "DOUBLEQUOTED",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Pattern",
+            "ast": "\"((?:[^\"\\n]|\\\\\"|\\\\\\\\)*?)\""
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "multiline_string",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Pattern",
+                  "ast": "(?ms)'''((?:\\\\\\\\|\\\\.|(?!''').)*?)'''"
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Pattern",
+                  "ast": "(?ms)\"\"\"((?:\\\\\\\\|\\\\.|(?!\"\"\").)*?)\"\"\""
+                },
+                {
+                  "__class__": "Cut",
+                  "ast": "~"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "hex",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Pattern",
+            "ast": "0[xX](?:\\d|[a-fA-F])+"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "float",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Pattern",
+            "ast": "[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "int",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Pattern",
+            "ast": "[-+]?\\d+"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "path",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Pattern",
+            "ast": "(?!\\d)\\w+(?:::(?!\\d)\\w+)+"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "word",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Pattern",
+            "ast": "(?!\\d)\\w+"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Dot"
+      ],
+      "kwparams": null,
+      "name": "dot",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "/./"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "Pattern"
+      ],
+      "kwparams": null,
+      "name": "pattern",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Call",
+            "ast": "regex"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "regex",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Call",
+                  "ast": "deprecated_regex"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "NegativeLookahead",
+                  "ast": {
+                    "__class__": "Token",
+                    "ast": "?/"
+                  }
+                },
+                {
+                  "__class__": "Group",
+                  "ast": {
+                    "__class__": "Choice",
+                    "ast": [
+                      {
+                        "__class__": "Option",
+                        "ast": {
+                          "__class__": "Sequence",
+                          "ast": [
+                            {
+                              "__class__": "Call",
+                              "ast": "REGEX"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "__class__": "Option",
+                        "ast": {
+                          "__class__": "Sequence",
+                          "ast": [
+                            {
+                              "__class__": "Token",
+                              "ast": "?"
+                            },
+                            {
+                              "__class__": "Override",
+                              "ast": {
+                                "__class__": "Call",
+                                "ast": "STRING"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "REGEX",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Pattern",
+            "ast": "(?ms)/((?:[^/\\\\]|\\\\/|\\\\.)*)/"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "deprecated_regex",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "?/"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Override",
+            "ast": {
+              "__class__": "Pattern",
+              "ast": "(?ms)((?:[^/\\\\]|\\\\/|\\\\.)*)"
+            }
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          },
+          {
+            "__class__": "Token",
+            "ast": "/?"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "bool"
+      ],
+      "kwparams": null,
+      "name": "boolean",
+      "base": null,
+      "exp": {
+        "__class__": "Choice",
+        "ast": [
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": "True"
+                }
+              ]
+            }
+          },
+          {
+            "__class__": "Option",
+            "ast": {
+              "__class__": "Sequence",
+              "ast": [
+                {
+                  "__class__": "Token",
+                  "ast": "False"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": null,
+      "kwparams": null,
+      "name": "null",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "None"
+          }
+        ]
+      },
+      "decorators": []
+    },
+    {
+      "__class__": "Rule",
+      "params": [
+        "EOF"
+      ],
+      "kwparams": null,
+      "name": "eof",
+      "base": null,
+      "exp": {
+        "__class__": "Sequence",
+        "ast": [
+          {
+            "__class__": "Token",
+            "ast": "$"
+          },
+          {
+            "__class__": "Cut",
+            "ast": "~"
+          }
+        ]
+      },
+      "decorators": []
+    }
+  ],
+  "keywords": [],
+  "directives": [
+    {
+      "name": "grammar",
+      "value": "TatSu"
+    },
+    {
+      "name": "whitespace",
+      "value": "(?m)\\s+"
+    },
+    {
+      "name": "comments",
+      "value": "(?ms)[(][*]\\s*((?:.|\\n)*?)\\s*[*][)]|[\\/][*]\\s*((?:.|\\n)*?)\\s*[*][\\/]"
+    },
+    {
+      "name": "eol_comments",
+      "value": "(?ms)(?:[#]|[\\/][\\/])(.*?)$"
+    },
+    {
+      "value": true,
+      "name": "parseinfo"
+    },
+    {
+      "value": true,
+      "name": "left_recursion"
+    }
+  ],
+  "title": "TATSU"
+}

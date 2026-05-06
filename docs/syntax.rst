@@ -106,8 +106,19 @@ Grouping. Match ``e``. For example: ``('a' | 'b')``.
 ``(?: e )``
 ^^^^^^^^^^^
 
-Skip. Like, a group, match ``e``, but do not capture what was pared. For
-example: ``(?: delimiters )``.
+A non-capturing group. Like in a ``()`` group, match ``e``, but this time do not
+capture what was parsed. For example:
+
+.. code:: apl
+    :force:
+
+    start: header (?: delimiter ) body
+
+    header: /[A-Z]+/
+
+    delimiter: /[:,-]+/
+
+    body: /[a-z]+/
 
 
 ``[ e ]``
@@ -214,89 +225,6 @@ closure. It's equivalent to:
     :force:
 
     s%{e}+|{}
-
-
-``op<{ e }+``
-^^^^^^^^^^^^^
-
-Left join. Like the *join expression*, but the result is a
-left-associative tree built with ``tuple()``, in which the first
-element is the separator (``op``), and the other two elements are the
-operands.
-
-The expression:
-
-.. code:: ebnf
-    :force:
-
-    '+'<{/\d+/}+
-
-Will parse this input:
-
-.. code:: python
-    :force:
-
-    1 + 2 + 3 + 4
-
-To this tree:
-
-.. code:: python
-    :force:
-
-    (
-        '+',
-        (
-            '+',
-            (
-                '+',
-                '1',
-                '2'
-            ),
-            '3'
-        ),
-        '4'
-    )
-
-
-``op>{ e }+``
-^^^^^^^^^^^^^
-
-Right join. Like the *join expression*, but the result is a
-right-associative tree built with ``tuple()``, in which the first
-element is the separator (``op``), and the other two elements are the
-operands.
-
-The expression:
-
-.. code:: ebnf
-    :force:
-
-    '+'>{/\d+/}+
-
-Will parse this input:
-
-.. code:: ebnf
-    :force:
-
-    1 + 2 + 3 + 4
-
-To this tree:
-
-.. code:: python
-
-   (
-      '+',
-      '1',
-      (
-          '+',
-          '2',
-          (
-              '+',
-              '3',
-              '4'
-          )
-      )
-   )
 
 
 ``s.{ e }+``
@@ -459,12 +387,7 @@ semantic action. For example:
     boolean_option: name ['=' (boolean|`true`) ]
 
 
-If the text evaluates to a Python literal (with ``ast.literal_eval()``), that
-will be the returned value. Otherwise, string interpolation in the style of
-``str.format()`` over the names in the current `AST`_ is applied for
-*constant* elements. Occurrences of the ``{`` character must be escaped to
-``\{`` if they are not intended for interpolation. A *constant* expression
-that hast type ``str`` is evaluated using:
+If the text evaluates to a Python literal (with ``ast.literal_eval()``), that will be the returned value. Otherwise, string interpolation in the style of ``str.format()`` over the names in the current `AST`_ is applied for *constant* elements. Occurrences of the ``{`` character must be escaped to ``\{`` if they are not intended for interpolation. A *constant* expression that hast type ``str`` is evaluated using:
 
 .. code:: python
     :force:
@@ -509,7 +432,10 @@ not advance the input over whitespace or comments.
 ^^^^^^^^^^^^^
 
 The include operator. Include the *right hand side* of rule
-``rulename`` at this point.
+``rulename`` at this point. This is useful when some fragment of the
+expression is complicated but still must provide named element to
+the current context. the |TatSu| grammar uses it to parse rule parameters,
+a complex expression that deliver only ``params`` and ``kwparams``.
 
 The following set of declarations:
 
@@ -558,10 +484,10 @@ Add the result of ``e`` to the `AST`_ using ``name`` as key. If
     ``name`` is bound in the *option* in which it appears, or in the rule when
     there are no options. When options define different names, only the names
     in the option that parses will be present in the resulting AST_. A ``name``
-    will be bound to ``None`` when the expresion ``e`` fails to parse. For ``name``
+    will be bound to ``None`` when the expression ``e`` fails to parse. For ``name``
     used in enclosing expressions like *group*, *optional*, or *closure*, ``name``
     will be bound in the rule-level AST_ only if the complete enclosure parses
-    (they have local scope, and are transfered to the outer scope only on success).
+    (they have local scope, and are transferred to the outer scope only on success).
     The same criteria applies to expressions nested to any level.
 
 When there are no named items in a rule or choice, the `AST`_ consists of the
@@ -602,7 +528,7 @@ the `AST`_ for ``e``.
 .. note::
 
     As with ``name=e``, the effect of ``=e`` is scoped to the enclosing
-    *option*, *group*, *optional*, or *closure*, and will apply ony when the
+    *option*, *group*, *optional*, or *closure*, and will apply only when the
     enclosure parses successfully.
 
 This expression is useful to recover only part of the right hand side of a rule
@@ -638,6 +564,18 @@ tokens are of no interest.
 
 The *end of text* symbol. Verify that the end of the input text has
 been reached.
+
+``$->``
+^^^^^^^
+
+The *end of line* symbol. Verify that the end of the current line has
+been reached. This is useful for parsing line-based formats, such as
+configuration files, or for parsing comments.
+
+The ``$->`` (EOL) expression will consume the whitespace up to and including the next line break, using the Python semantics of ``os.linesep``. The match interprets whitespace using the Python definition as implemented by ``str .isspace()``, so beware when a particular definition of *whitespace* is part of the language being parsed.
+
+Comments, as defined for the grammar, will also be skipped by the ``$->`` expression in search of a newline, which means that newlines consummed by the comments patterns will not be *"seen"* by ``$->``.
+
 
 Deprecated Expressions
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -676,6 +614,89 @@ instead.
 
 `Pascal`_-style multi-line comments are *deprecated*. Use `Java`_-style
 comments instead.
+
+
+``op<{ e }+``
+^^^^^^^^^^^^^
+
+Left join. Like the *join expression*, but the result is a
+left-associative tree built with ``tuple()``, in which the first
+element is the separator (``op``), and the other two elements are the
+operands.
+
+The expression:
+
+.. code:: ebnf
+    :force:
+
+    '+'<{/\d+/}+
+
+Will parse this input:
+
+.. code:: python
+    :force:
+
+    1 + 2 + 3 + 4
+
+To this tree:
+
+.. code:: python
+    :force:
+
+    (
+        '+',
+        (
+            '+',
+            (
+                '+',
+                '1',
+                '2'
+            ),
+            '3'
+        ),
+        '4'
+    )
+
+
+``op>{ e }+``
+^^^^^^^^^^^^^
+
+Right join. Like the *join expression*, but the result is a
+right-associative tree built with ``tuple()``, in which the first
+element is the separator (``op``), and the other two elements are the
+operands.
+
+The expression:
+
+.. code:: ebnf
+    :force:
+
+    '+'>{/\d+/}+
+
+Will parse this input:
+
+.. code:: ebnf
+    :force:
+
+    1 + 2 + 3 + 4
+
+To this tree:
+
+.. code:: python
+
+   (
+      '+',
+      '1',
+      (
+          '+',
+          '2',
+          (
+              '+',
+              '3',
+              '4'
+          )
+      )
+   )
 
 
 Rules with Arguments
@@ -779,9 +800,6 @@ A grammar rule may be redefined by using the ``@override`` decorator:
 
     @override
     ab: @:'a' {@:'b'}
-
-When combined with the ``#include`` directive, rule overrides can be
-used to create a modified grammar without altering the original.
 
 
 Grammar Name

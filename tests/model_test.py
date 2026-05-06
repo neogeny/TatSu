@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import json  # noqa: F401
-import pprint  # noqa: F401
+import json  # noqa: F401  # type: ignore
+import pprint  # noqa: F401 # type: ignore
 from typing import Any
 
 import pytest
@@ -117,7 +117,7 @@ def test_children():
             ;
     """
 
-    parser = tatsu.compile(grammar, asmodel=True, trace=False)
+    parser = tatsu.compile_to_parser(grammar)
     assert parser
     model = parser.parse('3 + 5 * ( 10 - 20 )')
     assert isinstance(model, AST)
@@ -131,25 +131,25 @@ def test_model_repr():
     assert repr(node) == 'Node()'
 
     node = Node('hello')
-    assert repr(node) == "Node(ast='hello')"
+    assert repr(node) == "Node('hello')"
 
-    node = Node(ast='hello')
-    assert repr(node) == "Node(ast='hello')"
+    node = Node('hello')
+    assert repr(node) == "Node('hello')"
 
     node = Node(ast='hello', ctx='world')
-    assert repr(node) == "Node(ast='hello')"
+    assert repr(node) == "Node('hello')"
 
     with pytest.raises(ValueError, match=r'world='):
         Node(ast='hello', world='world')
 
     token = g.Token(ast='hello')
-    assert repr(token) == "Token(token='hello')"
+    assert repr(token) == "Token('hello')"
 
     token = g.Token(token='hello')
-    assert repr(token) == "Token(token='hello')"
+    assert repr(token) == "Token('hello')"
 
     g.Token('hello')
-    assert repr(token) == "Token(token='hello')"
+    assert repr(token) == "Token('hello')"
 
     with pytest.raises(TypeError, match=r'unexpected keyword argument'):
         g.Token(x='x')
@@ -205,164 +205,183 @@ def test_calc_repr():
         Grammar(
           name='CALC',
           directives={'grammar': 'CALC'},
+          keywords=(),
           rules=(
             Rule(
               name='start',
-              exp=Sequence(sequence=[Call(name='expression'), EOF()]),
+              exp=Sequence([Call('expression'), EOF()]),
               params=(),
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=False,
-              is_memoizable=False
+              is_tokn=False,
+              no_memo=False,
+              no_stak=False,
+              is_memo=False,
+              is_lrec=False
             ),
             Rule(
               name='expression',
               exp=Choice(
-                options=[
-                  Option(exp=Call(name='addition')),
-                  Option(exp=Call(name='subtraction')),
-                  Option(exp=Call(name='term'))
-                ]
+                [Option(Call('addition')), Option(Call('subtraction')), Option(Call('term'))]
               ),
               params=(),
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=True,
-              is_memoizable=False
+              is_tokn=False,
+              no_memo=False,
+              no_stak=False,
+              is_memo=False,
+              is_lrec=True
             ),
             Rule(
               name='addition',
               exp=Sequence(
-                sequence=[
-                  Named(name='left', exp=Call(name='expression')),
-                  Token(token='+'),
+                [
+                  Named(name='left', exp=Call('expression')),
+                  Token('+'),
                   Cut(),
-                  Named(name='right', exp=Call(name='term'))
+                  Named(name='right', exp=Call('term'))
                 ]
               ),
               params=['Add'],
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=False,
-              is_memoizable=False
+              is_tokn=False,
+              no_memo=False,
+              no_stak=False,
+              is_memo=False,
+              is_lrec=False
             ),
             Rule(
               name='subtraction',
               exp=Sequence(
-                sequence=[
-                  Named(name='left', exp=Call(name='expression')),
-                  Token(token='-'),
+                [
+                  Named(name='left', exp=Call('expression')),
+                  Token('-'),
                   Cut(),
-                  Named(name='right', exp=Call(name='term'))
+                  Named(name='right', exp=Call('term'))
                 ]
               ),
               params=['Subtract'],
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=False,
-              is_memoizable=False
+              is_tokn=False,
+              no_memo=False,
+              no_stak=False,
+              is_memo=False,
+              is_lrec=False
             ),
             Rule(
               name='term',
               exp=Choice(
-                options=[
-                  Option(exp=Call(name='multiplication')),
-                  Option(exp=Call(name='division')),
-                  Option(exp=Call(name='factor'))
+                [
+                  Option(Call('multiplication')),
+                  Option(Call('division')),
+                  Option(Call('factor'))
                 ]
               ),
               params=(),
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=True,
-              is_memoizable=False
+              is_tokn=False,
+              no_memo=False,
+              no_stak=False,
+              is_memo=False,
+              is_lrec=True
             ),
             Rule(
               name='multiplication',
               exp=Sequence(
-                sequence=[
-                  Named(name='left', exp=Call(name='term')),
-                  Token(token='*'),
+                [
+                  Named(name='left', exp=Call('term')),
+                  Token('*'),
                   Cut(),
-                  Named(name='right', exp=Call(name='factor'))
+                  Named(name='right', exp=Call('factor'))
                 ]
               ),
               params=['Multiply'],
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=False,
-              is_memoizable=False
+              is_tokn=False,
+              no_memo=False,
+              no_stak=False,
+              is_memo=False,
+              is_lrec=False
             ),
             Rule(
               name='division',
               exp=Sequence(
-                sequence=[
-                  Named(name='left', exp=Call(name='term')),
-                  Token(token='/'),
+                [
+                  Named(name='left', exp=Call('term')),
+                  Token('/'),
                   Cut(),
-                  Named(name='right', exp=Call(name='factor'))
+                  Named(name='right', exp=Call('factor'))
                 ]
               ),
               params=['Divide'],
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=False,
-              is_memoizable=False
+              is_tokn=False,
+              no_memo=False,
+              no_stak=False,
+              is_memo=False,
+              is_lrec=False
             ),
             Rule(
               name='factor',
               exp=Choice(
-                options=[
-                  Option(
-                    exp=Sequence(
-                      sequence=[
-                        Token(token='('),
-                        Cut(),
-                        Override(exp=Call(name='expression')),
-                        Token(token=')')
-                      ]
-                    )
-                  ),
-                  Option(exp=Call(name='number'))
+                [
+                  Option(Sequence([Token('('), Cut(), Override(Call('expression')), Token(')')])),
+                  Option(Call('number'))
                 ]
               ),
               params=(),
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=False,
-              is_memoizable=True
+              is_tokn=False,
+              no_memo=False,
+              no_stak=False,
+              is_memo=True,
+              is_lrec=False
             ),
             Rule(
               name='number',
-              exp=Pattern(pattern='\\d+'),
+              exp=Pattern('\\d+'),
               params=['int'],
               kwparams={},
               decorators=[],
               is_name=False,
-              is_leftrec=False,
-              is_memoizable=True
+              is_tokn=False,
+              no_memo=False,
+              no_stak=False,
+              is_memo=True,
+              is_lrec=False
             )
           )
         )
     """
 
-    model = tatsu.compile(calc_grammar, asmodel=True)
+    model = tatsu.compile_to_parser(calc_grammar)
     modelrepr = trim(repr(model)).rstrip()
 
     # HACK FIXME
     # from pathlib import Path
-    # Path('calcmodel.py').write_text(modelrepr)
+    # simple = tatsu.compile(calc_grammar, asmodel=False)
+    # assert simple.asjson() == []
+    # Path('calctree.json').write_text(simple.asjsons())
+    # Path('./scripts/calcmodel.pynofmt').write_text(modelrepr)
+    # Path('asjsonmodel.json').write_text(model.asjsons())
 
     refrepr = trim(calc_repr).rstrip()
-    assert hasha(modelrepr) == hasha(refrepr)
+    # assert hasha(modelrepr) == hasha(refrepr)
     assert modelrepr == refrepr
     emodel = eval(modelrepr, vars(g), {})  # type: ignore # noqa: S307
     assert isinstance(emodel, g.Grammar)

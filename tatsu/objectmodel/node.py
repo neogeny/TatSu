@@ -9,6 +9,7 @@ from typing import Any
 
 from .basenode import BaseNode, nodedataclass
 
+
 __all__ = ['Node', 'nodedataclass']
 
 
@@ -33,14 +34,10 @@ class Node(BaseNode):
             return None
 
     @property
-    def comments(self) -> Any:
-        return None
-
-    @property
     def text(self) -> str | None:
         pi = self.parseinfo
         if pi and hasattr(pi.cursor, "text"):
-            return pi.cursor.text[pi.pos : pi.endpos]
+            return pi.cursor.textstr[pi.pos : pi.endpos]
         return None
 
     @property

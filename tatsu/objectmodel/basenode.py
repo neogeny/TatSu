@@ -5,13 +5,15 @@ from __future__ import annotations
 import dataclasses as dc
 import inspect
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from functools import cache
-from typing import Any, overload
+from typing import Any, Self, overload
 
 from ..contexts.infos import ParseInfo
-from ..util import AsJSONMixin, asjson, asjsons, rowselect, typename
+from ..util import rowselect, typename
+from ..util.asjson import AsJSONMixin, asjson, asjsons
 from ..util.indent import fold
+
 
 __all__ = ['BaseNode', 'NodeDataclassParams', 'nodedataclass']
 
@@ -33,10 +35,7 @@ def nodedataclass[T: type](cls: T) -> T: ...
 def nodedataclass[T: type](**params: Any) -> Callable[[T], T]: ...
 
 
-def nodedataclass[T: type](
-    cls: T | None = None,
-    **params: Any,
-) -> T | Callable[[T], T]:
+def nodedataclass[T: type](cls: T | None = None, **params) -> T | Callable[[T], T]:  # type: ignore
     # by Gemini (2026-02-07)
     # by [apalala@gmail.com](https://github.com/apalala)
 
@@ -70,7 +69,6 @@ class BaseNode(AsJSONMixin):
         self.__post_init__()
 
     def __post_init__(self):
-
         ast = self.ast
         if not isinstance(ast, dict):
             return
@@ -84,7 +82,8 @@ class BaseNode(AsJSONMixin):
         #   Here the key,value pairs in the AST are injected into the corresponding
         #   attributes declared by the Node subclass. Synthetic classes
         #   override this to create the attributes.
-        for name in ast:
+        keys = self._in_field_order(ast)
+        for name in keys:
             if not hasattr(self, name) or inspect.ismethod(getattr(self, name)):
                 continue
             setattr(self, name, ast[name])
@@ -107,11 +106,14 @@ class BaseNode(AsJSONMixin):
                 )
             setattr(self, name, value)
 
+    def clone(self, **attrs: Any) -> Self:
+        return dc.replace(self, **attrs)  # type: ignore # pyright: ignore[reportArgumentType]
+
     def asjson(self) -> Any:
         return asjson(self)
 
     def asjsons(self) -> str:
-        return asjsons(self)
+        return asjsons(self.asjson())
 
     @staticmethod
     @cache
@@ -131,28 +133,37 @@ class BaseNode(AsJSONMixin):
         elif not isinstance(self.ast, dict):
             wanted = {'ast'}  # self.ast may be all this object has
 
-        return rowselect(wanted, pub)
+        pub = rowselect(wanted, pub)
+        sortedkeys = self._in_field_order(pub.keys())
+        return {name: pub[name] for name in sortedkeys if name in pub}
 
-    def __repr__(self) -> str:
+    def _in_field_order(self, keys: Iterable[str] | None) -> list[str]:
+        if keys is None:
+            keys = dir(self)
         fieldindex = {f.name: i for i, f in enumerate(dc.fields(self))}  # type: ignore
 
         def fieldorder(n) -> int:
             return fieldindex.get(n, len(fieldindex))
 
-        pub = self.__pub__()
-        sortedkeys = sorted(pub.keys(), key=fieldorder)
+        return sorted(keys, key=fieldorder)
+
+    def __repr__(self) -> str:
+        values = self.__pub__()
 
         attr_repr_list = []
-        values = {name: pub[name] for name in sortedkeys}
         for name, value in values.items():
             if value is None:
                 continue
 
+            if len(values) == 1:
+                prefix = ''
+            else:
+                prefix = f"{name}="
             line = fold(
-                prefix=f"{name}=",
+                prefix=prefix,
                 value=value,
                 amount=2,
-                addlevels=2,
+                addlevels=4,
             )
             attr_repr_list += [line]
 
@@ -161,6 +172,7 @@ class BaseNode(AsJSONMixin):
             value=tuple(attr_repr_list),
             reprs=False,
             amount=2,
+            addlevels=2,
         )
 
     def __str__(self) -> str:
