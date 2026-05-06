@@ -11,6 +11,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+
 have_tiexiu: bool = False
 try:
     # noinspection PyUnusedImports
@@ -137,11 +138,14 @@ def print_performance_comparison(results: list[tuple[str, BenchmarkResult]]):
 
     # Prepare data for the table
     mnemonics = [r[0] for r in parsed_results]
-    speeds = [r[1] for r in parsed_results]
+    _speeds = [r[1] for r in parsed_results]
 
     # Determine column width for numbers
     max_mnemonic_len = max(len(m) for m in mnemonics)
-    col_width = max(max_mnemonic_len + 4, 7)  # Mnemonic (N) + padding, or min width for numbers
+    col_width = max(
+        max_mnemonic_len + 4,
+        7,
+    )  # Mnemonic (N) + padding, or min width for numbers
 
     # Print header row
     header = f"{'':<{col_width}}"
@@ -153,7 +157,7 @@ def print_performance_comparison(results: list[tuple[str, BenchmarkResult]]):
     for i, (row_mnemonic, row_speed) in enumerate(parsed_results):
         row_str = f"{row_mnemonic}"
         row_str = f"{row_str:>{col_width - 1}}"
-        for j, (col_mnemonic, col_speed) in enumerate(parsed_results):
+        for j, (_col_mnemonic, col_speed) in enumerate(parsed_results):
             if i == j:
                 row_str += f"{'-':>{col_width}}"
             else:
@@ -236,7 +240,7 @@ def benchmark(
     mode: str = 'all',
 ) -> tuple[BenchmarkResult | None, BenchmarkResult | None, BenchmarkResult | None]:
     oldlimit = sys.getrecursionlimit()
-    sys.setrecursionlimit(2 ** 16)
+    sys.setrecursionlimit(2**16)
     try:
         grampath = Path(grammar)
         gramsrc = grampath.read_text(encoding="utf-8")
