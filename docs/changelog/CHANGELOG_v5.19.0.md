@@ -123,3 +123,5 @@
   each line of input, something essential for good error reporting. During
   compilation of grammar text to a `Grammar` object, the grammar text is the
   parser's input, so the `Cursor` semantics regarding the parsing still apply.
+- The CLI tool now has a `--json` option to produce the JSON version of the model
+  for a grammar. Re-importing of a JSON model is not yet implemented in **TatSu**, but **[TieXiu](https://github.com/neogeny/tiexiu)** uses them successfully as the fast way to import a **TatSu** grammar model.
