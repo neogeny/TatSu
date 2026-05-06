@@ -282,6 +282,7 @@ class Rule(NamedBox):
     is_name: bool = False
     is_tokn: bool = False
     no_memo: bool = False
+    no_stak: bool = False
 
     # these are used by left recursion analisis
     is_memo: bool = True
@@ -316,6 +317,7 @@ class Rule(NamedBox):
             instance=exp,
             func=exp._parse,
             no_memo=self.no_memo,
+            no_stak=self.no_stak,
             is_name=self.is_name,
             is_tokn=self.is_tokn,
             params=self.params,
@@ -339,6 +341,10 @@ class Rule(NamedBox):
     @property
     def memoizable(self):
         return self.is_memo and not self.no_memo and not self.is_lrec
+
+    @property
+    def should_trace(self) -> bool:
+        return not self.no_stak
 
     def optimized(self) -> Rule:
         clone = copy(self)
@@ -625,6 +631,7 @@ class Grammar(Model):
         string_directives = {'namechars'}
 
         directives = ''
+        # noinspection PyUnresolvedReferences
         for name, value in self.directives.items():
             if name in regex_directives:
                 if '/' in value:

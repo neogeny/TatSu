@@ -125,16 +125,16 @@ class ParseState:
 
 
 class ParseStateStack:
-    __slots__ = ('ruleinfo_stack', 'state_stack')
+    __slots__ = ('callstack', 'state_stack')
 
     def __init__(self, cursor: Cursor) -> None:
         self.state_stack: list[ParseState] = [ParseState(cursor)]
-        self.ruleinfo_stack: list[RuleInfo] = []
+        self.callstack: list[RuleInfo] = []
 
     def _clone(self) -> Self:
         new = type(self)(self.state.cursor)
         new.state_stack = self.state_stack[:]
-        new.ruleinfo_stack = self.ruleinfo_stack[:]
+        new.callstack = self.callstack[:]
         return new
 
     @property
@@ -176,6 +176,6 @@ class ParseStateStack:
         new = self.__class__.__new__(self.__class__)
 
         new.state_stack = self.state_stack[:]
-        new.ruleinfo_stack = self.ruleinfo_stack[:]
+        new.callstack = self.callstack[:]
 
         return new

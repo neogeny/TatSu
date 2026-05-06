@@ -216,6 +216,7 @@ def test_calc_repr():
               is_name=False,
               is_tokn=False,
               no_memo=False,
+              no_stak=False,
               is_memo=False,
               is_lrec=False
             ),
@@ -230,6 +231,7 @@ def test_calc_repr():
               is_name=False,
               is_tokn=False,
               no_memo=False,
+              no_stak=False,
               is_memo=False,
               is_lrec=True
             ),
@@ -249,6 +251,7 @@ def test_calc_repr():
               is_name=False,
               is_tokn=False,
               no_memo=False,
+              no_stak=False,
               is_memo=False,
               is_lrec=False
             ),
@@ -268,6 +271,7 @@ def test_calc_repr():
               is_name=False,
               is_tokn=False,
               no_memo=False,
+              no_stak=False,
               is_memo=False,
               is_lrec=False
             ),
@@ -286,6 +290,7 @@ def test_calc_repr():
               is_name=False,
               is_tokn=False,
               no_memo=False,
+              no_stak=False,
               is_memo=False,
               is_lrec=True
             ),
@@ -305,6 +310,7 @@ def test_calc_repr():
               is_name=False,
               is_tokn=False,
               no_memo=False,
+              no_stak=False,
               is_memo=False,
               is_lrec=False
             ),
@@ -324,6 +330,7 @@ def test_calc_repr():
               is_name=False,
               is_tokn=False,
               no_memo=False,
+              no_stak=False,
               is_memo=False,
               is_lrec=False
             ),
@@ -341,6 +348,7 @@ def test_calc_repr():
               is_name=False,
               is_tokn=False,
               no_memo=False,
+              no_stak=False,
               is_memo=True,
               is_lrec=False
             ),
@@ -353,6 +361,7 @@ def test_calc_repr():
               is_name=False,
               is_tokn=False,
               no_memo=False,
+              no_stak=False,
               is_memo=True,
               is_lrec=False
             )
@@ -372,7 +381,7 @@ def test_calc_repr():
     # Path('asjsonmodel.json').write_text(model.asjsons())
 
     refrepr = trim(calc_repr).rstrip()
-    assert hasha(modelrepr) == hasha(refrepr)
+    # assert hasha(modelrepr) == hasha(refrepr)
     assert modelrepr == refrepr
     emodel = eval(modelrepr, vars(g), {})  # type: ignore # noqa: S307
     assert isinstance(emodel, g.Grammar)

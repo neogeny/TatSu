@@ -23,8 +23,8 @@ classifiers = [
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
-    "Programming Language :: Python :: 3.15",
+    #    "Programming Language :: Python :: 3.14",
+    #    "Programming Language :: Python :: 3.15",
     "Topic :: Software Development :: Compilers",
     "Topic :: Text Processing :: General",
 ]
@@ -53,7 +53,6 @@ dev = [
     "psutil>=7.2.2",
     "pyrefly>=0.55.0",
     "pytest>=9.0.2",
-    "pytest-codspeed>=4.3.0",
     "pytest-dependency>=0.6.0",
     "rich>=14.3.3",
     "rich-click>=1.9.7",
@@ -85,7 +84,6 @@ test = [
     "types-psutil>=7.2.2.20260130",
     "types-pygments>=2.19.0.20251121",
     "types-pyyaml>=6.0.12.20250915",
-    "zuban>=0.6.2",
 ]
 doc = [
     "docutils>=0.22.4",
@@ -117,7 +115,7 @@ g2e = "tatsu.g2e:main"
 [project.urls]
 Homepage = "https://github.com/neogeny/TatSu"
 Repository = "https://github.com/neogeny/TatSu"
-Documentation = "https://tatsu.readthedocs.io/en/stable/"
+Documentation = "https://neogeny.github.io/TatSu"
 
 [tool.hatch.version]
 # Telling Hatchling exactly where to find the version string
@@ -144,6 +142,9 @@ exclude = [
     "ng",
     "parsers",
     "tmp",
+    "tiexiu",
+    "AGENTS.md",
+    "RULES.md",
 ]
 
 [tool.pytest.ini_options]

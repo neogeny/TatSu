@@ -17,9 +17,8 @@ from ..exceptions import (
     ParseException,
 )
 from ..util import boundcall, deprecated, left_assoc, regexpp, right_assoc
-from ._engine import ParserEngine
 from .cst import closedlist, cstfinal
-from .ctx import Ctx, Func
+from .ctx import Func
 from .ctxlib import (
     ChoiceContext,
     ExpContext,
@@ -27,10 +26,11 @@ from .ctxlib import (
     LoopContext,
     LoopWithSepContext,
 )
+from .engine import ParserEngine
 from .state import _AT_
 
 
-class ParseContext(ParserEngine, Ctx):
+class ParseContext(ParserEngine):
     # bw compatibility
     @deprecated(replacement=ParserEngine.newexcept)
     def _error(
@@ -59,9 +59,9 @@ class ParseContext(ParserEngine, Ctx):
     def token(self, token: str) -> str:
         self.next_token()
         if self.cursor.match(token) is None:
-            self.tracer.trace_match(self.cursor, token, failed=True)
+            self.tracer.trace_match(self, token, failed=True)
             raise self.newexcept(token, excls=FailedToken)
-        self.tracer.trace_match(self.cursor, token)
+        self.tracer.trace_match(self, token)
         self.state.append(token)
         return token
 
@@ -69,11 +69,7 @@ class ParseContext(ParserEngine, Ctx):
 
     def alert(self, message: str, level: int) -> None:
         self.next_token()
-        self.tracer.trace_match(
-            self.cursor,
-            f'{"^" * level}`{message}`',
-            failed=True,
-        )
+        self.tracer.trace_match(self, f'{"^" * level}`{message}`', failed=True)
         # note: capture=False, nothing appended to state
         message = self.constant(message, capture=False)
         self.states.alert(level=level, message=message)
@@ -83,9 +79,9 @@ class ParseContext(ParserEngine, Ctx):
     def pattern(self, pattern: str) -> Any:
         token = self.cursor.matchre(pattern)
         if token is None:
-            self.tracer.trace_match(self.cursor, '', pattern, failed=True)
+            self.tracer.trace_match(self, '', pattern, failed=True)
             raise self.newexcept(f'Expecting {regexpp(pattern)}', excls=FailedPattern)
-        self.tracer.trace_match(self.cursor, token, pattern)
+        self.tracer.trace_match(self, token, pattern)
         self.state.append(token)
         return token
 
@@ -253,7 +249,7 @@ class ParseContext(ParserEngine, Ctx):
 
                     if self.pos == p:
                         raise self.newexcept(
-                            f'{self.repeat.__name__} matched on no input'
+                            f'{self.repeat.__name__} matched on no input',
                         )
                 # note: dit not match sep? exp, so quit
                 break
@@ -387,9 +383,9 @@ class ParseContext(ParserEngine, Ctx):
     def dot(self) -> Any:
         c = self._next()
         if c is None:
-            self.tracer.trace_match(self.cursor, c, failed=True)
+            self.tracer.trace_match(self, c, failed=True)
             raise self.newexcept(c, excls=FailedToken) from None
-        self.tracer.trace_match(self.cursor, c)
+        self.tracer.trace_match(self, c)
         self.state.append(c)
         return c
 

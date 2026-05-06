@@ -657,16 +657,16 @@ class TatSuBootstrapRules:
 
             @α.option
             def _(ctx: Ctx) -> Any:
-                self.rule_include(ctx)
+                self.named(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
-                self.named(ctx)
+                self.term(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
                 self.override(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
-                self.term(ctx)
+                self.rule_include(ctx)
 
     @tatsu.rule('RuleInclude')
     def rule_include(self, ctx: Ctx) -> Any:
@@ -747,9 +747,6 @@ class TatSuBootstrapRules:
 
             @α.option
             def _(ctx: Ctx) -> Any:
-                self.void(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
                 self.gather(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
@@ -774,6 +771,12 @@ class TatSuBootstrapRules:
                 self.optional(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
+                self.atom(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                self.void(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
                 self.skip_to(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
@@ -787,9 +790,6 @@ class TatSuBootstrapRules:
             @α.option
             def _(ctx: Ctx) -> Any:
                 self.cut_deprecated(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                self.atom(ctx)
 
     @tatsu.rule('Group')
     def group(self, ctx: Ctx) -> Any:
@@ -1030,6 +1030,21 @@ class TatSuBootstrapRules:
 
             @α.option
             def _(ctx: Ctx) -> Any:
+                self.token(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                self.call(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                self.dot(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                self.pattern(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                self.group(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
                 self.eol(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
@@ -1039,25 +1054,10 @@ class TatSuBootstrapRules:
                 self.skip(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
-                self.group(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                self.token(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
                 self.alert(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
                 self.constant(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                self.dot(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                self.pattern(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                self.call(ctx)
 
     @tatsu.rule('Call')
     def call(self, ctx: Ctx) -> Any:
@@ -1195,7 +1195,7 @@ class TatSuBootstrapRules:
 
     @tatsu.rule
     def raw_string(self, ctx: Ctx) -> Any:
-        ctx.pattern(r'r')
+        ctx.pattern(r'r(?=["\'])')
         with ctx.result():
             self.STRING(ctx)
 

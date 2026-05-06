@@ -558,10 +558,10 @@ GRAMMAR_MODEL: Grammar = (
           name='element',
           exp=Choice(
             [
-              Option(Call('rule_include')),
               Option(Call('named')),
+              Option(Call('term')),
               Option(Call('override')),
-              Option(Call('term'))
+              Option(Call('rule_include'))
             ]
           ),
           params=(),
@@ -693,7 +693,6 @@ GRAMMAR_MODEL: Grammar = (
           name='term',
           exp=Choice(
             [
-              Option(Call('void')),
               Option(Call('gather')),
               Option(Call('join')),
               Option(Call('left_join')),
@@ -702,12 +701,13 @@ GRAMMAR_MODEL: Grammar = (
               Option(Call('positive_closure')),
               Option(Call('closure')),
               Option(Call('optional')),
+              Option(Call('atom')),
+              Option(Call('void')),
               Option(Call('skip_to')),
               Option(Call('lookahead')),
               Option(Call('negative_lookahead')),
               Option(Call('cut')),
-              Option(Call('cut_deprecated')),
-              Option(Call('atom'))
+              Option(Call('cut_deprecated'))
             ]
           ),
           params=(),
@@ -1046,16 +1046,16 @@ GRAMMAR_MODEL: Grammar = (
           name='atom',
           exp=Choice(
             [
+              Option(Call('token')),
+              Option(Call('call')),
+              Option(Call('dot')),
+              Option(Call('pattern')),
+              Option(Call('group')),
               Option(Call('eol')),
               Option(Call('eof')),
               Option(Call('skip')),
-              Option(Call('group')),
-              Option(Call('token')),
               Option(Call('alert')),
-              Option(Call('constant')),
-              Option(Call('dot')),
-              Option(Call('pattern')),
-              Option(Call('call'))
+              Option(Call('constant'))
             ]
           ),
           params=(),
@@ -1279,7 +1279,7 @@ GRAMMAR_MODEL: Grammar = (
         ),
         Rule(
           name='raw_string',
-          exp=Sequence([Pattern('r'), Override(Call('STRING'))]),
+          exp=Sequence([Pattern('r(?=["\'])'), Override(Call('STRING'))]),
           params=(),
           kwparams={},
           decorators=[],

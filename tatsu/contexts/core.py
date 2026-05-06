@@ -21,9 +21,10 @@ from ..util import (
 )
 from ..util.boundeddict import BoundedDict
 from .ast import AST
+from .ctx import Ctx
 from .infos import MemoKey, RuleInfo, RuleResult
 from .state import ParseState, ParseStateStack
-from .tracing import EventTracer, InfoEventTracer, NullEventTracer
+from .tracing import ConsoleTracer, NullTracer, Tracer
 
 
 type RuleOutcome = RuleResult | ParseException
@@ -51,7 +52,7 @@ def find_cached_semantic_action(semantics: Any, name: str) -> Callable[..., Any]
     return action
 
 
-class ParserCore:
+class ParserCore(Ctx):
     states: ParseStateStack  # type: ignore
 
     def __init__(
@@ -78,7 +79,7 @@ class ParserCore:
         self._furthest_exception: FailedParse | None = None
 
         self._initialize_caches()
-        self.tracer: EventTracer = NullEventTracer()
+        self.tracer: Tracer = NullTracer()
         self.update_tracer()
 
     def _initialize_caches(self) -> None:
@@ -141,16 +142,14 @@ class ParserCore:
         self.states.state.cst = value
 
     @property
-    def ruleinfo_stack(self) -> list[RuleInfo]:
-        return self.states.ruleinfo_stack
+    def callstack(self) -> list[RuleInfo]:
+        return self.states.callstack
 
-    def update_tracer(self) -> EventTracer:
+    def update_tracer(self) -> Tracer:
         if self.active_config.trace:
-            tracer: EventTracer = InfoEventTracer(
-                self.ruleinfo_stack, config=self.config
-            )
+            tracer: Tracer = ConsoleTracer(config=self.config)
         else:
-            tracer = NullEventTracer()
+            tracer = NullTracer()
         self.tracer = tracer
         return self.tracer
 
@@ -199,7 +198,7 @@ class ParserCore:
 
     def cut(self) -> None:
         self.state.cutseen = True
-        self.tracer.trace_cut(self.cursor)
+        self.tracer.trace_cut(self)
 
         if not self.config.prune_memos_on_cut:
             return
@@ -225,11 +224,11 @@ class ParserCore:
         msg: Any,
         excls: type[FailedParse] = FailedParse,
     ) -> FailedParse:
-        return excls(self.cursor, self.ruleinfo_stack, msg)
+        return excls(self.cursor, self.callstack, msg)
 
     @property
     def ruleinfo(self) -> RuleInfo:
-        return self.ruleinfo_stack[-1]
+        return self.callstack[-1]
 
     def memokey(self) -> MemoKey:
         return MemoKey(self.pos, self.ruleinfo)
@@ -242,6 +241,6 @@ class ParserCore:
         key: MemoKey,
         memo: RuleResult | ParseException,
     ) -> RuleResult | ParseException:
-        if key.ruleinfo.is_memo and self.config.memoization:
+        if key.ruleinfo.memoizable and self.config.memoization:
             self._memos[key] = memo
         return memo

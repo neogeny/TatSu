@@ -74,11 +74,11 @@ rule[Rule]:
 
 ENDRULE: DEDENT | BLANK | ';' | $
 
-DEDENT: $-> /\S/
+DEDENT: $-> /(?=\S)/
 
 BLANK: $-> $->
 
-decorator: '@' !'@' ~ =('override' | 'name' | 'isname' | 'nomemo')
+decorator: '@' !'@' ~ =/(override|name|isname|nomemo|nostak)\b/
 
 pair: +=word '=' ~ +=literal
 
@@ -92,7 +92,7 @@ sequence[Sequence]:
     | &(element ',') ','.{element}+
     | {!ENDRULE element}+
 
-element: rule_include | named | override | term
+element: named | term | override | rule_include
 
 rule_include[RuleInclude]: '>' ~ =known_name
 
@@ -114,7 +114,6 @@ override_single[Override]: /=|@:/ ~ =term
 override_single_deprecated[Override]: '@' ~ =term
 
 term:
-    | void
     | gather
     | join
     | left_join
@@ -123,12 +122,13 @@ term:
     | positive_closure
     | closure
     | optional
+    | atom
+    | void
     | skip_to
     | lookahead
     | negative_lookahead
     | cut
     | cut_deprecated
-    | atom
 
 group[Group]: !'(?:' '(' ~ =expre ')' ~
 
@@ -169,16 +169,16 @@ negative_lookahead[NegativeLookahead]: '!' ~ =term
 skip_to[SkipTo]: '->' ~ =term
 
 atom:
+    | token
+    | call
+    | dot
+    | pattern
+    | group
     | eol
     | eof
     | skip
-    | group
-    | token
     | alert
     | constant
-    | dot
-    | pattern
-    | call
 
 call[Call]: word
 
@@ -222,7 +222,7 @@ singlequoted: SINGLEQUOTED
 
 doublequoted: DOUBLEQUOTED
 
-raw_string: /r/ =STRING
+raw_string: /r(?=["'])/ =STRING
 
 STRING: SINGLEQUOTED | DOUBLEQUOTED
 
@@ -254,7 +254,7 @@ REGEX: &'/' ?"(?ms)/((?:[^/\\]|\\/|\\.)*)/" ~
 
 deprecated_regex: '?/' ~ =?"(?ms)((?:[^/\\]|\\/|\\.)*)" ~ '/?'
 
-boolean[bool]: 'True' | 'False'
+boolean: 'True' | 'False'
 
 null: 'None'
 

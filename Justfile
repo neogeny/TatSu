@@ -2,7 +2,7 @@
 shell := "xonsh"
 set shell := [shell, "-c"]
 
-py := "3.15"
+py := "3.14"
 
 # Macro-like expansions for consistent uv flag placement
 run_test := "uv run --quiet --python " + py + " --group test "
@@ -55,12 +55,15 @@ clobber: (clean "true")
 
 # --- Linting & Formatting ---
 
-@format:
-    echo "▶ format {{py}}"
-    {{run_test}} ruff check --select I --fix tatsu tests examples scripts ng
+@fmt:
+    echo "▶ fmt {{py}}"
+    {{run_test}} ruff check \
+        --select I --fix \
+        tatsu tests examples scripts ng
+
     {{run_test}} ruff format tatsu tests examples scripts ng
 
-@lint: format ruff ty mypy pyright pyrefly
+@lint: fmt ruff ty mypy pyright pyrefly
     echo "━ lint ⏏ ━"
 
 @ruff:
@@ -69,11 +72,13 @@ clobber: (clean "true")
 
 @ty:
     echo "▶ ty {{py}}"
-    {{run_test}} ty check tatsu tests examples | rg -q --color=always "All checks passed!"
+    {{run_test}} ty check tatsu tests examples
 
 @mypy:
     echo "▶ mypy {{py}}"
-    {{run_test}} mypy tatsu tests examples --install-types --exclude "dist|parsers|backup"
+    {{run_test}} mypy \
+        tatsu tests examples \
+        --install-types --exclude "dist|parsers|backup"
 
 @pyright:
     echo "▶ pyright {{py}}"
@@ -81,7 +86,7 @@ clobber: (clean "true")
 
 @pyrefly:
     echo "▶ pyrefly {{py}}"
-    {{run_test}} pyrefly check tatsu tests examples 2>&1
+    {{run_test}} pyrefly check tatsu tests examples
 
 # --- Testing ---
 
@@ -90,12 +95,18 @@ clobber: (clean "true")
 
 @pytest_fast:
     echo "▶ fast pytest {{py}}"
-    mkdir -p tmp && touch tmp/__init__.py
-    {{run_test}} pytest --quiet -n auto tests/ --ignore-glob=tests/z*
+    {{run_test}} pytest \
+        --quiet -n auto  \
+        --tb=no --no-header --no-summary \
+        --ignore-glob=tests/z* \
+        tests
 
 @pytest_boot:
     echo "▶ boot pytest {{py}}"
-    {{run_test}} pytest --quiet tests/z_bootstrap_test.py
+    {{run_test}} pytest \
+        --quiet \
+        --tb=no --no-header --no-summary \
+        tests/z_bootstrap_test.py
 
 # --- Documentation & Examples ---
 

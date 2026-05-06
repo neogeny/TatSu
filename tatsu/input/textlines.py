@@ -202,7 +202,7 @@ class TextLinesCursor(Cursor):
         if self.atend():
             return ''
         info = self.lineinfo(self.pos)
-        return '@%d:%d' % (info.line + 1, info.col + 1)
+        return '[%d:%d]' % (info.line + 1, info.col + 1)
 
     def lookahead(self) -> str:
         if self.atend():

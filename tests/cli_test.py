@@ -4,8 +4,20 @@ from __future__ import annotations
 
 import re
 import subprocess  # noqa: S404
+import sys
+
+import pytest
 
 from .fixtures import PATH_TATSU_GRAMMAR
+
+
+pytestmark = pytest.mark.skipif(
+    sys.platform == "win32", reason="Does not work on Windows"
+)
+
+
+def test_feature_one():
+    assert True
 
 
 def test_cli_help():

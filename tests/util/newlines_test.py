@@ -1,4 +1,14 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+from __future__ import annotations
+
+import os
+
 import pytest  # noqa
+
+
+NL = os.linesep
+LNL = len(NL)
 
 from tatsu.util.newlines import (
     indent_len,
@@ -12,8 +22,8 @@ from tatsu.util.newlines import (
 def test_empty_line():
     assert take_linebreak_len("") == 0
     assert take_linebreak_len("   ") == 3
-    assert take_linebreak_len("\n") == 1
-    assert take_linebreak_len("  \nnext") == 3
+    assert take_linebreak_len(f"{NL}") == LNL
+    assert take_linebreak_len(f"  {NL}next") == 2 + LNL
     assert take_linebreak_len("content") is None
 
 
@@ -21,30 +31,30 @@ def test_indent_len():
     assert indent_len("no space") == 0
     assert indent_len("  two spaces") == 2
     assert indent_len("\t tab") == 2
-    assert indent_len("  multi\nline") == 2
+    assert indent_len(f"  multi{NL}line") == 2
 
 
 def test_take_indent():
     # Valid: empty line followed by actual indent
-    assert take_indent_len("\n  code") == 3
+    assert take_indent_len(f"{NL}  code") == 2 + LNL
     # Invalid: empty line followed by zero margin
-    assert take_indent_len("\nno indent") == 1
+    assert take_indent_len(f"{NL}no indent") == LNL
     # Invalid: no initial empty line/newline
     assert take_indent_len("code") is None
 
 
 def test_dedent():
-    assert take_dedent_len("\ncode") == 1
-    assert take_dedent_len("\n  code") is None
+    assert take_dedent_len(f"{NL}code") == LNL
+    assert take_dedent_len(f"{NL}  code") is None
 
 
 def test_blank_line():
-    assert take_linebreak_len("\n") == 1
-    assert take_linebreak_len("\n\n") == 1
-    assert take_linebreak_len("\n\n", 1) == 1
-    assert take_blankline_len("\n\n") == 2
-    assert take_blankline_len("\n  \n") == 4
-    assert take_blankline_len("\ncontent") is None
+    assert take_linebreak_len(f"{NL}") == LNL
+    assert take_linebreak_len(f"{NL}{NL}") == LNL
+    assert take_linebreak_len(f"{NL}{NL}", 1) == LNL
+    assert take_blankline_len(f"{NL}{NL}") == 2 * LNL
+    assert take_blankline_len(f"{NL}  {NL}") == 2 + 2 * LNL
+    assert take_blankline_len(f"{NL}content") is None
 
 
 def test_indent_len_with_pos():
@@ -54,35 +64,35 @@ def test_indent_len_with_pos():
 
 
 def test_indent_with_pos():
-    text = "\n  code"
-    assert take_indent_len(text) == 3
-    text = "ignore\n  code"
-    assert take_indent_len(text, start=6) == 3
+    text = f"{NL}  code"
+    assert take_indent_len(text) == 2 + LNL
+    text = f"ignore{NL}  code"
+    assert take_indent_len(text, start=6) == 2 + LNL
 
 
 def test_blank_line_with_pos():
-    # text with a blank line in the middle (start 4 is the second \n)
-    text = "abc\n\ndef"
+    # text with a blank line in the middle (start 4 is the second {NL})
+    text = f"abc{NL}{NL}def"
     # Starting at the first newline
-    assert take_blankline_len(text, start=3) == 2
+    assert take_blankline_len(text, start=3) == 2 * LNL
     # Starting at the second newline
     assert take_blankline_len(text, start=4) is None
 
 
 def test_blank_line_with_whitespace_and_pos():
     # text with a line containing only spaces in the middle
-    text = "abc\n    \ndef"
+    text = f"abc{NL}    {NL}def"
     # start 4 is the start of the 4 spaces
     assert take_blankline_len(text, start=3) is not None
 
 
 def test_not_blank_line_with_pos():
-    text = "abc\n  code\n"
+    text = f"abc{NL}  code{NL}"
     # start 4 is '  code' - should not be blank
     assert take_blankline_len(text, start=4) is None
 
 
 def test_blank_line_at_end_with_pos():
-    text = "abc\n    "
+    text = f"abc{NL}    "
     # start 4 is the trailing whitespace at the end of the file
     assert take_blankline_len(text, start=4) is not None

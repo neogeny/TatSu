@@ -37,7 +37,7 @@ packaging==26.2
     #   black
     #   pytest
     #   pytest-rerunfailures
-pathspec==1.1.0
+pathspec==1.1.1
     # via
     #   black
     #   mypy
@@ -62,7 +62,7 @@ pytest==9.0.3
     #   pytest-dependency
     #   pytest-rerunfailures
     #   pytest-xdist
-pytest-codspeed==4.4.0
+pytest-codspeed==4.5.0
 pytest-cov==7.1.0
 pytest-dependency==0.6.1
 pytest-rerunfailures==16.1
@@ -74,7 +74,7 @@ rich==15.0.0
 ruff==0.15.12
 setuptools==82.0.1
     # via pytest-dependency
-ty==0.0.32
+ty==0.0.34
 types-colorama==0.4.15.20260408
 types-decorator==5.2.0.20260408
 types-docutils==0.22.3.20260408
@@ -85,4 +85,3 @@ types-pygments==2.20.0.20260408
 types-pyyaml==6.0.12.20260408
 typing-extensions==4.15.0
     # via mypy
-zuban==0.7.1
