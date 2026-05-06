@@ -15,9 +15,7 @@ from ..ngcodegen import modelgen, parsergen, pythongen
 from ..util import eval_escapes
 from . import api
 
-
 __all__ = ['tatsu_main']
-
 
 DESCRIPTION = (
     '竜TatSu takes a grammar in extended EBNF'
@@ -76,6 +74,13 @@ def parse_args():
     main_mode.add_argument(
         '--pretty-lean',
         help='like --pretty, but without name: or [Parameter] annotations',
+        action='store_true',
+    )
+
+    main_mode.add_argument(
+        '--json',
+        '-j',
+        help='the JSON version of the grammar',
         action='store_true',
     )
 
@@ -232,7 +237,9 @@ def tatsu_main():
             else:
                 print(railroad)
         else:
-            if args.pretty:
+            if args.json:
+                result = model.asjsons()
+            elif args.pretty:
                 result = model.pretty()
             elif args.pretty_lean:
                 result = model.pretty_lean()
