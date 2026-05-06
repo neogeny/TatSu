@@ -74,7 +74,7 @@ rule[Rule]:
 
 ENDRULE: DEDENT | BLANK | ';' | $
 
-DEDENT: EOL /\S/
+DEDENT: EOL /(?=\S)/
 
 BLANK: EOL EOL
 

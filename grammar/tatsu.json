@@ -1005,7 +1005,7 @@
           },
           {
             "__class__": "Pattern",
-            "pattern": "\\S"
+            "pattern": "(?=\\S)"
           }
         ]
       },
