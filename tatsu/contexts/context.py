@@ -101,14 +101,14 @@ class ParseContext(ParserEngine):
                 excls=FailedExpectingEndOfText,
             )
 
+    _check_eof = eofcheck
+
     def eolcheck(self):
         if not self.state.cursor.matcheol():
             raise self.newexcept(
                 'Expecting end of line',
                 excls=FailedExpectingEndOfLine,
             )
-
-    _check_eof = eofcheck
 
     def _no_more_options(self) -> bool:
         # NOTE: Legacy. Used in previous versions of the parser generator
