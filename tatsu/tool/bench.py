@@ -11,6 +11,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+
 try:
     import tiexiu
 except ImportError:
@@ -110,9 +111,15 @@ def print_performance_comparison(results: list[tuple[str, BenchmarkResult]]):
     print(f"\nBest performer: {best_name} ({best_res.avg_lines_sec:.2f} sloc/sec)")
 
     for name, res in sorted_results[1:]:
-        factor = best_res.avg_lines_sec / res.avg_lines_sec if res.avg_lines_sec else float('inf')
+        factor = (
+            best_res.avg_lines_sec / res.avg_lines_sec
+            if res.avg_lines_sec
+            else float('inf')
+        )
         percent_slower = (factor - 1) * 100
-        print(f"{best_name} is {factor:.2f}x faster than {name} (+{percent_slower:.1f}%)")
+        print(
+            f"{best_name} is {factor:.2f}x faster than {name} (+{percent_slower:.1f}%)"
+        )
 
 
 def print_summary(
@@ -130,12 +137,14 @@ def print_summary(
     all_runs = [r for r in [mem_run, gen_run, tiexiu_run] if r is not None]
     all_numbers = []
     for r in all_runs:
-        all_numbers.extend([
-            r.setup_time,
-            r.total_parsing_time,
-            r.avg_parsing_time,
-            r.avg_lines_sec,
-        ])
+        all_numbers.extend(
+            [
+                r.setup_time,
+                r.total_parsing_time,
+                r.avg_parsing_time,
+                r.avg_lines_sec,
+            ]
+        )
 
     int_width = max(len(str(int(abs(n)))) for n in all_numbers) if all_numbers else 0
     num_width = int_width + 3
@@ -151,7 +160,7 @@ def print_summary(
         "in-memory:",
         "generated:",
         "tiexiu:",
-        "failed files:", # Added for label width calculation
+        "failed files:",  # Added for label width calculation
     ]
     lbl_w = max(len(lbl) for lbl in labels) + 2
 
@@ -269,12 +278,16 @@ def benchmark(
                 with timer() as t:
                     try:
                         tiexiu.parse(gramsrc, text)
-                    except ValueError as e:  # Catching ValueError for expected parsing errors
+                    except (
+                        ValueError
+                    ) as e:  # Catching ValueError for expected parsing errors
                         tiexiu_errs += 1
                         tiexiu_failed.append(f"{filepaths[i]} (Error: {e})")
                     except Exception as e:  # Catching other unexpected errors
                         tiexiu_errs += 1
-                        tiexiu_failed.append(f"{filepaths[i]} (Unexpected: {type(e).__name__}: {e})")
+                        tiexiu_failed.append(
+                            f"{filepaths[i]} (Unexpected: {type(e).__name__}: {e})"
+                        )
                     tiexiu_time += t.delta
             tiexiu_run = BenchmarkResult(
                 "tiexiu.parse",
@@ -353,7 +366,9 @@ def main():
     try:
         grammar_path = args.grammar.resolve()
         input_paths = [p.resolve() for p in args.inputs]
-        mem_run, gen_run, tiexiu_run = benchmark(grammar_path, input_paths, mode=args.mode)
+        mem_run, gen_run, tiexiu_run = benchmark(
+            grammar_path, input_paths, mode=args.mode
+        )
         print_summary(
             str(args.grammar),
             len(args.inputs),
