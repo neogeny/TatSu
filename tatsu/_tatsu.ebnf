@@ -260,4 +260,4 @@ null: 'None'
 
 eof[EOF]: '$' ~
 
-eol[EOL]: '$->'
+eol[EOL]: '$->' ~
