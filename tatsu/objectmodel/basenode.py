@@ -14,7 +14,6 @@ from ..util import rowselect, typename
 from ..util.asjson import AsJSONMixin, asjson, asjsons
 from ..util.indent import fold
 
-
 __all__ = ['BaseNode', 'NodeDataclassParams', 'nodedataclass']
 
 NodeDataclassParams = dict(
@@ -114,6 +113,12 @@ class BaseNode(AsJSONMixin):
 
     def asjsons(self) -> str:
         return asjsons(self.asjson())
+
+    def dump(self) -> Any:
+        return self.asjson()
+
+    def dumps(self) -> str:
+        return self.asjsons()
 
     @staticmethod
     @cache

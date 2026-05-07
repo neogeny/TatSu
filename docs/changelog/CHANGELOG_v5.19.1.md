@@ -7,6 +7,8 @@ SPDX-License-Identifier: BSD-4-Clause
 
 ## Grammar Syntax
 
+* Now a `Grammar` can be imported from the JSON produced by `model.asjson()`. Roundtrip has been tested and it works. New methods `Grammar.load(value: Any) -> Grammar` and `Grammar.loads(json: str) -> Grammar` make the functionality available.
+
 * The definition of the `DEDENT` rule in the **TatSu** grammar is used to support
   EBNF notations with no rule-terminatiors and grammars without blank lines
   between rules. The pattern used in the rule was incorrectly consuming the first

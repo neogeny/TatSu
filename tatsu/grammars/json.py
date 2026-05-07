@@ -13,9 +13,10 @@ from __future__ import annotations
 import json as json_module
 from typing import Any
 
+from ..util import typename
+from ..util.json import JSONValue, ensure_dict
 from .. import grammars as g
 from ..exceptions import TatSuException
-from ..util import typename
 
 
 class JsonError(TatSuException):
@@ -140,14 +141,15 @@ def _parse_directives(directives: dict[str, Any] | None) -> dict[str, Any]:
     return result
 
 
-def grammar_from_jsons(json_str: str) -> g.Grammar:
+def loads(json_str: str) -> g.Grammar:
     """Parse JSON string and return a Grammar object."""
     value = json_module.loads(json_str)
-    return grammar_from_json(value)
+    return load(value)
 
 
-def grammar_from_json(value: dict[str, Any]) -> g.Grammar:
-    """Parse JSON value (dict) and return a Grammar object."""
+def load(value: JSONValue) -> g.Grammar:
+    """Parse JSON value and return a Grammar object."""
+    value = ensure_dict(value)
     path = JsonSerializationHelper(value)
     class_name = path._get_class()
 

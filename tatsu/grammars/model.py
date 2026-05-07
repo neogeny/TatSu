@@ -21,7 +21,6 @@ from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import indent, trim, typename
 from .math import ffset, kdot
 
-
 PEP8_LLEN = 72
 
 _model_classes: list[type[Model]] = []
@@ -469,13 +468,13 @@ class Grammar(Model):
         self._config.merge(**settings)
 
     @staticmethod
-    def from_json(value: Any) -> Grammar:
+    def load(value: Any) -> Grammar:
         from .json import grammar_from_json
 
         return grammar_from_json(value)
 
     @staticmethod
-    def from_jsons(value: str) -> Grammar:
+    def loads(value: str) -> Grammar:
         from .json import grammar_from_jsons
 
         return grammar_from_jsons(value)
@@ -666,8 +665,8 @@ class Grammar(Model):
         keywords = f"\n\n{'\n'.join(keywordsets)}\n\n" if keywordsets else ""
 
         rules = (
-            '\n\n'.join(str(rule._pretty(lean=lean)) for rule in self.rules)
-        ).rstrip() + '\n\n'
+                    '\n\n'.join(str(rule._pretty(lean=lean)) for rule in self.rules)
+                ).rstrip() + '\n\n'
         return directives + keywords + rules
 
     def optimized(self) -> Model:
