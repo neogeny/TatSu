@@ -14,6 +14,7 @@ from ..util import rowselect, typename
 from ..util.asjson import AsJSONMixin, asjson, asjsons
 from ..util.indent import fold
 
+
 __all__ = ['BaseNode', 'NodeDataclassParams', 'nodedataclass']
 
 NodeDataclassParams = dict(

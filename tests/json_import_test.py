@@ -15,7 +15,7 @@ GRAMMAR_DIR = Path() / 'grammar'
 
 def test_grammar_from_json_calc():
     calc_json = GRAMMAR_DIR / 'calc.json'
-    grammar = json_import.loads(calc_json.read_text())
+    grammar = json_import.loads_grammar(calc_json.read_text())
     assert grammar.name == 'CALC'
     assert len(grammar.rules) == 9
     assert grammar.rules[0].name == 'start'
@@ -23,7 +23,7 @@ def test_grammar_from_json_calc():
 
 def test_grammar_from_json_tatsu():
     tatsu_json = GRAMMAR_DIR / 'tatsu.json'
-    grammar = json_import.loads(tatsu_json.read_text())
+    grammar = json_import.loads_grammar(tatsu_json.read_text())
     assert grammar.name == 'TatSu'
     assert len(grammar.rules) > 50
 
@@ -31,7 +31,7 @@ def test_grammar_from_json_tatsu():
 def test_grammar_from_json_value():
     calc_json = GRAMMAR_DIR / 'calc.json'
     value = json.loads(calc_json.read_text())
-    grammar = json_import.load(value)
+    grammar = json_import.load_grammar(value)
     assert grammar.name == 'CALC'
 
 
@@ -62,7 +62,7 @@ def test_exp_from_json_value():
 
 def test_parse_with_imported_calc_grammar():
     calc_json = GRAMMAR_DIR / 'calc.json'
-    grammar = json_import.loads(calc_json.read_text())
+    grammar = json_import.loads_grammar(calc_json.read_text())
 
     result = grammar.parse('123')
     assert result == '123'
@@ -151,7 +151,7 @@ def test_import_keywords():
         ],
         'keywords': ['if', 'else', 'while'],
     }
-    grammar = json_import.load(value)
+    grammar = json_import.load_grammar(value)
     assert grammar.name == 'Test'
 
 
@@ -159,13 +159,13 @@ def test_roundtrip_calc():
     calc_json = GRAMMAR_DIR / 'calc.json'
     original = json.loads(calc_json.read_text())
 
-    grammar = json_import.load(original)
+    grammar = json_import.load_grammar(original)
     exported = grammar.asjson()
 
     assert exported['name'] == original['name']
     assert len(exported['rules']) == len(original['rules'])
 
-    reimported = json_import.load(exported)
+    reimported = json_import.load_grammar(exported)
     assert reimported.name == grammar.name
     assert len(reimported.rules) == len(grammar.rules)
 
