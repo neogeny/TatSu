@@ -10,12 +10,12 @@ import pytest  # noqa # type: ignore
 from tatsu.grammars import json as json_import
 
 
-GRAMMAR_DIR = Path(__file__).parent.parent.parent / 'grammar'
+GRAMMAR_DIR = Path() / 'grammar'
 
 
 def test_grammar_from_json_calc():
     calc_json = GRAMMAR_DIR / 'calc.json'
-    grammar = json_import.grammar_from_json(calc_json.read_text())
+    grammar = json_import.grammar_from_jsons(calc_json.read_text())
     assert grammar.name == 'CALC'
     assert len(grammar.rules) == 9
     assert grammar.rules[0].name == 'start'
@@ -23,7 +23,7 @@ def test_grammar_from_json_calc():
 
 def test_grammar_from_json_tatsu():
     tatsu_json = GRAMMAR_DIR / 'tatsu.json'
-    grammar = json_import.grammar_from_json(tatsu_json.read_text())
+    grammar = json_import.grammar_from_jsons(tatsu_json.read_text())
     assert grammar.name == 'TatSu'
     assert len(grammar.rules) > 50
 
@@ -31,7 +31,7 @@ def test_grammar_from_json_tatsu():
 def test_grammar_from_json_value():
     calc_json = GRAMMAR_DIR / 'calc.json'
     value = json.loads(calc_json.read_text())
-    grammar = json_import.grammar_from_json_value(value)
+    grammar = json_import.grammar_from_json(value)
     assert grammar.name == 'CALC'
 
 
@@ -62,7 +62,7 @@ def test_exp_from_json_value():
 
 def test_parse_with_imported_calc_grammar():
     calc_json = GRAMMAR_DIR / 'calc.json'
-    grammar = json_import.grammar_from_json(calc_json.read_text())
+    grammar = json_import.grammar_from_jsons(calc_json.read_text())
 
     result = grammar.parse('123')
     assert result == '123'
@@ -147,9 +147,9 @@ def test_import_keywords():
                 'name': 'start',
                 'exp': {'__class__': 'Sequence', 'sequence': []},
                 'params': [],
-            }
+            },
         ],
         'keywords': ['if', 'else', 'while'],
     }
-    grammar = json_import.grammar_from_json_value(value)
+    grammar = json_import.grammar_from_json(value)
     assert grammar.name == 'Test'

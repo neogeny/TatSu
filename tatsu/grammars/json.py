@@ -14,9 +14,11 @@ import json as json_module
 from typing import Any
 
 from .. import grammars as g
+from ..exceptions import TatSuException
+from ..util import typename
 
 
-class JsonError(Exception):
+class JsonError(TatSuException):
     pass
 
 
@@ -96,7 +98,7 @@ class JsonSerializationHelper:
         result = []
         for i, v in enumerate(arr_val):
             if isinstance(v, dict) and "__class__" in v:
-                class_name = v["__class__"]
+                class_name = v["__class__"]  # ty: ignore
                 label = f"{field}[{i}]:{class_name}"
             else:
                 label = f"{field}[{i}]"
@@ -138,19 +140,19 @@ def _parse_directives(directives: dict[str, Any] | None) -> dict[str, Any]:
     return result
 
 
-def grammar_from_json(json_str: str) -> g.Grammar:
+def grammar_from_jsons(json_str: str) -> g.Grammar:
     """Parse JSON string and return a Grammar object."""
     value = json_module.loads(json_str)
-    return grammar_from_json_value(value)
+    return grammar_from_json(value)
 
 
-def grammar_from_json_value(value: dict[str, Any]) -> g.Grammar:
+def grammar_from_json(value: dict[str, Any]) -> g.Grammar:
     """Parse JSON value (dict) and return a Grammar object."""
     path = JsonSerializationHelper(value)
     class_name = path._get_class()
 
-    if class_name != "Grammar":
-        raise path._error("Expected Grammar root")
+    if class_name != typename(g.Grammar):
+        raise path._error(f"Expected {typename(g.Grammar)} root")
 
     name = path._get_string("name")
 
@@ -191,8 +193,8 @@ def rule_from_json_path(path: JsonSerializationHelper) -> g.Rule:
     """Parse JSON path and return a Rule object."""
     class_name = path._get_class()
 
-    if class_name != "Rule":
-        raise path._error("Expected Rule")
+    if class_name != typename(g.Rule):
+        raise path._error(f"Expected {typename(g.Rule)}")
 
     name = path._get_string("name")
     exp_path = path._get_nested("exp")
@@ -230,136 +232,140 @@ def exp_from_json_path(path: JsonSerializationHelper) -> g.Model:  # noqa: PLR09
     """Parse JSON path and return an expression Model."""
     class_name = path._get_class()
 
-    if class_name == "Sequence":
+    if class_name == typename(g.Sequence):
         items = path._get_array("sequence")
         exprs = [exp_from_json_path(item) for item in items]
         return g.Sequence(sequence=exprs)
 
-    if class_name == "Choice":
+    if class_name == typename(g.Choice):
         items = path._get_array("options")
         exprs = [exp_from_json_path(item) for item in items]
         return g.Choice(options=[g.Option(exp=e) for e in exprs])
 
-    if class_name == "Option":
+    if class_name == typename(g.Option):
         exp_path = path._get_nested("exp")
         return g.Option(exp=exp_from_json_path(exp_path))
 
-    if class_name == "Named":
+    if class_name == typename(g.Named):
         name = path._get_string("name")
         exp_path = path._get_nested("exp")
         return g.Named(name=name, exp=exp_from_json_path(exp_path))
 
-    if class_name == "NamedList":
+    if class_name == typename(g.NamedList):
         name = path._get_string("name")
         exp_path = path._get_nested("exp")
         return g.NamedList(name=name, exp=exp_from_json_path(exp_path))
 
-    if class_name == "Call":
+    if class_name == typename(g.Call):
         name = path._get_string("name")
         return g.Call(name=name)
 
-    if class_name == "Token":
+    if class_name == typename(g.Token):
         token = path._get_string("token")
         return g.Token(token=token)
 
-    if class_name == "Pattern":
+    if class_name == typename(g.Pattern):
         pattern = path._get_string("pattern")
         return g.Pattern(pattern=pattern)
 
-    if class_name == "Constant":
+    if class_name == typename(g.Constant):
         literal = path._opt_str("literal") or ""
         return g.Constant(literal=literal)
 
-    if class_name == "Alert":
+    if class_name == typename(g.Alert):
         literal = path._opt_str("literal") or ""
         level = path._opt_int("level") or 0
         return g.Alert(literal=literal, level=level)
 
-    if class_name == "Group":
+    if class_name == typename(g.Group):
         exp_path = path._get_nested("exp")
         return g.Group(exp=exp_from_json_path(exp_path))
 
-    if class_name == "Optional":
+    if class_name == typename(g.Optional):
         exp_path = path._get_nested("exp")
         return g.Optional(exp=exp_from_json_path(exp_path))
 
-    if class_name == "Closure":
+    if class_name == typename(g.Closure):
         exp_path = path._get_nested("exp")
         return g.Closure(exp=exp_from_json_path(exp_path))
 
-    if class_name == "PositiveClosure":
+    if class_name == typename(g.PositiveClosure):
         exp_path = path._get_nested("exp")
         return g.PositiveClosure(exp=exp_from_json_path(exp_path))
 
-    if class_name == "Lookahead":
+    if class_name == typename(g.Lookahead):
         exp_path = path._get_nested("exp")
         return g.Lookahead(exp=exp_from_json_path(exp_path))
 
-    if class_name == "NegativeLookahead":
+    if class_name == typename(g.NegativeLookahead):
         exp_path = path._get_nested("exp")
         return g.NegativeLookahead(exp=exp_from_json_path(exp_path))
 
-    if class_name == "SkipGroup":
+    if class_name == typename(g.SkipGroup):
         exp_path = path._get_nested("exp")
         return g.SkipGroup(exp=exp_from_json_path(exp_path))
 
-    if class_name == "SkipTo":
+    if class_name == typename(g.SkipTo):
         exp_path = path._get_nested("exp")
         return g.SkipTo(exp=exp_from_json_path(exp_path))
 
-    if class_name == "Override":
+    if class_name == typename(g.Override):
         exp_path = path._get_nested("exp")
         return g.Override(exp=exp_from_json_path(exp_path))
 
-    if class_name == "OverrideList":
+    if class_name == typename(g.OverrideList):
         exp_path = path._get_nested("exp")
         return g.OverrideList(exp=exp_from_json_path(exp_path))
 
-    if class_name == "Join":
+    if class_name == typename(g.Join):
         exp_path = path._get_nested("exp")
         sep_path = path._get_nested("sep")
         return g.Join(
-            exp=exp_from_json_path(exp_path), sep=exp_from_json_path(sep_path)
+            exp=exp_from_json_path(exp_path),
+            sep=exp_from_json_path(sep_path),
         )
 
-    if class_name == "PositiveJoin":
+    if class_name == typename(g.PositiveJoin):
         exp_path = path._get_nested("exp")
         sep_path = path._get_nested("sep")
         return g.PositiveJoin(
-            exp=exp_from_json_path(exp_path), sep=exp_from_json_path(sep_path)
+            exp=exp_from_json_path(exp_path),
+            sep=exp_from_json_path(sep_path),
         )
 
-    if class_name == "Gather":
+    if class_name == typename(g.Gather):
         exp_path = path._get_nested("exp")
         sep_path = path._get_nested("sep")
         return g.Gather(
-            exp=exp_from_json_path(exp_path), sep=exp_from_json_path(sep_path)
+            exp=exp_from_json_path(exp_path),
+            sep=exp_from_json_path(sep_path),
         )
 
-    if class_name == "PositiveGather":
+    if class_name == typename(g.PositiveGather):
         exp_path = path._get_nested("exp")
         sep_path = path._get_nested("sep")
         return g.PositiveGather(
-            exp=exp_from_json_path(exp_path), sep=exp_from_json_path(sep_path)
+            exp=exp_from_json_path(exp_path),
+            sep=exp_from_json_path(sep_path),
         )
 
-    if class_name == "RuleInclude":
+    if class_name == typename(g.RuleInclude):
         name = path._get_string("name")
         return g.RuleInclude(name=name)
 
-    if class_name == "Void":
+    if class_name == typename(g.Void):
         return g.Void()
 
-    if class_name == "Cut":
+    if class_name == typename(g.Cut):
         return g.Cut()
 
-    if class_name == "EOF":
+    if class_name == typename(g.EOF):
         return g.EOF()
 
-    if class_name == "EOL":
+    if class_name == typename(g.EOL):
         return g.EOL()
 
-    if class_name == "EmptyClosure":
+    if class_name == typename(g.EmptyClosure):
         return g.EmptyClosure()
 
     raise path._error(f"Unsupported: {class_name}")

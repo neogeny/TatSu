@@ -373,7 +373,7 @@ class Rule(NamedBox):
             skwparams = ''
             if self.kwparams:
                 skwparams = ', '.join(
-                    f'{k}={self.param_repr(v)}' for (k, v) in self.kwparams.items()
+                    (f'{k}={self.param_repr(v)}' for (k, v) in self.kwparams.items()),
                 )
 
             if params and skwparams:
@@ -468,6 +468,18 @@ class Grammar(Model):
         self._config.merge_config(config)
         self._config.merge(**settings)
 
+    @staticmethod
+    def from_json(value: Any) -> Grammar:
+        from .json import grammar_from_json
+
+        return grammar_from_json(value)
+
+    @staticmethod
+    def from_jsons(value: str) -> Grammar:
+        from .json import grammar_from_jsons
+
+        return grammar_from_jsons(value)
+
     def _update_patterns(self):
         if not hasattr(self, 'patterns'):
             self.patterns = Patterns()
@@ -538,7 +550,7 @@ class Grammar(Model):
             raise GrammarError(
                 f'{config.left_recursion=}'
                 f' but found left-recursive rules'
-                f' {', '.join(repr(r.name) for r in leftrect_rules)}!'
+                f' {', '.join(repr(r.name) for r in leftrect_rules)}!',
             )
 
     def _used_rule_names(self) -> set[str]:

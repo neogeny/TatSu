@@ -13,7 +13,7 @@ from pathlib import Path
 
 
 try:
-    import tiexiu
+    import tiexiu  # noqa # type: ignore
 except ImportError:
     tiexiu = None
 
@@ -45,7 +45,8 @@ def _setup_mem_parser(grammar_src: str) -> tuple[grammars.Grammar, float]:
 
 
 def _setup_gen_parser(
-    grammar_src: str, grammar_name: str
+    grammar_src: str,
+    grammar_name: str,
 ) -> tuple[Parser, float, Path]:
     parser_file = f"temp_parser_{int(time.time())}.py"
     parser_path = Path(parser_file).resolve()
@@ -86,16 +87,16 @@ def _print_run_details(title: str, result: BenchmarkResult, lbl_w: int, num_fmt:
     print(f"{'one-time setup:':<{lbl_w}}{num_fmt.format(result.setup_time)} s")
     print(
         f"{f'total parsing time ({result.file_count} files):':<{lbl_w}}"
-        f"{num_fmt.format(result.total_parsing_time)} s"
+        f"{num_fmt.format(result.total_parsing_time)} s",
     )
     print(
         f"{f'errors ({result.file_count} files):':<{lbl_w}}"
-        f"{result.error_count}"  # Changed to simple integer display
+        f"{result.error_count}",  # Changed to simple integer display
     )
     if result.failed_files:
         print(f"{'failed files:':<{lbl_w}}{', '.join(result.failed_files)}")
     print(
-        f"{'average parsing time:':<{lbl_w}}{num_fmt.format(result.avg_parsing_time)} s/file"
+        f"{'average parsing time:':<{lbl_w}}{num_fmt.format(result.avg_parsing_time)} s/file",
     )
     print(f"{'average speed:':<{lbl_w}}{num_fmt.format(result.avg_lines_sec)} sloc/sec")
 
@@ -118,7 +119,7 @@ def print_performance_comparison(results: list[tuple[str, BenchmarkResult]]):
         )
         percent_slower = (factor - 1) * 100
         print(
-            f"{best_name} is {factor:.2f}x faster than {name} (+{percent_slower:.1f}%)"
+            f"{best_name} is {factor:.2f}x faster than {name} (+{percent_slower:.1f}%)",
         )
 
 
@@ -143,7 +144,7 @@ def print_summary(
                 r.total_parsing_time,
                 r.avg_parsing_time,
                 r.avg_lines_sec,
-            ]
+            ],
         )
 
     int_width = max(len(str(int(abs(n)))) for n in all_numbers) if all_numbers else 0
@@ -286,7 +287,7 @@ def benchmark(
                     except Exception as e:  # Catching other unexpected errors
                         tiexiu_errs += 1
                         tiexiu_failed.append(
-                            f"{filepaths[i]} (Unexpected: {type(e).__name__}: {e})"
+                            f"{filepaths[i]} (Unexpected: {type(e).__name__}: {e})",
                         )
                     tiexiu_time += t.delta
             tiexiu_run = BenchmarkResult(
@@ -349,7 +350,10 @@ def main():
 
     parser.add_argument("grammar", type=Path, help="path to the grammar file")
     parser.add_argument(
-        "inputs", type=Path, nargs='+', help="path to one or more input text files"
+        "inputs",
+        type=Path,
+        nargs='+',
+        help="path to one or more input text files",
     )
     args = parser.parse_args()
 
@@ -367,7 +371,9 @@ def main():
         grammar_path = args.grammar.resolve()
         input_paths = [p.resolve() for p in args.inputs]
         mem_run, gen_run, tiexiu_run = benchmark(
-            grammar_path, input_paths, mode=args.mode
+            grammar_path,
+            input_paths,
+            mode=args.mode,
         )
         print_summary(
             str(args.grammar),
