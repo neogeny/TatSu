@@ -27,8 +27,8 @@ from ..util import (
     safe_eval,
     trim,
 )
-from ._base import ParserCore
 from .ast import AST
+from .core import ParserCore
 from .cst import closedlist, islist
 from .ctx import CanParse
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
@@ -89,7 +89,8 @@ class ParserEngine(ParserCore, CanParse):
                 self.config.semantics.set_context(None)  # ty: ignore[call-non-callable]
 
     def call(self, ri: RuleInfo) -> Any:
-        self.callstack.append(ri)
+        if ri.should_trace:
+            self.callstack.append(ri)
         self.next_token(ri)
         key = self.memokey()
 
@@ -114,7 +115,8 @@ class ParserEngine(ParserCore, CanParse):
             self.tracer.trace_failure(self, e)
             raise
         finally:
-            self.callstack.pop()
+            if ri.should_trace:
+                self.callstack.pop()
 
     def recursive_call(self, ri: RuleInfo, key: MemoKey) -> RuleResult:
         if not ri.is_lrec:

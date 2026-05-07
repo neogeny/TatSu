@@ -104,6 +104,7 @@ gha-creds-*.json
 .github/commands/gemini*
 .github/workflows/gemini*
 GEMINI.md
+tiexiu
 
 
 ### --- Other ---

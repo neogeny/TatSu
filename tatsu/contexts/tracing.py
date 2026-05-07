@@ -39,7 +39,7 @@ class Tracer(Protocol):
     def trace_cut(self, ctx: Ctx) -> None: ...
 
     def trace_match(
-        self, ctx: Ctx, token: Any, name: str | None = None, failed: bool = False
+        self, ctx: Ctx, token: Any, name: str | None = None, failed: bool = False,
     ) -> None: ...
 
     def rulestack(self, ctx: Ctx) -> str: ...
@@ -86,7 +86,7 @@ class ConsoleTracer(Tracer):
             f'{event}{self.rulestack(ctx)}'
             f' {C.DIM}{source}'
             # f'{C.RESET}'
-            f'\n{pos}->{C.RESET_ALL}{lookahead}{C.RESET_ALL}'
+            f'\n{pos}⇥{C.RESET_ALL}{lookahead}{C.RESET_ALL}'
         )
         self.trace(message)
 
@@ -109,7 +109,7 @@ class ConsoleTracer(Tracer):
         self.trace_event(ctx, f'{C.CUT}')
 
     def trace_match(
-        self, ctx: Ctx, token: Any, name: str | None = None, failed: bool = False
+        self, ctx: Ctx, token: Any, name: str | None = None, failed: bool = False,
     ) -> None:
         if not self.config.trace:
             return
@@ -172,7 +172,7 @@ class NullTracer(Tracer):
         pass
 
     def trace_match(
-        self, ctx: Ctx, token: Any, name: str | None = None, failed: bool = False
+        self, ctx: Ctx, token: Any, name: str | None = None, failed: bool = False,
     ) -> None:
         pass
 

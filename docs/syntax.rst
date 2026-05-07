@@ -432,7 +432,10 @@ not advance the input over whitespace or comments.
 ^^^^^^^^^^^^^
 
 The include operator. Include the *right hand side* of rule
-``rulename`` at this point.
+``rulename`` at this point. This is useful when some fragment of the
+expression is complicated but still must provide named element to
+the current context. the |TatSu| grammar uses it to parse rule parameters,
+a complex expression that deliver only ``params`` and ``kwparams``.
 
 The following set of declarations:
 
@@ -797,9 +800,6 @@ A grammar rule may be redefined by using the ``@override`` decorator:
 
     @override
     ab: @:'a' {@:'b'}
-
-When combined with the ``#include`` directive, rule overrides can be
-used to create a modified grammar without altering the original.
 
 
 Grammar Name

@@ -20,6 +20,7 @@ class RuleResult(NamedTuple):
 
 class RuleLike(Protocol):
     no_memo: bool = False
+    no_stak: bool = False
     is_name: bool = False
     is_tokn: bool = False
     is_memo: bool = True
@@ -34,6 +35,7 @@ class RuleInfo(NamedTuple):
     instance: Any
     func: Callable[..., Any]
     no_memo: bool
+    no_stak: bool
     is_name: bool
     is_tokn: bool
 
@@ -52,6 +54,7 @@ class RuleInfo(NamedTuple):
             instance=instance,
             func=func,
             no_memo=getattr(func, 'no_memo', False),
+            no_stak=getattr(func, 'no_stak', False),
             is_name=getattr(func, 'is_name', False),
             is_tokn=getattr(func, 'is_tokn', is_tokn),
             is_lrec=getattr(func, 'is_lrec', False),
@@ -63,6 +66,14 @@ class RuleInfo(NamedTuple):
     @staticmethod
     def bind(ri: RuleInfo, instance: Any) -> RuleInfo:
         return ri._replace(instance=instance)
+
+    @property
+    def memoizable(self) -> bool:
+        return self.is_memo and not self.no_memo
+
+    @property
+    def should_trace(self) -> bool:
+        return not self.no_stak
 
     def __hash__(self):
         return hash(self.name)

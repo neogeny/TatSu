@@ -17,7 +17,6 @@ from ..exceptions import (
     ParseException,
 )
 from ..util import boundcall, deprecated, left_assoc, regexpp, right_assoc
-from ._engine import ParserEngine
 from .cst import closedlist, cstfinal
 from .ctx import Func
 from .ctxlib import (
@@ -27,6 +26,7 @@ from .ctxlib import (
     LoopContext,
     LoopWithSepContext,
 )
+from .engine import ParserEngine
 from .state import _AT_
 
 
@@ -101,14 +101,14 @@ class ParseContext(ParserEngine):
                 excls=FailedExpectingEndOfText,
             )
 
+    _check_eof = eofcheck
+
     def eolcheck(self):
         if not self.state.cursor.matcheol():
             raise self.newexcept(
                 'Expecting end of line',
                 excls=FailedExpectingEndOfLine,
             )
-
-    _check_eof = eofcheck
 
     def _no_more_options(self) -> bool:
         # NOTE: Legacy. Used in previous versions of the parser generator
@@ -249,7 +249,7 @@ class ParseContext(ParserEngine):
 
                     if self.pos == p:
                         raise self.newexcept(
-                            f'{self.repeat.__name__} matched on no input'
+                            f'{self.repeat.__name__} matched on no input',
                         )
                 # note: dit not match sep? exp, so quit
                 break
