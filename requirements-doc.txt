@@ -35,14 +35,14 @@ jinja2==3.1.6
     #   myst-docutils
     #   myst-parser
     #   sphinx
-markdown-it-py==4.0.0
+markdown-it-py==4.2.0
     # via
     #   mdit-py-plugins
     #   myst-docutils
     #   myst-parser
 markupsafe==3.0.3
     # via jinja2
-mdit-py-plugins==0.5.0
+mdit-py-plugins==0.6.0
     # via
     #   myst-docutils
     #   myst-parser
@@ -103,6 +103,6 @@ typing-extensions==4.15.0
     #   beautifulsoup4
     #   pydata-sphinx-theme
     #   sphinx-autodoc2
-urllib3==2.6.3
+urllib3==2.7.0
     # via requests
 vale==3.13.0.0
