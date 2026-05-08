@@ -7,6 +7,18 @@ SPDX-License-Identifier: BSD-4-Clause
 
 ## Grammar Syntax
 
+* Added better rendering to `FailedParse.__str__()`. Now a code fragment and line numbers are shown, as in many modern tools.
+
+    ```console
+    error: expecting 'world'
+      --> example:1:7
+       |
+     1 | hello missing
+       |       ^ expecting 'world'
+    
+      -> start
+    ```
+
 * Now a `Grammar` can be imported from the JSON produced by `model.asjson()`. Roundtrip has been tested and it works. New methods `Grammar.load(value: Any) -> Grammar` and `Grammar.loads(json: str) -> Grammar` make the functionality available.
 
 * The definition of the `DEDENT` rule in the **TatSu** grammar is used to support
