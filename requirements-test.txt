@@ -4,15 +4,10 @@
 ast-serialize==0.3.0
     # via mypy
 basedpyright==1.39.3
-black==26.3.1
 cffi==2.0.0
     # via pytest-codspeed
-click==8.3.3
-    # via black
 colorama==0.4.6
-    # via
-    #   click
-    #   pytest
+    # via pytest
 coverage==7.13.5
     # via pytest-cov
 execnet==2.1.2
@@ -29,22 +24,15 @@ mdurl==0.1.2
     # via markdown-it-py
 mypy==2.0.0
 mypy-extensions==1.1.0
-    # via
-    #   black
-    #   mypy
+    # via mypy
 nodejs-wheel-binaries==22.20.0
     # via basedpyright
 packaging==26.2
     # via
-    #   black
     #   pytest
     #   pytest-rerunfailures
 pathspec==1.1.1
-    # via
-    #   black
-    #   mypy
-platformdirs==4.9.6
-    # via black
+    # via mypy
 pluggy==1.6.0
     # via
     #   pytest
@@ -69,8 +57,6 @@ pytest-cov==7.1.0
 pytest-dependency==0.6.1
 pytest-rerunfailures==16.1
 pytest-xdist==3.8.0
-pytokens==0.4.1
-    # via black
 rich==15.0.0
     # via pytest-codspeed
 ruff==0.15.12

@@ -42,7 +42,6 @@ full = ["colorama", "graphviz", "invoke", "rich"]
 dev = [
     "asciitree>=0.3.3",
     "basedpyright>=1.38.0",
-    "black>=26.1.0",
     "build>=1.4.0",
     "colorama>=0.4.6",
     "diskcache>=5.6.3",
@@ -62,7 +61,6 @@ dev = [
 ]
 test = [
     "basedpyright>=1.38.0",
-    "black>=26.3.0",
     "colorama>=0.4.6",
     "graphviz>=0.21",
     "invoke>=2.2.1",
