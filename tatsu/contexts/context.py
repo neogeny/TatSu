@@ -116,6 +116,15 @@ class ParseContext(ParserEngine):
 
     @contextmanager
     def option(self) -> Any:
+        # NOTE
+        #   For reimplementors.
+        #   These few lines of code define the complete semantics of Cut (~).
+        #   It is contained to an Option/Alt.
+        #   The .push() provides a new state with cutseen==False.
+        #   The .merge()/.undo() contain the Cut so an outer Option cannot use it.
+        #   The OptionSucceeded exception is just the legacy way of the library
+        #   to manage the control flow on success (some versions of the library
+        #   have just returned).
         self.states.push()
         try:
             yield
