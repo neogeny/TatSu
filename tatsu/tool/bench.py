@@ -138,34 +138,56 @@ def print_performance_comparison(results: list[tuple[str, BenchmarkResult]]):
 
     # Prepare data for the table
     mnemonics = [r[0] for r in parsed_results]
-    _speeds = [r[1] for r in parsed_results]
+    speeds = [r[1] for r in parsed_results]
 
-    # Determine column width for numbers
-    max_mnemonic_len = max(len(m) for m in mnemonics)
-    col_width = max(
-        max_mnemonic_len + 4,
-        7,
-    )  # Mnemonic (N) + padding, or min width for numbers
+    # Determine column width for numbers and ratios
+    # Max length of "mnemonic (N)" for the first column
+    max_label_len = max(len(f"{m} ({i + 1})") for i, m in enumerate(mnemonics))
+
+    # Max length for sloc/s values
+    max_speed_val_len = max(len(f"{s:.2f}") for s in speeds) if speeds else 0
+
+    # Width for the sloc/s column, including its header
+    sloc_s_col_width = max(len("sloc/s"), max_speed_val_len) + 2 # +2 for padding
+
+    # Width for ratio columns (e.g., " 2.00 " or " inf ")
+    ratio_col_width = 7 # Minimum width for " X.XX " or "  inf  "
+
+    # The first column will contain "mnemonic (N)"
+    # The second column will contain "sloc/s" values
+    # Subsequent columns will contain ratios (1..N)
 
     # Print header row
-    header = f"{'':<{col_width}}"
-    for mnem in mnemonics:
-        header += f"{mnem + ' ':>{col_width}}"
+    # Empty space for the "mnemonic (N)" column
+    header = f"{'':<{max_label_len}}"
+    # Header for the "sloc/s" column
+    header += f"{'sloc/s':>{sloc_s_col_width}}"
+    # Headers for the ratio columns (1..N)
+    for i in range(len(mnemonics)):
+        header += f"{i + 1:>{ratio_col_width}}"
     print(header)
 
     # Print data rows
     for i, (row_mnemonic, row_speed) in enumerate(parsed_results):
-        row_str = f"{row_mnemonic}"
-        row_str = f"{row_str:>{col_width - 1}}"
+        # First column: mnemonic (N)
+        row_label = f"{row_mnemonic} ({i + 1})"
+        row_str = f"{row_label:<{max_label_len}}"
+
+        # Second column: sloc/s value
+        row_str += f"{row_speed:>{sloc_s_col_width}.2f}"
+
+        # Subsequent columns: ratios
         for j, (_col_mnemonic, col_speed) in enumerate(parsed_results):
             if i == j:
-                row_str += f"{'-':>{col_width}}"
+                row_str += f"{'-':>{ratio_col_width}}"
             else:
+                # This calculation (row_speed / col_speed) matches the original verbose output's logic
+                # and the example output provided by the user.
                 if col_speed == 0:
                     ratio_str = "inf"
                 else:
                     ratio = row_speed / col_speed
-                    ratio_str = f"{ratio:>{col_width}.2f}"
+                    ratio_str = f"{ratio:>{ratio_col_width}.2f}"
                 row_str += ratio_str
         print(row_str)
 
@@ -229,8 +251,6 @@ def print_summary(
 
     if len(comparison_results) > 1:
         print("\n--- comparison (sloc/sec ratios) ---")
-        # The previous verbose comparison printout is removed,
-        # and now print_performance_comparison will handle the table.
         print_performance_comparison(comparison_results)
 
 
