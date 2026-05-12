@@ -47,7 +47,7 @@ dev = [
     "diskcache>=5.6.3",
     "graphviz>=0.21",
     "invoke>=2.2.1",
-    "nodejs-wheel-binaries<24.11",
+    "nodejs-wheel-binaries>=24.15.0",
     "progress>=1.6.1",
     "psutil>=7.2.2",
     "pyrefly>=0.55.0",
@@ -65,7 +65,7 @@ test = [
     "graphviz>=0.21",
     "invoke>=2.2.1",
     "mypy>=1.19.1",
-    "nodejs-wheel-binaries<24.11",
+    "nodejs-wheel-binaries>=24.15.0",
     "progress>=1.6.1",
     "psutil>=7.2.2",
     "pytest>=9.0.2",
@@ -260,7 +260,7 @@ select = [
 ignore = [
     "ARG002", # unused argument
     #    "F401", # `XYZ` imported but unused
-    "COM812", #  Trailing comma missing"
+    "COM812", #  Trailing comma missing
     "COM819", #  Trailing comma prohibited
     "E501", #    line-too-long
     "E402", #    module-import-not-at-top-of-file
@@ -269,7 +269,7 @@ ignore = [
     "FURB189", #  subclassing str
     "PERF203", #  try-except within loop
     "PGH003",
-    "PLR0914", # Too many local variables (17/15)"
+    "PLR0914", # Too many local variables (17/15)
     "PGH004", # Use specific rule codes when using `noqa`
     "PLC0415", # import-outside-top-level
     "PLC2401", # non-ascci in identifier
