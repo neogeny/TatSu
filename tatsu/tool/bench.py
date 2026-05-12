@@ -148,10 +148,10 @@ def print_performance_comparison(results: list[tuple[str, BenchmarkResult]]):
     max_speed_val_len = max(len(f"{s:.2f}") for s in speeds) if speeds else 0
 
     # Width for the sloc/s column, including its header
-    sloc_s_col_width = max(len("sloc/s"), max_speed_val_len) + 2 # +2 for padding
+    sloc_s_col_width = max(len("sloc/s"), max_speed_val_len) + 2  # +2 for padding
 
     # Width for ratio columns (e.g., " 2.00 " or " inf ")
-    ratio_col_width = 7 # Minimum width for " X.XX " or "  inf  "
+    ratio_col_width = 7  # Minimum width for " X.XX " or "  inf  "
 
     # The first column will contain "mnemonic (N)"
     # The second column will contain "sloc/s" values

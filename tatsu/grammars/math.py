@@ -20,5 +20,7 @@ def kdot(x: ffset, y: ffset, k: int) -> ffset:
 
 
 class _ref(str):
+    __slots__ = ()
+
     def __repr__(self) -> str:
         return repr(f'<{self}>')
