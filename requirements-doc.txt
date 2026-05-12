@@ -26,7 +26,7 @@ docutils==0.22.4
     #   sphinx
     #   sphinx-markdown-builder
     #   sphinx-rtd-theme
-idna==3.13
+idna==3.14
     # via requests
 imagesize==2.0.0
     # via sphinx
@@ -62,7 +62,7 @@ pyyaml==6.0.3
     # via
     #   myst-docutils
     #   myst-parser
-requests==2.33.1
+requests==2.34.0
     # via sphinx
 roman-numerals==4.1.0
     # via sphinx
