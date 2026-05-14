@@ -2,7 +2,6 @@
 #    uv export --no-hashes --format requirements-txt -o requirements-dev.txt --group dev
 -e .
 asciitree==0.3.3
-basedpyright==1.39.4
 build==1.5.0
 click==8.3.3
     # via rich-click
@@ -21,8 +20,6 @@ markdown-it-py==4.2.0
     # via rich
 mdurl==0.1.2
     # via markdown-it-py
-nodejs-wheel-binaries==24.15.0
-    # via basedpyright
 packaging==26.2
     # via
     #   build

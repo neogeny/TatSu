@@ -3,7 +3,6 @@
 -e .
 ast-serialize==0.3.0
     # via mypy
-basedpyright==1.39.4
 colorama==0.4.6
     # via pytest
 coverage==7.14.0
@@ -23,8 +22,6 @@ mdurl==0.1.2
 mypy==2.1.0
 mypy-extensions==1.1.0
     # via mypy
-nodejs-wheel-binaries==24.15.0
-    # via basedpyright
 packaging==26.2
     # via
     #   pytest
