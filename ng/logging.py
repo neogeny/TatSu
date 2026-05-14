@@ -1,12 +1,15 @@
 import sys
 import threading
 
+
 # Global registry to ensure one SyncStream per physical stream object
 _SYNC_STREAMS = {}
 _REGISTRY_LOCK = threading.Lock()
 
+
 class SyncStream:
     """Wraps a stream to ensure atomic write and flush operations."""
+
     def __init__(self, stream):
         self._stream = stream
         self._lock = threading.Lock()
@@ -22,6 +25,7 @@ class SyncStream:
     def __getattr__(self, name):
         return getattr(self._stream, name)
 
+
 def get_sync_stream(stream):
     """Retrieves or creates a SyncStream for the given stream."""
     if isinstance(stream, SyncStream):
@@ -32,6 +36,7 @@ def get_sync_stream(stream):
         if stream_id not in _SYNC_STREAMS:
             _SYNC_STREAMS[stream_id] = SyncStream(stream)
         return _SYNC_STREAMS[stream_id]
+
 
 class Logger:
     def __init__(self, fmt="[{name}] {level}: {message}", stream=sys.stderr):

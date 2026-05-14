@@ -14,7 +14,6 @@ from .util.regextools import cached_re_compile
 from .util.undefined import Undefined
 from .util.unicode_characters import C_DERIVE
 
-
 DEFAULT_PERLINEMEMOS = 8
 
 
@@ -32,7 +31,6 @@ class ParserConfig(Config):
     memoization: bool = True
     perlinememos: float = DEFAULT_PERLINEMEMOS
     memoize_lookaheads: bool | None = None
-    memo_cache_size: int | None = None
     prune_memos_on_cut: bool = True
 
     colorize: bool = True  # INFO: requires the colorama library
@@ -64,6 +62,7 @@ class ParserConfig(Config):
     eol_comments_re: re.Pattern | str | None = None
     tokenizercls: type[Text] = NullText
     filename: str | None = None
+    memo_cache_size: int | None = None
 
     def __post_init__(self):  # pylint: disable=W0235
         if self.ignorecase and self.keywords:

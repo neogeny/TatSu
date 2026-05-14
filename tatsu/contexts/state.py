@@ -9,11 +9,9 @@ from .ast import AST
 from .cst import cstadd, cstfinal, cstmerge
 from .infos import Alert, RuleInfo
 
-
 __all__ = ['ParseState', 'ParseStateStack']
 
 from ..input import Cursor
-
 
 _AT_ = '__vallue__'
 
@@ -56,8 +54,7 @@ class ParseState:
         self.cursor.goto(prev.cursor.pos)
         return self
 
-    @property
-    def node(self) -> Any:
+    def fold(self) -> Any:
         ast = self.ast
         cst = self.cst
         if not ast:
@@ -108,7 +105,7 @@ class ParseState:
             raise TypeError("Cannot provide both a positional and keyword arguments.")
         if node is None and not kwargs:
             raise TypeError(
-                "Must provide either one positional argument or keyword arguments."
+                "Must provide either one positional argument or keyword arguments.",
             )
 
         if isinstance(node, ParseState):
