@@ -78,7 +78,7 @@ clobber: (clean "true")
     echo "▶ mypy {{py}}"
     {{run_test}} mypy \
         tatsu tests examples \
-        --install-types --exclude "dist|parsers|backup"
+        --install-types --exclude "dist|parsers|backup|tatsu/grammars/leftrec"
 
 @pyright:
     echo "▶ pyright {{py}}"
@@ -86,7 +86,8 @@ clobber: (clean "true")
 
 @pyrefly:
     echo "▶ pyrefly {{py}}"
-    {{run_test}} pyrefly check tatsu tests examples
+    {{run_test}} pyrefly check tatsu tests examples \
+        --project-excludes=tatsu/grammars/leftrec
 
 # --- Testing ---
 

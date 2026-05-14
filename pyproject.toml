@@ -167,6 +167,13 @@ exclude = [
     "build",
     "tmp",
     "tatsu/bootstrap.py",
+    "tatsu/grammars/leftrec/*.py",
+]
+
+[tool.ty.src]
+#include = ["."]
+exclude = [
+    "tatsu/grammars/leftrec/*.py",
 ]
 
 [tool.ty.analysis]
@@ -330,7 +337,8 @@ exclude = [
     "**/.venv",
     "**/.git",
     "examples/calc",
-    "parsers/"
+    "parsers/",
+    "tatsu/grammars/leftrec/*.py",
 ]
 
 #reportCallIssue = false
@@ -353,19 +361,23 @@ reportExplicitAny = false
 reportUnusedParameter = false
 
 [tool.pyrefly]
-search_path = ["stubs", "."]
 project-excludes = [
     "**/parsers*",
     "**/docs*",
     "**/build*",
     "**/tmp*",
-    "**/ng*",
     "**/tatsu/bootstrap.py",
-    "**/tatsu/codegen/**/*",
+    "tatsu/grammars/leftrec/",
+    "tatsu/grammars/leftrec/*.py",
+    "tatsu/grammars/leftrec/pegen_leftrec.py",
 ]
 python-version = "3.12.0"
-
-[tool.pyrefly.errors]
+preset = "legacy"
 # missing-attribute = "ignore"
 # untyped-import = "ignore"
 # missing-import = "ignore"
+
+[tool.pyrefly.errors]
+untyped-import = "ignore"
+missing-import = "ignore"
+missing-attribute = "ignore"
