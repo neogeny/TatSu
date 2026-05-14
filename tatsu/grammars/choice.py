@@ -9,7 +9,6 @@ from typing import Any
 from ..contexts import Ctx
 from ..exceptions import FailedParse
 from ..objectmodel import nodedataclass
-from ..util import cast
 from .math import ffset
 from .model import PEP8_LLEN, Box, Model
 
@@ -88,9 +87,6 @@ class Choice(Model):
     @cached_property
     def _nullable(self) -> bool:
         return any(o._nullable for o in self.options)
-
-    def callable_at_same_pos(self) -> list[Model]:
-        return cast(list[Model], self.options)
 
     def optimized(self) -> Model:
         opt = [o.optimized() for o in self.options]

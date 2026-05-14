@@ -9,9 +9,11 @@ from .ast import AST
 from .cst import cstadd, cstfinal, cstmerge
 from .infos import Alert, RuleInfo
 
+
 __all__ = ['ParseState', 'ParseStateStack']
 
 from ..input import Cursor
+
 
 _AT_ = '__vallue__'
 
@@ -138,9 +140,8 @@ class ParseStateStack:
     def state(self) -> ParseState:
         return self.state_stack[-1]
 
-    @property
-    def node(self) -> Any:  # this is Parsed
-        return self.state.node
+    def fold(self) -> Any:  # this is Parsed
+        return self.state.fold()
 
     def undo(self) -> ParseState:
         return self.state_stack.pop()

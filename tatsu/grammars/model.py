@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import weakref
 from collections import defaultdict
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable
 from copy import copy
 from dataclasses import field
 from functools import cached_property
@@ -147,10 +147,6 @@ class Model(Node, CanParse):
     def _nullable(self) -> bool:
         return False
 
-    # list of Model that can be invoked at the same position
-    def callable_at_same_pos(self) -> list[Model]:
-        return []
-
     def nodecount(self) -> int:
         return 1
 
@@ -248,12 +244,6 @@ class Box(Model):
     @cached_property
     def _nullable(self) -> bool:
         return self.exp._nullable
-
-    def callable_at_same_pos(
-        self,
-        rulemap: Mapping[str, Rule] | None = None,
-    ) -> list[Model]:
-        return [self.exp]
 
     def optimized(self) -> Model:
         return self.clone(exp=self.exp.optimized())

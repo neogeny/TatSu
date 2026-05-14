@@ -5,7 +5,7 @@ SPDX-License-Identifier: BSD-4-Clause
 
 # v5.19.1 Maintenance Release
 
-## Grammar Syntax
+* The algorithm for left-recursion analysis went over another round of simplification and optimization. Although the analysis is performed once per `Grammar`, before any parsing, a simpler implementation makes this core part of **TatSu** easier to maintain.
 
 * Added better rendering to `FailedParse.__str__()`. Now a code fragment and line numbers are shown, as in many modern tools.
 
@@ -19,7 +19,11 @@ SPDX-License-Identifier: BSD-4-Clause
       -> start
     ```
 
+### JSON
+
 * Now a `Grammar` can be imported from the JSON produced by `model.asjson()`. Roundtrip has been tested and it works. New methods `Grammar.load(value: Any) -> Grammar` and `Grammar.loads(json: str) -> Grammar` make the functionality available.
+
+### Grammar Syntax
 
 * The definition of the `DEDENT` rule in the **TatSu** grammar is used to support
   EBNF notations with no rule-terminatiors and grammars without blank lines

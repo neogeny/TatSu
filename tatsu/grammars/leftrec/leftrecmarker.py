@@ -1,81 +1,97 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
-# by Vic Nightfall <vic nightfall.moe > 2019
 from __future__ import annotations
 
-from collections import defaultdict
 from collections.abc import Iterable
 from enum import Enum, auto
-from typing import cast
 
-from ..model import Model, Rule
+from ..basic import Cut
+from ..choice import Choice
+from ..model import Box, Model, Rule
+from ..syntax import Call, Sequence
 
 
 __all__ = ['mark_left_recursion']
 
 
-# note: based on https://github.com/ncellar/autumn_v1/
+def _callable_rule_ids(exp: Model, rule_index: dict[str, int]) -> list[int]:
+    if isinstance(exp, Call):
+        target = rule_index.get(exp.name)
+        return [target] if target is not None else []
+
+    if isinstance(exp, Choice):
+        result: list[int] = []
+        for opt in exp.options:
+            result.extend(_callable_rule_ids(opt, rule_index))
+        return result
+
+    if isinstance(exp, Sequence):
+        result = []
+        for item in exp.sequence:
+            if isinstance(item, Cut):
+                continue
+            result.extend(_callable_rule_ids(item, rule_index))
+            if not _is_nullable_safe(item):
+                break
+        return result
+
+    if isinstance(exp, Box):
+        return _callable_rule_ids(exp.exp, rule_index)
+
+    return []
+
+
+def _is_nullable_safe(exp: Model) -> bool:
+    if isinstance(exp, Call):
+        return False
+
+    if isinstance(exp, Sequence):
+        return all(_is_nullable_safe(item) for item in exp.sequence)
+
+    if isinstance(exp, Choice):
+        return any(_is_nullable_safe(opt) for opt in exp.options)
+
+    return exp.is_nullable()
+
+
 def mark_left_recursion(rules: Iterable[Rule]) -> list[Rule]:
     class State(Enum):
         FIRST = auto()
-        CUTOFF = auto()
+        VISITING = auto()
         VISITED = auto()
 
-    leftrec_rules: list[Rule] = []
-    depth = 0
-    depth_stack: list[int] = [-1]
-    node_depth: dict[Model, int] = {}
-    node_state: dict[Model, State] = defaultdict(lambda: State.FIRST)
+    rules = list(rules)
+    rule_index = {rule.name: i for i, rule in enumerate(rules)}
 
-    def dfs(node: Model):
-        nonlocal depth
-
-        if node_state[node] != State.FIRST:
-            return
-        node_state[node] = State.CUTOFF
-
-        # beforeNode
-        leftrec = isinstance(node, Rule) and node.is_lrec
-        if leftrec:
-            depth_stack.append(depth)
-
-        node_depth[node] = depth
-        depth += 1
-        try:
-            callable_children = tuple(
-                c.follow_ref() for c in node.callable_at_same_pos()
-            )
-            for child in callable_children:
-                dfs(child)
-                # afterEdge
-                if (
-                    node_state[child] == State.CUTOFF
-                    and node_depth[child] > depth_stack[-1]
-                ):
-                    # turn off memoization for all rules that were involved in this cycle
-                    child = cast(Rule, child)
-                    child_rules = (n for n in node_depth if isinstance(n, Rule))
-                    for childrule in child_rules:
-                        childrule.is_memo = False
-
-                    nonlocal leftrec_rules
-                    assert isinstance(child, Rule)
-                    child.is_lrec = True
-                    leftrec_rules.append(child)
-        finally:
-            # afterNode
-            if leftrec:
-                depth_stack.pop()
-            del node_depth[node]
-            depth -= 1
-            node_state[node] = State.VISITED
-
-    # cleare up the status to be set
     for rule in rules:
         rule.is_lrec = False
-        # nomemo is a grammar decorator by the user
         rule.is_memo = not rule.no_memo
 
-    for rule in rules:
-        dfs(rule)
-    return leftrec_rules
+    edges = [_callable_rule_ids(rule.exp, rule_index) for rule in rules]
+
+    state = [State.FIRST] * len(rules)
+    stack: list[int] = []
+
+    def dfs(rule_id: int) -> None:
+        if state[rule_id] in {State.VISITING, State.VISITED}:
+            return
+
+        state[rule_id] = State.VISITING
+        stack.append(rule_id)
+
+        for child_id in edges[rule_id]:
+            if state[child_id] == State.FIRST:
+                dfs(child_id)
+            elif state[child_id] == State.VISITING:
+                rules[child_id].is_lrec = True
+                rules[child_id].is_memo = False
+                for rid in stack:
+                    rules[rid].is_memo = False
+
+        stack.pop()
+        state[rule_id] = State.VISITED
+
+    for i in range(len(rules)):
+        dfs(i)
+
+    return [rule for rule in rules if rule.is_lrec]

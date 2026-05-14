@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import field
 from functools import cached_property
-from itertools import takewhile
 from typing import Any
 
 from ..contexts import AST, Ctx
@@ -183,12 +182,6 @@ class Sequence(Model):
     @cached_property
     def _nullable(self) -> bool:
         return all(s._nullable for s in self.sequence)
-
-    def callable_at_same_pos(self) -> list[Model]:
-        head = list(takewhile(lambda c: c.is_nullable(), self.sequence))
-        if len(head) < len(self.sequence):
-            head.append(self.sequence[len(head)])
-        return head
 
     def optimized(self) -> Model:
         seq = [e.optimized() for e in self.sequence]
