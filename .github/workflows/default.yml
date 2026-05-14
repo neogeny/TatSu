@@ -51,15 +51,15 @@ jobs:
       - name: ruff
         run: |
           python3 -m ruff check -q --preview tatsu tests examples
-#      - name: ty
-#        run: |
-#          python3 -m ty check tatsu tests examples
-      - name: pyright
+      - name: ty
         run: |
-          python3 -m basedpyright tatsu tests examples
-#      - name: zuban
-#        run: |
-#          zuban check tatsu tests examples
+          python3 -m ty check tatsu tests examples
+      #      - name: pyright
+      #        run: |
+      #          python3 -m basedpyright tatsu tests examples
+      #      - name: zuban
+      #        run: |
+      #          zuban check tatsu tests examples
       - name: pytest
         run: |
           python3 -m pytest tests

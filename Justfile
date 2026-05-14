@@ -63,7 +63,7 @@ clobber: (clean "true")
 
     {{run_test}} ruff format tatsu tests examples scripts ng
 
-@lint: fmt ruff ty mypy pyright pyrefly
+@lint: fmt ruff ty mypy pyrefly
     echo "━ lint ⏏ ━"
 
 @ruff:

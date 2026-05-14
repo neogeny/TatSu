@@ -103,18 +103,6 @@ wheels = [
 ]
 
 [[package]]
-name = "basedpyright"
-version = "1.39.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "nodejs-wheel-binaries" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/06/b0/ab36a25bb4637c6083e88721351f96b30742b84debdea42892b0f0d08cc9/basedpyright-1.39.4.tar.gz", hash = "sha256:e604088a0a808377a91d8ea0c4ef427c1af6fb335529bbe65a055263163d9252", size = 25507140, upload-time = "2026-05-11T11:27:04.631Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/dd/39/9c256405e8d2a974b9fb819bd9c8a44ca4ba0f335c8ebb8d6961cee5f0c0/basedpyright-1.39.4-py3-none-any.whl", hash = "sha256:3cefd334f101fa4125c4ced4db6ca620267b57536ba0c3f8a7ae8b13c4c11f7a", size = 12420117, upload-time = "2026-05-11T11:26:59.829Z" },
-]
-
-[[package]]
 name = "beautifulsoup4"
 version = "4.14.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1531,7 +1519,6 @@ tasks = [
 [package.dev-dependencies]
 dev = [
     { name = "asciitree" },
-    { name = "basedpyright" },
     { name = "build" },
     { name = "colorama" },
     { name = "diskcache" },
@@ -1572,7 +1559,6 @@ mkdocs = [
     { name = "pymdown-extensions" },
 ]
 test = [
-    { name = "basedpyright" },
     { name = "colorama" },
     { name = "graphviz" },
     { name = "invoke" },
@@ -1613,7 +1599,6 @@ provides-extras = ["colorization", "diagrams", "full", "ideps", "parproc", "task
 [package.metadata.requires-dev]
 dev = [
     { name = "asciitree", specifier = ">=0.3.3" },
-    { name = "basedpyright", specifier = ">=1.38.0" },
     { name = "build", specifier = ">=1.4.0" },
     { name = "colorama", specifier = ">=0.4.6" },
     { name = "diskcache", specifier = ">=5.6.3" },
@@ -1654,7 +1639,6 @@ mkdocs = [
     { name = "pymdown-extensions", specifier = ">=10.20.1" },
 ]
 test = [
-    { name = "basedpyright", specifier = ">=1.38.0" },
     { name = "colorama", specifier = ">=0.4.6" },
     { name = "graphviz", specifier = ">=0.21" },
     { name = "invoke", specifier = ">=2.2.1" },
