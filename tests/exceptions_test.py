@@ -18,7 +18,7 @@ class TestFailedParseRender:
         model = tatsu.compile(grammar=grammar)
 
         with pytest.raises(FailedParse) as exc_info:
-            model.parse('hello missing', filename="example")
+            model.parse('hello missing', source="example")
 
         e = exc_info.value
         r = e.render()

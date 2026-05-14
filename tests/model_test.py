@@ -217,7 +217,7 @@ def test_calc_repr():
               is_tokn=False,
               no_memo=False,
               no_stak=False,
-              is_memo=False,
+              is_memo=True,
               is_lrec=False
             ),
             Rule(

@@ -5,7 +5,11 @@ SPDX-License-Identifier: BSD-4-Clause
 
 # v5.19.1 Maintenance Release
 
-* The algorithm for left-recursion analysis went over another round of simplification and optimization. Although the analysis is performed once per `Grammar`, before any parsing, a simpler implementation makes this core part of **TatSu** easier to maintain.
+* The algorithm for left-recursion analysis went over another round of simplification and optimization. Then the analysis done in [pegen][], a more efficient and theoretically-sound approach, was evaluated. All tests pass with the [pegen][]'s `SCC` (_Strongly Connected Componets_) algorithm, so the old-and-tried algorithm in **TatSu** was replaced.
+
+  Although left-recursion analysis is performed once per `Grammar`, before any parsing, a simpler implementation makes this core part of **TatSu** easier to maintain.
+
+[pegen]: https://we-like-parsers.github.io/pegen/grammar.html
 
 * Added better rendering to `FailedParse.__str__()`. Now a code fragment and line numbers are shown, as in many modern tools.
 
@@ -15,7 +19,7 @@ SPDX-License-Identifier: BSD-4-Clause
        |
      1 | hello missing
        |       ^ expecting 'world'
-    
+
       -> start
     ```
 

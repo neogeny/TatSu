@@ -532,9 +532,9 @@ class Grammar(Model):
         return name
 
     def _mark_left_recursion(self):
-        from .leftrec import mark_left_recursion
+        from .leftrec.pegen_leftrec import mark_left_recursion_pegen
 
-        leftrect_rules = mark_left_recursion(self.rules)
+        leftrect_rules = mark_left_recursion_pegen(self.rules)
         if leftrect_rules and not self.config.left_recursion:
             config = self.config
             raise GrammarError(
