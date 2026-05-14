@@ -4,8 +4,6 @@
 ast-serialize==0.3.0
     # via mypy
 basedpyright==1.39.4
-cffi==2.0.0
-    # via pytest-codspeed
 colorama==0.4.6
     # via pytest
 coverage==7.14.0
@@ -39,8 +37,6 @@ pluggy==1.6.0
     #   pytest-cov
 progress==1.6.1
 psutil==7.2.2
-pycparser==3.0 ; implementation_name != 'PyPy'
-    # via cffi
 pygments==2.20.0
     # via
     #   pytest
@@ -52,14 +48,14 @@ pytest==9.0.3
     #   pytest-dependency
     #   pytest-rerunfailures
     #   pytest-xdist
-pytest-codspeed==4.5.0
+pytest-codspeed==5.0.1
 pytest-cov==7.1.0
 pytest-dependency==0.6.1
-pytest-rerunfailures==16.1
+pytest-rerunfailures==16.2
 pytest-xdist==3.8.0
 rich==15.0.0
     # via pytest-codspeed
-ruff==0.15.12
+ruff==0.15.13
 setuptools==82.0.1
     # via pytest-dependency
 ty==0.0.35

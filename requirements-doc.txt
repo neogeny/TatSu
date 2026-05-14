@@ -26,7 +26,7 @@ docutils==0.22.4
     #   sphinx
     #   sphinx-markdown-builder
     #   sphinx-rtd-theme
-idna==3.14
+idna==3.15
     # via requests
 imagesize==2.0.0
     # via sphinx
@@ -42,14 +42,14 @@ markdown-it-py==4.2.0
     #   myst-parser
 markupsafe==3.0.3
     # via jinja2
-mdit-py-plugins==0.6.0
+mdit-py-plugins==0.6.1
     # via
     #   myst-docutils
     #   myst-parser
 mdurl==0.1.2
     # via markdown-it-py
-myst-docutils==5.0.0
-myst-parser==5.0.0
+myst-docutils==5.1.0
+myst-parser==5.1.0
 packaging==26.2
     # via sphinx
 pydata-sphinx-theme==0.17.1
@@ -62,7 +62,7 @@ pyyaml==6.0.3
     # via
     #   myst-docutils
     #   myst-parser
-requests==2.34.0
+requests==2.34.1
     # via sphinx
 roman-numerals==4.1.0
     # via sphinx
