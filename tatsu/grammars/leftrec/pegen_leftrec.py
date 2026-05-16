@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 # noqa # type: ignore # ruff: noqa
+# type: ignore
 # ty: ignore
 # pyrefly: ignore
 # pyright: ignore
@@ -90,7 +91,7 @@ def mark_left_recursion_pegen(rules: Iterable[Rule]) -> list[Rule]:
     graph = _make_first_graph(rules, rule_index)
 
     # pyrefly: ignore [bad-argument-type]
-    sccs = list(sccutils.strongly_connected_components(set(graph.keys()), graph))  # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
+    sccs = list(sccutils.strongly_connected_components(set(graph.keys()), graph))  # type: ignore # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
 
     for scc in sccs:
         if len(scc) > 1:
@@ -99,7 +100,7 @@ def mark_left_recursion_pegen(rules: Iterable[Rule]) -> list[Rule]:
 
             leaders = set(scc)
             for start in scc:
-                for cycle in sccutils.find_cycles_in_scc(graph, scc, start):  # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
+                for cycle in sccutils.find_cycles_in_scc(graph, scc, start):  # type: ignore # pyright: ignore[reportArgumentType]  # ty:ignore[invalid-argument-type]
                     leaders -= scc - set(cycle)
                     if not leaders:
                         break
