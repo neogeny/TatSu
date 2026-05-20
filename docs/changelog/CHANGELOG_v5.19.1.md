@@ -28,6 +28,16 @@ SPDX-License-Identifier: BSD-4-Clause
   `_token_expr_to_regex`, `_token_expr_to_regex_verbose`,
   `_decode_antlr_string`, and `_char_to_regex` have been removed.
 
+* `g2e` substitutes simple token definitions (like
+  `OPEN_PAREN : '(' {opened++;};`) for their
+  right hand side (just `'('`) for better looking grammars. For complex token definitions
+  ANTLR uses a special syntax which is not that of
+  Python-compatible (PCRE2) regular expressions,
+  so `g2e` omits them, leaving it to the user to decide
+  how to handle those tokens. In many cases a single pattern match is enough
+  for the grammar of interest, and a semantic rule may be added to validate
+  additional conditions that the parsed token should meet.
+
 * Streamlined generated grammar output — removed unnecessary
   parenthesization:
   - Single token references in alternatives no longer wrapped in extra
@@ -39,6 +49,11 @@ SPDX-License-Identifier: BSD-4-Clause
     collide with defined rules (e.g. `INDENT`/`DEDENT`).
 
 * Token name resolution now uses uppercase names consistently.
+
+* The `g2e` example (`examples/g2e`) uses the _old_, LL(1) Python grammar. Now,
+  since Python's PEG parser the actual grammar is a much simpler one. The
+  example is kept as it was to demonstrate `g2e`'s behavior over a complex
+  grammar.
 
 ## Tools
 

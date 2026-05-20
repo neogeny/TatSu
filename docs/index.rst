@@ -1,11 +1,6 @@
 .. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 .. SPDX-License-Identifier: BSD-4-Clause
 
-.. tatsu documentation master file, created by
-   sphinx-quickstart on Mon May  1 18:01:31 2017.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 .. include:: links.rst
 
 
@@ -93,6 +88,7 @@ algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left ass
     left_recursion
     mini-tutorial
     traces
+    antlr
     examples
     support
     credits
@@ -106,8 +102,7 @@ algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left ass
 ..    :hidden:
 
 
-
-.. comment out
+..
     Indices and tables
     ==================
     * :ref:`genindex`
