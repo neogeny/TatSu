@@ -55,7 +55,10 @@ clobber: (clean "true")
 
 # --- Linting & Formatting ---
 
-@fmt:
+@testg:
+    uv sync --group test
+
+@fmt: testg
     echo "▶ fmt {{py}}"
     {{run_test}} ruff check \
         --select I --fix \
@@ -63,28 +66,28 @@ clobber: (clean "true")
 
     {{run_test}} ruff format tatsu tests examples scripts ng
 
-@lint: fmt ruff ty mypy pyrefly
+@lint: testg fmt ruff ty mypy pyrefly
     echo "━ lint ⏏ ━"
 
-@ruff:
+@ruff: testg
     echo "▶ ruff {{py}}"
     {{run_test}} ruff check -q --preview tatsu tests examples
 
-@ty:
+@ty: testg
     echo "▶ ty {{py}}"
     {{run_test}} ty check tatsu tests examples
 
-@mypy:
+@mypy: testg
     echo "▶ mypy {{py}}"
     {{run_test}} mypy \
         tatsu tests examples \
         --install-types --exclude "dist|parsers|backup|tatsu/grammars/leftrec"
 
-@pyright:
+@pyright: testg
     echo "▶ pyright {{py}}"
     {{run_test}} basedpyright tatsu tests examples
 
-@pyrefly:
+@pyrefly: testg
     echo "▶ pyrefly {{py}}"
     {{run_test}} pyrefly check tatsu tests examples \
         --project-excludes=tatsu/grammars/leftrec
@@ -94,7 +97,7 @@ clobber: (clean "true")
 @test: lint pytest_fast pytest_boot
     echo "━ test ⏏ ━"
 
-@pytest_fast:
+@pytest_fast: testg
     echo "▶ fast pytest {{py}}"
     {{run_test}} pytest \
         --quiet -n auto  \
@@ -102,7 +105,7 @@ clobber: (clean "true")
         --ignore-glob=tests/z* \
         tests
 
-@pytest_boot:
+@pytest_boot: testg
     echo "▶ boot pytest {{py}}"
     {{run_test}} pytest \
         --quiet \
@@ -111,11 +114,14 @@ clobber: (clean "true")
 
 # --- Documentation & Examples ---
 
-@docs: doclint
+@docg:
+    uv sync --group doc
+
+@docs: docg doclint
     echo "▶ docs"
     cd docs && {{run_doc}} make -s html > /dev/null
 
-@doclint:
+@doclint: docg
     echo "▶ doclint"
     {{run_doc}} vale README.rst docs/**/*.rst > /dev/null
 
