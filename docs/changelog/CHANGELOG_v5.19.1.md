@@ -28,7 +28,9 @@ SPDX-License-Identifier: BSD-4-Clause
 * `tatsu.ebnf` define rules for JSON literals, so `true`, `false`, and `null`,
   may be used where previously only `True`, `False`, and `None` were recognized.
   The Python literals are still honored as before, as well as the `boolean` rule
-  resolving to `True` for non-falsy values.
+  resolving to `True` for non-falsy values. These literals are only used in 
+  grammar directives, as parsing is only interested in the strings that match
+  a `Token` or `Pattern`.
 
 * Now a `Grammar` can be imported from the JSON produced by `model.asjson()`. 
   Roundtrip has been tested and it works. New methods 
