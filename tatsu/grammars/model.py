@@ -169,12 +169,12 @@ class Model(Node, CanParse):
 
 
 @nodedataclass
-class NULL(Model):
+class NIL(Model):
     def _parse(self, ctx: Ctx) -> Any:
         return ctx.fail() or ()
 
     def _pretty(self, lean=False):
-        return NULL.__name__
+        return NIL.__name__
 
     @cached_property
     def _nullable(self) -> bool:
@@ -197,17 +197,17 @@ class Void(Model):
 @nodedataclass
 class Box(Model):
     name: str | None = field(init=False, default=None)
-    exp: Model = field(default_factory=NULL)
+    exp: Model = field(default_factory=NIL)
 
     def __post_init__(self):
-        noexp = not self.exp or isinstance(self.exp, NULL)
+        noexp = not self.exp or isinstance(self.exp, NIL)
         if noexp and not isinstance(self.ast, AST):
             self.exp = self.ast
         super().__post_init__()
         if isinstance(self.ast, AST):
             assert self.exp == self.ast.exp
-        # assert not isinstance(self.exp, NULL), self.ast
-        self.exp = self.exp if self.exp is not None else NULL()
+        # assert not isinstance(self.exp, NIL), self.ast
+        self.exp = self.exp if self.exp is not None else NIL()
         assert self.exp is not None, f'{typename(self)}({self.exp})'
         assert self.exp, repr(self)
 

@@ -158,7 +158,7 @@ def test_model_repr():
         g.Named()
 
     named = g.Named(name='foo')
-    assert repr(named) == f"Named(name='foo', exp={g.NULL.__name__}())"
+    assert repr(named) == f"Named(name='foo', exp={g.NIL.__name__}())"
 
     named = g.Named(name='foo', ast='bar')
     assert repr(named) == "Named(name='foo', exp='bar')"
