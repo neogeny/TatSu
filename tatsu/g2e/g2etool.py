@@ -22,6 +22,7 @@ def translate(
     name: str | None = None,
     encoding: str = 'utf-8',
     trace: bool = False,
+    recursion_limit: int | None = None,
 ) -> g.Grammar:
     if text is None and filename is None:
         raise ValueError('either `text` or `filename` must be provided')
@@ -32,6 +33,9 @@ def translate(
         text = filepath.read_text(encoding=encoding)
 
     name = name or 'Unknown'
+
+    if recursion_limit is not None:
+        sys.setrecursionlimit(recursion_limit)
 
     semantics = ANTLRSemantics(name)
     grammar = compile(antlr_grammar())
@@ -47,17 +51,32 @@ def translate(
 
 
 def main():
-    if len(sys.argv) < 2:
+    argv = [a for a in sys.argv[1:] if not a.startswith('-') and not a.isdigit()]
+    if not argv:
         thisprog = startscript()
         print(thisprog)
         print('Usage:')
-        print('\t', thisprog, 'FILENAME.g [--trace]')
+        print(f'\t{thisprog} FILENAME.g [--trace] [--recursion-limit N]')
         sys.exit(1)
+    filename = argv[0]
+    trace = '--trace' in sys.argv or '-t' in sys.argv
+    recursion_limit = _parse_recursion_limit(sys.argv)
     model = translate(
-        filename=sys.argv[1],
-        trace='--trace' in sys.argv or '-t' in sys.argv,
+        filename=filename,
+        trace=trace,
+        recursion_limit=recursion_limit,
     )
     print(model.pretty())
+
+
+def _parse_recursion_limit(argv: list[str]) -> int | None:
+    try:
+        idx = argv.index('--recursion-limit')
+        if idx + 1 < len(argv):
+            return int(argv[idx + 1])
+    except (ValueError, IndexError):
+        pass
+    return None
 
 
 if __name__ == '__main__':
