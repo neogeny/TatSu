@@ -23,11 +23,34 @@ SPDX-License-Identifier: BSD-4-Clause
       -> start
     ```
 
-### JSON
+## JSON
 
-* Now a `Grammar` can be imported from the JSON produced by `model.asjson()`. Roundtrip has been tested and it works. New methods `Grammar.load(value: Any) -> Grammar` and `Grammar.loads(json: str) -> Grammar` make the functionality available.
+* `tatsu.ebnf` define rules for JSON literals, so `true`, `false`, and `null`,
+  may be used where previously only `True`, `False`, and `None` were recognized.
+  The Python literals are still honored as before, as well as the `boolean` rule
+  resolving to `True` for non-falsy values.
 
-### Grammar Syntax
+* Now a `Grammar` can be imported from the JSON produced by `model.asjson()`. 
+  Roundtrip has been tested and it works. New methods 
+  `Grammar.load(value: Any) -> Grammar` 
+  and `Grammar.loads(json: str) -> Grammar` 
+  make the functionality available.
+
+    ```python
+    class Grammar:
+        @staticmethod
+        def load(value: Any) -> Grammar:
+            from .json import load_grammar
+            return load_grammar(value)
+    
+        @staticmethod
+        def loads(value: str) -> Grammar:
+            from .json import loads_grammar
+    
+            return loads_grammar(value)
+    ```
+
+## Grammar Syntax
 
 * The definition of the `DEDENT` rule in the **TatSu** grammar is used to support
   EBNF notations with no rule-terminatiors and grammars without blank lines

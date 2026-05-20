@@ -212,14 +212,14 @@ alert[Alert]: level=/\^+/ message=constant
 token[Token]: string | raw_string
 
 literal:
-    | string
     | raw_string
+    | value
     | boolean
+    | none
     | word
     | hex
     | float
     | int
-    | null
 
 string: &('"'|"'") (multiline_string | singlequoted | doublequoted)
 
@@ -261,8 +261,30 @@ deprecated_regex: '?/' ~ =?"(?ms)((?:[^/\\]|\\/|\\.)*)" ~ '/?'
 
 boolean: 'True' | 'False'
 
-null: 'None'
+none: 'None'
 
 eof[EOF]: '$' ~
 
 eol[EOL]: '$->'
+
+value: string | number | true | false | null
+
+# NOTE: weird indentation is to pass pretty-print roundtrip test
+number:
+    /(?x)
+    -?                                  # Optional negative sign
+    (?:
+        0                               # Can be a lone zero
+        |
+        [1-9][0-9]* # Or a non-zero digit followed by any number of digits
+    )
+    (?: \. [0-9]+ )?                    # Optional fraction: dot MUST be followed by 1+ digits
+    (?: [eE] [+-]? [0-9]+ )?            # Optional exponent component
+    \b
+    /
+
+true: 'true'
+
+false: 'false'
+
+null: 'null'

@@ -269,7 +269,7 @@
                                 "__class__": "Option",
                                 "exp": {
                                   "__class__": "Constant",
-                                  "literal": "None"
+                                  "literal": null
                                 }
                               }
                             ]
@@ -3201,13 +3201,6 @@
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
-              "name": "string"
-            }
-          },
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "Call",
               "name": "raw_string"
             }
           },
@@ -3215,7 +3208,21 @@
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
+              "name": "value"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
               "name": "boolean"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "none"
             }
           },
           {
@@ -3244,13 +3251,6 @@
             "exp": {
               "__class__": "Call",
               "name": "int"
-            }
-          },
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "Call",
-              "name": "null"
             }
           }
         ]
@@ -3852,7 +3852,7 @@
     },
     {
       "__class__": "Rule",
-      "name": "null",
+      "name": "none",
       "exp": {
         "__class__": "Token",
         "token": "None"
@@ -3906,6 +3906,132 @@
       "params": [
         "EOL"
       ],
+      "kwparams": {},
+      "decorators": [],
+      "base": null,
+      "is_name": false,
+      "is_tokn": false,
+      "no_memo": false,
+      "no_stak": false,
+      "is_memo": true,
+      "is_lrec": false
+    },
+    {
+      "__class__": "Rule",
+      "name": "value",
+      "exp": {
+        "__class__": "Choice",
+        "options": [
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "string"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "number"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "true"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "false"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
+              "name": "null"
+            }
+          }
+        ]
+      },
+      "params": [],
+      "kwparams": {},
+      "decorators": [],
+      "base": null,
+      "is_name": false,
+      "is_tokn": false,
+      "no_memo": false,
+      "no_stak": false,
+      "is_memo": true,
+      "is_lrec": false
+    },
+    {
+      "__class__": "Rule",
+      "name": "number",
+      "exp": {
+        "__class__": "Pattern",
+        "pattern": "(?x)\n    -?                                  # Optional negative sign\n    (?:\n        0                               # Can be a lone zero\n        |\n        [1-9][0-9]* # Or a non-zero digit followed by any number of digits\n    )\n    (?: \\. [0-9]+ )?                    # Optional fraction: dot MUST be followed by 1+ digits\n    (?: [eE] [+-]? [0-9]+ )?            # Optional exponent component\n    \\b\n    "
+      },
+      "params": [],
+      "kwparams": {},
+      "decorators": [],
+      "base": null,
+      "is_name": false,
+      "is_tokn": false,
+      "no_memo": false,
+      "no_stak": false,
+      "is_memo": true,
+      "is_lrec": false
+    },
+    {
+      "__class__": "Rule",
+      "name": "true",
+      "exp": {
+        "__class__": "Token",
+        "token": "true"
+      },
+      "params": [],
+      "kwparams": {},
+      "decorators": [],
+      "base": null,
+      "is_name": false,
+      "is_tokn": false,
+      "no_memo": false,
+      "no_stak": false,
+      "is_memo": true,
+      "is_lrec": false
+    },
+    {
+      "__class__": "Rule",
+      "name": "false",
+      "exp": {
+        "__class__": "Token",
+        "token": "false"
+      },
+      "params": [],
+      "kwparams": {},
+      "decorators": [],
+      "base": null,
+      "is_name": false,
+      "is_tokn": false,
+      "no_memo": false,
+      "no_stak": false,
+      "is_memo": true,
+      "is_lrec": false
+    },
+    {
+      "__class__": "Rule",
+      "name": "null",
+      "exp": {
+        "__class__": "Token",
+        "token": "null"
+      },
+      "params": [],
       "kwparams": {},
       "decorators": [],
       "base": null,
