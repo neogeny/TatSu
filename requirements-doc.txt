@@ -13,7 +13,7 @@ babel==2.18.0
     #   sphinx
 beautifulsoup4==4.14.3
     # via pydata-sphinx-theme
-certifi==2026.4.22
+certifi==2026.5.20
     # via requests
 charset-normalizer==3.4.7
     # via requests
@@ -52,7 +52,7 @@ myst-docutils==5.1.0
 myst-parser==5.1.0
 packaging==26.2
     # via sphinx
-pydata-sphinx-theme==0.17.1
+pydata-sphinx-theme==0.18.0
 pygments==2.20.0
     # via
     #   accessible-pygments
@@ -62,7 +62,7 @@ pyyaml==6.0.3
     # via
     #   myst-docutils
     #   myst-parser
-requests==2.34.1
+requests==2.34.2
     # via sphinx
 roman-numerals==4.1.0
     # via sphinx

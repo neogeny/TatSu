@@ -3,7 +3,7 @@
 -e .
 asciitree==0.3.3
 build==1.5.0
-click==8.3.3
+click==8.4.0
     # via rich-click
 colorama==0.4.6
     # via
@@ -44,5 +44,5 @@ rich-click==1.9.7
 ruff==0.15.13
 setuptools==82.0.1
     # via pytest-dependency
-ty==0.0.35
-uv==0.11.14
+ty==0.0.38
+uv==0.11.15
