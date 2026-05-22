@@ -45,14 +45,14 @@ pytest==9.0.3
     #   pytest-dependency
     #   pytest-rerunfailures
     #   pytest-xdist
-pytest-codspeed==5.0.2
+pytest-codspeed==5.0.3
 pytest-cov==7.1.0
 pytest-dependency==0.6.1
-pytest-rerunfailures==16.2
+pytest-rerunfailures==16.3
 pytest-xdist==3.8.0
 rich==15.0.0
     # via pytest-codspeed
-ruff==0.15.13
+ruff==0.15.14
 setuptools==82.0.1
     # via pytest-dependency
 ty==0.0.38
