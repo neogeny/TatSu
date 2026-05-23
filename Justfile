@@ -145,7 +145,7 @@ clobber: (clean "true")
 
 # --- Matrix Execution ---
 
-@matrix: py312 py313 py314 py315 py315t
+@matrix: py312 py313 py314 py315 py314t
     echo '⏏ matrix'
 
 @matrix-core: version test
@@ -161,6 +161,9 @@ clobber: (clean "true")
 
 @py315:
     just py=3.15 matrix-core
+
+@py314t:
+    just py=3.14t matrix-core
 
 @py315t:
     just py=3.15t matrix-core
