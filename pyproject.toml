@@ -285,6 +285,7 @@ ignore = [
     "PLW1508", # Invalid type for environment variable default; expected `str` or `None`
     "PLW1514", # unspecified-encoding
     "PLW3201", # bad-dunder-method-name
+    "PLW0717", # Try clause contains too many statements
     "RET504", #  assign before return
     "RET505", #  superfluous-else-return
     "RUF001", #  string contains ambiguous `＄` (FULLWIDTH DOLLAR SIGN). Did you mean `$` (DOLLAR SIGN)?
@@ -292,6 +293,7 @@ ignore = [
     "RUF027", #  possible f-string
     "RUF102", # Invalid rule code in `# noqa`: "
     "RUF100", #  Unused `noqa` directive (non-enabled: `RUF001`)
+    "RUF075", # Context manager does not catch exceptions
     "S102", #    exec-builtin
     "S101", #    use of assert
     "S301", #    suspicious-pickle-usage
