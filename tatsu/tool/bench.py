@@ -94,6 +94,10 @@ def _print_run_details(
     verbose: bool,
 ):
     print(f"\n--- {title} ---")
+    if verbose and result.failed_files:
+        print(f"{'failed files:\n':<{lbl_w}}")
+        print('\n'.join(result.failed_files))
+        print()
     print(f"typename: {result.typename}")
     print(f"{'one-time setup:':<{lbl_w}}{num_fmt.format(result.setup_time)} s")
     print(
@@ -105,8 +109,6 @@ def _print_run_details(
         f"{f'errors ({result.error_count}/{result.file_count} files):':<{lbl_w}}"
         f"{num_fmt.format(err_pct)} %",
     )
-    if verbose and result.failed_files:
-        print(f"{'failed files:':<{lbl_w}}{', '.join(result.failed_files)}")
     print(
         f"{'average parsing time:':<{lbl_w}}{num_fmt.format(result.avg_parsing_time)} s/file",
     )
@@ -155,14 +157,14 @@ def print_performance_comparison(results: list[tuple[str, BenchmarkResult]]):
 
     # The first column will contain "mnemonic (N)"
     # The second column will contain "sloc/s" values
-    # Subsequent columns will contain ratios (1..N)
+    # Subsequent columns will contain ratios (1...N)
 
     # Print header row
     # Empty space for the "mnemonic (N)" column
     header = f"{'':<{max_label_len}}"
     # Header for the "sloc/s" column
     header += f"{'sloc/s':>{sloc_s_col_width}}"
-    # Headers for the ratio columns (1..N)
+    # Headers for the ratio columns (1...N)
     for i in range(len(mnemonics)):
         header += f"{i + 1:>{ratio_col_width}}"
     print(header)
@@ -268,7 +270,8 @@ def benchmark(
         model, memsetup = _setup_mem_parser(gramsrc)
         gramname = model.name or "Benchmark"
 
-        filepaths = [Path(f) for f in filenames]
+        currentpath = Path().absolute()
+        filepaths = [Path(f).relative_to(currentpath, walk_up=True) for f in filenames]
         texts = [try_read(p) for p in filepaths]
         nfiles = len(texts)
 
@@ -355,14 +358,16 @@ def benchmark(
                             gramsrc, text, source=str(filepaths[i])
                         )
                         lines_parsed += countlines(text).code
-                    except ValueError as e:
+                    except ValueError as _e:
                         tiexiu_errs += 1
-                        tiexiu_failed.append(f"{filepaths[i]} (Error: {e})")
-                    except Exception as e:  # Catching other unexpected errors
+                        # tiexiu_failed.append(f"{filepaths[i]} (Error: {e})")
+                        tiexiu_failed.append(str(filepaths[i]))
+                    except Exception as _e:  # Catching other unexpected errors
                         tiexiu_errs += 1
-                        tiexiu_failed.append(
-                            f"{filepaths[i]} (Unexpected: {type(e).__name__}: {e})",
-                        )
+                        # tiexiu_failed.append(
+                        #     f"{filepaths[i]} (Unexpected: {type(e).__name__}: {e})",
+                        # )
+                        tiexiu_failed.append(str(filepaths[i]))
                     tiexiu_time += t.delta
             tiexiu_run = BenchmarkResult(
                 "tiexiu.parse",
