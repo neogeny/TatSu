@@ -183,6 +183,10 @@ class NIL(Model):
 
 @nodedataclass
 class Void(Model):
+    def __post_init__(self):
+        super().__post_init__()
+        self.ast = None
+
     def _parse(self, ctx: Ctx) -> Any:
         return ctx.void()
 
@@ -246,7 +250,8 @@ class Box(Model):
         return self.exp._nullable
 
     def optimized(self) -> Model:
-        return self.clone(exp=self.exp.optimized())
+        self.exp = self.exp.optimized()
+        return self
 
 
 @nodedataclass
@@ -284,7 +289,9 @@ class Rule(NamedBox):
         self.kwparams = self.kwparams or {}
         self.decorators = self.decorators or []
 
+        # pyrefly: ignore [unnecessary-type-conversion]
         self.is_name = bool(self.is_name) or 'name' in self.decorators
+        # pyrefly: ignore [unnecessary-type-conversion]
         self.is_name = bool(self.is_name) or 'isname' in self.decorators
 
         if not self.kwparams:
@@ -336,11 +343,6 @@ class Rule(NamedBox):
     def should_trace(self) -> bool:
         return not self.no_stak
 
-    def optimized(self) -> Rule:
-        clone = copy(self)
-        clone.exp = self.exp.optimized()
-        return clone
-
     @staticmethod
     def param_repr(p):
         if isinstance(p, int | float) or (isinstance(p, str) and p.isalnum()):
@@ -388,6 +390,10 @@ class Rule(NamedBox):
             exp=exp,
             is_name='@name\n' if self.is_name else '',
         )
+
+    def optimized(self) -> Rule:
+        self.exp = self.exp.optimized()
+        return self
 
 
 @nodedataclass
@@ -660,14 +666,10 @@ class Grammar(Model):
         ).rstrip() + '\n\n'
         return directives + keywords + rules
 
-    def optimized(self) -> Model:
-        rules = [r.optimized() for r in self.rules]
-        return Grammar(
-            name=self.name,
-            rules=rules,
-            config=self.config,
-            directives=self.directives,
-        )
+    def optimized(self) -> Grammar:
+        for r in self.rules:
+            r.optimized()
+        return self
 
 
 class ModelContext(ParseContext):

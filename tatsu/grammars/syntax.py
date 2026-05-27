@@ -26,12 +26,7 @@ class Group(Box):
         return f'(\n{indent(exp)}\n)'
 
     def optimized(self) -> Model:
-        from .closure import Closure, EmptyClosure, Join
-
-        exp = self.exp.optimized()
-        if isinstance(exp, Closure | Join | EmptyClosure | Optional):
-            return exp
-        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
+        return self.exp.optimized()
 
 
 @nodedataclass
@@ -115,12 +110,8 @@ class Optional(Box):
         return True
 
     def optimized(self) -> Model:
-        from .closure import Closure, Join
-
-        exp = self.exp.optimized()
-        if isinstance(exp, Group | Closure | Join):
-            exp = exp.exp
-        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
+        self.exp = self.exp.optimized()
+        return self
 
 
 @nodedataclass
@@ -187,7 +178,8 @@ class Sequence(Model):
         seq = [e.optimized() for e in self.sequence]
         if len(seq) == 1:
             return seq[0]
-        return self.clone(sequence=seq)  # pyright: ignore[reportArgumentType]
+        self.sequence = seq
+        return self
 
 
 @nodedataclass

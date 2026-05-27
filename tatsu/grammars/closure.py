@@ -40,12 +40,8 @@ class Closure(Box):
         return True
 
     def optimized(self) -> Model:
-        from .syntax import Group
-
-        exp = self.exp.optimized()
-        if isinstance(exp, Group):
-            exp = exp.exp
-        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
+        self.exp = self.exp.optimized()
+        return self
 
 
 @nodedataclass
@@ -94,12 +90,8 @@ class Join(Box):
         return True
 
     def optimized(self) -> Model:
-        from .syntax import Group
-
-        exp = self.exp.optimized()
-        if isinstance(exp, Group):
-            exp = exp.exp
-        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
+        self.exp = self.exp.optimized()
+        return self
 
 
 class PositiveJoin(Join):
