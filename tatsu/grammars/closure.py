@@ -133,6 +133,10 @@ class PositiveGather(Gather):
 
 @nodedataclass
 class EmptyClosure(Model):
+    def __post_init__(self):
+        super().__post_init__()
+        self.ast = None
+
     def _parse(self, ctx: Ctx) -> Any:
         return ctx.empty()
 
