@@ -75,7 +75,7 @@ class FailedParse(ParseException):
         )
         print('   |', file=out)
 
-        lines = text.split('\n')
+        lines = text.splitlines()
         max_line_digits = len(str(line + 1))
         start_line_idx = max(0, line - 4)
 
@@ -89,12 +89,11 @@ class FailedParse(ParseException):
                 file=out,
             )
 
-            if i == line:
-                padding = ' ' * max(0, col)
-                print(
-                    f'{" " * (max_line_digits + 2)}| {padding}^ {msg}',
-                    file=out,
-                )
+        padding = ' ' * max(0, col)
+        print(
+            f'{" " * (max_line_digits + 2)}| {padding}^ {msg}',
+            file=out,
+        )
 
         print(file=out)
         for call in rulestack:
