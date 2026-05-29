@@ -907,8 +907,7 @@
             }
           },
           {
-            "__class__": "Void",
-            "ast": "()"
+            "__class__": "Void"
           },
           {
             "__class__": "Pattern",
@@ -1004,8 +1003,11 @@
             "name": "EOL"
           },
           {
-            "__class__": "Pattern",
-            "pattern": "(?=\\S)"
+            "__class__": "Lookahead",
+            "exp": {
+              "__class__": "Pattern",
+              "pattern": "\\S"
+            }
           }
         ]
       },
@@ -2010,8 +2012,15 @@
             "token": "}"
           },
           {
+            "__class__": "NegativeLookahead",
+            "exp": {
+              "__class__": "Pattern",
+              "pattern": "\\+="
+            }
+          },
+          {
             "__class__": "Pattern",
-            "pattern": "(?!\\+=)[+-]"
+            "pattern": "[+-]"
           },
           {
             "__class__": "Cut"
@@ -2191,8 +2200,15 @@
             "token": "}"
           },
           {
+            "__class__": "NegativeLookahead",
+            "exp": {
+              "__class__": "Pattern",
+              "pattern": "\\+="
+            }
+          },
+          {
             "__class__": "Pattern",
-            "pattern": "(?!\\+=)[+-]"
+            "pattern": "[+-]"
           },
           {
             "__class__": "Cut"
@@ -2312,8 +2328,15 @@
             "token": "}"
           },
           {
+            "__class__": "NegativeLookahead",
+            "exp": {
+              "__class__": "Pattern",
+              "pattern": "\\+="
+            }
+          },
+          {
             "__class__": "Pattern",
-            "pattern": "(?!\\+=)[+-]"
+            "pattern": "[+-]"
           },
           {
             "__class__": "Cut"
@@ -2367,8 +2390,15 @@
             "token": "}"
           },
           {
+            "__class__": "NegativeLookahead",
+            "exp": {
+              "__class__": "Pattern",
+              "pattern": "\\+="
+            }
+          },
+          {
             "__class__": "Pattern",
-            "pattern": "(?!\\+=)[+-]"
+            "pattern": "[+-]"
           },
           {
             "__class__": "Cut"
@@ -2415,8 +2445,15 @@
                   "token": "}"
                 },
                 {
+                  "__class__": "NegativeLookahead",
+                  "exp": {
+                    "__class__": "Pattern",
+                    "pattern": "\\+="
+                  }
+                },
+                {
                   "__class__": "Pattern",
-                  "pattern": "(?!\\+=)[+-]"
+                  "pattern": "[+-]"
                 },
                 {
                   "__class__": "Cut"
@@ -2437,8 +2474,15 @@
                   }
                 },
                 {
+                  "__class__": "NegativeLookahead",
+                  "exp": {
+                    "__class__": "Pattern",
+                    "pattern": "\\+="
+                  }
+                },
+                {
                   "__class__": "Pattern",
-                  "pattern": "(?!\\+=)[+]"
+                  "pattern": "[+]"
                 },
                 {
                   "__class__": "Cut"
@@ -2553,8 +2597,7 @@
           {
             "__class__": "Override",
             "exp": {
-              "__class__": "Void",
-              "ast": "()"
+              "__class__": "Void"
             }
           }
         ]
@@ -3382,8 +3425,15 @@
         "__class__": "Sequence",
         "sequence": [
           {
+            "__class__": "Lookahead",
+            "exp": {
+              "__class__": "Pattern",
+              "pattern": "r[\"']"
+            }
+          },
+          {
             "__class__": "Pattern",
-            "pattern": "r(?=[\"'])"
+            "pattern": "r"
           },
           {
             "__class__": "Override",
@@ -3503,7 +3553,7 @@
               "sequence": [
                 {
                   "__class__": "Pattern",
-                  "pattern": "(?ms)'''((?:\\\\\\\\|\\\\.|(?!''').)*?)'''"
+                  "pattern": "(?ms)'''((?:\\\\\\\\|\\\\.|.)*?)'''"
                 },
                 {
                   "__class__": "Cut"
@@ -3518,7 +3568,7 @@
               "sequence": [
                 {
                   "__class__": "Pattern",
-                  "pattern": "(?ms)\"\"\"((?:\\\\\\\\|\\\\.|(?!\"\"\").)*?)\"\"\""
+                  "pattern": "(?ms)\"\"\"((?:\\\\\\\\|\\\\.|.)*?)\"\"\""
                 },
                 {
                   "__class__": "Cut"
@@ -3598,7 +3648,7 @@
       "name": "path",
       "exp": {
         "__class__": "Pattern",
-        "pattern": "(?!\\d)\\w+(?:::(?!\\d)\\w+)+"
+        "pattern": "[_a-zA-Z]\\w*(?:::[_a-zA-Z]\\w*)+"
       },
       "params": [],
       "kwparams": {},
@@ -3616,7 +3666,7 @@
       "name": "word",
       "exp": {
         "__class__": "Pattern",
-        "pattern": "(?!\\d)\\w+"
+        "pattern": "[_a-zA-Z]\\w*"
       },
       "params": [],
       "kwparams": {},

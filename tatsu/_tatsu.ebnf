@@ -74,7 +74,7 @@ rule[Rule]:
 
 ENDRULE: DEDENT | BLANK | ';' | $
 
-DEDENT: EOL /(?=\S)/
+DEDENT: EOL &/\S/
 
 BLANK: EOL EOL
 
@@ -141,23 +141,23 @@ skip[SkipGroup]: '(?:' ~ =expre ')' ~
 
 gather: &(atom '.{') ~ (positive_gather | normal_gather)
 
-positive_gather[PositiveGather]: sep=atom '.{' exp=expre '}' /(?!\+=)[+-]/ ~
+positive_gather[PositiveGather]: sep=atom '.{' exp=expre '}' !/\+=/ /[+-]/ ~
 
 normal_gather[Gather]: sep=atom '.{' ~ exp=expre '}' ['*' ~] ~
 
 join: &(atom '%{') ~ (positive_join | normal_join)
 
-positive_join[PositiveJoin]: sep=atom '%{' exp=expre '}' /(?!\+=)[+-]/ ~
+positive_join[PositiveJoin]: sep=atom '%{' exp=expre '}' !/\+=/ /[+-]/ ~
 
 normal_join[Join]: sep=atom '%{' ~ exp=expre '}' ['*' ~] ~
 
-left_join[LeftJoin]: sep=atom '<{' ~ exp=expre '}' /(?!\+=)[+-]/ ~
+left_join[LeftJoin]: sep=atom '<{' ~ exp=expre '}' !/\+=/ /[+-]/ ~
 
-right_join[RightJoin]: sep=atom '>{' ~ exp=expre '}' /(?!\+=)[+-]/ ~
+right_join[RightJoin]: sep=atom '>{' ~ exp=expre '}' !/\+=/ /[+-]/ ~
 
 positive_closure[PositiveClosure]:
-    | '{' =expre '}' /(?!\+=)[+-]/ ~
-    | =atom /(?!\+=)[+]/ ~
+    | '{' =expre '}' !/\+=/ /[+-]/ ~
+    | =atom !/\+=/ /[+]/ ~
 
 closure[Closure]: '{' =expre '}' ['*'] ~ | =atom '*' ~
 
@@ -227,7 +227,7 @@ singlequoted: SINGLEQUOTED
 
 doublequoted: DOUBLEQUOTED
 
-raw_string: /r(?=["'])/ =STRING
+raw_string: &/r["']/ /r/ =STRING
 
 STRING: SINGLEQUOTED | DOUBLEQUOTED
 
@@ -236,8 +236,8 @@ SINGLEQUOTED: /'((?:[^'\n]|\\'|\\\\)*?)'/ ~
 DOUBLEQUOTED: /"((?:[^"\n]|\\"|\\\\)*?)"/ ~
 
 multiline_string:
-    | /(?ms)'''((?:\\\\|\\.|(?!''').)*?)'''/ ~
-    | /(?ms)"""((?:\\\\|\\.|(?!""").)*?)"""/ ~
+    | /(?ms)'''((?:\\\\|\\.|.)*?)'''/ ~
+    | /(?ms)"""((?:\\\\|\\.|.)*?)"""/ ~
 
 hex: /0[xX](?:\d|[a-fA-F])+/
 
@@ -245,9 +245,9 @@ float: /[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?/
 
 int: /[-+]?\d+/
 
-path: /(?!\d)\w+(?:::(?!\d)\w+)+/
+path: /[_a-zA-Z]\w*(?:::[_a-zA-Z]\w*)+/
 
-word: /(?!\d)\w+/
+word: /[_a-zA-Z]\w*/
 
 dot[Dot]: '/./'
 
