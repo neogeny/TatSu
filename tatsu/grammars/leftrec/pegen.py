@@ -19,7 +19,7 @@ from ..syntax import Call, Sequence
 from . import sccutils
 
 
-__all__ = ['mark_left_recursion_pegen']
+__all__ = ['mark_left_recursion']
 
 
 def _callable_rule_ids(exp: Model, rule_index: dict[str, int]) -> list[int]:
@@ -80,7 +80,7 @@ def _make_first_graph(
     return graph
 
 
-def mark_left_recursion_pegen(rules: Iterable[Rule]) -> list[Rule]:
+def mark_left_recursion(rules: Iterable[Rule]) -> list[Rule]:
     rules = list(rules)
     rule_index = {rule.name: i for i, rule in enumerate(rules)}
 
