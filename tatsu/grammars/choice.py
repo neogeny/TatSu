@@ -19,9 +19,8 @@ class Option(Box):
         result = self.exp._parse(ctx)
         return result
 
-    def optimized(self) -> Option:
-        _ = super().optimized()
-        return self
+    def optimized(self) -> Model:
+        return self.exp
 
 
 @nodedataclass
@@ -92,9 +91,8 @@ class Choice(Model):
     def _nullable(self) -> bool:
         return any(o._nullable for o in self.options)
 
-    def optimized(self) -> Model:
+    def optimized(self) -> Model | Choice:
         opt = [o.optimized() for o in self.options]
         if len(opt) == 1:
-            return opt[0].exp
-        self.options = opt
-        return self
+            return opt[0]
+        return Choice(options=opt)

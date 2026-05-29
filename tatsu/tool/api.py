@@ -93,7 +93,7 @@ def compile(
         )
         model.semantics = ModelBuilderSemantics(config=builderconfig)
 
-    return model.optimized()
+    return model
 
 
 def compile_to_parser(

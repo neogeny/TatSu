@@ -11,7 +11,7 @@ from functools import cached_property
 from itertools import batched
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, Self
 
 from ..config import ParserConfig
 from ..contexts import AST, CanParse, Ctx, Func, ParseContext, RuleInfo
@@ -249,9 +249,12 @@ class Box(Model):
     def _nullable(self) -> bool:
         return self.exp._nullable
 
-    def optimized(self) -> Model:
-        self.exp = self.exp.optimized()
-        return self
+    def optimized(self) -> Model | Self:
+        if not isinstance(self.exp, Model):
+            return self
+        new = copy(self)
+        new.exp = self.exp.optimized()
+        return new
 
 
 @nodedataclass
@@ -391,9 +394,13 @@ class Rule(NamedBox):
             is_name='@name\n' if self.is_name else '',
         )
 
-    def optimized(self) -> Rule:
-        self.exp = self.exp.optimized()
-        return self
+    def optimized(self) -> Self:
+        if not isinstance(self.exp, Model):
+            return self
+        new = copy(self)
+        assert isinstance(self.exp, Model)
+        new.exp = self.exp.optimized()
+        return new
 
 
 @nodedataclass
@@ -445,7 +452,9 @@ class Grammar(Model):
         self._config = self._config.override(keywords=self.keywords)
 
         self.rules = tuple(rules)  # type: ignore
-        rulemap = {rule.name: rule for rule in rules}
+        self._optrules: tuple[Rule, ...] = self.rules
+
+        rulemap = {rule.name: rule for rule in self.rules}
         self._rule = SimpleNamespace(**rulemap)
         self._rulemap = self._rule.__dict__
 
@@ -454,6 +463,7 @@ class Grammar(Model):
         self._set_grammar(self)
         self._calc_lookahead_sets()
         self._mark_left_recursion()
+        self.optimize()
 
         missing: set[str] = self.missing_rules(set(self.rulemap))
         if missing:
@@ -631,7 +641,7 @@ class Grammar(Model):
         return ctx.parse(text, config=config)
 
     def newctx(self, asmodel: bool = True) -> Ctx:
-        return ModelContext(self.rules, config=self.config, asmodel=asmodel)
+        return ModelContext(self._optrules, config=self.config, asmodel=asmodel)
 
     def nodecount(self) -> int:
         return 1 + sum(r.nodecount() for r in self.rules)
@@ -668,10 +678,19 @@ class Grammar(Model):
         ).rstrip() + '\n\n'
         return directives + keywords + rules
 
+    @property
+    def optrules(self) -> tuple[Rule, ...]:
+        return self._optrules
+
     def optimized(self) -> Grammar:
-        for r in self.rules:
-            r.optimized()
+        self.optimize()
         return self
+
+    def optimize(self):
+        optrules: tuple[Rule, ...] = tuple(r.optimized() for r in self.rules)
+        for r in optrules:
+            r._set_grammar(self)
+        self._optrules = optrules
 
 
 class ModelContext(ParseContext):

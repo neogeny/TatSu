@@ -39,10 +39,6 @@ class Closure(Box):
     def _nullable(self) -> bool:
         return True
 
-    def optimized(self) -> Model:
-        self.exp = self.exp.optimized()
-        return self
-
 
 @nodedataclass
 class PositiveClosure(Closure):
@@ -88,10 +84,6 @@ class Join(Box):
     @cached_property
     def _nullable(self) -> bool:
         return True
-
-    def optimized(self) -> Model:
-        self.exp = self.exp.optimized()
-        return self
 
 
 class PositiveJoin(Join):

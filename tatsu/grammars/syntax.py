@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from copy import copy
 from dataclasses import field
 from functools import cached_property
-from typing import Any
+from typing import Any, Self
 
 from ..contexts import AST, Ctx
 from ..exceptions import FailedParse, FailedRef
@@ -109,10 +110,6 @@ class Optional(Box):
     def _nullable(self) -> bool:
         return True
 
-    def optimized(self) -> Model:
-        self.exp = self.exp.optimized()
-        return self
-
 
 @nodedataclass
 class Sequence(Model):
@@ -174,12 +171,13 @@ class Sequence(Model):
     def _nullable(self) -> bool:
         return all(s._nullable for s in self.sequence)
 
-    def optimized(self) -> Model:
-        seq = [e.optimized() for e in self.sequence]
+    def optimized(self) -> Model | Self:
+        seq = [e.optimized() if isinstance(e, Model) else e for e in self.sequence]
         if len(seq) == 1:
             return seq[0]
-        self.sequence = seq
-        return self
+        new = copy(self)
+        new.sequence = seq
+        return new
 
 
 @nodedataclass

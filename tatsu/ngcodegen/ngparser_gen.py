@@ -215,7 +215,10 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
 
             with self.indent():
                 for opt in choice.options:
-                    self._gen_anon_block(opt.exp, ctx=self.ctx, decor=f'{var}.option')
+                    exp = opt
+                    if isinstance(exp, g.Option):
+                        exp = exp.exp
+                    self._gen_anon_block(exp, ctx=self.ctx, decor=f'{var}.option')
         finally:
             # self.pop_ctx()
             self.prev_choice_number()
@@ -386,7 +389,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             #         return self._config
             #     """)
             self.print()
-            self.walk(grammar.rules)
+            self.walk(grammar.optrules)
         self.print()
 
     def _gen_defines_declaration(self, node: g.Model):
