@@ -215,7 +215,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
 
             with self.indent():
                 for opt in choice.options:
-                    exp = opt
+                    exp: g.Model = opt
                     if isinstance(exp, g.Option):
                         exp = exp.exp
                     self._gen_anon_block(exp, ctx=self.ctx, decor=f'{var}.option')

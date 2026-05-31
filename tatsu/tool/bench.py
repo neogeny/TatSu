@@ -275,7 +275,12 @@ def benchmark(
     grammar: str | Path,
     filenames: Iterable[str | Path],
     mode: str = 'all',
-) -> tuple[BenchmarkResult | None, BenchmarkResult | None, BenchmarkResult | None, BenchmarkResult | None]:
+) -> tuple[
+    BenchmarkResult | None,
+    BenchmarkResult | None,
+    BenchmarkResult | None,
+    BenchmarkResult | None,
+]:
     oldlimit = sys.getrecursionlimit()
     sys.setrecursionlimit(2**16)
     try:
