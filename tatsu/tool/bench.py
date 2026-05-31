@@ -21,6 +21,14 @@ try:
 except ImportError:
     pass
 
+have_ogopego: bool = False
+try:
+    import ogopego  # type: ignore
+
+    have_ogopego = True
+except ImportError:
+    pass
+
 from .. import grammars
 from ..exceptions import FailedParse
 from ..parsing import Parser
@@ -124,6 +132,7 @@ def print_performance_comparison(results: list[tuple[str, BenchmarkResult]]):
         "in-memory": "mem",
         "generated": "gen",
         "tiexiu": "xiu",
+        "ogopego": "ogo",
     }
 
     # Filter out results that don't have a mnemonic mapping
@@ -200,13 +209,14 @@ def print_summary(
     mem_run: BenchmarkResult | None,
     gen_run: BenchmarkResult | None,
     tiexiu_run: BenchmarkResult | None,
+    ogo_run: BenchmarkResult | None = None,
     verbose: bool = False,
 ):
     relgrammar = Path(grammar).resolve().relative_to(Path.cwd())
     print(f"grammar: {relgrammar}")
     print(f"input files: {count}")
 
-    all_runs = [r for r in [mem_run, gen_run, tiexiu_run] if r is not None]
+    all_runs = [r for r in [mem_run, gen_run, tiexiu_run, ogo_run] if r is not None]
     all_numbers = []
     for r in all_runs:
         all_numbers.extend(
@@ -232,7 +242,8 @@ def print_summary(
         "in-memory:",
         "generated:",
         "tiexiu:",
-        "failed files:",  # Added for label width calculation
+        "ogopego:",
+        "failed files:",
     ]
     lbl_w = max(len(lbl) for lbl in labels) + 2
 
@@ -242,6 +253,8 @@ def print_summary(
         _print_run_details("generated python parser", gen_run, lbl_w, num_fmt, verbose)
     if tiexiu_run:
         _print_run_details("tiexiu (rust) parser", tiexiu_run, lbl_w, num_fmt, verbose)
+    if ogo_run:
+        _print_run_details("ogopego (go) parser", ogo_run, lbl_w, num_fmt, verbose)
 
     comparison_results = []
     if mem_run:
@@ -250,6 +263,8 @@ def print_summary(
         comparison_results.append(("generated", gen_run))
     if tiexiu_run:
         comparison_results.append(("tiexiu", tiexiu_run))
+    if ogo_run:
+        comparison_results.append(("ogopego", ogo_run))
 
     if len(comparison_results) > 1:
         print("\n--- comparison (sloc/sec ratios) ---")
@@ -260,7 +275,7 @@ def benchmark(
     grammar: str | Path,
     filenames: Iterable[str | Path],
     mode: str = 'all',
-) -> tuple[BenchmarkResult | None, BenchmarkResult | None, BenchmarkResult | None]:
+) -> tuple[BenchmarkResult | None, BenchmarkResult | None, BenchmarkResult | None, BenchmarkResult | None]:
     oldlimit = sys.getrecursionlimit()
     sys.setrecursionlimit(2**16)
     try:
@@ -381,9 +396,44 @@ def benchmark(
                 avg_lines_sec=lines_parsed / tiexiu_time if tiexiu_time else 0,
             )
 
+        ogo_run = None
+        if mode in {'ogo', 'all'} and have_ogopego:
+            ogotime = 0.0
+            ogoerrs = 0
+            lines_parsed = 0
+            ogo_failed: list[str] = []
+            with timer() as t:
+                ogopego.compile(gramsrc)
+                ogosetup = t.delta
+            for i, text in enumerate(texts):
+                pct = int((i + 1) / nfiles * 100)
+                print(f"[Ogo {pct:3d}%] Benchmarking ogopego parser...", end="\r")
+                with timer() as t:
+                    try:
+                        ogopego.parse(gramsrc, text)
+                        lines_parsed += countlines(text).code
+                    except ogopego.OgoError:
+                        ogoerrs += 1
+                        ogo_failed.append(str(filepaths[i]))
+                    except Exception as _e:
+                        ogoerrs += 1
+                        ogo_failed.append(str(filepaths[i]))
+                    ogotime += t.delta
+            ogo_run = BenchmarkResult(
+                "ogopego.parse",
+                file_count=nfiles,
+                error_count=ogoerrs,
+                lines_parsed=lines_parsed,
+                failed_files=ogo_failed,
+                setup_time=ogosetup,
+                total_parsing_time=ogotime,
+                avg_parsing_time=ogotime / nfiles if nfiles else 0,
+                avg_lines_sec=lines_parsed / ogotime if ogotime else 0,
+            )
+
         print(" " * 75)  # Clear the status line
 
-        return memrun, genrun, tiexiu_run
+        return memrun, genrun, tiexiu_run, ogo_run
     finally:
         sys.setrecursionlimit(oldlimit)
 
@@ -401,7 +451,7 @@ def main():
     )
     mode.add_argument(
         '--both',
-        help='benchmark both tatsu types of parser (mem and gen)',
+        help='benchmark mem and gen parsers only (default: all)',
         dest='mode',
         action='store_const',
         const='both',
@@ -427,6 +477,13 @@ def main():
         action='store_const',
         const='tiexiu',
     )
+    mode.add_argument(
+        '--ogo',
+        help='benchmark ogopego parser',
+        dest='mode',
+        action='store_const',
+        const='ogo',
+    )
     parser.add_argument(
         '--verbose',
         help='show error output from failed parses',
@@ -451,10 +508,15 @@ def main():
         if args.mode == 'tiexiu':
             sys.exit(1)
 
+    if args.mode in {'ogo', 'all'} and not have_ogopego:
+        print("warning: ogopego not found, skipping ogopego benchmark.")
+        if args.mode == 'ogo':
+            sys.exit(1)
+
     try:
         grammar_path = args.grammar.resolve()
         input_paths = [p.resolve() for p in args.inputs]
-        mem_run, gen_run, tiexiu_run = benchmark(
+        mem_run, gen_run, tiexiu_run, ogo_run = benchmark(
             grammar_path,
             input_paths,
             mode=args.mode,
@@ -465,6 +527,7 @@ def main():
             mem_run,
             gen_run,
             tiexiu_run,
+            ogo_run=ogo_run,
             verbose=args.verbose,
         )
     except Exception as e:
