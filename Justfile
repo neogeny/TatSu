@@ -101,7 +101,7 @@ clobber: (clean "true")
     echo "▶ fast pytest {{py}}"
     {{run_test}} pytest \
         --quiet -n auto  \
-        --tb=no --no-header --no-summary \
+        --tb=no --no-header \
         --ignore-glob=tests/z* \
         tests
 
