@@ -178,10 +178,10 @@ atom:
     | call
     | dot
     | pattern
+    | skip
     | group
     | eol
     | eof
-    | skip
     | alert
     | constant
 
