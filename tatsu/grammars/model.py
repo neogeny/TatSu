@@ -304,6 +304,12 @@ class Rule(NamedBox):
         assert isinstance(self.kwparams, dict), f'{typename(self)}: {self.kwparams=!r}'
         self.is_tokn = self.is_tokn or self.name.lstrip('_')[:1].isupper()
 
+    def __pub__(self, sunderok: bool = False) -> dict[str, Any]:
+        pub = super().__pub__()
+        del pub['exp']
+        pub['exp'] = self.exp
+        return pub
+
     def missing_rules(self, rulenames: set[str]) -> set[str]:
         return self.exp.missing_rules(rulenames)
 
