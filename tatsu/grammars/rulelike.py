@@ -54,6 +54,11 @@ class RuleInclude(NamedBox):
     def _pretty(self, lean=False):
         return f'>{self.rule.name}'
 
+    def optimized(self) -> Model:
+        if self.exp:
+            return self.exp.optimized()
+        return self
+
 
 @nodedataclass
 class BasedRule(Rule):

@@ -401,11 +401,10 @@ class Rule(NamedBox):
         )
 
     def optimized(self) -> Self:
-        if not isinstance(self.exp, Model):
-            return self
-        new = copy(self)
         assert isinstance(self.exp, Model)
+        new = copy(self)
         new.exp = self.exp.optimized()
+        assert isinstance(new.exp, Model)
         return new
 
 
