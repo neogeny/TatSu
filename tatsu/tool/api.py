@@ -25,13 +25,16 @@ from ..util import hasha
 
 __all__ = [
     'compile',
+    'compile_to_parser',
     'gencode',
     'genmodel',
     'modelgen',
     'parse',
     'pythongen',
+    'to_grammar_json',
     'to_python_model',
     'to_python_sourcecode',
+    'to_parsermodel_sourcecode',
 ]
 
 __compiled_grammar_cache: dict[tuple[str | None, str, int], g.Grammar] = {}

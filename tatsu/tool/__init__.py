@@ -5,6 +5,7 @@ from .api import (
     genmodel,
     parse,
     to_grammar_json,
+    to_parsermodel_sourcecode,
     to_python_model,
     to_python_sourcecode,
 )
@@ -12,13 +13,14 @@ from .cli import tatsu_main
 
 
 __all__ = [
-    'compile_to_parser',
     'compile',
+    'compile_to_parser',
     'gencode',
     'genmodel',
-    'tatsu_main',
     'parse',
+    'tatsu_main',
+    'to_grammar_json',
     'to_python_model',
     'to_python_sourcecode',
-    'to_grammar_json',
+    'to_parsermodel_sourcecode',
 ]
