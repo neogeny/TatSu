@@ -16,13 +16,14 @@ SPDX-License-Identifier: BSD-4-Clause
 ## Regular Expressions
 
 * For compatibility with the optimal _regex_ implementations in sibling projects
-  [修TieXiu] (Rust) and [⻰OGoPEGo] (Go), the **TatSu** meta-grammar has been
-  stripped of regexp lookahead expressions like `(?=)` and `(?!)`) replacing
-  them with grammar-level lookaheads (`&` and `!`) when required. All tests
-  pass.
+  [修TieXiu] (Rust), [⻰OGoPEGo] (Go), and [꘩TS’emekwes] (TypeScript), the
+  **TatSu** meta-grammar has been stripped of regexp lookahead expressions, 
+  like `(?=)` and `(?!)`), replacing them with grammar-level lookaheads 
+  (`&` and `!`) when required. All tests pass.
 
-  [修TieXiu]: https://github.com/neogeny/tiexiu
-  [⻰OGoPEGo]: https://github.com/neogeny/ogopego 
+[修TieXiu]: https://github.com/neogeny/tiexiu
+[⻰OGoPEGo]: https://github.com/neogeny/ogopego 
+[꘩TS’emekwes]: https://github.com/neogeny/tsemekwes
 
 ### Optimized
 
