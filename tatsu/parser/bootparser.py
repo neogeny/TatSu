@@ -61,7 +61,7 @@ GRAMMAR_MODEL: Grammar = (
       directives={
         'grammar': 'TatSu',
         'whitespace': '(?m)\\s+',
-        'comments': '(?ms)[(][*]\\s*((?:.|\\n)*?)\\s*[*][)]|[\\/][*]\\s*((?:.|\\n)*?)\\s*[*][\\/]',
+        'comments': '(?ms)[(][*]\\s*(.*?)\\s*[*][)]|/[*]\\s*(.*?)\\s*[*]/',
         'eol_comments': '(?ms)(?:[#]|[\\/][\\/])(.*?)$',
         'parseinfo': True,
         'left_recursion': False
@@ -70,7 +70,6 @@ GRAMMAR_MODEL: Grammar = (
       rules=(
         Rule(
           name='start',
-          exp=Call('grammar'),
           params=(),
           kwparams={},
           decorators=[],
@@ -79,10 +78,20 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Call('grammar')
         ),
         Rule(
           name='grammar',
+          params=['Grammar'],
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=False,
+          no_memo=False,
+          no_stak=False,
+          is_memo=True,
+          is_lrec=False,
           exp=Sequence(
             [
               Named(name='title', exp=Constant('TATSU')),
@@ -105,8 +114,11 @@ GRAMMAR_MODEL: Grammar = (
               ),
               EOF()
             ]
-          ),
-          params=['Grammar'],
+          )
+        ),
+        Rule(
+          name='directive',
+          params=(),
           kwparams={},
           decorators=[],
           is_name=False,
@@ -114,118 +126,113 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='directive',
+          is_lrec=False,
           exp=Sequence(
             [
               Token('@@'),
               NegativeLookahead(Token('keyword')),
               Cut(),
-              Choice(
-                [
-                  Option(
-                    Sequence(
-                      [
-                        Named(
-                          name='name',
-                          exp=Choice([Option(Token('comments')), Option(Token('eol_comments'))])
-                        ),
-                        Cut(),
-                        Token('::'),
-                        Cut(),
-                        Named(name='value', exp=Call('regex'))
-                      ]
-                    )
-                  ),
-                  Option(
-                    Sequence(
-                      [
-                        Named(name='name', exp=Token('whitespace')),
-                        Cut(),
-                        Token('::'),
-                        Cut(),
-                        Named(
-                          name='value',
-                          exp=Choice(
-                            [
-                              Option(Call('regex')),
-                              Option(Call('string')),
-                              Option(Token('None')),
-                              Option(Token('False')),
-                              Option(Constant())
-                            ]
+              Group(
+                Choice(
+                  [
+                    Option(
+                      Sequence(
+                        [
+                          Named(
+                            name='name',
+                            exp=Group(Choice([Option(Token('comments')), Option(Token('eol_comments'))]))
+                          ),
+                          Cut(),
+                          Token('::'),
+                          Cut(),
+                          Named(name='value', exp=Call('regex'))
+                        ]
+                      )
+                    ),
+                    Option(
+                      Sequence(
+                        [
+                          Named(name='name', exp=Token('whitespace')),
+                          Cut(),
+                          Token('::'),
+                          Cut(),
+                          Named(
+                            name='value',
+                            exp=Group(
+                              Choice(
+                                [
+                                  Option(Call('regex')),
+                                  Option(Call('string')),
+                                  Option(Token('None')),
+                                  Option(Token('False')),
+                                  Option(Constant())
+                                ]
+                              )
+                            )
                           )
-                        )
-                      ]
-                    )
-                  ),
-                  Option(
-                    Sequence(
-                      [
-                        Named(
-                          name='name',
-                          exp=Choice(
-                            [
-                              Option(Token('nameguard')),
-                              Option(Token('ignorecase')),
-                              Option(Token('left_recursion')),
-                              Option(Token('parseinfo')),
-                              Option(Token('memoization'))
-                            ]
+                        ]
+                      )
+                    ),
+                    Option(
+                      Sequence(
+                        [
+                          Named(
+                            name='name',
+                            exp=Group(
+                              Choice(
+                                [
+                                  Option(Token('nameguard')),
+                                  Option(Token('ignorecase')),
+                                  Option(Token('left_recursion')),
+                                  Option(Token('parseinfo')),
+                                  Option(Token('memoization'))
+                                ]
+                              )
+                            )
+                          ),
+                          Cut(),
+                          Group(
+                            Choice(
+                              [
+                                Option(Sequence([Token('::'), Cut(), Named(name='value', exp=Call('boolean'))])),
+                                Option(Named(name='value', exp=Constant(True)))
+                              ]
+                            )
                           )
-                        ),
-                        Cut(),
-                        Choice(
-                          [
-                            Option(Sequence([Token('::'), Cut(), Named(name='value', exp=Call('boolean'))])),
-                            Option(Named(name='value', exp=Constant(True)))
-                          ]
-                        )
-                      ]
+                        ]
+                      )
+                    ),
+                    Option(
+                      Sequence(
+                        [
+                          Named(name='name', exp=Token('grammar')),
+                          Cut(),
+                          Token('::'),
+                          Cut(),
+                          Named(name='value', exp=Call('word'))
+                        ]
+                      )
+                    ),
+                    Option(
+                      Sequence(
+                        [
+                          Named(name='name', exp=Token('namechars')),
+                          Cut(),
+                          Token('::'),
+                          Cut(),
+                          Named(name='value', exp=Call('string'))
+                        ]
+                      )
                     )
-                  ),
-                  Option(
-                    Sequence(
-                      [
-                        Named(name='name', exp=Token('grammar')),
-                        Cut(),
-                        Token('::'),
-                        Cut(),
-                        Named(name='value', exp=Call('word'))
-                      ]
-                    )
-                  ),
-                  Option(
-                    Sequence(
-                      [
-                        Named(name='name', exp=Token('namechars')),
-                        Cut(),
-                        Token('::'),
-                        Cut(),
-                        Named(name='value', exp=Call('string'))
-                      ]
-                    )
-                  )
-                ]
+                  ]
+                )
               ),
               Cut()
             ]
-          ),
-          params=(),
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=False,
-          no_memo=False,
-          no_stak=False,
-          is_memo=True,
-          is_lrec=False
+          )
         ),
         Rule(
           name='keywords',
-          exp=PositiveClosure(Call('keyword')),
           params=(),
           kwparams={},
           decorators=[],
@@ -234,10 +241,20 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=PositiveClosure(Call('keyword'))
         ),
         Rule(
           name='keyword',
+          params=(),
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=False,
+          no_memo=False,
+          no_stak=False,
+          is_memo=True,
+          is_lrec=False,
           exp=Sequence(
             [
               Token('@@keyword'),
@@ -246,13 +263,16 @@ GRAMMAR_MODEL: Grammar = (
               PositiveClosure(
                 Sequence(
                   [
-                    OverrideList(Choice([Option(Call('word')), Option(Call('string'))])),
-                    NegativeLookahead(Choice([Option(Token(':')), Option(Token('='))]))
+                    OverrideList(Group(Choice([Option(Call('word')), Option(Call('string'))]))),
+                    NegativeLookahead(Group(Choice([Option(Token(':')), Option(Token('='))])))
                   ]
                 )
               )
             ]
-          ),
+          )
+        ),
+        Rule(
+          name='params',
           params=(),
           kwparams={},
           decorators=[],
@@ -261,10 +281,7 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='params',
+          is_lrec=False,
           exp=Sequence(
             [
               OverrideList(Call('first_param')),
@@ -279,20 +296,10 @@ GRAMMAR_MODEL: Grammar = (
                 )
               )
             ]
-          ),
-          params=(),
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=False,
-          no_memo=False,
-          no_stak=False,
-          is_memo=True,
-          is_lrec=False
+          )
         ),
         Rule(
           name='first_param',
-          exp=Choice([Option(Call('path')), Option(Call('literal'))]),
           params=(),
           kwparams={},
           decorators=[],
@@ -301,11 +308,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Choice([Option(Call('path')), Option(Call('literal'))])
         ),
         Rule(
           name='kwparams',
-          exp=PositiveGather(exp=Call('pair'), sep=Token(',')),
           params=(),
           kwparams={},
           decorators=[],
@@ -314,10 +321,20 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=PositiveGather(exp=Call('pair'), sep=Token(','))
         ),
         Rule(
           name='the_params_at_last',
+          params=(),
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=False,
+          no_memo=False,
+          no_stak=False,
+          is_memo=True,
+          is_lrec=False,
           exp=Choice(
             [
               Option(Named(name='kwparams', exp=Call('kwparams'))),
@@ -333,7 +350,10 @@ GRAMMAR_MODEL: Grammar = (
               ),
               Option(Named(name='params', exp=Call('params')))
             ]
-          ),
+          )
+        ),
+        Rule(
+          name='paramdef',
           params=(),
           kwparams={},
           decorators=[],
@@ -342,18 +362,18 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='paramdef',
+          is_lrec=False,
           exp=Choice(
             [
               Option(Sequence([Token('['), Cut(), RuleInclude('the_params_at_last'), Token(']')])),
               Option(Sequence([Token('('), Cut(), RuleInclude('the_params_at_last'), Token(')')])),
               Option(Sequence([Token('::'), Cut(), Named(name='params', exp=Call('params'))]))
             ]
-          ),
-          params=(),
+          )
+        ),
+        Rule(
+          name='rule',
+          params=['Rule'],
           kwparams={},
           decorators=[],
           is_name=False,
@@ -361,10 +381,7 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='rule',
+          is_lrec=False,
           exp=Sequence(
             [
               Named(name='decorators', exp=Closure(Call('decorator'))),
@@ -379,19 +396,19 @@ GRAMMAR_MODEL: Grammar = (
               Call('ENDRULE'),
               Cut()
             ]
-          ),
-          params=['Rule'],
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=False,
-          no_memo=False,
-          no_stak=False,
-          is_memo=True,
-          is_lrec=False
+          )
         ),
         Rule(
           name='ENDRULE',
+          params=(),
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=True,
+          no_memo=False,
+          no_stak=False,
+          is_memo=True,
+          is_lrec=False,
           exp=Choice(
             [
               Option(Call('DEDENT')),
@@ -399,20 +416,10 @@ GRAMMAR_MODEL: Grammar = (
               Option(Token(';')),
               Option(EOF())
             ]
-          ),
-          params=(),
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=True,
-          no_memo=False,
-          no_stak=False,
-          is_memo=True,
-          is_lrec=False
+          )
         ),
         Rule(
           name='DEDENT',
-          exp=Sequence([Call('EOL'), Lookahead(Pattern('\\S'))]),
           params=(),
           kwparams={},
           decorators=[],
@@ -421,11 +428,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Call('EOL'), Lookahead(Pattern('\\S'))])
         ),
         Rule(
           name='BLANK',
-          exp=Sequence([Call('EOL'), Call('EOL')]),
           params=(),
           kwparams={},
           decorators=[],
@@ -434,11 +441,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Call('EOL'), Call('EOL')])
         ),
         Rule(
           name='EOL',
-          exp=Sequence([Pattern('(?m)[ \\t]*$'), Pattern('(?m)(?:\\r?\\n|\\r)?')]),
           params=(),
           kwparams={},
           decorators=[],
@@ -447,10 +454,20 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Pattern('(?m)[ \\t]*$'), Pattern('(?m)(?:\\r?\\n|\\r)?')])
         ),
         Rule(
           name='decorator',
+          params=(),
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=False,
+          no_memo=False,
+          no_stak=False,
+          is_memo=True,
+          is_lrec=False,
           exp=Sequence(
             [
               Token('@'),
@@ -458,22 +475,10 @@ GRAMMAR_MODEL: Grammar = (
               Cut(),
               Override(Pattern('(override|name|isname|nomemo|nostak)\\b'))
             ]
-          ),
-          params=(),
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=False,
-          no_memo=False,
-          no_stak=False,
-          is_memo=True,
-          is_lrec=False
+          )
         ),
         Rule(
           name='pair',
-          exp=Sequence(
-            [OverrideList(Call('word')), Token('='), Cut(), OverrideList(Call('literal'))]
-          ),
           params=(),
           kwparams={},
           decorators=[],
@@ -482,11 +487,13 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence(
+            [OverrideList(Call('word')), Token('='), Cut(), OverrideList(Call('literal'))]
+          )
         ),
         Rule(
           name='expre',
-          exp=Choice([Option(Call('choice')), Option(Call('sequence'))]),
           params=(),
           kwparams={},
           decorators=[],
@@ -495,17 +502,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Choice([Option(Call('choice')), Option(Call('sequence'))])
         ),
         Rule(
           name='choice',
-          exp=Sequence(
-            [
-              Optional(Sequence([Token('|'), Cut()])),
-              OverrideList(Call('option')),
-              PositiveClosure(Sequence([Token('|'), Cut(), OverrideList(Call('option'))]))
-            ]
-          ),
           params=['Choice'],
           kwparams={},
           decorators=[],
@@ -514,11 +515,17 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence(
+            [
+              Optional(Sequence([Token('|'), Cut()])),
+              OverrideList(Call('option')),
+              PositiveClosure(Sequence([Token('|'), Cut(), OverrideList(Call('option'))]))
+            ]
+          )
         ),
         Rule(
           name='option',
-          exp=Call('sequence'),
           params=['Option'],
           kwparams={},
           decorators=[],
@@ -527,25 +534,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Call('sequence')
         ),
         Rule(
           name='sequence',
-          exp=Choice(
-            [
-              Option(
-                Sequence(
-                  [
-                    Lookahead(Sequence([Call('element'), Token(',')])),
-                    PositiveGather(exp=Call('element'), sep=Token(','))
-                  ]
-                )
-              ),
-              Option(
-                PositiveClosure(Sequence([NegativeLookahead(Call('ENDRULE')), Call('element')]))
-              )
-            ]
-          ),
           params=['Sequence'],
           kwparams={},
           decorators=[],
@@ -554,18 +547,25 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Choice(
+            [
+              Option(
+                Sequence(
+                  [
+                    Lookahead(Group(Sequence([Call('element'), Token(',')]))),
+                    PositiveGather(exp=Call('element'), sep=Token(','))
+                  ]
+                )
+              ),
+              Option(
+                PositiveClosure(Sequence([NegativeLookahead(Call('ENDRULE')), Call('element')]))
+              )
+            ]
+          )
         ),
         Rule(
           name='element',
-          exp=Choice(
-            [
-              Option(Call('named')),
-              Option(Call('term')),
-              Option(Call('override')),
-              Option(Call('rule_include'))
-            ]
-          ),
           params=(),
           kwparams={},
           decorators=[],
@@ -574,11 +574,18 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Choice(
+            [
+              Option(Call('named')),
+              Option(Call('term')),
+              Option(Call('override')),
+              Option(Call('rule_include'))
+            ]
+          )
         ),
         Rule(
           name='rule_include',
-          exp=Sequence([Token('>'), Cut(), Override(Call('known_name'))]),
           params=['RuleInclude'],
           kwparams={},
           decorators=[],
@@ -587,11 +594,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Token('>'), Cut(), Override(Call('known_name'))])
         ),
         Rule(
           name='named',
-          exp=Choice([Option(Call('named_list')), Option(Call('named_single'))]),
           params=(),
           kwparams={},
           decorators=[],
@@ -600,18 +607,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Choice([Option(Call('named_list')), Option(Call('named_single'))])
         ),
         Rule(
           name='named_list',
-          exp=Sequence(
-            [
-              Named(name='name', exp=Call('name')),
-              Pattern('\\+[:=]'),
-              Cut(),
-              Named(name='exp', exp=Call('term'))
-            ]
-          ),
           params=['NamedList'],
           kwparams={},
           decorators=[],
@@ -620,18 +620,18 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='named_single',
+          is_lrec=False,
           exp=Sequence(
             [
               Named(name='name', exp=Call('name')),
-              Pattern('[:=]'),
+              Pattern('\\+[:=]'),
               Cut(),
               Named(name='exp', exp=Call('term'))
             ]
-          ),
+          )
+        ),
+        Rule(
+          name='named_single',
           params=['Named'],
           kwparams={},
           decorators=[],
@@ -640,17 +640,18 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence(
+            [
+              Named(name='name', exp=Call('name')),
+              Pattern('[:=]'),
+              Cut(),
+              Named(name='exp', exp=Call('term'))
+            ]
+          )
         ),
         Rule(
           name='override',
-          exp=Choice(
-            [
-              Option(Call('override_list')),
-              Option(Call('override_single')),
-              Option(Call('override_single_deprecated'))
-            ]
-          ),
           params=(),
           kwparams={},
           decorators=[],
@@ -659,11 +660,17 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Choice(
+            [
+              Option(Call('override_list')),
+              Option(Call('override_single')),
+              Option(Call('override_single_deprecated'))
+            ]
+          )
         ),
         Rule(
           name='override_list',
-          exp=Sequence([Pattern('\\+=|@\\+:'), Cut(), Override(Call('term'))]),
           params=['OverrideList'],
           kwparams={},
           decorators=[],
@@ -672,11 +679,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Pattern('\\+=|@\\+:'), Cut(), Override(Call('term'))])
         ),
         Rule(
           name='override_single',
-          exp=Sequence([Pattern('=|@:'), Cut(), Override(Call('term'))]),
           params=['Override'],
           kwparams={},
           decorators=[],
@@ -685,11 +692,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Pattern('=|@:'), Cut(), Override(Call('term'))])
         ),
         Rule(
           name='override_single_deprecated',
-          exp=Sequence([Token('@'), Cut(), Override(Call('term'))]),
           params=['Override'],
           kwparams={},
           decorators=[],
@@ -698,10 +705,20 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Token('@'), Cut(), Override(Call('term'))])
         ),
         Rule(
           name='term',
+          params=(),
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=False,
+          no_memo=False,
+          no_stak=False,
+          is_memo=True,
+          is_lrec=False,
           exp=Choice(
             [
               Option(Call('gather')),
@@ -720,8 +737,11 @@ GRAMMAR_MODEL: Grammar = (
               Option(Call('cut')),
               Option(Call('cut_deprecated'))
             ]
-          ),
-          params=(),
+          )
+        ),
+        Rule(
+          name='group',
+          params=['Group'],
           kwparams={},
           decorators=[],
           is_name=False,
@@ -729,10 +749,7 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='group',
+          is_lrec=False,
           exp=Sequence(
             [
               NegativeLookahead(Token('(?:')),
@@ -742,20 +759,10 @@ GRAMMAR_MODEL: Grammar = (
               Token(')'),
               Cut()
             ]
-          ),
-          params=['Group'],
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=False,
-          no_memo=False,
-          no_stak=False,
-          is_memo=True,
-          is_lrec=False
+          )
         ),
         Rule(
           name='skip',
-          exp=Sequence([Token('(?:'), Cut(), Override(Call('expre')), Token(')'), Cut()]),
           params=['SkipGroup'],
           kwparams={},
           decorators=[],
@@ -764,17 +771,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Token('(?:'), Cut(), Override(Call('expre')), Token(')'), Cut()])
         ),
         Rule(
           name='gather',
-          exp=Sequence(
-            [
-              Lookahead(Sequence([Call('atom'), Token('.{')])),
-              Cut(),
-              Choice([Option(Call('positive_gather')), Option(Call('normal_gather'))])
-            ]
-          ),
           params=(),
           kwparams={},
           decorators=[],
@@ -783,21 +784,17 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence(
+            [
+              Lookahead(Group(Sequence([Call('atom'), Token('.{')]))),
+              Cut(),
+              Group(Choice([Option(Call('positive_gather')), Option(Call('normal_gather'))]))
+            ]
+          )
         ),
         Rule(
           name='positive_gather',
-          exp=Sequence(
-            [
-              Named(name='sep', exp=Call('atom')),
-              Token('.{'),
-              Named(name='exp', exp=Call('expre')),
-              Token('}'),
-              NegativeLookahead(Pattern('\\+=')),
-              Pattern('[+-]'),
-              Cut()
-            ]
-          ),
           params=['PositiveGather'],
           kwparams={},
           decorators=[],
@@ -806,10 +803,30 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence(
+            [
+              Named(name='sep', exp=Call('atom')),
+              Token('.{'),
+              Named(name='exp', exp=Call('expre')),
+              Token('}'),
+              NegativeLookahead(Pattern('\\+=')),
+              Pattern('[+-]'),
+              Cut()
+            ]
+          )
         ),
         Rule(
           name='normal_gather',
+          params=['Gather'],
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=False,
+          no_memo=False,
+          no_stak=False,
+          is_memo=True,
+          is_lrec=False,
           exp=Sequence(
             [
               Named(name='sep', exp=Call('atom')),
@@ -820,26 +837,10 @@ GRAMMAR_MODEL: Grammar = (
               Optional(Sequence([Token('*'), Cut()])),
               Cut()
             ]
-          ),
-          params=['Gather'],
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=False,
-          no_memo=False,
-          no_stak=False,
-          is_memo=True,
-          is_lrec=False
+          )
         ),
         Rule(
           name='join',
-          exp=Sequence(
-            [
-              Lookahead(Sequence([Call('atom'), Token('%{')])),
-              Cut(),
-              Choice([Option(Call('positive_join')), Option(Call('normal_join'))])
-            ]
-          ),
           params=(),
           kwparams={},
           decorators=[],
@@ -848,10 +849,26 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence(
+            [
+              Lookahead(Group(Sequence([Call('atom'), Token('%{')]))),
+              Cut(),
+              Group(Choice([Option(Call('positive_join')), Option(Call('normal_join'))]))
+            ]
+          )
         ),
         Rule(
           name='positive_join',
+          params=['PositiveJoin'],
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=False,
+          no_memo=False,
+          no_stak=False,
+          is_memo=True,
+          is_lrec=False,
           exp=Sequence(
             [
               Named(name='sep', exp=Call('atom')),
@@ -862,8 +879,11 @@ GRAMMAR_MODEL: Grammar = (
               Pattern('[+-]'),
               Cut()
             ]
-          ),
-          params=['PositiveJoin'],
+          )
+        ),
+        Rule(
+          name='normal_join',
+          params=['Join'],
           kwparams={},
           decorators=[],
           is_name=False,
@@ -871,10 +891,7 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='normal_join',
+          is_lrec=False,
           exp=Sequence(
             [
               Named(name='sep', exp=Call('atom')),
@@ -885,8 +902,11 @@ GRAMMAR_MODEL: Grammar = (
               Optional(Sequence([Token('*'), Cut()])),
               Cut()
             ]
-          ),
-          params=['Join'],
+          )
+        ),
+        Rule(
+          name='left_join',
+          params=['LeftJoin'],
           kwparams={},
           decorators=[],
           is_name=False,
@@ -894,10 +914,7 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='left_join',
+          is_lrec=False,
           exp=Sequence(
             [
               Named(name='sep', exp=Call('atom')),
@@ -909,8 +926,11 @@ GRAMMAR_MODEL: Grammar = (
               Pattern('[+-]'),
               Cut()
             ]
-          ),
-          params=['LeftJoin'],
+          )
+        ),
+        Rule(
+          name='right_join',
+          params=['RightJoin'],
           kwparams={},
           decorators=[],
           is_name=False,
@@ -918,10 +938,7 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='right_join',
+          is_lrec=False,
           exp=Sequence(
             [
               Named(name='sep', exp=Call('atom')),
@@ -933,8 +950,11 @@ GRAMMAR_MODEL: Grammar = (
               Pattern('[+-]'),
               Cut()
             ]
-          ),
-          params=['RightJoin'],
+          )
+        ),
+        Rule(
+          name='positive_closure',
+          params=['PositiveClosure'],
           kwparams={},
           decorators=[],
           is_name=False,
@@ -942,10 +962,7 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='positive_closure',
+          is_lrec=False,
           exp=Choice(
             [
               Option(
@@ -971,8 +988,11 @@ GRAMMAR_MODEL: Grammar = (
                 )
               )
             ]
-          ),
-          params=['PositiveClosure'],
+          )
+        ),
+        Rule(
+          name='closure',
+          params=['Closure'],
           kwparams={},
           decorators=[],
           is_name=False,
@@ -980,10 +1000,7 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
-        ),
-        Rule(
-          name='closure',
+          is_lrec=False,
           exp=Choice(
             [
               Option(
@@ -993,20 +1010,10 @@ GRAMMAR_MODEL: Grammar = (
               ),
               Option(Sequence([Override(Call('atom')), Token('*'), Cut()]))
             ]
-          ),
-          params=['Closure'],
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=False,
-          no_memo=False,
-          no_stak=False,
-          is_memo=True,
-          is_lrec=False
+          )
         ),
         Rule(
           name='empty_closure',
-          exp=Sequence([Token('{}'), Cut(), Override(Void())]),
           params=['EmptyClosure'],
           kwparams={},
           decorators=[],
@@ -1015,27 +1022,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Token('{}'), Cut(), Override(Void())])
         ),
         Rule(
           name='optional',
-          exp=Choice(
-            [
-              Option(Sequence([Token('['), Cut(), Override(Call('expre')), Token(']'), Cut()])),
-              Option(
-                Sequence(
-                  [
-                    Override(Call('atom')),
-                    NegativeLookahead(
-                      Choice([Option(Token('?"')), Option(Token("?'")), Option(Token('?/'))])
-                    ),
-                    Token('?'),
-                    Cut()
-                  ]
-                )
-              )
-            ]
-          ),
           params=['Optional'],
           kwparams={},
           decorators=[],
@@ -1044,11 +1035,27 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Choice(
+            [
+              Option(Sequence([Token('['), Cut(), Override(Call('expre')), Token(']'), Cut()])),
+              Option(
+                Sequence(
+                  [
+                    Override(Call('atom')),
+                    NegativeLookahead(
+                      Group(Choice([Option(Token('?"')), Option(Token("?'")), Option(Token('?/'))]))
+                    ),
+                    Token('?'),
+                    Cut()
+                  ]
+                )
+              )
+            ]
+          )
         ),
         Rule(
           name='lookahead',
-          exp=Sequence([Token('&'), Cut(), Override(Call('term'))]),
           params=['Lookahead'],
           kwparams={},
           decorators=[],
@@ -1057,11 +1064,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Token('&'), Cut(), Override(Call('term'))])
         ),
         Rule(
           name='negative_lookahead',
-          exp=Sequence([Token('!'), Cut(), Override(Call('term'))]),
           params=['NegativeLookahead'],
           kwparams={},
           decorators=[],
@@ -1070,11 +1077,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Token('!'), Cut(), Override(Call('term'))])
         ),
         Rule(
           name='skip_to',
-          exp=Sequence([Token('->'), Cut(), Override(Call('term'))]),
           params=['SkipTo'],
           kwparams={},
           decorators=[],
@@ -1083,24 +1090,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Token('->'), Cut(), Override(Call('term'))])
         ),
         Rule(
           name='atom',
-          exp=Choice(
-            [
-              Option(Call('token')),
-              Option(Call('call')),
-              Option(Call('dot')),
-              Option(Call('pattern')),
-              Option(Call('group')),
-              Option(Call('eol')),
-              Option(Call('eof')),
-              Option(Call('skip')),
-              Option(Call('alert')),
-              Option(Call('constant'))
-            ]
-          ),
           params=(),
           kwparams={},
           decorators=[],
@@ -1109,11 +1103,24 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Choice(
+            [
+              Option(Call('token')),
+              Option(Call('call')),
+              Option(Call('dot')),
+              Option(Call('pattern')),
+              Option(Call('skip')),
+              Option(Call('group')),
+              Option(Call('eol')),
+              Option(Call('eof')),
+              Option(Call('alert')),
+              Option(Call('constant'))
+            ]
+          )
         ),
         Rule(
           name='call',
-          exp=Call('word'),
           params=['Call'],
           kwparams={},
           decorators=[],
@@ -1122,11 +1129,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Call('word')
         ),
         Rule(
           name='void',
-          exp=Sequence([Token('()'), Cut()]),
           params=['Void'],
           kwparams={},
           decorators=[],
@@ -1135,11 +1142,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Token('()'), Cut()])
         ),
         Rule(
           name='fail',
-          exp=Sequence([Token('!()'), Cut()]),
           params=['Fail'],
           kwparams={},
           decorators=[],
@@ -1148,11 +1155,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Token('!()'), Cut()])
         ),
         Rule(
           name='cut',
-          exp=Sequence([Token('~'), Cut()]),
           params=['Cut'],
           kwparams={},
           decorators=[],
@@ -1161,11 +1168,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Token('~'), Cut()])
         ),
         Rule(
           name='cut_deprecated',
-          exp=Sequence([Token('>>'), Cut()]),
           params=['Cut'],
           kwparams={},
           decorators=[],
@@ -1174,11 +1181,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Token('>>'), Cut()])
         ),
         Rule(
           name='known_name',
-          exp=Sequence([Call('name'), Cut()]),
           params=(),
           kwparams={},
           decorators=[],
@@ -1187,11 +1194,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Call('name'), Cut()])
         ),
         Rule(
           name='name',
-          exp=Call('word'),
           params=(),
           kwparams={},
           decorators=[],
@@ -1200,22 +1207,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Call('word')
         ),
         Rule(
           name='constant',
-          exp=Sequence(
-            [
-              Lookahead(Token('`')),
-              Choice(
-                [
-                  Option(Pattern('(?ms)```((?:.|\\n)*?)```')),
-                  Option(Sequence([Token('`'), Override(Call('literal')), Token('`')])),
-                  Option(Pattern('`(.*?)`'))
-                ]
-              )
-            ]
-          ),
           params=['Constant'],
           kwparams={},
           decorators=[],
@@ -1224,16 +1220,24 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence(
+            [
+              Lookahead(Token('`')),
+              Group(
+                Choice(
+                  [
+                    Option(Pattern('(?ms)```((?:.|\\n)*?)```')),
+                    Option(Sequence([Token('`'), Override(Call('literal')), Token('`')])),
+                    Option(Pattern('`(.*?)`'))
+                  ]
+                )
+              )
+            ]
+          )
         ),
         Rule(
           name='alert',
-          exp=Sequence(
-            [
-              Named(name='level', exp=Pattern('\\^+')),
-              Named(name='message', exp=Call('constant'))
-            ]
-          ),
           params=['Alert'],
           kwparams={},
           decorators=[],
@@ -1242,11 +1246,16 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence(
+            [
+              Named(name='level', exp=Pattern('\\^+')),
+              Named(name='message', exp=Call('constant'))
+            ]
+          )
         ),
         Rule(
           name='token',
-          exp=Choice([Option(Call('string')), Option(Call('raw_string'))]),
           params=['Token'],
           kwparams={},
           decorators=[],
@@ -1255,10 +1264,20 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Choice([Option(Call('string')), Option(Call('raw_string'))])
         ),
         Rule(
           name='literal',
+          params=(),
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=False,
+          no_memo=False,
+          no_stak=False,
+          is_memo=True,
+          is_lrec=False,
           exp=Choice(
             [
               Option(Call('raw_string')),
@@ -1270,31 +1289,10 @@ GRAMMAR_MODEL: Grammar = (
               Option(Call('float')),
               Option(Call('int'))
             ]
-          ),
-          params=(),
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=False,
-          no_memo=False,
-          no_stak=False,
-          is_memo=True,
-          is_lrec=False
+          )
         ),
         Rule(
           name='string',
-          exp=Sequence(
-            [
-              Lookahead(Choice([Option(Token('"')), Option(Token("'"))])),
-              Choice(
-                [
-                  Option(Call('multiline_string')),
-                  Option(Call('singlequoted')),
-                  Option(Call('doublequoted'))
-                ]
-              )
-            ]
-          ),
           params=(),
           kwparams={},
           decorators=[],
@@ -1303,11 +1301,24 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence(
+            [
+              Lookahead(Group(Choice([Option(Token('"')), Option(Token("'"))]))),
+              Group(
+                Choice(
+                  [
+                    Option(Call('multiline_string')),
+                    Option(Call('singlequoted')),
+                    Option(Call('doublequoted'))
+                  ]
+                )
+              )
+            ]
+          )
         ),
         Rule(
           name='singlequoted',
-          exp=Call('SINGLEQUOTED'),
           params=(),
           kwparams={},
           decorators=[],
@@ -1316,11 +1327,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Call('SINGLEQUOTED')
         ),
         Rule(
           name='doublequoted',
-          exp=Call('DOUBLEQUOTED'),
           params=(),
           kwparams={},
           decorators=[],
@@ -1329,11 +1340,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Call('DOUBLEQUOTED')
         ),
         Rule(
           name='raw_string',
-          exp=Sequence([Lookahead(Pattern('r["\']')), Pattern('r'), Override(Call('STRING'))]),
           params=(),
           kwparams={},
           decorators=[],
@@ -1342,11 +1353,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Lookahead(Pattern('r["\']')), Pattern('r'), Override(Call('STRING'))])
         ),
         Rule(
           name='STRING',
-          exp=Choice([Option(Call('SINGLEQUOTED')), Option(Call('DOUBLEQUOTED'))]),
           params=(),
           kwparams={},
           decorators=[],
@@ -1355,11 +1366,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Choice([Option(Call('SINGLEQUOTED')), Option(Call('DOUBLEQUOTED'))])
         ),
         Rule(
           name='SINGLEQUOTED',
-          exp=Sequence([Pattern("'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'"), Cut()]),
           params=(),
           kwparams={},
           decorators=[],
@@ -1368,11 +1379,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Pattern("'((?:[^'\\n]|\\\\'|\\\\\\\\)*?)'"), Cut()])
         ),
         Rule(
           name='DOUBLEQUOTED',
-          exp=Sequence([Pattern('"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"'), Cut()]),
           params=(),
           kwparams={},
           decorators=[],
@@ -1381,29 +1392,29 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Pattern('"((?:[^"\\n]|\\\\"|\\\\\\\\)*?)"'), Cut()])
         ),
         Rule(
           name='multiline_string',
+          params=(),
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=False,
+          no_memo=False,
+          no_stak=False,
+          is_memo=True,
+          is_lrec=False,
           exp=Choice(
             [
               Option(Sequence([Pattern("(?ms)'''((?:\\\\\\\\|\\\\.|.)*?)'''"), Cut()])),
               Option(Sequence([Pattern('(?ms)"""((?:\\\\\\\\|\\\\.|.)*?)"""'), Cut()]))
             ]
-          ),
-          params=(),
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=False,
-          no_memo=False,
-          no_stak=False,
-          is_memo=True,
-          is_lrec=False
+          )
         ),
         Rule(
           name='hex',
-          exp=Pattern('0[xX](?:\\d|[a-fA-F])+'),
           params=(),
           kwparams={},
           decorators=[],
@@ -1412,11 +1423,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Pattern('0[xX](?:\\d|[a-fA-F])+')
         ),
         Rule(
           name='float',
-          exp=Pattern('[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?'),
           params=(),
           kwparams={},
           decorators=[],
@@ -1425,11 +1436,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Pattern('[-+]?(?:\\d+\\.\\d*|\\d*\\.\\d+)(?:[Ee][-+]?\\d+)?')
         ),
         Rule(
           name='int',
-          exp=Pattern('[-+]?\\d+'),
           params=(),
           kwparams={},
           decorators=[],
@@ -1438,11 +1449,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Pattern('[-+]?\\d+')
         ),
         Rule(
           name='path',
-          exp=Pattern('[_a-zA-Z]\\w*(?:::[_a-zA-Z]\\w*)+'),
           params=(),
           kwparams={},
           decorators=[],
@@ -1451,11 +1462,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Pattern('[_a-zA-Z]\\w*(?:::[_a-zA-Z]\\w*)+')
         ),
         Rule(
           name='word',
-          exp=Pattern('[_a-zA-Z]\\w*'),
           params=(),
           kwparams={},
           decorators=[],
@@ -1464,11 +1475,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Pattern('[_a-zA-Z]\\w*')
         ),
         Rule(
           name='dot',
-          exp=Token('/./'),
           params=['Dot'],
           kwparams={},
           decorators=[],
@@ -1477,11 +1488,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Token('/./')
         ),
         Rule(
           name='pattern',
-          exp=Call('regex'),
           params=['Pattern'],
           kwparams={},
           decorators=[],
@@ -1490,28 +1501,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Call('regex')
         ),
         Rule(
           name='regex',
-          exp=Choice(
-            [
-              Option(Call('deprecated_regex')),
-              Option(
-                Sequence(
-                  [
-                    NegativeLookahead(Token('?/')),
-                    Choice(
-                      [
-                        Option(Call('REGEX')),
-                        Option(Sequence([Token('?'), Override(Call('STRING'))]))
-                      ]
-                    )
-                  ]
-                )
-              )
-            ]
-          ),
           params=(),
           kwparams={},
           decorators=[],
@@ -1520,13 +1514,30 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Choice(
+            [
+              Option(Call('deprecated_regex')),
+              Option(
+                Sequence(
+                  [
+                    NegativeLookahead(Token('?/')),
+                    Group(
+                      Choice(
+                        [
+                          Option(Call('REGEX')),
+                          Option(Sequence([Token('?'), Override(Call('STRING'))]))
+                        ]
+                      )
+                    )
+                  ]
+                )
+              )
+            ]
+          )
         ),
         Rule(
           name='REGEX',
-          exp=Sequence(
-            [Lookahead(Token('/')), Pattern('(?ms)/((?:[^/\\\\]|\\\\/|\\\\.)*)/'), Cut()]
-          ),
           params=(),
           kwparams={},
           decorators=[],
@@ -1535,10 +1546,22 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence(
+            [Lookahead(Token('/')), Pattern('(?ms)/((?:[^/\\\\]|\\\\/|\\\\.)*)/'), Cut()]
+          )
         ),
         Rule(
           name='deprecated_regex',
+          params=(),
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=False,
+          no_memo=False,
+          no_stak=False,
+          is_memo=True,
+          is_lrec=False,
           exp=Sequence(
             [
               Token('?/'),
@@ -1547,20 +1570,10 @@ GRAMMAR_MODEL: Grammar = (
               Cut(),
               Token('/?')
             ]
-          ),
-          params=(),
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=False,
-          no_memo=False,
-          no_stak=False,
-          is_memo=True,
-          is_lrec=False
+          )
         ),
         Rule(
           name='boolean',
-          exp=Choice([Option(Token('True')), Option(Token('False'))]),
           params=(),
           kwparams={},
           decorators=[],
@@ -1569,11 +1582,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Choice([Option(Token('True')), Option(Token('False'))])
         ),
         Rule(
           name='none',
-          exp=Token('None'),
           params=(),
           kwparams={},
           decorators=[],
@@ -1582,11 +1595,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Token('None')
         ),
         Rule(
           name='eof',
-          exp=Sequence([Token('$'), Cut()]),
           params=['EOF'],
           kwparams={},
           decorators=[],
@@ -1595,11 +1608,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Sequence([Token('$'), Cut()])
         ),
         Rule(
           name='eol',
-          exp=Token('$->'),
           params=['EOL'],
           kwparams={},
           decorators=[],
@@ -1608,10 +1621,20 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Token('$->')
         ),
         Rule(
           name='value',
+          params=(),
+          kwparams={},
+          decorators=[],
+          is_name=False,
+          is_tokn=False,
+          no_memo=False,
+          no_stak=False,
+          is_memo=True,
+          is_lrec=False,
           exp=Choice(
             [
               Option(Call('string')),
@@ -1620,22 +1643,10 @@ GRAMMAR_MODEL: Grammar = (
               Option(Call('false')),
               Option(Call('null'))
             ]
-          ),
-          params=(),
-          kwparams={},
-          decorators=[],
-          is_name=False,
-          is_tokn=False,
-          no_memo=False,
-          no_stak=False,
-          is_memo=True,
-          is_lrec=False
+          )
         ),
         Rule(
           name='number',
-          exp=Pattern(
-            '(?x)\n    -?                                  # Optional negative sign\n    (?:\n        0                               # Can be a lone zero\n        |\n        [1-9][0-9]* # Or a non-zero digit followed by any number of digits\n    )\n    (?: \\. [0-9]+ )?                    # Optional fraction: dot MUST be followed by 1+ digits\n    (?: [eE] [+-]? [0-9]+ )?            # Optional exponent component\n    \\b\n    '
-          ),
           params=(),
           kwparams={},
           decorators=[],
@@ -1644,11 +1655,13 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Pattern(
+            '(?x)\n    -?                                  # Optional negative sign\n    (?:\n        0                               # Can be a lone zero\n        |\n        [1-9][0-9]* # Or a non-zero digit followed by any number of digits\n    )\n    (?: \\. [0-9]+ )?                    # Optional fraction: dot MUST be followed by 1+ digits\n    (?: [eE] [+-]? [0-9]+ )?            # Optional exponent component\n    \\b\n    '
+          )
         ),
         Rule(
           name='true',
-          exp=Token('true'),
           params=(),
           kwparams={},
           decorators=[],
@@ -1657,11 +1670,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Token('true')
         ),
         Rule(
           name='false',
-          exp=Token('false'),
           params=(),
           kwparams={},
           decorators=[],
@@ -1670,11 +1683,11 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Token('false')
         ),
         Rule(
           name='null',
-          exp=Token('null'),
           params=(),
           kwparams={},
           decorators=[],
@@ -1683,7 +1696,8 @@ GRAMMAR_MODEL: Grammar = (
           no_memo=False,
           no_stak=False,
           is_memo=True,
-          is_lrec=False
+          is_lrec=False,
+          exp=Token('null')
         )
       )
     )
@@ -1705,7 +1719,7 @@ class TatSuBootstrapText(TextLines):
             ignorecase=False,
             namechars='',
             parseinfo=True,
-            comments=r'(?ms)[(][*]\s*((?:.|\n)*?)\s*[*][)]|[\/][*]\s*((?:.|\n)*?)\s*[*][\/]',
+            comments=r'(?ms)[(][*]\s*(.*?)\s*[*][)]|/[*]\s*(.*?)\s*[*]/',
             eol_comments=r'(?ms)(?:[#]|[\/][\/])(.*?)$',
             keywords=KEYWORDS,
             start='start',
@@ -1733,7 +1747,7 @@ class TatSuBootstrapBuffer(Buffer):  # NOTE: backwards compatibility
             ignorecase=False,
             namechars='',
             parseinfo=True,
-            comments=r'(?ms)[(][*]\s*((?:.|\n)*?)\s*[*][)]|[\/][*]\s*((?:.|\n)*?)\s*[*][\/]',
+            comments=r'(?ms)[(][*]\s*(.*?)\s*[*][)]|/[*]\s*(.*?)\s*[*]/',
             eol_comments=r'(?ms)(?:[#]|[\/][\/])(.*?)$',
             keywords=KEYWORDS,
             start='start',

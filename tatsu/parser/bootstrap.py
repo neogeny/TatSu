@@ -42,7 +42,7 @@ class TatSuBootstrapText(TextLines):
             ignorecase=False,
             namechars='',
             parseinfo=True,
-            comments=r'(?ms)[(][*]\s*((?:.|\n)*?)\s*[*][)]|[\/][*]\s*((?:.|\n)*?)\s*[*][\/]',
+            comments=r'(?ms)[(][*]\s*(.*?)\s*[*][)]|/[*]\s*(.*?)\s*[*]/',
             eol_comments=r'(?ms)(?:[#]|[\/][\/])(.*?)$',
             keywords=KEYWORDS,
             start='start',
@@ -70,7 +70,7 @@ class TatSuBootstrapBuffer(Buffer):  # NOTE: backwards compatibility
             ignorecase=False,
             namechars='',
             parseinfo=True,
-            comments=r'(?ms)[(][*]\s*((?:.|\n)*?)\s*[*][)]|[\/][*]\s*((?:.|\n)*?)\s*[*][\/]',
+            comments=r'(?ms)[(][*]\s*(.*?)\s*[*][)]|/[*]\s*(.*?)\s*[*]/',
             eol_comments=r'(?ms)(?:[#]|[\/][\/])(.*?)$',
             keywords=KEYWORDS,
             start='start',
@@ -99,7 +99,7 @@ class TatSuBootstrapRules:
             ignorecase=False,
             namechars='',
             parseinfo=True,
-            comments=r'(?ms)[(][*]\s*((?:.|\n)*?)\s*[*][)]|[\/][*]\s*((?:.|\n)*?)\s*[*][\/]',
+            comments=r'(?ms)[(][*]\s*(.*?)\s*[*][)]|/[*]\s*(.*?)\s*[*]/',
             eol_comments=r'(?ms)(?:[#]|[\/][\/])(.*?)$',
             keywords=KEYWORDS,
             start='start',
@@ -162,111 +162,110 @@ class TatSuBootstrapRules:
         with ctx.ifnot_():
             ctx.token('keyword')
         ctx.cut()
-        with ctx.group():
-            with ctx.choice() as α:
+        with ctx.choice() as α:
 
-                @α.option
-                def _(ctx: Ctx) -> Any:
-                    ctx.define(['name', 'value'], [])
-                    with ctx.nameset('name'):
-                        with ctx.group():
-                            with ctx.choice() as β:
-
-                                @β.option
-                                def _(ctx: Ctx) -> Any:
-                                    ctx.token('comments')
-                                @β.option
-                                def _(ctx: Ctx) -> Any:
-                                    ctx.token('eol_comments')
-                    ctx.cut()
-                    ctx.token('::')
-                    ctx.cut()
-                    with ctx.nameset('value'):
-                        self.regex(ctx)
-                @α.option
-                def _(ctx: Ctx) -> Any:
-                    ctx.define(['name', 'value'], [])
-                    with ctx.nameset('name'):
-                        ctx.token('whitespace')
-                    ctx.cut()
-                    ctx.token('::')
-                    ctx.cut()
-                    with ctx.nameset('value'):
-                        with ctx.group():
-                            with ctx.choice() as β:
-
-                                @β.option
-                                def _(ctx: Ctx) -> Any:
-                                    self.regex(ctx)
-                                @β.option
-                                def _(ctx: Ctx) -> Any:
-                                    self.string(ctx)
-                                @β.option
-                                def _(ctx: Ctx) -> Any:
-                                    ctx.token('None')
-                                @β.option
-                                def _(ctx: Ctx) -> Any:
-                                    ctx.token('False')
-                                @β.option
-                                def _(ctx: Ctx) -> Any:
-                                    ctx.constant(None)
-                @α.option
-                def _(ctx: Ctx) -> Any:
-                    ctx.define(['name', 'value'], [])
-                    with ctx.nameset('name'):
-                        with ctx.group():
-                            with ctx.choice() as β:
-
-                                @β.option
-                                def _(ctx: Ctx) -> Any:
-                                    ctx.token('nameguard')
-                                @β.option
-                                def _(ctx: Ctx) -> Any:
-                                    ctx.token('ignorecase')
-                                @β.option
-                                def _(ctx: Ctx) -> Any:
-                                    ctx.token('left_recursion')
-                                @β.option
-                                def _(ctx: Ctx) -> Any:
-                                    ctx.token('parseinfo')
-                                @β.option
-                                def _(ctx: Ctx) -> Any:
-                                    ctx.token('memoization')
-                    ctx.cut()
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                ctx.define(['name', 'value'], [])
+                with ctx.nameset('name'):
                     with ctx.group():
                         with ctx.choice() as β:
 
                             @β.option
                             def _(ctx: Ctx) -> Any:
-                                ctx.define(['value'], [])
-                                ctx.token('::')
-                                ctx.cut()
-                                with ctx.nameset('value'):
-                                    self.boolean(ctx)
+                                ctx.token('comments')
                             @β.option
                             def _(ctx: Ctx) -> Any:
-                                with ctx.nameset('value'):
-                                    ctx.constant(True)
-                @α.option
-                def _(ctx: Ctx) -> Any:
-                    ctx.define(['name', 'value'], [])
-                    with ctx.nameset('name'):
-                        ctx.token('grammar')
-                    ctx.cut()
-                    ctx.token('::')
-                    ctx.cut()
-                    with ctx.nameset('value'):
-                        self.word(ctx)
-                @α.option
-                def _(ctx: Ctx) -> Any:
-                    ctx.define(['name', 'value'], [])
-                    with ctx.nameset('name'):
-                        ctx.token('namechars')
-                    ctx.cut()
-                    ctx.token('::')
-                    ctx.cut()
-                    with ctx.nameset('value'):
-                        self.string(ctx)
+                                ctx.token('eol_comments')
+                ctx.cut()
+                ctx.token('::')
+                ctx.cut()
+                with ctx.nameset('value'):
+                    self.regex(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                ctx.define(['name', 'value'], [])
+                with ctx.nameset('name'):
+                    ctx.token('whitespace')
+                ctx.cut()
+                ctx.token('::')
+                ctx.cut()
+                with ctx.nameset('value'):
+                    with ctx.group():
+                        with ctx.choice() as β:
+
+                            @β.option
+                            def _(ctx: Ctx) -> Any:
+                                self.regex(ctx)
+                            @β.option
+                            def _(ctx: Ctx) -> Any:
+                                self.string(ctx)
+                            @β.option
+                            def _(ctx: Ctx) -> Any:
+                                ctx.token('None')
+                            @β.option
+                            def _(ctx: Ctx) -> Any:
+                                ctx.token('False')
+                            @β.option
+                            def _(ctx: Ctx) -> Any:
+                                ctx.constant(None)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                ctx.define(['name', 'value'], [])
+                with ctx.nameset('name'):
+                    with ctx.group():
+                        with ctx.choice() as β:
+
+                            @β.option
+                            def _(ctx: Ctx) -> Any:
+                                ctx.token('nameguard')
+                            @β.option
+                            def _(ctx: Ctx) -> Any:
+                                ctx.token('ignorecase')
+                            @β.option
+                            def _(ctx: Ctx) -> Any:
+                                ctx.token('left_recursion')
+                            @β.option
+                            def _(ctx: Ctx) -> Any:
+                                ctx.token('parseinfo')
+                            @β.option
+                            def _(ctx: Ctx) -> Any:
+                                ctx.token('memoization')
+                ctx.cut()
+                with ctx.group():
+                    with ctx.choice() as β:
+
+                        @β.option
+                        def _(ctx: Ctx) -> Any:
+                            ctx.define(['value'], [])
+                            ctx.token('::')
+                            ctx.cut()
+                            with ctx.nameset('value'):
+                                self.boolean(ctx)
+                        @β.option
+                        def _(ctx: Ctx) -> Any:
+                            with ctx.nameset('value'):
+                                ctx.constant(True)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                ctx.define(['name', 'value'], [])
+                with ctx.nameset('name'):
+                    ctx.token('grammar')
+                ctx.cut()
+                ctx.token('::')
+                ctx.cut()
+                with ctx.nameset('value'):
+                    self.word(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                ctx.define(['name', 'value'], [])
+                with ctx.nameset('name'):
+                    ctx.token('namechars')
+                ctx.cut()
+                ctx.token('::')
+                ctx.cut()
+                with ctx.nameset('value'):
+                    self.string(ctx)
         ctx.cut()
 
     @tatsu.rule
@@ -289,25 +288,23 @@ class TatSuBootstrapRules:
             @cl.exp
             def _(ctx: Ctx) -> Any:
                 with ctx.resultadd():
-                    with ctx.group():
-                        with ctx.choice() as α:
+                    with ctx.choice() as α:
 
-                            @α.option
-                            def _(ctx: Ctx) -> Any:
-                                self.word(ctx)
-                            @α.option
-                            def _(ctx: Ctx) -> Any:
-                                self.string(ctx)
+                        @α.option
+                        def _(ctx: Ctx) -> Any:
+                            self.word(ctx)
+                        @α.option
+                        def _(ctx: Ctx) -> Any:
+                            self.string(ctx)
                 with ctx.ifnot_():
-                    with ctx.group():
-                        with ctx.choice() as α:
+                    with ctx.choice() as α:
 
-                            @α.option
-                            def _(ctx: Ctx) -> Any:
-                                ctx.token(':')
-                            @α.option
-                            def _(ctx: Ctx) -> Any:
-                                ctx.token('=')
+                        @α.option
+                        def _(ctx: Ctx) -> Any:
+                            ctx.token(':')
+                        @α.option
+                        def _(ctx: Ctx) -> Any:
+                            ctx.token('=')
 
     @tatsu.rule
     def params(self, ctx: Ctx) -> Any:
@@ -801,19 +798,17 @@ class TatSuBootstrapRules:
     @tatsu.rule
     def gather(self, ctx: Ctx) -> Any:
         with ctx.if_():
-            with ctx.group():
-                self.atom(ctx)
-                ctx.token('.{')
+            self.atom(ctx)
+            ctx.token('.{')
         ctx.cut()
-        with ctx.group():
-            with ctx.choice() as α:
+        with ctx.choice() as α:
 
-                @α.option
-                def _(ctx: Ctx) -> Any:
-                    self.positive_gather(ctx)
-                @α.option
-                def _(ctx: Ctx) -> Any:
-                    self.normal_gather(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                self.positive_gather(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                self.normal_gather(ctx)
 
     @tatsu.rule('PositiveGather')
     def positive_gather(self, ctx: Ctx) -> Any:
@@ -847,19 +842,17 @@ class TatSuBootstrapRules:
     @tatsu.rule
     def join(self, ctx: Ctx) -> Any:
         with ctx.if_():
-            with ctx.group():
-                self.atom(ctx)
-                ctx.token('%{')
+            self.atom(ctx)
+            ctx.token('%{')
         ctx.cut()
-        with ctx.group():
-            with ctx.choice() as α:
+        with ctx.choice() as α:
 
-                @α.option
-                def _(ctx: Ctx) -> Any:
-                    self.positive_join(ctx)
-                @α.option
-                def _(ctx: Ctx) -> Any:
-                    self.normal_join(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                self.positive_join(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                self.normal_join(ctx)
 
     @tatsu.rule('PositiveJoin')
     def positive_join(self, ctx: Ctx) -> Any:
@@ -1041,6 +1034,9 @@ class TatSuBootstrapRules:
                 self.pattern(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
+                self.skip(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
                 self.group(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
@@ -1048,9 +1044,6 @@ class TatSuBootstrapRules:
             @α.option
             def _(ctx: Ctx) -> Any:
                 self.eof(ctx)
-            @α.option
-            def _(ctx: Ctx) -> Any:
-                self.skip(ctx)
             @α.option
             def _(ctx: Ctx) -> Any:
                 self.alert(ctx)
@@ -1095,21 +1088,20 @@ class TatSuBootstrapRules:
     def constant(self, ctx: Ctx) -> Any:
         with ctx.if_():
             ctx.token('`')
-        with ctx.group():
-            with ctx.choice() as α:
+        with ctx.choice() as α:
 
-                @α.option
-                def _(ctx: Ctx) -> Any:
-                    ctx.pattern(r'(?ms)```((?:.|\n)*?)```')
-                @α.option
-                def _(ctx: Ctx) -> Any:
-                    ctx.token('`')
-                    with ctx.result():
-                        self.literal(ctx)
-                    ctx.token('`')
-                @α.option
-                def _(ctx: Ctx) -> Any:
-                    ctx.pattern(r'`(.*?)`')
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                ctx.pattern(r'(?ms)```((?:.|\n)*?)```')
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                ctx.token('`')
+                with ctx.result():
+                    self.literal(ctx)
+                ctx.token('`')
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                ctx.pattern(r'`(.*?)`')
 
     @tatsu.rule('Alert')
     def alert(self, ctx: Ctx) -> Any:
@@ -1162,27 +1154,25 @@ class TatSuBootstrapRules:
     @tatsu.rule
     def string(self, ctx: Ctx) -> Any:
         with ctx.if_():
-            with ctx.group():
-                with ctx.choice() as α:
-
-                    @α.option
-                    def _(ctx: Ctx) -> Any:
-                        ctx.token('"')
-                    @α.option
-                    def _(ctx: Ctx) -> Any:
-                        ctx.token("'")
-        with ctx.group():
             with ctx.choice() as α:
 
                 @α.option
                 def _(ctx: Ctx) -> Any:
-                    self.multiline_string(ctx)
+                    ctx.token('"')
                 @α.option
                 def _(ctx: Ctx) -> Any:
-                    self.singlequoted(ctx)
-                @α.option
-                def _(ctx: Ctx) -> Any:
-                    self.doublequoted(ctx)
+                    ctx.token("'")
+        with ctx.choice() as α:
+
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                self.multiline_string(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                self.singlequoted(ctx)
+            @α.option
+            def _(ctx: Ctx) -> Any:
+                self.doublequoted(ctx)
 
     @tatsu.rule
     def singlequoted(self, ctx: Ctx) -> Any:
