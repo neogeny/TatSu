@@ -24,6 +24,8 @@ ANON = '_'
 
 
 def pythongen(model: Node, parser_name: str = '') -> str:
+    if isinstance(model, g.Grammar):
+        model = model.optimized()
     generator = PythonParserGenerator(parser_name=parser_name)
     generator.walk(model)
     return generator.printed_text()
@@ -86,7 +88,6 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         return node
 
     def walk_Grammar(self, grammar: g.Grammar):
-        grammar = grammar.optimized()
         basename = self.parser_name or grammar.name
         self.print(HEADER)
         self.print()
@@ -390,7 +391,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
             #         return self._config
             #     """)
             self.print()
-            self.walk(grammar.optrules)
+            self.walk(grammar.rules)
         self.print()
 
     def _gen_defines_declaration(self, node: g.Model):

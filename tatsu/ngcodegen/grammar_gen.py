@@ -10,6 +10,8 @@ from .ngparser_gen import keywordsgen, textinputgen
 
 
 def parsermodel_gen(model: g.Grammar, name: str | None = None) -> str:
+    if isinstance(model, g.Grammar):
+        model = model.optimized()
     generator = ParseWithModelGenerator()
     return generator.generate_parser(model, name=name)
 
@@ -59,7 +61,6 @@ def PARSER(name: str) -> str:
 
 class ParseWithModelGenerator(IndentPrintMixin):
     def generate_parser(self, grammar: g.Grammar, name: str | None = None) -> str:
-        grammar = grammar.optimized()
         name = name or grammar.name or ''
         self.clear()
         self.print(HEADER)

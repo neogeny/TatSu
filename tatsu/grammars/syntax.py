@@ -27,7 +27,9 @@ class Group(Box):
         return f'(\n{indent(exp)}\n)'
 
     def optimized(self) -> Model:
-        return self.exp.optimized()
+        newexp = self.exp.optimized()
+        assert isinstance(newexp, Model)
+        return newexp
 
 
 @nodedataclass
@@ -142,6 +144,7 @@ class Sequence(Model):
     def _first(self, k, f) -> ffset:
         result: ffset = {()}
         for s in self.sequence:
+            assert isinstance(s, Model), f'{type(s)}:{s} is not a Model'
             x = s._first(k, f)
             result = kdot(result, x, k)
         self._firstset = result
@@ -173,8 +176,11 @@ class Sequence(Model):
 
     def optimized(self) -> Model | Self:
         seq = [e.optimized() if isinstance(e, Model) else e for e in self.sequence]
-        if len(seq) == 1:
+        for s in seq:
+            assert isinstance(s, Model)
+        if len(seq) == 1 and isinstance(seq[0], Model):
             return seq[0]
+        # NOTE a new Sequence will not have left recursion attributes set
         new = copy(self)
         new.sequence = seq
         return new
@@ -224,12 +230,9 @@ class Call(Model):
     def is_nullable(self) -> bool:
         return self.grammar.rulemap[self.name]._nullable
 
-    def optimized(self) -> Model:
-        if not self._rule:
+    def optimized(self) -> Call:
+        if not self._rule or not isinstance(self._rule.exp, Call):
             return self
-        if not isinstance(self._rule.exp, Call):
-            return self
-        new = copy(self)
 
         rule = cast(Rule, self._rule)
         assert rule is not None
@@ -238,7 +241,9 @@ class Call(Model):
             if not call._rule:
                 break
             rule = call._rule
-        new.name = rule.name
+        new = Call(
+            name=rule.name,
+        )
         new._rule = rule
         return new
 

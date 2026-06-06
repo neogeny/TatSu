@@ -103,7 +103,7 @@ class Model(Node, CanParse):
         ctx.define(keys_single, keys_list)
 
     def lookahead(self, k: int = 1) -> ffset:
-        if not self._lookahead:
+        if not getattr(self, '_lookahead', None):
             self._lookahead = kdot(self.firstset(k), self.followset(k), k)
         return self._lookahead
 
@@ -120,11 +120,13 @@ class Model(Node, CanParse):
         return f'Expected one of: {' '.join(repr(s) for s in self.expecting)}'
 
     def firstset(self, k: int = 1) -> ffset:
-        if not self._firstset:
+        if not getattr(self, '_firstset', None):
             self._firstset = self._first(k, defaultdict(set))
         return self._firstset
 
     def followset(self, _k: int = 1) -> ffset:
+        if not getattr(self, '_follow_set', None):
+            self._follow_set = set()
         return self._follow_set
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
@@ -249,12 +251,10 @@ class Box(Model):
     def _nullable(self) -> bool:
         return self.exp._nullable
 
-    def optimized(self) -> Model | Self:
-        if not isinstance(self.exp, Model):
-            return self
-        new = copy(self)
-        new.exp = self.exp.optimized()
-        return new
+    def optimized(self) -> Self | Model:
+        # WARNING: it is risky to assume that it's safe to optimize
+        # this is a base class, so we can't optimize it
+        return self
 
 
 @nodedataclass
@@ -317,7 +317,7 @@ class Rule(NamedBox):
         return self._parse_rhs(ctx, self.exp)
 
     def _parse_rhs(self, ctx: Ctx, exp: Model) -> Any:
-        # note: BasedRule._parse() calls _parse_rhs() so ruleinfo is a mix
+        # NOTE: BasedRule._parse() calls _parse_rhs() so ruleinfo is a mix
         ruleinfo = RuleInfo(
             name=self.name,
             instance=exp,
@@ -400,11 +400,11 @@ class Rule(NamedBox):
             is_name='@name\n' if self.is_name else '',
         )
 
-    def optimized(self) -> Self:
+    def optimized(self) -> Rule:
         assert isinstance(self.exp, Model)
         new = copy(self)
         new.exp = self.exp.optimized()
-        assert isinstance(new.exp, Model)
+        new._lookahead = self.lookahead()
         return new
 
 
@@ -453,22 +453,21 @@ class Grammar(Model):
         assert isinstance(keywords, tuple)
         self.keywords = keywords
 
-        # note: Ctx needs keywords in config
+        # NOTE Ctx needs keywords in config
         self._config = self._config.override(keywords=self.keywords)
 
         self.rules = tuple(rules)  # type: ignore
-        self._optrules: tuple[Rule, ...] = self.rules
 
         rulemap = {rule.name: rule for rule in self.rules}
         self._rule = SimpleNamespace(**rulemap)
-        self._rulemap = self._rule.__dict__
-
         self.name = self._resolve_name(name)
+        self.initialize()
 
+    def initialize(self):
+        self._rulemap = self._rule.__dict__
         self.link(self)
         self._calc_lookahead_sets()
         self._mark_left_recursion()
-        self.optimize()
 
         missing: set[str] = self.missing_rules(set(self.rulemap))
         if missing:
@@ -620,8 +619,8 @@ class Grammar(Model):
         asmodel: bool = False,
         **settings: Any,
     ) -> Any:
-        g = self.optimized()
-        return g._do_parse(
+        self = self.optimized()  # noqa: PLW0642
+        return self._do_parse(
             text, start=start, config=config, asmodel=asmodel, **settings
         )
 
@@ -637,7 +636,7 @@ class Grammar(Model):
     ) -> Any:
         config = self.config.override_config(config)
         assert isinstance(config, ParserConfig)
-        # note: bw-comp: allow overriding directives
+        # NOTE: bw-comp: allow overriding directives
         config = config.override(start=start, **settings)
 
         if isinstance(config.semantics, type):
@@ -661,7 +660,7 @@ class Grammar(Model):
         return ctx.parse(text, config=config)
 
     def newctx(self, asmodel: bool = True) -> Ctx:
-        return ModelContext(self._optrules, config=self.config, asmodel=asmodel)
+        return ModelContext(self.rules, config=self.config, asmodel=asmodel)
 
     def nodecount(self) -> int:
         return 1 + sum(r.nodecount() for r in self.rules)
@@ -698,19 +697,12 @@ class Grammar(Model):
         ).rstrip() + '\n\n'
         return directives + keywords + rules
 
-    @property
-    def optrules(self) -> tuple[Rule, ...]:
-        return self._optrules
-
     def optimized(self) -> Grammar:
-        self.optimize()
-        return self
-
-    def optimize(self):
         optrules: tuple[Rule, ...] = tuple(r.optimized() for r in self.rules)
-        for r in optrules:
-            r.link(self)
-        self._optrules = optrules
+        new = copy(self)
+        new.rules = optrules
+        new.initialize()
+        return new
 
 
 class ModelContext(ParseContext):

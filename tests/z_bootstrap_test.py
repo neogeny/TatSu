@@ -51,7 +51,7 @@ def test_00_with_boostrap_grammar():
     model0 = compile(text)
     Path('./tmp/model_00.py').write_text(repr(model0))
     g00 = eval(repr(model0), {}, vars(grammars))  # noqa # type: ignore
-    g00.parse(text, trace=True)
+    g00.parse(text, trace=False)
 
     Path('./tmp/parser_00.py').write_text(parsermodel_gen(model0, name=name))
 
@@ -222,7 +222,6 @@ def test_11_with_pickle_and_retry():
     text = tatsu.grammar
     parser = TatSuParserGenerator('TatSuBootstrap')
     g9 = parser.parse(text)
-    g9 = g9.optimized()
     g10 = g9.parse(
         text,
         start='start',
