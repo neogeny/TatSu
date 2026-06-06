@@ -58,8 +58,9 @@ def PARSER(name: str) -> str:
 
 
 class ParseWithModelGenerator(IndentPrintMixin):
-    def generate_parser(self, model: g.Grammar, name: str | None = None) -> str:
-        name = name or model.name or ''
+    def generate_parser(self, grammar: g.Grammar, name: str | None = None) -> str:
+        grammar = grammar.optimized()
+        name = name or grammar.name or ''
         self.clear()
         self.print(HEADER)
         self.print()
@@ -68,17 +69,17 @@ class ParseWithModelGenerator(IndentPrintMixin):
         self.print()
         self.print()
 
-        self.print(f'GRAMMAR_MODEL: {typename(model)} = (')
+        self.print(f'GRAMMAR_MODEL: {typename(grammar)} = (')
         with self.indent():
-            self.print(repr(model))
+            self.print(repr(grammar))
         self.print(')')
         self.print()
         self.print()
 
-        self.print(textinputgen(model, name))
+        self.print(textinputgen(grammar, name))
         self.print()
 
-        self.print(keywordsgen(model))
+        self.print(keywordsgen(grammar))
         self.print()
 
         self.print(FOOTER(name))

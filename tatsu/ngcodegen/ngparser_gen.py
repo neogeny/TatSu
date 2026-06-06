@@ -86,6 +86,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         return node
 
     def walk_Grammar(self, grammar: g.Grammar):
+        grammar = grammar.optimized()
         basename = self.parser_name or grammar.name
         self.print(HEADER)
         self.print()
