@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import inspect
-from collections.abc import Callable
 from functools import cache
 from typing import Any
 
 from .config import ParserConfig
 from .contexts import (
+    Func,
     ParseContext,
     isname,
     leftrec,
@@ -35,7 +35,7 @@ __all__ = [
 
 
 @cache
-def find_rule(source: Any, name: str) -> Callable[[ParseContext], Any] | None:
+def find_rule(source: Any, name: str) -> Func | None:
     for rulename in {name, name.strip('_'), f'_{name}_', f'_{name}'}:
         action = getattr(source, safe_name(rulename), None)
         if callable(action):
@@ -60,7 +60,7 @@ class Parser(ParseContext):
 
         super().__init__(config=config)
 
-    def find_rule(self, name: str) -> Callable[[ParseContext], Any]:
+    def find_rule(self, name: str) -> Func:
         if self.rulesource:
             action = find_rule(self.rulesource, name)
         else:

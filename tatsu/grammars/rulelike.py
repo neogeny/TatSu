@@ -26,8 +26,8 @@ class RuleInclude(NamedBox):
         if not self.name:
             self.name = self.rule.name
 
-    def _set_grammar(self, grammar: Grammar):
-        super()._set_grammar(grammar)
+    def link(self, grammar: Grammar):
+        super().link(grammar)
         if isinstance(self.exp, Model):
             return
         name = self.name or self.rule.name or self.exp

@@ -89,13 +89,13 @@ class Model(Node, CanParse):
     def _parse(self, ctx: Ctx) -> Any:
         return ()
 
-    def _set_grammar(self, grammar: Grammar):
+    def link(self, grammar: Grammar):
         assert isinstance(grammar, Grammar)
 
         self._grammar_ref = weakref.ref(grammar)
         for child in self.children():
             assert isinstance(child, Model)
-            child._set_grammar(grammar)
+            child.link(grammar)
 
     def _add_defined(self, ctx: Ctx):
         keys_single = self.defines_single
@@ -465,7 +465,7 @@ class Grammar(Model):
 
         self.name = self._resolve_name(name)
 
-        self._set_grammar(self)
+        self.link(self)
         self._calc_lookahead_sets()
         self._mark_left_recursion()
         self.optimize()
@@ -620,6 +620,21 @@ class Grammar(Model):
         asmodel: bool = False,
         **settings: Any,
     ) -> Any:
+        g = self.optimized()
+        return g._do_parse(
+            text, start=start, config=config, asmodel=asmodel, **settings
+        )
+
+    def _do_parse(
+        self,
+        text: str | Text,
+        /,
+        *,
+        start: str | None = None,
+        config: Any = None,
+        asmodel: bool = False,
+        **settings: Any,
+    ) -> Any:
         config = self.config.override_config(config)
         assert isinstance(config, ParserConfig)
         # note: bw-comp: allow overriding directives
@@ -694,7 +709,7 @@ class Grammar(Model):
     def optimize(self):
         optrules: tuple[Rule, ...] = tuple(r.optimized() for r in self.rules)
         for r in optrules:
-            r._set_grammar(self)
+            r.link(self)
         self._optrules = optrules
 
 
