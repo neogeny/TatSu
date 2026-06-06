@@ -1,19 +1,22 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+
 shell := "xonsh"
+
 set shell := [shell, "-c"]
 
 py := "3.14"
 
 # Macro-like expansions for consistent uv flag placement
+
 run_test := "uv run --quiet --python " + py + " --group test "
-run_doc  := "uv run --quiet --group doc "
-export   := "uv export --quiet --no-hashes --format requirements-txt "
+run_doc := "uv run --quiet --group doc "
+export := "uv export --quiet --no-hashes --format requirements-txt "
 
 default: test docs examples requirements build
     @echo "✔ all"
 
 @shell:
-    {{shell}} --version
+    {{ shell }} --version
 
 # --- Environment Management ---
 
@@ -29,26 +32,26 @@ reqs: requirements
 
 @req-base:
     echo "▶ requirements.txt"
-    {{export}} -o requirements.txt --no-dev
+    {{ export }} -o requirements.txt --no-dev
 
 @req-dev:
     echo "▶ requirements-dev.txt"
-    {{export}} -o requirements-dev.txt --group dev
+    {{ export }} -o requirements-dev.txt --group dev
 
 @req-test:
     echo "▶ requirements-test.txt"
-    {{export}} -o requirements-test.txt --group test --no-group dev
+    {{ export }} -o requirements-test.txt --group test --no-group dev
 
 @req-doc:
     echo "▶ requirements-doc.txt"
-    {{export}} -o requirements-doc.txt --group doc --no-group dev
+    {{ export }} -o requirements-doc.txt --group doc --no-group dev
 
 # --- Cleaning ---
 
 @clean plus="False":
     echo "▶ clean"
     /bin/rm -rf build dist tatsu.egg-info .tox
-    if {{plus}} : $[/bin/rm -rf .cache .pytest_cache .ruff_cache]
+    if {{ plus }} : $[/bin/rm -rf .cache .pytest_cache .ruff_cache]
     find tatsu tests examples scripts -type d -name "__pycache__" -print0 | xargs -0 /bin/rm -rf
 
 clobber: (clean "true")
@@ -59,37 +62,37 @@ clobber: (clean "true")
     uv sync --group test
 
 @fmt: testg
-    echo "▶ fmt {{py}}"
-    {{run_test}} ruff check \
+    echo "▶ fmt {{ py }}"
+    {{ run_test }} ruff check \
         --select I --fix \
         tatsu tests examples scripts ng
 
-    {{run_test}} ruff format tatsu tests examples scripts ng
+    {{ run_test }} ruff format tatsu tests examples scripts ng
 
 @lint: testg fmt ruff ty mypy pyrefly
     echo "━ lint ⏏ ━"
 
 @ruff: testg
-    echo "▶ ruff {{py}}"
-    {{run_test}} ruff check -q --preview tatsu tests examples
+    echo "▶ ruff {{ py }}"
+    {{ run_test }} ruff check -q --preview tatsu tests examples
 
 @ty: testg
-    echo "▶ ty {{py}}"
-    {{run_test}} ty check tatsu tests examples
+    echo "▶ ty {{ py }}"
+    {{ run_test }} ty check tatsu tests examples
 
 @mypy: testg
-    echo "▶ mypy {{py}}"
-    {{run_test}} mypy \
+    echo "▶ mypy {{ py }}"
+    {{ run_test }} mypy \
         tatsu tests examples \
         --install-types --exclude "dist|parsers|backup|tatsu/grammars/leftrec"
 
 @pyright: testg
-    echo "▶ pyright {{py}}"
-    {{run_test}} basedpyright tatsu tests examples
+    echo "▶ pyright {{ py }}"
+    {{ run_test }} basedpyright tatsu tests examples
 
 @pyrefly: testg
-    echo "▶ pyrefly {{py}}"
-    {{run_test}} pyrefly check tatsu tests examples \
+    echo "▶ pyrefly {{ py }}"
+    {{ run_test }} pyrefly check tatsu tests examples \
         --project-excludes=tatsu/grammars/leftrec
 
 # --- Testing ---
@@ -98,16 +101,16 @@ clobber: (clean "true")
     echo "━ test ⏏ ━"
 
 @pytest_fast: testg
-    echo "▶ fast pytest {{py}}"
-    {{run_test}} pytest \
+    echo "▶ fast pytest {{ py }}"
+    {{ run_test }} pytest \
         --quiet -n auto  \
         --tb=no --no-header \
         --ignore-glob=tests/z* \
         tests
 
 @pytest_boot: testg
-    echo "▶ boot pytest {{py}}"
-    {{run_test}} pytest \
+    echo "▶ boot pytest {{ py }}"
+    {{ run_test }} pytest \
         --quiet \
         --tb=no --no-header --no-summary \
         tests/z_bootstrap_test.py
@@ -119,11 +122,11 @@ clobber: (clean "true")
 
 @docs: docg doclint
     echo "▶ docs"
-    cd docs && {{run_doc}} make -s html > /dev/null
+    cd docs && {{ run_doc }} make -s html > /dev/null
 
-@doclint: docg
+doclint: docg
     echo "▶ doclint"
-    {{run_doc}} vale README.rst docs/**/*.rst > /dev/null
+    {{ run_doc }} vale *.rst *.md docs/**/*.rst
 
 @examples:
     echo "▶ examples/calc"
@@ -169,4 +172,4 @@ clobber: (clean "true")
     just py=3.15t matrix-core
 
 @version:
-    echo "━ ᝰ {{py}} ━"
+    echo "━ ᝰ {{ py }} ━"
