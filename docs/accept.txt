@@ -33,6 +33,7 @@ ANTLR_?
 ASTs?
 DSL[s_]?
 PEG_?
+Justfile
 pdw-mb
 pypi
 uv

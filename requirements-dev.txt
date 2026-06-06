@@ -41,8 +41,8 @@ pytest-dependency==0.6.1
 rich==15.0.0
     # via rich-click
 rich-click==1.9.8
-ruff==0.15.15
+ruff==0.15.16
 setuptools==82.0.1
     # via pytest-dependency
-ty==0.0.42
-uv==0.11.18
+ty==0.0.44
+uv==0.11.19
