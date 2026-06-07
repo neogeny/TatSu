@@ -27,7 +27,7 @@ jobs:
         run: uvx hatch build
 
       - name: publish
-        uses: pypa/gh-action-pypi-publish@v1
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
           verbose: true
