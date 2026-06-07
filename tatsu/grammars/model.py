@@ -408,9 +408,16 @@ class Rule(NamedBox):
         )
 
     def optimized(self) -> Rule:
+        from .syntax import Call, Sequence
+
         assert isinstance(self.exp, Model)
+        exp = self.exp.optimized()
+        while isinstance(exp, Sequence) and len(exp.sequence) == 1:
+            exp = exp.sequence[0]
+        if isinstance(exp, Call) and exp._rule:
+            exp = exp._rule.exp.optimized()
         new = copy(self)
-        new.exp = self.exp.optimized()
+        new.exp = exp
         new._lookahead = self.lookahead()
         return new
 
@@ -428,6 +435,7 @@ class Grammar(Model):
     directives: dict[str, Any] = field(default_factory=dict)
     keywords: tuple[str, ...] = field(default_factory=tuple)
     rules: tuple[Rule, ...] = field(default_factory=tuple)
+    _optimized: bool = False
 
     def __init__(
         self,
@@ -705,10 +713,13 @@ class Grammar(Model):
         return directives + keywords + rules
 
     def optimized(self) -> Grammar:
+        if self._optimized:
+            return self
         optrules: tuple[Rule, ...] = tuple(r.optimized() for r in self.rules)
         new = copy(self)
         new.rules = optrules
         new.initialize()
+        new._optimized = True
         return new
 
 
