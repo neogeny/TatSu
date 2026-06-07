@@ -4,7 +4,7 @@
 
 [build-system]
 # We use hatchling as the engine, which is decoupled from the hatch CLI
-requires = ["hatchling"]
+requires = ["hatchling", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
 
 [project]
@@ -111,9 +111,14 @@ Homepage = "https://github.com/neogeny/TatSu"
 Repository = "https://github.com/neogeny/TatSu"
 Documentation = "https://neogeny.github.io/TatSu"
 
+[tool.uv]
+cache-keys = [
+    { file = "pyproject.toml" },
+    { git = { commit = true, tags = true } }
+]
+
 [tool.hatch.version]
-# Telling Hatchling exactly where to find the version string
-path = "tatsu/_version.py"
+source = "uv-dynamic-versioning"
 
 [tool.hatch.build.targets.wheel]
 packages = ["tatsu"]

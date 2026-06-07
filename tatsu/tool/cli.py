@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 from .. import railroads
-from .._version import __version__
+from .._version import __toolname__, __version__
 from ..config import ParserConfig
 from ..exceptions import ParseException
 from ..ngcodegen import modelgen, parsergen, pythongen
@@ -183,7 +183,7 @@ def parse_args():
         '-V',
         help='provide version information and exit',
         action='version',
-        version=f'TatSu {__version__}',
+        version=f'{__toolname__} {__version__}',
     )
 
     args = argparser.parse_args()
