@@ -19,8 +19,8 @@ class Option(Box):
         result = self.exp._parse(ctx)
         return result
 
-    def optimized(self) -> Option:
-        return self
+    def optimized(self) -> Model:
+        return self.exp.optimized()
 
 
 @nodedataclass
@@ -92,7 +92,6 @@ class Choice(Model):
         return any(o._nullable for o in self.options)
 
     def optimized(self) -> Model | Choice:
-        return self
         opt = [o.optimized() for o in self.options]
         for o in opt:
             assert isinstance(o, Model)

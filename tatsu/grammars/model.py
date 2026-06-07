@@ -167,7 +167,7 @@ class Model(Node, CanParse):
         return railroads.text(self)
 
     def optimized(self) -> Model:
-        return self
+        return copy(self)
 
 
 @nodedataclass
@@ -252,9 +252,10 @@ class Box(Model):
         return self.exp._nullable
 
     def optimized(self) -> Self | Model:
-        # WARNING: it is risky to assume that it's safe to optimize
-        # this is a base class, so we can't optimize it
-        return self
+        exp = self.exp.optimized()
+        new = copy(self)
+        new.exp = exp
+        return new
 
 
 @nodedataclass
@@ -267,6 +268,12 @@ class Synth(Box):
 @nodedataclass
 class NamedBox(Box):
     name: str = field(default='')  # type: ignore
+
+    def optimized(self) -> Self | Model:
+        exp = self.exp.optimized()
+        new = copy(self)
+        new.exp = exp
+        return new
 
 
 @nodedataclass
@@ -458,12 +465,12 @@ class Grammar(Model):
 
         self.rules = tuple(rules)  # type: ignore
 
-        rulemap = {rule.name: rule for rule in self.rules}
-        self._rule = SimpleNamespace(**rulemap)
         self.name = self._resolve_name(name)
         self.initialize()
 
     def initialize(self):
+        rulemap = {rule.name: rule for rule in self.rules}
+        self._rule = SimpleNamespace(**rulemap)
         self._rulemap = self._rule.__dict__
         self.link(self)
         self._calc_lookahead_sets()

@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from copy import copy
 from dataclasses import field
 from functools import cached_property
 from typing import Any
@@ -55,9 +56,11 @@ class RuleInclude(NamedBox):
         return f'>{self.rule.name}'
 
     def optimized(self) -> Model:
-        if self.exp:
-            return self.exp.optimized()
-        return self
+        if not self.exp:
+            return super().optimized()
+        new = copy(self)  # noqa: F821
+        new.exp = self.exp.optimized()
+        return new
 
 
 @nodedataclass
