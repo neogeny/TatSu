@@ -18,6 +18,7 @@
     * `修TieXiu`_ in `Rust`
     * `⻰OGoPEGo`_ in `Go`
     * `꘩TS’emekwes`_ in `TypeScript`
+
   They are functionally complete and pass all the |TatSu| test suite.
 
   Some features are implemented differently to abide to the semantics and
