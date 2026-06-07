@@ -222,6 +222,7 @@ def test_11_with_pickle_and_retry():
     text = tatsu.grammar
     parser = TatSuParserGenerator('TatSuBootstrap')
     g9 = parser.parse(text)
+    g9 = g9.optimized()
     g10 = g9.parse(
         text,
         start='start',
