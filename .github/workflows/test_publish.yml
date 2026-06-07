@@ -18,22 +18,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: set up python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.14"
+      - uses: astral-sh/setup-uv@v5
 
-      - name: install uv and hatch
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          uv tool install hatch
-          uv tool install gh
+      - name: install hatch and gh
+        run: uv tool install hatch && uv tool install gh
 
       - name: build
         run: uvx hatch build
 
       - name: publish
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@v1
         with:
           repository-url: https://test.pypi.org/legacy/
           verbose: true
