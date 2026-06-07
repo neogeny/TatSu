@@ -69,10 +69,12 @@ pegen
 pythonic
 recurse
 safeeval
+subprocess
 trace_length
 trace_separator
 tokenization
 tokenizer(cls)?
+unoptimized
 validate
 we-
 we-like-parsers
