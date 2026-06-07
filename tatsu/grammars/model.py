@@ -435,7 +435,7 @@ class Grammar(Model):
     directives: dict[str, Any] = field(default_factory=dict)
     keywords: tuple[str, ...] = field(default_factory=tuple)
     rules: tuple[Rule, ...] = field(default_factory=tuple)
-    _optimized: bool = False
+    _optimized: Grammar | None = None
 
     def __init__(
         self,
@@ -713,13 +713,17 @@ class Grammar(Model):
         return directives + keywords + rules
 
     def optimized(self) -> Grammar:
-        if self._optimized:
-            return self
+        if isinstance(self._optimized, Grammar):
+            return self._optimized
+
         optrules: tuple[Rule, ...] = tuple(r.optimized() for r in self.rules)
         new = copy(self)
         new.rules = optrules
         new.initialize()
-        new._optimized = True
+
+        self._optimized = new  # NOTE cache optimized grammar
+        new._optimized = new  #  NOTE circular reference as cached
+
         return new
 
 
