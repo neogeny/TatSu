@@ -65,7 +65,7 @@ jobs:
       - name: install dependencies
         run: uv sync --group doc
       - name: docs
-        run: uv run sphinx docs/ docs/_build/
+        run: uv run python -m sphinx docs/ docs/_build/
 
   build:
     runs-on: ubuntu-latest
