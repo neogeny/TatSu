@@ -97,19 +97,19 @@ clobber: (clean "true")
 
 # --- Testing ---
 
-@test: lint pytest-fast pytest-boot
+@test: lint test-fast test-boot
     echo "━ test ⏏ ━"
 
-@pytest-fast: testg
-    echo "▶ fast pytest {{ py }}"
+@test-fast: testg
+    echo "▶ fast test {{ py }}"
     {{ run_test }} pytest \
         --quiet -n auto  \
         --tb=no --no-header \
         --ignore-glob=tests/z* \
         tests
 
-@pytest-boot: testg
-    echo "▶ boot pytest {{ py }}"
+@test-boot: testg
+    echo "▶ boot test {{ py }}"
     {{ run_test }} pytest \
         --quiet \
         --tb=no --no-header --no-summary \
