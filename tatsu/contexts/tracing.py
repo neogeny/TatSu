@@ -46,6 +46,14 @@ class Tracer(Protocol):
         failed: bool = False,
     ) -> None: ...
 
+    def trace_no_match(
+        self,
+        ctx: Ctx,
+        token: Any,
+        name: str | None = None,
+    ) -> None:
+        self.trace_match(ctx, token, name=name, failed=True)
+
     def rulestack(self, ctx: Ctx) -> str: ...
 
 
