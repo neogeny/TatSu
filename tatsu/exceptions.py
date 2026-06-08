@@ -42,6 +42,7 @@ class FailedParse(ParseException):
         super().__init__(cursor, stack, msg)
 
         self.cursor = cursor.clone()
+        self.info = cursor.lineinfo()
         self.stack = stack.copy()
         self.msg = msg
 
@@ -56,12 +57,11 @@ class FailedParse(ParseException):
     def render(self) -> str:
         from io import StringIO
 
-        info = self.cursor.lineinfo()
-        text = info.text
+        text = self.info.text
 
-        line, col = info.line, info.col
+        line, col = self.info.line, self.info.col
 
-        source = info.source or '<unknown>'
+        source = self.info.source or '<unknown>'
         msg = self.message
 
         rulestack = [r.name for r in reversed(self.stack)]
@@ -70,7 +70,7 @@ class FailedParse(ParseException):
 
         print(f'error: {msg}', file=out)
         print(
-            f'  --> {source}:{line + 1}:{col + 1}',
+            f'  --> {source}[{line + 1}:{col + 1}]',
             file=out,
         )
         print('   |', file=out)
@@ -79,9 +79,7 @@ class FailedParse(ParseException):
         max_line_digits = len(str(line + 1))
         start_line_idx = max(0, line - 4)
 
-        for i in range(start_line_idx, line + 1):
-            if i >= len(lines):
-                break
+        for i in range(start_line_idx, min(line + 1, len(lines))):
             current_line_num = i + 1
             content = lines[i].expandtabs()
             print(
@@ -91,13 +89,13 @@ class FailedParse(ParseException):
 
         padding = ' ' * max(0, col)
         print(
-            f'{" " * (max_line_digits + 2)}| {padding}^ {msg}',
+            f'{" ":{max_line_digits + 1}}| {padding}^ {msg}',
             file=out,
         )
 
         print(file=out)
         for call in rulestack:
-            print(f'  -> {call}', file=out)
+            print(f'  → {call}', file=out)
 
         return out.getvalue()
 
