@@ -577,8 +577,8 @@ The ``$->`` (EOL) expression will consume the whitespace up to and including the
 Comments, as defined for the grammar, will also be skipped by the ``$->`` expression in search of a newline, which means that newlines consummed by the comments patterns will not be *"seen"* by ``$->``.
 
 
-``@name``, ``@int``, ``@uint``, ``@float``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``@name``, ``@int``, ``@uint``, ``@float``, ``@bool``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Meta-expressions that match typed values directly from the input:
 
@@ -598,6 +598,10 @@ Meta-expressions that match typed values directly from the input:
     Match a floating-point literal: optional sign, digits, optional
     fractional part, optional exponent. Returns a Python ``float``.
 
+``@bool``
+    Match ``true``, ``false``, ``True``, or ``False``.
+    Returns a Python ``bool``.
+
 The implementation is algorithmic (character-by-character scanning), not
 regex-based, making these expressions efficient for high-throughput parsing.
 
@@ -609,6 +613,7 @@ These are useful when a grammar needs typed values without post-processing:
     number: value=@int
     uvalue: value=@uint
     fvalue: value=@float
+    flag:   value=@bool
     ident:  name=@name
 
 

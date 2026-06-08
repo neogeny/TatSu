@@ -10,8 +10,9 @@ SPDX-License-Identifier: BSD-4-Clause
 
 ## Added
 
-- `@name`, `@int`, `@uint`, `@float` meta-expressions for typed matching (names, signed ints, unsigned ints, floats)
+- `@name`, `@int`, `@uint`, `@float`, `@bool` meta-expressions for typed matching (names, signed/unsigned ints, floats, bools)
 - `FailedMeta` exception for `@` meta failures
+- `@name` now matches identifiers starting with `_`
 
 ## Changed
 
