@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import re
+import sys
 from collections.abc import Callable
 from functools import cached_property
 from typing import Protocol, Self, runtime_checkable
@@ -89,6 +91,16 @@ def match_name(s: str, pos: int, namechars: set[str]) -> int:
     return p
 
 
+def matchname(c: Cursor) -> str | None:
+    if (p := match_name(c.textstr, c.pos, c.namechars)) <= 0:
+        return None
+    i = c.pos
+    c.goto(p)
+    out = c.textstr[i:p]
+    print('NAME', repr(out), file=sys.stderr)
+    return out
+
+
 def match_int(s: str, pos: int) -> int:
     """Matches an integer with optional sign and internal underscores."""
     p = pos
@@ -137,14 +149,6 @@ def match_float(s: str, pos: int) -> int:
         if (p := match_signed_int(s, p)) <= 0:
             return -1
     return p
-
-
-def matchname(c: Cursor) -> str | None:
-    if (p := match_name(c.textstr, c.pos, c.namechars)) <= 0:
-        return None
-    i = c.pos
-    c.goto(p)
-    return c.textstr[i:p]
 
 
 def matchstr(c: Cursor, match: Callable[[str, int], int]) -> str | None:
