@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from functools import cached_property
 from typing import Any, Self
 
 from ..config import ParserConfig
@@ -16,7 +17,7 @@ from ..util import (
 from ..util.newlines import take_linebreak_len, take_non_newline_whitespace_len
 from ..util.regextools import cached_re_compile
 from . import LineInfo
-from .cursor import Cursor, Text
+from .cursor import Cursor, Text, matchname
 from .infos import LineIndexInfo, PosLine
 
 
@@ -31,6 +32,7 @@ class TextLinesCursor(Cursor):
         self.pos: int = pos
         self.len: int = input.len
         self.textstr = input.textstr
+        self._namechars = input._namechar_set
 
     def clone(self) -> Self:
         return type(self)(self.input, pos=self.pos)
@@ -59,6 +61,10 @@ class TextLinesCursor(Cursor):
         n = min(len(self.input.line_index) - 1, self.line)
         source, _actual_line = self.input.line_index[n]
         return source
+
+    @cached_property
+    def namechars(self) -> set[str]:
+        return self._namechars
 
     def goto(self, pos: int):
         self.pos = max(0, min(self.len, pos))
@@ -155,14 +161,17 @@ class TextLinesCursor(Cursor):
         self.move(len(matched))
         return token
 
+    def matchname(self) -> str | None:
+        return matchname(self)
+
     def is_name_char(self, c: str | None) -> bool:
-        return c is not None and (c.isalnum() or c in self.input._namechar_set)
+        return c is not None and (c.isalnum() or c in self.namechars)
 
     def is_name(self, s: str) -> bool:
         if not s:
             return False
 
-        goodstart = s[0].isalpha() or s[0] in self.input._namechar_set
+        goodstart = s[0].isalpha() or s[0] in self.namechars
         return goodstart and all(self.is_name_char(c) for c in s[1:])
 
     def lineinfo(self, pos: int | None = None) -> LineInfo:

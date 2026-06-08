@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from functools import cached_property
 from typing import Self
 
 from . import LineInfo
@@ -13,6 +14,7 @@ class NullCursor(Cursor):
     def __init__(self) -> None:
         self.pos = 0
         self.textstr = ''
+        self._namechars: set[str] = set()
 
     def clone(self) -> Self:
         return type(self)()
@@ -36,6 +38,10 @@ class NullCursor(Cursor):
     @property
     def line(self) -> int:
         return 0
+
+    @cached_property
+    def namechars(self) -> set[str]:
+        return self._namechars
 
     def goto(self, pos) -> None:
         return
@@ -67,6 +73,9 @@ class NullCursor(Cursor):
         return None
 
     def matchre(self, pattern: str) -> str | None:
+        return None
+
+    def matchname(self) -> str | None:
         return None
 
     def matcheol(self) -> bool:

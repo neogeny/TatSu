@@ -11,6 +11,7 @@ about source lines and content.
 from __future__ import annotations
 
 import re
+from functools import cached_property
 from pathlib import Path
 from typing import Any, Self
 
@@ -25,7 +26,7 @@ from ..util import (
 )
 from ..util.newlines import take_linebreak_len, take_non_newline_whitespace_len
 from . import LineInfo
-from .cursor import Cursor, Text
+from .cursor import Cursor, Text, matchname
 from .infos import LineIndexInfo, PosLine
 
 
@@ -69,6 +70,10 @@ class BufferCursor(Cursor):
         n = min(len(self.buffer.lineindex) - 1, self.line)
         source, _line = self.buffer.lineindex[n]
         return source
+
+    @cached_property
+    def namechars(self) -> set[str]:
+        return self.buffer._namechar_set
 
     def goto(self, pos: int):
         self.pos = max(0, min(self.buffer.len, pos))
@@ -153,6 +158,9 @@ class BufferCursor(Cursor):
         token = str_from_match(match)
         self.move(len(matched))
         return token
+
+    def matchname(self) -> str | None:
+        return matchname(self)
 
     def eat_spaces_no_newlines(self):
         p = None
