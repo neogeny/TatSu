@@ -56,8 +56,7 @@ class ParseState:
         self.cursor.goto(prev.cursor.pos)
         return self
 
-    @property
-    def node(self) -> Any:
+    def fold(self) -> Any:
         ast = self.ast
         cst = self.cst
         if not ast:
@@ -108,7 +107,7 @@ class ParseState:
             raise TypeError("Cannot provide both a positional and keyword arguments.")
         if node is None and not kwargs:
             raise TypeError(
-                "Must provide either one positional argument or keyword arguments."
+                "Must provide either one positional argument or keyword arguments.",
             )
 
         if isinstance(node, ParseState):
@@ -141,9 +140,8 @@ class ParseStateStack:
     def state(self) -> ParseState:
         return self.state_stack[-1]
 
-    @property
-    def node(self) -> Any:  # this is Parsed
-        return self.state.node
+    def fold(self) -> Any:  # this is Parsed
+        return self.state.fold()
 
     def undo(self) -> ParseState:
         return self.state_stack.pop()

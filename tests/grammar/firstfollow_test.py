@@ -69,8 +69,8 @@ class FirstFollowTests(unittest.TestCase):
         expr = model.rulemap['expr']
         num = model.rulemap['num']
 
-        assert x.is_lrec
-        assert not expr.is_lrec
+        assert not x.is_lrec
+        assert expr.is_lrec
         assert not num.is_lrec
 
         assert not x.is_memo

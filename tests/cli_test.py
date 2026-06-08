@@ -16,32 +16,32 @@ pytestmark = pytest.mark.skipif(
 )
 
 
+def uv_run(cmd: list[str]) -> str:
+    return subprocess.check_output(['uv', 'run', *cmd]).decode()
+
+
 def test_feature_one():
     assert True
 
 
 def test_cli_help():
-    output = subprocess.check_output(['tatsu', '--help'])  # noqa: S607
-    output = output.decode('utf-8')
+    output = uv_run(['tatsu', '--help'])
     pattern = r'(?ms)竜TatSu takes a grammar .*GRAMMAR'
     assert bool(re.search(pattern, output))
 
 
 def test_cli_python():
-    output = subprocess.check_output(['tatsu', PATH_TATSU_GRAMMAR])  # noqa: S607
-    output = output.decode('utf-8')
+    output = uv_run(['tatsu', PATH_TATSU_GRAMMAR])
     pattern = (
         r'(?ms)CAVEAT UTILITOR.*?竜TatSu.*?KEYWORDS = \('
         r'.*?class \w*?Parser\(\w*Parser\):'
     )
-    assert bool(re.search(pattern, output))
+    found = re.search(pattern, output)
+    assert bool(found), output
 
 
 def test_cli_model():
-    output = subprocess.check_output(  # noqa: S607
-        ['tatsu', '-g', PATH_TATSU_GRAMMAR],
-    )
-    output = output.decode('utf-8')
+    output = uv_run(['tatsu', '-g', PATH_TATSU_GRAMMAR])
     pattern = (
         r'(?ms)CAVEAT UTILITOR.*?竜TatSu'
         r'.*?class \w+?ModelBuilderSemantics\(ModelBuilderSemantics\):'

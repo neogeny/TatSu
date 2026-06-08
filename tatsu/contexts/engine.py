@@ -197,7 +197,7 @@ class ParserEngine(ParserCore, CanParse):
                 ri.func(self)
             else:
                 ri.func(ri.instance, self)
-            return self.state.node
+            return self.state.fold()
 
     def semantics_call(self, ri: RuleInfo, node: Any, pos: int) -> Any:
         if ri.is_name:

@@ -39,7 +39,7 @@ def format_if(fmt, values):
 
 def timestamp():
     return '.'.join(
-        '%2.2d' % t for t in datetime.datetime.now(datetime.UTC).utctimetuple()[:-2]
+        ('%2.2d' % t for t in datetime.datetime.now(datetime.UTC).utctimetuple()[:-2]),
     )
 
 
@@ -85,7 +85,7 @@ def pathlist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
         parts = path.parts[1:] if path.is_absolute() else path.parts
         joined_pattern = str(Path().joinpath(*parts))
         filenames.update(
-            p for p in Path(path.root).glob(joined_pattern) if not p.is_dir()
+            (p for p in Path(path.root).glob(joined_pattern) if not p.is_dir()),
         )
 
     filenames = list(filenames)
@@ -94,12 +94,13 @@ def pathlist_from_patterns(patterns, ignore=None, base='.', sizesort=False):
         if any(path.match(ex) for ex in ignore):
             return True
 
-        return any(
-            any(Path(part).match(ex) for ex in ignore or ()) for part in path.parts
-        )
+        def part_matches(part):
+            return any(Path(part).match(ex) for ex in ignore or ())
+
+        return any(part_matches(part) for part in path.parts)
 
     if ignore:
-        filenames = [path for path in filenames if not excluded(path)]
+        filenames = [fn for fn in filenames if not excluded(fn)]
     if sizesort:
         filenames.sort(key=lambda f: f.stat().st_size)
 
@@ -160,4 +161,6 @@ def isreserved(name) -> bool:
 
 
 def typename(obj: Any) -> str:
+    if isinstance(obj, type):
+        return obj.__name__
     return type(obj).__name__

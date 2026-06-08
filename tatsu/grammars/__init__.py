@@ -36,7 +36,7 @@ from .closure import (
 from .deprecated import LeftJoin, RightJoin
 from .math import _ref, ref
 from .model import (
-    NULL,
+    NIL,
     Box,
     Grammar,
     Model,
@@ -93,7 +93,7 @@ __all__ = [
     'Named',
     'NamedList',
     'NegativeLookahead',
-    'NULL',
+    'NIL',
     'Optional',
     'Override',
     'OverrideList',

@@ -24,6 +24,8 @@ ANON = '_'
 
 
 def pythongen(model: Node, parser_name: str = '') -> str:
+    if isinstance(model, g.Grammar):
+        model = model.optimized()
     generator = PythonParserGenerator(parser_name=parser_name)
     generator.walk(model)
     return generator.printed_text()
@@ -215,7 +217,10 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
 
             with self.indent():
                 for opt in choice.options:
-                    self._gen_anon_block(opt.exp, ctx=self.ctx, decor=f'{var}.option')
+                    exp: g.Model = opt
+                    if isinstance(exp, g.Option):
+                        exp = exp.exp
+                    self._gen_anon_block(exp, ctx=self.ctx, decor=f'{var}.option')
         finally:
             # self.pop_ctx()
             self.prev_choice_number()

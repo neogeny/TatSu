@@ -13,7 +13,7 @@ babel==2.18.0
     #   sphinx
 beautifulsoup4==4.14.3
     # via pydata-sphinx-theme
-certifi==2026.4.22
+certifi==2026.5.20
     # via requests
 charset-normalizer==3.4.7
     # via requests
@@ -26,7 +26,7 @@ docutils==0.22.4
     #   sphinx
     #   sphinx-markdown-builder
     #   sphinx-rtd-theme
-idna==3.13
+idna==3.18
     # via requests
 imagesize==2.0.0
     # via sphinx
@@ -35,24 +35,24 @@ jinja2==3.1.6
     #   myst-docutils
     #   myst-parser
     #   sphinx
-markdown-it-py==4.0.0
+markdown-it-py==4.2.0
     # via
     #   mdit-py-plugins
     #   myst-docutils
     #   myst-parser
 markupsafe==3.0.3
     # via jinja2
-mdit-py-plugins==0.5.0
+mdit-py-plugins==0.6.1
     # via
     #   myst-docutils
     #   myst-parser
 mdurl==0.1.2
     # via markdown-it-py
-myst-docutils==5.0.0
-myst-parser==5.0.0
+myst-docutils==5.1.0
+myst-parser==5.1.0
 packaging==26.2
     # via sphinx
-pydata-sphinx-theme==0.17.1
+pydata-sphinx-theme==0.18.0
 pygments==2.20.0
     # via
     #   accessible-pygments
@@ -62,13 +62,13 @@ pyyaml==6.0.3
     # via
     #   myst-docutils
     #   myst-parser
-requests==2.33.1
+requests==2.34.2
     # via sphinx
 roman-numerals==4.1.0
     # via sphinx
-snowballstemmer==3.0.1
+snowballstemmer==3.1.1
     # via sphinx
-soupsieve==2.8.3
+soupsieve==2.8.4
     # via beautifulsoup4
 sphinx==9.1.0
     # via
@@ -103,6 +103,5 @@ typing-extensions==4.15.0
     #   beautifulsoup4
     #   pydata-sphinx-theme
     #   sphinx-autodoc2
-urllib3==2.6.3
+urllib3==2.7.0
     # via requests
-vale==3.13.0.0

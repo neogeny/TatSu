@@ -21,7 +21,7 @@ from ..util import (
 )
 from ..util.boundeddict import BoundedDict
 from .ast import AST
-from .ctx import Ctx
+from .ctx import Ctx, Func
 from .infos import MemoKey, RuleInfo, RuleResult
 from .state import ParseState, ParseStateStack
 from .tracing import ConsoleTracer, NullTracer, Tracer
@@ -212,7 +212,7 @@ class ParserCore(Ctx):
 
     _cut = cut
 
-    def find_rule(self, name: str) -> Callable[..., Any]:
+    def find_rule(self, name: str) -> Func:
         assert name
         raise NotImplementedError
 

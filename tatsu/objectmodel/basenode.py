@@ -115,6 +115,12 @@ class BaseNode(AsJSONMixin):
     def asjsons(self) -> str:
         return asjsons(self.asjson())
 
+    def dump(self) -> Any:
+        return self.asjson()
+
+    def dumps(self) -> str:
+        return self.asjsons()
+
     @staticmethod
     @cache
     def _basenode_keys() -> frozenset[str]:

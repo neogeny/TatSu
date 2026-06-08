@@ -39,14 +39,6 @@ class Closure(Box):
     def _nullable(self) -> bool:
         return True
 
-    def optimized(self) -> Model:
-        from .syntax import Group
-
-        exp = self.exp.optimized()
-        if isinstance(exp, Group):
-            exp = exp.exp
-        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
-
 
 @nodedataclass
 class PositiveClosure(Closure):
@@ -93,14 +85,6 @@ class Join(Box):
     def _nullable(self) -> bool:
         return True
 
-    def optimized(self) -> Model:
-        from .syntax import Group
-
-        exp = self.exp.optimized()
-        if isinstance(exp, Group):
-            exp = exp.exp
-        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
-
 
 class PositiveJoin(Join):
     def _first(self, k, f) -> ffset:
@@ -141,6 +125,10 @@ class PositiveGather(Gather):
 
 @nodedataclass
 class EmptyClosure(Model):
+    def __post_init__(self):
+        super().__post_init__()
+        self.ast = None
+
     def _parse(self, ctx: Ctx) -> Any:
         return ctx.empty()
 

@@ -1,6 +1,6 @@
 @@grammar :: TatSu
 @@whitespace :: /(?m)\s+/
-@@comments :: ?"(?ms)[(][*]\s*((?:.|\n)*?)\s*[*][)]|[\/][*]\s*((?:.|\n)*?)\s*[*][\/]"
+@@comments :: ?"(?ms)[(][*]\s*(.*?)\s*[*][)]|/[*]\s*(.*?)\s*[*]/"
 @@eol_comments :: ?"(?ms)(?:[#]|[\/][\/])(.*?)$"
 @@parseinfo :: True
 @@left_recursion :: False
@@ -136,23 +136,23 @@ skip[SkipGroup]: '(?:' ~ =expre ')' ~
 
 gather: &(atom '.{') ~ (positive_gather | normal_gather)
 
-positive_gather[PositiveGather]: sep=atom '.{' exp=expre '}' /(?!\+=)[+-]/ ~
+positive_gather[PositiveGather]: sep=atom '.{' exp=expre '}' !/\+=/ /[+-]/ ~
 
 normal_gather[Gather]: sep=atom '.{' ~ exp=expre '}' ['*' ~] ~
 
 join: &(atom '%{') ~ (positive_join | normal_join)
 
-positive_join[PositiveJoin]: sep=atom '%{' exp=expre '}' /(?!\+=)[+-]/ ~
+positive_join[PositiveJoin]: sep=atom '%{' exp=expre '}' !/\+=/ /[+-]/ ~
 
 normal_join[Join]: sep=atom '%{' ~ exp=expre '}' ['*' ~] ~
 
-left_join[LeftJoin]: sep=atom '<{' ~ exp=expre '}' /(?!\+=)[+-]/ ~
+left_join[LeftJoin]: sep=atom '<{' ~ exp=expre '}' !/\+=/ /[+-]/ ~
 
-right_join[RightJoin]: sep=atom '>{' ~ exp=expre '}' /(?!\+=)[+-]/ ~
+right_join[RightJoin]: sep=atom '>{' ~ exp=expre '}' !/\+=/ /[+-]/ ~
 
 positive_closure[PositiveClosure]:
-    | '{' =expre '}' /(?!\+=)[+-]/ ~
-    | =atom /(?!\+=)[+]/ ~
+    | '{' =expre '}' !/\+=/ /[+-]/ ~
+    | =atom !/\+=/ /[+]/ ~
 
 closure[Closure]: '{' =expre '}' ['*'] ~ | =atom '*' ~
 
@@ -173,10 +173,10 @@ atom:
     | call
     | dot
     | pattern
+    | skip
     | group
     | eol
     | eof
-    | skip
     | alert
     | constant
 
@@ -207,14 +207,14 @@ alert[Alert]: level=/\^+/ message=constant
 token[Token]: string | raw_string
 
 literal:
-    | string
     | raw_string
+    | value
     | boolean
+    | none
     | word
     | hex
     | float
     | int
-    | null
 
 string: &('"'|"'") (multiline_string | singlequoted | doublequoted)
 
@@ -222,7 +222,7 @@ singlequoted: SINGLEQUOTED
 
 doublequoted: DOUBLEQUOTED
 
-raw_string: /r(?=["'])/ =STRING
+raw_string: &/r["']/ /r/ =STRING
 
 STRING: SINGLEQUOTED | DOUBLEQUOTED
 
@@ -231,8 +231,8 @@ SINGLEQUOTED: /'((?:[^'\n]|\\'|\\\\)*?)'/ ~
 DOUBLEQUOTED: /"((?:[^"\n]|\\"|\\\\)*?)"/ ~
 
 multiline_string:
-    | /(?ms)'''((?:\\\\|\\.|(?!''').)*?)'''/ ~
-    | /(?ms)"""((?:\\\\|\\.|(?!""").)*?)"""/ ~
+    | /(?ms)'''((?:\\\\|\\.|.)*?)'''/ ~
+    | /(?ms)"""((?:\\\\|\\.|.)*?)"""/ ~
 
 hex: /0[xX](?:\d|[a-fA-F])+/
 
@@ -240,9 +240,9 @@ float: /[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?/
 
 int: /[-+]?\d+/
 
-path: /(?!\d)\w+(?:::(?!\d)\w+)+/
+path: /[_a-zA-Z]\w*(?:::[_a-zA-Z]\w*)+/
 
-word: /(?!\d)\w+/
+word: /[_a-zA-Z]\w*/
 
 dot[Dot]: '/./'
 
@@ -256,8 +256,34 @@ deprecated_regex: '?/' ~ =?"(?ms)((?:[^/\\]|\\/|\\.)*)" ~ '/?'
 
 boolean: 'True' | 'False'
 
-null: 'None'
+none: 'None'
 
 eof[EOF]: '$' ~
 
+<<<<<<< HEAD
 eol[EOL]: '$->' ~
+=======
+eol[EOL]: '$->'
+
+value: string | number | true | false | null
+
+# NOTE: weird indentation is to pass pretty-print roundtrip test
+number:
+    /(?x)
+    -?                                  # Optional negative sign
+    (?:
+        0                               # Can be a lone zero
+        |
+        [1-9][0-9]* # Or a non-zero digit followed by any number of digits
+    )
+    (?: \. [0-9]+ )?                    # Optional fraction: dot MUST be followed by 1+ digits
+    (?: [eE] [+-]? [0-9]+ )?            # Optional exponent component
+    \b
+    /
+
+true: 'true'
+
+false: 'false'
+
+null: 'null'
+>>>>>>> main

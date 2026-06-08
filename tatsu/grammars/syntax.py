@@ -2,17 +2,17 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from copy import copy
 from dataclasses import field
 from functools import cached_property
-from itertools import takewhile
-from typing import Any
+from typing import Any, Self, cast
 
 from ..contexts import AST, Ctx
 from ..exceptions import FailedParse, FailedRef
 from ..objectmodel import nodedataclass
 from ..util import indent, trim
 from .math import ffset, kdot, ref
-from .model import PEP8_LLEN, Box, Model
+from .model import PEP8_LLEN, Box, Model, Rule
 
 
 @nodedataclass
@@ -27,12 +27,9 @@ class Group(Box):
         return f'(\n{indent(exp)}\n)'
 
     def optimized(self) -> Model:
-        from .closure import Closure, EmptyClosure, Join
-
-        exp = self.exp.optimized()
-        if isinstance(exp, Closure | Join | EmptyClosure | Optional):
-            return exp
-        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
+        newexp = self.exp.optimized()
+        assert isinstance(newexp, Model)
+        return newexp
 
 
 @nodedataclass
@@ -115,14 +112,6 @@ class Optional(Box):
     def _nullable(self) -> bool:
         return True
 
-    def optimized(self) -> Model:
-        from .closure import Closure, Join
-
-        exp = self.exp.optimized()
-        if isinstance(exp, Group | Closure | Join):
-            exp = exp.exp
-        return self.clone(exp=exp)  # pyright: ignore[reportArgumentType]
-
 
 @nodedataclass
 class Sequence(Model):
@@ -155,6 +144,7 @@ class Sequence(Model):
     def _first(self, k, f) -> ffset:
         result: ffset = {()}
         for s in self.sequence:
+            assert isinstance(s, Model), f'{type(s)}:{s} is not a Model'
             x = s._first(k, f)
             result = kdot(result, x, k)
         self._firstset = result
@@ -184,22 +174,22 @@ class Sequence(Model):
     def _nullable(self) -> bool:
         return all(s._nullable for s in self.sequence)
 
-    def callable_at_same_pos(self) -> list[Model]:
-        head = list(takewhile(lambda c: c.is_nullable(), self.sequence))
-        if len(head) < len(self.sequence):
-            head.append(self.sequence[len(head)])
-        return head
-
-    def optimized(self) -> Model:
-        seq = [e.optimized() for e in self.sequence]
-        if len(seq) == 1:
+    def optimized(self) -> Model | Self:
+        seq = [e.optimized() if isinstance(e, Model) else e for e in self.sequence]
+        for s in seq:
+            assert isinstance(s, Model)
+        if len(seq) == 1 and isinstance(seq[0], Model):
             return seq[0]
-        return self.clone(sequence=seq)  # pyright: ignore[reportArgumentType]
+        # NOTE a new Sequence will not have left recursion attributes set
+        new = copy(self)
+        new.sequence = seq
+        return new
 
 
 @nodedataclass
 class Call(Model):
     name: str = ''
+    _rule: Rule | None = None
 
     def __post_init__(self):
         if not self.name:
@@ -212,8 +202,10 @@ class Call(Model):
 
     def _parse(self, ctx: Ctx) -> Any:
         try:
-            rule = ctx.find_rule(self.name)
-            return ctx.expcall(rule)
+            if self._rule:
+                return ctx.expcall(self._rule._parse)
+            parse = ctx.find_rule(self.name)
+            return ctx.expcall(parse)
         except KeyError as e:
             raise ctx.newexcept(self.name, excls=FailedRef) from e
 
@@ -237,6 +229,23 @@ class Call(Model):
 
     def is_nullable(self) -> bool:
         return self.grammar.rulemap[self.name]._nullable
+
+    def optimized(self) -> Call:
+        if not self._rule or not isinstance(self._rule.exp, Call):
+            return self
+
+        rule = cast(Rule, self._rule)
+        assert rule is not None
+        while isinstance(rule.exp, Call):
+            call = rule.exp
+            if not call._rule:
+                break
+            rule = call._rule
+        new = Call(
+            name=rule.name,
+        )
+        new._rule = rule
+        return new
 
     def __str__(self):
         return str(ref(self.name))

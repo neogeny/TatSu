@@ -101,8 +101,27 @@ class GrammarSemantics(ModelBuilderSemantics):
     def int(self, ast):
         return int(ast)
 
+    def none(self, _ast):
+        return None
+
+    def boolean(self, ast):
+        return str(ast).lower() not in {'false', 'no', 'fail', '0'}
+
+    # JSON
     def null(self, _ast):
         return None
+
+    # JSON
+    def true(self, _ast):
+        return True
+
+    # JSON
+    def false(self, _ast):
+        return False
+
+    # JSON
+    def number(self, ast):
+        return literal_eval(ast)
 
     def cut_deprecated(self, _ast):
         warning('The use of >> for cut is deprecated. Use the ~ symbol instead.')
@@ -131,9 +150,6 @@ class GrammarSemantics(ModelBuilderSemantics):
         if name not in self.rulemap:
             raise FailedSemantics(f'rule "{name!s}" not yet defined')
         return name
-
-    def boolean(self, ast):
-        return str(ast).lower() in {'true', 'yes', 'ok', '1'}
 
     def rule(self, ast):
         decorators = ast.decorators or []

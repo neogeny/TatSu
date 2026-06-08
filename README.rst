@@ -12,6 +12,27 @@
 | |sponsor|
 |
 
+  **Sibling Projects!**
+
+  Take a look at the sibling projects:
+    * `修TieXiu`_ in `Rust`
+    * `⻰OGoPEGo`_ in `Go`
+    * `꘩TS’emekwes`_ in `TypeScript`
+
+  They are functionally complete and pass all the |TatSu| test suite.
+
+  Some features are implemented differently to abide to the semantics and
+  idioms of each language (features being deprecated in |TatSu| are missing).
+
+  Prepare to be surprised at the performance differences, after thorough
+  optimization, of `Python` versus `Go`, `Rust`, and `TypeScript`.
+
+.. _修TieXiu: https://pypi.org/project/TieXiu/
+.. _`⻰OGoPEGo`: https://pypi.org/project/ogopego/
+.. _`꘩TS’emekwes`: https://github.com/neogeny/tsemekwes
+
+
+
 |TatSu|
 =======
 

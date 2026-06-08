@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from copy import copy
 from dataclasses import field
 from functools import cached_property
 from typing import Any
@@ -26,8 +27,8 @@ class RuleInclude(NamedBox):
         if not self.name:
             self.name = self.rule.name
 
-    def _set_grammar(self, grammar: Grammar):
-        super()._set_grammar(grammar)
+    def link(self, grammar: Grammar):
+        super().link(grammar)
         if isinstance(self.exp, Model):
             return
         name = self.name or self.rule.name or self.exp
@@ -53,6 +54,13 @@ class RuleInclude(NamedBox):
 
     def _pretty(self, lean=False):
         return f'>{self.rule.name}'
+
+    def optimized(self) -> Model:
+        if not self.exp:
+            return super().optimized()
+        new = copy(self)  # noqa: F821
+        new.exp = self.exp.optimized()
+        return new
 
 
 @nodedataclass

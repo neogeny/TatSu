@@ -21,6 +21,14 @@ try:
 except ImportError:
     pass
 
+have_ogopego: bool = False
+try:
+    import ogopego  # type: ignore
+
+    have_ogopego = True
+except ImportError:
+    pass
+
 from .. import grammars
 from ..exceptions import FailedParse
 from ..parsing import Parser
@@ -94,6 +102,10 @@ def _print_run_details(
     verbose: bool,
 ):
     print(f"\n--- {title} ---")
+    if verbose and result.failed_files:
+        print(f"{'failed files:\n':<{lbl_w}}")
+        print('\n'.join(result.failed_files))
+        print()
     print(f"typename: {result.typename}")
     print(f"{'one-time setup:':<{lbl_w}}{num_fmt.format(result.setup_time)} s")
     print(
@@ -105,8 +117,6 @@ def _print_run_details(
         f"{f'errors ({result.error_count}/{result.file_count} files):':<{lbl_w}}"
         f"{num_fmt.format(err_pct)} %",
     )
-    if verbose and result.failed_files:
-        print(f"{'failed files:':<{lbl_w}}{', '.join(result.failed_files)}")
     print(
         f"{'average parsing time:':<{lbl_w}}{num_fmt.format(result.avg_parsing_time)} s/file",
     )
@@ -122,6 +132,7 @@ def print_performance_comparison(results: list[tuple[str, BenchmarkResult]]):
         "in-memory": "mem",
         "generated": "gen",
         "tiexiu": "xiu",
+        "ogopego": "ogo",
     }
 
     # Filter out results that don't have a mnemonic mapping
@@ -138,34 +149,56 @@ def print_performance_comparison(results: list[tuple[str, BenchmarkResult]]):
 
     # Prepare data for the table
     mnemonics = [r[0] for r in parsed_results]
-    _speeds = [r[1] for r in parsed_results]
+    speeds = [r[1] for r in parsed_results]
 
-    # Determine column width for numbers
-    max_mnemonic_len = max(len(m) for m in mnemonics)
-    col_width = max(
-        max_mnemonic_len + 4,
-        7,
-    )  # Mnemonic (N) + padding, or min width for numbers
+    # Determine column width for numbers and ratios
+    # Max length of "mnemonic (N)" for the first column
+    max_label_len = max(len(f"{m} ({i + 1})") for i, m in enumerate(mnemonics))
+
+    # Max length for sloc/s values
+    max_speed_val_len = max(len(f"{s:.2f}") for s in speeds) if speeds else 0
+
+    # Width for the sloc/s column, including its header
+    sloc_s_col_width = max(len("sloc/s"), max_speed_val_len) + 2  # +2 for padding
+
+    # Width for ratio columns (e.g., " 2.00 " or " inf ")
+    ratio_col_width = 7  # Minimum width for " X.XX " or "  inf  "
+
+    # The first column will contain "mnemonic (N)"
+    # The second column will contain "sloc/s" values
+    # Subsequent columns will contain ratios (1...N)
 
     # Print header row
-    header = f"{'':<{col_width}}"
-    for mnem in mnemonics:
-        header += f"{mnem + ' ':>{col_width}}"
+    # Empty space for the "mnemonic (N)" column
+    header = f"{'':<{max_label_len}}"
+    # Header for the "sloc/s" column
+    header += f"{'sloc/s':>{sloc_s_col_width}}"
+    # Headers for the ratio columns (1...N)
+    for i in range(len(mnemonics)):
+        header += f"{i + 1:>{ratio_col_width}}"
     print(header)
 
     # Print data rows
     for i, (row_mnemonic, row_speed) in enumerate(parsed_results):
-        row_str = f"{row_mnemonic}"
-        row_str = f"{row_str:>{col_width - 1}}"
+        # First column: mnemonic (N)
+        row_label = f"{row_mnemonic} ({i + 1})"
+        row_str = f"{row_label:<{max_label_len}}"
+
+        # Second column: sloc/s value
+        row_str += f"{row_speed:>{sloc_s_col_width}.2f}"
+
+        # Subsequent columns: ratios
         for j, (_col_mnemonic, col_speed) in enumerate(parsed_results):
             if i == j:
-                row_str += f"{'-':>{col_width}}"
+                row_str += f"{'-':>{ratio_col_width}}"
             else:
+                # This calculation (row_speed / col_speed) matches the original verbose output's logic
+                # and the example output provided by the user.
                 if col_speed == 0:
                     ratio_str = "inf"
                 else:
                     ratio = row_speed / col_speed
-                    ratio_str = f"{ratio:>{col_width}.2f}"
+                    ratio_str = f"{ratio:>{ratio_col_width}.2f}"
                 row_str += ratio_str
         print(row_str)
 
@@ -176,13 +209,14 @@ def print_summary(
     mem_run: BenchmarkResult | None,
     gen_run: BenchmarkResult | None,
     tiexiu_run: BenchmarkResult | None,
+    ogo_run: BenchmarkResult | None = None,
     verbose: bool = False,
 ):
     relgrammar = Path(grammar).resolve().relative_to(Path.cwd())
     print(f"grammar: {relgrammar}")
     print(f"input files: {count}")
 
-    all_runs = [r for r in [mem_run, gen_run, tiexiu_run] if r is not None]
+    all_runs = [r for r in [mem_run, gen_run, tiexiu_run, ogo_run] if r is not None]
     all_numbers = []
     for r in all_runs:
         all_numbers.extend(
@@ -208,7 +242,8 @@ def print_summary(
         "in-memory:",
         "generated:",
         "tiexiu:",
-        "failed files:",  # Added for label width calculation
+        "ogopego:",
+        "failed files:",
     ]
     lbl_w = max(len(lbl) for lbl in labels) + 2
 
@@ -218,6 +253,8 @@ def print_summary(
         _print_run_details("generated python parser", gen_run, lbl_w, num_fmt, verbose)
     if tiexiu_run:
         _print_run_details("tiexiu (rust) parser", tiexiu_run, lbl_w, num_fmt, verbose)
+    if ogo_run:
+        _print_run_details("ogopego (go) parser", ogo_run, lbl_w, num_fmt, verbose)
 
     comparison_results = []
     if mem_run:
@@ -226,11 +263,11 @@ def print_summary(
         comparison_results.append(("generated", gen_run))
     if tiexiu_run:
         comparison_results.append(("tiexiu", tiexiu_run))
+    if ogo_run:
+        comparison_results.append(("ogopego", ogo_run))
 
     if len(comparison_results) > 1:
         print("\n--- comparison (sloc/sec ratios) ---")
-        # The previous verbose comparison printout is removed,
-        # and now print_performance_comparison will handle the table.
         print_performance_comparison(comparison_results)
 
 
@@ -238,7 +275,12 @@ def benchmark(
     grammar: str | Path,
     filenames: Iterable[str | Path],
     mode: str = 'all',
-) -> tuple[BenchmarkResult | None, BenchmarkResult | None, BenchmarkResult | None]:
+) -> tuple[
+    BenchmarkResult | None,
+    BenchmarkResult | None,
+    BenchmarkResult | None,
+    BenchmarkResult | None,
+]:
     oldlimit = sys.getrecursionlimit()
     sys.setrecursionlimit(2**16)
     try:
@@ -248,7 +290,8 @@ def benchmark(
         model, memsetup = _setup_mem_parser(gramsrc)
         gramname = model.name or "Benchmark"
 
-        filepaths = [Path(f) for f in filenames]
+        currentpath = Path().absolute()
+        filepaths = [Path(f).relative_to(currentpath, walk_up=True) for f in filenames]
         texts = [try_read(p) for p in filepaths]
         nfiles = len(texts)
 
@@ -315,7 +358,7 @@ def benchmark(
             parserpath.unlink()
 
         tiexiu_run = None
-        if mode in {'Xiu', 'all'} and have_tiexiu:
+        if mode in {'tiexiu', 'all'} and have_tiexiu:
             tiexiu_time = 0.0
             tiexiu_errs = 0
             lines_parsed = 0
@@ -331,16 +374,20 @@ def benchmark(
                 print(f"[Xiu {pct:3d}%] Benchmarking tiexiu parser...", end="\r")
                 with timer() as t:
                     try:
-                        peg.parse_to_json_string(gramsrc, text)
-                        lines_parsed += countlines(text).code
-                    except ValueError as e:
-                        tiexiu_errs += 1
-                        tiexiu_failed.append(f"{filepaths[i]} (Error: {e})")
-                    except Exception as e:  # Catching other unexpected errors
-                        tiexiu_errs += 1
-                        tiexiu_failed.append(
-                            f"{filepaths[i]} (Unexpected: {type(e).__name__}: {e})",
+                        peg.parse_to_json_string(
+                            gramsrc, text, source=str(filepaths[i])
                         )
+                        lines_parsed += countlines(text).code
+                    except ValueError as _e:
+                        tiexiu_errs += 1
+                        # tiexiu_failed.append(f"{filepaths[i]} (Error: {e})")
+                        tiexiu_failed.append(str(filepaths[i]))
+                    except Exception as _e:  # Catching other unexpected errors
+                        tiexiu_errs += 1
+                        # tiexiu_failed.append(
+                        #     f"{filepaths[i]} (Unexpected: {type(e).__name__}: {e})",
+                        # )
+                        tiexiu_failed.append(str(filepaths[i]))
                     tiexiu_time += t.delta
             tiexiu_run = BenchmarkResult(
                 "tiexiu.parse",
@@ -354,9 +401,44 @@ def benchmark(
                 avg_lines_sec=lines_parsed / tiexiu_time if tiexiu_time else 0,
             )
 
+        ogo_run = None
+        if mode in {'ogo', 'all'} and have_ogopego:
+            ogotime = 0.0
+            ogoerrs = 0
+            lines_parsed = 0
+            ogo_failed: list[str] = []
+            with timer() as t:
+                ogopego.compile(gramsrc)
+                ogosetup = t.delta
+            for i, text in enumerate(texts):
+                pct = int((i + 1) / nfiles * 100)
+                print(f"[Ogo {pct:3d}%] Benchmarking ogopego parser...", end="\r")
+                with timer() as t:
+                    try:
+                        ogopego.parse(gramsrc, text)
+                        lines_parsed += countlines(text).code
+                    except ogopego.OgoError:
+                        ogoerrs += 1
+                        ogo_failed.append(str(filepaths[i]))
+                    except Exception as _e:
+                        ogoerrs += 1
+                        ogo_failed.append(str(filepaths[i]))
+                    ogotime += t.delta
+            ogo_run = BenchmarkResult(
+                "ogopego.parse",
+                file_count=nfiles,
+                error_count=ogoerrs,
+                lines_parsed=lines_parsed,
+                failed_files=ogo_failed,
+                setup_time=ogosetup,
+                total_parsing_time=ogotime,
+                avg_parsing_time=ogotime / nfiles if nfiles else 0,
+                avg_lines_sec=lines_parsed / ogotime if ogotime else 0,
+            )
+
         print(" " * 75)  # Clear the status line
 
-        return memrun, genrun, tiexiu_run
+        return memrun, genrun, tiexiu_run, ogo_run
     finally:
         sys.setrecursionlimit(oldlimit)
 
@@ -374,7 +456,7 @@ def main():
     )
     mode.add_argument(
         '--both',
-        help='benchmark both tatsu types of parser (mem and gen)',
+        help='benchmark mem and gen parsers only (default: all)',
         dest='mode',
         action='store_const',
         const='both',
@@ -400,6 +482,13 @@ def main():
         action='store_const',
         const='tiexiu',
     )
+    mode.add_argument(
+        '--ogo',
+        help='benchmark ogopego parser',
+        dest='mode',
+        action='store_const',
+        const='ogo',
+    )
     parser.add_argument(
         '--verbose',
         help='show error output from failed parses',
@@ -424,10 +513,15 @@ def main():
         if args.mode == 'tiexiu':
             sys.exit(1)
 
+    if args.mode in {'ogo', 'all'} and not have_ogopego:
+        print("warning: ogopego not found, skipping ogopego benchmark.")
+        if args.mode == 'ogo':
+            sys.exit(1)
+
     try:
         grammar_path = args.grammar.resolve()
         input_paths = [p.resolve() for p in args.inputs]
-        mem_run, gen_run, tiexiu_run = benchmark(
+        mem_run, gen_run, tiexiu_run, ogo_run = benchmark(
             grammar_path,
             input_paths,
             mode=args.mode,
@@ -438,6 +532,7 @@ def main():
             mem_run,
             gen_run,
             tiexiu_run,
+            ogo_run=ogo_run,
             verbose=args.verbose,
         )
     except Exception as e:

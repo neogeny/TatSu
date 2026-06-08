@@ -8,7 +8,7 @@ from typing import Any
 
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
-from ..util import regexpp
+from ..util import regexpp, trim
 from .math import ffset
 from .model import Model
 
@@ -37,6 +37,8 @@ class Pattern(Model):
 
     def _pretty(self, lean=False):
         pat = self.pattern or ""
+        # multiline patterns are OK
+        pat = trim(pat)
         if '/' in pat:
             newpat = pat.replace('"', r'\"')
             regex = f'?"{newpat}"'

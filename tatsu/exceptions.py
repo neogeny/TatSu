@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from .contexts.infos import RuleInfo
 from .input import Cursor
-from .util import typename
 
 
 class TatSuException(Exception):
@@ -54,21 +53,56 @@ class FailedParse(ParseException):
     def message(self):
         return self.msg
 
-    def __str__(self):
-        import re
+    def render(self) -> str:
+        from io import StringIO
 
         info = self.cursor.lineinfo()
-        text = info.text.rstrip()
-        leading = re.sub(r'[^\t]', ' ', text)[: info.col]
+        text = info.text
 
-        text = text.expandtabs()
-        leading = leading.expandtabs()
+        line, col = info.line, info.col
+
+        source = info.source or '<unknown>'
+        msg = self.message
+
         rulestack = [r.name for r in reversed(self.stack)]
-        return (
-            f'{info.source}({info.line + 1}:{info.col + 1})'
-            f' [{typename(self)}] {self.message.rstrip()} :'
-            f'\n{text}\n{leading}^\n{'\n'.join(rulestack)}'
+
+        out = StringIO()
+
+        print(f'error: {msg}', file=out)
+        print(
+            f'  --> {source}:{line + 1}:{col + 1}',
+            file=out,
         )
+        print('   |', file=out)
+
+        lines = text.splitlines()
+        max_line_digits = len(str(line + 1))
+        start_line_idx = max(0, line - 4)
+
+        for i in range(start_line_idx, line + 1):
+            if i >= len(lines):
+                break
+            current_line_num = i + 1
+            content = lines[i].expandtabs()
+            print(
+                f' {current_line_num:>{max_line_digits}} | {content}',
+                file=out,
+            )
+
+        padding = ' ' * max(0, col)
+        print(
+            f'{" " * (max_line_digits + 2)}| {padding}^ {msg}',
+            file=out,
+        )
+
+        print(file=out)
+        for call in rulestack:
+            print(f'  -> {call}', file=out)
+
+        return out.getvalue()
+
+    def __str__(self):
+        return self.render()
 
 
 class FailedToken(FailedParse):

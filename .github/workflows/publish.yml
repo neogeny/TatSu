@@ -16,13 +16,12 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: install uv and hatch
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          uv tool install hatch
-          uv tool install gh
+      - uses: astral-sh/setup-uv@v7
+
+      - name: install hatch and gh
+        run: uv tool install hatch && uv tool install gh
 
       - name: build
         run: uvx hatch build

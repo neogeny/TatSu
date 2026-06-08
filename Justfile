@@ -1,19 +1,22 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+
 shell := "xonsh"
+
 set shell := [shell, "-c"]
 
 py := "3.14"
 
 # Macro-like expansions for consistent uv flag placement
+
 run_test := "uv run --quiet --python " + py + " --group test "
-run_doc  := "uv run --quiet --group doc "
-export   := "uv export --quiet --no-hashes --format requirements-txt "
+run_doc := "uv run --quiet --group doc "
+export := "uv export --quiet --no-hashes --format requirements-txt "
 
 default: test docs examples requirements build
     @echo "✔ all"
 
 @shell:
-    {{shell}} --version
+    {{ shell }} --version
 
 # --- Environment Management ---
 
@@ -29,94 +32,101 @@ reqs: requirements
 
 @req-base:
     echo "▶ requirements.txt"
-    {{export}} -o requirements.txt --no-dev
+    {{ export }} -o requirements.txt --no-dev
 
 @req-dev:
     echo "▶ requirements-dev.txt"
-    {{export}} -o requirements-dev.txt --group dev
+    {{ export }} -o requirements-dev.txt --group dev
 
 @req-test:
     echo "▶ requirements-test.txt"
-    {{export}} -o requirements-test.txt --group test --no-group dev
+    {{ export }} -o requirements-test.txt --group test --no-group dev
 
 @req-doc:
     echo "▶ requirements-doc.txt"
-    {{export}} -o requirements-doc.txt --group doc --no-group dev
+    {{ export }} -o requirements-doc.txt --group doc --no-group dev
 
 # --- Cleaning ---
 
 @clean plus="False":
     echo "▶ clean"
     /bin/rm -rf build dist tatsu.egg-info .tox
-    if {{plus}} : $[/bin/rm -rf .cache .pytest_cache .ruff_cache]
+    if {{ plus }} : $[/bin/rm -rf .cache .pytest_cache .ruff_cache]
     find tatsu tests examples scripts -type d -name "__pycache__" -print0 | xargs -0 /bin/rm -rf
 
 clobber: (clean "true")
 
 # --- Linting & Formatting ---
 
-@fmt:
-    echo "▶ fmt {{py}}"
-    {{run_test}} ruff check \
+@testg:
+    uv sync --group test
+
+@fmt: testg
+    echo "▶ fmt {{ py }}"
+    {{ run_test }} ruff check \
         --select I --fix \
         tatsu tests examples scripts ng
 
-    {{run_test}} ruff format tatsu tests examples scripts ng
+    {{ run_test }} ruff format tatsu tests examples scripts ng
 
-@lint: fmt ruff ty mypy pyright pyrefly
+@lint: testg fmt ruff ty mypy pyrefly
     echo "━ lint ⏏ ━"
 
-@ruff:
-    echo "▶ ruff {{py}}"
-    {{run_test}} ruff check -q --preview tatsu tests examples
+@ruff: testg
+    echo "▶ ruff {{ py }}"
+    {{ run_test }} ruff check -q --preview tatsu tests examples
 
-@ty:
-    echo "▶ ty {{py}}"
-    {{run_test}} ty check tatsu tests examples
+@ty: testg
+    echo "▶ ty {{ py }}"
+    {{ run_test }} ty check tatsu tests examples
 
-@mypy:
-    echo "▶ mypy {{py}}"
-    {{run_test}} mypy \
+@mypy: testg
+    echo "▶ mypy {{ py }}"
+    {{ run_test }} mypy \
         tatsu tests examples \
-        --install-types --exclude "dist|parsers|backup"
+        --install-types --exclude "dist|parsers|backup|tatsu/grammars/leftrec"
 
-@pyright:
-    echo "▶ pyright {{py}}"
-    {{run_test}} basedpyright tatsu tests examples
+@pyright: testg
+    echo "▶ pyright {{ py }}"
+    {{ run_test }} basedpyright tatsu tests examples
 
-@pyrefly:
-    echo "▶ pyrefly {{py}}"
-    {{run_test}} pyrefly check tatsu tests examples
+@pyrefly: testg
+    echo "▶ pyrefly {{ py }}"
+    {{ run_test }} pyrefly check tatsu tests examples \
+        --project-excludes=tatsu/grammars/leftrec
 
 # --- Testing ---
 
 @test: lint pytest_fast pytest_boot
     echo "━ test ⏏ ━"
 
-@pytest_fast:
-    echo "▶ fast pytest {{py}}"
-    {{run_test}} pytest \
+@pytest_fast: testg
+    echo "▶ fast pytest {{ py }}"
+    {{ run_test }} pytest \
         --quiet -n auto  \
-        --tb=no --no-header --no-summary \
+        --tb=no --no-header \
         --ignore-glob=tests/z* \
         tests
 
-@pytest_boot:
-    echo "▶ boot pytest {{py}}"
-    {{run_test}} pytest \
+@pytest_boot: testg
+    echo "▶ boot pytest {{ py }}"
+    {{ run_test }} pytest \
         --quiet \
         --tb=no --no-header --no-summary \
         tests/z_bootstrap_test.py
 
 # --- Documentation & Examples ---
 
-@docs: doclint
-    echo "▶ docs"
-    cd docs && {{run_doc}} make -s html > /dev/null
+@docg:
+    uv sync --group doc
 
-@doclint:
+@docs: docg doclint
+    echo "▶ docs"
+    cd docs && {{ run_doc }} make -s html > /dev/null
+
+doclint: docg
     echo "▶ doclint"
-    {{run_doc}} vale README.rst docs/**/*.rst > /dev/null
+    {{ run_doc }} vale *.rst *.md docs/**/*.rst
 
 @examples:
     echo "▶ examples/calc"
@@ -138,7 +148,7 @@ clobber: (clean "true")
 
 # --- Matrix Execution ---
 
-@matrix: py312 py313 py314 py315 py315t
+@matrix: py312 py313 py314 py315 py314t
     echo '⏏ matrix'
 
 @matrix-core: version test
@@ -155,8 +165,11 @@ clobber: (clean "true")
 @py315:
     just py=3.15 matrix-core
 
+@py314t:
+    just py=3.14t matrix-core
+
 @py315t:
     just py=3.15t matrix-core
 
 @version:
-    echo "━ ᝰ {{py}} ━"
+    echo "━ ᝰ {{ py }} ━"

@@ -4,7 +4,7 @@
 
 [build-system]
 # We use hatchling as the engine, which is decoupled from the hatch CLI
-requires = ["hatchling"]
+requires = ["hatchling", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
 
 [project]
@@ -41,14 +41,11 @@ full = ["colorama", "graphviz", "invoke", "rich"]
 [dependency-groups]
 dev = [
     "asciitree>=0.3.3",
-    "basedpyright>=1.38.0",
-    "black>=26.1.0",
     "build>=1.4.0",
     "colorama>=0.4.6",
     "diskcache>=5.6.3",
     "graphviz>=0.21",
     "invoke>=2.2.1",
-    "nodejs-wheel-binaries<24.11",
     "progress>=1.6.1",
     "psutil>=7.2.2",
     "pyrefly>=0.55.0",
@@ -58,16 +55,13 @@ dev = [
     "rich-click>=1.9.7",
     "ruff>=0.15.6",
     "ty>=0.0.23",
-    "uv>=0.10.10",
+    "uv>=0.11.11",
 ]
 test = [
-    "basedpyright>=1.38.0",
-    "black>=26.3.0",
     "colorama>=0.4.6",
     "graphviz>=0.21",
     "invoke>=2.2.1",
     "mypy>=1.19.1",
-    "nodejs-wheel-binaries<24.11",
     "progress>=1.6.1",
     "psutil>=7.2.2",
     "pytest>=9.0.2",
@@ -117,9 +111,14 @@ Homepage = "https://github.com/neogeny/TatSu"
 Repository = "https://github.com/neogeny/TatSu"
 Documentation = "https://neogeny.github.io/TatSu"
 
+[tool.uv]
+cache-keys = [
+    { file = "pyproject.toml" },
+    { git = { commit = true, tags = true } }
+]
+
 [tool.hatch.version]
-# Telling Hatchling exactly where to find the version string
-path = "tatsu/_version.py"
+source = "uv-dynamic-versioning"
 
 [tool.hatch.build.targets.wheel]
 packages = ["tatsu"]
@@ -169,6 +168,13 @@ exclude = [
     "build",
     "tmp",
     "tatsu/bootstrap.py",
+    "tatsu/grammars/leftrec/*.py",
+]
+
+[tool.ty.src]
+#include = ["."]
+exclude = [
+    "tatsu/grammars/leftrec/*.py",
 ]
 
 [tool.ty.analysis]
@@ -250,11 +256,19 @@ select = [
     "PTH", "TRY",
     "FLY", "PERF", "FURB", "RUF",
     "PL", "PGH", "RET",
+    # --- The "Hardened Venv" Additions ---
+    # "SCS",  # Supply Chain Safety (Detects executable .pth files)
+    "TID", # Tidy Imports (Ban insecure/legacy modules)
+    "INP", # No implicit namespace packages
+    #    "ARG", # Unused arguments (Go-style strictness)
+    "SLOT", # Performance/Memory optimization
+    #    "T20", # No print statements
 ]
 
 ignore = [
+    "ARG002", # unused argument
     #    "F401", # `XYZ` imported but unused
-    "COM812", #  Trailing comma missing"
+    "COM812", #  Trailing comma missing
     "COM819", #  Trailing comma prohibited
     "E501", #    line-too-long
     "E402", #    module-import-not-at-top-of-file
@@ -263,7 +277,7 @@ ignore = [
     "FURB189", #  subclassing str
     "PERF203", #  try-except within loop
     "PGH003",
-    "PLR0914", # Too many local variables (17/15)"
+    "PLR0914", # Too many local variables (17/15)
     "PGH004", # Use specific rule codes when using `noqa`
     "PLC0415", # import-outside-top-level
     "PLC2401", # non-ascci in identifier
@@ -276,6 +290,7 @@ ignore = [
     "PLW1508", # Invalid type for environment variable default; expected `str` or `None`
     "PLW1514", # unspecified-encoding
     "PLW3201", # bad-dunder-method-name
+    "PLW0717", # Try clause contains too many statements
     "RET504", #  assign before return
     "RET505", #  superfluous-else-return
     "RUF001", #  string contains ambiguous `＄` (FULLWIDTH DOLLAR SIGN). Did you mean `$` (DOLLAR SIGN)?
@@ -283,6 +298,7 @@ ignore = [
     "RUF027", #  possible f-string
     "RUF102", # Invalid rule code in `# noqa`: "
     "RUF100", #  Unused `noqa` directive (non-enabled: `RUF001`)
+    "RUF075", # Context manager does not catch exceptions
     "S102", #    exec-builtin
     "S101", #    use of assert
     "S301", #    suspicious-pickle-usage
@@ -292,6 +308,9 @@ ignore = [
     "S607", # Starting a process with a partial executable path
     "SIM108", #  use ternary instead of if-else
     "SIM114", #  if-with-same-arms
+    "T201", # `print` found
+    "T203", # `pprint` found
+    "TID252", # prefer absolute imports
     "TRY003", #  raise-vanilla-args
     "TRY300", #  try-consider-else
     "UP031", #   use of % formatting
@@ -321,7 +340,8 @@ exclude = [
     "**/.venv",
     "**/.git",
     "examples/calc",
-    "parsers/"
+    "parsers/",
+    "tatsu/grammars/leftrec/*.py",
 ]
 
 #reportCallIssue = false
@@ -344,19 +364,23 @@ reportExplicitAny = false
 reportUnusedParameter = false
 
 [tool.pyrefly]
-search_path = ["stubs", "."]
 project-excludes = [
     "**/parsers*",
     "**/docs*",
     "**/build*",
     "**/tmp*",
-    "**/ng*",
     "**/tatsu/bootstrap.py",
-    "**/tatsu/codegen/**/*",
+    "tatsu/grammars/leftrec/",
+    "tatsu/grammars/leftrec/*.py",
+    "tatsu/grammars/leftrec/pegen_leftrec.py",
 ]
 python-version = "3.12.0"
-
-[tool.pyrefly.errors]
+preset = "legacy"
 # missing-attribute = "ignore"
 # untyped-import = "ignore"
 # missing-import = "ignore"
+
+[tool.pyrefly.errors]
+untyped-import = "ignore"
+missing-import = "ignore"
+missing-attribute = "ignore"

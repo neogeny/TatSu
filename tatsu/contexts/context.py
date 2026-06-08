@@ -101,6 +101,8 @@ class ParseContext(ParserEngine):
                 excls=FailedExpectingEndOfText,
             )
 
+    _check_eof = eofcheck
+
     def eolcheck(self):
         if not self.state.cursor.matcheol():
             raise self.newexcept(
@@ -108,14 +110,21 @@ class ParseContext(ParserEngine):
                 excls=FailedExpectingEndOfLine,
             )
 
-    _check_eof = eofcheck
-
     def _no_more_options(self) -> bool:
         # NOTE: Legacy. Used in previous versions of the parser generator
         return True
 
     @contextmanager
     def option(self) -> Any:
+        # NOTE
+        #   For reimplementors.
+        #   These few lines of code define the complete semantics of Cut (~).
+        #   It is contained to an Option/Alt.
+        #   The .push() provides a new state with cutseen==False.
+        #   The .merge()/.undo() contain the Cut so an outer Option cannot use it.
+        #   The OptionSucceeded exception is just the legacy way of the library
+        #   to manage the control flow on success (some versions of the library
+        #   have just returned).
         self.states.push()
         try:
             yield

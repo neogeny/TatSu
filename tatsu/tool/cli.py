@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 from .. import railroads
-from .._version import __version__
+from .._version import __toolname__, __version__
 from ..config import ParserConfig
 from ..exceptions import ParseException
 from ..ngcodegen import modelgen, parsergen, pythongen
@@ -103,6 +103,14 @@ def parse_args():
         help='produce verbose parsing output',
         action='store_true',
     )
+    ebnf_opts.add_argument(
+        '--recursion-limit',
+        '-R',
+        metavar='N',
+        type=int,
+        default=None,
+        help='set Python recursion limit (useful for large grammars)',
+    )
 
     generation_opts = argparser.add_argument_group('generation options')
     generation_opts.add_argument(
@@ -175,7 +183,7 @@ def parse_args():
         '-V',
         help='provide version information and exit',
         action='version',
-        version=f'TatSu {__version__}',
+        version=f'{__toolname__} {__version__}',
     )
 
     args = argparser.parse_args()
@@ -213,6 +221,9 @@ def tatsu_main():
     outfile = args.outfile
     prepare_for_output(outfile)
     prepare_for_output(args.object_model_outfile)
+
+    if args.recursion_limit is not None:
+        sys.setrecursionlimit(args.recursion_limit)
 
     grammar = Path(args.filename).read_text()
 
