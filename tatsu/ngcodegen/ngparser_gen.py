@@ -287,6 +287,10 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print()
         self.print()
 
+    def walk_meta(self, meta: g.Meta):
+        name = type(meta).__name__.replace('Meta', '').lower()
+        self.print(f'{self.ctx}.match{name!s}()')
+
     def _gen_init(self, grammar: g.Grammar):
         assert isinstance(grammar.config, ParserConfig)
         start = grammar.config.start or grammar.rules[0].name
