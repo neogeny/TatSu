@@ -881,8 +881,7 @@
             "__class__": "Named",
             "name": "name",
             "exp": {
-              "__class__": "Call",
-              "name": "name"
+              "__class__": "NameMeta"
             }
           },
           {
@@ -1375,6 +1374,13 @@
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
+              "name": "meta"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
               "name": "named"
             }
           },
@@ -1492,8 +1498,7 @@
             "__class__": "Named",
             "name": "name",
             "exp": {
-              "__class__": "Call",
-              "name": "name"
+              "__class__": "NameMeta"
             }
           },
           {
@@ -1536,8 +1541,7 @@
             "__class__": "Named",
             "name": "name",
             "exp": {
-              "__class__": "Call",
-              "name": "name"
+              "__class__": "NameMeta"
             }
           },
           {
@@ -1586,13 +1590,6 @@
             "exp": {
               "__class__": "Call",
               "name": "override_single"
-            }
-          },
-          {
-            "__class__": "Option",
-            "exp": {
-              "__class__": "Call",
-              "name": "override_single_deprecated"
             }
           }
         ]
@@ -1654,41 +1651,6 @@
           {
             "__class__": "Pattern",
             "pattern": "=|@:"
-          },
-          {
-            "__class__": "Cut"
-          },
-          {
-            "__class__": "Override",
-            "exp": {
-              "__class__": "Call",
-              "name": "term"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "__class__": "Rule",
-      "name": "override_single_deprecated",
-      "params": [
-        "Override"
-      ],
-      "kwparams": {},
-      "decorators": [],
-      "base": null,
-      "is_name": false,
-      "is_tokn": false,
-      "no_memo": false,
-      "no_stak": false,
-      "is_memo": true,
-      "is_lrec": false,
-      "exp": {
-        "__class__": "Sequence",
-        "sequence": [
-          {
-            "__class__": "Token",
-            "token": "@"
           },
           {
             "__class__": "Cut"
@@ -2844,6 +2806,13 @@
             "__class__": "Option",
             "exp": {
               "__class__": "Call",
+              "name": "meta"
+            }
+          },
+          {
+            "__class__": "Option",
+            "exp": {
+              "__class__": "Call",
               "name": "token"
             }
           },
@@ -2908,6 +2877,38 @@
             "exp": {
               "__class__": "Call",
               "name": "constant"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "__class__": "Rule",
+      "name": "meta",
+      "params": [
+        "Meta"
+      ],
+      "kwparams": {},
+      "decorators": [],
+      "base": null,
+      "is_name": false,
+      "is_tokn": false,
+      "no_memo": false,
+      "no_stak": false,
+      "is_memo": true,
+      "is_lrec": false,
+      "exp": {
+        "__class__": "Sequence",
+        "sequence": [
+          {
+            "__class__": "Token",
+            "token": "@"
+          },
+          {
+            "__class__": "Override",
+            "exp": {
+              "__class__": "Pattern",
+              "pattern": "(name|int|uint|float|bool)\\b"
             }
           }
         ]
@@ -3062,8 +3063,7 @@
         "__class__": "Sequence",
         "sequence": [
           {
-            "__class__": "Call",
-            "name": "name"
+            "__class__": "NameMeta"
           },
           {
             "__class__": "Cut"
@@ -3085,8 +3085,7 @@
       "is_memo": true,
       "is_lrec": false,
       "exp": {
-        "__class__": "Call",
-        "name": "word"
+        "__class__": "NameMeta"
       }
     },
     {
@@ -3658,7 +3657,7 @@
       "is_lrec": false,
       "exp": {
         "__class__": "Pattern",
-        "pattern": "[_a-zA-Z]\\w*(?:::[_a-zA-Z]\\w*)+"
+        "pattern": "[_\\w][_\\w\\d]*(?:::[_\\w][_\\w\\d]*)+"
       }
     },
     {
@@ -3675,8 +3674,7 @@
       "is_memo": true,
       "is_lrec": false,
       "exp": {
-        "__class__": "Pattern",
-        "pattern": "[_a-zA-Z]\\w*"
+        "__class__": "NameMeta"
       }
     },
     {
