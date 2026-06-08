@@ -577,6 +577,41 @@ The ``$->`` (EOL) expression will consume the whitespace up to and including the
 Comments, as defined for the grammar, will also be skipped by the ``$->`` expression in search of a newline, which means that newlines consummed by the comments patterns will not be *"seen"* by ``$->``.
 
 
+``@name``, ``@int``, ``@uint``, ``@float``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Meta-expressions that match typed values directly from the input:
+
+``@name``
+    Match an identifier (letter or ``namechars`` followed by letters,
+    digits, underscores, or ``namechars``). Returns the matched string.
+
+``@int``
+    Match an optional sign (``+``/``-``) followed by digits (with
+    optional internal underscores). Returns a Python ``int``.
+
+``@uint``
+    Match digits only (with optional internal underscores). Returns a
+    Python ``int``.
+
+``@float``
+    Match a floating-point literal: optional sign, digits, optional
+    fractional part, optional exponent. Returns a Python ``float``.
+
+The implementation is algorithmic (character-by-character scanning), not
+regex-based, making these expressions efficient for high-throughput parsing.
+
+These are useful when a grammar needs typed values without post-processing:
+
+.. code:: ebnf
+    :force:
+
+    number: value=@int
+    uvalue: value=@uint
+    fvalue: value=@float
+    ident:  name=@name
+
+
 Deprecated Expressions
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -614,6 +649,15 @@ instead.
 
 `Pascal`_-style multi-line comments are *deprecated*. Use `Java`_-style
 comments instead.
+
+
+``@e`` (bare ``@`` as override)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The use of a bare ``@`` as the override operator is **removed** as of
+|TatSu| v5.21.1, because the ``@`` prefix is now used for
+meta-expressions (``@name``, ``@int``, ``@uint``, ``@float``).
+Use ``@:e`` or ``=e`` instead.
 
 
 ``op<{ e }+``
