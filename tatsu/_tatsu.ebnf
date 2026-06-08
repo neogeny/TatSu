@@ -110,13 +110,10 @@ named_single[Named]: name=name /[:=]/ ~ exp=term
 override:
     | override_list
     | override_single
-    | override_single_deprecated
 
 override_list[OverrideList]: /\+=|@\+:/ ~ =term
 
 override_single[Override]: /=|@:/ ~ =term
-
-override_single_deprecated[Override]: '@' ~ =term
 
 term:
     | gather
@@ -174,6 +171,7 @@ negative_lookahead[NegativeLookahead]: '!' ~ =term
 skip_to[SkipTo]: '->' ~ =term
 
 atom:
+    | meta
     | token
     | call
     | dot
@@ -184,6 +182,8 @@ atom:
     | eof
     | alert
     | constant
+
+meta[Meta]: '@' =('name'|'int'|'float')
 
 call[Call]: word
 
