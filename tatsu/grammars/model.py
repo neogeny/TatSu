@@ -722,7 +722,7 @@ class Grammar(Model):
         new.initialize()
 
         self._optimized = new  # NOTE cache optimized grammar
-        new._optimized = new  #  NOTE circular reference as cached
+        new._optimized = new  # NOTE circular reference as cached
 
         return new
 
