@@ -35,7 +35,7 @@ from .closure import (
 )
 from .deprecated import LeftJoin, RightJoin
 from .math import _ref, ref
-from .meta import FloatMeta, IntMeta, Meta, NameMeta
+from .meta import FloatMeta, IntMeta, Meta, NameMeta, UIntMeta
 from .model import (
     NIL,
     Box,
@@ -94,6 +94,7 @@ __all__ = [
     'Named',
     'NamedList',
     'NameMeta',
+    'UIntMeta',
     'IntMeta',
     'FloatMeta',
     'Meta',

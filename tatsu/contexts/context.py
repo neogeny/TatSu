@@ -98,23 +98,34 @@ class ParseContext(ParserEngine):
 
     _matchname = matchname
 
-    def matchint(self) -> str | None:
+    def matchint(self) -> int | None:
         self.next_token()
         if (token := self.cursor.matchint()) is None:
             self.tracer.trace_match(self, '', '@int', failed=True)
             raise self.newexcept('Expecting @int', excls=FailedMeta)
-        self.tracer.trace_match(self, token, '@int')
+        self.tracer.trace_match(self, str(token), '@int')
         self.state.append(token)
         return token
 
     _matchint = matchint
 
-    def matchfloat(self) -> str | None:
+    def matchuint(self) -> int | None:
+        self.next_token()
+        if (token := self.cursor.matchuint()) is None:
+            self.tracer.trace_match(self, '', '@int', failed=True)
+            raise self.newexcept('Expecting @int', excls=FailedMeta)
+        self.tracer.trace_match(self, str(token), '@int')
+        self.state.append(token)
+        return token
+
+    _matchuint = matchuint
+
+    def matchfloat(self) -> float | None:
         self.next_token()
         if (token := self.cursor.matchfloat()) is None:
             self.tracer.trace_match(self, '', '@float', failed=True)
             raise self.newexcept('Expecting @float', excls=FailedMeta)
-        self.tracer.trace_match(self, token, '@float')
+        self.tracer.trace_match(self, str(token), '@float')
         self.state.append(token)
         return token
 

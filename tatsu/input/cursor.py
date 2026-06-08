@@ -49,8 +49,9 @@ class Cursor(Protocol):
     def matchre(self, pattern: str) -> str | None: ...
     def matcheol(self) -> bool: ...
     def matchname(self) -> str | None: ...
-    def matchint(self) -> str | None: ...
-    def matchfloat(self) -> str | None: ...
+    def matchint(self) -> int | None: ...
+    def matchuint(self) -> int | None: ...
+    def matchfloat(self) -> float | None: ...
 
     def is_name(self, s: str) -> bool: ...
     def is_name_char(self, c: str | None) -> bool: ...
@@ -101,7 +102,7 @@ def matchname(c: Cursor) -> str | None:
     return out
 
 
-def match_int(s: str, pos: int) -> int:
+def match_uint(s: str, pos: int) -> int:
     """Matches an integer with optional sign and internal underscores."""
     p = pos
     while p < len(s):
@@ -120,7 +121,7 @@ def match_int(s: str, pos: int) -> int:
     return p
 
 
-def match_signed_int(s: str, pos: int) -> int:
+def match_int(s: str, pos: int) -> int:
     p = pos
     if p < len(s) and s[p] in {'+', '-'}:
         p += 1
@@ -128,7 +129,7 @@ def match_signed_int(s: str, pos: int) -> int:
     if p >= len(s) or not s[p].isdigit():
         return -1
 
-    return match_int(s, p)
+    return match_uint(s, p)
 
 
 def match_float(s: str, pos: int) -> int:
@@ -136,7 +137,7 @@ def match_float(s: str, pos: int) -> int:
         return -1
 
     p = pos
-    if (p := match_signed_int(s, p)) <= 0:
+    if (p := match_int(s, p)) <= 0:
         return -1
 
     if p < len(s) and s[p] == '.':
@@ -146,7 +147,7 @@ def match_float(s: str, pos: int) -> int:
 
     if p < len(s) and s[p].lower() == 'e':
         p += 1
-        if (p := match_signed_int(s, p)) <= 0:
+        if (p := match_int(s, p)) <= 0:
             return -1
     return p
 
@@ -159,13 +160,25 @@ def matchstr(c: Cursor, match: Callable[[str, int], int]) -> str | None:
     return c.textstr[i:p]
 
 
-def matchint(c: Cursor) -> str | None:
-    return matchstr(c, match_int)
+def matchint(c: Cursor) -> int | None:
+    if (s := matchstr(c, match_int)) is not None:
+        return int(s)
+    return None
 
 
-def matchsigned(c: Cursor) -> str | None:
-    return matchstr(c, match_signed_int)
+def matchuint(c: Cursor) -> int | None:
+    if (s := matchstr(c, match_uint)) is not None:
+        return int(s)
+    return None
 
 
-def matchfloat(c: Cursor) -> str | None:
-    return matchstr(c, match_float)
+def matchsigned(c: Cursor) -> int | None:
+    if (s := matchstr(c, match_int)) is not None:
+        return int(s)
+    return None
+
+
+def matchfloat(c: Cursor) -> float | None:
+    if (s := matchstr(c, match_float)) is not None:
+        return float(s)
+    return None

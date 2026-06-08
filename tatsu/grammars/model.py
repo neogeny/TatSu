@@ -476,7 +476,7 @@ class Grammar(Model):
         self.name = self._resolve_name(name)
         self.initialize()
 
-    def initialize(self):
+    def initialize(self) -> None:
         rulemap = {rule.name: rule for rule in self.rules}
         self._rule = SimpleNamespace(**rulemap)
         self._rulemap = self._rule.__dict__

@@ -183,7 +183,7 @@ atom:
     | alert
     | constant
 
-meta[Meta]: '@' =('name'|'int'|'float')
+meta[Meta]: '@' =('name'|'int'|'uint'|'float')
 
 call[Call]: word
 

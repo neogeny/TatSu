@@ -28,6 +28,14 @@ class IntMeta(Meta):
         return '@int'
 
 
+class UIntMeta(Meta):
+    def _parse(self, ctx: Ctx) -> Any:
+        return ctx.matchuint()
+
+    def _pretty(self, lean: bool = False) -> str:
+        return '@uint'
+
+
 class FloatMeta(Meta):
     def _parse(self, ctx: Ctx) -> Any:
         return ctx.matchfloat()

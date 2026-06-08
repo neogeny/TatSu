@@ -26,7 +26,7 @@ from ..util import (
 )
 from ..util.newlines import take_linebreak_len, take_non_newline_whitespace_len
 from . import LineInfo
-from .cursor import Cursor, Text, matchfloat, matchint, matchname
+from .cursor import Cursor, Text, matchfloat, matchint, matchname, matchuint
 from .infos import LineIndexInfo, PosLine
 
 
@@ -162,10 +162,13 @@ class BufferCursor(Cursor):
     def matchname(self) -> str | None:
         return matchname(self)
 
-    def matchint(self) -> str | None:
+    def matchint(self) -> int | None:
         return matchint(self)
 
-    def matchfloat(self) -> str | None:
+    def matchuint(self) -> int | None:
+        return matchuint(self)
+
+    def matchfloat(self) -> float | None:
         return matchfloat(self)
 
     def eat_spaces_no_newlines(self):

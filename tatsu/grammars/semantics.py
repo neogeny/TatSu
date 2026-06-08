@@ -71,6 +71,8 @@ class GrammarSemantics(ModelBuilderSemantics):
                 return g.NameMeta()
             case "int":
                 return g.IntMeta()
+            case "uint":
+                return g.UIntMeta()
             case "float":
                 return g.FloatMeta()
             case _:
