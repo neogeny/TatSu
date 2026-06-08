@@ -370,4 +370,19 @@ def exp_from_json_path(path: JsonSerializationHelper) -> g.Model:  # noqa: PLR09
     if class_name == typename(g.EmptyClosure):
         return g.EmptyClosure()
 
+    if class_name == typename(g.NameMeta):
+        return g.NameMeta()
+
+    if class_name == typename(g.IntMeta):
+        return g.IntMeta()
+
+    if class_name == typename(g.UIntMeta):
+        return g.UIntMeta()
+
+    if class_name == typename(g.FloatMeta):
+        return g.FloatMeta()
+
+    if class_name == typename(g.BoolMeta):
+        return g.BoolMeta()
+
     raise path._error(f"Unsupported: {class_name}")
