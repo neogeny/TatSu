@@ -97,10 +97,10 @@ clobber: (clean "true")
 
 # --- Testing ---
 
-@test: lint pytest_fast pytest_boot
+@test: lint pytest-fast pytest-boot
     echo "━ test ⏏ ━"
 
-@pytest_fast: testg
+@pytest-fast: testg
     echo "▶ fast pytest {{ py }}"
     {{ run_test }} pytest \
         --quiet -n auto  \
@@ -108,7 +108,7 @@ clobber: (clean "true")
         --ignore-glob=tests/z* \
         tests
 
-@pytest_boot: testg
+@pytest-boot: testg
     echo "▶ boot pytest {{ py }}"
     {{ run_test }} pytest \
         --quiet \

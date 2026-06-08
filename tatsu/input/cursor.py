@@ -83,7 +83,7 @@ def match_name(s: str, pos: int, namechars: set[str]) -> int:
         return -1
 
     p = pos
-    is_name_start = (c := s[p]) and (c.isalpha() or c in namechars)
+    is_name_start = (c := s[p]) and (c == '_' or c.isalpha() or c in namechars)
     if not is_name_start:
         return -1
     p += 1
