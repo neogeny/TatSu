@@ -119,6 +119,10 @@ class FailedPattern(FailedParse):
     pass
 
 
+class FailedMeta(FailedParse):
+    pass
+
+
 class FailedRef(FailedParse):
     def __init__(self, cursor: Cursor, stack: list[RuleInfo], name: str):
         super().__init__(cursor, stack, name)

@@ -35,6 +35,7 @@ from .closure import (
 )
 from .deprecated import LeftJoin, RightJoin
 from .math import _ref, ref
+from .meta import NameMeta
 from .model import (
     NIL,
     Box,
@@ -92,6 +93,7 @@ __all__ = [
     'ModelContext',
     'Named',
     'NamedList',
+    'NameMeta',
     'NegativeLookahead',
     'NIL',
     'Optional',
