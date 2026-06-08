@@ -6,7 +6,7 @@ from .. import grammars as g
 from .._version import __version__ as version
 from ..util.common import typename
 from ..util.indent import IndentPrintMixin
-from .boilerplt import FOOTER, HEADER
+from .boilerplt import FOOTER
 from .ngparser_gen import keywordsgen, textinputgen
 
 
@@ -60,8 +60,8 @@ def PARSER(name: str) -> str:
             config: Any = None,
             **settings: Any,
         ) -> Any:
-            # NOTE:
-            #   Copy the grammar so the configuration is unike to this parse
+            # NOTE
+            #   Copy the grammar so the configuration is unique to this parse
             #   and one parse doesn't leak settings to another.
             #   There may be also configurations that are unique to this parse.
             model = Grammar(
@@ -80,7 +80,6 @@ class ParseWithModelGenerator(IndentPrintMixin):
     def generate_parser(self, grammar: g.Grammar, name: str | None = None) -> str:
         name = name or grammar.name or ''
         self.clear()
-        self.print(HEADER)
         self.print()
 
         self.print(PARSER(name))
@@ -89,7 +88,7 @@ class ParseWithModelGenerator(IndentPrintMixin):
 
         self.print(f'GRAMMAR_MODEL: {typename(grammar)} = (')
         with self.indent():
-            self.print(repr(grammar))
+            self.print(repr(grammar.optimized()))
         self.print(')')
         self.print()
         self.print()
