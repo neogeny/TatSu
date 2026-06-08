@@ -288,7 +288,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print()
 
     def walk_meta(self, meta: g.Meta):
-        name = type(meta).__name__.replace('Meta', '').lower()
+        name = meta.pretty()[1:]
         self.print(f'{self.ctx}.match{name!s}()')
 
     def _gen_init(self, grammar: g.Grammar):

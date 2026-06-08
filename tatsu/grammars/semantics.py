@@ -75,6 +75,8 @@ class GrammarSemantics(ModelBuilderSemantics):
                 return g.UIntMeta()
             case "float":
                 return g.FloatMeta()
+            case "bool":
+                return g.BoolMeta()
             case _:
                 raise FailedSemantics(f'unknown meta: {ast}')
 
