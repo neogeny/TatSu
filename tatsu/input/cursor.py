@@ -52,6 +52,7 @@ class Cursor(Protocol):
     def matchint(self) -> int | None: ...
     def matchuint(self) -> int | None: ...
     def matchfloat(self) -> float | None: ...
+    def matchbool(self) -> bool | None: ...
 
     def is_name(self, s: str) -> bool: ...
     def is_name_char(self, c: str | None) -> bool: ...
@@ -100,6 +101,25 @@ def matchname(c: Cursor) -> str | None:
     c.goto(p)
     out = c.textstr[i:p]
     return out
+
+
+def match_bool(s: str, pos: int) -> int:
+    if not s or pos < 0 or pos >= len(s):
+        return -1
+    rest = s[pos:]
+    if rest.startswith('true') or rest.startswith('True'):
+        return pos + len('true')
+    if rest.startswith('false') or rest.startswith('False'):
+        return pos + len('false')
+    return -1
+
+
+def matchbool(c: Cursor) -> bool | None:
+    if (p := match_bool(c.textstr, c.pos)) is None:
+        return None
+    i = c.pos
+    c.goto(p)
+    return bool(c.textstr[i:p].capitalize())
 
 
 def match_uint(s: str, pos: int) -> int:

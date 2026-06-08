@@ -42,3 +42,11 @@ class FloatMeta(Meta):
 
     def _pretty(self, lean: bool = False) -> str:
         return '@float'
+
+
+class BoolMeta(Meta):
+    def _parse(self, ctx: Ctx) -> Any:
+        return ctx.matchbool()
+
+    def _pretty(self, lean: bool = False) -> str:
+        return '@bool'

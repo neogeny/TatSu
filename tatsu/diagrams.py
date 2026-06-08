@@ -284,6 +284,26 @@ class DiagramNodeWalker(NodeWalker):
     def walk_fail(self, _v):
         return None, None
 
+    def walk_name_meta(self, _v):
+        n = self.tnode('@name')
+        return n, n
+
+    def walk_int_meta(self, _v):
+        n = self.tnode('@int')
+        return n, n
+
+    def walk_uint_meta(self, _v):
+        n = self.tnode('@int')
+        return n, n
+
+    def walk_float_meta(self, _v):
+        n = self.tnode('@float')
+        return n, n
+
+    def walk_bool_meta(self, _v):
+        n = self.tnode('@bool')
+        return n, n
+
     def ENDRULE(self, _ast):
         return None, None
 

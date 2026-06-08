@@ -90,6 +90,9 @@ class NullCursor(Cursor):
     def matcheol(self) -> bool:
         return False
 
+    def matchbool(self) -> bool | None:
+        return None
+
     def is_name(self, s: str) -> bool:
         return False
 

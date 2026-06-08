@@ -131,6 +131,17 @@ class ParseContext(ParserEngine):
 
     _matchfloat = matchfloat
 
+    def matchbool(self) -> bool | None:
+        self.next_token()
+        if (token := self.cursor.matchbool()) is None:
+            self.tracer.trace_match(self, '', '@bool', failed=True)
+            raise self.newexcept('Expecting @bool', excls=FailedMeta)
+        self.tracer.trace_match(self, str(token), '@bool')
+        self.state.append(token)
+        return token
+
+    _matchbool = matchbool
+
     def eof(self) -> bool:
         return self.cursor.atend()
 

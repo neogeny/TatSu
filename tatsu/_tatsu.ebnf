@@ -103,9 +103,9 @@ rule_include[RuleInclude]: '>' ~ =known_name
 
 named: named_list | named_single
 
-named_list[NamedList]: name=name /\+[:=]/ ~ exp=term
+named_list[NamedList]: name=@name /\+[:=]/ ~ exp=term
 
-named_single[Named]: name=name /[:=]/ ~ exp=term
+named_single[Named]: name=@name /[:=]/ ~ exp=term
 
 override:
     | override_list
@@ -183,7 +183,7 @@ atom:
     | alert
     | constant
 
-meta[Meta]: '@' =('name'|'int'|'uint'|'float')
+meta[Meta]: '@' =/(name|int|uint|float|bool)\b/
 
 call[Call]: word
 
@@ -195,9 +195,9 @@ cut[Cut]: '~' ~
 
 cut_deprecated[Cut]: '>>' ~
 
-known_name: name ~
+known_name: @name ~
 
-name: word
+name: @name
 
 constant[Constant]:
     &'`'
@@ -245,9 +245,9 @@ float: /[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?/
 
 int: /[-+]?\d+/
 
-path: /[_a-zA-Z]\w*(?:::[_a-zA-Z]\w*)+/
+path: /[_\w][_\w\d]*(?:::[_\w][_\w\d]*)+/
 
-word: /[_a-zA-Z]\w*/
+word: @name
 
 dot[Dot]: '/./'
 
