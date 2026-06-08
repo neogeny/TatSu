@@ -64,6 +64,13 @@ class GrammarSemantics(ModelBuilderSemantics):
         self._validate_pattern(pattern)
         return pattern
 
+    def meta(self, ast: str) -> g.Meta:
+        match ast:
+            case "name":
+                return g.NameMeta()
+            case _:
+                raise FailedSemantics(f'unknown meta: {ast}')
+
     def deprecated_regex(self, ast: str, _parseinfo: ParseInfo | None = None):
         return self.regex(ast)
         # import warnings

@@ -8,9 +8,13 @@ from ..contexts import Ctx
 from .model import Model
 
 
-class NameMeta(Model):
+class Meta(Model):
+    pass
+
+
+class NameMeta(Meta):
     def _parse(self, ctx: Ctx) -> Any:
         return ctx.name()
 
-    def _pretty(self) -> str:
+    def _pretty(self, lean: bool = False) -> str:
         return '@name'
