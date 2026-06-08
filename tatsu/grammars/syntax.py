@@ -218,7 +218,7 @@ class Call(Model):
         return {self.name}
 
     def _first(self, k, f) -> ffset:
-        return f[self.name] | {(f'→{self.name}',)}
+        return f[self.name] | {ref(self.name)}
 
     def _follow(self, k, fl, a):
         fl[self.name] |= a

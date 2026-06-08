@@ -61,7 +61,7 @@ paramdef:
 
 rule[Rule]:
     decorators={decorator}
-    name=name
+    name=@name
     ~
     [>paramdef]
     ['<' ~ base=known_name]

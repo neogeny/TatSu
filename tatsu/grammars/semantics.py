@@ -65,6 +65,7 @@ class GrammarSemantics(ModelBuilderSemantics):
         return pattern
 
     def meta(self, ast: str, *args) -> g.Meta:
+        print(f'SEMANTICS: meta({ast})')
         match ast:
             case "name":
                 return g.NameMeta()

@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import re
-import sys
 from collections.abc import Callable
 from functools import cached_property
 from typing import Protocol, Self, runtime_checkable
@@ -76,6 +74,9 @@ Tokenizer = Text
 
 
 def match_name(s: str, pos: int, namechars: set[str]) -> int:
+    def is_name_char(c: str) -> bool:
+        return bool(c) and (c == '_' or c.isalnum() or c in namechars)
+
     if not s or pos < 0 or pos >= len(s):
         return -1
 
@@ -85,7 +86,7 @@ def match_name(s: str, pos: int, namechars: set[str]) -> int:
         return -1
     p += 1
 
-    while p < len(s) and (c := s[p]) and (c.isalnum() or c in namechars):
+    while p < len(s) and is_name_char(s[p]):
         p += 1
 
     return p
@@ -97,7 +98,6 @@ def matchname(c: Cursor) -> str | None:
     i = c.pos
     c.goto(p)
     out = c.textstr[i:p]
-    print('NAME', repr(out), file=sys.stderr)
     return out
 
 

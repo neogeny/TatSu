@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from .contexts.infos import RuleInfo
-from .input import Cursor
+from .input import Cursor, LineInfo
 
 
 class TatSuException(Exception):
@@ -42,7 +42,7 @@ class FailedParse(ParseException):
         super().__init__(cursor, stack, msg)
 
         self.cursor = cursor.clone()
-        self.info = cursor.lineinfo()
+        self.info: LineInfo = cursor.lineinfo()
         self.stack = stack.copy()
         self.msg = msg
 
@@ -57,7 +57,7 @@ class FailedParse(ParseException):
     def render(self) -> str:
         from io import StringIO
 
-        text = self.info.text
+        text = self.cursor.textstr
 
         line, col = self.info.line, self.info.col
 
@@ -68,14 +68,14 @@ class FailedParse(ParseException):
 
         out = StringIO()
 
+        lines = text.splitlines()
         print(f'error: {msg}', file=out)
         print(
-            f'  --> {source}[{line + 1}:{col + 1}]',
+            f'  --> {source}@{self.info.end}[{line + 1}:{col + 1}]',
             file=out,
         )
         print('   |', file=out)
 
-        lines = text.splitlines()
         max_line_digits = len(str(line + 1))
         start_line_idx = max(0, line - 4)
 
