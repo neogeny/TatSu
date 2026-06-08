@@ -78,6 +78,12 @@ class NullCursor(Cursor):
     def matchname(self) -> str | None:
         return None
 
+    def matchint(self) -> str | None:
+        return None
+
+    def matchfloat(self) -> str | None:
+        return None
+
     def matcheol(self) -> bool:
         return False
 

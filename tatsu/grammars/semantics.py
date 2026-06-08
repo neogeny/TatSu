@@ -64,10 +64,14 @@ class GrammarSemantics(ModelBuilderSemantics):
         self._validate_pattern(pattern)
         return pattern
 
-    def meta(self, ast: str) -> g.Meta:
+    def meta(self, ast: str, *args) -> g.Meta:
         match ast:
             case "name":
                 return g.NameMeta()
+            case "int":
+                return g.IntMeta()
+            case "float":
+                return g.FloatMeta()
             case _:
                 raise FailedSemantics(f'unknown meta: {ast}')
 

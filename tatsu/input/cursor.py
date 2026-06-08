@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from collections.abc import Callable
 from functools import cached_property
 from typing import Protocol, Self, runtime_checkable
 
@@ -48,6 +49,8 @@ class Cursor(Protocol):
     def matchre(self, pattern: str) -> str | None: ...
     def matcheol(self) -> bool: ...
     def matchname(self) -> str | None: ...
+    def matchint(self) -> str | None: ...
+    def matchfloat(self) -> str | None: ...
 
     def is_name(self, s: str) -> bool: ...
     def is_name_char(self, c: str | None) -> bool: ...
@@ -86,14 +89,79 @@ def match_name(s: str, pos: int, namechars: set[str]) -> int:
     return p
 
 
-def matchname(c: Cursor) -> str | None:
-    if c.atend():
-        return None
+def match_int(s: str, pos: int) -> int:
+    """Matches an integer with optional sign and internal underscores."""
+    p = pos
+    while p < len(s):
+        c = s[p]
+        if c.isdigit():
+            p += 1
+        elif c == '_':
+            if p + 1 < len(s) and s[p + 1].isdigit():
+                p += 1
+            else:
+                return -1
+        elif c.isalpha():
+            return -1
+        else:
+            break
+    return p
 
-    s = c.textstr
+
+def match_signed_int(s: str, pos: int) -> int:
+    p = pos
+    if p < len(s) and s[p] in {'+', '-'}:
+        p += 1
+
+    if p >= len(s) or not s[p].isdigit():
+        return -1
+
+    return match_int(s, p)
+
+
+def match_float(s: str, pos: int) -> int:
+    if not s or pos < 0 or pos >= len(s):
+        return -1
+
+    p = pos
+    if (p := match_signed_int(s, p)) <= 0:
+        return -1
+
+    if p < len(s) and s[p] == '.':
+        p += 1
+        if (q := match_int(s, p)) > 0:
+            p = q
+
+    if p < len(s) and s[p].lower() == 'e':
+        p += 1
+        if (p := match_signed_int(s, p)) <= 0:
+            return -1
+    return p
+
+
+def matchname(c: Cursor) -> str | None:
+    if (p := match_name(c.textstr, c.pos, c.namechars)) <= 0:
+        return None
     i = c.pos
-    p = match_name(s, c.pos, c.namechars)
-    if p > 0:
-        c.goto(p)
-        return s[i:p]
-    return None
+    c.goto(p)
+    return c.textstr[i:p]
+
+
+def matchstr(c: Cursor, match: Callable[[str, int], int]) -> str | None:
+    if (p := match(c.textstr, c.pos)) <= 0:
+        return None
+    i = c.pos
+    c.goto(p)
+    return c.textstr[i:p]
+
+
+def matchint(c: Cursor) -> str | None:
+    return matchstr(c, match_int)
+
+
+def matchsigned(c: Cursor) -> str | None:
+    return matchstr(c, match_signed_int)
+
+
+def matchfloat(c: Cursor) -> str | None:
+    return matchstr(c, match_float)

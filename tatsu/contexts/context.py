@@ -87,7 +87,7 @@ class ParseContext(ParserEngine):
 
     _pattern = pattern
 
-    def name(self) -> str | None:
+    def matchname(self) -> str | None:
         if (token := self.cursor.matchname()) is None:
             self.tracer.trace_match(self, '', '@name', failed=True)
             raise self.newexcept('Expecting @name', excls=FailedMeta)
@@ -95,7 +95,27 @@ class ParseContext(ParserEngine):
         self.state.append(token)
         return token
 
-    _name = name
+    _matchname = matchname
+
+    def matchint(self) -> str | None:
+        if (token := self.cursor.matchint()) is None:
+            self.tracer.trace_match(self, '', '@int', failed=True)
+            raise self.newexcept('Expecting @int', excls=FailedMeta)
+        self.tracer.trace_match(self, token, '@int')
+        self.state.append(token)
+        return token
+
+    _matchint = matchint
+
+    def matchfloat(self) -> str | None:
+        if (token := self.cursor.matchfloat()) is None:
+            self.tracer.trace_match(self, '', '@float', failed=True)
+            raise self.newexcept('Expecting @float', excls=FailedMeta)
+        self.tracer.trace_match(self, token, '@float')
+        self.state.append(token)
+        return token
+
+    _matchfloat = matchfloat
 
     def eof(self) -> bool:
         return self.cursor.atend()

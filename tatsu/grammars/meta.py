@@ -14,7 +14,23 @@ class Meta(Model):
 
 class NameMeta(Meta):
     def _parse(self, ctx: Ctx) -> Any:
-        return ctx.name()
+        return ctx.matchname()
 
     def _pretty(self, lean: bool = False) -> str:
         return '@name'
+
+
+class IntMeta(Meta):
+    def _parse(self, ctx: Ctx) -> Any:
+        return ctx.matchint()
+
+    def _pretty(self, lean: bool = False) -> str:
+        return '@int'
+
+
+class FloatMeta(Meta):
+    def _parse(self, ctx: Ctx) -> Any:
+        return ctx.matchfloat()
+
+    def _pretty(self, lean: bool = False) -> str:
+        return '@float'

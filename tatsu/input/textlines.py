@@ -17,7 +17,7 @@ from ..util import (
 from ..util.newlines import take_linebreak_len, take_non_newline_whitespace_len
 from ..util.regextools import cached_re_compile
 from . import LineInfo
-from .cursor import Cursor, Text, matchname
+from .cursor import Cursor, Text, matchfloat, matchint, matchname
 from .infos import LineIndexInfo, PosLine
 
 
@@ -163,6 +163,12 @@ class TextLinesCursor(Cursor):
 
     def matchname(self) -> str | None:
         return matchname(self)
+
+    def matchint(self) -> str | None:
+        return matchint(self)
+
+    def matchfloat(self) -> str | None:
+        return matchfloat(self)
 
     def is_name_char(self, c: str | None) -> bool:
         return c is not None and (c.isalnum() or c in self.namechars)
