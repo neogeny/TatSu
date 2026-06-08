@@ -63,3 +63,19 @@ class Text(Protocol):
 
 
 Tokenizer = Text
+
+
+def match_name(text: str, pos: int, namechars: set[str]) -> int:
+    if pos < 0 or pos >= len(text):
+        return -1
+
+    p = pos
+    is_name_start = (c := text[p]) and (c.isalpha() or c in namechars)
+    if not is_name_start:
+        return -1
+    p += 1
+
+    while p < len(text) and (c := text[p]) and (c.isalnum() or c in namechars):
+        p += 1
+
+    return p
