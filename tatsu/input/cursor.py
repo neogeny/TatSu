@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Protocol, Self, runtime_checkable
 
-from . import LineInfo
+from .infos import LineInfo
 
 
 @runtime_checkable

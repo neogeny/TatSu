@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Any, Self, override
 
 from .input import NullText
-from .input.text import Text
+from .input.cursor import Text
 from .util.configs import Config
 from .util.regextools import cached_re_compile
 from .util.undefined import Undefined

@@ -25,8 +25,8 @@ from ..util import (
 )
 from ..util.newlines import take_linebreak_len, take_non_newline_whitespace_len
 from . import LineInfo
+from .cursor import Cursor, Text
 from .infos import LineIndexInfo, PosLine
-from .text import Cursor, Text
 
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')

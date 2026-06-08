@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import Self
 
 from . import LineInfo
+from .cursor import Cursor, Text
 from .infos import LineIndexInfo
-from .text import Cursor, Text
 
 
 class NullCursor(Cursor):
