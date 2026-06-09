@@ -197,7 +197,7 @@ cut_deprecated[Cut]: '>>' ~
 
 known_name: @name ~
 
-name: @name
+name: word
 
 constant[Constant]:
     &'`'
@@ -247,7 +247,7 @@ int: /[-+]?\d+/
 
 path: /[_\w][_\w\d]*(?:::[_\w][_\w\d]*)+/
 
-word: @name
+word: /(?ms)\s*([_\w][_\w\d]*)\b/
 
 dot[Dot]: '/./'
 
