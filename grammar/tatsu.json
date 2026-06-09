@@ -1219,6 +1219,10 @@
         "options": [
           {
             "__class__": "Call",
+            "name": "override"
+          },
+          {
+            "__class__": "Call",
             "name": "meta"
           },
           {
@@ -1228,10 +1232,6 @@
           {
             "__class__": "Call",
             "name": "term"
-          },
-          {
-            "__class__": "Call",
-            "name": "override"
           },
           {
             "__class__": "Call",
@@ -2586,20 +2586,8 @@
       "is_memo": true,
       "is_lrec": false,
       "exp": {
-        "__class__": "Sequence",
-        "sequence": [
-          {
-            "__class__": "Token",
-            "token": "@"
-          },
-          {
-            "__class__": "Override",
-            "exp": {
-              "__class__": "Pattern",
-              "pattern": "(name|int|uint|float|bool)\\b"
-            }
-          }
-        ]
+        "__class__": "Pattern",
+        "pattern": "@(name|int|uint|float|bool)\\b"
       }
     },
     {

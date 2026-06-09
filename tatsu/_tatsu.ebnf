@@ -97,7 +97,7 @@ sequence[Sequence]:
     | &(element ',') ','.{element}+
     | {!ENDRULE element}+
 
-element: meta | named | term | override | rule_include
+element: override | meta | named | term | rule_include
 
 rule_include[RuleInclude]: '>' ~ =known_name
 
@@ -183,7 +183,7 @@ atom:
     | alert
     | constant
 
-meta[Meta]: '@' =/(name|int|uint|float|bool)\b/
+meta[Meta]: /@(name|int|uint|float|bool)\b/
 
 call[Call]: word
 
