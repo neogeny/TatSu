@@ -2773,7 +2773,8 @@
       "is_memo": true,
       "is_lrec": false,
       "exp": {
-        "__class__": "NameMeta"
+        "__class__": "Call",
+        "name": "word"
       }
     },
     {
@@ -3287,7 +3288,8 @@
       "is_memo": true,
       "is_lrec": false,
       "exp": {
-        "__class__": "NameMeta"
+        "__class__": "Pattern",
+        "pattern": "(?ms)\\s*([_\\w][_\\w\\d]*)\\b"
       }
     },
     {
