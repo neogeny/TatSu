@@ -49,6 +49,7 @@ reimplemented
 repo
 
 alias
+boolean
 bugfix
 callables?
 Calc

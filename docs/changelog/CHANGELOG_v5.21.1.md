@@ -10,9 +10,10 @@ SPDX-License-Identifier: BSD-4-Clause
 
 ## Added
 
-- `@name`, `@int`, `@uint`, `@float`, `@bool` meta-expressions for typed matching (names, signed/unsigned ints, floats, bools)
+- `@name`, `@int`, `@uint`, `@float`, `@bool` meta-expressions for typed matching (identifiers, signed/unsigned integers, floating point literals, and boolean literals)
 - `FailedMeta` exception for `@` meta failures
 - `@name` now matches identifiers starting with `_`
+- `-z` / `--optimize` CLI option to optimize the grammar model before generating output
 
 ## Changed
 
@@ -20,8 +21,7 @@ SPDX-License-Identifier: BSD-4-Clause
 - `Cursor`/`Text` protocols moved from `input/text.py` → `input/cursor.py`
 - Versioning via `uv-dynamic-versioning`; `_version.py` reads from `importlib.metadata`
 - CI: upgrade to `checkout@v6`, `setup-uv@v7`, `setup-python@v6`; all dependencies via `uv sync`
-- Error formatting: show pos `@end[line:col]`, `→` arrows in stack traces, capture `LineInfo` at init
 
 ## Removed
 
-- Deprecated `override_single_deprecated` (bare `@` as override) from grammar and boot parser
+- Deprecated `override_single_deprecated` (bare `@` as override) from grammar and boot parser to allow the symbol to be used for the new _meta_-expressions
