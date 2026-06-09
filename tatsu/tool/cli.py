@@ -149,6 +149,12 @@ def parse_args():
         help='generate object model and save to FILE',
     )
     generation_opts.add_argument(
+        '--optimize',
+        '-z',
+        help='optimize grammar model before generating output',
+        action='store_true',
+    )
+    generation_opts.add_argument(
         '--whitespace',
         '-w',
         metavar='CHARACTERS',
@@ -237,6 +243,9 @@ def tatsu_main():
             whitespace=str(args.whitespace),
         )
         model = api.compile(grammar, args.name, asmodel=True, config=config)
+
+        if args.optimize:
+            model = model.optimized()
 
         if args.draw:
             from .. import diagrams
