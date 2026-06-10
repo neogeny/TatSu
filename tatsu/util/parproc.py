@@ -127,8 +127,11 @@ def taskproc(task: Task) -> Result:
     try:
         outcome = task.func(task.payload, *task.args, **task.kwargs)
         result.memory = memory_use()
-        if hasattr(outcome, 'linecount') and isinstance(outcome.linecount, int):
-            result.linecount = outcome.linecount
+        if hasattr(outcome, 'linecount'):
+            count = outcome.linecount
+            if not isinstance(count, int):
+                count = len(str(outcome).splitlines())
+            result.linecount = count
         else:
             count = 0
             with Path(task.payload).open() as f:

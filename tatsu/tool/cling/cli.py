@@ -5,12 +5,12 @@
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from tatsu import __toolname__, __version__
 from tatsu.util.asjson import asjsons
 
 
@@ -33,26 +33,18 @@ class CLIConfig:
 
     # Subcommand state
     command: str = ""
-    grammar: str = ""
+    path: str = ""
     inputs: list[str] = field(default_factory=list)
 
+    # format flags
+    json: bool = False
+    model: bool = False
+    pretty: bool = False
+    railroads: bool = False
+
     # run flags
-    run_json: bool = False
-    run_model: bool = False
-    run_start: str = ""
-    run_nproc: int = 0
-
-    # boot flags
-    boot_json: bool = False
-    boot_model: bool = False
-    boot_pretty: bool = False
-    boot_railroads: bool = False
-
-    # grammar flags
-    grammar_json: bool = False
-    grammar_model: bool = False
-    grammar_pretty: bool = False
-    grammar_railroads: bool = False
+    start: str = ""
+    nproc: int = 0
 
 
 def parse_args(argv: list[str] | None = None) -> CLIConfig:
@@ -64,295 +56,64 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
         argv = sys.argv[1:]
 
     # Handle --version before argparse to match ogopego's pre-dispatch check
-    if "--version" in argv:
-        from ..._version import __toolname__, __version__
-
-        print(f"{__toolname__} {__version__}")
-        sys.exit(0)
-
     parser = argparse.ArgumentParser(
         prog="tatsu",
         description="TatSu: a PEG parser generator",
     )
 
-    parser.add_argument(
-        "--color",
-        choices=["auto", "always", "never"],
-        default="auto",
-        help="Control colorized output (default: auto)",
-    )
-    parser.add_argument(
-        "-o",
-        "--output",
-        default="",
-        help="Output to a file or directory instead of stdout",
-    )
-    parser.add_argument(
-        "-t",
-        "--trace",
-        action="store_true",
-        help="Display a detailed trace of the parsing process",
-    )
-    parser.add_argument(
-        "-q",
-        "--quiet",
-        action="store_true",
-        help="Suppress progress bar and spinner output",
-    )
-    parser.add_argument(
-        "--profile",
-        action="store_true",
-        help="Enable CPU and memory profiling",
+    sub = parser.add_subparsers(
+        dest="command",
+        description="Main execution mode",
+        required=True,
+        # help="Available subcommands",
     )
 
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    parser.add_argument(
+        "-V",
+        "--version",
+        action="version",
+        version=f"{__toolname__} {__version__}",
+        help="Print version information and exit",
+    )
+    add_global_options(parser)
+    # _help_cmd = add_help_cmd(subparsers)
+    _boot_cmd = add_boot_cmd(sub)
+    _grammar_cmd = add_grammar_cmd(sub)
+    _run_cmd = add_run_cmd(sub)
 
-    # --- run ---
-    run_parser = subparsers.add_parser(
-        "run",
-        help="Parse input files with the given grammar",
-    )
-    run_parser.add_argument(
-        "--color",
-        choices=["auto", "always", "never"],
-        default=argparse.SUPPRESS,
-        help="Control colorized output (default: auto)",
-    )
-    run_parser.add_argument(
-        "-o",
-        "--output",
-        default=argparse.SUPPRESS,
-        help="Output to a file or directory instead of stdout",
-    )
-    run_parser.add_argument(
-        "-t",
-        "--trace",
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help="Display a detailed trace of the parsing process",
-    )
-    run_parser.add_argument(
-        "-q",
-        "--quiet",
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help="Suppress progress bar and spinner output",
-    )
-    run_parser.add_argument(
-        "--profile",
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help="Enable CPU and memory profiling",
-    )
-    run_parser.add_argument(
-        "grammar", help="Path to the grammar in EBNF or JSON format"
-    )
-    run_parser.add_argument("inputs", nargs="+", help="The files to be parsed")
-    run_parser.add_argument(
-        "-j",
-        "--json",
-        action="store_true",
-        dest="run_json",
-        help="Print output in JSON format",
-    )
-    run_parser.add_argument(
-        "-m",
-        "--model",
-        action="store_true",
-        dest="run_model",
-        help="Print the model code",
-    )
-    run_parser.add_argument(
-        "-s", "--start", default="", dest="run_start", help="Name of the start rule"
-    )
-    run_parser.add_argument(
-        "-n",
-        "--nproc",
-        type=int,
-        default=0,
-        dest="run_nproc",
-        help="Number of concurrent workers",
-    )
+    if "--version" in argv or "-V" in argv or "version" in argv:
+        print(f"{__toolname__} {__version__}")
+        sys.exit(0)
 
-    # --- boot ---
-    boot_parser = subparsers.add_parser(
-        "boot",
-        help="The internal boot grammar",
-    )
-    boot_parser.add_argument(
-        "--color",
-        choices=["auto", "always", "never"],
-        default=argparse.SUPPRESS,
-        help="Control colorized output (default: auto)",
-    )
-    boot_parser.add_argument(
-        "-o",
-        "--output",
-        default=argparse.SUPPRESS,
-        help="Output to a file or directory instead of stdout",
-    )
-    boot_parser.add_argument(
-        "-t",
-        "--trace",
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help="Display a detailed trace of the parsing process",
-    )
-    boot_parser.add_argument(
-        "-q",
-        "--quiet",
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help="Suppress progress bar and spinner output",
-    )
-    boot_parser.add_argument(
-        "--profile",
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help="Enable CPU and memory profiling",
-    )
-    boot_parser.add_argument(
-        "-j",
-        "--json",
-        action="store_true",
-        dest="boot_json",
-        help="Print the boot grammar in JSON format",
-    )
-    boot_parser.add_argument(
-        "-m",
-        "--model",
-        action="store_true",
-        dest="boot_model",
-        help="Print the model code",
-    )
-    boot_parser.add_argument(
-        "-p",
-        "--pretty",
-        action="store_true",
-        dest="boot_pretty",
-        help="Pretty-print the boot grammar",
-    )
-    boot_parser.add_argument(
-        "-r",
-        "--railroads",
-        action="store_true",
-        dest="boot_railroads",
-        help="Print a railroad diagram",
-    )
-
-    # --- grammar ---
-    grammar_parser = subparsers.add_parser(
-        "grammar",
-        help="Grammar transformations",
-    )
-    grammar_parser.add_argument(
-        "--color",
-        choices=["auto", "always", "never"],
-        default=argparse.SUPPRESS,
-        help="Control colorized output (default: auto)",
-    )
-    grammar_parser.add_argument(
-        "-o",
-        "--output",
-        default=argparse.SUPPRESS,
-        help="Output to a file or directory instead of stdout",
-    )
-    grammar_parser.add_argument(
-        "-t",
-        "--trace",
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help="Display a detailed trace of the parsing process",
-    )
-    grammar_parser.add_argument(
-        "-q",
-        "--quiet",
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help="Suppress progress bar and spinner output",
-    )
-    grammar_parser.add_argument(
-        "--profile",
-        action="store_true",
-        default=argparse.SUPPRESS,
-        help="Enable CPU and memory profiling",
-    )
-    grammar_parser.add_argument(
-        "grammar", help="Path to the grammar source (.ebnf or .json)"
-    )
-    grammar_parser.add_argument(
-        "-j",
-        "--json",
-        action="store_true",
-        dest="grammar_json",
-        help="Print the grammar in JSON format",
-    )
-    grammar_parser.add_argument(
-        "-m",
-        "--model",
-        action="store_true",
-        dest="grammar_model",
-        help="Print the model code",
-    )
-    grammar_parser.add_argument(
-        "-p",
-        "--pretty",
-        action="store_true",
-        dest="grammar_pretty",
-        help="Pretty-print the grammar (EBNF)",
-    )
-    grammar_parser.add_argument(
-        "-r",
-        "--railroads",
-        action="store_true",
-        dest="grammar_railroads",
-        help="Print a railroad diagram",
-    )
+    # if len(argv) <= 1 or argv[0] in ("-h", "--help"):
+    #     parser.print_help()
+    #     sys.exit(0)
 
     args = parser.parse_args(argv)
+    command = args.command
+    if not command or command == "help" or "-h" in argv or "--help" in argv:
+        parser.print_help()
+        sys.exit(0)
 
-    cfg = CLIConfig(
-        color=getattr(args, "color", "auto"),
-        output=getattr(args, "output", ""),
-        trace=getattr(args, "trace", False),
-        quiet=getattr(args, "quiet", False),
-        profile=getattr(args, "profile", False),
-        command=args.command,
-    )
-
-    if args.command == "run":
-        cfg.grammar = args.grammar
-        cfg.inputs = args.inputs
-        cfg.run_json = args.run_json
-        cfg.run_model = args.run_model
-        cfg.run_start = args.run_start
-        cfg.run_nproc = args.run_nproc
-
-    elif args.command == "boot":
-        cfg.boot_json = args.boot_json
-        cfg.boot_model = args.boot_model
-        cfg.boot_pretty = args.boot_pretty
-        cfg.boot_railroads = args.boot_railroads
-
-    elif args.command == "grammar":
-        cfg.grammar = args.grammar
-        cfg.grammar_json = args.grammar_json
-        cfg.grammar_model = args.grammar_model
-        cfg.grammar_pretty = args.grammar_pretty
-        cfg.grammar_railroads = args.grammar_railroads
-
+    cfg = CLIConfig()
+    for name, value in vars(args).items():
+        if name == "name":
+            continue
+        if not hasattr(cfg, name):
+            raise RuntimeError(f"Unknown option: {name}")
+        setattr(cfg, name, value)
     return cfg
 
 
 def _output_ext(cfg: CLIConfig) -> str:
     """Return file extension for the current output format."""
-    if cfg.run_json or cfg.boot_json or cfg.grammar_json:
+    if cfg.json or cfg.json or cfg.json:
         return ".json"
-    if cfg.run_model or cfg.boot_model or cfg.grammar_model:
+    if cfg.model or cfg.model or cfg.model:
         return ".py"
-    if cfg.boot_railroads or cfg.grammar_railroads:
+    if cfg.railroads or cfg.railroads:
         return ".railroads.txt"
-    if cfg.boot_pretty or cfg.grammar_pretty:
+    if cfg.pretty or cfg.pretty:
         return ".ebnf"
     return ".txt"
 
@@ -429,10 +190,10 @@ def boot_cmd(cfg: CLIConfig) -> Results:
     payload = _render_grammar(
         boot_grammar(),
         cfg,
-        json=cfg.boot_json,
-        model=cfg.boot_model,
-        pretty=cfg.boot_pretty,
-        railroads=cfg.boot_railroads,
+        json=cfg.json,
+        model=cfg.model,
+        pretty=cfg.pretty,
+        railroads=cfg.railroads,
         name="boot",
     )
     return [("boot", payload)]
@@ -440,25 +201,25 @@ def boot_cmd(cfg: CLIConfig) -> Results:
 
 def grammar_cmd(cfg: CLIConfig) -> Results:
     """Handle the ``grammar`` subcommand."""
-    gram = _load_grammar(cfg.grammar)
+    gram = _load_grammar(cfg.path)
 
     payload = _render_grammar(
         gram,
         cfg,
-        json=cfg.grammar_json,
-        model=cfg.grammar_model,
-        pretty=cfg.grammar_pretty,
-        railroads=cfg.grammar_railroads,
-        name=Path(cfg.grammar).stem,
+        json=cfg.json,
+        model=cfg.model,
+        pretty=cfg.pretty,
+        railroads=cfg.railroads,
+        name=Path(cfg.path).stem,
     )
-    return [(cfg.grammar, payload)]
+    return [(cfg.path, payload)]
 
 
 def _format_result(cfg: CLIConfig, result: Any) -> str:
     """Format a parse result as a string."""
-    if cfg.run_json:
+    if cfg.json:
         return asjsons(result)
-    if cfg.run_model:
+    if cfg.model:
         return repr(result)
     return f"{result!s}"
 
@@ -467,8 +228,8 @@ def run_cmd(cfg: CLIConfig) -> Results:
     """Handle the ``run`` subcommand."""
     from ...util.parproc import parproc_visual
 
-    grammar = _load_grammar(cfg.grammar)
-    start = cfg.run_start or None
+    grammar = _load_grammar(cfg.path)
+    start = cfg.start or None
 
     results: list[tuple[str, Any]] = []
     if len(cfg.inputs) == 1:
@@ -487,7 +248,7 @@ def run_cmd(cfg: CLIConfig) -> Results:
             for r in parproc_visual(
                 parse_file,
                 cfg.inputs,
-                parallel=cfg.run_nproc > 0,
+                parallel=cfg.nproc > 0,
             )
         ]
     return results
@@ -504,7 +265,7 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
         return
 
     # NOTE output is not a directory at this point
-    if cfg.run_json and len(results) > 1:
+    if cfg.json and len(results) > 1:
         import json
 
         jsonl = "\n".join(
@@ -544,3 +305,160 @@ def main() -> None:
             print(cfg, file=sys.stderr)
             return
     output_results(cfg, results)
+
+
+def add_global_options(parser):
+    group = parser.add_argument_group("global options")
+    group.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="Suppress progress bar and spinner output",
+    )
+    group.add_argument(
+        "-t",
+        "--trace",
+        action="store_true",
+        help="Display a detailed trace of the parsing process",
+    )
+    group.add_argument(
+        "-o",
+        "--output",
+        default="",
+        help="Output to a file or directory instead of stdout",
+    )
+    group.add_argument(
+        "-c",
+        "--color",
+        choices=["auto", "always", "never"],
+        default="auto",
+        help="Control colorized output (default: auto)",
+    )
+    # group.add_argument(
+    #     "--profile",
+    #     action="store_true",
+    #     help="Enable CPU and memory profiling",
+    # )
+
+
+def add_help_cmd(subparsers):
+    help_parser = subparsers.add_parser(
+        "help",
+        help="Provide command help",
+        add_help=False,
+    )
+    return help_parser
+
+
+def add_grammar_options(parser):
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "-j",
+        "--json",
+        action="store_true",
+        dest="json",
+        help="Print the boot grammar in JSON format",
+    )
+    mode.add_argument(
+        "-m",
+        "--model",
+        action="store_true",
+        dest="model",
+        help="Print the model code",
+    )
+    mode.add_argument(
+        "-p",
+        "--pretty",
+        action="store_true",
+        dest="pretty",
+        help="Pretty-print the boot grammar",
+    )
+    mode.add_argument(
+        "-r",
+        "--railroads",
+        action="store_true",
+        dest="railroads",
+        help="Print a railroad diagram",
+    )
+    mode.add_argument(
+        '-g',
+        '--gen-parser',
+        help='Generate parser from the grammar (default)',
+        action='store_true',
+    )
+    mode.add_argument(
+        '-x',
+        '--parser-model',
+        help='Generate model-based parser from the grammar',
+        action='store_true',
+    )
+    mode.add_argument(
+        '-d',
+        '--draw',
+        help=(
+            'Renerate a diagram of the grammar'
+            ' (.svg, .png, .jpeg, .dot, ...'
+            ' / requres --outfile)'
+        ),
+        action='store_true',
+    )
+
+
+def add_boot_cmd(subparsers):
+    boot_parser = subparsers.add_parser(
+        "boot",
+        help="The internal boot grammar",
+    )
+    add_global_options(boot_parser)
+    add_grammar_options(boot_parser)
+    return boot_parser
+
+
+def add_grammar_cmd(subparsers):
+    grammar_parser = subparsers.add_parser(
+        "grammar",
+        help="Grammar transformations",
+        add_help=True,
+    )
+    add_global_options(grammar_parser)
+    add_grammar_options(grammar_parser)
+    grammar_parser.add_argument(
+        "path", help="Path to the grammar source (.ebnf or .json)"
+    )
+    return grammar_parser
+
+
+def add_run_cmd(subparsers):
+    run_parser = subparsers.add_parser(
+        "run",
+        help="Parse input files with the given grammar",
+    )
+    add_global_options(run_parser)
+    run_parser.add_argument("path", help="Path to a grammar in EBNF or JSON format")
+    run_parser.add_argument("inputs", nargs="+", help="The files to be parsed")
+    run_parser.add_argument(
+        "-j",
+        "--json",
+        action="store_true",
+        dest="json",
+        help="Print output in JSON format",
+    )
+    run_parser.add_argument(
+        "-m",
+        "--model",
+        action="store_true",
+        dest="model",
+        help="Print the model code",
+    )
+    run_parser.add_argument(
+        "-s", "--start", default="", dest="start", help="Name of the start rule"
+    )
+    run_parser.add_argument(
+        "-n",
+        "--nproc",
+        type=int,
+        default=0,
+        dest="nproc",
+        help="Number of concurrent workers",
+    )
+    return run_parser
