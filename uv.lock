@@ -918,6 +918,15 @@ wheels = [
 ]
 
 [[package]]
+name = "ogopego"
+source = { directory = "../ogopego" }
+
+[package.metadata]
+
+[package.metadata.requires-dev]
+doc = [{ name = "vale", specifier = ">=3.13.0.0" }]
+
+[[package]]
 name = "packaging"
 version = "26.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1585,6 +1594,7 @@ dev = [
     { name = "esbonio" },
     { name = "graphviz" },
     { name = "invoke" },
+    { name = "ogopego" },
     { name = "progress" },
     { name = "psutil" },
     { name = "pyrefly" },
@@ -1665,6 +1675,7 @@ dev = [
     { name = "esbonio", specifier = ">=2.0.0" },
     { name = "graphviz", specifier = ">=0.21" },
     { name = "invoke", specifier = ">=2.2.1" },
+    { name = "ogopego", directory = "../ogopego" },
     { name = "progress", specifier = ">=1.6.1" },
     { name = "psutil", specifier = ">=7.2.2" },
     { name = "pyrefly", specifier = ">=0.55.0" },

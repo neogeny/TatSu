@@ -84,7 +84,9 @@ clobber: (clean "true")
     echo "▶ mypy {{ py }}"
     {{ run_test }} mypy \
         tatsu tests examples \
-        --install-types --exclude "dist|parsers|backup|tatsu/grammars/leftrec"
+        --install-types \
+        --exclude "dist|parsers|backup|tatsu/grammars/leftrec" \
+        --exclude "bench.py"
 
 @pyright: testg
     echo "▶ pyright {{ py }}"
