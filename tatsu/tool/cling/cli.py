@@ -114,6 +114,38 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
         help="Parse input files with the given grammar",
     )
     run_parser.add_argument(
+        "--color",
+        choices=["auto", "always", "never"],
+        default=argparse.SUPPRESS,
+        help="Control colorized output (default: auto)",
+    )
+    run_parser.add_argument(
+        "-o",
+        "--output",
+        default=argparse.SUPPRESS,
+        help="Output to a file or directory instead of stdout",
+    )
+    run_parser.add_argument(
+        "-t",
+        "--trace",
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help="Display a detailed trace of the parsing process",
+    )
+    run_parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help="Suppress progress bar and spinner output",
+    )
+    run_parser.add_argument(
+        "--profile",
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help="Enable CPU and memory profiling",
+    )
+    run_parser.add_argument(
         "grammar", help="Path to the grammar in EBNF or JSON format"
     )
     run_parser.add_argument("inputs", nargs="+", help="The files to be parsed")
@@ -147,6 +179,38 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
     boot_parser = subparsers.add_parser(
         "boot",
         help="The internal boot grammar",
+    )
+    boot_parser.add_argument(
+        "--color",
+        choices=["auto", "always", "never"],
+        default=argparse.SUPPRESS,
+        help="Control colorized output (default: auto)",
+    )
+    boot_parser.add_argument(
+        "-o",
+        "--output",
+        default=argparse.SUPPRESS,
+        help="Output to a file or directory instead of stdout",
+    )
+    boot_parser.add_argument(
+        "-t",
+        "--trace",
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help="Display a detailed trace of the parsing process",
+    )
+    boot_parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help="Suppress progress bar and spinner output",
+    )
+    boot_parser.add_argument(
+        "--profile",
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help="Enable CPU and memory profiling",
     )
     boot_parser.add_argument(
         "-j",
@@ -199,6 +263,38 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
     grammar_parser = subparsers.add_parser(
         "grammar",
         help="Grammar transformations",
+    )
+    grammar_parser.add_argument(
+        "--color",
+        choices=["auto", "always", "never"],
+        default=argparse.SUPPRESS,
+        help="Control colorized output (default: auto)",
+    )
+    grammar_parser.add_argument(
+        "-o",
+        "--output",
+        default=argparse.SUPPRESS,
+        help="Output to a file or directory instead of stdout",
+    )
+    grammar_parser.add_argument(
+        "-t",
+        "--trace",
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help="Display a detailed trace of the parsing process",
+    )
+    grammar_parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help="Suppress progress bar and spinner output",
+    )
+    grammar_parser.add_argument(
+        "--profile",
+        action="store_true",
+        default=argparse.SUPPRESS,
+        help="Enable CPU and memory profiling",
     )
     grammar_parser.add_argument(
         "grammar", help="Path to the grammar source (.ebnf or .json)"
@@ -254,11 +350,11 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
     args = parser.parse_args(argv)
 
     cfg = CLIConfig(
-        color=args.color,
-        output=args.output,
-        trace=args.trace,
-        quiet=args.quiet,
-        profile=args.profile,
+        color=getattr(args, "color", "auto"),
+        output=getattr(args, "output", ""),
+        trace=getattr(args, "trace", False),
+        quiet=getattr(args, "quiet", False),
+        profile=getattr(args, "profile", False),
         command=args.command,
     )
 
@@ -383,10 +479,11 @@ def grammar_cmd(cfg: CLIConfig) -> None:
 _RUN_CACHE: dict[tuple[str, str], Any] = {}
 
 
-def _run_file_proc(
-    path: str, grammar_source: str, grammar_suffix: str, start: str | None
-) -> Any:
+def _run_file_proc(path: str, **kwargs: Any) -> Any:
     """Parse a file (module-level for multiprocessing, caches grammar per-process)."""
+    grammar_source: str = kwargs["grammar_source"]
+    grammar_suffix: str = kwargs["grammar_suffix"]
+    start: str | None = kwargs.get("start")
     key = (grammar_source, grammar_suffix)
     if key not in _RUN_CACHE:
         if grammar_suffix == ".json":
@@ -398,7 +495,7 @@ def _run_file_proc(
 
             _RUN_CACHE[key] = compile(grammar_source)
     text = Path(path).read_text(encoding="utf-8")
-    return _RUN_CACHE[key].parse(text, start=start or None)
+    return _RUN_CACHE[key].parse(text, start=start)
 
 
 def _show_result(cfg: CLIConfig, result: Any, *, append: bool = False) -> None:
@@ -428,13 +525,9 @@ def _show_result(cfg: CLIConfig, result: Any, *, append: bool = False) -> None:
 
 def run_cmd(cfg: CLIConfig) -> None:
     """Handle the ``run`` subcommand."""
-    from functools import partial
+    from ...util.parproc import parproc_visual
 
-    from ...util.parproc import parproc
-
-    p = Path(cfg.grammar)
-    grammar_source = p.read_text(encoding="utf-8")
-    grammar_suffix = p.suffix
+    grammar = _load_grammar(cfg.grammar)
     start = cfg.run_start or None
 
     if len(cfg.inputs) == 1:
@@ -443,26 +536,18 @@ def run_cmd(cfg: CLIConfig) -> None:
         _show_result(cfg, gram.parse(text, start=start))
         return
 
-    # Sequential: compile once, reuse for all files
-    if cfg.run_nproc <= 0:
-        gram = _load_grammar(cfg.grammar)
-        for i, path in enumerate(cfg.inputs):
-            text = Path(path).read_text(encoding="utf-8")
-            _show_result(cfg, gram.parse(text, start=start), append=i > 0)
-        return
+    def parse_file(path: str) -> Any:
+        text = Path(path).read_text(encoding="utf-8")
+        return grammar.parse(text, start=start)
 
-    # Parallel: each process caches its own compiled grammar
-    process = partial(
-        _run_file_proc,
-        grammar_source=grammar_source,
-        grammar_suffix=grammar_suffix,
-        start=start,
+    results = parproc_visual(
+        parse_file,
+        cfg.inputs,
+        parallel=cfg.run_nproc > 0,
     )
-    for r in parproc(process, cfg.inputs, parallel=True):
-        if r and r.success:
-            _show_result(cfg, r.outcome, append=True)
-        elif r and r.exception:
-            print(f"ERROR: {r.payload}: {r.exception}", file=sys.stderr)
+
+    for i, r in enumerate(results):
+        _show_result(cfg, r.outcome, append=i > 0)
 
 
 def main() -> None:

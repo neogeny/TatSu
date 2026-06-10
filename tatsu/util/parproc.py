@@ -127,7 +127,7 @@ def taskproc(task: Task) -> Result:
     try:
         outcome = task.func(task.payload, *task.args, **task.kwargs)
         result.memory = memory_use()
-        if hasattr(outcome, 'linecount'):
+        if hasattr(outcome, 'linecount') and isinstance(outcome.linecount, int):
             result.linecount = outcome.linecount
         else:
             count = 0
@@ -353,8 +353,8 @@ def _file_process_summary(
             {success_count:12,d}   successes
                  {failures:12,d}   failures
             {success_rate:12.1f}%  success rate
-           {total_time_str:>13s}   time
-             {run_time_str:>13s}   run time
+           {total_time_str:>12s}   time
+             {run_time_str:>12s}   run time
     '''
     summary_text = '\n'.join(s.strip() for s in summary_text.splitlines())
 

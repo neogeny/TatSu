@@ -182,6 +182,7 @@ def load_grammar(value: Any) -> g.Grammar:
     grammar = g.Grammar(rules=rule_list, name=name, directives=directives)
     if keywords:
         grammar.configure(keywords=keywords)
+    grammar.initialize()
     return grammar
 
 
