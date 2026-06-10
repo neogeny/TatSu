@@ -125,6 +125,8 @@ clobber: (clean "true")
     cd docs && {{ run_doc }} make -s html > /dev/null
 
 doclint: docg
+    # echo "▶ docstring lint"
+    # uv run ruff check --select D tatsu
     echo "▶ doclint"
     {{ run_doc }} vale *.rst *.md docs/**/*.rst
 
