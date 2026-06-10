@@ -1,10 +1,20 @@
 from __future__ import annotations
 
-from tatsu.util.colorize.style import Style
+from unittest.mock import patch
+
+import pytest
+
+from tatsu.util.colorize.style import RGB, Style, rgb
+
+
+@pytest.fixture(autouse=True)
+def _tty_stdout():
+    with patch("sys.stdout.isatty", return_value=True):
+        yield
 
 
 def test_default_empty():
-    assert str(Style()) == ''
+    assert not str(Style())
 
 
 def test_value_only():
@@ -92,14 +102,7 @@ def test_full_composition():
     assert str(s) == '\033[1;3;32;47mtext\033[0m'
 
 
-def test_fg_name():
-    s = Style('x').fg_name('pink')
-    assert str(s) == '\033[38;5;200mx\033[0m'
 
-
-def test_bg_name():
-    s = Style('x').bg_name('red')
-    assert str(s) == '\033[48;5;196mx\033[0m'
 
 
 def test_named_color_method():
@@ -122,6 +125,43 @@ def test_repr_escapes():
     r = repr(s)
     assert '\\e[31m' in r
     assert '\\e[0m' in r
+
+
+def test_rgb_constructor():
+    assert str(Style('x', fg=rgb(255, 0, 0))) == '\033[38;2;255;0;0mx\033[0m'
+
+
+def test_rgb_constructor_bg():
+    assert str(Style('x', bg=rgb(0, 255, 0))) == '\033[48;2;0;255;0mx\033[0m'
+
+
+def test_rgb_both():
+    s = Style('x', fg=rgb(255, 0, 0), bg=rgb(0, 0, 255))
+    assert str(s) == '\033[38;2;255;0;0;48;2;0;0;255mx\033[0m'
+
+
+def test_fg_rgb_method():
+    s = Style('x').fg_rgb(128, 128, 128)
+    assert str(s) == '\033[38;2;128;128;128mx\033[0m'
+
+
+def test_bg_rgb_method():
+    s = Style('x').bg_rgb(64, 64, 64)
+    assert str(s) == '\033[48;2;64;64;64mx\033[0m'
+
+
+def test_rgb_chained_with_modifier():
+    s = Style('x').bold().fg_rgb(255, 0, 255)
+    assert str(s) == '\033[1;38;2;255;0;255mx\033[0m'
+
+
+def test_rgb_clamp():
+    assert str(Style('x', fg=rgb(-10, 300, 128))) == '\033[38;2;0;255;128mx\033[0m'
+
+
+def test_rgb_from_namedtuple():
+    c = RGB(r=100, g=200, b=50)
+    assert str(Style('x', fg=c)) == '\033[38;2;100;200;50mx\033[0m'
 
 
 def test_default_no_escape_when_no_style():

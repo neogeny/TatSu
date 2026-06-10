@@ -1,11 +1,26 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import sys
+from collections import namedtuple
 from copy import copy
 from typing import Self
 
-from .colormap import COLORMAP
 from .colormethods import ColorMethods
+
+
+class RGB(namedtuple('RGB', ['r', 'g', 'b'])):
+    __slots__ = ()
+
+    def __new__(cls, r: int, g: int, b: int) -> Self:
+        def to_byte(v: int) -> int:
+            return max(0, min(v, 255))
+
+        return super().__new__(cls, to_byte(r), to_byte(g), to_byte(b))
+
+
+def rgb(r: int, g: int, b: int) -> RGB:
+    return RGB(r, g, b)
 
 
 class Style(ColorMethods):
@@ -13,8 +28,8 @@ class Style(ColorMethods):
         self,
         value: str = "",
         *,
-        fg: int = -1,
-        bg: int = -1,
+        fg: int | RGB | None = -1,
+        bg: int | RGB | None = -1,
         bold: bool = False,
         dim: bool = False,
         italic: bool = False,
@@ -23,10 +38,17 @@ class Style(ColorMethods):
         inverse: bool = False,
         hidden: bool = False,
         strikethrough: bool = False,
+        force_enable: bool | None = None,
     ):
         self.value = value
-        self._fg = fg
-        self._bg = bg
+        self.enabled = sys.stdout.isatty() if force_enable is None else force_enable
+
+        self._fg: int | RGB = -1
+        self._bg: int | RGB = -1
+
+        self._set_fg(fg)
+        self._set_bg(bg)
+
         self._bold = bold
         self._dim = dim
         self._italic = italic
@@ -36,24 +58,40 @@ class Style(ColorMethods):
         self._hidden = hidden
         self._strikethrough = strikethrough
 
-    def fg(self, value: int) -> Self:
+    def _set_fg(self, value: int | RGB | None) -> None:
+        if isinstance(value, RGB):
+            self._fg = value
+        elif value is None or value < 0:
+            self._fg = -1
+        else:
+            self._fg = max(0, min(value, 255))
+
+    def _set_bg(self, value: int | RGB | None) -> None:
+        if isinstance(value, RGB):
+            self._bg = value
+        elif value is None or value < 0:
+            self._bg = -1
+        else:
+            self._bg = max(0, min(value, 255))
+
+    def fg(self, value: int | RGB | None) -> Self:
         new = copy(self)
-        new._fg = max(0, min(value, 255))
+        new._set_fg(value)
         return new
 
-    def bg(self, value: int) -> Self:
+    def bg(self, value: int | RGB | None) -> Self:
         new = copy(self)
-        new._bg = max(0, min(value, 255))
+        new._set_bg(value)
         return new
 
-    def fg_name(self, name: str) -> Self:
+    def fg_rgb(self, r: int, g: int, b: int) -> Self:
         new = copy(self)
-        new._fg = COLORMAP.get(name, 0)
+        new._set_fg(rgb(r, g, b))
         return new
 
-    def bg_name(self, name: str) -> Self:
+    def bg_rgb(self, r: int, g: int, b: int) -> Self:
         new = copy(self)
-        new._bg = COLORMAP.get(name, 0)
+        new._set_bg(rgb(r, g, b))
         return new
 
     def bold(self) -> Self:
@@ -99,6 +137,8 @@ class Style(ColorMethods):
     def apply(self, text: str) -> str:
         if not text:
             return ""
+        if not self.enabled:
+            return text
 
         codes: list[str] = []
         if self._bold:
@@ -117,7 +157,9 @@ class Style(ColorMethods):
             codes.append('8')
         if self._strikethrough:
             codes.append('9')
-        if self._fg != -1:
+        if isinstance(self._fg, RGB):
+            codes.append(f'38;2;{self._fg.r};{self._fg.g};{self._fg.b}')
+        elif self._fg != -1:
             c = self._fg
             if c < 8:
                 codes.append(str(30 + c))
@@ -125,7 +167,9 @@ class Style(ColorMethods):
                 codes.append(str(90 + c - 8))
             else:
                 codes.append(f'38;5;{c}')
-        if self._bg != -1:
+        if isinstance(self._bg, RGB):
+            codes.append(f'48;2;{self._bg.r};{self._bg.g};{self._bg.b}')
+        elif self._bg != -1:
             c = self._bg
             if c < 8:
                 codes.append(str(40 + c))

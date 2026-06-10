@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .colormap import COLORMAP
+from .csscolormap import CSS_COLORS
 from .style import Style
 
 
@@ -10,6 +11,7 @@ def main():
     print_color_table()
     print_colormap_table()
     print_color_method_table()
+    print_css_color_table()
     # add_color_methods()
 
     print(
@@ -64,6 +66,19 @@ def print_color_method_table():
         if col == 0:
             print()
         print(style, end=" ")
+    print()
+    print()
+
+
+def print_css_color_table():
+    width = 24
+    k = 100 // width
+    for n, (name, rgb) in enumerate(CSS_COLORS.items()):
+        col = n % k
+        if col == 0:
+            print()
+        swatch = Style(value=f'{name:>{width}s}', fg=rgb)
+        print(swatch, end=" ")
     print()
     print()
 

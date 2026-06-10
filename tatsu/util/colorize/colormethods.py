@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Self, cast
+from typing import Self
 
 
 class ColorMethods:

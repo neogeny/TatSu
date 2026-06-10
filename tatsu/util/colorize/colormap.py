@@ -260,3 +260,7 @@ COLORS: list[tuple[int, int, str]] = [
 COLORMAP = {color[2]: color[0] for color in COLORS}
 
 RGBCOLORMAP = {color[2]: color[1] for color in COLORS}
+
+
+def color(name: str) -> int:
+    return COLORMAP.get(name.lower().replace(" ", ""), 0)
