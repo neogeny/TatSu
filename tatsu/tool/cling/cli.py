@@ -5,14 +5,19 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from tatsu.util.asjson import asjsons
+
 
 if TYPE_CHECKING:
     from ...grammars.model import Grammar
+
+type Results = list[tuple[str, Any]]
 
 
 @dataclass
@@ -42,18 +47,12 @@ class CLIConfig:
     boot_model: bool = False
     boot_pretty: bool = False
     boot_railroads: bool = False
-    boot_parser: bool = False
-    boot_parser_model: bool = False
-    boot_object_model: bool = False
 
     # grammar flags
     grammar_json: bool = False
     grammar_model: bool = False
     grammar_pretty: bool = False
     grammar_railroads: bool = False
-    grammar_parser: bool = False
-    grammar_parser_model: bool = False
-    grammar_object_model: bool = False
 
 
 def parse_args(argv: list[str] | None = None) -> CLIConfig:
@@ -240,24 +239,6 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
         dest="boot_railroads",
         help="Print a railroad diagram",
     )
-    boot_parser.add_argument(
-        "--parser",
-        action="store_true",
-        dest="boot_parser",
-        help="Generate Python parser source code from the boot grammar",
-    )
-    boot_parser.add_argument(
-        "--parser-model",
-        action="store_true",
-        dest="boot_parser_model",
-        help="Generate model-based parser from the boot grammar",
-    )
-    boot_parser.add_argument(
-        "--object-model",
-        action="store_true",
-        dest="boot_object_model",
-        help="Generate object model from the boot grammar",
-    )
 
     # --- grammar ---
     grammar_parser = subparsers.add_parser(
@@ -327,25 +308,6 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
         dest="grammar_railroads",
         help="Print a railroad diagram",
     )
-    grammar_parser.add_argument(
-        "-x",
-        "--parser",
-        action="store_true",
-        dest="grammar_parser",
-        help="Generate Python parser source code from the grammar",
-    )
-    grammar_parser.add_argument(
-        "--parser-model",
-        action="store_true",
-        dest="grammar_parser_model",
-        help="Generate model-based parser from the grammar",
-    )
-    grammar_parser.add_argument(
-        "--object-model",
-        action="store_true",
-        dest="grammar_object_model",
-        help="Generate object model from the grammar",
-    )
 
     args = parser.parse_args(argv)
 
@@ -371,9 +333,6 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
         cfg.boot_model = args.boot_model
         cfg.boot_pretty = args.boot_pretty
         cfg.boot_railroads = args.boot_railroads
-        cfg.boot_parser = args.boot_parser
-        cfg.boot_parser_model = args.boot_parser_model
-        cfg.boot_object_model = args.boot_object_model
 
     elif args.command == "grammar":
         cfg.grammar = args.grammar
@@ -381,21 +340,48 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
         cfg.grammar_model = args.grammar_model
         cfg.grammar_pretty = args.grammar_pretty
         cfg.grammar_railroads = args.grammar_railroads
-        cfg.grammar_parser = args.grammar_parser
-        cfg.grammar_parser_model = args.grammar_parser_model
-        cfg.grammar_object_model = args.grammar_object_model
 
     return cfg
 
 
-def _show(cfg: CLIConfig, payload: str, *, append: bool = False) -> None:
-    """Write payload to stdout or to a file."""
-    if cfg.output:
-        mode = "a" if append else "w"
-        with Path(cfg.output).open(mode, encoding="utf-8") as f:
-            f.write(payload + "\n")
-    else:
+def _output_ext(cfg: CLIConfig) -> str:
+    """Return file extension for the current output format."""
+    if cfg.run_json or cfg.boot_json or cfg.grammar_json:
+        return ".json"
+    if cfg.run_model or cfg.boot_model or cfg.grammar_model:
+        return ".py"
+    if cfg.boot_railroads or cfg.grammar_railroads:
+        return ".railroads.txt"
+    if cfg.boot_pretty or cfg.grammar_pretty:
+        return ".ebnf"
+    return ".txt"
+
+
+def _output_path(cfg: CLIConfig, *, name: str | None = None) -> Path | None:
+    """Return output path, or None for stdout.
+
+    If cfg.output is a directory, appends *name* (with format extension).
+    Otherwise returns the file path.
+    """
+    if not cfg.output:
+        return None
+    out = Path(cfg.output)
+    if out.is_dir():
+        if name is None:
+            return None
+        return out / (name + _output_ext(cfg))
+    return out
+
+
+def _show(payload: str, output: Path | None) -> None:
+    """Write payload to a file or stdout."""
+    if output is None:
         print(payload)
+    else:
+        with output.open("w", encoding="utf-8") as f:
+            f.write(payload)
+            f.write("\n")
+            f.flush()
 
 
 def _load_grammar(path: str) -> Grammar:
@@ -411,7 +397,7 @@ def _load_grammar(path: str) -> Grammar:
     return compile(source)
 
 
-def _render(
+def _render_grammar(
     gram: Grammar,
     cfg: CLIConfig,
     *,
@@ -419,126 +405,142 @@ def _render(
     model: bool = False,
     pretty: bool = False,
     railroads: bool = False,
-    parser: bool = False,
-    parser_model: bool = False,
-    object_model: bool = False,
-) -> None:
-    """Render a Grammar in the selected mode, writing to cfg.output or stdout."""
-    from ...ngcodegen import modelgen as _modelgen, parsergen, pythongen
+    name: str | None = None,
+) -> str:
+    """Render a Grammar in the selected mode.
 
+    Sets *name* to the output basename (without extension) when -o is a directory.
+    """
     if json:
-        _show(cfg, gram.asjsons())
+        payload = gram.asjsons()
     elif model:
-        _show(cfg, repr(gram))
+        payload = repr(gram)
     elif railroads:
-        _show(cfg, gram.railroads())
-    elif parser:
-        _show(cfg, pythongen(gram))
-    elif parser_model:
-        _show(cfg, parsergen(gram))
-    elif object_model:
-        _show(cfg, _modelgen(gram))
+        payload = gram.railroads()
     else:
-        _show(cfg, gram.pretty())
+        payload = gram.pretty()
+    return payload
 
 
-def boot_cmd(cfg: CLIConfig) -> None:
+def boot_cmd(cfg: CLIConfig) -> Results:
     """Handle the ``boot`` subcommand."""
     from ..api import boot_grammar
 
-    _render(
+    payload = _render_grammar(
         boot_grammar(),
         cfg,
         json=cfg.boot_json,
         model=cfg.boot_model,
         pretty=cfg.boot_pretty,
         railroads=cfg.boot_railroads,
-        parser=cfg.boot_parser,
-        parser_model=cfg.boot_parser_model,
-        object_model=cfg.boot_object_model,
+        name="boot",
     )
+    return [("boot", payload)]
 
 
-def grammar_cmd(cfg: CLIConfig) -> None:
+def grammar_cmd(cfg: CLIConfig) -> Results:
     """Handle the ``grammar`` subcommand."""
     gram = _load_grammar(cfg.grammar)
 
-    _render(
+    payload = _render_grammar(
         gram,
         cfg,
         json=cfg.grammar_json,
         model=cfg.grammar_model,
         pretty=cfg.grammar_pretty,
         railroads=cfg.grammar_railroads,
-        parser=cfg.grammar_parser,
-        parser_model=cfg.grammar_parser_model,
-        object_model=cfg.grammar_object_model,
+        name=Path(cfg.grammar).stem,
     )
+    return [(cfg.grammar, payload)]
 
 
-_RUN_CACHE: dict[tuple[str, str], Any] = {}
-
-
-def _show_result(cfg: CLIConfig, result: Any, *, append: bool = False) -> None:
-    """Format and output a parse result."""
-    import json as json_module
-    import pprint
-
-    from ...objectmodel import Node
-
+def _format_result(cfg: CLIConfig, result: Any) -> str:
+    """Format a parse result as a string."""
     if cfg.run_json:
-        if isinstance(result, Node):
-            _show(cfg, result.asjsons(), append=append)
-        else:
-            _show(cfg, json_module.dumps(result, default=str), append=append)
-    elif cfg.run_model:
-        if isinstance(result, Node):
-            _show(
-                cfg,
-                json_module.dumps(result.asjson(), indent=2, default=str),
-                append=append,
-            )
-        else:
-            _show(cfg, pprint.pformat(result), append=append)
-    else:
-        _show(cfg, f"{result!s}", append=append)
+        return asjsons(result)
+    if cfg.run_model:
+        return repr(result)
+    return f"{result!s}"
 
 
-def run_cmd(cfg: CLIConfig) -> None:
+def run_cmd(cfg: CLIConfig) -> Results:
     """Handle the ``run`` subcommand."""
     from ...util.parproc import parproc_visual
 
     grammar = _load_grammar(cfg.grammar)
     start = cfg.run_start or None
 
+    results: list[tuple[str, Any]] = []
     if len(cfg.inputs) == 1:
-        text = Path(cfg.inputs[0]).read_text(encoding="utf-8")
-        gram = _load_grammar(cfg.grammar)
-        _show_result(cfg, gram.parse(text, start=start))
+        path = cfg.inputs[0]
+        text = Path(path).read_text(encoding="utf-8")
+        result = grammar.parse(text, start=start)
+        results.append((path, result))
+    else:
+
+        def parse_file(path: str) -> Any:
+            text = Path(path).read_text(encoding="utf-8")
+            return grammar.parse(text, start=start)
+
+        results += [
+            (r.payload, _format_result(cfg, r.outcome))
+            for r in parproc_visual(
+                parse_file,
+                cfg.inputs,
+                parallel=cfg.run_nproc > 0,
+            )
+        ]
+    return results
+
+
+def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
+    out_path = Path(cfg.output)
+    if cfg.output and out_path.is_dir():
+        ext = _output_ext(cfg)
+        for input_path, payload in results:
+            name = Path(input_path).stem
+            out = (out_path / name).with_suffix(ext)
+            _show(payload, out)
         return
 
-    def parse_file(path: str) -> Any:
-        text = Path(path).read_text(encoding="utf-8")
-        return grammar.parse(text, start=start)
+    # NOTE output is not a directory at this point
+    if cfg.run_json and len(results) > 1:
+        import json
 
-    results = parproc_visual(
-        parse_file,
-        cfg.inputs,
-        parallel=cfg.run_nproc > 0,
-    )
+        jsonl = "\n".join(
+            json.dumps(
+                {
+                    "input": input_path,
+                    "result": json.loads(outcome),
+                }
+            )
+            for input_path, outcome in results
+        )
+        _show(jsonl, _output_path(cfg))
+        return
 
-    for i, r in enumerate(results):
-        _show_result(cfg, r.outcome, append=i > 0)
+    single_out = _output_path(cfg)
+    for i, (_, payload) in enumerate(results):
+        if single_out is None:
+            print(payload)
+        else:
+            with single_out.open("a" if i > 0 else "w", encoding="utf-8") as f:
+                f.write(payload)
+                f.write("\n")
+                f.flush()
 
 
 def main() -> None:
     """Entry point for the cling CLI (not wired to console_scripts yet)."""
     cfg = parse_args()
-    if cfg.command == "boot":
-        boot_cmd(cfg)
-    elif cfg.command == "grammar":
-        grammar_cmd(cfg)
-    elif cfg.command == "run":
-        run_cmd(cfg)
-    else:
-        print(cfg, file=sys.stderr)
+    match cfg.command:
+        case "boot":
+            results = boot_cmd(cfg)
+        case "grammar":
+            results = grammar_cmd(cfg)
+        case "run":
+            results = run_cmd(cfg)
+        case _:
+            print(cfg, file=sys.stderr)
+            return
+    output_results(cfg, results)
