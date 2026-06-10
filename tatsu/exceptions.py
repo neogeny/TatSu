@@ -35,7 +35,7 @@ class FailedSemantics(ParseException):
     pass
 
 
-_DEFAULT_COLOR = Color.default()
+_DEFAULT_COLOR = Color.stderr()
 
 
 class _ColorSet:

@@ -10,9 +10,10 @@ from pathlib import Path
 from .. import railroads
 from .._version import __toolname__, __version__
 from ..config import ParserConfig
-from ..exceptions import ParseException
+from ..exceptions import FailedParse, ParseException
 from ..ngcodegen import modelgen, parsergen, pythongen
 from ..util import eval_escapes
+from ..util.colorize.style import Color
 from . import api
 
 
@@ -94,7 +95,7 @@ def parse_args():
     ebnf_opts.add_argument(
         '--color',
         '-c',
-        help='use color in traces (requires the colorama library)',
+        help='use ANSI colour in output',
         action='store_true',
     )
     ebnf_opts.add_argument(
@@ -288,5 +289,9 @@ def tatsu_main():
         print(f'{len(model.rules):12,d}  rules in grammar', file=sys.stderr)
         print(f'{model.nodecount():12,d}  nodes in AST', file=sys.stderr)
     except ParseException as e:
-        print(e, file=sys.stderr)
+        if isinstance(e, FailedParse):
+            color = Color.always() if args.color else Color.stderr()
+            print(e.render(color=color), file=sys.stderr)
+        else:
+            print(e, file=sys.stderr)
         sys.exit(1)

@@ -53,6 +53,7 @@ class Color:
 
     def __init__(self, enable: bool | None = None):
         self._force_enable: bool | None = enable
+        self._check_stderr: bool = False
 
     def enable(self, value: bool) -> None:
         """Override the enable policy with an explicit boolean.
@@ -119,12 +120,28 @@ class Color:
         """Return the system default Color (TTY-dependent, env-observing)."""
         return cls()
 
+    @classmethod
+    def stderr(cls) -> Color:
+        """Create a Color that checks ``sys.stderr`` instead of ``sys.stdout``.
+
+        Useful for rendering error messages, which typically go to stderr.
+        Respects ``NO_COLOR`` / ``FORCE_COLOR`` normally.
+        """
+        c = cls()
+        c._check_stderr = True
+        return c
+
     @property
     def is_terminal(self) -> bool:
-        """True if ``sys.stdout`` is connected to a terminal."""
+        """True if the configured stream is connected to a terminal.
+
+        By default checks ``sys.stdout``; ``Color.stderr()`` checks
+        ``sys.stderr`` instead.
+        """
         import sys
 
-        return sys.stdout.isatty()
+        stream = sys.stderr if self._check_stderr else sys.stdout
+        return stream.isatty()
 
     def terminal_size(self) -> tuple[int, int]:
         """Return ``(columns, lines)`` of the terminal, falling back to 80x24."""
@@ -176,7 +193,7 @@ class Color:
         return self.is_terminal
 
 
-DEFAULT_COLOR: Color = Color()
+DEFAULT_COLOR: Color = Color.default()
 
 
 class Style(ColorMethods):
