@@ -6,27 +6,42 @@ from typing import Any, Protocol
 
 from ..config import ParserConfig
 from ..exceptions import FailedLeftRecursion
-from ..util import color, info
-from ..util.unicode_characters import C_CUT, C_ENTRY, C_FAILURE, C_RECURSION, C_SUCCESS
+from ..util.colorize.style import Color, Style
+from ..util.common import is_posix
+from ..util.debugging import info
 from .ctx import Ctx
 
 
-class EventColor(color.Color):
-    def __init__(self):
-        self.ENTRY = self.YELLOW + self.BRIGHT + C_ENTRY
-        self.SUCCESS = self.GREEN + self.BRIGHT + C_SUCCESS
-        self.FAILURE = self.RED + self.BRIGHT + C_FAILURE
-        self.RECURSION = self.RED + self.BRIGHT + C_RECURSION
-        self.CUT = self.MAGENTA + self.BRIGHT + C_CUT
+if not is_posix():
+    C_ENTRY = '<'
+    C_SUCCESS = '>'
+    C_FAILURE = '!'
+    C_RECURSION = 'r '
+    C_CUT = '~'
+else:
+    C_ENTRY = '↙'
+    C_SUCCESS = '≡'
+    C_FAILURE = '≢'
+    C_RECURSION = '⟲\u2005'
+    C_CUT = '⚔'
 
 
-C = EventColor()
+class EventColor:
+    def __init__(self, color: Color | None = None):
+        if color is None:
+            color = Color.tty()
+        self.entry = Style(C_ENTRY, bold=True, fg=3, color=color)
+        self.success = Style(C_SUCCESS, bold=True, fg=2, color=color)
+        self.failure = Style(C_FAILURE, bold=True, fg=1, color=color)
+        self.recursion = Style(C_RECURSION, bold=True, fg=1, color=color)
+        self.cut = Style(C_CUT, bold=True, fg=5, color=color)
+        self.dim = Style(dim=True, color=color)
 
 
 class Tracer(Protocol):
     def trace(self, msg: str, *args: Any, **kwargs: Any) -> None: ...
 
-    def trace_event(self, ctx: Ctx, event: str) -> None: ...
+    def trace_event(self, ctx: Ctx, event: Style | str) -> None: ...
 
     def trace_entry(self, ctx: Ctx) -> None: ...
 
@@ -65,11 +80,8 @@ class ConsoleTracer(Tracer):
         **settings: Any,
     ) -> None:
         self.config = ParserConfig.new(config, **settings)
-
-        if self.config.colorize:
-            color.init()
-        global C  # noqa: PLW0603
-        C = EventColor()
+        color = Color.tty() if self.config.colorize else Color.never()
+        self.ec = EventColor(color)
 
     def trace(self, msg: str, *args: Any, **kwargs: Any) -> None:
         if not self.config.trace:
@@ -77,7 +89,7 @@ class ConsoleTracer(Tracer):
 
         info(msg, *args, **kwargs)
 
-    def trace_event(self, ctx: Ctx, event: str) -> None:
+    def trace_event(self, ctx: Ctx, event: Style | str) -> None:
         if not self.config.trace:
             return
 
@@ -90,35 +102,33 @@ class ConsoleTracer(Tracer):
             source += '\n'
 
         lookahead = cursor.lookahead().rstrip()
-        # lookahead = '\n' + lookahead if lookahead else ''
 
         pos = cursor.lookahead_pos()
 
         message = (
             f'{event}{self.rulestack(ctx)}'
-            f' {C.DIM}{source}'
-            # f'{C.RESET}'
-            f'\n{pos}⇥{C.RESET_ALL}{lookahead}{C.RESET_ALL}'
+            f' {self.ec.dim.apply(source)}'
+            f'\n{pos}⇥{lookahead}'
         )
         self.trace(message)
 
     def trace_entry(self, ctx: Ctx) -> None:
-        self.trace_event(ctx, f'{C.ENTRY}')
+        self.trace_event(ctx, self.ec.entry)
 
     def trace_success(self, ctx: Ctx) -> None:
-        self.trace_event(ctx, f'{C.SUCCESS}')
+        self.trace_event(ctx, self.ec.success)
 
     def trace_failure(self, ctx: Ctx, ex: Exception | None = None) -> None:
         if isinstance(ex, FailedLeftRecursion):
             self.trace_recursion(ctx)
         else:
-            self.trace_event(ctx, f'{C.FAILURE}')
+            self.trace_event(ctx, self.ec.failure)
 
     def trace_recursion(self, ctx: Ctx) -> None:
-        self.trace_event(ctx, f'{C.RECURSION}')
+        self.trace_event(ctx, self.ec.recursion)
 
     def trace_cut(self, ctx: Ctx) -> None:
-        self.trace_event(ctx, f'{C.CUT}')
+        self.trace_event(ctx, self.ec.cut)
 
     def trace_match(
         self,
@@ -138,17 +148,12 @@ class ConsoleTracer(Tracer):
         else:
             source = ''
 
-        mark = f'{C.FAILURE}' if failed else f'{C.SUCCESS}'
+        mark = self.ec.failure if failed else self.ec.success
 
         lookahead = cursor.lookahead().rstrip()
         lookahead = '\n' + lookahead if lookahead else lookahead
 
-        message = (
-            f'{mark}'
-            f"'{token}{name_str}"
-            f'{C.DIM}{source}'
-            f'{C.RESET_ALL}{lookahead}{C.RESET_ALL}'
-        )
+        message = f'{mark}\'{token}{name_str}{self.ec.dim.apply(source)}{lookahead}'
         self.trace(message)
 
     def rulestack(self, ctx: Ctx) -> str:
@@ -169,7 +174,7 @@ class NullTracer(Tracer):
     def trace(self, msg: str, *args: Any, **kwargs: Any) -> None:
         pass
 
-    def trace_event(self, ctx: Ctx, event: str) -> None:
+    def trace_event(self, ctx: Ctx, event: Style | str) -> None:
         pass
 
     def trace_entry(self, ctx: Ctx) -> None:

@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from tatsu.util.colorize.style import RGB, Color, Style, rgb
+from tatsu.util.colorize import RGB, Color, Style, rgb
 
 
 @pytest.fixture(autouse=True)
