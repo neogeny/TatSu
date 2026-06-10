@@ -6,45 +6,16 @@ from __future__ import annotations
 
 import argparse
 import sys
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from tatsu import __toolname__, __version__
-from tatsu.util.asjson import asjsons
+
+from .lib import CLIConfig, Results, _load_grammar
 
 
 if TYPE_CHECKING:
     from ...grammars.model import Grammar
-
-type Results = list[tuple[str, Any]]
-
-
-@dataclass
-class CLIConfig:
-    """Parsed command-line configuration, matching ogopego's CLIConfig struct."""
-
-    # Global flags
-    color: str = "auto"
-    output: str = ""
-    trace: bool = False
-    quiet: bool = False
-    profile: bool = False
-
-    # Subcommand state
-    command: str = ""
-    path: str = ""
-    inputs: list[str] = field(default_factory=list)
-
-    # format flags
-    json: bool = False
-    model: bool = False
-    pretty: bool = False
-    railroads: bool = False
-
-    # run flags
-    start: str = ""
-    nproc: int = 0
 
 
 def parse_args(argv: list[str] | None = None) -> CLIConfig:
@@ -145,19 +116,6 @@ def _show(payload: str, output: Path | None) -> None:
             f.flush()
 
 
-def _load_grammar(path: str) -> Grammar:
-    """Load a Grammar from an .ebnf or .json file."""
-    from ...grammars.model import Grammar as _Grammar
-
-    p = Path(path)
-    source = p.read_text(encoding="utf-8")
-    if p.suffix == ".json":
-        return _Grammar.loads(source)
-    from ..api import compile
-
-    return compile(source)
-
-
 def _render_grammar(
     gram: Grammar,
     cfg: CLIConfig,
@@ -215,45 +173,6 @@ def grammar_cmd(cfg: CLIConfig) -> Results:
     return [(cfg.path, payload)]
 
 
-def _format_result(cfg: CLIConfig, result: Any) -> str:
-    """Format a parse result as a string."""
-    if cfg.json:
-        return asjsons(result)
-    if cfg.model:
-        return repr(result)
-    return f"{result!s}"
-
-
-def run_cmd(cfg: CLIConfig) -> Results:
-    """Handle the ``run`` subcommand."""
-    from ...util.parproc import parproc_visual
-
-    grammar = _load_grammar(cfg.path)
-    start = cfg.start or None
-
-    results: list[tuple[str, Any]] = []
-    if len(cfg.inputs) == 1:
-        path = cfg.inputs[0]
-        text = Path(path).read_text(encoding="utf-8")
-        result = grammar.parse(text, start=start)
-        results.append((path, result))
-    else:
-
-        def parse_file(path: str) -> Any:
-            text = Path(path).read_text(encoding="utf-8")
-            return grammar.parse(text, start=start)
-
-        results += [
-            (r.payload, _format_result(cfg, r.outcome))
-            for r in parproc_visual(
-                parse_file,
-                cfg.inputs,
-                parallel=cfg.nproc > 0,
-            )
-        ]
-    return results
-
-
 def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
     out_path = Path(cfg.output)
     if cfg.output and out_path.is_dir():
@@ -300,6 +219,8 @@ def main() -> None:
         case "grammar":
             results = grammar_cmd(cfg)
         case "run":
+            from .run_cmd import run_cmd
+
             results = run_cmd(cfg)
         case _:
             print(cfg, file=sys.stderr)

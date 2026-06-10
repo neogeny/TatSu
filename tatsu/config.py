@@ -10,6 +10,7 @@ from typing import Any, Self, override
 from .input import NullText
 from .input.cursor import Text
 from .util.configs import Config
+from .util.heart import Heart
 from .util.regextools import cached_re_compile
 from .util.undefined import Undefined
 from .util.unicode_characters import C_DERIVE
@@ -53,6 +54,7 @@ class ParserConfig(Config):
     nameguard: bool | None = None  # implied by namechars
     whitespace: str | None = Undefined  # type: ignore
     parseinfo: bool = False
+    heart: Heart | None = None
 
     # WARNING: DEPRECATED: some old projects use these
     owner: Any = None

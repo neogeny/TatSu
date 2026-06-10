@@ -40,6 +40,9 @@ sys.setrecursionlimit(2**16)
 
 type Func = Callable[[Any], Any]
 
+type ProgressPair = tuple[Progress, TaskID]
+type GetProgressFunc = Callable[[int], ProgressPair]
+
 
 class Task(NamedTuple):
     func: Func
@@ -65,6 +68,22 @@ class Result:
 
     def __str__(self):
         return str(self.__dict__)
+
+
+def _build_progressbar(total: int) -> tuple[Progress, TaskID]:
+    progress = Progress(
+        TextColumn(f"[progress.description]{startscript()}"),
+        BarColumn(),
+        # *Progress.get_default_columns(),
+        TaskProgressColumn(),
+        TimeElapsedColumn(),
+        TimeRemainingColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        refresh_per_second=1,
+        speed_estimate_period=30.0,
+    )
+    task = progress.add_task('', total=total)
+    return progress, task
 
 
 # NOTE: backwards compatibility
@@ -98,7 +117,7 @@ def parproc(
     parallel: bool = True,
     reraise: bool = False,
     **kwargs: Any,
-) -> Iterable[Result | None]:
+) -> Generator[Result | None, None, None]:
     tasks = [
         Task(
             func=func,
@@ -176,11 +195,12 @@ def parproc_visual(
     filenames: Iterable[str],
     /,
     *args: Any,
+    build_progressbar: GetProgressFunc = _build_progressbar,
     pickable: Func = identity,
     parallel: bool = True,
     reraise: bool = False,
     **kwargs: Any,
-) -> Iterable[Result]:
+) -> Generator[Result, None, None]:
     try:
         # note: resolve iterator now because we know that processing will do it anyway
         filenames = list(filenames)
@@ -216,7 +236,7 @@ def parproc_visual(
         success_count = 0
         success_linecount = 0
 
-        progress, progress_task = _build_progressbar(total)
+        progress, progress_task = build_progressbar(total)
         with progress:
             for result in results:
                 if result is None:
@@ -301,22 +321,6 @@ def _old_file_process_progress(
         file=sys.stderr,
         end=EOLCH,
     )
-
-
-def _build_progressbar(total: int) -> tuple[Progress, TaskID]:
-    progress = Progress(
-        TextColumn(f"[progress.description]{startscript()}"),
-        BarColumn(),
-        # *Progress.get_default_columns(),
-        TaskProgressColumn(),
-        TimeElapsedColumn(),
-        TimeRemainingColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        refresh_per_second=1,
-        speed_estimate_period=30.0,
-    )
-    task = progress.add_task('', total=total)
-    return progress, task
 
 
 def _format_minutes(result: Result) -> str:

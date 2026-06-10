@@ -20,6 +20,7 @@ from ..util import (
     safe_name,
 )
 from ..util.boundeddict import BoundedDict
+from ..util.heart import Heart
 from .ast import AST
 from .ctx import Ctx, Func
 from .infos import MemoKey, RuleInfo, RuleResult
@@ -80,6 +81,7 @@ class ParserCore(Ctx):
 
         self._initialize_caches()
         self.tracer: Tracer = NullTracer()
+        self.heart: Heart | None = config.heart
         self.update_tracer()
 
     def _initialize_caches(self) -> None:
@@ -164,6 +166,9 @@ class ParserCore(Ctx):
         return self.cursor.next()
 
     def next_token(self, ri: RuleInfo | None = None) -> None:
+        if self.heart is not None:
+            self.heart.beat(self.cursor.line, self.cursor.linecount)
+
         if not (ri and ri.is_tokn):
             self.state.cursor.next_token()
 
