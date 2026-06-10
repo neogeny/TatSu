@@ -42,9 +42,12 @@ uv
 against
 alert
 allows?
+chainable
+composable
 equivalent
 [Mm]odularization
 perlinememos
+proselint
 reimplemented
 repo
 

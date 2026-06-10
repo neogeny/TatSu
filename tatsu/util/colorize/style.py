@@ -200,7 +200,7 @@ class Style(ColorMethods):
     """A composable ANSI style builder.
 
     ``Style`` stores a text *value* plus formatting attributes (foreground
-    colour, background colour, bold, dim, italic, …).  All modifier methods
+    color, background color, bold, dim, italic, …).  All modifier methods
     return a **copy** so styles are immutable and chainable:
 
     .. code-block:: python
@@ -212,7 +212,7 @@ class Style(ColorMethods):
     plain text unchanged — no ANSI codes leak into pipes, logs, or CI output.
 
     Most modifier methods accept a ``None`` or ``-1`` fg/bg to unset
-    a previously assigned colour, and ``RGB`` for 24-bit colour.
+    a previously assigned color, and ``RGB`` for 24-bit color.
     """
 
     def __init__(
@@ -272,10 +272,10 @@ class Style(ColorMethods):
             self._bg = max(0, min(value, 255))
 
     def fg_name(self, name: str) -> Self:
-        """Set foreground to a named ANSI colour (e.g. ``"red"``, ``"bright_green"``).
+        """Set foreground to a named ANSI color (e.g. ``"red"``, ``"bright_green"``).
 
-        The colour name is matched case-insensitively, with spaces removed.
-        This loads the colour map lazily on first call.
+        The color name is matched case-insensitively, with spaces removed.
+        This loads the color map lazily on first call.
         """
         from .colormap import color
 
@@ -284,9 +284,9 @@ class Style(ColorMethods):
         return new
 
     def bg_name(self, name: str) -> Self:
-        """Set background to a named ANSI colour (e.g. ``"navy"``, ``"teal"``).
+        """Set background to a named ANSI color (e.g. ``"navy"``, ``"teal"``).
 
-        Like ``fg_name``, the colour map loads lazily.
+        Like ``fg_name``, the color map loads lazily.
         """
         from .colormap import color
 
@@ -295,9 +295,9 @@ class Style(ColorMethods):
         return new
 
     def fg_css(self, name: str) -> Self:
-        """Set foreground to a CSS named colour (e.g. ``"rebeccapurple"``).
+        """Set foreground to a CSS named color (e.g. ``"rebeccapurple"``).
 
-        Uses the 148 CSS named colours.  Loads lazily on first call.
+        Uses the 148 CSS named colors.  Loads lazily on first call.
         """
         from .csscolormap import css_color
 
@@ -308,7 +308,7 @@ class Style(ColorMethods):
         return new
 
     def bg_css(self, name: str) -> Self:
-        """Set background to a CSS named colour (e.g. ``"lightseagreen"``)."""
+        """Set background to a CSS named color (e.g. ``"lightseagreen"``)."""
         from .csscolormap import css_color
 
         new = copy(self)
@@ -318,31 +318,31 @@ class Style(ColorMethods):
         return new
 
     def fg(self, value: int | RGB | None) -> Self:
-        """Set foreground to an ANSI 256-colour index (0-255) or RGB.
+        """Set foreground to an ANSI 256-color index (0-255) or RGB.
 
-        Pass ``None`` to reset the foreground colour.
+        Pass ``None`` to reset the foreground color.
         """
         new = copy(self)
         new._set_fg(value)
         return new
 
     def bg(self, value: int | RGB | None) -> Self:
-        """Set background to an ANSI 256-colour index (0-255) or RGB.
+        """Set background to an ANSI 256-color index (0-255) or RGB.
 
-        Pass ``None`` to reset the background colour.
+        Pass ``None`` to reset the background color.
         """
         new = copy(self)
         new._set_bg(value)
         return new
 
     def fg_rgb(self, r: int, g: int, b: int) -> Self:
-        """Set foreground to a 24-bit RGB colour."""
+        """Set foreground to a 24-bit RGB color."""
         new = copy(self)
         new._set_fg(rgb(r, g, b))
         return new
 
     def bg_rgb(self, r: int, g: int, b: int) -> Self:
-        """Set background to a 24-bit RGB colour."""
+        """Set background to a 24-bit RGB color."""
         new = copy(self)
         new._set_bg(rgb(r, g, b))
         return new
@@ -378,7 +378,7 @@ class Style(ColorMethods):
         return new
 
     def inverse(self) -> Self:
-        """Swap foreground and background colours (SGR 7)."""
+        """Swap foreground and background colors (SGR 7)."""
         new = copy(self)
         new._inverse = True
         return new
@@ -457,11 +457,11 @@ class Style(ColorMethods):
 
 
 def named_color(name: str) -> int | None:
-    """Look up a named ANSI colour code (0-255) by name.
+    """Look up a named ANSI color code (0-255) by name.
 
-    The colour name is matched case-insensitively, with spaces removed.
-    Returns the ANSI 256-colour index or ``None`` if unknown.
-    The colour-map module is loaded lazily.
+    The color name is matched case-insensitively, with spaces removed.
+    Returns the ANSI 256-color index or ``None`` if unknown.
+    The color-map module is loaded lazily.
     """
     from .colormap import color
 
@@ -469,11 +469,11 @@ def named_color(name: str) -> int | None:
 
 
 def css_color(name: str) -> RGB | None:
-    """Look up a CSS named colour as an ``RGB`` tuple.
+    """Look up a CSS named color as an ``RGB`` tuple.
 
-    Accepts standard CSS colour names like ``"rebeccapurple"``,
+    Accepts standard CSS color names like ``"rebeccapurple"``,
     ``"mediumseagreen"``, etc.  Returns ``None`` for unknown names.
-    The CSS colour map is loaded lazily.
+    The CSS color map is loaded lazily.
     """
     from .csscolormap import css_color
 

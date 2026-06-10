@@ -40,6 +40,12 @@ __all__ = [
 __compiled_grammar_cache: dict[tuple[str | None, str, int], g.Grammar] = {}
 
 
+def boot_grammar() -> g.Grammar:
+    from ..parser.bootparser import GRAMMAR_MODEL
+
+    return GRAMMAR_MODEL
+
+
 def compile(
     grammar: str | Text,
     name: str | None = None,
