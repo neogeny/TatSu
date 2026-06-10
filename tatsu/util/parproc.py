@@ -77,7 +77,7 @@ def parallel_proc(
     parallel: bool = True,
     reraise: bool = False,
     **kwargs: Any,
-):
+) -> Generator[Result | None, None, None]:
     yield from parproc(
         process,
         payloads,

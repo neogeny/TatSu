@@ -8,7 +8,7 @@ import argparse
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 
 if TYPE_CHECKING:
@@ -292,10 +292,12 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
     return cfg
 
 
-def _show(cfg: CLIConfig, payload: str) -> None:
+def _show(cfg: CLIConfig, payload: str, *, append: bool = False) -> None:
     """Write payload to stdout or to a file."""
     if cfg.output:
-        Path(cfg.output).write_text(payload, encoding="utf-8")
+        mode = "a" if append else "w"
+        with Path(cfg.output).open(mode, encoding="utf-8") as f:
+            f.write(payload + "\n")
     else:
         print(payload)
 
@@ -378,6 +380,91 @@ def grammar_cmd(cfg: CLIConfig) -> None:
     )
 
 
+_RUN_CACHE: dict[tuple[str, str], Any] = {}
+
+
+def _run_file_proc(
+    path: str, grammar_source: str, grammar_suffix: str, start: str | None
+) -> Any:
+    """Parse a file (module-level for multiprocessing, caches grammar per-process)."""
+    key = (grammar_source, grammar_suffix)
+    if key not in _RUN_CACHE:
+        if grammar_suffix == ".json":
+            from ...grammars.model import Grammar
+
+            _RUN_CACHE[key] = Grammar.loads(grammar_source)
+        else:
+            from ..api import compile
+
+            _RUN_CACHE[key] = compile(grammar_source)
+    text = Path(path).read_text(encoding="utf-8")
+    return _RUN_CACHE[key].parse(text, start=start or None)
+
+
+def _show_result(cfg: CLIConfig, result: Any, *, append: bool = False) -> None:
+    """Format and output a parse result."""
+    import json as json_module
+    import pprint
+
+    from ...objectmodel import Node
+
+    if cfg.run_json:
+        if isinstance(result, Node):
+            _show(cfg, result.asjsons(), append=append)
+        else:
+            _show(cfg, json_module.dumps(result, default=str), append=append)
+    elif cfg.run_model:
+        if isinstance(result, Node):
+            _show(
+                cfg,
+                json_module.dumps(result.asjson(), indent=2, default=str),
+                append=append,
+            )
+        else:
+            _show(cfg, pprint.pformat(result), append=append)
+    else:
+        _show(cfg, f"{result!s}", append=append)
+
+
+def run_cmd(cfg: CLIConfig) -> None:
+    """Handle the ``run`` subcommand."""
+    from functools import partial
+
+    from ...util.parproc import parproc
+
+    p = Path(cfg.grammar)
+    grammar_source = p.read_text(encoding="utf-8")
+    grammar_suffix = p.suffix
+    start = cfg.run_start or None
+
+    if len(cfg.inputs) == 1:
+        text = Path(cfg.inputs[0]).read_text(encoding="utf-8")
+        gram = _load_grammar(cfg.grammar)
+        _show_result(cfg, gram.parse(text, start=start))
+        return
+
+    # Sequential: compile once, reuse for all files
+    if cfg.run_nproc <= 0:
+        gram = _load_grammar(cfg.grammar)
+        for i, path in enumerate(cfg.inputs):
+            text = Path(path).read_text(encoding="utf-8")
+            _show_result(cfg, gram.parse(text, start=start), append=i > 0)
+        return
+
+    # Parallel: each process caches its own compiled grammar
+    process = partial(
+        _run_file_proc,
+        grammar_source=grammar_source,
+        grammar_suffix=grammar_suffix,
+        start=start,
+    )
+    for r in parproc(process, cfg.inputs, parallel=True):
+        if r and r.success:
+            _show_result(cfg, r.outcome, append=True)
+        elif r and r.exception:
+            print(f"ERROR: {r.payload}: {r.exception}", file=sys.stderr)
+
+
 def main() -> None:
     """Entry point for the cling CLI (not wired to console_scripts yet)."""
     cfg = parse_args()
@@ -385,5 +472,7 @@ def main() -> None:
         boot_cmd(cfg)
     elif cfg.command == "grammar":
         grammar_cmd(cfg)
+    elif cfg.command == "run":
+        run_cmd(cfg)
     else:
         print(cfg, file=sys.stderr)
