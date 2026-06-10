@@ -47,6 +47,7 @@ dev = [
     "esbonio>=2.0.0",
     "graphviz>=0.21",
     "invoke>=2.2.1",
+    "ogopego",
     "progress>=1.6.1",
     "psutil>=7.2.2",
     "pyrefly>=0.55.0",
@@ -118,6 +119,9 @@ cache-keys = [
     { file = "pyproject.toml" },
     { git = { commit = true, tags = true } }
 ]
+
+[tool.uv.sources]
+ogopego = { path = "../ogopego" }
 
 [tool.hatch.version]
 source = "uv-dynamic-versioning"
