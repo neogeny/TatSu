@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from tatsu.util.colorize.style import RGB, Style, rgb
+from tatsu.util.colorize.style import RGB, Style, Color, rgb
 
 
 @pytest.fixture(autouse=True)
@@ -103,8 +103,6 @@ def test_full_composition():
 
 
 
-
-
 def test_named_color_method():
     s = Style('x').pink()
     assert str(s) == '\033[38;5;200mx\033[0m'
@@ -183,7 +181,7 @@ def test_force_color_enables_ansi(monkeypatch):
 
 def test_force_enable_overrides_env(monkeypatch):
     monkeypatch.setenv("NO_COLOR", "1")
-    s = Style('x', fg=1, force_enable=True)
+    s = Style('x', fg=1, color=Color(enable=True))
     assert str(s) == '\033[31mx\033[0m'
 
 
@@ -214,3 +212,64 @@ def test_force_color_dynamic(monkeypatch):
         assert str(s) == 'x'
     monkeypatch.setenv("FORCE_COLOR", "1")
     assert str(s) == '\033[31mx\033[0m'
+
+
+def test_color_tty():
+    with patch("sys.stdout.isatty", return_value=True):
+        assert Color.tty().enabled is True
+    with patch("sys.stdout.isatty", return_value=False):
+        assert Color.tty().enabled is False
+
+
+def test_color_always():
+    assert Color.always().enabled is True
+
+
+def test_color_never():
+    assert Color.never().enabled is False
+
+
+def test_color_is_terminal():
+    with patch("sys.stdout.isatty", return_value=True):
+        assert Color().is_terminal is True
+    with patch("sys.stdout.isatty", return_value=False):
+        assert Color().is_terminal is False
+
+
+def test_color_supports_color():
+    assert Color().supports_color is True
+
+
+def test_color_supports_color_notty():
+    with patch("sys.stdout.isatty", return_value=False):
+        assert Color().supports_color is False
+
+
+def test_color_supports_color_dumb_term(monkeypatch):
+    monkeypatch.setenv("TERM", "dumb")
+    assert Color().supports_color is False
+
+
+def test_color_supports_color_emacs_term(monkeypatch):
+    monkeypatch.setenv("TERM", "emacs")
+    assert Color().supports_color is False
+
+
+def test_color_style_factory():
+    c = Color.always()
+    s = c.style("hi", fg=1)
+    assert str(s) == "\033[31mhi\033[0m"
+
+
+def test_color_terminal_size():
+    cols, lines = Color().terminal_size()
+    assert isinstance(cols, int)
+    assert isinstance(lines, int)
+    assert cols > 0
+    assert lines > 0
+
+
+def test_color_style_factory_disabled():
+    c = Color.never()
+    s = c.style("hi", fg=1)
+    assert str(s) == "hi"

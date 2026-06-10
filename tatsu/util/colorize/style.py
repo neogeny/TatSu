@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import os
-import sys
-from collections import namedtuple
 from copy import copy
 from typing import Self
 
 from .colormethods import ColorMethods
+
+
+from collections import namedtuple
 
 
 class RGB(namedtuple('RGB', ['r', 'g', 'b'])):
@@ -25,11 +25,11 @@ def rgb(r: int, g: int, b: int) -> RGB:
 
 
 class Color:
-    def __init__(self, force_enable: bool | None = None):
-        self._force: bool | None = force_enable
+    def __init__(self, enable: bool | None = None):
+        self._force_enable: bool | None = enable
 
     def enable(self, value: bool) -> None:
-        self._force = value
+        self._force_enable = value
 
     def style(
         self,
@@ -45,7 +45,6 @@ class Color:
         inverse: bool = False,
         hidden: bool = False,
         strikethrough: bool = False,
-        force_enable: bool | None = None,
     ) -> Style:
         return Style(
             value,
@@ -59,18 +58,58 @@ class Color:
             inverse=inverse,
             hidden=hidden,
             strikethrough=strikethrough,
-            force_enable=self._force,
+            color=self,
         )
+
+    @classmethod
+    def tty(cls) -> Color:
+        return cls()
+
+    @classmethod
+    def always(cls) -> Color:
+        return cls(enable=True)
+
+    @classmethod
+    def never(cls) -> Color:
+        return cls(enable=False)
+
+    @property
+    def is_terminal(self) -> bool:
+        import sys
+        return sys.stdout.isatty()
+
+    def terminal_size(self) -> tuple[int, int]:
+        import shutil
+        size = shutil.get_terminal_size()
+        return (size.columns, size.lines)
+
+    @property
+    def supports_color(self) -> bool:
+        import os
+        import shutil
+        import sys
+        if not sys.stdout.isatty():
+            return False
+        if os.environ.get("TERM", "") in ("dumb", "emacs"):
+            return False
+        try:
+            size = shutil.get_terminal_size()
+            if size.columns < 1:
+                return False
+        except (ValueError, OSError):
+            return False
+        return True
 
     @property
     def enabled(self) -> bool:
-        if self._force is not None:
-            return self._force
+        import os
+        if self._force_enable is not None:
+            return self._force_enable
         if os.environ.get("NO_COLOR") is not None:
             return False
         if os.environ.get("FORCE_COLOR") is not None:
             return True
-        return sys.stdout.isatty()
+        return self.is_terminal
 
 
 DEFAULT_COLOR: Color = Color()
