@@ -479,25 +479,6 @@ def grammar_cmd(cfg: CLIConfig) -> None:
 _RUN_CACHE: dict[tuple[str, str], Any] = {}
 
 
-def _run_file_proc(path: str, **kwargs: Any) -> Any:
-    """Parse a file (module-level for multiprocessing, caches grammar per-process)."""
-    grammar_source: str = kwargs["grammar_source"]
-    grammar_suffix: str = kwargs["grammar_suffix"]
-    start: str | None = kwargs.get("start")
-    key = (grammar_source, grammar_suffix)
-    if key not in _RUN_CACHE:
-        if grammar_suffix == ".json":
-            from ...grammars.model import Grammar
-
-            _RUN_CACHE[key] = Grammar.loads(grammar_source)
-        else:
-            from ..api import compile
-
-            _RUN_CACHE[key] = compile(grammar_source)
-    text = Path(path).read_text(encoding="utf-8")
-    return _RUN_CACHE[key].parse(text, start=start)
-
-
 def _show_result(cfg: CLIConfig, result: Any, *, append: bool = False) -> None:
     """Format and output a parse result."""
     import json as json_module
