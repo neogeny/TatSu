@@ -166,3 +166,51 @@ def test_rgb_from_namedtuple():
 
 def test_default_no_escape_when_no_style():
     assert str(Style('plain')) == 'plain'
+
+
+def test_no_color_suppresses_ansi(monkeypatch):
+    monkeypatch.setenv("NO_COLOR", "1")
+    s = Style('x', fg=1)
+    assert str(s) == 'x'
+
+
+def test_force_color_enables_ansi(monkeypatch):
+    monkeypatch.setenv("FORCE_COLOR", "1")
+    with patch("sys.stdout.isatty", return_value=False):
+        s = Style('x', fg=1)
+    assert str(s) == '\033[31mx\033[0m'
+
+
+def test_force_enable_overrides_env(monkeypatch):
+    monkeypatch.setenv("NO_COLOR", "1")
+    s = Style('x', fg=1, force_enable=True)
+    assert str(s) == '\033[31mx\033[0m'
+
+
+def test_no_color_empty_still_suppresses(monkeypatch):
+    monkeypatch.setenv("NO_COLOR", "")
+    s = Style('x', fg=1)
+    assert str(s) == 'x'
+
+
+def test_enabled_evaluates_dynamically(monkeypatch):
+    with patch("sys.stdout.isatty", return_value=True):
+        s = Style('x', fg=1)
+    assert str(s) == '\033[31mx\033[0m'
+    with patch("sys.stdout.isatty", return_value=False):
+        assert str(s) == 'x'
+
+
+def test_no_color_dynamic(monkeypatch):
+    s = Style('x', fg=1)
+    assert str(s) == '\033[31mx\033[0m'
+    monkeypatch.setenv("NO_COLOR", "1")
+    assert str(s) == 'x'
+
+
+def test_force_color_dynamic(monkeypatch):
+    with patch("sys.stdout.isatty", return_value=False):
+        s = Style('x', fg=1)
+        assert str(s) == 'x'
+    monkeypatch.setenv("FORCE_COLOR", "1")
+    assert str(s) == '\033[31mx\033[0m'

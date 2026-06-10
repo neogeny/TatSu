@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import os
 import sys
 from collections import namedtuple
 from copy import copy
@@ -23,6 +24,58 @@ def rgb(r: int, g: int, b: int) -> RGB:
     return RGB(r, g, b)
 
 
+class Color:
+    def __init__(self, force_enable: bool | None = None):
+        self._force: bool | None = force_enable
+
+    def enable(self, value: bool) -> None:
+        self._force = value
+
+    def style(
+        self,
+        value: str = "",
+        *,
+        fg: int | RGB | None = -1,
+        bg: int | RGB | None = -1,
+        bold: bool = False,
+        dim: bool = False,
+        italic: bool = False,
+        underline: bool = False,
+        blink: bool = False,
+        inverse: bool = False,
+        hidden: bool = False,
+        strikethrough: bool = False,
+        force_enable: bool | None = None,
+    ) -> Style:
+        return Style(
+            value,
+            fg=fg,
+            bg=bg,
+            bold=bold,
+            dim=dim,
+            italic=italic,
+            underline=underline,
+            blink=blink,
+            inverse=inverse,
+            hidden=hidden,
+            strikethrough=strikethrough,
+            force_enable=self._force,
+        )
+
+    @property
+    def enabled(self) -> bool:
+        if self._force is not None:
+            return self._force
+        if os.environ.get("NO_COLOR") is not None:
+            return False
+        if os.environ.get("FORCE_COLOR") is not None:
+            return True
+        return sys.stdout.isatty()
+
+
+DEFAULT_COLOR: Color = Color()
+
+
 class Style(ColorMethods):
     def __init__(
         self,
@@ -38,10 +91,11 @@ class Style(ColorMethods):
         inverse: bool = False,
         hidden: bool = False,
         strikethrough: bool = False,
-        force_enable: bool | None = None,
+        color: Color = DEFAULT_COLOR,
     ):
         self.value = value
-        self.enabled = sys.stdout.isatty() if force_enable is None else force_enable
+
+        self._color = color
 
         self._fg: int | RGB = -1
         self._bg: int | RGB = -1
@@ -57,6 +111,10 @@ class Style(ColorMethods):
         self._inverse = inverse
         self._hidden = hidden
         self._strikethrough = strikethrough
+
+    @property
+    def enabled(self) -> bool:
+        return self._color.enabled
 
     def _set_fg(self, value: int | RGB | None) -> None:
         if isinstance(value, RGB):
