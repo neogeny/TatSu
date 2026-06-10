@@ -6,6 +6,12 @@ from .style import RGB
 
 
 def css_color(name: str) -> RGB | None:
+    """Look up a CSS named colour as an ``RGB`` tuple.
+
+    Accepts standard CSS colour names like ``"rebeccapurple"``,
+    ``"mediumseagreen"``, etc.  The name is matched case-insensitively
+    with spaces removed.  Returns ``None`` for unknown names.
+    """
     rgb = CSS_COLORS.get(name.lower().replace(" ", ""))
     if rgb is None:
         return None

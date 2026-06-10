@@ -11,6 +11,13 @@ from .colormethods import ColorMethods
 
 
 class RGB(namedtuple('RGB', ['r', 'g', 'b'])):
+    """A 24-bit RGB color tuple with 0-255 byte clamping.
+
+    Usage:
+        RGB(255, 0, 0)  # pure red
+        rgb(128, 128, 128)  # via the rgb() helper
+    """
+
     __slots__ = ()
 
     def __new__(cls, r: int, g: int, b: int) -> Self:
@@ -21,14 +28,41 @@ class RGB(namedtuple('RGB', ['r', 'g', 'b'])):
 
 
 def rgb(r: int, g: int, b: int) -> RGB:
+    """Create an RGB tuple from 0-255 byte values."""
     return RGB(r, g, b)
 
 
 class Color:
+    """Policy object controlling whether ANSI color codes are emitted.
+
+    Color evaluates three sources in priority order:
+        1. An explicit enable override (set via the constructor or ``.enable()``).
+        2. The ``NO_COLOR`` environment variable (disables color when set).
+        3. The ``FORCE_COLOR`` environment variable (enables color when set).
+        4. Whether ``sys.stdout`` is a TTY (the default heuristic).
+
+    Factory methods:
+        ``Color.tty()`` — deference to the TTY check (the default).
+        ``Color.always()`` — always emit color.
+        ``Color.never()`` — never emit color.
+        ``Color.default()`` — same as ``Color()``; self-documenting alias.
+
+    Use ``Color.style(...)`` to create a ``Style`` bound to this policy,
+    or pass as ``color=`` to the ``Style`` constructor.
+    """
+
     def __init__(self, enable: bool | None = None):
         self._force_enable: bool | None = enable
 
     def enable(self, value: bool) -> None:
+        """Override the enable policy with an explicit boolean.
+
+        After calling ``.enable(False)``, all ``Style`` instances using this
+        ``Color`` will return plain text.  Useful to turn color off globally
+        based on a CLI flag:
+
+            Color.default().enable(args.no_color)
+        """
         self._force_enable = value
 
     def style(
@@ -46,6 +80,10 @@ class Color:
         hidden: bool = False,
         strikethrough: bool = False,
     ) -> Style:
+        """Create a ``Style`` bound to this color policy.
+
+        All keyword arguments are forwarded to ``Style.__init__``.
+        """
         return Style(
             value,
             fg=fg,
@@ -63,27 +101,33 @@ class Color:
 
     @classmethod
     def tty(cls) -> Color:
+        """Create a Color that defers to TTY detection (default)."""
         return cls()
 
     @classmethod
     def always(cls) -> Color:
+        """Create a Color that always emits ANSI codes."""
         return cls(enable=True)
 
     @classmethod
     def never(cls) -> Color:
+        """Create a Color that never emits ANSI codes."""
         return cls(enable=False)
 
     @classmethod
     def default(cls) -> Color:
+        """Return the system default Color (TTY-dependent, env-observing)."""
         return cls()
 
     @property
     def is_terminal(self) -> bool:
+        """True if ``sys.stdout`` is connected to a terminal."""
         import sys
 
         return sys.stdout.isatty()
 
     def terminal_size(self) -> tuple[int, int]:
+        """Return ``(columns, lines)`` of the terminal, falling back to 80x24."""
         import shutil
 
         size = shutil.get_terminal_size()
@@ -91,6 +135,11 @@ class Color:
 
     @property
     def supports_color(self) -> bool:
+        """True if the terminal is capable of ANSI color (independent of policy).
+
+        Checks TTY, ``TERM`` (not dumb/emacs), and terminal width.
+        Does NOT check ``NO_COLOR``/``FORCE_COLOR`` — see ``enabled`` for that.
+        """
         import os
         import shutil
         import sys
@@ -109,6 +158,13 @@ class Color:
 
     @property
     def enabled(self) -> bool:
+        """Whether color should be emitted, evaluating policy in priority order:
+
+        1. Explicit ``enable()`` override.
+        2. ``NO_COLOR`` env var → disabled.
+        3. ``FORCE_COLOR`` env var → enabled.
+        4. ``sys.stdout.isatty()``.
+        """
         import os
 
         if self._force_enable is not None:
@@ -124,6 +180,24 @@ DEFAULT_COLOR: Color = Color()
 
 
 class Style(ColorMethods):
+    """A composable ANSI style builder.
+
+    ``Style`` stores a text *value* plus formatting attributes (foreground
+    colour, background colour, bold, dim, italic, …).  All modifier methods
+    return a **copy** so styles are immutable and chainable:
+
+    .. code-block:: python
+
+        s = Style("hello", bold=True, fg=2)
+        str(s)  # → "\\033[1;32mhello\\033[0m"
+
+    When ``color.enabled`` is False, ``str()`` and ``apply()`` return the
+    plain text unchanged — no ANSI codes leak into pipes, logs, or CI output.
+
+    Most modifier methods accept a ``None`` or ``-1`` fg/bg to unset
+    a previously assigned colour, and ``RGB`` for 24-bit colour.
+    """
+
     def __init__(
         self,
         value: str = "",
@@ -161,6 +235,7 @@ class Style(ColorMethods):
 
     @property
     def enabled(self) -> bool:
+        """Whether this style emits ANSI codes, delegated to the bound ``Color``."""
         return self._color.enabled
 
     def _set_fg(self, value: int | RGB | None) -> None:
@@ -180,6 +255,11 @@ class Style(ColorMethods):
             self._bg = max(0, min(value, 255))
 
     def fg_name(self, name: str) -> Self:
+        """Set foreground to a named ANSI colour (e.g. ``"red"``, ``"bright_green"``).
+
+        The colour name is matched case-insensitively, with spaces removed.
+        This loads the colour map lazily on first call.
+        """
         from .colormap import color
 
         new = copy(self)
@@ -187,6 +267,10 @@ class Style(ColorMethods):
         return new
 
     def bg_name(self, name: str) -> Self:
+        """Set background to a named ANSI colour (e.g. ``"navy"``, ``"teal"``).
+
+        Like ``fg_name``, the colour map loads lazily.
+        """
         from .colormap import color
 
         new = copy(self)
@@ -194,6 +278,10 @@ class Style(ColorMethods):
         return new
 
     def fg_css(self, name: str) -> Self:
+        """Set foreground to a CSS named colour (e.g. ``"rebeccapurple"``).
+
+        Uses the 148 CSS named colours.  Loads lazily on first call.
+        """
         from .csscolormap import css_color
 
         new = copy(self)
@@ -203,6 +291,7 @@ class Style(ColorMethods):
         return new
 
     def bg_css(self, name: str) -> Self:
+        """Set background to a CSS named colour (e.g. ``"lightseagreen"``)."""
         from .csscolormap import css_color
 
         new = copy(self)
@@ -212,66 +301,91 @@ class Style(ColorMethods):
         return new
 
     def fg(self, value: int | RGB | None) -> Self:
+        """Set foreground to an ANSI 256-colour index (0-255) or RGB.
+
+        Pass ``None`` to reset the foreground colour.
+        """
         new = copy(self)
         new._set_fg(value)
         return new
 
     def bg(self, value: int | RGB | None) -> Self:
+        """Set background to an ANSI 256-colour index (0-255) or RGB.
+
+        Pass ``None`` to reset the background colour.
+        """
         new = copy(self)
         new._set_bg(value)
         return new
 
     def fg_rgb(self, r: int, g: int, b: int) -> Self:
+        """Set foreground to a 24-bit RGB colour."""
         new = copy(self)
         new._set_fg(rgb(r, g, b))
         return new
 
     def bg_rgb(self, r: int, g: int, b: int) -> Self:
+        """Set background to a 24-bit RGB colour."""
         new = copy(self)
         new._set_bg(rgb(r, g, b))
         return new
 
     def bold(self) -> Self:
+        """Add bold (SGR 1)."""
         new = copy(self)
         new._bold = True
         return new
 
     def dim(self) -> Self:
+        """Add dim/faint (SGR 2)."""
         new = copy(self)
         new._dim = True
         return new
 
     def italic(self) -> Self:
+        """Add italic (SGR 3)."""
         new = copy(self)
         new._italic = True
         return new
 
     def underline(self) -> Self:
+        """Add underline (SGR 4)."""
         new = copy(self)
         new._underline = True
         return new
 
     def blink(self) -> Self:
+        """Add slow blink (SGR 5)."""
         new = copy(self)
         new._blink = True
         return new
 
     def inverse(self) -> Self:
+        """Swap foreground and background colours (SGR 7)."""
         new = copy(self)
         new._inverse = True
         return new
 
     def hidden(self) -> Self:
+        """Hide text / make invisible (SGR 8)."""
         new = copy(self)
         new._hidden = True
         return new
 
     def strikethrough(self) -> Self:
+        """Add strikethrough / crossed-out (SGR 9)."""
         new = copy(self)
         new._strikethrough = True
         return new
 
     def apply(self, text: str) -> str:
+        """Wrap *text* in ANSI escape codes according to this style.
+
+        If ``self.enabled`` is False, returns *text* unchanged.
+        If *text* is empty, returns ``""``.
+        When no formatting attributes are set, returns the stored ``self.value``
+        (the behaviour that powers ``__str__``).
+        """
         if not text:
             return ""
         if not self.enabled:
@@ -326,12 +440,24 @@ class Style(ColorMethods):
 
 
 def named_color(name: str) -> int | None:
+    """Look up a named ANSI colour code (0-255) by name.
+
+    The colour name is matched case-insensitively, with spaces removed.
+    Returns the ANSI 256-colour index or ``None`` if unknown.
+    The colour-map module is loaded lazily.
+    """
     from .colormap import color
 
     return color(name)
 
 
 def css_color(name: str) -> RGB | None:
+    """Look up a CSS named colour as an ``RGB`` tuple.
+
+    Accepts standard CSS colour names like ``"rebeccapurple"``,
+    ``"mediumseagreen"``, etc.  Returns ``None`` for unknown names.
+    The CSS colour map is loaded lazily.
+    """
     from .csscolormap import css_color
 
     return css_color(name)

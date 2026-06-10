@@ -1,5 +1,16 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
+"""
+Visual verification tables for the ANSI colour library.
+
+.. code-block:: text
+
+    python -m tatsu.util.colorize
+
+Displays the 16x16 ANSI colour cube, the named colour palette,
+dynamic colour-method tests, and the CSS named colour table.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -10,6 +21,7 @@ from .style import Style
 
 
 def main():
+    """Print all verification tables to stdout."""
     print_color_table()
     print_colormap_table()
     print_color_method_table()
@@ -22,16 +34,19 @@ def main():
 
 
 def col_header(row: int, width: int = 4):
+    """Print a row-number header cell, right-aligned in *width* columns."""
     print(f'{row if row >= 0 else "":>{width}}', end=" ")
 
 
 def header(width: int = 4):
+    """Print the 16-column colour-table header."""
     col_header(-1, width)
     for col in range(16):
         print(f'{col:>{width}d}', end=" ")
 
 
 def print_color_table():
+    """Print the 16x16 ANSI colour cube (0-255) as a grid."""
     header()
     for row in range(16):
         col_header(row, 4)
@@ -43,6 +58,7 @@ def print_color_table():
 
 
 def print_colormap_table():
+    """Print all named ANSI colours in their own foreground colour."""
     width = 24
     k = 100 // width
     for n, name in enumerate(COLORMAP.keys()):
@@ -55,6 +71,7 @@ def print_colormap_table():
 
 
 def print_color_method_table():
+    """Print the dynamic colour-method names in their own foreground."""
     width = 24
     k = 100 // width
     n = 0
@@ -73,6 +90,7 @@ def print_color_method_table():
 
 
 def print_css_color_table():
+    """Print all CSS named colours swatched in their own foreground."""
     width = 24
     k = 100 // width
     for n, (name, rgb) in enumerate(CSS_COLORS.items()):

@@ -265,4 +265,9 @@ RGBCOLORMAP = {color[2]: color[1] for color in COLORS}
 
 
 def color(name: str) -> int:
+    """Look up a named ANSI colour code (0-255) by name.
+
+    The colour name is matched case-insensitively, with spaces removed.
+    Returns the ANSI 256-colour index, defaulting to 0 (black) for unknown names.
+    """
     return COLORMAP.get(name.lower().replace(" ", ""), 0)
