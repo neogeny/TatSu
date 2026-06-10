@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from tatsu.util.colorize.style import RGB, Style, Color, rgb
+from tatsu.util.colorize.style import RGB, Color, Style, rgb
 
 
 @pytest.fixture(autouse=True)
@@ -100,7 +100,6 @@ def test_fg_with_modifier():
 def test_full_composition():
     s = Style('text', fg=2, bg=7, bold=True, italic=True)
     assert str(s) == '\033[1;3;32;47mtext\033[0m'
-
 
 
 def test_named_color_method():
@@ -267,6 +266,36 @@ def test_color_terminal_size():
     assert isinstance(lines, int)
     assert cols > 0
     assert lines > 0
+
+
+def test_fg_name_lookup():
+    s = Style('x').fg_name('pink')
+    assert str(s) == '\033[38;5;200mx\033[0m'
+
+
+def test_bg_name_lookup():
+    s = Style('x').bg_name('red')
+    assert str(s) == '\033[48;5;196mx\033[0m'
+
+
+def test_fg_css():
+    s = Style('x').fg_css('crimson')
+    assert str(s) == '\033[38;2;220;20;60mx\033[0m'
+
+
+def test_bg_css():
+    s = Style('x').bg_css('navy')
+    assert str(s) == '\033[48;2;0;0;128mx\033[0m'
+
+
+def test_fg_css_unknown():
+    s = Style('x').fg_css('nonexistent')
+    assert str(s) == 'x'
+
+
+def test_fg_css_case_insensitive():
+    s = Style('x').fg_css('DeepSkyBlue')
+    assert str(s) == '\033[38;2;0;191;255mx\033[0m'
 
 
 def test_color_style_factory_disabled():

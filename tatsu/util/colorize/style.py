@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+from collections import namedtuple
 from copy import copy
 from typing import Self
 
 from .colormethods import ColorMethods
-
-
-from collections import namedtuple
 
 
 class RGB(namedtuple('RGB', ['r', 'g', 'b'])):
@@ -76,10 +74,12 @@ class Color:
     @property
     def is_terminal(self) -> bool:
         import sys
+
         return sys.stdout.isatty()
 
     def terminal_size(self) -> tuple[int, int]:
         import shutil
+
         size = shutil.get_terminal_size()
         return (size.columns, size.lines)
 
@@ -88,9 +88,10 @@ class Color:
         import os
         import shutil
         import sys
+
         if not sys.stdout.isatty():
             return False
-        if os.environ.get("TERM", "") in ("dumb", "emacs"):
+        if os.environ.get("TERM", "") in {"dumb", "emacs"}:
             return False
         try:
             size = shutil.get_terminal_size()
@@ -103,6 +104,7 @@ class Color:
     @property
     def enabled(self) -> bool:
         import os
+
         if self._force_enable is not None:
             return self._force_enable
         if os.environ.get("NO_COLOR") is not None:
@@ -170,6 +172,38 @@ class Style(ColorMethods):
             self._bg = -1
         else:
             self._bg = max(0, min(value, 255))
+
+    def fg_name(self, name: str) -> Self:
+        from .colormap import color
+
+        new = copy(self)
+        new._set_fg(color(name))
+        return new
+
+    def bg_name(self, name: str) -> Self:
+        from .colormap import color
+
+        new = copy(self)
+        new._set_bg(color(name))
+        return new
+
+    def fg_css(self, name: str) -> Self:
+        from .csscolormap import css_color
+
+        new = copy(self)
+        rgb = css_color(name)
+        if rgb is not None:
+            new._set_fg(rgb)
+        return new
+
+    def bg_css(self, name: str) -> Self:
+        from .csscolormap import css_color
+
+        new = copy(self)
+        rgb = css_color(name)
+        if rgb is not None:
+            new._set_bg(rgb)
+        return new
 
     def fg(self, value: int | RGB | None) -> Self:
         new = copy(self)
