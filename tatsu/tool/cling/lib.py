@@ -21,9 +21,10 @@ class CLIConfig:
     # Global flags
     color: str = "auto"
     output: str = ""
-    trace: bool = False
+    verbose: bool = False
     quiet: bool = False
     profile: bool = False
+    trace: bool = False
 
     # Subcommand state
     command: str = ""

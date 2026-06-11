@@ -205,7 +205,7 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
             print(payload)
         else:
             with single_out.open("a" if i > 0 else "w", encoding="utf-8") as f:
-                f.write(payload)
+                f.write(str(payload))
                 f.write("\n")
                 f.flush()
 
@@ -235,6 +235,12 @@ def add_global_options(parser):
         "--quiet",
         action="store_true",
         help="Suppress progress bar and spinner output",
+    )
+    group.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Provide more detailed information about the parsing process",
     )
     group.add_argument(
         "-t",

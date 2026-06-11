@@ -196,6 +196,7 @@ def parproc_visual(
     pickable: Func = identity,
     parallel: bool = True,
     reraise: bool = False,
+    summary: bool = False,
     **kwargs: Any,
 ) -> Generator[Result, None, None]:
     try:
@@ -286,15 +287,16 @@ def parproc_visual(
             progress.update(progress_task, advance=0, description='')
             progress.remove_task(progress_task)
             progress.stop()
-        with logctx() as log:
-            _file_process_summary(
-                filenames,
-                total_time,
-                run_time,
-                success_count,
-                success_linecount,
-                log,
-            )
+        if summary:
+            with logctx() as log:
+                _file_process_summary(
+                    filenames,
+                    total_time,
+                    run_time,
+                    success_count,
+                    success_linecount,
+                    log,
+                )
     except KeyboardInterrupt:
         return
 
