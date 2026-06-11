@@ -44,6 +44,14 @@ type ProgressPair = tuple[Progress, TaskID]
 type GetProgressFunc = Callable[[int], ProgressPair]
 
 
+class VisualPayload(NamedTuple):
+    path: Path
+    content: Any
+
+
+type VisualFunc = Callable[[VisualPayload], Any]
+
+
 class Task(NamedTuple):
     func: Func
     payload: Any
@@ -151,6 +159,8 @@ def taskproc(task: Task) -> Result:
             if isinstance(count, int | float):
                 result.linecount = int(count)
             else:
+                while isinstance(count, list) and len(count) > 0:
+                    count = count[0]
                 result.linecount = count
         result.outcome = task.pickable(outcome)
     except KeyboardInterrupt:
@@ -163,31 +173,9 @@ def taskproc(task: Task) -> Result:
     return result
 
 
-# NOTE: backwards compatibility
-def processing_loop(
-    filenames: Iterable[str],
-    process: Callable,
-    /,
-    *args: Any,
-    pickable: Func = identity,
-    parallel: bool = True,
-    reraise: bool = False,
-    **kwargs: Any,
-) -> Iterable[Result]:
-    yield from parproc_visual(
-        process,
-        filenames,
-        *args,
-        pickable=pickable,
-        parallel=parallel,
-        reraise=reraise,
-        **kwargs,
-    )
-
-
 def parproc_visual(
-    func: Func,
-    filenames: Iterable[str],
+    func: VisualFunc,
+    payloads: Iterable[VisualPayload],
     /,
     build_progressbar: GetProgressFunc = _build_progressbar,
     *args: Any,
@@ -199,7 +187,8 @@ def parproc_visual(
 ) -> Generator[Result, None, None]:
     try:
         # note: resolve iterator now because we know that processing will do it anyway
-        filenames = list(filenames)
+        payloads = list(payloads)
+        filenames = [str(p.path) for p in payloads]
 
         logpath = None
         if len(filenames) > 1:
@@ -222,7 +211,7 @@ def parproc_visual(
         start_time = time.time()
         results = parproc(
             func,
-            filenames,
+            payloads,
             *args,
             pickable=pickable,
             parallel=parallel,
@@ -242,7 +231,7 @@ def parproc_visual(
                 count += 1
 
                 total_time = time.time() - start_time
-                filename = Path(result.payload).name
+                filename = Path(result.payload.path).name
                 if result.exception:
                     icon = f'{U_CROSSED_SWORDS}'
                     color = '[red]'
@@ -460,3 +449,25 @@ def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
 
     return process_pmap
     # return thread_pmap
+
+
+# NOTE: backwards compatibility
+def processing_loop(
+    filenames: Iterable[str],
+    process: Callable,
+    /,
+    *args: Any,
+    pickable: Func = identity,
+    parallel: bool = True,
+    reraise: bool = False,
+    **kwargs: Any,
+) -> Iterable[Result]:
+    yield from parproc_visual(
+        process,
+        filenames,
+        *args,
+        pickable=pickable,
+        parallel=parallel,
+        reraise=reraise,
+        **kwargs,
+    )

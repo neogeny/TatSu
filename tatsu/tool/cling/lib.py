@@ -105,7 +105,7 @@ def show_results(cfg: CLIConfig, stats: ParseStats) -> None:
 
     console.print("[dim cyan]results[/dim cyan]:")
     for r in stats.results:
-        name = Path(r.payload).name
+        name = Path(r.payload.path).name
         if r.exception or isinstance(r.outcome, Exception):
             console.print(f"  [red]✗[/red]  [magenta]{r.time:>6.2f}s[/magenta]  {name}")
         else:

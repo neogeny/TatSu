@@ -9,7 +9,7 @@ from typing import Any
 from tatsu.util.strtools import countlines
 
 from ...config import ParserConfig
-from ...util.parproc import ProgressPair, parproc_visual
+from ...util.parproc import ProgressPair, VisualPayload, parproc_visual
 from ...util.richtest import is_rich_library_available
 from .lib import (
     CLIConfig,
@@ -33,11 +33,11 @@ def run_cmd(cfg: CLIConfig) -> Results:
 
     if is_rich_library_available() and not cfg.quiet:
         return run_with_progress(grammar, start, cfg)
+    else:
+        return run_without_progress(grammar, start, cfg)
 
-    return run_direct(grammar, start, cfg)
 
-
-def run_direct(
+def run_without_progress(
     grammar: Any,
     start: str | None,
     cfg: CLIConfig,
@@ -46,13 +46,13 @@ def run_direct(
 
     config = ParserConfig.new()
 
-    def parse_file(path: str) -> Any:
+    def parse_single_file(path: str) -> Any:
         text = Path(path).read_text(encoding="utf-8")
         return grammar.parse(text, start=start, config=config)
 
     return [
         (r.payload, format_result(cfg, r.outcome))
-        for r in parproc(parse_file, cfg.inputs, parallel=cfg.nproc > 0)
+        for r in parproc(parse_single_file, cfg.inputs, parallel=cfg.nproc > 0)
         if r is not None and r.outcome is not None and r.exception is None
     ]
 
@@ -130,15 +130,18 @@ def run_with_progress(
         text = Path(p).read_text(encoding="utf-8")
         file_lc[p] = countlines(text)
 
-    def parse_file(pathstr: str) -> Any:
-        path = Path(pathstr)
-        text = Path(path).read_text(encoding="utf-8")
-        relpath = path.absolute().relative_to(Path().absolute())
+    def parse_file(payload: VisualPayload) -> Any:
+        path = Path(payload.id)
+        text = payload.content
+
+        config = ParserConfig.new()
 
         fileheart = ProgressHeart(path.name, len(text))
-        config = ParserConfig.new()
         config.heart = fileheart
+
+        relpath = path.absolute().relative_to(Path().absolute())
         config.source = str(relpath)
+
         try:
             return grammar.parse(text, start=start, config=config)
         except KeyboardInterrupt:
@@ -168,9 +171,15 @@ def run_with_progress(
         return (top_progress, toptask)
 
     results: list[tuple[str, Any]] = []
+    for input in cfg.inputs:
+        path = Path(input)
+        text = path.read_text()
+
+    paths = [Path(input) for input in cfg.inputs]
+    payloads = [VisualPayload(path, path.read_text()) for path in paths]
     for r in parproc_visual(
         parse_file,
-        cfg.inputs,
+        payloads,
         build_progressbar=build_progressbar,
         parallel=True,
         summary=False,
@@ -182,7 +191,7 @@ def run_with_progress(
         if isinstance(r.outcome, Exception):
             continue
         stats.success_count += 1
-        lc = file_lc[r.payload]
+        lc = file_lc[str(r.payload.path)]
         stats.success_linecount += lc.code
         results.append((r.payload, format_result(cfg, r.outcome)))
     stats.total_time = time.time() - start_time
