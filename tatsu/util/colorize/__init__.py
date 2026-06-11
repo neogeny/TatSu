@@ -20,7 +20,7 @@ Quick-start:
 
 from __future__ import annotations
 
-from .style import RGB, Color, Style, css_color, named_color, rgb
+from .style import RGB, Color, Style, css_color, fmt, named_color, rgb
 
 
 __all__ = [
@@ -28,6 +28,7 @@ __all__ = [
     "RGB",
     "Style",
     "css_color",
+    "fmt",
     "named_color",
     "rgb",
 ]

@@ -232,6 +232,7 @@ class Style(ColorMethods):
         color: Color = DEFAULT_COLOR,
     ):
         self.value = value
+        self._fmt: str | None = None
 
         self._color = color
 
@@ -404,6 +405,12 @@ class Style(ColorMethods):
         new._strikethrough = True
         return new
 
+    def fmt(self, fmt_spec: str) -> Self:
+        """Set a format specification (a style will still create a copy)."""
+        new = copy(self)
+        new._fmt = fmt_spec
+        return new
+
     def apply(self, text: str) -> str:
         """Wrap *text* in ANSI escape codes according to this style.
 
@@ -414,6 +421,7 @@ class Style(ColorMethods):
         """
         if not text:
             return ""
+        text = fmt(text, self._fmt) if self._fmt else text
         if not self.enabled:
             return text
 
@@ -455,7 +463,7 @@ class Style(ColorMethods):
             else:
                 codes.append(f'48;5;{c}')
         if not codes:
-            return self.value
+            return text
         return f"\033[{';'.join(codes)}m{text}\033[0m"
 
     def __str__(self) -> str:
@@ -487,3 +495,21 @@ def css_color(name: str) -> RGB | None:
     from .csscolormap import css_color
 
     return css_color(name)
+
+
+def fmt(value: str, fmt: str) -> str:
+    """Format *value* according to the Python format specification *fmt*.
+
+    Wraps ``f'{value:{fmt}}'`` with exception handling so invalid
+    format specs degrade gracefully to the original value.
+
+    Example:
+        fmt("hello", ">10")  # "     hello"
+        fmt("hello", ".2")   # "he"
+    """
+    if not fmt:
+        return value
+    try:
+        return f'{value:{fmt}}'
+    except (ValueError, TypeError):
+        return value

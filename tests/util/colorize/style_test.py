@@ -4,10 +4,10 @@ from unittest.mock import patch
 
 import pytest
 
-from tatsu.util.colorize import RGB, Color, Style, rgb
+from tatsu.util.colorize import RGB, Color, Style, fmt, rgb
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True)  # noqa: RUF076
 def _tty_stdout():
     with patch("sys.stdout.isatty", return_value=True):
         yield
@@ -302,3 +302,65 @@ def test_color_style_factory_disabled():
     c = Color.never()
     s = c.style("hi", fg=1)
     assert str(s) == "hi"
+
+
+def test_fmt_none():
+    assert fmt("hello", "") == "hello"
+
+
+def test_fmt_right_align():
+    assert fmt("x", ">10") == "         x"
+
+
+def test_fmt_left_align():
+    assert fmt("x", "<10") == "x         "
+
+
+def test_fmt_center():
+    assert fmt("hi", "^10") == "    hi    "
+
+
+def test_fmt_fill_char():
+    assert fmt("x", "->10") == "---------x"
+
+
+def test_fmt_truncate():
+    assert fmt("hello world", ".5") == "hello"
+
+
+def test_fmt_width_and_truncate():
+    assert fmt("hello world", ">10.5") == "     hello"
+
+
+def test_fmt_empty_text():
+    assert fmt("", ">10") == "          "
+
+
+def test_fmt_zero_width():
+    assert fmt("x", "0") == "x"
+
+
+def test_fmt_invalid_spec():
+    assert fmt("x", "invalid") == "x"
+
+
+def test_fmt_through_call():
+    s = Style().fmt(">10")("x")
+    assert str(s) == "         x"
+
+
+def test_fmt_through_str():
+    s = Style("x").fmt(">10")
+    assert str(s) == "         x"
+
+
+def test_fmt_with_ansi():
+    s = Style(bold=True, color=Color.always()).fmt(">5")
+    assert s.apply("x") == "\033[1m    x\033[0m"
+
+
+def test_fmt_immutable():
+    base = Style("x")
+    styled = base.fmt(">10")
+    assert base._fmt is None
+    assert styled._fmt == ">10"
