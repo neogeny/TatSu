@@ -83,7 +83,7 @@ class ParserCore(Ctx):
         self._initialize_caches()
         self.tracer: Tracer = NullTracer()
         self.heart: Heart | None = config.heart
-        self.lastbeat = 0
+        self.lastbeat = 0.0
         self.update_tracer()
 
     def _initialize_caches(self) -> None:

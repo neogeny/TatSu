@@ -207,6 +207,8 @@ def parproc_visual(
             prefix = startscript().replace('.', '_')
             logpath = iso_logpath(prefix=prefix)
 
+        maxwidth = max(len(Path(f).name) for f in filenames)
+
         @contextmanager
         def logctx() -> Generator[io.TextIOBase | Any, None, None]:
             if isinstance(logpath, Path):
@@ -243,15 +245,16 @@ def parproc_visual(
                 total_time = time.time() - start_time
                 filename = Path(result.payload).name
                 if result.exception:
-                    icon = f'[red]{U_CROSSED_SWORDS}'
+                    icon = f'{U_CROSSED_SWORDS}'
+                    color = '[red]'
                 else:
-                    icon = f'[green]{U_CHECK_MARK}'
+                    icon = f'{U_CHECK_MARK}'
+                    color = '[green]'
 
-                pct = 100 * count / total
                 progress.update(
                     progress_task,
                     advance=1,
-                    description=f'{pct:4.1f}% {icon} {filename}',
+                    description=f'{color}{filename:{maxwidth}} {icon}',
                     color='green',
                 )
 
@@ -275,7 +278,8 @@ def parproc_visual(
                         raise result.exception
                 elif result.outcome is not None:
                     success_count += 1
-                    success_linecount += result.linecount
+                    if isinstance(result.linecount, int | float):
+                        success_linecount += result.linecount
                     run_time += result.time
                     yield result
 

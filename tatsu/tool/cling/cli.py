@@ -301,28 +301,6 @@ def add_grammar_options(parser):
         dest="railroads",
         help="Print a railroad diagram",
     )
-    mode.add_argument(
-        '-g',
-        '--gen-parser',
-        help='Generate parser from the grammar (default)',
-        action='store_true',
-    )
-    mode.add_argument(
-        '-x',
-        '--parser-model',
-        help='Generate model-based parser from the grammar',
-        action='store_true',
-    )
-    mode.add_argument(
-        '-d',
-        '--draw',
-        help=(
-            'Renerate a diagram of the grammar'
-            ' (.svg, .png, .jpeg, .dot, ...'
-            ' / requres --outfile)'
-        ),
-        action='store_true',
-    )
 
 
 def add_boot_cmd(subparsers):

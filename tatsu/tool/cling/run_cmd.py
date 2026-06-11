@@ -12,7 +12,6 @@ from ...config import ParserConfig
 from ...util.asjson import asjsons
 from ...util.parproc import ProgressPair, parproc_visual
 from ...util.richtest import is_rich_library_available
-from ...util.unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
 from .lib import CLIConfig, Results, _load_grammar
 
 
@@ -68,22 +67,45 @@ def _run_with_progress(
     from rich.progress import (  # pyright: ignore[reportMissingImports]
         BarColumn,
         Progress,
+        TaskID,
         TaskProgressColumn,
         TextColumn,
         TimeElapsedColumn,
         TimeRemainingColumn,
     )
+    from rich.table import Table
 
-    # from ...util.common import startscript
+    class DualProgress(Progress):
+        def __init__(self, *columns, **kwargs):
+            super().__init__(*columns, **kwargs)
+            self._file_cols = [
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(complete_style="green"),
+                # TaskProgressColumn(style="green"),
+            ]
+            self._main_id: TaskID | None = None
 
-    top_progress = Progress(
-        # TextColumn(f"[progress.description]{startscript()}"),
-        TextColumn("[name][progress.description]"),
-        BarColumn(),
+        def set_main(self, tid: TaskID) -> None:
+            self._main_id = tid
+
+        def get_renderables(self):
+            for task in self.tasks:
+                if not task.visible:
+                    continue
+                columns = self.columns if task.id == self._main_id else self._file_cols
+                table = Table.grid(padding=(0, 1))
+                for _ in columns:
+                    table.add_column(no_wrap=True)
+                table.add_row(*(c.render(task) for c in columns))
+                yield table
+
+    top_progress = DualProgress(
         TaskProgressColumn(),
         TimeElapsedColumn(),
         TimeRemainingColumn(),
+        # TextColumn("[name][progress.description]"),
         TextColumn("[progress.description]{task.description}"),
+        BarColumn(bar_width=None, complete_style="yellow"),
         refresh_per_second=1,
         speed_estimate_period=30.0,
     )
@@ -97,12 +119,12 @@ def _run_with_progress(
         def beat(self, mark: int, total: int) -> None:
             if total == 0:
                 return
-            pct = mark / total * 100
             task_progress.update(
                 self.task,
                 completed=mark,
                 total=total,
-                description=f"{pct:4.1f}% [bold white]{self.name} [/]",
+                coloer='greem',
+                description=f"[bold white]{self.name:40} [green][/]",
             )
 
         def finish(self) -> None:
@@ -116,19 +138,14 @@ def _run_with_progress(
         config.heart = fileheart
         try:
             tree = grammar.parse(text, start=start, config=config)
+            tree.linecount = len(text)
+            return tree
         finally:
             fileheart.finish()
 
-        @dataclass
-        class wrapper:
-            count: int
-            tree: Any
-
-        count = countlines(text).code
-        return wrapper(count, tree)
-
     total = len(cfg.inputs)
     toptask = top_progress.add_task(Path(cfg.path).name, total=total)
+    top_progress.set_main(toptask)
 
     def build_progressbar(total: int) -> ProgressPair:
         return (top_progress, toptask)
@@ -142,22 +159,7 @@ def _run_with_progress(
     ):
         if r is None:
             continue
-        # name = Path(r.payload).name
         if r.exception is None and r.outcome is not None:
-            icon = U_CHECK_MARK
-            color = "green"
             results.append((r.payload, _format_result(cfg, r.outcome)))
-        else:
-            icon = U_CROSSED_SWORDS
-            color = "red"
-        pct = 100 * len(results) / total
-        # WARNING the main bar is updated by parproc
-        # progress.update(
-        #     topheart.task,
-        #     advance=1,
-        #     description=f"[{color}]{pct:4.1f}% {icon} {name}",
-        # )
-
-    # progress.update(topheart.task, advance=total, description="")
     top_progress.stop()
     return results
