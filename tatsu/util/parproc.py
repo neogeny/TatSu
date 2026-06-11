@@ -156,12 +156,10 @@ def taskproc(task: Task) -> Result:
         try:
             outcome = task.func(task.payload, *task.args, **task.kwargs)
             result.linecount = getattr(outcome, 'linecount', 0)
-        except (Exception, BaseException) as e:
+        except Exception as e:
             result.exception = e
         result.memory = memory_use()
         result.outcome = task.pickable(outcome)
-    except KeyboardInterrupt:
-        raise
     except Exception as e:
         result.exception = e
     finally:
