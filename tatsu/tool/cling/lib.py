@@ -56,7 +56,9 @@ class ParseStats:
     blnk_lines: int = 0
     succ_count: int = 0
     succ_lines: int = 0
+    succ_rate: float = 0.0
     run_time: float = 0.0
+    slocs_avg: float = 0.0
 
 
 def load_grammar(path: str) -> Grammar:
@@ -127,12 +129,21 @@ def show_results(cfg: CLIConfig, results: list[Result]) -> None:
 
 
 def result_stats(results: list[Result]) -> ParseStats:
+    eolcmt = {
+        ".java": "//",
+        ".py": "#",
+        ".rs": "//",
+        ".go": "//",
+        ".js": "//",
+        ".ts": "//",
+    }
     stats = ParseStats()
     for r in results:
         stats.file_count += 1
         stats.run_time += r.time
 
-        counts = countlines(r.payload.content)
+        suffix = r.payload.path.suffix
+        counts = countlines(r.payload.content, eolcmt.get(suffix, "//"))
         stats.totl_lines += counts.totl
         stats.code_lines += counts.code
         stats.cmnt_lines += counts.cmnt
@@ -141,6 +152,9 @@ def result_stats(results: list[Result]) -> ParseStats:
         if r.success and not r.exception:
             stats.succ_count += 1
             stats.succ_lines += counts.totl
+
+    stats.slocs_avg = stats.totl_lines / stats.run_time if stats.run_time > 0 else 0
+    stats.succ_rate = stats.succ_count / stats.file_count if stats.file_count else 0
     return stats
 
 
@@ -161,12 +175,6 @@ def show_summary(
 
     console = Console(stderr=True)
     failures = stats.file_count - stats.succ_count
-    succ_rate = 0.0
-    sloc_sec = 0.0
-    if stats.file_count >= 1:
-        succ_rate = 100.0 * stats.succ_count / stats.file_count
-        if stats.run_time > 0:
-            sloc_sec = stats.succ_lines / stats.run_time
 
     table = Table(show_header=False, box=None)
     table.add_column(style="dim cyan", justify="right")
@@ -174,12 +182,30 @@ def show_summary(
 
     table.add_row("files input", f"{stats.file_count:>12}")
     table.add_row("source lines input", f"{stats.totl_lines:>12}")
-    table.add_row("total lines processed", f"{stats.succ_lines:>12}")
-    rate_color = "green" if succ_rate >= 100 else "yellow" if succ_rate > 0.6 else "red"
-    table.add_row("sloc/sec", f"[yellow]{sloc_sec:>12,.0f}[/yellow]")
+    table.add_row("success lines", f"{stats.succ_lines:>12}")
+    table.add_row("sloc", f"{stats.code_lines:>12}")
+    rate_color = (
+        "green"
+        if stats.succ_rate >= 1.0
+        else "yellow"
+        if stats.succ_rate > 0.6
+        else "red"
+    )
     table.add_row("successes", f"[green]{stats.succ_count:>12}[/green]")
     table.add_row("failures", f"[red]{failures:>12}[/red]")
-    table.add_row("success rate", f"[{rate_color}]{succ_rate:>12.0f}%[/{rate_color}]")
+    table.add_row(
+        "success rate",
+        f"[{rate_color}]{100.0 * stats.succ_rate:>12.0f} %[/{rate_color}]",
+    )
+
+    if stats.slocs_avg >= 200:
+        csloc = "green"
+    elif stats.slocs_avg >= 150:
+        csloc = "yellow"
+    else:
+        csloc = "red"
+    table.add_row("sloc/sec", f"[{csloc}]{stats.slocs_avg:>12,.0f} sl/s[/{csloc}]")
+
     table.add_row("run time", format_duration(stats.run_time, False).rjust(12))
     table.add_row("wall time", format_duration(total_time, False).rjust(12))
 

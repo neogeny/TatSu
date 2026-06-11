@@ -212,20 +212,23 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
 
 def main() -> None:
     """Entry point for the cling CLI (not wired to console_scripts yet)."""
-    cfg = parse_args()
-    match cfg.command:
-        case "boot":
-            results = boot_cmd(cfg)
-        case "grammar":
-            results = grammar_cmd(cfg)
-        case "run":
-            from .run_cmd import run_cmd
+    try:
+        cfg = parse_args()
+        match cfg.command:
+            case "boot":
+                results = boot_cmd(cfg)
+            case "grammar":
+                results = grammar_cmd(cfg)
+            case "run":
+                from .run_cmd import run_cmd
 
-            results = run_cmd(cfg)
-        case _:
-            print(cfg, file=sys.stderr)
-            return
-    output_results(cfg, results)
+                results = run_cmd(cfg)
+            case _:
+                print(cfg, file=sys.stderr)
+                return
+        output_results(cfg, results)
+    except KeyboardInterrupt:
+        return
 
 
 def add_global_options(parser):

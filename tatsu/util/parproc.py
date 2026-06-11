@@ -137,15 +137,12 @@ def parproc(
         )
         for payload in payloads
     ]
-    try:
-        if len(tasks) == 1:
-            yield taskproc(tasks[0])
-            return
-
-        pmap = active_pmap() if parallel else map
-        yield from pmap(taskproc, tasks)
-    except KeyboardInterrupt:
+    if len(tasks) == 1:
+        yield taskproc(tasks[0])
         return
+
+    pmap = active_pmap() if parallel else map
+    yield from pmap(taskproc, tasks)
 
 
 def taskproc(task: Task) -> Result:
@@ -180,108 +177,105 @@ def parproc_visual(
     summary: bool = False,
     **kwargs: Any,
 ) -> Generator[Result, None, None]:
-    try:
-        # note: resolve iterator now because we know that processing will do it anyway
-        payloads = list(payloads)
-        filenames = [str(p.path) for p in payloads]
+    # note: resolve iterator now because we know that processing will do it anyway
+    payloads = list(payloads)
+    filenames = [str(p.path) for p in payloads]
 
-        logpath = None
-        if len(filenames) > 1:
-            prefix = startscript().replace('.', '_')
-            logpath = iso_logpath(prefix=prefix)
+    logpath = None
+    if len(filenames) > 1:
+        prefix = startscript().replace('.', '_')
+        logpath = iso_logpath(prefix=prefix)
 
-        maxwidth = max(len(Path(f).name) for f in filenames)
+    maxwidth = max(len(Path(f).name) for f in filenames)
 
-        @contextmanager
-        def logctx() -> Generator[io.TextIOBase | Any, None, None]:
-            if isinstance(logpath, Path):
-                with logpath.open(mode="a", encoding="utf-8") as logfile:
-                    yield logfile
+    @contextmanager
+    def logctx() -> Generator[io.TextIOBase | Any, None, None]:
+        if isinstance(logpath, Path):
+            with logpath.open(mode="a", encoding="utf-8") as logfile:
+                yield logfile
+        else:
+            yield sys.stderr
+
+    total = len(filenames)
+    total_time = 0.0
+    run_time = 0.0
+    start_time = time.time()
+    results = parproc(
+        func,
+        payloads,
+        *args,
+        pickable=pickable,
+        parallel=parallel,
+        reraise=reraise,
+        **kwargs,
+    )
+    count = 0
+    success_count = 0
+    success_linecount = 0
+
+    progress, progress_task = build_progressbar(total)
+    with progress:
+        for result in results:
+            if result is None:
+                continue
+            count += 1
+
+            total_time = time.time() - start_time
+            filename = Path(result.payload.path).name
+            if result.exception:
+                icon = f'{U_CROSSED_SWORDS}'
+                color = '[red]'
             else:
-                yield sys.stderr
+                icon = f'{U_CHECK_MARK}'
+                color = '[green]'
 
-        total = len(filenames)
-        total_time = 0.0
-        run_time = 0.0
-        start_time = time.time()
-        results = parproc(
-            func,
-            payloads,
-            *args,
-            pickable=pickable,
-            parallel=parallel,
-            reraise=reraise,
-            **kwargs,
-        )
-        count = 0
-        success_count = 0
-        success_linecount = 0
+            progress.update(
+                progress_task,
+                advance=1,
+                description=f'{color}{filename:{maxwidth}} {icon}',
+                color='green',
+            )
 
-        progress, progress_task = build_progressbar(total)
-        with progress:
-            for result in results:
-                if result is None:
-                    continue
-                count += 1
-
-                total_time = time.time() - start_time
-                filename = Path(result.payload.path).name
-                if result.exception:
-                    icon = f'{U_CROSSED_SWORDS}'
-                    color = '[red]'
-                else:
-                    icon = f'{U_CHECK_MARK}'
-                    color = '[green]'
-
-                progress.update(
-                    progress_task,
-                    advance=1,
-                    description=f'{color}{filename:{maxwidth}} {icon}',
-                    color='green',
-                )
-
-                # with logctx() as log:
-                #     print(result.payload, file=log)
-                if result.exception:
-                    try:
-                        with logctx() as log:
-                            print('ERROR:', result.payload, file=log)
-                            print(result.exception, file=log)
-                    except Exception:
-                        # in case of errors while serializing the exception
-                        with logctx() as log:
-                            print(
-                                'EXCEPTION',
-                                type(result.exception).__name__,
-                                file=log,
-                            )
-                    if reraise:
-                        raise result.exception
-                elif result.outcome is not None:
-                    success_count += 1
-                    if isinstance(result.linecount, int | float):
-                        success_linecount += result.linecount
-                    run_time += result.time
-
-                if result.exception and reraise:
+            # with logctx() as log:
+            #     print(result.payload, file=log)
+            if result.exception:
+                try:
+                    with logctx() as log:
+                        print('ERROR:', result.payload, file=log)
+                        print(result.exception, file=log)
+                except Exception:
+                    # in case of errors while serializing the exception
+                    with logctx() as log:
+                        print(
+                            'EXCEPTION',
+                            type(result.exception).__name__,
+                            file=log,
+                        )
+                if reraise:
                     raise result.exception
-                yield result
+            elif result.outcome is not None:
+                success_count += 1
+                if isinstance(result.linecount, int | float):
+                    success_linecount += result.linecount
+                run_time += result.time
 
-            progress.update(progress_task, advance=0, description='')
-            progress.remove_task(progress_task)
-            progress.stop()
-        if summary:
-            with logctx() as log:
-                _file_process_summary(
-                    filenames,
-                    total_time,
-                    run_time,
-                    success_count,
-                    success_linecount,
-                    log,
-                )
-    except KeyboardInterrupt:
-        return
+            if result.exception and reraise:
+                raise result.exception
+            yield result
+
+        progress.update(progress_task, advance=0, description='')
+        progress.remove_task(progress_task)
+        progress.stop()
+    if summary:
+        with logctx() as log:
+            _file_process_summary(
+                filenames,
+                total_time,
+                run_time,
+                success_count,
+                success_linecount,
+                log,
+            )
 
 
 def _old_file_process_progress(
