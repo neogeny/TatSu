@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from tatsu.util.strtools import slicetowidth
+
 from .contexts.infos import RuleInfo
 from .input import Cursor, LineInfo
 from .util.colorize.style import Color, Style
@@ -43,7 +45,7 @@ class _ColorSet:
         self.err = Style(bold=True, fg=1, color=color).apply
         self.loc = Style(fg=4, color=color).apply
         self.gut = Style(dim=True, color=color).apply
-        self.ar = Style(bold=True, fg=2, color=color).apply
+        self.ar = Style(color=color).yellow().apply
 
 
 class FailedParse(ParseException):
@@ -84,6 +86,7 @@ class FailedParse(ParseException):
 
         lines = text.splitlines()
         print(f'{c.err("error:")} {msg}', file=out)
+        print(file=out)
         print(
             f'{c.loc("  -->")} {source}@{self.info.end}[{line + 1}:{col + 1}]',
             file=out,
@@ -103,7 +106,8 @@ class FailedParse(ParseException):
 
         padding = ' ' * max(0, col)
         print(
-            f'{" ":{max_line_digits + 1}}{c.gut("|")} {padding}{c.err("^")} {msg}',
+            f' {" ":{max_line_digits + 1}}{c.gut("|")}'
+            f' {padding}{c.err("^")} {c.err(slicetowidth(msg, 40))}',
             file=out,
         )
 

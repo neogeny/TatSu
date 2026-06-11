@@ -28,7 +28,7 @@ class ParseStats:
     success_linecount: int = 0
     total_time: float = 0.0
     run_time: float = 0.0
-    per_file: list[Result] = field(default_factory=list)
+    results: list[Result] = field(default_factory=list)
 
 
 def _format_duration(seconds: float) -> str:
@@ -44,13 +44,21 @@ def _show_results(stats: ParseStats) -> None:
     from rich.console import Console
 
     console = Console(stderr=True)
-    console.print("[dim cyan]results:[/dim cyan]")
-    for r in stats.per_file:
+
+    for r in stats.results:
+        if r.exception or isinstance(r.outcome, Exception):
+            print(file=sys.stderr)
+            print(r.outcome, file=sys.stderr)
+
+    console.print("[dim cyan]results[/dim cyan]:")
+    for r in stats.results:
         name = Path(r.payload).name
-        if r.exception:
-            console.print(f"  [red]✗[/red] {name}")
+        if r.exception or isinstance(r.outcome, Exception):
+            console.print(f"  [red]✗[/red]  [magenta]{r.time:>6.2f}s[/magenta]  {name}")
         else:
-            console.print(f"  [green]✓[/green] {name}  {r.time:.2f}s")
+            console.print(
+                f"  [green]✓[/green]  [bright_cyan]{r.time:>6.2f}s[/bright_cyan]  {name}"
+            )
 
 
 def _show_summary(stats: ParseStats) -> None:
@@ -210,15 +218,20 @@ def _run_with_progress(
         text = Path(p).read_text(encoding="utf-8")
         file_lc[p] = countlines(text)
 
-    def parse_file(path: str) -> Any:
+    def parse_file(pathstr: str) -> Any:
+        path = Path(pathstr)
         text = Path(path).read_text(encoding="utf-8")
+        relpath = path.absolute().relative_to(Path().absolute())
 
-        fileheart = ProgressHeart(Path(path).name, len(text))
+        fileheart = ProgressHeart(path.name, len(text))
         config = ParserConfig.new()
         config.heart = fileheart
+        config.source = str(relpath)
         try:
             tree = grammar.parse(text, start=start, config=config)
             return tree
+        except Exception as e:
+            return e
         finally:
             fileheart.finish()
 
@@ -252,12 +265,13 @@ def _run_with_progress(
         if r is None:
             continue
         stats.run_time += r.time
-        stats.per_file.append(r)
-        if r.exception is None and r.outcome is not None:
-            stats.success_count += 1
-            lc = file_lc[r.payload]
-            stats.success_linecount += lc.code
-            results.append((r.payload, _format_result(cfg, r.outcome)))
+        stats.results.append(r)
+        if isinstance(r.outcome, Exception):
+            continue
+        stats.success_count += 1
+        lc = file_lc[r.payload]
+        stats.success_linecount += lc.code
+        results.append((r.payload, _format_result(cfg, r.outcome)))
     stats.total_time = time.time() - start_time
     top_progress.stop()
 

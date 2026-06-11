@@ -16,6 +16,12 @@ from typing import Any
 from .common import isreserved
 
 
+def slicetowidth(s: str, width: int) -> str:
+    if len(s) > width:
+        return s[: width - 3] + '...'
+    return s
+
+
 def linecount(s: str) -> int:
     """
     Return the number of lines in the string using the "editor view".
