@@ -32,10 +32,12 @@ paypal|PayPal
 ANTLR_?
 ASTs?
 DSL[s_]?
+noqa
 PEG_?
 Justfile
 pdw-mb
 pypi
+pyright
 uv
 
 [Aa]dditional
