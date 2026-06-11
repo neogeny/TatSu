@@ -55,6 +55,7 @@ class ParserConfig(Config):
     whitespace: str | None = Undefined  # type: ignore
     parseinfo: bool = False
     heart: Heart | None = None
+    heart_wait: float = 0.90
 
     # WARNING: DEPRECATED: some old projects use these
     owner: Any = None
