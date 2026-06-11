@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from ...config import ParserConfig
-from ...util.parproc import ProgressPair, VisualPayload, parproc_visual
+from ...util.parproc import ProgressPair, Result, VisualPayload, parproc_visual
 from ...util.richtest import is_rich_library_available
 from .lib import (
     CLIConfig,
@@ -68,7 +68,7 @@ def run_with_progress(
     from rich.table import Table
 
     class DualProgress(Progress):
-        def __init__(self, *columns, **kwargs):
+        def __init__(self, *columns, **kwargs) -> None:
             super().__init__(*columns, **kwargs)
             self._file_cols = [
                 TextColumn("[progress.description]{task.description}"),
@@ -136,10 +136,6 @@ def run_with_progress(
 
         try:
             return grammar.parse(text, start=start, config=config)
-        except KeyboardInterrupt:
-            raise
-        except Exception as e:
-            return e
         finally:
             fileheart.finish()
 
@@ -160,6 +156,7 @@ def run_with_progress(
             payloads,
             build_progressbar=build_progressbar,
             parallel=True,
+            reraise=False,
             summary=False,
         )
     )

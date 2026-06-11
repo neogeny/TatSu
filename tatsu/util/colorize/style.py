@@ -250,6 +250,11 @@ class Style(ColorMethods):
         self._hidden = hidden
         self._strikethrough = strikethrough
 
+    def __call__(self, value: str) -> Self:
+        new = copy(self)
+        new.value = value
+        return new
+
     @property
     def enabled(self) -> bool:
         """Whether this style emits ANSI codes, delegated to the bound ``Color``."""
@@ -352,6 +357,10 @@ class Style(ColorMethods):
         new = copy(self)
         new._bold = True
         return new
+
+    def bright(self) -> Self:
+        """Add bright (SGR 1)."""
+        return self.bold()
 
     def dim(self) -> Self:
         """Add dim/faint (SGR 2)."""

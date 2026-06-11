@@ -3,16 +3,27 @@
 -e .
 accessible-pygments==0.0.5
     # via pydata-sphinx-theme
+aiosqlite==0.22.1
+    # via esbonio
 alabaster==1.0.0
     # via sphinx
 astroid==3.3.11
     # via sphinx-autodoc2
+attrs==26.1.0
+    # via
+    #   cattrs
+    #   lsprotocol
+    #   pygls
 babel==2.18.0
     # via
     #   pydata-sphinx-theme
     #   sphinx
 beautifulsoup4==4.15.0
     # via pydata-sphinx-theme
+cattrs==26.1.0
+    # via
+    #   lsprotocol
+    #   pygls
 certifi==2026.5.20
     # via requests
 charset-normalizer==3.4.7
@@ -21,11 +32,13 @@ colorama==0.4.6 ; sys_platform == 'win32'
     # via sphinx
 docutils==0.22.4
     # via
+    #   esbonio
     #   myst-parser
     #   pydata-sphinx-theme
     #   sphinx
     #   sphinx-markdown-builder
     #   sphinx-rtd-theme
+esbonio==2.0.0
 idna==3.18
     # via requests
 imagesize==2.0.0
@@ -35,6 +48,8 @@ jinja2==3.1.6
     #   myst-docutils
     #   myst-parser
     #   sphinx
+lsprotocol==2025.0.0
+    # via pygls
 markdown-it-py==4.2.0
     # via
     #   mdit-py-plugins
@@ -52,7 +67,11 @@ myst-docutils==5.1.0
 myst-parser==5.1.0
 packaging==26.2
     # via sphinx
+platformdirs==4.10.0
+    # via esbonio
 pydata-sphinx-theme==0.18.0
+pygls==2.1.1
+    # via esbonio
 pygments==2.20.0
     # via
     #   accessible-pygments
@@ -101,8 +120,11 @@ tabulate==0.10.0
 typing-extensions==4.15.0
     # via
     #   beautifulsoup4
+    #   cattrs
     #   pydata-sphinx-theme
     #   sphinx-autodoc2
 urllib3==2.7.0
     # via requests
 vale==3.13.0.0
+websockets==16.0
+    # via esbonio

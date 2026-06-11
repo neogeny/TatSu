@@ -61,7 +61,7 @@ class Task(NamedTuple):
     kwargs: Mapping[str, Any]
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, order=True)
 class Result:
     payload: Any
     outcome: Any = None
@@ -152,16 +152,13 @@ def taskproc(task: Task) -> Result:
     start_time = time.process_time()
     result = Result(task.payload)
     try:
-        outcome = task.func(task.payload, *task.args, **task.kwargs)
+        outcome = None
+        try:
+            outcome = task.func(task.payload, *task.args, **task.kwargs)
+            result.linecount = getattr(outcome, 'linecount', 0)
+        except (Exception, BaseException) as e:
+            result.exception = e
         result.memory = memory_use()
-        if hasattr(outcome, 'linecount'):
-            count = outcome.linecount
-            if isinstance(count, int | float):
-                result.linecount = int(count)
-            else:
-                while isinstance(count, list) and len(count) > 0:
-                    count = count[0]
-                result.linecount = count
         result.outcome = task.pickable(outcome)
     except KeyboardInterrupt:
         raise
@@ -218,7 +215,6 @@ def parproc_visual(
             reraise=reraise,
             **kwargs,
         )
-        results = results or []
         count = 0
         success_count = 0
         success_linecount = 0
@@ -226,8 +222,6 @@ def parproc_visual(
         progress, progress_task = build_progressbar(total)
         with progress:
             for result in results:
-                if result.exception:
-                    raise result.exception
                 if result is None:
                     continue
                 count += 1
@@ -251,7 +245,6 @@ def parproc_visual(
                 # with logctx() as log:
                 #     print(result.payload, file=log)
                 if result.exception:
-                    # noinspection PyBroadException
                     try:
                         with logctx() as log:
                             print('ERROR:', result.payload, file=log)
@@ -271,7 +264,10 @@ def parproc_visual(
                     if isinstance(result.linecount, int | float):
                         success_linecount += result.linecount
                     run_time += result.time
-                    yield result
+
+                if result.exception and reraise:
+                    raise result.exception
+                yield result
 
             progress.update(progress_task, advance=0, description='')
             progress.remove_task(progress_task)
@@ -382,6 +378,30 @@ def _file_process_summary(
         sys.exit(1)
 
 
+# NOTE: backwards compatibility
+def processing_loop(
+    filenames: Iterable[str],
+    process: Callable,
+    /,
+    *args: Any,
+    pickable: Func = identity,
+    parallel: bool = True,
+    reraise: bool = False,
+    **kwargs: Any,
+) -> Generator[Result, None, None]:
+    paths = [Path(f) for f in filenames]
+    payloads = [VisualPayload(p, p.read_text()) for p in paths]
+    yield from parproc_visual(
+        process,
+        payloads,
+        *args,
+        pickable=pickable,
+        parallel=parallel,
+        reraise=reraise,
+        **kwargs,
+    )
+
+
 def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
     import multiprocessing
     from concurrent.futures import (
@@ -451,25 +471,3 @@ def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
 
     return process_pmap
     # return thread_pmap
-
-
-# NOTE: backwards compatibility
-def processing_loop(
-    filenames: Iterable[str],
-    process: Callable,
-    /,
-    *args: Any,
-    pickable: Func = identity,
-    parallel: bool = True,
-    reraise: bool = False,
-    **kwargs: Any,
-) -> Iterable[Result]:
-    yield from parproc_visual(
-        process,
-        filenames,
-        *args,
-        pickable=pickable,
-        parallel=parallel,
-        reraise=reraise,
-        **kwargs,
-    )

@@ -44,8 +44,9 @@ class _ColorSet:
     def __init__(self, color: Color = _DEFAULT_COLOR):
         self.err = Style(bold=True, fg=1, color=color).apply
         self.loc = Style(fg=4, color=color).apply
-        self.gut = Style(dim=True, color=color).apply
+        self.gut = Style(color=color).basic_blue().bold().apply
         self.ar = Style(color=color).yellow().apply
+        self.nam = Style(color=color).white().bold().apply
 
 
 class FailedParse(ParseException):
@@ -74,24 +75,26 @@ class FailedParse(ParseException):
         c = _ColorSet(color)
 
         text = self.cursor.textstr
-
-        line, col = self.info.line, self.info.col
-
-        source = self.info.source or '<unknown>'
         msg = self.message
+        info = self.info
 
+        line, col = info.line, info.col
+        source = info.source or '<unknown>'
         rulestack = [r.name for r in reversed(self.stack)]
 
         out = StringIO()
+        s = Style(color=color)
 
         lines = text.splitlines()
         print(f'{c.err("error:")} {msg}', file=out)
         print(file=out)
+        loc = s(f'[{line + 1}:{col + 1}]').dim()
         print(
-            f'{c.loc("  -->")} {source}@{self.info.end}[{line + 1}:{col + 1}]',
+            f'{c.gut("  -->")} {c.nam(source)}@{info.end}{loc}',
             file=out,
         )
-        print(f'   {c.gut("|")}', file=out)
+        gut = c.gut("|")
+        print(f'   {gut}', file=out)
 
         max_line_digits = len(str(line + 1))
         start_line_idx = max(0, line - 4)
@@ -100,13 +103,13 @@ class FailedParse(ParseException):
             current_line_num = i + 1
             content = lines[i].expandtabs()
             print(
-                f' {current_line_num:>{max_line_digits}} {c.gut("|")} {content}',
+                f' {current_line_num:>{max_line_digits}} {gut} {content}',
                 file=out,
             )
 
         padding = ' ' * max(0, col)
         print(
-            f' {" ":{max_line_digits + 1}}{c.gut("|")}'
+            f' {" ":{max_line_digits + 1}}{gut}'
             f' {padding}{c.err("^")} {c.err(slicetowidth(msg, 40))}',
             file=out,
         )

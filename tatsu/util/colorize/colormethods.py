@@ -12,8 +12,62 @@ class ColorMethods:
     def bg(self, value: int) -> Self:
         return self
 
+    def basic_black(self) -> Self:
+        return self.fg(0)
+
+    def basic_red(self) -> Self:
+        return self.fg(1)
+
+    def basic_green(self) -> Self:
+        return self.fg(2)
+
+    def basic_yellow(self) -> Self:
+        return self.fg(3)
+
+    def basic_blue(self) -> Self:
+        return self.fg(4)
+
+    def basic_purple(self) -> Self:
+        return self.fg(5)
+
+    def basic_magenta(self) -> Self:
+        return self.basic_purple()
+
+    def basic_cyan(self) -> Self:
+        return self.fg(6)
+
+    def basic_white(self) -> Self:
+        return self.fg(7)
+
     def acid_green(self) -> Self:
         return self.fg(148)
+
+    def basic_bright_black(self) -> Self:
+        return self.fg(8)
+
+    def basic_bright_red(self) -> Self:
+        return self.fg(9)
+
+    def basic_bright_green(self) -> Self:
+        return self.fg(10)
+
+    def basic_bright_yellow(self) -> Self:
+        return self.fg(11)
+
+    def basic_bright_blue(self) -> Self:
+        return self.fg(12)
+
+    def basic_bright_purple(self) -> Self:
+        return self.fg(13)
+
+    def basic_bright_magenta(self) -> Self:
+        return self.basic_bright_purple()
+
+    def basic_bright_cyan(self) -> Self:
+        return self.fg(14)
+
+    def basic_bright_white(self) -> Self:
+        return self.fg(15)
 
     def acid_green_bg(self) -> Self:
         return self.bg(148)

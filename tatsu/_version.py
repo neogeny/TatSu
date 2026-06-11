@@ -13,7 +13,7 @@ try:
     __version__ = importlib.metadata.version("TatSu")
 except importlib.metadata.PackageNotFoundError:
     __toolname__ = 'TatSu'
-    __version__ = '5.21.1b1'
+    __version__ = '5.22.0'
 
 version = __version__
 version_info = Version.parse(version).astuple()

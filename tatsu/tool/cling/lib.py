@@ -5,7 +5,6 @@ from __future__ import annotations
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from random import sample
 from typing import TYPE_CHECKING, Any
 
 from tatsu.util.asjson import asjsons
@@ -82,19 +81,29 @@ def format_result(cfg: CLIConfig, result: Any) -> str:
     return f"{result!s}"
 
 
-def format_duration(seconds: float) -> str:
+def format_duration(seconds: float, fractions: bool = False) -> str:
     h = int(seconds // 3600)
     m = int((seconds % 3600) // 60)
     s = seconds % 60
-    if h:
-        return f"{h}:{m:02d}:{s:05.2f}"
-    return f"{m}:{s:05.2f}"
+    if h >= 1:
+        if fractions:
+            return f"{h}:{m:02d}:{s:05.2f}"
+        return f"{h}:{m:02d}:{s:02.0f}"
+    if fractions:
+        return f"{m}:{s:05.2f}"
+    return f"{m}:{s:02.0f}"
 
 
 def show_results(cfg: CLIConfig, results: list[Result]) -> None:
     from rich.console import Console
 
     console = Console(stderr=True)
+
+    results = sorted(results)
+    maxw = 0
+    for r in results:
+        name = Path(r.payload.path).name
+        maxw = max(maxw, len(name))
 
     for r in results:
         if isinstance(r.outcome, Exception):
@@ -105,14 +114,17 @@ def show_results(cfg: CLIConfig, results: list[Result]) -> None:
             print(r.exception, file=sys.stderr)
 
     console.print("[dim cyan]results[/dim cyan]:")
+    padc = 35
     for r in results:
         name = Path(r.payload.path).name
         if r.exception or isinstance(r.outcome, Exception):
-            console.print(f"  [red]✗[/red]  [magenta]{r.time:>6.2f}s[/magenta]  {name}")
-        else:
-            console.print(
-                f"  [green]✓[/green]  [bright_cyan]{r.time:>6.2f}s[/bright_cyan]  {name}"
-            )
+            continue
+        console.print(f"{'':{padc}}[green]✓[/] {name:{maxw}} [green]{r.time:>4.1f}s")
+    for r in results:
+        name = r.payload.path.name
+        if not (r.exception or isinstance(r.outcome, Exception)):
+            continue
+        console.print(f"{'':{padc}}[red]✗[/] {name:{maxw}} [red]{r.time:>4.1f}s")
 
 
 def result_stats(results: list[Result]) -> ParseStats:
@@ -127,7 +139,7 @@ def result_stats(results: list[Result]) -> ParseStats:
         stats.cmnt_lines += counts.cmnt
         stats.blnk_lines += counts.blnk
 
-        if r.success:
+        if r.success and not r.exception:
             stats.succ_count += 1
             stats.succ_lines += counts.totl
     return stats
@@ -150,10 +162,10 @@ def show_summary(
 
     console = Console(stderr=True)
     failures = stats.file_count - stats.succ_count
-    succ_rate = 0
-    sloc_sec = 0
+    succ_rate = 0.0
+    sloc_sec = 0.0
     if stats.file_count >= 1:
-        succ_rate = 100 * stats.succ_count / stats.file_count
+        succ_rate = 100.0 * stats.succ_count / stats.file_count
         if stats.run_time > 0:
             sloc_sec = stats.succ_lines / stats.run_time
 
@@ -164,13 +176,13 @@ def show_summary(
     table.add_row("files input", f"{stats.file_count:>12}")
     table.add_row("source lines input", f"{stats.totl_lines:>12}")
     table.add_row("total lines processed", f"{stats.succ_lines:>12}")
-    rate_color = "green" if succ_rate >= 100 else "yellow" if succ_rate > 0 else "red"
-    table.add_row("lines/sec", f"[yellow]{sloc_sec:>12,.0f}[/yellow]")
+    rate_color = "green" if succ_rate >= 100 else "yellow" if succ_rate > 0.6 else "red"
+    table.add_row("sloc/sec", f"[yellow]{sloc_sec:>12,.0f}[/yellow]")
     table.add_row("successes", f"[green]{stats.succ_count:>12}[/green]")
     table.add_row("failures", f"[red]{failures:>12}[/red]")
-    table.add_row("success rate", f"[{rate_color}]{succ_rate:>11.1f}%[/{rate_color}]")
-    table.add_row("time", format_duration(stats.total_time).rjust(12))
-    table.add_row("run time", format_duration(stats.run_time).rjust(12))
+    table.add_row("success rate", f"[{rate_color}]{succ_rate:>12.0f}%[/{rate_color}]")
+    table.add_row("time", format_duration(stats.total_time, False).rjust(12))
+    table.add_row("run time", format_duration(stats.run_time, False).rjust(12))
 
     console.print()
     console.print(table)
