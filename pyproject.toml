@@ -31,12 +31,29 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-colorization = ["colorama"]
-diagrams = ["graphviz"]
-ideps = ["rich"]
-parproc = ["rich"]
-tasks = ["invoke"]
-full = ["colorama", "graphviz", "invoke", "rich"]
+diagrams = [
+    "graphviz>=0.21",
+]
+ideps = [
+    "rich>=15.0.0",
+]
+parproc = [
+    "rich>=15.0.0",
+]
+tasks = [
+    "invoke>=2.2.1",
+    ]
+cling = [
+    "rich>=15.0.0",
+]
+rich = [
+    "rich>=15.0.0",
+]
+full = [
+    "rich>=15.0.0",
+    "graphviz>=0.21",
+    "invoke>=2.2.1",
+]
 
 [dependency-groups]
 dev = [

@@ -1554,14 +1554,13 @@ name = "tatsu"
 source = { editable = "." }
 
 [package.optional-dependencies]
-colorization = [
-    { name = "colorama" },
+cling = [
+    { name = "rich" },
 ]
 diagrams = [
     { name = "graphviz" },
 ]
 full = [
-    { name = "colorama" },
     { name = "graphviz" },
     { name = "invoke" },
     { name = "rich" },
@@ -1570,6 +1569,9 @@ ideps = [
     { name = "rich" },
 ]
 parproc = [
+    { name = "rich" },
+]
+rich = [
     { name = "rich" },
 ]
 tasks = [
@@ -1644,17 +1646,17 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "colorama", marker = "extra == 'colorization'" },
-    { name = "colorama", marker = "extra == 'full'" },
-    { name = "graphviz", marker = "extra == 'diagrams'" },
-    { name = "graphviz", marker = "extra == 'full'" },
-    { name = "invoke", marker = "extra == 'full'" },
-    { name = "invoke", marker = "extra == 'tasks'" },
-    { name = "rich", marker = "extra == 'full'" },
-    { name = "rich", marker = "extra == 'ideps'" },
-    { name = "rich", marker = "extra == 'parproc'" },
+    { name = "graphviz", marker = "extra == 'diagrams'", specifier = ">=0.21" },
+    { name = "graphviz", marker = "extra == 'full'", specifier = ">=0.21" },
+    { name = "invoke", marker = "extra == 'full'", specifier = ">=2.2.1" },
+    { name = "invoke", marker = "extra == 'tasks'", specifier = ">=2.2.1" },
+    { name = "rich", marker = "extra == 'cling'", specifier = ">=15.0.0" },
+    { name = "rich", marker = "extra == 'full'", specifier = ">=15.0.0" },
+    { name = "rich", marker = "extra == 'ideps'", specifier = ">=15.0.0" },
+    { name = "rich", marker = "extra == 'parproc'", specifier = ">=15.0.0" },
+    { name = "rich", marker = "extra == 'rich'", specifier = ">=15.0.0" },
 ]
-provides-extras = ["colorization", "diagrams", "full", "ideps", "parproc", "tasks"]
+provides-extras = ["cling", "diagrams", "full", "ideps", "parproc", "rich", "tasks"]
 
 [package.metadata.requires-dev]
 dev = [
