@@ -107,6 +107,7 @@ mkdocs = [
 
 [project.scripts]
 tatsu = "tatsu:main"
+otatsu = "tatsu:tatsu_main"
 g2e = "tatsu.g2e:main"
 
 [project.urls]
