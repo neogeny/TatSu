@@ -6,14 +6,11 @@ import time
 from pathlib import Path
 from typing import Any
 
-from tatsu.util.strtools import countlines
-
 from ...config import ParserConfig
 from ...util.parproc import ProgressPair, VisualPayload, parproc_visual
 from ...util.richtest import is_rich_library_available
 from .lib import (
     CLIConfig,
-    ParseStats,
     Results,
     format_result,
     load_grammar,
@@ -125,13 +122,8 @@ def run_with_progress(
         def finish(self) -> None:
             task_progress.remove_task(self.task)
 
-    file_lc: dict[str, Any] = {}
-    for p in cfg.inputs:
-        text = Path(p).read_text(encoding="utf-8")
-        file_lc[p] = countlines(text)
-
     def parse_file(payload: VisualPayload) -> Any:
-        path = Path(payload.id)
+        path = Path(payload.path)
         text = payload.content
 
         config = ParserConfig.new()
@@ -152,50 +144,28 @@ def run_with_progress(
             fileheart.finish()
 
     total = len(cfg.inputs)
-    source_lines = sum(file_lc[p].totl for p in cfg.inputs)
-    code_lines = sum(file_lc[p].code for p in cfg.inputs)
-    comment_lines = sum(file_lc[p].cmnt for p in cfg.inputs)
-    blank_lines = sum(file_lc[p].blnk for p in cfg.inputs)
-    stats = ParseStats(
-        total_files=total,
-        source_lines=source_lines,
-        code_lines=code_lines,
-        comment_lines=comment_lines,
-        blank_lines=blank_lines,
-    )
-    start_time = time.time()
     toptask = top_progress.add_task(Path(cfg.path).name, total=total)
     top_progress.set_main(toptask)
 
     def build_progressbar(total: int) -> ProgressPair:
         return (top_progress, toptask)
 
-    results: list[tuple[str, Any]] = []
-    for input in cfg.inputs:
-        path = Path(input)
-        text = path.read_text()
-
     paths = [Path(input) for input in cfg.inputs]
     payloads = [VisualPayload(path, path.read_text()) for path in paths]
-    for r in parproc_visual(
-        parse_file,
-        payloads,
-        build_progressbar=build_progressbar,
-        parallel=True,
-        summary=False,
-    ):
-        if r is None:
-            continue
-        stats.run_time += r.time
-        stats.results.append(r)
-        if isinstance(r.outcome, Exception):
-            continue
-        stats.success_count += 1
-        lc = file_lc[str(r.payload.path)]
-        stats.success_linecount += lc.code
-        results.append((r.payload, format_result(cfg, r.outcome)))
-    stats.total_time = time.time() - start_time
+    start_time = time.time()
+    results: list[Result] = []
+    results = list(
+        parproc_visual(
+            parse_file,
+            payloads,
+            build_progressbar=build_progressbar,
+            parallel=True,
+            summary=False,
+        )
+    )
     top_progress.stop()
+    results = list(results)
+    total_time = time.time() - start_time
+    show_summary(cfg, total_time, results)
 
-    show_summary(cfg, stats)
-    return results
+    return [(r.payload.path, r.outcome) for r in results]

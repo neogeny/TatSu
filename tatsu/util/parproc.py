@@ -218,7 +218,7 @@ def parproc_visual(
             reraise=reraise,
             **kwargs,
         )
-        # results = results or []
+        results = results or []
         count = 0
         success_count = 0
         success_linecount = 0
@@ -226,6 +226,8 @@ def parproc_visual(
         progress, progress_task = build_progressbar(total)
         with progress:
             for result in results:
+                if result.exception:
+                    raise result.exception
                 if result is None:
                     continue
                 count += 1

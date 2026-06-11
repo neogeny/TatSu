@@ -5,10 +5,12 @@ from __future__ import annotations
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+from random import sample
 from typing import TYPE_CHECKING, Any
 
 from tatsu.util.asjson import asjsons
 from tatsu.util.parproc import Result
+from tatsu.util.strtools import countlines
 
 
 if TYPE_CHECKING:
@@ -48,16 +50,15 @@ class CLIConfig:
 
 @dataclass
 class ParseStats:
-    total_files: int = 0
-    source_lines: int = 0
+    file_count: int = 0
+    totl_lines: int = 0
     code_lines: int = 0
-    comment_lines: int = 0
-    blank_lines: int = 0
-    success_count: int = 0
-    success_linecount: int = 0
+    cmnt_lines: int = 0
+    blnk_lines: int = 0
+    succ_count: int = 0
+    succ_lines: int = 0
     total_time: float = 0.0
     run_time: float = 0.0
-    results: list[Result] = field(default_factory=list)
 
 
 def load_grammar(path: str) -> Grammar:
@@ -90,12 +91,12 @@ def format_duration(seconds: float) -> str:
     return f"{m}:{s:05.2f}"
 
 
-def show_results(cfg: CLIConfig, stats: ParseStats) -> None:
+def show_results(cfg: CLIConfig, results: list[Result]) -> None:
     from rich.console import Console
 
     console = Console(stderr=True)
 
-    for r in stats.results:
+    for r in results:
         if isinstance(r.outcome, Exception):
             print(file=sys.stderr)
             print(r.outcome, file=sys.stderr)
@@ -104,7 +105,7 @@ def show_results(cfg: CLIConfig, stats: ParseStats) -> None:
             print(r.exception, file=sys.stderr)
 
     console.print("[dim cyan]results[/dim cyan]:")
-    for r in stats.results:
+    for r in results:
         name = Path(r.payload.path).name
         if r.exception or isinstance(r.outcome, Exception):
             console.print(f"  [red]✗[/red]  [magenta]{r.time:>6.2f}s[/magenta]  {name}")
@@ -114,40 +115,60 @@ def show_results(cfg: CLIConfig, stats: ParseStats) -> None:
             )
 
 
-def show_summary(cfg: CLIConfig, stats: ParseStats) -> None:
+def result_stats(results: list[Result]) -> ParseStats:
+    stats = ParseStats()
+    for r in results:
+        stats.file_count += 1
+        stats.run_time += r.time
+
+        counts = countlines(r.payload.content)
+        stats.totl_lines += counts.totl
+        stats.code_lines += counts.code
+        stats.cmnt_lines += counts.cmnt
+        stats.blnk_lines += counts.blnk
+
+        if r.success:
+            stats.succ_count += 1
+            stats.succ_lines += counts.totl
+    return stats
+
+
+def show_summary(
+    cfg: CLIConfig,
+    total_time: float,
+    results: list[Result],
+) -> None:
     if cfg.quiet:
         return
     if cfg.verbose:
-        show_results(cfg, stats)
+        show_results(cfg, results)
+
+    stats = result_stats(results)
 
     from rich.console import Console
     from rich.table import Table
 
     console = Console(stderr=True)
-    failures = stats.total_files - stats.success_count
-    success_rate = (
-        100 * stats.success_count / stats.total_files if stats.total_files else 0
-    )
-    lines_per_second = (
-        stats.success_linecount / stats.run_time if stats.run_time > 0 else 0
-    )
+    failures = stats.file_count - stats.succ_count
+    succ_rate = 0
+    sloc_sec = 0
+    if stats.file_count >= 1:
+        succ_rate = 100 * stats.succ_count / stats.file_count
+        if stats.run_time > 0:
+            sloc_sec = stats.succ_lines / stats.run_time
 
     table = Table(show_header=False, box=None)
     table.add_column(style="dim cyan", justify="right")
     table.add_column(style="bright_white")
 
-    table.add_row("files input", f"{stats.total_files:>12}")
-    table.add_row("source lines input", f"{stats.source_lines:>12}")
-    table.add_row("total lines processed", f"{stats.success_linecount:>12}")
-    rate_color = (
-        "green" if success_rate >= 100 else "yellow" if success_rate > 0 else "red"
-    )
-    table.add_row("lines/sec", f"[yellow]{lines_per_second:>12,.0f}[/yellow]")
-    table.add_row("successes", f"[green]{stats.success_count:>12}[/green]")
+    table.add_row("files input", f"{stats.file_count:>12}")
+    table.add_row("source lines input", f"{stats.totl_lines:>12}")
+    table.add_row("total lines processed", f"{stats.succ_lines:>12}")
+    rate_color = "green" if succ_rate >= 100 else "yellow" if succ_rate > 0 else "red"
+    table.add_row("lines/sec", f"[yellow]{sloc_sec:>12,.0f}[/yellow]")
+    table.add_row("successes", f"[green]{stats.succ_count:>12}[/green]")
     table.add_row("failures", f"[red]{failures:>12}[/red]")
-    table.add_row(
-        "success rate", f"[{rate_color}]{success_rate:>11.1f}%[/{rate_color}]"
-    )
+    table.add_row("success rate", f"[{rate_color}]{succ_rate:>11.1f}%[/{rate_color}]")
     table.add_row("time", format_duration(stats.total_time).rjust(12))
     table.add_row("run time", format_duration(stats.run_time).rjust(12))
 
