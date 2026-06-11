@@ -48,6 +48,7 @@ class Ctx(CanParse, Protocol):
     @property
     def callstack(self) -> list[RuleInfo]: ...
 
+    def heartbeat(self) -> None: ...
     def newexcept(
         self,
         msg: Any,

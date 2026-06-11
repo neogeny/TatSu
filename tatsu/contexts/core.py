@@ -83,7 +83,8 @@ class ParserCore(Ctx):
         self._initialize_caches()
         self.tracer: Tracer = NullTracer()
         self.heart: Heart | None = config.heart
-        self.lastbeat = 0.0
+        self.lastbeat_time = 0.0
+        self.lastbeat_pos: int = 0
         self.update_tracer()
 
     def _initialize_caches(self) -> None:
@@ -167,13 +168,23 @@ class ParserCore(Ctx):
     def _next(self) -> Any:
         return self.cursor.next()
 
-    def next_token(self, ri: RuleInfo | None = None) -> None:
-        if self.heart is not None:
-            now = time.perf_counter()
-            if now - self.lastbeat > 0.128:
-                self.heart.beat(self.cursor.line, self.cursor.linecount)
-                self.lastbeat = now
+    def heartbeat(self) -> None:
+        if self.heart is None:
+            return
 
+        if self.pos <= self.lastbeat_pos:
+            return
+
+        now = time.perf_counter()
+        if now - self.lastbeat_time < 0.128:
+            return
+
+        self.heart.beat(self.cursor.line, self.cursor.linecount)
+
+        self.lastbeat_time = now
+        self.lastbeat_pos = self.pos
+
+    def next_token(self, ri: RuleInfo | None = None) -> None:
         if not (ri and ri.is_tokn):
             self.state.cursor.next_token()
 

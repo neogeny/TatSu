@@ -89,6 +89,7 @@ class ParserEngine(ParserCore, CanParse):
                 self.config.semantics.set_context(None)  # ty: ignore[call-non-callable]
 
     def call(self, ri: RuleInfo) -> Any:
+        self.heartbeat()
         if ri.should_trace:
             self.callstack.append(ri)
         self.next_token(ri)
