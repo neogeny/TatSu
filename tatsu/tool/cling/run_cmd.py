@@ -5,11 +5,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from tatsu.config import ParserConfig
-from tatsu.util.asjson import asjsons
-from tatsu.util.parproc import ProgressPair, parproc_visual
-from tatsu.util.richtest import is_rich_library_available
-
+from ...config import ParserConfig
+from ...util.asjson import asjsons
+from ...util.parproc import ProgressPair, parproc_visual
+from ...util.richtest import is_rich_library_available
+from ...util.unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
 from .lib import CLIConfig, Results, _load_grammar
 
 
@@ -102,13 +102,14 @@ def _run_with_progress(
             )
 
         def finish(self, total) -> None:
-            progress.update(
-                self.task,
-                completed=total,
-                total=total,
-                description=f"[bold]100% {self.name} [/]",
-                hide=True,
-            )
+            pass
+            # progress.update(
+            #     self.task,
+            #     completed=total,
+            #     total=total,
+            #     description=f"[bold]100% {self.name} [/]",
+            #     visible=False,
+            # )
 
     heart: ProgressHeart = ProgressHeart("parsing", len(cfg.inputs))
 
@@ -121,14 +122,13 @@ def _run_with_progress(
         fileheart = ProgressHeart(Path(path).name, len(text))
         config = ParserConfig.new()
         config.heart = fileheart
-        payload = grammar.parse(text, start=start, config=config)
-        heart.finish(len(text))
-        progress.remove(heart.task)
-        return payload
-
-    from ...util.unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
+        try:
+            return grammar.parse(text, start=start, config=config)
+        finally:
+            progress.remove_task(fileheart.task)
 
     results: list[tuple[str, Any]] = []
+    total = len(cfg.inputs)
     for r in parproc_visual(
         parse_file,
         cfg.inputs,
@@ -145,7 +145,12 @@ def _run_with_progress(
         else:
             icon = U_CROSSED_SWORDS
             color = "red"
-        progress.update(heart.task, advance=1, description=f"[{color}]{icon} {name}")
+        pct = 100 * len(results) / total
+        progress.update(
+            heart.task,
+            advance=1,
+            description=f"[{color}]{pct:4.1f}% {icon} {name}",
+        )
 
     progress.update(heart.task, advance=0, description="")
     progress.stop()

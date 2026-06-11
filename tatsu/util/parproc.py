@@ -407,10 +407,27 @@ def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
         if not tasks:
             return
 
-        with executorcls(max_workers=max_workers) as ex:  # type: ignore
-            futures = [ex.submit(process, task) for task in tasks]
-            for future in as_completed(futures):
-                yield future.result()
+        try:
+            with executorcls(max_workers=max_workers) as ex:  # type: ignore
+                futures = [ex.submit(process, task) for task in tasks]
+                for future in as_completed(futures):
+                    yield future.result()
+        except Exception as e:
+            # Fallback to thread-based execution when process-based execution fails
+            import pickle
+
+            errmsg = repr(e).lower()
+            if (
+                isinstance(e, (pickle.PicklingError, AttributeError, TypeError))
+                or "pickl" in errmsg
+            ):
+                # Fall back to threads because the callable or its closure isn't picklable
+                with ThreadPoolExecutor(max_workers=max_workers) as ex:
+                    futures = [ex.submit(process, task) for task in tasks]
+                    for future in as_completed(futures):
+                        yield future.result()
+            else:
+                raise
 
     def thread_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[Result]:
         yield from executor_pmap(ThreadPoolExecutor, process, tasks)

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import time
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from functools import cache
@@ -82,6 +83,7 @@ class ParserCore(Ctx):
         self._initialize_caches()
         self.tracer: Tracer = NullTracer()
         self.heart: Heart | None = config.heart
+        self.lastbeat = 0
         self.update_tracer()
 
     def _initialize_caches(self) -> None:
@@ -167,7 +169,10 @@ class ParserCore(Ctx):
 
     def next_token(self, ri: RuleInfo | None = None) -> None:
         if self.heart is not None:
-            self.heart.beat(self.cursor.line, self.cursor.linecount)
+            now = time.perf_counter()
+            if now - self.lastbeat > 0.128:
+                self.heart.beat(self.cursor.line, self.cursor.linecount)
+                self.lastbeat = now
 
         if not (ri and ri.is_tokn):
             self.state.cursor.next_token()
