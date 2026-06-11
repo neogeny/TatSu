@@ -148,15 +148,12 @@ def taskproc(task: Task) -> Result:
         result.memory = memory_use()
         if hasattr(outcome, 'linecount'):
             count = outcome.linecount
-            if not isinstance(count, int):
-                count = len(str(outcome).splitlines())
-            result.linecount = count
-        else:
-            count = 0
-            with Path(task.payload).open() as f:
-                for _line in f:
-                    count += 1
-            result.linecount = count
+            if isinstance(count, int | float):
+                result.linecount = int(count)
+            else:
+                while isinstance(count, list) and len(count) > 0:
+                    count = count[0]
+                result.linecount = count
         result.outcome = task.pickable(outcome)
     except KeyboardInterrupt:
         raise
@@ -250,10 +247,12 @@ def parproc_visual(
                 else:
                     icon = f'[green]{U_CHECK_MARK}'
 
+                pct = 100 * count / total
                 progress.update(
                     progress_task,
                     advance=1,
-                    description=f'{icon} {filename}',
+                    description=f'{pct:4.1f}% {icon} {filename}',
+                    color='green',
                 )
 
                 # with logctx() as log:
@@ -281,6 +280,7 @@ def parproc_visual(
                     yield result
 
             progress.update(progress_task, advance=0, description='')
+            progress.remove_task(progress_task)
             progress.stop()
         with logctx() as log:
             _file_process_summary(
@@ -351,8 +351,8 @@ def _file_process_summary(
     lines_per_second = success_linecount / run_time if run_time > 0 else 0
     success_rate = 100 * success_count / filecount if filecount != 0 else 0
 
+    # ──────────────────────────────────────────────────────────────────────
     summary_text = '''\
-                ──────────────────────────────────────────────────────────────────────
                 {filecount:12,d}   files input
                 {linecount:12,d}   source lines input
         {success_linecount:12,d}   total lines processed

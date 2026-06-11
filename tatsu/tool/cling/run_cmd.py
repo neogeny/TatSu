@@ -2,8 +2,11 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from tatsu.util.strtools import countlines
 
 from ...config import ParserConfig
 from ...util.asjson import asjsons
@@ -73,7 +76,7 @@ def _run_with_progress(
 
     # from ...util.common import startscript
 
-    progress = Progress(
+    top_progress = Progress(
         # TextColumn(f"[progress.description]{startscript()}"),
         TextColumn("[name][progress.description]"),
         BarColumn(),
@@ -84,37 +87,26 @@ def _run_with_progress(
         refresh_per_second=1,
         speed_estimate_period=30.0,
     )
+    task_progress = top_progress
 
     class ProgressHeart:
         def __init__(self, name: str, total: int) -> None:
             self.name = name
-            self.task = progress.add_task(name, total=total)
+            self.task = task_progress.add_task(name, total=total)
 
         def beat(self, mark: int, total: int) -> None:
             if total == 0:
                 return
             pct = mark / total * 100
-            progress.update(
+            task_progress.update(
                 self.task,
                 completed=mark,
                 total=total,
-                description=f"[bold]{pct:4.1f}% {self.name} [/]",
+                description=f"{pct:4.1f}% [bold white]{self.name} [/]",
             )
 
-        def finish(self, total) -> None:
-            pass
-            # progress.update(
-            #     self.task,
-            #     completed=total,
-            #     total=total,
-            #     description=f"[bold]100% {self.name} [/]",
-            #     visible=False,
-            # )
-
-    heart: ProgressHeart = ProgressHeart("parsing", len(cfg.inputs))
-
-    def build_progressbar(total: int) -> ProgressPair:
-        return (progress, heart.task)
+        def finish(self) -> None:
+            task_progress.remove_task(self.task)
 
     def parse_file(path: str) -> Any:
         text = Path(path).read_text(encoding="utf-8")
@@ -123,12 +115,25 @@ def _run_with_progress(
         config = ParserConfig.new()
         config.heart = fileheart
         try:
-            return grammar.parse(text, start=start, config=config)
+            tree = grammar.parse(text, start=start, config=config)
         finally:
-            progress.remove_task(fileheart.task)
+            fileheart.finish()
+
+        @dataclass
+        class wrapper:
+            count: int
+            tree: Any
+
+        count = countlines(text).code
+        return wrapper(count, tree)
+
+    total = len(cfg.inputs)
+    toptask = top_progress.add_task(Path(cfg.path).name, total=total)
+
+    def build_progressbar(total: int) -> ProgressPair:
+        return (top_progress, toptask)
 
     results: list[tuple[str, Any]] = []
-    total = len(cfg.inputs)
     for r in parproc_visual(
         parse_file,
         cfg.inputs,
@@ -137,7 +142,7 @@ def _run_with_progress(
     ):
         if r is None:
             continue
-        name = Path(r.payload).name
+        # name = Path(r.payload).name
         if r.exception is None and r.outcome is not None:
             icon = U_CHECK_MARK
             color = "green"
@@ -146,12 +151,13 @@ def _run_with_progress(
             icon = U_CROSSED_SWORDS
             color = "red"
         pct = 100 * len(results) / total
-        progress.update(
-            heart.task,
-            advance=1,
-            description=f"[{color}]{pct:4.1f}% {icon} {name}",
-        )
+        # WARNING the main bar is updated by parproc
+        # progress.update(
+        #     topheart.task,
+        #     advance=1,
+        #     description=f"[{color}]{pct:4.1f}% {icon} {name}",
+        # )
 
-    progress.update(heart.task, advance=0, description="")
-    progress.stop()
+    # progress.update(topheart.task, advance=total, description="")
+    top_progress.stop()
     return results
