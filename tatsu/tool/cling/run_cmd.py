@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# Copyright © 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
@@ -88,7 +88,7 @@ def run_with_progress(
                 table = Table.grid(padding=(0, 1))
                 for _ in columns:
                     table.add_column(no_wrap=True)
-                table.add_row(*(c.render(task) for c in columns))
+                table.add_row(*(c.render(task) for c in columns))  # pyright: ignore[reportAttributeAccessIssue]
                 yield table
 
     top_progress = DualProgress(
@@ -115,7 +115,7 @@ def run_with_progress(
                 self.task,
                 completed=mark,
                 total=total,
-                coloer='greem',
+                color="green",
                 description=f"[bold white]{self.name:40} [green][/]",
             )
 

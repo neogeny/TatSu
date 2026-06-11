@@ -56,7 +56,6 @@ class ParseStats:
     blnk_lines: int = 0
     succ_count: int = 0
     succ_lines: int = 0
-    total_time: float = 0.0
     run_time: float = 0.0
 
 
@@ -181,8 +180,8 @@ def show_summary(
     table.add_row("successes", f"[green]{stats.succ_count:>12}[/green]")
     table.add_row("failures", f"[red]{failures:>12}[/red]")
     table.add_row("success rate", f"[{rate_color}]{succ_rate:>12.0f}%[/{rate_color}]")
-    table.add_row("time", format_duration(stats.total_time, False).rjust(12))
     table.add_row("run time", format_duration(stats.run_time, False).rjust(12))
+    table.add_row("wall time", format_duration(total_time, False).rjust(12))
 
     console.print()
     console.print(table)
