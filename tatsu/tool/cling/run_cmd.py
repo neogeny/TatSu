@@ -17,7 +17,6 @@ from .lib import (
     Results,
     format_result,
     load_grammar,
-    show_results,
     show_summary,
 )
 
