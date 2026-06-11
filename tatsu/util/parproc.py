@@ -194,8 +194,8 @@ def parproc_visual(
     func: Func,
     filenames: Iterable[str],
     /,
-    *args: Any,
     build_progressbar: GetProgressFunc = _build_progressbar,
+    *args: Any,
     pickable: Func = identity,
     parallel: bool = True,
     reraise: bool = False,
@@ -231,7 +231,7 @@ def parproc_visual(
             reraise=reraise,
             **kwargs,
         )
-        results = results or []
+        # results = results or []
         count = 0
         success_count = 0
         success_linecount = 0
@@ -438,3 +438,4 @@ def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
             )
 
     return process_pmap
+    # return thread_pmap
