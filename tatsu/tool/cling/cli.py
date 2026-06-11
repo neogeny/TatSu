@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any
 
 from tatsu import __toolname__, __version__
 
-from .lib import CLIConfig, Results, _load_grammar
+from .lib import CLIConfig, Results, load_grammar
 
 
 if TYPE_CHECKING:
@@ -159,7 +159,7 @@ def boot_cmd(cfg: CLIConfig) -> Results:
 
 def grammar_cmd(cfg: CLIConfig) -> Results:
     """Handle the ``grammar`` subcommand."""
-    gram = _load_grammar(cfg.path)
+    gram = load_grammar(cfg.path)
 
     payload = _render_grammar(
         gram,

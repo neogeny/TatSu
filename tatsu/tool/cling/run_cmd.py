@@ -2,115 +2,28 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import sys
 import time
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 from tatsu.util.strtools import countlines
 
 from ...config import ParserConfig
-from ...util.asjson import asjsons
-from ...util.parproc import ProgressPair, Result, parproc_visual
+from ...util.parproc import ProgressPair, parproc_visual
 from ...util.richtest import is_rich_library_available
-from .lib import CLIConfig, Results, _load_grammar
-
-
-@dataclass
-class ParseStats:
-    total_files: int = 0
-    source_lines: int = 0
-    code_lines: int = 0
-    comment_lines: int = 0
-    blank_lines: int = 0
-    success_count: int = 0
-    success_linecount: int = 0
-    total_time: float = 0.0
-    run_time: float = 0.0
-    results: list[Result] = field(default_factory=list)
-
-
-def _format_duration(seconds: float) -> str:
-    h = int(seconds // 3600)
-    m = int((seconds % 3600) // 60)
-    s = seconds % 60
-    if h:
-        return f"{h}:{m:02d}:{s:05.2f}"
-    return f"{m}:{s:05.2f}"
-
-
-def _show_results(stats: ParseStats) -> None:
-    from rich.console import Console
-
-    console = Console(stderr=True)
-
-    for r in stats.results:
-        if r.exception or isinstance(r.outcome, Exception):
-            print(file=sys.stderr)
-            print(r.outcome, file=sys.stderr)
-
-    console.print("[dim cyan]results[/dim cyan]:")
-    for r in stats.results:
-        name = Path(r.payload).name
-        if r.exception or isinstance(r.outcome, Exception):
-            console.print(f"  [red]✗[/red]  [magenta]{r.time:>6.2f}s[/magenta]  {name}")
-        else:
-            console.print(
-                f"  [green]✓[/green]  [bright_cyan]{r.time:>6.2f}s[/bright_cyan]  {name}"
-            )
-
-
-def _show_summary(stats: ParseStats) -> None:
-    from rich.console import Console
-    from rich.table import Table
-
-    console = Console(stderr=True)
-    failures = stats.total_files - stats.success_count
-    success_rate = (
-        100 * stats.success_count / stats.total_files if stats.total_files else 0
-    )
-    lines_per_second = (
-        stats.success_linecount / stats.run_time if stats.run_time > 0 else 0
-    )
-
-    table = Table(show_header=False, box=None)
-    table.add_column(style="dim cyan", justify="right")
-    table.add_column(style="bright_white")
-
-    table.add_row("files input", f"{stats.total_files:>12}")
-    table.add_row("source lines input", f"{stats.source_lines:>12}")
-    table.add_row("total lines processed", f"{stats.success_linecount:>12}")
-    rate_color = (
-        "green" if success_rate >= 100 else "yellow" if success_rate > 0 else "red"
-    )
-    table.add_row("lines/sec", f"[yellow]{lines_per_second:>12,.0f}[/yellow]")
-    table.add_row("successes", f"[green]{stats.success_count:>12}[/green]")
-    table.add_row("failures", f"[red]{failures:>12}[/red]")
-    table.add_row(
-        "success rate", f"[{rate_color}]{success_rate:>11.1f}%[/{rate_color}]"
-    )
-    table.add_row("time", _format_duration(stats.total_time).rjust(12))
-    table.add_row("run time", _format_duration(stats.run_time).rjust(12))
-
-    console.print()
-    console.print(table)
-
-    if failures:
-        console.print(f"\n[red bold]FAILURES: {failures}")
-        sys.exit(1)
-
-
-def _format_result(cfg: CLIConfig, result: Any) -> str:
-    if cfg.json:
-        return asjsons(result)
-    if cfg.model:
-        return repr(result)
-    return f"{result!s}"
+from .lib import (
+    CLIConfig,
+    ParseStats,
+    Results,
+    format_result,
+    load_grammar,
+    show_results,
+    show_summary,
+)
 
 
 def run_cmd(cfg: CLIConfig) -> Results:
-    grammar = _load_grammar(cfg.path)
+    grammar = load_grammar(cfg.path)
     start = cfg.start or None
 
     if len(cfg.inputs) == 1:
@@ -120,12 +33,12 @@ def run_cmd(cfg: CLIConfig) -> Results:
         return [(path, result)]
 
     if is_rich_library_available() and not cfg.quiet:
-        return _run_with_progress(grammar, start, cfg)
+        return run_with_progress(grammar, start, cfg)
 
-    return _run_direct(grammar, start, cfg)
+    return run_direct(grammar, start, cfg)
 
 
-def _run_direct(
+def run_direct(
     grammar: Any,
     start: str | None,
     cfg: CLIConfig,
@@ -139,13 +52,13 @@ def _run_direct(
         return grammar.parse(text, start=start, config=config)
 
     return [
-        (r.payload, _format_result(cfg, r.outcome))
+        (r.payload, format_result(cfg, r.outcome))
         for r in parproc(parse_file, cfg.inputs, parallel=cfg.nproc > 0)
         if r is not None and r.outcome is not None and r.exception is None
     ]
 
 
-def _run_with_progress(
+def run_with_progress(
     grammar: Any,
     start: str | None,
     cfg: CLIConfig,
@@ -228,8 +141,9 @@ def _run_with_progress(
         config.heart = fileheart
         config.source = str(relpath)
         try:
-            tree = grammar.parse(text, start=start, config=config)
-            return tree
+            return grammar.parse(text, start=start, config=config)
+        except KeyboardInterrupt:
+            raise
         except Exception as e:
             return e
         finally:
@@ -271,12 +185,9 @@ def _run_with_progress(
         stats.success_count += 1
         lc = file_lc[r.payload]
         stats.success_linecount += lc.code
-        results.append((r.payload, _format_result(cfg, r.outcome)))
+        results.append((r.payload, format_result(cfg, r.outcome)))
     stats.total_time = time.time() - start_time
     top_progress.stop()
 
-    if cfg.verbose:
-        _show_results(stats)
-    if not cfg.quiet:
-        _show_summary(stats)
+    show_summary(cfg, stats)
     return results

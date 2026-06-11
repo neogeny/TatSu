@@ -151,8 +151,6 @@ def taskproc(task: Task) -> Result:
             if isinstance(count, int | float):
                 result.linecount = int(count)
             else:
-                while isinstance(count, list) and len(count) > 0:
-                    count = count[0]
                 result.linecount = count
         result.outcome = task.pickable(outcome)
     except KeyboardInterrupt:
