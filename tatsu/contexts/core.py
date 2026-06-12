@@ -8,8 +8,6 @@ from contextlib import contextmanager
 from functools import cache
 from typing import Any
 
-from invoke.tasks import T
-
 from ..config import ParserConfig
 from ..exceptions import (
     FailedLeftRecursion,
@@ -174,17 +172,18 @@ class ParserCore(Ctx):
         if self.heart is None:
             return False
 
-        if self.pos <= self.lastbeat_pos:
-            return False
-
         now = time.perf_counter()
         if (now - self.lastbeat_time) <= self.config.heart_wait:
             return False
 
-        self.heart.beat(self.cursor.line, self.cursor.linecount)
+        if self.pos <= self.lastbeat_pos:
+            return False
 
-        self.lastbeat_time = now
-        self.lastbeat_pos = self.pos
+        try:
+            self.heart.beat(self.cursor.line, self.cursor.linecount)
+        finally:
+            self.lastbeat_time = now
+            self.lastbeat_pos = self.pos
         return True
 
     def next_token(self, ri: RuleInfo | None = None) -> None:

@@ -3,8 +3,15 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from rich.progress import Progress
+
+from tatsu.grammars import Grammar
+from tatsu.util.heart import Heart
 
 from ...config import ParserConfig
 from ...util.parproc import ProgressPair, Result, VisualPayload, parproc_visual
@@ -16,6 +23,76 @@ from .lib import (
     load_grammar,
     show_summary,
 )
+
+
+class ProgressHeartProtocol(Heart):
+    def finish(self) -> None:
+        pass
+
+
+@dataclass(slots=True, order=True, frozen=True)
+class GrammarPayload(VisualPayload):
+    grammar: Grammar
+    start: str
+    new_fileheart: Callable[[str, int], ProgressHeartProtocol]
+
+
+def parse_file_task(payload: GrammarPayload) -> Any:
+
+    path = Path(payload.path)
+    text = payload.content
+    grammar, start, new_fileheart = (
+        payload.grammar,
+        payload.start,
+        payload.new_fileheart,
+    )
+
+    config = ParserConfig.new()
+
+    heart = new_fileheart(path.name, len(text))
+    config.heart = heart
+
+    relpath = path.absolute().relative_to(Path().absolute())
+    config.source = str(relpath)
+
+    try:
+        return grammar.parse(text, start=start, config=config)
+    finally:
+        heart.finish()
+
+
+def make_new_fileheart(task_progress) -> Callable[[str, int], ProgressHeartProtocol]:
+    def new_fileheart(
+        name: str, size: int, task_progress=task_progress
+    ) -> ProgressHeartProtocol:
+
+        class ProgressHeart(ProgressHeartProtocol):
+            def __init__(self, name: str, total: int, task_progress) -> None:
+                self._name = name
+                self.task = task_progress.add_task(self.name, total=total)
+                self.beat(0, total)
+
+            @property
+            def name(self) -> str:
+                return f'{self._name:40} '
+
+            def beat(self, mark: int, total: int) -> None:
+                if total == 0:
+                    return
+                task_progress.update(
+                    self.task,
+                    completed=mark,
+                    total=total,
+                    color="green",
+                    description=f"[bold white]{self.name}[green][/]",
+                )
+
+            def finish(self) -> None:
+                task_progress.remove_task(self.task)
+
+        return ProgressHeart(name=name, total=size, task_progress=task_progress)
+
+    return new_fileheart
 
 
 def run_cmd(cfg: CLIConfig) -> Results:
@@ -61,7 +138,6 @@ def run_with_progress(
 ) -> Results:
     from rich.progress import (  # pyright: ignore[reportMissingImports]
         BarColumn,
-        Progress,
         TaskID,
         TextColumn,
     )
@@ -102,42 +178,7 @@ def run_with_progress(
         speed_estimate_period=30.0,
     )
     task_progress = top_progress
-
-    class ProgressHeart:
-        def __init__(self, name: str, total: int) -> None:
-            self.name = name
-            self.task = task_progress.add_task(name, total=total)
-
-        def beat(self, mark: int, total: int) -> None:
-            if total == 0:
-                return
-            task_progress.update(
-                self.task,
-                completed=mark,
-                total=total,
-                color="green",
-                description=f"[bold white]{self.name:40} [green][/]",
-            )
-
-        def finish(self) -> None:
-            task_progress.remove_task(self.task)
-
-    def parse_file(payload: VisualPayload) -> Any:
-        path = Path(payload.path)
-        text = payload.content
-
-        config = ParserConfig.new()
-
-        fileheart = ProgressHeart(path.name, len(text))
-        config.heart = fileheart
-
-        relpath = path.absolute().relative_to(Path().absolute())
-        config.source = str(relpath)
-
-        try:
-            return grammar.parse(text, start=start, config=config)
-        finally:
-            fileheart.finish()
+    new_fileheart = make_new_fileheart(task_progress)
 
     total = len(cfg.inputs)
     toptask = top_progress.add_task(Path(cfg.path).name, total=total)
@@ -147,12 +188,21 @@ def run_with_progress(
         return (top_progress, toptask)
 
     paths = [Path(input) for input in cfg.inputs]
-    payloads = [VisualPayload(path, path.read_text()) for path in paths]
+    payloads = [
+        GrammarPayload(
+            path,
+            path.read_text(),
+            grammar=grammar,
+            start=start or "",
+            new_fileheart=new_fileheart,
+        )
+        for path in paths
+    ]
     start_time = time.time()
     results: list[Result] = []
     results = list(
         parproc_visual(
-            parse_file,
+            parse_file_task,
             payloads,
             build_progressbar=build_progressbar,
             parallel=True,

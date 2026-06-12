@@ -38,18 +38,19 @@ __all__ = [
 EOLCH = '\r' if sys.stderr.isatty() else '\n'
 sys.setrecursionlimit(2**16)
 
-type Func = Callable[[Any], Any]
+type Func = Callable[..., Any]
 
 type ProgressPair = tuple[Progress, TaskID]
 type GetProgressFunc = Callable[[int], ProgressPair]
 
 
-class VisualPayload(NamedTuple):
+@dataclass(slots=True, frozen=True, order=True)
+class VisualPayload:
     path: Path
     content: Any
 
 
-type VisualFunc = Callable[[VisualPayload], Any]
+type VisualFunc = Callable[..., Any]
 
 
 class Task(NamedTuple):
@@ -67,7 +68,7 @@ class Result:
     outcome: Any = None
     exception: Any = None
     linecount: int = 0
-    time: float = 0
+    runtime: float = 0
     memory: int = 0
 
     @property
@@ -137,31 +138,34 @@ def parproc(
         )
         for payload in payloads
     ]
-    if len(tasks) == 1:
-        yield taskproc(tasks[0])
-        return
+    try:
+        if len(tasks) == 1:
+            yield taskproc(tasks[0])
+            return
 
-    pmap = active_pmap() if parallel else map
-    yield from pmap(taskproc, tasks)
+        pmap = active_pmap() if parallel else map
+        yield from pmap(taskproc, tasks)
+    except KeyboardInterrupt:
+        return
 
 
 def taskproc(task: Task) -> Result:
-    start_time = time.process_time()
     result = Result(task.payload)
+    outcome: Any = None
+    elapsed: float = 0.0
     try:
-        outcome = None
-        try:
-            outcome = task.func(task.payload, *task.args, **task.kwargs)
-            result.linecount = getattr(outcome, 'linecount', 0)
-        except Exception as e:
-            result.exception = e
-        result.memory = memory_use()
-        result.outcome = task.pickable(outcome)
+        start_time = time.thread_time()
+        outcome = task.func(task.payload, *task.args, **task.kwargs)
+        elapsed = time.thread_time() - start_time
     except Exception as e:
         result.exception = e
+        if task.reraise:
+            raise
     finally:
-        result.time = time.process_time() - start_time
-
+        result.runtime = elapsed
+        result.outcome = task.pickable(outcome)
+    result.linecount = getattr(outcome, 'linecount', 0)
+    result.memory = memory_use()
     return result
 
 
@@ -257,7 +261,7 @@ def parproc_visual(
                 success_count += 1
                 if isinstance(result.linecount, int | float):
                     success_linecount += result.linecount
-                run_time += result.time
+                run_time += result.runtime
 
             if result.exception and reraise:
                 raise result.exception
@@ -307,7 +311,7 @@ def _old_file_process_progress(
 
 
 def _format_minutes(result: Result) -> str:
-    return f'{result.time / 60:3.0f}:{result.time % 60:04.1f}'
+    return f'{result.runtime / 60:3.0f}:{result.runtime % 60:04.1f}'
 
 
 def _format_hours(time: float) -> str:
@@ -416,9 +420,13 @@ def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
 
         try:
             with executorcls(max_workers=max_workers) as ex:  # type: ignore
-                futures = [ex.submit(process, task) for task in tasks]
-                for future in as_completed(futures):
-                    yield future.result()
+                try:
+                    futures = [ex.submit(process, task) for task in tasks]
+                    for future in as_completed(futures):
+                        yield future.result()
+                except KeyboardInterrupt:
+                    ex.shutdown(wait=False, cancel_futures=True)
+                    raise
         except Exception as e:
             # Fallback to thread-based execution when process-based execution fails
             import pickle
@@ -428,11 +436,7 @@ def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
                 isinstance(e, (pickle.PicklingError, AttributeError, TypeError))
                 or "pickl" in errmsg
             ):
-                # Fall back to threads because the callable or its closure isn't picklable
-                with ThreadPoolExecutor(max_workers=max_workers) as ex:
-                    futures = [ex.submit(process, task) for task in tasks]
-                    for future in as_completed(futures):
-                        yield future.result()
+                yield from thread_pmap(process, tasks)
             else:
                 raise
 
@@ -461,5 +465,5 @@ def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
                 'number of chunked tasks different %d != %d' % (len(tasks), count),
             )
 
-    return process_pmap
-    # return thread_pmap
+    # return process_pmap
+    return thread_pmap

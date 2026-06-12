@@ -120,12 +120,12 @@ def show_results(cfg: CLIConfig, results: list[Result]) -> None:
         name = Path(r.payload.path).name
         if r.exception or isinstance(r.outcome, Exception):
             continue
-        console.print(f"{'':{padc}}[green]✓[/] {name:{maxw}} [green]{r.time:>4.1f}s")
+        console.print(f"{'':{padc}}[green]✓[/] {name:{maxw}} [green]{r.runtime:>4.1f}s")
     for r in results:
         name = r.payload.path.name
         if not (r.exception or isinstance(r.outcome, Exception)):
             continue
-        console.print(f"{'':{padc}}[red]✗[/] {name:{maxw}} [red]{r.time:>4.1f}s")
+        console.print(f"{'':{padc}}[red]✗[/] {name:{maxw}} [red]{r.runtime:>4.1f}s")
 
 
 def result_stats(results: list[Result]) -> ParseStats:
@@ -140,7 +140,7 @@ def result_stats(results: list[Result]) -> ParseStats:
     stats = ParseStats()
     for r in results:
         stats.file_count += 1
-        stats.run_time += r.time
+        stats.run_time += r.runtime
 
         suffix = r.payload.path.suffix
         counts = countlines(r.payload.content, eolcmt.get(suffix, "//"))
@@ -200,7 +200,7 @@ def show_summary(
 
     if stats.slocs_avg >= 200:
         csloc = "green"
-    elif stats.slocs_avg >= 150:
+    elif stats.slocs_avg >= 180:
         csloc = "yellow"
     else:
         csloc = "red"
