@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import sys
 from argparse import ArgumentParser
@@ -243,7 +242,6 @@ def cling_main() -> None:
         #     return
 
         cfg = run_cling_cli(parser)
-        print(json.dumps(cfg.__dict__, indent=2))
 
         if cfg.style == "list":
             from pygments.styles import get_all_styles
@@ -377,7 +375,7 @@ def add_grammar_cmd(subparsers):
     add_global_options(grammar_parser)
     add_grammar_options(grammar_parser)
     grammar_parser.add_argument(
-        "path", help="Path to the grammar source (.ebnf or .json)"
+        "grammar", help="Path to the grammar source (.ebnf or .json)"
     )
     return grammar_parser
 
