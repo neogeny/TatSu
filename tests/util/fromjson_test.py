@@ -11,8 +11,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 import tatsu.grammars as g
 from tatsu.util.asjson import asjson
 from tatsu.util.fromjson import JSONBase, fromjson
@@ -40,23 +38,23 @@ def roundtrip(obj):
 # ══════════════════════════════════════════════════════════════════════
 
 
-def test_null():
+def test_null() -> None:
     assert fromjson(None) is None
 
 
-def test_int():
+def test_int() -> None:
     assert fromjson(42) == 42
 
 
-def test_float():
+def test_float() -> None:
     assert fromjson(3.14) == 3.14
 
 
-def test_str():
+def test_str() -> None:
     assert fromjson("hello") == "hello"
 
 
-def test_bool():
+def test_bool() -> None:
     assert fromjson(True) is True
     assert fromjson(False) is False
 
@@ -66,42 +64,42 @@ def test_bool():
 # ══════════════════════════════════════════════════════════════════════
 
 
-def test_dict_stays_dict():
+def test_dict_stays_dict() -> None:
     r = fromjson({"a": 1})
     assert isinstance(r, dict)
     assert r["a"] == 1
 
 
-def test_nested_dict():
+def test_nested_dict() -> None:
     r = fromjson({"a": {"b": 2}})
     assert isinstance(r["a"], dict)
     assert r["a"]["b"] == 2
 
 
-def test_list():
+def test_list() -> None:
     r = fromjson([1, 2, 3])
     assert r == [1, 2, 3]
 
 
-def test_tuple_to_list():
+def test_tuple_to_list() -> None:
     r = fromjson((1, 2))
     assert r == [1, 2]
     assert isinstance(r, list)
 
 
-def test_class_key_stripped():
+def test_class_key_stripped() -> None:
     r = fromjson({"__class__": "ClassKeyStrippedTestOnly", "x": 1})
     assert is_object(r)
     assert r.x == 1
 
 
-def test_empty_dict():
+def test_empty_dict() -> None:
     r = fromjson({})
     assert isinstance(r, dict)
     assert r == {}
 
 
-def test_set_to_list():
+def test_set_to_list() -> None:
     r = fromjson({1, 2})
     assert isinstance(r, list)
     assert sorted(r) == [1, 2]
@@ -117,22 +115,22 @@ def test_set_to_list():
 # EmptyClosure: {"__class__": "EmptyClosure", "ast": []} — from java.json
 
 
-def test_eof():
+def test_eof() -> None:
     r = fromjson({"__class__": "EOF"})
     assert isinstance(r, g.EOF)
 
 
-def test_cut():
+def test_cut() -> None:
     r = fromjson({"__class__": "Cut"})
     assert isinstance(r, g.Cut)
 
 
-def test_void():
+def test_void() -> None:
     r = fromjson({"__class__": "Void", "ast": "()"})
     assert isinstance(r, g.Void)
 
 
-def test_empty_closure():
+def test_empty_closure() -> None:
     r = fromjson({"__class__": "EmptyClosure", "ast": []})
     assert isinstance(r, g.EmptyClosure)
 
@@ -148,31 +146,31 @@ def test_empty_closure():
 # RuleInclude: {"__class__": "RuleInclude", "name": "..."} — from tatsu.json
 
 
-def test_call():
+def test_call() -> None:
     r = fromjson({"__class__": "Call", "name": "expression"})
     assert isinstance(r, g.Call)
     assert r.name == "expression"
 
 
-def test_token():
+def test_token() -> None:
     r = fromjson({"__class__": "Token", "token": ";"})
     assert isinstance(r, g.Token)
-    assert r.token == ";"
+    assert r.token == ";"  # noqa: S105
 
 
-def test_constant():
+def test_constant() -> None:
     r = fromjson({"__class__": "Constant", "literal": "null"})
     assert isinstance(r, g.Constant)
     assert r.literal == "null"
 
 
-def test_pattern():
+def test_pattern() -> None:
     r = fromjson({"__class__": "Pattern", "pattern": r"\d+"})
     assert isinstance(r, g.Pattern)
     assert r.pattern == r"\d+"
 
 
-def test_rule_include():
+def test_rule_include() -> None:
     r = fromjson({"__class__": "RuleInclude", "name": "method_declaration_mixin"})
     assert isinstance(r, g.RuleInclude)
     assert r.name == "method_declaration_mixin"
@@ -186,7 +184,7 @@ def test_rule_include():
 # in the serialized JSON. Only Named and NamedList carry a "name".
 
 
-def test_sequence():
+def test_sequence() -> None:
     data = {
         "__class__": "Sequence",
         "sequence": [{"__class__": "Call", "name": "expression"}, {"__class__": "EOF"}],
@@ -196,7 +194,7 @@ def test_sequence():
     assert len(r.sequence) == 2
 
 
-def test_choice():
+def test_choice() -> None:
     data = {
         "__class__": "Choice",
         "options": [
@@ -212,7 +210,7 @@ def test_choice():
     assert len(r.options) == 2
 
 
-def test_option():
+def test_option() -> None:
     data = {
         "__class__": "Option",
         "exp": {"__class__": "Call", "name": "type_declaration"},
@@ -221,7 +219,7 @@ def test_option():
     assert isinstance(r, g.Option)
 
 
-def test_optional():
+def test_optional() -> None:
     data = {
         "__class__": "Optional",
         "exp": {"__class__": "Call", "name": "package_declaration"},
@@ -230,13 +228,13 @@ def test_optional():
     assert isinstance(r, g.Optional)
 
 
-def test_closure():
+def test_closure() -> None:
     data = {"__class__": "Closure", "exp": {"__class__": "Call", "name": "test"}}
     r = fromjson(data)
     assert isinstance(r, g.Closure)
 
 
-def test_positive_closure():
+def test_positive_closure() -> None:
     data = {
         "__class__": "PositiveClosure",
         "exp": {"__class__": "Call", "name": "test"},
@@ -245,13 +243,13 @@ def test_positive_closure():
     assert isinstance(r, g.PositiveClosure)
 
 
-def test_lookahead():
+def test_lookahead() -> None:
     data = {"__class__": "Lookahead", "exp": {"__class__": "Token", "token": "}"}}
     r = fromjson(data)
     assert isinstance(r, g.Lookahead)
 
 
-def test_negative_lookahead():
+def test_negative_lookahead() -> None:
     data = {
         "__class__": "NegativeLookahead",
         "exp": {"__class__": "Token", "token": "}"},
@@ -260,19 +258,19 @@ def test_negative_lookahead():
     assert isinstance(r, g.NegativeLookahead)
 
 
-def test_group():
+def test_group() -> None:
     data = {"__class__": "Group", "exp": {"__class__": "Token", "token": "test"}}
     r = fromjson(data)
     assert isinstance(r, g.Group)
 
 
-def test_override():
+def test_override() -> None:
     data = {"__class__": "Override", "exp": {"__class__": "Call", "name": "type"}}
     r = fromjson(data)
     assert isinstance(r, g.Override)
 
 
-def test_override_list():
+def test_override_list() -> None:
     data = {
         "__class__": "OverrideList",
         "exp": {"__class__": "Call", "name": "enum_constant_declaration"},
@@ -281,7 +279,7 @@ def test_override_list():
     assert isinstance(r, g.OverrideList)
 
 
-def test_gather():
+def test_gather() -> None:
     data = {
         "__class__": "Gather",
         "exp": {"__class__": "Call", "name": "type"},
@@ -289,10 +287,11 @@ def test_gather():
     }
     r = fromjson(data)
     assert isinstance(r, g.Gather)
-    assert r.sep.token == "&"
+    assert isinstance(r.sep, g.Token)
+    assert r.sep.token == "&"  # noqa: S105
 
 
-def test_positive_gather():
+def test_positive_gather() -> None:
     data = {
         "__class__": "PositiveGather",
         "exp": {"__class__": "Call", "name": "type"},
@@ -300,10 +299,11 @@ def test_positive_gather():
     }
     r = fromjson(data)
     assert isinstance(r, g.PositiveGather)
-    assert r.sep.token == "&"
+    assert isinstance(r.sep, g.Token)
+    assert r.sep.token == "&"  # noqa: S105
 
 
-def test_named():
+def test_named() -> None:
     data = {
         "__class__": "Named",
         "name": "package",
@@ -317,7 +317,7 @@ def test_named():
     assert r.name == "package"
 
 
-def test_named_list():
+def test_named_list() -> None:
     data = {
         "__class__": "NamedList",
         "name": "declarations",
@@ -337,14 +337,14 @@ def test_named_list():
 #   kwparams, no_memo, no_stak, params
 
 
-def test_rule():
+def test_rule() -> None:
     r = fromjson(CALC['rules'][0])
     assert isinstance(r, g.Rule)
     assert r.name == "start"
 
 
-def test_rule_with_scalar_fields():
-    data = {
+def test_rule_with_scalar_fields() -> None:
+    data: dict[str, object] = {
         "__class__": "Rule",
         "name": "start",
         "base": None,
@@ -369,8 +369,8 @@ def test_rule_with_scalar_fields():
     assert r.is_tokn is False
 
 
-def test_rule_with_exp():
-    data = {
+def test_rule_with_exp() -> None:
+    data: dict[str, object] = {
         "__class__": "Rule",
         "name": "start",
         "base": None,
@@ -403,7 +403,7 @@ def test_rule_with_exp():
 #   name, directives, keywords, rules
 
 
-def test_grammar_from_calc():
+def test_grammar_from_calc() -> None:
     r = fromjson(CALC)
     assert isinstance(r, g.Grammar)
     assert r.name == "CALC"
@@ -413,7 +413,7 @@ def test_grammar_from_calc():
     assert r.directives == {"grammar": "CALC"}
 
 
-def test_grammar_with_rules():
+def test_grammar_with_rules() -> None:
     data = {
         "__class__": "Grammar",
         "name": "CALC",
@@ -448,19 +448,19 @@ def test_grammar_with_rules():
 # ══════════════════════════════════════════════════════════════════════
 
 
-def test_calc_name():
+def test_calc_name() -> None:
     r = fromjson(CALC)
     assert isinstance(r, g.Grammar)
     assert r.name == "CALC"
 
 
-def test_tatsu_name():
+def test_tatsu_name() -> None:
     r = fromjson(TATSU)
     assert isinstance(r, g.Grammar)
     assert r.name == "TatSu"
 
 
-def test_java_name():
+def test_java_name() -> None:
     r = fromjson(JAVA)
     assert isinstance(r, g.Grammar)
     assert r.name == "Java"
@@ -471,7 +471,7 @@ def test_java_name():
 # ══════════════════════════════════════════════════════════════════════
 
 
-def test_roundtrip_call():
+def test_roundtrip_call() -> None:
     data = {"__class__": "Call", "name": "expression"}
     original = fromjson(data)
     restored = roundtrip(original)
@@ -480,7 +480,7 @@ def test_roundtrip_call():
     assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_token():
+def test_roundtrip_token() -> None:
     data = {"__class__": "Token", "token": ";"}
     original = fromjson(data)
     restored = roundtrip(original)
@@ -489,7 +489,7 @@ def test_roundtrip_token():
     assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_constant():
+def test_roundtrip_constant() -> None:
     data = {"__class__": "Constant", "literal": "null"}
     original = fromjson(data)
     restored = roundtrip(original)
@@ -498,7 +498,7 @@ def test_roundtrip_constant():
     assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_pattern():
+def test_roundtrip_pattern() -> None:
     data = {"__class__": "Pattern", "pattern": r"\d+"}
     original = fromjson(data)
     restored = roundtrip(original)
@@ -507,7 +507,7 @@ def test_roundtrip_pattern():
     assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_eof():
+def test_roundtrip_eof() -> None:
     data = {"__class__": "EOF"}
     original = fromjson(data)
     restored = roundtrip(original)
@@ -515,7 +515,7 @@ def test_roundtrip_eof():
     assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_cut():
+def test_roundtrip_cut() -> None:
     data = {"__class__": "Cut"}
     original = fromjson(data)
     restored = roundtrip(original)
@@ -523,7 +523,7 @@ def test_roundtrip_cut():
     assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_void():
+def test_roundtrip_void() -> None:
     data = {"__class__": "Void", "ast": "()"}
     original = fromjson(data)
     restored = roundtrip(original)
@@ -531,7 +531,7 @@ def test_roundtrip_void():
     assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_named():
+def test_roundtrip_named() -> None:
     data = {
         "__class__": "Named",
         "name": "package",
@@ -544,7 +544,7 @@ def test_roundtrip_named():
     assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_option():
+def test_roundtrip_option() -> None:
     data = {
         "__class__": "Option",
         "exp": {"__class__": "Call", "name": "type_declaration"},
@@ -555,7 +555,7 @@ def test_roundtrip_option():
     assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_optional():
+def test_roundtrip_optional() -> None:
     data = {
         "__class__": "Optional",
         "exp": {"__class__": "Call", "name": "package_declaration"},
@@ -566,7 +566,7 @@ def test_roundtrip_optional():
     assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_lookahead():
+def test_roundtrip_lookahead() -> None:
     data = {"__class__": "Lookahead", "exp": {"__class__": "Token", "token": "}"}}
     original = fromjson(data)
     restored = roundtrip(original)
@@ -574,7 +574,7 @@ def test_roundtrip_lookahead():
     assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_sequence():
+def test_roundtrip_sequence() -> None:
     data = {
         "__class__": "Sequence",
         "sequence": [{"__class__": "Call", "name": "expression"}, {"__class__": "EOF"}],
@@ -585,7 +585,7 @@ def test_roundtrip_sequence():
     assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_gather():
+def test_roundtrip_gather() -> None:
     data = {
         "__class__": "Gather",
         "exp": {"__class__": "Call", "name": "type"},
@@ -598,8 +598,8 @@ def test_roundtrip_gather():
     assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_rule():
-    data = {
+def test_roundtrip_rule() -> None:
+    data: dict[str, object] = {
         "__class__": "Rule",
         "name": "start",
         "base": None,
@@ -622,7 +622,7 @@ def test_roundtrip_rule():
     assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_grammar():
+def test_roundtrip_grammar() -> None:
     data = {
         "__class__": "Grammar",
         "name": "CALC",
@@ -642,31 +642,31 @@ def test_roundtrip_grammar():
 # ══════════════════════════════════════════════════════════════════════
 
 
-def test_unknown_class_becomes_object():
+def test_unknown_class_becomes_object() -> None:
     r = fromjson({"__class__": "NoSuchClass", "x": 1})
     assert is_object(r)
     assert r.x == 1
 
 
-def test_class_non_jsonbase_becomes_object():
+def test_class_non_jsonbase_becomes_object() -> None:
     r = fromjson({"__class__": "int", "value": 42})
     assert is_object(r)
 
 
 # @xfail
-def test_extra_fields_on_leaf():
+def test_extra_fields_on_leaf() -> None:
     r = fromjson({"__class__": "Call", "name": "f", "ghost": True})
     assert isinstance(r, g.Call)
     assert r.name == "f"
 
 
 # @xfail
-def test_extra_fields_on_terminal():
+def test_extra_fields_on_terminal() -> None:
     r = fromjson({"__class__": "EOF", "extra": True})
     assert isinstance(r, g.EOF)
 
 
-def test_missing_class_key():
+def test_missing_class_key() -> None:
     data = {"a": 1, "b": 2}
     r = fromjson(data)
     assert isinstance(r, dict)
@@ -674,7 +674,7 @@ def test_missing_class_key():
     assert r["b"] == 2
 
 
-def test_mixed_containers():
+def test_mixed_containers() -> None:
     data = {
         "numbers": [1, 2, 3],
         "nested": {"x": 10},
@@ -693,7 +693,7 @@ def test_mixed_containers():
 # ══════════════════════════════════════════════════════════════════════
 
 
-def test_jsonbase_subclass_registration():
+def test_jsonbase_subclass_registration() -> None:
     from tatsu.util.fromjson import __from_json__class__
 
     class TestModel(JSONBase):
@@ -703,9 +703,7 @@ def test_jsonbase_subclass_registration():
     assert __from_json__class__[TestModel.__name__] is TestModel
 
 
-def test_jsonbase_roundtrip():
-    from tatsu.util.fromjson import __from_json__class__
-
+def test_jsonbase_roundtrip() -> None:
     class Point(JSONBase):
         x: int = 0
         y: int = 0
@@ -717,7 +715,7 @@ def test_jsonbase_roundtrip():
     assert p.y == 20
 
 
-def test_jsonbase_inherits_from_subclass():
+def test_jsonbase_inherits_from_subclass() -> None:
     class Shape(JSONBase):
         color: str = "black"
 
@@ -732,7 +730,7 @@ def test_jsonbase_inherits_from_subclass():
     assert c.radius == 5.0
 
 
-def test_jsonbase_partial_data():
+def test_jsonbase_partial_data() -> None:
     class Widget(JSONBase):
         name: str = ""
         size: int = 0
@@ -746,7 +744,7 @@ def test_jsonbase_partial_data():
 
 
 # @xfail
-def test_jsonbase_extra_field():
+def test_jsonbase_extra_field() -> None:
     class WithExtra(JSONBase):
         def __init__(self, base_field: str = ""):
             self.base_field = base_field
@@ -763,7 +761,7 @@ def test_jsonbase_extra_field():
 
 
 # @xfail
-def test_sequence_sequence():
+def test_sequence_sequence() -> None:
     r = fromjson(
         {
             "__class__": "Sequence",
@@ -774,13 +772,13 @@ def test_sequence_sequence():
 
 
 # @xfail
-def test_grammar_rules():
+def test_grammar_rules() -> None:
     r = fromjson(CALC)
     assert len(r.rules) == 9
 
 
 # @xfail
-def test_rule_exp():
+def test_rule_exp() -> None:
     r = fromjson(
         {
             "__class__": "Rule",
@@ -792,7 +790,7 @@ def test_rule_exp():
 
 
 # @xfail
-def test_named_exp():
+def test_named_exp() -> None:
     r = fromjson(
         {
             "__class__": "Named",
@@ -804,7 +802,7 @@ def test_named_exp():
 
 
 # @xfail
-def test_choice_options():
+def test_choice_options() -> None:
     r = fromjson(
         {
             "__class__": "Choice",
@@ -818,7 +816,7 @@ def test_choice_options():
 
 
 # @xfail
-def test_rule_params():
+def test_rule_params() -> None:
     r = fromjson(
         {
             "__class__": "Rule",
@@ -830,7 +828,7 @@ def test_rule_params():
 
 
 # @xfail
-def test_rule_kwparams():
+def test_rule_kwparams() -> None:
     r = fromjson(
         {
             "__class__": "Rule",
@@ -843,7 +841,7 @@ def test_rule_kwparams():
 
 
 # @xfail
-def test_rule_decorators():
+def test_rule_decorators() -> None:
     r = fromjson(
         {
             "__class__": "Rule",
@@ -855,20 +853,20 @@ def test_rule_decorators():
 
 
 # @xfail
-def test_grammar_directives():
+def test_grammar_directives() -> None:
     r = fromjson(CALC)
     assert isinstance(r.directives, dict)
     assert r.directives == {"grammar": "CALC"}
 
 
 # @xfail
-def test_grammar_keywords():
+def test_grammar_keywords() -> None:
     r = fromjson(JAVA)
     assert "abstract" in r.keywords
 
 
 # @xfail
-def test_full_grammar_roundtrip():
+def test_full_grammar_roundtrip() -> None:
     r = fromjson(CALC)
     serialized = r.asjson()
     restored = fromjson(serialized)

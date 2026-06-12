@@ -493,18 +493,6 @@ class Grammar(Model):
         self._config.merge_config(config)
         self._config.merge(**settings)
 
-    @staticmethod
-    def load(value: Any) -> Grammar:
-        from .jsonimport import load_grammar
-
-        return load_grammar(value)
-
-    @staticmethod
-    def loads(value: str) -> Grammar:
-        from .jsonimport import loads_grammar
-
-        return loads_grammar(value)
-
     def _update_patterns(self):
         if not hasattr(self, 'patterns'):
             self.patterns = Patterns()

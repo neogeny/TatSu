@@ -27,6 +27,7 @@ def dataclass_fields(
     yield from [(f.name, f) for f in fields]
 
 
+@dataclasses.dataclass
 class JSONBase(AsJSONMixin):
     @classmethod
     def __from_json__(cls, data: Mapping[str, Any]) -> Self:
@@ -67,9 +68,9 @@ class JSONBase(AsJSONMixin):
             #     setattr(new, fname, value)
 
     @classmethod
-    def _init_dataclass2(cls) -> None:
+    def _init_dataclass2(cls, data: Mapping[str, Any]) -> None:
         if not dataclasses.is_dataclass(cls):
-            return None
+            return
 
         fieldmap: dict[str, dataclasses.Field] = dict(dataclass_fields(cls))
         _initdata = {
@@ -87,18 +88,17 @@ class JSONBase(AsJSONMixin):
             for name, value in data.items()
             if name in fieldmap and fieldmap[name].init and fieldmap[name].kw_only
         }
-        allkwargs = {
+        _allkwargs = {
             name: value
             for name, value in data.items()
             if name in fieldmap and fieldmap[name].init
         }
         new = cls.__new__(cls)
         cls._init_dataclass(new, fieldmap, data)
-        new.__init__(**allkwargs)
-        new.__post_init__()  # pyright: ignore[reportAttributeAccessIssue]
+        # new.__init__(**allkwargs)
+        # new.__post_init__()  # pyright: ignore[reportAttributeAccessIssue]
 
     def __init_subclass__(cls: type, **kwargs):
-        super().__init_subclass__(**kwargs)
         __from_json__class__[cls.__name__] = cls
 
 
@@ -112,6 +112,7 @@ def fromjson(obj: Any) -> Any:
             return node
 
         def mapped() -> dict[str, Any]:
+            map: dict = node
             return {
                 name: dfs(value) for name, value in map.items() if name != "__class__"
             }

@@ -70,7 +70,10 @@ def test_parse_with_imported_calc_grammar():
 def test_import_all_expression_types():
     expressions = [
         {'__class__': 'Sequence', 'sequence': [{'__class__': 'Void'}]},
-        {'__class__': 'Choice', 'options': [{'__class__': 'Option', 'exp': {'__class__': 'Void'}}]},
+        {
+            '__class__': 'Choice',
+            'options': [{'__class__': 'Option', 'exp': {'__class__': 'Void'}}],
+        },
         {'__class__': 'Option', 'exp': {'__class__': 'Void'}},
         {'__class__': 'Named', 'name': 'test', 'exp': {'__class__': 'Void'}},
         {'__class__': 'NamedList', 'name': 'test', 'exp': {'__class__': 'Void'}},
@@ -88,10 +91,26 @@ def test_import_all_expression_types():
         {'__class__': 'SkipTo', 'exp': {'__class__': 'Void'}},
         {'__class__': 'Override', 'exp': {'__class__': 'Void'}},
         {'__class__': 'OverrideList', 'exp': {'__class__': 'Void'}},
-        {'__class__': 'Join', 'exp': {'__class__': 'Void'}, 'sep': {'__class__': 'Token', 'token': ','}},
-        {'__class__': 'PositiveJoin', 'exp': {'__class__': 'Void'}, 'sep': {'__class__': 'Token', 'token': ','}},
-        {'__class__': 'Gather', 'exp': {'__class__': 'Void'}, 'sep': {'__class__': 'Token', 'token': ','}},
-        {'__class__': 'PositiveGather', 'exp': {'__class__': 'Void'}, 'sep': {'__class__': 'Token', 'token': ','}},
+        {
+            '__class__': 'Join',
+            'exp': {'__class__': 'Void'},
+            'sep': {'__class__': 'Token', 'token': ','},
+        },
+        {
+            '__class__': 'PositiveJoin',
+            'exp': {'__class__': 'Void'},
+            'sep': {'__class__': 'Token', 'token': ','},
+        },
+        {
+            '__class__': 'Gather',
+            'exp': {'__class__': 'Void'},
+            'sep': {'__class__': 'Token', 'token': ','},
+        },
+        {
+            '__class__': 'PositiveGather',
+            'exp': {'__class__': 'Void'},
+            'sep': {'__class__': 'Token', 'token': ','},
+        },
         {'__class__': 'RuleInclude', 'name': 'foo'},
         {'__class__': 'Void'},
         {'__class__': 'Cut'},

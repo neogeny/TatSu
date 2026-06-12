@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import dataclasses as dc
+import json
 import weakref
 from collections.abc import Iterable, Mapping, MutableMapping
-from typing import Any
+from typing import Any, Self
 
 from ..util.fromjson import fromjson
 from .basenode import BaseNode, nodedataclass

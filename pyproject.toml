@@ -72,7 +72,6 @@ dev = [
     "rich>=15.0.0",
     "rich-click>=1.9.7",
     "ruff>=0.15.6",
-    "tatsu",
     "ty>=0.0.23",
     "uv>=0.11.11",
 ]
@@ -144,10 +143,8 @@ members = [
     ".",
     ".",
     ".",
+    ".",
 ]
-
-[tool.uv.sources]
-tatsu = { workspace = true }
 
 [tool.hatch.version]
 source = "uv-dynamic-versioning"
@@ -305,7 +302,8 @@ ignore = [
     "E501", #    line-too-long
     "E402", #    module-import-not-at-top-of-file
     "I001", #    Import block is un-sorted or un-formatted
-    #    "FURB145".  # Prefer `copy` method over slicing"
+    "FURB145",  # Prefer `copy` method over slicing"
+    "FURB152", # 3.14 disallowed
     "FURB189", #  subclassing str
     "PERF203", #  try-except within loop
     "PGH003",
@@ -328,6 +326,7 @@ ignore = [
     "RUF001", #  string contains ambiguous `＄` (FULLWIDTH DOLLAR SIGN). Did you mean `$` (DOLLAR SIGN)?
     "RUF022", #  __all__ sorting
     "RUF027", #  possible f-string
+    "RUF069", # floating point equality comparison
     "RUF102", # Invalid rule code in `# noqa`: "
     "RUF100", #  Unused `noqa` directive (non-enabled: `RUF001`)
     "RUF075", # Context manager does not catch exceptions

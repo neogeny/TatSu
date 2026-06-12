@@ -1595,7 +1595,6 @@ dev = [
     { name = "rich" },
     { name = "rich-click" },
     { name = "ruff" },
-    { name = "tatsu" },
     { name = "ty" },
     { name = "uv" },
 ]
@@ -1678,7 +1677,6 @@ dev = [
     { name = "rich", specifier = ">=15.0.0" },
     { name = "rich-click", specifier = ">=1.9.7" },
     { name = "ruff", specifier = ">=0.15.6" },
-    { name = "tatsu", editable = "." },
     { name = "ty", specifier = ">=0.0.23" },
     { name = "uv", specifier = ">=0.11.11" },
 ]
