@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Mapping
-from types import SimpleNamespace
+from types import SimpleNamespace  # noqa: F401  # pyright: ignore[reportUnusedImport]
 from typing import Any, Self
 
 from tatsu.util.abctools import isiter
@@ -10,6 +10,10 @@ from tatsu.util.asjson import AsJSONMixin
 
 
 __from_json__class__: dict[str, type] = {}
+
+
+class Object:
+    pass
 
 
 class JSONBase(AsJSONMixin):
@@ -52,6 +56,13 @@ def fromjson(obj: Any) -> Any:
                 name: dfs(value) for name, value in map.items() if name != "__class__"
             }
 
+        def asobj() -> object:
+            # return SimpleNamespace(**mapped())
+            obj = Object()
+            for name, value in mapped().items():
+                setattr(obj, name, value)
+            return obj
+
         match node:
             case Mapping() as map:
                 typename = map.get("__class__", None)
@@ -60,7 +71,7 @@ def fromjson(obj: Any) -> Any:
                 if (cls := __from_json__class__.get(typename)) is not None:
                     assert issubclass(cls, JSONBase)
                     return cls.__from_json__(node)  # NOTE the raw contents
-                return SimpleNamespace(**mapped())
+                return asobj()
             case list() | tuple() | set() as seq:
                 return [dfs(e) for e in seq]
             case _ if isiter(node):
