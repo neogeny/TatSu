@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from tatsu import __toolname__, __version__
+from tatsu.exceptions import ParseError
 
 from .lib import CLIConfig, Results, load_grammar
 
@@ -227,7 +228,10 @@ def main() -> None:
                 print(cfg, file=sys.stderr)
                 return
         output_results(cfg, results)
-    except KeyboardInterrupt:
+    except (ParseError, KeyboardInterrupt):
+        return
+    except Exception as e:
+        print(e, file=sys.stderr)
         return
 
 

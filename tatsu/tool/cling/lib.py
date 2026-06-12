@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import sys
+import time
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from tatsu.util.asjson import asjsons
 from tatsu.util.parproc import Result
-from tatsu.util.strtools import countlines
+from tatsu.util.strtools import countlines, slicetowidth
 
 
 if TYPE_CHECKING:
@@ -95,40 +97,32 @@ def format_duration(seconds: float, fractions: bool = False) -> str:
     return f"{m}:{s:02.0f}"
 
 
-def show_results(cfg: CLIConfig, results: list[Result]) -> None:
+def show_results(cfg: CLIConfig, results: Iterable[Result]) -> list[Result]:
     from rich.console import Console
 
     console = Console(stderr=True)
+    console.print("[dim cyan]results[/dim cyan]:")
 
-    results = sorted(results)
-    maxw = 0
+    maxw = 40
+    padc = 35
+    output: list[Result] = []
     for r in results:
-        name = Path(r.payload.path).name
-        maxw = max(maxw, len(name))
+        output.append(r)
 
-    for r in results:
-        if isinstance(r.outcome, Exception):
-            print(file=sys.stderr)
-            print(r.outcome, file=sys.stderr)
-        if r.exception:
+        name = slicetowidth(Path(r.payload.path).name, maxw)
+        if r.exception or isinstance(r.outcome, Exception):
             print(file=sys.stderr)
             print(r.exception, file=sys.stderr)
+            console.print(f"{'':{padc}}[red]✗[/] {name:{maxw}} [red]{r.runtime:>4.1f}s")
+        else:
+            console.print(
+                f"{'':{padc}}[green]✓[/] {name:{maxw}} [green]{r.runtime:>4.1f}s"
+            )
 
-    console.print("[dim cyan]results[/dim cyan]:")
-    padc = 35
-    for r in results:
-        name = Path(r.payload.path).name
-        if r.exception or isinstance(r.outcome, Exception):
-            continue
-        console.print(f"{'':{padc}}[green]✓[/] {name:{maxw}} [green]{r.runtime:>4.1f}s")
-    for r in results:
-        name = r.payload.path.name
-        if not (r.exception or isinstance(r.outcome, Exception)):
-            continue
-        console.print(f"{'':{padc}}[red]✗[/] {name:{maxw}} [red]{r.runtime:>4.1f}s")
+    return output
 
 
-def result_stats(results: list[Result]) -> ParseStats:
+def result_stats(results: Iterable[Result]) -> ParseStats:
     eolcmt = {
         ".java": "//",
         ".py": "#",
@@ -160,13 +154,17 @@ def result_stats(results: list[Result]) -> ParseStats:
 
 def show_summary(
     cfg: CLIConfig,
-    total_time: float,
-    results: list[Result],
+    results: Iterable[Result],
 ) -> None:
     if cfg.quiet:
         return
+
+    start_time = time.thread_time()
     if cfg.verbose:
-        show_results(cfg, results)
+        results = show_results(cfg, results)
+    else:
+        results = list(results)
+    total_time = time.thread_time() - start_time
 
     stats = result_stats(results)
 

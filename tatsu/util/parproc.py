@@ -10,7 +10,8 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from itertools import batched
 from pathlib import Path
-from typing import Any, NamedTuple
+from threading import Event
+from typing import Any, NamedTuple, Protocol
 
 import rich  # type: ignore
 from rich.progress import (  # type: ignore
@@ -36,24 +37,35 @@ __all__ = [
 ]
 
 EOLCH = '\r' if sys.stderr.isatty() else '\n'
-sys.setrecursionlimit(2**16)
 
 type Func = Callable[..., Any]
-
+type VisualFunc = Callable[..., Any]
 type ProgressPair = tuple[Progress, TaskID]
 type GetProgressFunc = Callable[[int], ProgressPair]
 
 
-@dataclass(slots=True, frozen=True, order=True)
-class VisualPayload:
+class Payload(Protocol):
+    pass
+
+
+@dataclass(slots=True)
+class VisualPayload(Payload):
     path: Path
-    content: Any
+    payload: Any
+
+    def __hash__(self) -> int:
+        return id(self)
+
+    def __lt__(self, other: Any) -> bool:
+        return id(self) < id(other)
 
 
-type VisualFunc = Callable[..., Any]
+class TaskStop(Exception):
+    pass
 
 
 class Task(NamedTuple):
+    stop: Event
     func: Func
     payload: Any
     pickable: Callable
@@ -64,6 +76,7 @@ class Task(NamedTuple):
 
 @dataclass(slots=True, order=True)
 class Result:
+    stop: Event
     payload: Any
     outcome: Any = None
     exception: Any = None
@@ -127,8 +140,10 @@ def parproc(
     reraise: bool = False,
     **kwargs: Any,
 ) -> Generator[Result | None, None, None]:
+    stop = Event()
     tasks = [
         Task(
+            stop=stop,
             func=func,
             payload=payload,
             pickable=pickable,
@@ -138,19 +153,22 @@ def parproc(
         )
         for payload in payloads
     ]
-    try:
-        if len(tasks) == 1:
-            yield taskproc(tasks[0])
-            return
-
-        pmap = active_pmap() if parallel else map
-        yield from pmap(taskproc, tasks)
-    except KeyboardInterrupt:
+    if len(tasks) == 1:
+        yield taskproc(tasks[0])
         return
+
+    if not parallel:
+        yield from map(taskproc, tasks)
+    else:
+        pmap = active_pmap()
+        yield from pmap(stop, taskproc, tasks)
 
 
 def taskproc(task: Task) -> Result:
-    result = Result(task.payload)
+    if task.stop.is_set():
+        return Result(task.stop, task.payload)
+
+    result = Result(task.stop, task.payload)
     outcome: Any = None
     elapsed: float = 0.0
     try:
@@ -398,7 +416,7 @@ def processing_loop(
     )
 
 
-def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
+def active_pmap() -> Callable[[Event, Func, Iterable[Any]], Iterable[Result]]:
     import multiprocessing
     from concurrent.futures import (
         Executor,
@@ -409,6 +427,7 @@ def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
 
     def executor_pmap(
         executorcls: type[Executor],
+        stop_event: Event,
         process: Func,
         tasks: Iterable[Any],
         max_workers: int | None = None,
@@ -425,7 +444,18 @@ def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
                     for future in as_completed(futures):
                         yield future.result()
                 except KeyboardInterrupt:
+                    stop_event.set()
+
+                    print(file=sys.stderr)
+                    # print(file=sys.stderr)
+                    # print("Wait...", file=sys.stderr)
+                    sys.stderr.flush()
+
                     ex.shutdown(wait=False, cancel_futures=True)
+
+                    print("           ", end="\r", file=sys.stderr)
+                    sys.stderr.flush()
+
                     raise
         except Exception as e:
             # Fallback to thread-based execution when process-based execution fails
@@ -436,16 +466,24 @@ def active_pmap() -> Callable[[Func, Iterable[Any]], Iterable[Result]]:
                 isinstance(e, (pickle.PicklingError, AttributeError, TypeError))
                 or "pickl" in errmsg
             ):
-                yield from thread_pmap(process, tasks)
+                yield from thread_pmap(stop_event, process, tasks)
             else:
                 raise
 
-    def thread_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[Result]:
-        yield from executor_pmap(ThreadPoolExecutor, process, tasks)
+    def thread_pmap(
+        event: Event, process: Func, tasks: Iterable[Any]
+    ) -> Iterable[Result]:
+        yield from executor_pmap(ThreadPoolExecutor, event, process, tasks)
 
-    def process_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[Result]:
+    def process_pmap(
+        process: Func, event: Event, tasks: Iterable[Any]
+    ) -> Iterable[Result]:
         yield from executor_pmap(
-            ProcessPoolExecutor, process, tasks, max_workers=multiprocessing.cpu_count()
+            ProcessPoolExecutor,
+            event,
+            process,
+            tasks,
+            max_workers=multiprocessing.cpu_count(),
         )
 
     def imap_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[Result]:

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import time
+import sys
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -14,7 +14,7 @@ from tatsu.grammars import Grammar
 from tatsu.util.heart import Heart
 
 from ...config import ParserConfig
-from ...util.parproc import ProgressPair, Result, VisualPayload, parproc_visual
+from ...util.parproc import ProgressPair, VisualPayload, parproc_visual
 from ...util.richtest import is_rich_library_available
 from .lib import (
     CLIConfig,
@@ -30,17 +30,18 @@ class ProgressHeartProtocol(Heart):
         pass
 
 
-@dataclass(slots=True, order=True, frozen=True)
+@dataclass(slots=True)
 class GrammarPayload(VisualPayload):
     grammar: Grammar
     start: str
     new_fileheart: Callable[[str, int], ProgressHeartProtocol]
+    heart: ProgressHeartProtocol | None = None
 
 
 def parse_file_task(payload: GrammarPayload) -> Any:
 
     path = Path(payload.path)
-    text = payload.content
+    text = payload.payload
     grammar, start, new_fileheart = (
         payload.grammar,
         payload.start,
@@ -50,6 +51,7 @@ def parse_file_task(payload: GrammarPayload) -> Any:
     config = ParserConfig.new()
 
     heart = new_fileheart(path.name, len(text))
+    payload.heart = heart
     config.heart = heart
 
     relpath = path.absolute().relative_to(Path().absolute())
@@ -71,6 +73,7 @@ def make_new_fileheart(task_progress) -> Callable[[str, int], ProgressHeartProto
                 self._name = name
                 self.task = task_progress.add_task(self.name, total=total)
                 self.beat(0, total)
+                self.stopped = False
 
             @property
             def name(self) -> str:
@@ -86,6 +89,9 @@ def make_new_fileheart(task_progress) -> Callable[[str, int], ProgressHeartProto
                     color="green",
                     description=f"[bold white]{self.name}[green][/]",
                 )
+
+            def dead(self) -> bool:
+                return self.stopped
 
             def finish(self) -> None:
                 task_progress.remove_task(self.task)
@@ -145,7 +151,7 @@ def run_with_progress(
 
     class DualProgress(Progress):
         def __init__(self, *columns, **kwargs) -> None:
-            super().__init__(*columns, **kwargs)
+            super().__init__(*columns, transient=True, **kwargs)
             self._file_cols = [
                 TextColumn("[progress.description]{task.description}"),
                 BarColumn(complete_style="green"),
@@ -173,7 +179,10 @@ def run_with_progress(
         # TimeRemainingColumn(),
         # TextColumn("[name][progress.description]"),
         # TextColumn("[progress.description][task.description]"),
-        BarColumn(bar_width=None, complete_style="yellow"),
+        BarColumn(
+            bar_width=None,
+            complete_style="yellow",
+        ),
         refresh_per_second=1,
         speed_estimate_period=30.0,
     )
@@ -198,21 +207,28 @@ def run_with_progress(
         )
         for path in paths
     ]
-    start_time = time.time()
-    results: list[Result] = []
-    results = list(
-        parproc_visual(
-            parse_file_task,
-            payloads,
-            build_progressbar=build_progressbar,
-            parallel=True,
-            reraise=False,
-            summary=False,
+    try:
+        results = list(
+            parproc_visual(
+                parse_file_task,
+                payloads,
+                build_progressbar=build_progressbar,
+                parallel=True,
+                reraise=False,
+                summary=False,
+            )
         )
-    )
-    top_progress.stop()
-    results = list(results)
-    total_time = time.time() - start_time
-    show_summary(cfg, total_time, results)
+        show_summary(cfg, results)
+    finally:
+        print(file=sys.stderr)
+        top_progress.update(
+            toptask,
+            description="Wait...",
+            total=total,
+            completed=total * 100,
+            refresh=True,
+        )
+        top_progress.stop()
+        print(file=sys.stderr)
 
     return [(r.payload.path, r.outcome) for r in results]

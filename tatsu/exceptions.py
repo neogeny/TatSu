@@ -25,6 +25,10 @@ class ParseError(ParseException):
     pass
 
 
+class HeartDied(ParseError):
+    pass
+
+
 class GrammarError(ParseError):
     pass
 

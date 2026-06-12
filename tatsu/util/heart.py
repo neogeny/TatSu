@@ -7,6 +7,8 @@ from typing import Protocol
 
 class Heart(Protocol):
     def beat(self, mark: int, total: int) -> None: ...
+    def dead(self) -> bool:
+        return False
 
 
 class NullHeart:

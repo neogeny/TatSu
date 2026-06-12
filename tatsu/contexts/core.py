@@ -12,6 +12,7 @@ from ..config import ParserConfig
 from ..exceptions import (
     FailedLeftRecursion,
     FailedParse,
+    HeartDied,
     ParseException,
 )
 from ..input import Cursor, NullText, Text
@@ -171,6 +172,9 @@ class ParserCore(Ctx):
     def heartbeat(self) -> bool:
         if self.heart is None:
             return False
+
+        if self.heart.dead():
+            raise HeartDied("Heart is dead")
 
         now = time.perf_counter()
         if (now - self.lastbeat_time) <= self.config.heart_wait:
