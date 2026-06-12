@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import re
+import json
 import subprocess  # noqa: S404
 import sys
 
@@ -17,33 +17,35 @@ pytestmark = pytest.mark.skipif(
 
 
 def uv_run(cmd: list[str]) -> str:
-    return subprocess.check_output(['uv', 'run', *cmd]).decode()
+    return subprocess.check_output(
+        ['uv', 'run', *cmd], stderr=subprocess.DEVNULL
+    ).decode()
 
 
-def test_feature_one():
-    assert True
+CLIPROG = "tatsu"
 
 
-def test_cli_help():
-    output = uv_run(['cling', '--help'])
-    pattern = r'(?ms)竜TatSu takes a grammar .*GRAMMAR'
-    assert bool(re.search(pattern, output))
+def test_cling_help():
+    output = uv_run([CLIPROG, '--help'])
+    assert '竜TatSu takes a grammar' in output
 
 
-def test_cli_python():
-    output = uv_run(['cling', PATH_TATSU_GRAMMAR])
-    pattern = (
-        r'(?ms)CAVEAT UTILITOR.*?竜TatSu.*?KEYWORDS = \('
-        r'.*?class \w*?Parser\(\w*Parser\):'
-    )
-    found = re.search(pattern, output)
-    assert bool(found), output
+def test_cling_boot():
+    output = uv_run([CLIPROG, 'boot'])
+    data = json.loads(output)
+    assert data['__class__'] == 'Grammar'
+    assert data['name'] == 'TatSu'
 
 
-def test_cli_model():
-    output = uv_run(['cling', '-g', PATH_TATSU_GRAMMAR])
-    pattern = (
-        r'(?ms)CAVEAT UTILITOR.*?竜TatSu'
-        r'.*?class \w+?ModelBuilderSemantics\(ModelBuilderSemantics\):'
-    )
-    assert bool(re.search(pattern, output))
+def test_cling_grammar():
+    output = uv_run([CLIPROG, 'grammar', PATH_TATSU_GRAMMAR])
+    data = json.loads(output)
+    assert data['__class__'] == 'Grammar'
+    assert data['name'] == 'TatSu'
+
+
+def test_cling_grammar_json():
+    output = uv_run([CLIPROG, 'grammar', '--json', PATH_TATSU_GRAMMAR])
+    data = json.loads(output)
+    assert data['__class__'] == 'Grammar'
+    assert 'rules' in data

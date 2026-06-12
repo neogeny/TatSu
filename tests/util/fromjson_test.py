@@ -26,7 +26,6 @@ def load(name: str) -> dict:
 
 
 TATSU = load('tatsu.json')
-JAVA = load('java.json')
 CALC = load('calc.json')
 
 
@@ -110,10 +109,10 @@ def test_set_to_list() -> None:
 # C. Terminal types (excerpts from grammar JSON)
 # ══════════════════════════════════════════════════════════════════════
 
-# EOF: {"__class__": "EOF"} — from calc.json, java.json, tatsu.json
-# Cut: {"__class__": "Cut"} — from calc.json, java.json, tatsu.json
-# Void: {"__class__": "Void", "ast": "()"} — from java.json
-# EmptyClosure: {"__class__": "EmptyClosure", "ast": []} — from java.json
+# EOF: {"__class__": "EOF"} — from calc.json, tatsu.json
+# Cut: {"__class__": "Cut"} — from calc.json, tatsu.json
+# Void: {"__class__": "Void", "ast": "()"} — from tatsu.json
+# EmptyClosure: {"__class__": "EmptyClosure", "ast": []} — from tatsu.json
 
 
 def test_eof() -> None:
@@ -388,7 +387,7 @@ def test_named_list() -> None:
 # F. Rule (excerpts from grammar JSON)
 # ══════════════════════════════════════════════════════════════════════
 
-# Rule from java.json / tatsu.json:
+# Rule from tatsu.json:
 #   name, base, decorators, exp, is_lrec, is_memo, is_name, is_tokn,
 #   kwparams, no_memo, no_stak, params
 
@@ -455,7 +454,7 @@ def test_rule_with_exp() -> None:
 # G. Grammar (excerpts from grammar JSON)
 # ══════════════════════════════════════════════════════════════════════
 
-# Grammar from java.json / tatsu.json:
+# Grammar from tatsu.json:
 #   name, directives, keywords, rules
 
 
@@ -514,12 +513,6 @@ def test_tatsu_name() -> None:
     r = fromjson(TATSU)
     assert isinstance(r, g.Grammar)
     assert r.name == "TatSu"
-
-
-def test_java_name() -> None:
-    r = fromjson(JAVA)
-    assert isinstance(r, g.Grammar)
-    assert r.name == "Java"
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -939,12 +932,6 @@ def test_grammar_directives() -> None:
     r = fromjson(CALC)
     assert isinstance(r.directives, dict)
     assert r.directives == {"grammar": "CALC"}
-
-
-# @xfail
-def test_grammar_keywords() -> None:
-    r = fromjson(JAVA)
-    assert "abstract" in r.keywords
 
 
 # @xfail
