@@ -5,35 +5,32 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
+from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any
 
 from tatsu import __toolname__, __version__
 from tatsu.exceptions import ParseError
+from tatsu.tool.cling.fmt import colorize_output
 
 from ...grammars.model import Grammar
 from .config import DEFAULT_PYGMENTS_STYLE, CLIConfig
-from .fmt import _colorize, _should_colorize
 from .lib import Results, load_grammar
 
 
+TITLE = "竜TatSu"
+VERSION = f"{TITLE} v{__version__}"
 DESCRIPTION = (
-    '竜TatSu takes a grammar in extended EBNF'
+    f'{TITLE} takes a grammar in extended EBNF'
     ' as input, and outputs a memoizing'
     ' PEG/Packrat parser in Python.'
 )
 
 
-def parse_args(argv: list[str] | None = None) -> CLIConfig:
-    """Parse command-line arguments and return a CLIConfig.
-
-    Matches ogopego's subcommand structure (run / boot / grammar).
-    """
-    if argv is None:
-        argv = sys.argv[1:]
-
+def create_argument_parser() -> ArgumentParser:
     # Handle --version before argparse to match ogopego's pre-dispatch check
     parser = argparse.ArgumentParser(
         prog="tatsu",
@@ -60,22 +57,18 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
     _grammar_cmd = add_grammar_cmd(sub)
     _run_cmd = add_run_cmd(sub)
 
-    if "--version" in argv or "-V" in argv or "version" in argv:
-        print(f"{__toolname__} {__version__}")
-        sys.exit(0)
+    return parser
 
-    # if len(argv) <= 1 or argv[0] in ("-h", "--help"):
-    #     parser.print_help()
-    #     sys.exit(0)
 
-    args = parser.parse_args(argv)
-    command = args.command
-    if command == "help" or "-h" in argv or "--help" in argv:
-        parser.print_help()
-        sys.exit(0)
+def run_cling_cli(parser: argparse.ArgumentParser) -> CLIConfig:
+    """Parse command-line arguments and return a CLIConfig.
 
+    Matches ogopego's subcommand structure (run / boot / grammar).
+    """
     cfg = CLIConfig()
-    for name, value in vars(args).items():
+    namespace = parser.parse_args(namespace=cfg)
+
+    for name, value in vars(namespace).items():
         if name == "name":
             continue
         if not hasattr(cfg, name):
@@ -157,14 +150,17 @@ def boot_cmd(cfg: CLIConfig) -> Results:
 
 def grammar_cmd(cfg: CLIConfig) -> Results:
     """Handle the ``grammar`` subcommand."""
-    gram = load_grammar(cfg.path)
+    if cfg.grammar is None:
+        raise ValueError("expected a grammar path")
+    path: str = cfg.grammar or ""
+    grammar = load_grammar(path)
 
     payload = _render_grammar(
-        gram,
+        grammar,
         cfg,
-        name=Path(cfg.path).stem,
+        name=Path(path).stem,
     )
-    return [(cfg.path, payload)]
+    return [(path, payload)]
 
 
 def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
@@ -203,7 +199,7 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
 
     # Single result or model output: write sequentially
     single_out = _output_path(cfg)
-    should_colorize = _should_colorize(cfg) and single_out is None and not cfg.railroads
+    should_colorize = cfg.usecolor() and single_out is None and not cfg.railroads
 
     language = "json"
     if cfg.model:
@@ -213,7 +209,9 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
 
     payloads = [payload for _, payload in results]
     if should_colorize:
-        payloads = [_colorize(payload, language, cfg.style) for payload in payloads]
+        payloads = [
+            colorize_output(payload, language, cfg.style) for payload in payloads
+        ]
 
     single_payload = "\n".join(payloads)
     if single_out is None:
@@ -225,20 +223,34 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
 def cling_main() -> None:
     """Entry point for the cling CLI (not wired to console_scripts yet)."""
     sys.setrecursionlimit(2**16)
-    try:
-        cfg = parse_args()
 
-        if (
-            os.environ.get("NO_COLOR") and cfg.color == "auto"
-        ) or not sys.stderr.isatty:
-            cfg.color = "never"
+    try:
+        parser = create_argument_parser()
+        # args = sys.argv[1:]
+        # argset = set(args)
+        # if not argset:
+        #     print(VERSION, file=sys.stderr)
+        #     print(f"\n{DESCRIPTION}\n", file=sys.stderr)
+        #     parser.print_usage()
+        #     return
+
+        # if {'-h', '--help'} & argset:
+        #     parser.print_help()
+        #     return
+
+        # if {'version', '--version', '-V'} & argset:
+        #     print(VERSION, file=sys.stderr)
+        #     return
+
+        cfg = run_cling_cli(parser)
+        print(json.dumps(cfg.__dict__, indent=2))
 
         if cfg.style == "list":
             from pygments.styles import get_all_styles
 
             for style in sorted(get_all_styles()):
                 print(style)
-            sys.exit(0)
+            return
         match cfg.command:
             case "boot":
                 results = boot_cmd(cfg)
@@ -249,7 +261,7 @@ def cling_main() -> None:
 
                 results = run_cmd(cfg)
             case _:
-                print(cfg, file=sys.stderr)
+                parser.print_usage()
                 return
         output_results(cfg, results)
     except KeyboardInterrupt:
@@ -267,7 +279,7 @@ def add_global_options(parser):
         help="Suppress progress bar and spinner output",
     )
     group.add_argument(
-        "-v",
+        "-vv",
         "--verbose",
         action="store_true",
         help="Provide more detailed information about the parsing process",
@@ -285,7 +297,6 @@ def add_global_options(parser):
         help="Output to a file or directory instead of stdout",
     )
     group.add_argument(
-        "-c",
         "--color",
         choices=["auto", "always", "never"],
         default="auto",
@@ -377,8 +388,16 @@ def add_run_cmd(subparsers):
         help="Parse input files with the given grammar",
     )
     add_global_options(run_parser)
-    run_parser.add_argument("path", help="Path to a grammar in EBNF or JSON format")
-    run_parser.add_argument("inputs", nargs="+", help="The files to be parsed")
+    run_parser.add_argument(
+        "grammar",
+        help="Path to a grammar in EBNF or JSON format",
+    )
+    run_parser.add_argument(
+        "inputs",
+        nargs="+",
+        help="The files to be parsed",
+    )
+
     format = run_parser.add_mutually_exclusive_group()
     format.add_argument(
         "-j",

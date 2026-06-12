@@ -4,10 +4,9 @@
 
 from __future__ import annotations
 
-from .cli import cling_main, parse_args
+from .cli import cling_main
 
 
 __all__ = [
     "cling_main",
-    "parse_args",
 ]

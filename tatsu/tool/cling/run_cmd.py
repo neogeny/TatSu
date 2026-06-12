@@ -99,14 +99,17 @@ def make_new_fileheart(task_progress) -> Callable[[str, int], ProgressHeartProto
 
 
 def run_cmd(cfg: CLIConfig) -> Results:
-    grammar = load_grammar(cfg.path)
+    if not cfg.grammar:
+        raise ValueError("No grammar specified")
+
+    grammar = load_grammar(cfg.grammar)
     start = cfg.start or None
 
     if len(cfg.inputs) == 1:
-        path = cfg.inputs[0]
-        text = Path(path).read_text(encoding="utf-8")
+        input = cfg.inputs[0]
+        text = Path(input).read_text(encoding="utf-8")
         result = grammar.parse(text, start=start)
-        return [(path, format_result(cfg, result))]
+        return [(input, format_result(cfg, result))]
 
     if is_rich_library_available() and not cfg.quiet:
         return run_with_progress(grammar, start, cfg)
@@ -127,9 +130,10 @@ def run_without_progress(
         text = Path(path).read_text(encoding="utf-8")
         return grammar.parse(text, start=start, config=config)
 
+    parallel = cfg.nproc is None or cfg.nproc > 0
     return [
         (r.payload, format_result(cfg, r.outcome))
-        for r in parproc(parse_single_file, cfg.inputs, parallel=cfg.nproc > 0)
+        for r in parproc(parse_single_file, cfg.inputs, parallel=parallel)
         if r is not None and r.outcome is not None and r.exception is None
     ]
 
@@ -187,7 +191,8 @@ def run_with_progress(
     new_fileheart = make_new_fileheart(task_progress)
 
     total = len(cfg.inputs)
-    toptask = top_progress.add_task(Path(cfg.path).name, total=total)
+    name = Path(grammar).name
+    toptask = top_progress.add_task(name, total=total)
     top_progress.set_main(toptask)
 
     def build_progressbar(_stotal: int) -> ProgressPair:

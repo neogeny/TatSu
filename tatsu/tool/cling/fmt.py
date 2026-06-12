@@ -1,22 +1,9 @@
 from __future__ import annotations
 
-import os
-import sys
-
-from tatsu.tool.cling.config import DEFAULT_PYGMENTS_STYLE, CLIConfig
+from .config import DEFAULT_PYGMENTS_STYLE
 
 
-def _should_colorize(cfg: CLIConfig) -> bool:
-    if cfg.color == "always":
-        return True
-    if cfg.color == "never":
-        return False
-    if os.environ.get("NO_COLOR"):
-        return False
-    return sys.stdout.isatty()
-
-
-def _colorize(
+def colorize_output(
     payload: str,
     language: str,
     style: str = DEFAULT_PYGMENTS_STYLE,

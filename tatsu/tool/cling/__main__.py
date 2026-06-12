@@ -5,4 +5,5 @@ from __future__ import annotations
 from .cli import cling_main
 
 
-cling_main()
+if __name__ == "__main__":
+    cling_main()

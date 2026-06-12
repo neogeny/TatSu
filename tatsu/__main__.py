@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from .tool import tatsu_main
+from . import cling_main
 
 
 if __name__ == '__main__':
-    tatsu_main()
+    cling_main()

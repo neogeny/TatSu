@@ -1,3 +1,5 @@
+import os
+import sys
 from dataclasses import dataclass, field
 
 
@@ -10,7 +12,7 @@ class CLIConfig:
 
     # Global flags
     color: str = "auto"
-    output: str = ""
+    output: str | None = None
     style: str = DEFAULT_PYGMENTS_STYLE
     verbose: bool = False
     quiet: bool = False
@@ -19,7 +21,8 @@ class CLIConfig:
 
     # Subcommand state
     command: str = ""
-    path: str = ""
+    grammar: str | None = None
+    path: str | None = None
     inputs: list[str] = field(default_factory=list)
 
     # format flags
@@ -29,5 +32,12 @@ class CLIConfig:
     railroads: bool = False
 
     # run flags
-    start: str = ""
-    nproc: int = 0
+    start: str | None = None
+    nproc: int | None = None
+
+    def usecolor(self) -> bool:
+        return self.color == "always" or (  # pyright: ignore[reportReturnType]
+            not bool(os.environ.get("NO_COLOR", None))
+            and self.color == "auto"
+            and sys.stderr.isatty()
+        )
