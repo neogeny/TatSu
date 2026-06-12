@@ -14,6 +14,12 @@ cattrs==26.1.0
     # via
     #   lsprotocol
     #   pygls
+certifi==2026.5.20
+    # via requests
+charset-normalizer==3.4.7
+    # via requests
+ciso8601==2.3.3
+    # via just
 click==8.4.1
     # via rich-click
 colorama==0.4.6
@@ -26,16 +32,25 @@ diskcache==5.6.3
 docutils==0.22.4
     # via esbonio
 esbonio==2.0.0
+glob2==0.7
+    # via just
 graphviz==0.21
+idna==3.18
+    # via requests
 iniconfig==2.3.0
     # via pytest
 invoke==3.0.3
+just==0.8.165
 lsprotocol==2025.0.0
     # via pygls
+lxml==6.1.1
+    # via just
 markdown-it-py==4.2.0
     # via rich
 mdurl==0.1.2
     # via markdown-it-py
+orjson==3.11.9
+    # via just
 packaging==26.2
     # via
     #   build
@@ -58,6 +73,14 @@ pyrefly==1.0.0
 pytest==9.0.3
     # via pytest-dependency
 pytest-dependency==0.6.1
+pyyaml==6.0.3
+    # via just
+requests==2.34.2
+    # via
+    #   just
+    #   requests-viewer
+requests-viewer==0.0.12
+    # via just
 rich==15.0.0
     # via rich-click
 rich-click==1.9.8
@@ -67,6 +90,8 @@ setuptools==82.0.1
 ty==0.0.48
 typing-extensions==4.15.0
     # via cattrs
+urllib3==2.7.0
+    # via requests
 uv==0.11.21
 websockets==16.0
     # via esbonio
