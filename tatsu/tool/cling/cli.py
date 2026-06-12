@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -79,15 +80,13 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
 
 def _output_ext(cfg: CLIConfig) -> str:
     """Return file extension for the current output format."""
-    if cfg.json or cfg.json or cfg.json:
-        return ".json"
-    if cfg.model or cfg.model or cfg.model:
+    if cfg.model:
         return ".py"
-    if cfg.railroads or cfg.railroads:
+    if cfg.railroads:
         return ".railroads.txt"
-    if cfg.pretty or cfg.pretty:
+    if cfg.pretty:
         return ".ebnf"
-    return ".txt"
+    return ".json"
 
 
 def _output_path(cfg: CLIConfig, *, name: str | None = None) -> Path | None:
@@ -175,8 +174,13 @@ def grammar_cmd(cfg: CLIConfig) -> Results:
 
 
 def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
-    out_path = Path(cfg.output)
-    if cfg.output and out_path.is_dir():
+    out_path = Path(cfg.output) if cfg.output else None
+
+    # Directory output: each input gets its own .json file
+    if out_path and (
+        str(cfg.output).rstrip().endswith((os.sep, "/")) or out_path.is_dir()
+    ):
+        out_path.mkdir(parents=True, exist_ok=True)
         ext = _output_ext(cfg)
         for input_path, payload in results:
             name = Path(input_path).stem
@@ -184,22 +188,18 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
             _show(payload, out)
         return
 
-    # NOTE output is not a directory at this point
-    if cfg.json and len(results) > 1:
+    # JSONL for multiple input files (JSON is the default format)
+    if not cfg.model and len(results) > 1:
         import json
 
         jsonl = "\n".join(
-            json.dumps(
-                {
-                    "input": input_path,
-                    "result": json.loads(outcome),
-                }
-            )
+            json.dumps({"input": str(input_path), "result": json.loads(outcome)})
             for input_path, outcome in results
         )
         _show(jsonl, _output_path(cfg))
         return
 
+    # Single result or model output: write sequentially
     single_out = _output_path(cfg)
     for i, (_, payload) in enumerate(results):
         if single_out is None:
@@ -291,28 +291,29 @@ def add_grammar_options(parser):
         "--json",
         action="store_true",
         dest="json",
-        help="Print the boot grammar in JSON format",
+        default=True,
+        help="Output the grammar in JSON format",
     )
     mode.add_argument(
         "-m",
         "--model",
         action="store_true",
         dest="model",
-        help="Print the model code",
+        help="Output the model code according to the grammar",
     )
     mode.add_argument(
         "-p",
         "--pretty",
         action="store_true",
         dest="pretty",
-        help="Pretty-print the boot grammar",
+        help="Output the grammar in pretty-printed EBNF format",
     )
     mode.add_argument(
         "-r",
         "--railroads",
         action="store_true",
         dest="railroads",
-        help="Print a railroad diagram",
+        help="Output a railroad diagram of the grammar",
     )
 
 

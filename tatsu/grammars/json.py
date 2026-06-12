@@ -10,7 +10,7 @@ bypassing the TatSuModel deserializer which fails on modified JSON.
 
 from __future__ import annotations
 
-import json as json_module
+import json
 from typing import Any
 
 from .. import grammars as g
@@ -143,7 +143,7 @@ def _parse_directives(directives: dict[str, Any] | None) -> dict[str, Any]:
 
 def loads_grammar(json_str: str) -> g.Grammar:
     """Parse JSON string and return a Grammar object."""
-    value = json_module.loads(json_str)
+    value = json.loads(json_str)
     return load_grammar(value)
 
 

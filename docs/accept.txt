@@ -75,7 +75,7 @@ pegen
 pythonic
 recurse
 safeeval
-subcommands?
+[Ss]ubcommands?
 subprocess
 trace_length
 trace_separator

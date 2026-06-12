@@ -81,11 +81,9 @@ def load_grammar(path: str) -> Grammar:
 
 
 def format_result(cfg: CLIConfig, result: Any) -> str:
-    if cfg.json:
-        return asjsons(result)
     if cfg.model:
         return repr(result)
-    return f"{result!s}"
+    return asjsons(result)
 
 
 def format_duration(seconds: float, fractions: bool = False) -> str:
@@ -164,13 +162,9 @@ def show_summary(
     cfg: CLIConfig,
     printer: Printer,
     results: Iterable[Result],
-) -> None:
+) -> list[Result]:
     from rich.console import Console
-    from rich.markup import render
     from rich.table import Table
-
-    if cfg.quiet:
-        return
 
     start_time = time.thread_time()
     if cfg.verbose:
@@ -182,14 +176,19 @@ def show_summary(
     failures = stats.file_count - stats.succ_count
 
     console = Console(stderr=True)
+    outresults: list[Result] = []
     if cfg.verbose:
-        if failures or True:
+        if failures:
             print(file=sys.stderr)
             console.print(f"\n[red bold]FAILURES: {failures}[/]")
+        else:
+            console.print(f"\n[green bold]NO FAILURES: {failures}[/]")
         for r in results:
             if not (r.exception or isinstance(r.outcome, Exception)):
+                outresults.append(r)
                 continue
             print(file=sys.stderr)
+            console.print(f"path: [red]{r.payload.path}[/]")
             print(r.exception, file=sys.stderr)
 
     table = Table(show_header=False, box=None)
@@ -228,3 +227,4 @@ def show_summary(
 
     console.print()
     console.print(table)
+    return outresults

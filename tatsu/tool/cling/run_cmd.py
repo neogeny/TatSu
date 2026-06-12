@@ -109,7 +109,7 @@ def run_cmd(cfg: CLIConfig) -> Results:
         path = cfg.inputs[0]
         text = Path(path).read_text(encoding="utf-8")
         result = grammar.parse(text, start=start)
-        return [(path, result)]
+        return [(path, format_result(cfg, result))]
 
     if is_rich_library_available() and not cfg.quiet:
         return run_with_progress(grammar, start, cfg)
@@ -216,10 +216,13 @@ def run_with_progress(
             reraise=False,
             summary=False,
         )
-        show_summary(cfg, top_progress, results)
+        if cfg.quiet:
+            results = list(results)
+        else:
+            results = show_summary(cfg, top_progress, results)
     finally:
         print(file=sys.stderr)
         top_progress.stop()
         print(file=sys.stderr)
 
-    return [(r.payload.path, r.outcome) for r in results]
+    return [(str(r.payload.path), format_result(cfg, r.outcome)) for r in results]

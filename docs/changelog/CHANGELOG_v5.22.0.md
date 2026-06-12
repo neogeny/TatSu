@@ -87,7 +87,7 @@ global options:
 ```
 
 
-#### Consoloe output for the `run` subcommand
+#### Console output for the `run` subcommand
 
 ```bash
 results:
