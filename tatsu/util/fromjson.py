@@ -3,7 +3,7 @@ from __future__ import annotations
 import dataclasses
 from collections.abc import Mapping
 from types import SimpleNamespace  # noqa: F401  # pyright: ignore[reportUnusedImport]
-from typing import Any, Self
+from typing import Any, Generator, Self
 
 from tatsu.util.abctools import isiter
 from tatsu.util.asjson import AsJSONMixin
@@ -21,19 +21,42 @@ class JSONBase(AsJSONMixin):
     def __from_json__(cls, data: Mapping[str, Any]) -> Self:
         assert (typename := data.get("__class__")) and typename == cls.__name__
 
-        new = cls.__new__(cls)
-
-        fieldmap: dict[str, dataclasses.Field] = {}
-        if dataclasses.is_dataclass(cls):
+        def dataclass_fields(
+            cls: type,
+        ) -> Generator[tuple[str, dataclasses.Field], None, None]:
+            if not dataclasses.is_dataclass(cls):
+                return
+            for parent in cls.mro()[1:]:
+                yield from dataclass_fields(parent)
             fields = dataclasses.fields(cls)
-            fieldmap = {f.name: f for f in fields}
+            yield from [(f.name, f) for f in fields]
 
+        fieldmap: dict[str, dataclasses.Field] = dict(dataclass_fields(cls))
+        if dataclasses.is_dataclass(cls):
+            args = tuple(
+                fromjson(value)
+                for name, value in data.items()
+                if name in fieldmap
+                and fieldmap[name].init
+                and not fieldmap[name].kw_only
+            )
+            kwargs = {
+                name: fromjson(value)
+                for name, value in data.items()
+                if name in fieldmap and fieldmap[name].init and fieldmap[name].kw_only
+            }
+            return cls(*args, **kwargs)
+
+        new = cls.__new__(cls)
         for name, value in data.items():
             if name == "__class__":
                 continue
             if not (hasattr(cls, name) or name in fieldmap):
                 continue
             setattr(new, name, fromjson(value))
+
+        if dataclasses.is_dataclass(cls):
+            new.__post_init__()  # pyright: ignore[reportAttributeAccessIssue]
 
         return new
 
