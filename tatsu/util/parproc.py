@@ -437,37 +437,24 @@ def active_pmap() -> Callable[[Event, Func, Iterable[Any]], Iterable[Result]]:
         if not tasks:
             return
 
-        try:
-            with executorcls(max_workers=max_workers) as ex:  # type: ignore
-                try:
-                    futures = [ex.submit(process, task) for task in tasks]
-                    for future in as_completed(futures):
-                        yield future.result()
-                except KeyboardInterrupt:
-                    stop_event.set()
+        with executorcls(max_workers=max_workers) as ex:  # type: ignore
+            try:
+                futures = [ex.submit(process, task) for task in tasks]
+                for future in as_completed(futures):
+                    yield future.result()
+            except KeyboardInterrupt:
+                stop_event.set()
 
-                    print(file=sys.stderr)
-                    # print(file=sys.stderr)
-                    # print("Wait...", file=sys.stderr)
-                    sys.stderr.flush()
+                print(file=sys.stderr)
+                print(file=sys.stderr)
+                print("Wait...", file=sys.stderr)
+                sys.stderr.flush()
 
-                    ex.shutdown(wait=False, cancel_futures=True)
+                ex.shutdown(wait=False, cancel_futures=True)
 
-                    print("           ", end="\r", file=sys.stderr)
-                    sys.stderr.flush()
+                print("           ", end="\r", file=sys.stderr)
+                sys.stderr.flush()
 
-                    raise
-        except Exception as e:
-            # Fallback to thread-based execution when process-based execution fails
-            import pickle
-
-            errmsg = repr(e).lower()
-            if (
-                isinstance(e, (pickle.PicklingError, AttributeError, TypeError))
-                or "pickl" in errmsg
-            ):
-                yield from thread_pmap(stop_event, process, tasks)
-            else:
                 raise
 
     def thread_pmap(

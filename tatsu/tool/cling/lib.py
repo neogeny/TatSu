@@ -7,7 +7,7 @@ import time
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol
 
 from tatsu.util.asjson import asjsons
 from tatsu.util.parproc import Result
@@ -19,6 +19,10 @@ if TYPE_CHECKING:
 
 
 type Results = list[tuple[str, Any]]
+
+
+class Printer(Protocol):
+    def print(self, *args: Any, **kwargs: Any) -> None: ...
 
 
 @dataclass
@@ -97,32 +101,36 @@ def format_duration(seconds: float, fractions: bool = False) -> str:
     return f"{m}:{s:02.0f}"
 
 
-def show_results(cfg: CLIConfig, results: Iterable[Result]) -> list[Result]:
-    from rich.console import Console
+def show_results(
+    cfg: CLIConfig, printer: Printer, results: Iterable[Result]
+) -> Iterable[Result]:
+    from rich.markup import render
 
-    console = Console(stderr=True)
-    console.print("[dim cyan]results[/dim cyan]:")
+    def rprint(s: str = "", *args, file=sys.stderr, **kwargs) -> None:
+        printer.print(render(s), *args, **kwargs)
+
+    rprint("[dim cyan]results[/dim cyan]:")
 
     maxw = 40
-    padc = 35
-    output: list[Result] = []
-    for r in results:
-        output.append(r)
+    padc = 0
 
+    def success_results(results) -> Iterable[Result]:
+        for r in results:
+            name = slicetowidth(Path(r.payload.path).name, maxw)
+            if not r.exception and not isinstance(r.outcome, Exception):
+                rprint(
+                    f"{'':{padc}}[green]✓[/] {name:{maxw}} [green]{r.runtime:>4.1f}s"
+                )
+            yield r
+
+    for r in success_results(results):
         name = slicetowidth(Path(r.payload.path).name, maxw)
         if r.exception or isinstance(r.outcome, Exception):
-            print(file=sys.stderr)
-            print(r.exception, file=sys.stderr)
-            console.print(f"{'':{padc}}[red]✗[/] {name:{maxw}} [red]{r.runtime:>4.1f}s")
-        else:
-            console.print(
-                f"{'':{padc}}[green]✓[/] {name:{maxw}} [green]{r.runtime:>4.1f}s"
-            )
-
-    return output
+            rprint(f"{'':{padc}}[red]✗[/] {name:{maxw}} [red]{r.runtime:>4.1f}s")
+        yield r
 
 
-def result_stats(results: Iterable[Result]) -> ParseStats:
+def result_stats(stats: ParseStats, results: Iterable[Result]) -> Iterable[Result]:
     eolcmt = {
         ".java": "//",
         ".py": "#",
@@ -131,13 +139,12 @@ def result_stats(results: Iterable[Result]) -> ParseStats:
         ".js": "//",
         ".ts": "//",
     }
-    stats = ParseStats()
     for r in results:
         stats.file_count += 1
         stats.run_time += r.runtime
 
         suffix = r.payload.path.suffix
-        counts = countlines(r.payload.content, eolcmt.get(suffix, "//"))
+        counts = countlines(r.payload.payload, eolcmt.get(suffix, "//"))
         stats.totl_lines += counts.totl
         stats.code_lines += counts.code
         stats.cmnt_lines += counts.cmnt
@@ -146,6 +153,7 @@ def result_stats(results: Iterable[Result]) -> ParseStats:
         if r.success and not r.exception:
             stats.succ_count += 1
             stats.succ_lines += counts.totl
+        yield r
 
     stats.slocs_avg = stats.totl_lines / stats.run_time if stats.run_time > 0 else 0
     stats.succ_rate = stats.succ_count / stats.file_count if stats.file_count else 0
@@ -154,25 +162,35 @@ def result_stats(results: Iterable[Result]) -> ParseStats:
 
 def show_summary(
     cfg: CLIConfig,
+    printer: Printer,
     results: Iterable[Result],
 ) -> None:
+    from rich.console import Console
+    from rich.markup import render
+    from rich.table import Table
+
     if cfg.quiet:
         return
 
     start_time = time.thread_time()
     if cfg.verbose:
-        results = show_results(cfg, results)
-    else:
-        results = list(results)
-    total_time = time.thread_time() - start_time
+        results = show_results(cfg, printer, results)
 
-    stats = result_stats(results)
-
-    from rich.console import Console
-    from rich.table import Table
+    stats = ParseStats()
+    results = result_stats(stats, results)
+    results = list(results)
+    failures = stats.file_count - stats.succ_count
 
     console = Console(stderr=True)
-    failures = stats.file_count - stats.succ_count
+    if cfg.verbose:
+        if failures or True:
+            print(file=sys.stderr)
+            console.print(f"\n[red bold]FAILURES: {failures}[/]")
+        for r in results:
+            if not (r.exception or isinstance(r.outcome, Exception)):
+                continue
+            print(file=sys.stderr)
+            print(r.exception, file=sys.stderr)
 
     table = Table(show_header=False, box=None)
     table.add_column(style="dim cyan", justify="right")
@@ -205,11 +223,8 @@ def show_summary(
     table.add_row("sloc/sec", f"[{csloc}]{stats.slocs_avg:>12,.0f} sl/s[/{csloc}]")
 
     table.add_row("run time", format_duration(stats.run_time, False).rjust(12))
+    total_time = time.thread_time() - start_time
     table.add_row("wall time", format_duration(total_time, False).rjust(12))
 
     console.print()
     console.print(table)
-
-    if failures:
-        console.print(f"\n[red bold]FAILURES: {failures}")
-        sys.exit(1)

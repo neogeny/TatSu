@@ -71,7 +71,7 @@ def make_new_fileheart(task_progress) -> Callable[[str, int], ProgressHeartProto
         class ProgressHeart(ProgressHeartProtocol):
             def __init__(self, name: str, total: int, task_progress) -> None:
                 self._name = name
-                self.task = task_progress.add_task(self.name, total=total)
+                self.task = task_progress.add_task(f"  {self._name}", total=total)
                 self.beat(0, total)
                 self.stopped = False
 
@@ -87,7 +87,7 @@ def make_new_fileheart(task_progress) -> Callable[[str, int], ProgressHeartProto
                     completed=mark,
                     total=total,
                     color="green",
-                    description=f"[bold white]{self.name}[green][/]",
+                    description=f"  [bold white]{self.name}[green][/]",
                 )
 
             def dead(self) -> bool:
@@ -208,26 +208,17 @@ def run_with_progress(
         for path in paths
     ]
     try:
-        results = list(
-            parproc_visual(
-                parse_file_task,
-                payloads,
-                build_progressbar=build_progressbar,
-                parallel=True,
-                reraise=False,
-                summary=False,
-            )
+        results = parproc_visual(
+            parse_file_task,
+            payloads,
+            build_progressbar=build_progressbar,
+            parallel=True,
+            reraise=False,
+            summary=False,
         )
-        show_summary(cfg, results)
+        show_summary(cfg, top_progress, results)
     finally:
         print(file=sys.stderr)
-        top_progress.update(
-            toptask,
-            description="Wait...",
-            total=total,
-            completed=total * 100,
-            refresh=True,
-        )
         top_progress.stop()
         print(file=sys.stderr)
 

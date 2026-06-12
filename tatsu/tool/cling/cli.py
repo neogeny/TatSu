@@ -213,6 +213,7 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
 
 def main() -> None:
     """Entry point for the cling CLI (not wired to console_scripts yet)."""
+    sys.setrecursionlimit(2**16)
     try:
         cfg = parse_args()
         match cfg.command:
@@ -228,11 +229,10 @@ def main() -> None:
                 print(cfg, file=sys.stderr)
                 return
         output_results(cfg, results)
-    except (ParseError, KeyboardInterrupt):
-        return
-    except Exception as e:
-        print(e, file=sys.stderr)
-        return
+    except KeyboardInterrupt:
+        sys.exit(0)
+    except ParseError:
+        sys.exit(1)
 
 
 def add_global_options(parser):
