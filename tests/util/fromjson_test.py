@@ -8,6 +8,7 @@ All test data payloads are excerpts from grammar/*.json files.
 
 from __future__ import annotations
 
+import dataclasses
 import json
 from pathlib import Path
 
@@ -135,6 +136,36 @@ def test_empty_closure() -> None:
     assert isinstance(r, g.EmptyClosure)
 
 
+def test_name_meta() -> None:
+    r = fromjson({"__class__": "NameMeta"})
+    assert isinstance(r, g.NameMeta)
+
+
+def test_int_meta() -> None:
+    r = fromjson({"__class__": "IntMeta"})
+    assert isinstance(r, g.IntMeta)
+
+
+def test_uint_meta() -> None:
+    r = fromjson({"__class__": "UIntMeta"})
+    assert isinstance(r, g.UIntMeta)
+
+
+def test_float_meta() -> None:
+    r = fromjson({"__class__": "FloatMeta"})
+    assert isinstance(r, g.FloatMeta)
+
+
+def test_bool_meta() -> None:
+    r = fromjson({"__class__": "BoolMeta"})
+    assert isinstance(r, g.BoolMeta)
+
+
+def test_eol() -> None:
+    r = fromjson({"__class__": "EOL"})
+    assert isinstance(r, g.EOL)
+
+
 # ══════════════════════════════════════════════════════════════════════
 # D. Leaf expression types (excerpts from grammar JSON)
 # ══════════════════════════════════════════════════════════════════════
@@ -164,16 +195,41 @@ def test_constant() -> None:
     assert r.literal == "null"
 
 
+def test_constant_null_literal() -> None:
+    r = fromjson({"__class__": "Constant", "literal": None})
+    assert isinstance(r, g.Constant)
+    assert r.literal is None
+
+
 def test_pattern() -> None:
     r = fromjson({"__class__": "Pattern", "pattern": r"\d+"})
     assert isinstance(r, g.Pattern)
     assert r.pattern == r"\d+"
 
 
+def test_alert() -> None:
+    r = fromjson({"__class__": "Alert", "literal": "warning", "level": 1})
+    assert isinstance(r, g.Alert)
+    assert r.literal == "warning"
+    assert r.level == 1
+
+
 def test_rule_include() -> None:
     r = fromjson({"__class__": "RuleInclude", "name": "method_declaration_mixin"})
     assert isinstance(r, g.RuleInclude)
     assert r.name == "method_declaration_mixin"
+
+
+def test_named_name_only() -> None:
+    r = fromjson({"__class__": "Named", "name": "package"})
+    assert isinstance(r, g.Named)
+    assert r.name == "package"
+
+
+def test_named_list_name_only() -> None:
+    r = fromjson({"__class__": "NamedList", "name": "rules"})
+    assert isinstance(r, g.NamedList)
+    assert r.name == "rules"
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -598,6 +654,14 @@ def test_roundtrip_gather() -> None:
     assert asjson(restored) == asjson(original)
 
 
+def test_roundtrip_named_name() -> None:
+    original = fromjson({"__class__": "Named", "name": "foo"})
+    serialized = original.asjson()
+    restored = fromjson(serialized)
+    assert type(restored) is type(original)
+    assert restored.name == original.name
+
+
 def test_roundtrip_rule() -> None:
     data: dict[str, object] = {
         "__class__": "Rule",
@@ -635,6 +699,14 @@ def test_roundtrip_grammar() -> None:
     assert type(restored) is type(original)
     assert restored.name == original.name
     assert asjson(restored) == asjson(original)
+
+
+def test_rule_field_defaults() -> None:
+    r = fromjson({"__class__": "Rule", "name": "test"})
+    assert r.name == "test"
+    assert r.base is None
+    assert r.is_memo is True
+    assert r.is_lrec is False
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -688,6 +760,11 @@ def test_mixed_containers() -> None:
     assert r["flag"] is True
 
 
+def test_nil() -> None:
+    r = fromjson({"__class__": "NIL"})
+    assert isinstance(r, g.NIL)
+
+
 # ══════════════════════════════════════════════════════════════════════
 # K. JSONBase protocol (custom subclasses)
 # ══════════════════════════════════════════════════════════════════════
@@ -704,6 +781,7 @@ def test_jsonbase_subclass_registration() -> None:
 
 
 def test_jsonbase_roundtrip() -> None:
+    @dataclasses.dataclass
     class Point(JSONBase):
         x: int = 0
         y: int = 0
@@ -716,9 +794,11 @@ def test_jsonbase_roundtrip() -> None:
 
 
 def test_jsonbase_inherits_from_subclass() -> None:
+    @dataclasses.dataclass
     class Shape(JSONBase):
         color: str = "black"
 
+    @dataclasses.dataclass
     class Circle(Shape):
         radius: float = 1.0
 
@@ -731,6 +811,7 @@ def test_jsonbase_inherits_from_subclass() -> None:
 
 
 def test_jsonbase_partial_data() -> None:
+    @dataclasses.dataclass
     class Widget(JSONBase):
         name: str = ""
         size: int = 0
@@ -743,16 +824,17 @@ def test_jsonbase_partial_data() -> None:
     assert w.visible is True
 
 
-# @xfail
 def test_jsonbase_extra_field() -> None:
+    @dataclasses.dataclass
     class WithExtra(JSONBase):
-        def __init__(self, base_field: str = ""):
-            self.base_field = base_field
+        base_field: str = ""
+        extra: int = 0
 
     data = {"__class__": "WithExtra", "base_field": "a", "extra": 99}
     w = fromjson(data)
     assert isinstance(w, WithExtra)
     assert w.base_field == "a"
+    assert w.extra == 99
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -871,3 +953,9 @@ def test_full_grammar_roundtrip() -> None:
     serialized = r.asjson()
     restored = fromjson(serialized)
     assert len(restored.rules) == len(CALC["rules"])
+
+
+def test_grammar_name() -> None:
+    r = fromjson({"__class__": "Grammar", "name": "CALC", "rules": []})
+    assert isinstance(r, g.Grammar)
+    assert r.name == "CALC"

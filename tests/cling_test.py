@@ -25,13 +25,13 @@ def test_feature_one():
 
 
 def test_cli_help():
-    output = uv_run(['tatsu', '--help'])
+    output = uv_run(['cling', '--help'])
     pattern = r'(?ms)竜TatSu takes a grammar .*GRAMMAR'
     assert bool(re.search(pattern, output))
 
 
 def test_cli_python():
-    output = uv_run(['tatsu', PATH_TATSU_GRAMMAR])
+    output = uv_run(['cling', PATH_TATSU_GRAMMAR])
     pattern = (
         r'(?ms)CAVEAT UTILITOR.*?竜TatSu.*?KEYWORDS = \('
         r'.*?class \w*?Parser\(\w*Parser\):'
@@ -41,7 +41,7 @@ def test_cli_python():
 
 
 def test_cli_model():
-    output = uv_run(['tatsu', '-g', PATH_TATSU_GRAMMAR])
+    output = uv_run(['cling', '-g', PATH_TATSU_GRAMMAR])
     pattern = (
         r'(?ms)CAVEAT UTILITOR.*?竜TatSu'
         r'.*?class \w+?ModelBuilderSemantics\(ModelBuilderSemantics\):'

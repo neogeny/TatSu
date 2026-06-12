@@ -19,6 +19,13 @@ from .fmt import _colorize, _should_colorize
 from .lib import Results, load_grammar
 
 
+DESCRIPTION = (
+    '竜TatSu takes a grammar in extended EBNF'
+    ' as input, and outputs a memoizing'
+    ' PEG/Packrat parser in Python.'
+)
+
+
 def parse_args(argv: list[str] | None = None) -> CLIConfig:
     """Parse command-line arguments and return a CLIConfig.
 
@@ -30,7 +37,7 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
     # Handle --version before argparse to match ogopego's pre-dispatch check
     parser = argparse.ArgumentParser(
         prog="tatsu",
-        description="TatSu: a PEG parser generator",
+        description=DESCRIPTION,
     )
 
     sub = parser.add_subparsers(
