@@ -14,16 +14,8 @@ __from_json__class__: dict[str, type] = {}
 
 class JSONBase(AsJSONMixin):
     @classmethod
-    def __from_json__(cls, data: dict[str, Any]) -> Self:
+    def __from_json__(cls, data: Mapping[str, Any]) -> Self:
         assert (typename := data.get("__class__")) and typename == cls.__name__
-
-        # return cls(
-        #     **{
-        #         name: asjson(value)
-        #         for name, value in data.items()
-        #         if name != "__class__" and hasattr(cls, name)
-        #     }
-        # )
 
         new = cls.__new__(cls)
 
@@ -55,23 +47,20 @@ def fromjson(obj: Any) -> Any:
         if node is None or isinstance(node, int | float | str | bool):
             return node
 
+        def mapped() -> dict[str, Any]:
+            return {
+                name: dfs(value) for name, value in map.items() if name != "__class__"
+            }
+
         match node:
             case Mapping() as map:
-                if (
-                    (typename := map.get("__class__", None))
-                    and ((cls := __from_json__class__.get(typename)) is not None)
-                    and issubclass(cls, JSONBase)
-                ):
-                    # NOTE pass the raw contents
-                    return cls.__from_json__(node)
-                return SimpleNamespace(
-                    **{
-                        name: dfs(value)
-                        for name, value in map.items()
-                        if name != "__class__"
-                    }
-                )
-                # return None
+                typename = map.get("__class__", None)
+                if not typename:
+                    return mapped()
+                if (cls := __from_json__class__.get(typename)) is not None:
+                    assert issubclass(cls, JSONBase)
+                    return cls.__from_json__(node)  # NOTE the raw contents
+                return SimpleNamespace(**mapped())
             case list() | tuple() | set() as seq:
                 return [dfs(e) for e in seq]
             case _ if isiter(node):

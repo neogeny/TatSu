@@ -5,7 +5,7 @@ from __future__ import annotations
 import dataclasses as dc
 import inspect
 import warnings
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
 from functools import cache
 from typing import Any, Self, overload
 
@@ -201,5 +201,5 @@ class BaseNode(JSONBase, AsJSONMixin):
             setattr(self, name, value)
 
     @classmethod
-    def __from_json__(cls, data: dict[str, Any]) -> Self:
+    def __from_json__(cls, data: Mapping[str, Any]) -> Self:
         return super().__from_json__(data)
