@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
 
@@ -60,16 +59,16 @@ def test_bool():
 # ══════════════════════════════════════════════════════════════════════
 
 
-def test_dict_to_sns():
+def test_dict_stays_dict():
     r = fromjson({"a": 1})
-    assert isinstance(r, SimpleNamespace)
-    assert r.a == 1
+    assert isinstance(r, dict)
+    assert r["a"] == 1
 
 
 def test_nested_dict():
     r = fromjson({"a": {"b": 2}})
-    assert isinstance(r.a, SimpleNamespace)
-    assert r.a.b == 2
+    assert isinstance(r["a"], dict)
+    assert r["a"]["b"] == 2
 
 
 def test_list():
@@ -85,13 +84,14 @@ def test_tuple_to_list():
 
 def test_class_key_stripped():
     r = fromjson({"__class__": "Foo", "x": 1})
-    assert isinstance(r, SimpleNamespace)
+    assert is_object(r)
     assert r.x == 1
 
 
 def test_empty_dict():
     r = fromjson({})
-    assert isinstance(r, SimpleNamespace)
+    assert isinstance(r, dict)
+    assert r == {}
 
 
 def test_set_to_list():
@@ -520,13 +520,13 @@ def test_rule_scalar_fields():
 
 def test_unknown_class_becomes_sns():
     r = fromjson({"__class__": "NoSuchClass", "x": 1})
-    assert isinstance(r, SimpleNamespace)
+    assert is_object(r)
     assert r.x == 1
 
 
 def test_class_non_jsonbase_becomes_sns():
     r = fromjson({"__class__": "int", "value": 42})
-    assert isinstance(r, SimpleNamespace)
+    assert is_object(r)
 
 
 # @xfail
@@ -629,12 +629,12 @@ def test_jsonbase_extra_field():
     assert w.base_field == "a"
 
 
-def test_missing_class_key_sns():
+def test_missing_class_key():
     data = {"a": 1, "b": 2}
     r = fromjson(data)
-    assert isinstance(r, SimpleNamespace)
-    assert r.a == 1
-    assert r.b == 2
+    assert isinstance(r, dict)
+    assert r["a"] == 1
+    assert r["b"] == 2
 
 
 def test_mixed_containers():
@@ -644,11 +644,11 @@ def test_mixed_containers():
         "flag": True,
     }
     r = fromjson(data)
-    assert isinstance(r, SimpleNamespace)
-    assert r.numbers == [1, 2, 3]
-    assert isinstance(r.nested, SimpleNamespace)
-    assert r.nested.x == 10
-    assert r.flag is True
+    assert isinstance(r, dict)
+    assert r["numbers"] == [1, 2, 3]
+    assert isinstance(r["nested"], dict)
+    assert r["nested"]["x"] == 10
+    assert r["flag"] is True
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -732,8 +732,8 @@ def test_rule_kwparams():
             "kwparams": {"opt": "default"},
         }
     )
-    assert is_object(r.kwparams)
-    assert r.kwparams.opt == 'default'
+    assert isinstance(r.kwparams, dict)
+    assert r.kwparams == {"opt": "default"}
 
 
 # @xfail
@@ -751,8 +751,8 @@ def test_rule_decorators():
 # @xfail
 def test_grammar_directives():
     r = fromjson(CALC)
-    assert is_object(r.directives)
-    assert r.directives.grammar == 'CALC'
+    assert isinstance(r.directives, dict)
+    assert r.directives == {"grammar": "CALC"}
 
 
 # @xfail
