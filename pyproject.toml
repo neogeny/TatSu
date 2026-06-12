@@ -72,6 +72,7 @@ dev = [
     "rich>=15.0.0",
     "rich-click>=1.9.7",
     "ruff>=0.15.6",
+    "tatsu",
     "ty>=0.0.23",
     "uv>=0.11.11",
 ]
@@ -136,6 +137,14 @@ cache-keys = [
     { file = "pyproject.toml" },
     { git = { commit = true, tags = true } }
 ]
+
+[tool.uv.workspace]
+members = [
+    ".",
+]
+
+[tool.uv.sources]
+tatsu = { workspace = true }
 
 [tool.hatch.version]
 source = "uv-dynamic-versioning"

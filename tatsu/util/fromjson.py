@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import dataclasses
-from collections.abc import Mapping
+from collections.abc import Generator, Mapping
 from types import SimpleNamespace  # noqa: F401  # pyright: ignore[reportUnusedImport]
-from typing import Any, Generator, Self
+from typing import Any, Self
 
-from tatsu.util.abctools import isiter
-from tatsu.util.asjson import AsJSONMixin
+from ..util.abctools import isiter
+from ..util.asjson import AsJSONMixin
 
 
 __from_json__class__: dict[str, type] = {}
@@ -16,49 +16,86 @@ class Object:
     pass
 
 
+def dataclass_fields(
+    cls: type,
+) -> Generator[tuple[str, dataclasses.Field], None, None]:
+    if not dataclasses.is_dataclass(cls):
+        return
+    for parent in cls.mro()[1:]:
+        yield from dataclass_fields(parent)
+    fields = dataclasses.fields(cls)
+    yield from [(f.name, f) for f in fields]
+
+
 class JSONBase(AsJSONMixin):
     @classmethod
     def __from_json__(cls, data: Mapping[str, Any]) -> Self:
-        assert (typename := data.get("__class__")) and typename == cls.__name__
-
-        def dataclass_fields(
-            cls: type,
-        ) -> Generator[tuple[str, dataclasses.Field], None, None]:
-            if not dataclasses.is_dataclass(cls):
-                return
-            for parent in cls.mro()[1:]:
-                yield from dataclass_fields(parent)
-            fields = dataclasses.fields(cls)
-            yield from [(f.name, f) for f in fields]
-
-        fieldmap: dict[str, dataclasses.Field] = dict(dataclass_fields(cls))
         if dataclasses.is_dataclass(cls):
-            args = tuple(
-                fromjson(value)
+            fieldmap: dict[str, dataclasses.Field] = dict(dataclass_fields(cls))
+            initdata = {
+                name: value
                 for name, value in data.items()
-                if name in fieldmap
-                and fieldmap[name].init
-                and not fieldmap[name].kw_only
-            )
-            kwargs = {
-                name: fromjson(value)
-                for name, value in data.items()
-                if name in fieldmap and fieldmap[name].init and fieldmap[name].kw_only
+                if name in fieldmap and fieldmap[name].init
             }
-            return cls(*args, **kwargs)
+            return cls(**initdata)
 
         new = cls.__new__(cls)
         for name, value in data.items():
             if name == "__class__":
                 continue
-            if not (hasattr(cls, name) or name in fieldmap):
-                continue
-            setattr(new, name, fromjson(value))
-
-        if dataclasses.is_dataclass(cls):
-            new.__post_init__()  # pyright: ignore[reportAttributeAccessIssue]
-
+            setattr(new, name, value)
         return new
+
+    @classmethod
+    def _init_dataclass(
+        cls,
+        new: object,
+        fieldmap: dict[str, dataclasses.Field],
+        data: Mapping[str, Any],
+    ):
+        if not dataclasses.is_dataclass(cls):
+            return
+        for fname, field in fieldmap.items():
+            if field.default is not dataclasses.MISSING:
+                setattr(new, fname, field.default)
+            elif field.default_factory is not dataclasses.MISSING:
+                setattr(new, fname, field.default_factory())
+            # if fname in data:
+            #     value = data[fname]
+            #     # if value is None:
+            #     #     continue
+            #     setattr(new, fname, value)
+
+    @classmethod
+    def _init_dataclass2(cls) -> None:
+        if not dataclasses.is_dataclass(cls):
+            return None
+
+        fieldmap: dict[str, dataclasses.Field] = dict(dataclass_fields(cls))
+        _initdata = {
+            name: value
+            for name, value in data.items()
+            if name in fieldmap and fieldmap[name].init
+        }
+        _args = tuple(
+            value
+            for name, value in data.items()
+            if name in fieldmap and fieldmap[name].init and not fieldmap[name].kw_only
+        )
+        _kwargs = {
+            name: value
+            for name, value in data.items()
+            if name in fieldmap and fieldmap[name].init and fieldmap[name].kw_only
+        }
+        allkwargs = {
+            name: value
+            for name, value in data.items()
+            if name in fieldmap and fieldmap[name].init
+        }
+        new = cls.__new__(cls)
+        cls._init_dataclass(new, fieldmap, data)
+        new.__init__(**allkwargs)
+        new.__post_init__()  # pyright: ignore[reportAttributeAccessIssue]
 
     def __init_subclass__(cls: type, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -93,7 +130,7 @@ def fromjson(obj: Any) -> Any:
                     return mapped()
                 if (cls := __from_json__class__.get(typename)) is not None:
                     assert issubclass(cls, JSONBase)
-                    return cls.__from_json__(node)  # NOTE the raw contents
+                    return cls.__from_json__(mapped())  # NOTE the raw contents
                 return asobj()
             case list() | tuple() | set() as seq:
                 return [dfs(e) for e in seq]

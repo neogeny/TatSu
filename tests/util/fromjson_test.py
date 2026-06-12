@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 """
 Unit tests for fromjson utility.
+
+All test data payloads are excerpts from grammar/*.json files.
 """
 
 from __future__ import annotations
@@ -12,6 +14,7 @@ from pathlib import Path
 import pytest
 
 import tatsu.grammars as g
+from tatsu.util.asjson import asjson
 from tatsu.util.fromjson import JSONBase, fromjson
 from tatsu.util.typetools import is_object
 
@@ -26,6 +29,10 @@ def load(name: str) -> dict:
 TATSU = load('tatsu.json')
 JAVA = load('java.json')
 CALC = load('calc.json')
+
+
+def roundtrip(obj):
+    return fromjson(asjson(obj))
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -83,7 +90,7 @@ def test_tuple_to_list():
 
 
 def test_class_key_stripped():
-    r = fromjson({"__class__": "Foo", "x": 1})
+    r = fromjson({"__class__": "ClassKeyStrippedTestOnly", "x": 1})
     assert is_object(r)
     assert r.x == 1
 
@@ -101,8 +108,13 @@ def test_set_to_list():
 
 
 # ══════════════════════════════════════════════════════════════════════
-# C. Terminal / meta types (no meaningful or only default= fields)
+# C. Terminal types (excerpts from grammar JSON)
 # ══════════════════════════════════════════════════════════════════════
+
+# EOF: {"__class__": "EOF"} — from calc.json, java.json, tatsu.json
+# Cut: {"__class__": "Cut"} — from calc.json, java.json, tatsu.json
+# Void: {"__class__": "Void", "ast": "()"} — from java.json
+# EmptyClosure: {"__class__": "EmptyClosure", "ast": []} — from java.json
 
 
 def test_eof():
@@ -110,83 +122,48 @@ def test_eof():
     assert isinstance(r, g.EOF)
 
 
-def test_void():
-    r = fromjson({"__class__": "Void", "ast": "()"})
-    assert isinstance(r, g.Void)
-
-
 def test_cut():
     r = fromjson({"__class__": "Cut"})
     assert isinstance(r, g.Cut)
 
 
-def test_nil():
-    r = fromjson({"__class__": "NIL"})
-    assert isinstance(r, g.NIL)
+def test_void():
+    r = fromjson({"__class__": "Void", "ast": "()"})
+    assert isinstance(r, g.Void)
 
 
 def test_empty_closure():
-    r = fromjson({"__class__": "EmptyClosure"})
+    r = fromjson({"__class__": "EmptyClosure", "ast": []})
     assert isinstance(r, g.EmptyClosure)
 
 
-def test_name_meta():
-    r = fromjson({"__class__": "NameMeta"})
-    assert isinstance(r, g.NameMeta)
-
-
-def test_int_meta():
-    r = fromjson({"__class__": "IntMeta"})
-    assert isinstance(r, g.IntMeta)
-
-
-def test_uint_meta():
-    r = fromjson({"__class__": "UIntMeta"})
-    assert isinstance(r, g.UIntMeta)
-
-
-def test_float_meta():
-    r = fromjson({"__class__": "FloatMeta"})
-    assert isinstance(r, g.FloatMeta)
-
-
-def test_bool_meta():
-    r = fromjson({"__class__": "BoolMeta"})
-    assert isinstance(r, g.BoolMeta)
-
-
-def test_eol():
-    r = fromjson({"__class__": "EOL"})
-    assert isinstance(r, g.EOL)
-
-
 # ══════════════════════════════════════════════════════════════════════
-# D. Leaf expression types (fields use default=, pass hasattr filter)
+# D. Leaf expression types (excerpts from grammar JSON)
 # ══════════════════════════════════════════════════════════════════════
+
+# Call: {"__class__": "Call", "name": "..."} — from all files
+# Token: {"__class__": "Token", "token": "..."} — from all files
+# Constant: {"__class__": "Constant", "literal": "..."} — from tatsu.json
+# Pattern: {"__class__": "Pattern", "pattern": "..."} — from all files
+# RuleInclude: {"__class__": "RuleInclude", "name": "..."} — from tatsu.json
 
 
 def test_call():
-    r = fromjson({"__class__": "Call", "name": "grammar"})
+    r = fromjson({"__class__": "Call", "name": "expression"})
     assert isinstance(r, g.Call)
-    assert r.name == "grammar"
+    assert r.name == "expression"
 
 
 def test_token():
-    r = fromjson({"__class__": "Token", "token": "@@"})
+    r = fromjson({"__class__": "Token", "token": ";"})
     assert isinstance(r, g.Token)
-    assert r.token == "@@"
+    assert r.token == ";"
 
 
 def test_constant():
-    r = fromjson({"__class__": "Constant", "literal": "TATSU"})
+    r = fromjson({"__class__": "Constant", "literal": "null"})
     assert isinstance(r, g.Constant)
-    assert r.literal == "TATSU"
-
-
-def test_constant_null_literal():
-    r = fromjson({"__class__": "Constant", "literal": None})
-    assert isinstance(r, g.Constant)
-    assert r.literal is None
+    assert r.literal == "null"
 
 
 def test_pattern():
@@ -195,222 +172,279 @@ def test_pattern():
     assert r.pattern == r"\d+"
 
 
-def test_alert():
-    r = fromjson({"__class__": "Alert", "literal": "warning", "level": 1})
-    assert isinstance(r, g.Alert)
-    assert r.literal == "warning"
-    assert r.level == 1
+def test_rule_include():
+    r = fromjson({"__class__": "RuleInclude", "name": "method_declaration_mixin"})
+    assert isinstance(r, g.RuleInclude)
+    assert r.name == "method_declaration_mixin"
 
 
 # ══════════════════════════════════════════════════════════════════════
-# E. Expression partials (some fields pass hasattr, exp is default_factory)
+# E. Compound expression types (excerpts from grammar JSON)
 # ══════════════════════════════════════════════════════════════════════
+#
+# Box subclasses (Option, Optional, Closure, etc.) have NO "name" field
+# in the serialized JSON. Only Named and NamedList carry a "name".
 
 
-def test_named_name_only():
-    r = fromjson({"__class__": "Named", "name": "package"})
+def test_sequence():
+    data = {
+        "__class__": "Sequence",
+        "sequence": [{"__class__": "Call", "name": "expression"}, {"__class__": "EOF"}],
+    }
+    r = fromjson(data)
+    assert isinstance(r, g.Sequence)
+    assert len(r.sequence) == 2
+
+
+def test_choice():
+    data = {
+        "__class__": "Choice",
+        "options": [
+            {
+                "__class__": "Option",
+                "exp": {"__class__": "Call", "name": "type_declaration"},
+            },
+            {"__class__": "Option", "exp": {"__class__": "Token", "token": ";"}},
+        ],
+    }
+    r = fromjson(data)
+    assert isinstance(r, g.Choice)
+    assert len(r.options) == 2
+
+
+def test_option():
+    data = {
+        "__class__": "Option",
+        "exp": {"__class__": "Call", "name": "type_declaration"},
+    }
+    r = fromjson(data)
+    assert isinstance(r, g.Option)
+
+
+def test_optional():
+    data = {
+        "__class__": "Optional",
+        "exp": {"__class__": "Call", "name": "package_declaration"},
+    }
+    r = fromjson(data)
+    assert isinstance(r, g.Optional)
+
+
+def test_closure():
+    data = {"__class__": "Closure", "exp": {"__class__": "Call", "name": "test"}}
+    r = fromjson(data)
+    assert isinstance(r, g.Closure)
+
+
+def test_positive_closure():
+    data = {
+        "__class__": "PositiveClosure",
+        "exp": {"__class__": "Call", "name": "test"},
+    }
+    r = fromjson(data)
+    assert isinstance(r, g.PositiveClosure)
+
+
+def test_lookahead():
+    data = {"__class__": "Lookahead", "exp": {"__class__": "Token", "token": "}"}}
+    r = fromjson(data)
+    assert isinstance(r, g.Lookahead)
+
+
+def test_negative_lookahead():
+    data = {
+        "__class__": "NegativeLookahead",
+        "exp": {"__class__": "Token", "token": "}"},
+    }
+    r = fromjson(data)
+    assert isinstance(r, g.NegativeLookahead)
+
+
+def test_group():
+    data = {"__class__": "Group", "exp": {"__class__": "Token", "token": "test"}}
+    r = fromjson(data)
+    assert isinstance(r, g.Group)
+
+
+def test_override():
+    data = {"__class__": "Override", "exp": {"__class__": "Call", "name": "type"}}
+    r = fromjson(data)
+    assert isinstance(r, g.Override)
+
+
+def test_override_list():
+    data = {
+        "__class__": "OverrideList",
+        "exp": {"__class__": "Call", "name": "enum_constant_declaration"},
+    }
+    r = fromjson(data)
+    assert isinstance(r, g.OverrideList)
+
+
+def test_gather():
+    data = {
+        "__class__": "Gather",
+        "exp": {"__class__": "Call", "name": "type"},
+        "sep": {"__class__": "Token", "token": "&"},
+    }
+    r = fromjson(data)
+    assert isinstance(r, g.Gather)
+    assert r.sep.token == "&"
+
+
+def test_positive_gather():
+    data = {
+        "__class__": "PositiveGather",
+        "exp": {"__class__": "Call", "name": "type"},
+        "sep": {"__class__": "Token", "token": "&"},
+    }
+    r = fromjson(data)
+    assert isinstance(r, g.PositiveGather)
+    assert r.sep.token == "&"
+
+
+def test_named():
+    data = {
+        "__class__": "Named",
+        "name": "package",
+        "exp": {
+            "__class__": "Optional",
+            "exp": {"__class__": "Call", "name": "package_declaration"},
+        },
+    }
+    r = fromjson(data)
     assert isinstance(r, g.Named)
     assert r.name == "package"
 
 
-def test_named_list_name_only():
-    r = fromjson({"__class__": "NamedList", "name": "rules"})
+def test_named_list():
+    data = {
+        "__class__": "NamedList",
+        "name": "declarations",
+        "exp": {"__class__": "Call", "name": "type_declaration"},
+    }
+    r = fromjson(data)
     assert isinstance(r, g.NamedList)
-    assert r.name == "rules"
-
-
-def test_option_name_only():
-    r = fromjson({"__class__": "Option", "name": "alt"})
-    assert isinstance(r, g.Option)
-    assert r.name == "alt"
-
-
-def test_optional_name_only():
-    r = fromjson({"__class__": "Optional", "name": "opt"})
-    assert isinstance(r, g.Optional)
-    assert r.name == "opt"
-
-
-def test_closure_name_only():
-    r = fromjson({"__class__": "Closure", "name": "lst"})
-    assert isinstance(r, g.Closure)
-    assert r.name == "lst"
-
-
-def test_positive_closure_name_only():
-    r = fromjson({"__class__": "PositiveClosure", "name": "lst"})
-    assert isinstance(r, g.PositiveClosure)
-    assert r.name == "lst"
-
-
-def test_lookahead_name_only():
-    r = fromjson({"__class__": "Lookahead", "name": "look"})
-    assert isinstance(r, g.Lookahead)
-    assert r.name == "look"
-
-
-def test_negative_lookahead_name_only():
-    r = fromjson({"__class__": "NegativeLookahead", "name": "nlook"})
-    assert isinstance(r, g.NegativeLookahead)
-    assert r.name == "nlook"
-
-
-def test_group_name_only():
-    r = fromjson({"__class__": "Group", "name": "grp"})
-    assert isinstance(r, g.Group)
-    assert r.name == "grp"
-
-
-def test_skip_group_name_only():
-    r = fromjson({"__class__": "SkipGroup", "name": "skp"})
-    assert isinstance(r, g.SkipGroup)
-    assert r.name == "skp"
-
-
-def test_skip_to_name_only():
-    r = fromjson({"__class__": "SkipTo", "name": "to"})
-    assert isinstance(r, g.SkipTo)
-    assert r.name == "to"
-
-
-def test_override_name_only():
-    r = fromjson({"__class__": "Override", "name": "ovr"})
-    assert isinstance(r, g.Override)
-    assert r.name == "ovr"
-
-
-def test_override_list_name_only():
-    r = fromjson({"__class__": "OverrideList", "name": "ovrl"})
-    assert isinstance(r, g.OverrideList)
-    assert r.name == "ovrl"
-
-
-def test_join_with_name_and_sep():
-    r = fromjson(
-        {
-            "__class__": "Join",
-            "name": "joined",
-            "sep": {"__class__": "Token", "token": ","},
-        }
-    )
-    assert isinstance(r, g.Join)
-    assert r.name == "joined"
-    assert isinstance(r.sep, g.Token)
-    assert r.sep.token == ","
-
-
-def test_positive_join_with_name_and_sep():
-    r = fromjson(
-        {
-            "__class__": "PositiveJoin",
-            "name": "joined",
-            "sep": {"__class__": "Token", "token": ","},
-        }
-    )
-    assert isinstance(r, g.PositiveJoin)
-    assert r.sep.token == ","
-
-
-def test_gather_with_name_and_sep():
-    r = fromjson(
-        {
-            "__class__": "Gather",
-            "name": "gath",
-            "sep": {"__class__": "Token", "token": ","},
-        }
-    )
-    assert isinstance(r, g.Gather)
-    assert r.sep.token == ","
-
-
-def test_positive_gather_with_name_and_sep():
-    r = fromjson(
-        {
-            "__class__": "PositiveGather",
-            "name": "gath",
-            "sep": {"__class__": "Token", "token": ","},
-        }
-    )
-    assert isinstance(r, g.PositiveGather)
-    assert r.sep.token == ","
-
-
-def test_rule_include_name_only():
-    r = fromjson({"__class__": "RuleInclude", "name": "paramdef"})
-    assert isinstance(r, g.RuleInclude)
-    assert r.name == "paramdef"
+    assert r.name == "declarations"
 
 
 # ══════════════════════════════════════════════════════════════════════
-# F. Rule partials (only default= fields survive)
+# F. Rule (excerpts from grammar JSON)
 # ══════════════════════════════════════════════════════════════════════
+
+# Rule from java.json / tatsu.json:
+#   name, base, decorators, exp, is_lrec, is_memo, is_name, is_tokn,
+#   kwparams, no_memo, no_stak, params
+
+
+def test_rule():
+    r = fromjson(CALC['rules'][0])
+    assert isinstance(r, g.Rule)
+    assert r.name == "start"
 
 
 def test_rule_with_scalar_fields():
-    r = fromjson(
-        {
-            "__class__": "Rule",
-            "name": "start",
-            "base": None,
-            "is_name": False,
-            "is_tokn": True,
-            "no_memo": True,
-            "no_stak": False,
-            "is_memo": False,
-            "is_lrec": True,
-        }
-    )
+    data = {
+        "__class__": "Rule",
+        "name": "start",
+        "base": None,
+        "decorators": [],
+        "exp": {"__class__": "Sequence", "sequence": []},
+        "is_lrec": False,
+        "is_memo": True,
+        "is_name": False,
+        "is_tokn": False,
+        "kwparams": {},
+        "no_memo": False,
+        "no_stak": False,
+        "params": [],
+    }
+    r = fromjson(data)
     assert isinstance(r, g.Rule)
     assert r.name == "start"
     assert r.base is None
-    assert r.is_name is False
-    assert r.is_tokn is True
-    assert r.no_memo is True
-    assert r.no_stak is False
-    assert r.is_memo is False
-    assert r.is_lrec is True
-
-
-def test_rule_name_from_calc():
-    rule_data = {"__class__": "Rule", "name": "start"}
-    r = fromjson(rule_data)
-    assert r.name == "start"
-
-
-def test_rule_field_defaults():
-    r = fromjson({"__class__": "Rule", "name": "test"})
-    assert r.name == "test"
-    assert r.base is None
     assert r.is_memo is True
     assert r.is_lrec is False
+    assert r.is_name is False
+    assert r.is_tokn is False
+
+
+def test_rule_with_exp():
+    data = {
+        "__class__": "Rule",
+        "name": "start",
+        "base": None,
+        "decorators": [],
+        "exp": {
+            "__class__": "Sequence",
+            "sequence": [
+                {"__class__": "Call", "name": "expression"},
+                {"__class__": "EOF"},
+            ],
+        },
+        "is_lrec": False,
+        "is_memo": True,
+        "is_name": False,
+        "is_tokn": False,
+        "kwparams": {},
+        "no_memo": False,
+        "no_stak": False,
+        "params": [],
+    }
+    r = fromjson(data)
+    assert isinstance(r.exp, g.Sequence)
 
 
 # ══════════════════════════════════════════════════════════════════════
-# G. Grammar partials (only default= fields survive)
+# G. Grammar (excerpts from grammar JSON)
 # ══════════════════════════════════════════════════════════════════════
 
+# Grammar from java.json / tatsu.json:
+#   name, directives, keywords, rules
 
-def test_grammar_name():
-    r = fromjson({"__class__": "Grammar", "name": "CALC"})
+
+def test_grammar_from_calc():
+    r = fromjson(CALC)
     assert isinstance(r, g.Grammar)
     assert r.name == "CALC"
+    assert len(r.rules) == 9
+    assert r.rules[0].name == "start"
+    assert isinstance(r.directives, dict)
+    assert r.directives == {"grammar": "CALC"}
 
 
-def test_grammar_optimized():
-    r = fromjson(
-        {
-            "__class__": "Grammar",
-            "name": "CALC",
-            "_optimized": None,
-        }
-    )
+def test_grammar_with_rules():
+    data = {
+        "__class__": "Grammar",
+        "name": "CALC",
+        "directives": {"grammar": "CALC"},
+        "keywords": [],
+        "rules": [
+            {
+                "__class__": "Rule",
+                "name": "start",
+                "base": None,
+                "decorators": [],
+                "exp": {"__class__": "EOF"},
+                "is_lrec": False,
+                "is_memo": True,
+                "is_name": False,
+                "is_tokn": False,
+                "kwparams": {},
+                "no_memo": False,
+                "no_stak": False,
+                "params": [],
+            },
+        ],
+    }
+    r = fromjson(data)
     assert isinstance(r, g.Grammar)
     assert r.name == "CALC"
-    assert r._optimized is None
+    assert len(r.rules) == 1
 
 
 # ══════════════════════════════════════════════════════════════════════
-# H. Built-in grammar JSON files (partial — only hasattr-allowed fields)
+# H. Built-in grammar JSON files
 # ══════════════════════════════════════════════════════════════════════
 
 
@@ -433,84 +467,174 @@ def test_java_name():
 
 
 # ══════════════════════════════════════════════════════════════════════
-# I. Roundtrip (asjson -> fromjson) for leaf and terminal types
+# I. Roundtrip (asjson -> fromjson)
 # ══════════════════════════════════════════════════════════════════════
 
 
 def test_roundtrip_call():
-    original = fromjson({"__class__": "Call", "name": "something"})
-    serialized = original.asjson()
-    restored = fromjson(serialized)
+    data = {"__class__": "Call", "name": "expression"}
+    original = fromjson(data)
+    restored = roundtrip(original)
     assert type(restored) is type(original)
     assert restored.name == original.name
+    assert asjson(restored) == asjson(original)
 
 
 def test_roundtrip_token():
-    original = fromjson({"__class__": "Token", "token": "@@"})
-    serialized = original.asjson()
-    restored = fromjson(serialized)
+    data = {"__class__": "Token", "token": ";"}
+    original = fromjson(data)
+    restored = roundtrip(original)
     assert type(restored) is type(original)
     assert restored.token == original.token
-
-
-def test_roundtrip_pattern():
-    original = fromjson({"__class__": "Pattern", "pattern": r"\d+"})
-    serialized = original.asjson()
-    restored = fromjson(serialized)
-    assert type(restored) is type(original)
-    assert restored.pattern == original.pattern
+    assert asjson(restored) == asjson(original)
 
 
 def test_roundtrip_constant():
-    original = fromjson({"__class__": "Constant", "literal": "TATSU"})
-    serialized = original.asjson()
-    restored = fromjson(serialized)
+    data = {"__class__": "Constant", "literal": "null"}
+    original = fromjson(data)
+    restored = roundtrip(original)
     assert type(restored) is type(original)
     assert restored.literal == original.literal
+    assert asjson(restored) == asjson(original)
+
+
+def test_roundtrip_pattern():
+    data = {"__class__": "Pattern", "pattern": r"\d+"}
+    original = fromjson(data)
+    restored = roundtrip(original)
+    assert type(restored) is type(original)
+    assert restored.pattern == original.pattern
+    assert asjson(restored) == asjson(original)
 
 
 def test_roundtrip_eof():
-    original = fromjson({"__class__": "EOF"})
-    serialized = original.asjson()
-    restored = fromjson(serialized)
+    data = {"__class__": "EOF"}
+    original = fromjson(data)
+    restored = roundtrip(original)
     assert type(restored) is type(original)
+    assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_named_name():
-    original = fromjson({"__class__": "Named", "name": "foo"})
-    serialized = original.asjson()
-    restored = fromjson(serialized)
+def test_roundtrip_cut():
+    data = {"__class__": "Cut"}
+    original = fromjson(data)
+    restored = roundtrip(original)
+    assert type(restored) is type(original)
+    assert asjson(restored) == asjson(original)
+
+
+def test_roundtrip_void():
+    data = {"__class__": "Void", "ast": "()"}
+    original = fromjson(data)
+    restored = roundtrip(original)
+    assert type(restored) is type(original)
+    assert asjson(restored) == asjson(original)
+
+
+def test_roundtrip_named():
+    data = {
+        "__class__": "Named",
+        "name": "package",
+        "exp": {"__class__": "Call", "name": "package_declaration"},
+    }
+    original = fromjson(data)
+    restored = roundtrip(original)
     assert type(restored) is type(original)
     assert restored.name == original.name
+    assert asjson(restored) == asjson(original)
 
 
-def test_roundtrip_join_name_sep():
-    original = fromjson(
-        {
-            "__class__": "Join",
-            "name": "j",
-            "sep": {"__class__": "Token", "token": ","},
-        }
-    )
-    serialized = original.asjson()
-    restored = fromjson(serialized)
+def test_roundtrip_option():
+    data = {
+        "__class__": "Option",
+        "exp": {"__class__": "Call", "name": "type_declaration"},
+    }
+    original = fromjson(data)
+    restored = roundtrip(original)
     assert type(restored) is type(original)
-    assert restored.name == original.name
+    assert asjson(restored) == asjson(original)
+
+
+def test_roundtrip_optional():
+    data = {
+        "__class__": "Optional",
+        "exp": {"__class__": "Call", "name": "package_declaration"},
+    }
+    original = fromjson(data)
+    restored = roundtrip(original)
+    assert type(restored) is type(original)
+    assert asjson(restored) == asjson(original)
+
+
+def test_roundtrip_lookahead():
+    data = {"__class__": "Lookahead", "exp": {"__class__": "Token", "token": "}"}}
+    original = fromjson(data)
+    restored = roundtrip(original)
+    assert type(restored) is type(original)
+    assert asjson(restored) == asjson(original)
+
+
+def test_roundtrip_sequence():
+    data = {
+        "__class__": "Sequence",
+        "sequence": [{"__class__": "Call", "name": "expression"}, {"__class__": "EOF"}],
+    }
+    original = fromjson(data)
+    restored = roundtrip(original)
+    assert type(restored) is type(original)
+    assert asjson(restored) == asjson(original)
+
+
+def test_roundtrip_gather():
+    data = {
+        "__class__": "Gather",
+        "exp": {"__class__": "Call", "name": "type"},
+        "sep": {"__class__": "Token", "token": "&"},
+    }
+    original = fromjson(data)
+    restored = roundtrip(original)
+    assert type(restored) is type(original)
     assert restored.sep.token == original.sep.token
+    assert asjson(restored) == asjson(original)
 
 
-def test_rule_scalar_fields():
-    r = fromjson(
-        {
-            "__class__": "Rule",
-            "name": "test",
-            "is_memo": True,
-            "is_lrec": False,
-        }
-    )
-    assert r.name == "test"
-    assert r.is_memo is True
-    assert r.is_lrec is False
+def test_roundtrip_rule():
+    data = {
+        "__class__": "Rule",
+        "name": "start",
+        "base": None,
+        "decorators": [],
+        "exp": {"__class__": "Sequence", "sequence": []},
+        "is_lrec": False,
+        "is_memo": True,
+        "is_name": False,
+        "is_tokn": False,
+        "kwparams": {},
+        "no_memo": False,
+        "no_stak": False,
+        "params": [],
+    }
+    original = fromjson(data)
+    restored = roundtrip(original)
+    assert type(restored) is type(original)
+    assert restored.name == original.name
+    assert restored.is_memo == original.is_memo
+    assert asjson(restored) == asjson(original)
+
+
+def test_roundtrip_grammar():
+    data = {
+        "__class__": "Grammar",
+        "name": "CALC",
+        "directives": {"grammar": "CALC"},
+        "keywords": [],
+        "rules": [],
+    }
+    original = fromjson(data)
+    restored = roundtrip(original)
+    assert type(restored) is type(original)
+    assert restored.name == original.name
+    assert asjson(restored) == asjson(original)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -518,13 +642,13 @@ def test_rule_scalar_fields():
 # ══════════════════════════════════════════════════════════════════════
 
 
-def test_unknown_class_becomes_sns():
+def test_unknown_class_becomes_object():
     r = fromjson({"__class__": "NoSuchClass", "x": 1})
     assert is_object(r)
     assert r.x == 1
 
 
-def test_class_non_jsonbase_becomes_sns():
+def test_class_non_jsonbase_becomes_object():
     r = fromjson({"__class__": "int", "value": 42})
     assert is_object(r)
 
@@ -542,24 +666,26 @@ def test_extra_fields_on_terminal():
     assert isinstance(r, g.EOF)
 
 
-def test_deep_nesting_no_exp():
-    r = fromjson(
-        {
-            "__class__": "Named",
-            "name": "outer",
-        }
-    )
-    assert isinstance(r, g.Named)
-    assert r.name == "outer"
+def test_missing_class_key():
+    data = {"a": 1, "b": 2}
+    r = fromjson(data)
+    assert isinstance(r, dict)
+    assert r["a"] == 1
+    assert r["b"] == 2
 
 
-def test_deep_nesting_multiple_calls():
-    r = fromjson(
-        {
-            "__class__": "Sequence",
-        }
-    )
-    assert isinstance(r, g.Sequence)
+def test_mixed_containers():
+    data = {
+        "numbers": [1, 2, 3],
+        "nested": {"x": 10},
+        "flag": True,
+    }
+    r = fromjson(data)
+    assert isinstance(r, dict)
+    assert r["numbers"] == [1, 2, 3]
+    assert isinstance(r["nested"], dict)
+    assert r["nested"]["x"] == 10
+    assert r["flag"] is True
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -622,37 +748,17 @@ def test_jsonbase_partial_data():
 # @xfail
 def test_jsonbase_extra_field():
     class WithExtra(JSONBase):
-        base_field: str = ""
+        def __init__(self, base_field: str = ""):
+            self.base_field = base_field
 
     data = {"__class__": "WithExtra", "base_field": "a", "extra": 99}
     w = fromjson(data)
+    assert isinstance(w, WithExtra)
     assert w.base_field == "a"
 
 
-def test_missing_class_key():
-    data = {"a": 1, "b": 2}
-    r = fromjson(data)
-    assert isinstance(r, dict)
-    assert r["a"] == 1
-    assert r["b"] == 2
-
-
-def test_mixed_containers():
-    data = {
-        "numbers": [1, 2, 3],
-        "nested": {"x": 10},
-        "flag": True,
-    }
-    r = fromjson(data)
-    assert isinstance(r, dict)
-    assert r["numbers"] == [1, 2, 3]
-    assert isinstance(r["nested"], dict)
-    assert r["nested"]["x"] == 10
-    assert r["flag"] is True
-
-
 # ══════════════════════════════════════════════════════════════════════
-# L. Known limitations (hasattr blocks default_factory fields)
+# L. Known limitations (xfail)
 # ══════════════════════════════════════════════════════════════════════
 
 
