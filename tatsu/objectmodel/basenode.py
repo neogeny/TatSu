@@ -12,10 +12,13 @@ from typing import Any, Self, overload
 from ..contexts.infos import ParseInfo
 from ..util import rowselect, typename
 from ..util.asjson import AsJSONMixin, asjson, asjsons
+from ..util.fromjson import JSONBase
 from ..util.indent import fold
 
 
 __all__ = ['BaseNode', 'NodeDataclassParams', 'nodedataclass']
+
+__node__class__: dict[str, type] = {}
 
 NodeDataclassParams = dict(
     {},
@@ -51,7 +54,7 @@ def nodedataclass[T: type](cls: T | None = None, **params) -> T | Callable[[T], 
 
 
 @nodedataclass
-class BaseNode(AsJSONMixin):
+class BaseNode(AsJSONMixin, JSONBase):
     ast: Any = dc.field(kw_only=False, default=None)
     ctx: Any = None
     parseinfo: ParseInfo | None = None
@@ -198,3 +201,7 @@ class BaseNode(AsJSONMixin):
     def __setstate__(self, state: dict[str, Any]) -> None:
         for name, value in state.items():
             setattr(self, name, value)
+
+    @classmethod
+    def __from_json__(cls, data: dict[str, Any], seen: set[int] | None = None) -> Any:
+        return None

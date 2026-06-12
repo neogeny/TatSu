@@ -495,13 +495,13 @@ class Grammar(Model):
 
     @staticmethod
     def load(value: Any) -> Grammar:
-        from .json import load_grammar
+        from .jsonimport import load_grammar
 
         return load_grammar(value)
 
     @staticmethod
     def loads(value: str) -> Grammar:
-        from .json import loads_grammar
+        from .jsonimport import loads_grammar
 
         return loads_grammar(value)
 
