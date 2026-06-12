@@ -215,7 +215,7 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
         single_out.write_text(single_payload)
 
 
-def main() -> None:
+def cling_main() -> None:
     """Entry point for the cling CLI (not wired to console_scripts yet)."""
     sys.setrecursionlimit(2**16)
     try:

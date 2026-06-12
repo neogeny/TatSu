@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .cli import main
+from .cli import cling_main
 
 
-main()
+cling_main()

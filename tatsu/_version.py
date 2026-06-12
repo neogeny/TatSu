@@ -8,12 +8,13 @@ import importlib.metadata
 from .util import Version
 
 
-try:
-    __toolname__ = importlib.metadata.metadata("TatSu")["name"]
-    __version__ = importlib.metadata.version("TatSu")
-except importlib.metadata.PackageNotFoundError:
-    __toolname__ = 'TatSu'
-    __version__ = '5.22.0'
+__toolname__ = 'TatSu'
+__version__ = '5.22.0'
+# try:
+#     __toolname__ = importlib.metadata.metadata("TatSu")["name"]
+#     __version__ = importlib.metadata.version("TatSu")
+# except importlib.metadata.PackageNotFoundError:
+#     pass
 
 version = __version__
 version_info = Version.parse(version).astuple()

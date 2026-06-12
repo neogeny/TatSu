@@ -25,11 +25,11 @@ from .tool import (
     genmodel,
     parse,
     tatsu_main,
-    tatsu_main as main,
     to_grammar_json,
     to_python_model,
     to_python_sourcecode,
 )  # pylint: disable=W0622
+from .tool.cling import cling_main, cling_main as main
 
 
 # HACK!
@@ -55,9 +55,10 @@ __all__ = [
     'compile',
     'gencode',
     'genmodel',
-    'main',  # some unit tests want this
     'parse',
+    'cling_main',
     'tatsu_main',
+    'main',  # some unit tests want this
     'to_grammar_json',
     'to_python_model',
     'to_python_sourcecode',

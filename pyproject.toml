@@ -123,7 +123,8 @@ mkdocs = [
 ]
 
 [project.scripts]
-tatsu = "tatsu:main"
+tatsu = "tatsu:cling_main"
+cling = "tatsu:cling_main"
 otatsu = "tatsu:tatsu_main"
 g2e = "tatsu.g2e:main"
 
@@ -140,6 +141,8 @@ cache-keys = [
 
 [tool.uv.workspace]
 members = [
+    ".",
+    ".",
     ".",
 ]
 
