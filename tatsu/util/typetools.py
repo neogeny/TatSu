@@ -75,6 +75,33 @@ def cast[T](target: type[T], value: Any) -> T:
     return typing.cast(T, value)
 
 
+def is_object(obj) -> bool:
+    """True if obj is a structured object, not a Python base type.
+
+    Base types excluded: None, bool, int, float, str, bytes,
+    bytearray, list, tuple, set, frozenset, dict.  Everything
+    else (SimpleNamespace, dataclass instances, custom classes,
+    etc.) returns True.
+    """
+    return not (
+        obj is None
+        or isinstance(
+            obj,
+            bool
+            | int
+            | float
+            | str
+            | bytes
+            | bytearray
+            | list
+            | tuple
+            | set
+            | frozenset
+            | dict,
+        )
+    )
+
+
 @dataclass
 class ActualArguments:
     """

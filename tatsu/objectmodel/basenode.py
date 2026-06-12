@@ -52,7 +52,7 @@ def nodedataclass[T: type](cls: T | None = None, **params) -> T | Callable[[T], 
 
 
 @nodedataclass
-class BaseNode(AsJSONMixin, JSONBase):
+class BaseNode(JSONBase, AsJSONMixin):
     ast: Any = dc.field(kw_only=False, default=None)
     ctx: Any = None
     parseinfo: ParseInfo | None = None
