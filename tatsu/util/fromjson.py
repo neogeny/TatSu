@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, Self
 
 from tatsu.util.abctools import isiter
 
@@ -13,10 +13,20 @@ __from_json__class__: dict[str, type] = {}
 class JSONBase:
     @classmethod
     def __from_json__(cls, data: dict[str, Any]) -> Self:
+        assert (typename := data.get("__class__")) and typename == cls.__name__
+
+        # return cls(
+        #     **{
+        #         name: asjson(value)
+        #         for name, value in data.items()
+        #         if name != "__class__" and hasattr(cls, name)
+        #     }
+        # )
+
         new = cls.__new__(cls)
 
         for name, value in data.items():
-            if not hasattr(cls, name):
+            if name == "__class__" or not hasattr(cls, name):
                 continue
             setattr(new, name, fromjson(value))
 

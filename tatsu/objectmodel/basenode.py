@@ -18,8 +18,6 @@ from ..util.indent import fold
 
 __all__ = ['BaseNode', 'NodeDataclassParams', 'nodedataclass']
 
-__node__class__: dict[str, type] = {}
-
 NodeDataclassParams = dict(
     {},
     eq=False,
@@ -203,5 +201,5 @@ class BaseNode(AsJSONMixin, JSONBase):
             setattr(self, name, value)
 
     @classmethod
-    def __from_json__(cls, data: dict[str, Any], seen: set[int] | None = None) -> Any:
-        return None
+    def __from_json__(cls, data: dict[str, Any]) -> Self:
+        return super().__from_json__(data)
