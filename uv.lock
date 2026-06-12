@@ -1555,6 +1555,7 @@ source = { editable = "." }
 
 [package.optional-dependencies]
 cling = [
+    { name = "pygments" },
     { name = "rich" },
 ]
 diagrams = [
@@ -1563,15 +1564,13 @@ diagrams = [
 full = [
     { name = "graphviz" },
     { name = "invoke" },
+    { name = "pygments" },
     { name = "rich" },
 ]
 ideps = [
     { name = "rich" },
 ]
 parproc = [
-    { name = "rich" },
-]
-rich = [
     { name = "rich" },
 ]
 tasks = [
@@ -1589,6 +1588,7 @@ dev = [
     { name = "invoke" },
     { name = "progress" },
     { name = "psutil" },
+    { name = "pygments" },
     { name = "pyrefly" },
     { name = "pytest" },
     { name = "pytest-dependency" },
@@ -1650,13 +1650,14 @@ requires-dist = [
     { name = "graphviz", marker = "extra == 'full'", specifier = ">=0.21" },
     { name = "invoke", marker = "extra == 'full'", specifier = ">=2.2.1" },
     { name = "invoke", marker = "extra == 'tasks'", specifier = ">=2.2.1" },
+    { name = "pygments", marker = "extra == 'cling'", specifier = ">=2.20.0" },
+    { name = "pygments", marker = "extra == 'full'", specifier = ">=2.20.0" },
     { name = "rich", marker = "extra == 'cling'", specifier = ">=15.0.0" },
     { name = "rich", marker = "extra == 'full'", specifier = ">=15.0.0" },
     { name = "rich", marker = "extra == 'ideps'", specifier = ">=15.0.0" },
     { name = "rich", marker = "extra == 'parproc'", specifier = ">=15.0.0" },
-    { name = "rich", marker = "extra == 'rich'", specifier = ">=15.0.0" },
 ]
-provides-extras = ["cling", "diagrams", "full", "ideps", "parproc", "rich", "tasks"]
+provides-extras = ["cling", "diagrams", "full", "ideps", "parproc", "tasks"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1669,6 +1670,7 @@ dev = [
     { name = "invoke", specifier = ">=2.2.1" },
     { name = "progress", specifier = ">=1.6.1" },
     { name = "psutil", specifier = ">=7.2.2" },
+    { name = "pygments", specifier = ">=2.20.0" },
     { name = "pyrefly", specifier = ">=0.55.0" },
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "pytest-dependency", specifier = ">=0.6.0" },

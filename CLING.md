@@ -47,7 +47,8 @@ Failures also print the exception details below the file line.
 
 JSON is the default serialization format. When there are multiple input
 files and output is **not** a directory (stdout or single file path),
-output uses JSONL (one JSON object per line with `input`/`result` keys):
+output uses JSONL (one JSON object per line with `input`/`result` keys),
+unless output is to a TTY, in which case indented JSON is used:
 ```json
 {"input": "path/to/file", "result": { ... parsed output ... }}
 ```
@@ -57,14 +58,26 @@ output uses JSONL (one JSON object per line with `input`/`result` keys):
 - **Single file path** (`-o path` to a non-existent path or an existing file):
   multiple input files produce JSONL. A single input file produces indented
   JSON.
-- **Stdout** (no `-o`): multiple input files produce JSONL. A single input
-  file produces indented JSON.
+- **Stdout** (no `-o`): multiple input files produce JSONL unless stdout is a
+  TTY (indented JSON instead). A single input file produces indented JSON.
 
 ### `-c` / `--color`
 
-- `auto` (default): color if stdout is a TTY.
+- `auto` (default): color if stdout is a TTY and `$NO_COLOR` is not set.
 - `always`: always emit ANSI color codes.
 - `never`: strip all ANSI color codes.
+
+When output is colorized (TTY with `--color=auto` and no `$NO_COLOR`, or
+`--color=always`), the output is syntax-highlighted using Pygments — JSON
+with `JsonLexer`, Python model output with `PythonLexer`, and EBNF grammar
+text with `EbnfLexer`.
+
+### `-e` / `--theme`
+
+Pygments style name for syntax highlighting (e.g. `monokai`, `one-dark`,
+`solarized-light`, `native`). Use `--theme=list` to print the list of
+available styles. Defaults to the terminal's configured theme or Pygments'
+default. Only effective when colorization is active (see `--color`).
 
 ---
 

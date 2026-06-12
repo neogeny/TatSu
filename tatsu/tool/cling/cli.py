@@ -37,8 +37,8 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
     sub = parser.add_subparsers(
         dest="command",
         description="Main execution mode",
-        required=True,
-        # help="Available subcommands",
+        required=False,
+        help="Available subcommands",
     )
 
     parser.add_argument(
@@ -64,7 +64,7 @@ def parse_args(argv: list[str] | None = None) -> CLIConfig:
 
     args = parser.parse_args(argv)
     command = args.command
-    if not command or command == "help" or "-h" in argv or "--help" in argv:
+    if command == "help" or "-h" in argv or "--help" in argv:
         parser.print_help()
         sys.exit(0)
 
@@ -116,28 +116,50 @@ def _show(payload: str, output: Path | None) -> None:
             f.flush()
 
 
+def _should_colorize(cfg: CLIConfig) -> bool:
+    if cfg.color == "always":
+        return True
+    if cfg.color == "never":
+        return False
+    if os.environ.get("NO_COLOR"):
+        return False
+    return sys.stdout.isatty()
+
+
+def _colorize(
+    payload: str,
+    language: str,
+    theme: str | None = None,
+) -> str:
+    from pygments import highlight
+    from pygments.formatters import Terminal256Formatter
+    from pygments.lexers import get_lexer_by_name
+
+    lexer = get_lexer_by_name(language)
+    fmt = Terminal256Formatter(style=theme) if theme else Terminal256Formatter()
+    return highlight(payload, lexer, fmt)
+
+
 def _render_grammar(
     gram: Grammar,
     cfg: CLIConfig,
     *,
-    json: bool = False,
-    model: bool = False,
-    pretty: bool = False,
-    railroads: bool = False,
     name: str | None = None,
 ) -> str:
     """Render a Grammar in the selected mode.
 
     Sets *name* to the output basename (without extension) when -o is a directory.
     """
-    if json:
+    if cfg.json:
         payload = gram.asjsons()
-    elif model:
+    elif cfg.model:
         payload = repr(gram)
-    elif railroads:
+    elif cfg.railroads:
         payload = gram.railroads()
-    else:
+    elif cfg.pretty:
         payload = gram.pretty()
+    else:
+        payload = gram.asjsons()
     return payload
 
 
@@ -189,7 +211,12 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
         return
 
     # JSONL for multiple input files (JSON is the default format)
-    if not cfg.model and len(results) > 1:
+    # Skip JSONL when output is to a TTY — use indented JSON instead.
+    if (
+        not cfg.model
+        and len(results) > 1
+        and not (not cfg.output and sys.stdout.isatty())
+    ):
         import json
 
         jsonl = "\n".join(
@@ -201,7 +228,15 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
 
     # Single result or model output: write sequentially
     single_out = _output_path(cfg)
+    should_colorize = _should_colorize(cfg) and single_out is None
+    language = "json"
+    if cfg.model:
+        language = "python"
+    elif cfg.pretty:
+        language = "ebnf"
     for i, (_, payload) in enumerate(results):
+        if should_colorize and not cfg.railroads:
+            payload = _colorize(payload, language, cfg.theme or None)
         if single_out is None:
             print(payload)
         else:
@@ -216,6 +251,14 @@ def main() -> None:
     sys.setrecursionlimit(2**16)
     try:
         cfg = parse_args()
+        if os.environ.get("NO_COLOR") and cfg.color == "auto":
+            cfg.color = "never"
+        if cfg.theme == "list":
+            from pygments.styles import get_all_styles
+
+            for style in sorted(get_all_styles()):
+                print(style)
+            sys.exit(0)
         match cfg.command:
             case "boot":
                 results = boot_cmd(cfg)
@@ -268,6 +311,12 @@ def add_global_options(parser):
         default="auto",
         help="Control colorized output (default: auto)",
     )
+    group.add_argument(
+        "-e",
+        "--theme",
+        dest="theme",
+        help="Pygments style name for syntax highlighting",
+    )
     # group.add_argument(
     #     "--profile",
     #     action="store_true",
@@ -285,8 +334,8 @@ def add_help_cmd(subparsers):
 
 
 def add_grammar_options(parser):
-    mode = parser.add_mutually_exclusive_group()
-    mode.add_argument(
+    format = parser.add_mutually_exclusive_group()
+    format.add_argument(
         "-j",
         "--json",
         action="store_true",
@@ -294,21 +343,21 @@ def add_grammar_options(parser):
         default=True,
         help="Output the grammar in JSON format",
     )
-    mode.add_argument(
+    format.add_argument(
         "-m",
         "--model",
         action="store_true",
         dest="model",
         help="Output the model code according to the grammar",
     )
-    mode.add_argument(
+    format.add_argument(
         "-p",
         "--pretty",
         action="store_true",
         dest="pretty",
         help="Output the grammar in pretty-printed EBNF format",
     )
-    mode.add_argument(
+    format.add_argument(
         "-r",
         "--railroads",
         action="store_true",
@@ -349,19 +398,21 @@ def add_run_cmd(subparsers):
     add_global_options(run_parser)
     run_parser.add_argument("path", help="Path to a grammar in EBNF or JSON format")
     run_parser.add_argument("inputs", nargs="+", help="The files to be parsed")
-    run_parser.add_argument(
+    format = run_parser.add_mutually_exclusive_group()
+    format.add_argument(
         "-j",
         "--json",
         action="store_true",
         dest="json",
-        help="Print output in JSON format",
+        default=True,
+        help="Output the grammar in JSON format",
     )
-    run_parser.add_argument(
+    format.add_argument(
         "-m",
         "--model",
         action="store_true",
         dest="model",
-        help="Print the model code",
+        help="Output the model code according to the grammar",
     )
     run_parser.add_argument(
         "-s", "--start", default="", dest="start", help="Name of the start rule"

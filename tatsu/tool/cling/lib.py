@@ -32,6 +32,7 @@ class CLIConfig:
     # Global flags
     color: str = "auto"
     output: str = ""
+    theme: str = ""
     verbose: bool = False
     quiet: bool = False
     profile: bool = False
