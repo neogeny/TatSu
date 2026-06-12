@@ -12,17 +12,14 @@ from rich.progress import Progress
 
 from tatsu.grammars import Grammar
 from tatsu.util.heart import Heart
+from tatsu.util.parproc import VisualPayload
 
 from ...config import ParserConfig
-from ...util.parproc import ProgressPair, VisualPayload, parproc_visual
+from ...util.parproc import ProgressPair, parproc_visual
 from ...util.richtest import is_rich_library_available
-from .lib import (
-    CLIConfig,
-    Results,
-    format_result,
-    load_grammar,
-    show_summary,
-)
+from .config import CLIConfig
+from .lib import Results, load_grammar
+from .sum import Printer, format_result, show_summary
 
 
 class ProgressHeartProtocol(Heart):
@@ -39,7 +36,6 @@ class GrammarPayload(VisualPayload):
 
 
 def parse_file_task(payload: GrammarPayload) -> Any:
-
     path = Path(payload.path)
     text = payload.payload
     grammar, start, new_fileheart = (
@@ -64,6 +60,7 @@ def parse_file_task(payload: GrammarPayload) -> Any:
 
 
 def make_new_fileheart(task_progress) -> Callable[[str, int], ProgressHeartProtocol]:
+
     def new_fileheart(
         name: str, size: int, task_progress=task_progress
     ) -> ProgressHeartProtocol:
@@ -149,7 +146,7 @@ def run_with_progress(
     )
     from rich.table import Table
 
-    class DualProgress(Progress):
+    class DualProgress(Progress, Printer):
         def __init__(self, *columns, **kwargs) -> None:
             super().__init__(*columns, transient=True, **kwargs)
             self._file_cols = [
@@ -193,8 +190,8 @@ def run_with_progress(
     toptask = top_progress.add_task(Path(cfg.path).name, total=total)
     top_progress.set_main(toptask)
 
-    def build_progressbar(total: int) -> ProgressPair:
-        return (top_progress, toptask)
+    def build_progressbar(_stotal: int) -> ProgressPair:
+        return top_progress, toptask
 
     paths = [Path(input) for input in cfg.inputs]
     payloads = [
@@ -216,9 +213,7 @@ def run_with_progress(
             reraise=False,
             summary=False,
         )
-        if cfg.quiet:
-            results = list(results)
-        else:
+        if not cfg.quiet:
             results = show_summary(cfg, top_progress, results)
     finally:
         print(file=sys.stderr)

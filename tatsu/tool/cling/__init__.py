@@ -4,11 +4,10 @@
 
 from __future__ import annotations
 
-from .cli import CLIConfig, main, parse_args
+from .cli import main, parse_args
 
 
 __all__ = [
-    "CLIConfig",
     "main",
     "parse_args",
 ]

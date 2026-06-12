@@ -8,16 +8,15 @@ import argparse
 import os
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from tatsu import __toolname__, __version__
 from tatsu.exceptions import ParseError
 
-from .lib import CLIConfig, Results, load_grammar
-
-
-if TYPE_CHECKING:
-    from ...grammars.model import Grammar
+from ...grammars.model import Grammar
+from .config import DEFAULT_PYGMENTS_STYLE, CLIConfig
+from .fmt import _colorize, _should_colorize
+from .lib import Results, load_grammar
 
 
 def parse_args(argv: list[str] | None = None) -> CLIConfig:
@@ -110,34 +109,7 @@ def _show(payload: str, output: Path | None) -> None:
     if output is None:
         print(payload)
     else:
-        with output.open("w", encoding="utf-8") as f:
-            f.write(payload)
-            f.write("\n")
-            f.flush()
-
-
-def _should_colorize(cfg: CLIConfig) -> bool:
-    if cfg.color == "always":
-        return True
-    if cfg.color == "never":
-        return False
-    if os.environ.get("NO_COLOR"):
-        return False
-    return sys.stdout.isatty()
-
-
-def _colorize(
-    payload: str,
-    language: str,
-    theme: str | None = None,
-) -> str:
-    from pygments import highlight
-    from pygments.formatters import Terminal256Formatter
-    from pygments.lexers import get_lexer_by_name
-
-    lexer = get_lexer_by_name(language)
-    fmt = Terminal256Formatter(style=theme) if theme else Terminal256Formatter()
-    return highlight(payload, lexer, fmt)
+        output.write_text(payload)
 
 
 def _render_grammar(
@@ -150,6 +122,7 @@ def _render_grammar(
 
     Sets *name* to the output basename (without extension) when -o is a directory.
     """
+    _ = name
     if cfg.json:
         payload = gram.asjsons()
     elif cfg.model:
@@ -170,10 +143,6 @@ def boot_cmd(cfg: CLIConfig) -> Results:
     payload = _render_grammar(
         boot_grammar(),
         cfg,
-        json=cfg.json,
-        model=cfg.model,
-        pretty=cfg.pretty,
-        railroads=cfg.railroads,
         name="boot",
     )
     return [("boot", payload)]
@@ -186,10 +155,6 @@ def grammar_cmd(cfg: CLIConfig) -> Results:
     payload = _render_grammar(
         gram,
         cfg,
-        json=cfg.json,
-        model=cfg.model,
-        pretty=cfg.pretty,
-        railroads=cfg.railroads,
         name=Path(cfg.path).stem,
     )
     return [(cfg.path, payload)]
@@ -204,10 +169,10 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
     ):
         out_path.mkdir(parents=True, exist_ok=True)
         ext = _output_ext(cfg)
-        for input_path, payload in results:
+        for input_path, single_payload in results:
             name = Path(input_path).stem
             out = (out_path / name).with_suffix(ext)
-            _show(payload, out)
+            _show(single_payload, out)
         return
 
     # JSONL for multiple input files (JSON is the default format)
@@ -220,7 +185,10 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
         import json
 
         jsonl = "\n".join(
-            json.dumps({"input": str(input_path), "result": json.loads(outcome)})
+            json.dumps(
+                {"input": input_path, "result": json.loads(outcome)},
+                separators=(",", ":"),
+            )
             for input_path, outcome in results
         )
         _show(jsonl, _output_path(cfg))
@@ -228,22 +196,23 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
 
     # Single result or model output: write sequentially
     single_out = _output_path(cfg)
-    should_colorize = _should_colorize(cfg) and single_out is None
+    should_colorize = _should_colorize(cfg) and single_out is None and not cfg.railroads
+
     language = "json"
     if cfg.model:
         language = "python"
     elif cfg.pretty:
         language = "ebnf"
-    for i, (_, payload) in enumerate(results):
-        if should_colorize and not cfg.railroads:
-            payload = _colorize(payload, language, cfg.theme or None)
-        if single_out is None:
-            print(payload)
-        else:
-            with single_out.open("a" if i > 0 else "w", encoding="utf-8") as f:
-                f.write(str(payload))
-                f.write("\n")
-                f.flush()
+
+    payloads = [payload for _, payload in results]
+    if should_colorize:
+        payloads = [_colorize(payload, language, cfg.style) for payload in payloads]
+
+    single_payload = "\n".join(payloads)
+    if single_out is None:
+        print(single_payload)
+    else:
+        single_out.write_text(single_payload)
 
 
 def main() -> None:
@@ -251,9 +220,13 @@ def main() -> None:
     sys.setrecursionlimit(2**16)
     try:
         cfg = parse_args()
-        if os.environ.get("NO_COLOR") and cfg.color == "auto":
+
+        if (
+            os.environ.get("NO_COLOR") and cfg.color == "auto"
+        ) or not sys.stderr.isatty:
             cfg.color = "never"
-        if cfg.theme == "list":
+
+        if cfg.style == "list":
             from pygments.styles import get_all_styles
 
             for style in sorted(get_all_styles()):
@@ -312,9 +285,10 @@ def add_global_options(parser):
         help="Control colorized output (default: auto)",
     )
     group.add_argument(
-        "-e",
-        "--theme",
-        dest="theme",
+        "-l",
+        "--style",
+        dest="style",
+        default=DEFAULT_PYGMENTS_STYLE,
         help="Pygments style name for syntax highlighting",
     )
     # group.add_argument(
