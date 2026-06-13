@@ -40,5 +40,5 @@ class CLIConfig:
         return self.color == "always" or (  # pyright: ignore[reportReturnType]
             not bool(os.environ.get("NO_COLOR", None))
             and self.color == "auto"
-            and sys.stderr.isatty()
+            and sys.stdout.isatty()
         )
