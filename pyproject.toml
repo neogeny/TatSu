@@ -266,6 +266,7 @@ combine-as-imports = true
 force-single-line = false
 lines-after-imports = 2
 known-first-party = ["tatsu"]
+relative-imports-order = "furthest-to-closest"
 
 [tool.ruff.lint.pylint]
 max-branches = 21

@@ -13,11 +13,12 @@ from typing import Any
 
 from tatsu import __toolname__, __version__
 from tatsu.exceptions import ParseError
-from tatsu.tool.cling.fmt import colorize_output
 
-from ...grammars.model import Grammar
-from .config import DEFAULT_PYGMENTS_STYLE, CLIConfig
-from .lib import Results, load_grammar
+from .boot_cmd import add_boot_cmd, boot_cmd
+from .config import CLIConfig
+from .fmt import colorize_output
+from .global_opt import add_global_options
+from .grammar_cmd import add_grammar_cmd, grammar_cmd
 
 
 TITLE = "竜TatSu"
@@ -109,57 +110,6 @@ def _show(payload: str, output: Path | None) -> None:
         print(payload)
     else:
         output.write_text(payload)
-
-
-def _render_grammar(
-    gram: Grammar,
-    cfg: CLIConfig,
-    *,
-    name: str | None = None,
-) -> str:
-    """Render a Grammar in the selected mode.
-
-    Sets *name* to the output basename (without extension) when -o is a directory.
-    """
-    _ = name
-    if cfg.json:
-        payload = gram.asjsons()
-    elif cfg.model:
-        payload = repr(gram)
-    elif cfg.railroads:
-        payload = gram.railroads()
-    elif cfg.pretty:
-        payload = gram.pretty()
-    else:
-        payload = gram.asjsons()
-    return payload
-
-
-def boot_cmd(cfg: CLIConfig) -> Results:
-    """Handle the ``boot`` subcommand."""
-    from ..api import boot_grammar
-
-    payload = _render_grammar(
-        boot_grammar(),
-        cfg,
-        name="boot",
-    )
-    return [("boot", payload)]
-
-
-def grammar_cmd(cfg: CLIConfig) -> Results:
-    """Handle the ``grammar`` subcommand."""
-    if cfg.grammar is None:
-        raise ValueError("expected a grammar path")
-    path: str = cfg.grammar or ""
-    grammar = load_grammar(path)
-
-    payload = _render_grammar(
-        grammar,
-        cfg,
-        name=Path(path).stem,
-    )
-    return [(path, payload)]
 
 
 def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
@@ -268,52 +218,6 @@ def cling_main() -> None:
         sys.exit(1)
 
 
-def add_global_options(parser):
-    group = parser.add_argument_group("global options")
-    group.add_argument(
-        "-q",
-        "--quiet",
-        action="store_true",
-        help="Suppress progress bar and spinner output",
-    )
-    group.add_argument(
-        "-vv",
-        "--verbose",
-        action="store_true",
-        help="Provide more detailed information about the parsing process",
-    )
-    group.add_argument(
-        "-t",
-        "--trace",
-        action="store_true",
-        help="Display a detailed trace of the parsing process",
-    )
-    group.add_argument(
-        "-o",
-        "--output",
-        default="",
-        help="Output to a file or directory instead of stdout",
-    )
-    group.add_argument(
-        "--color",
-        choices=["auto", "always", "never"],
-        default="auto",
-        help="Control colorized output (default: auto)",
-    )
-    group.add_argument(
-        "-l",
-        "--style",
-        dest="style",
-        default=DEFAULT_PYGMENTS_STYLE,
-        help="Pygments style name for syntax highlighting",
-    )
-    # group.add_argument(
-    #     "--profile",
-    #     action="store_true",
-    #     help="Enable CPU and memory profiling",
-    # )
-
-
 def add_help_cmd(subparsers):
     help_parser = subparsers.add_parser(
         "help",
@@ -321,63 +225,6 @@ def add_help_cmd(subparsers):
         add_help=False,
     )
     return help_parser
-
-
-def add_grammar_options(parser):
-    format = parser.add_mutually_exclusive_group()
-    format.add_argument(
-        "-j",
-        "--json",
-        action="store_true",
-        dest="json",
-        default=True,
-        help="Output the grammar in JSON format",
-    )
-    format.add_argument(
-        "-m",
-        "--model",
-        action="store_true",
-        dest="model",
-        help="Output the model code according to the grammar",
-    )
-    format.add_argument(
-        "-p",
-        "--pretty",
-        action="store_true",
-        dest="pretty",
-        help="Output the grammar in pretty-printed EBNF format",
-    )
-    format.add_argument(
-        "-r",
-        "--railroads",
-        action="store_true",
-        dest="railroads",
-        help="Output a railroad diagram of the grammar",
-    )
-
-
-def add_boot_cmd(subparsers):
-    boot_parser = subparsers.add_parser(
-        "boot",
-        help="The internal boot grammar",
-    )
-    add_global_options(boot_parser)
-    add_grammar_options(boot_parser)
-    return boot_parser
-
-
-def add_grammar_cmd(subparsers):
-    grammar_parser = subparsers.add_parser(
-        "grammar",
-        help="Grammar transformations",
-        add_help=True,
-    )
-    add_global_options(grammar_parser)
-    add_grammar_options(grammar_parser)
-    grammar_parser.add_argument(
-        "grammar", help="Path to the grammar source (.ebnf or .json)"
-    )
-    return grammar_parser
 
 
 def add_run_cmd(subparsers):

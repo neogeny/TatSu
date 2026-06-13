@@ -22,6 +22,7 @@ class CLIConfig:
     # Subcommand state
     command: str = ""
     grammar: str | None = None
+    optimized: bool = False
     path: str | None = None
     inputs: list[str] = field(default_factory=list)
 
