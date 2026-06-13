@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import signal
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
@@ -212,10 +213,12 @@ def cling_main() -> None:
                 parser.print_usage()
                 return
         output_results(cfg, results)
-    except KeyboardInterrupt:
-        sys.exit(0)
     except ParseError:
         sys.exit(1)
+    except BrokenPipeError:
+        sys.exit(signal.SIGPIPE + signal.SIG_DFL)
+    except KeyboardInterrupt:
+        sys.exit(0)
 
 
 def add_help_cmd(subparsers):
