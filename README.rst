@@ -33,7 +33,7 @@
 
 .. image:: media/demo.gif
    :alt: New CLI tool demo
-   :width: 400px
+   :width: 800px
 
 
 |TatSu|
