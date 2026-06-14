@@ -172,9 +172,9 @@ def taskproc(task: Task) -> Result:
     outcome: Any = None
     elapsed: float = 0.0
     try:
-        start_time = time.thread_time()
+        start_time = time.perf_counter()
         outcome = task.func(task.payload, *task.args, **task.kwargs)
-        elapsed = time.thread_time() - start_time
+        elapsed = time.perf_counter() - start_time
     except Exception as e:
         result.exception = e
         if task.reraise:

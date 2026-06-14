@@ -12,13 +12,13 @@ Set Theme "nord"
 # Set MarginFill "#2e3440"
 
 # Set FontFamily "Fira Code"
-Set FontSize 20
+Set FontSize 22
 
 # Set Shell "/bin/bash --noprofile --norc"
 Set Shell "xonsh"
 
 Set TypingSpeed 20ms
-Type "uv run tatsu run ./grammar/java.ebnf datasets/*.java --verbose -o gtmp/t.jsonl"
+Type "uv run tatsu run ./java.ebnf datasets/**/*.java --vv -o /tmp/t.jsonl"
 Enter
 
 # Simulate the 8-second processing time
@@ -31,5 +31,11 @@ Sleep 4s
 # Show the output completion
 # Type "Done.
 # Enter
+Sleep 4s
+Sleep 4s
+
+Sleep 4s
+Sleep 4s
+
 Sleep 4s
 Sleep 4s

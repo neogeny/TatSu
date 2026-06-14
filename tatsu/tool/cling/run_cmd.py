@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -99,6 +100,8 @@ def make_new_fileheart(task_progress) -> Callable[[str, int], ProgressHeartProto
 
 
 def run_cmd(cfg: CLIConfig) -> Results:
+    start_time = time.time()
+
     if not cfg.grammar:
         raise ValueError("No grammar specified")
 
@@ -113,7 +116,7 @@ def run_cmd(cfg: CLIConfig) -> Results:
         return [(input, format_result(cfg, result))]
 
     if is_rich_library_available() and not cfg.quiet:
-        return run_with_progress(grammar, start, cfg)
+        return run_with_progress(start_time, grammar, start, cfg)
     else:
         return run_without_progress(grammar, start, cfg)
 
@@ -140,6 +143,7 @@ def run_without_progress(
 
 
 def run_with_progress(
+    start_time: float,
     grammar: Any,
     start: str | None,
     cfg: CLIConfig,
@@ -220,7 +224,7 @@ def run_with_progress(
             summary=False,
         )
         if not cfg.quiet:
-            results = show_summary(cfg, top_progress, results)
+            results = show_summary(cfg, start_time, top_progress, results)
     finally:
         print(file=sys.stderr)
         top_progress.stop()

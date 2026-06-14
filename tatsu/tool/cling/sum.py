@@ -81,13 +81,13 @@ def result_stats(stats: ParseStats, results: Iterable[Result]) -> Iterable[Resul
 
 def show_summary(
     cfg: CLIConfig,
+    start_time: float,
     printer: Printer,
     results: Iterable[Result],
 ) -> Generator[Result, None, None]:
     from rich.console import Console
     from rich.table import Table
 
-    start_time = time.thread_time()
     if cfg.verbose:
         results = show_results(cfg, printer, results)
 
@@ -143,7 +143,7 @@ def show_summary(
     table.add_row("sloc/sec", f"[{csloc}]{stats.slocs_avg:>12,.0f} sl/s[/{csloc}]")
 
     table.add_row("run time", format_duration(stats.run_time, False).rjust(12))
-    total_time = time.thread_time() - start_time
+    total_time = time.time() - start_time
     table.add_row("wall time", format_duration(total_time, False).rjust(12))
 
     console.print()
