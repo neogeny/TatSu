@@ -182,3 +182,4 @@ demo:
     echo "▶ demo"
     @uv sync
     vhs media/demo.tape
+    vhs publish media/demo.gif
