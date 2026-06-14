@@ -13,6 +13,8 @@ from .fmt import colorize_output
 
 def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
     out_path = Path(cfg.output) if cfg.output else None
+    if not results:
+        return
 
     # Directory output: each input gets its own .json file
     if out_path and (
