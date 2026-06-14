@@ -31,6 +31,9 @@
 .. _`⻰OGoPEGo`: https://pypi.org/project/ogopego/
 .. _`꘩TS’emekwes`: https://github.com/neogeny/tsemekwes
 
+.. image:: media/demo.gif
+   :alt: New CLI tool demo
+   :width: 400px
 
 
 |TatSu|
