@@ -161,6 +161,7 @@ def isreserved(name) -> bool:
 
 
 def typename(obj: Any) -> str:
+    """Return the name of the type of the given object."""
     if isinstance(obj, type):
         return obj.__name__
     return type(obj).__name__
