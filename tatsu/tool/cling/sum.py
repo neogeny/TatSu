@@ -105,12 +105,13 @@ def show_summary(
             if not (r.exception or isinstance(r.outcome, Exception)):
                 outresults.append(r)
                 continue
+            print(file=sys.stderr)
             print(r.exception, file=sys.stderr)
 
         if failures:
-            console.print(f"\n[red bold]FAILURES: {failures}[/]")
+            console.print(f"[red bold]FAILURES: {failures}[/]")
         else:
-            console.print(f"\n[green bold]NO FAILURES: {failures}[/]")
+            console.print(f"[green bold]NO FAILURES: {failures}[/]")
 
     table = Table(show_header=False, box=None)
     table.add_column(style="dim cyan", justify="right")
