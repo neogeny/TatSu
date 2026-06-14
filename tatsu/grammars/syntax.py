@@ -10,7 +10,7 @@ from typing import Any, Self, cast
 from ..contexts import AST, Ctx
 from ..exceptions import FailedParse, FailedRef
 from ..objectmodel import nodedataclass
-from ..util import indent, trim
+from ..util import indent, trim, typename
 from .math import ffset, kdot, ref
 from .model import PEP8_LLEN, Box, Model, Rule
 
@@ -111,6 +111,18 @@ class Optional(Box):
     @cached_property
     def _nullable(self) -> bool:
         return True
+
+    def optimized(self) -> Self | Model:
+        from .closure import Closure, Gather, Join
+
+        exp = self.exp.optimized()
+        if isinstance(
+            exp, Optional | Closure | Join | Gather
+        ) and 'Positive' not in typename(exp):
+            return exp
+        new = copy(self)
+        new.exp = exp
+        return new
 
 
 @nodedataclass
