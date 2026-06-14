@@ -222,6 +222,7 @@ def run_with_progress(
             parallel=True,
             reraise=False,
             summary=False,
+            max_workers=cfg.nproc,
         )
         if not cfg.quiet:
             results = show_summary(cfg, start_time, top_progress, results)
