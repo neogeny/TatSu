@@ -57,7 +57,15 @@ __all__ = ['draw']
 
 
 def available() -> bool:
-    return moduletools.module_available('graphviz') and misc.platform_has_command('dot')
+    if not moduletools.module_available('graphviz'):
+        return False
+    if not misc.platform_has_command('dot'):
+        return False
+    try:
+        graphviz = importlib.import_module('graphviz')
+        return bool(graphviz)
+    except ImportError:
+        return False
 
 
 def draw(filename, grammar):
