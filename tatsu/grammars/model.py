@@ -175,11 +175,11 @@ class NIL(Model):
         return ctx.fail() or ()
 
     def _pretty(self, lean=False):
-        return NIL.__name__
+        return typename(self)
 
     @cached_property
     def _nullable(self) -> bool:
-        return False
+        return True
 
 
 @nodedataclass
