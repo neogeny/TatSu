@@ -36,7 +36,7 @@ def nodedataclass[T: type](cls: T) -> T: ...
 def nodedataclass[T: type](**params: Any) -> Callable[[T], T]: ...
 
 
-def nodedataclass[T: type](cls: T | None = None, **params) -> T | Callable[[T], T]:  # type: ignore
+def nodedataclass[T: type](cls: T | None = None, **params: Any) -> T | Callable[[T], T]:
     # by Gemini (2026-02-07)
     # by [apalala@gmail.com](https://github.com/apalala)
 
