@@ -41,7 +41,11 @@ directive:
 
 keywords: {keyword}+
 
-keyword: '@@keyword' ~ '::' {+=(word | string) !(':' | '=')}+
+keyword: '@@keyword' ~ '::'
+    (
+        | '(' ~ ={word|string}+ ')'
+        | {+=(word | string) !(':' | '=')}+
+    )
 
 params: +=first_param {',' +=literal !'=' ~}
 
@@ -74,14 +78,14 @@ rule[Rule]:
 
 ENDRULE: DEDENT | BLANK | ';' | $
 
-DEDENT: EOL &/\S/
+DEDENT: EOL &/^\S/
 
 BLANK: EOL EOL
 
 # BLANK: $-> $-> ;
 
 
-EOL: /(?m)[ \t]*$/ /(?m)(?:\r?\n|\r)?/
+EOL: /(?m)[ \t]*$/ /(?m)(?:\r?\n|\r)/
 
 decorator: '@' !'@' ~ =/(override|name|isname|nomemo|nostak)\b/
 
