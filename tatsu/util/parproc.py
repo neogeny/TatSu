@@ -211,7 +211,7 @@ def parproc_visual(
     pickable: Func = identity,
     parallel: bool = True,
     reraise: bool = False,
-    summary: bool = False,
+    summary: bool = True,
     max_workers: int | None = None,
     **kwargs: Any,
 ) -> Generator[Result, None, None]:

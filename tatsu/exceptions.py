@@ -46,12 +46,12 @@ _DEFAULT_COLOR = Color.stderr()
 
 class _ColorSet:
     def __init__(self, color: Color = _DEFAULT_COLOR):
-        self.err = Style(bold=True, fg=1, color=color).apply
-        self.loc = Style(fg=4, color=color).apply
-        self.gut = Style(color=color).basic_blue().bold().apply
-        self.ar = Style(color=color).yellow().apply
-        self.nam = Style(color=color).white().bold().apply
-        self.msg = Style(color=color).white().bold().apply
+        self.err = Style(bold=True, fg=1, color=color)
+        self.loc = Style(fg=4, color=color)
+        self.gut = Style(color=color).basic_blue().bold()
+        self.ar = Style(color=color).yellow().dim()
+        self.nam = Style(color=color).white().bold()
+        self.msg = Style(color=color).white().bold()
 
 
 class FailedParse(ParseException):
