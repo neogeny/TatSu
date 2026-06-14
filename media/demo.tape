@@ -3,7 +3,7 @@ Output media/demo.gif
 
 Set Framerate 24
 Set Width  1024
-Set Height  800
+Set Height  840
 
 Set Theme "nord"
 # Set Theme "Catppuccin Mocha"
@@ -12,7 +12,7 @@ Set Theme "nord"
 # Set MarginFill "#2e3440"
 
 # Set FontFamily "Fira Code"
-Set FontSize 22
+Set FontSize 20
 
 # Set Shell "/bin/bash --noprofile --norc"
 Set Shell "xonsh"

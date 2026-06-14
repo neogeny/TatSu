@@ -57,7 +57,7 @@ The New CLI Tool
 ----------------
 
 
-.. image:: https://vhs.charm.sh/vhs-1Kpd4NKyzLlJGIgibTmt6L.gif
+.. image:: https://vhs.charm.sh/vhs-5SOvhUHp15PK1ypG9lz604.gif
    :alt: New CLI tool demo
    :width: 800px
 
