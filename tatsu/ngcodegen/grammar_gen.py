@@ -100,4 +100,4 @@ class ParseWithModelGenerator(IndentPrintMixin):
 
         self.print(FOOTER(name))
 
-        return self.printed_text()
+        return f"{self.printed_text().strip()}\n"
