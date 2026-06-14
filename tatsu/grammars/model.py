@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import weakref
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from copy import copy
 from dataclasses import field
 from functools import cached_property
-from itertools import batched
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Self
@@ -367,7 +366,7 @@ class Rule(NamedBox):
             return repr(p)
 
     def _pretty(self, lean=False):
-        str_template = "{is_name}{name}{base}{params}:{exp}"
+        str_template = "{is_name}{no_memo}{name}{base}{params}:{exp}"
 
         if lean:
             params = ''
@@ -404,6 +403,7 @@ class Rule(NamedBox):
             base=base,
             params=params,
             exp=exp,
+            no_memo='@nomemo\n' if self.no_memo else '',
             is_name='@name\n' if self.is_name else '',
         )
 
@@ -688,17 +688,23 @@ class Grammar(Model):
             directives += '\n'
 
         keywordsets = []
-        for batch in batched(sorted(self.keywords), 8):
-            b = [repr(k) for k in batch if k and k.strip()]
-            if not b:
-                continue
-            keywordsets += [f'@@keyword :: {' '.join(b)}']
+        batch: list[str] = []
+        bfmt: str = ""
+        for k in sorted(repr(k) for k in self.keywords):
+            batch += [k]
+            bfmt = f"@@keyword :: {' '.join(batch)}"
+            if len(bfmt) >= PEP8_LLEN - 8:
+                keywordsets += [bfmt]
+                batch = []
+        if batch:
+            keywordsets += [bfmt]
+
         keywords = f"\n\n{'\n'.join(keywordsets)}\n\n" if keywordsets else ""
 
         rules = (
             '\n\n'.join(str(rule._pretty(lean=lean)) for rule in self.rules)
         ).rstrip() + '\n\n'
-        return directives + keywords + rules
+        return f"{directives}{keywords}{rules}"
 
     def optimized(self) -> Grammar:
         if isinstance(self._optimized, Grammar):
@@ -713,6 +719,21 @@ class Grammar(Model):
         new._optimized = new  # NOTE circular reference as cached
 
         return new
+
+    @classmethod
+    def __from_json__(cls: type[Self], data: Mapping[str, Any]) -> Grammar:
+        g = super().__from_json__(data)
+        # NOTE got a Grammar that used Grammar.__init__()
+        #
+        # NOTE
+        #   Copy the grammar so the configuration is unique
+        # HACK
+        return Grammar(
+            name=g.name,
+            rules=g.rules,
+            directives=g.directives,
+            keywords=g.keywords,
+        )
 
 
 class ModelContext(ParseContext):
