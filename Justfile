@@ -177,3 +177,6 @@ doclint: docg
 
 @version:
     echo "━ ᝰ {{ py }} ━"
+
+demo:
+    vhs media/demo.tape

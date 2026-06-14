@@ -17,7 +17,7 @@ Set FontSize 18
 # Set Shell "/bin/bash --noprofile --norc"
 Set Shell "xonsh"
 
-Set TypingSpeed 30ms
+Set TypingSpeed 20ms
 Type "uv run tatsu run ./gtmp/java/java.ebnf datasets/*.java --verbose -o gtmp/t.jsonl"
 Enter
 
@@ -31,4 +31,4 @@ Sleep 4s
 # Show the output completion
 # Type "Done.
 # Enter
-Sleep 4s
+Sleep 6s
