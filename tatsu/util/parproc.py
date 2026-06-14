@@ -10,6 +10,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from itertools import batched
 from pathlib import Path
+from pickle import PickleError, PicklingError
 from threading import Event
 from typing import Any, NamedTuple, Protocol
 
@@ -138,6 +139,7 @@ def parproc(
     pickable: Func = identity,
     parallel: bool = True,
     reraise: bool = False,
+    max_workers: int | None = None,
     **kwargs: Any,
 ) -> Generator[Result | None, None, None]:
     stop = Event()
@@ -161,7 +163,7 @@ def parproc(
         yield from map(taskproc, tasks)
     else:
         pmap = active_pmap()
-        yield from pmap(stop, taskproc, tasks)
+        yield from pmap(stop, taskproc, tasks, max_workers)
 
 
 def taskproc(task: Task) -> Result:
@@ -172,9 +174,22 @@ def taskproc(task: Task) -> Result:
     outcome: Any = None
     elapsed: float = 0.0
     try:
-        start_time = time.perf_counter()
-        outcome = task.func(task.payload, *task.args, **task.kwargs)
-        elapsed = time.perf_counter() - start_time
+        start_time = time.thread_time()
+        try:
+            outcome = task.func(task.payload, *task.args, **task.kwargs)
+        except TypeError:
+            if not isinstance(task.payload, VisualPayload):
+                raise
+
+            # HACK add backwards compatibility
+            prev_limit = sys.getrecursionlimit()
+            sys.setrecursionlimit(2**16)
+            try:
+                outcome = task.func(task.payload.path, *task.args, **task.kwargs)
+            finally:
+                sys.setrecursionlimit(prev_limit)
+
+        elapsed = time.thread_time() - start_time
     except Exception as e:
         result.exception = e
         if task.reraise:
@@ -189,7 +204,7 @@ def taskproc(task: Task) -> Result:
 
 def parproc_visual(
     func: VisualFunc,
-    payloads: Iterable[VisualPayload],
+    payloads_in: Iterable[VisualPayload | str],
     /,
     build_progressbar: GetProgressFunc = _build_progressbar,
     *args: Any,
@@ -197,10 +212,19 @@ def parproc_visual(
     parallel: bool = True,
     reraise: bool = False,
     summary: bool = False,
+    max_workers: int | None = None,
     **kwargs: Any,
 ) -> Generator[Result, None, None]:
     # note: resolve iterator now because we know that processing will do it anyway
-    payloads = list(payloads)
+    payloads_in = list(payloads_in)
+
+    # HACK backwards compatibility
+    is_legacy = all(isinstance(p, str) for p in payloads_in)
+    payloads: list[VisualPayload] = (  # type: ignore # pyright: ignore[reportAssignmentType]
+        payloads_in  # type: ignore
+        if not is_legacy
+        else [VisualPayload(path=Path(str(p)), payload=None) for p in payloads_in]
+    )
     filenames = [str(p.path) for p in payloads]
 
     logpath = None
@@ -229,6 +253,7 @@ def parproc_visual(
         pickable=pickable,
         parallel=parallel,
         reraise=reraise,
+        max_workers=max_workers,
         **kwargs,
     )
     count = 0
@@ -236,6 +261,9 @@ def parproc_visual(
     success_linecount = 0
 
     progress, progress_task = build_progressbar(total)
+    if is_legacy:
+        # HACK backwards compatibility: resolve the iterator
+        results = list(results)  # type: ignore
     with progress:
         for result in results:
             if result is None:
@@ -288,7 +316,9 @@ def parproc_visual(
         progress.update(progress_task, advance=0, description='')
         progress.remove_task(progress_task)
         progress.stop()
-    if summary:
+
+    if summary or is_legacy:
+        raise RuntimeError("HERE")
         with logctx() as log:
             _file_process_summary(
                 filenames,
@@ -384,8 +414,7 @@ def _file_process_summary(
     print(summary, file=log)
     print(EOLCH + 80 * ' ', file=sys.stderr)
 
-    if log != sys.stderr:
-        print(summary, file=sys.stderr)
+    print(summary, file=sys.stderr)
     if failures:
         rich.print(f'[red bold]FAILURES: [green]{log.name}')
         print(file=sys.stderr)
@@ -401,6 +430,7 @@ def processing_loop(
     pickable: Func = identity,
     parallel: bool = True,
     reraise: bool = False,
+    max_workers: int | None = None,
     **kwargs: Any,
 ) -> Generator[Result, None, None]:
     paths = [Path(f) for f in filenames]
@@ -412,11 +442,14 @@ def processing_loop(
         pickable=pickable,
         parallel=parallel,
         reraise=reraise,
+        max_workers=max_workers,
         **kwargs,
     )
 
 
-def active_pmap() -> Callable[[Event, Func, Iterable[Any]], Iterable[Result]]:
+def active_pmap() -> Callable[
+    [Event, Func, Iterable[Any], int | None], Iterable[Result]
+]:
     import multiprocessing
     from concurrent.futures import (
         Executor,
@@ -458,20 +491,35 @@ def active_pmap() -> Callable[[Event, Func, Iterable[Any]], Iterable[Result]]:
                 raise
 
     def thread_pmap(
-        event: Event, process: Func, tasks: Iterable[Any]
-    ) -> Iterable[Result]:
-        yield from executor_pmap(ThreadPoolExecutor, event, process, tasks)
-
-    def process_pmap(
-        process: Func, event: Event, tasks: Iterable[Any]
+        event: Event,
+        process: Func,
+        tasks: Iterable[Any],
+        max_workers: int | None = None,
     ) -> Iterable[Result]:
         yield from executor_pmap(
-            ProcessPoolExecutor,
+            ThreadPoolExecutor,
             event,
             process,
             tasks,
-            max_workers=multiprocessing.cpu_count(),
+            max_workers=max_workers or multiprocessing.cpu_count(),
         )
+
+    def process_pmap(
+        event: Event,
+        process: Func,
+        tasks: Iterable[Any],
+        max_workers: int | None = None,
+    ) -> Iterable[Result]:
+        try:
+            yield from executor_pmap(
+                ProcessPoolExecutor,
+                event,
+                process,
+                tasks,
+                max_workers=max_workers or multiprocessing.cpu_count(),
+            )
+        except (TypeError, PicklingError, PickleError):
+            yield from thread_pmap(event, process, tasks, max_workers)
 
     def imap_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[Result]:
         tasks = list(tasks)
@@ -490,5 +538,5 @@ def active_pmap() -> Callable[[Event, Func, Iterable[Any]], Iterable[Result]]:
                 'number of chunked tasks different %d != %d' % (len(tasks), count),
             )
 
-    # return process_pmap
-    return thread_pmap
+    return process_pmap
+    # return thread_pmap
