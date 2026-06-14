@@ -3,13 +3,13 @@ Output media/demo.gif
 
 Set Framerate 24
 Set Width  1024
-Set Height  840
+Set Height  880
 
 Set Theme "nord"
 # Set Theme "Catppuccin Mocha"
 
-# Set Margin 40
-# Set MarginFill "#2e3440"
+Set Margin 8
+Set MarginFill "#2e3440"
 
 # Set FontFamily "Fira Code"
 Set FontSize 20
