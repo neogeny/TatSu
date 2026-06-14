@@ -51,6 +51,7 @@ class _ColorSet:
         self.gut = Style(color=color).basic_blue().bold().apply
         self.ar = Style(color=color).yellow().apply
         self.nam = Style(color=color).white().bold().apply
+        self.msg = Style(color=color).white().bold().apply
 
 
 class FailedParse(ParseException):
@@ -90,7 +91,8 @@ class FailedParse(ParseException):
         s = Style(color=color)
 
         lines = text.splitlines()
-        print(f'{c.err("error:")} {msg}', file=out)
+        errmsg = f'{c.err("error:")} {c.msg(msg)}'
+        print(errmsg, file=out)
         print(file=out)
         loc = s(f'[{line + 1}:{col + 1}]').dim()
         print(
@@ -114,7 +116,7 @@ class FailedParse(ParseException):
         padding = ' ' * max(0, col)
         print(
             f' {" ":{max_line_digits + 1}}{gut}'
-            f' {padding}{c.err("^")} {c.err(slicetowidth(msg, 40))}',
+            f' {padding}{c.err("^")} {c.msg(slicetowidth(msg, 40))}',
             file=out,
         )
 
