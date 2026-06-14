@@ -140,7 +140,7 @@ doclint: docg
 
 @build: clean
     echo "▶ build"
-    uvx hatch build
+    uv build
 
 @testpublish: build
     gh workflow run test_publish.yml
