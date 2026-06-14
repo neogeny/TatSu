@@ -27,7 +27,7 @@ def dataclass_fields(
     yield from [(f.name, f) for f in fields]
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class JSONBase(AsJSONMixin):
     @classmethod
     def __from_json__(cls: type[Self], data: Mapping[str, Any]) -> Self:
@@ -36,7 +36,7 @@ class JSONBase(AsJSONMixin):
             initdata = {
                 name: value
                 for name, value in data.items()
-                if name in fieldmap and fieldmap[name].init
+                if (f := fieldmap.get(name)) and f.init
             }
             return cls(**initdata)  # pyright: ignore[reportCallIssue]
 
