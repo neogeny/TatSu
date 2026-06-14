@@ -18,7 +18,7 @@ Set FontSize 18
 Set Shell "xonsh"
 
 Set TypingSpeed 20ms
-Type "uv run tatsu run ./gtmp/java/java.ebnf datasets/*.java --verbose -o gtmp/t.jsonl"
+Type "uv run tatsu run ./grammar/java.ebnf datasets/*.java --verbose -o gtmp/t.jsonl"
 Enter
 
 # Simulate the 8-second processing time

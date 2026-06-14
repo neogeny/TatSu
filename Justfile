@@ -179,4 +179,6 @@ doclint: docg
     echo "━ ᝰ {{ py }} ━"
 
 demo:
+    echo "▶ demo"
+    @uv sync
     vhs media/demo.tape
