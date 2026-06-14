@@ -52,7 +52,8 @@ tach.toml
 examples/g2e/*.tatsu
 examples/g2e/python3_parser.py
 *.sage.py
-tmp/
+*tmp/
+
 
 ### --- Documentation & Site ---
 docs/_build/
