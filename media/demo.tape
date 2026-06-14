@@ -12,7 +12,7 @@ Set Theme "nord"
 # Set MarginFill "#2e3440"
 
 # Set FontFamily "Fira Code"
-Set FontSize 18
+Set FontSize 20
 
 # Set Shell "/bin/bash --noprofile --norc"
 Set Shell "xonsh"
@@ -31,4 +31,5 @@ Sleep 4s
 # Show the output completion
 # Type "Done.
 # Enter
-Sleep 6s
+Sleep 4s
+Sleep 4s
