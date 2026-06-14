@@ -20,21 +20,30 @@ from .syntax import Sequence
 
 @nodedataclass
 class RuleInclude(NamedBox):
-    rule: Rule = field(default_factory=Rule)
+    _rule: Rule = field(default_factory=Rule)
 
     def __post_init__(self):
+        if not self.name and self.ast:
+            assert isinstance(self.ast, str)
+            self.name = self.ast
         super().__post_init__()
+        assert self.name or self._rule
         if not self.name:
-            self.name = self.rule.name
+            self.name = self._rule.name
+        assert self.name, f'{self!s}'
+
+    @property
+    def rule(self) -> Rule:
+        return self._rule
 
     def link(self, grammar: Grammar):
         super().link(grammar)
         if isinstance(self.exp, Model):
             return
-        name = self.name or self.rule.name or self.exp
+        name = self.name
         assert name and isinstance(name, str), f'{self!r} {self.name!r}'
         self.exp = grammar.rulemap[name].exp
-        assert isinstance(self.exp, Model), f'{self!r} {self.name!r}'
+        assert isinstance(self.exp, Model), f'{self!r}\n{self.name!r}\n{self.exp!r}'
 
     def __pub__(self, sunderok: bool = False):
         assert self.name or self.rule, f'{self!r} {self.name!r}'
@@ -47,13 +56,13 @@ class RuleInclude(NamedBox):
         return pub
 
     def missing_rules(self, rulenames: set[str]) -> set[str]:
-        assert self.name or self.rule, f'{self!r} {self.name!r}'
-        # if self.name not in rulenames:
-        #     return {self.name}
+        assert self.name, f'{self!r} {self.name!r}'
+        if self.name not in rulenames:
+            return {self.name}
         return set()
 
     def _pretty(self, lean=False):
-        return f'>{self.rule.name}'
+        return f'>{self.name}'
 
     def optimized(self) -> Model:
         if not self.exp:
