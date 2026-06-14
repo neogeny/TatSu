@@ -251,6 +251,10 @@ class DiagramNodeWalker(NodeWalker):
         n = self.ref_node(rr.name)
         return n, n
 
+    def walk_rule_include(self, rr):
+        n = self.ref_node(rr.name)
+        return n, n
+
     def walk_pattern(self, p):
         n = self.tnode(p.pattern)
         return n, n

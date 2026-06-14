@@ -77,12 +77,11 @@ class FailedParse(ParseException):
     def render(self, color: Color = _DEFAULT_COLOR) -> str:
         from io import StringIO
 
-        c = _ColorSet(color)
-
         text = self.cursor.textstr
         msg = self.message
         info = self.info
 
+        c = _ColorSet(color)
         line, col = info.line, info.col
         source = info.source or '<unknown>'
         rulestack = [r.name for r in reversed(self.stack)]
@@ -116,7 +115,7 @@ class FailedParse(ParseException):
         padding = ' ' * max(0, col)
         print(
             f' {" ":{max_line_digits + 1}}{gut}'
-            f' {padding}{c.err("^")} {c.msg(slicetowidth(msg, 40))}',
+            f' {padding}{c.err("^ error:")} {c.msg(slicetowidth(msg, 40))}',
             file=out,
         )
 
@@ -185,6 +184,10 @@ class FailedExpectingEndOfLine(FailedParse):
 
 
 class KeywordError(FailedParse):
+    pass
+
+
+class FailedUnlinkedRule(FailedParse):
     pass
 
 
