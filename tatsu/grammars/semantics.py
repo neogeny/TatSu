@@ -201,12 +201,12 @@ class GrammarSemantics(ModelBuilderSemantics):
         self.rulemap[name] = rule
         return rule
 
+    # FIXME
     def rule_include(self, ast):
         name = str(ast)
         self.known_name(name)
 
-        rule = self.rulemap[name]
-        return g.RuleInclude(ast=ast, name=name, exp=rule.exp, rule=rule)
+        return g.RuleInclude(ast=ast, name=name)
 
     def grammar(self, ast):
         directives = {d.name: d.value for d in flatten(ast.directives) if d}
