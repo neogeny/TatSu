@@ -176,12 +176,13 @@ def add_run_cmd(subparsers):
     run_parser.add_argument(
         "-s", "--start", default="", dest="start", help="Name of the start rule"
     )
-    run_parser.add_argument(
-        "-n",
-        "--nproc",
-        type=int,
-        default=0,
-        dest="nproc",
-        help="Number of concurrent workers",
-    )
+    # FIXME: nproc is not yet supported
+    # run_parser.add_argument(
+    #     "-n",
+    #     "--nproc",
+    #     type=int,
+    #     default=0,
+    #     dest="nproc",
+    #     help="Number of concurrent workers",
+    # )
     return run_parser
