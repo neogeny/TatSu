@@ -77,6 +77,8 @@ def run_cling_cli(parser: argparse.ArgumentParser) -> CLIConfig:
 
 def cling_main() -> None:
     """Entry point for the cling CLI (not wired to console_scripts yet)."""
+
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     sys.setrecursionlimit(2**16)
 
     try:
