@@ -181,5 +181,5 @@ doclint: docg
 demo:
     echo "▶ demo"
     @uv sync
-    vhs media/demo.tape
-    vhs publish media/demo.gif
+    # vhs media/demo.tape
+    vhs publish -q media/demo.gif | media/demo.py > media/demo.rst

@@ -109,7 +109,6 @@ def show_summary(
                 outresults.append(r)
                 continue
             print(file=sys.stderr)
-            console.print(f"path: [red]{r.payload.path}[/]")
             print(r.exception, file=sys.stderr)
 
     table = Table(show_header=False, box=None)

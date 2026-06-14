@@ -95,10 +95,10 @@ class FailedParse(ParseException):
         print(file=out)
         loc = s(f'[{line + 1}:{col + 1}]').dim()
         print(
-            f'{c.gut("  -->")} {c.nam(source)}@{info.end}{loc}',
+            f'{c.gut("  ─→")} {c.nam(source)}{loc}',
             file=out,
         )
-        gut = c.gut("|")
+        gut = c.gut("│")
         print(f'   {gut}', file=out)
 
         max_line_digits = len(str(line + 1))
@@ -115,7 +115,7 @@ class FailedParse(ParseException):
         padding = ' ' * max(0, col)
         print(
             f' {" ":{max_line_digits + 1}}{gut}'
-            f' {padding}{c.err("^ error:")} {c.msg(slicetowidth(msg, 40))}',
+            f' {padding}{c.err("⌃ error:")} {c.msg(slicetowidth(msg, 40))}',
             file=out,
         )
 
