@@ -92,7 +92,6 @@ class FailedParse(ParseException):
         lines = text.splitlines()
         errmsg = f'{c.err("error:")} {c.msg(msg)}'
         print(errmsg, file=out)
-        print(file=out)
         loc = s(f'[{line + 1}:{col + 1}]').dim()
         print(
             f'{c.gut("  ─→")} {c.nam(source)}{loc}',

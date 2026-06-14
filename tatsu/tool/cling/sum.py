@@ -1,3 +1,5 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 import sys
@@ -99,17 +101,16 @@ def show_summary(
     console = Console(stderr=True)
     outresults: list[Result] = []
     if cfg.verbose:
-        if failures:
-            print(file=sys.stderr)
-            console.print(f"\n[red bold]FAILURES: {failures}[/]")
-        else:
-            console.print(f"\n[green bold]NO FAILURES: {failures}[/]")
         for r in results:
             if not (r.exception or isinstance(r.outcome, Exception)):
                 outresults.append(r)
                 continue
-            print(file=sys.stderr)
             print(r.exception, file=sys.stderr)
+
+        if failures:
+            console.print(f"\n[red bold]FAILURES: {failures}[/]")
+        else:
+            console.print(f"\n[green bold]NO FAILURES: {failures}[/]")
 
     table = Table(show_header=False, box=None)
     table.add_column(style="dim cyan", justify="right")
