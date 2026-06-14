@@ -151,6 +151,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'self.{name}({self.ctx})')
 
     def walk_RuleInclude(self, include: g.RuleInclude):
+        assert include.rule is not None
         self.walk(include.rule.exp)
 
     def walk_Void(self, _void: g.Void):

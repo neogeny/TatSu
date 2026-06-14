@@ -173,7 +173,7 @@ class RailroadNodeWalker(NodeWalker):
         return weld([' ->('], self.walk(skipto.exp), [')'])
 
     def walk_rule_include(self, include: g.RuleInclude):
-        return [f' >({include.rule.name}) ']
+        return [f' >({include.name}) ']
 
     def walk_based_rule(self, rule: g.BasedRule):
         out = [f'{rule.name} < {rule.baserule}●─']
