@@ -1,9 +1,14 @@
 import os
 import sys
 from dataclasses import dataclass, field
+from pathlib import Path
 
 
 DEFAULT_PYGMENTS_STYLE = "nord"
+
+
+class CLIError(Exception):
+    """Raised when the CLI encounters an error."""
 
 
 @dataclass
@@ -21,7 +26,7 @@ class CLIConfig:
 
     # Subcommand state
     command: str = ""
-    grammar: str | None = None
+    grammar: str | Path = ""
     optimized: bool = False
     path: str | None = None
     inputs: list[str] = field(default_factory=list)

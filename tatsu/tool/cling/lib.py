@@ -11,7 +11,7 @@ from tatsu.grammars.model import Grammar
 type Results = list[tuple[str, Any]]
 
 
-def load_grammar(path: str) -> Grammar:
+def load_grammar(path: str | Path) -> Grammar:
     """Load a Grammar from an .ebnf or .json file."""
     from ...grammars.model import Grammar as _Grammar
 

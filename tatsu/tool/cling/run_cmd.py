@@ -102,7 +102,8 @@ def run_cmd(cfg: CLIConfig) -> Results:
     if not cfg.grammar:
         raise ValueError("No grammar specified")
 
-    grammar = load_grammar(cfg.grammar)
+    grammarpath = Path(cfg.grammar)
+    grammar = load_grammar(grammarpath)
     start = cfg.start or None
 
     if len(cfg.inputs) == 1:
@@ -190,8 +191,8 @@ def run_with_progress(
     task_progress = top_progress
     new_fileheart = make_new_fileheart(task_progress)
 
+    name = Path(cfg.grammar).name
     total = len(cfg.inputs)
-    name = Path(grammar).name
     toptask = top_progress.add_task(name, total=total)
     top_progress.set_main(toptask)
 

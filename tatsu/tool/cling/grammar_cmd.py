@@ -68,7 +68,9 @@ def grammar_cmd(cfg: CLIConfig) -> Results:
     """Handle the ``grammar`` subcommand."""
     if cfg.grammar is None:
         raise ValueError("expected a grammar path")
-    path: str = cfg.grammar or ""
+    path = cfg.grammar
+    if not Path(path).is_file():
+        raise ValueError(f"expected a grammar file, got {path}")
     grammar = load_grammar(path)
 
     payload = render_grammar(
@@ -76,4 +78,4 @@ def grammar_cmd(cfg: CLIConfig) -> Results:
         cfg,
         name=Path(path).stem,
     )
-    return [(path, payload)]
+    return [(str(path), payload)]
