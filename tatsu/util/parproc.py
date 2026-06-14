@@ -311,6 +311,8 @@ def parproc_visual(
 
             if result.exception and reraise:
                 raise result.exception
+            if is_legacy:
+                result.payload = result.payload.path
             yield result
 
         progress.update(progress_task, advance=0, description='')
@@ -318,7 +320,6 @@ def parproc_visual(
         progress.stop()
 
     if summary or is_legacy:
-        raise RuntimeError("HERE")
         with logctx() as log:
             _file_process_summary(
                 filenames,
