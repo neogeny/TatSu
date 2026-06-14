@@ -12,30 +12,6 @@
 | |sponsor|
 |
 
-  **Sibling Projects!**
-
-  Take a look at the sibling projects:
-    * `修TieXiu`_ in `Rust`
-    * `⻰OGoPEGo`_ in `Go`
-    * `꘩TS’emekwes`_ in `TypeScript`
-
-  They are functionally complete and pass all the |TatSu| test suite.
-
-  Some features are implemented differently to abide to the semantics and
-  idioms of each language (features being deprecated in |TatSu| are missing).
-
-  Prepare to be surprised at the performance differences, after thorough
-  optimization, of `Python` versus `Go`, `Rust`, and `TypeScript`.
-
-.. _修TieXiu: https://pypi.org/project/TieXiu/
-.. _`⻰OGoPEGo`: https://pypi.org/project/ogopego/
-.. _`꘩TS’emekwes`: https://github.com/neogeny/tsemekwes
-
-.. image:: https://vhs.charm.sh/vhs-676THJSxhp7ECdeZwXlA7L.gif
-   :alt: New CLI tool demo
-   :width: 800px
-
-
 |TatSu|
 =======
 
@@ -56,6 +32,35 @@
 outputs `memoizing`_ (`Packrat`_) `PEG`_ parsers in `Python`_. The classic
 variations of EBNF_ (Tomassetti, EasyExtend, Wirth) and `ISO EBNF`_ are
 supported as input grammar formats.
+
+
+  **Sibling Projects!**
+
+  Take a look at the sibling projects:
+    * `修TieXiu`_ in `Rust`
+    * `⻰OGoPEGo`_ in `Go`
+    * `꘩TS’emekwes`_ in `TypeScript`
+
+  They are functionally complete and pass all the |TatSu| test suite.
+
+  Some features are implemented differently to abide to the semantics and
+  idioms of each language (features being deprecated in |TatSu| are missing).
+
+  Prepare to be surprised at the performance differences, after thorough
+  optimization, of `Python` versus `Go`, `Rust`, and `TypeScript`.
+
+.. _修TieXiu: https://pypi.org/project/TieXiu/
+.. _`⻰OGoPEGo`: https://pypi.org/project/ogopego/
+.. _`꘩TS’emekwes`: https://github.com/neogeny/tsemekwes
+
+The New CLI Tool
+----------------
+
+
+.. image:: https://vhs.charm.sh/vhs-676THJSxhp7ECdeZwXlA7L.gif
+   :alt: New CLI tool demo
+   :width: 800px
+
 
 Why use a `PEG`_ parser generator?
 ----------------------------------
