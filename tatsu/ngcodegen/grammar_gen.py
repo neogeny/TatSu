@@ -11,8 +11,7 @@ from .ngparser_gen import keywordsgen, textinputgen
 
 
 def parsermodel_gen(model: g.Grammar, name: str | None = None) -> str:
-    if isinstance(model, g.Grammar):
-        model = model.optimized()
+    model = model.optimized()
     generator = ParseWithModelGenerator()
     return generator.generate_parser(model, name=name)
 

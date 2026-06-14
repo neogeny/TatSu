@@ -24,7 +24,7 @@ ANON = '_'
 
 
 def pythongen(model: Node, parser_name: str = '') -> str:
-    if isinstance(model, g.Grammar):
+    if isinstance(model, g.Model):
         model = model.optimized()
     generator = PythonParserGenerator(parser_name=parser_name)
     generator.walk(model)
