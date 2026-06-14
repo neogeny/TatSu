@@ -31,7 +31,7 @@
 .. _`⻰OGoPEGo`: https://pypi.org/project/ogopego/
 .. _`꘩TS’emekwes`: https://github.com/neogeny/tsemekwes
 
-.. image:: media/demo.gif
+.. image:: https://vhs.charm.sh/vhs-676THJSxhp7ECdeZwXlA7L.gif
    :alt: New CLI tool demo
    :width: 800px
 

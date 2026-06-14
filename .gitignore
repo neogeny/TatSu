@@ -53,6 +53,7 @@ examples/g2e/*.tatsu
 examples/g2e/python3_parser.py
 *.sage.py
 *tmp/
+media/demo.gif
 
 
 ### --- Documentation & Site ---
