@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from tatsu.grammars.model import Grammar
+from tatsu.tool.cling.config import CLIError
 
 
 type Results = list[tuple[str, Any]]
@@ -16,7 +17,10 @@ def load_grammar(path: str | Path) -> Grammar:
     from ...grammars.model import Grammar as _Grammar
 
     p = Path(path)
-    source = p.read_text(encoding="utf-8")
+    try:
+        source = p.read_text(encoding="utf-8")
+    except FileNotFoundError as e:
+        raise CLIError(str(e)) from e
     if p.suffix == ".json":
         return _Grammar.loads(source)
     from ..api import compile
