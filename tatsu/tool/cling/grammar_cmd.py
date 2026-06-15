@@ -7,6 +7,7 @@ from pathlib import Path
 from .config import CLIConfig
 from .fmt import render_grammar
 from .global_opt import add_global_options
+from .grammar_opt import add_grammar_options
 from .lib import Results, load_grammar
 
 
@@ -22,46 +23,6 @@ def add_grammar_cmd(subparsers):
         "grammar", help="Path to the grammar source (.ebnf or .json)"
     )
     return grammar_parser
-
-
-def add_grammar_options(parser):
-    parser.add_argument(
-        "-z",
-        "--optimized",
-        action="store_true",
-        default=False,
-        help="Use the optimized version of the grammar",
-    )
-    format = parser.add_mutually_exclusive_group()
-    format.add_argument(
-        "-j",
-        "--json",
-        action="store_true",
-        dest="json",
-        default=True,
-        help="Output the grammar in JSON format",
-    )
-    format.add_argument(
-        "-m",
-        "--model",
-        action="store_true",
-        dest="model",
-        help="Output the model code according to the grammar",
-    )
-    format.add_argument(
-        "-p",
-        "--pretty",
-        action="store_true",
-        dest="pretty",
-        help="Output the grammar in pretty-printed EBNF format",
-    )
-    format.add_argument(
-        "-r",
-        "--railroads",
-        action="store_true",
-        dest="railroads",
-        help="Output a railroad diagram of the grammar",
-    )
 
 
 def grammar_cmd(cfg: CLIConfig) -> Results:

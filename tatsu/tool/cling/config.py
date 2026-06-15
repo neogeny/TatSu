@@ -33,6 +33,7 @@ class CLIConfig:
 
     # format flags
     json: bool = False
+    json_lines: bool = False
     model: bool = False
     pretty: bool = False
     railroads: bool = False

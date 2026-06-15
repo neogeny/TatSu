@@ -17,6 +17,7 @@ from .config import CLIConfig, CLIError
 from .global_opt import add_global_options
 from .grammar_cmd import add_grammar_cmd, grammar_cmd
 from .out import output_results
+from .run_cmd import add_run_cmd
 
 
 TITLE = "竜TatSu"
@@ -139,49 +140,3 @@ def add_help_cmd(subparsers):
         add_help=False,
     )
     return help_parser
-
-
-def add_run_cmd(subparsers):
-    run_parser = subparsers.add_parser(
-        "run",
-        help="Parse input files with the given grammar",
-    )
-    add_global_options(run_parser)
-    run_parser.add_argument(
-        "grammar",
-        help="Path to a grammar in EBNF or JSON format",
-    )
-    run_parser.add_argument(
-        "inputs",
-        nargs="+",
-        help="The files to be parsed",
-    )
-
-    format = run_parser.add_mutually_exclusive_group()
-    format.add_argument(
-        "-j",
-        "--json",
-        action="store_true",
-        dest="json",
-        default=True,
-        help="Output the grammar in JSON format",
-    )
-    format.add_argument(
-        "-m",
-        "--model",
-        action="store_true",
-        dest="model",
-        help="Output the model code according to the grammar",
-    )
-    run_parser.add_argument(
-        "-s", "--start", default="", dest="start", help="Name of the start rule"
-    )
-    run_parser.add_argument(
-        "-n",
-        "--nproc",
-        type=int,
-        default=0,
-        dest="nproc",
-        help="Number of concurrent workers",
-    )
-    return run_parser

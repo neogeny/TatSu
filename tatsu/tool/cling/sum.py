@@ -169,13 +169,14 @@ def show_results(
     padc = 0
 
     def success_results(results) -> Iterable[Result]:
-        for r in results:
-            name = slicetowidth(Path(r.payload.path).name, maxw)
-            if not r.exception and not isinstance(r.outcome, Exception):
-                rprint(
-                    f"{'':{padc}}[green]✓[/] {name:{maxw}} [green]{r.runtime:>4.1f}s",
-                )
-            yield r
+        yield from results
+        # for r in results:
+        #     name = slicetowidth(Path(r.payload.path).name, maxw)
+        #     if not r.exception and not isinstance(r.outcome, Exception):
+        #         rprint(
+        #             f"{'':{padc}}[green]✓[/] {name:{maxw}} [green]{r.runtime:>4.1f}s",
+        #         )
+        #     yield r
 
     for r in success_results(results):
         name = slicetowidth(Path(r.payload.path).name, maxw)

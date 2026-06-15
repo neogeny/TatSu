@@ -14,7 +14,7 @@ def add_global_options(parser):
         help="Suppress progress bar and spinner output",
     )
     group.add_argument(
-        "-vv",
+        "-v",
         "--verbose",
         action="store_true",
         help="Provide more detailed information about the parsing process",
@@ -38,7 +38,7 @@ def add_global_options(parser):
         help="Control colorized output (default: auto)",
     )
     group.add_argument(
-        "-l",
+        "-y",
         "--style",
         dest="style",
         default=DEFAULT_PYGMENTS_STYLE,

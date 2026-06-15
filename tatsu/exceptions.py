@@ -49,7 +49,7 @@ class _ColorSet:
         self.err = Style(bold=True, fg=1, color=color)
         self.loc = Style(fg=4, color=color)
         self.gut = Style(color=color).basic_blue().bold()
-        self.ar = Style(color=color).yellow().dim()
+        self.ar = Style(color=color).basic_red().dim()
         self.nam = Style(color=color).white().bold()
         self.msg = Style(color=color).white().bold()
 
@@ -120,7 +120,7 @@ class FailedParse(ParseException):
 
         print(file=out)
         for call in rulestack:
-            print(f'{c.ar("→")} {call}', file=out)
+            print(f'{c.ar("→")} {s(call).dim()}', file=out)
 
         return out.getvalue()
 

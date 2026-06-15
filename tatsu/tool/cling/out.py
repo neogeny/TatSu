@@ -30,8 +30,8 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
 
     # JSONL for multiple input files (JSON is the default format)
     # Skip JSONL when output is to a TTY — use indented JSON instead.
-    if (
-        not cfg.model
+    if cfg.json_lines or (
+        (not cfg.model or cfg.json)
         and len(results) > 1
         and not (not cfg.output and sys.stdout.isatty())
     ):
@@ -49,7 +49,12 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
 
     # Single result or model output: write sequentially
     single_out = _output_path(cfg)
-    should_colorize = cfg.usecolor() and single_out is None and not cfg.railroads
+    should_colorize = (
+        not cfg.json_lines
+        and not cfg.railroads
+        and cfg.usecolor()
+        and single_out is None
+    )
 
     language = "json"
     if cfg.model:
