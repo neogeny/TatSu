@@ -211,10 +211,10 @@ class ParserCore(Ctx):
         self.state.nameadd(name)
 
     @contextmanager
-    def statescope(self, merge: bool = True) -> Generator[None, None, None]:
+    def statescope(self, *, merge: bool = True) -> Generator[ParseState, None, None]:
         self.states.push()
         try:
-            yield
+            yield self.state
             if merge:
                 self.states.merge()
             else:
