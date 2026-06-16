@@ -8,6 +8,7 @@ from functools import cached_property
 from typing import Any, Self, cast
 
 from ..contexts import AST, Ctx
+from ..contexts.cst import cstmerge
 from ..exceptions import FailedParse, FailedRef
 from ..objectmodel import nodedataclass
 from ..util import indent, trim, typename
@@ -137,7 +138,13 @@ class Sequence(Model):
 
     def _parse(self, ctx: Ctx) -> Any:
         self._add_defined(ctx)
-        return [r for r in (s._parse(ctx) for s in self.sequence) if r is not None]
+        out = None
+        for s in self.sequence:
+            r = s._parse(ctx)
+            if r is None:
+                continue
+            out = cstmerge(out, r)
+        return out
 
     @cached_property
     def defines_single(self) -> list[str]:
