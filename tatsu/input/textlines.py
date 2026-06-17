@@ -102,7 +102,7 @@ class TextLinesCursor(Cursor):
         while self.pos != p:
             p = self.pos
             self.eat_whitespace()
-            if self.eat_eol_comments():
+            while self.eat_eol_comments():
                 self.eat_whitespace()
             self.eat_comments()
 
