@@ -1,7 +1,7 @@
 @@grammar :: TatSu
 @@whitespace :: /(?m)\s+/
 @@comments :: ?"(?ms)[(][*]\s*(.*?)\s*[*][)]|/[*]\s*(.*?)\s*[*]/"
-@@eol_comments :: ?"(?ms)(?:[#]|[\/][\/])(.*?)$"
+@@eol_comments :: ?"(?ms)(?:#|//)(.*?)$"
 @@parseinfo :: True
 @@left_recursion :: False
 
