@@ -56,12 +56,30 @@ class RuleInclude(Model):
     def _pretty(self, lean=False):
         return f'>{self.name}'
 
+    @cached_property
+    def defines_single(self) -> list[str]:
+        if not self.exp:
+            return []
+        return self.exp.defines_single
+
+    @cached_property
+    def defines_list(self) -> list[str]:
+        if not self.exp:
+            return []
+        return self.exp.defines_list
+
     def optimized(self) -> Model:
         if not self.exp:
             return super().optimized()
         new = copy(self)  # noqa: F821
         new._exp = self.exp.optimized()
         return new
+
+    # def __pub__(self, sunderok: bool = False) -> dict[str, Any]:
+    #     pub = super().__pub__(sunderok)
+    #     if sunderok:
+    #         pub['exp'] = self.exp
+    #     return pub
 
 
 @nodedataclass
