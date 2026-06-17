@@ -18,6 +18,7 @@ from ..exceptions import GrammarError
 from ..input import Text
 from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import indent, trim, typename
+from ..util.undefined import UndefinedType
 from .math import ffset, kdot
 
 
@@ -427,7 +428,7 @@ class Rule(NamedBox):
 
 @nodedataclass
 class Patterns(Model):
-    whitespace: str | None = None
+    whitespace: str | UndefinedType | None = None
     comments: str | None = None
     eol_comments: str | None = None
 

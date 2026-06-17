@@ -12,7 +12,7 @@ from .input.cursor import Text
 from .util.configs import Config
 from .util.heart import Heart
 from .util.regextools import cached_re_compile
-from .util.undefined import Undefined
+from .util.undefined import Undefined, UndefinedType
 from .util.unicode_characters import C_DERIVE
 
 
@@ -52,7 +52,7 @@ class ParserConfig(Config):
     ignorecase: bool | None = None
     namechars: str | None = None
     nameguard: bool | None = None  # implied by namechars
-    whitespace: str | None = Undefined  # type: ignore
+    whitespace: str | UndefinedType | None = Undefined
     parseinfo: bool = False
     heart: Heart | None = None
     heart_wait: float = 0.090
