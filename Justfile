@@ -137,9 +137,20 @@ doclint: docg
 
 # --- Build & Publish ---
 
-@build: clean
+@build: clean parsers
     echo "▶ build"
     uv build
+
+@parsers:
+    echo "▶ parsers"
+    python3 -m tatsu tatsu/_tatsu.ebnf \
+        -z \
+        -m TatSuBootstrap \
+        -o tatsu/parser/bootstrap.py
+    python3 -m tatsu tatsu/_tatsu.ebnf \
+        -z -x \
+        -m TatSuBootstrap \
+        -o tatsu/parser/bootparser.py
 
 @testpublish: build
     gh workflow run test_publish.yml
