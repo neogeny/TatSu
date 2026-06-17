@@ -274,7 +274,7 @@ def print_summary(
 def benchmark(
     grammar: str | Path,
     filenames: Iterable[str | Path],
-    mode: set[str] = {'all'},
+    mode: set[str],
 ) -> tuple[
     BenchmarkResult | None,
     BenchmarkResult | None,
