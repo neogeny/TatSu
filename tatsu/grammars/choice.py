@@ -9,8 +9,8 @@ from typing import Any
 from ..contexts import Ctx
 from ..exceptions import FailedParse
 from ..objectmodel import nodedataclass
+from .base import PEP8_LLEN, Box, Model
 from .math import ffset
-from .model import PEP8_LLEN, Box, Model
 
 
 @nodedataclass

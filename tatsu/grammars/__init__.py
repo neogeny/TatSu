@@ -6,6 +6,17 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from .base import (
+    NIL,
+    Box,
+    Grammar,
+    Model,
+    ModelContext,
+    Rule,
+    Synth,
+    Void,
+    model_classes,
+)
 from .basic import (
     EOF,
     EOF_SYM,
@@ -36,17 +47,6 @@ from .closure import (
 from .deprecated import LeftJoin, RightJoin
 from .math import _ref, ref
 from .meta import BoolMeta, FloatMeta, IntMeta, Meta, NameMeta, UIntMeta
-from .model import (
-    NIL,
-    Box,
-    Grammar,
-    Model,
-    ModelContext,
-    Rule,
-    Synth,
-    Void,
-    model_classes,
-)
 from .named import Named, NamedList, Override, OverrideList
 from .pattern import Pattern
 from .rulelike import BasedRule, RuleInclude

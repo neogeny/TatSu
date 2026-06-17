@@ -12,8 +12,8 @@ from ..contexts.cst import cstmerge
 from ..exceptions import FailedParse, FailedRef
 from ..objectmodel import nodedataclass
 from ..util import indent, trim, typename
+from .base import PEP8_LLEN, Box, Model, Rule
 from .math import ffset, kdot, ref
-from .model import PEP8_LLEN, Box, Model, Rule
 
 
 @nodedataclass

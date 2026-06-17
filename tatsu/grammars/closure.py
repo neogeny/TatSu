@@ -12,8 +12,8 @@ from typing import Any
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
 from ..util import indent
+from .base import Box, Func, Model
 from .math import ffset, kdot
-from .model import Box, Func, Model
 
 
 @nodedataclass

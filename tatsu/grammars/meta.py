@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from ..contexts import Ctx
-from .model import Model
+from .base import Model
 
 
 class Meta(Model):

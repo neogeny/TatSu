@@ -14,7 +14,7 @@ from collections.abc import Iterable
 
 from ..basic import Cut
 from ..choice import Choice
-from ..model import Box, Model, Rule
+from ..base import Box, Model, Rule
 from ..syntax import Call, Sequence
 from . import sccutils
 

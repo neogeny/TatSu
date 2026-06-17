@@ -12,7 +12,7 @@ from typing import Any
 from ..contexts import _AT_, AST, Ctx
 from ..objectmodel import nodedataclass
 from ..util import typename
-from .model import Box, NamedBox
+from .base import Box, NamedBox
 
 
 @nodedataclass

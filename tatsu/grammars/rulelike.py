@@ -15,7 +15,7 @@ from ..contexts import Ctx
 from ..exceptions import FailedUnlinkedRule
 from ..objectmodel import nodedataclass
 from ..util import typename
-from .model import Grammar, Model, Rule
+from .base import Grammar, Model, Rule
 from .syntax import Sequence
 
 

@@ -7,8 +7,8 @@ from typing import Any
 
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
+from .base import Model
 from .math import ffset
-from .model import Model
 
 
 EOF_SYM = '$'
