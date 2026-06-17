@@ -274,7 +274,7 @@ def print_summary(
 def benchmark(
     grammar: str | Path,
     filenames: Iterable[str | Path],
-    mode: str = 'all',
+    mode: set[str] = {'all'},
 ) -> tuple[
     BenchmarkResult | None,
     BenchmarkResult | None,
@@ -296,7 +296,7 @@ def benchmark(
         nfiles = len(texts)
 
         memrun = None
-        if mode in {'mem', 'both', 'all'}:
+        if 'mem' in mode:
             memtime = 0.0
             memerrs = 0
             lines_parsed = 0
@@ -326,7 +326,7 @@ def benchmark(
 
         # --- Loop 2: Generated Parser ---
         genrun = None
-        if mode in {'gen', 'both', 'all'}:
+        if 'gen' in mode:
             parser, gensetup, parserpath = _setup_gen_parser(gramsrc, gramname)
             gensetup += memsetup  # Account for initial grammar compilation
             gentime = 0.0
@@ -358,7 +358,7 @@ def benchmark(
             parserpath.unlink()
 
         tiexiu_run = None
-        if mode in {'tiexiu', 'all'} and have_tiexiu:
+        if 'tiexiu' in mode and have_tiexiu:
             tiexiu_time = 0.0
             tiexiu_errs = 0
             lines_parsed = 0
@@ -402,7 +402,7 @@ def benchmark(
             )
 
         ogo_run = None
-        if mode in {'ogo', 'all'} and have_ogopego:
+        if 'ogo' in mode and have_ogopego:
             ogotime = 0.0
             ogoerrs = 0
             lines_parsed = 0
@@ -445,49 +445,37 @@ def benchmark(
 
 def main():
     parser = argparse.ArgumentParser(description="benchmark tatsu parsing methods")
-    mode = parser.add_mutually_exclusive_group()
-    mode.add_argument(
+    # mode = parser.add_mutually_exclusive_group()
+    mode_group = parser
+    mode_group.add_argument(
         '--all',
         help='benchmark all types of parser (default)',
-        dest='mode',
-        action='store_const',
-        const='all',
-        default='all',
+        action='store_true',
     )
-    mode.add_argument(
+    mode_group.add_argument(
         '--both',
         help='benchmark mem and gen parsers only (default: all)',
-        dest='mode',
-        action='store_const',
-        const='both',
+        action='store_true',
     )
-    mode.add_argument(
+    mode_group.add_argument(
         '--mem',
         help='benchmark in-memory parser',
-        dest='mode',
-        action='store_const',
-        const='mem',
+        action='store_true',
     )
-    mode.add_argument(
+    mode_group.add_argument(
         '--gen',
         help='benchmark generated parser',
-        dest='mode',
-        action='store_const',
-        const='gen',
+        action='store_true',
     )
-    mode.add_argument(
+    mode_group.add_argument(
         '--tiexiu',
         help='benchmark tiexiu parser',
-        dest='mode',
-        action='store_const',
-        const='tiexiu',
+        action='store_true',
     )
-    mode.add_argument(
+    mode_group.add_argument(
         '--ogo',
         help='benchmark ogopego parser',
-        dest='mode',
-        action='store_const',
-        const='ogo',
+        action='store_true',
     )
     parser.add_argument(
         '--verbose',
@@ -507,13 +495,22 @@ def main():
         if not p.exists():
             print(f"error: file '{p}' not found.")
             sys.exit(1)
+    mode = set()
+    if args.mem or args.both or args.all:
+        mode |= {'mem'}
+    if args.gen or args.both or args.all:
+        mode |= {'gen'}
+    if args.tiexiu or args.all:
+        mode |= {'tiexiu'}
+    if args.ogo or args.all:
+        mode |= {'ogo'}
 
-    if args.mode in {'tiexiu', 'all'} and not have_tiexiu:
+    if {'tiexiu'} in mode and not have_tiexiu:
         print("warning: tiexiu not found, skipping tiexiu benchmark.")
         if args.mode == 'tiexiu':
             sys.exit(1)
 
-    if args.mode in {'ogo', 'all'} and not have_ogopego:
+    if 'ogo' in mode and not have_ogopego:
         print("warning: ogopego not found, skipping ogopego benchmark.")
         if args.mode == 'ogo':
             sys.exit(1)
@@ -524,7 +521,7 @@ def main():
         mem_run, gen_run, tiexiu_run, ogo_run = benchmark(
             grammar_path,
             input_paths,
-            mode=args.mode,
+            mode=mode,
         )
         print_summary(
             str(args.grammar),
