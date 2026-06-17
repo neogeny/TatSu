@@ -15,18 +15,12 @@ from .math import ffset
 
 @nodedataclass
 class Option(Box):
-    def _parse(self, ctx: Ctx) -> Any:
-        ctx.states.push()
-        try:
-            value = self.exp._parse(ctx)
-            ctx.states.merge()
-            return value
-        except FailedParse:
-            if ctx.states.undo().cutseen:
-                raise
+    # NOTE parsing of options is handled by Choice._parse()
+    # def _parse(self, ctx: Ctx) -> Any:
 
     def optimized(self) -> Model:
-        return self.exp.optimized()
+        # NOTE hocus pocus! now you see me...
+        return self.exp.optimized()  # ... now you don't
 
 
 @nodedataclass
@@ -43,8 +37,9 @@ class Choice(Model):
         # ctx.expecting(*self.expecting)
         for o in self.options:
             ctx.states.push()
+            exp = o.exp if isinstance(o, Option) else o
             try:
-                value = o._parse(ctx)
+                value = exp._parse(ctx)
                 ctx.states.merge()
                 return value
             except FailedParse:
