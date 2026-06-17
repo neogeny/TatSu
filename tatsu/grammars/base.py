@@ -18,6 +18,7 @@ from ..exceptions import GrammarError
 from ..input import Text
 from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
 from ..util import indent, trim, typename
+from ..util.strtools import slicetowidth
 from ..util.undefined import UndefinedType
 from .math import ffset, kdot
 
@@ -113,7 +114,7 @@ class Model(Node, CanParse):
 
     @cached_property
     def expecting(self) -> list[str]:
-        return sorted(str(la) for la in self.lookaheadlist)
+        return sorted(slicetowidth(str(la), 16) for la in self.lookaheadlist)
 
     @cached_property
     def expectingstr(self) -> str:
