@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from tatsu.grammars import Grammar
+from tatsu.ngcodegen import modelgen, parsergen, pythongen
 
 from .config import DEFAULT_PYGMENTS_STYLE, CLIConfig
 
@@ -20,7 +21,7 @@ def colorize_output(
 
 
 def render_grammar(
-    gram: Grammar,
+    model: Grammar,
     cfg: CLIConfig,
     *,
     name: str | None = None,
@@ -30,15 +31,23 @@ def render_grammar(
     Sets *name* to the output basename (without extension) when -o is a directory.
     """
     if cfg.optimized:
-        gram = gram.optimized()
+        model = model.optimized()
 
     _ = name
     if cfg.model:
-        payload = repr(gram)
+        result = repr(model)
     elif cfg.railroads:
-        payload = gram.railroads()
+        result = model.railroads()
     elif cfg.pretty:
-        payload = gram.pretty()
+        result = model.pretty()
+    elif cfg.pretty_lean:
+        result = model.pretty_lean()
+    elif cfg.object_model:
+        result = modelgen(model)
+    elif cfg.parser_model:
+        result = parsergen(model)
+    elif cfg.generage_parser:
+        result = pythongen(model)
     else:
-        payload = gram.asjsons()
-    return payload
+        result = model.asjsons()
+    return result

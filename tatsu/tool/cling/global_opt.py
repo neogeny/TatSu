@@ -32,13 +32,14 @@ def add_global_options(parser):
         help="Output to a file or directory instead of stdout",
     )
     group.add_argument(
+        "-c",
         "--color",
         choices=["auto", "always", "never"],
         default="auto",
         help="Control colorized output (default: auto)",
     )
     group.add_argument(
-        "-y",
+        "-l",
         "--style",
         dest="style",
         default=DEFAULT_PYGMENTS_STYLE,

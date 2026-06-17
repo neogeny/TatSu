@@ -20,26 +20,50 @@ def add_grammar_options(parser: ArgumentParser):
         action="store_true",
         dest="json",
         default=True,
-        help="Output the grammar in JSON format",
+        help="output the grammar model in JSON format (default)",
     )
     format.add_argument(
         "-m",
         "--model",
         action="store_true",
         dest="model",
-        help="Output the model code according to the grammar",
+        help="output a Python object model of the grammar",
     )
     format.add_argument(
         "-p",
         "--pretty",
         action="store_true",
         dest="pretty",
-        help="Output the grammar in pretty-printed EBNF format",
+        help="output the grammar in pretty-printed EBNF format",
+    )
+    format.add_argument(
+        '-y',
+        '--pretty-lean',
+        help='like --pretty, but without name= or [Parameter] annotations',
+        action='store_true',
     )
     format.add_argument(
         "-r",
         "--railroads",
         action="store_true",
         dest="railroads",
-        help="Output a railroad diagram of the grammar",
+        help="output a railroad diagram of the grammar",
+    )
+    format.add_argument(
+        '-g',
+        '--object-model',
+        help='an AST model from the class names as rule parameters',
+        action='store_true',
+    )
+    format.add_argument(
+        "-e",
+        "--generate-parser",
+        action="store_true",
+        help='generate a procedural parser from the grammar',
+    )
+    format.add_argument(
+        "-x",
+        "--parser-model",
+        action="store_true",
+        help='generate a model-based parser from the grammar',
     )

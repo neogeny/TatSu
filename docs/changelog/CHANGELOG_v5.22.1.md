@@ -7,6 +7,9 @@ SPDX-License-Identifier: BSD-4-Clause
 
 [v5.22.1]: https://github.com/neogeny/tatsu/compare/v5.22.0...HEAD
 
+## Added
+
+- _Added_ missing formats to `tatsu.cling` CLI tool. They are `--pretty-lean`, `--object-model`, `--parser-model`, `--generate-parser`.
 
 ## Changed
 
