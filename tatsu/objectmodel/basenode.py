@@ -198,7 +198,13 @@ class BaseNode(JSONBase, AsJSONMixin):
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         for name, value in state.items():
-            setattr(self, name, value)
+            try:
+                setattr(self, name, value)
+            except AttributeError:
+                if not hasattr(self, name):
+                    raise
+                # a property without a setter ?
+                pass
 
     @classmethod
     def __from_json__(cls, data: Mapping[str, Any]) -> Self:
