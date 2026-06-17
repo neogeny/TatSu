@@ -97,7 +97,8 @@ class Optional(Box):
             ctx.states.merge()
             return value
         except FailedParse:
-            ctx.states.undo()
+            if ctx.states.undo().cutseen:
+                raise
             return None
 
     def _first(self, k, f) -> ffset:

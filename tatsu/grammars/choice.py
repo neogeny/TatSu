@@ -16,8 +16,14 @@ from .model import PEP8_LLEN, Box, Model
 @nodedataclass
 class Option(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        result = self.exp._parse(ctx)
-        return result
+        ctx.states.push()
+        try:
+            value = self.exp._parse(ctx)
+            ctx.states.merge()
+            return value
+        except FailedParse:
+            if ctx.states.undo().cutseen:
+                raise
 
     def optimized(self) -> Model:
         return self.exp.optimized()

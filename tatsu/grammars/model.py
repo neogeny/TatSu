@@ -116,7 +116,7 @@ class Model(Node, CanParse):
 
     @cached_property
     def expectingstr(self) -> str:
-        return f'Expected one of: {' '.join(repr(s) for s in self.expecting)}'
+        return f'expecting one of {' '.join(repr(s) for s in self.expecting)}'
 
     def firstset(self, k: int = 1) -> ffset:
         if not getattr(self, '_firstset', None):
