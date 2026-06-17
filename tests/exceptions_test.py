@@ -26,7 +26,7 @@ class TestFailedParseRender:
         # assert False
 
         assert 'error' in r
-        assert '─→' in r
+        assert '->' in r
         assert '│' in r
         assert 'start' in r
         assert isinstance(r, str)
