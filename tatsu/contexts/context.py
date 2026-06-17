@@ -171,15 +171,6 @@ class ParseContext(ParserEngine):
 
     @contextmanager
     def option(self) -> Any:
-        # NOTE
-        #   For reimplementors.
-        #   These few lines of code define the complete semantics of Cut (~).
-        #   It is contained to an Option/Alt.
-        #   The .push() provides a new state with cutseen==False.
-        #   The .merge()/.undo() contain the Cut so an outer Option cannot use it.
-        #   The OptionSucceeded exception is just the legacy way of the library
-        #   to manage the control flow on success (some versions of the library
-        #   have just returned).
         self.states.push()
         try:
             yield
@@ -194,7 +185,7 @@ class ParseContext(ParserEngine):
     @contextmanager
     def choice(self) -> Generator[ChoiceContext, Any, Any]:
         chc = ChoiceContext(self)
-        with self.statescope(), suppress(OptionSucceeded):
+        with suppress(OptionSucceeded):
             yield chc
             chc.parse(self)
 
@@ -202,21 +193,33 @@ class ParseContext(ParserEngine):
 
     @contextmanager
     def optional(self) -> Any:
-        with self.choice(), self.option():
+        # NOTE
+        #   For reimplementors.
+        #   These few lines of code define the complete semantics of Cut (~).
+        #   It is contained to an Option/Alt.
+        #   The .push() provides a new state with cutseen==False.
+        #   The .merge()/.undo() contain the Cut so an outer Option cannot use it.
+        #   The OptionSucceeded exception is just the legacy way of the library
+        #   to manage the control flow on success (some versions of the library
+        #   have just returned).
+        self.states.push()
+        try:
             yield
+            self.states.merge()
+        except FailedParse:
+            if self.states.undo().cutseen:
+                raise
 
     _optional = optional
 
     @contextmanager
     def group(self) -> Any:
-        with self.statescope():
-            yield
+        yield
 
     _group = group
 
     def groupexp(self, exp: Func) -> Any:
-        with self.statescope():
-            return exp(self)
+        return exp(self)
 
     @contextmanager
     def skipgroup(self) -> Any:
@@ -298,7 +301,7 @@ class ParseContext(ParserEngine):
         omitsep: bool = False,
     ) -> None:
         while True:
-            with self.choice():
+            with suppress(OptionSucceeded):
                 with self.option():
                     p = self.pos
 
@@ -326,7 +329,7 @@ class ParseContext(ParserEngine):
     ) -> Any:
         with self.statescope():
             self.cst = []
-            with self._optional():
+            with self.optional():
                 self.expcall(exp)
                 self.cst = [self.cst]
                 self.repeat(exp, prefix=sep, omitsep=omitsep)

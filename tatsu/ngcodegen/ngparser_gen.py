@@ -217,9 +217,11 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         # self.push_ctx(f'ctx{a}')
         try:
             self._gen_decor(Ctx.choice, ctx=outerctx, var=f'{var}')
-            self.print()
-
             with self.indent():
+                elements = choice.lookaheadlist
+                self.pfold(f'{var}.expecting', tuple(elements))
+                self.print()
+
                 for opt in choice.options:
                     exp: g.Model = opt
                     if isinstance(exp, g.Option):
@@ -477,9 +479,10 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         else:
             self.print(f'with ctx.{name}({arg}):')
         with self.indent():
-            if var and exp and (elements := exp.lookaheadlist):
-                self.pfold(f'{var}.expecting', tuple(elements))
-                self.print()
+            # FIXME: only generated for Choice
+            # if var and exp and (elements := exp.lookaheadlist):
+            #     self.pfold(f'{var}.expecting', tuple(elements))
+            #     self.print()
             if sep:
                 self._gen_anon_block(sep, decor=f'{var}.sep', ctx=ctx, echeck=echeck)
                 self.print()
