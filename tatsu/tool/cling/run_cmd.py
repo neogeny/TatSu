@@ -164,12 +164,6 @@ def run_cmd(cfg: CLIConfig) -> Results:
     grammar = load_grammar(grammarpath)
     start = cfg.start or None
 
-    if len(cfg.inputs) == 1:
-        input = cfg.inputs[0]
-        text = Path(input).read_text(encoding="utf-8")
-        result = grammar.parse(text, start=start)
-        return [(input, format_result(cfg, result))]
-
     if is_rich_library_available() and not cfg.quiet:
         return run_with_progress(start_time, grammar, start, cfg)
     else:
