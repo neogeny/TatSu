@@ -97,8 +97,8 @@ class Model(Node, CanParse):
             child.link(grammar)
 
     def _add_defined(self, ctx: Ctx):
-        keys_single = self.defines_single
         keys_list = self.defines_list
+        keys_single = [d for d in self.defines_single if d not in keys_list]
         ctx.define(keys_single, keys_list)
 
     def lookahead(self, k: int = 1) -> ffset:
@@ -411,11 +411,14 @@ class Rule(NamedBox):
         from .syntax import Call, Sequence
 
         assert isinstance(self.exp, Model)
+
         exp = self.exp.optimized()
         while isinstance(exp, Sequence) and len(exp.sequence) == 1:
             exp = exp.sequence[0]
-        if isinstance(exp, Call) and exp._rule:
-            exp = exp._rule.exp.optimized()
+
+        if isinstance(exp, Call) and exp.rule and not exp.rule.params:
+            exp = exp.rule.exp.optimized()
+
         new = copy(self)
         new.exp = exp
         new._lookahead = self.lookahead()

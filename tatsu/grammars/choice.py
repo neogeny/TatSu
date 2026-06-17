@@ -37,6 +37,7 @@ class Choice(Model):
         # ctx.expecting(*self.expecting)
         for o in self.options:
             ctx.states.push()
+            o._add_defined(ctx)
             exp = o.exp if isinstance(o, Option) else o
             try:
                 value = exp._parse(ctx)

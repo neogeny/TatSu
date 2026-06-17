@@ -217,6 +217,10 @@ class Call(Model):
         super().__post_init__()
         assert isinstance(self.name, str), self.name
 
+    @property
+    def rule(self) -> Rule | None:
+        return self._rule
+
     def follow_ref(self) -> Model:
         return self.grammar.rulemap.get(self.name, self)
 
