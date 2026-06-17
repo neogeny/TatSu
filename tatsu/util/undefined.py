@@ -54,5 +54,18 @@ class UndefinedType[T]:
     def __hash__(self) -> int:
         return hash(id(self))
 
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __reduce__(self):
+        # Return a callable and its arguments.
+        # When unpickling, Python executes: UndefinedType()
+        # Because of __new__, it returns the identical global instance.
+        return (UndefinedType, ())
+
 
 Undefined: UndefinedType = UndefinedType()
