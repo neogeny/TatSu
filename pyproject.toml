@@ -140,12 +140,7 @@ cache-keys = [
 ]
 
 [tool.uv.workspace]
-members = [
-    ".",
-    ".",
-    ".",
-    ".",
-]
+members = []
 
 [tool.hatch.version]
 source = "uv-dynamic-versioning"
