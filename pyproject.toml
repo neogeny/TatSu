@@ -123,9 +123,9 @@ mkdocs = [
 ]
 
 [project.scripts]
-tatsu = "tatsu:cling_main"
-cling = "tatsu:cling_main"
-otatsu = "tatsu:tatsu_main"
+cling = "tatsu.tool.cling:cling_main"
+tatsu = "tatsu.tool:tatsu_main"
+otatsu = "tatsu.tool:tatsu_main"
 g2e = "tatsu.g2e:main"
 
 [project.urls]

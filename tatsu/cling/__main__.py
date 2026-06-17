@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from . import tatsu_main
+from . import cling_main
 
 
-if __name__ == '__main__':
-    tatsu_main()
+if __name__ == "__main__":
+    cling_main()

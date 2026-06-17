@@ -6,8 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from tatsu import grammars, railroads
-from tatsu.tool import api
+from tatsu import api, grammars, railroads
 from tatsu.util import trim
 
 from .fixtures import PATH_TATSU_GRAMMAR

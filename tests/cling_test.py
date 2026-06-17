@@ -18,34 +18,34 @@ pytestmark = pytest.mark.skipif(
 
 def uv_run(cmd: list[str]) -> str:
     return subprocess.check_output(
-        ['uv', 'run', *cmd], stderr=subprocess.DEVNULL
+        ['uv', 'run', *cmd],
     ).decode()
 
 
-CLIPROG = "tatsu"
+CLING = "cling"
 
 
 def test_cling_help():
-    output = uv_run([CLIPROG, '--help'])
+    output = uv_run([CLING, '--help'])
     assert '竜TatSu takes a grammar' in output
 
 
 def test_cling_boot():
-    output = uv_run([CLIPROG, 'boot'])
+    output = uv_run([CLING, 'boot'])
     data = json.loads(output)
     assert data['__class__'] == 'Grammar'
     assert data['name'] == 'TatSu'
 
 
 def test_cling_grammar():
-    output = uv_run([CLIPROG, 'grammar', PATH_TATSU_GRAMMAR])
+    output = uv_run([CLING, 'grammar', PATH_TATSU_GRAMMAR])
     data = json.loads(output)
     assert data['__class__'] == 'Grammar'
     assert data['name'] == 'TatSu'
 
 
 def test_cling_grammar_json():
-    output = uv_run([CLIPROG, 'grammar', '--json', PATH_TATSU_GRAMMAR])
+    output = uv_run([CLING, 'grammar', '--json', PATH_TATSU_GRAMMAR])
     data = json.loads(output)
     assert data['__class__'] == 'Grammar'
     assert 'rules' in data

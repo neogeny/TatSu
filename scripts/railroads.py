@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tatsu import railroads
-from tatsu.tool import api
+from tatsu import api, railroads
 
 
 def main():

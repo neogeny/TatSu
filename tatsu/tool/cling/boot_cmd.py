@@ -2,8 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from tatsu.tool.api import boot_grammar
-
+from ...api import boot_grammar
 from .config import CLIConfig
 from .fmt import render_grammar
 from .global_opt import add_global_options

@@ -1,4 +1,4 @@
-from .api import (
+from ..api import (
     compile,
     compile_to_parser,
     gencode,

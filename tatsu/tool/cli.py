@@ -7,14 +7,13 @@ import importlib
 import sys
 from pathlib import Path
 
-from .. import railroads
+from .. import api, railroads
 from .._version import __toolname__, __version__
 from ..config import ParserConfig
 from ..exceptions import FailedParse, ParseException
 from ..ngcodegen import modelgen, parsergen, pythongen
 from ..util import eval_escapes
 from ..util.colorize.style import Color
-from . import api
 
 
 __all__ = ['tatsu_main']

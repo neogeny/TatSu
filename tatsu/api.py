@@ -5,22 +5,22 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from .. import grammars as g
-from ..exceptions import ParseException
-from ..infos import ParserConfig
-from ..input import Text
-from ..ngcodegen.grammar_gen import parsermodel_gen
-from ..ngcodegen.ngmodel_gen import modelgen
-from ..ngcodegen.ngparser_gen import pythongen
-from ..objectmodel import Node
-from ..objectmodel.builder import (
+from . import grammars as g
+from .config import ParserConfig
+from .exceptions import ParseException
+from .input import Text
+from .ngcodegen.grammar_gen import parsermodel_gen
+from .ngcodegen.ngmodel_gen import modelgen
+from .ngcodegen.ngparser_gen import pythongen
+from .objectmodel import Node
+from .objectmodel.builder import (
     BuilderConfig,
     Constructor,
     ModelBuilderSemantics,
     TypeContainer,
 )
-from ..parser import TatSuParserGenerator
-from ..util import hasha
+from .parser import TatSuParserGenerator
+from .util import hasha
 
 
 __all__ = [
@@ -41,7 +41,7 @@ __compiled_grammar_cache: dict[tuple[str | None, str, int], g.Grammar] = {}
 
 
 def boot_grammar() -> g.Grammar:
-    from ..parser.bootparser import GRAMMAR_MODEL
+    from .parser.bootparser import GRAMMAR_MODEL
 
     return GRAMMAR_MODEL
 
@@ -230,7 +230,7 @@ def to_parsermodel_sourcecode(
 
 
 def to_grammar_json(grammar: str) -> str:
-    from tatsu.parser.bootparser import TatSuBootstrapParser
+    from ..parser.bootparser import TatSuBootstrapParser
 
     parser = TatSuBootstrapParser()
     model = parser.parse(grammar)

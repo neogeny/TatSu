@@ -5,8 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from tatsu.grammars import Grammar
-from tatsu.tool.cling.config import CLIError
+from ...api import compile
+from ...grammars import Grammar
+from .config import CLIError
 
 
 type Results = list[tuple[str, Any]]
@@ -22,6 +23,5 @@ def load_grammar(path: str | Path) -> Grammar:
         raise CLIError(str(e)) from e
     if p.suffix == ".json":
         return Grammar.loads(source)
-    from ..api import compile
 
     return compile(source)
