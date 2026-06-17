@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from tatsu.util.strtools import slicetowidth
+from tatsu.contexts.memento import MEMENTO_DEFAULT_COLOR, memento
 
 from .contexts.infos import RuleInfo
 from .input import Cursor, LineInfo
-from .util.colorize.style import Color, Style
+from .util.colorize import Color
 
 
 class TatSuException(Exception):
@@ -41,19 +41,6 @@ class FailedSemantics(ParseException):
     pass
 
 
-_DEFAULT_COLOR = Color.stderr()
-
-
-class _ColorSet:
-    def __init__(self, color: Color = _DEFAULT_COLOR):
-        self.err = Style(bold=True, fg=1, color=color)
-        self.loc = Style(fg=4, color=color)
-        self.gut = Style(color=color).basic_blue().bold()
-        self.ar = Style(color=color).basic_red().dim()
-        self.nam = Style(color=color).white().bold()
-        self.msg = Style(color=color).white().bold()
-
-
 class FailedParse(ParseException):
     def __init__(self, cursor: Cursor, stack: list[RuleInfo], msg: str):
         # NOTE:
@@ -74,55 +61,13 @@ class FailedParse(ParseException):
     def message(self):
         return self.msg
 
-    def render(self, color: Color = _DEFAULT_COLOR) -> str:
-        from io import StringIO
-
+    def render(self, color: Color = MEMENTO_DEFAULT_COLOR) -> str:
         text = self.cursor.textstr
         msg = self.message
         info = self.info
+        stack = self.stack
 
-        c = _ColorSet(color)
-        line, col = info.line, info.col
-        source = info.source or '<unknown>'
-        rulestack = [r.name for r in reversed(self.stack)]
-
-        out = StringIO()
-        s = Style(color=color)
-
-        lines = text.splitlines()
-        errmsg = f'{c.err("error:")} {c.msg(msg)}'
-        print(errmsg, file=out)
-        loc = s(f'[{line + 1}:{col + 1}]').dim()
-        print(
-            f'{c.gut("  ─→")} {c.nam(source)}{loc}',
-            file=out,
-        )
-        gut = c.gut("│")
-        print(f'   {gut}', file=out)
-
-        max_line_digits = len(str(line + 1))
-        start_line_idx = max(0, line - 4)
-
-        for i in range(start_line_idx, min(line + 1, len(lines))):
-            current_line_num = i + 1
-            content = lines[i].expandtabs()
-            print(
-                f' {current_line_num:>{max_line_digits}} {gut} {content}',
-                file=out,
-            )
-
-        padding = ' ' * max(0, col)
-        print(
-            f' {" ":{max_line_digits + 1}}{gut}'
-            f' {padding}{c.err("⌃ error:")} {c.msg(slicetowidth(msg, 40))}',
-            file=out,
-        )
-
-        print(file=out)
-        for call in rulestack:
-            print(f'{c.ar("→")} {s(call).dim()}', file=out)
-
-        return out.getvalue()
+        return memento(msg, text, info, stack, color=color)
 
     def __str__(self):
         return self.render()
