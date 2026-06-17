@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import io
+import multiprocessing
 import sys
 import sysconfig
+import threading
 import time
 from collections.abc import Callable, Generator, Iterable, Mapping, Sequence
 from contextlib import contextmanager
@@ -12,6 +14,7 @@ from dataclasses import dataclass
 from itertools import batched
 from pathlib import Path
 from pickle import PickleError, PicklingError
+from threading import Event
 from typing import Any, NamedTuple, Protocol
 
 import rich  # type: ignore
@@ -35,29 +38,15 @@ __all__ = [
     'parproc',
     'processing_loop',
     '_old_file_process_progress',
+    'GIL_DISABLED',
+    'HAS_MULTITHREADING_SUPPORT',
 ]
 
 EOLCH = '\r' if sys.stderr.isatty() else '\n'
 
-try:
-    import _thread  # pyright: ignore[reportUnusedImport]
-
-    HAS_MULTITHREADING_SUPPORT = True
-except ImportError:
-    # This block triggers if compiled without thread support (like basic WebAssembly)
-    HAS_MULTITHREADING_SUPPORT = False
-
 GIL_DISABLED = sysconfig.get_config_var("Py_GIL_DISABLED")
 HAS_MULTITHREADING_SUPPORT = GIL_DISABLED
 
-if HAS_MULTITHREADING_SUPPORT:
-    from threading import Event
-else:
-    # NOTE import from multiprocessing instead of threading to support both
-    # threading.Event is not pickleable, so multiprocessing.Event is used instead
-    from multiprocessing import Manager
-
-    Event = Manager().Event
 
 type Func = Callable[..., Any]
 type VisualFunc = Callable[..., Any]
@@ -162,7 +151,10 @@ def parproc(
     max_workers: int | None = None,
     **kwargs: Any,
 ) -> Generator[Result | None, None, None]:
-    stop = Event()
+    stop: Event = threading.Event()
+    if not HAS_MULTITHREADING_SUPPORT:
+        stop = multiprocessing.Manager().Event()
+
     tasks = [
         Task(
             stop=stop,
@@ -474,7 +466,8 @@ def active_pmap() -> Callable[
     import multiprocessing
     from concurrent.futures import (
         Executor,
-        InterpreterPoolExecutor,
+        # NOTE from Python 3.14 onwards
+        # InterpreterPoolExecutor,
         ProcessPoolExecutor,
         ThreadPoolExecutor,
         as_completed,
@@ -543,22 +536,22 @@ def active_pmap() -> Callable[
         except (TypeError, PicklingError, PickleError):
             yield from thread_pmap(event, process, tasks, max_workers)
 
-    def interpreter_pmap(
-        event: Event,
-        process: Func,
-        tasks: Iterable[Any],
-        max_workers: int | None = None,
-    ) -> Iterable[Result]:
-        try:
-            yield from executor_pmap(
-                InterpreterPoolExecutor,
-                event,
-                process,
-                tasks,
-                max_workers=max_workers or multiprocessing.cpu_count(),
-            )
-        except (TypeError, PicklingError, PickleError):
-            yield from thread_pmap(event, process, tasks, max_workers)
+    # def interpreter_pmap(
+    #     event: Event,
+    #     process: Func,
+    #     tasks: Iterable[Any],
+    #     max_workers: int | None = None,
+    # ) -> Iterable[Result]:
+    #     try:
+    #         yield from executor_pmap(
+    #             InterpreterPoolExecutor,
+    #             event,
+    #             process,
+    #             tasks,
+    #             max_workers=max_workers or multiprocessing.cpu_count(),
+    #         )
+    #     except (TypeError, PicklingError, PickleError):
+    #         yield from thread_pmap(event, process, tasks, max_workers)
 
     def imap_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[Result]:
         tasks = list(tasks)
