@@ -105,7 +105,7 @@ clobber: (clean "true")
 @test-fast: testg
     echo "▶ fast test {{ py }}"
     {{ run_test }} pytest \
-        --quiet -n auto  \
+        -n auto  \
         --tb=no --no-header \
         --ignore-glob=tests/z* \
         tests
@@ -113,8 +113,7 @@ clobber: (clean "true")
 @test-boot: testg
     echo "▶ boot test {{ py }}"
     {{ run_test }} pytest \
-        --quiet \
-        --tb=no --no-header --no-summary \
+        --tb=no --no-header \
         tests/z_bootstrap_test.py
 
 # --- Documentation & Examples ---
