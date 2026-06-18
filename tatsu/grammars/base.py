@@ -114,7 +114,7 @@ class Model(Node, CanParse):
 
     @cached_property
     def expecting(self) -> list[str]:
-        return sorted(slicetowidth(str(la), 16) for la in self.lookaheadlist)
+        return sorted(slicetowidth(str(la), 40) for la in self.lookaheadlist)
 
     @cached_property
     def expectingstr(self) -> str:
