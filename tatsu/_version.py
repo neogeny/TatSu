@@ -9,7 +9,7 @@ from .util import Version
 
 
 __toolname__ = 'TatSu'
-__version__ = 'v5.22.1-beta.1'
+__version__ = 'v5.22.2-beta.1'
 try:
     __toolname__ = importlib.metadata.metadata("TatSu")["name"]
     __version__ = importlib.metadata.version("TatSu")

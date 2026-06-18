@@ -29,7 +29,6 @@ from .tool import (
     to_python_model,
     to_python_sourcecode,
 )  # pylint: disable=W0622
-from .tool.cling import cling_main
 
 
 # HACK!
@@ -56,7 +55,6 @@ __all__ = [
     'gencode',
     'genmodel',
     'parse',
-    'cling_main',
     'tatsu_main',
     'to_grammar_json',
     'to_python_model',
