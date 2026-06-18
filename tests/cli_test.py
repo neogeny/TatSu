@@ -11,6 +11,8 @@ import pytest
 from .fixtures import PATH_TATSU_GRAMMAR
 
 
+OTATSU = 'otatsu'
+
 pytestmark = pytest.mark.skipif(
     sys.platform == "win32", reason="Does not work on Windows"
 )
@@ -25,13 +27,13 @@ def test_feature_one():
 
 
 def test_cli_help():
-    output = uv_run(['otatsu', '--help'])
+    output = uv_run([OTATSU, '--help'])
     pattern = r'(?ms)竜TatSu takes a grammar .*GRAMMAR'
     assert bool(re.search(pattern, output))
 
 
 def test_cli_python():
-    output = uv_run(['otatsu', PATH_TATSU_GRAMMAR])
+    output = uv_run([OTATSU, PATH_TATSU_GRAMMAR])
     pattern = (
         r'(?ms)CAVEAT UTILITOR.*?竜TatSu.*?KEYWORDS = \('
         r'.*?class \w*?Parser\(\w*Parser\):'
@@ -41,7 +43,7 @@ def test_cli_python():
 
 
 def test_cli_model():
-    output = uv_run(['otatsu', '-g', PATH_TATSU_GRAMMAR])
+    output = uv_run([OTATSU, '-g', PATH_TATSU_GRAMMAR])
     pattern = (
         r'(?ms)CAVEAT UTILITOR.*?竜TatSu'
         r'.*?class \w+?ModelBuilderSemantics\(ModelBuilderSemantics\):'

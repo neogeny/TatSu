@@ -2,7 +2,4 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from pathlib import Path
-
-
-PATH_TATSU_GRAMMAR = str(Path().cwd() / 'grammar/tatsu.ebnf')
+from .api import *  # noqa: F403

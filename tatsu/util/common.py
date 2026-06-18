@@ -17,10 +17,14 @@ def startscript() -> str:
 
     if main.__package__:
         return main.__package__
-    elif isinstance(main.__file__, str):
+    elif isinstance(getattr(main, '__file__', None), str):
         return Path(main.__file__).name
     else:
         return 'unknown'
+
+
+def startpath() -> Path:
+    return Path(startscript()).absolute().parent
 
 
 def is_posix() -> bool:
