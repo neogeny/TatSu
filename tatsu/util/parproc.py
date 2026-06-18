@@ -59,19 +59,26 @@ type GetProgressFunc = Callable[[int], ProgressPair]
 
 
 class Payload(Protocol):
-    pass
+    path: Path
+    payload: Any
+
+
+class StrPayload(str, Payload):
+    __slots__ = ()
+
+    @property
+    def path(self) -> Path:  # pyright: ignore[reportIncompatibleVariableOverride]
+        return Path(self)
+
+    @property
+    def payload(self) -> Any:
+        return Path(self).read_text()
 
 
 @dataclass(slots=True)
 class VisualPayload(Payload):
     path: Path
     payload: Any
-
-    def __hash__(self) -> int:
-        return id(self)
-
-    def __lt__(self, other: Any) -> bool:
-        return id(self) < id(other)
 
 
 class TaskStop(Exception):
@@ -164,7 +171,7 @@ def parproc(
     reraise: bool = False,
     max_workers: int | None = None,
     **kwargs: Any,
-) -> Generator[Result | None, None, None]:
+) -> Generator[Result, None, None]:
     stop: Event = threading.Event()
     if not HAS_MULTITHREADING_SUPPORT:
         stop = multiprocessing.Manager().Event()

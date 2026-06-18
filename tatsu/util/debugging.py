@@ -13,19 +13,19 @@ from .strtools import prints
 TATSUDEBUG: int | str | None = os.environ.get('TATSUDEBUG', 0)
 
 
-def stderr_print(*args: Any, **kwargs: Any) -> None:
+def eprint(*args: Any, **kwargs: Any) -> None:
     file = kwargs.pop('file', sys.stderr)
     print(*args, file=file, **kwargs)
 
 
 def info(*args: Any, **kwargs: Any) -> None:
-    stderr_print('ⓘ', *args, **kwargs)
+    eprint('ⓘ', *args, **kwargs)
 
 
 def debug(*args: Any, **kwargs: Any) -> None:
-    if not __debug__ and TATSUDEBUG:
+    if not (__debug__ or TATSUDEBUG):
         return
-    stderr_print(*args, **kwargs)
+    eprint(*args, **kwargs)
 
 
 def warning(*args: Any, **kwargs: Any) -> None:

@@ -45,7 +45,9 @@ class CLIConfig:
     # run flags
     start: str | None = None
     nproc: int | None = None
+    summary: bool = False
 
+    @property
     def usecolor(self) -> bool:
         return self.color == "always" or (  # pyright: ignore[reportReturnType]
             not bool(os.environ.get("NO_COLOR", None))

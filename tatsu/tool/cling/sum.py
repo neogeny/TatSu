@@ -9,14 +9,19 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
 
-from tatsu.util import asjsons, countlines, slicetowidth
-from tatsu.util.parproc import Result
-
-from .config import CLIConfig
+from ...util import asjsons, countlines, slicetowidth
+from ...util.colorize import Color
+from ...util.parproc import Result, StrPayload
+from .cfg import CLIConfig
 
 
 class Printer(Protocol):
     def print(self, *args: Any, **kwargs: Any) -> None: ...
+
+
+class StdErrPrinter(Printer):
+    def print(self, *args: Any, **kwargs: Any) -> None:
+        print(*args, **kwargs, file=sys.stderr)
 
 
 @dataclass
@@ -65,8 +70,13 @@ def result_stats(stats: ParseStats, results: Iterable[Result]) -> Iterable[Resul
         stats.file_count += 1
         stats.run_time += r.runtime
 
-        suffix = r.payload.path.suffix
-        counts = countlines(r.payload.payload, eolcmt.get(suffix, "//"))
+        # Compensate for Visual Non-Visual
+        p = r.payload
+        if not hasattr(r.payload, 'path'):
+            p = StrPayload(r.payload)
+
+        suffix = p.path.suffix
+        counts = countlines(p.payload, eolcmt.get(suffix, "//"))
         stats.totl_lines += counts.totl
         stats.code_lines += counts.code
         stats.cmnt_lines += counts.cmnt
@@ -84,11 +94,15 @@ def result_stats(stats: ParseStats, results: Iterable[Result]) -> Iterable[Resul
 def show_summary(
     cfg: CLIConfig,
     start_time: float,
-    printer: Printer,
     results: Iterable[Result],
+    printer: Printer | None = None,
 ) -> Generator[Result, None, None]:
     from rich.console import Console
     from rich.table import Table
+
+    _color = Color(cfg.usecolor)
+    if printer is None:
+        printer = StdErrPrinter()
 
     if cfg.verbose:
         results = show_results(cfg, printer, results)

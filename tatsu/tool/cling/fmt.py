@@ -3,7 +3,7 @@ from __future__ import annotations
 from tatsu.grammars import Grammar
 from tatsu.ngcodegen import modelgen, parsergen, pythongen
 
-from .config import DEFAULT_PYGMENTS_STYLE, CLIConfig
+from .cfg import DEFAULT_PYGMENTS_STYLE, CLIConfig
 
 
 def colorize_output(
