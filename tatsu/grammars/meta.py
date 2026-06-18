@@ -5,10 +5,10 @@ from __future__ import annotations
 from typing import Any
 
 from ..contexts import Ctx
-from .base import Model
+from .base import Leaf
 
 
-class Meta(Model):
+class Meta(Leaf):
     pass
 
 

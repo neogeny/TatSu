@@ -15,12 +15,12 @@ from ..contexts import Ctx
 from ..exceptions import FailedUnlinkedRule
 from ..objectmodel import nodedataclass
 from ..util import typename
-from .base import Grammar, Model, Rule
+from .base import Grammar, Leaf, Model, Rule
 from .syntax import Sequence
 
 
 @nodedataclass
-class RuleInclude(Model):
+class RuleInclude(Leaf):
     name: str = field(default='')  # type: ignore
     _exp: Model | None = None
 

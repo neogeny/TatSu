@@ -10,3 +10,6 @@ SPDX-License-Identifier: BSD-4-Clause
 ## Fixed
 
 - _Fixed:_ Exporting the new `cling` CLI pulled in `rich` as a dependency.
+- _Fixed:_ `Group` is no longer optimized away if `Group.exp` may contain other nodes (most except leaf nodes like `Token` and `Pattern`). The optimization made the EBNF representation of the optimized grammar not semantically equivalent to the original, and thus incorrect. 
+
+  The additional no-op call that a `Group` would produce during parsing can be optimized away by model nodes like `Sequence`. Re-introducing a group for EBNF (`--pretty`) had several special cases (must be grouped if part of a `Sequence`, `Named`, ...).

@@ -172,7 +172,12 @@ class Model(Node, CanParse):
 
 
 @nodedataclass
-class NIL(Model):
+class Leaf(Model):
+    pass
+
+
+@nodedataclass
+class NIL(Leaf):
     def _parse(self, ctx: Ctx) -> Any:
         return ctx.fail() or ()
 
@@ -185,7 +190,7 @@ class NIL(Model):
 
 
 @nodedataclass
-class Void(Model):
+class Void(Leaf):
     def __post_init__(self):
         super().__post_init__()
         self.ast = None

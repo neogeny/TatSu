@@ -9,12 +9,12 @@ from typing import Any
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
 from ..util import regexpp, trim
-from .base import Model
+from .base import Leaf
 from .math import ffset
 
 
 @nodedataclass
-class Pattern(Model):
+class Pattern(Leaf):
     pattern: str = ""
 
     def __post_init__(self):

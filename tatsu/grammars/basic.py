@@ -7,7 +7,7 @@ from typing import Any
 
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
-from .base import Model
+from .base import Leaf
 from .math import ffset
 
 
@@ -16,7 +16,7 @@ EOL_SYM = '⏎'
 
 
 @nodedataclass
-class Dot(Model):
+class Dot(Leaf):
     def _parse(self, ctx: Ctx) -> Any:
         return ctx.dot()
 
@@ -28,7 +28,7 @@ class Dot(Model):
 
 
 @nodedataclass
-class Fail(Model):
+class Fail(Leaf):
     def _parse(self, ctx: Ctx) -> Any:
         return ctx.fail()
 
@@ -37,7 +37,7 @@ class Fail(Model):
 
 
 @nodedataclass
-class Comment(Model):
+class Comment(Leaf):
     comment: str = ''
 
     def _pretty(self, lean: bool = False):
@@ -51,7 +51,7 @@ class EOLComment(Comment):
 
 
 @nodedataclass
-class EOF(Model):
+class EOF(Leaf):
     def __post_init__(self):
         super().__post_init__()
         self.ast = None
@@ -64,7 +64,7 @@ class EOF(Model):
 
 
 @nodedataclass
-class EOL(Model):
+class EOL(Leaf):
     def __post_init__(self):
         super().__post_init__()
         self.ast = None
@@ -84,7 +84,7 @@ class EOL(Model):
 
 
 @nodedataclass
-class Token(Model):
+class Token(Leaf):
     token: str = ''
 
     def __post_init__(self):
@@ -102,7 +102,7 @@ class Token(Model):
 
 
 @nodedataclass
-class Constant(Model):
+class Constant(Leaf):
     literal: str = ''
 
     def __post_init__(self):
@@ -141,7 +141,7 @@ class Alert(Constant):
 
 
 @nodedataclass
-class Cut(Model):
+class Cut(Leaf):
     def __post_init__(self):
         super().__post_init__()
         self.ast = None

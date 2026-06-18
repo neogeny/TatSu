@@ -12,7 +12,7 @@ from ..contexts.cst import cstmerge
 from ..exceptions import FailedParse, FailedRef
 from ..objectmodel import nodedataclass
 from ..util import indent, trim, typename
-from .base import PEP8_LLEN, Box, Model, Rule
+from .base import PEP8_LLEN, Box, Leaf, Model, Rule
 from .math import ffset, kdot, ref
 
 
@@ -30,7 +30,10 @@ class Group(Box):
     def optimized(self) -> Model:
         newexp = self.exp.optimized()
         assert isinstance(newexp, Model)
-        return newexp
+
+        if isinstance(newexp, Leaf | Group):
+            return newexp
+        return Group(newexp)
 
 
 @nodedataclass
@@ -141,9 +144,14 @@ class Sequence(Model):
         self._add_defined(ctx)
         out = None
         for s in self.sequence:
-            r = s._parse(ctx)
+            exp = s
+            while isinstance(s, Group):
+                exp = s.exp
+
+            r = exp._parse(ctx)
             if r is None:
                 continue
+
             out = cstmerge(out, r)
         return out
 
@@ -207,7 +215,7 @@ class Sequence(Model):
 
 
 @nodedataclass
-class Call(Model):
+class Call(Leaf):
     name: str = ''
     _rule: Rule | None = None
 
