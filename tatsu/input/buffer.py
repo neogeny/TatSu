@@ -25,6 +25,7 @@ from ..util import (
     typename,
 )
 from ..util.newlines import take_linebreak_len, take_non_newline_whitespace_len
+from ..util.undefined import UndefinedType
 from . import LineInfo
 from .cursor import Cursor, Text, matchbool, matchfloat, matchint, matchname, matchuint
 from .infos import LineIndexInfo, PosLine
@@ -376,7 +377,7 @@ class Buffer(Text):
         return bool(self.config.ignorecase)
 
     @property
-    def whitespace(self) -> str | None:
+    def whitespace(self) -> str | UndefinedType | None:
         return self.config.whitespace
 
     @staticmethod
