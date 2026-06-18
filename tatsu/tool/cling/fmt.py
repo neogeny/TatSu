@@ -34,7 +34,9 @@ def render_grammar(
         model = model.optimized()
 
     _ = name
-    if cfg.model:
+    if cfg.generate_parser:
+        result = pythongen(model, parser_name=cfg.name)
+    elif cfg.model:
         result = repr(model)
     elif cfg.railroads:
         result = model.railroads()
@@ -43,11 +45,9 @@ def render_grammar(
     elif cfg.pretty_lean:
         result = model.pretty_lean()
     elif cfg.object_model:
-        result = modelgen(model)
+        result = modelgen(model, name=cfg.name)
     elif cfg.parser_model:
-        result = parsergen(model)
-    elif cfg.generage_parser:
-        result = pythongen(model)
+        result = parsergen(model, name=cfg.name)
     else:
         result = model.asjsons()
     return result

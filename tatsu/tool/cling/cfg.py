@@ -40,10 +40,11 @@ class CLIConfig:
     railroads: bool = False
     object_model: bool = False
     parser_model: bool = False
-    generage_parser: bool = False
+    generate_parser: bool = False
 
     # run flags
     start: str | None = None
+    name: str = ""
     nproc: int | None = None
     summary: bool = False
 

@@ -55,11 +55,11 @@ def add_run_cmd(subparsers):
         help="Output the grammar in JSON Lines format",
     )
     format.add_argument(
-        "-m",
+        "-M",
         "--model",
         action="store_true",
         dest="model",
-        help="Output the model code according to the grammar",
+        help="Output a Python model of the output",
     )
     run_parser.add_argument(
         "-s", "--start", default="", dest="start", help="Name of the start rule"
