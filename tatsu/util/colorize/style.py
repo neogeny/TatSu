@@ -251,9 +251,11 @@ class Style(ColorMethods):
         self._hidden = hidden
         self._strikethrough = strikethrough
 
-    def __call__(self, value: str) -> Self:
+    def __call__(self, value: str, fmt: str | None = None) -> Self:
         new = copy(self)
         new.value = value
+        if fmt:
+            new._fmt = fmt
         return new
 
     @property
@@ -411,7 +413,7 @@ class Style(ColorMethods):
         new._fmt = fmt_spec
         return new
 
-    def apply(self, text: str) -> str:
+    def apply(self, text: str, format: str | None = None) -> str:
         """Wrap *text* in ANSI escape codes according to this style.
 
         If ``self.enabled`` is False, returns *text* unchanged.
@@ -421,7 +423,9 @@ class Style(ColorMethods):
         """
         if not text:
             return ""
-        text = fmt(text, self._fmt) if self._fmt else text
+        if not format:
+            format = self._fmt
+        text = fmt(text, format) if format else text
         if not self.enabled:
             return text
 
