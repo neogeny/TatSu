@@ -183,7 +183,9 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'{self.ctx}.eolcheck()')
 
     def walk_Group(self, group: g.Group):
-        self._gen_decor(Ctx.group, exp=group.exp)
+        # NOTE skip the group as enclosure in this representation
+        # self._gen_decor(Ctx.group, exp=group.exp)
+        self.walk(group.exp)
 
     def walk_SkipGroup(self, skip: g.SkipGroup):
         self._gen_decor(Ctx.skipgroup, exp=skip.exp)
@@ -293,7 +295,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print()
         self.print()
 
-    def walk_meta(self, meta: g.Meta):
+    def walk_Meta(self, meta: g.Meta):
         name = meta.pretty()[1:]
         self.print(f'{self.ctx}.match{name!s}()')
 
