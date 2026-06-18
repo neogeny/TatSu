@@ -67,11 +67,11 @@ class StrPayload(str, Payload):
     __slots__ = ()
 
     @property
-    def path(self) -> Path:  # pyright: ignore[reportIncompatibleVariableOverride]
+    def path(self) -> Path:  # type: ignore
         return Path(self)
 
     @property
-    def payload(self) -> Any:
+    def payload(self) -> Any:  # type: ignore
         return Path(self).read_text()
 
 

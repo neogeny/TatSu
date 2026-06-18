@@ -59,6 +59,7 @@ class ResultsStyle:
 
     def __init__(self, color: Color):
         self.header = color.style(dim=True).basic_cyan()
+        self.good = color.style().basic_green()
         self.bad = color.style().basic_red()
         self.plain = color.style()
 
@@ -187,15 +188,17 @@ def show_results(
 ) -> Iterable[Result]:
     s = ResultsStyle(Color(cfg.usecolor))
 
-    def pr(msg: str = "", *a: Any, **kw: Any) -> None:
-        printer.print(msg, *a, **kw)
+    def rprint(s: str = "", *a: Any, **kw: Any) -> None:
+        printer.print(s, *a, highlight=False, markup=False, **kw)
 
-    pr(f"{s.header('results')}:")
+    # rprint(f"{s.header('results')}:")
 
     for r in results:
         nm = slicetowidth(Path(r.payload.path).name, 40)
         if r.exception or isinstance(r.outcome, Exception):
-            pr(
-                f"  {s.bad('✗')}  {s.plain(f'{nm:>40}')}  {s.bad(f'{r.runtime:>4.1f}s')}"
+            rprint(f" {s.bad('✗')} {s.plain(f'{nm}')}  {s.bad(f'{r.runtime:>4.1f}s')}")
+        else:
+            rprint(
+                f" {s.good('✓')} {s.plain(f'{nm}')}  {s.good(f'{r.runtime:>4.1f}s')}"
             )
         yield r

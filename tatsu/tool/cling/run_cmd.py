@@ -143,7 +143,7 @@ def make_new_fileheart(task_progress) -> Callable[[str, int], ProgressHeartProto
                     completed=mark,
                     total=total,
                     color="green",
-                    description=f"  [bold white]{self.name}[green][/]",
+                    description=f"   [bold white]{self.name}[green][/]",
                 )
 
             def dead(self) -> bool:
