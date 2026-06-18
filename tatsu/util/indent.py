@@ -129,12 +129,13 @@ def fold(
     prefix: str,
     value: Any,
     *,
-    reprs: bool = True,
-    addlevels: int = 0,
+    sep: str = ',',
     lbrack: str | None = None,
     rbrack: str | None = None,
+    reprs: bool = True,
     amount: int = 2,
     initial: int = 0,
+    addlevels: int = 0,
 ) -> str:
     brackets = {
         'dict': ('{', '}'),
@@ -162,12 +163,12 @@ def fold(
     else:
         repr_list = value
 
-    valuestr = f'{prefix}{lbrack}{', '.join(repr_list)}{rbrack}'
+    valuestr = f'{prefix}{lbrack}{f'{sep} '.join(repr_list)}{rbrack}'
     if im.fitsfmt(valuestr, addlevels=addlevels):
         im.print(valuestr)
     else:
         im.print(f'{prefix}{lbrack}')
         with im.indent():
-            im.print(',\n'.join(repr_list))
+            im.print(f'{sep}\n'.join(repr_list))
         im.print(rbrack)
     return im.printed_text().rstrip()
