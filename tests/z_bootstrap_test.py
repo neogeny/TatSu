@@ -16,10 +16,10 @@ import pytest
 
 import tatsu
 from tatsu import compile, diagrams, grammars
+from tatsu.boot import TatSuParser, TatSuParserGenerator
 from tatsu.grammars.semantics import GrammarSemantics
 from tatsu.ngcodegen import pythongen
 from tatsu.ngcodegen.grammar_gen import parsermodel_gen
-from tatsu.parser import TatSuParser, TatSuParserGenerator
 from tatsu.semantics import ASTSemantics
 
 # noinspection PyUnusedImports

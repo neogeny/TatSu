@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 import tatsu
-from tatsu.parser import TatSuParserGenerator
+from tatsu.boot import TatSuParserGenerator
 from tatsu.tool import to_python_sourcecode
 
 

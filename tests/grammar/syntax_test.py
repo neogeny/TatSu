@@ -7,9 +7,9 @@ import unittest
 import pytest  # pyright: ignore [reportMissingImports]
 
 from tatsu import compile, tool
+from tatsu.boot import TatSuBuffer
 from tatsu.exceptions import FailedParse
 from tatsu.ngcodegen import pythongen
-from tatsu.parser import TatSuBuffer
 from tatsu.util import trim
 
 

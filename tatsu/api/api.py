@@ -6,6 +6,7 @@ from collections.abc import Callable
 from typing import Any
 
 from .. import grammars as g
+from ..boot import TatSuParserGenerator
 from ..config import ParserConfig
 from ..exceptions import ParseException
 from ..input import Text
@@ -19,7 +20,6 @@ from ..objectmodel.builder import (
     ModelBuilderSemantics,
     TypeContainer,
 )
-from ..parser import TatSuParserGenerator
 from ..util import hasha
 
 

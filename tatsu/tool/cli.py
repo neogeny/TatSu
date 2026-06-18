@@ -245,7 +245,7 @@ def tatsu_main():
             nameguard=not args.no_nameguard,
             whitespace=str(args.whitespace),
         )
-        model = api.compile(grammar, args.name, asmodel=True, config=config)
+        model = api.compil(grammar, args.name, asmodel=True, config=config)
 
         if args.optimize:
             model = model.optimized()

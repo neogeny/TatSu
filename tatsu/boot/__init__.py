@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .baseparser import *  # noqa: F403
+from .boot import *  # noqa: F403

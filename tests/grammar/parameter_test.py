@@ -8,8 +8,8 @@ import sys
 import tempfile
 import unittest
 
+from tatsu.boot import TatSuParserGenerator
 from tatsu.ngcodegen import pythongen
-from tatsu.parser import TatSuParserGenerator
 from tatsu.tool import compile
 from tatsu.util import trim
 

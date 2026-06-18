@@ -10,8 +10,8 @@ from pathlib import Path
 import pytest
 
 import tatsu
+from tatsu.boot import TatSuBuffer
 from tatsu.exceptions import FailedExpectingEndOfLine
-from tatsu.parser import TatSuBuffer
 from tatsu.util import asjson, eval_escapes, trim
 
 
