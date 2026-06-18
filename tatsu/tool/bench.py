@@ -30,9 +30,9 @@ except ImportError:
     pass
 
 from .. import grammars
+from ..api import compile, to_python_sourcecode
 from ..exceptions import FailedParse
 from ..parsing import Parser
-from ..tool.api import compile, to_python_sourcecode
 from ..util.common import try_read, typename
 from ..util.strtools import countlines
 from ..util.timetools import timer
