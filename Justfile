@@ -137,7 +137,7 @@ doclint: docg
 
 # --- Build & Publish ---
 
-@build: clean parsers
+@build: clean
     echo "▶ build"
     uv build
 
