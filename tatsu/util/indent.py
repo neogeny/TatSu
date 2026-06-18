@@ -107,19 +107,23 @@ class IndentPrintMixin:
         prefix: str,
         value: Any,
         *,
-        reprs: bool = True,
+        sep: str = ',',
         lbrack: str | None = None,
         rbrack: str | None = None,
+        reprs: bool = True,
         amount: int = 2,
+        initial: int = 0,
         addlevels: int | None = None,
     ) -> None:
         folded = fold(
             prefix,
             value,
             reprs=reprs,
+            sep=sep,
             lbrack=lbrack,
             rbrack=rbrack,
             amount=amount,
+            initial=initial,
             addlevels=addlevels or 0,
         )
         self.print(folded)
