@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from .config import CLIConfig, CLIError
+from .cfg import CLIConfig, CLIError
 from .fmt import colorize_output
 
 
@@ -50,10 +50,7 @@ def output_results(cfg: CLIConfig, results: list[tuple[str, Any]]) -> None:
     # Single result or model output: write sequentially
     single_out = _output_path(cfg)
     should_colorize = (
-        not cfg.json_lines
-        and not cfg.railroads
-        and cfg.usecolor()
-        and single_out is None
+        not cfg.json_lines and not cfg.railroads and cfg.usecolor and single_out is None
     )
 
     language = "json"

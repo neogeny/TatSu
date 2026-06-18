@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .config import DEFAULT_PYGMENTS_STYLE
+from .cfg import DEFAULT_PYGMENTS_STYLE
 
 
 def add_global_options(parser):

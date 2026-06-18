@@ -13,6 +13,13 @@ def add_grammar_options(parser: ArgumentParser):
         default=False,
         help="Use the optimized version of the grammar",
     )
+    parser.add_argument(
+        "-m",
+        "--name",
+        default="",
+        dest="name",
+        help="Previx for the name of geneated parsers",
+    )
     format = parser.add_mutually_exclusive_group()
     format.add_argument(
         "-j",
@@ -21,13 +28,6 @@ def add_grammar_options(parser: ArgumentParser):
         dest="json",
         default=True,
         help="output the grammar model in JSON format (default)",
-    )
-    format.add_argument(
-        "-m",
-        "--model",
-        action="store_true",
-        dest="model",
-        help="output a Python object model of the grammar",
     )
     format.add_argument(
         "-p",

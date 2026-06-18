@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .config import CLIConfig
+from .cfg import CLIConfig
 from .fmt import render_grammar
 from .global_opt import add_global_options
 from .grammar_opt import add_grammar_options

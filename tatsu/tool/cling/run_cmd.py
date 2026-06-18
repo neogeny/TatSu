@@ -9,19 +9,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from rich.progress import Progress
-
-from tatsu.grammars import Grammar
-from tatsu.util.heart import Heart
-from tatsu.util.parproc import VisualPayload
-
 from ...config import ParserConfig
-from ...util.parproc import ProgressPair, parproc_visual
+from ...grammars import Grammar
+from ...util.heart import Heart
+from ...util.parproc import ProgressPair, VisualPayload, parproc_visual
 from ...util.richtest import is_rich_library_available
-from .config import CLIConfig
+from .cfg import CLIConfig
 from .global_opt import add_global_options
 from .lib import Results, load_grammar
-from .sum import Printer, format_result, show_summary
+from .prog import make_progressbar
+from .sum import format_result, show_summary
 
 
 def add_run_cmd(subparsers):
@@ -58,11 +55,11 @@ def add_run_cmd(subparsers):
         help="Output the grammar in JSON Lines format",
     )
     format.add_argument(
-        "-m",
+        "-M",
         "--model",
         action="store_true",
         dest="model",
-        help="Output the model code according to the grammar",
+        help="Output a Python model of the output",
     )
     run_parser.add_argument(
         "-s", "--start", default="", dest="start", help="Name of the start rule"
@@ -74,6 +71,12 @@ def add_run_cmd(subparsers):
         default=0,
         dest="nproc",
         help="Number of concurrent workers",
+    )
+    run_parser.add_argument(
+        "-u",
+        "--summary",
+        action="store_true",
+        help="Always show summary (overrides --quiet)",
     )
     return run_parser
 
@@ -140,7 +143,7 @@ def make_new_fileheart(task_progress) -> Callable[[str, int], ProgressHeartProto
                     completed=mark,
                     total=total,
                     color="green",
-                    description=f"  [bold white]{self.name}[green][/]",
+                    description=f"   [bold white]{self.name}[green][/]",
                 )
 
             def dead(self) -> bool:
@@ -167,10 +170,11 @@ def run_cmd(cfg: CLIConfig) -> Results:
     if is_rich_library_available() and not cfg.quiet:
         return run_with_progress(start_time, grammar, start, cfg)
     else:
-        return run_without_progress(grammar, start, cfg)
+        return run_without_progress(start_time, grammar, start, cfg)
 
 
 def run_without_progress(
+    start_time: float,
     grammar: Any,
     start: str | None,
     cfg: CLIConfig,
@@ -184,9 +188,14 @@ def run_without_progress(
         return grammar.parse(text, start=start, config=config)
 
     parallel = cfg.nproc is None or cfg.nproc > 0
+    results = parproc(parse_single_file, cfg.inputs, parallel=parallel)
+
+    if cfg.summary or not cfg.quiet:
+        results = show_summary(cfg, start_time, results)
+
     return [
         (r.payload, format_result(cfg, r.outcome))
-        for r in parproc(parse_single_file, cfg.inputs, parallel=parallel)
+        for r in results
         if r is not None and r.outcome is not None and r.exception is None
     ]
 
@@ -197,50 +206,7 @@ def run_with_progress(
     start: str | None,
     cfg: CLIConfig,
 ) -> Results:
-    from rich.progress import (  # pyright: ignore[reportMissingImports]
-        BarColumn,
-        TaskID,
-        TextColumn,
-    )
-    from rich.table import Table
-
-    class DualProgress(Progress, Printer):
-        def __init__(self, *columns, **kwargs) -> None:
-            super().__init__(*columns, transient=True, **kwargs)
-            self._file_cols = [
-                TextColumn("[progress.description]{task.description}"),
-                BarColumn(complete_style="green"),
-                # TaskProgressColumn(style="green"),
-            ]
-            self._main_id: TaskID | None = None
-
-        def set_main(self, tid: TaskID) -> None:
-            self._main_id = tid
-
-        def get_renderables(self):
-            for task in self.tasks:
-                if not task.visible:
-                    continue
-                columns = self.columns if task.id == self._main_id else self._file_cols
-                table = Table.grid(padding=(0, 1))
-                for _ in columns:
-                    table.add_column(no_wrap=True)
-                table.add_row(*(c.render(task) for c in columns))  # pyright: ignore[reportAttributeAccessIssue]
-                yield table
-
-    top_progress = DualProgress(
-        # TaskProgressColumn(),
-        # TimeElapsedColumn(),
-        # TimeRemainingColumn(),
-        # TextColumn("[name][progress.description]"),
-        # TextColumn("[progress.description][task.description]"),
-        BarColumn(
-            bar_width=None,
-            complete_style="yellow",
-        ),
-        refresh_per_second=1,
-        speed_estimate_period=30.0,
-    )
+    top_progress = make_progressbar()
     task_progress = top_progress
     new_fileheart = make_new_fileheart(task_progress)
 
@@ -273,8 +239,8 @@ def run_with_progress(
             summary=False,
             max_workers=cfg.nproc,
         )
-        if not cfg.quiet:
-            results = show_summary(cfg, start_time, top_progress, results)
+        if cfg.summary or not cfg.quiet:
+            results = show_summary(cfg, start_time, results, top_progress)
     finally:
         print(file=sys.stderr)
         top_progress.stop()
