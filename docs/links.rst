@@ -71,7 +71,6 @@
 .. _`make a donation`: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=2TW56SV6WNJV6
 .. _algorithm: https://arxiv.org/pdf/1509.02439
 .. _blog post: http://dietbuddha.blogspot.com/2012/12/52python-encapsulating-exceptions-with.html
-.. _colorama: https://pypi.python.org/pypi/colorama/
 .. _context managers: http://docs.python.org/2/library/contextlib.html
 .. _declensions: http://en.wikipedia.org/wiki/Declension
 .. _email: mailto:apalala@gmail.com

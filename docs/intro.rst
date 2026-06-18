@@ -32,8 +32,7 @@ have measurably low `Cyclomatic complexity`_. At around 5 `KLOC`_ of
 `Python`_, it is possible to study all its source code in a single
 session.
 
-The only dependencies are on the `Python`_ standard library, yet the
-`colorama`_ library will be used on trace output if available. The
+The only dependencies are on the `Python`_ standard library. The
 `graphviz`_ is required for producing diagrams of the grammars.
 
 |TatSu| is feature-complete and currently being used with complex

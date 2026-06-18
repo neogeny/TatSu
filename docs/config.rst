@@ -35,7 +35,7 @@ to validate when called.
         memoization: bool = True
         perlinememos: float = DEFAULT_MEMOS_PER_LINE
 
-        colorize: bool = True  # INFO: requires the colorama library
+        colorize: bool = True
         trace: bool = False
         trace_filename: bool = False
         trace_length: int = 72
@@ -160,8 +160,7 @@ colorize
 
     colorize: bool = True
 
-Colorize trace output. Colorization requires that the ``colorama`` library
-is available.
+Colorize trace output.
 
 trace
 ~~~~~

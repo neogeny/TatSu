@@ -35,7 +35,7 @@ class ParserConfig(Config):
     memoize_lookaheads: bool | None = None
     prune_memos_on_cut: bool = True
 
-    colorize: bool = True  # INFO: requires the colorama library
+    colorize: bool = True
     trace: bool = False
     trace_filename: str = ''
     trace_length: int = 72

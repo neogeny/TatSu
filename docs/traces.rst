@@ -7,7 +7,6 @@ Traces
 
 |TatSu| compiling and parsing actions have a ``trace=`` argument. The option
 is also available in ``ParserConfig`` and as ``--trace`` on the command line.
-For colorization to be enabled the colorama_ library must be installed.
 
 When used with the ``colorize`` option (defaults to ``True``)
 ( ``--color`` on the command line), it produces a trace like the following,

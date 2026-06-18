@@ -7,6 +7,10 @@ SPDX-License-Identifier: BSD-4-Clause
 
 [v5.22.2]: https://github.com/neogeny/tatsu/compare/v5.22.0...5.22.2
 
+## Changed
+
+- There are no longer features enabled by the  `colorama` library. Mentions of `colorama` in the source code and documentation have been removed. The project consistently uses its own `colorize` library for colorized output. `progress` is used to provide progress bars for the `cling` version of the CLI.
+
 ## Fixed
 
 - _Fixed:_ Exporting the new `cling` CLI pulled in `rich` as a dependency.

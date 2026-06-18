@@ -11,12 +11,11 @@ from typing import Any
 
 from rich.progress import Progress
 
-from tatsu.grammars import Grammar
-from tatsu.util.heart import Heart
-from tatsu.util.parproc import VisualPayload
-
 from ...config import ParserConfig
-from ...util.parproc import ProgressPair, parproc_visual
+from ...grammars import Grammar
+from ...util import parproc
+from ...util.heart import Heart
+from ...util.parproc import ProgressPair, VisualPayload, parproc_visual
 from ...util.richtest import is_rich_library_available
 from .config import CLIConfig
 from .global_opt import add_global_options
@@ -204,7 +203,7 @@ def run_with_progress(
     )
     from rich.table import Table
 
-    class DualProgress(Progress, Printer):
+    class DualProgress(Progress, parproc.Progress, Printer):
         def __init__(self, *columns, **kwargs) -> None:
             super().__init__(*columns, transient=True, **kwargs)
             self._file_cols = [

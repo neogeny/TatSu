@@ -22,7 +22,7 @@ def generic_main(custom_main, parser_class, name='Unknown'):
     addarg(
         '-c',
         '--color',
-        help='use color in traces (requires the colorama library)',
+        help='use color in traces',
         action='store_true',
     )
     addarg('-l', '--list', action=ListRules, nargs=0, help='list all rules and exit')

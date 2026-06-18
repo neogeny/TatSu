@@ -15,25 +15,17 @@ from itertools import batched
 from pathlib import Path
 from pickle import PickleError, PicklingError
 from threading import Event
-from typing import Any, NamedTuple, Protocol
-
-import rich  # type: ignore
-from rich.progress import (  # type: ignore
-    BarColumn,
-    Progress,
-    TaskID,
-    TaskProgressColumn,
-    TextColumn,
-    TimeElapsedColumn,
-    TimeRemainingColumn,
-)
+from typing import Any, NamedTuple, Protocol, cast
 
 from . import identity, memory_use, startscript, try_read
+from .colorize import Style
 from .timetools import iso_logpath
 from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
 
 
 __all__ = [
+    'TaskID',
+    'Progress',
     'parallel_proc',
     'parproc',
     'processing_loop',
@@ -46,6 +38,18 @@ EOLCH = '\r' if sys.stderr.isatty() else '\n'
 
 GIL_DISABLED = sysconfig.get_config_var("Py_GIL_DISABLED")
 HAS_MULTITHREADING_SUPPORT = GIL_DISABLED
+
+
+class TaskID(Protocol): ...
+
+
+class Progress(Protocol):
+    def update(self, *args, **kwargs) -> None: ...
+    def stop(self) -> None: ...
+    def add_task(self, description: str, **args: Any) -> TaskID: ...
+    def remove_task(self, task_id: Any) -> None: ...
+    def __enter__(self) -> Progress: ...
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None: ...
 
 
 type Func = Callable[..., Any]
@@ -103,6 +107,15 @@ class Result:
 
 
 def _build_progressbar(total: int) -> tuple[Progress, TaskID]:
+    from rich.progress import (  # type: ignore
+        BarColumn,
+        Progress,
+        TaskProgressColumn,
+        TextColumn,
+        TimeElapsedColumn,
+        TimeRemainingColumn,
+    )
+
     progress = Progress(
         TextColumn(f"[progress.description]{startscript()}"),
         BarColumn(),
@@ -115,7 +128,8 @@ def _build_progressbar(total: int) -> tuple[Progress, TaskID]:
         speed_estimate_period=30.0,
     )
     task = progress.add_task('', total=total)
-    return progress, task
+    task_id = cast(TaskID, task)
+    return progress, task_id  # type: ignore
 
 
 # NOTE: backwards compatibility
@@ -429,8 +443,9 @@ def _file_process_summary(
 
     print(summary, file=sys.stderr)
     if failures:
-        rich.print(f'[red bold]FAILURES: [green]{log.name}')
-        print(file=sys.stderr)
+        red = Style().basic_red().bold()
+        green = Style().basic_green().bold()
+        print(f'{red("FAILURES:")} {green(log.name)}', file=sys.stderr)
         sys.exit(1)
 
 

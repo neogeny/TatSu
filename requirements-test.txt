@@ -35,7 +35,6 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
-progress==1.6.1
 psutil==7.2.2
 pygments==2.20.0
     # via
@@ -43,18 +42,15 @@ pygments==2.20.0
     #   rich
 pytest==9.1.0
     # via
-    #   pytest-codspeed
     #   pytest-cov
     #   pytest-dependency
     #   pytest-rerunfailures
     #   pytest-xdist
-pytest-codspeed==5.0.3
 pytest-cov==7.1.0
 pytest-dependency==0.6.1
 pytest-rerunfailures==16.3
 pytest-xdist==3.8.0
 rich==15.0.0
-    # via pytest-codspeed
 ruff==0.15.17
 setuptools==82.0.1
     # via pytest-dependency

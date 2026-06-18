@@ -6,7 +6,7 @@ from typing import Any, Protocol
 
 from ..config import ParserConfig
 from ..exceptions import FailedLeftRecursion
-from ..util.colorize.style import Color, Style
+from ..util.colorize import Color, Style
 from ..util.common import is_posix
 from ..util.debugging import info
 from .ctx import Ctx

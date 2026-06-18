@@ -170,7 +170,7 @@ The *-h* and *--help* parameters provide full usage information:
                             annotations
 
     parse-time options:
-      --color, -c           use color in traces (requires the colorama library)
+      --color, -c           use color in traces
       --trace, -t           produce verbose parsing output
 
     generation options:
@@ -310,7 +310,7 @@ As a script, the generated parser's module accepts some options:
 
     optional arguments:
         -h, --help            show this help message and exit
-        -c, --color           use color in traces (requires the colorama library)
+        -c, --color           use color in traces
         -l, --list            list all rules and exit
         -n, --no-nameguard    disable the 'nameguard' feature
         -t, --trace           output trace information

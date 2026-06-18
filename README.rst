@@ -8,7 +8,7 @@
 .. _RELEASES: https://github.com/neogeny/TatSu/releases
 
 | |license| ​ |pyversions|
-| |fury| ​ |actions| ​ |docs| ​ |installs| ​ |codspeed|
+| |fury| ​ |actions| ​ |docs| ​ |installs|
 | |sponsor|
 |
 
@@ -567,7 +567,6 @@ This is a diagram of the grammar for |TatSu|'s own grammar language:
 .. _`LICENSE`: LICENSE
 .. _basel-shishani: https://bitbucket.org/basel-shishani
 .. _blog post: http://dietbuddha.blogspot.com/2012/12/52python-encapsulating-exceptions-with.html
-.. _colorama: https://pypi.python.org/pypi/colorama/
 .. _context managers: http://docs.python.org/2/library/contextlib.html
 .. _declensions: http://en.wikipedia.org/wiki/Declension
 .. _drothlis: https://bitbucket.org/drothlis

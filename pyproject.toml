@@ -38,28 +38,25 @@ diagrams = [
 ideps = [
     "rich>=15.0.0",
 ]
-parproc = [
-    "rich>=15.0.0",
-]
 tasks = [
     "invoke>=2.2.1",
     ]
 cling = [
-    "rich>=15.0.0",
     "pygments>=2.20.0",
+    "rich>=15.0.0",
 ]
 full = [
-    "rich>=15.0.0",
     "graphviz>=0.21",
     "invoke>=2.2.1",
     "pygments>=2.20.0",
+    "rich>=15.0.0",
 ]
 
 [dependency-groups]
 dev = [
+    "esbonio>=2.0.0",
     "graphviz>=0.21",
     "invoke>=3.0.3",
-    "progress>=1.6.1",
     "psutil>=7.2.2",
     "pygments>=2.20.0",
     "pyrefly>=1.1.0",
@@ -75,10 +72,8 @@ test = [
     "graphviz>=0.21",
     "invoke>=3.0.3",
     "mypy>=2.1.0",
-    "progress>=1.6.1",
     "psutil>=7.2.2",
     "pytest>=9.1.0",
-    "pytest-codspeed>=5.0.3",
     "pytest-cov>=7.1.0",
     "pytest-dependency>=0.6.1",
     "pytest-rerunfailures>=16.3",
@@ -94,12 +89,9 @@ test = [
 ]
 doc = [
     "docutils>=0.22.4",
-    "graphviz>=0.21",
     "myst-docutils>=5.1.0",
     "myst-parser>=5.1.0",
     "pydata-sphinx-theme>=0.19.0",
-    "pygments>=2.20.0",
-    "rich>=15.0.0",
     "sphinx>=9.1.0",
     "sphinx-autodoc2>=0.5.0",
     "sphinx-copybutton>=0.5.2",
