@@ -145,8 +145,8 @@ class Sequence(Model):
         out = None
         for s in self.sequence:
             exp = s
-            while isinstance(s, Group):
-                exp = s.exp
+            while isinstance(exp, Group):
+                exp = exp.exp
 
             r = exp._parse(ctx)
             if r is None:
