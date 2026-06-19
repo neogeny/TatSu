@@ -65,9 +65,9 @@ clobber: (clean "true")
     echo "▶ fmt {{ py }}"
     {{ run_test }} ruff check \
         --select I --fix \
-        tatsu tests examples scripts ng
+        tatsu tests examples scripts
 
-    {{ run_test }} ruff format tatsu tests examples scripts ng
+    {{ run_test }} ruff format tatsu tests examples scripts
 
 @lint: testg fmt ruff ty mypy pyrefly
     echo "━ lint ⏏ ━"
