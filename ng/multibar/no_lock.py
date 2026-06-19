@@ -2,10 +2,11 @@ import copy
 import sys
 import time
 
+
 class MultiProgress:
     def __init__(self):
         self._bars = []
-        self._lock = threading.Lock() # Protects only the orchestrator's list structure
+        self._lock = threading.Lock()  # Protects only the orchestrator's list structure
         self._running = False
         self._thread = None
 
@@ -24,7 +25,7 @@ class MultiProgress:
                 current_bars = self._bars[:]
 
             if not current_bars:
-                time.sleep(0.04) # Target ~24 FPS (1/24 ≈ 0.041)
+                time.sleep(0.04)  # Target ~24 FPS (1/24 ≈ 0.041)
                 continue
 
             try:
@@ -37,7 +38,7 @@ class MultiProgress:
                 # 2. Shallow copy the Bar object instantly on the orchestrator's time.
                 # Captures current primitive value states (integers/strings).
                 bar_snapshot = copy.copy(b)
-                
+
                 # 3. Process telemetry and extract the immutable rendering tuple
                 render_tuple = bar_snapshot.call_render(screen_cols)
                 lines.append("".join(render_tuple))
@@ -45,10 +46,11 @@ class MultiProgress:
             # 4. Flush the complete immutable frame to the console
             sys.stdout.write("\n".join(lines))
             sys.stdout.flush()
-            
-            time.sleep(0.04) 
+
+            time.sleep(0.04)
             sys.stdout.write(f"\033[{len(lines)}A")
-       
+
+
 def run(self):
     def drpped_key(bar) -> bool:
         return bar.dropped
@@ -60,6 +62,7 @@ def run(self):
             self.bars = [b for b in self.bars if not b.dropped]
         self.render_snapshot(snapbars)
         ...
+
 
 def add_bar(self, bar):
     with self.lock:
