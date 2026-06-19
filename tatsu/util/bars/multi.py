@@ -9,6 +9,7 @@ import threading
 import time
 from typing import assert_never
 
+from ..colorize.style import visual_len as vlen
 from .bar import Bar, barType
 from .line import (
     Col,
@@ -85,7 +86,7 @@ class Multi:
             match col.width:
                 case RightJust():
                     s = f"{s!s:>{w}}"
-                    return s if len(s) <= w else s[-w:]
+                    return s if vlen(s) <= w else s[-w:]
                 case ExactWidth() | LeftJust() | MinWidthT() | FillWidthT():
                     return f"{s!s:<{w}}"
                 case _ as unreachable:
@@ -93,7 +94,12 @@ class Multi:
 
         match col.text:
             case barType() as bt:
-                return bt.render(w)
+                rendered = bt.render(w)
+                while vlen(rendered) > w:
+                    rendered = rendered.replace(str(bt.todo), '', 1)
+                    if vlen(rendered) > w:
+                        rendered = rendered.replace(str(bt.done), '', 1)
+                return rendered
             case PaddingT():
                 return ' ' * w
             case str() as s:
@@ -165,7 +171,7 @@ class Multi:
                                 coltype[j] = col.width
                         match col.text:
                             case str(s):
-                                colw[j] = max(colw[j], len(s))
+                                colw[j] = max(colw[j], vlen(s))
 
                     case FillWidthT():
                         match coltype[j]:
@@ -178,12 +184,15 @@ class Multi:
                     case _:
                         raise AssertionError('unreachable')
 
-        if fill:
-            budget = max(0, maxw - sum(colw))
-            if budget:
-                per = budget // len(fill)
-                for j in fill:
-                    colw[j] = per
+        if (f := len(fill)) and (budget := max(0, maxw - sum(colw))):
+            for j in fill:
+                col_budget = round((0.5 + budget) / f)
+                colw[j] = col_budget
+
+                f -= 1
+                budget -= col_budget
+                if budget <= 0:
+                    break
 
         linestr = []
         for line in lines:

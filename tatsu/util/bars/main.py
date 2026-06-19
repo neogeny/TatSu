@@ -36,7 +36,8 @@ def main():
                 # Col(LeftJust(20), self.style(self.label)),
                 Col(LeftJust(20), self.label),
                 Col(RightJust(8), f"{100 * m.pct:3.0f}%"),
-                Col(FillWidth, m.bart()),
+                Col(FillWidth, m.bart(done=s("-").green(), todo=".")),
+                # Col(FillWidth, m.bart(done=("-"), todo=".")),
             ]
 
     s = c.style()
@@ -46,18 +47,18 @@ def main():
     bars: list[Bar] = [
         StyleBar(label="lexing", style=red),
         Bar(label="parsing"),
-        Bar(label="semantics", total=200),
-        StyleBar(label="codegen", total=500, style=blue),
-        Bar(label="testing", total=50),
+        Bar(label="semantics", top=200),
+        StyleBar(label="codegen", top=500, style=blue),
+        Bar(label="testing", top=50),
     ]
 
     m = Multi(bars)
     m.start()
 
     def worker(bar: Bar, delay: float, step: int):
-        while bar.done < bar.total:
+        while bar.pos < bar.top:
             time.sleep(delay)
-            bar.update(min(bar.done + random.randint(1, step), bar.total))  # noqa: S311
+            bar.update(min(bar.pos + random.randint(1, step), bar.top))  # noqa: S311
 
     threads = [
         threading.Thread(target=worker, args=(b, d, s), daemon=True)
