@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from collections import namedtuple
 from copy import copy
-from typing import Self
+from typing import Any, Self
 
 from .colormethods import ColorMethods
 
@@ -196,7 +196,7 @@ class Color:
 DEFAULT_COLOR: Color = Color.default()
 
 
-class Style(ColorMethods):
+class Style(ColorMethods, str):
     """A composable ANSI style builder.
 
     ``Style`` stores a text *value* plus formatting attributes (foreground
@@ -215,10 +215,28 @@ class Style(ColorMethods):
     a previously assigned color, and ``RGB`` for 24-bit color.
     """
 
+    __slots__ = (
+        "_bg",
+        "_blink",
+        "_bold",
+        "_color",
+        "_dim",
+        "_fg",
+        "_fmt",
+        "_inverse",
+        "_italic",
+        "_underline",
+    )
+
+    def __new__(cls, *args, **kwargs):
+        return super().__new__(cls, *args)
+
     def __init__(
         self,
         value: str = "",
+        /,
         *,
+        fmt: str | None = None,
         fg: int | RGB | None = -1,
         bg: int | RGB | None = -1,
         bold: bool = False,
@@ -230,9 +248,8 @@ class Style(ColorMethods):
         hidden: bool = False,
         strikethrough: bool = False,
         color: Color = DEFAULT_COLOR,
+        **kwargs,
     ):
-        self.value = value
-        self._fmt: str | None = None
 
         self._color = color
 
@@ -242,6 +259,7 @@ class Style(ColorMethods):
         self._set_fg(fg)
         self._set_bg(bg)
 
+        self._fmt = fmt
         self._bold = bold
         self._dim = dim
         self._italic = italic
@@ -251,12 +269,19 @@ class Style(ColorMethods):
         self._hidden = hidden
         self._strikethrough = strikethrough
 
+    @property
+    def value(self) -> str:
+        return super().__str__()
+
+    def _kwattrs(self) -> dict[str, Any]:
+        return {k.lstrip('_'): getattr(self, k, None) for k in type(self).__slots__}
+
     def __call__(self, value: str, fmt: str | None = None) -> Self:
-        new = copy(self)
-        new.value = value
-        if fmt:
-            new._fmt = fmt
-        return new
+        kw = self._kwattrs()
+        kw.pop('value', None)
+        if fmt is not None:
+            kw['fmt'] = fmt
+        return type(self)(value, **kw)
 
     @property
     def enabled(self) -> bool:
