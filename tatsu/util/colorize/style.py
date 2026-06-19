@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
 from collections import namedtuple
 from copy import copy
-from typing import Any, Self
+from typing import Any, NamedTuple, Self
 
 from .colormethods import ColorMethods
 
@@ -143,12 +142,12 @@ class Color:
         stream = sys.stderr if self._check_stderr else sys.stdout
         return stream.isatty()
 
-    def terminal_size(self) -> tuple[int, int]:
+    @staticmethod
+    def terminal_size() -> os.terminal_size:
         """Return ``(columns, lines)`` of the terminal, falling back to 80x24."""
         import shutil
 
-        size = shutil.get_terminal_size()
-        return (size.columns, size.lines)
+        return shutil.get_terminal_size()
 
     @property
     def supports_color(self) -> bool:
