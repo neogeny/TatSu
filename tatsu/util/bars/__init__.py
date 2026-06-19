@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from .bar import *  # noqa: F403
+from .line import *  # noqa: F403
 from .multi import *  # noqa: F403
 
 

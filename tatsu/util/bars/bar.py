@@ -4,28 +4,26 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from typing import NamedTuple
+
+from .line import *  # noqa: F403
 
 
 DEFAULT_BAR_WIDTH = 50
 
 
-class bar(NamedTuple):
+@dataclass(slots=True, frozen=True)
+class bar:
     done: int
     total: int
     done_str: str = "█"
     todo_str: str = "░"
-    wanted_width: int = DEFAULT_BAR_WIDTH
 
-    def render(self, width: int) -> str:
+    def render(self, budget: int) -> str:
         if self.total == 0:
             return ""
-        done_width = int(self.done / self.total * width)
-        todo_width = width - done_width
-        return f"{self.done_str:<{done_width}}{self.todo_str:<{todo_width}}"
-
-
-type bars = list[str | bar]
+        done_width = int(self.done / self.total * budget)
+        todo_width = budget - done_width
+        return f"{self.done_str * done_width}{self.todo_str * todo_width}"
 
 
 @dataclass(slots=True, kw_only=True)
@@ -45,6 +43,14 @@ class Bar:
     def is_stopped(self) -> bool:
         return self.stopped
 
+    def update(self, value: int, total: int = -1):
+        """Write-only operation from the user's side."""
+        if total != -1:
+            self.total = total
+        self.current = max(0, min(value, self.total))
+        if self.stop_on_complete and self.current == self.total:
+            self.stop()
+
     @dataclass
     class Metrics:
         label: str
@@ -58,17 +64,6 @@ class Bar:
 
         def bar(self) -> bar:
             return bar(self.current, self.total)
-
-    def update(self, value: int, total: int = -1):
-        """Write-only operation from the user's side."""
-        if total != -1:
-            self.total = total
-        self.current = max(0, min(value, self.total))
-        if self.stop_on_complete and self.current == self.total:
-            self.stop()
-
-    def render(self, m: Metrics) -> bars:
-        return [f"{m.current}/{m.total}", m.bar()]
 
     def metrics(self) -> Metrics:
         elapsed: float = time.time() - self.start_time
@@ -86,7 +81,16 @@ class Bar:
             remaining=remaining,
         )
 
-    def _call_render(self) -> bars:
+    def render(self, m: Metrics) -> Line:
+        from .line import Col, FillWidth, RightJust
+
+        w = len(str(m.total))
+        return [
+            Col(RightJust(2 * (w + 1)), f"{m.current:>{w}}/{m.total} "),
+            Col(FillWidth, m.bar()),  # noqa: F821
+        ]
+
+    def _call_render(self) -> Line:
         if self.start_time <= 0.0:
             self.start_time = time.time()
         return self.render(self.metrics())
