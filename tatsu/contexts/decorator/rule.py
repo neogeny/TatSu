@@ -28,6 +28,6 @@ def rule(*args: Any, **kwargs: Any) -> Callable:
         return __rule_wrapper(func)
 
     def decorator(func: Callable) -> Callable[[Any, Ctx], Any]:
-        return __rule_wrapper(func, *args, *kwargs)
+        return __rule_wrapper(func, *args, **kwargs)
 
     return decorator
