@@ -3,11 +3,26 @@
 from __future__ import annotations
 
 import os
+import re
 from collections import namedtuple
 from copy import copy
 from typing import Any, Self
 
 from .colormethods import ColorMethods
+
+
+# Compiles standard 7-bit ANSI control sequences (CSI, SGR, etc.)
+_ANSI_RE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+
+
+def visual_len(text: str | bytes) -> int:
+    """Returns the true visual length of a string, omitting
+    terminal escape codes."""
+    if isinstance(text, bytes):
+        text = str(text)
+    if not isinstance(text, str):
+        raise TypeError(f"expected str got {type(text)!r}")
+    return len(_ANSI_RE.sub("", text))
 
 
 class RGB(namedtuple('RGB', ['r', 'g', 'b'])):
@@ -196,7 +211,7 @@ class Color:
 DEFAULT_COLOR: Color = Color.default()
 
 
-class Style(ColorMethods, str):
+class Style(ColorMethods):
     """A composable ANSI style builder.
 
     ``Style`` stores a text *value* plus formatting attributes (foreground
@@ -228,8 +243,17 @@ class Style(ColorMethods, str):
         "_underline",
     )
 
-    def __new__(cls, *args, **kwargs):
-        return super().__new__(cls, *args)
+    # def __new__(cls, *args, **kwargs):
+    #     return super().__new__(cls, *args)
+
+    def __str__(self) -> str:
+        return self.apply(self.value)
+
+    def __repr__(self) -> str:
+        return repr(str(self)).replace('\\x1b', '\\e')
+
+    def __len__(self) -> int:
+        return visual_len(str(self))
 
     def __init__(
         self,
@@ -251,6 +275,7 @@ class Style(ColorMethods, str):
         **kwargs,
     ):
 
+        self._value = value
         self._color = color
 
         self._fg: int | RGB = -1
@@ -271,12 +296,13 @@ class Style(ColorMethods, str):
 
     @property
     def value(self) -> str:
-        return super().__str__()
+        # return super().__str__()
+        return self._value
 
     def _kwattrs(self) -> dict[str, Any]:
         return {k.lstrip('_'): getattr(self, k, None) for k in type(self).__slots__}
 
-    def __call__(self, value: str, fmt: str | None = None) -> Self:
+    def __call__(self, value: str, /, *, fmt: str | None = None) -> Self:
         kw = self._kwattrs()
         kw.pop('value', None)
         if fmt is not None:
@@ -494,12 +520,6 @@ class Style(ColorMethods, str):
         if not codes:
             return text
         return f"\033[{';'.join(codes)}m{text}\033[0m"
-
-    def __str__(self) -> str:
-        return self.apply(self.value)
-
-    def __repr__(self) -> str:
-        return repr(str(self)).replace('\\x1b', '\\e')
 
 
 def named_color(name: str) -> int | None:
