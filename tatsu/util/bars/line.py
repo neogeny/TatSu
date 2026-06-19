@@ -44,9 +44,19 @@ class RightJust(ExactWidth):
 type Width = MinWidthT | FillWidthT | ExactWidth
 
 
+@dataclass(slots=True, frozen=True)
+class PaddingT:
+    pass
+
+
+Padding = PaddingT()
+
+type Text = str | barType | PaddingT
+
+
 class Col(NamedTuple):
     width: Width
-    text: str | barType
+    text: Text
 
     def budget_width(self, budget: int) -> int:
         match self.width:

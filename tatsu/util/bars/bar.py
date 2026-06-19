@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from typing import TypeAliasType
+from typing import ClassVar, TypeAliasType
 
 from .line import *  # noqa: F403
 from .line import (  # noqa: F401
@@ -16,6 +16,8 @@ from .line import (  # noqa: F401
     Line,
     MinWidth,
     MinWidthT,
+    Padding,
+    PaddingT,
     RightJust,
 )
 
@@ -78,14 +80,15 @@ class Bar:
         elapsed: float
         remaining: float
 
-        MinWidth: MinWidthT = MinWidth
-        FillWidth: FillWidthT = FillWidth
-        ExactWidth: type[ExactWidth] = ExactWidth
-        Col: type[Col] = Col
-        LeftJust: type[LeftJust] = LeftJust
+        MinWidth: ClassVar[MinWidthT] = MinWidth
+        FillWidth: ClassVar[FillWidthT] = FillWidth
+        ExactWidth: ClassVar[type[ExactWidth]] = ExactWidth
+        Col: ClassVar[type[Col]] = Col
+        LeftJust: ClassVar[type[LeftJust]] = LeftJust
         Line: TypeAliasType = Line  # type: ignore
-        MinWidthT: type[MinWidthT] = MinWidthT
-        RightJust: type[RightJust] = RightJust
+        MinWidthT: ClassVar[type[MinWidthT]] = MinWidthT
+        RightJust: ClassVar[type[RightJust]] = RightJust
+        Padding: ClassVar[PaddingT] = Padding
 
         def bar(self) -> barType:
             return barType(self.current, self.total)

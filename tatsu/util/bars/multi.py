@@ -10,7 +10,16 @@ import time
 from typing import assert_never
 
 from .bar import Bar, barType
-from .line import Col, ExactWidth, FillWidthT, LeftJust, MinWidthT, RightJust
+from .line import (
+    Col,
+    ExactWidth,
+    FillWidthT,
+    LeftJust,
+    MinWidthT,
+    PaddingT,
+    RightJust,
+    Width,
+)
 
 
 class Multi:
@@ -70,71 +79,110 @@ class Multi:
 
     @staticmethod
     def _render_col(col: Col, w: int) -> str:
-        if isinstance(col.text, barType):
-            return col.text.render(w)
-        match col.width:
-            case RightJust():
-                s = f"{col.text:>{w}}"
-                return s if len(s) <= w else s[-w:]
-            case LeftJust():
-                s = f"{col.text:<{w}}"
-                return s if len(s) <= w else s[:w]
-            case ExactWidth():
-                s = f"{col.text:<{w}}"
-                return s if len(s) <= w else s[:w]
-            case MinWidthT():
-                return f"{col.text:<{w}}"
-            case FillWidthT():
-                return f"{col.text:<{w}}"
-            case _:
-                assert_never()
+        match col.text:
+            case barType() as bt:
+                return bt.render(w)
+            case PaddingT():
+                return ' ' * w
+            case str() as s:
+                match col.width:
+                    case RightJust():
+                        s = f"{s:>{w}}"
+                        return s if len(s) <= w else s[-w:]
+                    case ExactWidth() | LeftJust() | MinWidthT() | FillWidthT():
+                        return f"{s:<{w}}"[:w]
+                    case _ as unreachable:
+                        assert_never(unreachable)
+            case _ as unreachable:
+                assert_never(unreachable)
 
-    def render_bars(self, snapshot: list[Bar], *, prev_height: int = 0, final: bool = False) -> int:
+    def render_bars(
+        self, snapshot: list[Bar], *, prev_height: int = 0, final: bool = False
+    ) -> int:
+        #
+        # ── Column width algebra ──────────────────────────────────
+        #
+        # Each column position j collects width specifications from
+        # every bar's Line.  The renderer must reconcile them into a
+        # single budget colw[j] for that column.  The reconciliation
+        # is a partial order over Width types:
+        #
+        #   ExactWidth (incl. LeftJust, RightJust)   highest priority
+        #   MinWidthT                                 middle priority
+        #   FillWidthT                                lowest priority
+        #
+        # Rules:
+        #   1. If ANY bar declares ExactWidth at column j, that
+        #      column's width is fixed: colw[j] = max of all exact
+        #      widths declared.  Lower-priority declarations are
+        #      ignored.
+        #   2. Otherwise, if ANY bar declares MinWidthT at column j,
+        #      the column is content-derived: colw[j] = max string
+        #      length of str-typed text across all bars.
+        #   3. If all bars at column j declare FillWidthT (or make
+        #      no declaration — the initial state is FillWidthT),
+        #      the column gets a share of the remaining terminal
+        #      width after all fixed columns are accounted for.
+        #
+        # coltype[j] tracks the renderer's settled decision for
+        # column j, starting from the bottom (FillWidthT) so that
+        # the first higher-priority declaration upgrades it.
+        # fill is the set of column indices that will split the
+        # remaining horizontal budget.
+        #
+        # ───────────────────────────────────────────────────────────
         if not snapshot:
             return 0
         lines = [b._call_render() for b in snapshot]
         ncols = max(len(line) for line in lines)
-        term = shutil.get_terminal_size().columns
-        maxw = term - 1  # one shy to avoid terminal auto-wrap on \n
+        maxw = shutil.get_terminal_size().columns - 1
 
-        # Phase 1: size each column from the first line that has it
         colw = [0] * ncols
-        fill = []
-        for j in range(ncols):
-            col = next(line[j] for line in lines if j < len(line))
-            match col.width:
-                case ExactWidth(w) | LeftJust(w) | RightJust(w):
-                    colw[j] = w
-                case MinWidthT():
-                    widths = []
-                    for line in lines:
-                        if j < len(line):
-                            t = line[j].text
-                            if isinstance(t, str):
-                                widths.append(len(t))
-                    colw[j] = max(widths) if widths else 0
-                case FillWidthT():
-                    fill.append(j)
-                case _:
-                    assert_never()
+        coltype: list[Width] = [FillWidthT()] * ncols
+        fill: set[int] = set()
 
-        # Phase 2: distribute remaining space to fill columns
-        fixed = sum(colw)
+        for line in lines:
+            for j, col in enumerate(line):
+                match col.width:
+                    case ExactWidth() as ew:  # includes LeftJust, RightJust
+                        coltype[j] = ew
+                        fill.discard(j)
+                        colw[j] = max(colw[j], ew.width)
+
+                    case MinWidthT():
+                        match coltype[j]:
+                            case ExactWidth():
+                                continue
+                            case FillWidthT():
+                                coltype[j] = col.width
+                        match col.text:
+                            case str(s):
+                                colw[j] = max(colw[j], len(s))
+
+                    case FillWidthT():
+                        match coltype[j]:
+                            case FillWidthT():
+                                coltype[j] = col.width
+                                fill.add(j)
+                            case _:
+                                continue
+
+                    case _:
+                        raise AssertionError('unreachable')
+
         if fill:
-            per = max(0, maxw - fixed) // len(fill)
-            for j in fill:
-                colw[j] = per
+            budget = max(0, maxw - sum(colw))
+            if budget:
+                per = budget // len(fill)
+                for j in fill:
+                    colw[j] = per
 
-        # Phase 3: build line strings and trim to terminal width
         linestr = []
         for line in lines:
             parts = [self._render_col(col, colw[j]) for j, col in enumerate(line)]
-            s = ''.join(parts)
-            if len(s) > maxw:
-                s = s[:maxw]
+            s = ''.join(parts)[:maxw]
             linestr.append(s)
 
-        # Phase 4: write all lines, clearing leftovers from previous frame
         h = len(linestr)
         for s in linestr:
             self._out.write(f"\033[K{s}\n")
