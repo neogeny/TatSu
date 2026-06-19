@@ -47,8 +47,8 @@ def main():
     for t in threads:
         t.join()
 
-    time.sleep(0.5)
-    m.stop()
+    time.sleep(2.0)
+    # m.stop()
 
 
 if __name__ == "__main__":

@@ -47,13 +47,14 @@ class Multi:
 
     def _render_loop(self):
         """The isolated thread handler. Read-only side."""
+        prev_height = 0
         t0 = time.perf_counter()
         while self._running:
             with self._lock:
                 snapshot = copy.copy(self._bars)
                 self._bars = [b for b in self._bars if not b.stopped]
 
-            self.render_bars(snapshot)
+            prev_height = self.render_bars(snapshot, prev_height=prev_height)
             elapsed = time.perf_counter() - t0
             dt = 1 / self._fps - elapsed
             if dt > 0:
@@ -65,7 +66,7 @@ class Multi:
             snapshot = copy.copy(self._bars)
         for b in snapshot:
             b.stop()
-        self.render_bars(snapshot, final=True)
+        self.render_bars(snapshot, prev_height=prev_height, final=True)
 
     @staticmethod
     def _render_col(col: Col, w: int) -> str:
@@ -88,12 +89,13 @@ class Multi:
             case _:
                 assert_never()
 
-    def render_bars(self, snapshot: list[Bar], *, final: bool = False) -> None:
+    def render_bars(self, snapshot: list[Bar], *, prev_height: int = 0, final: bool = False) -> int:
         if not snapshot:
-            return
+            return 0
         lines = [b._call_render() for b in snapshot]
         ncols = max(len(line) for line in lines)
         term = shutil.get_terminal_size().columns
+        maxw = term - 1  # one shy to avoid terminal auto-wrap on \n
 
         # Phase 1: size each column from the first line that has it
         colw = [0] * ncols
@@ -119,7 +121,7 @@ class Multi:
         # Phase 2: distribute remaining space to fill columns
         fixed = sum(colw)
         if fill:
-            per = max(0, term - fixed) // len(fill)
+            per = max(0, maxw - fixed) // len(fill)
             for j in fill:
                 colw[j] = per
 
@@ -128,13 +130,18 @@ class Multi:
         for line in lines:
             parts = [self._render_col(col, colw[j]) for j, col in enumerate(line)]
             s = ''.join(parts)
-            if len(s) > term:
-                s = s[:term]
+            if len(s) > maxw:
+                s = s[:maxw]
             linestr.append(s)
 
-        # Phase 4: write all lines
+        # Phase 4: write all lines, clearing leftovers from previous frame
+        h = len(linestr)
         for s in linestr:
             self._out.write(f"\033[K{s}\n")
+        if h < prev_height:
+            for _ in range(prev_height - h):
+                self._out.write("\033[K\n")
         if not final:
-            self._out.write(f"\033[{len(linestr)}A")
+            self._out.write(f"\033[{max(h, prev_height)}A")
         self._out.flush()
+        return h
