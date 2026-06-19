@@ -12,12 +12,13 @@ def main():
     import random
     import threading
     import time
-    from dataclasses import dataclass
+    from dataclasses import dataclass, field
 
     from tatsu.util.bars import (
         Bar,
         Col,
         FillWidth,
+        FixedWidth,
         LeftJust,
         Line,
         Multi,
@@ -29,7 +30,7 @@ def main():
 
     @dataclass
     class StyleBar(Bar):
-        style: Style
+        style: Style = field(default_factory=Style)
 
         def render(self, m: Bar.Metrics) -> Line:
             return [
@@ -40,34 +41,55 @@ def main():
                 # Col(FillWidth, m.bart(done=("-"), todo=".")),
             ]
 
+    @dataclass
+    class TopBar(StyleBar):
+        def render(self, m: Bar.Metrics) -> Line:
+            return [
+                Col(
+                    FixedWidth(20),
+                    m.bart(
+                        done=s("-").yellow().bold(),
+                        todo=s("-").basic_white().dim(),
+                    ),
+                ),
+            ]
+
     s = c.style()
     red = s.red()
     blue = s.blue().bold()
 
     bars: list[Bar] = [
         StyleBar(label="lexing", style=red),
-        Bar(label="parsing"),
+        StyleBar(label="parsing"),
         Bar(label="semantics", top=200),
         StyleBar(label="codegen", top=500, style=blue),
         Bar(label="testing", top=50),
     ]
 
+    overall = TopBar(top=len(bars))
+    bars.insert(0, overall)
+
     m = Multi(bars)
+    m.print(red("lexing engines warming up"))
+    m.print(blue("parsing pipeline ready"))
     m.start()
 
-    def worker(bar: Bar, delay: float, step: int):
+    def worker(multi: Multi, bar: Bar, delay: float, step: int, overall: Bar):
+        multi.print(f"starting {bar.label}")
         while bar.pos < bar.top:
             time.sleep(delay)
             bar.update(min(bar.pos + random.randint(1, step), bar.top))  # noqa: S311
+        multi.print(blue(f"finished {bar.label}"))
+        overall.update(overall.pos + 1)
 
     threads = [
-        threading.Thread(target=worker, args=(b, d, s), daemon=True)
+        threading.Thread(target=worker, args=(m, b, d, s, overall), daemon=True)
         for b, d, s in [
-            (bars[0], 0.04, 8),
-            (bars[1], 0.06, 5),
-            (bars[2], 0.10, 10),
-            (bars[3], 0.03, 4),
-            (bars[4], 0.15, 2),
+            (bars[1], 0.08, 8),
+            (bars[2], 0.12, 5),
+            (bars[3], 0.20, 10),
+            (bars[4], 0.06, 4),
+            (bars[5], 0.30, 2),
         ]
     ]
 

@@ -189,7 +189,7 @@ def show_results(
     s = ResultsStyle(Color(cfg.usecolor))
 
     def rprint(s: str = "", *a: Any, **kw: Any) -> None:
-        printer.print(s, *a, **kw)
+        printer.print(s, *a, highlight=False, markup=False, **kw)
 
     # rprint(f"{s.header('results')}:")
 

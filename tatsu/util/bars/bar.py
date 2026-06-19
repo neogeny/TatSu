@@ -2,17 +2,17 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import builtins
 import time
 from dataclasses import dataclass
 from typing import ClassVar, TypeAliasType
 
+from ..colorize import Style
 from .line import *  # noqa: F403
 from .line import (  # noqa: F401
     Col,
-    ExactWidth,
     FillWidth,
     FillWidthT,
+    FixedWidth,
     LeftJust,
     Line,
     MinWidth,
@@ -20,7 +20,6 @@ from .line import (  # noqa: F401
     Padding,
     PaddingT,
     RightJust,
-    Text,
 )
 
 
@@ -31,8 +30,8 @@ __all__ = ["barType", "Bar"]
 class barType:
     pos: int
     top: int
-    done: str = "█"
-    todo: str = "░"
+    done: str | Style = "█"
+    todo: str | Style = "░"
 
     def __post_init__(self):
         if self.top < self.pos:
@@ -43,26 +42,24 @@ class barType:
             return ""
         done_width = int(budget * self.pos / self.top)
         todo_width = int(budget * (self.top - self.pos) / self.top)
-        return (
-            f"{str(self.done) * done_width}"
-            + f"{str(self.todo) * todo_width}"
-            + f" {self.pos}/{self.top}"
-        )
+        return f"{str(self.done) * done_width}" + f"{str(self.todo) * todo_width}"
 
 
 @dataclass(slots=True, kw_only=True)
 class Bar:
     """A rich, lightweight, fully picklable data object given to the user."""
 
-    done: str = "█"
-    todo: str = "░"
+    done: str | Style = "█"
+    todo: str | Style = "░"
 
-    label: str
+    label: str | Style = ""
     top: int = 100
     pos: int = 0
     start_time: float = 0.0
     stopped: bool = False
     stop_on_complete: bool = True
+
+    Line: ClassVar[TypeAliasType] = Line
 
     def stop(self) -> None:
         self.stopped = True
@@ -90,8 +87,8 @@ class Bar:
             self,
             pos: int = -1,
             top: int = -1,
-            done: str = "",
-            todo: str = "",
+            done: str | Style = "",
+            todo: str | Style = "",
         ) -> barType:
             return barType(
                 pos=pos if pos >= 0 else self.bar.pos,
@@ -101,15 +98,15 @@ class Bar:
             )
 
         @property
-        def done_str(self) -> str:
+        def done(self) -> str | Style:
             return self.bar.done
 
         @property
-        def todo_str(self) -> str:
+        def todo(self) -> str | Style:
             return self.bar.todo
 
         @property
-        def label(self) -> str:
+        def label(self) -> str | Style:
             return self.bar.label
 
         @property
