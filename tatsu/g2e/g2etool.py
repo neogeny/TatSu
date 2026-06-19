@@ -6,7 +6,7 @@ import sys
 from importlib import resources
 from pathlib import Path
 
-from .. import compile, grammars as g
+from .. import compile, peg as g
 from ..util import cast, startscript
 from .semantics import ANTLRSemantics
 

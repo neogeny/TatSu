@@ -6,7 +6,7 @@ import unittest
 
 import pytest
 
-from tatsu import grammars as g
+from tatsu import peg as g
 from tatsu.exceptions import FailedParse
 from tatsu.ngcodegen import pythongen
 from tatsu.tool import compile

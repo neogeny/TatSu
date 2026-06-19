@@ -29,7 +29,7 @@ try:
 except ImportError:
     pass
 
-from .. import grammars
+from .. import peg
 from ..api import compile, to_python_sourcecode
 from ..exceptions import FailedParse
 from ..parsing import Parser
@@ -51,7 +51,7 @@ class BenchmarkResult:
     avg_lines_sec: float
 
 
-def _setup_mem_parser(grammar_src: str) -> tuple[grammars.Grammar, float]:
+def _setup_mem_parser(grammar_src: str) -> tuple[peg.Grammar, float]:
     with timer() as t:
         model = compile(grammar_src)
     return model, t.delta

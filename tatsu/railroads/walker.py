@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from .. import grammars as g
+from .. import peg as g
 from ..util import join_lists, regexpp, unicode_display_len as ulen
 from ..walkers import NodeWalker
 from .railmath import (

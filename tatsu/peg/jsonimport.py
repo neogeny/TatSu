@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from .. import grammars as g
+from .. import peg as g
 from ..util.fromjson import fromjson
 
 

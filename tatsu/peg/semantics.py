@@ -6,7 +6,7 @@ from ast import literal_eval
 from collections.abc import Iterable, Sequence
 from typing import Any
 
-from .. import grammars as g
+from .. import peg as g
 from ..contexts import ParseContext
 from ..contexts.infos import ParseInfo
 from ..exceptions import FailedSemantics

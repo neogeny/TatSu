@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from ...config import ParserConfig
-from ...grammars import Grammar
+from ...peg import Grammar
 from ...util.heart import Heart
 from ...util.parproc import ProgressPair, VisualPayload, parproc_visual
 from ...util.richtest import is_rich_library_available

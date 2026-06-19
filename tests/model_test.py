@@ -9,7 +9,7 @@ from typing import Any
 import pytest
 
 import tatsu
-from tatsu import grammars as g
+from tatsu import peg as g
 from tatsu.contexts.ast import AST
 from tatsu.objectmodel import Node
 from tatsu.util import hasha, typename

@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from ...api import compile
-from ...grammars import Grammar
+from ...peg import Grammar
 from .cfg import CLIError
 
 

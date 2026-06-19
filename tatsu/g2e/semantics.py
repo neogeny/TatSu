@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from .. import grammars as g
+from .. import peg as g
 from ..contexts import AST
 
 

@@ -6,7 +6,7 @@ import re
 from typing import Any
 
 from ..config import ParserConfig
-from ..grammars import GrammarSemantics
+from ..peg import GrammarSemantics
 from ..semantics import ASTSemantics
 from .bootparser import TatSuBootstrapParser
 from .bootstrap import (

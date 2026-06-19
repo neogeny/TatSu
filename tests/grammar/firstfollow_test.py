@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from tatsu import grammars as g
+from tatsu import peg as g
 from tatsu.tool import compile
 
 

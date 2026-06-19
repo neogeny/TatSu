@@ -15,11 +15,11 @@ from pathlib import Path
 import pytest
 
 import tatsu
-from tatsu import compile, diagrams, grammars
+from tatsu import compile, diagrams, peg
 from tatsu.boot import TatSuParser, TatSuParserGenerator
-from tatsu.grammars.semantics import GrammarSemantics
 from tatsu.ngcodegen import pythongen
 from tatsu.ngcodegen.grammar_gen import parsermodel_gen
+from tatsu.peg.semantics import GrammarSemantics
 from tatsu.semantics import ASTSemantics
 
 # noinspection PyUnusedImports
@@ -50,7 +50,7 @@ def test_00_with_boostrap_grammar():
 
     model0 = compile(text)
     Path('./tmp/model_00.py').write_text(repr(model0))
-    g00 = eval(repr(model0), {}, vars(grammars))  # noqa # type: ignore
+    g00 = eval(repr(model0), {}, vars(peg))  # noqa # type: ignore
     g00.parse(text, trace=False)
 
     Path('./tmp/parser_00.py').write_text(parsermodel_gen(model0, name=name))

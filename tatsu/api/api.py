@@ -5,8 +5,9 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from .. import grammars as g
+from .. import peg as g
 from ..boot import TatSuParserGenerator
+from ..boot.bootparser import GRAMMAR_MODEL
 from ..config import ParserConfig
 from ..exceptions import ParseException
 from ..input import Text
@@ -27,7 +28,6 @@ __compiled_grammar_cache: dict[tuple[str | None, str, int], g.Grammar] = {}
 
 
 def boot_grammar() -> g.Grammar:
-    from ..parser.bootparser import GRAMMAR_MODEL
 
     return GRAMMAR_MODEL
 

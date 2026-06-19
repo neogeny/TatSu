@@ -6,7 +6,7 @@ import dataclasses as dc
 from pathlib import Path
 from typing import Any
 
-from tatsu import grammars as g
+from tatsu import peg as g
 from tatsu.util.indent import IndentPrintMixin
 
 

@@ -8,7 +8,7 @@ import types
 from collections.abc import Callable, Iterator
 from typing import Any
 
-from .. import grammars as g
+from .. import peg as g
 from ..config import ParserConfig
 from ..contexts.ctx import Ctx
 from ..exceptions import CodegenError

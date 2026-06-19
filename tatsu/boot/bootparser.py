@@ -18,7 +18,7 @@ from typing import Any
 
 from tatsu.config import ParserConfig
 from tatsu.contexts import CanParse
-from tatsu.grammars import *
+from tatsu.peg import *
 from tatsu.input import Text
 from tatsu.input.buffer import Buffer
 from tatsu.input.textlines import TextLines

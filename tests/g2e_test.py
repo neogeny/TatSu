@@ -1,6 +1,6 @@
 import unittest
 
-from tatsu import g2e, grammars as g
+from tatsu import g2e, peg as g
 
 
 class G2ETests(unittest.TestCase):

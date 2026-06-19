@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import itertools
 
-from .grammars import EOL_SYM
+from .peg import EOL_SYM
 from .walkers import NodeWalker
 
 

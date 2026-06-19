@@ -6,7 +6,7 @@ from __future__ import annotations
 import builtins
 from collections import namedtuple
 
-from .. import grammars as g
+from .. import peg as g
 from ..objectmodel import Node
 from ..util import deprecated_params, safe_name, topsort
 from ..util.indent import IndentPrintMixin

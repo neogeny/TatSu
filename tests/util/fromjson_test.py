@@ -12,7 +12,7 @@ import dataclasses
 import json
 from pathlib import Path
 
-import tatsu.grammars as g
+import tatsu.peg as g
 from tatsu.util.asjson import asjson
 from tatsu.util.fromjson import JSONBase, fromjson
 from tatsu.util.typetools import is_object

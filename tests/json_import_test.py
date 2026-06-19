@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from tatsu.grammars import jsonimport
+from tatsu.peg import jsonimport
 from tatsu.util.fromjson import fromjson
 
 

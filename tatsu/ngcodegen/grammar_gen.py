@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .. import grammars as g
+from .. import peg as g
 from .._version import __version__ as version
 from ..util.common import typename
 from ..util.indent import IndentPrintMixin
@@ -38,10 +38,10 @@ def PARSER(name: str) -> str:
 
     from tatsu.config import ParserConfig
     from tatsu.contexts import CanParse
-    from tatsu.grammars import *
     from tatsu.input import Text
     from tatsu.input.buffer import Buffer
     from tatsu.input.textlines import TextLines
+    from tatsu.peg import *
 
 
     class {name}Parser(CanParse):

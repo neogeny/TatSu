@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from tatsu import api, grammars, railroads
+from tatsu import api, peg, railroads
 from tatsu.util import trim
 
 from .fixtures import PATH_TATSU_GRAMMAR
@@ -38,7 +38,7 @@ def test_per_node():
         number: /\d+/
     """
     model = api.compile(grammar)
-    assert isinstance(model, grammars.Grammar)
+    assert isinstance(model, peg.Grammar)
     optrule = model.rulemap['options']
     expected = """
          options ●───┬─number──┬──■
