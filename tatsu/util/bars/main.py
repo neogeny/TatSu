@@ -12,15 +12,42 @@ def main():
     import random
     import threading
     import time
+    from dataclasses import dataclass
 
-    from .bar import Bar
-    from .multi import Multi
+    from tatsu.util.bars import (
+        Bar,
+        Col,
+        FillWidth,
+        LeftJust,
+        Line,
+        Multi,
+        RightJust,
+    )
+    from tatsu.util.colorize import Color, Style  # noqa: F401
 
-    bars = [
-        Bar(label="lexing"),
+    c = Color(True)
+
+    @dataclass
+    class StyleBar(Bar):
+        style: Style
+
+        def render(self, m: Bar.Metrics) -> Line:
+            return [
+                # Col(LeftJust(20), self.style(self.label)),
+                Col(LeftJust(20), self.label),
+                Col(RightJust(8), f"{100 * m.pct:3.0f}%"),
+                Col(FillWidth, m.bart()),
+            ]
+
+    s = c.style()
+    red = s.red()
+    blue = s.blue().bold()
+
+    bars: list[Bar] = [
+        StyleBar(label="lexing", style=red),
         Bar(label="parsing"),
         Bar(label="semantics", total=200),
-        Bar(label="codegen", total=500),
+        StyleBar(label="codegen", total=500, style=blue),
         Bar(label="testing", total=50),
     ]
 
@@ -28,9 +55,9 @@ def main():
     m.start()
 
     def worker(bar: Bar, delay: float, step: int):
-        while bar.current < bar.total:
+        while bar.done < bar.total:
             time.sleep(delay)
-            bar.update(min(bar.current + random.randint(1, step), bar.total))  # noqa: S311
+            bar.update(min(bar.done + random.randint(1, step), bar.total))  # noqa: S311
 
     threads = [
         threading.Thread(target=worker, args=(b, d, s), daemon=True)
@@ -42,13 +69,16 @@ def main():
             (bars[4], 0.15, 2),
         ]
     ]
-    for t in threads:
-        t.start()
-    for t in threads:
-        t.join()
 
-    time.sleep(2.0)
-    # m.stop()
+    try:
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        time.sleep(2.0)
+    except KeyboardInterrupt:
+        pass
+    m.stop()
 
 
 if __name__ == "__main__":

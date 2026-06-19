@@ -31,6 +31,9 @@ class Multi:
         self._out = sys.stderr
         self._fps = fps
 
+        self._colw: list[int] = []
+        self._height: int = 0
+
     def add_bar(self, bar: Bar) -> None:
         """Stores a bar internally."""
         with self._lock:
@@ -56,14 +59,13 @@ class Multi:
 
     def _render_loop(self):
         """The isolated thread handler. Read-only side."""
-        prev_height = 0
         t0 = time.perf_counter()
         while self._running:
             with self._lock:
                 snapshot = copy.copy(self._bars)
                 self._bars = [b for b in self._bars if not b.stopped]
 
-            prev_height = self.render_bars(snapshot, prev_height=prev_height)
+            self.render_bars(snapshot)
             elapsed = time.perf_counter() - t0
             dt = 1 / self._fps - elapsed
             if dt > 0:
@@ -75,30 +77,31 @@ class Multi:
             snapshot = copy.copy(self._bars)
         for b in snapshot:
             b.stop()
-        self.render_bars(snapshot, prev_height=prev_height, final=True)
+        self.render_bars(snapshot, final=True)
 
     @staticmethod
     def _render_col(col: Col, w: int) -> str:
+        def render_str(s: str) -> str:
+            match col.width:
+                case RightJust():
+                    s = f"{s!s:>{w}}"
+                    return s if len(s) <= w else s[-w:]
+                case ExactWidth() | LeftJust() | MinWidthT() | FillWidthT():
+                    return f"{s!s:<{w}}"
+                case _ as unreachable:
+                    assert_never(unreachable)
+
         match col.text:
             case barType() as bt:
                 return bt.render(w)
             case PaddingT():
                 return ' ' * w
             case str() as s:
-                match col.width:
-                    case RightJust():
-                        s = f"{s:>{w}}"
-                        return s if len(s) <= w else s[-w:]
-                    case ExactWidth() | LeftJust() | MinWidthT() | FillWidthT():
-                        return f"{s:<{w}}"[:w]
-                    case _ as unreachable:
-                        assert_never(unreachable)
-            case _ as unreachable:
-                assert_never(unreachable)
+                return render_str(s)
+            case _:
+                return render_str(str(col.text))
 
-    def render_bars(
-        self, snapshot: list[Bar], *, prev_height: int = 0, final: bool = False
-    ) -> int:
+    def render_bars(self, snapshot: list[Bar], *, final: bool = False) -> int:
         #
         # ── Column width algebra ──────────────────────────────────
         #
@@ -135,10 +138,15 @@ class Multi:
             return 0
         lines = [b._call_render() for b in snapshot]
         ncols = max(len(line) for line in lines)
-        maxw = shutil.get_terminal_size().columns - 1
+        maxw = shutil.get_terminal_size().columns
 
-        colw = [0] * ncols
-        coltype: list[Width] = [FillWidthT()] * ncols
+        prev_ncols = len(self._colw)
+        max_ncols = max(ncols, prev_ncols)
+        ncol_diff = max(0, max_ncols - prev_ncols)
+        colw = self._colw + [0] * ncol_diff
+        assert len(colw) == max_ncols
+
+        coltype: list[Width] = [FillWidthT()] * max_ncols
         fill: set[int] = set()
 
         for line in lines:
@@ -180,16 +188,19 @@ class Multi:
         linestr = []
         for line in lines:
             parts = [self._render_col(col, colw[j]) for j, col in enumerate(line)]
-            s = ''.join(parts)[:maxw]
+            s = f"{''.join(parts):{maxw}}"
             linestr.append(s)
 
-        h = len(linestr)
-        for s in linestr:
-            self._out.write(f"\033[K{s}\n")
-        if h < prev_height:
-            for _ in range(prev_height - h):
+        try:
+            for s in linestr:
+                self._out.write(f"\033[K{s}\n")
+
+            h = len(linestr)
+            for _ in range(max(0, self._height - h)):
                 self._out.write("\033[K\n")
-        if not final:
-            self._out.write(f"\033[{max(h, prev_height)}A")
-        self._out.flush()
+            self._height = max(h, self._height)
+        finally:
+            self._out.write(f"\033[{self._height}A")
+            self._out.flush()
+        self._colw = colw
         return h

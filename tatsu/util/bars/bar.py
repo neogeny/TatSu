@@ -19,13 +19,14 @@ from .line import (  # noqa: F401
     Padding,
     PaddingT,
     RightJust,
+    Text,
 )
 
 
 __all__ = ["barType", "Bar"]
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, kw_only=True)
 class barType:
     done: int
     total: int
@@ -48,9 +49,12 @@ class barType:
 class Bar:
     """A rich, lightweight, fully picklable data object given to the user."""
 
+    done_str: str = "█"
+    todo_str: str = "░"
+
     label: str
     total: int = 100
-    current: int = 0
+    done: int = 0
     start_time: float = 0.0
     stopped: bool = False
     stop_on_complete: bool = True
@@ -65,45 +69,62 @@ class Bar:
         """Write-only operation from the user's side."""
         if total != -1:
             self.total = total
-        self.current = max(0, min(value, self.total))
-        if self.stop_on_complete and self.current >= self.total:
+        self.done = max(0, min(value, self.total))
+        if self.stop_on_complete and self.done >= self.total:
             self.stop()
 
     @dataclass
     class Metrics:
-        label: str
-        total: int
-        current: int
-        start_time: float
+        bar: Bar
 
         pct: float
         elapsed: float
         remaining: float
 
-        MinWidth: ClassVar[MinWidthT] = MinWidth
-        FillWidth: ClassVar[FillWidthT] = FillWidth
-        ExactWidth: ClassVar[type[ExactWidth]] = ExactWidth
-        Col: ClassVar[type[Col]] = Col
-        LeftJust: ClassVar[type[LeftJust]] = LeftJust
-        Line: TypeAliasType = Line  # type: ignore
-        MinWidthT: ClassVar[type[MinWidthT]] = MinWidthT
-        RightJust: ClassVar[type[RightJust]] = RightJust
-        Padding: ClassVar[PaddingT] = Padding
+        def bart(self) -> barType:
+            return barType(
+                done=self.done,
+                total=self.total,
+                done_str=self.done_str,
+                todo_str=self.todo_str,
+            )
 
-        def bar(self) -> barType:
-            return barType(self.current, self.total)
+        @property
+        def done_str(self) -> str:
+            return self.bar.done_str
+
+        @property
+        def todo_str(self) -> str:
+            return self.bar.todo_str
+
+        @property
+        def label(self) -> str:
+            return self.bar.label
+
+        @property
+        def total(self) -> int:
+            return self.bar.total
+
+        @property
+        def done(self) -> int:
+            return self.bar.done
+
+        @property
+        def stopped(self) -> bool:
+            return self.bar.stopped
+
+        @property
+        def start_time(self) -> float:
+            return self.bar.start_time
 
     def metrics(self) -> Metrics:
         elapsed: float = time.time() - self.start_time
 
-        pct: float = self.current / self.total if self.total else 0.0
+        pct: float = self.done / self.total if self.total else 0.0
         remaining: float = elapsed / pct if pct else 0.0
 
         return self.Metrics(
-            label=self.label,
-            total=self.total,
-            current=self.current,
-            start_time=self.start_time,
+            bar=self,
             pct=pct,
             elapsed=elapsed,
             remaining=remaining,
@@ -113,9 +134,9 @@ class Bar:
 
         w = len(str(m.total))
         return [
-            m.Col(m.MinWidth, f"{m.label} "),
-            m.Col(m.RightJust(2 * (w + 1)), f"{m.current:>{w}}/{m.total} "),
-            m.Col(m.FillWidth, m.bar()),  # noqa: F821
+            Col(MinWidth, f"{m.label} "),
+            Col(RightJust(2 * (w + 1)), f"{m.done:>{w}}/{m.total} "),
+            Col(FillWidth, m.bart()),  # noqa: F821
         ]
 
     def _call_render(self) -> Line:
