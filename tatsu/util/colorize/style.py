@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import os
 from collections import namedtuple
 from copy import copy
-from typing import Any, NamedTuple, Self
+from typing import Any, Self
 
 from .colormethods import ColorMethods
 

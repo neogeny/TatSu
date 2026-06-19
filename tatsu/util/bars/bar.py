@@ -4,19 +4,35 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
+from typing import TypeAliasType
 
 from .line import *  # noqa: F403
+from .line import (  # noqa: F401
+    Col,
+    ExactWidth,
+    FillWidth,
+    FillWidthT,
+    LeftJust,
+    Line,
+    MinWidth,
+    MinWidthT,
+    RightJust,
+)
 
 
-DEFAULT_BAR_WIDTH = 50
+__all__ = ["barType", "Bar"]
 
 
-@dataclass(slots=True, frozen=True)
-class bar:
+@dataclass(slots=True)
+class barType:
     done: int
     total: int
     done_str: str = "█"
     todo_str: str = "░"
+
+    def __post_init__(self):
+        if self.total < self.done:
+            self.total = self.done + 1
 
     def render(self, budget: int) -> str:
         if self.total == 0:
@@ -48,7 +64,7 @@ class Bar:
         if total != -1:
             self.total = total
         self.current = max(0, min(value, self.total))
-        if self.stop_on_complete and self.current == self.total:
+        if self.stop_on_complete and self.current >= self.total:
             self.stop()
 
     @dataclass
@@ -62,8 +78,17 @@ class Bar:
         elapsed: float
         remaining: float
 
-        def bar(self) -> bar:
-            return bar(self.current, self.total)
+        MinWidth: MinWidthT = MinWidth
+        FillWidth: FillWidthT = FillWidth
+        ExactWidth: type[ExactWidth] = ExactWidth
+        Col: type[Col] = Col
+        LeftJust: type[LeftJust] = LeftJust
+        Line: TypeAliasType = Line  # type: ignore
+        MinWidthT: type[MinWidthT] = MinWidthT
+        RightJust: type[RightJust] = RightJust
+
+        def bar(self) -> barType:
+            return barType(self.current, self.total)
 
     def metrics(self) -> Metrics:
         elapsed: float = time.time() - self.start_time
@@ -82,12 +107,12 @@ class Bar:
         )
 
     def render(self, m: Metrics) -> Line:
-        from .line import Col, FillWidth, RightJust
 
         w = len(str(m.total))
         return [
-            Col(RightJust(2 * (w + 1)), f"{m.current:>{w}}/{m.total} "),
-            Col(FillWidth, m.bar()),  # noqa: F821
+            m.Col(m.MinWidth, f"{m.label} "),
+            m.Col(m.RightJust(2 * (w + 1)), f"{m.current:>{w}}/{m.total} "),
+            m.Col(m.FillWidth, m.bar()),  # noqa: F821
         ]
 
     def _call_render(self) -> Line:

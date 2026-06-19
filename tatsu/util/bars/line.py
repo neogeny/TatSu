@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, NamedTuple
 
 
 if TYPE_CHECKING:
-    from .bar import bar
+    from .bar import barType
 
 
 @dataclass(slots=True, frozen=True)
@@ -46,7 +46,7 @@ type Width = MinWidthT | FillWidthT | ExactWidth
 
 class Col(NamedTuple):
     width: Width
-    text: str | bar
+    text: str | barType
 
     def budget_width(self, budget: int) -> int:
         match self.width:

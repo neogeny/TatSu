@@ -9,8 +9,8 @@ import threading
 import time
 from typing import assert_never
 
-from .bar import Bar, bar
-from .line import ExactWidth, FillWidthT, LeftJust, MinWidthT, RightJust
+from .bar import Bar, barType
+from .line import Col, ExactWidth, FillWidthT, LeftJust, MinWidthT, RightJust
 
 
 class Multi:
@@ -39,14 +39,11 @@ class Multi:
     def stop(self):
         """Gracefully shuts down the rendering thread."""
         self._running = False
-        # Clean up terminal lines
-        with self._lock:
-            num_bars = len(self._bars)
-        self._out.write(f"\033[{num_bars}B\n\033[?25h")
-        self._out.flush()
-
         if self._thread:
             self._thread.join()
+        # Final render already ran, cursor is past bars
+        self._out.write("\033[?25h")  # Show cursor
+        self._out.flush()
 
     def _render_loop(self):
         """The isolated thread handler. Read-only side."""
@@ -63,7 +60,35 @@ class Multi:
                 time.sleep(dt)
             t0 = time.perf_counter()
 
-    def render_bars(self, snapshot: list[Bar]) -> None:
+        # Final render: stop all remaining bars and show final state
+        with self._lock:
+            snapshot = copy.copy(self._bars)
+        for b in snapshot:
+            b.stop()
+        self.render_bars(snapshot, final=True)
+
+    @staticmethod
+    def _render_col(col: Col, w: int) -> str:
+        if isinstance(col.text, barType):
+            return col.text.render(w)
+        match col.width:
+            case RightJust():
+                s = f"{col.text:>{w}}"
+                return s if len(s) <= w else s[-w:]
+            case LeftJust():
+                s = f"{col.text:<{w}}"
+                return s if len(s) <= w else s[:w]
+            case ExactWidth():
+                s = f"{col.text:<{w}}"
+                return s if len(s) <= w else s[:w]
+            case MinWidthT():
+                return f"{col.text:<{w}}"
+            case FillWidthT():
+                return f"{col.text:<{w}}"
+            case _:
+                assert_never()
+
+    def render_bars(self, snapshot: list[Bar], *, final: bool = False) -> None:
         if not snapshot:
             return
         lines = [b._call_render() for b in snapshot]
@@ -101,22 +126,15 @@ class Multi:
         # Phase 3: build line strings and trim to terminal width
         linestr = []
         for line in lines:
-            parts = []
-            for j, col in enumerate(line):
-                w = colw[j]
-                parts.append(
-                    col.text.render(w)
-                    if isinstance(col.text, bar)
-                    else f"{col.text:>{w}}"
-                )
+            parts = [self._render_col(col, colw[j]) for j, col in enumerate(line)]
             s = ''.join(parts)
-            # Trim to terminal width to prevent wrap/overflow
             if len(s) > term:
                 s = s[:term]
             linestr.append(s)
 
-        # Phase 4: write all lines (after trimming they won't wrap)
+        # Phase 4: write all lines
         for s in linestr:
             self._out.write(f"\033[K{s}\n")
-        self._out.write(f"\033[{len(linestr)}A")
+        if not final:
+            self._out.write(f"\033[{len(linestr)}A")
         self._out.flush()
