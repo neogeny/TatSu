@@ -33,32 +33,28 @@ def main() -> None:
                 f"{self.style(m.label, fmt=">20s")} ",
                 self.bar,
                 f"{100 * m.pct:3.0f}% ",
-                "{h:02}:{m:02}",
+                "{th:02}:{tm:02}",
             ]
 
     s = c.style()
     red = s.red()
     blue = s.blue().bold()
 
+    overall = Row(
+        label="total",
+        fill=(str(s('-').green()), '-', s('-').dim()),
+    )
     bars: list[Row] = [
+        overall,
         StyleRow(label="lexing", style=red),
         Row(label="parsing"),
         Row(label="semantics", top=200),
         StyleRow(label="codegen", top=500, style=blue),
         Row(label="testing", top=50),
     ]
-
-    overall = Row(
-        label="total",
-        top=len(bars),
-        fill=(str(s('-').green()), '-', s('-').dim()),
-    )
-    bars.insert(0, overall)
+    overall.update(0, len(bars))
 
     m = Multi(bars)
-    m.print(red("workers starting up"))
-    m.print(blue("pipeline warming"))
-    m.start()
 
     def worker(bar: Row, delay: float, step: int, overall: Row):
         m.print(f"starting {bar.label}")
@@ -78,6 +74,13 @@ def main() -> None:
             (bars[5], 0.30, 2),
         ]
     ]
+
+    m.print(red("workers starting up"))
+    m.print(blue("pipeline warming"))
+    import sys
+
+    sys.stderr.write("\033[2J\033[H")
+    m.start()
 
     try:
         for t in threads:

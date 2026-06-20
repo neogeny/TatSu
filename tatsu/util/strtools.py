@@ -234,7 +234,7 @@ def prints(*args, **kwargs: Any) -> str:
         # kwargs['end'] = ''
         print(*args, **kwargs)
         out = f.getvalue()
-        return '\n'.join(out.splitlines(False)).rstrip()
+        return '\n'.join(out.splitlines(False))
 
 
 def longest_common_prefix(strs: Iterable[str], suffix: str = '') -> str:

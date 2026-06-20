@@ -37,24 +37,24 @@ class Bar:
 
     def render(self, budget: int) -> str:
         done, head, todo = self.fill
-        if self.top <= 0:
-            return ""
-        done_w = int(self.pos / self.top * budget)
+
+        pos = self.pos
+        pos = max(pos, 0)
+
+        top = self.top
+        if top <= 0:
+            top = 1 + pos
+
+        done_w = int(pos / top * budget)
         todo_w = budget - done_w
+
         if self.pos < self.top:
             dones = str(done) * (done_w - 1) + str(head)
         else:
             dones = str(done) * done_w
+
         todos = str(todo) * todo_w
-        rendered = f"{dones}{todos}"
-        # raise RuntimeError(
-        #     f"{fill=!r} {budget=}\n"
-        #     f"{self._pos=} {self._top=}\n"
-        #     f"{done_w=} {todo_w=}\n"
-        #     f"{done=!r} {head=!r} {todo=!r}\n"
-        #     f"{rendered}"
-        # )
-        return rendered
+        return f"{dones}{todos}"
 
     def trim_to_width(self, budget: int, rendered: str) -> str:
         from ..style import visual_len as vlen
@@ -119,17 +119,17 @@ class Row:
         elapsed: float
         remaining: float
         bar: Bar
-        el: dt.timedelta
-        h: int
-        m: int
-        s: int
-        ms: int
+        elt: dt.timedelta
+        th: int
+        tm: int
+        ts: int
+        tms: int
 
     def metrics(self) -> Metrics:
         elapsed: float = time.time() - self.start
-        ms = int((elapsed % 1) * 1000)
-        m, s = divmod(int(elapsed), 60)
-        h, m = divmod(m, 60)
+        tms = int((elapsed % 1) * 1000)
+        tm, ts = divmod(int(elapsed), 60)
+        th, tm = divmod(tm, 60)
         el = dt.timedelta(seconds=elapsed)
 
         pct: float = self.pos / self.top if self.top else 0.0
@@ -146,11 +146,11 @@ class Row:
             elapsed=elapsed,
             remaining=remaining,
             bar=self.bar,
-            el=el,
-            h=h,
-            m=m,
-            s=s,
-            ms=ms,
+            elt=el,
+            th=th,
+            tm=tm,
+            ts=ts,
+            tms=tms,
         )
 
     def render(self, m: Metrics) -> list[Any]:

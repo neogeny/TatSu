@@ -14,6 +14,10 @@ from ..style import Style, visual_len as vlen
 from .bar import Bar, Row
 
 
+class MessageRow(Row):
+    pass
+
+
 class Multi:
     def __init__(self, bars: list[Row], /, fps: int = 30):
         self._lock = threading.Lock()
@@ -38,9 +42,10 @@ class Multi:
 
     def print(self, *args, **kwargs) -> None:
         """Prints to the output stream."""
-        _s = prints(*args, **kwargs)
-        # self.insert_bar(self._msg_count, Row(cols=[s]))
+        s = prints(*args, end="", **kwargs)
+        self.insert_bar(self._msg_count, MessageRow(cols=[s]))
         self._msg_count += 1
+        # self._height += 1
 
     def start(self):
         """Starts the completely isolated background rendering thread."""
@@ -85,7 +90,7 @@ class Multi:
         if not snapshot:
             return
         lines = [b._call_render() for b in snapshot]
-        maxw = shutil.get_terminal_size().columns - 1
+        maxw = shutil.get_terminal_size().columns
 
         colw: list[list[int]] = [[0] * len(line) for line in lines]
         assert len(colw) == len(lines)
@@ -107,7 +112,7 @@ class Multi:
                     case _:
                         cw[j] = vlen(str(col))
 
-            budget = max(0, maxw - sum(cw))
+            budget = max(0, maxw - sum(cw) - 1)
             while fill and budget > 0:
                 count = len(fill)
                 w = round(((1 / count) + budget) / count)
@@ -118,16 +123,20 @@ class Multi:
         linestr = []
         for i, line in enumerate(lines):
             parts = [self._render_col(col, colw[i][j]) for j, col in enumerate(line)]
-            s = f"{''.join(parts):{maxw}}"
+            s = ''.join(parts)
             linestr.append(s)
 
         try:
-            for s in linestr:
+            for i, s in enumerate(linestr):
                 self._out.write(f"\033[K{s}\n")
+                if i == self._msg_count:
+                    self._out.flush()
+                    time.sleep(0.4)
 
             h = len(linestr)
             for _ in range(max(0, self._height - h)):
                 self._out.write("\033[K\n")
+            self._out.flush()
             self._height = max(h, self._height)
         finally:
             self._out.write(f"\033[{self._height}A")
