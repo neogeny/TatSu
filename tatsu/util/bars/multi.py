@@ -24,7 +24,7 @@ class Multi:
         self._fps = fps
 
         self._height: int = 0
-        self._msg_height: int = 0
+        self._msg_count: int = 0
 
     def add_bar(self, bar: Row) -> None:
         """Stores a bar internally."""
@@ -38,9 +38,9 @@ class Multi:
 
     def print(self, *args, **kwargs) -> None:
         """Prints to the output stream."""
-        s = prints(*args, **kwargs)
-        self.insert_bar(self._msg_height, Row(cols=[s]))
-        self._msg_height += 1
+        _s = prints(*args, **kwargs)
+        # self.insert_bar(self._msg_count, Row(cols=[s]))
+        self._msg_count += 1
 
     def start(self):
         """Starts the completely isolated background rendering thread."""
@@ -109,8 +109,8 @@ class Multi:
 
             budget = max(0, maxw - sum(cw))
             while fill and budget > 0:
-                l = len(fill)
-                w = round(((1 / l) + budget) / l)
+                count = len(fill)
+                w = round(((1 / count) + budget) / count)
                 budget -= w
                 j = fill.pop()
                 cw[j] = w

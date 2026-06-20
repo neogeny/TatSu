@@ -25,7 +25,7 @@ def main() -> None:
             *,
             top: int = 0,
         ):
-            super().__init__(label, fill=('-', '-', ' '))
+            super().__init__(label, fill=('-', '-', '.'))
             self.style = style
 
         def render(self, m: Row.Metrics) -> list[Any]:
@@ -48,16 +48,24 @@ def main() -> None:
         Row(label="testing", top=50),
     ]
 
-    overall = Row(label="total", top=len(bars), fill=(str(s('-').green()), '-', '.'))
+    overall = Row(
+        label="total",
+        top=len(bars),
+        fill=(str(s('-').green()), '-', s('-').dim()),
+    )
     bars.insert(0, overall)
 
     m = Multi(bars)
+    m.print(red("workers starting up"))
+    m.print(blue("pipeline warming"))
     m.start()
 
     def worker(bar: Row, delay: float, step: int, overall: Row):
+        m.print(f"starting {bar.label}")
         while bar.pos < bar.top:
             time.sleep(delay)
             bar.update(min(bar.pos + random.randint(1, step), bar.top))  # noqa: S311
+        m.print(blue(f"finished {bar.label}"))
         overall.update(overall.pos + 1)
 
     threads = [

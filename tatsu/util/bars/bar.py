@@ -8,8 +8,13 @@ import time
 from collections import defaultdict
 from typing import Any
 
+from ..style import Style
+
 
 __all__ = ["Bar", "Row"]
+
+type Text = str | Style
+type Fill = tuple[Text, Text, Text]
 
 
 class Bar:
@@ -18,10 +23,10 @@ class Bar:
     def __init__(
         self,
         width: int = -1,
-        fill: tuple[str, str, str] = ("█", ">", "░"),
+        fill: Fill = ("█", ">", "░"),
     ):
         self.width: int = width
-        self.fill: str = fill
+        self.fill: Fill = fill
 
         self.pos: int = 0
         self.top: int = 100
@@ -36,10 +41,11 @@ class Bar:
             return ""
         done_w = int(self.pos / self.top * budget)
         todo_w = budget - done_w
-        dones = done * done_w
         if self.pos < self.top:
-            dones = (dones + head)[-done_w:]
-        todos = todo * todo_w
+            dones = str(done) * (done_w - 1) + str(head)
+        else:
+            dones = str(done) * done_w
+        todos = str(todo) * todo_w
         rendered = f"{dones}{todos}"
         # raise RuntimeError(
         #     f"{fill=!r} {budget=}\n"
@@ -54,9 +60,9 @@ class Bar:
         from ..style import visual_len as vlen
 
         while vlen(rendered) > budget:
-            rendered = rendered.replace(self.fill[1], "")
+            rendered = rendered.replace(str(self.fill[1]), "")
             if vlen(rendered) > budget:
-                rendered = rendered.replace(self.fill[0], "")
+                rendered = rendered.replace(str(self.fill[0]), "")
         return rendered
 
 
@@ -68,7 +74,7 @@ class Row:
         label: str = "",
         cols: list[str | Bar] | None = None,
         *,
-        fill: tuple[str, str, str] = ("█", ">", "░"),
+        fill: Fill = ("█", ">", "░"),
         pos: int = 0,
         top: int = 100,
     ):
@@ -155,6 +161,6 @@ class Row:
             self.start = time.time()
 
         m = self.metrics()
-        fields = defaultdict(str)
+        fields: dict[str, Any] = defaultdict(str)
         fields.update(dataclasses.asdict(m))
         return [c.format(**fields) if isinstance(c, str) else c for c in self.render(m)]

@@ -15,25 +15,25 @@ class ColorMethods:
     def basic_black(self) -> Self:
         return self.fg(0)
 
-    def basic_red(self) -> Self:
+    def red(self) -> Self:
         return self.fg(1)
 
-    def basic_green(self) -> Self:
+    def green(self) -> Self:
         return self.fg(2)
 
-    def basic_yellow(self) -> Self:
+    def yellow(self) -> Self:
         return self.fg(3)
 
-    def basic_blue(self) -> Self:
+    def blue(self) -> Self:
         return self.fg(4)
 
-    def basic_purple(self) -> Self:
+    def purple(self) -> Self:
         return self.fg(5)
 
-    def basic_magenta(self) -> Self:
-        return self.basic_purple()
+    def magenta(self) -> Self:
+        return self.purple()
 
-    def basic_cyan(self) -> Self:
+    def cyan(self) -> Self:
         return self.fg(6)
 
     def basic_white(self) -> Self:
@@ -102,7 +102,7 @@ class ColorMethods:
     def black_bg(self) -> Self:
         return self.bg(16)
 
-    def blue(self) -> Self:
+    def blue256(self) -> Self:
         return self.fg(21)
 
     def blue_bg(self) -> Self:
@@ -258,7 +258,7 @@ class ColorMethods:
     def crimson_bg(self) -> Self:
         return self.bg(162)
 
-    def cyan(self) -> Self:
+    def cyan256(self) -> Self:
         return self.fg(51)
 
     def cyan_bg(self) -> Self:
@@ -636,7 +636,7 @@ class ColorMethods:
     def gray095_bg(self) -> Self:
         return self.bg(255)
 
-    def green(self) -> Self:
+    def green256(self) -> Self:
         return self.fg(2)
 
     def green_bg(self) -> Self:
@@ -912,7 +912,7 @@ class ColorMethods:
     def lime_green_bg(self) -> Self:
         return self.bg(34)
 
-    def magenta(self) -> Self:
+    def magenta256(self) -> Self:
         return self.fg(201)
 
     def magenta_bg(self) -> Self:
@@ -1248,7 +1248,7 @@ class ColorMethods:
     def purple_medium_bright_bg(self) -> Self:
         return self.bg(91)
 
-    def red(self) -> Self:
+    def redw(self) -> Self:
         return self.fg(196)
 
     def red_bg(self) -> Self:
@@ -1494,7 +1494,7 @@ class ColorMethods:
     def white_pinkish_bg(self) -> Self:
         return self.bg(225)
 
-    def yellow(self) -> Self:
+    def yellow256(self) -> Self:
         return self.fg(226)
 
     def yellow_bg(self) -> Self:

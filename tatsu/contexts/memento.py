@@ -17,8 +17,8 @@ class _ColorSet:
     def __init__(self, color: Color = MEMENTO_DEFAULT_COLOR):
         self.err = Style(bold=True, fg=1, color=color)
         self.loc = Style(fg=4, color=color)
-        self.gut = Style(color=color).basic_blue().bold()
-        self.ar = Style(color=color).basic_red().dim()
+        self.gut = Style(color=color).blue().bold()
+        self.ar = Style(color=color).red().dim()
         self.nam = Style(color=color).white().bold()
         self.msg = Style(color=color).white().bold()
         self.num = Style(color=color).white().dim()

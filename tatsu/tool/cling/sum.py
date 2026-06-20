@@ -45,22 +45,22 @@ class SummaryStyle:
     """
 
     def __init__(self, color: Color):
-        self.label = color.style(dim=True).basic_cyan()
+        self.label = color.style(dim=True).cyan()
         self.plain = color.style()
-        self.good = color.style().basic_green()
-        self.bad = color.style().basic_red()
-        self.warn = color.style().basic_yellow()
-        self.bold_good = color.style(bold=True).basic_green()
-        self.bold_bad = color.style(bold=True).basic_red()
+        self.good = color.style().green()
+        self.bad = color.style().red()
+        self.warn = color.style().yellow()
+        self.bold_good = color.style(bold=True).green()
+        self.bold_bad = color.style(bold=True).red()
 
 
 class ResultsStyle:
     """Named styles for the per-file results listing."""
 
     def __init__(self, color: Color):
-        self.header = color.style(dim=True).basic_cyan()
-        self.good = color.style().basic_green()
-        self.bad = color.style().basic_red()
+        self.header = color.style(dim=True).cyan()
+        self.good = color.style().green()
+        self.bad = color.style().red()
         self.plain = color.style()
 
 

@@ -450,8 +450,8 @@ def _file_process_summary(
 
     print(summary, file=sys.stderr)
     if failures:
-        red = Style().basic_red().bold()
-        green = Style().basic_green().bold()
+        red = Style().red().bold()
+        green = Style().green().bold()
         print(f'{red("FAILURES:")} {green(log.name)}', file=sys.stderr)
         sys.exit(1)
 
