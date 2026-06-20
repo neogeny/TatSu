@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import dataclasses
+import datetime as dt
 import time
+from collections import defaultdict
 from typing import Any
 
 
@@ -11,27 +13,32 @@ __all__ = ["Bar", "Row"]
 
 
 class Bar:
-    __slots__ = ["_pos", "_top", "fill", "width"]
+    __slots__ = ["fill", "pos", "top", "width"]
 
-    def __init__(self, width: int = -1, fill: str = "█>░"):
+    def __init__(
+        self,
+        width: int = -1,
+        fill: tuple[str, str, str] = ("█", ">", "░"),
+    ):
         self.width: int = width
-        self.fill: str = (fill + " " * 3)[:3]
+        self.fill: str = fill
 
-        self._pos: int = 0
-        self._top: int = 100
+        self.pos: int = 0
+        self.top: int = 100
 
     def update(self, pos: int, top: int) -> None:
-        self._pos = pos
-        self._top = top
+        self.pos = pos
+        self.top = top
 
     def render(self, budget: int) -> str:
-        fill = list(self.fill + " " * 3)[:3]
-        done, head, todo = fill
-        if self._top <= 0:
+        done, head, todo = self.fill
+        if self.top <= 0:
             return ""
-        done_w = int(self._pos / self._top * budget)
+        done_w = int(self.pos / self.top * budget)
         todo_w = budget - done_w
-        dones = (done * done_w + head)[-done_w:]
+        dones = done * done_w
+        if self.pos < self.top:
+            dones = (dones + head)[-done_w:]
         todos = todo * todo_w
         rendered = f"{dones}{todos}"
         # raise RuntimeError(
@@ -61,7 +68,7 @@ class Row:
         label: str = "",
         cols: list[str | Bar] | None = None,
         *,
-        fill: str = "█>░",
+        fill: tuple[str, str, str] = ("█", ">", "░"),
         pos: int = 0,
         top: int = 100,
     ):
@@ -106,9 +113,18 @@ class Row:
         elapsed: float
         remaining: float
         bar: Bar
+        el: dt.timedelta
+        h: int
+        m: int
+        s: int
+        ms: int
 
     def metrics(self) -> Metrics:
         elapsed: float = time.time() - self.start
+        ms = int((elapsed % 1) * 1000)
+        m, s = divmod(int(elapsed), 60)
+        h, m = divmod(m, 60)
+        el = dt.timedelta(seconds=elapsed)
 
         pct: float = self.pos / self.top if self.top else 0.0
         remaining: float = elapsed / pct if pct else 0.0
@@ -124,13 +140,21 @@ class Row:
             elapsed=elapsed,
             remaining=remaining,
             bar=self.bar,
+            el=el,
+            h=h,
+            m=m,
+            s=s,
+            ms=ms,
         )
 
     def render(self, m: Metrics) -> list[Any]:
-        fields = dataclasses.asdict(m)
-        return [c.format(fields) if isinstance(c, str) else c for c in self.cols]
+        return self.cols
 
     def _call_render(self) -> list[Any]:
         if self.start <= 0.0:
             self.start = time.time()
-        return self.render(self.metrics())
+
+        m = self.metrics()
+        fields = defaultdict(str)
+        fields.update(dataclasses.asdict(m))
+        return [c.format(**fields) if isinstance(c, str) else c for c in self.render(m)]

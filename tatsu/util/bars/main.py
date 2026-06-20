@@ -25,14 +25,15 @@ def main() -> None:
             *,
             top: int = 0,
         ):
-            super().__init__(label, fill="-- ")
+            super().__init__(label, fill=('-', '-', ' '))
             self.style = style
 
         def render(self, m: Row.Metrics) -> list[Any]:
             return [
                 f"{self.style(m.label, fmt=">20s")} ",
                 self.bar,
-                f"{100 * m.pct:3.0f}%",
+                f"{100 * m.pct:3.0f}% ",
+                "{h:02}:{m:02}",
             ]
 
     s = c.style()
@@ -47,22 +48,26 @@ def main() -> None:
         Row(label="testing", top=50),
     ]
 
+    overall = Row(label="total", top=len(bars), fill=(str(s('-').green()), '-', '.'))
+    bars.insert(0, overall)
+
     m = Multi(bars)
     m.start()
 
-    def worker(bar: Row, delay: float, step: int):
+    def worker(bar: Row, delay: float, step: int, overall: Row):
         while bar.pos < bar.top:
             time.sleep(delay)
             bar.update(min(bar.pos + random.randint(1, step), bar.top))  # noqa: S311
+        overall.update(overall.pos + 1)
 
     threads = [
-        threading.Thread(target=worker, args=(b, d, s), daemon=True)
+        threading.Thread(target=worker, args=(b, d, s, overall), daemon=True)
         for b, d, s in [
-            (bars[0], 0.04, 8),
-            (bars[1], 0.06, 5),
-            (bars[2], 0.10, 10),
-            (bars[3], 0.03, 4),
-            (bars[4], 0.15, 2),
+            (bars[1], 0.08, 8),
+            (bars[2], 0.12, 5),
+            (bars[3], 0.20, 10),
+            (bars[4], 0.06, 4),
+            (bars[5], 0.30, 2),
         ]
     ]
 
