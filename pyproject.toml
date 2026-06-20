@@ -3,8 +3,7 @@
 # by Gemini 2026-02-13
 
 [build-system]
-# We use hatchling as the engine, which is decoupled from the hatch CLI
-requires = ["hatchling", "uv-dynamic-versioning"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
@@ -126,7 +125,8 @@ cache-keys = [
 members = []
 
 [tool.hatch.version]
-source = "uv-dynamic-versioning"
+path = "tatsu/_version.py"
+
 
 [tool.hatch.build.targets.wheel]
 packages = ["tatsu"]

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from tatsu.ngcodegen import modelgen, parsergen, pythongen
-from tatsu.peg import Grammar
-
+from ...ngcodegen import modelgen, parsergen, pythongen
+from ...peg import Grammar
 from .cfg import DEFAULT_PYGMENTS_STYLE, CLIConfig
 
 
