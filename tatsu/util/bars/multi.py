@@ -20,78 +20,84 @@ class MessageRow(BarRow):
 
 class Multi:
     def __init__(self, bars: list[BarRow], /, fps: int = 60):
-        self._lock = threading.Lock()
-        self._bars = bars
-        self._running = False
-        self._thread = None
-        self._out = sys.stderr
-        self._fps = fps
+        self.lock = threading.Lock()
+        self.rows = bars
+        self.alive = False
+        self.worker = None
+        self.out = sys.stderr
+        self.fps = fps
 
-        self._height: int = 0
-        self._msg_count: int = 0
+        self.height: int = 0
+        self.msg_count: int = 0
 
     def add_bar(self, bar: BarRow) -> None:
         """Stores a bar internally."""
-        with self._lock:
-            self._bars.append(bar)
+        with self.lock:
+            self.rows.append(bar)
 
     def insert_bar(self, index: int, bar: BarRow) -> None:
         """Inserts a bar at the given index."""
-        with self._lock:
-            self._bars.insert(index, bar)
+        with self.lock:
+            self.rows.insert(index, bar)
 
     def print(self, *args, **kwargs) -> None:
         """Prints to the output stream."""
         s = prints(*args, end="", **kwargs)
-        self.insert_bar(self._msg_count, MessageRow(cols=[s]))
-        self._msg_count += 1
-        self._height += 1
+        self.insert_bar(self.msg_count, MessageRow(cols=[s]))
+        self.msg_count += 1
+        self.height += 1
 
     def start(self):
         """Starts the completely isolated background rendering thread."""
-        self._running = True
-        self._out.write("\033[?25l")  # Hide cursor
-        self._out.flush()
+        self.alive = True
 
-        self._thread = threading.Thread(target=self._render_loop, daemon=True)
-        self._thread.start()
+        self.worker = threading.Thread(target=self._render_loop, daemon=True)
+        self.worker.start()
 
     def stop(self):
         """Gracefully shuts down the rendering thread."""
-        self._running = False
-        if self._thread:
-            self._thread.join()
-        # Final render already ran, cursor is past bars
-        self._out.write("\033[?25h")  # Show cursor
-        self._out.flush()
+        self.out.write(_show_cursor())  # Show cursor
+        self.out.flush()
+
+        self._bars = self._take_snapshot()
+        with self.lock:
+            for row in self.rows:
+                match row:
+                    case MessageRow():
+                        continue
+                    case _:
+                        row.stop()
+
+        self.alive = False
+        if self.worker:
+            self.worker.join()
 
     def _render_loop(self):
         """The isolated thread handler. Read-only side."""
         t0 = time.perf_counter()
-        with self._lock:
-            self._height = len(self._bars)
-        while self._running:
-            self.render_bars(self._take_snapshot())
-            elapsed = time.perf_counter() - t0
-            dt = 1 / self._fps - elapsed
-            if dt > 0:
-                time.sleep(dt)
-                t0 = time.perf_counter()
-
-        for b in self._bars:
-            match b:
-                case MessageRow():
-                    continue
-                case _:
-                    b.stop()
-        self.render_bars(self._take_snapshot(), final=True)
+        with self.lock:
+            self.height = len(self.rows)
+        self.out.write(_hide_cursor())  # Hide cursor
+        self.out.flush()
+        try:
+            while self.alive:
+                self.render_rows(self._take_snapshot())
+                elapsed = time.perf_counter() - t0
+                dt = 1 / self.fps - elapsed
+                if dt > 0:
+                    time.sleep(dt)
+                    t0 = time.perf_counter()
+        finally:
+            self.out.write(_show_cursor())  # Show cursor
+            self.out.flush()
+        self.render_rows(self._take_snapshot(), final=True)
 
     def _take_snapshot(self) -> list[BarRow]:
-        with self._lock:
-            self._bars = [b for b in self._bars if not b.stopped]
-            return copy.copy(self._bars)
+        with self.lock:
+            self.rows = [r for r in self.rows if not r.stopped]
+            return [copy.copy(r) for r in self.rows]
 
-    def render_bars(self, snapshot: list[BarRow], *, final: bool = False) -> None:
+    def render_rows(self, snapshot: list[BarRow], *, final: bool = False) -> None:
         if not snapshot:
             return
         lines = [b._call_render() for b in snapshot]
@@ -133,15 +139,15 @@ class Multi:
         h = len(linestr)
         screenshot = _clearlines(linestr)
         if not final:
-            screenshot += _blankpad(self._height - h)
+            screenshot += _blankpad(self.height - h)
 
-        self._out.write(screenshot)
-        self._out.flush()
+        self.out.write(screenshot)
+        self.out.flush()
 
         if not final:
-            self._out.write(_pushup(self._height))
+            self.out.write(_pushup(self.height))
 
-        self._height = max(h, self._height)
+        self.height = max(h, self.height)
 
     @staticmethod
     def _render_col(col: Any, w: int) -> str:
@@ -158,14 +164,24 @@ class Multi:
         return f"{s!s:>{w}}"
 
 
-def clearline(text: str = "") -> str:
+def _hide_cursor() -> str:
+    """Returns an escape sequence that hides the cursor."""
+    return "\033[?25l"
+
+
+def _show_cursor() -> str:
+    """Returns an escape sequence that shows the cursor."""
+    return "\033[?25h"
+
+
+def _clearline(text: str = "") -> str:
     """Returns the text prefixed with a clear-to-end-of-line escape sequence."""
     return f"\033[K{text}\n"
 
 
 def _clearlines(texts: list[str]) -> str:
     """Returns a block of clear-to-end-of-line escape sequences for each line."""
-    return "".join(clearline(t) for t in texts)
+    return "".join(_clearline(t) for t in texts)
 
 
 def _pushup(lines: int) -> str:
