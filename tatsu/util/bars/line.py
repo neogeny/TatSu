@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
+
+
+if TYPE_CHECKING:
+    from .bar import Bar
 
 
 @dataclass(slots=True, frozen=True)
@@ -23,21 +27,21 @@ FillWidth = FillWidthT()
 
 
 @dataclass(slots=True, frozen=True)
-class FixedWidth:
+class ExactWidth:
     width: int
 
 
 @dataclass(slots=True, frozen=True)
-class LeftJust(FixedWidth):
+class LeftJust(ExactWidth):
     pass
 
 
 @dataclass(slots=True, frozen=True)
-class RightJust(FixedWidth):
+class RightJust(ExactWidth):
     pass
 
 
-type Width = MinWidthT | FillWidthT | FixedWidth
+type Width = MinWidthT | FillWidthT | ExactWidth
 
 
 @dataclass(slots=True, frozen=True)
@@ -47,10 +51,12 @@ class PaddingT:
 
 Padding = PaddingT()
 
+type Text = str | Bar | PaddingT
+
 
 class Col(NamedTuple):
     width: Width
-    text: Any
+    text: Text
 
     def budget_width(self, budget: int) -> int:
         match self.width:
@@ -58,7 +64,7 @@ class Col(NamedTuple):
                 return 0
             case FillWidthT():
                 return budget
-            case FixedWidth(w):
+            case ExactWidth(w):
                 return w
 
 

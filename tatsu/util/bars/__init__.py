@@ -2,15 +2,15 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .bar import Bar, barType
+from .bar import Bar, Row
 from .line import Col, FillWidth, LeftJust, Line, MinWidth, RightJust
 from .main import main
 from .multi import Multi
 
 
 __all__ = [
+    "Row",
     "Bar",
-    "barType",
     "Line",
     "Col",
     "FillWidth",
