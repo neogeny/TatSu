@@ -19,9 +19,9 @@ class MessageRow(BarRow):
 
 
 class Multi:
-    def __init__(self, bars: list[BarRow], /, fps: int = 60):
+    def __init__(self, rows: list[BarRow], /, fps: int = 60):
         self.lock = threading.Lock()
-        self.rows = bars
+        self.rows = rows
         self.alive = False
         self.worker = None
         self.out = sys.stderr
@@ -30,22 +30,26 @@ class Multi:
         self.height: int = 0
         self.msg_count: int = 0
 
-    def add_bar(self, bar: BarRow) -> None:
-        """Stores a bar internally."""
+    def add_row(self, row: BarRow) -> None:
+        """Stores a row internally."""
         with self.lock:
-            self.rows.append(bar)
+            self.rows.append(row)
 
-    def insert_bar(self, index: int, bar: BarRow) -> None:
-        """Inserts a bar at the given index."""
+    def insert_row(self, index: int, row: BarRow) -> None:
+        """Inserts a row at the given index."""
         with self.lock:
-            self.rows.insert(index, bar)
+            self.rows.insert(index, row)
+
+    def insert_message(self, row: MessageRow) -> None:
+        """Inserts a message row at the bottom."""
+        self.insert_row(self.msg_count, row)
+        self.msg_count += 1
+        self.height += 1
 
     def print(self, *args, **kwargs) -> None:
         """Prints to the output stream."""
         s = prints(*args, end="", **kwargs)
-        self.insert_bar(self.msg_count, MessageRow(cols=[s]))
-        self.msg_count += 1
-        self.height += 1
+        self.insert_message(MessageRow(cols=[s]))
 
     def start(self):
         """Starts the completely isolated background rendering thread."""
@@ -59,7 +63,7 @@ class Multi:
         self.out.write(_show_cursor())  # Show cursor
         self.out.flush()
 
-        self._bars = self._take_snapshot()
+        self.rows = self._take_snapshot()
         with self.lock:
             for row in self.rows:
                 match row:
