@@ -11,7 +11,7 @@ from typing import Any
 from ..style import Style
 
 
-__all__ = ["Bar", "Row"]
+__all__ = ["Bar", "BarRow"]
 
 type Text = str | Style
 type Fill = tuple[Text, Text, Text]
@@ -66,7 +66,7 @@ class Bar:
         return rendered
 
 
-class Row:
+class BarRow:
     """A rich, lightweight, fully picklable data object given to the user."""
 
     def __init__(

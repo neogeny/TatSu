@@ -10,12 +10,12 @@ def main() -> None:
     import time
     from typing import Any
 
-    from tatsu.util.bars import Multi, Row
+    from tatsu.util.bars import BarRow, Multi
     from tatsu.util.style import Color, Style  # noqa: F401
 
     c = Color(True)
 
-    class StyleRow(Row):
+    class StyleRow(BarRow):
         style: Style
 
         def __init__(
@@ -28,7 +28,7 @@ def main() -> None:
             super().__init__(label, fill=('-', '-', '.'))
             self.style = style
 
-        def render(self, m: Row.Metrics) -> list[Any]:
+        def render(self, m: BarRow.Metrics) -> list[Any]:
             return [
                 f"{self.style(m.label, fmt=">20s")} ",
                 self.bar,
@@ -40,28 +40,28 @@ def main() -> None:
     red = s.red()
     blue = s.blue().bold()
 
-    overall = Row(
+    overall = BarRow(
         label="total",
         fill=(str(s('-').green()), '-', s('-').dim()),
     )
-    bars: list[Row] = [
+    bars: list[BarRow] = [
         overall,
         StyleRow(label="lexing", style=red),
-        Row(label="parsing"),
-        Row(label="semantics", top=200),
+        BarRow(label="parsing"),
+        BarRow(label="semantics", top=200),
         StyleRow(label="codegen", top=500, style=blue),
-        Row(label="testing", top=50),
+        BarRow(label="testing", top=50),
     ]
     overall.update(0, len(bars))
 
     m = Multi(bars)
 
-    def worker(bar: Row, delay: float, step: int, overall: Row):
+    def worker(bar: BarRow, delay: float, step: int, overall: BarRow):
         m.print(f"starting {bar.label}")
         while bar.pos < bar.top:
             time.sleep(delay)
             bar.update(min(bar.pos + random.randint(1, step), bar.top))  # noqa: S311
-        m.print(blue(f"finished {bar.label}"))
+        m.print(blue(f"{step} finished {bar.label}"))
         overall.update(overall.pos + 1)
 
     threads = [
@@ -77,9 +77,9 @@ def main() -> None:
 
     m.print(red("workers starting up"))
     m.print(blue("pipeline warming"))
-    import sys
 
-    sys.stderr.write("\033[2J\033[H")
+    # import sys
+    # sys.stderr.write("\033[2J\033[H")
     m.start()
 
     try:

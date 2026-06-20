@@ -11,15 +11,15 @@ from typing import Any
 
 from ..debugging import prints
 from ..style import Style, visual_len as vlen
-from .bar import Bar, Row
+from .bar import Bar, BarRow
 
 
-class MessageRow(Row):
+class MessageRow(BarRow):
     pass
 
 
 class Multi:
-    def __init__(self, bars: list[Row], /, fps: int = 30):
+    def __init__(self, bars: list[BarRow], /, fps: int = 60):
         self._lock = threading.Lock()
         self._bars = bars
         self._running = False
@@ -30,12 +30,12 @@ class Multi:
         self._height: int = 0
         self._msg_count: int = 0
 
-    def add_bar(self, bar: Row) -> None:
+    def add_bar(self, bar: BarRow) -> None:
         """Stores a bar internally."""
         with self._lock:
             self._bars.append(bar)
 
-    def insert_bar(self, index: int, bar: Row) -> None:
+    def insert_bar(self, index: int, bar: BarRow) -> None:
         """Inserts a bar at the given index."""
         with self._lock:
             self._bars.insert(index, bar)
@@ -69,24 +69,23 @@ class Multi:
         """The isolated thread handler. Read-only side."""
         t0 = time.perf_counter()
         while self._running:
-            with self._lock:
-                snapshot = copy.copy(self._bars)
-                self._bars = [b for b in self._bars if not b.stopped]
-
-            self.render_bars(snapshot)
+            self.render_bars(self._take_snapshot())
             elapsed = time.perf_counter() - t0
             dt = 1 / self._fps - elapsed
             if dt > 0:
                 time.sleep(dt)
                 t0 = time.perf_counter()
 
-        with self._lock:
-            snapshot = copy.copy(self._bars)
-        for b in snapshot:
+        for b in self._bars[self._msg_count :]:
             b.stop()
-        self.render_bars(snapshot, final=True)
+        self.render_bars(self._take_snapshot(), final=True)
 
-    def render_bars(self, snapshot: list[Row], *, final: bool = False) -> None:
+    def _take_snapshot(self) -> list[BarRow]:
+        with self._lock:
+            self._bars = [b for b in self._bars if not b.stopped]
+            return copy.copy(self._bars)
+
+    def render_bars(self, snapshot: list[BarRow], *, final: bool = False) -> None:
         if not snapshot:
             return
         lines = [b._call_render() for b in snapshot]
@@ -120,27 +119,20 @@ class Multi:
                 j = fill.pop()
                 cw[j] = w
 
-        linestr = []
-        for i, line in enumerate(lines):
-            parts = [self._render_col(col, colw[i][j]) for j, col in enumerate(line)]
-            s = ''.join(parts)
-            linestr.append(s)
+        linestr = [
+            ''.join(self._render_col(col, colw[i][j]) for j, col in enumerate(line))
+            for i, line in enumerate(lines)
+        ]
+        barshot = ''.join(f"\033[K{s}\n" for s in linestr)
+        h = len(linestr)
 
-        try:
-            for i, s in enumerate(linestr):
-                self._out.write(f"\033[K{s}\n")
-                if i == self._msg_count:
-                    self._out.flush()
-                    time.sleep(0.4)
-
-            h = len(linestr)
-            for _ in range(max(0, self._height - h)):
-                self._out.write("\033[K\n")
-            self._out.flush()
-            self._height = max(h, self._height)
-        finally:
+        clearshot = "\033[K\n" * (self._height - h)
+        self._height = max(h, self._height)
+        screenshot = barshot + clearshot
+        self._out.write(screenshot)
+        self._out.flush()
+        if not final:
             self._out.write(f"\033[{self._height}A")
-            self._out.flush()
         self._height = max(h, self._height)
 
     @staticmethod
