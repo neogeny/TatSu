@@ -2,10 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import dataclasses
 import datetime as dt
 import time
-from collections import defaultdict
 from typing import Any
 
 from ..style import Style
@@ -59,10 +57,22 @@ class Bar:
     def trim_to_width(self, budget: int, rendered: str) -> str:
         from ..style import visual_len as vlen
 
-        while vlen(rendered) > budget:
-            rendered = rendered.replace(str(self.fill[1]), "")
-            if vlen(rendered) > budget:
-                rendered = rendered.replace(str(self.fill[0]), "")
+        while (w := vlen(rendered)) > budget:
+            chars = [
+                str(self.fill[2]),
+                str(self.fill[1]),
+                str(self.fill[0]),
+                ">",
+                "-",
+                "=",
+                ".",
+                "█",
+                "░",
+            ]
+            for char in chars:
+                rendered = rendered.replace(char, "", 1)
+                if vlen(rendered) < w:
+                    break
         return rendered
 
 
@@ -109,21 +119,10 @@ class BarRow:
         if self.stop_on_complete and self.pos >= self.top:
             self.stop()
 
-    @dataclasses.dataclass(slots=True, kw_only=True, frozen=True)
-    class Metrics:
-        label: str
-        pos: int
-        top: int
-        pct: float
-        start: float
-        elapsed: float
-        remaining: float
-        bar: Bar
-        elt: dt.timedelta
-        th: int
-        tm: int
-        ts: int
-        tms: int
+    from types import SimpleNamespace
+
+    class Metrics(SimpleNamespace):
+        pass
 
     def metrics(self) -> Metrics:
         elapsed: float = time.time() - self.start
@@ -133,7 +132,8 @@ class BarRow:
         el = dt.timedelta(seconds=elapsed)
 
         pct: float = self.pos / self.top if self.top else 0.0
-        remaining: float = elapsed / pct if pct else 0.0
+        total_est = elapsed / pct if pct else 0.0
+        remaining = max(0.0, total_est - elapsed) if total_est else 0.0
 
         self.bar.update(self.pos, self.top)
 
@@ -161,6 +161,5 @@ class BarRow:
             self.start = time.time()
 
         m = self.metrics()
-        fields: dict[str, Any] = defaultdict(str)
-        fields.update(dataclasses.asdict(m))
+        fields: dict[str, Any] = m.__dict__
         return [c.format(**fields) if isinstance(c, str) else c for c in self.render(m)]

@@ -45,7 +45,7 @@ class Multi:
         s = prints(*args, end="", **kwargs)
         self.insert_bar(self._msg_count, MessageRow(cols=[s]))
         self._msg_count += 1
-        # self._height += 1
+        self._height += 1
 
     def start(self):
         """Starts the completely isolated background rendering thread."""
@@ -68,6 +68,8 @@ class Multi:
     def _render_loop(self):
         """The isolated thread handler. Read-only side."""
         t0 = time.perf_counter()
+        with self._lock:
+            self._height = len(self._bars)
         while self._running:
             self.render_bars(self._take_snapshot())
             elapsed = time.perf_counter() - t0
@@ -76,8 +78,12 @@ class Multi:
                 time.sleep(dt)
                 t0 = time.perf_counter()
 
-        for b in self._bars[self._msg_count :]:
-            b.stop()
+        for b in self._bars:
+            match b:
+                case MessageRow():
+                    continue
+                case _:
+                    b.stop()
         self.render_bars(self._take_snapshot(), final=True)
 
     def _take_snapshot(self) -> list[BarRow]:
@@ -123,16 +129,18 @@ class Multi:
             ''.join(self._render_col(col, colw[i][j]) for j, col in enumerate(line))
             for i, line in enumerate(lines)
         ]
-        barshot = ''.join(f"\033[K{s}\n" for s in linestr)
-        h = len(linestr)
 
-        clearshot = "\033[K\n" * (self._height - h)
-        self._height = max(h, self._height)
-        screenshot = barshot + clearshot
+        h = len(linestr)
+        screenshot = _clearlines(linestr)
+        if not final:
+            screenshot += _blankpad(self._height - h)
+
         self._out.write(screenshot)
         self._out.flush()
+
         if not final:
-            self._out.write(f"\033[{self._height}A")
+            self._out.write(_pushup(self._height))
+
         self._height = max(h, self._height)
 
     @staticmethod
@@ -148,3 +156,23 @@ class Multi:
             case _:
                 s = str(col)
         return f"{s!s:>{w}}"
+
+
+def clearline(text: str = "") -> str:
+    """Returns the text prefixed with a clear-to-end-of-line escape sequence."""
+    return f"\033[K{text}\n"
+
+
+def _clearlines(texts: list[str]) -> str:
+    """Returns a block of clear-to-end-of-line escape sequences for each line."""
+    return "".join(clearline(t) for t in texts)
+
+
+def _pushup(lines: int) -> str:
+    """Returns an escape sequence that moves the cursor up a given number of lines."""
+    return f"\033[{lines}A"
+
+
+def _blankpad(count: int) -> str:
+    """Generates a block of empty, cleared lines to wipe out stale terminal trailing rows."""
+    return "\033[K\n" * count
