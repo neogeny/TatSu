@@ -23,7 +23,7 @@ def main():
         Multi,
         RightJust,
     )
-    from tatsu.util.colorize import Color, Style  # noqa: F401
+    from tatsu.util.style import Color, Style  # noqa: F401
 
     c = Color(True)
 
