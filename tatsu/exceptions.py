@@ -6,7 +6,7 @@ from tatsu.contexts.memento import MEMENTO_DEFAULT_COLOR, memento
 
 from .contexts.infos import RuleInfo
 from .input import Cursor, LineInfo
-from .util.colorize import Color
+from .util.style import Color
 
 
 class TatSuException(Exception):

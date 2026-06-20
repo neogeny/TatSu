@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import dataclasses
 import time
-from typing import Any, NamedTuple
+from typing import Any
 
 
 __all__ = ["Bar", "Row"]

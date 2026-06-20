@@ -12,7 +12,7 @@ Quick-start:
 
 .. code-block:: python
 
-    from tatsu.util.colorize import Color, Style
+    from tatsu.util.style import Color, Style
 
     style = Style("hello", bold=True, fg=2, color=Color.tty())
     print(style)  # ANSI-wrapped on TTY, plain text otherwise

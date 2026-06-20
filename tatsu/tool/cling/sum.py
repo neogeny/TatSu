@@ -10,8 +10,8 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from ...util import asjsons, countlines, slicetowidth
-from ...util.colorize import Color
 from ...util.parproc import Result, StrPayload
+from ...util.style import Color
 from .cfg import CLIConfig
 
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 
-def main():
+def main() -> None:
     """Visual test — run with ``python -m tatsu.util.bars``."""
     import random
     import threading
@@ -11,7 +11,7 @@ def main():
     from typing import Any
 
     from tatsu.util.bars import Multi, Row
-    from tatsu.util.colorize import Color, Style  # noqa: F401
+    from tatsu.util.style import Color, Style  # noqa: F401
 
     c = Color(True)
 
@@ -42,10 +42,10 @@ def main():
 
     bars: list[Row] = [
         StyleRow(label="lexing", style=red),
-        Row(cols="parsing"),
-        Row(cols="semantics", top=200),
+        Row(label="parsing"),
+        Row(label="semantics", top=200),
         StyleRow(label="codegen", top=500, style=blue),
-        Row(cols="testing", top=50),
+        Row(label="testing", top=50),
     ]
 
     m = Multi(bars)

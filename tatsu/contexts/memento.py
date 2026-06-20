@@ -5,8 +5,8 @@ from __future__ import annotations
 from io import StringIO
 
 from ..input import LineInfo
-from ..util.colorize import Color, Style
 from ..util.strtools import slicetowidth
+from ..util.style import Color, Style
 from .infos import RuleInfo
 
 
