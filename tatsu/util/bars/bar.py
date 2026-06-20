@@ -6,12 +6,13 @@ import time
 from dataclasses import dataclass
 from typing import ClassVar, TypeAliasType
 
+from ..colorize import Style
 from .line import *  # noqa: F403
 from .line import (  # noqa: F401
     Col,
-    ExactWidth,
     FillWidth,
     FillWidthT,
+    FixedWidth,
     LeftJust,
     Line,
     MinWidth,
@@ -19,7 +20,6 @@ from .line import (  # noqa: F401
     Padding,
     PaddingT,
     RightJust,
-    Text,
 )
 
 
@@ -28,36 +28,38 @@ __all__ = ["barType", "Bar"]
 
 @dataclass(slots=True, kw_only=True)
 class barType:
-    done: int
-    total: int
-    done_str: str = "█"
-    todo_str: str = "░"
+    pos: int
+    top: int
+    done: str | Style = "█"
+    todo: str | Style = "░"
 
     def __post_init__(self):
-        if self.total < self.done:
-            self.total = self.done + 1
+        if self.top < self.pos:
+            self.top = self.pos + 1
 
     def render(self, budget: int) -> str:
-        if self.total == 0:
+        if self.top == 0:
             return ""
-        done_width = int(self.done / self.total * budget)
-        todo_width = budget - done_width
-        return f"{self.done_str * done_width}{self.todo_str * todo_width}"
+        done_width = int(budget * self.pos / self.top)
+        todo_width = int(budget * (self.top - self.pos) / self.top)
+        return f"{str(self.done) * done_width}" + f"{str(self.todo) * todo_width}"
 
 
 @dataclass(slots=True, kw_only=True)
 class Bar:
     """A rich, lightweight, fully picklable data object given to the user."""
 
-    done_str: str = "█"
-    todo_str: str = "░"
+    done: str | Style = "█"
+    todo: str | Style = "░"
 
-    label: str
-    total: int = 100
-    done: int = 0
+    label: str | Style = ""
+    top: int = 100
+    pos: int = 0
     start_time: float = 0.0
     stopped: bool = False
     stop_on_complete: bool = True
+
+    Line: ClassVar[TypeAliasType] = Line
 
     def stop(self) -> None:
         self.stopped = True
@@ -65,12 +67,12 @@ class Bar:
     def is_stopped(self) -> bool:
         return self.stopped
 
-    def update(self, value: int, total: int = -1):
+    def update(self, value: int, top: int = -1):
         """Write-only operation from the user's side."""
-        if total != -1:
-            self.total = total
-        self.done = max(0, min(value, self.total))
-        if self.stop_on_complete and self.done >= self.total:
+        if top != -1:
+            self.top = top
+        self.pos = max(0, min(value, self.top))
+        if self.stop_on_complete and self.pos >= self.top:
             self.stop()
 
     @dataclass
@@ -81,33 +83,39 @@ class Bar:
         elapsed: float
         remaining: float
 
-        def bart(self) -> barType:
+        def bart(
+            self,
+            pos: int = -1,
+            top: int = -1,
+            done: str | Style = "",
+            todo: str | Style = "",
+        ) -> barType:
             return barType(
-                done=self.done,
-                total=self.total,
-                done_str=self.done_str,
-                todo_str=self.todo_str,
+                pos=pos if pos >= 0 else self.bar.pos,
+                top=top if top > 0 else self.bar.top,
+                done=done or self.bar.done,
+                todo=todo or self.bar.todo,
             )
 
         @property
-        def done_str(self) -> str:
-            return self.bar.done_str
+        def done(self) -> str | Style:
+            return self.bar.done
 
         @property
-        def todo_str(self) -> str:
-            return self.bar.todo_str
+        def todo(self) -> str | Style:
+            return self.bar.todo
 
         @property
-        def label(self) -> str:
+        def label(self) -> str | Style:
             return self.bar.label
 
         @property
-        def total(self) -> int:
-            return self.bar.total
+        def top(self) -> int:
+            return self.bar.top
 
         @property
-        def done(self) -> int:
-            return self.bar.done
+        def pos(self) -> int:
+            return self.bar.pos
 
         @property
         def stopped(self) -> bool:
@@ -120,7 +128,7 @@ class Bar:
     def metrics(self) -> Metrics:
         elapsed: float = time.time() - self.start_time
 
-        pct: float = self.done / self.total if self.total else 0.0
+        pct: float = self.pos / self.top if self.top else 0.0
         remaining: float = elapsed / pct if pct else 0.0
 
         return self.Metrics(
@@ -132,10 +140,10 @@ class Bar:
 
     def render(self, m: Metrics) -> Line:
 
-        w = len(str(m.total))
+        w = len(str(m.top))
         return [
             Col(MinWidth, f"{m.label} "),
-            Col(RightJust(2 * (w + 1)), f"{m.done:>{w}}/{m.total} "),
+            Col(RightJust(2 * (w + 1)), f"{m.pos:>{w}}/{m.top} "),
             Col(FillWidth, m.bart()),  # noqa: F821
         ]
 

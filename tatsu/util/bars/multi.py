@@ -7,19 +7,27 @@ import shutil
 import sys
 import threading
 import time
+from dataclasses import dataclass
 from typing import assert_never
 
+from ..colorize.style import visual_len as vlen
 from .bar import Bar, barType
-from .line import (
+from .line import (  # noqa: F401
     Col,
-    ExactWidth,
     FillWidthT,
+    FixedWidth,
     LeftJust,
     MinWidthT,
     PaddingT,
     RightJust,
     Width,
 )
+
+
+@dataclass(slots=True, kw_only=True)
+class MessageBar(Bar):
+    def render(self, m: Bar.Metrics) -> list[Col]:
+        return [Col(LeftJust(0), m.label)]
 
 
 class Multi:
@@ -31,13 +39,32 @@ class Multi:
         self._out = sys.stderr
         self._fps = fps
 
-        self._colw: list[int] = []
         self._height: int = 0
+        self._message_count: int = 0
 
     def add_bar(self, bar: Bar) -> None:
-        """Stores a bar internally."""
+        """Appends a bar internally."""
         with self._lock:
             self._bars.append(bar)
+
+    def insert_bar(self, at: int, bar: Bar) -> None:
+        """Stores a bar at the given position."""
+        with self._lock:
+            self._bars.insert(at, bar)
+
+    def print(self, *args, **kwargs):
+        """Queue a message line shown above bars on the next render."""
+        import io
+
+        buf = io.StringIO()
+        kwargs.pop('file', None)
+        kwargs.pop('end', None)
+        kwargs.pop('flush', None)
+        print(*args, file=buf, **kwargs)
+        line = buf.getvalue().rstrip('\n')
+        # self.insert_bar(self._message_count, MessageBar(label=line))
+        self._message_count += 1
+        self._height += 1
 
     def start(self):
         """Starts the completely isolated background rendering thread."""
@@ -85,15 +112,20 @@ class Multi:
             match col.width:
                 case RightJust():
                     s = f"{s!s:>{w}}"
-                    return s if len(s) <= w else s[-w:]
-                case ExactWidth() | LeftJust() | MinWidthT() | FillWidthT():
+                    return s if vlen(s) <= w else s[-w:]
+                case FixedWidth() | LeftJust() | MinWidthT() | FillWidthT():
                     return f"{s!s:<{w}}"
                 case _ as unreachable:
                     assert_never(unreachable)
 
         match col.text:
             case barType() as bt:
-                return bt.render(w)
+                rendered = bt.render(w)
+                while vlen(rendered) > w:
+                    rendered = rendered.replace(str(bt.todo), '', 1)
+                    if vlen(rendered) > w:
+                        rendered = rendered.replace(str(bt.done), '', 1)
+                return rendered
             case PaddingT():
                 return ' ' * w
             case str() as s:
@@ -136,58 +168,44 @@ class Multi:
         # ───────────────────────────────────────────────────────────
         if not snapshot:
             return 0
+        linecount = len(snapshot)
         lines = [b._call_render() for b in snapshot]
-        ncols = max(len(line) for line in lines)
         maxw = shutil.get_terminal_size().columns
 
-        prev_ncols = len(self._colw)
-        max_ncols = max(ncols, prev_ncols)
-        ncol_diff = max(0, max_ncols - prev_ncols)
-        colw = self._colw + [0] * ncol_diff
-        assert len(colw) == max_ncols
+        colw: list[list[int]] = [[0] * len(line) for line in lines]
 
-        coltype: list[Width] = [FillWidthT()] * max_ncols
-        fill: set[int] = set()
+        for i, line in enumerate(lines):
+            cw = colw[i]
 
-        for line in lines:
+            fill: set[int] = set()
             for j, col in enumerate(line):
                 match col.width:
-                    case ExactWidth() as ew:  # includes LeftJust, RightJust
-                        coltype[j] = ew
-                        fill.discard(j)
-                        colw[j] = max(colw[j], ew.width)
-
+                    case FillWidthT():
+                        fill.add(j)
+                    case FixedWidth() as ew:  # includes LeftJust, RightJust
+                        cw[j] = ew.width
                     case MinWidthT():
-                        match coltype[j]:
-                            case ExactWidth():
-                                continue
-                            case FillWidthT():
-                                coltype[j] = col.width
                         match col.text:
                             case str(s):
-                                colw[j] = max(colw[j], len(s))
-
-                    case FillWidthT():
-                        match coltype[j]:
-                            case FillWidthT():
-                                coltype[j] = col.width
-                                fill.add(j)
+                                cw[j] = vlen(s)
                             case _:
-                                continue
-
+                                cw[j] = vlen(str(col.text))
                     case _:
-                        raise AssertionError('unreachable')
+                        assert_never()
 
-        if fill:
-            budget = max(0, maxw - sum(colw))
-            if budget:
-                per = budget // len(fill)
-                for j in fill:
-                    colw[j] = per
+            budget = max(0, maxw - sum(cw))
+            if not fill or not budget:
+                continue
+            while fill and budget > 0:
+                w = round((0.5 + budget) / len(fill))
+                budget -= w
+
+                j = fill.pop()
+                cw[j] = w
 
         linestr = []
-        for line in lines:
-            parts = [self._render_col(col, colw[j]) for j, col in enumerate(line)]
+        for i, line in enumerate(lines):
+            parts = [self._render_col(col, colw[i][j]) for j, col in enumerate(line)]
             s = f"{''.join(parts):{maxw}}"
             linestr.append(s)
 
@@ -195,7 +213,7 @@ class Multi:
             for s in linestr:
                 self._out.write(f"\033[K{s}\n")
 
-            h = len(linestr)
+            h = linecount
             for _ in range(max(0, self._height - h)):
                 self._out.write("\033[K\n")
             self._height = max(h, self._height)
