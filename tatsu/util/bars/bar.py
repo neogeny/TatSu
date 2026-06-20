@@ -16,7 +16,7 @@ type Fill = tuple[Text, Text, Text]
 
 
 class Bar:
-    __slots__ = ["fill", "pos", "top", "width"]
+    __slots__ = ["fill", "pos", "total", "width"]
 
     def __init__(
         self,
@@ -27,11 +27,11 @@ class Bar:
         self.fill: Fill = fill
 
         self.pos: int = 0
-        self.top: int = 100
+        self.total: int = 100
 
-    def update(self, pos: int, top: int) -> None:
+    def update(self, pos: int, total: int) -> None:
         self.pos = pos
-        self.top = top
+        self.total = total
 
     def render(self, budget: int) -> str:
         done, head, todo = self.fill
@@ -39,14 +39,14 @@ class Bar:
         pos = self.pos
         pos = max(pos, 0)
 
-        top = self.top
-        if top <= 0:
-            top = 1 + pos
+        total = self.total
+        if total <= 0:
+            total = 1 + pos
 
-        done_w = int(pos / top * budget)
+        done_w = int(pos / total * budget)
         todo_w = budget - done_w
 
-        if self.pos < self.top:
+        if self.pos < self.total:
             dones = str(done) * (done_w - 1) + str(head)
         else:
             dones = str(done) * done_w
@@ -86,7 +86,7 @@ class BarRow:
         *,
         fill: Fill = ("█", ">", "░"),
         pos: int = 0,
-        top: int = 100,
+        total: int = 100,
     ):
         self.label = label
         self.bar = Bar(fill=fill)
@@ -99,24 +99,24 @@ class BarRow:
 
         self.fill = fill
         self.pos: int = pos
-        self.top: int = top
+        self.total: int = total
 
         self.start: float = 0.0
         self.stopped: bool = False
-        self.stop_on_complete: bool = True
+        self.stotal_on_complete: bool = True
 
     def stop(self) -> None:
         self.stopped = True
 
-    def is_stopped(self) -> bool:
+    def is_stotalped(self) -> bool:
         return self.stopped
 
     def update(self, value: int, total: int = -1):
         """Write-only operation from the user's side."""
         if total != -1:
-            self.top = total
-        self.pos = max(0, min(value, self.top))
-        if self.stop_on_complete and self.pos >= self.top:
+            self.total = total
+        self.pos = max(0, min(value, self.total))
+        if self.stotal_on_complete and self.pos >= self.total:
             self.stop()
 
     from types import SimpleNamespace
@@ -125,32 +125,39 @@ class BarRow:
         pass
 
     def metrics(self) -> Metrics:
-        elapsed: float = time.time() - self.start
-        tms = int((elapsed % 1) * 1000)
-        tm, ts = divmod(int(elapsed), 60)
-        th, tm = divmod(tm, 60)
-        el = dt.timedelta(seconds=elapsed)
+        elapsed = time.time() - self.start
+        ms = int((elapsed % 1) * 1000)
+        minutes, seconds = divmod(int(elapsed), 60)
+        hours, minutes = divmod(minutes, 60)
+        duration = dt.timedelta(seconds=elapsed)
 
-        pct: float = self.pos / self.top if self.top else 0.0
+        pct = self.pos / self.total if self.total else 0.0
+        percentage = 100 * pct
         total_est = elapsed / pct if pct else 0.0
-        remaining = max(0.0, total_est - elapsed) if total_est else 0.0
+        eta_seconds = max(0.0, total_est - elapsed) if total_est else 0.0
+        eta_duration = dt.timedelta(seconds=eta_seconds)
 
-        self.bar.update(self.pos, self.top)
+        self.bar.update(self.pos, self.total)
 
         return self.Metrics(
             label=self.label,
-            pos=self.pos,
-            top=self.top,
-            start=self.start,
+            # Progress Counters
+            n=self.pos,
+            total=self.total,
+            percentage=percentage,
             pct=pct,
+            # Timings & Durations
             elapsed=elapsed,
-            remaining=remaining,
+            rt=duration,  # Run Time (as timedelta object)
+            eta=eta_duration,  # Estimated Time Remaining (as timedelta object)
+            eta_s=eta_seconds,  # Raw ETA seconds
+            # Time components for custom string building
+            h=hours,
+            m=minutes,
+            s=seconds,
+            ms=ms,
+            # Core components
             bar=self.bar,
-            elt=el,
-            th=th,
-            tm=tm,
-            ts=ts,
-            tms=tms,
         )
 
     def render(self, m: Metrics) -> list[Any]:
