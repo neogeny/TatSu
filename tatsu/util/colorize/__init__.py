@@ -20,7 +20,7 @@ Quick-start:
 
 from __future__ import annotations
 
-from .style import RGB, Color, Style, css_color, fmt, named_color, rgb
+from .style import RGB, Color, Style, css_color, fmt, named_color, rgb, visual_len
 
 
 __all__ = [
@@ -31,4 +31,5 @@ __all__ = [
     "fmt",
     "named_color",
     "rgb",
+    "visual_len",
 ]
