@@ -1,7 +1,8 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 
 shell := "xonsh"
-
+# noqa
+# type: ignore
 set shell := [shell, "-c"]
 
 py := "3.14"

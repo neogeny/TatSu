@@ -18,7 +18,7 @@ from threading import Event
 from typing import Any, NamedTuple, Protocol, cast
 
 from . import identity, memory_use, startscript, try_read
-from .colorize import Style
+from .style import Style
 from .timetools import iso_logpath
 from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
 
