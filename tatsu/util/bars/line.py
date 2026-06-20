@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, NamedTuple
 
 
 if TYPE_CHECKING:
-    from .bar import barType
+    from .bar import Bar
 
 
 @dataclass(slots=True, frozen=True)
@@ -51,7 +51,7 @@ class PaddingT:
 
 Padding = PaddingT()
 
-type Text = str | barType | PaddingT
+type Text = str | Bar | PaddingT
 
 
 class Col(NamedTuple):

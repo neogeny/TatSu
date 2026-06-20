@@ -2,62 +2,73 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import dataclasses
 import time
-from dataclasses import dataclass
-from typing import ClassVar, TypeAliasType
-
-from .line import *  # noqa: F403
-from .line import (  # noqa: F401
-    Col,
-    ExactWidth,
-    FillWidth,
-    FillWidthT,
-    LeftJust,
-    Line,
-    MinWidth,
-    MinWidthT,
-    Padding,
-    PaddingT,
-    RightJust,
-    Text,
-)
+from typing import Any, NamedTuple
 
 
-__all__ = ["barType", "Bar"]
+__all__ = ["Bar", "Row"]
 
 
-@dataclass(slots=True, kw_only=True)
-class barType:
-    done: int
-    total: int
-    done_str: str = "█"
-    todo_str: str = "░"
+class Bar:
+    def __init__(self, width: int = -1, fill: str = "█>░"):
+        self.width: int = width
+        self.fill: str = (fill + " " * 3)[:3]
 
-    def __post_init__(self):
-        if self.total < self.done:
-            self.total = self.done + 1
+        self._pos: int = 0
+        self._top: int = 100
+
+    def update(self, pos: int, top: int) -> None:
+        self._pos = pos
+        self._top = top
 
     def render(self, budget: int) -> str:
-        if self.total == 0:
+        fill = list(self.fill + " " * 3)[:3]
+        done, head, todo = fill
+        if self._top <= 0:
             return ""
-        done_width = int(self.done / self.total * budget)
-        todo_width = budget - done_width
-        return f"{self.done_str * done_width}{self.todo_str * todo_width}"
+        done_w = int(self._pos / self._top * budget)
+        todo_w = budget - done_w
+        dones = (done * done_w + head)[:-done_w]
+        todos = todo * todo_w
+        rendered = f"{dones}{todos}"
+        # raise RuntimeError(
+        #     f"{fill=!r} {budget=}\n"
+        #     f"{self._pos=} {self._top=}\n"
+        #     f"{done_w=} {todo_w=}\n"
+        #     f"{done=!r} {head=!r} {todo=!r}\n"
+        #     f"{rendered}"
+        # )
+        return rendered
 
 
-@dataclass(slots=True, kw_only=True)
-class Bar:
+class Row:
     """A rich, lightweight, fully picklable data object given to the user."""
 
-    done_str: str = "█"
-    todo_str: str = "░"
+    def __init__(
+        self,
+        label: str = "",
+        cols: list[str | Bar] | None = None,
+        *,
+        fill: str = "█>░",
+        pos: int = 0,
+        top: int = 100,
+    ):
+        self.bar = Bar(fill=fill)
+        if cols:
+            self.cols = cols
+        elif label:
+            self.cols = [label, self.bar]
+        else:
+            self.cols = [self.bar]
 
-    label: str
-    total: int = 100
-    done: int = 0
-    start_time: float = 0.0
-    stopped: bool = False
-    stop_on_complete: bool = True
+        self.fill = fill
+        self.pos: int = pos
+        self.top: int = top
+
+        self.start: float = 0.0
+        self.stopped: bool = False
+        self.stop_on_complete: bool = True
 
     def stop(self) -> None:
         self.stopped = True
@@ -68,78 +79,44 @@ class Bar:
     def update(self, value: int, total: int = -1):
         """Write-only operation from the user's side."""
         if total != -1:
-            self.total = total
-        self.done = max(0, min(value, self.total))
-        if self.stop_on_complete and self.done >= self.total:
+            self.top = total
+        self.pos = max(0, min(value, self.top))
+        if self.stop_on_complete and self.pos >= self.top:
             self.stop()
 
-    @dataclass
+    @dataclasses.dataclass(slots=True, kw_only=True, frozen=True)
     class Metrics:
-        bar: Bar
-
+        pos: int
+        top: int
         pct: float
+        start: float
         elapsed: float
         remaining: float
-
-        def bart(self) -> barType:
-            return barType(
-                done=self.done,
-                total=self.total,
-                done_str=self.done_str,
-                todo_str=self.todo_str,
-            )
-
-        @property
-        def done_str(self) -> str:
-            return self.bar.done_str
-
-        @property
-        def todo_str(self) -> str:
-            return self.bar.todo_str
-
-        @property
-        def label(self) -> str:
-            return self.bar.label
-
-        @property
-        def total(self) -> int:
-            return self.bar.total
-
-        @property
-        def done(self) -> int:
-            return self.bar.done
-
-        @property
-        def stopped(self) -> bool:
-            return self.bar.stopped
-
-        @property
-        def start_time(self) -> float:
-            return self.bar.start_time
+        bar: Bar
 
     def metrics(self) -> Metrics:
-        elapsed: float = time.time() - self.start_time
+        elapsed: float = time.time() - self.start
 
-        pct: float = self.done / self.total if self.total else 0.0
+        pct: float = self.pos / self.top if self.top else 0.0
         remaining: float = elapsed / pct if pct else 0.0
 
+        self.bar.update(self.pos, self.top)
+
         return self.Metrics(
-            bar=self,
+            pos=self.pos,
+            top=self.top,
+            start=self.start,
             pct=pct,
             elapsed=elapsed,
             remaining=remaining,
+            bar=self.bar,
         )
 
-    def render(self, m: Metrics) -> Line:
+    def render(self, m: Metrics) -> list[Any]:
+        fields = dataclasses.asdict(m)
+        return [c.format(fields) if isinstance(c, str) else c for c in self.cols]
 
-        w = len(str(m.total))
-        return [
-            Col(MinWidth, f"{m.label} "),
-            Col(RightJust(2 * (w + 1)), f"{m.done:>{w}}/{m.total} "),
-            Col(FillWidth, m.bart()),  # noqa: F821
-        ]
-
-    def _call_render(self) -> Line:
-        if self.start_time <= 0.0:
-            self.start_time = time.time()
+    def _call_render(self) -> list[Any]:
+        if self.start <= 0.0:
+            self.start = time.time()
         return self.render(self.metrics())

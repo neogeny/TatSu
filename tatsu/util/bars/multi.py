@@ -7,23 +7,15 @@ import shutil
 import sys
 import threading
 import time
-from typing import assert_never
+from typing import Any
 
-from .bar import Bar, barType
-from .line import (
-    Col,
-    ExactWidth,
-    FillWidthT,
-    LeftJust,
-    MinWidthT,
-    PaddingT,
-    RightJust,
-    Width,
-)
+from ..colorize import visual_len as vlen
+from ..debugging import prints
+from .bar import Bar, Row
 
 
 class Multi:
-    def __init__(self, bars: list[Bar], /, fps: int = 30):
+    def __init__(self, bars: list[Row], /, fps: int = 30):
         self._lock = threading.Lock()
         self._bars = bars
         self._running = False
@@ -31,13 +23,24 @@ class Multi:
         self._out = sys.stderr
         self._fps = fps
 
-        self._colw: list[int] = []
         self._height: int = 0
+        self._msg_height: int = 0
 
-    def add_bar(self, bar: Bar) -> None:
+    def add_bar(self, bar: Row) -> None:
         """Stores a bar internally."""
         with self._lock:
             self._bars.append(bar)
+
+    def insert_bar(self, index: int, bar: Row) -> None:
+        """Inserts a bar at the given index."""
+        with self._lock:
+            self._bars.insert(index, bar)
+
+    def print(self, *args, **kwargs) -> None:
+        """Prints to the output stream."""
+        s = prints(*args, **kwargs)
+        self.insert_bar(self._msg_height, Row(cols=[s]))
+        self._msg_height += 1
 
     def start(self):
         """Starts the completely isolated background rendering thread."""
@@ -72,7 +75,6 @@ class Multi:
                 time.sleep(dt)
             t0 = time.perf_counter()
 
-        # Final render: stop all remaining bars and show final state
         with self._lock:
             snapshot = copy.copy(self._bars)
         for b in snapshot:
@@ -80,114 +82,56 @@ class Multi:
         self.render_bars(snapshot, final=True)
 
     @staticmethod
-    def _render_col(col: Col, w: int) -> str:
-        def render_str(s: str) -> str:
-            match col.width:
-                case RightJust():
-                    s = f"{s!s:>{w}}"
-                    return s if len(s) <= w else s[-w:]
-                case ExactWidth() | LeftJust() | MinWidthT() | FillWidthT():
-                    return f"{s!s:<{w}}"
-                case _ as unreachable:
-                    assert_never(unreachable)
-
-        match col.text:
-            case barType() as bt:
-                return bt.render(w)
-            case PaddingT():
-                return ' ' * w
-            case str() as s:
-                return render_str(s)
+    def _render_col(col: Any, w: int) -> str:
+        s = ""
+        match col:
+            case Bar() as bar:
+                rendered = bar.render(w)
+                while vlen(rendered) > w:
+                    rendered = rendered.replace(bar.fill[1], "")
+                    if vlen(rendered) > w:
+                        rendered = rendered.replace(bar.fill[0], "")
+                return rendered
+            case str():
+                s = col
             case _:
-                return render_str(str(col.text))
+                s = str(col)
+        return f"{s!s:>{w}}"
 
-    def render_bars(self, snapshot: list[Bar], *, final: bool = False) -> int:
-        #
-        # ── Column width algebra ──────────────────────────────────
-        #
-        # Each column position j collects width specifications from
-        # every bar's Line.  The renderer must reconcile them into a
-        # single budget colw[j] for that column.  The reconciliation
-        # is a partial order over Width types:
-        #
-        #   ExactWidth (incl. LeftJust, RightJust)   highest priority
-        #   MinWidthT                                 middle priority
-        #   FillWidthT                                lowest priority
-        #
-        # Rules:
-        #   1. If ANY bar declares ExactWidth at column j, that
-        #      column's width is fixed: colw[j] = max of all exact
-        #      widths declared.  Lower-priority declarations are
-        #      ignored.
-        #   2. Otherwise, if ANY bar declares MinWidthT at column j,
-        #      the column is content-derived: colw[j] = max string
-        #      length of str-typed text across all bars.
-        #   3. If all bars at column j declare FillWidthT (or make
-        #      no declaration — the initial state is FillWidthT),
-        #      the column gets a share of the remaining terminal
-        #      width after all fixed columns are accounted for.
-        #
-        # coltype[j] tracks the renderer's settled decision for
-        # column j, starting from the bottom (FillWidthT) so that
-        # the first higher-priority declaration upgrades it.
-        # fill is the set of column indices that will split the
-        # remaining horizontal budget.
-        #
-        # ───────────────────────────────────────────────────────────
+    def render_bars(self, snapshot: list[Row], *, final: bool = False) -> int:
         if not snapshot:
             return 0
         lines = [b._call_render() for b in snapshot]
-        ncols = max(len(line) for line in lines)
         maxw = shutil.get_terminal_size().columns
 
-        prev_ncols = len(self._colw)
-        max_ncols = max(ncols, prev_ncols)
-        ncol_diff = max(0, max_ncols - prev_ncols)
-        colw = self._colw + [0] * ncol_diff
-        assert len(colw) == max_ncols
+        colw: list[list[int]] = [[0] * len(line) for line in lines]
+        assert len(colw) == len(lines)
 
-        coltype: list[Width] = [FillWidthT()] * max_ncols
-        fill: set[int] = set()
-
-        for line in lines:
+        for i, line in enumerate(lines):
+            fill: set[int] = set()
+            cw = colw[i]
             for j, col in enumerate(line):
-                match col.width:
-                    case ExactWidth() as ew:  # includes LeftJust, RightJust
-                        coltype[j] = ew
-                        fill.discard(j)
-                        colw[j] = max(colw[j], ew.width)
-
-                    case MinWidthT():
-                        match coltype[j]:
-                            case ExactWidth():
-                                continue
-                            case FillWidthT():
-                                coltype[j] = col.width
-                        match col.text:
-                            case str(s):
-                                colw[j] = max(colw[j], len(s))
-
-                    case FillWidthT():
-                        match coltype[j]:
-                            case FillWidthT():
-                                coltype[j] = col.width
-                                fill.add(j)
-                            case _:
-                                continue
-
+                match col:
+                    case str() as s:
+                        cw[j] = len(s)
+                    case Bar(width=width):
+                        if width <= 0:
+                            fill.add(j)
+                        else:
+                            cw[j] = width
                     case _:
-                        raise AssertionError('unreachable')
+                        cw[j] = len(str(col))
 
-        if fill:
-            budget = max(0, maxw - sum(colw))
-            if budget:
-                per = budget // len(fill)
-                for j in fill:
-                    colw[j] = per
+            budget = max(0, maxw - sum(cw))
+            while fill and budget > 0:
+                w = round((0.5 + budget) / len(fill))
+                budget -= w
+                j = fill.pop()
+                cw[j] = w
 
         linestr = []
-        for line in lines:
-            parts = [self._render_col(col, colw[j]) for j, col in enumerate(line)]
+        for i, line in enumerate(lines):
+            parts = [self._render_col(col, colw[i][j]) for j, col in enumerate(line)]
             s = f"{''.join(parts):{maxw}}"
             linestr.append(s)
 
