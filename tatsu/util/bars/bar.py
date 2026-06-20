@@ -11,6 +11,8 @@ __all__ = ["Bar", "Row"]
 
 
 class Bar:
+    __slots__ = ["_pos", "_top", "fill", "width"]
+
     def __init__(self, width: int = -1, fill: str = "█>░"):
         self.width: int = width
         self.fill: str = (fill + " " * 3)[:3]
@@ -29,7 +31,7 @@ class Bar:
             return ""
         done_w = int(self._pos / self._top * budget)
         todo_w = budget - done_w
-        dones = (done * done_w + head)[:-done_w]
+        dones = (done * done_w + head)[-done_w:]
         todos = todo * todo_w
         rendered = f"{dones}{todos}"
         # raise RuntimeError(
@@ -39,6 +41,15 @@ class Bar:
         #     f"{done=!r} {head=!r} {todo=!r}\n"
         #     f"{rendered}"
         # )
+        return rendered
+
+    def trim_to_width(self, budget: int, rendered: str) -> str:
+        from ..style import visual_len as vlen
+
+        while vlen(rendered) > budget:
+            rendered = rendered.replace(self.fill[1], "")
+            if vlen(rendered) > budget:
+                rendered = rendered.replace(self.fill[0], "")
         return rendered
 
 
@@ -54,6 +65,7 @@ class Row:
         pos: int = 0,
         top: int = 100,
     ):
+        self.label = label
         self.bar = Bar(fill=fill)
         if cols:
             self.cols = cols
@@ -86,6 +98,7 @@ class Row:
 
     @dataclasses.dataclass(slots=True, kw_only=True, frozen=True)
     class Metrics:
+        label: str
         pos: int
         top: int
         pct: float
@@ -103,6 +116,7 @@ class Row:
         self.bar.update(self.pos, self.top)
 
         return self.Metrics(
+            label=self.label,
             pos=self.pos,
             top=self.top,
             start=self.start,

@@ -9,8 +9,8 @@ import threading
 import time
 from typing import Any
 
-from ..colorize import visual_len as vlen
 from ..debugging import prints
+from ..style import Style, visual_len as vlen
 from .bar import Bar, Row
 
 
@@ -73,7 +73,7 @@ class Multi:
             dt = 1 / self._fps - elapsed
             if dt > 0:
                 time.sleep(dt)
-            t0 = time.perf_counter()
+                t0 = time.perf_counter()
 
         with self._lock:
             snapshot = copy.copy(self._bars)
@@ -81,28 +81,11 @@ class Multi:
             b.stop()
         self.render_bars(snapshot, final=True)
 
-    @staticmethod
-    def _render_col(col: Any, w: int) -> str:
-        s = ""
-        match col:
-            case Bar() as bar:
-                rendered = bar.render(w)
-                while vlen(rendered) > w:
-                    rendered = rendered.replace(bar.fill[1], "")
-                    if vlen(rendered) > w:
-                        rendered = rendered.replace(bar.fill[0], "")
-                return rendered
-            case str():
-                s = col
-            case _:
-                s = str(col)
-        return f"{s!s:>{w}}"
-
-    def render_bars(self, snapshot: list[Row], *, final: bool = False) -> int:
+    def render_bars(self, snapshot: list[Row], *, final: bool = False) -> None:
         if not snapshot:
-            return 0
+            return
         lines = [b._call_render() for b in snapshot]
-        maxw = shutil.get_terminal_size().columns
+        maxw = shutil.get_terminal_size().columns - 1
 
         colw: list[list[int]] = [[0] * len(line) for line in lines]
         assert len(colw) == len(lines)
@@ -113,18 +96,21 @@ class Multi:
             for j, col in enumerate(line):
                 match col:
                     case str() as s:
-                        cw[j] = len(s)
+                        cw[j] = vlen(s)
                     case Bar(width=width):
                         if width <= 0:
                             fill.add(j)
                         else:
                             cw[j] = width
+                    case Style() as sty:
+                        cw[j] = len(sty)
                     case _:
-                        cw[j] = len(str(col))
+                        cw[j] = vlen(str(col))
 
             budget = max(0, maxw - sum(cw))
             while fill and budget > 0:
-                w = round((0.5 + budget) / len(fill))
+                l = len(fill)
+                w = round(((1 / l) + budget) / l)
                 budget -= w
                 j = fill.pop()
                 cw[j] = w
@@ -146,5 +132,18 @@ class Multi:
         finally:
             self._out.write(f"\033[{self._height}A")
             self._out.flush()
-        self._colw = colw
-        return h
+        self._height = max(h, self._height)
+
+    @staticmethod
+    def _render_col(col: Any, w: int) -> str:
+        s = ""
+        match col:
+            case Bar() as bar:
+                rendered = bar.render(w)
+                rendered = bar.trim_to_width(w, rendered)
+                return rendered
+            case str():
+                s = col
+            case _:
+                s = str(col)
+        return f"{s!s:>{w}}"

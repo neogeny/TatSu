@@ -249,6 +249,9 @@ class Style(ColorMethods):
     def __str__(self) -> str:
         return self.apply(self.value)
 
+    def __format__(self, format_spec: str) -> str:
+        return self.apply(str(self), fmt=format_spec)
+
     def __repr__(self) -> str:
         return repr(str(self)).replace('\\x1b', '\\e')
 
@@ -464,7 +467,7 @@ class Style(ColorMethods):
         new._fmt = fmt_spec
         return new
 
-    def apply(self, text: str, format: str | None = None) -> str:
+    def apply(self, text: str, fmt: str | None = None) -> str:
         """Wrap *text* in ANSI escape codes according to this style.
 
         If ``self.enabled`` is False, returns *text* unchanged.
@@ -474,9 +477,9 @@ class Style(ColorMethods):
         """
         if not text:
             return ""
-        if not format:
-            format = self._fmt
-        text = fmt(text, format) if format else text
+        if not fmt:
+            fmt = self._fmt
+        text = format(text, fmt) if fmt else text
         if not self.enabled:
             return text
 

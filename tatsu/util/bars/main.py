@@ -23,15 +23,14 @@ def main() -> None:
             label: str,
             style: Style,
             *,
-            pos: int = 0,
-            top: int = 100,
+            top: int = 0,
         ):
-            super().__init__(label, pos=pos, top=top)
+            super().__init__(label, fill="-- ")
             self.style = style
 
         def render(self, m: Row.Metrics) -> list[Any]:
             return [
-                "{label}",
+                f"{self.style(m.label, fmt=">20s")} ",
                 self.bar,
                 f"{100 * m.pct:3.0f}%",
             ]
