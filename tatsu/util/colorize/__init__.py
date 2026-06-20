@@ -20,7 +20,19 @@ Quick-start:
 
 from __future__ import annotations
 
-from .style import RGB, Color, Style, css_color, fmt, named_color, rgb, visual_len
+from .colormap import *  # noqa: F403
+from .csscolormap import *  # noqa: F403
+from .style import *  # noqa: F403
+from .style import (
+    RGB,
+    Color,
+    Style,
+    css_color,
+    fmt,
+    named_color,
+    rgb,
+    visual_len,
+)
 
 
 __all__ = [
