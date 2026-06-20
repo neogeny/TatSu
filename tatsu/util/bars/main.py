@@ -23,7 +23,7 @@ def main() -> None:
             label: str,
             style: Style,
             *,
-            top: int = 0,
+            total: int = 0,
         ):
             super().__init__(label, fill=('-', '-', '.'))
             self.style = style
@@ -33,7 +33,7 @@ def main() -> None:
                 f"{self.style(m.label, fmt=">20s")} ",
                 self.bar,
                 f"{100 * m.pct:3.0f}% ",
-                "{th:02}:{tm:02}",
+                "{h:02}:{m:02}",
             ]
 
     s = c.style()
@@ -48,9 +48,9 @@ def main() -> None:
         overall,
         StyleRow(label="lexing", style=red),
         BarRow(label="parsing"),
-        BarRow(label="semantics", top=200),
-        StyleRow(label="codegen", top=500, style=blue),
-        BarRow(label="testing", top=50),
+        BarRow(label="semantics", total=200),
+        StyleRow(label="codegen", total=500, style=blue),
+        BarRow(label="testing", total=50),
     ]
     overall.update(0, len(bars))
 
@@ -58,9 +58,9 @@ def main() -> None:
 
     def worker(bar: BarRow, delay: float, step: int, overall: BarRow):
         m.print(f"starting {bar.label}")
-        while bar.pos < bar.top:
+        while bar.pos < bar.total:
             time.sleep(delay)
-            bar.update(min(bar.pos + random.randint(1, step), bar.top))  # noqa: S311
+            bar.update(min(bar.pos + random.randint(1, step), bar.total))  # noqa: S311
         m.print(blue(f"{step} finished {bar.label}"))
         overall.update(overall.pos + 1)
 
