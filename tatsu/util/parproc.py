@@ -18,6 +18,7 @@ from threading import Event
 from typing import Any, NamedTuple, Protocol
 
 from . import identity, memory_use, startscript, try_read
+from .bars import BarRow, Multi
 from .timetools import iso_logpath
 from .ztyle import Style
 
@@ -53,6 +54,9 @@ type VisualFunc = Callable[..., Any]
 class Payload(Protocol):
     path: Path
     payload: Any
+
+    def raises(self) -> tuple[type[Exception], ...]:
+        return ()
 
 
 class StrPayload(str, Payload):
@@ -186,9 +190,14 @@ def taskproc(task: Task) -> Result:
             outcome = task.func(task.payload.path, *task.args, **task.kwargs)
 
         elapsed = time.thread_time() - start_time
+    except RuntimeError:
+        raise
     except Exception as e:
         result.exception = e
-        if task.reraise:
+        if task.reraise or (
+            (raises := task.payload.raises())
+            and not any(isinstance(e, r) for r in raises)
+        ):
             raise
     finally:
         sys.setrecursionlimit(prev_limit)
@@ -239,6 +248,14 @@ def parproc_visual(
             yield sys.stderr
 
     total = len(filenames)
+
+    _multi = None
+    if progress_in is None:
+        bar = BarRow(total=total)
+        _multi = Multi([bar], out=sys.stderr)
+        _multi.start()
+        progress = bar
+
     total_time = 0.0
     run_time = 0.0
     start_time = time.time()
@@ -295,6 +312,9 @@ def parproc_visual(
 
     progress.update(total, total)
     progress.stop()
+
+    if _multi is not None:
+        _multi.stop()
 
     if summary or is_legacy:
         with logctx() as log:
@@ -506,4 +526,5 @@ def active_pmap() -> Callable[
 
     if HAS_MULTITHREADING_SUPPORT:
         return thread_pmap
-    return process_pmap
+    return thread_pmap
+    # return process_pmap
