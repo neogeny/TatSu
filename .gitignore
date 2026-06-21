@@ -88,6 +88,7 @@ backups/
 .scrapy/
 celerybeat-schedule
 .envrc*
+.corpus/
 
 ### --- Localization ---
 *.mo
