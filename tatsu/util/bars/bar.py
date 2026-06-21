@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import datetime as dt
+import sys
+import threading
 import time
-from enum import StrEnum, auto
+from enum import IntEnum, StrEnum, auto
 from typing import Any
 
 from .. import findfirst
@@ -35,10 +37,10 @@ class Col(StrEnum):
     bar = auto()
 
 
-class State(StrEnum):
-    new = auto()
-    stopping = auto()
-    stopped = auto()
+class State(IntEnum):
+    NEW = auto()
+    STOPPING = auto()
+    STOPPED = auto()
 
 
 class Bar:
@@ -47,7 +49,7 @@ class Bar:
         /,
         total: int = 1,
         *,
-        width: int = -1,
+        width: int = 0,
         fill: str = "=>.",  # pyright: ignore[reportRedeclaration]
         style: list[Style] | None = None,
     ):
@@ -62,6 +64,9 @@ class Bar:
 
     def __str__(self) -> str:
         return self.render(max(1, self.total))
+
+    def __len__(self) -> int:
+        return self.width
 
     def __format__(self, fmt: str) -> str:
         ws = findfirst(r"(\d+).?", fmt)
@@ -86,16 +91,19 @@ class Bar:
         dones = self.render_done(done_w)
         todos = self.render_todo(todo_w)
 
-        return f"{dones}{todos}"
+        return self.trim_to_width(budget, f"{dones}{todos}")
 
     def render_done(self, w: int) -> str:
         done = self.fill[0]
-        head = self.fill[1]
         sd = self.style[0]
-        if self.pos < self.total:
-            sh = self.style[1]
-            return sd.apply(done * (w - 1)) + sh.apply(head)
-        return sd.apply(done * w)
+        if self.pos >= self.total:
+            return sd.apply(done * w)
+
+        head = self.fill[1]
+        sh = self.style[1]
+        if sh == sd:
+            return sd.apply(done * (w - 1) + head)
+        return sd.apply(done * (w - 1)) + sh.apply(head)
 
     def render_todo(self, w: int) -> str:
         todo = self.fill[2]
@@ -157,34 +165,31 @@ class BarRow:
             self.cols = [Col.label, Col.bar]
 
         self.start: float = 0.0
-        self.state: State = State.new
+        self.state: State = State.NEW
 
     def stop(self) -> None:
-        if self.state == State.new:
-            self.state = State.stopping
+        if self.state == State.NEW:
+            self.state = State.STOPPING
         else:
-            self.state = State.stopped
+            self.state = State.STOPPED
+        self.state = State.STOPPED
 
     def is_stopped(self) -> bool:
-        return self.state == State.stopped
+        return self.state >= State.STOPPING or self.pos >= self.total
 
     def is_stopping(self) -> bool:
-        return self.state in {State.stopping, State.stopped}
+        return self.state >= State.STOPPING
 
     def update(self, pos: int, total: int = -1, /, *args, **kwargs):
         """Write-only operation from the user's side."""
         if total > 0:
             self.total = total
         self.pos = max(0, min(pos, self.total))
-        if self.stop_on_complete and self.pos >= self.total:
-            self.stop()
-
-    from types import SimpleNamespace
+        if self.start <= 0:
+            self.start = time.time()
 
     def metrics(self) -> dict[Col, Any]:
-        if not self.start:
-            self.start = time.time()
-        elapsed = time.time() - self.start
+        elapsed = max(0, time.time() - self.start)
         ms = int((elapsed % 1) * 1000)
         minutes, seconds = divmod(int(elapsed), 60)
         hours, minutes = divmod(minutes, 60)
@@ -224,10 +229,10 @@ class BarRow:
         return [metrics[c] if isinstance(c, Col) else c for c in cols]
 
     def _call_render(self) -> list[Any]:
-        if self.is_stopping():
-            return []
+        if self.is_stopping() or (self.stop_on_complete and self.pos >= self.total):
+            self.stop()
 
-        if self.start <= 0.0:
-            self.start = time.time()
+        if self.is_stopped():
+            return []
 
         return self.render(self.metrics())

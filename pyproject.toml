@@ -276,6 +276,7 @@ select = [
 
 ignore = [
     "ARG002", # unused argument
+    "B905", # `zip()` without an explicit `strict=` parameter
     #    "F401", # `XYZ` imported but unused
     "COM812", #  Trailing comma missing
     "COM819", #  Trailing comma prohibited

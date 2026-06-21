@@ -261,11 +261,7 @@ class Style(ColorMethods):
     def __eq__(self, other: object) -> bool:
         if not hasattr(other, "__dict__"):
             return False
-        t = self.__dict__
-        o = other.__dict__
-        return (
-            len(t) == len(o) and all(k in o for k in t) and all(t[k] == o[k] for k in t)
-        )
+        return self.__dict__ == other.__dict__
 
     def __init__(
         self,

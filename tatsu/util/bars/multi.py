@@ -15,7 +15,8 @@ from .bar import Bar, BarRow
 
 
 class MessageRow(BarRow):
-    pass
+    def is_stopped(self) -> bool:
+        return False
 
 
 class Multi:
@@ -46,23 +47,19 @@ class Multi:
         with self.lock:
             self.rows.insert(index, row)
 
-    def insert_message(self, row: MessageRow) -> None:
+    def insert_message(self, msg: str) -> None:
         """Inserts a message row at the bottom."""
+        row = MessageRow(cols=[msg])
         self.insert_row(self.msg_count, row)
         self.msg_count += 1
-        self.height += 1
 
     def print(self, *args, **kwargs) -> None:
         """Prints to the output stream."""
         kwargs.pop("file", None)
         kwargs.pop("highlight", None)
         kwargs.pop("markup", None)
-        if not self.alive:
-            kwargs['file'] = self.out
-            print(*args, **kwargs)  # pyright: ignore[reportCallIssue]
-            return
         s = prints(*args, end="", **kwargs)
-        self.insert_message(MessageRow(cols=[s]))
+        self.insert_message(s)
 
     def start(self):
         """Starts the completely isolated background rendering thread."""
@@ -73,17 +70,11 @@ class Multi:
 
     def stop(self):
         """Gracefully shuts down the rendering thread."""
-        self.out.write(_show_cursor())  # Show cursor
-        self.out.flush()
-
         self.rows = self._take_snapshot()
         with self.lock:
             for row in self.rows:
-                match row:
-                    case MessageRow():
-                        continue
-                    case _:
-                        row.stop()
+                row.stop()
+                row.stop()
 
         self.alive = False
         if self.worker:
@@ -91,53 +82,48 @@ class Multi:
 
     def _render_loop(self):
         """The isolated thread handler. Read-only side."""
-        with self.lock:
-            self.height = len(self.rows)
         self.out.write(_hide_cursor())  # Hide cursor
+        self.out.write("\n")  # Hide cursor
         self.out.flush()
         try:
             while self.alive:
-                self.render_rows(self._take_snapshot())
+                self.render_rows()
                 time.sleep(1 / self.fps)
         finally:
             self.out.write(_show_cursor())  # Show cursor
             self.out.flush()
-        self.render_rows(self._take_snapshot(), final=True)
+        self.render_rows(final=True)
 
     def _take_snapshot(self) -> list[BarRow]:
         with self.lock:
             self.rows = [r for r in self.rows if not r.is_stopped()]
             return [copy.deepcopy(r) for r in self.rows]
 
-    def render_rows(self, snapshot: list[BarRow], *, final: bool = False) -> None:
+    def render_rows(self, *, final: bool = False) -> None:
+        snapshot: list[BarRow] = self._take_snapshot()
         if not snapshot:
             return
         lines = [b._call_render() for b in snapshot]
         maxw = shutil.get_terminal_size().columns - 1
 
-        colw: list[list[int]] = [[0] * len(line) for line in lines]
-        assert len(colw) == len(lines)
+        colwidth: list[list[int]] = [[0] * len(line) for line in lines]
+        assert len(colwidth) == len(lines)
 
         for i, line in enumerate(lines):
             fill: set[int] = set()
-            cw = colw[i]
+            cw = colwidth[i]
             for j, col in enumerate(line):
-                if isinstance(col, Bar):
-                    width = col.width
-                    if width <= 0:
-                        fill.add(j)
-                    else:
-                        cw[j] = width
-                    continue
                 match col:
                     case str() as s:
                         cw[j] = vlen(s)
-                    case Style() as sty:
-                        cw[j] = len(sty)
                     case _:
-                        cw[j] = vlen(str(col))
+                        w = len(col)
+                        if w <= 0:
+                            fill.add(j)
+                        else:
+                            cw[j] = w
 
-            budget = max(0, maxw - sum(cw) - 1)
+            budget = max(0, maxw - sum(cw))
             while fill and budget > 0:
                 count = len(fill)
                 w = round(((1 / count) + budget) / count)
@@ -145,27 +131,21 @@ class Multi:
                 j = fill.pop()
                 cw[j] = w
 
-        linestr = [
-            ''.join(self._render_col(col, colw[i][j]) for j, col in enumerate(line))
-            for i, line in enumerate(lines)
+        screenshot_lines: list[str] = [
+            ''.join(f"{col:{w}}" for col, w in zip(line, cw))
+            for line, cw in zip(lines, colwidth)
         ]
 
-        h = len(linestr)
-        screenshot = _clearlines(linestr)
+        h = len(screenshot_lines)
+        c = self.height - h
+        screenshot: str = _clearlines(screenshot_lines)
         if not final:
-            screenshot += _blankpad(self.height - h)
+            screenshot += _blankpad(c)
 
+        self.out.write(_pushup(self.height))
         self.out.write(screenshot)
         self.out.flush()
-
-        if not final:
-            self.out.write(_pushup(self.height))
-
         self.height = max(h, self.height)
-
-    @staticmethod
-    def _render_col(col: Any, w: int) -> str:
-        return f"{col:{w}}"
 
 
 def _hide_cursor() -> str:

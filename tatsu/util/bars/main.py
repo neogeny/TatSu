@@ -21,15 +21,16 @@ def main() -> None:
             s = Style()
             m = metrics
             bar = Bar(
-                fill="-?`",
-                style=[s.green(), s.green(), s.dim()],
+                fill="=>`",
+                style=[s.green(), s.green(), s.white().dim()],
             )
             bar.update(m[Col.pos], m[Col.total])
             return [
                 f"{s(m[Col.label], fmt=">20s")} ",
                 bar,
                 f"{100 * m[Col.pct]:3.0f}% ",
-                f"{m[Col.h]:02}:{m[Col.m]:02}:{m[Col.s]:02}",
+                # f"{m[Col.elapsed]:4.1f}s",
+                f"{m[Col.m]:02d}:{m[Col.s]:02d}.{m[Col.ms]:03d}",
             ]
 
     s = c.style()
@@ -65,11 +66,11 @@ def main() -> None:
     threads = [
         threading.Thread(target=worker, args=(b, d, s, overall), daemon=True)
         for b, d, s in [
-            (bars[1], 0.16, 8),
-            (bars[2], 0.24, 5),
-            (bars[3], 0.40, 10),
-            (bars[4], 0.12, 4),
-            (bars[5], 0.60, 2),
+            (bars[1], 0.10, 8),
+            (bars[2], 0.16, 5),
+            (bars[3], 0.20, 10),
+            (bars[4], 0.08, 4),
+            (bars[5], 0.30, 2),
         ]
     ]
 
