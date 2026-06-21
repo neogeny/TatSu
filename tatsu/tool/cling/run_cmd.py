@@ -22,12 +22,12 @@ from .sum import format_result, show_summary
 class FileHeartRow(BarRow, Heart):
     def __init__(self, name: str, total: int) -> None:
         s = Style()
-        white = s.bold().white()
+        white = s.white()
         green = s.green()
         dim = s.black().bold()
 
         super().__init__(
-            cols=[f" {white(name):<50} ", Col.bar],
+            cols=[f"   {white(name):<60} ", Col.bar],
             fill="⎯⎯⎯",
             style=[green, green, dim],
             label=name,
@@ -73,7 +73,6 @@ def run_with_progress(
     cfg: CLIConfig,
 ) -> Results:
     inputs = cfg.inputs
-
     multi = Multi([], out=sys.stderr)
 
     name = Path(cfg.grammar).name
@@ -95,7 +94,6 @@ def run_with_progress(
     for idx, path in enumerate(paths):
         text = path.read_text()
         fh = FileHeartRow(path.name, len(text))
-        multi.add_row(fh)
         payloads.append(
             GrammarPayload(
                 path,
@@ -106,7 +104,6 @@ def run_with_progress(
                 idx=idx,
             )
         )
-        fh.start()
 
     def parse_file_task(data: GrammarPayload) -> Any:
         path = Path(data.path)
@@ -120,13 +117,13 @@ def run_with_progress(
         relpath = path.absolute().relative_to(Path().absolute())
         config.source = str(relpath)
 
+        multi.add_row(heart)
         heart.start()
         heart.update(0, len(text))
         sys.setrecursionlimit(2**16)
         try:
             return grammar.parse(text, start=start, config=config)
         finally:
-            multi.print(f"Parsing {data.path} {heart.pos=} {heart.total=}")
             heart.update(len(text), len(text))
             heart.stop()
 

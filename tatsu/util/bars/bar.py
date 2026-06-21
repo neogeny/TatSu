@@ -192,7 +192,7 @@ class BarRow:
         return self.state == State.RUNNING
 
     def is_stopped(self) -> bool:
-        return self.state in (State.STOPPED, State.STOPPING) or self.pos >= self.total
+        return self.state in {State.STOPPED, State.STOPPING} or self.pos >= self.total
 
     def is_stopping(self) -> bool:
         return self.state == State.STOPPING

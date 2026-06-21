@@ -249,13 +249,13 @@ def parproc_visual(
 
     total = len(filenames)
 
-    _multi = None
+    multi = None
     if progress_in is None:
         bar = BarRow(total=total)
         progress = bar
         if threading.current_thread() is threading.main_thread():
-            _multi = Multi([bar], out=sys.stderr)
-            _multi.start()
+            multi = Multi([bar], out=sys.stderr)
+            multi.start()
 
     total_time = 0.0
     run_time = 0.0
@@ -314,8 +314,8 @@ def parproc_visual(
     progress.update(total, total)
     progress.stop()
 
-    if _multi is not None:
-        _multi.stop()
+    if multi is not None:
+        multi.stop()
 
     if summary or is_legacy:
         with logctx() as log:
