@@ -53,7 +53,7 @@ class FileHeartRow(BarRow, Heart):
             label=name,
             total=total,
         )
-        self.stotal_on_complete = False
+        self.stop_on_complete = False
 
         self.update(0, total)
 

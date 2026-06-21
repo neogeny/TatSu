@@ -54,8 +54,13 @@ class Multi:
 
     def print(self, *args, **kwargs) -> None:
         """Prints to the output stream."""
+        kwargs.pop("file", None)
         kwargs.pop("highlight", None)
         kwargs.pop("markup", None)
+        if not self.alive:
+            kwargs['file'] = self.out
+            print(*args, **kwargs)  # pyright: ignore[reportCallIssue]
+            return
         s = prints(*args, end="", **kwargs)
         self.insert_message(MessageRow(cols=[s]))
 
@@ -101,14 +106,14 @@ class Multi:
 
     def _take_snapshot(self) -> list[BarRow]:
         with self.lock:
-            self.rows = [r for r in self.rows if not r.stopped]
+            self.rows = [r for r in self.rows if not r.is_stopped()]
             return [copy.deepcopy(r) for r in self.rows]
 
     def render_rows(self, snapshot: list[BarRow], *, final: bool = False) -> None:
         if not snapshot:
             return
         lines = [b._call_render() for b in snapshot]
-        maxw = shutil.get_terminal_size().columns
+        maxw = shutil.get_terminal_size().columns - 1
 
         colw: list[list[int]] = [[0] * len(line) for line in lines]
         assert len(colw) == len(lines)
@@ -160,19 +165,7 @@ class Multi:
 
     @staticmethod
     def _render_col(col: Any, w: int) -> str:
-        s = ""
-        if isinstance(col, Bar):
-            bar = col
-            rendered = bar.render(w)
-            rendered = bar.trim_to_width(w, rendered)
-            return rendered
-        match col:
-            case str():
-                s = col
-            case _:
-                assert not isinstance(col, Bar)
-                s = str(col)
-        return f"{s!s:>{w}}"
+        return f"{col:{w}}"
 
 
 def _hide_cursor() -> str:
