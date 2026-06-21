@@ -46,10 +46,6 @@ class TaskID(Protocol): ...
 class Progress(Protocol):
     def update(self, *args, **kwargs) -> None: ...
     def stop(self) -> None: ...
-    def add_task(self, description: str, **args: Any) -> TaskID: ...
-    def remove_task(self, task_id: Any) -> None: ...
-    def __enter__(self) -> Progress: ...
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None: ...
 
 
 type Func = Callable[..., Any]
@@ -238,8 +234,8 @@ def taskproc(task: Task) -> Result:
 def parproc_visual(
     func: VisualFunc,
     payloads_in: Iterable[VisualPayload | str],
+    progress: Progress,
     /,
-    build_progressbar: GetProgressFunc = _build_progressbar,
     *args: Any,
     pickable: Func = identity,
     parallel: bool = True,
@@ -293,63 +289,63 @@ def parproc_visual(
     success_count = 0
     success_linecount = 0
 
-    progress, progress_task = build_progressbar(total)
-    if is_legacy:
-        # HACK backwards compatibility: resolve the iterator
-        results = list(results)  # type: ignore
-    with progress:
-        for result in results:
-            if result is None:
-                continue
-            count += 1
+    for result in results:
+        if result is None:
+            continue
+        count += 1
 
-            total_time = time.time() - start_time
-            filename = Path(result.payload.path).name
-            if result.exception:
-                icon = f'{U_CROSSED_SWORDS}'
-                color = '[red]'
-            else:
-                icon = f'{U_CHECK_MARK}'
-                color = '[green]'
+        total_time = time.time() - start_time
+        filename = Path(result.payload.path).name
+        if result.exception:
+            icon = f'{U_CROSSED_SWORDS}'
+            color = '[red]'
+        else:
+            icon = f'{U_CHECK_MARK}'
+            color = '[green]'
 
-            progress.update(
-                progress_task,
-                advance=1,
-                description=f'{color}{filename:{maxwidth}} {icon}',
-                color='green',
-            )
+        progress.update(
+            pos=count,
+            total=total,
+            advance=1,
+            description=f'{color}{filename:{maxwidth}} {icon}',
+            color='green',
+        )
 
-            # with logctx() as log:
-            #     print(result.payload, file=log)
-            if result.exception:
-                try:
-                    with logctx() as log:
-                        print('ERROR:', result.payload, file=log)
-                        print(result.exception, file=log)
-                except Exception:
-                    # in case of errors while serializing the exception
-                    with logctx() as log:
-                        print(
-                            'EXCEPTION',
-                            type(result.exception).__name__,
-                            file=log,
-                        )
-                if reraise:
-                    raise result.exception
-            elif result.outcome is not None:
-                success_count += 1
-                if isinstance(result.linecount, int | float):
-                    success_linecount += result.linecount
-                run_time += result.runtime
-
-            if result.exception and reraise:
+        # with logctx() as log:
+        #     print(result.payload, file=log)
+        if result.exception:
+            try:
+                with logctx() as log:
+                    print('ERROR:', result.payload, file=log)
+                    print(result.exception, file=log)
+            except Exception:
+                # in case of errors while serializing the exception
+                with logctx() as log:
+                    print(
+                        'EXCEPTION',
+                        type(result.exception).__name__,
+                        file=log,
+                    )
+            if reraise:
                 raise result.exception
-            if is_legacy:
-                result.payload = result.payload.path
-            yield result
+        elif result.outcome is not None:
+            success_count += 1
+            if isinstance(result.linecount, int | float):
+                success_linecount += result.linecount
+            run_time += result.runtime
 
-        progress.update(progress_task, advance=0, description='')
-        progress.remove_task(progress_task)
+        if result.exception and reraise:
+            raise result.exception
+        if is_legacy:
+            result.payload = result.payload.path
+        yield result
+
+        progress.update(
+            pos=total,
+            total=total,
+            advance=0,
+            description='',
+        )
         progress.stop()
 
     if summary or is_legacy:
