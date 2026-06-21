@@ -10,46 +10,26 @@ from typing import Any
 
 from ...config import ParserConfig
 from ...peg import Grammar
-from ...util.bars import Bar, BarRow, Fill, Multi
+from ...util.bars import Bar, BarRow, Col, Multi
 from ...util.heart import Heart
 from ...util.parproc import VisualPayload, parproc_visual
+from ...util.ztyle import Style
 from .cfg import CLIConfig
-from .global_opt import add_global_options
 from .lib import Results, load_grammar
 from .sum import format_result, show_summary
 
 
-class HeartBar(Heart, Bar):
-    def __init__(self, fill: Fill) -> None:
-        super().__init__(fill=fill)
-        self.stopped = False
-
-    def beat(self, mark: int, total: int) -> None:
-        self.update(mark, total)
-
-    def dead(self) -> bool:
-        return self.stopped
-
-    def stop(self) -> None:
-        self.stopped = True
-
-
-class FileHeartRow(BarRow, Heart):
+class FileHeartRow(Heart, BarRow):
     def __init__(self, name: str, total: int) -> None:
-        from ...util.style import Style
+        s = Style()
+        white = s.bold().white()
+        dim = s.white().dim()
+        green = s.green()
 
-        _bold_white = Style().bold().white()
-        _green = Style().green()
-        fill = (
-            _green("-"),
-            _green("-"),
-            Style("-").white().dim(),
-        )
-        bar = HeartBar(fill=fill)
         super().__init__(
-            cols=[f" {_bold_white(name):<50} ", bar],
-            fill=fill,
-            bar=bar,
+            cols=[f" {white(name):<50} ", Col.bar],
+            fill="---",
+            style=[green, green, dim],
             label=name,
             total=total,
         )
@@ -61,12 +41,7 @@ class FileHeartRow(BarRow, Heart):
         self.update(mark, total)
 
     def dead(self) -> bool:
-        return self.stopped
-
-    def stop(self) -> None:
-        super().stop()
-        if isinstance(self.bar, HeartBar):
-            self.bar.stop()
+        return self.is_stopped()
 
 
 @dataclass(slots=True)
@@ -113,24 +88,28 @@ def run_with_progress(
     start: str | None,
     cfg: CLIConfig,
 ) -> Results:
-    from ...util.style import Style
-
-    _yellow = Style().yellow()
+    inputs = cfg.inputs
 
     multi = Multi([], out=sys.stderr)
 
     name = Path(cfg.grammar).name
-    total = len(cfg.inputs)
-    bar = Bar(fill=(_yellow("-"), _yellow("-"), "."))
+    total = len(inputs)
+
+    s = Style()
+    yellow = s.yellow()
+    bar = Bar(
+        total=total,
+        fill="--.",
+        style=[yellow],
+    )
     top_row = BarRow(
         label=name,
-        bar=bar,
         cols=[bar],
         total=total,
     )
     multi.add_row(top_row)
 
-    paths = [Path(input) for input in cfg.inputs]
+    paths = [Path(input) for input in inputs]
     payloads = []
     for path in paths:
         text = path.read_text()

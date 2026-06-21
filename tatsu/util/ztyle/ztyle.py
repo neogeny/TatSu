@@ -258,6 +258,9 @@ class Style(ColorMethods):
     def __len__(self) -> int:
         return visual_len(str(self))
 
+    def __hash__(self) -> int:
+        return hash(self.__dict__)
+
     def __eq__(self, other: object) -> bool:
         if not hasattr(other, "__dict__"):
             return False

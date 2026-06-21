@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 import datetime as dt
-import sys
-import threading
 import time
 from enum import IntEnum, StrEnum, auto
 from typing import Any
 
 from .. import findfirst
-from ..style import Style
+from ..ztyle import Style
 
 
 __all__ = ["Bar", "BarRow", "Col"]
@@ -57,10 +55,15 @@ class Bar:
         self.total: int = total
         self.width: int = width
         self.fill: str = (fill + "...")[:3]
-        self.style: list[Style] = style or []
 
+        self.style: list[Style] = style or []
         s = Style()
-        self.style += [s] * (3 - len(self.style))
+        if not self.style:
+            self.style = [s] * 3
+        elif len(self.style) == 2:
+            self.style = [*self.style, s]
+        else:
+            self.style = [self.style[0]] * 2 + [s]
 
     def __str__(self) -> str:
         return self.render(max(1, self.total))
@@ -111,7 +114,7 @@ class Bar:
         return st.apply(todo * w)
 
     def trim_to_width(self, budget: int, rendered: str) -> str:
-        from ..style import visual_len as vlen
+        from ..ztyle import visual_len as vlen
 
         while (w := vlen(rendered)) > budget:
             chars = [
@@ -136,8 +139,6 @@ class Bar:
 class BarRow:
     """A rich, lightweight, fully picklable data object given to the user."""
 
-    Col: type[Col] = Col
-
     def __init__(
         self,
         *,
@@ -145,7 +146,7 @@ class BarRow:
         total: int = 100,
         label: str | Style = "",
         fill: str = "=>.",
-        cols: list[str | Col] | None = None,
+        cols: list[Any] | None = None,
         style: list[Style] | None = None,
         stop_on_complete: bool = True,
     ):
@@ -156,7 +157,7 @@ class BarRow:
         self.style = style
         self.stop_on_complete: bool = stop_on_complete
 
-        self.cols: list[str | Col] = []
+        self.cols: list[Any] = []
         if cols is not None:
             self.cols = cols
         elif label:

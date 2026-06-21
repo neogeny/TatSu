@@ -7,11 +7,11 @@ import shutil
 import sys
 import threading
 import time
-from typing import Any, TextIO
+from typing import TextIO
 
 from ..debugging import prints
-from ..style import Style, visual_len as vlen
-from .bar import Bar, BarRow
+from ..ztyle import visual_len as vlen
+from .bar import BarRow
 
 
 class MessageRow(BarRow):

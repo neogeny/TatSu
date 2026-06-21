@@ -22,8 +22,8 @@ from __future__ import annotations
 
 from .colormap import *  # noqa: F403
 from .csscolormap import *  # noqa: F403
-from .style import *  # noqa: F403
-from .style import (
+from .ztyle import *  # noqa: F403
+from .ztyle import (
     RGB,
     Color,
     Style,

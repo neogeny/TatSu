@@ -7,7 +7,7 @@ import threading
 import time
 from typing import Any
 
-from ..style import Color, Style  # noqa: F401
+from ..ztyle import Color, Style  # noqa: F401
 from .bar import Bar, BarRow, Col
 from .multi import Multi
 

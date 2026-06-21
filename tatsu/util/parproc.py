@@ -18,9 +18,9 @@ from threading import Event
 from typing import Any, NamedTuple, Protocol, cast
 
 from . import identity, memory_use, startscript, try_read
-from .style import Style
 from .timetools import iso_logpath
 from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
+from .ztyle import Style
 
 
 __all__ = [
@@ -234,8 +234,8 @@ def taskproc(task: Task) -> Result:
 def parproc_visual(
     func: VisualFunc,
     payloads_in: Iterable[VisualPayload | str],
-    progress: Progress,
     /,
+    progress_in: Progress | None = None,
     *args: Any,
     pickable: Func = identity,
     parallel: bool = True,
@@ -244,8 +244,9 @@ def parproc_visual(
     max_workers: int | None = None,
     **kwargs: Any,
 ) -> Generator[Result, None, None]:
-    # note: resolve iterator now because we know that processing will do it anyway
+    # NOTE resolve iterator now because we know that processing will do it anyway
     payloads_in = list(payloads_in)
+    progress: Progress = progress_in  # type: ignore # pyright: ignore[reportAssignmentType]
 
     # HACK backwards compatibility
     is_legacy = all(isinstance(p, str) for p in payloads_in)

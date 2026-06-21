@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .style import RGB
+from .ztyle import RGB
 
 
 def css_color(name: str) -> RGB | None:
