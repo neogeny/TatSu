@@ -16,10 +16,15 @@ type Fill = tuple[Text, Text, Text]
 
 
 class Bar:
-    __slots__ = ["fill", "pos", "total", "width"]
+    width: int = -1  # pyright: ignore[reportRedeclaration]
+    fill: Fill = ("█", ">", "░")  # pyright: ignore[reportRedeclaration]
+    pos: int = 0  # pyright: ignore[reportRedeclaration]
+    total: int = 100  # pyright: ignore[reportRedeclaration]
 
     def __init__(
         self,
+        /,
+        *,
         width: int = -1,
         fill: Fill = ("█", ">", "░"),
     ):
@@ -29,9 +34,11 @@ class Bar:
         self.pos: int = 0
         self.total: int = 100
 
-    def update(self, pos: int, total: int) -> None:
+    def update(self, pos: int, total: int, fill: Fill | None = None) -> None:
         self.pos = pos
         self.total = total
+        if fill is not None:
+            self.fill = fill
 
     def render(self, budget: int) -> str:
         done, head, todo = self.fill
@@ -75,6 +82,9 @@ class Bar:
                     break
         return rendered
 
+    def __str__(self) -> str:
+        return self.render(max(0, self.width))
+
 
 class BarRow:
     """A rich, lightweight, fully picklable data object given to the user."""
@@ -83,14 +93,15 @@ class BarRow:
         self,
         label: str = "",
         cols: list[str | Bar] | None = None,
+        bar: Bar | None = None,
         *,
         fill: Fill = ("█", ">", "░"),
         pos: int = 0,
         total: int = 100,
     ):
         self.label = label
-        self.bar = Bar(fill=fill)
-        if cols:
+        self.bar = bar if bar is not None else Bar(fill=fill)
+        if cols is not None:
             self.cols = cols
         elif label:
             self.cols = [label, self.bar]
@@ -111,13 +122,14 @@ class BarRow:
     def is_stotalped(self) -> bool:
         return self.stopped
 
-    def update(self, value: int, total: int = -1):
+    def update(self, pos: int, total: int = -1, *args, **kwargs):
         """Write-only operation from the user's side."""
         if total != -1:
             self.total = total
-        self.pos = max(0, min(value, self.total))
+        self.pos = max(0, min(pos, self.total))
         if self.stotal_on_complete and self.pos >= self.total:
             self.stop()
+        self.bar.update(self.pos, self.total, fill=self.fill)
 
     from types import SimpleNamespace
 
@@ -136,8 +148,6 @@ class BarRow:
         total_est = elapsed / pct if pct else 0.0
         eta_seconds = max(0.0, total_est - elapsed) if total_est else 0.0
         eta_duration = dt.timedelta(seconds=eta_seconds)
-
-        self.bar.update(self.pos, self.total)
 
         return self.Metrics(
             label=self.label,

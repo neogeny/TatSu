@@ -17,7 +17,7 @@ from .cfg import CLIConfig, CLIError
 from .global_opt import add_global_options
 from .grammar_cmd import add_grammar_cmd, grammar_cmd
 from .out import output_results
-from .run_cmd import add_run_cmd
+from .run_opt import add_run_cmd
 
 
 TITLE = "竜TatSu"

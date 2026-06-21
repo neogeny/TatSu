@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .bar import Bar, BarRow
+from .bar import Bar, BarRow, Fill
 from .main import main
 from .multi import Multi
 
@@ -10,6 +10,7 @@ from .multi import Multi
 __all__ = [
     "BarRow",
     "Bar",
+    "Fill",
     "main",
     "Multi",
 ]

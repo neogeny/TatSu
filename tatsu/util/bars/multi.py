@@ -7,7 +7,7 @@ import shutil
 import sys
 import threading
 import time
-from typing import Any
+from typing import Any, TextIO
 
 from ..debugging import prints
 from ..style import Style, visual_len as vlen
@@ -19,12 +19,18 @@ class MessageRow(BarRow):
 
 
 class Multi:
-    def __init__(self, rows: list[BarRow], /, fps: int = 60):
-        self.lock = threading.Lock()
+    def __init__(
+        self,
+        rows: list[BarRow],
+        /,
+        fps: int = 60,
+        out: TextIO = sys.stderr,
+    ):
+        self.lock = threading.RLock()
         self.rows = rows
         self.alive = False
         self.worker = None
-        self.out = sys.stderr
+        self.out = out
         self.fps = fps
 
         self.height: int = 0
@@ -48,6 +54,8 @@ class Multi:
 
     def print(self, *args, **kwargs) -> None:
         """Prints to the output stream."""
+        kwargs.pop("highlight", None)
+        kwargs.pop("markup", None)
         s = prints(*args, end="", **kwargs)
         self.insert_message(MessageRow(cols=[s]))
 
@@ -78,7 +86,6 @@ class Multi:
 
     def _render_loop(self):
         """The isolated thread handler. Read-only side."""
-        t0 = time.perf_counter()
         with self.lock:
             self.height = len(self.rows)
         self.out.write(_hide_cursor())  # Hide cursor
@@ -86,11 +93,7 @@ class Multi:
         try:
             while self.alive:
                 self.render_rows(self._take_snapshot())
-                elapsed = time.perf_counter() - t0
-                dt = 1 / self.fps - elapsed
-                if dt > 0:
-                    time.sleep(dt)
-                    t0 = time.perf_counter()
+                time.sleep(1 / self.fps)
         finally:
             self.out.write(_show_cursor())  # Show cursor
             self.out.flush()
@@ -99,7 +102,7 @@ class Multi:
     def _take_snapshot(self) -> list[BarRow]:
         with self.lock:
             self.rows = [r for r in self.rows if not r.stopped]
-            return [copy.copy(r) for r in self.rows]
+            return [copy.deepcopy(r) for r in self.rows]
 
     def render_rows(self, snapshot: list[BarRow], *, final: bool = False) -> None:
         if not snapshot:
@@ -114,14 +117,16 @@ class Multi:
             fill: set[int] = set()
             cw = colw[i]
             for j, col in enumerate(line):
+                if isinstance(col, Bar):
+                    width = col.width
+                    if width <= 0:
+                        fill.add(j)
+                    else:
+                        cw[j] = width
+                    continue
                 match col:
                     case str() as s:
                         cw[j] = vlen(s)
-                    case Bar(width=width):
-                        if width <= 0:
-                            fill.add(j)
-                        else:
-                            cw[j] = width
                     case Style() as sty:
                         cw[j] = len(sty)
                     case _:
@@ -156,14 +161,16 @@ class Multi:
     @staticmethod
     def _render_col(col: Any, w: int) -> str:
         s = ""
+        if isinstance(col, Bar):
+            bar = col
+            rendered = bar.render(w)
+            rendered = bar.trim_to_width(w, rendered)
+            return rendered
         match col:
-            case Bar() as bar:
-                rendered = bar.render(w)
-                rendered = bar.trim_to_width(w, rendered)
-                return rendered
             case str():
                 s = col
             case _:
+                assert not isinstance(col, Bar)
                 s = str(col)
         return f"{s!s:>{w}}"
 
