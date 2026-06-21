@@ -144,7 +144,7 @@ class Bar:
 
 # TODO Should rename to Progress for consistency with other progress bars
 class BarRow:
-    """A rich, lightweight, fully picklable data object given to the user."""
+    """A lightweight, fully picklable data object given to the user."""
 
     def __init__(
         self,
