@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from .bar import Bar, BarRow, Col
+from .bar import Bar
 from .main import main
 from .multi import Multi
+from .row import BarRow, Col
 
 
 __all__ = [

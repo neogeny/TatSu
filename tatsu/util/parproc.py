@@ -18,7 +18,7 @@ from threading import Event
 from typing import Any, NamedTuple, Protocol
 
 from . import identity, memory_use, startscript, try_read
-from .bars import BarRow, Multi
+from .barz import BarRow, Multi
 from .timetools import iso_logpath
 from .ztyle import Style
 

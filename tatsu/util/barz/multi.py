@@ -11,7 +11,7 @@ from typing import TextIO
 
 from ..debugging import prints
 from ..ztyle import visual_len as vlen
-from .bar import BarRow
+from .row import BarRow
 
 
 class MessageRow(BarRow):

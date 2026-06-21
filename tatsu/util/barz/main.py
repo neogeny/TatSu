@@ -8,8 +8,9 @@ import time
 from typing import Any
 
 from ..ztyle import Color, Style  # noqa: F401
-from .bar import Bar, BarRow, Col
+from .bar import Bar
 from .multi import Multi
+from .row import BarRow, Col
 
 
 def main() -> None:
