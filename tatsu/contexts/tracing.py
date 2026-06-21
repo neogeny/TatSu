@@ -8,7 +8,7 @@ from ..config import ParserConfig
 from ..exceptions import FailedLeftRecursion
 from ..util.common import is_posix
 from ..util.debugging import info
-from ..util.style import Color, Style
+from ..util.ztyle import Color, Style
 from .ctx import Ctx
 
 

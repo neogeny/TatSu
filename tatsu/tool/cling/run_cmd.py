@@ -10,7 +10,7 @@ from typing import Any
 
 from ...config import ParserConfig
 from ...peg import Grammar
-from ...util.bars import Bar, BarRow, Col, Multi
+from ...util.bars import BarRow, Col, Multi
 from ...util.heart import Heart
 from ...util.parproc import VisualPayload, parproc_visual
 from ...util.ztyle import Style
@@ -19,7 +19,7 @@ from .lib import Results, load_grammar
 from .sum import format_result, show_summary
 
 
-class FileHeartRow(Heart, BarRow):
+class FileHeartRow(BarRow, Heart):
     def __init__(self, name: str, total: int) -> None:
         s = Style()
         white = s.bold().white()
@@ -32,8 +32,8 @@ class FileHeartRow(Heart, BarRow):
             style=[green, green, dim],
             label=name,
             total=total,
+            stop_on_complete=False,
         )
-        self.stop_on_complete = False
 
         self.update(0, total)
 
@@ -97,14 +97,11 @@ def run_with_progress(
 
     s = Style()
     yellow = s.yellow()
-    bar = Bar(
-        total=total,
-        fill="--.",
-        style=[yellow],
-    )
     top_row = BarRow(
         label=name,
-        cols=[bar],
+        cols=[Col.bar],
+        fill="--.",
+        style=[yellow, yellow, s],
         total=total,
     )
     multi.add_row(top_row)

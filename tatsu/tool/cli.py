@@ -13,7 +13,7 @@ from ..config import ParserConfig
 from ..exceptions import FailedParse, ParseException
 from ..ngcodegen import modelgen, parsergen, pythongen
 from ..util import eval_escapes
-from ..util.style import Color
+from ..util.ztyle import Color
 
 
 __all__ = ['tatsu_main']

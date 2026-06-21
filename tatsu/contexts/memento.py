@@ -6,7 +6,7 @@ from io import StringIO
 
 from ..input import LineInfo
 from ..util.strtools import slicetowidth
-from ..util.style import Color, Style
+from ..util.ztyle import Color, Style
 from .infos import RuleInfo
 
 

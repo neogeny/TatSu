@@ -80,26 +80,8 @@ def cling_main() -> None:
     """Entry point for the cling CLI (not wired to console_scripts yet)."""
 
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)
-    sys.setrecursionlimit(2**16)
-
+    parser = create_argument_parser()
     try:
-        parser = create_argument_parser()
-        # args = sys.argv[1:]
-        # argset = set(args)
-        # if not argset:
-        #     print(VERSION, file=sys.stderr)
-        #     print(f"\n{DESCRIPTION}\n", file=sys.stderr)
-        #     parser.print_usage()
-        #     return
-
-        # if {'-h', '--help'} & argset:
-        #     parser.print_help()
-        #     return
-
-        # if {'version', '--version', '-V'} & argset:
-        #     print(VERSION, file=sys.stderr)
-        #     return
-
         cfg = run_cling_cli(parser)
 
         if cfg.style == "list":

@@ -59,7 +59,10 @@ class Multi:
         kwargs.pop("highlight", None)
         kwargs.pop("markup", None)
         s = prints(*args, end="", **kwargs)
-        self.insert_message(s)
+        if not s:
+            self.insert_message("")
+        for msg in s.splitlines():
+            self.insert_message(msg)
 
     def start(self):
         """Starts the completely isolated background rendering thread."""

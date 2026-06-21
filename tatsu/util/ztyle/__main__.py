@@ -5,7 +5,7 @@ Visual verification tables for the ANSI colour library.
 
 .. code-block:: text
 
-    python -m tatsu.util.style
+    python -m tatsu.util.ztyle
 
 Displays the 16x16 ANSI colour cube, the named colour palette,
 dynamic colour-method tests, and the CSS named colour table.

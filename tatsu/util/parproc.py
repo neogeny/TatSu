@@ -15,11 +15,10 @@ from itertools import batched
 from pathlib import Path
 from pickle import PickleError, PicklingError
 from threading import Event
-from typing import Any, NamedTuple, Protocol, cast
+from typing import Any, NamedTuple, Protocol
 
 from . import identity, memory_use, startscript, try_read
 from .timetools import iso_logpath
-from .unicode_characters import U_CHECK_MARK, U_CROSSED_SWORDS
 from .ztyle import Style
 
 
@@ -29,7 +28,6 @@ __all__ = [
     'parallel_proc',
     'parproc',
     'processing_loop',
-    '_old_file_process_progress',
     'GIL_DISABLED',
     'HAS_MULTITHREADING_SUPPORT',
 ]
@@ -50,8 +48,6 @@ class Progress(Protocol):
 
 type Func = Callable[..., Any]
 type VisualFunc = Callable[..., Any]
-type ProgressPair = tuple[Progress, TaskID]
-type GetProgressFunc = Callable[[int], ProgressPair]
 
 
 class Payload(Protocol):
@@ -107,32 +103,6 @@ class Result:
 
     def __str__(self):
         return str(self.__dict__)
-
-
-def _build_progressbar(total: int) -> tuple[Progress, TaskID]:
-    from rich.progress import (  # type: ignore
-        BarColumn,
-        Progress,
-        TaskProgressColumn,
-        TextColumn,
-        TimeElapsedColumn,
-        TimeRemainingColumn,
-    )
-
-    progress = Progress(
-        TextColumn(f"[progress.description]{startscript()}"),
-        BarColumn(),
-        # *Progress.get_default_columns(),
-        TaskProgressColumn(),
-        TimeElapsedColumn(),
-        TimeRemainingColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        refresh_per_second=1,
-        speed_estimate_period=30.0,
-    )
-    task = progress.add_task('', total=total)
-    task_id = cast(TaskID, task)
-    return progress, task_id  # type: ignore
 
 
 # NOTE: backwards compatibility
@@ -202,6 +172,8 @@ def taskproc(task: Task) -> Result:
     result = Result(task.stop, task.payload)
     outcome: Any = None
     elapsed: float = 0.0
+    prev_limit = sys.getrecursionlimit()
+    sys.setrecursionlimit(2**16)
     try:
         start_time = time.thread_time()
         try:
@@ -211,12 +183,7 @@ def taskproc(task: Task) -> Result:
                 raise
 
             # HACK add backwards compatibility
-            prev_limit = sys.getrecursionlimit()
-            sys.setrecursionlimit(2**16)
-            try:
-                outcome = task.func(task.payload.path, *task.args, **task.kwargs)
-            finally:
-                sys.setrecursionlimit(prev_limit)
+            outcome = task.func(task.payload.path, *task.args, **task.kwargs)
 
         elapsed = time.thread_time() - start_time
     except Exception as e:
@@ -224,6 +191,7 @@ def taskproc(task: Task) -> Result:
         if task.reraise:
             raise
     finally:
+        sys.setrecursionlimit(prev_limit)
         result.runtime = elapsed
         result.outcome = task.pickable(outcome)
     result.linecount = getattr(outcome, 'linecount', 0)
@@ -262,8 +230,6 @@ def parproc_visual(
         prefix = startscript().replace('.', '_')
         logpath = iso_logpath(prefix=prefix)
 
-    maxwidth = max(len(Path(f).name) for f in filenames)
-
     @contextmanager
     def logctx() -> Generator[io.TextIOBase | Any, None, None]:
         if isinstance(logpath, Path):
@@ -296,21 +262,7 @@ def parproc_visual(
         count += 1
 
         total_time = time.time() - start_time
-        filename = Path(result.payload.path).name
-        if result.exception:
-            icon = f'{U_CROSSED_SWORDS}'
-            color = '[red]'
-        else:
-            icon = f'{U_CHECK_MARK}'
-            color = '[green]'
-
-        progress.update(
-            pos=count,
-            total=total,
-            advance=1,
-            description=f'{color}{filename:{maxwidth}} {icon}',
-            color='green',
-        )
+        progress.update(count, total)
 
         # with logctx() as log:
         #     print(result.payload, file=log)
@@ -341,13 +293,8 @@ def parproc_visual(
             result.payload = result.payload.path
         yield result
 
-        progress.update(
-            pos=total,
-            total=total,
-            advance=0,
-            description='',
-        )
-        progress.stop()
+    progress.update(total, total)
+    progress.stop()
 
     if summary or is_legacy:
         with logctx() as log:
@@ -359,38 +306,6 @@ def parproc_visual(
                 success_linecount,
                 log,
             )
-
-
-def _old_file_process_progress(
-    latest_result: Result,
-    count: int,
-    total: int,
-    total_time: float,
-):
-    filename = latest_result.payload
-
-    percent = count / total
-    mb_memory = (latest_result.memory + memory_use()) // (1024 * 1024)
-
-    eta = (total - count) * 0.8 * total_time / (0.2 * count)
-    bar = '[%-24s]' % ('#' * round(24 * percent))
-
-    print(
-        '%3d/%-3d' % (count, total),
-        bar,
-        '%3d%%' % (100 * percent),
-        # format_hours(total_time),
-        f'{_format_hours(eta)}ETA',
-        _format_minutes(latest_result),
-        '%3dMiB' % mb_memory if mb_memory else '',
-        (Path(filename).name + ' ' * 80)[:40],
-        file=sys.stderr,
-        end=EOLCH,
-    )
-
-
-def _format_minutes(result: Result) -> str:
-    return f'{result.runtime / 60:3.0f}:{result.runtime % 60:04.1f}'
 
 
 def _format_hours(time: float) -> str:

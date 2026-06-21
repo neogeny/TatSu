@@ -11,7 +11,7 @@ from typing import Any, Protocol
 
 from ...util import asjsons, countlines, slicetowidth
 from ...util.parproc import Result, StrPayload
-from ...util.style import Color
+from ...util.ztyle import Color
 from .cfg import CLIConfig
 
 
@@ -64,7 +64,7 @@ class ResultsStyle:
         self.plain = color.style()
 
 
-def eprint(*args: Any, **kwargs: Any) -> None:
+def _eprint(*args: Any, **kwargs: Any) -> None:
     """Print to stderr by default (cf. tatsu.util.debugging.eprint)."""
     kwargs.setdefault('file', sys.stderr)
     print(*args, **kwargs)
@@ -140,16 +140,20 @@ def show_summary(
     results = list(results)
     fail = st.file_count - st.succ_count
 
+    def eprint(*args: Any, **kwargs: Any) -> None:
+        printer.print(*args, **kwargs)
+
     out: list[Result] = []
     if cfg.verbose:
         for r in results:
             if not (r.exception or isinstance(r.outcome, Exception)):
                 out.append(r)
                 continue
-            print(file=sys.stderr)
-            print(r.exception, file=sys.stderr)
+            eprint()
+            eprint(r.exception)
 
         mk = s.bold_bad if fail else s.bold_good
+        eprint()
         eprint(mk(f"FAILURES: {fail}" if fail else f"NO FAILURES: {fail}"))
 
     W = 18
