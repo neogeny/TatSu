@@ -2,15 +2,16 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 
+@runtime_checkable
 class Heart(Protocol):
     def beat(self, mark: int, total: int) -> None: ...
     def dead(self) -> bool:
         return False
 
 
-class NullHeart:
+class NullHeart(Heart):
     def beat(self, mark: int, total: int) -> None:
         pass
