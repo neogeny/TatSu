@@ -23,25 +23,26 @@ class FileHeartRow(BarRow, Heart):
     def __init__(self, name: str, total: int) -> None:
         s = Style()
         white = s.bold().white()
-        dim = s.white().dim()
         green = s.green()
+        dim = s.black().bold()
 
         super().__init__(
             cols=[f" {white(name):<50} ", Col.bar],
-            fill="---",
+            fill="⎯⎯⎯",
             style=[green, green, dim],
             label=name,
             total=total,
             stop_on_complete=False,
         )
 
-        self.update(0, total)
+    def start(self) -> None:
+        super().start()
 
     def beat(self, mark: int, total: int) -> None:
         self.update(mark, total)
 
     def dead(self) -> bool:
-        return self.is_stopped()
+        return False
 
 
 @dataclass(slots=True)
@@ -49,24 +50,7 @@ class GrammarPayload(VisualPayload):
     grammar: Grammar
     start: str
     heart: FileHeartRow
-
-
-def parse_file_task(payload: GrammarPayload) -> Any:
-    path = Path(payload.path)
-    text = payload.payload
-    grammar, start = payload.grammar, payload.start
-
-    config = ParserConfig.new()
-    heart = payload.heart
-    config.heart = heart
-
-    relpath = path.absolute().relative_to(Path().absolute())
-    config.source = str(relpath)
-
-    try:
-        return grammar.parse(text, start=start, config=config)
-    finally:
-        heart.stop()
+    idx: int
 
 
 def run_cmd(cfg: CLIConfig) -> Results:
@@ -108,7 +92,7 @@ def run_with_progress(
 
     paths = [Path(input) for input in inputs]
     payloads = []
-    for path in paths:
+    for idx, path in enumerate(paths):
         text = path.read_text()
         fh = FileHeartRow(path.name, len(text))
         multi.add_row(fh)
@@ -119,9 +103,35 @@ def run_with_progress(
                 grammar=grammar,
                 start=start or "",
                 heart=fh,
+                idx=idx,
             )
         )
+        fh.start()
+
+    def parse_file_task(data: GrammarPayload) -> Any:
+        path = Path(data.path)
+        text = data.payload
+        grammar, start = data.grammar, data.start
+
+        config = ParserConfig.new()
+        heart = data.heart
+        config.heart = heart
+
+        relpath = path.absolute().relative_to(Path().absolute())
+        config.source = str(relpath)
+
+        heart.start()
+        heart.update(0, len(text))
+        sys.setrecursionlimit(2**16)
+        try:
+            return grammar.parse(text, start=start, config=config)
+        finally:
+            multi.print(f"Parsing {data.path} {heart.pos=} {heart.total=}")
+            heart.update(len(text), len(text))
+            heart.stop()
+
     multi.start()
+    top_row.start()
     try:
         results = parproc_visual(
             parse_file_task,

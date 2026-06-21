@@ -15,6 +15,16 @@ from .bar import BarRow
 
 
 class MessageRow(BarRow):
+    def is_active(self) -> bool:
+        # NOTE Lie to always get rendered
+        return True
+
+    def has_started(self) -> bool:
+        return True
+
+    def is_stopping(self) -> bool:
+        return False
+
     def is_stopped(self) -> bool:
         return False
 
@@ -73,7 +83,6 @@ class Multi:
 
     def stop(self):
         """Gracefully shuts down the rendering thread."""
-        self.rows = self._take_snapshot()
         with self.lock:
             for row in self.rows:
                 row.stop()
@@ -99,7 +108,7 @@ class Multi:
 
     def _take_snapshot(self) -> list[BarRow]:
         with self.lock:
-            self.rows = [r for r in self.rows if not r.is_stopped()]
+            self.rows = [r for r in self.rows if r.is_active()]
             return [copy.deepcopy(r) for r in self.rows]
 
     def render_rows(self, *, final: bool = False) -> None:

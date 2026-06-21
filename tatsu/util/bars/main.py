@@ -56,6 +56,7 @@ def main() -> None:
     m = Multi(bars)
 
     def worker(bar: BarRow, delay: float, step: int, overall: BarRow):
+        bar.start()
         m.print(f"starting {bar.label}")
         while bar.pos < bar.total:
             time.sleep(delay)
@@ -79,6 +80,8 @@ def main() -> None:
 
     m.start()
 
+    for b in bars:
+        b.start()
     try:
         for t in threads:
             t.start()

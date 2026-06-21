@@ -252,9 +252,10 @@ def parproc_visual(
     _multi = None
     if progress_in is None:
         bar = BarRow(total=total)
-        _multi = Multi([bar], out=sys.stderr)
-        _multi.start()
         progress = bar
+        if threading.current_thread() is threading.main_thread():
+            _multi = Multi([bar], out=sys.stderr)
+            _multi.start()
 
     total_time = 0.0
     run_time = 0.0
