@@ -29,6 +29,10 @@ class Metrics:
         return self.row.label
 
     @property
+    def padding(self) -> str:
+        return " "
+
+    @property
     def pos(self) -> int:
         return self.row.pos
 
@@ -43,6 +47,10 @@ class Metrics:
     @property
     def style(self) -> list[Style]:
         return self.row.style or []
+
+    @property
+    def width(self) -> int:
+        return self.row.width
 
     @property
     def start_time(self) -> int:
@@ -93,6 +101,10 @@ class Metrics:
 
     @cached_property
     def bar(self):
-        b = Bar(fill=self.fill, style=self.style)
+        b = Bar(
+            fill=self.fill,
+            style=self.style,
+            width=self.width,
+        )
         b.update(self.pos, self.total)
         return b

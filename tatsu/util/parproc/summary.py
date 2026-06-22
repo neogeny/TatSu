@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from .. import countlines, debugging, slicetowidth
-from ..ztyle import Color
+from ..ztyle import Color, Style
 from .result import Result
 
 
@@ -42,7 +42,8 @@ class SummaryStyle:
 
 
 class ResultsStyle:
-    def __init__(self, color: Color):
+    def __init__(self, color: Color | None = None):
+        color = color or Color.default()
         self.header = color.style(dim=True).cyan()
         self.good = color.style().green()
         self.bad = color.style().red()
@@ -115,15 +116,15 @@ def show_summary(
     results = list(results)
     fail = st.file_count - st.succ_count
 
+    results = list(results)
     out: list[Result] = []
-    if verbose:
-        for r in results:
-            if not (r.exception or isinstance(r.outcome, Exception)):
-                out.append(r)
-                continue
+    for r in results:
+        out.append(r)
+        if verbose and r.exception:
             eprint()
             eprint(r.exception)
 
+    if verbose:
         mk = s.bold_bad if fail else s.bold_good
         eprint()
         eprint(mk(f"FAILURES: {fail}" if fail else f"NO FAILURES: {fail}"))
@@ -160,6 +161,15 @@ def show_summary(
     yield from out
 
 
+def show_result(rprint: PrintFunc, r: Result) -> None:
+    s = ResultsStyle()
+    nm = slicetowidth(Path(r.payload.path).name, 40)
+    if r.exception or isinstance(r.outcome, Exception):
+        rprint(f" {s.bad('✗')} {s.plain(f'{nm}'):45}{s.bad(f'⏲ {r.runtime:>7.3f}')}")
+    else:
+        rprint(f" {s.good('✓')} {s.plain(f'{nm}'):45}{s.good(f'⏲ {r.runtime:>7.3f}')}")
+
+
 def show_results(
     rprint: PrintFunc,
     results: Iterable[Result],
@@ -167,15 +177,6 @@ def show_results(
     *,
     usecolor: bool = False,
 ) -> Iterable[Result]:
-    s = ResultsStyle(Color(usecolor))
     for r in results:
-        nm = slicetowidth(Path(r.payload.path).name, 40)
-        if r.exception or isinstance(r.outcome, Exception):
-            rprint(
-                f" {s.bad('✗')} {s.plain(f'{nm}'):45}{s.bad(f'⏲ {r.runtime:>7.3f}')}"
-            )
-        else:
-            rprint(
-                f" {s.good('✓')} {s.plain(f'{nm}'):45}{s.good(f'⏲ {r.runtime:>7.3f}')}"
-            )
+        show_result(rprint, r)
         yield r

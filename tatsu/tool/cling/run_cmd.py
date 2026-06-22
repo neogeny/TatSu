@@ -13,12 +13,11 @@ from ...exceptions import FailedParse
 from ...peg import Grammar
 from ...util.barz import BarRow, Col, Multi
 from ...util.heart import Heart
-from ...util.parproc import VisualPayload, parproc_visual
+from ...util.parproc import VisualPayload, parproc_visual, show_summary
 from ...util.ztyle import Style
 from .cfg import CLIConfig
 from .fmt import format_result
 from .lib import Results, load_grammar
-from ...util.parproc import show_summary
 
 
 # GLOBAL
@@ -136,6 +135,10 @@ def run_with_progress(
             )
         )
 
+    # if not cfg.quiet or cfg.summary:
+    #     multi.start()
+    # if not cfg.quiet:
+    #     top_row.start()
     multi.start()
     top_row.start()
     try:
@@ -145,6 +148,9 @@ def run_with_progress(
             top_row,
             parallel=True,
             reraise=False,
+            # WARNING We can't pass an eprint function if multiproc is chosen
+            # eprint=multi.print,
+            # WARNING we do the summary in-process
             summary=False,
             max_workers=cfg.nproc,
         )
@@ -166,4 +172,5 @@ def run_with_progress(
             format_result(cfg, r.outcome),
         )
         for r in joined
+        if not r.exception
     ]

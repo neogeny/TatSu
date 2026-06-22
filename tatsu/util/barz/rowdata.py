@@ -43,15 +43,17 @@ class BarRowData:
         pos: int = 0,
         total: int = -1,
         label: str | Style = "",
+        width: int = 0,
         fill: str = "=>.",
-        cols: list[Any] | None = None,
         style: list[Style] | None = None,
+        cols: list[Any] | None = None,
         stop_on_complete: bool = True,
     ):
         self.pos: int = 0
         self.total: int = max(1, total)
         self.label = label
         self.fill = fill
+        self.width: int = width
         self.style: list[Style] = style or []
         self.stop_on_complete: bool = stop_on_complete
 

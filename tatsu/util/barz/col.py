@@ -10,6 +10,7 @@ __all__ = ["Col"]
 
 class Col(StrEnum):
     label = auto()
+    padding = auto()
     # Progress Counters
     pos = auto()
     total = auto()

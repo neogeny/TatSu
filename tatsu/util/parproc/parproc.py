@@ -15,11 +15,11 @@ from pickle import PickleError, PicklingError
 from threading import Event
 from typing import Any, NamedTuple, Protocol
 
-from .. import identity, memory_use
-from ..barz import BarRow, Multi
+from .. import debugging, identity, memory_use
+from ..barz import BarRow, Col, Multi
 from ..log import iso_logpath, logctx, startscript
 from .result import Result
-from .summary import show_summary
+from .summary import show_result, show_summary
 
 
 __all__ = [
@@ -171,7 +171,7 @@ def taskproc(task: Task) -> Result:
         elapsed = time.thread_time() - start_time
     except RuntimeError:
         raise
-    except Exception as e:
+    except (Exception, RecursionError) as e:
         result.exception = e
         if task.reraise or (
             (raises := task.payload.raises())
@@ -193,16 +193,44 @@ def parproc_visual(
     /,
     progress_in: Progress | None = None,
     *args: Any,
+    eprint: Func = debugging.eprint,
     pickable: Func = identity,
     parallel: bool = True,
     reraise: bool = False,
     summary: bool = True,
+    verbose: bool = True,
     max_workers: int | None = None,
+    usecolor: bool = True,
     **kwargs: Any,
 ) -> Generator[Result, None, None]:
+    from ..ztyle import Color
+
     # NOTE resolve iterator now because we know that processing will do it anyway
     payloads_in = list(payloads_in)
-    progress: Progress = progress_in  # type: ignore # pyright: ignore[reportAssignmentType]
+    total = len(payloads_in)
+
+    style = Color(usecolor).style()
+    f = style.green()
+
+    b = style.black().bold()
+
+    multi = None
+    if progress_in is not None:
+        progress: Progress = progress_in  # type: ignore # pyright: ignore[reportAssignmentType]
+    else:
+        progress = BarRow(
+            total=total,
+            fill="---",
+            style=[f, f, b],
+            cols=[Col.bar, Col.padding, Col.label],
+            width=47,
+        )
+        multi = Multi([], out=sys.stderr)
+        eprint = multi.print
+
+        multi.add_row(progress)
+        progress.start()
+        multi.start()
 
     # HACK backwards compatibility
     is_legacy = all(isinstance(p, str) for p in payloads_in)
@@ -218,16 +246,6 @@ def parproc_visual(
         prefix = startscript().replace('.', '_')
         logpath = iso_logpath(prefix=prefix)
 
-    total = len(filenames)
-
-    multi = None
-    if progress_in is None:
-        bar = BarRow(total=total)
-        progress = bar
-        if threading.current_thread() is threading.main_thread():
-            multi = Multi([bar], out=sys.stderr)
-            multi.start()
-
     start_time = time.time()
     results = parproc(
         func,
@@ -239,35 +257,50 @@ def parproc_visual(
         max_workers=max_workers,
         **kwargs,
     )
-    count = 0
-    collected: list[Result] = []
 
-    for result in results:
-        if result is None:
-            continue
-        count += 1
-        progress.update(count, total)
+    def process_results(results: Iterable[Result]) -> Iterable[Result]:
+        count = 0
+        for result in results:
+            if result is None:
+                continue
 
-        if result.exception:
-            with logctx(logpath) as log:
-                print('ERROR:', result.payload, file=log)
-                print(result.exception, file=log)
-            if reraise:
-                raise result.exception
+            count += 1
+            path = result.payload.path
+            progress.update(count, total, label=path.name)
+            if verbose:
+                show_result(eprint, result)
 
-        if is_legacy:
-            result.payload = result.payload.path
-        collected.append(result)
-        yield result
+            if result is None:
+                continue
 
-    progress.update(total, total)
-    progress.stop()
+            if result.exception:
+                with logctx(logpath) as log:
+                    print('ERROR:', result.payload, file=log)
+                    print(result.exception, file=log)
+                if reraise:
+                    raise result.exception
+
+            if is_legacy:
+                result.payload = result.payload.path
+            yield result
+
+    results = process_results(results)
+    if summary or is_legacy:
+        results = list(results)
+        results = show_summary(
+            start_time,
+            results,
+            # eprint=multi.print if multi else eprint,
+            verbose=True,
+        )
+
+    if is_legacy:
+        results = list(results)
 
     if multi is not None:
         multi.stop()
 
-    if summary:
-        list(show_summary(start_time, collected, verbose=True))
+    yield from results
 
 
 # NOTE: backwards compatibility
@@ -413,4 +446,6 @@ def active_pmap() -> Callable[
 
     if HAS_MULTITHREADING_SUPPORT:
         return thread_pmap
-    return process_pmap
+
+    return thread_pmap
+    # return process_pmap

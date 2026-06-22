@@ -40,11 +40,21 @@ class BarRow(BarRowData):
     def is_stopping(self) -> bool:
         return self.state == State.STOPPING
 
-    def update(self, pos: int, total: int = -1, /, *args, **kwargs):
+    def update(
+        self,
+        pos: int,
+        total: int = -1,
+        /,
+        label: str = "",
+        *args,
+        **kwargs,
+    ):
         """Write-only operation from the user's side."""
         if total > 0:
             self.total = total
         self.pos = max(0, min(pos, self.total))
+        if label:
+            self.label = label
 
     def render(self, m: Metrics) -> list[Any]:
         return [m.resolve(c) if isinstance(c, Col) else c for c in self.cols]

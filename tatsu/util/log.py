@@ -44,4 +44,4 @@ def logctx(logpath: Path | None) -> Generator[io.TextIOBase, None, None]:
         with logpath.open(mode="a", encoding="utf-8") as logfile:
             yield logfile
     else:
-        yield sys.stderr
+        yield sys.stderr  # type: ignore[return-value]
