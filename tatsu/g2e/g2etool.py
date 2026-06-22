@@ -2,13 +2,17 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import argparse
 import sys
 from importlib import resources
 from pathlib import Path
 
 from .. import compile, peg as g
-from ..util import cast, startscript
+from ..util import cast
 from .semantics import ANTLRSemantics
+
+
+__all__ = ['translate', 'add_argparse_options', 'main']
 
 
 def antlr_grammar() -> str:
@@ -50,34 +54,54 @@ def translate(
     return cast(g.Grammar, model)
 
 
-def main():
-    argv = [a for a in sys.argv[1:] if not a.startswith('-') and not a.isdigit()]
-    if not argv:
-        thisprog = startscript()
-        print(thisprog)
-        print('Usage:')
-        print(f'\t{thisprog} FILENAME.g [--trace] [--recursion-limit N]')
-        sys.exit(1)
-    filename = argv[0]
-    trace = '--trace' in sys.argv or '-t' in sys.argv
-    recursion_limit = _parse_recursion_limit(sys.argv)
+def add_g2e_cmd(subparsers) -> argparse.ArgumentParser:
+    g2e_parser = subparsers.add_parser(
+        "g2e",
+        help="Translate ANTLR grammars to TatSu",
+    )
+    add_argparse_options(g2e_parser)
+    return g2e_parser
+
+
+def add_argparse_options(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "filename",
+        type=Path,
+        help="ANTLR grammar file to translate",
+    )
+    parser.add_argument(
+        "-t",
+        "--trace",
+        action="store_true",
+        help="Produce verbose parsing output",
+    )
+    parser.add_argument(
+        "--recursion-limit",
+        type=int,
+        default=None,
+        help="Set the Python recursion limit",
+    )
+
+
+def g2e_cmd(parser: argparse.ArgumentParser) -> int:
+    args = parser.parse_args()
+
     model = translate(
-        filename=filename,
-        trace=trace,
-        recursion_limit=recursion_limit,
+        filename=str(args.filename),
+        trace=args.trace,
+        recursion_limit=args.recursion_limit,
     )
     print(model.pretty())
+    return 0
 
 
-def _parse_recursion_limit(argv: list[str]) -> int | None:
-    try:
-        idx = argv.index('--recursion-limit')
-        if idx + 1 < len(argv):
-            return int(argv[idx + 1])
-    except (ValueError, IndexError):
-        pass
-    return None
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Translate ANTLR grammars to TatSu",
+    )
+    add_argparse_options(parser)
+    return g2e_cmd(parser)
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

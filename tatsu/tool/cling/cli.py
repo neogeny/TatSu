@@ -11,12 +11,15 @@ from argparse import ArgumentParser
 
 from tatsu import __toolname__, __version__
 
+from ... import g2e
 from ...exceptions import ParseError
+from .. import bench, ideps
 from .boot_cmd import add_boot_cmd, boot_cmd
 from .cfg import CLIConfig, CLIError
 from .global_opt import add_global_options
 from .grammar_cmd import add_grammar_cmd, grammar_cmd
 from .out import output_results
+from .run_cmd import run_cmd
 from .run_opt import add_run_cmd
 
 
@@ -55,7 +58,9 @@ def create_argument_parser() -> ArgumentParser:
     _boot_cmd = add_boot_cmd(sub)
     _grammar_cmd = add_grammar_cmd(sub)
     _run_cmd = add_run_cmd(sub)
-
+    _g2e_cmd = g2e.add_g2e_cmd(sub)
+    _bench_cmd = bench.add_bench_cmd(sub)
+    _ideps_cmd = ideps.add_ideps_cmd(sub)
     return parser
 
 
@@ -76,7 +81,7 @@ def run_cling_cli(parser: argparse.ArgumentParser) -> CLIConfig:
     return cfg
 
 
-def cling_main() -> None:
+def cling_main() -> int:  # noqa: PLR0911
     """Entry point for the cling CLI (not wired to console_scripts yet)."""
 
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -89,30 +94,35 @@ def cling_main() -> None:
 
             for style in sorted(get_all_styles()):
                 print(style)
-            return
+            return 0
         match cfg.command:
             case "boot":
                 results = boot_cmd(cfg)
             case "grammar":
                 results = grammar_cmd(cfg)
             case "run":
-                from .run_cmd import run_cmd
-
                 results = run_cmd(cfg)
+            case "bench":
+                return bench.bench_cmd(parser)
+            case "g2e":
+                return g2e.g2e_cmd(parser)
+            case "ideps":
+                return ideps.ideps_cmd(parser)
             case _:
                 parser.print_usage()
-                return
+                return 1
         output_results(cfg, results)
+        return 0
 
     except CLIError as e:
         print(e, file=sys.stderr)
-        sys.exit(1)
+        return 1
     except ParseError:
-        sys.exit(1)
+        return 1
     except BrokenPipeError:
-        sys.exit(signal.SIGPIPE + signal.SIG_DFL)
+        return signal.SIGPIPE + signal.SIG_DFL
     except KeyboardInterrupt:
-        sys.exit(0)
+        return 0
 
 
 def add_help_cmd(subparsers):

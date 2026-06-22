@@ -5,8 +5,10 @@ from __future__ import annotations
 import time
 import uuid
 from enum import IntEnum, auto
+from typing import Any
 
 from ..ztyle import Style
+from .col import Col
 
 
 __all__ = ["State", "BarRowData", "bar_time_ns"]

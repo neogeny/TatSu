@@ -2,6 +2,15 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+
+"""
+col.py ──→ rowdata.py ──→ metrics.py
+              ↑                │
+              └── row.py ←─────┘
+                     │
+              multi.py, main.py
+"""
+
 from .bar import Bar
 from .col import Col
 from .main import main

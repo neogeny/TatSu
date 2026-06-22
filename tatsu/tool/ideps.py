@@ -2,11 +2,12 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import argparse
 import ast
 import sys
 from itertools import starmap
 from pathlib import Path
-from typing import Any, NamedTuple
+from typing import NamedTuple
 
 from ..util.moduletools import pathtomodulename
 from ..util.treez import Tree
@@ -247,39 +248,43 @@ def render(results: list[ModuleImports]) -> Tree:
     return root
 
 
-def parse_options(args: list[str]) -> tuple[list[str], dict[str, Any]]:
-    options: dict[str, Any] = {}
-    newargs = []
-    for arg in args:
-        if arg.startswith("--"):
-            key, value = arg[2:].split("=", 1)
-            options[key] = value
-        elif arg.startswith("-"):
-            options[arg[1:]] = True
-        else:
-            newargs.append(arg)
-    return newargs, options
+def add_ideps_cmd(sub) -> argparse.ArgumentParser:
+    parser = sub.add_parser(
+        "ideps",
+        help="Analyze dependencies of Python modules",
+    )
+    add_argparse_options(parser)
+    return parser
 
 
-def main(*argsp: Any) -> None:
-    args = list(argsp)
-    args, options = parse_options(args)
+def add_argparse_options(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "files",
+        nargs="*",
+        help="Python files or glob patterns to analyze (default: auto-detect program files)",
+    )
 
-    color_opt = options.get("color", "auto")
+
+def ideps_cmd(parser: argparse.ArgumentParser) -> int:
+    add_argparse_options(parser)
+    args = parser.parse_args()
+
+    color_opt = args.color
     if color_opt == "always":
         color.enable(True)
     elif color_opt == "never":
         color.enable(False)
 
     paths: list[Path] = []
-    if not args and __package__:
+    if not args.files and __package__:
         paths = programfiles()
-    elif not args:
+    elif not args.files:
         prog = f"python {Path(__file__).name}"
-        print(f"usage:\n   {prog} [--color] FILENAME_OR_GLOB...")
+        parser.print_usage()
+        print(f"{prog}: error: no files specified and no program package detected")
         raise SystemExit(1)
 
-    for arg in args:
+    for arg in args.files:
         if any(c in arg for c in "*?[]"):
             expanded = Path().glob(arg)
             paths.extend(Path(p) for p in expanded if Path(p).is_file())
@@ -295,7 +300,22 @@ def main(*argsp: Any) -> None:
     results = findeps(paths)
     tree = render(results)
     print(tree)
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Analyze and display Python module dependencies"
+    )
+    parser.add_argument(
+        "-c",
+        "--color",
+        choices=["auto", "always", "never"],
+        default="auto",
+        help="Control colorized output (default: auto)",
+    )
+    return ideps_cmd(parser)
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:])
+    sys.exit(main())

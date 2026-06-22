@@ -443,9 +443,7 @@ def benchmark(
         sys.setrecursionlimit(oldlimit)
 
 
-def main():
-    parser = argparse.ArgumentParser(description="benchmark tatsu parsing methods")
-    # mode = parser.add_mutually_exclusive_group()
+def add_argparse_options(parser: argparse.ArgumentParser) -> None:
     mode_group = parser
     mode_group.add_argument(
         '--all',
@@ -489,12 +487,26 @@ def main():
         nargs='+',
         help="path to one or more input text files",
     )
+
+
+def add_bench_cmd(sub) -> argparse.ArgumentParser:
+    parser = sub.add_parser(
+        "bench",
+        help="Run benchmarks using known parser implementations",
+    )
+    add_argparse_options(parser)
+    return parser
+
+
+def bench_cmd(parser: argparse.ArgumentParser) -> int:
+    add_argparse_options(parser)
+    # mode = parser.add_mutually_exclusive_group()
     args = parser.parse_args()
 
     for p in [args.grammar, *args.inputs]:
         if not p.exists():
             print(f"error: file '{p}' not found.")
-            sys.exit(1)
+            return 1
     mode = set()
     if args.mem or args.both or args.all:
         mode |= {'mem'}
@@ -508,12 +520,12 @@ def main():
     if {'tiexiu'} in mode and not have_tiexiu:
         print("warning: tiexiu not found, skipping tiexiu benchmark.")
         if args.mode == 'tiexiu':
-            sys.exit(1)
+            return 1
 
     if 'ogo' in mode and not have_ogopego:
         print("warning: ogopego not found, skipping ogopego benchmark.")
         if args.mode == 'ogo':
-            sys.exit(1)
+            return 1
 
     try:
         grammar_path = args.grammar.resolve()
@@ -536,6 +548,13 @@ def main():
         print(f"\nan error occurred: {e}", file=sys.stderr)
         raise
 
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="benchmark tatsu parsing methods")
+    return bench_cmd(parser)
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
