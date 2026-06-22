@@ -2,13 +2,12 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import datetime as dt
 import time
-from enum import IntEnum, StrEnum, auto
+from enum import IntEnum, auto
 from typing import Any
 
 from ..ztyle import Style
-from .bar import Bar
+from .metrics import Col, Metrics
 
 
 __all__ = ["BarRow", "Col"]
@@ -18,27 +17,6 @@ def bar_time_ns() -> int:
     # WARNING Time is a crucial concept when dealing with concurrency
     # WARNING and wanting to calculate elapsed time accurately.
     return time.clock_gettime_ns(time.CLOCK_REALTIME)
-
-
-class Col(StrEnum):
-    label = auto()
-    # Progress Counters
-    pos = auto()
-    total = auto()
-    percentage = auto()
-    pct = auto()
-    # Timings & Durations
-    elapsed = auto()
-    rt = auto()  # Run Time (as timedelta object)
-    eta = auto()  # Estimated Time Remaining (as timedelta object)
-    eta_s = auto()  # Raw ETA seconds
-    # Time components for custom string building
-    h = auto()
-    m = auto()
-    s = auto()
-    ms = auto()
-    # Core components
-    bar = auto()
 
 
 class State(IntEnum):
@@ -90,6 +68,9 @@ class BarRow:
         else:
             self.state = State.STOPPED
 
+    def is_new(self) -> bool:
+        return self.state == State.NEW
+
     def is_active(self) -> bool:
         return self.has_started() and not self.is_stopped()
 
@@ -108,47 +89,8 @@ class BarRow:
             self.total = total
         self.pos = max(0, min(pos, self.total))
 
-    def metrics(self) -> dict[Col, Any]:
-        elapsed = max(0, bar_time_ns() - self.start_time)
-        total_ms = elapsed // 10**6
-        ms = total_ms % 1000
-        seconds = (total_ms // 1000) % 60
-        minutes = (seconds // 60) % 60
-        hours, minutes = divmod(minutes, 60)
-        duration = dt.timedelta(seconds=elapsed * 10e-9)
-
-        pct = self.pos / self.total if self.total else 0.0
-        percentage = 100 * pct
-        total_est = elapsed / pct if pct else 0.0
-        eta_seconds = max(0.0, total_est - elapsed) if total_est else 0.0
-        eta_duration = dt.timedelta(seconds=eta_seconds)
-
-        bar = Bar(fill=self.fill, style=self.style)
-        bar.update(self.pos, self.total)
-
-        return {
-            Col.bar: bar,
-            Col.label: self.label,
-            # Progress Counters
-            Col.pos: self.pos,
-            Col.total: self.total,
-            Col.percentage: percentage,
-            Col.pct: pct,
-            # Timings & Durations
-            Col.elapsed: elapsed,
-            Col.rt: duration,  # Run Time (as timedelta object)
-            Col.eta: eta_duration,  # Estimated Time Remaining (as timedelta object)
-            Col.eta_s: eta_seconds,  # Raw ETA seconds
-            # Time components for custom string building
-            Col.h: hours,
-            Col.m: minutes,
-            Col.s: seconds,
-            Col.ms: ms,
-        }
-
-    def render(self, metrics: dict[Col, Any]) -> list[Any]:
-        cols = self.cols
-        return [metrics[c] if isinstance(c, Col) else c for c in cols]
+    def render(self, m: Metrics) -> list[Any]:
+        return [getattr(m, c.value) if isinstance(c, Col) else c for c in self.cols]
 
     def _call_render(self) -> list[Any]:
         if self.is_stopping() or (self.stop_on_complete and self.pos >= self.total):
@@ -157,4 +99,4 @@ class BarRow:
         if self.is_stopped():
             return []
 
-        return self.render(self.metrics())
+        return self.render(Metrics(self))

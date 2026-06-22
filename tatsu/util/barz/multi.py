@@ -7,11 +7,11 @@ import shutil
 import sys
 import threading
 import time
-from typing import TextIO
+from typing import Any, TextIO
 
 from ..debugging import prints
 from ..ztyle import visual_len as vlen
-from .row import BarRow
+from .row import BarRow, Metrics
 
 
 class MessageRow(BarRow):
@@ -111,11 +111,20 @@ class Multi:
             self.rows = [r for r in self.rows if r.is_active()]
             return [copy.deepcopy(r) for r in self.rows]
 
+    def _call_render(self, bar: BarRow) -> list[Any]:
+        if bar.is_stopping() or (bar.stop_on_complete and bar.pos >= bar.total):
+            bar.stop()
+
+        if bar.is_stopped():
+            return []
+
+        return bar.render(Metrics(bar))
+
     def render_rows(self, *, final: bool = False) -> None:
         snapshot: list[BarRow] = self._take_snapshot()
         if not snapshot:
             return
-        lines = [b._call_render() for b in snapshot]
+        lines = [self._call_render(b) for b in snapshot]
         maxw = shutil.get_terminal_size().columns - 1
 
         colwidth: list[list[int]] = [[0] * len(line) for line in lines]

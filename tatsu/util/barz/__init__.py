@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from .bar import Bar
 from .main import main
+from .metrics import Col, Metrics
 from .multi import Multi
-from .row import BarRow, Col
+from .row import BarRow
 
 
 __all__ = [
@@ -14,4 +15,5 @@ __all__ = [
     "Col",
     "main",
     "Multi",
+    "Metrics",
 ]

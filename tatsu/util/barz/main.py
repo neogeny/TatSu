@@ -10,7 +10,7 @@ from typing import Any
 from ..ztyle import Color, Style  # noqa: F401
 from .bar import Bar
 from .multi import Multi
-from .row import BarRow, Col
+from .row import BarRow, Metrics
 
 
 def main() -> None:
@@ -18,20 +18,19 @@ def main() -> None:
     c = Color(True)
 
     class StyleRow(BarRow):
-        def render(self, metrics: dict[Col, Any]) -> list[Any]:
+        def render(self, m: Metrics) -> list[Any]:
             s = Style()
-            m = metrics
             bar = Bar(
                 fill="=>`",
                 style=[s.green(), s.green(), s.white().dim()],
             )
-            bar.update(m[Col.pos], m[Col.total])
+            bar.update(m.pos, m.total)
             return [
-                f"{s(m[Col.label], fmt=">20s")} ",
+                f"{s(str(m.label), fmt=">20s")} ",
                 bar,
-                f"{100 * m[Col.pct]:3.0f}% ",
-                # f"{m[Col.elapsed]:4.1f}s",
-                f"{m[Col.m]:02d}:{m[Col.s]:02d}.{m[Col.ms]:03d}",
+                f"{m.percentage:3.0f}% ",
+                # f"{m.elapsed / 1_000_000_000:4.1f}s",
+                f"{m.m:02d}:{m.s:02d}.{m.ms:03d}",
             ]
 
     s = c.style()
@@ -41,7 +40,7 @@ def main() -> None:
 
     overall = BarRow(
         label="overall: ",
-        fill="--_",
+        fill="---",
         style=[green, green, s.dim()],
     )
     bars: list[BarRow] = [
