@@ -61,7 +61,7 @@ class BarRowData:
         elif label:
             self.cols = [Col.label, Col.bar]
         else:
-            self.cols = [Col.label, Col.bar]
+            self.cols = [Col.bar]
 
         self.start_time: int = 0
         self.state: State = State.NEW
