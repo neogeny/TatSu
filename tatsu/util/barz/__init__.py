@@ -1,8 +1,5 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
-from __future__ import annotations
-
-
 """
 col.py ──→ rowdata.py ──→ metrics.py
               ↑                │
@@ -10,6 +7,8 @@ col.py ──→ rowdata.py ──→ metrics.py
                      │
               multi.py, main.py
 """
+
+from __future__ import annotations
 
 from .bar import Bar
 from .col import Col
