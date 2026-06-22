@@ -90,7 +90,7 @@ class BarRow:
         self.pos = max(0, min(pos, self.total))
 
     def render(self, m: Metrics) -> list[Any]:
-        return [getattr(m, c.value) if isinstance(c, Col) else c for c in self.cols]
+        return [m.resolve(c) if isinstance(c, Col) else c for c in self.cols]
 
     def _call_render(self) -> list[Any]:
         if self.is_stopping() or (self.stop_on_complete and self.pos >= self.total):
