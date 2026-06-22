@@ -127,8 +127,7 @@ class Multi:
 
     def _take_snapshot(self) -> list[BarRow]:
         with self.lock:
-            self.rows = [r for r in self.rows if r.is_active()]
-            return [copy.deepcopy(r) for r in self.rows]
+            return [copy.copy(r) for r in self.rows if not r.is_stopped()]
 
     def render_rows(self, *, final: bool = False) -> None:
         snapshot: list[BarRow] = self._take_snapshot()
@@ -148,9 +147,10 @@ class Multi:
             screenshot += blankpad(c)
 
         self.out.write(screenshot)
-        self.out.flush()
-        self.out.write(pushup(h + c))
         self.height = max(h, self.height)
+        if not final:
+            self.out.write(pushup(self.height))
+        self.out.flush()
 
     def line_shot(self, line: list[Any], cw: list[int]) -> str:
         return ''.join(f"{col:{w}}" for col, w in zip(line, cw))

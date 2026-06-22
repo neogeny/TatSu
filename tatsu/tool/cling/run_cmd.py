@@ -136,6 +136,7 @@ def run_with_progress(
                 idx=idx,
             )
         )
+        fh.start()
 
     if not cfg.quiet or cfg.summary:
         multi.start()
@@ -149,12 +150,13 @@ def run_with_progress(
             parallel=True,
             reraise=False,
             # WARNING We can't pass an eprint function if multiproc is chosen
-            # eprint=multi.print,
+            eprint=multi.print,
             # WARNING we do the summary in-process
             summary=False,
+            verbose=False,
             max_workers=cfg.nproc,
         )
-        if cfg.summary or not cfg.quiet:
+        if cfg.summary or cfg.verbose or not cfg.quiet:
             results = show_summary(
                 start_time,
                 results,

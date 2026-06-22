@@ -446,6 +446,5 @@ def active_pmap() -> Callable[
 
     if HAS_MULTITHREADING_SUPPORT:
         return thread_pmap
-
     return thread_pmap
     # return process_pmap
