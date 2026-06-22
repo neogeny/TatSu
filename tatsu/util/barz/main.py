@@ -14,7 +14,7 @@ from .row import BarRow, Col
 
 
 def main() -> None:
-    """Visual test — run with ``python -m tatsu.util.bars``."""
+    """Visual test — run with ``python -m tatsu.util.barz``."""
     c = Color(True)
 
     class StyleRow(BarRow):

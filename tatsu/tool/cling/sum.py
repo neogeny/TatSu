@@ -201,10 +201,10 @@ def show_results(
         nm = slicetowidth(Path(r.payload.path).name, 40)
         if r.exception or isinstance(r.outcome, Exception):
             rprint(
-                f" {s.bad('✗')} {s.plain(f'{nm}'):45}{s.bad(f'⏲ {r.runtime:>6.3f} s')}"
+                f" {s.bad('✗')} {s.plain(f'{nm}'):45}{s.bad(f'⏲ {r.runtime:>7.3f}')}"
             )
         else:
             rprint(
-                f" {s.good('✓')} {s.plain(f'{nm}'):45}{s.good(f'⏲ {r.runtime:>6.3f} s')}"
+                f" {s.good('✓')} {s.plain(f'{nm}'):45}{s.good(f'⏲ {r.runtime:>7.3f}')}"
             )
         yield r

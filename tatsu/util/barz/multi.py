@@ -50,12 +50,12 @@ class Multi:
     def add_row(self, row: BarRow) -> None:
         """Stores a row internally."""
         with self.lock:
-            self.rows.append(row)
+            self.rows = [*self.rows, row]
 
     def insert_row(self, index: int, row: BarRow) -> None:
         """Inserts a row at the given index."""
         with self.lock:
-            self.rows.insert(index, row)
+            self.rows = [*self.rows[:index], row, *self.rows[index:]]
 
     def insert_message(self, msg: str) -> None:
         """Inserts a message row at the bottom."""

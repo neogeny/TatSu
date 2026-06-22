@@ -489,7 +489,10 @@ def active_pmap() -> Callable[
                 max_workers=max_workers or multiprocessing.cpu_count(),
             )
         except (TypeError, PicklingError, PickleError):
-            yield from thread_pmap(event, process, tasks, max_workers)
+            raise
+            # yield from thread_pmap(event, process, tasks, max_workers)
+        except KeyboardInterrupt:
+            return
 
     # def interpreter_pmap(
     #     event: Event,
@@ -527,5 +530,4 @@ def active_pmap() -> Callable[
 
     if HAS_MULTITHREADING_SUPPORT:
         return thread_pmap
-    return thread_pmap
-    # return process_pmap
+    return process_pmap

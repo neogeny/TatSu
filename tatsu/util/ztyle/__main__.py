@@ -17,7 +17,7 @@ from pathlib import Path
 
 from .colormap import COLORMAP
 from .csscolormap import CSS_COLORS
-from .ztyle import Style
+from .style import Style
 
 
 def main():

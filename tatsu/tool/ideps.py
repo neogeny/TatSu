@@ -253,7 +253,6 @@ def parse_options(args: list[str]) -> tuple[list[str], dict[str, Any]]:
     for arg in args:
         if arg.startswith("--"):
             key, value = arg[2:].split("=", 1)
-            print(f"option: {key}={value}")
             options[key] = value
         elif arg.startswith("-"):
             options[arg[1:]] = True
