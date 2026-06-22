@@ -177,7 +177,7 @@ class ParserCore(Ctx):
             raise HeartDied("Heart is dead")
 
         now = time.perf_counter()
-        if (now - self.lastbeat_time) <= self.config.heart_wait:
+        if (now - self.lastbeat_time) <= (1.0 / self.config.heart_bps):
             return False
 
         if self.pos <= self.lastbeat_pos:
