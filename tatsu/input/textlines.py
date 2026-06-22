@@ -16,9 +16,8 @@ from ..util import (
 )
 from ..util.newlines import take_linebreak_len, take_non_newline_whitespace_len
 from ..util.regextools import cached_re_compile
-from . import LineInfo
 from .cursor import Cursor, Text, matchbool, matchfloat, matchint, matchname, matchuint
-from .infos import LineIndexInfo, PosLine
+from .infos import LineIndexInfo, LineInfo, PosLine
 
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')

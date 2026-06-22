@@ -10,8 +10,8 @@ import sys
 from argparse import ArgumentParser
 
 from tatsu import __toolname__, __version__
-from tatsu.exceptions import ParseError
 
+from ...exceptions import ParseError
 from .boot_cmd import add_boot_cmd, boot_cmd
 from .cfg import CLIConfig, CLIError
 from .global_opt import add_global_options

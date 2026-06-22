@@ -27,28 +27,22 @@ classifiers = [
     "Topic :: Software Development :: Compilers",
     "Topic :: Text Processing :: General",
 ]
-dependencies = [
-]
+dependencies = []
 
 [project.optional-dependencies]
 diagrams = [
     "graphviz>=0.21",
-]
-ideps = [
-    "rich>=15.0.0",
 ]
 tasks = [
     "invoke>=2.2.1",
     ]
 cling = [
     "pygments>=2.20.0",
-    "rich>=15.0.0",
 ]
 full = [
     "graphviz>=0.21",
     "invoke>=2.2.1",
     "pygments>=2.20.0",
-    "rich>=15.0.0",
 ]
 
 [dependency-groups]

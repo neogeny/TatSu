@@ -1,3 +1,6 @@
+# Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+# SPDX-License-Identifier: BSD-4-Clause
+# by Big Pickle 2026-06-21
 from __future__ import annotations
 
 
@@ -5,12 +8,15 @@ __all__ = ["Tree"]
 
 
 class Tree:
-    def __init__(self, label: str):
+    def __init__(self, label: str, children: list[Tree] | None = None):
         self.label = label
-        self.children: list[Tree] = []
+        self.children: list[Tree] = children or []
 
-    def add(self, label: str, style=None) -> Tree:
+    def add(self, label: str) -> Tree:
         child = Tree(label)
+        return self.add_child(child)
+
+    def add_child(self, child: Tree) -> Tree:
         self.children.append(child)
         return child
 
@@ -26,12 +32,12 @@ class Tree:
             sub = child.render().splitlines()
             lines.append("├── " + sub[0])
             for line in sub[1:]:
-                lines.append("│   " + line)
+                lines += ["│   " + line]
 
         child = self.children[-1]
         sub = child.render().splitlines()
         lines.append("└── " + sub[0])
         for line in sub[1:]:
-            lines.append("    " + line)
+            lines += ["    " + line]
 
         return "\n".join(lines)

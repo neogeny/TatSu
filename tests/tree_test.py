@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from tatsu.util.tree.tree import Tree
+from tatsu.util.treez import Tree
 
 
 def test_empty():
@@ -54,7 +54,7 @@ def test_str_delegates_to_render():
 
 def test_style_is_accepted():
     t = Tree("root")
-    t.add("child", style="bold red")
+    t.add("child")
     assert t.render() == "root\n└── child"
 
 

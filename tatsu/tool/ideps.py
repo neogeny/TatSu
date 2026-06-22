@@ -8,10 +8,12 @@ from itertools import starmap
 from pathlib import Path
 from typing import Any, NamedTuple
 
-from rich.console import Console
-from rich.tree import Tree
-
 from ..util.moduletools import pathtomodulename
+from ..util.treez import Tree
+from ..util.ztyle import Color, Style
+
+
+color = Color.default()
 
 
 class Dependency(NamedTuple):
@@ -27,22 +29,22 @@ class ModuleImports(NamedTuple):
 
 class DependencyNodeKind(NamedTuple):
     symbol: str | None
-    style: str
+    style: Style
     prefix: str = ""
     suffix: str = ""
     sort_rank: int = 0
 
     @classmethod
     def sibling(cls) -> DependencyNodeKind:
-        return cls("○", "cyan", "", "", 1)
+        return cls("○", color.style().cyan(), "", "", 1)
 
     @classmethod
     def internal(cls) -> DependencyNodeKind:
-        return cls("◉", "cyan", "", "", 2)
+        return cls("◉", color.style().cyan(), "", "", 2)
 
     @classmethod
     def external(cls) -> DependencyNodeKind:
-        return cls(None, "white", "⟨", "⟩", 3)
+        return cls(None, color.style().basic_white(), "⟨", "⟩", 3)
 
 
 def programfiles() -> list[Path]:
@@ -179,14 +181,15 @@ def add_dependency_node(
             display_name = f".{display_name}"
         label = f"{kind.symbol} {display_name}"
 
-    parent.add(label, style=kind.style)
+    label = str(kind.style(label))
+    parent.add(label)
 
 
 def render(results: list[ModuleImports]) -> Tree:
     """
     Renders the complete dependency tree from the analysis results.
     """
-    root = Tree("[bold green]Module Dependency Analysis[/bold green]")
+    root = Tree("Module Dependency Analysis")
     module_nodes: dict[str, Tree] = {}
     analyzed_module_names = {m.name for m in results}
     internal_roots = {m.name.split(".")[0] for m in results}
@@ -199,7 +202,7 @@ def render(results: list[ModuleImports]) -> Tree:
             if path_so_far in module_nodes:
                 current = module_nodes[path_so_far]
             else:
-                new_node = current.add(part, style="cyan")
+                new_node = current.add(str(color.style().cyan()(part)))
                 module_nodes[path_so_far] = new_node
                 current = new_node
 
@@ -244,13 +247,30 @@ def render(results: list[ModuleImports]) -> Tree:
     return root
 
 
+def parse_options(args: list[str]) -> tuple[list[str], dict[str, Any]]:
+    options: dict[str, Any] = {}
+    newargs = []
+    for arg in args:
+        if arg.startswith("--"):
+            key, value = arg[2:].split("=", 1)
+            print(f"option: {key}={value}")
+            options[key] = value
+        elif arg.startswith("-"):
+            options[arg[1:]] = True
+        else:
+            newargs.append(arg)
+    return newargs, options
+
+
 def main(*argsp: Any) -> None:
     args = list(argsp)
-    force_color = "--color" in args
-    if force_color:
-        args.remove("--color")
+    args, options = parse_options(args)
 
-    console = Console(force_terminal=force_color or None)
+    color_opt = options.get("color", "auto")
+    if color_opt == "always":
+        color.enable(True)
+    elif color_opt == "never":
+        color.enable(False)
 
     paths: list[Path] = []
     if not args and __package__:
@@ -275,7 +295,7 @@ def main(*argsp: Any) -> None:
 
     results = findeps(paths)
     tree = render(results)
-    console.print(tree)
+    print(tree)
 
 
 if __name__ == "__main__":
