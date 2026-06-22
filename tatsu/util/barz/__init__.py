@@ -6,6 +6,8 @@ col.py ──→ metrics.py
   └─── row.py ┘
          │
   multi.py, main.py
+
+Progress bars with terminal animation, multi-bar support, and color styling.
 """
 
 from __future__ import annotations

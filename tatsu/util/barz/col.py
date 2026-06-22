@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from enum import StrEnum, auto
 
+"""Column identifiers for bar layouts (label, counters, timings)."""
+
 
 __all__ = ["Col"]
 

@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+"""Progress bar row with lifecycle (NEW→RUNNING→STOPPED) and rendering."""
+
 from enum import IntEnum, auto
 from typing import Any
 

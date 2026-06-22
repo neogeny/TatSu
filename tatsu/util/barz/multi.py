@@ -2,6 +2,9 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+
+"""Multi-bar display manager with a background rendering thread."""
+
 import copy
 import multiprocessing
 import shutil
