@@ -4,21 +4,31 @@ from __future__ import annotations
 
 import datetime as dt
 from functools import cached_property
-from typing import Any
+from typing import Any, Protocol
 
+from .. import clock_time_ns
 from ..ztyle import Style
 from .bar import Bar
 from .col import Col
-from .rowdata import BarRowData, bar_time_ns
 
 
-__all__ = ["Metrics"]
+__all__ = ["BarRowProtocol", "Metrics"]
+
+
+class BarRowProtocol(Protocol):
+    label: str | Style
+    pos: int
+    total: int
+    fill: str
+    style: list[Style]
+    width: int
+    start_time: int
 
 
 class Metrics:
     """Lazy, cached metrics for a BarRow. Create fresh per render cycle."""
 
-    def __init__(self, row: BarRowData) -> None:
+    def __init__(self, row: BarRowProtocol) -> None:
         self.row = row
 
     def resolve(self, col: Col) -> Any:
@@ -59,7 +69,7 @@ class Metrics:
     # -- computed, cached lazily --
     @cached_property
     def elapsed(self) -> int:
-        return max(0, bar_time_ns() - self.start_time)
+        return max(0, clock_time_ns() - self.start_time)
 
     @cached_property
     def rt(self) -> dt.timedelta:

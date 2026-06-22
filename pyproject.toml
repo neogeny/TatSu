@@ -280,6 +280,7 @@ ignore = [
     "FURB145",  # Prefer `copy` method over slicing"
     "FURB152", # 3.14 disallowed
     "FURB189", #  subclassing str
+    "FURB140", # Use `itertools.starmap` instead of the generator
     "PERF203", #  try-except within loop
     "PGH003",
     "PLR0914", # Too many local variables (17/15)

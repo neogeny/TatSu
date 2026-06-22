@@ -247,7 +247,7 @@ def parproc_visual(
         logpath = iso_logpath(prefix=prefix)
 
     start_time = time.time()
-    results = parproc(
+    results: Iterable[Result] = parproc(
         func,
         payloads,
         *args,
@@ -258,7 +258,7 @@ def parproc_visual(
         **kwargs,
     )
 
-    def process_results(results: Iterable[Result]) -> Iterable[Result]:
+    def process_results(results: Iterable[Result]) -> Generator[Result]:
         count = 0
         for result in results:
             if result is None:

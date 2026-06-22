@@ -2,22 +2,72 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from enum import IntEnum, auto
 from typing import Any
 
+from .. import clock_time_ns
+from ..misc import new_uuid_hex
+from ..ztyle import Style
 from .col import Col
 from .metrics import Metrics
-from .rowdata import BarRowData, State, bar_time_ns
 
 
-__all__ = ["BarRow"]
+__all__ = ["BarRow", "State"]
 
 
-class BarRow(BarRowData):
+class State(IntEnum):
+    NEW = auto()
+    RUNNING = auto()
+    STOPPING = auto()
+    STOPPED = auto()
+
+
+class BarRow:
     """A lightweight, fully picklable data object given to the user."""
+
+    def __new__(cls, *args, **kwargs):
+        new = super().__new__(cls)
+        new._uuid = new_uuid_hex()  # type: ignore
+        return new
+
+    @property
+    def uuid(self) -> str:
+        return self._uuid  # type: ignore
+
+    def __init__(
+        self,
+        *,
+        pos: int = 0,
+        total: int = -1,
+        label: str | Style = "",
+        width: int = 0,
+        fill: str = "=>.",
+        style: list[Style] | None = None,
+        cols: list[Any] | None = None,
+        stop_on_complete: bool = True,
+    ):
+        self.pos: int = 0
+        self.total: int = max(1, total)
+        self.label = label
+        self.width: int = width
+        self.fill = fill
+        self.style: list[Style] = style or []
+        self.stop_on_complete: bool = stop_on_complete
+
+        self.cols: list[Any] = []
+        if cols is not None:
+            self.cols = cols
+        elif label:
+            self.cols = [Col.label, Col.bar]
+        else:
+            self.cols = [Col.bar]
+
+        self.start_time: int = 0
+        self.state: State = State.NEW
 
     def start(self) -> None:
         self.state = State.RUNNING
-        self.start_time = bar_time_ns()
+        self.start_time = clock_time_ns()
 
     def stop(self) -> None:
         if self.state == State.NEW:

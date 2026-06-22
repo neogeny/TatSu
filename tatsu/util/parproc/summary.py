@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from .. import countlines, debugging, slicetowidth
-from ..ztyle import Color, Style
+from ..ztyle import Color
 from .result import Result
 
 
