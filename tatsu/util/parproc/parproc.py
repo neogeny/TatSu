@@ -320,7 +320,6 @@ def active_pmap() -> Callable[
     from concurrent.futures import (
         Executor,
         # NOTE from Python 3.14 onwards
-        # InterpreterPoolExecutor,
         ProcessPoolExecutor,
         ThreadPoolExecutor,
         as_completed,
@@ -392,22 +391,25 @@ def active_pmap() -> Callable[
         except KeyboardInterrupt:
             return
 
-    # def interpreter_pmap(
-    #     event: Event,
-    #     process: Func,
-    #     tasks: Iterable[Any],
-    #     max_workers: int | None = None,
-    # ) -> Iterable[Result]:
-    #     try:
-    #         yield from executor_pmap(
-    #             InterpreterPoolExecutor,
-    #             event,
-    #             process,
-    #             tasks,
-    #             max_workers=max_workers or multiprocessing.cpu_count(),
-    #         )
-    #     except (TypeError, PicklingError, PickleError):
-    #         yield from thread_pmap(event, process, tasks, max_workers)
+    if sys.version_info >= (3, 14):
+        from concurrent.futures import InterpreterPoolExecutor
+
+        def interpreter_pmap(
+            event: Event,
+            process: Func,
+            tasks: Iterable[Any],
+            max_workers: int | None = None,
+        ) -> Iterable[Result]:
+            try:
+                yield from executor_pmap(
+                    InterpreterPoolExecutor,
+                    event,
+                    process,
+                    tasks,
+                    max_workers=max_workers or multiprocessing.cpu_count(),
+                )
+            except (TypeError, PicklingError, PickleError):
+                yield from thread_pmap(event, process, tasks, max_workers)
 
     def imap_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[Result]:
         tasks = list(tasks)

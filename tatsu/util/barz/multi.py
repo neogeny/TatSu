@@ -3,15 +3,30 @@
 from __future__ import annotations
 
 import copy
+import multiprocessing
 import shutil
 import sys
 import threading
 import time
-from typing import TextIO
+from typing import Any, TextIO
 
 from ..debugging import prints
 from ..ztyle import visual_len as vlen
+from .escapes import (
+    blankpad,
+    clearlines,
+    hide_cursor,
+    pushup,
+    show_cursor,
+)
 from .row import BarRow
+
+
+MAXW = shutil.get_terminal_size().columns - 1
+MAXL = shutil.get_terminal_size().lines - 1
+
+
+_screen_lock = multiprocessing.Lock()
 
 
 class MessageRow(BarRow):
@@ -37,7 +52,7 @@ class Multi:
         fps: int = 60,
         out: TextIO = sys.stderr,
     ):
-        self.lock = threading.RLock()
+        self.lock = threading.Lock()
         self.rows = rows
         self.alive = False
         self.worker = None
@@ -94,7 +109,7 @@ class Multi:
 
     def _render_loop(self):
         """The isolated thread handler. Read-only side."""
-        self.out.write(_hide_cursor())  # Hide cursor
+        self.out.write(hide_cursor())  # Hide cursor
         self.out.write("\n")  # Hide cursor
         self.out.flush()
         try:
@@ -102,7 +117,7 @@ class Multi:
                 self.render_rows()
                 time.sleep(1 / self.fps)
         finally:
-            self.out.write(_show_cursor())  # Show cursor
+            self.out.write(show_cursor())  # Show cursor
             self.out.flush()
         self.render_rows(final=True)
 
@@ -113,78 +128,53 @@ class Multi:
 
     def render_rows(self, *, final: bool = False) -> None:
         snapshot: list[BarRow] = self._take_snapshot()
-        if not snapshot:
-            return
-        lines = [b._call_render() for b in snapshot]
-        maxw = shutil.get_terminal_size().columns - 1
+        lines: list[list[Any]] = [b._call_render() for b in snapshot]
 
-        colwidth: list[list[int]] = [[0] * len(line) for line in lines]
+        colwidth = [self.line_col_widths(line, MAXW) for line in lines]
         assert len(colwidth) == len(lines)
 
-        for i, line in enumerate(lines):
-            fill: set[int] = set()
-            cw = colwidth[i]
-            for j, col in enumerate(line):
-                match col:
-                    case str() as s:
-                        cw[j] = vlen(s)
-                    case _:
-                        w = len(col)
-                        if w <= 0:
-                            fill.add(j)
-                        else:
-                            cw[j] = w
-
-            budget = max(0, maxw - sum(cw))
-            while fill and budget > 0:
-                count = len(fill)
-                w = round(((1 / count) + budget) / count)
-                budget -= w
-                j = fill.pop()
-                cw[j] = w
-
         screenshot_lines: list[str] = [
-            ''.join(f"{col:{w}}" for col, w in zip(line, cw))
-            for line, cw in zip(lines, colwidth)
-        ]
+            self.line_shot(line, cw) for line, cw in zip(lines, colwidth)
+        ][-MAXL:]
+        screenshot: str = clearlines(screenshot_lines)
 
         h = len(screenshot_lines)
-        c = self.height - h
-        screenshot: str = _clearlines(screenshot_lines)
-        if not final:
-            screenshot += _blankpad(c)
+        c = max(0, self.height - h)
+        if c and not final:
+            screenshot += blankpad(c)
 
-        self.out.write(_pushup(self.height))
-        self.out.write(screenshot)
-        self.out.flush()
+        with _screen_lock:
+            self.out.write(pushup(self.height))
+            self.out.write(screenshot)
+            self.out.flush()
         self.height = max(h, self.height)
 
+    def line_shot(self, line: list[Any], cw: list[int]) -> str:
+        return ''.join(f"{col:{w}}" for col, w in zip(line, cw))
 
-def _hide_cursor() -> str:
-    """Returns an escape sequence that hides the cursor."""
-    return "\033[?25l"
+    def line_col_widths(self, line: list[Any], maxw: int) -> list[int]:
+        def colwidth(col: Any) -> int:
+            match col:
+                case str() as s:
+                    return vlen(s)
+                case _:
+                    return len(col)
 
+        cw = [0] * len(line)
+        fill: set[int] = set()
+        for j, col in enumerate(line):
+            w = colwidth(col)
+            if w <= 0:
+                fill.add(j)
+            else:
+                cw[j] = w
 
-def _show_cursor() -> str:
-    """Returns an escape sequence that shows the cursor."""
-    return "\033[?25h"
+        budget = max(0, maxw - sum(cw))
+        while fill and budget > 0:
+            count = len(fill)
+            w = round(((1 / count) + budget) / count)
+            budget -= w
+            j = fill.pop()
+            cw[j] = w
 
-
-def _clearline(text: str = "") -> str:
-    """Returns the text prefixed with a clear-to-end-of-line escape sequence."""
-    return f"\033[K{text}\n"
-
-
-def _clearlines(texts: list[str]) -> str:
-    """Returns a block of clear-to-end-of-line escape sequences for each line."""
-    return "".join(_clearline(t) for t in texts)
-
-
-def _pushup(lines: int) -> str:
-    """Returns an escape sequence that moves the cursor up a given number of lines."""
-    return f"\033[{lines}A"
-
-
-def _blankpad(count: int) -> str:
-    """Generates a block of empty, cleared lines to wipe out stale terminal trailing rows."""
-    return "\033[K\n" * count
+        return cw
