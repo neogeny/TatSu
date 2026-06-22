@@ -10,6 +10,7 @@ from typing import Any
 
 from .. import countlines, debugging, slicetowidth
 from ..ztyle import Color
+from .result import Result
 
 
 type PrintFunc = Callable[..., None]
@@ -77,6 +78,7 @@ def result_stats(stats: ParseStats, results: Iterable[Result]) -> Iterable[Resul
         p = r.payload
         if not hasattr(r.payload, 'path'):
             from .parproc import StrPayload
+
             p = StrPayload(r.payload)
 
         suffix = p.path.suffix
@@ -163,7 +165,6 @@ def show_results(
     results: Iterable[Result],
     /,
     *,
-    verbose: bool = False,
     usecolor: bool = False,
 ) -> Iterable[Result]:
     s = ResultsStyle(Color(usecolor))

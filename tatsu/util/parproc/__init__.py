@@ -7,7 +7,6 @@ from .parproc import (
     HAS_MULTITHREADING_SUPPORT,
     Payload,
     Progress,
-    Result,
     StrPayload,
     TaskID,
     VisualPayload,
@@ -16,6 +15,7 @@ from .parproc import (
     parproc_visual,
     processing_loop,
 )
+from .result import Result
 from .summary import show_summary
 
 

@@ -143,10 +143,9 @@ class Multi:
         if c and not final:
             screenshot += blankpad(c)
 
-        with _screen_lock:
-            self.out.write(pushup(self.height))
-            self.out.write(screenshot)
-            self.out.flush()
+        self.out.write(pushup(self.height))
+        self.out.write(screenshot)
+        self.out.flush()
         self.height = max(h, self.height)
 
     def line_shot(self, line: list[Any], cw: list[int]) -> str:

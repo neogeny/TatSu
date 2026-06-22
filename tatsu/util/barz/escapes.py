@@ -15,7 +15,7 @@ def show_cursor() -> str:
 
 def clearline(text: str = "") -> str:
     """Returns the text prefixed with a clear-to-end-of-line escape sequence."""
-    return f"\033[K{text.strip()}\n"
+    return f"\033[K{text.rstrip()}\n"
 
 
 def clearlines(texts: list[str]) -> str:

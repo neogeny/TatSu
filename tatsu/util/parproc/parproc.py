@@ -18,6 +18,7 @@ from typing import Any, NamedTuple, Protocol
 from .. import identity, memory_use
 from ..barz import BarRow, Multi
 from ..log import iso_logpath, logctx, startscript
+from .result import Result
 from .summary import show_summary
 
 
@@ -85,24 +86,6 @@ class Task(NamedTuple):
     reraise: bool
     args: Iterable[Any]
     kwargs: Mapping[str, Any]
-
-
-@dataclass(slots=True, order=True)
-class Result:
-    stop: Event
-    payload: Any
-    outcome: Any = None
-    exception: Any = None
-    linecount: int = 0
-    runtime: float = 0
-    memory: int = 0
-
-    @property
-    def success(self):
-        return self.exception is None
-
-    def __str__(self):
-        return str(self.__dict__)
 
 
 # NOTE: backwards compatibility
@@ -284,7 +267,7 @@ def parproc_visual(
         multi.stop()
 
     if summary:
-        list(show_summary(start_time, collected, verbose=False))
+        list(show_summary(start_time, collected, verbose=True))
 
 
 # NOTE: backwards compatibility
