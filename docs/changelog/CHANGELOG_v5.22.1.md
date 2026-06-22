@@ -5,7 +5,7 @@ SPDX-License-Identifier: BSD-4-Clause
 
 # [v5.22.1] optimizations
 
-[v5.22.1]: https://github.com/neogeny/tatsu/compare/v5.22.0...HEAD
+[v5.22.1]: https://github.com/neogeny/tatsu/compare/v5.22.0...v5.22.1
 
 ## Added
 
