@@ -15,6 +15,8 @@ TATSUDEBUG: int | str | None = os.environ.get('TATSUDEBUG', 0)
 
 def eprint(*args: Any, **kwargs: Any) -> None:
     file = kwargs.pop('file', sys.stderr)
+    kwargs.pop("highlight", None)
+    kwargs.pop("markup", None)
     print(*args, file=file, **kwargs)
 
 

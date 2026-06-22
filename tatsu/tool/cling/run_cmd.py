@@ -16,8 +16,9 @@ from ...util.heart import Heart
 from ...util.parproc import VisualPayload, parproc_visual
 from ...util.ztyle import Style
 from .cfg import CLIConfig
+from .fmt import format_result
 from .lib import Results, load_grammar
-from .sum import format_result, show_summary
+from ...util.parproc import show_summary
 
 
 # GLOBAL
@@ -148,7 +149,13 @@ def run_with_progress(
             max_workers=cfg.nproc,
         )
         if cfg.summary or not cfg.quiet:
-            results = show_summary(cfg, start_time, results, multi)
+            results = show_summary(
+                start_time,
+                results,
+                eprint=multi.print,
+                usecolor=cfg.usecolor,
+                verbose=cfg.verbose,
+            )
         joined = list(results)
     finally:
         multi.stop()

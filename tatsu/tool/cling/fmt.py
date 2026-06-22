@@ -1,8 +1,17 @@
 from __future__ import annotations
 
+from typing import Any
+
 from ...ngcodegen import modelgen, parsergen, pythongen
 from ...peg import Grammar
+from ...util.asjson import asjsons
 from .cfg import DEFAULT_PYGMENTS_STYLE, CLIConfig
+
+
+def format_result(cfg: CLIConfig, result: Any) -> str:
+    if cfg.model:
+        return repr(result)
+    return asjsons(result)
 
 
 def colorize_output(

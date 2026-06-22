@@ -2,26 +2,17 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import sys
 import time
-from collections.abc import Generator, Iterable
+from collections.abc import Callable, Generator, Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any
 
-from ...util import asjsons, countlines, slicetowidth
-from ...util.parproc import Result, StrPayload
-from ...util.ztyle import Color
-from .cfg import CLIConfig
+from .. import countlines, debugging, slicetowidth
+from ..ztyle import Color
 
 
-class Printer(Protocol):
-    def print(self, *args: Any, **kwargs: Any) -> None: ...
-
-
-class StdErrPrinter(Printer):
-    def print(self, *args: Any, **kwargs: Any) -> None:
-        print(*args, **kwargs, file=sys.stderr)
+type PrintFunc = Callable[..., None]
 
 
 @dataclass
@@ -39,11 +30,6 @@ class ParseStats:
 
 
 class SummaryStyle:
-    """Named styles for the summary table, grouped by purpose.
-
-    Follows the pattern from tatsu.contexts.tracing.EventColor.
-    """
-
     def __init__(self, color: Color):
         self.label = color.style(dim=True).cyan()
         self.plain = color.style()
@@ -55,25 +41,11 @@ class SummaryStyle:
 
 
 class ResultsStyle:
-    """Named styles for the per-file results listing."""
-
     def __init__(self, color: Color):
         self.header = color.style(dim=True).cyan()
         self.good = color.style().green()
         self.bad = color.style().red()
         self.plain = color.style()
-
-
-def _eprint(*args: Any, **kwargs: Any) -> None:
-    """Print to stderr by default (cf. tatsu.util.debugging.eprint)."""
-    kwargs.setdefault('file', sys.stderr)
-    print(*args, **kwargs)
-
-
-def format_result(cfg: CLIConfig, result: Any) -> str:
-    if cfg.model:
-        return repr(result)
-    return asjsons(result)
 
 
 def format_duration(seconds: float, fractions: bool = False) -> str:
@@ -104,6 +76,7 @@ def result_stats(stats: ParseStats, results: Iterable[Result]) -> Iterable[Resul
 
         p = r.payload
         if not hasattr(r.payload, 'path'):
+            from .parproc import StrPayload
             p = StrPayload(r.payload)
 
         suffix = p.path.suffix
@@ -123,28 +96,25 @@ def result_stats(stats: ParseStats, results: Iterable[Result]) -> Iterable[Resul
 
 
 def show_summary(
-    cfg: CLIConfig,
-    start: float,
+    start_time: float,
     results: Iterable[Result],
-    printer: Printer | None = None,
+    /,
+    eprint: PrintFunc = debugging.eprint,
+    *,
+    usecolor: bool = True,
+    verbose: bool = True,
 ) -> Generator[Result, None, None]:
-    s = SummaryStyle(Color(cfg.usecolor))
-    if printer is None:
-        printer = StdErrPrinter()
-
-    if cfg.verbose:
-        results = show_results(cfg, printer, results)
+    s = SummaryStyle(Color(usecolor))
+    if verbose:
+        results = show_results(eprint, results, usecolor=usecolor)
 
     st = ParseStats()
     results = result_stats(st, results)
     results = list(results)
     fail = st.file_count - st.succ_count
 
-    def eprint(*args: Any, **kwargs: Any) -> None:
-        printer.print(*args, **kwargs)
-
     out: list[Result] = []
-    if cfg.verbose:
+    if verbose:
         for r in results:
             if not (r.exception or isinstance(r.outcome, Exception)):
                 out.append(r)
@@ -179,24 +149,24 @@ def show_summary(
 
     eprint(row("run time", s.plain(format_duration(st.run_time, False).rjust(12))))
     eprint(
-        row("wall time", s.plain(format_duration(time.time() - start, False).rjust(12)))
+        row(
+            "wall time",
+            s.plain(format_duration(time.time() - start_time, False).rjust(12)),
+        )
     )
     eprint()
     yield from out
 
 
 def show_results(
-    cfg: CLIConfig,
-    printer: Printer,
+    rprint: PrintFunc,
     results: Iterable[Result],
+    /,
+    *,
+    verbose: bool = False,
+    usecolor: bool = False,
 ) -> Iterable[Result]:
-    s = ResultsStyle(Color(cfg.usecolor))
-
-    def rprint(s: str = "", *a: Any, **kw: Any) -> None:
-        printer.print(s, *a, highlight=False, markup=False, **kw)
-
-    # rprint(f"{s.header('results')}:")
-
+    s = ResultsStyle(Color(usecolor))
     for r in results:
         nm = slicetowidth(Path(r.payload.path).name, 40)
         if r.exception or isinstance(r.outcome, Exception):
