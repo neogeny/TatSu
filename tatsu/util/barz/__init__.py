@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from .bar import Bar
+from .col import Col
 from .main import main
-from .metrics import Col, Metrics
+from .metrics import Metrics
 from .multi import Multi
 from .row import BarRow
+from .rowdata import BarRowData, State, bar_time_ns
 
 
 __all__ = [
@@ -16,4 +18,7 @@ __all__ = [
     "main",
     "Multi",
     "Metrics",
+    "BarRowData",
+    "State",
+    "bar_time_ns",
 ]

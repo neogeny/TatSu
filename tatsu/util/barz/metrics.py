@@ -3,78 +3,55 @@
 from __future__ import annotations
 
 import datetime as dt
-import time
-from enum import StrEnum, auto
 from functools import cached_property
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
+from ..ztyle import Style
 from .bar import Bar
+from .col import Col
+from .rowdata import BarRowData, bar_time_ns
 
 
-if TYPE_CHECKING:
-    from .row import BarRow
-
-
-__all__ = ["Col", "Metrics", "bar_time_ns"]
-
-
-def bar_time_ns() -> int:
-    # WARNING Time is a crucial concept when dealing with concurrency
-    # WARNING and wanting to calculate elapsed time accurately.
-    return time.clock_gettime_ns(time.CLOCK_REALTIME)
-
-
-class Col(StrEnum):
-    label = auto()
-    # Progress Counters
-    pos = auto()
-    total = auto()
-    percentage = auto()
-    pct = auto()
-    # Timings & Durations
-    elapsed = auto()
-    rt = auto()  # Run Time (as timedelta object)
-    eta = auto()  # Estimated Time Remaining (as timedelta object)
-    eta_s = auto()  # Raw ETA seconds
-    # Time components for custom string building
-    h = auto()
-    m = auto()
-    s = auto()
-    ms = auto()
-    # Core components
-    bar = auto()
+__all__ = ["Metrics"]
 
 
 class Metrics:
     """Lazy, cached metrics for a BarRow. Create fresh per render cycle."""
 
-    def __init__(self, row: BarRow) -> None:
+    def __init__(self, row: BarRowData) -> None:
         self.row = row
 
     def resolve(self, col: Col) -> Any:
         return getattr(self, col.value)
 
-    # -- trivial passthrough (not cached, no computation) --
-
     @property
-    def label(self):
+    def label(self) -> str | Style:
         return self.row.label
 
     @property
-    def pos(self):
+    def pos(self) -> int:
         return self.row.pos
 
     @property
-    def total(self):
+    def total(self) -> int:
         return self.row.total
 
-    # -- computed, cached lazily --
+    @property
+    def fill(self) -> str:
+        return self.row.fill
 
+    @property
+    def style(self) -> list[Style]:
+        return self.row.style or []
+
+    @property
+    def start_time(self) -> int:
+        return self.row.start_time
+
+    # -- computed, cached lazily --
     @cached_property
     def elapsed(self) -> int:
-        if self.row.is_new():
-            return 0
-        return max(0, bar_time_ns() - self.row.start_time)
+        return max(0, bar_time_ns() - self.start_time)
 
     @cached_property
     def rt(self) -> dt.timedelta:
@@ -116,6 +93,6 @@ class Metrics:
 
     @cached_property
     def bar(self):
-        b = Bar(fill=self.row.fill, style=self.row.style)
-        b.update(self.row.pos, self.row.total)
+        b = Bar(fill=self.fill, style=self.style)
+        b.update(self.pos, self.total)
         return b
