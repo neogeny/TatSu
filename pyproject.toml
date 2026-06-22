@@ -47,6 +47,7 @@ full = [
 
 [dependency-groups]
 dev = [
+    "nodejs-wheel-binaries<24",
     "esbonio>=2.0.0",
     "graphviz>=0.21",
     "invoke>=3.0.3",
@@ -63,9 +64,10 @@ dev = [
     "ruff>=0.15.17",
     "ty>=0.0.50",
     "uv>=0.11.21",
+    "basedpyright>=1.39.8",
 ]
 test = [
-    "basedpyright>=1.39.8",
+    "nodejs-wheel-binaries<24",
     "graphviz>=0.21",
     "invoke>=3.0.3",
     "mypy>=2.1.0",
@@ -84,6 +86,7 @@ test = [
     "types-psutil>=7.2.2.20260518",
     "types-pygments>=2.20.0.20260518",
     "types-pyyaml>=6.0.12.20260518",
+    "basedpyright>=1.39.8",
 ]
 doc = [
     "docutils>=0.22.4",
