@@ -7,7 +7,8 @@ import sys
 from importlib import resources
 from pathlib import Path
 
-from .. import compile, peg as g
+from .. import peg as g
+from ..api import compile
 from ..util import cast
 from .semantics import ANTLRSemantics
 
