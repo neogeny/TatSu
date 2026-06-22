@@ -9,9 +9,9 @@ from itertools import starmap
 from pathlib import Path
 from typing import NamedTuple
 
+from ..treez import Tree
 from ..util.moduletools import pathtomodulename
-from ..util.treez import Tree
-from ..util.ztyle import Color, Style
+from ..ztyle import Color, Style
 
 
 color = Color.default()

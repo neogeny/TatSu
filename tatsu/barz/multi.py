@@ -13,7 +13,7 @@ import threading
 import time
 from typing import Any, TextIO
 
-from ..debugging import prints
+from ..util.debugging import prints
 from ..ztyle import visual_len as vlen
 from .escapes import (
     blankpad,
@@ -55,7 +55,7 @@ class Multi:
         fps: int = 60,
         out: TextIO = sys.stderr,
     ):
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
         self.rows = rows
         self.alive = False
         self.worker = None
@@ -78,8 +78,9 @@ class Multi:
     def insert_message(self, msg: str) -> None:
         """Inserts a message row at the bottom."""
         row = MessageRow(cols=[msg])
-        self.insert_row(self.msg_count, row)
-        self.msg_count += 1
+        with self.lock:
+            self.insert_row(self.msg_count, row)
+            self.msg_count += 1
 
     def print(self, *args, **kwargs) -> None:
         """Prints to the output stream."""
@@ -138,17 +139,17 @@ class Multi:
 
         screenshot_lines: list[str] = [
             self.line_shot(line, cw) for line, cw in zip(lines, colwidth)
-        ][-MAXL:]
+        ]
         screenshot: str = clearlines(screenshot_lines)
 
         h = len(screenshot_lines)
         c = max(0, self.height - h)
-        if c and not final:
+        if not final:
             screenshot += blankpad(c)
 
-        self.out.write(pushup(self.height))
         self.out.write(screenshot)
         self.out.flush()
+        self.out.write(pushup(h + c))
         self.height = max(h, self.height)
 
     def line_shot(self, line: list[Any], cw: list[int]) -> str:

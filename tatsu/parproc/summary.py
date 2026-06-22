@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from .. import countlines, debugging, slicetowidth
+from ..util import countlines, debugging, slicetowidth
 from ..ztyle import Color
 from .result import Result
 

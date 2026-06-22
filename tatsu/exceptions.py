@@ -5,7 +5,7 @@ from __future__ import annotations
 from .contexts.infos import RuleInfo
 from .contexts.memento import MEMENTO_DEFAULT_COLOR, memento
 from .input import Cursor, LineInfo
-from .util.ztyle import Color
+from .ztyle import Color
 
 
 class TatSuException(Exception):

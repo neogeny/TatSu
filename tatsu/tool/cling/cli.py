@@ -9,9 +9,7 @@ import signal
 import sys
 from argparse import ArgumentParser
 
-from tatsu import __toolname__, __version__
-
-from ... import g2e
+from ... import __toolname__, __version__, g2e
 from ...exceptions import ParseError
 from .. import bench, ideps
 from .boot_cmd import add_boot_cmd, boot_cmd

@@ -72,5 +72,5 @@ async def receive_async() -> AsyncGenerator[Packet, None]:
                 msg = await loop.run_in_executor(None, __the_queue.get)
                 yield msg
 
-    except asyncio.CancelledError:
+    except asyncio.CancelledError:  # noqa # type: ignore
         raise

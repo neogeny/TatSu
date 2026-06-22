@@ -16,7 +16,7 @@ from invoke import (  # pyright: ignore[reportMissingImports, reportPrivateImpor
 )
 from invoke.exceptions import Exit
 
-from tatsu.util.timetools import timer
+from .util.timetools import timer
 
 
 __copyright__: str = 'Copyright (c) 2017-2026 Juancarlo Añez'

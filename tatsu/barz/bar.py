@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+
 """Character-based progress bar visual using fill/empty markers."""
 
-from .. import findfirst
+from ..util import findfirst
 from ..ztyle import Style
 
 

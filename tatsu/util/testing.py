@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import argparse
 
+from ..parproc import parproc_visual
 from .common import pathlist_from_patterns
-from .parproc import parproc_visual
 
 
 def parallel_test_run(parse, options):

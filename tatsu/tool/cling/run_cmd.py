@@ -8,13 +8,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from ...barz import BarRow, Col, Multi
 from ...config import ParserConfig
 from ...exceptions import FailedParse
+from ...parproc import VisualPayload, parproc_visual, show_summary
 from ...peg import Grammar
-from ...util.barz import BarRow, Col, Multi
 from ...util.heart import Heart
-from ...util.parproc import VisualPayload, parproc_visual, show_summary
-from ...util.ztyle import Style
+from ...ztyle import Style
 from .cfg import CLIConfig
 from .fmt import format_result
 from .lib import Results, load_grammar
@@ -92,6 +92,8 @@ def parse_file_task(data: GrammarPayload) -> Any:
     sys.setrecursionlimit(2**16)
     try:
         return grammar.parse(text, start=start, config=config)
+    except RecursionError as e:
+        return e
     finally:
         heart.update(len(text), len(text))
         heart.stop()
@@ -135,12 +137,10 @@ def run_with_progress(
             )
         )
 
-    # if not cfg.quiet or cfg.summary:
-    #     multi.start()
-    # if not cfg.quiet:
-    #     top_row.start()
-    multi.start()
-    top_row.start()
+    if not cfg.quiet or cfg.summary:
+        multi.start()
+    if not cfg.quiet:
+        top_row.start()
     try:
         results = parproc_visual(
             parse_file_task,

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from tatsu.util.treez import Tree
+from tatsu.treez import Tree
 
 
 def test_empty():

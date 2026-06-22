@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from tatsu.util.ztyle import RGB, Color, Style, fmt, rgb
+from tatsu.ztyle import RGB, Color, Style, fmt, rgb
 
 
 @pytest.fixture(autouse=True)  # noqa: RUF076

@@ -15,9 +15,9 @@ from pickle import PickleError, PicklingError
 from threading import Event
 from typing import Any, NamedTuple, Protocol
 
-from .. import debugging, identity, memory_use
 from ..barz import BarRow, Col, Multi
 from ..log import iso_logpath, logctx, startscript
+from ..util import debugging, identity, memory_use
 from .result import Result
 from .summary import show_result, show_summary
 

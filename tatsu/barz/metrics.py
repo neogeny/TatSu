@@ -2,13 +2,14 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+
 """Computed metrics and column resolution for a progress bar row."""
 
 import datetime as dt
 from functools import cached_property
 from typing import Any, Protocol
 
-from .. import clock_time_ns
+from ..util import clock_time_ns
 from ..ztyle import Style
 from .bar import Bar
 from .col import Col
