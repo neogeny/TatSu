@@ -15,14 +15,19 @@ from .colormethods import ColorMethods
 _ANSI_RE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
-def visual_len(text: str | bytes) -> int:
-    """Returns the true visual length of a string, omitting
-    terminal escape codes."""
+def descape(text: str | bytes) -> str:
+    """Removes ANSI escape codes from a string."""
     if isinstance(text, bytes):
         text = str(text)
     if not isinstance(text, str):
         raise TypeError(f"expected str got {type(text)!r}")
-    return len(_ANSI_RE.sub("", text))
+    return _ANSI_RE.sub("", text)
+
+
+def visual_len(text: str | bytes) -> int:
+    """Returns the true visual length of a string, omitting
+    terminal escape codes."""
+    return len(descape(text))
 
 
 class RGB(namedtuple('RGB', ['r', 'g', 'b'])):

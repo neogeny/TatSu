@@ -39,24 +39,25 @@ class BarRow(PacketImpl):
         cols: list[Any] | None = None,
         stop_on_complete: bool = True,
     ):
+        self.start_time: int = 0
+        self.state: State = State.NEW
+        self.label = label
+
         self.pos: int = 0
         self.total: int = max(1, total)
-        self.label = label
+        self.cols: list[Any] = []
+
         self.width: int = width
         self.fill = fill
         self.style: list[Style] = style or []
         self.stop_on_complete: bool = stop_on_complete
 
-        self.cols: list[Any] = []
         if cols is not None:
             self.cols = cols
         elif label:
             self.cols = [Col.label, Col.bar]
         else:
             self.cols = [Col.bar]
-
-        self.start_time: int = 0
-        self.state: State = State.NEW
 
     def start(self) -> None:
         self.state = State.RUNNING

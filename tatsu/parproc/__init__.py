@@ -2,31 +2,27 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from .legacy import parallel_proc, processing_loop
+from .packetz import Packet
 from .parproc import (
-    GIL_DISABLED,
-    HAS_MULTITHREADING_SUPPORT,
-    Payload,
     Progress,
-    StrPayload,
-    TaskID,
-    VisualPayload,
-    parallel_proc,
     parproc,
-    parproc_visual,
-    processing_loop,
 )
+from .payload import Payload, StrPayload, VisualPayload
+from .pmap import GIL_DISABLED, HAS_MULTITHREADING_SUPPORT
 from .result import Result
 from .summary import show_summary
+from .visual import parproc_visual
 
 
 __all__ = [
     'GIL_DISABLED',
     'HAS_MULTITHREADING_SUPPORT',
+    'Packet',
     'Payload',
     'Progress',
     'Result',
     'StrPayload',
-    'TaskID',
     'VisualPayload',
     'parallel_proc',
     'parproc',

@@ -158,9 +158,9 @@ def run_with_progress(
             match value:
                 case Result() as result:
                     yield result
-                # case BarRow(label=label, pos=pos, total=total):
-                # print(f"{pos}/{total} {label}")
-                # continue
+                case BarRow(label=label, pos=pos, total=total):
+                    print(f"{pos}/{total} {label}")
+                    continue
                 case _:
                     continue
 

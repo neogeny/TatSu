@@ -10,6 +10,7 @@ from typing import Any
 
 from ..util import countlines, debugging, slicetowidth
 from ..ztyle import Color
+from .payload import StrPayload
 from .result import Result
 
 
@@ -78,8 +79,6 @@ def result_stats(stats: ParseStats, results: Iterable[Result]) -> Iterable[Resul
 
         p = r.payload
         if not hasattr(r.payload, 'path'):
-            from .parproc import StrPayload
-
             p = StrPayload(r.payload)
 
         suffix = p.path.suffix

@@ -10,68 +10,72 @@ sync/async receivers for draining a multiprocessing.Queue.
 from __future__ import annotations
 
 import asyncio
-import multiprocessing
-import queue
+import json
 import uuid
 from collections.abc import AsyncGenerator, Generator
-from typing import Protocol, runtime_checkable
+from pathlib import Path
+from typing import cast
+
+from ..util.asjson import AsJSONMixin, asjson
+from ..util.fromjson import JSONBase, fromjson
 
 
-__the_queue: multiprocessing.Queue = multiprocessing.Queue()
+PACKETZ_QUEUE = Path("./queue.jsonl")
+PACKETZ_QUEUE.unlink(missing_ok=True)
+with PACKETZ_QUEUE.open("w") as f:
+    pass
+_the_queue = PACKETZ_QUEUE.open("rt")
+_the_seek: int = 0
+_the_seen: dict[str, Packet] = {}
 
 
 def new_uuid_hex() -> str:
     """Generate a random hex UUID string."""
-    return uuid.uuid4().hex
+    return uuid.uuid1().hex
 
 
-@runtime_checkable
-class Packet(Protocol):
+class Packet(AsJSONMixin):
     """Minimal packet: anything with a uuid attribute."""
 
-    @property
-    def uuid(self) -> str: ...
-
-    @property
-    def dest_uuid(self) -> str | None: ...
+    uuid_id: str
+    uuid_to: str | None
 
 
-class PacketImpl(Packet):
+class PacketImpl(Packet, JSONBase):
     """Default packet implementation with an auto-generated UUID."""
 
-    _uuid: str = "0xBAAD"
-    _dest_uuid: str | None = None
+    uuid_id: str = "0xBAAD"
+    uuid_to: str | None = None
 
     def __new__(cls, *args, **kwargs):
         new = super().__new__(cls)
-        new._uuid = new_uuid_hex()
+        new.uuid_id = new_uuid_hex()
         return new
 
-    def __init__(self, dest_uuid: str | None = None):
-        if dest_uuid is not None:
-            self._dest_uuid = dest_uuid
-
-    @property
-    def uuid(self) -> str:
-        return self._uuid
-
-    @property
-    def dest_uuid(self) -> str | None:
-        return self._dest_uuid
+    def __init__(self, to: str | None = None):
+        if to is not None:
+            self.uuid_to = to
 
 
 def send(packet: Packet) -> None:
     """Push a packet onto the shared process-safe queue."""
-    __the_queue.put(packet)
+    value = asjson(packet)
+    serial = json.dumps(value, separators=(",", ":"))
+    with PACKETZ_QUEUE.open("at") as queue:
+        queue.write(serial + "\n")
 
 
 def receive() -> Generator[Packet, None, None]:
     """Drain all currently available packets from the queue."""
-    while True:
-        try:
-            yield __the_queue.get_nowait()
-        except queue.Empty:
-            break
+    global _the_seek  # noqa: PLW0603
+    with PACKETZ_QUEUE.open("rt") as queue:
+        queue.seek(_the_seek)
+        for serial in _the_queue.readlines():
+            value = json.loads(serial)
+            packet = fromjson(value)
+            print(f"HERE {packet.uuid_id}")
+            yield cast(Packet, packet)
+        _the_seek = queue.tell()
 
 
 async def receive_async() -> AsyncGenerator[Packet, None]:
@@ -81,13 +85,7 @@ async def receive_async() -> AsyncGenerator[Packet, None]:
             for msg in receive():
                 yield msg
 
-            option = 1
-            if option == 1:
-                await asyncio.sleep(0.01)
-            elif option == 2:
-                loop = asyncio.get_running_loop()
-                msg = await loop.run_in_executor(None, __the_queue.get)
-                yield msg
+            await asyncio.sleep(0.01)
 
     except asyncio.CancelledError:  # noqa # type: ignore
         raise

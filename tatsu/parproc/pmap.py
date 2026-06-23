@@ -2,69 +2,21 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import multiprocessing
 import sys
-import threading
+import sysconfig
 import time
-from collections.abc import Callable, Generator, Iterable
+from collections.abc import Callable, Iterable
 from itertools import batched
 from pickle import PickleError, PicklingError
-from typing import Any, Protocol
+from typing import Any
 
-from ..util import identity
 from . import packetz
 from .packetz import Packet
-from .pmap import HAS_MULTITHREADING_SUPPORT
-from .task import Event, Func, Task, taskproc
+from .task import Event, Func
 
 
-__all__ = [
-    'Progress',
-    'parproc',
-]
-
-
-class Progress(Protocol):
-    def update(self, *args, **kwargs) -> None: ...
-    def stop(self) -> None: ...
-
-
-def parproc(
-    func: Func,
-    payloads: Iterable[Any],
-    /,
-    *args: Any,
-    pickable: Func = identity,
-    parallel: bool = True,
-    reraise: bool = False,
-    max_workers: int | None = None,
-    **kwargs: Any,
-) -> Generator[Packet, None, None]:
-    stop: Event = threading.Event()
-    if not HAS_MULTITHREADING_SUPPORT:
-        stop = multiprocessing.Manager().Event()
-
-    tasks = [
-        Task(
-            stop=stop,
-            func=func,
-            payload=payload,
-            pickable=pickable,
-            reraise=reraise,
-            args=args,
-            kwargs=kwargs,
-        )
-        for payload in payloads
-    ]
-    if len(tasks) == 1:
-        yield taskproc(tasks[0])
-        return
-
-    if not parallel:
-        yield from map(taskproc, tasks)
-    else:
-        pmap = active_pmap()
-        yield from pmap(stop, taskproc, tasks, max_workers)
+GIL_DISABLED = sysconfig.get_config_var("Py_GIL_DISABLED")
+HAS_MULTITHREADING_SUPPORT = GIL_DISABLED
 
 
 def active_pmap() -> Callable[
@@ -160,7 +112,9 @@ def active_pmap() -> Callable[
             return
 
     if sys.version_info >= (3, 14):
-        from concurrent.futures import InterpreterPoolExecutor
+        from concurrent.futures import (
+            InterpreterPoolExecutor,  # pyright: ignore[reportAttributeAccessIssue]
+        )
 
         def interpreter_pmap(
             event: Event,
