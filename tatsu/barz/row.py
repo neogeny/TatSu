@@ -39,29 +39,48 @@ class BarRow(WithID):
         cols: list[Any] | None = None,
         stop_on_complete: bool = True,
     ):
-        self.start_time: int = 0
         self.state: State = State.NEW
-        self.label = label
+        self.startat: int = 0
 
         self.pos: int = 0
         self.total: int = max(1, total)
-        self.cols: list[Any] = []
-
         self.width: int = width
-        self.fill = fill
-        self.style: list[Style] = style or []
-        self.stop_on_complete: bool = stop_on_complete
 
+        self._stop_on_close: bool = stop_on_complete
+
+        self.label = label
+
+        self._style: list[Style] = style or []
+
+        self._fill = fill
+        self._cols: list[Any] = []
         if cols is not None:
-            self.cols = cols
+            self._cols = cols
         elif label:
-            self.cols = [Col.label, Col.bar]
+            self._cols = [Col.label, Col.bar]
         else:
-            self.cols = [Col.bar]
+            self._cols = [Col.bar]
+
+    @property
+    def cols(self) -> list[Any]:
+        return self._cols
+
+    @property
+    def style(self) -> list[Style]:
+        return self._style
+
+    @property
+    def stop_on_close(self) -> bool:
+        return self._stop_on_close
+
+    @property
+    def fill(self) -> str:
+        return self._fill
 
     def start(self) -> None:
         self.state = State.RUNNING
-        self.start_time = clock_time_μs()
+        if self.startat <= 0:
+            self.startat = clock_time_μs()
 
     def stop(self) -> None:
         if self.state == State.NEW:
@@ -86,11 +105,11 @@ class BarRow(WithID):
 
     def update(
         self,
+        /,
         pos: int,
         total: int = -1,
-        /,
+        *,
         label: str = "",
-        *args,
         **kwargs,
     ):
         """Write-only operation from the user's side."""
@@ -99,6 +118,16 @@ class BarRow(WithID):
         self.pos = max(0, min(pos, self.total))
         if label:
             self.label = label
+        self.start()
+        if self.pos >= self.total and self.stop_on_close:
+            self.stop()
+
+    def snap(self) -> dict[str, Any]:
+        return {
+            name: value
+            for name, value in vars(self).items()
+            if not name.startswith("_")
+        }
 
     def render(self, m: Metrics) -> list[Any]:
         return [m.resolve(c) if isinstance(c, Col) else c for c in self.cols]
@@ -107,7 +136,7 @@ class BarRow(WithID):
         return Metrics(self)
 
     def _call_render(self) -> list[Any]:
-        if self.is_stopping() or (self.stop_on_complete and self.pos >= self.total):
+        if self.is_stopping() or (self._stop_on_close and self.pos >= self.total):
             self.stop()
 
         if self.is_stopped():

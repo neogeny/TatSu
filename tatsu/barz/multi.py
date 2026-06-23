@@ -56,7 +56,7 @@ class Multi:
         out: TextIO = sys.stderr,
     ):
         self.lock = threading.RLock()
-        self.rows = rows
+        self.rows: dict[str, BarRow] = {r.id: r for r in rows}
         self.alive = False
         self.worker = None
         self.out = out
@@ -68,12 +68,13 @@ class Multi:
     def add_row(self, row: BarRow) -> None:
         """Stores a row internally."""
         with self.lock:
-            self.rows = [*self.rows, row]
+            self.rows[row.id] = row
 
     def insert_row(self, index: int, row: BarRow) -> None:
         """Inserts a row at the given index."""
         with self.lock:
-            self.rows = [*self.rows[:index], row, *self.rows[index:]]
+            rows = list(self.rows.items())
+            self.rows = dict([*rows[:index], (row.id, row), *rows[index:]])
 
     def insert_message(self, msg: str) -> None:
         """Inserts a message row at the bottom."""
@@ -81,6 +82,14 @@ class Multi:
         with self.lock:
             self.insert_row(self.msg_count, row)
             self.msg_count += 1
+
+    def update_row(self, snap: dict[str, Any]) -> None:
+        """Inserts or updates a row internally."""
+        if not (id := snap.get("id")) or id not in self.rows:
+            return
+        with self.lock:
+            row = self.rows[id]
+            row.update(**snap)
 
     def print(self, *args, **kwargs) -> None:
         """Prints to the output stream."""
@@ -103,7 +112,7 @@ class Multi:
     def stop(self):
         """Gracefully shuts down the rendering thread."""
         with self.lock:
-            for row in self.rows:
+            for row in self.rows.values():
                 row.stop()
                 row.stop()
 
@@ -127,7 +136,7 @@ class Multi:
 
     def _take_snapshot(self) -> list[BarRow]:
         with self.lock:
-            return [copy.copy(r) for r in self.rows if not r.is_stopped()]
+            return [copy.copy(r) for r in self.rows.values() if not r.is_stopped()]
 
     def render_rows(self, *, final: bool = False) -> None:
         snapshot: list[BarRow] = self._take_snapshot()
