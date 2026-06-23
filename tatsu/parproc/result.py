@@ -6,11 +6,11 @@ from dataclasses import dataclass
 from threading import Event
 from typing import Any
 
-from .packetz import PacketImpl
+from .packetz import Packet
 
 
 @dataclass(slots=True, order=True)
-class Result(PacketImpl):
+class Result(Packet):
     stop: Event
     payload: Any
     outcome: Any = None

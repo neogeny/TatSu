@@ -13,7 +13,7 @@ from ...barz import BarRow, Col, Multi
 from ...config import ParserConfig
 from ...exceptions import FailedParse
 from ...parproc import (
-    Packet,
+    PacketLike,
     Result,
     VisualPayload,
     packetz,
@@ -159,7 +159,7 @@ def run_with_progress(
             match value:
                 case Result() as result:
                     yield result
-                case Packet(data=FileHeartRow() as row):
+                case PacketLike(data=FileHeartRow() as row):
                     try:
                         print(f"{row.pos}/{row.total} {row.label}")
                     except Exception as e:

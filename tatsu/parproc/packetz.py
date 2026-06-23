@@ -26,21 +26,21 @@ with PACKETZ_QUEUE.open("w") as f:
     pass
 _the_queue = PACKETZ_QUEUE.open("rt")
 _the_seek: int = 0
-_the_seen: dict[str, Packet] = {}
+_the_seen: dict[str, PacketLike] = {}
 
 
-class WithID(AsJSONMixin):
+class HasID(AsJSONMixin):
     id: str
 
 
-class Packet(WithID):
+class PacketLike(HasID):
     """Minimal packet: anything with a uuid attribute."""
 
     to: str | None
     data: Any
 
 
-class WithIDImpl(WithID, JSONBase):
+class WithID(HasID, JSONBase):
     id: str = "0xBAAD"
 
     def __new__(cls, *args, **kwargs):
@@ -49,7 +49,7 @@ class WithIDImpl(WithID, JSONBase):
         return new
 
 
-class PacketImpl(Packet, WithIDImpl):
+class Packet(PacketLike, WithID):
     """Default packet implementation with an auto-generated UUID."""
 
     to: str | None = None
@@ -62,48 +62,55 @@ class PacketImpl(Packet, WithIDImpl):
             self.data = data
 
 
-def pack(packet: Packet) -> str:
+def tty_escape(s: str) -> str:
+    return s.replace('\\u001b', '\\e')
+
+
+def tty_unescape(s: str) -> str:
+    return s.replace('\\e', '\\u001b')
+
+
+def pack(packet: PacketLike) -> str:
     value = asjson(packet)
     serial = json.dumps(
         value,
         separators=(",", ":"),
         ensure_ascii=False,
     )
-    return serial
+    return tty_escape(serial)
 
 
-def unpack(serial: str) -> Packet:
-    value = json.loads(serial)
+def unpack(serial: str) -> PacketLike:
+    value = json.loads(tty_unescape(serial))
     packet = fromjson(value)
     return packet
 
 
-def send(*, to: str | None = None, data: Any = None) -> Packet:
+def send(*, to: str | None = None, data: Any = None) -> PacketLike:
     """Push a packet onto the shared process-safe queue."""
-    packet = PacketImpl(to=to, data=data)
+    packet = Packet(to=to, data=data)
     serial = pack(packet)
     with PACKETZ_QUEUE.open("at") as queue:
         queue.write(serial + "\n")
     return packet
 
 
-def receive() -> Generator[Packet, None, None]:
+def receive() -> Generator[PacketLike, None, None]:
     """Drain all currently available packets from the queue."""
     global _the_seek  # noqa: PLW0603
     with PACKETZ_QUEUE.open("rt") as queue:
         queue.seek(_the_seek)
-        try:
-            for serial in queue.readlines():
-                packet = unpack(serial)
-                if packet.id in _the_seen:
-                    continue
-                _the_seen[packet.id] = packet
-                yield packet
-        finally:
+        for serial in queue.readlines():
+            packet = unpack(serial)
+            if packet.id in _the_seen:
+                continue
+            _the_seen[packet.id] = packet
             _the_seek = queue.tell()
+            assert _the_seek > 0
+            yield packet
 
 
-async def receive_async() -> AsyncGenerator[Packet, None]:
+async def receive_async() -> AsyncGenerator[PacketLike, None]:
     """Drain available packets in bursts, yielding control to the event loop when empty."""
     try:
         while True:

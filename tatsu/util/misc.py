@@ -5,7 +5,6 @@ from __future__ import annotations
 import shutil
 import string
 import time
-import uuid
 
 from .itertools import first  # noqa  # pyright: ignore[reportUnusedImport]
 

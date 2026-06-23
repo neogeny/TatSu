@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from ..util import identity
-from .packetz import Packet
+from .packetz import PacketLike
 from .parproc import parproc
 from .task import Func
 from .visual import VisualPayload, parproc_visual
@@ -22,7 +22,7 @@ def parallel_proc(
     parallel: bool = True,
     reraise: bool = False,
     **kwargs: Any,
-) -> Generator[Packet | None, None, None]:
+) -> Generator[PacketLike | None, None, None]:
     yield from parproc(
         process,
         payloads,
@@ -44,7 +44,7 @@ def processing_loop(
     reraise: bool = False,
     max_workers: int | None = None,
     **kwargs: Any,
-) -> Generator[Packet, None, None]:
+) -> Generator[PacketLike, None, None]:
     paths = [Path(f) for f in filenames]
     payloads = [VisualPayload(p, p.read_text()) for p in paths]
     yield from parproc_visual(

@@ -10,7 +10,7 @@ from typing import Any
 
 from ..log import iso_logpath, logctx, startscript
 from ..util import debugging, identity
-from .packetz import Packet
+from .packetz import PacketLike
 from .parproc import Progress, parproc
 from .payload import VisualPayload
 from .result import Result
@@ -33,7 +33,7 @@ def parproc_visual(
     max_workers: int | None = None,
     usecolor: bool = True,
     **kwargs: Any,
-) -> Generator[Packet, None, None]:
+) -> Generator[PacketLike, None, None]:
     from ..barz import BarRow, Col, Multi
     from ..ztyle import Color
 
@@ -79,7 +79,7 @@ def parproc_visual(
         logpath = iso_logpath(prefix=prefix)
 
     start_time = time.time()
-    packets: Iterable[Packet] = parproc(
+    packets: Iterable[PacketLike] = parproc(
         func,
         payloads,
         *args,
@@ -90,7 +90,7 @@ def parproc_visual(
         **kwargs,
     )
 
-    def process_packets(results: Iterable[Packet]) -> Generator[Packet]:
+    def process_packets(results: Iterable[PacketLike]) -> Generator[PacketLike]:
         count = 0
         for packet in results:
             if packet is None:

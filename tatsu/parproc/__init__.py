@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from .legacy import parallel_proc, processing_loop
-from .packetz import Packet
+from .packetz import PacketLike
 from .parproc import (
     Progress,
     parproc,
@@ -18,7 +18,7 @@ from .visual import parproc_visual
 __all__ = [
     'GIL_DISABLED',
     'HAS_MULTITHREADING_SUPPORT',
-    'Packet',
+    'PacketLike',
     'Payload',
     'Progress',
     'Result',

@@ -13,7 +13,7 @@ from typing import Any, Protocol
 
 from ..util import identity
 from . import packetz
-from .packetz import Packet
+from .packetz import PacketLike
 from .pmap import HAS_MULTITHREADING_SUPPORT
 from .task import Event, Func, Task, taskproc
 
@@ -39,7 +39,7 @@ def parproc(
     reraise: bool = False,
     max_workers: int | None = None,
     **kwargs: Any,
-) -> Generator[Packet, None, None]:
+) -> Generator[PacketLike, None, None]:
     stop: Event = threading.Event()
     if not HAS_MULTITHREADING_SUPPORT:
         stop = multiprocessing.Manager().Event()
@@ -68,7 +68,7 @@ def parproc(
 
 
 def active_pmap() -> Callable[
-    [Event, Func, Iterable[Any], int | None], Iterable[Packet]
+    [Event, Func, Iterable[Any], int | None], Iterable[PacketLike]
 ]:
     import multiprocessing
     from concurrent.futures import (
@@ -84,7 +84,7 @@ def active_pmap() -> Callable[
         process: Func,
         tasks: Iterable[Any],
         max_workers: int | None = None,
-    ) -> Iterable[Packet]:
+    ) -> Iterable[PacketLike]:
         # by Copilot 2026-03-06
 
         if not tasks:
@@ -130,7 +130,7 @@ def active_pmap() -> Callable[
         process: Func,
         tasks: Iterable[Any],
         max_workers: int | None = None,
-    ) -> Iterable[Packet]:
+    ) -> Iterable[PacketLike]:
         yield from executor_pmap(
             ThreadPoolExecutor,
             event,
@@ -144,7 +144,7 @@ def active_pmap() -> Callable[
         process: Func,
         tasks: Iterable[Any],
         max_workers: int | None = None,
-    ) -> Iterable[Packet]:
+    ) -> Iterable[PacketLike]:
         try:
             yield from executor_pmap(
                 ProcessPoolExecutor,
@@ -167,7 +167,7 @@ def active_pmap() -> Callable[
             process: Func,
             tasks: Iterable[Any],
             max_workers: int | None = None,
-        ) -> Iterable[Packet]:
+        ) -> Iterable[PacketLike]:
             try:
                 yield from executor_pmap(
                     InterpreterPoolExecutor,
@@ -179,7 +179,7 @@ def active_pmap() -> Callable[
             except (TypeError, PicklingError, PickleError):
                 yield from thread_pmap(event, process, tasks, max_workers)
 
-    def imap_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[Packet]:
+    def imap_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[PacketLike]:
         tasks = list(tasks)
         nworkers = 4 * max(1, multiprocessing.cpu_count())
 

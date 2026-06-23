@@ -7,7 +7,7 @@ from __future__ import annotations
 from enum import IntEnum, auto
 from typing import Any
 
-from ..parproc.packetz import WithIDImpl
+from ..parproc.packetz import WithID
 from ..util import clock_time_μs  # noqa: PLC2403
 from ..ztyle import Style
 from .col import Col
@@ -24,7 +24,7 @@ class State(IntEnum):
     STOPPED = auto()
 
 
-class BarRow(WithIDImpl):
+class BarRow(WithID):
     """A lightweight, fully picklable data object given to the user."""
 
     def __init__(
