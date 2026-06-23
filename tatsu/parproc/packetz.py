@@ -10,21 +10,14 @@ sync/async receivers for draining a multiprocessing.Queue.
 from __future__ import annotations
 
 import asyncio
-import dataclasses
 import multiprocessing
 import queue
 import uuid
 from collections.abc import AsyncGenerator, Generator
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 
 __the_queue: multiprocessing.Queue = multiprocessing.Queue()
-
-
-class Packet(Protocol):
-    """Minimal packet: anything with a uuid attribute."""
-
-    uuid: str
 
 
 def new_uuid_hex() -> str:
@@ -32,15 +25,39 @@ def new_uuid_hex() -> str:
     return uuid.uuid4().hex
 
 
-@dataclasses.dataclass(slots=True, order=True)
-class PacketImpl:
+@runtime_checkable
+class Packet(Protocol):
+    """Minimal packet: anything with a uuid attribute."""
+
+    @property
+    def uuid(self) -> str: ...
+
+    @property
+    def dest_uuid(self) -> str | None: ...
+
+
+class PacketImpl(Packet):
     """Default packet implementation with an auto-generated UUID."""
 
-    _uuid: str = dataclasses.field(init=False, default_factory=new_uuid_hex)
+    _uuid: str = "0xBAAD"
+    _dest_uuid: str | None = None
+
+    def __new__(cls, *args, **kwargs):
+        new = super().__new__(cls)
+        new._uuid = new_uuid_hex()
+        return new
+
+    def __init__(self, dest_uuid: str | None = None):
+        if dest_uuid is not None:
+            self._dest_uuid = dest_uuid
 
     @property
     def uuid(self) -> str:
         return self._uuid
+
+    @property
+    def dest_uuid(self) -> str | None:
+        return self._dest_uuid
 
 
 def send(packet: Packet) -> None:

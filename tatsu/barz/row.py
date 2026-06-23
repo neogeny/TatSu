@@ -1,15 +1,14 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
-from __future__ import annotations
-
-
 """Progress bar row with lifecycle (NEW→RUNNING→STOPPED) and rendering."""
+
+from __future__ import annotations
 
 from enum import IntEnum, auto
 from typing import Any
 
+from ..parproc.packetz import PacketImpl
 from ..util import clock_time_ns
-from ..util.misc import new_uuid_hex
 from ..ztyle import Style
 from .col import Col
 from .metrics import Metrics
@@ -25,17 +24,8 @@ class State(IntEnum):
     STOPPED = auto()
 
 
-class BarRow:
+class BarRow(PacketImpl):
     """A lightweight, fully picklable data object given to the user."""
-
-    def __new__(cls, *args, **kwargs):
-        new = super().__new__(cls)
-        new._uuid = new_uuid_hex()  # type: ignore
-        return new
-
-    @property
-    def uuid(self) -> str:
-        return self._uuid  # type: ignore
 
     def __init__(
         self,

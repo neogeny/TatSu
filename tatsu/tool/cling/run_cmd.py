@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 import time
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -11,7 +12,13 @@ from typing import Any
 from ...barz import BarRow, Col, Multi
 from ...config import ParserConfig
 from ...exceptions import FailedParse
-from ...parproc import VisualPayload, parproc_visual, show_summary
+from ...parproc import (
+    Result,
+    VisualPayload,
+    packetz,
+    parproc_visual,
+    show_summary,
+)
 from ...peg import Grammar
 from ...util.heart import Heart
 from ...ztyle import Style
@@ -45,6 +52,7 @@ class FileHeartRow(BarRow, Heart):
 
     def beat(self, mark: int, total: int) -> None:
         self.update(mark, total)
+        packetz.send(self)
 
     def dead(self) -> bool:
         return False
@@ -142,8 +150,22 @@ def run_with_progress(
         multi.start()
     if not cfg.quiet:
         top_row.start()
+
+    def filter_to_results(values: Iterable[Any]) -> Iterable[Result]:
+        for value in values:
+            if value is None:
+                continue
+            match value:
+                case Result() as result:
+                    yield result
+                # case BarRow(label=label, pos=pos, total=total):
+                # print(f"{pos}/{total} {label}")
+                # continue
+                case _:
+                    continue
+
     try:
-        results = parproc_visual(
+        values = parproc_visual(
             parse_file_task,
             payloads,
             top_row,
@@ -156,6 +178,7 @@ def run_with_progress(
             verbose=False,
             max_workers=cfg.nproc,
         )
+        results = filter_to_results(values)
         if cfg.summary or cfg.verbose or not cfg.quiet:
             results = show_summary(
                 start_time,

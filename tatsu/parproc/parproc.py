@@ -15,9 +15,10 @@ from pickle import PickleError, PicklingError
 from threading import Event
 from typing import Any, NamedTuple, Protocol
 
-from ..barz import BarRow, Col, Multi
 from ..log import iso_logpath, logctx, startscript
 from ..util import debugging, identity, memory_use
+from . import packetz
+from .packetz import Packet
 from .result import Result
 from .summary import show_result, show_summary
 
@@ -98,7 +99,7 @@ def parallel_proc(
     parallel: bool = True,
     reraise: bool = False,
     **kwargs: Any,
-) -> Generator[Result | None, None, None]:
+) -> Generator[Packet | None, None, None]:
     yield from parproc(
         process,
         payloads,
@@ -120,7 +121,7 @@ def parproc(
     reraise: bool = False,
     max_workers: int | None = None,
     **kwargs: Any,
-) -> Generator[Result, None, None]:
+) -> Generator[Packet, None, None]:
     stop: Event = threading.Event()
     if not HAS_MULTITHREADING_SUPPORT:
         stop = multiprocessing.Manager().Event()
@@ -202,7 +203,8 @@ def parproc_visual(
     max_workers: int | None = None,
     usecolor: bool = True,
     **kwargs: Any,
-) -> Generator[Result, None, None]:
+) -> Generator[Packet, None, None]:
+    from ..barz import BarRow, Col, Multi
     from ..ztyle import Color
 
     # NOTE resolve iterator now because we know that processing will do it anyway
@@ -247,7 +249,7 @@ def parproc_visual(
         logpath = iso_logpath(prefix=prefix)
 
     start_time = time.time()
-    results: Iterable[Result] = parproc(
+    packets: Iterable[Packet] = parproc(
         func,
         payloads,
         *args,
@@ -258,20 +260,21 @@ def parproc_visual(
         **kwargs,
     )
 
-    def process_results(results: Iterable[Result]) -> Generator[Result]:
+    def process_packets(results: Iterable[Packet]) -> Generator[Packet]:
         count = 0
-        for result in results:
-            if result is None:
+        for packet in results:
+            if packet is None:
+                continue
+            if not isinstance(packet, Result):
+                yield packet
                 continue
 
+            result: Result = packet
             count += 1
             path = result.payload.path
             progress.update(count, total, label=path.name)
             if verbose:
                 show_result(eprint, result)
-
-            if result is None:
-                continue
 
             if result.exception:
                 with logctx(logpath) as log:
@@ -284,10 +287,10 @@ def parproc_visual(
                 result.payload = result.payload.path
             yield result
 
-    results = process_results(results)
+    packets = process_packets(packets)
     if summary or is_legacy:
-        results = list(results)
-        results = show_summary(
+        results: list[Result] = [p for p in packets if isinstance(p, Result)]
+        packets = show_summary(
             start_time,
             results,
             # eprint=multi.print if multi else eprint,
@@ -295,12 +298,12 @@ def parproc_visual(
         )
 
     if is_legacy:
-        results = list(results)
+        packets = list(packets)
 
     if multi is not None:
         multi.stop()
 
-    yield from results
+    yield from packets
 
 
 # NOTE: backwards compatibility
@@ -314,7 +317,7 @@ def processing_loop(
     reraise: bool = False,
     max_workers: int | None = None,
     **kwargs: Any,
-) -> Generator[Result, None, None]:
+) -> Generator[Packet, None, None]:
     paths = [Path(f) for f in filenames]
     payloads = [VisualPayload(p, p.read_text()) for p in paths]
     yield from parproc_visual(
@@ -330,7 +333,7 @@ def processing_loop(
 
 
 def active_pmap() -> Callable[
-    [Event, Func, Iterable[Any], int | None], Iterable[Result]
+    [Event, Func, Iterable[Any], int | None], Iterable[Packet]
 ]:
     import multiprocessing
     from concurrent.futures import (
@@ -347,7 +350,7 @@ def active_pmap() -> Callable[
         process: Func,
         tasks: Iterable[Any],
         max_workers: int | None = None,
-    ) -> Iterable[Result]:
+    ) -> Iterable[Packet]:
         # by Copilot 2026-03-06
 
         if not tasks:
@@ -356,8 +359,20 @@ def active_pmap() -> Callable[
         with executorcls(max_workers=max_workers) as ex:  # type: ignore
             try:
                 futures = [ex.submit(process, task) for task in tasks]
-                for future in as_completed(futures):
-                    yield future.result()
+                while futures:
+                    yield from packetz.receive()
+                    finished = [f for f in futures if f.done()]
+                    for f in finished:
+                        futures.remove(f)
+                        yield f.result()
+                    if futures:
+                        time.sleep(0.01)
+                yield from packetz.receive()
+                # futures = [ex.submit(process, task) for task in tasks]
+                # yield from packetz.receive()
+                # for future in as_completed(futures):
+                #     yield from packetz.receive()
+                #     yield future.result()
             except KeyboardInterrupt:
                 stop_event.set()
 
@@ -372,13 +387,14 @@ def active_pmap() -> Callable[
                 sys.stderr.flush()
 
                 raise
+        yield from packetz.receive()
 
     def thread_pmap(
         event: Event,
         process: Func,
         tasks: Iterable[Any],
         max_workers: int | None = None,
-    ) -> Iterable[Result]:
+    ) -> Iterable[Packet]:
         yield from executor_pmap(
             ThreadPoolExecutor,
             event,
@@ -392,7 +408,7 @@ def active_pmap() -> Callable[
         process: Func,
         tasks: Iterable[Any],
         max_workers: int | None = None,
-    ) -> Iterable[Result]:
+    ) -> Iterable[Packet]:
         try:
             yield from executor_pmap(
                 ProcessPoolExecutor,
@@ -415,7 +431,7 @@ def active_pmap() -> Callable[
             process: Func,
             tasks: Iterable[Any],
             max_workers: int | None = None,
-        ) -> Iterable[Result]:
+        ) -> Iterable[Packet]:
             try:
                 yield from executor_pmap(
                     InterpreterPoolExecutor,
@@ -427,7 +443,7 @@ def active_pmap() -> Callable[
             except (TypeError, PicklingError, PickleError):
                 yield from thread_pmap(event, process, tasks, max_workers)
 
-    def imap_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[Result]:
+    def imap_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[Packet]:
         tasks = list(tasks)
         nworkers = 4 * max(1, multiprocessing.cpu_count())
 
