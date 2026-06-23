@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import sys
 import sysconfig
-import time
 from collections.abc import Callable, Iterable
-from itertools import batched
 from pickle import PickleError, PicklingError
 from typing import Any
 
@@ -25,9 +23,9 @@ def active_pmap() -> Callable[
     import multiprocessing
     from concurrent.futures import (
         Executor,
-        # NOTE from Python 3.14 onwards
         ProcessPoolExecutor,
         ThreadPoolExecutor,
+        as_completed,
     )
 
     def executor_pmap(
@@ -42,39 +40,41 @@ def active_pmap() -> Callable[
         if not tasks:
             return
 
-        for batch in batched(tasks, 8):
-            yield from packetz.receive()
-            with executorcls(max_workers=max_workers) as ex:  # type: ignore
-                try:
-                    futures = [ex.submit(process, task) for task in batch]
-                    while futures:
-                        yield from packetz.receive()
-                        finished = [f for f in futures if f.done()]
-                        for f in finished:
-                            futures.remove(f)
-                            yield f.result()
-                        if futures:
-                            time.sleep(0.01)
+        yield from packetz.receive()
+        with executorcls(max_workers=max_workers) as ex:  # type: ignore
+            # with executorcls(None) as ex:  # type: ignore
+            try:
+                futures = [ex.submit(process, task) for task in tasks]
+                while futures:
                     yield from packetz.receive()
-                    # futures = [ex.submit(process, task) for task in tasks]
-                    # yield from packetz.receive()
-                    # for future in as_completed(futures):
-                    #     yield from packetz.receive()
-                    #     yield future.result()
-                except KeyboardInterrupt:
-                    stop_event.set()
+                    finished = {f for f in futures if f.done()}
+                    for f in finished:
+                        futures.remove(f)
+                        yield f.result()
+                        yield from packetz.receive()
+                        finished = {f for f in futures if f.done()}
+                    # if futures:
+                    #     time.sleep(0.01)
+                # yield from packetz.receive()
+                # for future in as_completed(futures):
+                #     yield from packetz.receive()
+                #     yield future.result()
+                #     yield from packetz.receive()
+                yield from packetz.receive()
+            except KeyboardInterrupt:
+                stop_event.set()
 
-                    print(file=sys.stderr)
-                    print(file=sys.stderr)
-                    print("Wait...", file=sys.stderr)
-                    sys.stderr.flush()
+                print(file=sys.stderr)
+                print(file=sys.stderr)
+                print("Wait...", file=sys.stderr)
+                sys.stderr.flush()
 
-                    ex.shutdown(wait=False, cancel_futures=True)
+                ex.shutdown(wait=False, cancel_futures=True)
 
-                    print("           ", end="\r", file=sys.stderr)
-                    sys.stderr.flush()
+                print("           ", end="\r", file=sys.stderr)
+                sys.stderr.flush()
 
-                    raise
+                raise
         yield from packetz.receive()
 
     def thread_pmap(

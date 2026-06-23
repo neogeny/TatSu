@@ -10,23 +10,19 @@ sync/async receivers for draining a multiprocessing.Queue.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
+import os
 from collections.abc import AsyncGenerator, Generator
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar, TextIO
 
 from ..util.asjson import AsJSONMixin, asjson
 from ..util.fromjson import JSONBase, fromjson
 from ..util.misc import new_id
 
 
-PACKETZ_QUEUE = Path(f"./{__name__.split('.')[-1]}.jsonl")
-PACKETZ_QUEUE.unlink(missing_ok=True)
-with PACKETZ_QUEUE.open("w") as f:
-    pass
-_the_queue = PACKETZ_QUEUE.open("rt")
-_the_seek: int = 0
-_the_seen: dict[str, PacketLike] = {}
+# -- Packet types ------------------------------------------------------------
 
 
 class HasID(AsJSONMixin):
@@ -34,8 +30,6 @@ class HasID(AsJSONMixin):
 
 
 class PacketLike(HasID):
-    """Minimal packet: anything with a uuid attribute."""
-
     to: str | None
     data: Any
 
@@ -50,8 +44,6 @@ class WithID(HasID, JSONBase):
 
 
 class Packet(PacketLike, WithID):
-    """Default packet implementation with an auto-generated UUID."""
-
     to: str | None = None
     data: Any = None
 
@@ -62,6 +54,128 @@ class Packet(PacketLike, WithID):
             self.data = data
 
 
+class PacketQueueState:
+    """Encapsulates the shared file-backed queue state.
+
+    Class variables serve as the module-level singleton state, accessible
+    from all processes (or within a single process) that import this module.
+    """
+
+    path: ClassVar[Path] = Path(f"./{__name__.split('.')[-1]}.jsonl")
+    _queue: ClassVar[TextIO | None] = None
+    _told: ClassVar[int] = 0
+    _seen: ClassVar[dict[str, PacketLike]] = {}
+
+    # -- lifecycle -----------------------------------------------------------
+
+    @classmethod
+    def init(cls) -> None:
+        if cls._queue is None:
+            # NOTE Erase the file
+            with cls.path.open("w+", encoding="utf-8") as _f:
+                cls._told = 0
+            cls.path.touch()
+        cls._queue = cls.path.open(
+            "rt",
+            encoding="utf-8",
+            buffering=32 * 1024,
+        )
+        cls._queue.seek(cls._told)
+
+    # -- file-handle health --------------------------------------------------
+
+    @classmethod
+    def get_queue(cls) -> TextIO:
+        """Return the read handle if healthy, raise otherwise."""
+        q = cls._queue
+        if q is None or q.closed or os.fstat(q.fileno()).st_nlink == 0:
+            cls.init()
+            q = cls._queue
+        assert q is not None
+        return q
+
+    @classmethod
+    def tell(cls, check: bool = True) -> None:
+        """Mark the current read position in the queue."""
+        q = cls._queue
+        assert q is not None
+        t = q.tell()
+        assert (check and t > cls._told) or (not check and t >= cls._told)
+        cls._told = t
+
+    @classmethod
+    @contextlib.contextmanager
+    def reader(cls) -> Generator[TextIO, None, None]:
+        """Context manager for the read handle, initializing if necessary."""
+        q = cls.get_queue()
+        try:
+            yield q
+        finally:
+            cls.tell(False)
+
+    # -- send / receive ------------------------------------------------------
+
+    @classmethod
+    def send(cls, *, to: str | None = None, data: Any = None) -> PacketLike:
+        """Push a packet onto the shared process-safe queue."""
+        packet = Packet(to=to, data=data)
+        serial = pack(packet)
+        with cls.path.open("at", encoding="utf-8", buffering=1) as queue:
+            queue.write(serial + "\n")
+        return packet
+
+    @classmethod
+    def receive(cls) -> Generator[PacketLike, None, None]:
+        """Drain all currently available packets from the queue."""
+        with cls.reader() as queue:
+            for serial in queue.readlines():
+                try:
+                    packet = unpack(serial)
+                except (json.JSONDecodeError, TypeError):
+                    break  # NOTE Assume incomplete line???
+                cls.tell(False)
+                if packet.id in cls._seen:
+                    continue
+                cls._seen[packet.id] = packet
+                yield packet
+
+    @classmethod
+    async def receive_async(cls) -> AsyncGenerator[PacketLike, None]:
+        """Drain available packets in bursts, yielding control to the event loop when empty."""
+        try:
+            while True:
+                for msg in cls.receive():
+                    yield msg
+                await asyncio.sleep(0.01)
+        except asyncio.CancelledError:  # noqa: TRY203
+            raise
+
+
+# -- Initialise the queue at import time -------------------------------------
+
+PacketQueueState.init()
+
+# -- Backward-compatible module-level aliases with full typing ---------------
+
+PACKETZ_QUEUE: Path = PacketQueueState.path
+
+
+def send(*, to: str | None = None, data: Any = None) -> PacketLike:
+    return PacketQueueState.send(to=to, data=data)
+
+
+def receive() -> Generator[PacketLike, None, None]:
+    return PacketQueueState.receive()
+
+
+async def receive_async() -> AsyncGenerator[PacketLike, None]:
+    async for pkt in PacketQueueState.receive_async():
+        yield pkt
+
+
+# -- Wire transforms ---------------------------------------------------------
+
+
 def tty_escape(s: str) -> str:
     return s.replace('\\u001b', '\\e')
 
@@ -70,54 +184,24 @@ def tty_unescape(s: str) -> str:
     return s.replace('\\e', '\\u001b')
 
 
+def class_escape(s: str) -> str:
+    return s.replace(r'{"__class__":', '{"@":')
+
+
+def class_unescape(s: str) -> str:
+    return s.replace(r'{"@":', r'{"__class__":')
+
+
 def pack(packet: PacketLike) -> str:
     value = asjson(packet)
-    serial = json.dumps(
-        value,
-        separators=(",", ":"),
-        ensure_ascii=False,
-    )
-    return tty_escape(serial)
+    serial = json.dumps(value, separators=(",", ":"), ensure_ascii=False)
+    escaped = tty_escape(serial)
+    return class_escape(escaped)
 
 
 def unpack(serial: str) -> PacketLike:
-    value = json.loads(tty_unescape(serial))
+    escaped = class_unescape(serial)
+    serial = tty_unescape(escaped)
+    value = json.loads(serial)
     packet = fromjson(value)
     return packet
-
-
-def send(*, to: str | None = None, data: Any = None) -> PacketLike:
-    """Push a packet onto the shared process-safe queue."""
-    packet = Packet(to=to, data=data)
-    serial = pack(packet)
-    with PACKETZ_QUEUE.open("at") as queue:
-        queue.write(serial + "\n")
-    return packet
-
-
-def receive() -> Generator[PacketLike, None, None]:
-    """Drain all currently available packets from the queue."""
-    global _the_seek  # noqa: PLW0603
-    with PACKETZ_QUEUE.open("rt") as queue:
-        queue.seek(_the_seek)
-        for serial in queue.readlines():
-            packet = unpack(serial)
-            if packet.id in _the_seen:
-                continue
-            _the_seen[packet.id] = packet
-            _the_seek = queue.tell()
-            assert _the_seek > 0
-            yield packet
-
-
-async def receive_async() -> AsyncGenerator[PacketLike, None]:
-    """Drain available packets in bursts, yielding control to the event loop when empty."""
-    try:
-        while True:
-            for msg in receive():
-                yield msg
-
-            await asyncio.sleep(0.01)
-
-    except asyncio.CancelledError:  # noqa # type: ignore
-        raise
