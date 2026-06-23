@@ -11,7 +11,7 @@ py := "3.14"
 
 run_test := "uv run --quiet --python " + py + " --group test "
 run_doc := "uv run --quiet --group doc "
-export := "uv export --quiet --no-hashes --format requirements-txt "
+uvexport := "uv export --quiet --no-hashes --format requirements-txt "
 
 default: test docs examples requirements build
     @echo "✔ all"
@@ -33,19 +33,19 @@ reqs: requirements
 
 @req-base:
     echo "▶ requirements.txt"
-    {{ export }} -o requirements.txt --no-dev
+    {{ uvexport }} -o requirements.txt --no-dev
 
 @req-dev:
     echo "▶ requirements-dev.txt"
-    {{ export }} -o requirements-dev.txt --group dev
+    {{ uvexport }} -o requirements-dev.txt --group dev
 
 @req-test:
     echo "▶ requirements-test.txt"
-    {{ export }} -o requirements-test.txt --group test --no-group dev
+    {{ uvexport }} -o requirements-test.txt --group test --no-group dev
 
 @req-doc:
     echo "▶ requirements-doc.txt"
-    {{ export }} -o requirements-doc.txt --group doc --no-group dev
+    {{ uvexport }} -o requirements-doc.txt --group doc --no-group dev
 
 # --- Cleaning ---
 
@@ -75,7 +75,7 @@ clobber: (clean "true")
 
 @ruff: testg
     echo "▶ ruff {{ py }}"
-    {{ run_test }} ruff check -q --preview tatsu tests examples
+    {{ run_test }} ruff check -q --preview --fix tatsu tests examples
 
 @ty: testg
     echo "▶ ty {{ py }}"
