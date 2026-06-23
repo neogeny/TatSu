@@ -274,45 +274,45 @@ select = [
 ignore = [
     "ARG002", # unused argument
     "B905", # `zip()` without an explicit `strict=` parameter
-    #    "F401", # `XYZ` imported but unused
     "COM812", #  Trailing comma missing
     "COM819", #  Trailing comma prohibited
-    "E501", #    line-too-long
     "E402", #    module-import-not-at-top-of-file
-    "I001", #    Import block is un-sorted or un-formatted
-    "FURB145",  # Prefer `copy` method over slicing"
+    "E501", #    line-too-long
+    "FURB140", # Use `itertools.starmap` instead of the generator
+    "FURB145", # Prefer `copy` method over slicing
     "FURB152", # 3.14 disallowed
     "FURB189", #  subclassing str
-    "FURB140", # Use `itertools.starmap` instead of the generator
+    "I001", #    Import block is un-sorted or un-formatted
     "PERF203", #  try-except within loop
     "PGH003",
-    "PLR0914", # Too many local variables (17/15)
     "PGH004", # Use specific rule codes when using `noqa`
     "PLC0415", # import-outside-top-level
     "PLC2401", # non-ascci in identifier
-    "PLR6301", # no-self-use
+    "PLC2403", # Module name `clock_time_μs` contains a non-ASCII character
     "PLR0904", # too-many-public-methods
     "PLR0913", # too-many-arguments
+    "PLR0914", # Too many local variables (17/15)
     "PLR0915", # too-many-statements
     "PLR0917", # too many positional arguments
     "PLR2004", # magic-value-comparison
+    "PLR6301", # no-self-use
+    "PLW0717", # Try clause contains too many statements
     "PLW1508", # Invalid type for environment variable default; expected `str` or `None`
     "PLW1514", # unspecified-encoding
     "PLW3201", # bad-dunder-method-name
-    "PLW0717", # Try clause contains too many statements
     "RET504", #  assign before return
     "RET505", #  superfluous-else-return
     "RUF001", #  string contains ambiguous `＄` (FULLWIDTH DOLLAR SIGN). Did you mean `$` (DOLLAR SIGN)?
     "RUF022", #  __all__ sorting
     "RUF027", #  possible f-string
     "RUF069", # floating point equality comparison
-    "RUF102", # Invalid rule code in `# noqa`: "
-    "RUF100", #  Unused `noqa` directive (non-enabled: `RUF001`)
     "RUF075", # Context manager does not catch exceptions
-    "S102", #    exec-builtin
+    "RUF100", #  Unused `noqa` directive (non-enabled: `RUF001`)
+    "RUF102", # Invalid rule code in `# noqa`: "
     "S101", #    use of assert
-    "S301", #    suspicious-pickle-usage
+    "S102", #    exec-builtin
     "S106", #    possible password
+    "S301", #    suspicious-pickle-usage
     "S403", #    insecure modules
     "S603", # `subprocess` call: check for execution of untrusted input
     "S607", # Starting a process with a partial executable path
