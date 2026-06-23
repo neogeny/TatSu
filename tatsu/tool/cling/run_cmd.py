@@ -13,6 +13,7 @@ from ...barz import BarRow, Col, Multi
 from ...config import ParserConfig
 from ...exceptions import FailedParse
 from ...parproc import (
+    Packet,
     Result,
     VisualPayload,
     packetz,
@@ -52,7 +53,7 @@ class FileHeartRow(BarRow, Heart):
 
     def beat(self, mark: int, total: int) -> None:
         self.update(mark, total)
-        packetz.send(self)
+        packetz.send(data=self)
 
     def dead(self) -> bool:
         return False
@@ -158,8 +159,11 @@ def run_with_progress(
             match value:
                 case Result() as result:
                     yield result
-                case BarRow(label=label, pos=pos, total=total):
-                    print(f"{pos}/{total} {label}")
+                case Packet(data=FileHeartRow() as row):
+                    try:
+                        print(f"{row.pos}/{row.total} {row.label}")
+                    except Exception as e:
+                        print(f"\n\nERROR {e}\n\n")
                     continue
                 case _:
                     continue

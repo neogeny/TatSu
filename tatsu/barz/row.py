@@ -7,8 +7,8 @@ from __future__ import annotations
 from enum import IntEnum, auto
 from typing import Any
 
-from ..parproc.packetz import PacketImpl
-from ..util import clock_time_ns
+from ..parproc.packetz import WithIDImpl
+from ..util import clock_time_μs  # noqa: PLC2403
 from ..ztyle import Style
 from .col import Col
 from .metrics import Metrics
@@ -24,7 +24,7 @@ class State(IntEnum):
     STOPPED = auto()
 
 
-class BarRow(PacketImpl):
+class BarRow(WithIDImpl):
     """A lightweight, fully picklable data object given to the user."""
 
     def __init__(
@@ -61,7 +61,7 @@ class BarRow(PacketImpl):
 
     def start(self) -> None:
         self.state = State.RUNNING
-        self.start_time = clock_time_ns()
+        self.start_time = clock_time_μs()
 
     def stop(self) -> None:
         if self.state == State.NEW:

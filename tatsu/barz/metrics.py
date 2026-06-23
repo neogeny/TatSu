@@ -9,7 +9,7 @@ import datetime as dt
 from functools import cached_property
 from typing import Any, Protocol
 
-from ..util import clock_time_ns
+from ..util import clock_time_μs
 from ..ztyle import Style
 from .bar import Bar
 from .col import Col
@@ -72,7 +72,7 @@ class Metrics:
     # -- computed, cached lazily --
     @cached_property
     def elapsed(self) -> int:
-        return max(0, clock_time_ns() - self.start_time)
+        return max(0, clock_time_μs() - self.start_time)
 
     @cached_property
     def rt(self) -> dt.timedelta:

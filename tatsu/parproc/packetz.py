@@ -11,16 +11,16 @@ from __future__ import annotations
 
 import asyncio
 import json
-import uuid
 from collections.abc import AsyncGenerator, Generator
 from pathlib import Path
-from typing import cast
+from typing import Any
 
 from ..util.asjson import AsJSONMixin, asjson
 from ..util.fromjson import JSONBase, fromjson
+from ..util.misc import new_id
 
 
-PACKETZ_QUEUE = Path("./queue.jsonl")
+PACKETZ_QUEUE = Path(f"./{__name__.split('.')[-1]}.jsonl")
 PACKETZ_QUEUE.unlink(missing_ok=True)
 with PACKETZ_QUEUE.open("w") as f:
     pass
@@ -29,40 +29,62 @@ _the_seek: int = 0
 _the_seen: dict[str, Packet] = {}
 
 
-def new_uuid_hex() -> str:
-    """Generate a random hex UUID string."""
-    return uuid.uuid1().hex
+class WithID(AsJSONMixin):
+    id: str
 
 
-class Packet(AsJSONMixin):
+class Packet(WithID):
     """Minimal packet: anything with a uuid attribute."""
 
-    uuid_id: str
-    uuid_to: str | None
+    to: str | None
+    data: Any
 
 
-class PacketImpl(Packet, JSONBase):
-    """Default packet implementation with an auto-generated UUID."""
-
-    uuid_id: str = "0xBAAD"
-    uuid_to: str | None = None
+class WithIDImpl(WithID, JSONBase):
+    id: str = "0xBAAD"
 
     def __new__(cls, *args, **kwargs):
         new = super().__new__(cls)
-        new.uuid_id = new_uuid_hex()
+        new.id = new_id()
         return new
 
-    def __init__(self, to: str | None = None):
+
+class PacketImpl(Packet, WithIDImpl):
+    """Default packet implementation with an auto-generated UUID."""
+
+    to: str | None = None
+    data: Any = None
+
+    def __init__(self, /, *, to: str | None = None, data: Any = None):
         if to is not None:
-            self.uuid_to = to
+            self.to = to
+        if data is not None:
+            self.data = data
 
 
-def send(packet: Packet) -> None:
-    """Push a packet onto the shared process-safe queue."""
+def pack(packet: Packet) -> str:
     value = asjson(packet)
-    serial = json.dumps(value, separators=(",", ":"))
+    serial = json.dumps(
+        value,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
+    return serial
+
+
+def unpack(serial: str) -> Packet:
+    value = json.loads(serial)
+    packet = fromjson(value)
+    return packet
+
+
+def send(*, to: str | None = None, data: Any = None) -> Packet:
+    """Push a packet onto the shared process-safe queue."""
+    packet = PacketImpl(to=to, data=data)
+    serial = pack(packet)
     with PACKETZ_QUEUE.open("at") as queue:
         queue.write(serial + "\n")
+    return packet
 
 
 def receive() -> Generator[Packet, None, None]:
@@ -70,12 +92,15 @@ def receive() -> Generator[Packet, None, None]:
     global _the_seek  # noqa: PLW0603
     with PACKETZ_QUEUE.open("rt") as queue:
         queue.seek(_the_seek)
-        for serial in _the_queue.readlines():
-            value = json.loads(serial)
-            packet = fromjson(value)
-            print(f"HERE {packet.uuid_id}")
-            yield cast(Packet, packet)
-        _the_seek = queue.tell()
+        try:
+            for serial in queue.readlines():
+                packet = unpack(serial)
+                if packet.id in _the_seen:
+                    continue
+                _the_seen[packet.id] = packet
+                yield packet
+        finally:
+            _the_seek = queue.tell()
 
 
 async def receive_async() -> AsyncGenerator[Packet, None]:
