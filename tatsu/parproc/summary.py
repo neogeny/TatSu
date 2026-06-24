@@ -131,7 +131,7 @@ def show_summary(
     W = 18
 
     def row(la: str, va: Any) -> str:
-        return f"{s.label(f'{la:>{W}}')}  {va}"
+        return f"  {s.label(f'{la:>{W}}')}  {va}"
 
     eprint()
     eprint(row("files input", s.plain(f"{st.file_count:>12}")))
