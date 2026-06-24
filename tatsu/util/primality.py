@@ -4,7 +4,7 @@ Solution to Project Euler Problem
 http://projecteuler.net/
 
 by Apalala <apalala@gmail.com>
-(cc) 2011 Attribution-ShareAlike
+(cc) Attribution-ShareAlike
 http://creativecommons.org/licenses/by-sa/3.0/
 
 Prime numbers.
@@ -45,7 +45,7 @@ __primes = [
 
 
 def nth_prime(n):
-    global __primes
+    global __primes  # noqa: PLW0603
     if not __primes:
         __primes = [2]
 
@@ -77,7 +77,7 @@ def is_prime(n):
     elif known_prime(n):
         return True
     else:
-        return all(n % p for p in primes_upto(n))
+        return all(n % p for p in primes_upto(int(sqrt(n)) + 1))
 
 
 def all_primes():
@@ -85,9 +85,9 @@ def all_primes():
         yield nth_prime(n)
 
 
-def primes_upto(m, start=2):
+def primes_upto(m, b=1):
     for p in all_primes():
-        if p < start:
+        if p < b:
             continue
         if p > m:
             break
