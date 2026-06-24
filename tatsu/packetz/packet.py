@@ -41,22 +41,20 @@ class Packet(PacketLike, WithID):
             self.to = to
         if data is not None:
             self.data = data
-            self.hash = hash_2str(vars(self))
 
-    def validate(self) -> bool:
-        if not self.hash:
-            return False
-        expected = self.hash
-        actual = hash_2str(it for it in vars(self).items() if it[0] != "hash")
-        if expected != actual:
-            WARNING_print(f"checksum mismatch: {expected} != {actual}")
-            return False
-        return True
+
+def validate(expected: str, actual: str) -> bool:
+    if expected != actual:
+        WARNING_print(f"checksum mismatch: {expected} != {actual}")
+        raise RuntimeError("checksum mismatch")
+        return False
+    return True
 
 
 def pack(packet: PacketLike) -> str:
     value = asjson(packet)
     compact = compact_value(value)
+    compact["hash"] = hash_2str(value)
     serial = json.dumps(compact, separators=(",", ":"), ensure_ascii=False)
     escaped = tty_escape(serial)
     return class_escape(escaped)
@@ -66,7 +64,10 @@ def unpack(serial: str) -> PacketLike:
     escaped = class_unescape(serial)
     serial = tty_unescape(escaped)
     compact = json.loads(serial)
+    _expected_hash = compact["hash"]
     value = decompact_value(compact)
+    _actual_hash = hash_2str(value)
+    # validate(_expected_hash, _actual_hash)
     packet = fromjson(value)
     return packet
 

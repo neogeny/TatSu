@@ -17,6 +17,7 @@ from .util.unicode_characters import C_DERIVE
 
 
 DEFAULT_PERLINEMEMOS = 8
+DEFAULT_HEART_BPS = 400
 
 
 @dataclass
@@ -55,7 +56,7 @@ class ParserConfig(Config):
     whitespace: str | UndefinedType | None = Undefined
     parseinfo: bool = False
     heart: Heart | None = None
-    heart_bps: float = 2
+    heart_bps: float = DEFAULT_HEART_BPS
 
     # WARNING: DEPRECATED: some old projects use these
     owner: Any = None

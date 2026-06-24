@@ -68,13 +68,23 @@ class Multi:
         self.height: int = 0
         self.msg_count: int = 0
 
+    def contains_row(self, row: BarRow) -> bool:
+        with self.lock:
+            return row in self.rows
+
+    def remove_row(self, id: str) -> None:
+        with self.lock:
+            self.rows = [row for row in self.rows if row.id != id]
+
     def add_row(self, row: BarRow) -> None:
         """Stores a row internally."""
+        self.remove_row(row.id)
         with self.lock:
             self.rows = [*self.rows, row]
 
     def insert_row(self, index: int, row: BarRow) -> None:
         """Inserts a row at the given index."""
+        self.remove_row(row.id)
         with self.lock:
             self.rows = [*self.rows[:index], row, *self.rows[index:]]
 
@@ -148,7 +158,7 @@ class Multi:
 
     def _take_snapshot(self) -> list[BarRow]:
         with self.lock:
-            return [copy.copy(r) for r in self.rows if r.is_active()]
+            return [copy.copy(r) for r in self.rows if not r.is_stopped()]
 
     def render_rows(self, *, final: bool = False) -> None:
         snapshot: list[BarRow] = self._take_snapshot()
@@ -167,7 +177,7 @@ class Multi:
         c = max(0, self.height - h) if not final else 0
         blank_lines = blankpad(c)
 
-        frame_lines = [*shot_lines, *blank_lines]
+        frame_lines = [*shot_lines, *blank_lines][-MAXL:]
 
         screenshot: str = "".join(frame_lines)
         with _screen_lock:

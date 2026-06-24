@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 import sysconfig
+import time
 from collections.abc import Callable, Iterable
 from concurrent.futures import as_completed
 from itertools import islice
@@ -50,12 +51,11 @@ def active_pmap() -> Callable[
                 }
                 while futures:
                     for future in as_completed(futures):
-                        _task = futures.pop(future)
                         yield future.result()
-                        break
-                    for task in islice(taskiter, 1):
-                        new_future = ex.submit(process, task)
-                        futures[new_future] = task
+                        _task = futures.pop(future)
+                        for task in islice(taskiter, 1):
+                            new_future = ex.submit(process, task)
+                            futures[new_future] = task
                 # while futures:
                 #     finished = {f for f in futures if f.done()}
                 #     for f in finished:

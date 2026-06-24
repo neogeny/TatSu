@@ -161,6 +161,8 @@ def run_with_progress(
                 continue
             match value:
                 case Result() as result:
+                    row = filehearts[result.payload.heart.id]
+                    row.stop()
                     yield result
                 case PacketLike(data=FileHeartRow() as row_packet):
                     row = filehearts[row_packet.id]

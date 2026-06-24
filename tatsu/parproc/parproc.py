@@ -69,4 +69,5 @@ def parproc(
         for r in pmap(stop, taskproc, tasks, max_workers):
             yield from queue.receive()
             yield r
+            yield from queue.receive()
     yield from queue.receive()

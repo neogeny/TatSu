@@ -14,6 +14,7 @@ ENV/
 .python-version
 .hypothesis/
 .webassets-cache/
+.packetz/
 
 ### --- Build & Distribution ---
 build/
