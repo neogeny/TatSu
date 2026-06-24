@@ -16,6 +16,7 @@ import time
 from typing import Any, TextIO
 
 from ..util.debugging import prints
+from ..util.primality import primes_upto
 from ..ztyle import visual_len as vlen
 from .escapes import (
     blankpad,
@@ -54,7 +55,7 @@ class Multi:
         self,
         rows: list[BarRow],
         /,
-        fps: list[int] = [17, 23, 37, 61, 127],  # noqa: B006
+        fps: int = 60,  # noqa: B006
         out: TextIO = sys.stderr,
     ):
         self.lock = threading.RLock()
@@ -134,7 +135,7 @@ class Multi:
         self.out.write(hide_cursor())  # Hide cursor
         self.out.write("\n")  # Hide cursor
         self.out.flush()
-        fpscycle = itertools.cycle(self.fps)
+        fpscycle = itertools.cycle(primes_upto(self.fps, start=11))
         try:
             while self.alive:
                 self.render_rows()
