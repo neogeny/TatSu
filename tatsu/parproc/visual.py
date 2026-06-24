@@ -35,7 +35,10 @@ def parproc_visual(
     **kwargs: Any,
 ) -> Generator[PacketLike, None, None]:
     from ..barz import BarRow, Col, Multi
+    from ..util.escapes import hide_cursor, show_cursor
     from ..ztyle import Color
+
+    _eprint_in = eprint
 
     # NOTE resolve iterator now because we know that processing will do it anyway
     payloads_in = list(payloads_in)
@@ -54,7 +57,7 @@ def parproc_visual(
             total=total,
             fill="---",
             style=[f, f, b],
-            cols=[Col.bar, Col.padding, Col.label],
+            cols=["   ", Col.label, Col.padding, Col.bar],
             width=47,
         )
         multi = Multi([], out=sys.stderr)
@@ -63,6 +66,8 @@ def parproc_visual(
         multi.add_row(progress)
         progress.start()
         multi.start()
+
+        print(hide_cursor(), end='\r')
 
     # HACK backwards compatibility
     is_legacy = all(isinstance(p, str) for p in payloads_in)
@@ -102,14 +107,18 @@ def parproc_visual(
             result: Result = packet
             count += 1
             path = result.payload.path
-            progress.update(count, total, label=path.name)
+            progress.update(count, total, label=f"{path.name:44}")
             if verbose:
                 show_result(eprint, result)
 
             if result.exception:
-                with logctx(logpath) as log:
-                    print('ERROR:', result.payload, file=log)
-                    print(result.exception, file=log)
+                if logpath:
+                    with logctx(logpath) as log:
+                        print('ERROR:', result.payload, file=log)
+                        print(result.exception, file=log)
+                else:
+                    eprint(f'ERROR: {result.payload}')
+                    eprint(result.exception)
                 if reraise:
                     raise result.exception
 
@@ -118,19 +127,21 @@ def parproc_visual(
             yield result
 
     packets = process_packets(packets)
+    if is_legacy:
+        packets = list(packets)
+
     if summary or is_legacy:
         results: list[Result] = [p for p in packets if isinstance(p, Result)]
         packets = show_summary(
             start_time,
             results,
-            # eprint=multi.print if multi else eprint,
-            verbose=True,
+            eprint=_eprint_in,
+            verbose=verbose,
         )
 
-    if is_legacy:
-        packets = list(packets)
-
     if multi is not None:
+        multi.print(show_cursor())
+        multi.print()
         multi.stop()
 
     yield from packets

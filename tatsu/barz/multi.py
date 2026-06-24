@@ -1,13 +1,12 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
-from __future__ import annotations
-
-import itertools
-
-
 """Multi-bar display manager with a background rendering thread."""
 
+from __future__ import annotations
+
+import contextlib
 import copy
+import itertools
 import multiprocessing
 import shutil
 import sys
@@ -16,15 +15,15 @@ import time
 from typing import Any, TextIO
 
 from ..util.debugging import prints
-from ..util.primality import primes_upto
-from ..ztyle import visual_len as vlen
-from .escapes import (
+from ..util.escapes import (
     blankpad,
     hide_cursor,
     pushup,
     shoot_lines,
     show_cursor,
 )
+from ..util.primality import primes_upto
+from ..ztyle import visual_len as vlen
 from .row import BarRow
 
 
@@ -67,31 +66,45 @@ class Multi:
 
         self.height: int = 0
         self.msg_count: int = 0
+        self._frame: list[str] = []
 
-    def contains_row(self, row: BarRow) -> bool:
+    @property
+    @contextlib.contextmanager
+    def frame_lock(self):
         with self.lock:
-            return row in self.rows
+            yield
+        self.render_frame()
+
+    def find_row(self, row: BarRow) -> BarRow | None:
+        for r in self.rows:
+            if r.id == row.id:
+                return r
+        return None
 
     def remove_row(self, id: str) -> None:
-        with self.lock:
+        with self.frame_lock:
             self.rows = [row for row in self.rows if row.id != id]
 
     def add_row(self, row: BarRow) -> None:
         """Stores a row internally."""
-        self.remove_row(row.id)
-        with self.lock:
+        if existing := self.find_row(row):
+            existing.update(**row.snap())
+            return
+        with self.frame_lock:
             self.rows = [*self.rows, row]
 
     def insert_row(self, index: int, row: BarRow) -> None:
         """Inserts a row at the given index."""
-        self.remove_row(row.id)
-        with self.lock:
+        if existing := self.find_row(row):
+            existing.update(**row.snap())
+            return
+        with self.frame_lock:
             self.rows = [*self.rows[:index], row, *self.rows[index:]]
 
     def insert_message(self, msg: str) -> None:
         """Inserts a message row at the bottom."""
         row = MessageRow(cols=[msg])
-        with self.lock:
+        with self.frame_lock:
             self.insert_row(self.msg_count, row)
             self.msg_count += 1
 
@@ -107,10 +120,8 @@ class Multi:
             row = BarRow()
             row.id = row_id
             self.add_row(row)
-
-        row.update(**snap)
-
-        row.start()
+        with self.frame_lock:
+            row.update(**snap)
 
     def print(self, *args, **kwargs) -> None:
         """Prints to the output stream."""
@@ -147,20 +158,36 @@ class Multi:
         self.out.write("\n")  # Hide cursor
         self.out.flush()
         fpscycle = itertools.cycle(primes_upto(self.fps, 11))
+        last = time.monotonic()
         try:
             while self.alive:
-                self.render_rows()
+                self.paint_frame()
                 time.sleep(1 / next(fpscycle))
+
+                now = time.monotonic()
+                elapsed = now - last
+                if elapsed > 1:
+                    self.render_frame()
+                last = now
         finally:
             self.out.write(show_cursor())  # Show cursor
             self.out.flush()
-        self.render_rows(final=True)
+        self.render_frame(final=True)
+        self.paint_frame(final=True)
 
     def _take_snapshot(self) -> list[BarRow]:
         with self.lock:
-            return [copy.copy(r) for r in self.rows if not r.is_stopped()]
+            snapshot = [copy.copy(r) for r in self.rows if not r.is_stopped()]
+            self.rows = [r for r in self.rows if not r.is_stopped()][-MAXL:]
+            self.msg_count = sum(
+                1
+                for _ in itertools.takewhile(
+                    lambda r: isinstance(r, MessageRow), self.rows
+                )
+            )
+            return snapshot
 
-    def render_rows(self, *, final: bool = False) -> None:
+    def render_frame(self, *, final: bool = False):
         snapshot: list[BarRow] = self._take_snapshot()
         rendered: list[list[Any]] = [b._call_render() for b in snapshot]
 
@@ -177,13 +204,16 @@ class Multi:
         c = max(0, self.height - h) if not final else 0
         blank_lines = blankpad(c)
 
-        frame_lines = [*shot_lines, *blank_lines][-MAXL:]
+        frame = [*shot_lines, *blank_lines][-MAXL:]
 
-        screenshot: str = "".join(frame_lines)
-        with _screen_lock:
-            self.out.write(screenshot)
+        self._frame = frame
 
-        self.height = max(h, self.height)
+    def paint_frame(self, *, final: bool = False) -> None:
+        frame = self._frame
+        screenshot: str = "".join(frame)
+        self.out.write(screenshot)
+
+        self.height = max(len(frame), self.height)
         if not final:
             self.out.write(pushup(self.height))
         self.out.flush()

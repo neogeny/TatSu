@@ -43,11 +43,14 @@ def active_pmap() -> Callable[
         with executorcls(max_workers=max_workers) as ex:  # type: ignore
             # with executorcls(None) as ex:  # type: ignore
             try:
-                n = 8
+                n = 1 + (max_workers or 8)
                 taskiter = iter(tasks)
-                futures = {
-                    ex.submit(process, task): task for task in islice(taskiter, n)
-                }
+                if issubclass(executorcls, ProcessPoolExecutor):
+                    futures = {
+                        ex.submit(process, task): task for task in islice(taskiter, n)
+                    }
+                else:
+                    futures = {ex.submit(process, task): task for task in taskiter}
                 while futures:
                     for future in as_completed(futures):
                         yield future.result()

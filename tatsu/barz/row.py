@@ -46,18 +46,26 @@ class BarRow(WithID):
         self.total: int = max(1, total)
         self.label = label
 
-        self.fill = fill
+        self._fill = fill
         self._width: int = width
         self._style: list[Style] = style or []
         self._stop_on_complete: bool = stop_on_complete
 
-        self.cols: list[Any] = []
+        self._cols: list[Any] = []
         if cols is not None:
-            self.cols = cols
+            self._cols = cols
         elif label:
-            self.cols = [Col.label, Col.bar]
+            self._cols = [Col.label, Col.bar]
         else:
-            self.cols = [Col.bar]
+            self._cols = [Col.bar]
+
+    @property
+    def fill(self) -> str:
+        return self._fill
+
+    @property
+    def cols(self) -> list[Any]:
+        return self._cols
 
     @property
     def width(self) -> int:
@@ -70,6 +78,13 @@ class BarRow(WithID):
     @property
     def stop_on_complete(self) -> bool:
         return self._stop_on_complete
+
+    @property
+    def key(self) -> float:
+        if self.total <= 0:
+            return 1
+        else:
+            return self.total / (1 + self.pos)
 
     def start(self) -> None:
         self.state = State.RUNNING
@@ -122,7 +137,7 @@ class BarRow(WithID):
             self.label = label
 
     def render(self, m: Metrics) -> list[Any]:
-        return [m.resolve(c) if isinstance(c, Col) else c for c in self.cols]
+        return [m.resolve(c) if isinstance(c, Col) else c for c in self._cols]
 
     def metrics(self) -> Metrics:
         return Metrics(self)

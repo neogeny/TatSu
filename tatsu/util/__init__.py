@@ -1,7 +1,9 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
-
 # NOTE: re-exports mostly for bw compatibility
+from __future__ import annotations
+
+import sys
 
 from .abctools import *  # noqa: F403
 from .asjson import *  # noqa: F403
@@ -20,3 +22,12 @@ from .strtools import *  # noqa: F403
 from .typetools import *  # noqa: F403
 from .undefined import *  # noqa: F403
 from .version import *  # noqa: F403
+
+
+def _legacy_parproc() -> None:  # noqa
+    from .. import parproc
+
+    sys.modules['tatsu.util.parproc'] = parproc
+
+
+_legacy_parproc()  # noqa
