@@ -1,19 +1,16 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
+"""Column identifiers for bar layouts (label, counters, timings)."""
+
 from __future__ import annotations
 
 from enum import StrEnum, auto
-
-from ..util.fromjson import JSONBase
-
-
-"""Column identifiers for bar layouts (label, counters, timings)."""
 
 
 __all__ = ["Col"]
 
 
-class Col(JSONBase, StrEnum):
+class Col(StrEnum):
     # Progress Counters
     begun = auto()
     state = auto()

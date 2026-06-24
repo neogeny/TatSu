@@ -23,7 +23,6 @@ from ...parproc import (
     show_summary,
 )
 from ...peg import Grammar
-from ...util.debugging import ERROR_print
 from ...util.heart import Heart
 from ...ztyle import Style
 from .cfg import CLIConfig
@@ -170,7 +169,7 @@ def run_with_progress(
                     if row.is_active():
                         multi.add_row(row)
                 case _:
-                    assert_never(value)
+                    assert_never(value)  # ty: ignore
 
     try:
         values = parproc_visual(

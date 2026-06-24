@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import sys
 import sysconfig
-import time
 from collections.abc import Callable, Iterable
 from concurrent.futures import as_completed
 from itertools import islice
