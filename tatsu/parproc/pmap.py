@@ -8,8 +8,7 @@ from collections.abc import Callable, Iterable
 from pickle import PickleError, PicklingError
 from typing import Any
 
-from . import packetz
-from .packetz import PacketLike
+from ..packetz import PacketLike, api
 from .task import Event, Func
 
 
@@ -25,7 +24,6 @@ def active_pmap() -> Callable[
         Executor,
         ProcessPoolExecutor,
         ThreadPoolExecutor,
-        as_completed,
     )
 
     def executor_pmap(
@@ -40,18 +38,18 @@ def active_pmap() -> Callable[
         if not tasks:
             return
 
-        yield from packetz.receive()
+        yield from api.receive()
         with executorcls(max_workers=max_workers) as ex:  # type: ignore
             # with executorcls(None) as ex:  # type: ignore
             try:
                 futures = [ex.submit(process, task) for task in tasks]
                 while futures:
-                    yield from packetz.receive()
+                    yield from api.receive()
                     finished = {f for f in futures if f.done()}
                     for f in finished:
                         futures.remove(f)
                         yield f.result()
-                        yield from packetz.receive()
+                        yield from api.receive()
                         finished = {f for f in futures if f.done()}
                     # if futures:
                     #     time.sleep(0.01)
@@ -60,7 +58,7 @@ def active_pmap() -> Callable[
                 #     yield from packetz.receive()
                 #     yield future.result()
                 #     yield from packetz.receive()
-                yield from packetz.receive()
+                yield from api.receive()
             except KeyboardInterrupt:
                 stop_event.set()
 
@@ -75,7 +73,7 @@ def active_pmap() -> Callable[
                 sys.stderr.flush()
 
                 raise
-        yield from packetz.receive()
+        yield from api.receive()
 
     def thread_pmap(
         event: Event,
@@ -137,14 +135,9 @@ def active_pmap() -> Callable[
         tasks = list(tasks)
         nworkers = 4 * max(1, multiprocessing.cpu_count())
 
-        n = nworkers * 4
-        chunks = batched(tasks, n)
-
-        count = 0
+        count = len(tasks)
         with multiprocessing.Pool(processes=nworkers) as pool:
-            for chunk in chunks:
-                count += len(chunk)
-                yield from pool.imap_unordered(process, chunk)
+            yield from pool.imap_unordered(process, tasks)
         if len(tasks) != count:
             raise RuntimeError(
                 'number of chunked tasks different %d != %d' % (len(tasks), count),

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import re
 
+
 _COMPRESS_RE = re.compile(r"     +")
 
 _EXPAND_RE = re.compile(r"~~|~(\d+)~")

@@ -5,6 +5,7 @@ from __future__ import annotations
 import shutil
 import string
 import time
+from typing import Any
 
 from .itertools import first  # noqa  # pyright: ignore[reportUnusedImport]
 
@@ -49,3 +50,16 @@ def new_id() -> str:
     t = time.monotonic_ns()
     _mm, mn = divmod(t, 10**d)
     return i2alpha(mn, width=d, alphabet=GREEKtome)
+
+
+import hashlib
+
+
+def hash_2byte(data: Any) -> bytes:
+    if data is None:
+        return b"\x00\x00"
+    return hashlib.blake2b(str(data).encode("utf-8"), digest_size=2).digest()
+
+
+def hash_2str(data: Any) -> str:
+    return hex(int.from_bytes(hash_2byte(data), "big"))

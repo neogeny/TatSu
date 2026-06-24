@@ -13,25 +13,27 @@ import time
 from pathlib import Path
 from typing import Any
 
-from . import packetz
+from . import api
 
 
-QUEUE = Path(packetz.PACKETZ_QUEUE)
+QUEUE = Path(api.PACKETZ_QUEUE)
 
 
 # ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
 
+
 def _cleanup():
     import importlib
     import sys
 
-    global packetz  # noqa: PLW0602
-    packetz.PACKETZ_QUEUE.unlink(missing_ok=True)
+    global api  # noqa: PLW0602, PLW0603
+    api.PACKETZ_QUEUE.unlink(missing_ok=True)
     del sys.modules["tatsu.parproc.packetz"]
     importlib.import_module("tatsu.parproc.packetz")
-    from . import packetz  # noqa: F811
+    from . import api  # noqa: F811
+
     gc.collect()
 
 
@@ -49,17 +51,17 @@ def _write_batch(n: int, payload: Any = _SENTINEL) -> tuple[float, int]:
     start = time.perf_counter()
     for _ in range(n):
         if payload is _SENTINEL:
-            packetz.send()
+            api.send()
         else:
-            packetz.send(data=payload)
+            api.send(data=payload)
     elapsed = time.perf_counter() - start
     size = QUEUE.stat().st_size
     return elapsed, size
 
 
-def _read_all() -> tuple[list[packetz.PacketLike], float]:
+def _read_all() -> tuple[list[api.PacketLike], float]:
     start = time.perf_counter()
-    packets = list(packetz.receive())
+    packets = list(api.receive())
     elapsed = time.perf_counter() - start
     return packets, elapsed
 
@@ -89,10 +91,15 @@ def bench_write_payload_size():
 
 
 def bench_read():
-    for label, n in (("1 pkt", 1), ("10 pkts", 10), ("100 pkts", 100), ("1000 pkts", 1000)):
+    for label, n in (
+        ("1 pkt", 1),
+        ("10 pkts", 10),
+        ("100 pkts", 100),
+        ("1000 pkts", 1000),
+    ):
         _cleanup()
         _write_batch(n, payload=_make_payload(256))
-        packets, elapsed = _read_all()
+        _packets, elapsed = _read_all()
         rate = f"{n / elapsed:.0f}/s" if elapsed else "∞"
         print(f"  read {label:>10}  {elapsed:.4f}s  {rate:>8}")
 
@@ -105,7 +112,9 @@ def bench_growth_penalty():
         packets, elapsed = _read_all()
         size = QUEUE.stat().st_size
         rate = f"{len(packets) / elapsed:.0f}/s" if elapsed else "∞"
-        print(f"  growth round {round_}: file={size:,}B  read {len(packets)} pkts @ {rate}")
+        print(
+            f"  growth round {round_}: file={size:,}B  read {len(packets)} pkts @ {rate}"
+        )
 
 
 def bench_round_trip():
@@ -121,16 +130,18 @@ def bench_round_trip():
     ]
     sent_ids = []
     for p in payloads:
-        pkt = packetz.send(data=p, to="bench")
+        pkt = api.send(data=p, to="bench")
         sent_ids.append(pkt.id)
     packets, elapsed = _read_all()
     ok = [p.id for p in packets] == sent_ids
-    print(f"  sent {len(sent_ids)} pkts, received {len(packets)} in {elapsed:.3f}s  ids_match={ok}")
+    print(
+        f"  sent {len(sent_ids)} pkts, received {len(packets)} in {elapsed:.3f}s  ids_match={ok}"
+    )
 
 
 def bench_dedup():
     _cleanup()
-    from .packetz import Packet, pack
+    from .packet import Packet, pack
 
     pkt = Packet(data="dedup-test", to="check")
     raw = pack(pkt) + "\n"
@@ -139,20 +150,23 @@ def bench_dedup():
             f.write(raw)
     packets, elapsed = _read_all()
     ok = len(packets) == 1
-    print(f"  wrote 2 identical lines, got {len(packets)} unique ({'PASS' if ok else 'FAIL'}) in {elapsed:.3f}s")
+    print(
+        f"  wrote 2 identical lines, got {len(packets)} unique ({'PASS' if ok else 'FAIL'}) in {elapsed:.3f}s"
+    )
 
 
 def bench_transforms_wire_size():
     """Compare wire size: raw JSON vs. current pack() transforms."""
     _cleanup()
-    from .packetz import pack
-    from ..util.asjson import asjson
     import json
 
-    pkt = packetz.Packet(data=_make_payload(256), to="size-test")
+    from ..util.asjson import asjson
+    from .packet import Packet, pack
+
+    pkt = Packet(data=_make_payload(256), to="size-test")
     raw = json.dumps(asjson(pkt), separators=(",", ":"), ensure_ascii=False)
     cooked = pack(pkt)
-    ratio = f"{len(cooked)/len(raw)*100:.0f}%" if raw else "N/A"
+    ratio = f"{len(cooked) / len(raw) * 100:.0f}%" if raw else "N/A"
     print(f"  raw JSON        {len(raw):>6}B")
     print(f"  after pack()    {len(cooked):>6}B  ({ratio})")
 
@@ -167,16 +181,19 @@ def bench_bloat():
     ]
     n = 100
     for label, payload in cases:
-        elapsed, size = _write_batch(n, payload=payload)
+        _elapsed, size = _write_batch(n, payload=payload)
         raw_data_size = n * (len(payload) if payload else 0)
         ratio = f"{size / max(raw_data_size, 1):.1f}x"
-        print(f"  {label:>12}  {n:>3} pkts  wire={size:,}B  raw-data={raw_data_size:,}B  bloat={ratio}")
+        print(
+            f"  {label:>12}  {n:>3} pkts  wire={size:,}B  raw-data={raw_data_size:,}B  bloat={ratio}"
+        )
         _cleanup()
 
 
 # ---------------------------------------------------------------------------
 # runner
 # ---------------------------------------------------------------------------
+
 
 def main():
     BENCHMARKS = [
@@ -189,7 +206,7 @@ def main():
         ("Serialization transforms wire size", bench_transforms_wire_size),
         ("Serialization bloat factor", bench_bloat),
     ]
-    print(f"packetz queue: {packetz.PACKETZ_QUEUE}")
+    print(f"packetz queue: {api.PACKETZ_QUEUE}")
     print()
     for title, fn in BENCHMARKS:
         print(f"[{title}]")

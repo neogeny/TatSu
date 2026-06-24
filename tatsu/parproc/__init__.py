@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from ..packetz import PacketLike
 from .legacy import parallel_proc, processing_loop
-from .packetz import PacketLike
 from .parproc import (
     Progress,
     parproc,

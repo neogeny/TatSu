@@ -6,8 +6,8 @@ from collections.abc import Callable, Generator, Iterable
 from pathlib import Path
 from typing import Any
 
+from ..packetz import PacketLike
 from ..util import identity
-from .packetz import PacketLike
 from .parproc import parproc
 from .task import Func
 from .visual import VisualPayload, parproc_visual

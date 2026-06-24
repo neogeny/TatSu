@@ -19,13 +19,32 @@ __all__ = ["BarRowProtocol", "Metrics"]
 
 
 class BarRowProtocol(Protocol):
-    label: str | Style
-    pos: int
-    total: int
-    fill: str
-    style: list[Style]
-    width: int
-    start_time: int
+    @property
+    def label(self) -> str | Style: ...
+
+    @property
+    def pos(self) -> int: ...
+
+    @property
+    def total(self) -> int: ...
+
+    @property
+    def width(self) -> int: ...
+
+    @property
+    def startat(self) -> int: ...
+
+    @property
+    def cols(self) -> list[Any]: ...
+
+    @property
+    def style(self) -> list[Style]: ...
+
+    @property
+    def fill(self) -> str: ...
+
+    @property
+    def stop_on_close(self) -> bool: ...
 
 
 class Metrics:
@@ -67,7 +86,7 @@ class Metrics:
 
     @property
     def start_time(self) -> int:
-        return self.row.start_time
+        return self.row.startat
 
     # -- computed, cached lazily --
     @cached_property

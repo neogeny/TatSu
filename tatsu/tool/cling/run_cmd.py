@@ -12,11 +12,11 @@ from typing import Any
 from ...barz import BarRow, Col, Multi
 from ...config import ParserConfig
 from ...exceptions import FailedParse
+from ...packetz import api
 from ...parproc import (
     PacketLike,
     Result,
     VisualPayload,
-    packetz,
     parproc_visual,
     show_summary,
 )
@@ -52,8 +52,14 @@ class FileHeartRow(BarRow, Heart):
         super().start()
 
     def beat(self, mark: int, total: int) -> None:
-        self.update(mark, total)
-        packetz.send(data=self)
+        # self.update(mark, total)
+        api.send(
+            data={
+                **self.snap(),
+                "pos": mark,
+                "total": total,
+            }
+        )
 
     def dead(self) -> bool:
         return False
@@ -159,11 +165,8 @@ def run_with_progress(
             match value:
                 case Result() as result:
                     yield result
-                case PacketLike(data=FileHeartRow() as row):
-                    try:
-                        print(f"{row.pos}/{row.total} {row.label}")
-                    except Exception as e:
-                        print(f"\n\nERROR {e}\n\n")
+                case PacketLike(data=dict() as snap):
+                    multi.update_row(snap)
                     continue
                 case _:
                     continue

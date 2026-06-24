@@ -1,12 +1,5 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
-"""
-Process-safe packet queue for cross-worker communication.
-
-Defines a Packet protocol, a default dataclass implementation, and
-sync/async receivers for draining a multiprocessing.Queue.
-"""
-
 from __future__ import annotations
 
 import asyncio
@@ -15,46 +8,13 @@ import json
 import os
 from collections.abc import AsyncGenerator, Generator
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any, ClassVar, TextIO
 
-from ..util.asjson import AsJSONMixin, asjson
-from ..util.fromjson import JSONBase, fromjson
-from ..util.misc import new_id
+from .packet import Packet, PacketLike, pack, unpack
 
 
-# -- Packet types ------------------------------------------------------------
-
-
-class HasID(AsJSONMixin):
-    id: str
-
-
-class PacketLike(HasID):
-    to: str | None
-    data: Any
-
-
-class WithID(HasID, JSONBase):
-    id: str = "0xBAAD"
-
-    def __new__(cls, *args, **kwargs):
-        new = super().__new__(cls)
-        new.id = new_id()
-        return new
-
-
-class Packet(PacketLike, WithID):
-    to: str | None = None
-    data: Any = None
-
-    def __init__(self, /, *, to: str | None = None, data: Any = None):
-        if to is not None:
-            self.to = to
-        if data is not None:
-            self.data = data
-
-
-class PacketQueueState:
+class QueueState:
     """Encapsulates the shared file-backed queue state.
 
     Class variables serve as the module-level singleton state, accessible
@@ -71,9 +31,24 @@ class PacketQueueState:
     @classmethod
     def init(cls) -> None:
         if cls._queue is None:
+            name = __name__.split('.')[-1]
             # NOTE Erase the file
-            with cls.path.open("w+", encoding="utf-8") as _f:
-                cls._told = 0
+            with NamedTemporaryFile(
+                "w+",
+                encoding="utf-8",
+                prefix=f"{name}-",
+                suffix=".jsonl",
+                dir=f".{name}",
+                delete=False,
+                delete_on_close=False,
+            ) as queue:
+                cls.path = Path(queue.name)
+            cls._queue = cls.path.open(
+                "rt",
+                encoding="utf-8",
+                buffering=32 * 1024,
+            )
+            cls._told = 0
             cls.path.touch()
         cls._queue = cls.path.open(
             "rt",
@@ -133,6 +108,8 @@ class PacketQueueState:
                     packet = unpack(serial)
                 except (json.JSONDecodeError, TypeError):
                     break  # NOTE Assume incomplete line???
+                except ValueError:
+                    continue
                 cls.tell(False)
                 if packet.id in cls._seen:
                     continue
@@ -149,59 +126,3 @@ class PacketQueueState:
                 await asyncio.sleep(0.01)
         except asyncio.CancelledError:  # noqa: TRY203
             raise
-
-
-# -- Initialise the queue at import time -------------------------------------
-
-PacketQueueState.init()
-
-# -- Backward-compatible module-level aliases with full typing ---------------
-
-PACKETZ_QUEUE: Path = PacketQueueState.path
-
-
-def send(*, to: str | None = None, data: Any = None) -> PacketLike:
-    return PacketQueueState.send(to=to, data=data)
-
-
-def receive() -> Generator[PacketLike, None, None]:
-    return PacketQueueState.receive()
-
-
-async def receive_async() -> AsyncGenerator[PacketLike, None]:
-    async for pkt in PacketQueueState.receive_async():
-        yield pkt
-
-
-# -- Wire transforms ---------------------------------------------------------
-
-
-def tty_escape(s: str) -> str:
-    return s.replace('\\u001b', '\\e')
-
-
-def tty_unescape(s: str) -> str:
-    return s.replace('\\e', '\\u001b')
-
-
-def class_escape(s: str) -> str:
-    return s.replace(r'{"__class__":', '{"@":')
-
-
-def class_unescape(s: str) -> str:
-    return s.replace(r'{"@":', r'{"__class__":')
-
-
-def pack(packet: PacketLike) -> str:
-    value = asjson(packet)
-    serial = json.dumps(value, separators=(",", ":"), ensure_ascii=False)
-    escaped = tty_escape(serial)
-    return class_escape(escaped)
-
-
-def unpack(serial: str) -> PacketLike:
-    escaped = class_unescape(serial)
-    serial = tty_unescape(escaped)
-    value = json.loads(serial)
-    packet = fromjson(value)
-    return packet

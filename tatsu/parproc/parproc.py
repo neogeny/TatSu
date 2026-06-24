@@ -7,8 +7,8 @@ import threading
 from collections.abc import Generator, Iterable
 from typing import Any, Protocol
 
+from ..packetz import PacketLike
 from ..util import identity
-from .packetz import PacketLike
 from .pmap import HAS_MULTITHREADING_SUPPORT, active_pmap
 from .task import Event, Func, Task, taskproc
 

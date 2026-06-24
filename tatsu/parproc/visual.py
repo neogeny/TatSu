@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Any
 
 from ..log import iso_logpath, logctx, startscript
+from ..packetz import PacketLike
 from ..util import debugging, identity
-from .packetz import PacketLike
 from .parproc import Progress, parproc
 from .payload import VisualPayload
 from .result import Result
