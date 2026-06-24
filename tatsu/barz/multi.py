@@ -31,19 +31,6 @@ MAXL = shutil.get_terminal_size().lines - 1
 
 _screen_lock = multiprocessing.Lock()
 
-_INIT_FIELDS = frozenset(
-    {
-        "pos",
-        "total",
-        "label",
-        "width",
-        "fill",
-        "style",
-        "cols",
-        "stop_on_complete",
-    }
-)
-
 
 class MessageRow(BarRow):
     def is_active(self) -> bool:
@@ -104,8 +91,9 @@ class Multi:
                 if row.id == row_id:
                     row.update(**snap)
                     return
-            row = BarRow(**{k: v for k, v in snap.items() if k in _INIT_FIELDS})
+            row = BarRow()
             row.id = row_id
+            row.update(**snap)
             self.rows.append(row)
             row.start()
 
@@ -158,7 +146,7 @@ class Multi:
 
     def render_rows(self, *, final: bool = False) -> None:
         snapshot: list[BarRow] = self._take_snapshot()
-        lines: list[list[Any]] = [b._call_render() for b in snapshot]
+        lines: list[list[Any]] = [b._call_render() for b in snapshot][-MAXL:]
 
         colwidth = [self.line_col_widths(line, MAXW) for line in lines]
         assert len(colwidth) == len(lines)
