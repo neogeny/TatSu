@@ -17,6 +17,7 @@ from tatsu.util import asjson, eval_escapes, trim
 
 class MockIncludeBuffer(TatSuBuffer):
     def get_include(self, source, filename):
+        _ = source
         return f'\nINCLUDED "{filename}"\n', filename
 
 

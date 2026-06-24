@@ -7,9 +7,11 @@ from typing import Self
 
 class ColorMethods:
     def fg(self, value: int) -> Self:
+        _ = value
         return self
 
     def bg(self, value: int) -> Self:
+        _ = value
         return self
 
     def basic_black(self) -> Self:

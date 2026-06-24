@@ -146,6 +146,7 @@ class BreadthFirstWalker(NodeWalker):
             self.queue = None
 
     def walk_children(self, node: Any, *args, **kwargs) -> Any:
+        _, _, _ = node, args, kwargs
         """
         An error during a BFS walk
         """

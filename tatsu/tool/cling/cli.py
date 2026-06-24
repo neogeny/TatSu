@@ -11,6 +11,7 @@ from argparse import ArgumentParser
 
 from ... import __toolname__, __version__, g2e
 from ...exceptions import ParseError
+from ...util.checkpygments import is_pygments_available
 from .. import bench, ideps
 from .boot_cmd import add_boot_cmd, boot_cmd
 from .cfg import CLIConfig, CLIError
@@ -88,10 +89,14 @@ def cling_main() -> int:  # noqa: PLR0911
         cfg = run_cling_cli(parser)
 
         if cfg.style == "list":
-            from pygments.styles import get_all_styles
+            if is_pygments_available():
+                from pygments.styles import get_all_styles
 
-            for style in sorted(get_all_styles()):
-                print(style)
+                for style in sorted(get_all_styles()):
+                    print(style)
+            else:
+                print("pygments not installed", file=sys.stderr)
+                print("install with: pip install tatsu[cling]", file=sys.stderr)
             return 0
         match cfg.command:
             case "boot":

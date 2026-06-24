@@ -121,7 +121,7 @@ class DiagramNodeWalker(NodeWalker):
     def path(self, p):
         self.graph.add_path(p)
 
-    def subgraph(self, name, bunch):
+    def subgraph(self, name, _bunch):
         self.top_graph.add_subgraph(name)
 
     def concat(self, *args):
@@ -130,7 +130,7 @@ class DiagramNodeWalker(NodeWalker):
     def _walk_decorator(self, d):
         return self.walk(d.exp)
 
-    def walk_default(self, node):
+    def walk_default(self, _node):
         return None, None
 
     def walk__decorator(self, d):
@@ -186,7 +186,7 @@ class DiagramNodeWalker(NodeWalker):
     def walk__named_list(self, n):
         return self._walk_decorator(n)
 
-    def walk__cut(self, c):
+    def walk__cut(self, _c):
         # c = self.node('>>')
         # return (c, c)
         return None
@@ -280,7 +280,7 @@ class DiagramNodeWalker(NodeWalker):
         n = self.tnode(t.token)
         return n, n
 
-    def walk__void(self, v):
+    def walk__void(self, _v):
         n = self.dot()
         return n, n
 
@@ -288,10 +288,10 @@ class DiagramNodeWalker(NodeWalker):
         n = self.tnode(f'`{t.ast}`')
         return n, n
 
-    def walk__eof(self, v):
+    def walk__eof(self, _v):
         n = self.node('＄')
         return n, n
 
-    def walk__eol(self, v):
+    def walk__eol(self, _v):
         n = self.node(EOL_SYM)
         return n, n

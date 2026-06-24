@@ -105,8 +105,8 @@ class Renderer:
         return trim(self.rend(item), tabwidth=tabwidth)
 
     def render_fields(self, fields):
+        _ = fields
         """Pre-render fields before rendering the template."""
-        return
 
     def render(self, **fields):
         template = fields.pop('template', None)

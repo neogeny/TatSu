@@ -17,6 +17,7 @@ class NameMeta(Meta):
         return ctx.matchname()
 
     def _pretty(self, lean: bool = False) -> str:
+        _ = lean
         return '@name'
 
 
@@ -25,6 +26,7 @@ class IntMeta(Meta):
         return ctx.matchint()
 
     def _pretty(self, lean: bool = False) -> str:
+        _ = lean
         return '@int'
 
 
@@ -33,6 +35,7 @@ class UIntMeta(Meta):
         return ctx.matchuint()
 
     def _pretty(self, lean: bool = False) -> str:
+        _ = lean
         return '@uint'
 
 
@@ -41,6 +44,7 @@ class FloatMeta(Meta):
         return ctx.matchfloat()
 
     def _pretty(self, lean: bool = False) -> str:
+        _ = lean
         return '@float'
 
 
@@ -49,4 +53,5 @@ class BoolMeta(Meta):
         return ctx.matchbool()
 
     def _pretty(self, lean: bool = False) -> str:
+        _ = lean
         return '@bool'

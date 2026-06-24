@@ -40,7 +40,7 @@ class RailroadNodeWalker(NodeWalker):
     def __init__(self):
         super().__init__()
 
-    def walk(self, node: Any, *args, **kwargs) -> Any:
+    def walk(self, node: Any, *_args, **_kwargs) -> Any:
         return list(super().walk(node))
 
     def walk_default(self, node: g.Model) -> Rails:

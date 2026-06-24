@@ -23,6 +23,7 @@ class ContextBase:
         return ctx.newexcept(msg)
 
     def parse(self, ctx: Ctx) -> Any:
+        _ = ctx
         return None
 
     def __enter__(self) -> ContextBase:

@@ -25,7 +25,7 @@ class PacketLike(HasID):
 class WithID(HasID, JSONBase):
     id: str = "0xBAAD"
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *_args, **_kwargs):
         new = super().__new__(cls)
         new.id = new_id()
         return new

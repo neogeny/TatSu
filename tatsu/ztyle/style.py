@@ -252,7 +252,7 @@ class Style(ColorMethods, str):
     def value(self) -> str:
         return super().__str__()
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args, **_kwargs):
         return super().__new__(cls, *args)
 
     def __str__(self) -> str:
@@ -292,9 +292,10 @@ class Style(ColorMethods, str):
         hidden: bool = False,
         strikethrough: bool = False,
         color: Color = DEFAULT_COLOR,
-        **kwargs,
+        **_kwargs,
     ):
         super().__init__()
+        _ = value
 
         self._color = color
 

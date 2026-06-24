@@ -250,13 +250,16 @@ class Call(Leaf):
         return {self.name}
 
     def _first(self, k, f) -> ffset:
+        _ = k
         return f[self.name] | {ref(self.name)}
 
     def _follow(self, k, fl, a):
+        _ = k
         fl[self.name] |= a
         return set(a) | {self.name}
 
     def _pretty(self, lean=False):
+        _ = lean
         return self.name
 
     def is_nullable(self) -> bool:

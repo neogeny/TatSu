@@ -21,9 +21,12 @@ class Dot(Leaf):
         return ctx.dot()
 
     def _pretty(self, lean=False):
+        _ = lean
         return '/./'
 
     def _first(self, k: int, f: dict[str, ffset]) -> ffset:
+        _ = k
+        _ = f
         return {('.',)}
 
 
@@ -33,6 +36,7 @@ class Fail(Leaf):
         return ctx.fail()
 
     def _pretty(self, lean=False):
+        _ = lean
         return '!()'
 
 
@@ -41,12 +45,14 @@ class Comment(Leaf):
     comment: str = ''
 
     def _pretty(self, lean: bool = False):
+        _ = lean
         return f'(* {self.comment} *)'
 
 
 @nodedataclass
 class EOLComment(Comment):
     def _pretty(self, lean=False):
+        _ = lean
         return f'  # {self.comment}\n'
 
 
@@ -60,6 +66,7 @@ class EOF(Leaf):
         ctx.eofcheck()
 
     def _pretty(self, lean=False):
+        _ = lean
         return '$'
 
 
@@ -77,9 +84,12 @@ class EOL(Leaf):
         return True
 
     def _first(self, k: int, f: dict[str, ffset]) -> ffset:
+        _ = k
+        _ = f
         return {('$->',)}
 
     def _pretty(self, lean=False):
+        _ = lean
         return EOL_SYM
 
 
@@ -94,10 +104,13 @@ class Token(Leaf):
     def _parse(self, ctx: Ctx) -> Any:
         return ctx.token(self.token)
 
-    def _first(self, k, f) -> ffset:
+    def _first(self, k: int, f: dict[str, ffset]) -> ffset:
+        _ = k
+        _ = f
         return {(self.token,)}
 
     def _pretty(self, lean=False):
+        _ = lean
         return repr(self.token)
 
 
@@ -112,10 +125,13 @@ class Constant(Leaf):
     def _parse(self, ctx: Ctx) -> Any:
         return ctx.constant(self.literal)
 
-    def _first(self, k, f) -> ffset:
+    def _first(self, k: int, f: dict[str, ffset]) -> ffset:
+        _ = k
+        _ = f
         return {()}
 
     def _pretty(self, lean=False):
+        _ = lean
         return f'`{self.literal!s}`'
 
     @cached_property
@@ -137,6 +153,7 @@ class Alert(Constant):
         return ctx.alert(message=self.literal, level=self.level)
 
     def _pretty(self, lean=False):
+        _ = lean
         return f'{"^" * self.level}{super()._pretty()}'
 
 
@@ -149,10 +166,13 @@ class Cut(Leaf):
     def _parse(self, ctx: Ctx) -> Any:
         ctx.cut()
 
-    def _first(self, k, f) -> ffset:
+    def _first(self, k: int, f: dict[str, ffset]) -> ffset:
+        _ = k
+        _ = f
         return {()}
 
     def _pretty(self, lean=False):
+        _ = lean
         return '~'
 
     @cached_property

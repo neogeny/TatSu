@@ -64,7 +64,7 @@ class GrammarSemantics(ModelBuilderSemantics):
         self._validate_pattern(pattern)
         return pattern
 
-    def meta(self, ast: str, *args) -> g.Meta:
+    def meta(self, ast: str, *_args) -> g.Meta:
         match ast:
             case "name":
                 return g.NameMeta()

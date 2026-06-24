@@ -87,6 +87,7 @@ test = [
     "types-pygments>=2.20.0.20260518",
     "types-pyyaml>=6.0.12.20260518",
     "basedpyright>=1.39.8",
+    "tatsu",
 ]
 doc = [
     "docutils>=0.22.4",
@@ -113,13 +114,19 @@ Repository = "https://github.com/neogeny/TatSu"
 Documentation = "https://neogeny.github.io/TatSu"
 
 [tool.uv]
+config-settings = { editable_mode = "strict" }
 cache-keys = [
     { file = "pyproject.toml" },
     { git = { commit = true, tags = true } }
 ]
 
 [tool.uv.workspace]
-members = []
+members = [
+    ".",
+]
+
+[tool.uv.sources]
+tatsu = { workspace = true }
 
 [tool.hatch.version]
 path = "tatsu/_version.py"
@@ -263,16 +270,16 @@ select = [
     "FLY", "PERF", "FURB", "RUF",
     "PL", "PGH", "RET",
     # --- The "Hardened Venv" Additions ---
-    # "SCS",  # Supply Chain Safety (Detects executable .pth files)
+    "S",  # Bandit Security rules
     "TID", # Tidy Imports (Ban insecure/legacy modules)
     "INP", # No implicit namespace packages
-    #    "ARG", # Unused arguments (Go-style strictness)
+    "ARG", # Unused arguments (Go-style strictness)
     "SLOT", # Performance/Memory optimization
-    #    "T20", # No print statements
+    "T20", # No print statements
 ]
 
 ignore = [
-    "ARG002", # unused argument
+    # "ARG002", # unused argument
     "B905", # `zip()` without an explicit `strict=` parameter
     "COM812", #  Trailing comma missing
     "COM819", #  Trailing comma prohibited
@@ -282,7 +289,7 @@ ignore = [
     "FURB145", # Prefer `copy` method over slicing
     "FURB152", # 3.14 disallowed
     "FURB189", #  subclassing str
-    "I001", #    Import block is un-sorted or un-formatted
+    # "I001", #    Import block is un-sorted or un-formatted
     "PERF203", #  try-except within loop
     "PGH003",
     "PGH004", # Use specific rule codes when using `noqa`

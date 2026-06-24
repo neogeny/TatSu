@@ -133,9 +133,12 @@ class EmptyClosure(Model):
         return ctx.empty()
 
     def _first(self, k, f) -> ffset:
+        _ = k
+        _ = f
         return {()}
 
     def _pretty(self, lean=False):
+        _ = lean
         return '{}'
 
     @cached_property

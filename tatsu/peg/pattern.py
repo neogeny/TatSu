@@ -29,6 +29,7 @@ class Pattern(Leaf):
         return ctx.pattern(self.pattern or r'\\')
 
     def _first(self, k, f) -> ffset:
+        _ = k, f
         x = str(self)
         if bool(self._regex.match('')):
             return {(), (x,)}
@@ -36,6 +37,7 @@ class Pattern(Leaf):
             return {(x,)}
 
     def _pretty(self, lean=False):
+        _ = lean
         pat = self.pattern or ""
         # multiline patterns are OK
         pat = trim(pat)

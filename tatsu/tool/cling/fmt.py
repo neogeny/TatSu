@@ -7,6 +7,7 @@ from typing import Any
 from ...ngcodegen import modelgen, parsergen, pythongen
 from ...peg import Grammar
 from ...util.asjson import asjsons
+from ...util.checkpygments import is_pygments_available
 from .cfg import DEFAULT_PYGMENTS_STYLE, CLIConfig
 
 
@@ -21,6 +22,9 @@ def colorize_output(
     language: str,
     style: str = DEFAULT_PYGMENTS_STYLE,
 ) -> str:
+    if not is_pygments_available():
+        return payload
+
     from pygments import highlight
     from pygments.formatters import Terminal256Formatter
     from pygments.lexers import get_lexer_by_name

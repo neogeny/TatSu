@@ -54,6 +54,7 @@ class RuleInclude(Leaf):
         return set()
 
     def _pretty(self, lean=False):
+        _ = lean
         return f'>{self.name}'
 
     @cached_property

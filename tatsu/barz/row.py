@@ -42,7 +42,7 @@ class BarRow(WithID):
         self.begun: int = 0
         self.state: State = State.NEW
 
-        self.pos: int = 0
+        self.pos: int = pos
         self.total: int = max(1, total)
         self.label = label
 
@@ -126,8 +126,8 @@ class BarRow(WithID):
         pos: int,
         total: int = -1,
         label: str = "",
-        *args,
-        **kwargs,
+        *_args,
+        **_kwargs,
     ):
         """Write-only operation from the user's side."""
         if total > 0:

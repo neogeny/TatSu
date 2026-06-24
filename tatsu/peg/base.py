@@ -88,6 +88,7 @@ class Model(Node, CanParse):
         )
 
     def _parse(self, ctx: Ctx) -> Any:
+        _ = ctx
         return ()
 
     def link(self, grammar: Grammar):
@@ -138,9 +139,13 @@ class Model(Node, CanParse):
         return set()
 
     def _first(self, k: int, f: dict[str, ffset]) -> ffset:  # pyright: ignore[reportUnusedParameter]
+        _ = k
+        _ = f
         return set()
 
     def _follow(self, k, fl, a):
+        _ = k
+        _ = fl
         return a
 
     def is_nullable(self) -> bool:
@@ -160,6 +165,7 @@ class Model(Node, CanParse):
         return self._pretty(lean=True)
 
     def _pretty(self, lean=False):
+        _ = lean
         return f'{typename(self)}: {id(self)}'
 
     def railroads(self) -> str:
@@ -182,6 +188,7 @@ class NIL(Leaf):
         return ctx.fail() or ()
 
     def _pretty(self, lean=False):
+        _ = lean
         return typename(self)
 
     @cached_property
@@ -199,6 +206,7 @@ class Void(Leaf):
         return ctx.void()
 
     def _pretty(self, lean=False):
+        _ = lean
         return '()'
 
     @cached_property
@@ -351,6 +359,7 @@ class Rule(NamedBox):
         return self._firstset
 
     def _follow(self, k, fl, a):
+        _ = a
         return self.exp._follow(k, fl, fl[self.name])
 
     @cached_property

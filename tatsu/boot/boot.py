@@ -35,7 +35,7 @@ class TatSuBuffer(TatSuBootstrapBuffer):
         config = ParserConfig.new(config=config, source=filename, **settings)
         super().__init__(text, config=config)
 
-    def process_block(self, name, lines, index, **kwargs):
+    def process_block(self, name, lines, index, **_kwargs):
         i = 0
         while i < len(lines):
             line = lines[i]

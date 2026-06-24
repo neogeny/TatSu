@@ -14,15 +14,19 @@ __all__ = ['ASTSemantics', 'ModelBuilderSemantics', 'TypeContainer']
 
 class ASTSemantics:
     def group(self, ast: Any, *args) -> Any:
+        _ = args
         return simplify_list(ast)
 
     def element(self, ast: Any, *args) -> Any:
+        _ = args
         return simplify_list(ast)
 
     def sequence(self, ast: Any, *args) -> Any:
+        _ = args
         return simplify_list(ast)
 
     def choice(self, ast: Any, *args) -> Any:
+        _ = args
         if len(ast) == 1:
             return simplify_list(ast[0])
         return ast

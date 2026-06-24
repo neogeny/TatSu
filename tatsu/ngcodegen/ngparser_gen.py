@@ -87,7 +87,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
     def walk_default(self, node: Any) -> Any:
         raise RuntimeError(f'Unknown node type: {typename(node)}')
 
-    def walk_NIL(self, node: g.NIL) -> Any:
+    def walk_NIL(self, _node: g.NIL) -> Any:
         return ""
 
     def walk_Grammar(self, grammar: g.Grammar):

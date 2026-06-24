@@ -160,8 +160,9 @@ def show_summary(
     yield from out
 
 
-def show_result(rprint: PrintFunc, r: Result) -> None:
-    s = ResultsStyle()
+def show_result(rprint: PrintFunc, r: Result, usecolor: bool = False) -> None:
+    c = Color(usecolor)
+    s = ResultsStyle(c)
     nm = slicetowidth(Path(r.payload.path).name, 40)
     if r.exception or isinstance(r.outcome, Exception):
         rprint(f" {s.bad('✗')} {s.plain(f'{nm}'):45}{s.bad(f'⏲ {r.runtime:>7.3f}')}")
@@ -177,5 +178,5 @@ def show_results(
     usecolor: bool = False,
 ) -> Iterable[Result]:
     for r in results:
-        show_result(rprint, r)
+        show_result(rprint, r, usecolor)
         yield r

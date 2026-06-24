@@ -44,10 +44,10 @@ class NullCursor(Cursor):
         return self._namechars
 
     def goto(self, pos) -> None:
-        return
+        _ = pos
 
     def move(self, n: int) -> None:
-        return
+        _ = n
 
     def atend(self) -> bool:
         return False
@@ -70,9 +70,11 @@ class NullCursor(Cursor):
         return None
 
     def match(self, token: str) -> str | None:
+        _ = token
         return None
 
     def matchre(self, pattern: str) -> str | None:
+        _ = pattern
         return None
 
     def matchname(self) -> str | None:
@@ -94,24 +96,33 @@ class NullCursor(Cursor):
         return None
 
     def is_name(self, s: str) -> bool:
+        _ = s
         return False
 
     def is_name_char(self, c: str | None) -> bool:
+        _ = c
         return False
 
     def lineat(self, pos: int | None = None) -> int:
+        _ = pos
         return 0
 
     def lineinfo(self, pos: int | None = None) -> LineInfo:
+        _ = pos
         return LineInfo('', 0, 0, 0, 0, '')
 
     def get_line(self, n: int | None = None) -> str:
+        _ = n
         return ''
 
     def get_lines(self, start: int | None = None, end: int | None = None) -> list[str]:
+        _ = start
+        _ = end
         return []
 
     def line_index(self, start: int = 0, end: int | None = None) -> list[LineIndexInfo]:
+        _ = start
+        _ = end
         return []
 
     def lookahead(self) -> str:
@@ -123,6 +134,7 @@ class NullCursor(Cursor):
 
 class NullText(Text):
     def newcursor(self, pos: int = 0) -> Cursor:
+        _ = pos
         return NullCursor()
 
     @property

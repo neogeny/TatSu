@@ -201,5 +201,6 @@ class NullTracer(Tracer):
     ) -> None:
         pass
 
-    def rulestack(self, ctx) -> str:
+    def rulestack(self, ctx: Ctx) -> str:
+        _ = ctx
         return ""

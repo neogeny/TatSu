@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
         @x.setter
         def x(self, value):
-            return
+            _ = value
 
         def incr(self) -> int:
             return self._obj.incr()
