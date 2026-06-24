@@ -38,7 +38,7 @@ def parproc_visual(
     from ..util.escapes import hide_cursor, show_cursor
     from ..ztyle import Color
 
-    _eprint_in = eprint
+    eprint_in = eprint
 
     # NOTE resolve iterator now because we know that processing will do it anyway
     payloads_in = list(payloads_in)
@@ -135,7 +135,7 @@ def parproc_visual(
         packets = show_summary(
             start_time,
             results,
-            eprint=_eprint_in,
+            eprint=eprint_in,
             verbose=verbose,
         )
 
