@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import itertools
+
 
 """Multi-bar display manager with a background rendering thread."""
 
@@ -17,9 +19,9 @@ from ..util.debugging import prints
 from ..ztyle import visual_len as vlen
 from .escapes import (
     blankpad,
-    clearlines,
     hide_cursor,
     pushup,
+    shoot_lines,
     show_cursor,
 )
 from .row import BarRow
@@ -52,7 +54,7 @@ class Multi:
         self,
         rows: list[BarRow],
         /,
-        fps: int = 60,
+        fps: list[int] = [17, 23, 37, 61, 127],  # noqa: B006
         out: TextIO = sys.stderr,
     ):
         self.lock = threading.RLock()
@@ -86,16 +88,17 @@ class Multi:
         """Inserts or updates a row internally."""
         if not (row_id := snap.get("id")):
             return
-        with self.lock:
-            for row in self.rows:
-                if row.id == row_id:
-                    row.update(**snap)
-                    return
+
+        for row in self.rows:
+            if row.id == row_id:
+                break
+        else:
             row = BarRow()
             row.id = row_id
-            row.update(**snap)
-            self.rows.append(row)
-            row.start()
+            self.add_row(row)
+
+        row.update(**snap)
+        row.start()
 
     def print(self, *args, **kwargs) -> None:
         """Prints to the output stream."""
@@ -131,10 +134,11 @@ class Multi:
         self.out.write(hide_cursor())  # Hide cursor
         self.out.write("\n")  # Hide cursor
         self.out.flush()
+        fpscycle = itertools.cycle(self.fps)
         try:
             while self.alive:
                 self.render_rows()
-                time.sleep(1 / self.fps)
+                time.sleep(1 / next(fpscycle))
         finally:
             self.out.write(show_cursor())  # Show cursor
             self.out.flush()
@@ -146,28 +150,33 @@ class Multi:
 
     def render_rows(self, *, final: bool = False) -> None:
         snapshot: list[BarRow] = self._take_snapshot()
-        lines: list[list[Any]] = [b._call_render() for b in snapshot][-MAXL:]
+        rendered: list[list[Any]] = [b._call_render() for b in snapshot]
 
-        colwidth = [self.line_col_widths(line, MAXW) for line in lines]
-        assert len(colwidth) == len(lines)
+        colwidth = [self.line_col_widths(line, MAXW) for line in rendered]
+        assert len(colwidth) == len(rendered)
 
-        screenshot_lines: list[str] = [
-            self.line_shot(line, cw) for line, cw in zip(lines, colwidth)
+        expanded: list[str] = [
+            self.expand_row(line, cw) for line, cw in zip(rendered, colwidth)
         ]
-        screenshot: str = clearlines(screenshot_lines)
 
-        h = len(screenshot_lines)
-        c = max(0, self.height - h)
-        if not final:
-            screenshot += blankpad(c)
+        shot_lines = shoot_lines(expanded)
 
-        self.out.write(screenshot)
+        h = len(expanded)
+        c = max(0, self.height - h) if not final else 0
+        blank_lines = blankpad(c)
+
+        frame_lines = [*shot_lines, *blank_lines][-MAXL:]
+
+        screenshot: str = "".join(frame_lines)
+        with _screen_lock:
+            self.out.write(screenshot)
+
         self.height = max(h, self.height)
         if not final:
             self.out.write(pushup(self.height))
         self.out.flush()
 
-    def line_shot(self, line: list[Any], cw: list[int]) -> str:
+    def expand_row(self, line: list[Any], cw: list[int]) -> str:
         return ''.join(f"{col:{w}}" for col, w in zip(line, cw))
 
     def line_col_widths(self, line: list[Any], maxw: int) -> list[int]:

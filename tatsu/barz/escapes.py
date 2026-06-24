@@ -18,9 +18,9 @@ def clearline(text: str = "") -> str:
     return f"\033[K{text}\n"
 
 
-def clearlines(texts: list[str]) -> str:
+def shoot_lines(texts: list[str]) -> list[str]:
     """Returns a block of clear-to-end-of-line escape sequences for each line."""
-    return "".join(clearline(t) for t in texts)
+    return [clearline(t) for t in texts]
 
 
 def pushup(lines: int) -> str:
@@ -28,6 +28,6 @@ def pushup(lines: int) -> str:
     return f"\033[{lines}A"
 
 
-def blankpad(count: int) -> str:
+def blankpad(count: int) -> list[str]:
     """Generates a block of empty, cleared lines to wipe out stale terminal trailing rows."""
-    return "\033[K\n" * count
+    return ["\033[K\n"] * count
