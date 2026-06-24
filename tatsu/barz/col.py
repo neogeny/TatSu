@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from enum import StrEnum, auto
 
+from ..util.fromjson import JSONBase
+
 
 """Column identifiers for bar layouts (label, counters, timings)."""
 
@@ -11,14 +13,18 @@ from enum import StrEnum, auto
 __all__ = ["Col"]
 
 
-class Col(StrEnum):
-    label = auto()
-    padding = auto()
+class Col(JSONBase, StrEnum):
     # Progress Counters
+    begun = auto()
+    state = auto()
     pos = auto()
     total = auto()
+    label = auto()
+
+    padding = auto()
     percentage = auto()
     pct = auto()
+
     # Timings & Durations
     elapsed = auto()
     rt = auto()  # Run Time (as timedelta object)

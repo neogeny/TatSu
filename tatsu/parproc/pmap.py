@@ -5,6 +5,8 @@ from __future__ import annotations
 import sys
 import sysconfig
 from collections.abc import Callable, Iterable
+from concurrent.futures import as_completed
+from itertools import islice
 from pickle import PickleError, PicklingError
 from typing import Any
 
@@ -41,15 +43,27 @@ def active_pmap() -> Callable[
         with executorcls(max_workers=max_workers) as ex:  # type: ignore
             # with executorcls(None) as ex:  # type: ignore
             try:
-                futures = [ex.submit(process, task) for task in tasks]
+                n = 8
+                taskiter = iter(tasks)
+                futures = {
+                    ex.submit(process, task): task for task in islice(taskiter, n)
+                }
                 while futures:
-                    finished = {f for f in futures if f.done()}
-                    for f in finished:
-                        futures.remove(f)
-                        yield f.result()
-                        finished = {f for f in futures if f.done()}
-                    # if futures:
-                    #     time.sleep(0.01)
+                    for future in as_completed(futures):
+                        _task = futures.pop(future)
+                        yield future.result()
+                        break
+                    for task in islice(taskiter, 1):
+                        new_future = ex.submit(process, task)
+                        futures[new_future] = task
+                # while futures:
+                #     finished = {f for f in futures if f.done()}
+                #     for f in finished:
+                #         futures.remove(f)
+                #         yield f.result()
+                #         finished = {f for f in futures if f.done()}
+                # if futures:
+                #     time.sleep(0.01)
                 # yield from packetz.receive()
                 # for future in as_completed(futures):
                 #     yield from packetz.receive()
@@ -140,5 +154,4 @@ def active_pmap() -> Callable[
 
     if HAS_MULTITHREADING_SUPPORT:
         return thread_pmap
-    # return thread_pmap
     return process_pmap

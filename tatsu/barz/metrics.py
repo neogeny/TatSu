@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from ..util.fromjson import JSONBase
+
 
 """Computed metrics and column resolution for a progress bar row."""
 
@@ -20,7 +22,13 @@ __all__ = ["BarRowProtocol", "Metrics"]
 
 class BarRowProtocol(Protocol):
     @property
-    def label(self) -> str | Style: ...
+    def id(self) -> str: ...
+
+    @property
+    def state(self) -> int: ...
+
+    @property
+    def begun(self) -> int: ...
 
     @property
     def pos(self) -> int: ...
@@ -32,7 +40,7 @@ class BarRowProtocol(Protocol):
     def width(self) -> int: ...
 
     @property
-    def startat(self) -> int: ...
+    def label(self) -> str | Style: ...
 
     @property
     def cols(self) -> list[Any]: ...
@@ -47,7 +55,7 @@ class BarRowProtocol(Protocol):
     def stop_on_complete(self) -> bool: ...
 
 
-class Metrics:
+class Metrics(JSONBase):
     """Lazy, cached metrics for a BarRow. Create fresh per render cycle."""
 
     def __init__(self, row: BarRowProtocol) -> None:
@@ -55,6 +63,14 @@ class Metrics:
 
     def resolve(self, col: Col) -> Any:
         return getattr(self, col.value)
+
+    @property
+    def id(self) -> str:
+        return self.row.id
+
+    @property
+    def state(self) -> int:
+        return self.row.state
 
     @property
     def label(self) -> str | Style:
@@ -85,13 +101,13 @@ class Metrics:
         return self.row.width
 
     @property
-    def startat(self) -> int:
-        return self.row.startat
+    def begun(self) -> int:
+        return self.row.begun
 
     # -- computed, cached lazily --
     @cached_property
     def elapsed(self) -> int:
-        return max(0, clock_time_μs() - self.startat)
+        return max(0, clock_time_μs() - self.begun)
 
     @cached_property
     def rt(self) -> dt.timedelta:

@@ -7,7 +7,7 @@ import time
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, assert_never
 
 from ... import packetz
 from ...barz import BarRow, Col, Multi
@@ -23,6 +23,7 @@ from ...parproc import (
     show_summary,
 )
 from ...peg import Grammar
+from ...util.debugging import ERROR_print
 from ...util.heart import Heart
 from ...ztyle import Style
 from .cfg import CLIConfig
@@ -97,7 +98,6 @@ def parse_file_task(data: GrammarPayload) -> Any:
     relpath = path.absolute().relative_to(Path().absolute())
     config.source = str(relpath)
 
-    multi.add_row(heart)
     heart.start()
     heart.update(pos=0, total=len(text))
     sys.setrecursionlimit(2**16)
@@ -134,7 +134,7 @@ def run_with_progress(
 
     paths = [Path(input) for input in inputs]
     payloads = []
-    filehearts: dict[int, FileHeartRow] = {}
+    filehearts: dict[str, FileHeartRow] = {}
     for idx, path in enumerate(paths):
         text = path.read_text()
         fh = FileHeartRow(path.name, len(text))
@@ -148,7 +148,7 @@ def run_with_progress(
                 idx=idx,
             )
         )
-        filehearts[idx] = fh
+        filehearts[fh.id] = fh
 
     if not cfg.quiet or cfg.summary:
         multi.start()
@@ -162,17 +162,13 @@ def run_with_progress(
             match value:
                 case Result() as result:
                     yield result
-                case PacketLike(data=FileHeartRow() as row):
-                    raise RuntimeError("HERE")
-                    multi.update_row(row.snap())
-                    try:
-                        print(f"{row.pos}/{row.total} {row.label}")
-                    except Exception as e:
-                        print(f"\n\nERROR {e}\n\n")
-                    continue
+                case PacketLike(data=FileHeartRow() as row_packet):
+                    row = filehearts[row_packet.id]
+                    row.update(**row_packet.snap())
+                    if row.is_active():
+                        multi.add_row(row)
                 case _:
-                    raise RuntimeError(f"HERE {value}")
-                    continue
+                    assert_never(value)
 
     try:
         values = parproc_visual(

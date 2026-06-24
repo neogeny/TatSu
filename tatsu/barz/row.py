@@ -39,19 +39,19 @@ class BarRow(WithID):
         cols: list[Any] | None = None,
         stop_on_complete: bool = True,
     ):
-        self.startat: int = 0
+        self.begun: int = 0
         self.state: State = State.NEW
-        self.label = label
 
         self.pos: int = 0
         self.total: int = max(1, total)
-        self.cols: list[Any] = []
+        self.label = label
 
-        self.width: int = width
         self.fill = fill
-        self.style: list[Style] = style or []
-        self.stop_on_complete: bool = stop_on_complete
+        self._width: int = width
+        self._style: list[Style] = style or []
+        self._stop_on_complete: bool = stop_on_complete
 
+        self.cols: list[Any] = []
         if cols is not None:
             self.cols = cols
         elif label:
@@ -59,9 +59,21 @@ class BarRow(WithID):
         else:
             self.cols = [Col.bar]
 
+    @property
+    def width(self) -> int:
+        return self._width
+
+    @property
+    def style(self) -> list[Style]:
+        return self._style
+
+    @property
+    def stop_on_complete(self) -> bool:
+        return self._stop_on_complete
+
     def start(self) -> None:
         self.state = State.RUNNING
-        self.startat = clock_time_μs()
+        self.begun = clock_time_μs()
 
     def stop(self) -> None:
         if self.state == State.NEW:
@@ -73,7 +85,9 @@ class BarRow(WithID):
         return self.state == State.NEW
 
     def is_active(self) -> bool:
-        return self.has_started() and not self.is_stopped()
+        return (
+            self.has_started() and not self.is_stopped()
+        ) or 1 < self.pos < self.total
 
     def has_started(self) -> bool:
         return self.state == State.RUNNING
@@ -114,7 +128,7 @@ class BarRow(WithID):
         return Metrics(self)
 
     def _call_render(self) -> list[Any]:
-        if self.is_stopping() or (self.stop_on_complete and self.pos >= self.total):
+        if self.is_stopping() or (self._stop_on_complete and self.pos >= self.total):
             self.stop()
 
         if self.is_stopped():

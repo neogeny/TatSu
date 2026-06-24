@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import IO, Any
 
 from ..util import alpha_timestamp
+from ..util.debugging import ERROR_print, INFO_print
 from .packet import Packet, PacketLike, pack, unpack
 
 
@@ -97,12 +98,15 @@ class QueueState:
     def receive(self) -> Generator[PacketLike, None, None]:
         with self.reader() as queue:
             for serial in queue.readlines():
+                INFO_print(f"received serial: {serial.strip()}")
                 try:
                     packet = unpack(serial)
-                    raise RuntimeError(f"RECEIVED {packet.id}")
-                except (json.JSONDecodeError, TypeError):
+                    INFO_print(f"received packet: {packet.id}")
+                except (json.JSONDecodeError, TypeError) as e:
+                    ERROR_print(f"error: invalid packet: {e}")
                     break
-                except ValueError:
+                except ValueError as e:
+                    ERROR_print(f"error: unknown: {e}")
                     continue
                 self.tell(False)
                 if packet.id in self._seen:

@@ -54,12 +54,19 @@ def parproc(
         )
         for payload in payloads
     ]
+
+    yield from queue.receive()
     if len(tasks) == 1:
         yield taskproc(tasks[0])
+        yield from queue.receive()
         return
 
+    yield from queue.receive()
     if not parallel:
         yield from map(taskproc, tasks)
     else:
         pmap = active_pmap()
-        yield from pmap(stop, taskproc, tasks, max_workers)
+        for r in pmap(stop, taskproc, tasks, max_workers):
+            yield from queue.receive()
+            yield r
+    yield from queue.receive()

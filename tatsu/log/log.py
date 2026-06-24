@@ -30,9 +30,9 @@ def iso_timestamp() -> str:
     return isostr.replace(':', '-').replace('+00-00', 'Z')
 
 
-def iso_logpath(prefix: str, basdir: str = "log", suffix: str = '.log') -> Path:
+def iso_logpath(prefix: str, basedir: str = "log", suffix: str = '.log') -> Path:
     ts = iso_timestamp()
-    logdir = Path(basdir)
+    logdir = Path(basedir)
     logdir.mkdir(parents=True, exist_ok=True)
     suffix = suffix if suffix.startswith('.') else '.' + suffix
     return logdir / f"{prefix}_{ts}{suffix}"

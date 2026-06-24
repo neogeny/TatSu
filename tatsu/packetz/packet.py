@@ -6,6 +6,7 @@ import json
 from typing import Any
 
 from ..util.asjson import AsJSONMixin, asjson
+from ..util.debugging import WARNING_print
 from ..util.fromjson import JSONBase, fromjson
 from ..util.misc import hash_2str, new_id
 from .compact import compact_value, decompact_value
@@ -39,8 +40,18 @@ class Packet(PacketLike, WithID):
         if to is not None:
             self.to = to
         if data is not None:
-            self.hash = hash_2str(data)
             self.data = data
+            self.hash = hash_2str(vars(self))
+
+    def validate(self) -> bool:
+        if not self.hash:
+            return False
+        expected = self.hash
+        actual = hash_2str(it for it in vars(self).items() if it[0] != "hash")
+        if expected != actual:
+            WARNING_print(f"checksum mismatch: {expected} != {actual}")
+            return False
+        return True
 
 
 def pack(packet: PacketLike) -> str:
@@ -57,11 +68,6 @@ def unpack(serial: str) -> PacketLike:
     compact = json.loads(serial)
     value = decompact_value(compact)
     packet = fromjson(value)
-    if packet.hash:
-        expected = packet.hash
-        actual = hash_2str(packet.data)
-        if expected != actual:
-            raise ValueError(f"checksum mismatch: {expected} != {actual}")
     return packet
 
 

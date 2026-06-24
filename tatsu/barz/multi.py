@@ -99,6 +99,7 @@ class Multi:
             self.add_row(row)
 
         row.update(**snap)
+
         row.start()
 
     def print(self, *args, **kwargs) -> None:
@@ -135,7 +136,7 @@ class Multi:
         self.out.write(hide_cursor())  # Hide cursor
         self.out.write("\n")  # Hide cursor
         self.out.flush()
-        fpscycle = itertools.cycle(primes_upto(self.fps, start=11))
+        fpscycle = itertools.cycle(primes_upto(self.fps, 11))
         try:
             while self.alive:
                 self.render_rows()
@@ -147,7 +148,7 @@ class Multi:
 
     def _take_snapshot(self) -> list[BarRow]:
         with self.lock:
-            return [copy.copy(r) for r in self.rows if not r.is_stopped()]
+            return [copy.copy(r) for r in self.rows if r.is_active()]
 
     def render_rows(self, *, final: bool = False) -> None:
         snapshot: list[BarRow] = self._take_snapshot()
@@ -166,7 +167,7 @@ class Multi:
         c = max(0, self.height - h) if not final else 0
         blank_lines = blankpad(c)
 
-        frame_lines = [*shot_lines, *blank_lines][-MAXL:]
+        frame_lines = [*shot_lines, *blank_lines]
 
         screenshot: str = "".join(frame_lines)
         with _screen_lock:
