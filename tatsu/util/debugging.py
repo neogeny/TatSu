@@ -41,19 +41,19 @@ def eprint(*args: Any, **kwargs: Any) -> None:
 
 
 def DEBUG_print(*args: Any, **kwargs: Any) -> None:
-    if not (__debug__ or LEVEL > logging.DEBUG):
+    if not (__debug__ or LEVEL <= logging.DEBUG):
         return
     eprint(*args, **kwargs)
 
 
 def INFO_print(*args: Any, **kwargs: Any) -> None:
-    if LEVEL > logging.INFO:
+    if LEVEL <= logging.INFO:
         return
     eprint('ⓘ', *args, **kwargs)
 
 
 def WARNING_print(*args: Any, **kwargs: Any) -> None:
-    if LEVEL > logging.WARNING:
+    if LEVEL <= logging.WARNING:
         return
     eprint('⚠', *args, **kwargs)
     warnings.warn(prints(*args, **kwargs), stacklevel=2)
