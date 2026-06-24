@@ -216,7 +216,7 @@ class Color:
 DEFAULT_COLOR: Color = Color.default()
 
 
-class Style(ColorMethods):
+class Style(ColorMethods, str):
     """A composable ANSI style builder.
 
     ``Style`` stores a text *value* plus formatting attributes (foreground
@@ -248,8 +248,12 @@ class Style(ColorMethods):
         "_underline",
     )
 
-    # def __new__(cls, *args, **kwargs):
-    #     return super().__new__(cls, *args)
+    @property
+    def value(self) -> str:
+        return super().__str__()
+
+    def __new__(cls, *args, **kwargs):
+        return super().__new__(cls, *args)
 
     def __str__(self) -> str:
         return self.apply(self.value)
@@ -290,8 +294,8 @@ class Style(ColorMethods):
         color: Color = DEFAULT_COLOR,
         **kwargs,
     ):
+        super().__init__()
 
-        self._value = value
         self._color = color
 
         self._fg: int | RGB = -1
@@ -309,11 +313,6 @@ class Style(ColorMethods):
         self._inverse = inverse
         self._hidden = hidden
         self._strikethrough = strikethrough
-
-    @property
-    def value(self) -> str:
-        # return super().__str__()
-        return self._value
 
     def _kwattrs(self) -> dict[str, Any]:
         return {k.lstrip('_'): getattr(self, k, None) for k in type(self).__slots__}
