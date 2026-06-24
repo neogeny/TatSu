@@ -8,7 +8,7 @@ from collections.abc import Callable, Iterable
 from pickle import PickleError, PicklingError
 from typing import Any
 
-from ..packetz import PacketLike, api
+from ..packetz import PacketLike, QueueState
 from .task import Event, Func
 
 
@@ -17,7 +17,7 @@ HAS_MULTITHREADING_SUPPORT = GIL_DISABLED
 
 
 def active_pmap() -> Callable[
-    [Event, Func, Iterable[Any], int | None], Iterable[PacketLike]
+    [QueueState, Event, Func, Iterable[Any], int | None], Iterable[PacketLike]
 ]:
     import multiprocessing
     from concurrent.futures import (
@@ -28,6 +28,7 @@ def active_pmap() -> Callable[
 
     def executor_pmap(
         executorcls: type[Executor],
+        queue: QueueState,
         stop_event: Event,
         process: Func,
         tasks: Iterable[Any],
@@ -38,18 +39,18 @@ def active_pmap() -> Callable[
         if not tasks:
             return
 
-        yield from api.receive()
+        yield from queue.receive()
         with executorcls(max_workers=max_workers) as ex:  # type: ignore
             # with executorcls(None) as ex:  # type: ignore
             try:
                 futures = [ex.submit(process, task) for task in tasks]
                 while futures:
-                    yield from api.receive()
+                    yield from queue.receive()
                     finished = {f for f in futures if f.done()}
                     for f in finished:
                         futures.remove(f)
                         yield f.result()
-                        yield from api.receive()
+                        yield from queue.receive()
                         finished = {f for f in futures if f.done()}
                     # if futures:
                     #     time.sleep(0.01)
@@ -58,7 +59,7 @@ def active_pmap() -> Callable[
                 #     yield from packetz.receive()
                 #     yield future.result()
                 #     yield from packetz.receive()
-                yield from api.receive()
+                yield from queue.receive()
             except KeyboardInterrupt:
                 stop_event.set()
 
@@ -73,9 +74,10 @@ def active_pmap() -> Callable[
                 sys.stderr.flush()
 
                 raise
-        yield from api.receive()
+        yield from queue.receive()
 
     def thread_pmap(
+        queue: QueueState,
         event: Event,
         process: Func,
         tasks: Iterable[Any],
@@ -83,6 +85,7 @@ def active_pmap() -> Callable[
     ) -> Iterable[PacketLike]:
         yield from executor_pmap(
             ThreadPoolExecutor,
+            queue,
             event,
             process,
             tasks,
@@ -90,6 +93,7 @@ def active_pmap() -> Callable[
         )
 
     def process_pmap(
+        queue: QueueState,
         event: Event,
         process: Func,
         tasks: Iterable[Any],
@@ -98,6 +102,7 @@ def active_pmap() -> Callable[
         try:
             yield from executor_pmap(
                 ProcessPoolExecutor,
+                queue,
                 event,
                 process,
                 tasks,

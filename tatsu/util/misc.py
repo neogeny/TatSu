@@ -88,10 +88,10 @@ def greek_time() -> str:
 
 def alpha_timestamp() -> str:
     t = time.time()
-    y, _d = divmod(t, 24 * 3600)
-    h, s = divmod(_d, 3600)
-    m, _f = divmod(s, 0.36)
-    return f"{i2alpha(y, alphabet=string.ascii_lowercase)}-{h:02.0f}-{m:04.0f}"
+    y, d = divmod(t, 24 * 3600)
+    h, s = divmod(d, 3600)
+    m, _ = divmod(s, 0.36)
+    return f"{i2alpha(int(y), alphabet=string.ascii_lowercase)}-{h:02.0f}-{m:04.0f}"
 
 
 def lower_time() -> str:

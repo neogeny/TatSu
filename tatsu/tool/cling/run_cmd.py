@@ -99,14 +99,14 @@ def parse_file_task(data: GrammarPayload) -> Any:
 
     multi.add_row(heart)
     heart.start()
-    heart.update(0, len(text))
+    heart.update(pos=0, total=len(text))
     sys.setrecursionlimit(2**16)
     try:
         return grammar.parse(text, start=start, config=config)
     except RecursionError as e:
         return e
     finally:
-        heart.update(len(text), len(text))
+        heart.update(pos=len(text), total=len(text))
         heart.stop()
 
 
@@ -134,6 +134,7 @@ def run_with_progress(
 
     paths = [Path(input) for input in inputs]
     payloads = []
+    filehearts: dict[int, FileHeartRow] = {}
     for idx, path in enumerate(paths):
         text = path.read_text()
         fh = FileHeartRow(path.name, len(text))
@@ -147,7 +148,7 @@ def run_with_progress(
                 idx=idx,
             )
         )
-        fh.start()
+        filehearts[idx] = fh
 
     if not cfg.quiet or cfg.summary:
         multi.start()
@@ -162,12 +163,15 @@ def run_with_progress(
                 case Result() as result:
                     yield result
                 case PacketLike(data=FileHeartRow() as row):
+                    raise RuntimeError("HERE")
+                    multi.update_row(row.snap())
                     try:
                         print(f"{row.pos}/{row.total} {row.label}")
                     except Exception as e:
                         print(f"\n\nERROR {e}\n\n")
                     continue
                 case _:
+                    raise RuntimeError(f"HERE {value}")
                     continue
 
     try:

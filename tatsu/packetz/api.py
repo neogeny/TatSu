@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from .packet import Packet, PacketLike, WithID
-from .queue import QueueState
+from .queue import QueueState, new_file_path
 
 
 __all__ = [
@@ -27,18 +27,28 @@ __all__ = [
 ]
 
 
-PACKETZ_QUEUE: Path = QueueState.path
-QueueState.init()
+_the_queue: QueueState | None = None
+
+
+def init_queue(path: Path | str | None = None) -> QueueState:
+    global _the_queue  # noqa: PLW0603
+    if path is None:
+        path = new_file_path()
+    _the_queue = QueueState(path)
+    return _the_queue
 
 
 def send(*, to: str | None = None, data: Any = None) -> PacketLike:
-    return QueueState.send(to=to, data=data)
+    assert _the_queue is not None
+    return _the_queue.send(to=to, data=data)
 
 
 def receive() -> Generator[PacketLike, None, None]:
-    return QueueState.receive()
+    assert _the_queue is not None
+    return _the_queue.receive()
 
 
 async def receive_async() -> AsyncGenerator[PacketLike, None]:
-    async for pkt in QueueState.receive_async():
+    assert _the_queue is not None
+    async for pkt in _the_queue.receive_async():
         yield pkt

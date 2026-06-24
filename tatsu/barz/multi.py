@@ -31,9 +31,18 @@ MAXL = shutil.get_terminal_size().lines - 1
 
 _screen_lock = multiprocessing.Lock()
 
-_INIT_FIELDS = frozenset({
-    "pos", "total", "label", "width", "fill", "style", "cols", "stop_on_complete",
-})
+_INIT_FIELDS = frozenset(
+    {
+        "pos",
+        "total",
+        "label",
+        "width",
+        "fill",
+        "style",
+        "cols",
+        "stop_on_complete",
+    }
+)
 
 
 class MessageRow(BarRow):

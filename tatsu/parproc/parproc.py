@@ -8,6 +8,7 @@ from collections.abc import Generator, Iterable
 from typing import Any, Protocol
 
 from ..packetz import PacketLike
+from ..packetz.api import init_queue
 from ..util import identity
 from .pmap import HAS_MULTITHREADING_SUPPORT, active_pmap
 from .task import Event, Func, Task, taskproc
@@ -39,11 +40,13 @@ def parproc(
     if not HAS_MULTITHREADING_SUPPORT:
         stop = multiprocessing.Manager().Event()
 
+    queue = init_queue()
     tasks = [
         Task(
             stop=stop,
             func=func,
             payload=payload,
+            queuepath=queue.path,
             pickable=pickable,
             reraise=reraise,
             args=args,
@@ -59,4 +62,4 @@ def parproc(
         yield from map(taskproc, tasks)
     else:
         pmap = active_pmap()
-        yield from pmap(stop, taskproc, tasks, max_workers)
+        yield from pmap(queue, stop, taskproc, tasks, max_workers)

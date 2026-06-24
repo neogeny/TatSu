@@ -39,7 +39,7 @@ class BarRow(WithID):
         cols: list[Any] | None = None,
         stop_on_complete: bool = True,
     ):
-        self.start_time: int = 0
+        self.startat: int = 0
         self.state: State = State.NEW
         self.label = label
 
@@ -61,7 +61,7 @@ class BarRow(WithID):
 
     def start(self) -> None:
         self.state = State.RUNNING
-        self.start_time = clock_time_μs()
+        self.startat = clock_time_μs()
 
     def stop(self) -> None:
         if self.state == State.NEW:

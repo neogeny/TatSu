@@ -44,7 +44,7 @@ class BarRowProtocol(Protocol):
     def fill(self) -> str: ...
 
     @property
-    def stop_on_close(self) -> bool: ...
+    def stop_on_complete(self) -> bool: ...
 
 
 class Metrics:
@@ -85,13 +85,13 @@ class Metrics:
         return self.row.width
 
     @property
-    def start_time(self) -> int:
+    def startat(self) -> int:
         return self.row.startat
 
     # -- computed, cached lazily --
     @cached_property
     def elapsed(self) -> int:
-        return max(0, clock_time_μs() - self.start_time)
+        return max(0, clock_time_μs() - self.startat)
 
     @cached_property
     def rt(self) -> dt.timedelta:

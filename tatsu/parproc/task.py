@@ -5,9 +5,11 @@ from __future__ import annotations
 import sys
 import time
 from collections.abc import Callable, Iterable, Mapping
+from pathlib import Path
 from threading import Event
 from typing import Any, NamedTuple
 
+from ..packetz.api import init_queue
 from ..util import memory_use
 from .payload import VisualPayload
 from .result import Result
@@ -25,6 +27,7 @@ class Task(NamedTuple):
     stop: Event
     func: Func
     payload: Any
+    queuepath: str | Path
     pickable: Callable
     reraise: bool
     args: Iterable[Any]
@@ -34,6 +37,7 @@ class Task(NamedTuple):
 def taskproc(task: Task) -> Result:
     if task.stop.is_set():
         return Result(task.stop, task.payload)
+    init_queue(task.queuepath)
 
     result = Result(task.stop, task.payload)
     outcome: Any = None
