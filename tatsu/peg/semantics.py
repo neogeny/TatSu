@@ -11,7 +11,7 @@ from ..contexts import ParseContext
 from ..contexts.infos import ParseInfo
 from ..exceptions import FailedSemantics
 from ..objectmodel.builder import ModelBuilderSemantics
-from ..util import eval_escapes, flatten, re, trim, warning
+from ..util import WARNING_print, eval_escapes, flatten, re, trim
 
 
 class GrammarSemantics(ModelBuilderSemantics):
@@ -139,11 +139,11 @@ class GrammarSemantics(ModelBuilderSemantics):
         return literal_eval(ast)
 
     def cut_deprecated(self, _ast):
-        warning('The use of >> for cut is deprecated. Use the ~ symbol instead.')
+        WARNING_print('The use of >> for cut is deprecated. Use the ~ symbol instead.')
         return g.Cut()
 
     def override_single_deprecated(self, ast):
-        warning('The use of @ for override is deprecated. Use @: instead')
+        WARNING_print('The use of @ for override is deprecated. Use @: instead')
         return g.Override(ast)
 
     def sequence(self, ast):
