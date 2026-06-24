@@ -3,7 +3,7 @@
 -e .
 accessible-pygments==0.0.5
     # via pydata-sphinx-theme
-alabaster==0.7.16
+alabaster==1.0.0
     # via sphinx
 astroid==3.3.11
     # via sphinx-autodoc2
