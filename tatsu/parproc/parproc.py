@@ -62,4 +62,4 @@ def parproc(
         yield from map(taskproc, tasks)
     else:
         pmap = active_pmap()
-        yield from pmap(queue, stop, taskproc, tasks, max_workers)
+        yield from pmap(stop, taskproc, tasks, max_workers)

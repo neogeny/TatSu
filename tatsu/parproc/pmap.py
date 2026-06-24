@@ -8,7 +8,7 @@ from collections.abc import Callable, Iterable
 from pickle import PickleError, PicklingError
 from typing import Any
 
-from ..packetz import PacketLike, QueueState
+from .result import Result
 from .task import Event, Func
 
 
@@ -17,7 +17,7 @@ HAS_MULTITHREADING_SUPPORT = GIL_DISABLED
 
 
 def active_pmap() -> Callable[
-    [QueueState, Event, Func, Iterable[Any], int | None], Iterable[PacketLike]
+    [Event, Func, Iterable[Any], int | None], Iterable[Result]
 ]:
     import multiprocessing
     from concurrent.futures import (
@@ -28,29 +28,25 @@ def active_pmap() -> Callable[
 
     def executor_pmap(
         executorcls: type[Executor],
-        queue: QueueState,
         stop_event: Event,
         process: Func,
         tasks: Iterable[Any],
         max_workers: int | None = None,
-    ) -> Iterable[PacketLike]:
+    ) -> Iterable[Result]:
         # by Copilot 2026-03-06
 
         if not tasks:
             return
 
-        yield from queue.receive()
         with executorcls(max_workers=max_workers) as ex:  # type: ignore
             # with executorcls(None) as ex:  # type: ignore
             try:
                 futures = [ex.submit(process, task) for task in tasks]
                 while futures:
-                    yield from queue.receive()
                     finished = {f for f in futures if f.done()}
                     for f in finished:
                         futures.remove(f)
                         yield f.result()
-                        yield from queue.receive()
                         finished = {f for f in futures if f.done()}
                     # if futures:
                     #     time.sleep(0.01)
@@ -59,7 +55,6 @@ def active_pmap() -> Callable[
                 #     yield from packetz.receive()
                 #     yield future.result()
                 #     yield from packetz.receive()
-                yield from queue.receive()
             except KeyboardInterrupt:
                 stop_event.set()
 
@@ -74,18 +69,15 @@ def active_pmap() -> Callable[
                 sys.stderr.flush()
 
                 raise
-        yield from queue.receive()
 
     def thread_pmap(
-        queue: QueueState,
         event: Event,
         process: Func,
         tasks: Iterable[Any],
         max_workers: int | None = None,
-    ) -> Iterable[PacketLike]:
+    ) -> Iterable[Result]:
         yield from executor_pmap(
             ThreadPoolExecutor,
-            queue,
             event,
             process,
             tasks,
@@ -93,16 +85,14 @@ def active_pmap() -> Callable[
         )
 
     def process_pmap(
-        queue: QueueState,
         event: Event,
         process: Func,
         tasks: Iterable[Any],
         max_workers: int | None = None,
-    ) -> Iterable[PacketLike]:
+    ) -> Iterable[Result]:
         try:
             yield from executor_pmap(
                 ProcessPoolExecutor,
-                queue,
                 event,
                 process,
                 tasks,
@@ -124,7 +114,7 @@ def active_pmap() -> Callable[
             process: Func,
             tasks: Iterable[Any],
             max_workers: int | None = None,
-        ) -> Iterable[PacketLike]:
+        ) -> Iterable[Result]:
             try:
                 yield from executor_pmap(
                     InterpreterPoolExecutor,
@@ -136,7 +126,7 @@ def active_pmap() -> Callable[
             except (TypeError, PicklingError, PickleError):
                 yield from thread_pmap(event, process, tasks, max_workers)
 
-    def imap_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[PacketLike]:
+    def imap_pmap(process: Func, tasks: Iterable[Any]) -> Iterable[Result]:
         tasks = list(tasks)
         nworkers = 4 * max(1, multiprocessing.cpu_count())
 
