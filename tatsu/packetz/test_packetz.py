@@ -16,7 +16,7 @@ from typing import Any
 from . import api
 
 
-QUEUE = Path(api.PACKETZ_QUEUE)
+QUEUE = Path(api.QueueState.path)
 
 
 # ---------------------------------------------------------------------------
@@ -30,8 +30,8 @@ def _cleanup():
 
     global api  # noqa: PLW0602, PLW0603
     api.PACKETZ_QUEUE.unlink(missing_ok=True)
-    del sys.modules["tatsu.parproc.packetz"]
-    importlib.import_module("tatsu.parproc.packetz")
+    del sys.modules["tatsu.packetz"]
+    importlib.import_module("tatsu.packetz")
     from . import api  # noqa: F811
 
     gc.collect()

@@ -8,9 +8,9 @@ import json
 import os
 from collections.abc import AsyncGenerator, Generator
 from pathlib import Path
-from tempfile import NamedTemporaryFile
-from typing import Any, ClassVar, TextIO
+from typing import IO, Any, ClassVar
 
+from ..util import alpha_timestamp
 from .packet import Packet, PacketLike, pack, unpack
 
 
@@ -21,53 +21,54 @@ class QueueState:
     from all processes (or within a single process) that import this module.
     """
 
-    path: ClassVar[Path] = Path(f"./{__name__.split('.')[-1]}.jsonl")
-    _queue: ClassVar[TextIO | None] = None
+    path: ClassVar[Path] = Path(f"./{__name__.split('.')[-2]}.jsonl")
+    _queue: ClassVar[IO[str] | None] = None
     _told: ClassVar[int] = 0
     _seen: ClassVar[dict[str, PacketLike]] = {}
 
-    # -- lifecycle -----------------------------------------------------------
+    @staticmethod
+    def new_queue_file_name() -> str:
+        name = __name__.split('.')[-2]
+        dir = f"./.{name}"
+        Path(dir).mkdir(parents=True, exist_ok=True)
+        return f"{dir}/{alpha_timestamp()}.pktz.jsonl"
 
     @classmethod
     def init(cls) -> None:
-        if cls._queue is None:
-            name = __name__.split('.')[-1]
-            # NOTE Erase the file
-            with NamedTemporaryFile(
-                "w+",
-                encoding="utf-8",
-                prefix=f"{name}-",
-                suffix=".jsonl",
-                dir=f".{name}",
-                delete=False,
-                delete_on_close=False,
-            ) as queue:
-                cls.path = Path(queue.name)
+        if cls.is_queue_healthy():
+            return
+
+        if cls.path.is_file():
             cls._queue = cls.path.open(
-                "rt",
+                "rt+",
                 encoding="utf-8",
                 buffering=32 * 1024,
             )
-            cls._told = 0
-            cls.path.touch()
-        cls._queue = cls.path.open(
-            "rt",
-            encoding="utf-8",
-            buffering=32 * 1024,
-        )
-        cls._queue.seek(cls._told)
+            cls._queue.seek(cls._told)
+            return
 
-    # -- file-handle health --------------------------------------------------
+        name = __name__.split('.')[-2]
+        dir = f"./.{name}"
+        Path(dir).mkdir(parents=True, exist_ok=True)
+
+        # NOTE A totally new file
+        cls.path = Path(cls.new_queue_file_name())
+        with cls.path.open("w+", encoding="utf-8") as _q:
+            cls._told = 0
 
     @classmethod
-    def get_queue(cls) -> TextIO:
-        """Return the read handle if healthy, raise otherwise."""
+    def is_queue_healthy(cls) -> bool:
+        """Return whether the queue is healthy (i.e., not closed or deleted)."""
         q = cls._queue
-        if q is None or q.closed or os.fstat(q.fileno()).st_nlink == 0:
+        return q is not None and not q.closed and os.fstat(q.fileno()).st_nlink > 0
+
+    @classmethod
+    def get_queue(cls) -> IO[str]:
+        """Return the read handle if healthy, raise otherwise."""
+        if not cls.is_queue_healthy():
             cls.init()
-            q = cls._queue
-        assert q is not None
-        return q
+        assert cls._queue is not None
+        return cls._queue
 
     @classmethod
     def tell(cls, check: bool = True) -> None:
@@ -80,7 +81,7 @@ class QueueState:
 
     @classmethod
     @contextlib.contextmanager
-    def reader(cls) -> Generator[TextIO, None, None]:
+    def reader(cls) -> Generator[IO[str], None, None]:
         """Context manager for the read handle, initializing if necessary."""
         q = cls.get_queue()
         try:
@@ -88,14 +89,19 @@ class QueueState:
         finally:
             cls.tell(False)
 
-    # -- send / receive ------------------------------------------------------
+    @classmethod
+    @contextlib.contextmanager
+    def writer(cls) -> Generator[IO[str], None, None]:
+        """Context manager for the write handle, initializing if necessary."""
+        with cls.path.open("at", encoding="utf-8", buffering=1) as queue:
+            yield queue
 
     @classmethod
     def send(cls, *, to: str | None = None, data: Any = None) -> PacketLike:
         """Push a packet onto the shared process-safe queue."""
         packet = Packet(to=to, data=data)
         serial = pack(packet)
-        with cls.path.open("at", encoding="utf-8", buffering=1) as queue:
+        with cls.writer() as queue:
             queue.write(serial + "\n")
         return packet
 
