@@ -9,6 +9,7 @@ from ..util.asjson import AsJSONMixin, asjson
 from ..util.debugging import WARNING_print
 from ..util.fromjson import JSONBase, fromjson
 from ..util.misc import hash_2str, new_id
+from ..util.tty import tty_escape, tty_unescape
 from .compact import compact_value, decompact_value
 
 
@@ -54,15 +55,18 @@ def validate(expected: str, actual: str) -> bool:
 def pack(packet: PacketLike) -> str:
     value = asjson(packet)
     compact = compact_value(value)
-    compact["hash"] = hash_2str(value)
-    serial = json.dumps(compact, separators=(",", ":"), ensure_ascii=False)
-    return class_escape(serial)
+    hashed = {"hash": hash_2str(value), **compact}
+    serial = json.dumps(hashed, separators=(",", ":"), ensure_ascii=False)
+    unclassed = class_escape(serial)
+    escaped = tty_escape(unclassed)
+    return escaped
 
 
-def unpack(serial: str) -> PacketLike:
-    serial = class_unescape(serial)
+def unpack(escaped: str) -> PacketLike:
+    unclassed = tty_unescape(escaped)
+    serial = class_unescape(unclassed)
     compact = json.loads(serial)
-    _expected_hash = compact["hash"]
+    _expected_hash = compact.pop("hash", "")
     value = decompact_value(compact)
     _actual_hash = hash_2str(value)
     # validate(_expected_hash, _actual_hash)
@@ -71,8 +75,8 @@ def unpack(serial: str) -> PacketLike:
 
 
 def class_escape(s: str) -> str:
-    return s.replace(r'{"__class__":', '{"@":')
+    return s.replace(r'"__class__":', '"@":')
 
 
 def class_unescape(s: str) -> str:
-    return s.replace(r'{"@":', r'{"__class__":')
+    return s.replace(r'"@":', r'"__class__":')

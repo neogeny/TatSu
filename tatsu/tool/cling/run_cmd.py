@@ -47,7 +47,7 @@ class FileHeartRow(BarRow, Heart):
             style=[green, green, dim],
             label=name,
             total=total,
-            stop_on_complete=False,
+            selfstop=False,
         )
 
     def start(self) -> None:

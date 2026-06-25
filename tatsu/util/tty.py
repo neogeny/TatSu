@@ -2,6 +2,36 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import re
+
+
+# Compiles standard 7-bit ANSI control sequences (CSI, SGR, etc.)
+ANSI_RE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+SGR_RE = re.compile(r"\x1B\[([\d;]*)m")
+
+
+def tty_escape(s: str) -> str:
+    return s.replace('\x1b', '\\e')
+
+
+def tty_unescape(s: str) -> str:
+    return s.replace('\\e', '\x1b')
+
+
+def descape(text: str | bytes) -> str:
+    """Removes ANSI escape codes from a string."""
+    if isinstance(text, bytes):
+        text = str(text)
+    if not isinstance(text, str):
+        raise TypeError(f"expected str got {type(text)!r}")
+    return ANSI_RE.sub("", text)
+
+
+def visual_len(text: str | bytes) -> int:
+    """Returns the true visual length of a string, omitting
+    terminal escape codes."""
+    return len(descape(text))
+
 
 def hide_cursor() -> str:
     """Returns an escape sequence that hides the cursor."""

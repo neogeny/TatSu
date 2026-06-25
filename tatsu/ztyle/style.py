@@ -5,39 +5,11 @@ from __future__ import annotations
 import os
 import re
 from collections import namedtuple
-from collections.abc import Mapping
 from copy import copy
 from typing import Any, Self
 
+from ..util.tty import ANSI_RE, SGR_RE, tty_escape, tty_unescape, visual_len
 from .colormethods import ColorMethods
-
-
-# Compiles standard 7-bit ANSI control sequences (CSI, SGR, etc.)
-_ANSI_RE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
-_SGR_RE = re.compile(r"\x1B\[([\d;]*)m")
-
-
-def descape(text: str | bytes) -> str:
-    """Removes ANSI escape codes from a string."""
-    if isinstance(text, bytes):
-        text = str(text)
-    if not isinstance(text, str):
-        raise TypeError(f"expected str got {type(text)!r}")
-    return _ANSI_RE.sub("", text)
-
-
-def tty_escape(s: str) -> str:
-    return s.replace('\\x1b', '\\e')
-
-
-def tty_unescape(s: str) -> str:
-    return s.replace('\\e', '\x1b')
-
-
-def visual_len(text: str | bytes) -> int:
-    """Returns the true visual length of a string, omitting
-    terminal escape codes."""
-    return len(descape(text))
 
 
 class RGB(namedtuple('RGB', ['r', 'g', 'b'])):
@@ -571,11 +543,11 @@ class Style(ColorMethods, str):
     def parse(cls, text: str) -> Self:
         text = tty_unescape(text)
 
-        sgr = _SGR_RE.search(text)
+        sgr = SGR_RE.search(text)
         if not sgr:
             return cls.parse_fmt(text)
 
-        text_content = _ANSI_RE.sub("", text)
+        text_content = ANSI_RE.sub("", text)
         params_str = sgr.group(1)
 
         fg: int | RGB = -1

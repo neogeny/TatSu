@@ -107,9 +107,9 @@ def new_id() -> str:
 
 def hash_2byte(data: Any) -> bytes:
     if data is None:
-        return b"\x00\x00"
+        return b"\x00" * 4
     return hashlib.blake2b(str(data).encode("utf-8"), digest_size=2).digest()
 
 
 def hash_2str(data: Any) -> str:
-    return hex(int.from_bytes(hash_2byte(data), "big"))
+    return f"{int.from_bytes(hash_2byte(data), 'big'):04x}"

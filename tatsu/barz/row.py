@@ -37,20 +37,20 @@ class BarRow(WithID):
         fill: str = "=>.",
         style: list[Style] | None = None,
         cols: list[Any] | None = None,
-        stop_on_complete: bool = True,
+        selfstop: bool = True,
     ):
         self.begun: int = 0
         self.state: State = State.NEW
+        self.selfstop: bool = selfstop
 
         self.pos: int = pos
         self.total: int = max(1, total)
+
+        self.width: int = width
+        self.fill = fill
+        self.style: list[Style] = style or []
+
         self.label = label
-
-        self._fill = fill
-        self._width: int = width
-        self._style: list[Style] = style or []
-        self._stop_on_complete: bool = stop_on_complete
-
         self._cols: list[Any] = []
         if cols is not None:
             self._cols = cols
@@ -60,24 +60,8 @@ class BarRow(WithID):
             self._cols = [Col.bar]
 
     @property
-    def fill(self) -> str:
-        return self._fill
-
-    @property
     def cols(self) -> list[Any]:
         return self._cols
-
-    @property
-    def width(self) -> int:
-        return self._width
-
-    @property
-    def style(self) -> list[Style]:
-        return self._style
-
-    @property
-    def stop_on_complete(self) -> bool:
-        return self._stop_on_complete
 
     @property
     def key(self) -> float:
@@ -143,7 +127,7 @@ class BarRow(WithID):
         return Metrics(self)
 
     def _call_render(self) -> list[Any]:
-        if self.is_stopping() or (self._stop_on_complete and self.pos >= self.total):
+        if self.is_stopping() or (self.selfstop and self.pos >= self.total):
             self.stop()
 
         if self.is_stopped():

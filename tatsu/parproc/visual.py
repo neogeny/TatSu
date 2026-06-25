@@ -35,7 +35,7 @@ def parproc_visual(
     **kwargs: Any,
 ) -> Generator[PacketLike, None, None]:
     from ..barz import BarRow, Col, Multi
-    from ..util.escapes import hide_cursor, show_cursor
+    from ..util.tty import hide_cursor, show_cursor
     from ..ztyle import Color
 
     eprint_in = eprint
