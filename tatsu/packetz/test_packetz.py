@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from .packet import Packet, PacketLike, pack
-from .queue import QueueState
+from .queue import PacketzQueue
 
 
 QUEUE_PATH = Path("test_packetz.jsonl")
@@ -26,7 +26,7 @@ QUEUE_PATH = Path("test_packetz.jsonl")
 
 def _new_queue():
     QUEUE_PATH.unlink(missing_ok=True)
-    return QueueState(path=QUEUE_PATH)
+    return PacketzQueue(path=QUEUE_PATH)
 
 
 def _make_payload(n: int) -> str:
@@ -39,7 +39,9 @@ def _make_payload(n: int) -> str:
 _SENTINEL = object()
 
 
-def _write_batch(q: QueueState, n: int, payload: Any = _SENTINEL) -> tuple[float, int]:
+def _write_batch(
+    q: PacketzQueue, n: int, payload: Any = _SENTINEL
+) -> tuple[float, int]:
     start = time.perf_counter()
     for _ in range(n):
         if payload is _SENTINEL:
@@ -51,7 +53,7 @@ def _write_batch(q: QueueState, n: int, payload: Any = _SENTINEL) -> tuple[float
     return elapsed, size
 
 
-def _read_all(q: QueueState) -> tuple[list[PacketLike], float]:
+def _read_all(q: PacketzQueue) -> tuple[list[PacketLike], float]:
     start = time.perf_counter()
     packets = list(q.receive())
     elapsed = time.perf_counter() - start

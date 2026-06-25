@@ -4,14 +4,14 @@ from __future__ import annotations
 
 from .api import receive, receive_async, send
 from .packet import HasID, Packet, PacketLike, WithID
-from .queue import QueueState
+from .queue import PacketzQueue
 
 
 __all__ = [
     "HasID",
     "Packet",
     "PacketLike",
-    "QueueState",
+    "PacketzQueue",
     "WithID",
     "receive",
     "receive_async",

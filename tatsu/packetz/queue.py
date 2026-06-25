@@ -22,7 +22,7 @@ def new_file_path() -> Path:
     return PACKETZ_DIR / f"{alpha_timestamp()}.pktz.jsonl"
 
 
-class QueueState:
+class PacketzQueue:
     """File-backed packet queue.
 
     Instantiate with a path, or let it generate a timestamped file
@@ -41,8 +41,8 @@ class QueueState:
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
         if not self.path.exists():
-            with self.path.open("w+", encoding="utf-8") as _q:
-                self._told = 0
+            self.path.touch(exist_ok=True)
+            self._told = 0
 
     def _queue_healthy(self) -> bool:
         q = self._queue

@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from .packet import Packet, PacketLike, WithID
-from .queue import QueueState, new_file_path
+from .queue import PacketzQueue, new_file_path
 
 
 __all__ = [
@@ -27,14 +27,14 @@ __all__ = [
 ]
 
 
-_the_queue: QueueState | None = None
+_the_queue: PacketzQueue | None = None
 
 
-def init_queue(path: Path | str | None = None) -> QueueState:
+def init_queue(path: Path | str | None = None) -> PacketzQueue:
     global _the_queue  # noqa: PLW0603
     if path is None:
         path = new_file_path()
-    _the_queue = QueueState(path)
+    _the_queue = PacketzQueue(path)
     return _the_queue
 
 
