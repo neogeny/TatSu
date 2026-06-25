@@ -9,12 +9,14 @@ sync/async receivers for draining a multiprocessing.Queue.
 
 from __future__ import annotations
 
+import atexit
+import os
 from collections.abc import AsyncGenerator, Generator
 from pathlib import Path
 from typing import Any
 
 from .packet import Packet, PacketLike, WithID
-from .queue import PacketzQueue, new_file_path
+from .queue import PacketzQueue, _cleanup_queue_files, _queue_files, new_file_path
 
 
 __all__ = [
@@ -28,14 +30,31 @@ __all__ = [
 
 
 _the_queue: PacketzQueue | None = None
+_cleanup_registered = False
 
 
-def init_queue(path: Path | str | None = None) -> PacketzQueue:
-    global _the_queue  # noqa: PLW0603
+def init_queue(
+    path: Path | str | None = None,
+    keep: bool | None = None,
+) -> PacketzQueue:
+    global _the_queue, _cleanup_registered  # noqa: PLW0603
+
+    if keep is None:
+        keep = os.environ.get("PACKETZ_KEEP", "").lower() in ("1", "true")
+
     if path is None:
         path = new_file_path()
-    _the_queue = PacketzQueue(path)
-    return _the_queue
+
+    q = PacketzQueue(path)
+    _the_queue = q
+
+    if not keep:
+        _queue_files.add(q.path)
+        if not _cleanup_registered:
+            atexit.register(_cleanup_queue_files)
+            _cleanup_registered = True
+
+    return q
 
 
 def send(*, to: str | None = None, data: Any = None) -> PacketLike:

@@ -9,7 +9,8 @@ from pathlib import Path
 from threading import Event
 from typing import Any, NamedTuple
 
-from ..packetz.api import init_queue
+from ..packetz import api as _packetz_api
+from ..packetz.queue import PacketzQueue
 from ..util import memory_use
 from .payload import VisualPayload
 from .result import Result
@@ -37,7 +38,7 @@ class Task(NamedTuple):
 def taskproc(task: Task) -> Result:
     if task.stop.is_set():
         return Result(task.stop, task.payload)
-    init_queue(task.queuepath)
+    _packetz_api._the_queue = PacketzQueue(task.queuepath)
 
     result = Result(task.stop, task.payload)
     outcome: Any = None
