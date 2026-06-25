@@ -15,15 +15,15 @@ import time
 from typing import Any, TextIO
 
 from ..util.debugging import prints
-from ..util.escapes import (
+from ..util.primality import primes_upto
+from ..ztyle import visual_len as vlen
+from ..ztyle.escapes import (
     blankpad,
     hide_cursor,
     pushup,
     shoot_lines,
     show_cursor,
 )
-from ..util.primality import primes_upto
-from ..ztyle import visual_len as vlen
 from .row import BarRow
 
 
