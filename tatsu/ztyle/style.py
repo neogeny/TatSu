@@ -26,6 +26,14 @@ def descape(text: str | bytes) -> str:
     return _ANSI_RE.sub("", text)
 
 
+def tty_escape(s: str) -> str:
+    return s.replace('\\x1b', '\\e')
+
+
+def tty_unescape(s: str) -> str:
+    return s.replace('\\e', '\x1b')
+
+
 def visual_len(text: str | bytes) -> int:
     """Returns the true visual length of a string, omitting
     terminal escape codes."""
@@ -253,98 +261,17 @@ class Style(ColorMethods, str):
     def __json__(self, seen: set[int] | None = None) -> Any:
         return repr(self)
 
-    @classmethod
-    def parse(cls, text: str) -> Style:
-        text = text.replace("\\e", "\x1b")
-
-        sgr = _SGR_RE.search(text)
-        if not sgr:
-            return cls(text)
-
-        text_content = _ANSI_RE.sub("", text)
-        params_str = sgr.group(1)
-
-        fg: int | RGB = -1
-        bg: int | RGB = -1
-        bold = dim = italic = underline = blink = inverse = hidden = strikethrough = (
-            False
-        )
-
-        if params_str:
-            params = [int(p) for p in params_str.split(";")]
-            i = 0
-            while i < len(params):
-                p = params[i]
-                if p == 0:
-                    pass
-                elif p == 1:
-                    bold = True
-                elif p == 2:
-                    dim = True
-                elif p == 3:
-                    italic = True
-                elif p == 4:
-                    underline = True
-                elif p == 5:
-                    blink = True
-                elif p == 7:
-                    inverse = True
-                elif p == 8:
-                    hidden = True
-                elif p == 9:
-                    strikethrough = True
-                elif 30 <= p <= 37:
-                    fg = p - 30
-                elif 40 <= p <= 47:
-                    bg = p - 40
-                elif p == 38:
-                    if i + 1 < len(params):
-                        if params[i + 1] == 5 and i + 2 < len(params):
-                            fg = params[i + 2]
-                            i += 2
-                        elif params[i + 1] == 2 and i + 4 < len(params):
-                            fg = RGB(params[i + 2], params[i + 3], params[i + 4])
-                            i += 4
-                elif p == 48:
-                    if i + 1 < len(params):
-                        if params[i + 1] == 5 and i + 2 < len(params):
-                            bg = params[i + 2]
-                            i += 2
-                        elif params[i + 1] == 2 and i + 4 < len(params):
-                            bg = RGB(params[i + 2], params[i + 3], params[i + 4])
-                            i += 4
-                elif 90 <= p <= 97:
-                    fg = p - 82
-                elif 100 <= p <= 107:
-                    bg = p - 92
-                i += 1
-
-        kwargs: dict[str, Any] = {}
-        if fg != -1:
-            kwargs["fg"] = fg
-        if bg != -1:
-            kwargs["bg"] = bg
-        if bold:
-            kwargs["bold"] = True
-        if dim:
-            kwargs["dim"] = True
-        if italic:
-            kwargs["italic"] = True
-        if underline:
-            kwargs["underline"] = True
-        if blink:
-            kwargs["blink"] = True
-        if inverse:
-            kwargs["inverse"] = True
-        if hidden:
-            kwargs["hidden"] = True
-        if strikethrough:
-            kwargs["strikethrough"] = True
-        return cls(text_content, color=Color.always(), **kwargs)
-
     @property
     def value(self) -> str:
         return super().__str__()
+
+    @classmethod
+    def tty_escape(cls, text: str) -> str:
+        return tty_escape(text)
+
+    @classmethod
+    def tty_unescape(cls, text: str) -> str:
+        return tty_unescape(text)
 
     def __new__(cls, *args, **_kwargs):
         return super().__new__(cls, *args)
@@ -356,7 +283,12 @@ class Style(ColorMethods, str):
         return self.apply(str(self), fmt=format_spec)
 
     def __repr__(self) -> str:
-        return repr(str(self))[1:-1].replace('\\x1b', '\\e')
+        text = self.value
+        if self._fmt is not None:
+            # NOTE Meant for Style.parse() not for f-strings
+            text = f"f{{{self.value}:{self._fmt}}}"
+        text = self.apply_style(text, force=True)
+        return tty_escape(repr(text)[1:-1])
 
     def __len__(self) -> int:
         return visual_len(str(self))
@@ -587,9 +519,13 @@ class Style(ColorMethods, str):
         if not fmt:
             fmt = self._fmt
         text = format(text, fmt) if fmt else text
-        if not self.enabled:
-            return text
+        return self.apply_style(text)
 
+    def apply_style(self, text: str, force: bool = False) -> str:
+        if not text:
+            return ""
+        if not (self.enabled or force):
+            return text
         codes: list[str] = []
         if self._bold:
             codes.append('1')
@@ -630,6 +566,103 @@ class Style(ColorMethods, str):
         if not codes:
             return text
         return f"\033[{';'.join(codes)}m{text}\033[0m"
+
+    @classmethod
+    def parse(cls, text: str) -> Self:
+        text = tty_unescape(text)
+
+        sgr = _SGR_RE.search(text)
+        if not sgr:
+            return cls.parse_fmt(text)
+
+        text_content = _ANSI_RE.sub("", text)
+        params_str = sgr.group(1)
+
+        fg: int | RGB = -1
+        bg: int | RGB = -1
+        bold = dim = italic = underline = blink = inverse = hidden = strikethrough = (
+            False
+        )
+
+        if params_str:
+            params = [int(p) for p in params_str.split(";")]
+            i = 0
+            while i < len(params):
+                p = params[i]
+                if p == 0:
+                    pass
+                elif p == 1:
+                    bold = True
+                elif p == 2:
+                    dim = True
+                elif p == 3:
+                    italic = True
+                elif p == 4:
+                    underline = True
+                elif p == 5:
+                    blink = True
+                elif p == 7:
+                    inverse = True
+                elif p == 8:
+                    hidden = True
+                elif p == 9:
+                    strikethrough = True
+                elif 30 <= p <= 37:
+                    fg = p - 30
+                elif 40 <= p <= 47:
+                    bg = p - 40
+                elif p == 38:
+                    if i + 1 < len(params):
+                        if params[i + 1] == 5 and i + 2 < len(params):
+                            fg = params[i + 2]
+                            i += 2
+                        elif params[i + 1] == 2 and i + 4 < len(params):
+                            fg = RGB(params[i + 2], params[i + 3], params[i + 4])
+                            i += 4
+                elif p == 48:
+                    if i + 1 < len(params):
+                        if params[i + 1] == 5 and i + 2 < len(params):
+                            bg = params[i + 2]
+                            i += 2
+                        elif params[i + 1] == 2 and i + 4 < len(params):
+                            bg = RGB(params[i + 2], params[i + 3], params[i + 4])
+                            i += 4
+                elif 90 <= p <= 97:
+                    fg = p - 82
+                elif 100 <= p <= 107:
+                    bg = p - 92
+                i += 1
+
+        kwargs: dict[str, Any] = {}
+        if fg != -1:
+            kwargs["fg"] = fg
+        if bg != -1:
+            kwargs["bg"] = bg
+        if bold:
+            kwargs["bold"] = True
+        if dim:
+            kwargs["dim"] = True
+        if italic:
+            kwargs["italic"] = True
+        if underline:
+            kwargs["underline"] = True
+        if blink:
+            kwargs["blink"] = True
+        if inverse:
+            kwargs["inverse"] = True
+        if hidden:
+            kwargs["hidden"] = True
+        if strikethrough:
+            kwargs["strikethrough"] = True
+
+        return cls.parse_fmt(text_content, **kwargs)
+
+    @classmethod
+    def parse_fmt(cls, text: str, **kwargs) -> Self:
+        fmt = None
+        if m := re.match(r"f{(.*?):(.*)}", text):
+            text, fmt = m.group(1, 2)
+        return cls(text, color=Color.always(), fmt=fmt, **kwargs)
 
 
 def named_color(name: str) -> int | None:

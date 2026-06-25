@@ -485,6 +485,51 @@ def test_fromjson_parses_escape_strings():
     assert result._fg == 1
 
 
+def test_repr_includes_fmt_text_after_colon():
+    c = Color.always()
+    s = Style("hello", fg=1, fmt=">10", color=c)
+    r = repr(s)
+    assert "f{hello:>10}" in r
+
+
+def test_repr_no_fmt_no_extra_colon():
+    c = Color.always()
+    s = Style("hello", fg=1, color=c)
+    r = repr(s)
+    assert "hello" in r
+    assert "f{" not in r
+
+
+def test_fmt_roundtrip_with_styling():
+    c = Color.always()
+    original = Style("hello", fg=1, fmt=">10", color=c)
+    payload = asjson(original)
+    result = fromjson(payload)
+    assert isinstance(result, Style)
+    assert result._fmt == ">10"
+    assert result.value == "hello"
+
+
+def test_fmt_and_color_roundtrip():
+    original = Style("hello", fg=2, bold=True, fmt=">10", color=Color.always())
+    payload = asjson(original)
+    result = fromjson(payload)
+    assert isinstance(result, Style)
+    assert result._fg == 2
+    assert result._bold is True
+    assert result._fmt == ">10"
+    assert result._color._force_enable is True
+
+
+def test_repr_fmt_roundtrips():
+    c = Color.always()
+    original = Style("hello", fmt=">10", color=c)
+    r = repr(original)
+    parsed = Style.parse(r)
+    assert parsed._fmt == ">10"
+    assert parsed.value == "hello"
+
+
 def test_fromjson_reconstructs_nested_style():
     c = Color.always()
     original = {"title": Style("T", bold=True, color=c)}

@@ -56,13 +56,11 @@ def pack(packet: PacketLike) -> str:
     compact = compact_value(value)
     compact["hash"] = hash_2str(value)
     serial = json.dumps(compact, separators=(",", ":"), ensure_ascii=False)
-    escaped = tty_escape(serial)
-    return class_escape(escaped)
+    return class_escape(serial)
 
 
 def unpack(serial: str) -> PacketLike:
-    escaped = class_unescape(serial)
-    serial = tty_unescape(escaped)
+    serial = class_unescape(serial)
     compact = json.loads(serial)
     _expected_hash = compact["hash"]
     value = decompact_value(compact)
@@ -70,14 +68,6 @@ def unpack(serial: str) -> PacketLike:
     # validate(_expected_hash, _actual_hash)
     packet = fromjson(value)
     return packet
-
-
-def tty_escape(s: str) -> str:
-    return s.replace('\\u001b', '\\e')
-
-
-def tty_unescape(s: str) -> str:
-    return s.replace('\\e', '\\u001b')
 
 
 def class_escape(s: str) -> str:
