@@ -7,12 +7,14 @@ import re
 from collections import namedtuple
 from copy import copy
 from typing import Any, Self
+from collections.abc import Mapping
 
 from .colormethods import ColorMethods
 
 
 # Compiles standard 7-bit ANSI control sequences (CSI, SGR, etc.)
 _ANSI_RE = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+_SGR_RE = re.compile(r"\x1B\[([\d;]*)m")
 
 
 def descape(text: str | bytes) -> str:
@@ -247,6 +249,103 @@ class Style(ColorMethods, str):
         "_italic",
         "_underline",
     )
+
+    def __json__(self, seen: set[int] | None = None) -> dict[str, Any]:
+        _ = seen
+        return {"__class__": "Style", "value": str(self)}
+
+    @classmethod
+    def __from_json__(cls, data: Mapping[str, Any]) -> Style:
+        return cls.parse(data.get("value", ""))
+
+    @classmethod
+    def parse(cls, text: str) -> Style:
+        text = text.replace("\\e", "\x1b")
+
+        sgr = _SGR_RE.search(text)
+        if not sgr:
+            return cls(text)
+
+        text_content = _ANSI_RE.sub("", text)
+        params_str = sgr.group(1)
+
+        fg: int | RGB = -1
+        bg: int | RGB = -1
+        bold = dim = italic = underline = blink = inverse = hidden = strikethrough = (
+            False
+        )
+
+        if params_str:
+            params = [int(p) for p in params_str.split(";")]
+            i = 0
+            while i < len(params):
+                p = params[i]
+                if p == 0:
+                    pass
+                elif p == 1:
+                    bold = True
+                elif p == 2:
+                    dim = True
+                elif p == 3:
+                    italic = True
+                elif p == 4:
+                    underline = True
+                elif p == 5:
+                    blink = True
+                elif p == 7:
+                    inverse = True
+                elif p == 8:
+                    hidden = True
+                elif p == 9:
+                    strikethrough = True
+                elif 30 <= p <= 37:
+                    fg = p - 30
+                elif 40 <= p <= 47:
+                    bg = p - 40
+                elif p == 38:
+                    if i + 1 < len(params):
+                        if params[i + 1] == 5 and i + 2 < len(params):
+                            fg = params[i + 2]
+                            i += 2
+                        elif params[i + 1] == 2 and i + 4 < len(params):
+                            fg = RGB(params[i + 2], params[i + 3], params[i + 4])
+                            i += 4
+                elif p == 48:
+                    if i + 1 < len(params):
+                        if params[i + 1] == 5 and i + 2 < len(params):
+                            bg = params[i + 2]
+                            i += 2
+                        elif params[i + 1] == 2 and i + 4 < len(params):
+                            bg = RGB(params[i + 2], params[i + 3], params[i + 4])
+                            i += 4
+                elif 90 <= p <= 97:
+                    fg = p - 82
+                elif 100 <= p <= 107:
+                    bg = p - 92
+                i += 1
+
+        kwargs: dict[str, Any] = {}
+        if fg != -1:
+            kwargs["fg"] = fg
+        if bg != -1:
+            kwargs["bg"] = bg
+        if bold:
+            kwargs["bold"] = True
+        if dim:
+            kwargs["dim"] = True
+        if italic:
+            kwargs["italic"] = True
+        if underline:
+            kwargs["underline"] = True
+        if blink:
+            kwargs["blink"] = True
+        if inverse:
+            kwargs["inverse"] = True
+        if hidden:
+            kwargs["hidden"] = True
+        if strikethrough:
+            kwargs["strikethrough"] = True
+        return cls(text_content, color=Color.always(), **kwargs)
 
     @property
     def value(self) -> str:
@@ -578,3 +677,12 @@ def fmt(value: str, fmt: str) -> str:
         return f'{value:{fmt}}'
     except (ValueError, TypeError):
         return value
+
+
+def _register_style():
+    from ..util.fromjson import __from_json__class__
+
+    __from_json__class__["Style"] = Style
+
+
+_register_style()
