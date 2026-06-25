@@ -5,9 +5,9 @@ from __future__ import annotations
 import os
 import re
 from collections import namedtuple
+from collections.abc import Mapping
 from copy import copy
 from typing import Any, Self
-from collections.abc import Mapping
 
 from .colormethods import ColorMethods
 
@@ -677,12 +677,3 @@ def fmt(value: str, fmt: str) -> str:
         return f'{value:{fmt}}'
     except (ValueError, TypeError):
         return value
-
-
-def _register_style():
-    from ..util.fromjson import __from_json__class__
-
-    __from_json__class__["Style"] = Style
-
-
-_register_style()
