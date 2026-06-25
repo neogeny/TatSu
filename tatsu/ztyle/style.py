@@ -68,6 +68,11 @@ class Color:
         """
         self._force_enable = value
 
+    def markup(self, text: str):
+        from .markup import markup
+
+        return markup(text, color=self)
+
     def style(
         self,
         value: str = "",
@@ -233,9 +238,18 @@ class Style(ColorMethods, str):
     def __json__(self, seen: set[int] | None = None) -> Any:
         return repr(self)
 
+    def markup(self, text: str):
+        from .markup import markup
+
+        return markup(text, color=self.color)
+
     @property
     def value(self) -> str:
         return super().__str__()
+
+    @property
+    def color(self) -> Color:
+        return self._color
 
     @classmethod
     def tty_escape(cls, text: str) -> str:
@@ -540,7 +554,7 @@ class Style(ColorMethods, str):
         return f"\033[{';'.join(codes)}m{text}\033[0m"
 
     @classmethod
-    def parse(cls, text: str) -> Self:
+    def from_raw(cls, text: str) -> Self:
         text = tty_unescape(text)
 
         sgr = SGR_RE.search(text)
@@ -634,7 +648,7 @@ class Style(ColorMethods, str):
         fmt = None
         if m := re.match(r"f{(.*?):(.*)}", text):
             text, fmt = m.group(1, 2)
-        return cls(text, color=Color.always(), fmt=fmt, **kwargs)
+        return cls(text, color=Color.default(), fmt=fmt, **kwargs)
 
 
 def named_color(name: str) -> int | None:

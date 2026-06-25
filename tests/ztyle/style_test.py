@@ -399,61 +399,61 @@ def test_fmt_immutable():
 
 
 def test_parse_plain():
-    assert str(Style.parse("hello")) == "hello"
+    assert str(Style.from_raw("hello")) == "hello"
 
 
 def test_parse_fg():
-    s = Style.parse("\033[31mhello\033[0m")
+    s = Style.from_raw("\033[31mhello\033[0m")
     assert str(s) == "\033[31mhello\033[0m"
 
 
 def test_parse_fg_bright():
-    s = Style.parse("\033[91mhello\033[0m")
+    s = Style.from_raw("\033[91mhello\033[0m")
     assert str(s) == "\033[91mhello\033[0m"
 
 
 def test_parse_bold_fg():
-    s = Style.parse("\033[1;32mhello\033[0m")
+    s = Style.from_raw("\033[1;32mhello\033[0m")
     assert str(s) == "\033[1;32mhello\033[0m"
 
 
 def test_parse_256():
-    s = Style.parse("\033[38;5;200mhello\033[0m")
+    s = Style.from_raw("\033[38;5;200mhello\033[0m")
     assert str(s) == "\033[38;5;200mhello\033[0m"
 
 
 def test_parse_rgb():
-    s = Style.parse("\033[38;2;255;0;0mhello\033[0m")
+    s = Style.from_raw("\033[38;2;255;0;0mhello\033[0m")
     assert str(s) == "\033[38;2;255;0;0mhello\033[0m"
 
 
 def test_parse_modifiers():
-    s = Style.parse("\033[1;3;4mhello\033[0m")
+    s = Style.from_raw("\033[1;3;4mhello\033[0m")
     assert str(s) == "\033[1;3;4mhello\033[0m"
 
 
 def test_parse_all_modifiers():
-    s = Style.parse("\033[1;2;3;4;5;7;8;9mhello\033[0m")
+    s = Style.from_raw("\033[1;2;3;4;5;7;8;9mhello\033[0m")
     assert str(s) == "\033[1;2;3;4;5;7;8;9mhello\033[0m"
 
 
 def test_parse_background():
-    s = Style.parse("\033[41mhello\033[0m")
+    s = Style.from_raw("\033[41mhello\033[0m")
     assert str(s) == "\033[41mhello\033[0m"
 
 
 def test_parse_background_256():
-    s = Style.parse("\033[48;5;100mhello\033[0m")
+    s = Style.from_raw("\033[48;5;100mhello\033[0m")
     assert str(s) == "\033[48;5;100mhello\033[0m"
 
 
 def test_parse_background_rgb():
-    s = Style.parse("\033[48;2;0;0;128mhello\033[0m")
+    s = Style.from_raw("\033[48;2;0;0;128mhello\033[0m")
     assert str(s) == "\033[48;2;0;0;128mhello\033[0m"
 
 
 def test_parse_backslash_e():
-    s = Style.parse("\\e[31mhello\\e[0m")
+    s = Style.from_raw("\\e[31mhello\\e[0m")
     assert str(s) == "\033[31mhello\033[0m"
 
 
@@ -518,14 +518,14 @@ def test_fmt_and_color_roundtrip():
     assert result._fg == 2
     assert result._bold is True
     assert result._fmt == ">10"
-    assert result._color._force_enable is True
+    assert result._color._force_enable is None  # default color policy
 
 
 def test_repr_fmt_roundtrips():
     c = Color.always()
     original = Style("hello", fmt=">10", color=c)
     r = repr(original)
-    parsed = Style.parse(r)
+    parsed = Style.from_raw(r)
     assert parsed._fmt == ">10"
     assert parsed.value == "hello"
 

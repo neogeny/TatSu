@@ -80,7 +80,7 @@ def fromjson(obj: Any) -> Any:
         match node:
             case str():
                 if node.startswith(("\\e[", "f{")):
-                    return Style.parse(node)
+                    return Style.from_raw(node)
                 return node
             case int() | float() | bool() | bytes() | bytearray() | complex():
                 return node

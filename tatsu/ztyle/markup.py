@@ -3,11 +3,43 @@
 from __future__ import annotations
 
 import contextlib
+import inspect
 import re
+from collections.abc import Callable
 from enum import Enum
 from typing import NamedTuple, assert_never
 
-from .style import Color, Style
+from .style import DEFAULT_COLOR, Color, Style
+
+
+class StyleZ(str):
+    __slots__ = ("_color", "_styles")
+
+    def __new__(cls, *args, **_kwargs):
+        assert args and isinstance(args[0], list)
+        styles = args[0]
+        assert not styles or isinstance(styles[0], Style)
+        value = "".join(s.value for s in styles)
+        new = super().__new__(cls, value)
+        new._styles = styles
+        return new
+
+    def __init__(self, styles: list[Style]):
+        self._styles = styles
+
+    @property
+    def value(self) -> str:
+        return super().__str__()
+
+    @property
+    def style(self) -> list[Style]:
+        return self._styles
+
+    def __str__(self) -> str:
+        return "".join(str(s) for s in self._styles)
+
+    def __repr__(self) -> str:
+        return "".join(repr(s) for s in self._styles)
 
 
 class TokenType(Enum):
@@ -22,50 +54,59 @@ class Token(NamedTuple):
     value: str
 
 
-def apply(stack: list[str], text: str) -> Style:
-    s = Style(text, color=Color.default())
+def apply_style_stack(
+    stack: list[str],
+    text: str,
+    color: Color = DEFAULT_COLOR,
+) -> Style:
+    s = Style(text, color=color)
+
     for name in stack:
-        if style := getattr(s, name, None):
+        style: Callable[[], Style] | None = None
+        if (style := getattr(s, name, None)) is not None and callable(style):
+            sig = inspect.signature(style)
+            if str(sig.return_annotation) not in {"Style", "Self"}:
+                continue
             with contextlib.suppress(TypeError):
+                sig.bind()
                 s = style()
+    assert s is not None
     return s
 
 
-def parse(text: str) -> str:
+def markup(*texts: str, color: Color = DEFAULT_COLOR) -> StyleZ:
     stack: list[str] = []
 
     out: list[Style] = []
     part: str = ""
-    for token in tokenize(text):
-        if part and token.type != TokenType.TXT:
-            out += [apply(stack, part)]
-            part = ""
-        match token.type:
-            case TokenType.CAL:
-                for style in token.value.split(" "):
-                    stack += [style]
-            case TokenType.RET:
-                if token.value == "all":
-                    stack = []
-                    continue
-                if not token.value:
-                    stack.pop()
-                    continue
-                for i in range(len(stack) - 1, -1, -1):
-                    if stack[i] == token.value:
-                        stack.pop(i)
-                        break
-            case TokenType.ESC:
-                part += "["
-            case TokenType.TXT:
-                part += token.value
-            case _:
-                assert_never(token.type)
+    for text in texts:
+        text = str(text)  # noqa: PLW2901
+        for token in tokenize(text):
+            if part and token.type != TokenType.TXT:
+                out += [apply_style_stack(stack, part, color=color)]
+                part = ""
+            match token.type:
+                case TokenType.CAL:
+                    for style in token.value.split(" "):
+                        stack += [style]
+                case TokenType.RET:
+                    if not token.value:
+                        stack = stack[:-1]
+                    elif token.value in {"all", "*"}:
+                        stack = []
+                    elif stack and stack[-1] == token.value:
+                        stack.pop()
+                case TokenType.ESC:
+                    part += "["
+                case TokenType.TXT:
+                    part += token.value
+                case _:
+                    assert_never(token.type)
 
     if part:
-        out += [apply(stack, part)]
+        out += [apply_style_stack(stack, part, color=color)]
 
-    return "".join(str(s) for s in out)
+    return StyleZ(out)
 
 
 def tokenize(text: str) -> list[Token]:

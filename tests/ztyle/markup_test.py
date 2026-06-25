@@ -4,84 +4,134 @@ from unittest.mock import patch
 
 import pytest
 
-from tatsu.ztyle.markup import parse, tokenize, tokenize_to_values
-from tatsu.ztyle.style import Color, Style
+from tatsu.ztyle.markup import markup, tokenize, tokenize_to_values
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True)  # noqa
 def _tty_stdout():
     with patch("sys.stdout.isatty", return_value=True):
         yield
 
 
 def test_plain_text():
-    assert parse("hello") == "hello"
+    r = markup("hello")
+    assert len(r.style) == 1
+    assert r.style[0].value == "hello"
 
 
 def test_plain_text_with_spaces():
-    assert parse("hello world") == "hello world"
+    r = markup("hello world")
+    assert len(r.style) == 1
+    assert r.style[0].value == "hello world"
 
 
 def test_single_bold():
-    assert parse("[bold]hello[/bold]") == "\033[1mhello\033[0m"
+    r = markup("[bold]hello[/bold]")
+    assert len(r.style) == 1
+    assert r.style[0].value == "hello"
+    assert r.style[0]._bold is True
 
 
 def test_single_italic():
-    assert parse("[italic]hello[/italic]") == "\033[3mhello\033[0m"
+    r = markup("[italic]hello[/italic]")
+    assert len(r.style) == 1
+    assert r.style[0].value == "hello"
+    assert r.style[0]._italic is True
 
 
 def test_single_color():
-    assert parse("[red]hello[/red]") == "\033[31mhello\033[0m"
+    r = markup("[red]hello[/red]")
+    assert len(r.style) == 1
+    assert r.style[0].value == "hello"
+    assert r.style[0]._fg == 1
 
 
 def test_multiple_attributes_one_tag():
-    r = parse("[bold red]hello[/]")
-    assert r == "\033[1;31mhello\033[0m"
+    r = markup("[bold red]hello[/]")
+    assert len(r.style) == 1
+    assert r.style[0].value == "hello"
+    assert r.style[0]._bold is True
+    assert r.style[0]._fg == 1
 
 
 def test_mixed_plain_and_styled():
-    r = parse("plain [bold]bold[/bold] plain")
-    assert r == "plain \033[1mbold\033[0m plain"
+    r = markup("plain [bold]bold[/bold] plain")
+    assert len(r.style) == 3
+    assert r.style[0].value == "plain "
+    assert r.style[1].value == "bold"
+    assert r.style[1]._bold is True
+    assert r.style[2].value == " plain"
 
 
 def test_styled_then_plain():
-    r = parse("[bold]bold[/bold] plain")
-    assert r == "\033[1mbold\033[0m plain"
+    r = markup("[bold]bold[/bold] plain")
+    assert len(r.style) == 2
+    assert r.style[0].value == "bold"
+    assert r.style[0]._bold is True
+    assert r.style[1].value == " plain"
 
 
 def test_plain_then_styled():
-    r = parse("plain [bold]bold[/]")
-    assert r == "plain \033[1mbold\033[0m"
+    r = markup("plain [bold]bold[/]")
+    assert len(r.style) == 2
+    assert r.style[0].value == "plain "
+    assert r.style[1].value == "bold"
+    assert r.style[1]._bold is True
 
 
 def test_nested_styles():
-    r = parse("[bold]bold [red]red[/red] only bold[/bold]")
-    assert r == "\033[1mbold \x1b[0m\x1b[1;31mred\x1b[0m\x1b[1m only bold\x1b[0m"
+    r = markup("[bold]bold [red]red[/red] only bold[/bold]")
+    assert len(r.style) == 3
+    assert r.style[0].value == "bold "
+    assert r.style[0]._bold is True
+    assert r.style[0]._fg == -1
+    assert r.style[1].value == "red"
+    assert r.style[1]._bold is True
+    assert r.style[1]._fg == 1
+    assert r.style[2].value == " only bold"
+    assert r.style[2]._bold is True
+    assert r.style[2]._fg == -1
 
 
 def test_close_all():
-    r = parse("[bold red]hello[/all]world")
-    assert r == "\033[1;31mhello\033[0mworld"
+    r = markup("[bold red]hello[/all]world")
+    assert len(r.style) == 2
+    assert r.style[0].value == "hello"
+    assert r.style[0]._bold is True
+    assert r.style[0]._fg == 1
+    assert r.style[1].value == "world"
+    assert r.style[1]._bold is False
+    assert r.style[1]._fg == -1
 
 
 def test_escape_brackets():
-    r = parse("[[hello]]")
-    assert r == "[hello]]"
+    r = markup("[[hello]]")
+    assert len(r.style) == 1
+    assert r.style[0].value == "[hello]]"
 
 
 def test_empty_string():
-    assert parse("") == ""
+    r = markup("")
+    assert len(r.style) == 0
+    assert r.style == []
 
 
 def test_color_methods():
-    s = Style("hello", color=Color.always()).pink()
-    r = parse("[pink]hello[/]")
-    assert r == str(s)
+    r = markup("[pink]hello[/]")
+    assert len(r.style) == 1
+    assert r.style[0].value == "hello"
+    assert r.style[0]._fg == 200  # pink is ANSI 256-color 200
 
 
 def test_consecutive_styles():
-    r = parse("[bold]a[/][italic]b[/]")
-    assert r == "\033[1ma\033[0m\033[3mb\033[0m"
+    r = markup("[bold]a[/][italic]b[/]")
+    assert len(r.style) == 2
+    assert r.style[0].value == "a"
+    assert r.style[0]._bold is True
+    assert r.style[0]._italic is False
+    assert r.style[1].value == "b"
+    assert r.style[1]._bold is False
+    assert r.style[1]._italic is True
 
 
 def test_tokenize_plain():

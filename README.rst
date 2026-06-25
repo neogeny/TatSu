@@ -1,4 +1,4 @@
-.. Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+.. Copyright © 2017-2026 Juancarlo Añez (apalala@gmail.com)
 .. SPDX-License-Identifier: BSD-4-Clause
 
 .. |dragon| unicode:: 0x7ADC .. unicode dragon
