@@ -393,3 +393,62 @@ def test_fmt_immutable():
 
 #     s = s("hello")
 #     assert str(s) == "\033[1mhello\033[0m"
+
+
+def test_parse_plain():
+    assert str(Style.parse("hello")) == "hello"
+
+
+def test_parse_fg():
+    s = Style.parse("\033[31mhello\033[0m")
+    assert str(s) == "\033[31mhello\033[0m"
+
+
+def test_parse_fg_bright():
+    s = Style.parse("\033[91mhello\033[0m")
+    assert str(s) == "\033[91mhello\033[0m"
+
+
+def test_parse_bold_fg():
+    s = Style.parse("\033[1;32mhello\033[0m")
+    assert str(s) == "\033[1;32mhello\033[0m"
+
+
+def test_parse_256():
+    s = Style.parse("\033[38;5;200mhello\033[0m")
+    assert str(s) == "\033[38;5;200mhello\033[0m"
+
+
+def test_parse_rgb():
+    s = Style.parse("\033[38;2;255;0;0mhello\033[0m")
+    assert str(s) == "\033[38;2;255;0;0mhello\033[0m"
+
+
+def test_parse_modifiers():
+    s = Style.parse("\033[1;3;4mhello\033[0m")
+    assert str(s) == "\033[1;3;4mhello\033[0m"
+
+
+def test_parse_all_modifiers():
+    s = Style.parse("\033[1;2;3;4;5;7;8;9mhello\033[0m")
+    assert str(s) == "\033[1;2;3;4;5;7;8;9mhello\033[0m"
+
+
+def test_parse_background():
+    s = Style.parse("\033[41mhello\033[0m")
+    assert str(s) == "\033[41mhello\033[0m"
+
+
+def test_parse_background_256():
+    s = Style.parse("\033[48;5;100mhello\033[0m")
+    assert str(s) == "\033[48;5;100mhello\033[0m"
+
+
+def test_parse_background_rgb():
+    s = Style.parse("\033[48;2;0;0;128mhello\033[0m")
+    assert str(s) == "\033[48;2;0;0;128mhello\033[0m"
+
+
+def test_parse_backslash_e():
+    s = Style.parse("\\e[31mhello\\e[0m")
+    assert str(s) == "\033[31mhello\033[0m"

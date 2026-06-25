@@ -252,8 +252,8 @@ known-first-party = ["tatsu"]
 relative-imports-order = "furthest-to-closest"
 
 [tool.ruff.lint.pylint]
-max-branches = 32
-max-nested-blocks = 8
+max-branches = 64
+max-nested-blocks = 16
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10

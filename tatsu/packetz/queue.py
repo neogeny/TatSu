@@ -25,14 +25,10 @@ def _cleanup_queue_files():
     if multiprocessing.current_process().name != "MainProcess":
         return
     for path in list(_queue_files):
-        try:
+        with contextlib.suppress(OSError):
             path.unlink(missing_ok=True)
-        except OSError:
-            pass
-    try:
+    with contextlib.suppress(OSError):
         PACKETZ_DIR.rmdir()
-    except OSError:
-        pass
 
 
 def new_file_path() -> Path:

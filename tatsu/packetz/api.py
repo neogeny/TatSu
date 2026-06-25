@@ -40,7 +40,14 @@ def init_queue(
     global _the_queue, _cleanup_registered  # noqa: PLW0603
 
     if keep is None:
-        keep = os.environ.get("PACKETZ_KEEP", "").lower() in ("1", "true")
+        keep = bool(k := os.environ.get("PACKETZ_KEEP", "").lower()) and (
+            k
+            not in {
+                "0",
+                "false",
+                "no",
+            }
+        )
 
     if path is None:
         path = new_file_path()
