@@ -190,7 +190,8 @@ def test_no_color_empty_still_suppresses(monkeypatch):
     assert str(s) == 'x'
 
 
-def test_enabled_evaluates_dynamically(_monkeypatch):
+def test_enabled_evaluates_dynamically(monkeypatch):
+    _ = monkeypatch
     with patch("sys.stdout.isatty", return_value=True):
         s = Style('x', fg=1)
     assert str(s) == '\033[31mx\033[0m'
