@@ -8,7 +8,7 @@ from typing import Any
 from ..util.asjson import AsJSONMixin, asjson
 from ..util.debugging import WARNING_print
 from ..util.fromjson import JSONBase, fromjson
-from ..util.misc import hash_2str, new_id
+from ..util.misc import new_id
 from ..util.tty import tty_escape, tty_unescape
 from .compact import compact_value, decompact_value
 
@@ -55,8 +55,7 @@ def validate(expected: str, actual: str) -> bool:
 def pack(packet: PacketLike) -> str:
     value = asjson(packet)
     compact = compact_value(value)
-    hashed = {"hash": hash_2str(value), **compact}
-    serial = json.dumps(hashed, separators=(",", ":"), ensure_ascii=False)
+    serial = json.dumps(compact, separators=(",", ":"), ensure_ascii=False)
     unclassed = class_escape(serial)
     escaped = tty_escape(unclassed)
     return escaped
@@ -66,10 +65,7 @@ def unpack(escaped: str) -> PacketLike:
     unclassed = tty_unescape(escaped)
     serial = class_unescape(unclassed)
     compact = json.loads(serial)
-    _expected_hash = compact.pop("hash", "")
     value = decompact_value(compact)
-    _actual_hash = hash_2str(value)
-    # validate(_expected_hash, _actual_hash)
     packet = fromjson(value)
     return packet
 

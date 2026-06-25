@@ -11,7 +11,7 @@ SGR_RE = re.compile(r"\x1B\[([\d;]*)m")
 
 
 def tty_escape(s: str) -> str:
-    return s.replace('\x1b', '\\e')
+    return s.replace('\x1b', '\\e').replace('\\x1b', '\\e')
 
 
 def tty_unescape(s: str) -> str:
