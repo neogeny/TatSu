@@ -250,13 +250,8 @@ class Style(ColorMethods, str):
         "_underline",
     )
 
-    def __json__(self, seen: set[int] | None = None) -> dict[str, Any]:
-        _ = seen
-        return {"__class__": "Style", "value": str(self)}
-
-    @classmethod
-    def __from_json__(cls, data: Mapping[str, Any]) -> Style:
-        return cls.parse(data.get("value", ""))
+    def __json__(self, seen: set[int] | None = None) -> Any:
+        return repr(self)
 
     @classmethod
     def parse(cls, text: str) -> Style:
@@ -361,7 +356,7 @@ class Style(ColorMethods, str):
         return self.apply(str(self), fmt=format_spec)
 
     def __repr__(self) -> str:
-        return repr(str(self)).replace('\\x1b', '\\e')
+        return repr(str(self))[1:-1].replace('\\x1b', '\\e')
 
     def __len__(self) -> int:
         return visual_len(str(self))

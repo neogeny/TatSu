@@ -7,6 +7,7 @@ from typing import Any, Self
 
 from ..util.abctools import isiter
 from ..util.asjson import AsJSONMixin
+from ..ztyle import Style
 
 
 __from_json__class__: dict[str, type] = {}
@@ -62,9 +63,6 @@ def fromjson(obj: Any) -> Any:
     """
 
     def dfs(node: Any) -> Any:  # noqa: PLR0911
-        if node is None or isinstance(node, int | float | str | bool):
-            return node
-
         def mapped() -> dict[str, Any]:
             map: dict = node
             return {
@@ -73,12 +71,19 @@ def fromjson(obj: Any) -> Any:
 
         def asobj() -> object:
             return SimpleNamespace(**mapped())
+            # FIXME another, more complicated approach
             # obj = Object()
             # for name, value in mapped().items():
             #     setattr(obj, name, value)
             # return obj
 
         match node:
+            case str():
+                if node.startswith("\\e["):
+                    return Style.parse(node)
+                return node
+            case int() | float() | bool() | bytes() | bytearray() | complex():
+                return node
             case Mapping() as map:
                 typename = map.get("__class__", None)
                 if not typename:

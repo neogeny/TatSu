@@ -9,6 +9,7 @@ import weakref
 from collections.abc import Mapping
 from typing import Any, Protocol, runtime_checkable
 
+from ..ztyle import Style
 from .abctools import as_namedtuple, isiter, rowselect
 from .typetools import is_readonly_property
 
@@ -54,8 +55,17 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
     seen = seen if seen is not None else set()
 
     def dfs(node: Any) -> Any:
-        if node is None or isinstance(node, int | float | str | bool):
-            return node
+        if node is None:
+            return None
+        match node:
+            case int() | float() | bool():
+                return node
+            case Style():
+                return repr(node)
+            case str():
+                return node
+            case _:
+                pass
 
         node_id = id(node)
         # noinspection PyUnresolvedReferences
@@ -88,7 +98,10 @@ def asjson(obj: Any, seen: set[int] | None = None) -> Any:
                 case _ if isiter(node):
                     result = [dfs(e) for e in node]
                 case _:
-                    result = repr(node)
+                    if callable(getattr(node, "__json__", None)):
+                        result = node.__json__(seen=seen)
+                    else:
+                        result = repr(node)
             return result
         finally:
             # noinspection PyUnresolvedReferences

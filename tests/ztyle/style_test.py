@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import json
 from unittest.mock import patch
 
 import pytest
 
+from tatsu.util.asjson import asjson
+from tatsu.util.fromjson import fromjson
 from tatsu.ztyle import RGB, Color, Style, fmt, rgb
 
 
@@ -452,3 +455,41 @@ def test_parse_background_rgb():
 def test_parse_backslash_e():
     s = Style.parse("\\e[31mhello\\e[0m")
     assert str(s) == "\033[31mhello\033[0m"
+
+
+def test_fromjson_reconstructs_style():
+    c = Color.always()
+    original = Style("hello", fg=1, bold=True, color=c)
+    payload = asjson(original)
+    result = fromjson(payload)
+    assert isinstance(result, Style)
+    assert result is not original
+    assert result._fg == original._fg
+    assert result._bold == original._bold
+    assert result._bg == original._bg
+
+
+def test_full_json_roundtrip_reconstructs_style():
+    c = Color.always()
+    original = Style("hello", fg=1, bold=True, color=c)
+    serialized = json.dumps(asjson(original))
+    result = fromjson(json.loads(serialized))
+    assert isinstance(result, Style)
+    assert result._fg == original._fg
+    assert result._bold == original._bold
+
+
+def test_fromjson_parses_escape_strings():
+    result = fromjson("\\e[31mhello\\e[0m")
+    assert isinstance(result, Style)
+    assert result._fg == 1
+
+
+def test_fromjson_reconstructs_nested_style():
+    c = Color.always()
+    original = {"title": Style("T", bold=True, color=c)}
+    serialized = json.dumps(asjson(original))
+    result = fromjson(json.loads(serialized))
+    assert isinstance(result["title"], Style)
+    assert result["title"] is not original["title"]
+    assert result["title"]._bold is True
