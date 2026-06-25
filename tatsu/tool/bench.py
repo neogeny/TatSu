@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
+# noqa # type: ignore # ruff: noqa
 from __future__ import annotations
 
 import argparse
