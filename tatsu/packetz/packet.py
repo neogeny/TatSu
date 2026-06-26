@@ -46,7 +46,13 @@ class Packet(PacketLike, WithID):
             self.data = data
 
 
-def validate(hashed: str) -> str:
+def hashed(data: str) -> str:
+    hash = hash2str(data)
+    hashed = f'{{"hash":"{hash}","data":{data}}}'
+    return hashed
+
+
+def unhashed(hashed: str) -> str:
     if not (m := re.match(HASH_PATTERN, hashed)):
         raise ERROR_print(f"checksum missing: {hashed}")
     try:
@@ -66,13 +72,11 @@ def pack(packet: PacketLike) -> str:
     serial = json.dumps(compact, separators=(",", ":"), ensure_ascii=False)
     unclassed = class_escape(serial)
     escaped = tty_escape(unclassed)
-    hash = hash2str(escaped)
-    hashed = f'{{"hash":"{hash}","data":{escaped}}}'
-    return hashed
+    return hashed(escaped)
 
 
 def unpack(hashed: str) -> PacketLike:
-    escaped = validate(hashed)
+    escaped = unhashed(hashed)
     unclassed = tty_unescape(escaped)
     serial = class_unescape(unclassed)
     compact = json.loads(serial)
