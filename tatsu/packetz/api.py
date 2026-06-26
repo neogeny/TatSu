@@ -10,13 +10,13 @@ sync/async receivers for draining a multiprocessing.Queue.
 from __future__ import annotations
 
 import atexit
+import contextlib
 import os
 from collections.abc import AsyncGenerator, Generator
-from pathlib import Path
 from typing import Any
 
 from .packet import Packet, PacketLike, WithID
-from .queue import PacketzQueue, _cleanup_queue_files, _queue_files, new_file_path
+from .queue import PACKETZ_DIR, PacketzQueue
 
 
 __all__ = [
@@ -28,16 +28,20 @@ __all__ = [
     'WithID',
 ]
 
-
 _the_queue: PacketzQueue | None = None
 _cleanup_registered = False
+_defer_deinit_queues: set[PacketzQueue] = set()
 
 
 def init_queue(
-    path: Path | str | None = None,
+    q: PacketzQueue | None = None,
     keep: bool | None = None,
 ) -> PacketzQueue:
     global _the_queue, _cleanup_registered  # noqa: PLW0603
+
+    path = q.path if q is not None else None
+    q = PacketzQueue(path)
+    _the_queue = q
 
     if keep is None:
         keep = bool(k := os.environ.get("PACKETZ_KEEP", "").lower()) and (
@@ -49,14 +53,8 @@ def init_queue(
             }
         )
 
-    if path is None:
-        path = new_file_path()
-
-    q = PacketzQueue(path)
-    _the_queue = q
-
     if not keep:
-        _queue_files.add(q.path)
+        _defer_deinit_queues.add(q)
         if not _cleanup_registered:
             atexit.register(_cleanup_queue_files)
             _cleanup_registered = True
@@ -78,3 +76,16 @@ async def receive_async() -> AsyncGenerator[PacketLike, None]:
     assert _the_queue is not None
     async for pkt in _the_queue.receive_async():
         yield pkt
+
+
+def _cleanup_queue_files():
+    import multiprocessing
+
+    if multiprocessing.current_process().name != "MainProcess":
+        return
+    for q in list(_defer_deinit_queues):
+        path = q.path
+        with contextlib.suppress(OSError):
+            path.unlink(missing_ok=True)
+    with contextlib.suppress(OSError):
+        PACKETZ_DIR.rmdir()

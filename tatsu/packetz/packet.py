@@ -17,6 +17,22 @@ from .compact import compact_value, decompact_value
 HASH_PATTERN = r'^\{"hash":"([\w\d]+)","data":(.*?)\}$'
 
 
+class PacketError(Exception):
+    pass
+
+
+class CannotUnPacketError(PacketError):
+    pass
+
+
+class BadPacketError(PacketError):
+    pass
+
+
+class PacketHashError(BadPacketError):
+    pass
+
+
 class HasID(AsJSONMixin):
     id: str
 
@@ -54,15 +70,24 @@ def hashed(data: str) -> str:
 
 def unhashed(hashed: str) -> str:
     if not (m := re.match(HASH_PATTERN, hashed)):
-        raise ERROR_print(f"checksum missing: {hashed}")
+        raise ERROR_print(
+            f"checksum missing: {hashed}",
+            extype=BadPacketError,
+        )
     try:
         hash, data = m.group(1, 2)
     except (AttributeError, IndexError, re.error) as e:
-        raise ERROR_print(f"invalid packet: {hashed}") from e
+        raise ERROR_print(
+            f"invalid packet: {hashed}",
+            extype=BadPacketError,
+        ) from e
 
     actual = hash2str(data)
     if hash != actual:
-        raise ERROR_print(f"checksum mismatch: {hash} != {actual}")
+        raise ERROR_print(
+            f"checksum mismatch: {hash} != {actual}",
+            extype=PacketHashError,
+        )
     return data
 
 
@@ -76,12 +101,17 @@ def pack(packet: PacketLike) -> str:
 
 
 def unpack(hashed: str) -> PacketLike:
-    value: Any = unhashed(hashed)
-    value = tty_unescape(value)
-    value = class_unescape(value)
-    value = json.loads(value)
-    value = decompact_value(value)
-    return fromjson(value)
+    try:
+        value: Any = unhashed(hashed)
+        value = tty_unescape(value)
+        value = class_unescape(value)
+        value = json.loads(value)
+        value = decompact_value(value)
+        return fromjson(value)
+    except PacketError:
+        raise
+    except Exception as e:
+        raise CannotUnPacketError(e) from e
 
 
 def class_escape(s: str) -> str:

@@ -43,10 +43,10 @@ def parproc(
     queue = init_queue()
     tasks = [
         Task(
+            queue=queue,
             stop=stop,
             func=func,
             payload=payload,
-            queuepath=queue.path,
             pickable=pickable,
             reraise=reraise,
             args=args,

@@ -25,10 +25,10 @@ class TaskStop(Exception):
 
 
 class Task(NamedTuple):
+    queue: PacketzQueue
     stop: Event
     func: Func
     payload: Any
-    queuepath: str | Path
     pickable: Callable
     reraise: bool
     args: Iterable[Any]
@@ -38,7 +38,7 @@ class Task(NamedTuple):
 def taskproc(task: Task) -> Result:
     if task.stop.is_set():
         return Result(task.stop, task.payload)
-    _packetz_api._the_queue = PacketzQueue(task.queuepath)
+    _packetz_api.init_queue(task.queue)
 
     result = Result(task.stop, task.payload)
     outcome: Any = None

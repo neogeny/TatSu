@@ -12,23 +12,17 @@ from pathlib import Path
 from typing import IO, Any
 
 from ..util import alpha_timestamp
-from .packet import Packet, PacketLike, pack, unpack
+from .packet import (
+    BadPacketError,
+    Packet,
+    PacketHashError,
+    PacketLike,
+    pack,
+    unpack,
+)
 
 
 PACKETZ_DIR = Path(f"./.{__name__.split('.')[-2]}")
-_queue_files: set[Path] = set()
-
-
-def _cleanup_queue_files():
-    import multiprocessing
-
-    if multiprocessing.current_process().name != "MainProcess":
-        return
-    for path in list(_queue_files):
-        with contextlib.suppress(OSError):
-            path.unlink(missing_ok=True)
-    with contextlib.suppress(OSError):
-        PACKETZ_DIR.rmdir()
 
 
 def new_file_path() -> Path:
@@ -47,7 +41,9 @@ class PacketzQueue:
     _seen: dict[str, PacketLike] = {}  # noqa: RUF012
     _queue: IO[str] | None = None
 
-    def __init__(self, path: Path | str):
+    def __init__(self, path: Path | str | None = None):
+        if path is None:
+            path = new_file_path()
         self.path = Path(path)
 
         PACKETZ_DIR.mkdir(parents=True, exist_ok=True)
@@ -56,6 +52,14 @@ class PacketzQueue:
         if not self.path.exists():
             self.path.touch(exist_ok=True)
             self._told = 0
+
+    def __getstate__(self) -> dict[str, Any]:
+        state = self.__dict__.copy()
+        state["_queue"] = None  # Force re-opening on the other side
+        return state
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        self.__dict__.update(state)
 
     def _queue_healthy(self) -> bool:
         q = self._queue
@@ -73,7 +77,7 @@ class PacketzQueue:
             encoding="utf-8",
             buffering=32 * 1024,
         )
-        self._queue.seek(self._told)
+        self.reset()
 
     def get_queue(self) -> IO[str]:
         self._ensure_open()
@@ -85,6 +89,10 @@ class PacketzQueue:
         t = self._queue.tell()
         assert (check and t > self._told) or (not check and t >= self._told)
         self._told = t
+
+    def reset(self):
+        if self._queue:
+            self._queue.seek(self._told)
 
     @contextlib.contextmanager
     def reader(self) -> Generator[IO[str], None, None]:
@@ -112,15 +120,15 @@ class PacketzQueue:
             for serial in queue.readlines():
                 try:
                     packet = unpack(serial)
-                except (json.JSONDecodeError, TypeError):
-                    break
-                except ValueError:
-                    continue
-                self.tell(False)
+                except (BadPacketError, json.JSONDecodeError, TypeError):
+                    break  # NOTE Incomplete? Wait and retry
+                except (PacketHashError, ValueError):
+                    continue  # NOTE Skip and continue!
                 if packet.id in self._seen:
                     continue
                 self._seen[packet.id] = packet
                 yield packet
+            self.tell(False)
 
     async def receive_async(self) -> AsyncGenerator[PacketLike, None]:
         try:

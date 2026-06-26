@@ -214,9 +214,10 @@ class Multi:
         self.out.write(screenshot)
 
         self.height = max(len(frame), self.height)
-        if not final:
-            self.out.write(pushup(self.height))
-        self.out.flush()
+        with _screen_lock:
+            if not final:
+                self.out.write(pushup(self.height))
+            self.out.flush()
 
     def expand_row(self, line: list[Any], cw: list[int]) -> str:
         return ''.join(f"{col:{w}}" for col, w in zip(line, cw))
