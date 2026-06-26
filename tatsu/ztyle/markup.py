@@ -2,10 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import contextlib
-import inspect
 import re
-from collections.abc import Callable
 from enum import Enum
 from typing import NamedTuple, assert_never
 
