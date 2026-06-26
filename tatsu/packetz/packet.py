@@ -7,7 +7,7 @@ import re
 from typing import Any
 
 from ..util.asjson import AsJSONMixin, asjson
-from ..util.debugging import ERROR_print, WARNING_print
+from ..util.debugging import ERROR_print
 from ..util.fromjson import JSONBase, fromjson
 from ..util.misc import hash2str, new_id
 from ..util.tty import tty_escape, tty_unescape
