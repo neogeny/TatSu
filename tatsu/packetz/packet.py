@@ -67,22 +67,21 @@ def unhashed(hashed: str) -> str:
 
 
 def pack(packet: PacketLike) -> str:
-    value = asjson(packet)
-    compact = compact_value(value)
-    serial = json.dumps(compact, separators=(",", ":"), ensure_ascii=False)
-    unclassed = class_escape(serial)
-    escaped = tty_escape(unclassed)
-    return hashed(escaped)
+    value: Any = asjson(packet)
+    value = compact_value(value)
+    value = json.dumps(value, separators=(",", ":"), ensure_ascii=False)
+    value = class_escape(value)
+    value = tty_escape(value)
+    return hashed(value)
 
 
 def unpack(hashed: str) -> PacketLike:
-    escaped = unhashed(hashed)
-    unclassed = tty_unescape(escaped)
-    serial = class_unescape(unclassed)
-    compact = json.loads(serial)
-    value = decompact_value(compact)
-    packet = fromjson(value)
-    return packet
+    value: Any = unhashed(hashed)
+    value = tty_unescape(value)
+    value = class_unescape(value)
+    value = json.loads(value)
+    value = decompact_value(value)
+    return fromjson(value)
 
 
 def class_escape(s: str) -> str:
