@@ -105,11 +105,11 @@ def new_id() -> str:
     return i2greek(mn, width=d)
 
 
-def hash_2byte(data: Any) -> bytes:
+def hash2byte(data: Any) -> bytes:
     if data is None:
         return b"\x00" * 4
     return hashlib.blake2b(str(data).encode("utf-8"), digest_size=2).digest()
 
 
-def hash_2str(data: Any) -> str:
-    return f"{int.from_bytes(hash_2byte(data), 'big'):04x}"
+def hash2str(data: Any) -> str:
+    return f"{int.from_bytes(hash2byte(data), 'big'):04x}"

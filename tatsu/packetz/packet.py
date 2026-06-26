@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from ..util.asjson import AsJSONMixin, asjson
-from ..util.debugging import WARNING_print
+from ..util.debugging import ERROR_print, WARNING_print
 from ..util.fromjson import JSONBase, fromjson
-from ..util.misc import new_id
+from ..util.misc import hash2str, new_id
 from ..util.tty import tty_escape, tty_unescape
 from .compact import compact_value, decompact_value
+
+
+HASH_PATTERN = r'^\{"hash":"([\w\d]+)","data":(.*?)\}$'
 
 
 class HasID(AsJSONMixin):
@@ -20,7 +24,6 @@ class HasID(AsJSONMixin):
 class PacketLike(HasID):
     to: str | None
     data: Any
-    hash: str
 
 
 class WithID(HasID, JSONBase):
@@ -35,7 +38,6 @@ class WithID(HasID, JSONBase):
 class Packet(PacketLike, WithID):
     to: str | None = None
     data: Any = None
-    hash: str = ""
 
     def __init__(self, /, *, to: str | None = None, data: Any = None):
         if to is not None:
@@ -44,12 +46,18 @@ class Packet(PacketLike, WithID):
             self.data = data
 
 
-def validate(expected: str, actual: str) -> bool:
-    if expected != actual:
-        WARNING_print(f"checksum mismatch: {expected} != {actual}")
-        raise RuntimeError("checksum mismatch")
-        return False
-    return True
+def validate(hashed: str) -> str:
+    if not (m := re.match(HASH_PATTERN, hashed)):
+        raise ERROR_print(f"checksum missing: {hashed}")
+    try:
+        hash, data = m.group(1, 2)
+    except (AttributeError, IndexError, re.error) as e:
+        raise ERROR_print(f"invalid packet: {hashed}") from e
+
+    actual = hash2str(data)
+    if hash != actual:
+        raise ERROR_print(f"checksum mismatch: {hash} != {actual}")
+    return data
 
 
 def pack(packet: PacketLike) -> str:
@@ -58,10 +66,13 @@ def pack(packet: PacketLike) -> str:
     serial = json.dumps(compact, separators=(",", ":"), ensure_ascii=False)
     unclassed = class_escape(serial)
     escaped = tty_escape(unclassed)
-    return escaped
+    hash = hash2str(escaped)
+    hashed = f'{{"hash":"{hash}","data":{escaped}}}'
+    return hashed
 
 
-def unpack(escaped: str) -> PacketLike:
+def unpack(hashed: str) -> PacketLike:
+    escaped = validate(hashed)
     unclassed = tty_unescape(escaped)
     serial = class_unescape(unclassed)
     compact = json.loads(serial)

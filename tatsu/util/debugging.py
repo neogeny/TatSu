@@ -59,6 +59,6 @@ def WARNING_print(*args: Any, **kwargs: Any) -> None:
     warnings.warn(prints(*args, **kwargs), stacklevel=2)
 
 
-def ERROR_print(*args: Any, **kwargs: Any) -> None:
+def ERROR_print(*args: Any, **kwargs: Any) -> Exception:
     WARNING_print(*args, **kwargs)
-    raise RuntimeError(prints(*args, **kwargs))
+    return RuntimeError(prints(*args, **kwargs))
