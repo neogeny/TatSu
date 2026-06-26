@@ -8,6 +8,7 @@ import pytest
 from tatsu.util.asjson import asjson
 from tatsu.util.fromjson import fromjson
 from tatsu.ztyle import RGB, Color, Style, fmt, rgb
+from tatsu.ztyle.xstyle import XStyle
 
 
 @pytest.fixture(autouse=True)  # noqa: RUF076
@@ -106,17 +107,17 @@ def test_full_composition():
 
 
 def test_named_color_method():
-    s = Style('x').pink()
+    s = XStyle('x').pink()
     assert str(s) == '\033[38;5;200mx\033[0m'
 
 
 def test_named_color_bg_method():
-    s = Style('x').pink_bg()
+    s = XStyle('x').pink_bg()
     assert str(s) == '\033[48;5;200mx\033[0m'
 
 
 def test_chained_named_color():
-    s = Style('x').bold().pink()
+    s = XStyle('x').bold().pink()
     assert str(s) == '\033[1;38;5;200mx\033[0m'
 
 

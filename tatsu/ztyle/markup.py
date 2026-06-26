@@ -56,7 +56,9 @@ def apply_style_stack(
     text: str,
     color: Color = DEFAULT_COLOR,
 ) -> Style:
-    s = Style(text, color=color)
+    from .xstyle import XStyle
+
+    s = XStyle(text, color=color)
 
     for name in stack:
         if style := s.get_style_method(name):

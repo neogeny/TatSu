@@ -12,7 +12,6 @@ from copy import copy
 from typing import Any, Self
 
 from ..util.tty import ANSI_RE, SGR_RE, tty_escape, tty_unescape, visual_len
-from .colormethods import ColorMethods
 
 
 class RGB(namedtuple('RGB', ['r', 'g', 'b'])):
@@ -206,7 +205,7 @@ class Color:
 DEFAULT_COLOR: Color = Color.default()
 
 
-class Style(ColorMethods, str):
+class Style(str):
     """A composable ANSI style builder.
 
     ``Style`` stores a text *value* plus formatting attributes (foreground
@@ -233,8 +232,10 @@ class Style(ColorMethods, str):
         "_dim",
         "_fg",
         "_fmt",
+        "_hidden",
         "_inverse",
         "_italic",
+        "_strikethrough",
         "_underline",
     )
 
@@ -458,6 +459,112 @@ class Style(ColorMethods, str):
         new = copy(self)
         new._set_bg(rgb(r, g, b))
         return new
+
+    # ANSI standard colors (0-7)
+
+    def black(self) -> Self:
+        return self.fg(0)
+
+    def black_bg(self) -> Self:
+        return self.bg(0)
+
+    def red(self) -> Self:
+        return self.fg(1)
+
+    def red_bg(self) -> Self:
+        return self.bg(1)
+
+    def green(self) -> Self:
+        return self.fg(2)
+
+    def green_bg(self) -> Self:
+        return self.bg(2)
+
+    def yellow(self) -> Self:
+        return self.fg(3)
+
+    def yellow_bg(self) -> Self:
+        return self.bg(3)
+
+    def blue(self) -> Self:
+        return self.fg(4)
+
+    def blue_bg(self) -> Self:
+        return self.bg(4)
+
+    def purple(self) -> Self:
+        return self.fg(5)
+
+    def purple_bg(self) -> Self:
+        return self.bg(5)
+
+    def magenta(self) -> Self:
+        return self.purple()
+
+    def cyan(self) -> Self:
+        return self.fg(6)
+
+    def cyan_bg(self) -> Self:
+        return self.bg(6)
+
+    def white(self) -> Self:
+        return self.fg(7)
+
+    def white_bg(self) -> Self:
+        return self.bg(7)
+
+    # ANSI bright colors (8-15)
+
+    def bright_black(self) -> Self:
+        return self.fg(8)
+
+    def bright_black_bg(self) -> Self:
+        return self.bg(8)
+
+    def bright_red(self) -> Self:
+        return self.fg(9)
+
+    def bright_red_bg(self) -> Self:
+        return self.bg(9)
+
+    def bright_green(self) -> Self:
+        return self.fg(10)
+
+    def bright_green_bg(self) -> Self:
+        return self.bg(10)
+
+    def bright_yellow(self) -> Self:
+        return self.fg(11)
+
+    def bright_yellow_bg(self) -> Self:
+        return self.bg(11)
+
+    def bright_blue(self) -> Self:
+        return self.fg(12)
+
+    def bright_blue_bg(self) -> Self:
+        return self.bg(12)
+
+    def bright_purple(self) -> Self:
+        return self.fg(13)
+
+    def bright_purple_bg(self) -> Self:
+        return self.bg(13)
+
+    def bright_magenta(self) -> Self:
+        return self.bright_purple()
+
+    def bright_cyan(self) -> Self:
+        return self.fg(14)
+
+    def bright_cyan_bg(self) -> Self:
+        return self.bg(14)
+
+    def bright_white(self) -> Self:
+        return self.fg(15)
+
+    def bright_white_bg(self) -> Self:
+        return self.bg(15)
 
     def bold(self) -> Self:
         """Add bold (SGR 1)."""

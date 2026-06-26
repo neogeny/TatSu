@@ -45,7 +45,7 @@ class DependencyNodeKind(NamedTuple):
 
     @classmethod
     def external(cls) -> DependencyNodeKind:
-        return cls(None, color.style().basic_white(), "⟨", "⟩", 3)
+        return cls(None, color.style().white(), "⟨", "⟩", 3)
 
 
 def programfiles() -> list[Path]:

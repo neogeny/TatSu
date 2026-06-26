@@ -4,72 +4,12 @@ from __future__ import annotations
 
 from typing import Self
 
+from .style import Style
 
-class ColorMethods:
-    def fg(self, value: int) -> Self:
-        _ = value
-        return self
 
-    def bg(self, value: int) -> Self:
-        _ = value
-        return self
-
-    def basic_black(self) -> Self:
-        return self.fg(0)
-
-    def red(self) -> Self:
-        return self.fg(1)
-
-    def green(self) -> Self:
-        return self.fg(2)
-
-    def yellow(self) -> Self:
-        return self.fg(3)
-
-    def blue(self) -> Self:
-        return self.fg(4)
-
-    def purple(self) -> Self:
-        return self.fg(5)
-
-    def magenta(self) -> Self:
-        return self.purple()
-
-    def cyan(self) -> Self:
-        return self.fg(6)
-
-    def basic_white(self) -> Self:
-        return self.fg(7)
-
+class XStyle(Style):
     def acid_green(self) -> Self:
         return self.fg(148)
-
-    def basic_bright_black(self) -> Self:
-        return self.fg(8)
-
-    def basic_bright_red(self) -> Self:
-        return self.fg(9)
-
-    def basic_bright_green(self) -> Self:
-        return self.fg(10)
-
-    def basic_bright_yellow(self) -> Self:
-        return self.fg(11)
-
-    def basic_bright_blue(self) -> Self:
-        return self.fg(12)
-
-    def basic_bright_purple(self) -> Self:
-        return self.fg(13)
-
-    def basic_bright_magenta(self) -> Self:
-        return self.basic_bright_purple()
-
-    def basic_bright_cyan(self) -> Self:
-        return self.fg(14)
-
-    def basic_bright_white(self) -> Self:
-        return self.fg(15)
 
     def acid_green_bg(self) -> Self:
         return self.bg(148)
@@ -98,17 +38,11 @@ class ColorMethods:
     def banana_bg(self) -> Self:
         return self.bg(228)
 
-    def black(self) -> Self:
+    def cube_black(self) -> Self:
         return self.fg(16)
-
-    def black_bg(self) -> Self:
-        return self.bg(16)
 
     def blue256(self) -> Self:
         return self.fg(21)
-
-    def blue_bg(self) -> Self:
-        return self.bg(21)
 
     def blue_bright(self) -> Self:
         return self.fg(20)
@@ -122,53 +56,29 @@ class ColorMethods:
     def blue_violet_bg(self) -> Self:
         return self.bg(56)
 
-    def bright_black(self) -> Self:
+    def cube_bright_black(self) -> Self:
         return self.fg(8)
 
-    def bright_black_bg(self) -> Self:
-        return self.bg(8)
-
-    def bright_blue(self) -> Self:
+    def cube_bright_blue(self) -> Self:
         return self.fg(12)
 
-    def bright_blue_bg(self) -> Self:
-        return self.bg(12)
-
-    def bright_cyan(self) -> Self:
+    def cube_bright_cyan(self) -> Self:
         return self.fg(14)
 
-    def bright_cyan_bg(self) -> Self:
-        return self.bg(14)
-
-    def bright_green(self) -> Self:
+    def cube_bright_green(self) -> Self:
         return self.fg(10)
 
-    def bright_green_bg(self) -> Self:
-        return self.bg(10)
-
-    def bright_magenta(self) -> Self:
+    def cube_bright_magenta(self) -> Self:
         return self.fg(13)
 
-    def bright_magenta_bg(self) -> Self:
-        return self.bg(13)
-
-    def bright_red(self) -> Self:
+    def cube_bright_red(self) -> Self:
         return self.fg(154)
 
-    def bright_red_bg(self) -> Self:
-        return self.bg(154)
-
-    def bright_white(self) -> Self:
+    def cube_bright_white(self) -> Self:
         return self.fg(15)
 
-    def bright_white_bg(self) -> Self:
-        return self.bg(15)
-
-    def bright_yellow(self) -> Self:
+    def cube_bright_yellow(self) -> Self:
         return self.fg(11)
-
-    def bright_yellow_bg(self) -> Self:
-        return self.bg(11)
 
     def brown(self) -> Self:
         return self.fg(94)
@@ -262,9 +172,6 @@ class ColorMethods:
 
     def cyan256(self) -> Self:
         return self.fg(51)
-
-    def cyan_bg(self) -> Self:
-        return self.bg(51)
 
     def cyan_bright(self) -> Self:
         return self.fg(45)
@@ -641,9 +548,6 @@ class ColorMethods:
     def green256(self) -> Self:
         return self.fg(2)
 
-    def green_bg(self) -> Self:
-        return self.bg(2)
-
     def green_bright(self) -> Self:
         return self.fg(40)
 
@@ -916,9 +820,6 @@ class ColorMethods:
 
     def magenta256(self) -> Self:
         return self.fg(201)
-
-    def magenta_bg(self) -> Self:
-        return self.bg(201)
 
     def magenta_bright(self) -> Self:
         return self.fg(128)
@@ -1253,9 +1154,6 @@ class ColorMethods:
     def redw(self) -> Self:
         return self.fg(196)
 
-    def red_bg(self) -> Self:
-        return self.bg(196)
-
     def rosy_brown(self) -> Self:
         return self.fg(95)
 
@@ -1484,11 +1382,8 @@ class ColorMethods:
     def wheat_bg(self) -> Self:
         return self.bg(180)
 
-    def white(self) -> Self:
+    def cube_white(self) -> Self:
         return self.fg(231)
-
-    def white_bg(self) -> Self:
-        return self.bg(231)
 
     def white_pinkish(self) -> Self:
         return self.fg(225)
@@ -1498,9 +1393,6 @@ class ColorMethods:
 
     def yellow256(self) -> Self:
         return self.fg(226)
-
-    def yellow_bg(self) -> Self:
-        return self.bg(226)
 
     def yellow_green(self) -> Self:
         return self.fg(106)
