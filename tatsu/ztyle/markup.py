@@ -62,14 +62,8 @@ def apply_style_stack(
     s = Style(text, color=color)
 
     for name in stack:
-        style: Callable[[], Style] | None = None
-        if (style := getattr(s, name, None)) is not None and callable(style):
-            sig = inspect.signature(style)
-            if str(sig.return_annotation) not in {"Style", "Self"}:
-                continue
-            with contextlib.suppress(TypeError):
-                sig.bind()
-                s = style()
+        if style := s.get_style_method(name):
+            s = style()
     assert s is not None
     return s
 

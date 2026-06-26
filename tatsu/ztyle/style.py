@@ -2,9 +2,12 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import contextlib
+import inspect
 import os
 import re
 from collections import namedtuple
+from collections.abc import Callable
 from copy import copy
 from typing import Any, Self
 
@@ -258,6 +261,28 @@ class Style(ColorMethods, str):
     @classmethod
     def tty_unescape(cls, text: str) -> str:
         return tty_unescape(text)
+
+    @classmethod
+    def is_style_method(cls, name: str) -> bool:
+        meth: Callable[[], Self] | None = None
+        if (meth := getattr(cls, name, None)) is None or not callable(meth):
+            return False
+        sig = inspect.signature(meth)
+        if str(sig.return_annotation) not in {"Style", "Self"}:
+            return False
+        with contextlib.suppress(TypeError):
+            sig.bind(None)
+            return True
+        return False
+
+    def get_style_method(self, name: str) -> Callable[[], Self] | None:
+        if not self.is_style_method(name):
+            return None
+        return getattr(self, name, None)
+
+    @classmethod
+    def list_style_methods(cls) -> list[str]:
+        return [name for name in dir(cls) if cls.is_style_method(name)]
 
     def __new__(cls, *args, **_kwargs):
         return super().__new__(cls, *args)
