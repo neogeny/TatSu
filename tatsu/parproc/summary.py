@@ -33,22 +33,24 @@ class ParseStats:
 
 class SummaryStyle:
     def __init__(self, color: Color):
-        self.label = color.style(dim=True).cyan()
-        self.plain = color.style()
-        self.good = color.style().green()
-        self.bad = color.style().red()
-        self.warn = color.style().yellow()
-        self.bold_good = color.style(bold=True).green()
-        self.bold_bad = color.style(bold=True).red()
+        s = color.style()
+        self.label = s.cyan().dim()
+        self.plain = s
+        self.good = s.green()
+        self.bad = s.red()
+        self.warn = s.yellow()
+        self.bold_good = s.green().bold()
+        self.bold_bad = s.red().bold()
 
 
 class ResultsStyle:
     def __init__(self, color: Color | None = None):
         color = color or Color.default()
-        self.header = color.style(dim=True).cyan()
-        self.good = color.style().green()
-        self.bad = color.style().red()
-        self.plain = color.style()
+        s = color.style()
+        self.header = s.cyan().dim()
+        self.good = s.green()
+        self.bad = s.red()
+        self.plain = s.white().dim()
 
 
 def format_duration(seconds: float, fractions: bool = False) -> str:
