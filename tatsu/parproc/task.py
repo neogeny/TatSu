@@ -5,7 +5,6 @@ from __future__ import annotations
 import sys
 import time
 from collections.abc import Callable, Iterable, Mapping
-from pathlib import Path
 from threading import Event
 from typing import Any, NamedTuple
 
