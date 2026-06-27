@@ -17,7 +17,7 @@ from .util.unicode_characters import C_DERIVE
 
 
 DEFAULT_PERLINEMEMOS = 8
-DEFAULT_HEART_BPS = 400
+DEFAULT_HEART_BPS = 4
 
 
 @dataclass

@@ -36,11 +36,6 @@ class PacketzQueue:
     under ``.packetz/``.
     """
 
-    path: Path = Path("/dev/null")
-    _told: int = 0
-    _seen: dict[str, PacketLike] = {}  # noqa: RUF012
-    _queue: IO[str] | None = None
-
     def __init__(self, path: Path | str | None = None):
         if path is None:
             path = new_file_path()
@@ -51,57 +46,48 @@ class PacketzQueue:
 
         if not self.path.exists():
             self.path.touch(exist_ok=True)
-            self._told = 0
+        self._told = 0
+        self._seen = set()
 
     def __getstate__(self) -> dict[str, Any]:
         state = self.__dict__.copy()
-        state["_queue"] = None  # Force re-opening on the other side
         return state
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         self.__dict__.update(state)
 
-    def _queue_healthy(self) -> bool:
-        q = self._queue
+    def _queue_healthy(self, q: IO[str] | None) -> bool:
         if q is sys.stdin or q is sys.stdout:
             return False
         if q is None or q.closed:
             return False
         return os.fstat(q.fileno()).st_nlink > 0
 
-    def _ensure_open(self) -> None:
-        if self._queue_healthy():
-            return
-        self._queue = self.path.open(
+    def _ensure_open(self) -> IO[str]:
+        q = self.path.open(
             "rt",
             encoding="utf-8",
-            buffering=32 * 1024,
+            buffering=1024 * 256,
         )
-        self.reset()
+        assert self._queue_healthy(q)
+        return q
 
-    def get_queue(self) -> IO[str]:
-        self._ensure_open()
-        assert self._queue is not None
-        return self._queue
+    def _get_queue(self) -> IO[str]:
+        return self._ensure_open()
 
-    def tell(self, check: bool = True) -> None:
-        assert self._queue is not None
-        t = self._queue.tell()
+    def tell(self, q: IO[str], check: bool = True) -> None:
+        t = q.tell()
         assert (check and t > self._told) or (not check and t >= self._told)
         self._told = t
 
-    def reset(self):
-        if self._queue:
-            self._queue.seek(self._told)
-
     @contextlib.contextmanager
     def reader(self) -> Generator[IO[str], None, None]:
-        q = self.get_queue()
-        q.seek(self._told)
-        try:
-            yield q
-        finally:
-            self.tell(False)
+        with self._get_queue() as q:
+            try:
+                q.seek(self._told)
+                yield q
+            finally:
+                self.tell(q, False)
 
     @contextlib.contextmanager
     def writer(self) -> Generator[IO[str], None, None]:
@@ -117,18 +103,18 @@ class PacketzQueue:
 
     def receive(self) -> Generator[PacketLike, None, None]:
         with self.reader() as queue:
-            for serial in queue.readlines():
-                try:
-                    packet = unpack(serial)
-                except (BadPacketError, json.JSONDecodeError, TypeError):
-                    break  # NOTE Incomplete? Wait and retry
-                except (PacketHashError, ValueError):
-                    continue  # NOTE Skip and continue!
-                if packet.id in self._seen:
-                    continue
-                self._seen[packet.id] = packet
-                yield packet
-            self.tell(False)
+            lines = queue.readlines()
+        for serial in lines:
+            try:
+                packet = unpack(serial)
+            except (BadPacketError, json.JSONDecodeError, TypeError):
+                continue  # NOTE Incomplete? Wait and retry
+            except (PacketHashError, ValueError):
+                continue  # NOTE Skip and continue!
+            if packet.id in self._seen:
+                continue
+            self._seen.add(packet.id)
+            yield packet
 
     async def receive_async(self) -> AsyncGenerator[PacketLike, None]:
         try:

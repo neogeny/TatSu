@@ -94,7 +94,11 @@ def unhashed(hashed: str) -> str:
 def pack(packet: PacketLike) -> str:
     value: Any = asjson(packet)
     value = compact_value(value)
-    value = json.dumps(value, separators=(",", ":"), ensure_ascii=False)
+    value = json.dumps(
+        value,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
     value = class_escape(value)
     value = tty_escape(value)
     return hashed(value)

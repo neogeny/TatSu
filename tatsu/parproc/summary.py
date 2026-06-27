@@ -167,9 +167,9 @@ def show_result(rprint: PrintFunc, r: Result, usecolor: bool = False) -> None:
     s = ResultsStyle(c)
     nm = slicetowidth(Path(r.payload.path).name, 40)
     if r.exception or isinstance(r.outcome, Exception):
-        rprint(f" {s.bad('✗')} {s.plain(f'{nm}'):45}{s.bad(f'⏲ {r.runtime:>7.3f}')}")
+        rprint(f" {s.bad('✗')} {s.plain(f'{nm}'):60}{s.bad(f'⏲ {r.runtime:>7.3f}')}")
     else:
-        rprint(f" {s.good('✓')} {s.plain(f'{nm}'):45}{s.good(f'⏲ {r.runtime:>7.3f}')}")
+        rprint(f" {s.good('✓')} {s.plain(f'{nm}'):60}{s.good(f'⏲ {r.runtime:>7.3f}')}")
 
 
 def show_results(

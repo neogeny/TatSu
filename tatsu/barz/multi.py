@@ -54,7 +54,7 @@ class Multi:
         self,
         rows: list[BarRow],
         /,
-        fps: int = 60,  # noqa: B006
+        fps: int = 12,  # noqa: B006
         out: TextIO = sys.stderr,
     ):
         self.lock = threading.RLock()

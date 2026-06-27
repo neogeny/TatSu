@@ -42,7 +42,7 @@ class FileHeartRow(BarRow, Heart):
         dim = s.black().bold()
 
         super().__init__(
-            cols=[f"   {white(name):<60} ", Col.bar],
+            cols=[f"   {white(name):<60} ", Col.bar, " " * 12],
             fill="⎯⎯⎯",
             style=[green, green, dim],
             label=name,
