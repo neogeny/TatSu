@@ -37,7 +37,7 @@ multi = Multi([], out=sys.stderr)
 class FileHeartRow(BarRow, Heart):
     def __init__(self, name: str, total: int) -> None:
         s = Style()
-        white = s.white()
+        white = s.bright_white().bold()
         green = s.green()
         dim = s.black().bold()
 
@@ -105,7 +105,7 @@ def parse_file_task(data: GrammarPayload) -> Any:
     except RecursionError as e:
         return e
     finally:
-        heart.update(pos=len(text), total=len(text))
+        heart.beat(mark=len(text), total=len(text))
         heart.stop()
 
 
