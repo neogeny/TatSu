@@ -49,13 +49,6 @@ class PacketzQueue:
         self._told = 0
         self._seen = set()
 
-    def __getstate__(self) -> dict[str, Any]:
-        state = self.__dict__.copy()
-        return state
-
-    def __setstate__(self, state: dict[str, Any]) -> None:
-        self.__dict__.update(state)
-
     def _queue_healthy(self, q: IO[str] | None) -> bool:
         if q is sys.stdin or q is sys.stdout:
             return False
