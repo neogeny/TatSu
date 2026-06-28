@@ -47,7 +47,7 @@ class PacketzQueue:
         if not self.path.exists():
             self.path.touch(exist_ok=True)
         self._told = 0
-        self._seen = set()
+        self._seen: set[str] = set()
 
     def _queue_healthy(self, q: IO[str] | None) -> bool:
         if q is sys.stdin or q is sys.stdout:
