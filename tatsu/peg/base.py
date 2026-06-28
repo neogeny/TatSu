@@ -506,7 +506,7 @@ class Grammar(Model):
         missing: set[str] = self.missing_rules(set(self.rulemap))
         if missing:
             msg = ' '.join(missing)
-            raise GrammarError('Unknown rules, no parser generated: ' + msg)
+            raise GrammarError('unknown rules, no parser generated: ' + msg)
 
     def configure(self, config: ParserConfig | None = None, **settings: Any):
         self._config.merge_config(config)

@@ -144,14 +144,14 @@ doclint: docg
 
 @parsers:
     echo "▶ parsers"
-    python3 -m tatsu tatsu/_tatsu.ebnf \
+    uv run python3 -m tatsu tatsu/_tatsu.ebnf \
         -z \
         -m TatSuBootstrap \
-        -o tatsu/parser/bootstrap.py
-    python3 -m tatsu tatsu/_tatsu.ebnf \
+        -o tatsu/boot/bootstrap.py
+    uv run python3 -m tatsu tatsu/_tatsu.ebnf \
         -z -x \
         -m TatSuBootstrap \
-        -o tatsu/parser/bootparser.py
+        -o tatsu/boot/bootparser.py
 
 @testpublish: build
     gh workflow run test_publish.yml

@@ -181,7 +181,7 @@ def test_08_compile_with_generated():
     Path('./tmp/08.ast').write_text(ast8)
     # print('DIFF')
     # pprint.pprint(list(difflib.unified_diff(ast0.splitlines(), ast8.splitlines())))
-    assert ast0 == ast8
+    assert json.loads(ast0) == json.loads(ast8)
 
 
 @pytest.mark.dependency('test_08_compile_with_generated')
