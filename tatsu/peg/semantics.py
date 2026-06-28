@@ -136,7 +136,9 @@ class GrammarSemantics(ModelBuilderSemantics):
 
     # JSON
     def number(self, ast):
-        return literal_eval(ast)
+        if isinstance(ast, str):
+            return literal_eval(ast)
+        return ast
 
     def cut_deprecated(self, _ast):
         WARNING_print('The use of >> for cut is deprecated. Use the ~ symbol instead.')
