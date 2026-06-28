@@ -183,9 +183,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         self.print(f'{self.ctx}.eolcheck()')
 
     def walk_Group(self, group: g.Group):
-        # NOTE skip the group as enclosure in this representation
-        # self._gen_decor(Ctx.group, exp=group.exp)
-        self.walk(group.exp)
+        self._gen_decor(Ctx.group, exp=group.exp)
 
     def walk_SkipGroup(self, skip: g.SkipGroup):
         self._gen_decor(Ctx.skipgroup, exp=skip.exp)
