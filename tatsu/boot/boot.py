@@ -1,6 +1,6 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 # SPDX-License-Identifier: BSD-4-Clause
-from __future__ import annotations
+from __future__ import annotations  # noqa: I001
 
 import re
 from typing import Any
@@ -8,11 +8,12 @@ from typing import Any
 from ..config import ParserConfig
 from ..peg import GrammarSemantics
 from ..semantics import ASTSemantics
-from .bootparser import TatSuBootstrapParser
+
+# from .bootparser import TatSuBootstrapParser
 from .bootstrap import (
     TatSuBootstrapBuffer,
     TatSuBootstrapText,
-    # TatSuBootstrapParser,
+    TatSuBootstrapParser,
 )
 
 
