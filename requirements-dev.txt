@@ -8,7 +8,7 @@ attrs==26.1.0
     #   cattrs
     #   lsprotocol
     #   pygls
-basedpyright==1.39.8
+basedpyright==1.39.9
 cattrs==26.1.0
     # via
     #   lsprotocol
@@ -19,7 +19,7 @@ coverage==7.14.3
     # via pytest-cov
 docutils==0.22.4
     # via esbonio
-esbonio==2.0.0
+esbonio==2.1.0
 execnet==2.1.2
     # via pytest-xdist
 graphviz==0.21
@@ -66,12 +66,12 @@ pytest-rerunfailures==16.3
 pytest-xdist==3.8.0
 rich==15.0.0
     # via pytest-codspeed
-ruff==0.15.19
+ruff==0.15.20
 setuptools==82.0.1
     # via pytest-dependency
-ty==0.0.53
+ty==0.0.55
 typing-extensions==4.15.0
     # via cattrs
-uv==0.11.24
+uv==0.11.25
 websockets==16.0
     # via esbonio

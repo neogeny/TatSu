@@ -3,7 +3,7 @@
 -e .
 ast-serialize==0.5.0
     # via mypy
-basedpyright==1.39.8
+basedpyright==1.39.9
 colorama==0.4.6 ; sys_platform == 'win32'
     # via pytest
 coverage==7.14.3
@@ -54,10 +54,10 @@ pytest-rerunfailures==16.3
 pytest-xdist==3.8.0
 rich==15.0.0
     # via pytest-codspeed
-ruff==0.15.19
+ruff==0.15.20
 setuptools==82.0.1
     # via pytest-dependency
-ty==0.0.53
+ty==0.0.55
 types-decorator==5.2.0.20260519
 types-docutils==0.22.3.20260518
     # via types-pygments
