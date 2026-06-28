@@ -25,35 +25,20 @@ SPDX-License-Identifier: BSD-4-Clause
 - `Heart` protocol in `tatsu/util/heart.py` with a single `beat(mark, total)` method; `NullHeart` no-op for parallel or unobserved parsing
 - `ParserConfig.heart` field lets applications inject a heartbeat receiver; `ParserCore` issues a `heart.beat(pos, len)` on token advancement and rule calls with a 0.128s cooldown for real-time reporting of parsing progress
 
-### New `ztyle` module in `tatsu/ztyle/`:
+### New `colorize` module in `tatsu/util/colorize/`:
 
-- `Color`/`Style` ANSI colour library in `tatsu/ztyle/` with zero dependencies, dynamic TTY/`NO_COLOR`/`FORCE_COLOR` support, 256-colour palettes, 24-bit RGB, and 148 CSS named colours
+- `Color`/`Style` ANSI colour library in `tatsu/util/colorize/` with zero dependencies, dynamic TTY/`NO_COLOR`/`FORCE_COLOR` support, 256-colour palettes, 24-bit RGB, and 148 CSS named colours
 - `Color.default()` factory method for the system-default colour policy
 - `Style` chainable modifier methods (`bold()`, `dim()`, `fg()`, `bg()`, etc.) all returning immutable copies; instances are callable (equivalent to `.apply()`), so a single style can be reused: `hl = Style().red().bold(); print(hl("text"))`
 - Lazy-loaded `named_color()` and `css_color()` standalone lookup functions re-exported from the package
 - `ConsoleTracer` and `_ColorSet` (`exceptions.py`) now compose `Style` objects instead of concatenating ANSI strings, eliminating bleeding between trace/error colour spans
 
     ```python
-    from tatsu.ztyle import Style
-
+    from tatsu.colorize import Style
+    
     style = Style().red().bold()
     print(style("text"))
     ```
-
-### `packetz` crosss task communication
-
-- New `packetz` module in `tatsu/packetz/` for inter-task communication via message passing. Uses filesystem-based queues that work across threading and multiprocessing. No guaranteed delivery, intended for lightweight coordination and status updates.
-
-### `barz` — progress bar utilities
-
-- New `barz` module in `tatsu/barz/` for customizable progress bar rendering.
-- Support the new `ztyle` coloring system.
-- Single rendering thread on the background, with no concurrency requirements on users of the library.
-
-### `rich`-less
-- The new sub-libraries enable most functionality to be available with no external dependencies.
-- `pygments` is required for corlorized output in `cling`.
-- `graphviz` is required for graphical grammar diagrams (text-based `railroad` diagramms are more useful).
 
 ### `Meta` expressions in grammars
 
@@ -98,7 +83,7 @@ global options:
   -t, --trace           Display a detailed trace of the parsing process
   -o, --output OUTPUT   Output to a file or directory instead of stdout
   -c, --color {auto,always,never}
-                        Control ztyled output (default: auto)
+                        Control colorized output (default: auto)
 ```
 
 

@@ -3,7 +3,7 @@ Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 SPDX-License-Identifier: BSD-4-Clause
 -->
 
-# [v5.23.0] bugfix
+# [v5.23.0] new features + bugfixes + (- dependencies)
 
 [v5.23.0]: https://github.com/neogeny/tatsu/compare/v5.22.1...HEAD
 
@@ -22,6 +22,9 @@ SPDX-License-Identifier: BSD-4-Clause
 - _Added_ `tatsu.util.tty` — shared TTY/ANSI utilities (`ANSI_RE`, `SGR_RE`, `tty_escape`, `tty_unescape`, `descape`, `visual_len`, cursor hide/show, `pushup`, `blankpad`).
 - _Added_ `etc/RICH_MARKUP.md` — specification for the Rich-style markup syntax.
 - _Added_ `Style.__json__()` protocol — `Style` now serializes through `asjson`/`fromjson` (any object with `__json__` method is supported).
+- _Added_ `tatsu/packetz/` — inter-task communication via filesystem-based message passing queues that work across threading and multiprocessing.
+- _Added_ `tatsu/barz/` — self-contained progress bar rendering with `ztyle` coloring support and a single background rendering thread.
+- _Added_ `rich` dependency removed from core: `pygments` optional for colored `cling` output; `graphviz` optional for graphical diagrams (text-based railroad diagrams remain default).
 
 ## Changed
 
