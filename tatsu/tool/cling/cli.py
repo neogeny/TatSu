@@ -10,7 +10,7 @@ import sys
 from argparse import ArgumentParser
 
 from ... import __toolname__, __version__, g2e
-from ...exceptions import ParseError
+from ...exceptions import ParseException
 from ...util.checkpygments import is_pygments_available
 from .. import bench, ideps
 from .boot_cmd import add_boot_cmd, boot_cmd
@@ -120,7 +120,8 @@ def cling_main() -> int:  # noqa: PLR0911
     except CLIError as e:
         print(e, file=sys.stderr)
         return 1
-    except ParseError:
+    except ParseException as e:
+        print(e, file=sys.stderr)
         return 1
     except BrokenPipeError:
         return signal.SIGPIPE + signal.SIG_DFL

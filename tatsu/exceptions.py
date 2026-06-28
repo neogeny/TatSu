@@ -5,7 +5,7 @@ from __future__ import annotations
 from .contexts.infos import RuleInfo
 from .contexts.memento import MEMENTO_DEFAULT_COLOR, memento
 from .input import Cursor, LineInfo
-from .ztyle import Color
+from .ztyle import Color, Style
 
 
 class TatSuException(Exception):
@@ -21,7 +21,22 @@ class OptionSucceeded(ParseException):
 
 
 class ParseError(ParseException):
-    pass
+    def __str__(self):
+        msg = str(self.args[0]) if self.args else ''
+        if not msg:
+            return ''
+        lines = msg.split('\n', 1)
+        first = lines[0]
+        rest = lines[1] if len(lines) > 1 else ''
+
+        c = Color.stderr()
+        err = Style(bold=True, fg=1, color=c)
+        bold = Style(bold=True, color=c)
+
+        result = f"{err('error:')} {bold(first)}"
+        if rest:
+            result += f"\n{rest}"
+        return result
 
 
 class HeartDied(ParseError):
