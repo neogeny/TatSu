@@ -56,9 +56,9 @@ class TatSuBootstrapParser(CanParse):
 
 GRAMMAR_MODEL: Grammar = (
     Grammar(
-      name='TatSu',
+      name='TatSuBootstrap',
       directives={
-        'grammar': 'TatSu',
+        'grammar': 'TatSuBootstrap',
         'comments': '(?ms)[(][*]\\s*(.*?)\\s*[*][)]|/[*]\\s*(.*?)\\s*[*]/',
         'eol_comments': '(?ms)(?:#|//)(.*?)$',
         'parseinfo': True,

@@ -34,14 +34,14 @@ def test_cling_boot():
     output = uv_run([CLING, 'boot'])
     data = json.loads(output)
     assert data['__class__'] == 'Grammar'
-    assert data['name'] == 'TatSu'
+    assert data['name'] == 'TatSuBootstrap'
 
 
 def test_cling_grammar():
     output = uv_run([CLING, 'grammar', PATH_TATSU_GRAMMAR])
     data = json.loads(output)
     assert data['__class__'] == 'Grammar'
-    assert data['name'] == 'TatSu'
+    assert data['name'] == 'TatSuBootstrap'
 
 
 def test_cling_grammar_json():
