@@ -33,9 +33,6 @@ dependencies = []
 diagrams = [
     "graphviz>=0.21",
 ]
-tasks = [
-    "invoke>=2.2.1",
-    ]
 cling = [
     "pygments>=2.20.0",
 ]
