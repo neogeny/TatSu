@@ -7,6 +7,16 @@ import sys
 from . import config as parserconfig, input as tokenizing
 from ._grammar import grammar, grammar_path
 from ._version import __toolname__, __version__, version, version_info
+from .api import (
+    compile,
+    compile_to_parser,
+    gencode,
+    genmodel,
+    parse,
+    to_grammar_json,
+    to_python_model,
+    to_python_sourcecode,
+)  # pylint: disable=W0622
 from .contexts import ast as ast
 from .contexts.decorator import isname, leftrec, name, nomemo, rule, tatsumasu
 from .input import buffer as buffer, buffer as buffering, textlines as textlines
@@ -18,17 +28,6 @@ from .objectmodel import (
     nodedataclass as dataclass,
     nodedataclass as tatsudataclass,
 )
-from .tool import (
-    compile,
-    compile_to_parser,
-    gencode,
-    genmodel,
-    parse,
-    tatsu_main,
-    to_grammar_json,
-    to_python_model,
-    to_python_sourcecode,
-)  # pylint: disable=W0622
 
 
 # HACK!
