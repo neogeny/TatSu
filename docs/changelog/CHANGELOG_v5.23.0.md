@@ -13,8 +13,7 @@ SPDX-License-Identifier: BSD-4-Clause
 - _Added_ `tatsu.util.barz` — self-contained progress bar rendering (replaces `rich.progress`).
 - _Added_ `tatsu.util.treez` — self-contained dependency tree rendering (replaces `rich.tree`).
 - _Added_ `tests/tree_test.py`.
-- _Added_ `g2e` subcommand to `cling` CLI — translates ANTLR grammars to TatSu.
-- _Added_ `bench` and `ideps` subcommands to `cling` CLI.
+- _Added_ `g2e`, `bench`, and `ideps` subcommands to `cling` CLI — all tools now invocable through `cling`.
 - _Added_ `add_argparse_options(parser)` pattern to `bench.py`, `ideps.py`, `g2etool.py` for uniform CLI interface.
 - _Added_ `tatsu.ztyle.markup` — Rich-style markup parser (`[bold]text[/]`, `[red]...[/all]`). Parse with `markup()` → returns `StyleZ` (a `str` subclass wrapping `list[Style]`; styles via `.style` property). Optionally pass a `color` policy.
 - _Added_ `Style.from_raw()` — reconstruct a `Style` from an ANSI escape string (e.g. `"\e[31mhello\e[0m"`) for roundtrip support.
