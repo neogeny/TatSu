@@ -3,13 +3,15 @@
 # dependencies = ["markdown-it-py"]
 # ///
 """
-Convert LAIA.md to LAIA.txt — plain text, 80 columns.
+Convert markdown to plain text, manpage format.
 
 Usage:
-    python3 scripts/md2txt.py LAIA.md LAIA.txt
-    python3 scripts/md2txt.py LAIA.md > LAIA.txt
+    md2txt [options] [input [output]]
+
+If input is omitted, reads from stdin. If output is omitted, writes to stdout.
 """
 
+import argparse
 import sys
 import textwrap
 
@@ -68,7 +70,7 @@ def render_inline(node: SyntaxTreeNode) -> str:
     return "".join(parts)
 
 
-def convert(md: str) -> str:
+def convert(md: str, width: int = 80, do_justify: bool = True) -> str:
     parser = MarkdownIt("default", {"linkify": False, "typographer": False})
     parser.enable(["table"])
     tokens = parser.parse(md)
@@ -78,18 +80,19 @@ def convert(md: str) -> str:
     list_stack: list[str] = []
 
     def blank():
-        """Add a blank line if the last output line is not already blank."""
         if not out:
             return
         if out[-1] == "":
             return
         out.append("")
 
+    def _do_justify(text: str, w: int) -> str:
+        return justify(text, w) if do_justify else text
+
     def enter(node: SyntaxTreeNode):
         nonlocal list_stack
         t = node.type
 
-        # ── Headings ──────────────────────────────────────
         if t == "heading":
             level = int(node.tag[1]) if node.tag.startswith("h") else 2
             inline_child = _first_inline(node)
@@ -98,7 +101,6 @@ def convert(md: str) -> str:
             out.append(text.upper())
             blank()
 
-        # ── Lists ─────────────────────────────────────────
         if t == "bullet_list":
             indent = "  " + "  " * len(list_stack) + "* "
             list_stack.append(indent)
@@ -108,7 +110,6 @@ def convert(md: str) -> str:
         elif t == "list_item":
             pass
 
-        # ── Paragraphs ────────────────────────────────────
         elif t == "paragraph":
             inline_child = _first_inline(node)
             if inline_child:
@@ -117,13 +118,13 @@ def convert(md: str) -> str:
                     segments = text.split("\n")
                     if list_stack:
                         prefix = list_stack[-1]
-                        avail = 80 - len(prefix)
+                        avail = width - len(prefix)
                         if avail >= 20:
                             wrapped = []
                             for seg in segments:
                                 w = textwrap.fill(seg, width=avail)
                                 if w:
-                                    w = justify(w, avail)
+                                    w = _do_justify(w, avail)
                                     for line in w.split("\n"):
                                         wrapped.append(prefix + line)
                             text_out = "\n".join(wrapped)
@@ -132,14 +133,13 @@ def convert(md: str) -> str:
                     else:
                         wrapped = []
                         for seg in segments:
-                            w = textwrap.fill(seg, width=80)
+                            w = textwrap.fill(seg, width=width)
                             if w:
-                                wrapped.append(justify(w, 80))
+                                wrapped.append(_do_justify(w, width))
                         text_out = "\n".join(wrapped)
                     out.append(text_out)
             blank()
 
-        # ── Fenced code blocks ───────────────────────────
         elif t == "fence":
             content = node.content.rstrip("\n")
             if content:
@@ -148,7 +148,6 @@ def convert(md: str) -> str:
                     out.append("    " + line)
                 blank()
 
-        # ── Indented code blocks ─────────────────────────
         elif t == "code_block":
             content = node.content.rstrip("\n")
             if content:
@@ -157,13 +156,11 @@ def convert(md: str) -> str:
                     out.append("    " + line)
                 blank()
 
-        # ── Horizontal rules ─────────────────────────────
         elif t == "hr":
             blank()
             out.append("-" * 72)
             blank()
 
-        # ── Tables ───────────────────────────────────────
         elif t == "table":
             blank()
             rows = []
@@ -208,24 +205,37 @@ def _first_inline(node: SyntaxTreeNode) -> SyntaxTreeNode | None:
 
 
 def main():
-    if len(sys.argv) >= 3:
-        with open(sys.argv[1]) as f:
+    parser = argparse.ArgumentParser(
+        description="Convert markdown to plain text (manpage format).",
+    )
+    parser.add_argument("input", nargs="?", help="input file (stdin if omitted)")
+    parser.add_argument("output", nargs="?", help="output file (stdout if omitted)")
+    parser.add_argument(
+        "-w", "--width", type=int, default=80, help="line width (default: 80)"
+    )
+    parser.add_argument(
+        "--no-justify",
+        action="store_false",
+        dest="justify",
+        help="disable line justification",
+    )
+
+    args = parser.parse_args()
+
+    if args.input:
+        with open(args.input) as f:
             md = f.read()
-        result = convert(md)
-        with open(sys.argv[2], "w") as f:
+    else:
+        md = sys.stdin.read()
+
+    result = convert(md, width=args.width, do_justify=args.justify)
+
+    if args.output:
+        with open(args.output, "w") as f:
             f.write(result)
             if not result.endswith("\n"):
                 f.write("\n")
-    elif len(sys.argv) == 2:
-        with open(sys.argv[1]) as f:
-            md = f.read()
-        result = convert(md)
-        sys.stdout.write(result)
-        if not result.endswith("\n"):
-            sys.stdout.write("\n")
     else:
-        md = sys.stdin.read()
-        result = convert(md)
         sys.stdout.write(result)
         if not result.endswith("\n"):
             sys.stdout.write("\n")
