@@ -14,6 +14,7 @@ If input is omitted, reads from stdin. If output is omitted, writes to stdout.
 import argparse
 import sys
 import textwrap
+from pathlib import Path
 
 from markdown_it import MarkdownIt
 from markdown_it.tree import SyntaxTreeNode
@@ -67,7 +68,7 @@ def convert(md: str, width: int = 80, do_justify: bool = True) -> str:
                 text = render_inline(child)
                 href = child.attrs.get("href", "")
                 if text and href:
-                    links[text] = href
+                    links[text] = str(href)
                 parts.append("[" + text + "]")
             elif t == "softbreak":
                 parts.append(" ")
@@ -97,7 +98,7 @@ def convert(md: str, width: int = 80, do_justify: bool = True) -> str:
         t = node.type
 
         if t == "heading":
-            level = int(node.tag[1]) if node.tag.startswith("h") else 2
+            _level = int(node.tag[1]) if node.tag.startswith("h") else 2
             inline_child = _first_inline(node)
             text = render_inline(inline_child) if inline_child else ""
             blank()
@@ -183,7 +184,7 @@ def convert(md: str, width: int = 80, do_justify: bool = True) -> str:
     def exit(node: SyntaxTreeNode):
         nonlocal list_stack
         t = node.type
-        if t == "bullet_list" or t == "ordered_list":
+        if t in {"bullet_list", "ordered_list"}:
             if list_stack:
                 list_stack.pop()
             blank()
@@ -235,22 +236,17 @@ def main():
     args = parser.parse_args()
 
     if args.input:
-        with open(args.input) as f:
-            md = f.read()
+        md = Path(args.input).read_text()
     else:
         md = sys.stdin.read()
 
     result = convert(md, width=args.width, do_justify=args.justify)
+    result = f"{result.rstrip()}\n"
 
     if args.output:
-        with open(args.output, "w") as f:
-            f.write(result)
-            if not result.endswith("\n"):
-                f.write("\n")
+        Path(args.output).write_text(result)
     else:
         sys.stdout.write(result)
-        if not result.endswith("\n"):
-            sys.stdout.write("\n")
 
 
 if __name__ == "__main__":
