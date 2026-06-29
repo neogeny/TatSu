@@ -101,9 +101,9 @@ doc = [
 ]
 
 [project.scripts]
-cling = "tatsu.tool.cling:cling_main"
-tatsu = "tatsu.tool:tatsu_main"
-otatsu = "tatsu.tool:tatsu_main"
+cling = "tatsu.cling:cling_main"
+tatsu = "tatsu.tool.cli:tatsu_main"
+otatsu = "tatsu.tool.cli:tatsu_main"
 g2e = "tatsu.g2e:main"
 
 [project.urls]
@@ -252,6 +252,7 @@ relative-imports-order = "furthest-to-closest"
 [tool.ruff.lint.pylint]
 max-branches = 64
 max-nested-blocks = 16
+max-bool-expr = 16
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10
@@ -321,8 +322,10 @@ ignore = [
     "S101", #    use of assert
     "S102", #    exec-builtin
     "S106", #    possible password
+    "S110", # try-except-pass
     "S301", #    suspicious-pickle-usage
     "S403", #    insecure modules
+    "S404", # suspicious-subprocess-import
     "S603", # `subprocess` call: check for execution of untrusted input
     "S607", # Starting a process with a partial executable path
     "SIM108", #  use ternary instead of if-else
