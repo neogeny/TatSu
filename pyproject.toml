@@ -277,6 +277,10 @@ select = [
 ]
 
 ignore = [
+    # === Broken in some versions of ruff
+    "PERF401",  # manual-list-comprehension"
+    # ===
+
     # "ARG002", # unused argument
     "B905", # `zip()` without an explicit `strict=` parameter
     "COM812", #  Trailing comma missing
