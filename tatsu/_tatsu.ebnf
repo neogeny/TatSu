@@ -188,7 +188,7 @@ atom:
 
 meta[Meta]: /@(name|int|uint|float|bool)\b/
 
-call[Call]: word
+call[Call]: @name
 
 void[Void]: '()' ~
 

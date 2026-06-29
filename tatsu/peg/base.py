@@ -424,7 +424,7 @@ class Rule(NamedBox):
         )
 
     def optimized(self) -> Rule:
-        from .syntax import Call, Sequence
+        from .syntax import Call, Group, Sequence
 
         assert isinstance(self.exp, Model)
 
@@ -434,6 +434,9 @@ class Rule(NamedBox):
 
         if isinstance(exp, Call) and exp.rule and not exp.rule.params:
             exp = exp.rule.exp.optimized()
+
+        if isinstance(exp, Group):
+            exp = exp.exp.optimized()
 
         new = copy(self)
         new.exp = exp
