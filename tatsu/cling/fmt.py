@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from ...ngcodegen import modelgen, parsergen, pythongen
-from ...peg import Grammar
-from ...util.asjson import asjsons
-from ...util.checkpygments import is_pygments_available
+from ..ngcodegen import modelgen, parsergen, pythongen
+from ..peg import Grammar
+from ..util.asjson import asjsons
+from ..util.checkpygments import is_pygments_available
 from .cfg import DEFAULT_PYGMENTS_STYLE, CLIConfig
 
 

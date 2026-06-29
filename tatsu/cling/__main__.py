@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from . import cling_main
+import sys
+
+from .cli import cling_main
 
 
 if __name__ == "__main__":
-    cling_main()
+    sys.exit(cling_main())

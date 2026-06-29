@@ -5,8 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from ...api import compile
-from ...peg import Grammar
+from ..api import compile
+from ..peg import Grammar
 from .cfg import CLIError
 
 

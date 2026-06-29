@@ -9,22 +9,22 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, assert_never
 
-from ... import packetz
-from ...barz import BarRow, Col, Multi
-from ...config import ParserConfig
-from ...exceptions import FailedParse
-from ...packetz import (
+from .. import packetz
+from ..barz import BarRow, Col, Multi
+from ..config import ParserConfig
+from ..exceptions import FailedParse
+from ..packetz import (
     PacketLike,
 )
-from ...parproc import (
+from ..parproc import (
     Result,
     VisualPayload,
     parproc_visual,
     show_summary,
 )
-from ...peg import Grammar
-from ...util.heart import Heart
-from ...ztyle import Style
+from ..peg import Grammar
+from ..util.heart import Heart
+from ..ztyle import Style
 from .cfg import CLIConfig
 from .fmt import format_result
 from .lib import Results, load_grammar
@@ -141,7 +141,7 @@ def run_with_progress(
             GrammarPayload(
                 path,
                 text,
-                grammar=grammar,
+                grammar=grammar,  # ty: ignore
                 start=start or "",
                 heart=fh,
                 idx=idx,

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from . import tatsu_main
+from .tool.cli import tatsu_main
 
 
 if __name__ == '__main__':

@@ -18,6 +18,7 @@ from ..util.newlines import take_linebreak_len, take_non_newline_whitespace_len
 from ..util.regextools import cached_re_compile
 from .cursor import Cursor, Text, matchbool, matchfloat, matchint, matchname, matchuint
 from .infos import LineIndexInfo, LineInfo, PosLine
+from .tokens import joinregexps
 
 
 DEFAULT_WHITESPACE_RE = re.compile(r'(?m)\s+')
@@ -97,13 +98,10 @@ class TextLinesCursor(Cursor):
         return c
 
     def next_token(self) -> None:
-        p = None
-        while self.pos != p:
-            p = self.pos
-            self.eat_whitespace()
-            while self.eat_eol_comments():
-                self.eat_whitespace()
-            self.eat_comments()
+        p = self.pos
+        for match in self.input.tokenizing_re.finditer(self.textstr, pos=p):
+            p += len(match)
+        self.goto(p)
 
     def eat_spaces_no_newlines(self):
         p = None
@@ -317,6 +315,7 @@ class TextLines(Text):
             else bool(self.whitespace_re) or bool(config.namechars)
         )
         self._namechar_set = set(config.namechars or '')
+        self.tokenizin_re = self.build_tokenizing_re()
 
         # Structural data
         self.textstr = ""
@@ -357,6 +356,17 @@ class TextLines(Text):
         if whitespace:
             return cached_re_compile(whitespace)
         return None
+
+    def build_tokenizing_re(self) -> re.Pattern:
+        patterns = {}
+        if self.whitespace_re:
+            patterns['wsp'] = str(self.whitespace_re)
+        if self.config.comments_re:
+            patterns['cmt'] = str(self.config.comments)
+        if self.config.eol_comments_re:
+            patterns['eol'] = str(self.config.eol_comments)
+
+        return joinregexps(**patterns)
 
     def _preprocess(self):
         lines, index = self._preprocess_block(self.source, self.original_text)
