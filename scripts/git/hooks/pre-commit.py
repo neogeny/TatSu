@@ -5,7 +5,6 @@
 # by Gemini (2026-02-03)
 from __future__ import annotations
 
-import subprocess
 import sys
 from collections.abc import Collection
 from datetime import date
@@ -55,7 +54,7 @@ def main() -> None:
         '.zip',
     }
 
-    ignored_prefix = []
+    ignored_prefix: list[str] = []
 
     ignored_paths = [
         Path('./.vale/styles/'),

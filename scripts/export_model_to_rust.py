@@ -10,7 +10,7 @@ from tatsu import peg as g
 from tatsu.util.indent import IndentPrintMixin
 
 
-def rstype(type: Any, modelnames: set[str]) -> str:
+def rstype(type: Any, _modelnames: set[str]) -> str:
     type = str(type)
     type = str(type).split('|')[0].strip()
     if type.startswith('tuple['):

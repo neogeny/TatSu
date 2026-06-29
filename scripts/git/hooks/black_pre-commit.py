@@ -25,7 +25,7 @@ def run_black_on_staged() -> bool:
     print(f"--- Running Black on {len(py_files)} staged file(s) ---")
 
     # Execute black on the filtered list
-    cmd = [sys.executable, "-m", "black"] + py_files
+    cmd = [sys.executable, "-m", "black", *py_files]
 
     try:
         subprocess.run(cmd, check=True, capture_output=True, text=True)

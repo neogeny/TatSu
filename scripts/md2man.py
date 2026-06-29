@@ -62,7 +62,7 @@ def convert(md: str, width: int = 80, do_justify: bool = True) -> str:
                 parts.append(child.content)
             elif t == "code_inline":
                 parts.append(child.content)
-            elif t in ("strong", "em", "s"):
+            elif t in {"strong", "em", "s"}:
                 parts.append(render_inline(child))
             elif t == "link":
                 text = render_inline(child)
@@ -86,7 +86,7 @@ def convert(md: str, width: int = 80, do_justify: bool = True) -> str:
     def blank():
         if not out:
             return
-        if out[-1] == "":
+        if not out[-1]:
             return
         out.append("")
 
@@ -169,12 +169,12 @@ def convert(md: str, width: int = 80, do_justify: bool = True) -> str:
             blank()
             rows = []
             for child in node.children:
-                if child.type in ("thead", "tbody"):
+                if child.type in {"thead", "tbody"}:
                     for row in child.children:
                         if row.type == "tr":
                             cells = []
                             for cell in row.children:
-                                if cell.type in ("th", "td"):
+                                if cell.type in {"th", "td"}:
                                     cells.append(render_inline(cell))
                             if cells:
                                 rows.append("  " + " | ".join(cells))
@@ -200,12 +200,10 @@ def convert(md: str, width: int = 80, do_justify: bool = True) -> str:
     walk(root)
 
     if links:
-        out.append("")
-        out.append("LINKS")
-        out.append("")
+        out = [*links, "", "LINKS", ""]
         for text, url in links.items():
             out.append(f"  [{text}]: {url}")
-        out.append("")
+        out += [""]
 
     return "\n".join(out)
 

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-import os
+import pathlib
 import subprocess
 import sys
 from collections.abc import Sequence
@@ -44,10 +44,13 @@ def get_missing_headers(files: FileList) -> FileList:
     missing = []
 
     for path in files:
-        if any(path.endswith(ext) for ext in ignored) or not os.path.isfile(path):
+        if (
+            any(path.endswith(ext) for ext in ignored)
+            or not pathlib.Path(path).is_file()
+        ):
             continue
         try:
-            with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+            with pathlib.Path(path).open('r', encoding='utf-8', errors='ignore') as f:
                 if target not in f.read(1024):
                     missing.append(path)
         except Exception:
@@ -66,12 +69,11 @@ def main() -> None:
     missing = get_missing_headers(staged)
 
     if missing:
-        with open(commit_msg_filepath, 'a', encoding='utf-8') as f:
+        with pathlib.Path(commit_msg_filepath).open('a', encoding='utf-8') as f:
             f.write("\n# --------------------------------------------------------\n")
             f.write("# LICENSE HEADER WARNING:\n")
             f.write("# The following files are missing the SPDX header:\n")
-            for path in missing:
-                f.write(f"#   - {path}\n")
+            f.writelines(f"#   - {path}\n" for path in missing)
             f.write("# --------------------------------------------------------\n")
 
     sys.exit(0)
