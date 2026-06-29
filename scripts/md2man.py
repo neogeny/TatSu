@@ -3,10 +3,10 @@
 # dependencies = ["markdown-it-py"]
 # ///
 """
-Convert markdown to plain text, manpage format.
+Convert markdown to manpage-style plain text.
 
 Usage:
-    md2txt [options] [input [output]]
+    md2man [options] [input [output]]
 
 If input is omitted, reads from stdin. If output is omitted, writes to stdout.
 """
@@ -43,33 +43,6 @@ def justify(text: str, width: int) -> str:
     return "\n".join(out)
 
 
-def render_inline(node: SyntaxTreeNode) -> str:
-    """Render an inline SyntaxTreeNode to plain text."""
-    parts: list[str] = []
-    for child in node.children:
-        t = child.type
-        if t == "text":
-            parts.append(child.content)
-        elif t == "code_inline":
-            parts.append(child.content)
-        elif t in ("strong", "em", "s"):
-            parts.append(render_inline(child))
-        elif t == "link":
-            parts.append("[" + render_inline(child) + "]")
-        elif t == "softbreak":
-            parts.append(" ")
-        elif t == "hardbreak":
-            parts.append("\n")
-        elif t == "image":
-            parts.append(child.content or "")
-        elif t == "html_inline":
-            if not child.content.startswith("<!--"):
-                parts.append(child.content)
-        else:
-            parts.append(child.content or "")
-    return "".join(parts)
-
-
 def convert(md: str, width: int = 80, do_justify: bool = True) -> str:
     parser = MarkdownIt("default", {"linkify": False, "typographer": False})
     parser.enable(["table"])
@@ -78,6 +51,36 @@ def convert(md: str, width: int = 80, do_justify: bool = True) -> str:
 
     out: list[str] = []
     list_stack: list[str] = []
+    links: dict[str, str] = {}
+
+    def render_inline(node: SyntaxTreeNode) -> str:
+        parts: list[str] = []
+        for child in node.children:
+            t = child.type
+            if t == "text":
+                parts.append(child.content)
+            elif t == "code_inline":
+                parts.append(child.content)
+            elif t in ("strong", "em", "s"):
+                parts.append(render_inline(child))
+            elif t == "link":
+                text = render_inline(child)
+                href = child.attrs.get("href", "")
+                if text and href:
+                    links[text] = href
+                parts.append("[" + text + "]")
+            elif t == "softbreak":
+                parts.append(" ")
+            elif t == "hardbreak":
+                parts.append("\n")
+            elif t == "image":
+                parts.append(child.content or "")
+            elif t == "html_inline":
+                if not child.content.startswith("<!--"):
+                    parts.append(child.content)
+            else:
+                parts.append(child.content or "")
+        return "".join(parts)
 
     def blank():
         if not out:
@@ -194,6 +197,15 @@ def convert(md: str, width: int = 80, do_justify: bool = True) -> str:
         exit(node)
 
     walk(root)
+
+    if links:
+        out.append("")
+        out.append("LINKS")
+        out.append("")
+        for text, url in links.items():
+            out.append(f"  [{text}]: {url}")
+        out.append("")
+
     return "\n".join(out)
 
 
