@@ -1,4 +1,7 @@
 # Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
+set dotenv-load
+set unstable
+set lists
 
 shell := "xonsh"
 # noqa
@@ -6,6 +9,7 @@ shell := "xonsh"
 set shell := [shell, "-c"]
 
 py := "3.14"
+packages := ["tatsu", "tests", "examples", "scripts"]
 
 # Macro-like expansions for consistent uv flag placement
 
@@ -66,36 +70,36 @@ clobber: (clean "true")
     echo "▶ fmt {{ py }}"
     {{ run_test }} ruff check \
         --select I --fix \
-        tatsu tests examples scripts
+        {{packages}}
 
-    {{ run_test }} ruff format tatsu tests examples scripts
+    {{ run_test }} ruff format {{packages}}
 
 @lint: testg fmt ruff ty mypy pyrefly
     echo "━ lint ⏏ ━"
 
 @ruff: testg
     echo "▶ ruff {{ py }}"
-    {{ run_test }} ruff check -q --preview --fix tatsu tests examples
+    {{ run_test }} ruff check -q --preview --fix {{packages}}
 
 @ty: testg
     echo "▶ ty {{ py }}"
-    {{ run_test }} ty check tatsu tests examples
+    {{ run_test }} ty check {{packages}}
 
 @mypy: testg
     echo "▶ mypy {{ py }}"
     {{ run_test }} mypy \
-        tatsu tests examples \
+        {{packages}} \
         --install-types \
         --exclude "dist|parsers|backup|tatsu/grammars/leftrec" \
         --exclude "bench.py"
 
 @pyright: testg
     echo "▶ pyright {{ py }}"
-    {{ run_test }} basedpyright tatsu tests examples
+    {{ run_test }} basedpyright {{packages}}
 
 @pyrefly: testg
     echo "▶ pyrefly {{ py }}"
-    {{ run_test }} pyrefly check tatsu tests examples \
+    {{ run_test }} pyrefly check {{packages}}  \
         --project-excludes=tatsu/grammars/leftrec
 
 # --- Testing ---
