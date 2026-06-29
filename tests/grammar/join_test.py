@@ -5,9 +5,9 @@ from __future__ import annotations
 import unittest
 from ast import parse
 
+from tatsu.api import compile
 from tatsu.exceptions import FailedParse
 from tatsu.ngcodegen import pythongen
-from tatsu.tool import compile
 
 
 class JoinTests(unittest.TestCase):

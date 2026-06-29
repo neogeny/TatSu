@@ -7,9 +7,9 @@ import unittest
 import pytest
 
 from tatsu import peg as g
+from tatsu.api import compile
 from tatsu.exceptions import FailedParse
 from tatsu.ngcodegen import pythongen
-from tatsu.tool import compile
 from tatsu.util import trim
 
 

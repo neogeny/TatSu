@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from tatsu.tool import compile
+from tatsu.api import compile
 
 
 class LookaheadTests(unittest.TestCase):

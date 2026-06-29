@@ -5,7 +5,7 @@ from __future__ import annotations
 import unittest
 
 from tatsu import peg as g
-from tatsu.tool import compile
+from tatsu.api import compile
 
 
 class FirstFollowTests(unittest.TestCase):

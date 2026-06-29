@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
+from tatsu.api import compile, parse
 from tatsu.exceptions import FailedParse, GrammarError
-from tatsu.tool import compile, parse
 
 
 def test_direct_left_recursion(trace=False):
@@ -124,7 +124,7 @@ def test_calc_indirect(trace=False):
     ast = model.parse('1+1-1', trace=trace, colorize=True)
     assert ast == [['1', '+', '1'], '-', '1']
 
-    from tatsu.tool import to_python_sourcecode
+    from tatsu.api import to_python_sourcecode
 
     src = to_python_sourcecode(grammar)
     globs = {}

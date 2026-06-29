@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from tatsu.tool import parse
+from tatsu.api import parse
 
 
 def test_constant_interpolation():

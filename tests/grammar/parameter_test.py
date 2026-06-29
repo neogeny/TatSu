@@ -8,9 +8,9 @@ import sys
 import tempfile
 import unittest
 
+from tatsu.api import compile
 from tatsu.boot import TatSuParserGenerator
 from tatsu.ngcodegen import pythongen
-from tatsu.tool import compile
 from tatsu.util import trim
 
 

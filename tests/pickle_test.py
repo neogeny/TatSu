@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pickle
 
+from tatsu.api import compile
 from tatsu.objectmodel import ModelBuilderSemantics, Node
-from tatsu.tool import compile
 from tatsu.util import asjson
 
 

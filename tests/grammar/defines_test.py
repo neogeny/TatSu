@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from tatsu.tool import compile, gencode
+from tatsu.api import compile, gencode
 
 
 def test_name_in_option():

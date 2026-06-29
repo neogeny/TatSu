@@ -6,9 +6,9 @@ from ast import parse
 
 import pytest
 
+from tatsu.api import compile
 from tatsu.exceptions import FailedKeywordSemantics
 from tatsu.ngcodegen import pythongen
-from tatsu.tool import compile
 
 
 def test_keywords_in_rule_names():

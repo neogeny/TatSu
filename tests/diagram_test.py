@@ -1,7 +1,7 @@
 import pytest
 
 from tatsu import diagrams
-from tatsu.tool import compile
+from tatsu.api import compile
 
 
 @pytest.mark.skipif(not diagrams.available(), reason='graphviz is not available')

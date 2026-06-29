@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
-from tatsu.tool import compile
+from tatsu.api import compile
 from tatsu.util.asjson import asjsons  # noqa: F401
 
 

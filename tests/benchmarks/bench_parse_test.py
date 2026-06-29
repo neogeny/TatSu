@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 
 import tatsu
+from tatsu.api import to_python_sourcecode
 from tatsu.boot import TatSuParserGenerator
-from tatsu.tool import to_python_sourcecode
 
 
 CALC_GRAMMAR = r"""

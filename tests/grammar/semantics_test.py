@@ -7,6 +7,7 @@ import sys
 import pytest
 
 import tatsu
+from tatsu.api import compile, parse
 from tatsu.exceptions import FailedParse, FailedToken
 from tatsu.objectmodel import Node, synth
 from tatsu.objectmodel.builder import (
@@ -14,7 +15,6 @@ from tatsu.objectmodel.builder import (
     ModelBuilderSemantics,
     TypeResolutionError,
 )
-from tatsu.tool import compile, parse
 
 
 class MyNode:
@@ -119,7 +119,7 @@ def test_builder_basetype_codegen():
         third = ();
     """
 
-    from tatsu.tool import to_python_model
+    from tatsu.api import to_python_model
 
     src = to_python_model(grammar, basetype=MyNode)
     # print(src[:1000])

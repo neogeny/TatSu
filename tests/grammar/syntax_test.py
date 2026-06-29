@@ -6,7 +6,7 @@ import unittest
 
 import pytest  # pyright: ignore [reportMissingImports]
 
-from tatsu import compile, tool
+from tatsu import compile, parse
 from tatsu.boot import TatSuBuffer
 from tatsu.exceptions import FailedParse
 from tatsu.ngcodegen import pythongen
@@ -354,7 +354,7 @@ def test_parse_void():
         start = () $ ;
     """
 
-    ast = tool.parse(grammar, '')
+    ast = parse(grammar, '')
     print(ast)
     assert ast is None
 
@@ -369,7 +369,7 @@ def test_no_default_comments():
         a
     """
     with pytest.raises(FailedParse):
-        tool.parse(grammar, text)
+        parse(grammar, text)
 
 
 import re
@@ -415,7 +415,7 @@ def test_deprecated_comments_override_failures(comment, option):
         DeprecationWarning,
         match=r'ParserConfig\..*?comments_re.*?is deprecated',
     ):
-        tool.parse(grammar, text, **option)
+        parse(grammar, text, **option)
 
 
 def test_non_capturing_group_exclusion():
