@@ -28,6 +28,7 @@ from .objectmodel import (
     nodedataclass as dataclass,
     nodedataclass as tatsudataclass,
 )
+from .tool.cli import tatsu_main
 
 
 # HACK!

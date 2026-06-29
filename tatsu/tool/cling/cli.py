@@ -12,7 +12,6 @@ from argparse import ArgumentParser
 from ... import __toolname__, __version__, g2e
 from ...exceptions import ParseException
 from ...util.checkpygments import is_pygments_available
-from .. import bench, ideps
 from .boot_cmd import add_boot_cmd, boot_cmd
 from .cfg import CLIConfig, CLIError
 from .global_opt import add_global_options
@@ -32,6 +31,8 @@ DESCRIPTION = (
 
 
 def create_argument_parser() -> ArgumentParser:
+    from .. import bench, ideps
+
     # Handle --version before argparse to match ogopego's pre-dispatch check
     parser = argparse.ArgumentParser(
         prog="tatsu",
