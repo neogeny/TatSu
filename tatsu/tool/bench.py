@@ -55,6 +55,7 @@ class BenchmarkResult:
 def _setup_mem_parser(grammar_src: str) -> tuple[peg.Grammar, float]:
     with timer() as t:
         model = compile(grammar_src)
+        model = model.optimized()
     return model, t.delta
 
 
