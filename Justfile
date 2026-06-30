@@ -151,11 +151,14 @@ doclint: docg
     uv run python3 -m tatsu tatsu/_tatsu.ebnf \
         -z \
         -m TatSuBootstrap \
-        -o tatsu/boot/bootstrap.py
+        -o gtmp/bootstrap.py
     uv run python3 -m tatsu tatsu/_tatsu.ebnf \
         -z -x \
         -m TatSuBootstrap \
-        -o tatsu/boot/bootparser.py
+        -o gtmp/bootparser.py
+    uv run python3 -m tatsu tatsu/_tatsu.ebnf \
+        -z -j \
+        -o gtmp/tatsu.json
 
 @testpublish: build
     gh workflow run test_publish.yml

@@ -3,7 +3,6 @@
   "name": "TatSu",
   "directives": {
     "grammar": "TatSu",
-    "whitespace": "(?m)\\s+",
     "comments": "(?ms)[(][*]\\s*(.*?)\\s*[*][)]|/[*]\\s*(.*?)\\s*[*]/",
     "eol_comments": "(?ms)(?:#|//)(.*?)$",
     "parseinfo": true,
@@ -148,233 +147,248 @@
             "__class__": "Cut"
           },
           {
-            "__class__": "Choice",
-            "options": [
-              {
-                "__class__": "Sequence",
-                "sequence": [
-                  {
-                    "__class__": "Named",
-                    "name": "name",
-                    "exp": {
-                      "__class__": "Choice",
-                      "options": [
-                        {
-                          "__class__": "Token",
-                          "token": "comments"
-                        },
-                        {
-                          "__class__": "Token",
-                          "token": "eol_comments"
+            "__class__": "Group",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Sequence",
+                  "sequence": [
+                    {
+                      "__class__": "Named",
+                      "name": "name",
+                      "exp": {
+                        "__class__": "Group",
+                        "exp": {
+                          "__class__": "Choice",
+                          "options": [
+                            {
+                              "__class__": "Token",
+                              "token": "comments"
+                            },
+                            {
+                              "__class__": "Token",
+                              "token": "eol_comments"
+                            }
+                          ]
                         }
-                      ]
-                    }
-                  },
-                  {
-                    "__class__": "Cut"
-                  },
-                  {
-                    "__class__": "Token",
-                    "token": "::"
-                  },
-                  {
-                    "__class__": "Cut"
-                  },
-                  {
-                    "__class__": "Named",
-                    "name": "value",
-                    "exp": {
-                      "__class__": "Call",
-                      "name": "regex"
-                    }
-                  }
-                ]
-              },
-              {
-                "__class__": "Sequence",
-                "sequence": [
-                  {
-                    "__class__": "Named",
-                    "name": "name",
-                    "exp": {
+                      }
+                    },
+                    {
+                      "__class__": "Cut"
+                    },
+                    {
                       "__class__": "Token",
-                      "token": "whitespace"
+                      "token": "::"
+                    },
+                    {
+                      "__class__": "Cut"
+                    },
+                    {
+                      "__class__": "Named",
+                      "name": "value",
+                      "exp": {
+                        "__class__": "Call",
+                        "name": "regex"
+                      }
                     }
-                  },
-                  {
-                    "__class__": "Cut"
-                  },
-                  {
-                    "__class__": "Token",
-                    "token": "::"
-                  },
-                  {
-                    "__class__": "Cut"
-                  },
-                  {
-                    "__class__": "Named",
-                    "name": "value",
-                    "exp": {
-                      "__class__": "Choice",
-                      "options": [
-                        {
-                          "__class__": "Call",
-                          "name": "regex"
-                        },
-                        {
-                          "__class__": "Call",
-                          "name": "string"
-                        },
-                        {
-                          "__class__": "Token",
-                          "token": "None"
-                        },
-                        {
-                          "__class__": "Token",
-                          "token": "False"
-                        },
-                        {
-                          "__class__": "Constant",
-                          "literal": null
+                  ]
+                },
+                {
+                  "__class__": "Sequence",
+                  "sequence": [
+                    {
+                      "__class__": "Named",
+                      "name": "name",
+                      "exp": {
+                        "__class__": "Token",
+                        "token": "whitespace"
+                      }
+                    },
+                    {
+                      "__class__": "Cut"
+                    },
+                    {
+                      "__class__": "Token",
+                      "token": "::"
+                    },
+                    {
+                      "__class__": "Cut"
+                    },
+                    {
+                      "__class__": "Named",
+                      "name": "value",
+                      "exp": {
+                        "__class__": "Group",
+                        "exp": {
+                          "__class__": "Choice",
+                          "options": [
+                            {
+                              "__class__": "Call",
+                              "name": "regex"
+                            },
+                            {
+                              "__class__": "Call",
+                              "name": "string"
+                            },
+                            {
+                              "__class__": "Token",
+                              "token": "None"
+                            },
+                            {
+                              "__class__": "Token",
+                              "token": "False"
+                            },
+                            {
+                              "__class__": "Constant",
+                              "literal": null
+                            }
+                          ]
                         }
-                      ]
+                      }
                     }
-                  }
-                ]
-              },
-              {
-                "__class__": "Sequence",
-                "sequence": [
-                  {
-                    "__class__": "Named",
-                    "name": "name",
-                    "exp": {
-                      "__class__": "Choice",
-                      "options": [
-                        {
-                          "__class__": "Token",
-                          "token": "nameguard"
-                        },
-                        {
-                          "__class__": "Token",
-                          "token": "ignorecase"
-                        },
-                        {
-                          "__class__": "Token",
-                          "token": "left_recursion"
-                        },
-                        {
-                          "__class__": "Token",
-                          "token": "parseinfo"
-                        },
-                        {
-                          "__class__": "Token",
-                          "token": "memoization"
+                  ]
+                },
+                {
+                  "__class__": "Sequence",
+                  "sequence": [
+                    {
+                      "__class__": "Named",
+                      "name": "name",
+                      "exp": {
+                        "__class__": "Group",
+                        "exp": {
+                          "__class__": "Choice",
+                          "options": [
+                            {
+                              "__class__": "Token",
+                              "token": "nameguard"
+                            },
+                            {
+                              "__class__": "Token",
+                              "token": "ignorecase"
+                            },
+                            {
+                              "__class__": "Token",
+                              "token": "left_recursion"
+                            },
+                            {
+                              "__class__": "Token",
+                              "token": "parseinfo"
+                            },
+                            {
+                              "__class__": "Token",
+                              "token": "memoization"
+                            }
+                          ]
                         }
-                      ]
-                    }
-                  },
-                  {
-                    "__class__": "Cut"
-                  },
-                  {
-                    "__class__": "Choice",
-                    "options": [
-                      {
-                        "__class__": "Sequence",
-                        "sequence": [
+                      }
+                    },
+                    {
+                      "__class__": "Cut"
+                    },
+                    {
+                      "__class__": "Group",
+                      "exp": {
+                        "__class__": "Choice",
+                        "options": [
                           {
-                            "__class__": "Token",
-                            "token": "::"
-                          },
-                          {
-                            "__class__": "Cut"
+                            "__class__": "Sequence",
+                            "sequence": [
+                              {
+                                "__class__": "Token",
+                                "token": "::"
+                              },
+                              {
+                                "__class__": "Cut"
+                              },
+                              {
+                                "__class__": "Named",
+                                "name": "value",
+                                "exp": {
+                                  "__class__": "Call",
+                                  "name": "boolean"
+                                }
+                              }
+                            ]
                           },
                           {
                             "__class__": "Named",
                             "name": "value",
                             "exp": {
-                              "__class__": "Call",
-                              "name": "boolean"
+                              "__class__": "Constant",
+                              "literal": true
                             }
                           }
                         ]
-                      },
-                      {
-                        "__class__": "Named",
-                        "name": "value",
-                        "exp": {
-                          "__class__": "Constant",
-                          "literal": true
-                        }
                       }
-                    ]
-                  }
-                ]
-              },
-              {
-                "__class__": "Sequence",
-                "sequence": [
-                  {
-                    "__class__": "Named",
-                    "name": "name",
-                    "exp": {
+                    }
+                  ]
+                },
+                {
+                  "__class__": "Sequence",
+                  "sequence": [
+                    {
+                      "__class__": "Named",
+                      "name": "name",
+                      "exp": {
+                        "__class__": "Token",
+                        "token": "grammar"
+                      }
+                    },
+                    {
+                      "__class__": "Cut"
+                    },
+                    {
                       "__class__": "Token",
-                      "token": "grammar"
+                      "token": "::"
+                    },
+                    {
+                      "__class__": "Cut"
+                    },
+                    {
+                      "__class__": "Named",
+                      "name": "value",
+                      "exp": {
+                        "__class__": "Call",
+                        "name": "word"
+                      }
                     }
-                  },
-                  {
-                    "__class__": "Cut"
-                  },
-                  {
-                    "__class__": "Token",
-                    "token": "::"
-                  },
-                  {
-                    "__class__": "Cut"
-                  },
-                  {
-                    "__class__": "Named",
-                    "name": "value",
-                    "exp": {
-                      "__class__": "Call",
-                      "name": "word"
-                    }
-                  }
-                ]
-              },
-              {
-                "__class__": "Sequence",
-                "sequence": [
-                  {
-                    "__class__": "Named",
-                    "name": "name",
-                    "exp": {
+                  ]
+                },
+                {
+                  "__class__": "Sequence",
+                  "sequence": [
+                    {
+                      "__class__": "Named",
+                      "name": "name",
+                      "exp": {
+                        "__class__": "Token",
+                        "token": "namechars"
+                      }
+                    },
+                    {
+                      "__class__": "Cut"
+                    },
+                    {
                       "__class__": "Token",
-                      "token": "namechars"
+                      "token": "::"
+                    },
+                    {
+                      "__class__": "Cut"
+                    },
+                    {
+                      "__class__": "Named",
+                      "name": "value",
+                      "exp": {
+                        "__class__": "Call",
+                        "name": "string"
+                      }
                     }
-                  },
-                  {
-                    "__class__": "Cut"
-                  },
-                  {
-                    "__class__": "Token",
-                    "token": "::"
-                  },
-                  {
-                    "__class__": "Cut"
-                  },
-                  {
-                    "__class__": "Named",
-                    "name": "value",
-                    "exp": {
-                      "__class__": "Call",
-                      "name": "string"
-                    }
-                  }
-                ]
-              }
-            ]
+                  ]
+                }
+              ]
+            }
           },
           {
             "__class__": "Cut"
@@ -431,84 +445,93 @@
             "token": "::"
           },
           {
-            "__class__": "Choice",
-            "options": [
-              {
-                "__class__": "Sequence",
-                "sequence": [
-                  {
-                    "__class__": "Token",
-                    "token": "("
-                  },
-                  {
-                    "__class__": "Cut"
-                  },
-                  {
-                    "__class__": "Override",
-                    "exp": {
-                      "__class__": "PositiveClosure",
-                      "exp": {
-                        "__class__": "Choice",
-                        "options": [
-                          {
-                            "__class__": "Call",
-                            "name": "word"
-                          },
-                          {
-                            "__class__": "Call",
-                            "name": "string"
-                          }
-                        ]
-                      }
-                    }
-                  },
-                  {
-                    "__class__": "Token",
-                    "token": ")"
-                  }
-                ]
-              },
-              {
-                "__class__": "PositiveClosure",
-                "exp": {
+            "__class__": "Group",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
                   "__class__": "Sequence",
                   "sequence": [
                     {
-                      "__class__": "OverrideList",
+                      "__class__": "Token",
+                      "token": "("
+                    },
+                    {
+                      "__class__": "Cut"
+                    },
+                    {
+                      "__class__": "Override",
                       "exp": {
-                        "__class__": "Choice",
-                        "options": [
-                          {
-                            "__class__": "Call",
-                            "name": "word"
-                          },
-                          {
-                            "__class__": "Call",
-                            "name": "string"
-                          }
-                        ]
+                        "__class__": "PositiveClosure",
+                        "exp": {
+                          "__class__": "Choice",
+                          "options": [
+                            {
+                              "__class__": "Call",
+                              "name": "word"
+                            },
+                            {
+                              "__class__": "Call",
+                              "name": "string"
+                            }
+                          ]
+                        }
                       }
                     },
                     {
-                      "__class__": "NegativeLookahead",
-                      "exp": {
-                        "__class__": "Choice",
-                        "options": [
-                          {
-                            "__class__": "Token",
-                            "token": ":"
-                          },
-                          {
-                            "__class__": "Token",
-                            "token": "="
-                          }
-                        ]
-                      }
+                      "__class__": "Token",
+                      "token": ")"
                     }
                   ]
+                },
+                {
+                  "__class__": "PositiveClosure",
+                  "exp": {
+                    "__class__": "Sequence",
+                    "sequence": [
+                      {
+                        "__class__": "OverrideList",
+                        "exp": {
+                          "__class__": "Group",
+                          "exp": {
+                            "__class__": "Choice",
+                            "options": [
+                              {
+                                "__class__": "Call",
+                                "name": "word"
+                              },
+                              {
+                                "__class__": "Call",
+                                "name": "string"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "__class__": "NegativeLookahead",
+                        "exp": {
+                          "__class__": "Group",
+                          "exp": {
+                            "__class__": "Choice",
+                            "options": [
+                              {
+                                "__class__": "Token",
+                                "token": ":"
+                              },
+                              {
+                                "__class__": "Token",
+                                "token": "="
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
                 }
-              }
-            ]
+              ]
+            }
           }
         ]
       }
@@ -1193,17 +1216,20 @@
               {
                 "__class__": "Lookahead",
                 "exp": {
-                  "__class__": "Sequence",
-                  "sequence": [
-                    {
-                      "__class__": "Call",
-                      "name": "element"
-                    },
-                    {
-                      "__class__": "Token",
-                      "token": ","
-                    }
-                  ]
+                  "__class__": "Group",
+                  "exp": {
+                    "__class__": "Sequence",
+                    "sequence": [
+                      {
+                        "__class__": "Call",
+                        "name": "element"
+                      },
+                      {
+                        "__class__": "Token",
+                        "token": ","
+                      }
+                    ]
+                  }
                 }
               },
               {
@@ -1714,34 +1740,40 @@
           {
             "__class__": "Lookahead",
             "exp": {
-              "__class__": "Sequence",
-              "sequence": [
-                {
-                  "__class__": "Call",
-                  "name": "atom"
-                },
-                {
-                  "__class__": "Token",
-                  "token": ".{"
-                }
-              ]
+              "__class__": "Group",
+              "exp": {
+                "__class__": "Sequence",
+                "sequence": [
+                  {
+                    "__class__": "Call",
+                    "name": "atom"
+                  },
+                  {
+                    "__class__": "Token",
+                    "token": ".{"
+                  }
+                ]
+              }
             }
           },
           {
             "__class__": "Cut"
           },
           {
-            "__class__": "Choice",
-            "options": [
-              {
-                "__class__": "Call",
-                "name": "positive_gather"
-              },
-              {
-                "__class__": "Call",
-                "name": "normal_gather"
-              }
-            ]
+            "__class__": "Group",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Call",
+                  "name": "positive_gather"
+                },
+                {
+                  "__class__": "Call",
+                  "name": "normal_gather"
+                }
+              ]
+            }
           }
         ]
       }
@@ -1890,34 +1922,40 @@
           {
             "__class__": "Lookahead",
             "exp": {
-              "__class__": "Sequence",
-              "sequence": [
-                {
-                  "__class__": "Call",
-                  "name": "atom"
-                },
-                {
-                  "__class__": "Token",
-                  "token": "%{"
-                }
-              ]
+              "__class__": "Group",
+              "exp": {
+                "__class__": "Sequence",
+                "sequence": [
+                  {
+                    "__class__": "Call",
+                    "name": "atom"
+                  },
+                  {
+                    "__class__": "Token",
+                    "token": "%{"
+                  }
+                ]
+              }
             }
           },
           {
             "__class__": "Cut"
           },
           {
-            "__class__": "Choice",
-            "options": [
-              {
-                "__class__": "Call",
-                "name": "positive_join"
-              },
-              {
-                "__class__": "Call",
-                "name": "normal_join"
-              }
-            ]
+            "__class__": "Group",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Call",
+                  "name": "positive_join"
+                },
+                {
+                  "__class__": "Call",
+                  "name": "normal_join"
+                }
+              ]
+            }
           }
         ]
       }
@@ -2413,21 +2451,24 @@
               {
                 "__class__": "NegativeLookahead",
                 "exp": {
-                  "__class__": "Choice",
-                  "options": [
-                    {
-                      "__class__": "Token",
-                      "token": "?\""
-                    },
-                    {
-                      "__class__": "Token",
-                      "token": "?'"
-                    },
-                    {
-                      "__class__": "Token",
-                      "token": "?/"
-                    }
-                  ]
+                  "__class__": "Group",
+                  "exp": {
+                    "__class__": "Choice",
+                    "options": [
+                      {
+                        "__class__": "Token",
+                        "token": "?\""
+                      },
+                      {
+                        "__class__": "Token",
+                        "token": "?'"
+                      },
+                      {
+                        "__class__": "Token",
+                        "token": "?/"
+                      }
+                    ]
+                  }
                 }
               },
               {
@@ -2646,8 +2687,7 @@
       "is_memo": true,
       "is_lrec": false,
       "exp": {
-        "__class__": "Call",
-        "name": "word"
+        "__class__": "NameMeta"
       }
     },
     {
@@ -2831,37 +2871,40 @@
             }
           },
           {
-            "__class__": "Choice",
-            "options": [
-              {
-                "__class__": "Pattern",
-                "pattern": "(?ms)```((?:.|\\n)*?)```"
-              },
-              {
-                "__class__": "Sequence",
-                "sequence": [
-                  {
-                    "__class__": "Token",
-                    "token": "`"
-                  },
-                  {
-                    "__class__": "Override",
-                    "exp": {
-                      "__class__": "Call",
-                      "name": "literal"
+            "__class__": "Group",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Pattern",
+                  "pattern": "(?ms)```((?:.|\\n)*?)```"
+                },
+                {
+                  "__class__": "Sequence",
+                  "sequence": [
+                    {
+                      "__class__": "Token",
+                      "token": "`"
+                    },
+                    {
+                      "__class__": "Override",
+                      "exp": {
+                        "__class__": "Call",
+                        "name": "literal"
+                      }
+                    },
+                    {
+                      "__class__": "Token",
+                      "token": "`"
                     }
-                  },
-                  {
-                    "__class__": "Token",
-                    "token": "`"
-                  }
-                ]
-              },
-              {
-                "__class__": "Pattern",
-                "pattern": "`(.*?)`"
-              }
-            ]
+                  ]
+                },
+                {
+                  "__class__": "Pattern",
+                  "pattern": "`(.*?)`"
+                }
+              ]
+            }
           }
         ]
       }
@@ -3002,35 +3045,41 @@
           {
             "__class__": "Lookahead",
             "exp": {
-              "__class__": "Choice",
-              "options": [
-                {
-                  "__class__": "Token",
-                  "token": "\""
-                },
-                {
-                  "__class__": "Token",
-                  "token": "'"
-                }
-              ]
+              "__class__": "Group",
+              "exp": {
+                "__class__": "Choice",
+                "options": [
+                  {
+                    "__class__": "Token",
+                    "token": "\""
+                  },
+                  {
+                    "__class__": "Token",
+                    "token": "'"
+                  }
+                ]
+              }
             }
           },
           {
-            "__class__": "Choice",
-            "options": [
-              {
-                "__class__": "Call",
-                "name": "multiline_string"
-              },
-              {
-                "__class__": "Call",
-                "name": "singlequoted"
-              },
-              {
-                "__class__": "Call",
-                "name": "doublequoted"
-              }
-            ]
+            "__class__": "Group",
+            "exp": {
+              "__class__": "Choice",
+              "options": [
+                {
+                  "__class__": "Call",
+                  "name": "multiline_string"
+                },
+                {
+                  "__class__": "Call",
+                  "name": "singlequoted"
+                },
+                {
+                  "__class__": "Call",
+                  "name": "doublequoted"
+                }
+              ]
+            }
           }
         ]
       }
@@ -3391,29 +3440,32 @@
                 }
               },
               {
-                "__class__": "Choice",
-                "options": [
-                  {
-                    "__class__": "Call",
-                    "name": "REGEX"
-                  },
-                  {
-                    "__class__": "Sequence",
-                    "sequence": [
-                      {
-                        "__class__": "Token",
-                        "token": "?"
-                      },
-                      {
-                        "__class__": "Override",
-                        "exp": {
-                          "__class__": "Call",
-                          "name": "STRING"
+                "__class__": "Group",
+                "exp": {
+                  "__class__": "Choice",
+                  "options": [
+                    {
+                      "__class__": "Call",
+                      "name": "REGEX"
+                    },
+                    {
+                      "__class__": "Sequence",
+                      "sequence": [
+                        {
+                          "__class__": "Token",
+                          "token": "?"
+                        },
+                        {
+                          "__class__": "Override",
+                          "exp": {
+                            "__class__": "Call",
+                            "name": "STRING"
+                          }
                         }
-                      }
-                    ]
-                  }
-                ]
+                      ]
+                    }
+                  ]
+                }
               }
             ]
           }
@@ -3640,7 +3692,7 @@
       "is_lrec": false,
       "exp": {
         "__class__": "Pattern",
-        "pattern": "(?x)\n    -?                                  # Optional negative sign\n    (?:\n        0                               # Can be a lone zero\n        |\n        [1-9][0-9]* # Or a non-zero digit followed by any number of digits\n    )\n    (?: \\. [0-9]+ )?                    # Optional fraction: dot MUST be followed by 1+ digits\n    (?: [eE] [+-]? [0-9]+ )?            # Optional exponent component\n    \\b\n    "
+        "pattern": "-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?"
       }
     },
     {

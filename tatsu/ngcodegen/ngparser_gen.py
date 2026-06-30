@@ -307,9 +307,11 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         elif whitespace is not None:
             whitespace = regexpp(whitespace)
 
+        name = grammar.directives.get('grammar', grammar.name)
         self.print(f'''
                 config = ParserConfig.new(
                     config=config,
+                    name={name!r},
                     whitespace={whitespace},
                     nameguard={grammar.config.nameguard},
                     ignorecase={grammar.config.ignorecase or False},
@@ -479,7 +481,7 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         else:
             self.print(f'with ctx.{name}({arg}):')
         with self.indent():
-            # FIXME: only generated for Choice
+            # NOTE only generated for Choice
             # if var and exp and (elements := exp.lookaheadlist):
             #     self.pfold(f'{var}.expecting', tuple(elements))
             #     self.print()

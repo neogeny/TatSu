@@ -203,7 +203,6 @@ class GrammarSemantics(ModelBuilderSemantics):
         self.rulemap[name] = rule
         return rule
 
-    # FIXME
     def rule_include(self, ast):
         name = str(ast)
         self.known_name(name)

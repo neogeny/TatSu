@@ -1,4 +1,4 @@
-@@grammar :: TatSuBootstrap
+@@grammar :: TatSu
 @@comments :: ?"(?ms)[(][*]\s*(.*?)\s*[*][)]|/[*]\s*(.*?)\s*[*]/"
 @@eol_comments :: ?"(?ms)(?:#|//)(.*?)$"
 @@parseinfo :: True

@@ -429,14 +429,17 @@ class Rule(NamedBox):
         assert isinstance(self.exp, Model)
 
         exp = self.exp.optimized()
-        while isinstance(exp, Sequence) and len(exp.sequence) == 1:
-            exp = exp.sequence[0]
+        prev = None
+        while exp != prev:
+            prev = exp
+            if isinstance(exp, Sequence) and len(exp.sequence) == 1:
+                exp = exp.sequence[0]
 
-        if isinstance(exp, Call) and exp.rule and not exp.rule.params:
-            exp = exp.rule.exp.optimized()
+            if isinstance(exp, Call) and exp.rule and not exp.rule.params:
+                exp = exp.rule.exp.optimized()
 
-        if isinstance(exp, Group):
-            exp = exp.exp.optimized()
+            if isinstance(exp, Group):
+                exp = exp.exp.optimized()
 
         new = copy(self)
         new.exp = exp

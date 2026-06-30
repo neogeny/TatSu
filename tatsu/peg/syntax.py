@@ -19,7 +19,7 @@ from .math import ffset, kdot, ref
 @nodedataclass
 class Group(Box):
     def _parse(self, ctx: Ctx) -> Any:
-        return ctx.groupexp(self.exp._parse)
+        return self.exp._parse(ctx)
 
     def _pretty(self, lean=False):
         exp = self.exp._pretty(lean=lean)
@@ -208,7 +208,6 @@ class Sequence(Model):
             assert isinstance(s, Model)
         if len(seq) == 1 and isinstance(seq[0], Model):
             return seq[0]
-        # NOTE a new Sequence will not have left recursion attributes set
         new = copy(self)
         new.sequence = seq
         return new

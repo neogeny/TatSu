@@ -177,7 +177,7 @@ class BoundCallable:
     ) -> ActualArguments:
         key = BoundCallable._arg_key(fun, known, args, kwargs)
         if (cached := BoundCallable._BIND_CACHE.get(key)) is not None:
-            # FIXME
+            # HACK
             # BoundCallable._HIT_COUNT += 1
             # if BoundCallable._HIT_COUNT % (16 * 1024) == 0:
             #     debug(f'\nHIT {id(fun)} {BoundCallable._HIT_COUNT}')

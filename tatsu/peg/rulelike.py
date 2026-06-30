@@ -76,12 +76,6 @@ class RuleInclude(Leaf):
         new._exp = self.exp.optimized()
         return new
 
-    # def __pub__(self, sunderok: bool = False) -> dict[str, Any]:
-    #     pub = super().__pub__(sunderok)
-    #     if sunderok:
-    #         pub['exp'] = self.exp
-    #     return pub
-
 
 @nodedataclass
 class BasedRule(Rule):

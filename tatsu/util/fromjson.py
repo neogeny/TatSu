@@ -71,7 +71,7 @@ def fromjson(obj: Any) -> Any:
 
         def asobj() -> object:
             return SimpleNamespace(**mapped())
-            # FIXME another, more complicated approach
+            # NOTE another, more complicated approach:
             # obj = Object()
             # for name, value in mapped().items():
             #     setattr(obj, name, value)
