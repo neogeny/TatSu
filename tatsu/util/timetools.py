@@ -39,28 +39,30 @@ def iso_logpath(prefix: str, basdir: str = "log", suffix='.log') -> Path:
 
 @dataclasses.dataclass(slots=True)
 class Timing:
-    start: float = 0.0
-    _last_lap: float = 0.0
-    _end: float = -1.0
+    start: int = 0
+    _last_lap: int = 0
+    _end: int = -1
 
     def __post_init__(self):
-        now = time.perf_counter()
+        now = time.monotonic_ns()
         self.start = now
         self._last_lap = now
 
     @property
     def delta(self) -> float:
-        if self._end >= 0.0:
-            return self._end - self.start
-        return time.perf_counter() - self.start
+        if self._end >= 0:
+            ns_delta = self._end - self.start
+        else:
+            ns_delta = time.monotonic_ns() - self.start
+        return ns_delta / 1_000_000_000
 
     def lap(self) -> float:
-        if self._end >= 0.0:
+        if self._end >= 0:
             return 0.0
-        now = time.perf_counter()
-        duration = now - self._last_lap
+        now = time.monotonic_ns()
+        ns_duration = now - self._last_lap
         self._last_lap = now
-        return duration
+        return ns_duration / 1_000_000_000
 
     def __str__(self) -> str:
         d = self.delta
@@ -79,4 +81,4 @@ def timer() -> Generator[Timing, None, None]:
     try:
         yield res
     finally:
-        res._end = time.perf_counter()
+        res._end = time.monotonic_ns()
