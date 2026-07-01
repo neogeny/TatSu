@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+from functools import cache
 from typing import Any
 
 from tatsu.input.cursor import Text
@@ -50,6 +51,14 @@ from .syntax import (
 )
 
 
+@cache
+def _func(self, *, exp: Model) -> Func:
+    def wrapper(ctx: Ctx) -> Any:
+        return self.parse_exp(ctx, exp)
+
+    return wrapper
+
+
 class FatParser:
     def __init__(self, grammar: Grammar):
         self.grammar = grammar
@@ -62,7 +71,7 @@ class FatParser:
             self.ruleinfos[name] = RuleInfo.bind(
                 rule.ruleinfo,
                 instance=self,
-                func=self._func(exp=exp),
+                func=_func(self, exp=exp),
             )
 
     def parse(
@@ -90,15 +99,9 @@ class FatParser:
             raise ParseError(f"rule not found: {name}")
         return ri
 
-    def _func(self, *, exp: Model) -> Func:
-        def wrapper(ctx: Ctx) -> Any:
-            return self.parse_exp(ctx, exp)
-
-        return wrapper
-
     def parse_exp(self, ctx: Ctx, exp: Model) -> Any:
         match exp:
-            case Call(name=_):
+            case Call():
                 ri = self.ruleinfos.get(exp.name, None)
                 if ri is None:
                     raise ctx.newexcept(f"unknown rule {exp.name}")
@@ -193,27 +196,29 @@ class FatParser:
                 return self.parse_exp(ctx, exp.exp)
 
             case PositiveClosure():
-                return ctx.positive_closure(self._func(exp=exp.exp))
+                return ctx.positive_closure(_func(self, exp=exp.exp))
             case Closure():
-                return ctx.closure(self._func(exp=exp.exp))
+                return ctx.closure(_func(self, exp=exp.exp))
             case LeftJoin():
-                return ctx.left_join(self._func(exp=exp.exp), self._func(exp=exp.sep))
+                return ctx.left_join(_func(self, exp=exp.exp), _func(self, exp=exp.sep))
             case RightJoin():
-                return ctx.right_join(self._func(exp=exp.exp), self._func(exp=exp.sep))
+                return ctx.right_join(
+                    _func(self, exp=exp.exp), _func(self, exp=exp.sep)
+                )
             case PositiveGather():
                 return ctx.positive_gather(
-                    self._func(exp=exp.exp), self._func(exp=exp.sep)
+                    _func(self, exp=exp.exp), _func(self, exp=exp.sep)
                 )
             case Gather():
-                return ctx.gather(self._func(exp=exp.exp), self._func(exp=exp.sep))
+                return ctx.gather(_func(self, exp=exp.exp), _func(self, exp=exp.sep))
             case PositiveJoin():
                 return ctx.positive_join(
-                    self._func(exp=exp.exp), self._func(exp=exp.sep)
+                    _func(self, exp=exp.exp), _func(self, exp=exp.sep)
                 )
             case Join():
-                return ctx.join(self._func(exp=exp.exp), self._func(exp=exp.sep))
+                return ctx.join(_func(self, exp=exp.exp), _func(self, exp=exp.sep))
             case SkipTo():
-                return ctx.skip_to(self._func(exp=exp.exp))
+                return ctx.skip_to(_func(self, exp=exp.exp))
             case Sequence():
                 exp._add_defined(ctx)
                 out = None

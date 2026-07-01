@@ -5,6 +5,7 @@ from __future__ import annotations
 import inspect
 from collections.abc import Callable
 from contextlib import AbstractContextManager
+from functools import cache
 from typing import Any, Protocol, runtime_checkable
 
 from ..exceptions import FailedParse
@@ -17,6 +18,7 @@ from .state import ParseState, ParseStateStack
 type Func = Callable[[Ctx], Any]
 
 
+@cache
 def is_func(func: Callable) -> bool:
     declared = inspect.signature(func).parameters
     if len(declared) == 1:
