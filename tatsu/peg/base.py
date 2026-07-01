@@ -370,22 +370,23 @@ class Rule(NamedBox):
 
     @property
     def ruleinfo(self):
-        if ri := getattr(self, '_ruleinfo', None):
-            return ri
-        self._ruleinfo = RuleInfo(
-            name=self.name,
-            instance=self.exp,
-            func=self.exp._parse,
-            no_memo=self.no_memo,
-            no_stak=self.no_stak,
-            is_name=self.is_name,
-            is_tokn=self.is_tokn,
-            params=self.params,
-            kwparams=self.kwparams,
-            is_lrec=self.is_lrec,
-            is_memo=self.memoizable,
-        )
-        return self._ruleinfo
+        if (ri := getattr(self, '_ruleinfo', None)) is None:
+            ri = RuleInfo(
+                name=self.name,
+                instance=self.exp,
+                func=self.exp._parse,
+                no_memo=self.no_memo,
+                no_stak=self.no_stak,
+                is_name=self.is_name,
+                is_tokn=self.is_tokn,
+                params=self.params,
+                kwparams=self.kwparams,
+                is_lrec=self.is_lrec,
+                is_memo=self.memoizable,
+            )
+        ri = RuleInfo.bind(ri, self, self._parse)
+        self._ruleinfo = ri
+        return ri
 
     def _pretty(self, lean=False):
         str_template = "{is_name}{no_memo}{name}{base}{params}:{exp}"
