@@ -57,7 +57,7 @@ class FatParser:
             name: RuleInfo.bind(
                 rule.ruleinfo,
                 instance=self,
-                func=self._parse_fn(exp=rule.exp),
+                func=self._func(exp=rule.exp),
             )
             for name, rule in grammar.rulemap.items()
         }
@@ -87,14 +87,13 @@ class FatParser:
             raise ParseError(f"rule not found: {name}")
         return ri
 
-    def _parse_fn(self, *, exp: Model) -> Func:
-        def _(ctx: Ctx) -> Any:
+    def _func(self, *, exp: Model) -> Func:
+        def wrapper(ctx: Ctx) -> Any:
             return self.parse_exp(ctx, exp)
 
-        return _
+        return wrapper
 
     def parse_exp(self, ctx: Ctx, exp: Model) -> Any:
-        assert isinstance(exp, Model)
         match exp:
             case Call(name=_):
                 ri = self.ruleinfos.get(exp.name, None)
@@ -118,7 +117,8 @@ class FatParser:
             case Constant():
                 return ctx.constant(exp.literal)
             case Alert():
-                return ctx.alert(message=exp.literal, level=exp.level)
+                ctx.alert(message=exp.literal, level=exp.level)
+                return ctx.last_node
             case Cut():
                 return ctx.cut()
             case Pattern():
@@ -148,10 +148,12 @@ class FatParser:
                     return None
             case Lookahead():
                 with ctx.if_():
-                    return self.parse_exp(ctx, exp.exp)
+                    self.parse_exp(ctx, exp.exp)
+                return None
             case NegativeLookahead():
                 with ctx.ifnot_():
-                    return self.parse_exp(ctx, exp.exp)
+                    self.parse_exp(ctx, exp.exp)
+                return None
             case Named():
                 value = self.parse_exp(ctx, exp.exp)
                 ctx.ast[exp.name] = value
@@ -187,46 +189,28 @@ class FatParser:
             case Option():
                 return self.parse_exp(ctx, exp.exp)
 
-            case Closure():
-                with ctx.loopopt() as cl:
-                    return cl.exp(self._parse_fn(exp=exp.exp))
             case PositiveClosure():
-                with ctx.loopplus() as cl:
-                    return cl.exp(self._parse_fn(exp=exp.exp))
-            case Join():
-                with ctx.joinopt() as cl:
-                    cl.exp(self._parse_fn(exp=exp.exp))
-                    cl.sep(self._parse_fn(exp=exp.sep))
-                return ctx.last_node
-            case PositiveJoin():
-                with ctx.joinplus() as cl:
-                    cl.exp(self._parse_fn(exp=exp.exp))
-                    cl.sep(self._parse_fn(exp=exp.sep))
-                return ctx.last_node
-            case Gather():
-                with ctx.gatheropt() as cl:
-                    cl.exp(self._parse_fn(exp=exp.exp))
-                    cl.sep(self._parse_fn(exp=exp.sep))
-                return ctx.last_node
-            case PositiveGather():
-                with ctx.gatherplus() as cl:
-                    cl.exp(self._parse_fn(exp=exp.exp))
-                    cl.sep(self._parse_fn(exp=exp.sep))
-                return ctx.last_node
+                return ctx.positive_closure(self._func(exp=exp.exp))
+            case Closure():
+                return ctx.closure(self._func(exp=exp.exp))
             case LeftJoin():
-                with ctx.joinleft() as cl:
-                    cl.exp(self._parse_fn(exp=exp.exp))
-                    cl.sep(self._parse_fn(exp=exp.sep))
-                return ctx.last_node
+                return ctx.left_join(self._func(exp=exp.exp), self._func(exp=exp.sep))
             case RightJoin():
-                with ctx.joinright() as cl:
-                    cl.exp(self._parse_fn(exp=exp.exp))
-                    cl.sep(self._parse_fn(exp=exp.sep))
-                return ctx.last_node
+                return ctx.right_join(self._func(exp=exp.exp), self._func(exp=exp.sep))
+            case PositiveGather():
+                return ctx.positive_gather(
+                    self._func(exp=exp.exp), self._func(exp=exp.sep)
+                )
+            case Gather():
+                return ctx.gather(self._func(exp=exp.exp), self._func(exp=exp.sep))
+            case PositiveJoin():
+                return ctx.positive_join(
+                    self._func(exp=exp.exp), self._func(exp=exp.sep)
+                )
+            case Join():
+                return ctx.join(self._func(exp=exp.exp), self._func(exp=exp.sep))
             case SkipTo():
-                with ctx.skipto() as cl:
-                    cl.exp(self._parse_fn(exp=exp.exp))
-                return ctx.last_node
+                return ctx.skip_to(self._func(exp=exp.exp))
             case Sequence():
                 exp._add_defined(ctx)
                 out = None
@@ -240,18 +224,27 @@ class FatParser:
                     out = cstmerge(out, r)
                 return out
             case Optional():
-                with ctx.optional():
-                    return self.parse_exp(ctx, exp.exp)
-                return ctx.last_node
-            case Rule():
-                ri = RuleInfo.bind(self.ruleinfos[exp.name], ctx)
-                return ctx.call(ri)
+                ctx.states.push()
+                try:
+                    exp._add_defined(ctx)
+                    value = self.parse_exp(ctx, exp.exp)
+                    ctx.states.merge()
+                    return value
+                except FailedParse:
+                    if ctx.states.undo().cutseen:
+                        raise
+                    return None
             case BasedRule():
+                raise RuntimeError(f"BASED RULE {exp}")
                 ri = RuleInfo.bind(
                     self.ruleinfos[exp.name],
-                    ctx,
-                    func=self._parse_fn(exp=exp.rhs),
+                    self,
+                    func=self._func(exp=exp.rhs),
                 )
+                return ctx.call(ri)
+            case Rule():
+                raise RuntimeError(f"A BASED {exp}")
+                ri = RuleInfo.bind(self.ruleinfos[exp.name], self)
                 return ctx.call(ri)
             case RuleInclude():
                 if exp._exp is None:

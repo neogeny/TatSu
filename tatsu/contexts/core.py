@@ -210,9 +210,6 @@ class ParserCore(Ctx):
         # NOTE: called by generated parsers
         self.state.nameadd(name)
 
-    def lastnode(self) -> Any:
-        return self.state.last_node
-
     @contextmanager
     def statescope(self, *, merge: bool = True) -> Generator[ParseState, None, None]:
         self.states.push()
