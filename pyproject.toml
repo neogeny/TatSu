@@ -253,6 +253,7 @@ relative-imports-order = "furthest-to-closest"
 max-branches = 64
 max-nested-blocks = 16
 max-bool-expr = 16
+max-returns = 64
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10

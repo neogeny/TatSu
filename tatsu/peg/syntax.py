@@ -19,6 +19,10 @@ from .math import ffset, kdot, ref
 @nodedataclass
 class Group(Box):
     def _parse(self, ctx: Ctx) -> Any:
+        exp = self.exp
+        while isinstance(exp, Group):
+            exp = exp.exp
+        self.exp = exp
         return self.exp._parse(ctx)
 
     def _pretty(self, lean=False):
@@ -122,7 +126,7 @@ class Optional(Box):
 
         exp = self.exp.optimized()
         if isinstance(
-            exp, Optional | Closure | Join | Gather
+            exp, Optional | Closure | Join | Gather | Group
         ) and 'Positive' not in typename(exp):
             return exp
         new = copy(self)

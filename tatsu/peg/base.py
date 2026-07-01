@@ -338,21 +338,8 @@ class Rule(NamedBox):
         return self._parse_rhs(ctx, self.exp)
 
     def _parse_rhs(self, ctx: Ctx, exp: Model) -> Any:
-        # NOTE: BasedRule._parse() calls _parse_rhs() so ruleinfo is a mix
-        ruleinfo = RuleInfo(
-            name=self.name,
-            instance=exp,
-            func=exp._parse,
-            no_memo=self.no_memo,
-            no_stak=self.no_stak,
-            is_name=self.is_name,
-            is_tokn=self.is_tokn,
-            params=self.params,
-            kwparams=self.kwparams,
-            is_lrec=self.is_lrec,
-            is_memo=self.memoizable,
-        )
-        return ctx.call(ruleinfo)
+        ri = RuleInfo.bind(self.ruleinfo, exp, func=exp._parse)
+        return ctx.call(ri)
 
     def _first(self, k, f) -> ffset:
         self._firstset = self.exp._first(k, f) | f[self.name]
@@ -380,6 +367,25 @@ class Rule(NamedBox):
             return str(p)
         else:
             return repr(p)
+
+    @property
+    def ruleinfo(self):
+        if ri := getattr(self, '_ruleinfo', None):
+            return ri
+        self._ruleinfo = RuleInfo(
+            name=self.name,
+            instance=self.exp,
+            func=self.exp._parse,
+            no_memo=self.no_memo,
+            no_stak=self.no_stak,
+            is_name=self.is_name,
+            is_tokn=self.is_tokn,
+            params=self.params,
+            kwparams=self.kwparams,
+            is_lrec=self.is_lrec,
+            is_memo=self.memoizable,
+        )
+        return self._ruleinfo
 
     def _pretty(self, lean=False):
         str_template = "{is_name}{no_memo}{name}{base}{params}:{exp}"
@@ -647,10 +653,14 @@ class Grammar(Model):
         asmodel: bool = False,
         **settings: Any,
     ) -> Any:
-        self = self.optimized()  # noqa: PLW0642
-        return self._do_parse(
-            text, start=start, config=config, asmodel=asmodel, **settings
-        )
+        from .parse import FatParser
+
+        fat = FatParser(self)
+        return fat.parse(text, start=start, config=config, asmodel=asmodel, **settings)
+        # self = self.optimized()  # noqa: PLW0642
+        # return self._do_parse(
+        #     text, start=start, config=config, asmodel=asmodel, **settings
+        # )
 
     def _do_parse(
         self,
@@ -660,6 +670,21 @@ class Grammar(Model):
         start: str | None = None,
         config: Any = None,
         asmodel: bool = False,
+        **settings: Any,
+    ) -> Any:
+        config = self.new_parse_config(start=start, config=config, **settings)
+        ctx = self.newctx(asmodel=asmodel)
+        return ctx.parse(text, config=config)
+
+    def newctx(self, asmodel: bool = True) -> Ctx:
+        return ModelContext(self.rules, config=self.config, asmodel=asmodel)
+
+    def new_parse_config(
+        self,
+        /,
+        *,
+        start: str | None = None,
+        config: Any = None,
         **settings: Any,
     ) -> Any:
         config = self.config.override_config(config)
@@ -681,14 +706,7 @@ class Grammar(Model):
                 start_rule=None,
                 rule_name=None,
             )
-
-        self._config = config
-        ctx = self.newctx(asmodel=asmodel)
-        assert isinstance(ctx, Ctx)
-        return ctx.parse(text, config=config)
-
-    def newctx(self, asmodel: bool = True) -> Ctx:
-        return ModelContext(self.rules, config=self.config, asmodel=asmodel)
+        return config
 
     def nodecount(self) -> int:
         return 1 + sum(r.nodecount() for r in self.rules)

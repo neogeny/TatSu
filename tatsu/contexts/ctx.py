@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import inspect
 from collections.abc import Callable
+from contextlib import AbstractContextManager
 from typing import Any, Protocol, runtime_checkable
 
 from ..exceptions import FailedParse
@@ -13,6 +15,17 @@ from .state import ParseState, ParseStateStack
 
 
 type Func = Callable[[Ctx], Any]
+
+
+def is_func(func: Callable) -> bool:
+    declared = inspect.signature(func).parameters
+    if len(declared) == 1:
+        p, *_ = declared.values()
+        return p.annotation == 'Ctx'
+    # if len(declared) == 2:
+    #     p1, p2, *_ = declared.values()
+    #     return p1.name == 'self' and p2.annotation == 'Ctx'
+    return False
 
 
 @runtime_checkable
@@ -38,6 +51,9 @@ class Ctx(CanParse, Protocol):
 
     @property
     def cst(self) -> Any: ...
+
+    @property
+    def last_node(self) -> Any: ...
 
     @property
     def state(self) -> ParseState: ...
@@ -117,3 +133,14 @@ class Ctx(CanParse, Protocol):
     def positive_gather(self, exp: Func, sep: Func) -> Any: ...
     def isolate(self, exp: Func) -> Any: ...
     def expcall(self, exp: Func) -> Any: ...
+
+    def bound(
+        self,
+        text: str | Text,
+        /,
+        *,
+        start: str | None = None,
+        config: Any = None,
+        asmodel: bool = False,
+        **settings: Any,
+    ) -> AbstractContextManager[Ctx]: ...

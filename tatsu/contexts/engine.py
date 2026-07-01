@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import ast as stdlib_ast
 import inspect
-from contextlib import suppress
+from collections.abc import Generator
+from contextlib import contextmanager, suppress
 from typing import Any
 
 from ..config import ParserConfig
@@ -30,7 +31,7 @@ from ..util import (
 from .ast import AST
 from .core import ParserCore
 from .cst import closedlist, islist
-from .ctx import CanParse
+from .ctx import CanParse, Ctx, is_func
 from .infos import MemoKey, ParseInfo, RuleInfo, RuleResult
 from .state import ParseStateStack
 
@@ -50,6 +51,28 @@ class ParserEngine(ParserCore, CanParse):
         asmodel: bool = False,
         **settings: Any,
     ) -> Any:
+        with self.bound(
+            text,
+            start=start,
+            config=config,
+            asmodel=asmodel,
+            **settings,
+        ):
+            actual_start: str = self.config.effective_start_rule_name() or 'start'
+            rule = self.find_rule(actual_start)
+            return rule(self)
+
+    @contextmanager
+    def bound(
+        self,
+        text: str | Text,
+        /,
+        *,
+        start: str | None = None,
+        config: Any = None,
+        asmodel: bool = False,
+        **settings: Any,
+    ) -> Generator[Ctx, None, None]:
         config = self.config.override_config(config)
         assert isinstance(config, ParserConfig)
         config = config.override(start=start, **settings)
@@ -72,9 +95,7 @@ class ParserEngine(ParserCore, CanParse):
             if self.config.semantics and hasattr(self.config.semantics, 'set_context'):
                 self.config.semantics.set_context(self)  # ty: ignore[call-non-callable]
 
-            actual_start: str = self.config.effective_start_rule_name() or 'start'
-            rule = self.find_rule(actual_start)
-            return rule(self)
+            yield self
 
         except FailedParse as e:
             self.set_furthest_exception(e)
@@ -194,7 +215,7 @@ class ParserEngine(ParserCore, CanParse):
             is_legacy_parser = ri.instance is self
             if is_legacy_parser:
                 ri.func(ri.instance)
-            elif inspect.ismethod(ri.func):
+            elif inspect.ismethod(ri.func) or is_func(ri.func):
                 ri.func(self)
             else:
                 ri.func(ri.instance, self)
