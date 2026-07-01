@@ -53,14 +53,17 @@ from .syntax import (
 class FatParser:
     def __init__(self, grammar: Grammar):
         self.grammar = grammar
-        self.ruleinfos: dict[str, RuleInfo] = {
-            name: RuleInfo.bind(
+        self.ruleinfos: dict[str, RuleInfo] = {}
+        for name, rule in grammar.rulemap.items():
+            if isinstance(rule, BasedRule):
+                exp = rule.rhs
+            else:
+                exp = rule.exp
+            self.ruleinfos[name] = RuleInfo.bind(
                 rule.ruleinfo,
                 instance=self,
-                func=self._func(exp=rule.exp),
+                func=self._func(exp=exp),
             )
-            for name, rule in grammar.rulemap.items()
-        }
 
     def parse(
         self,
@@ -235,17 +238,9 @@ class FatParser:
                         raise
                     return None
             case BasedRule():
-                raise RuntimeError(f"BASED RULE {exp}")
-                ri = RuleInfo.bind(
-                    self.ruleinfos[exp.name],
-                    self,
-                    func=self._func(exp=exp.rhs),
-                )
-                return ctx.call(ri)
+                assert exp is None, f'NOT EXPECTED {exp!r}'
             case Rule():
-                raise RuntimeError(f"A BASED {exp}")
-                ri = RuleInfo.bind(self.ruleinfos[exp.name], self)
-                return ctx.call(ri)
+                assert exp is None, f'NOT EXPECTED {exp!r}'
             case RuleInclude():
                 if exp._exp is None:
                     raise ctx.newexcept(

@@ -11,7 +11,7 @@ from dataclasses import field
 from functools import cached_property
 from typing import Any
 
-from ..contexts import Ctx
+from ..contexts import Ctx, RuleInfo
 from ..exceptions import FailedUnlinkedRule
 from ..objectmodel import nodedataclass
 from ..util import typename
@@ -96,7 +96,8 @@ class BasedRule(Rule):
         self.rhs = Sequence(ast=[self.baserule.exp, self.exp])
 
     def _parse(self, ctx: Ctx) -> Any:
-        return self._parse_rhs(ctx, self.rhs)
+        ri = RuleInfo.bind(self.ruleinfo, self, func=self.rhs._parse)
+        return ctx.call(ri)
 
     @cached_property
     def defines_single(self) -> list[str]:
