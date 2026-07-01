@@ -41,6 +41,10 @@ class ParseContext(ParserEngine):
     ) -> FailedParse:
         raise self.newexcept(item, exclass)
 
+    @property
+    def last_node(self) -> Any:
+        return self.state.last_node
+
     # bw compatibility
     @deprecated(replacement=ParserEngine.setname)
     def name_last_node(self, name: str):  # backwards compatibility

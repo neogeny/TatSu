@@ -8,6 +8,10 @@ from typing import Any, NamedTuple, Protocol
 from ..input import Cursor
 
 
+# NOTE duplicate definition to avoid circular dependencies
+type Func = Callable[[Any], Any]
+
+
 class MemoKey(NamedTuple):
     pos: int
     ruleinfo: RuleInfo
@@ -64,8 +68,11 @@ class RuleInfo(NamedTuple):
         )
 
     @staticmethod
-    def bind(ri: RuleInfo, instance: Any) -> RuleInfo:
-        return ri._replace(instance=instance)
+    def bind(ri: RuleInfo, instance: Any, func: Func | None = None) -> RuleInfo:
+        if func is not None:
+            return ri._replace(instance=instance, func=func)
+        else:
+            return ri._replace(instance=instance)
 
     @property
     def memoizable(self) -> bool:
