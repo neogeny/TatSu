@@ -62,14 +62,16 @@ def init_queue(
     return q
 
 
-def send(*, to: str | None = None, data: Any = None) -> PacketLike:
-    assert _the_queue is not None
+def send(*, to: str | None = None, data: Any = None) -> PacketLike | None:
+    if not _the_queue:
+        return None
     return _the_queue.send(to=to, data=data)
 
 
 def receive() -> Generator[PacketLike, None, None]:
-    assert _the_queue is not None
-    return _the_queue.receive()
+    if not _the_queue:
+        return
+    yield from _the_queue.receive()
 
 
 async def receive_async() -> AsyncGenerator[PacketLike, None]:
