@@ -134,7 +134,7 @@ doclint: docg
     # echo "▶ docstring lint"
     # uv run ruff check --select D tatsu
     echo "▶ doclint"
-    {{ run_doc }} vale *.rst *.md docs/**/*.rst
+    {{ run_doc }} vale *.rst *.md docs/**/*.rst docs/**/*.md
 
 @examples:
     echo "▶ examples/calc"

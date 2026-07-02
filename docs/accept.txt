@@ -8,6 +8,9 @@
 TatSu|tatsu
 codspeed
 pyversions
+[Pp]acketz
+barz
+parproc
 
 Juancarlo
 Añez

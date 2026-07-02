@@ -70,9 +70,10 @@ expressions). |TatSu| can also generate a Python_ module that implements the par
 |TatSu| supports `left-recursive`_  rules in PEG_ grammars using the
 algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left associativity.
 
+::tocdepth: 4
 
-.. toctree::
-    :maxdepth: 4
+..  toctree::
+    :maxdepth: 6
 
     intro
     rationale
@@ -97,12 +98,13 @@ algorithm_ by *Laurent* and *Mens*. The generated AST_ has the expected left ass
     license
     changelog
 
-.. toctree::
 
-..    :hidden:
 
 
 ..
+  .. toctree::
+   :maxdepth: 6
+
     Indices and tables
     ==================
     * :ref:`genindex`

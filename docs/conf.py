@@ -26,7 +26,7 @@ del os
 import tatsu
 
 # -- General configuration ------------------------------------------------
-html_title = "<project> <release>"
+html_title = f"TatSu v{tatsu.version}"
 globaltoc_maxdepth=4
 
 # If your documentation needs a minimal Sphinx version, state it here.
