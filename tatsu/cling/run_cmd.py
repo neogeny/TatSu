@@ -7,21 +7,18 @@ import time
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, assert_never
+from typing import Any
 
 from .. import packetz
 from ..barz import BarRow, Col, Multi
 from ..config import ParserConfig
 from ..exceptions import FailedParse
-from ..packetz import (
-    PacketLike,
-)
 from ..parproc import (
     Result,
     VisualPayload,
-    parproc_visual,
-    show_summary,
+    parproc,
 )
+from ..parproc.summary import show_result, show_summary
 from ..peg import Grammar
 from ..util.heart import Heart
 from ..ztyle import Style
@@ -85,7 +82,7 @@ def run_cmd(cfg: CLIConfig) -> Results:
     return run_with_progress(start_time, grammar, start, cfg)
 
 
-def parse_file_task(data: GrammarPayload) -> Any:
+def parse_file_task(data: GrammarPayload, *_args, **_kwargs) -> Any:
     path = Path(data.path)
     text = data.payload
     grammar, start = data.grammar, data.start
@@ -124,8 +121,8 @@ def run_with_progress(
     yellow = s.yellow()
     top_row = BarRow(
         label=name,
-        cols=[Col.bar],
-        fill="--.",
+        cols=[" " * 3, Col.label, Col.bar],
+        fill="-- ",
         style=[yellow, yellow, s],
         total=total,
     )
@@ -149,43 +146,44 @@ def run_with_progress(
         )
         filehearts[fh.id] = fh
 
-    if not cfg.quiet or cfg.summary:
-        multi.start()
-    if not cfg.quiet:
-        top_row.start()
-
-    def filter_to_results(values: Iterable[Any]) -> Iterable[Result]:
-        for value in values:
-            if value is None:
-                continue
-            match value:
-                case Result() as result:
-                    row = filehearts[result.payload.heart.id]
-                    row.stop()
-                    yield result
-                case PacketLike(data=FileHeartRow() as row_packet):
-                    row = filehearts[row_packet.id]
-                    row.update(**row_packet.snap())
-                    if row.is_active():
-                        multi.add_row(row)
-                case _:
-                    assert_never(value)  # ty: ignore
-
     try:
-        values = parproc_visual(
+        results = parproc(
             parse_file_task,
             payloads,
             top_row,
             parallel=True,
             reraise=False,
-            # WARNING We can't pass an eprint function if multiproc is chosen
-            eprint=multi.print,
             # WARNING we do the summary in-process
             summary=False,
             verbose=False,
             max_workers=cfg.nproc,
         )
-        results = filter_to_results(values)
+
+        def show_results(results: Iterable[Result]) -> Iterable[Result]:
+            count = 0
+            last = None
+            for r in results:
+                yield r
+                count += 1  # noqa: SIM113
+                name = r.payload.path.name
+                top_row.update(
+                    pos=count,
+                    total=total,
+                    label=f"{name:49}",
+                    fill="---",
+                    cols=[" " * 3, Col.label, Col.bar],
+                )
+                if last:
+                    show_result(multi.print, last, cfg.usecolor)
+                last = r
+            if last:
+                show_result(multi.print, last, cfg.usecolor)
+
+        if not cfg.quiet or cfg.summary:
+            multi.start()
+            # top_row.start()
+
+        results = show_results(results)
         if cfg.summary or cfg.verbose or not cfg.quiet:
             results = show_summary(
                 start_time,
