@@ -125,9 +125,9 @@ def cling_main() -> int:  # noqa: PLR0911
         print(e, file=sys.stderr)
         return 1
     except BrokenPipeError:
-        return signal.SIGPIPE + signal.SIG_DFL
+        return signal.SIGPIPE + 0o200
     except KeyboardInterrupt:
-        return 0
+        return signal.SIGINT + 0o200
 
 
 def add_help_cmd(subparsers):
