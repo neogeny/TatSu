@@ -58,19 +58,6 @@ def active_pmap() -> Callable[
                             new_future = ex.submit(process, task)
                             futures[new_future] = task
                         yield future.result()
-                # while futures:
-                #     finished = {f for f in futures if f.done()}
-                #     for f in finished:
-                #         futures.remove(f)
-                #         yield f.result()
-                #         finished = {f for f in futures if f.done()}
-                # if futures:
-                #     time.sleep(0.01)
-                # yield from packetz.receive()
-                # for future in as_completed(futures):
-                #     yield from packetz.receive()
-                #     yield future.result()
-                #     yield from packetz.receive()
             except KeyboardInterrupt:
                 stop_event.set()
 

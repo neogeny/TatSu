@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import atexit
 import contextlib
 import json
 import os
@@ -26,6 +27,8 @@ from .packet import (
 
 PACKETZ_DIR = Path(f"./.{__name__.split('.')[-2]}")
 
+_defer_deinit_queues: set[PacketzQueue] = set()
+
 
 def new_file_path() -> Path:
     return PACKETZ_DIR / f"{alpha_timestamp()}.pktz.jsonl"
@@ -38,9 +41,11 @@ class PacketzQueue(JSONBase):
     under ``.packetz/``.
     """
 
-    def __init__(self, path: Path | str | None = None):
+    def __init__(self, path: Path | str | None = None, keep: bool | None = None):
         if path is None:
             path = new_file_path()
+            if not self._should_keep(keep):
+                atexit.register(_cleanup_queue, self)
         self.path = Path(path)
 
         PACKETZ_DIR.mkdir(parents=True, exist_ok=True)
@@ -50,6 +55,18 @@ class PacketzQueue(JSONBase):
             self.path.touch(exist_ok=True)
         self._told = 0
         self._seen: set[str] = set()
+
+    def _should_keep(self, keep: bool | None) -> bool:
+        if keep is None:
+            keep = bool(k := os.environ.get("PACKETZ_KEEP", "").lower()) and (
+                k
+                not in {
+                    "0",
+                    "false",
+                    "no",
+                }
+            )
+        return keep
 
     def _queue_healthy(self, q: IO[str] | None) -> bool:
         if q is sys.stdin or q is sys.stdout:
@@ -119,3 +136,11 @@ class PacketzQueue(JSONBase):
                 await asyncio.sleep(0.01)
         except asyncio.CancelledError:  # noqa: TRY203
             raise
+
+
+def _cleanup_queue(q: PacketzQueue):
+    path = q.path
+    with contextlib.suppress(OSError):
+        path.unlink(missing_ok=True)
+    with contextlib.suppress(OSError):
+        PACKETZ_DIR.rmdir()
