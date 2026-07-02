@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import multiprocessing
 import threading
-from collections.abc import Generator, Iterable
+from collections.abc import Iterable
 from typing import Any, Protocol
 
-from ..packetz import PacketLike
-from ..packetz.api import init_queue
 from ..util import identity
 from .pmap import HAS_MULTITHREADING_SUPPORT, active_pmap
+from .result import Result
 from .task import Event, Func, Task, taskproc
 
 
@@ -35,15 +34,13 @@ def parproc(
     reraise: bool = False,
     max_workers: int | None = None,
     **kwargs: Any,
-) -> Generator[PacketLike, None, None]:
+) -> Iterable[Result]:
     stop: Event = threading.Event()
     if not HAS_MULTITHREADING_SUPPORT:
         stop = multiprocessing.Manager().Event()
 
-    queue = init_queue()
     tasks = [
         Task(
-            queue=queue,
             stop=stop,
             func=func,
             payload=payload,
@@ -55,19 +52,12 @@ def parproc(
         for payload in payloads
     ]
 
-    yield from queue.receive()
     if len(tasks) == 1:
         yield taskproc(tasks[0])
-        yield from queue.receive()
         return
 
-    yield from queue.receive()
     if not parallel:
         yield from map(taskproc, tasks)
     else:
         pmap = active_pmap()
-        for r in pmap(stop, taskproc, tasks, max_workers):
-            yield from queue.receive()
-            yield r
-            yield from queue.receive()
-    yield from queue.receive()
+        yield from pmap(stop, taskproc, tasks, max_workers)

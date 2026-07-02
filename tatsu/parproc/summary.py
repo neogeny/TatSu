@@ -109,8 +109,6 @@ def show_summary(
     verbose: bool = True,
 ) -> Generator[Result, None, None]:
     s = SummaryStyle(Color(usecolor))
-    if verbose:
-        results = show_results(eprint, results, usecolor=usecolor)
 
     st = ParseStats()
     results = result_stats(st, results)
