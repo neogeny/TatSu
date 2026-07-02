@@ -26,6 +26,8 @@ del os
 import tatsu
 
 # -- General configuration ------------------------------------------------
+html_title = "<project> <release>"
+globaltoc_maxdepth=4
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
@@ -111,8 +113,8 @@ exclude_patterns = [
 ]
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'trac'
-pygments_dark_style = "nord"
+pygments_style = 'friendly_grayscale'
+pygments_dark_style = "nord-darker"
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
@@ -138,6 +140,18 @@ html_logo = "_static/tatsu_logo.svg"
 # documentation.
 # html_theme_options = {}
 html_theme_options = {
+    "light_css_variables": {
+        # "font-stack--monospace": '"Liga Comic Mono", "Fira Code", "Courier New", Courier, monospace',
+        "font-stack": "Roboto, Arial, sans-serif",
+        # "font-stack--headings": "Georgia, serif",
+        "font-size--monospace": "0.9em",
+    },
+    "dark_css_variables": {
+        # "font-stack--monospace": '"Liga Comic Mono", "Fira Code", "Courier New", Courier, monospace',
+        "font-stack": "Roboto, Arial, sans-serif",
+        # "font-stack--headings": "Georgia, serif",
+        "font-size--monospace": "0.9em",
+    },
     # Controls how deep the sidebar navigation goes
     # 'navigation_depth': 5,
 

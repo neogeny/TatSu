@@ -35,7 +35,7 @@ SPDX-License-Identifier: BSD-4-Clause
 
     ```python
     from tatsu.colorize import Style
-    
+
     style = Style().red().bold()
     print(style("text"))
     ```
@@ -60,7 +60,7 @@ SPDX-License-Identifier: BSD-4-Clause
 
 ## CLING The New Console Interface
 
-#### Options  the `run` subcommand
+### Options  the `run` subcommand
 
 ```bash
 sage: tatsu run [-h] [-q] [-v] [-t] [-o OUTPUT] [-c {auto,always,never}] [-j] [-m] [-s START] [-n NPROC]
@@ -87,9 +87,9 @@ global options:
 ```
 
 
-#### Console output for the `run` subcommand
+### Console output for the `run` subcommand
 
-```bash
+```console
 results:
 ✗ Ternary1.java                             0.0s
 ✓ Ternary2.java                             0.2s
