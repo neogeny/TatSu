@@ -41,7 +41,7 @@ class PacketzQueue(JSONBase):
     under ``.packetz/``.
     """
 
-    def __init__(self, path: Path | str | None = None, keep: bool | None = None):
+    def __init__(self, path: Path | str | None = None, /, *, keep: bool | None = None):
         if path is None:
             path = new_file_path()
             if not self._should_keep(keep):
