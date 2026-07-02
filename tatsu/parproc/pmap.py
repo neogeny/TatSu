@@ -53,11 +53,11 @@ def active_pmap() -> Callable[
                     futures = {ex.submit(process, task): task for task in taskiter}
                 while futures:
                     for future in as_completed(futures):
-                        yield future.result()
                         _task = futures.pop(future)
                         for task in islice(taskiter, 1):
                             new_future = ex.submit(process, task)
                             futures[new_future] = task
+                        yield future.result()
                 # while futures:
                 #     finished = {f for f in futures if f.done()}
                 #     for f in finished:

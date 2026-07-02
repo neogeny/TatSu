@@ -11,6 +11,8 @@ from collections.abc import AsyncGenerator, Generator
 from pathlib import Path
 from typing import IO, Any
 
+from tatsu.util.fromjson import JSONBase
+
 from ..util import alpha_timestamp
 from .packet import (
     BadPacketError,
@@ -29,7 +31,7 @@ def new_file_path() -> Path:
     return PACKETZ_DIR / f"{alpha_timestamp()}.pktz.jsonl"
 
 
-class PacketzQueue:
+class PacketzQueue(JSONBase):
     """File-backed packet queue.
 
     Instantiate with a path, or let it generate a timestamped file

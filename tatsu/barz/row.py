@@ -111,8 +111,8 @@ class BarRow(WithID):
         total: int = -1,
         label: str | None = None,
         fill: str | None = None,
-        style: list[Style] | None = None,
-        cols: list[Any] | None = None,
+        style: list[Style] | None = None,  # noqa: ARG002
+        cols: list[Any] | None = None,  # noqa: ARG002
         *_args,
         **_kwargs,
     ):
@@ -124,10 +124,6 @@ class BarRow(WithID):
             self.label = label
         if fill is not None:
             self.fill = fill
-        if style is not None:
-            self.style = style
-        if cols is not None:
-            self._cols = cols
 
     def render(self, m: Metrics) -> list[Any]:
         return [m.resolve(c) if isinstance(c, Col) else c for c in self._cols]

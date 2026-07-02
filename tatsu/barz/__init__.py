@@ -13,6 +13,7 @@ Progress bars with terminal animation, multi-bar support, and color styling.
 from __future__ import annotations
 
 from .bar import Bar
+from .broker import BarBroker
 from .col import Col
 from .main import main
 from .metrics import BarRowProtocol, Metrics
@@ -21,6 +22,7 @@ from .row import BarRow, State
 
 
 __all__ = [
+    "BarBroker",
     "BarRow",
     "Bar",
     "BarRowProtocol",

@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from tatsu.barz.broker import BarBroker
+
 from .. import packetz
 from ..barz import BarRow, Col, Multi
 from ..config import ParserConfig
@@ -27,12 +29,9 @@ from .fmt import format_result
 from .lib import Results, load_grammar
 
 
-# GLOBAL
-multi = Multi([], out=sys.stderr)
-
-
 class FileHeartRow(BarRow, Heart):
-    def __init__(self, name: str, total: int) -> None:
+    def __init__(self, queue: packetz.PacketzQueue, name: str, total: int) -> None:
+        self.queue = queue
         s = Style()
         white = s.bright_white().bold()
         green = s.green()
@@ -51,8 +50,9 @@ class FileHeartRow(BarRow, Heart):
         super().start()
 
     def beat(self, mark: int, total: int) -> None:
+        self.start()
         self.update(mark, total)
-        packetz.send(data=self)
+        self.queue.send(data=self)
 
     def dead(self) -> bool:
         return False
@@ -95,7 +95,6 @@ def parse_file_task(data: GrammarPayload, *_args, **_kwargs) -> Any:
     config.source = str(relpath)
 
     heart.start()
-    heart.update(pos=0, total=len(text))
     sys.setrecursionlimit(2**16)
     try:
         return grammar.parse(text, start=start, config=config)
@@ -117,23 +116,28 @@ def run_with_progress(
     name = Path(cfg.grammar).name
     total = len(inputs)
 
+    multi = Multi([], out=sys.stderr)
+    broker = BarBroker(multi)
+
     s = Style()
     yellow = s.yellow()
     top_row = BarRow(
         label=name,
-        cols=[" " * 3, Col.label, Col.bar],
-        fill="-- ",
+        cols=[Col.bar],
+        fill="--.",
         style=[yellow, yellow, s],
         total=total,
     )
     multi.add_row(top_row)
+    top_row.start()
 
     paths = [Path(input) for input in inputs]
     payloads = []
     filehearts: dict[str, FileHeartRow] = {}
     for idx, path in enumerate(paths):
         text = path.read_text()
-        fh = FileHeartRow(path.name, len(text))
+        fh = FileHeartRow(broker.queue, path.name, len(text))
+        multi.add_row(fh)
         payloads.append(
             GrammarPayload(
                 path,
@@ -165,14 +169,7 @@ def run_with_progress(
             for r in results:
                 yield r
                 count += 1  # noqa: SIM113
-                name = r.payload.path.name
-                top_row.update(
-                    pos=count,
-                    total=total,
-                    label=f"{name:49}",
-                    fill="---",
-                    cols=[" " * 3, Col.label, Col.bar],
-                )
+                top_row.update(pos=count, total=total)
                 if last:
                     show_result(multi.print, last, cfg.usecolor)
                 last = r
@@ -180,8 +177,7 @@ def run_with_progress(
                 show_result(multi.print, last, cfg.usecolor)
 
         if not cfg.quiet or cfg.summary:
-            multi.start()
-            # top_row.start()
+            broker.start()
 
         results = show_results(results)
         if cfg.summary or cfg.verbose or not cfg.quiet:

@@ -78,6 +78,12 @@ class ParserEngine(ParserCore, CanParse):
         config = config.override(start=start, **settings)
         assert isinstance(config, ParserConfig)
         self._active_config = config
+
+        self._initialize_caches()
+        self.heart = config.heart
+        self.lastbeat_time = 0.0
+        self.lastbeat_pos: int = 0
+        self._furthest_exception = None
         self.update_tracer()
         try:
             if isinstance(text, Text):
