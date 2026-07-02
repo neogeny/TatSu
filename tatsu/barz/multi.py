@@ -177,8 +177,8 @@ class Multi:
 
     def _take_snapshot(self) -> list[BarRow]:
         with self.lock:
-            snapshot = [copy.copy(r) for r in self.rows if not r.is_stopped()]
-            self.rows = [r for r in self.rows if not r.is_stopped()][-MAXL:]
+            snapshot = [copy.copy(r) for r in self.rows if not r.is_stopped()][-MAXL:]
+            # self.rows = [r for r in self.rows if not r.is_stopped()][-MAXL:]
             self.msg_count = sum(
                 1
                 for _ in itertools.takewhile(
