@@ -111,7 +111,8 @@ exclude_patterns = [
 ]
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'trac'
+pygments_dark_style = "nord"
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
@@ -123,11 +124,14 @@ todo_include_todos = True
 # a list of builtin themes.
 # html_theme = 'sphinx_rtd_theme'
 # html_theme = 'alabaster'
-html_theme = "pydata_sphinx_theme"
+# html_theme = "pydata_sphinx_theme"
+html_theme = "furo"
 
 html_context = {
    "default_mode": "auto"  # Options: "light", "dark", or "auto"
 }
+
+html_logo = "_static/tatsu_logo.svg"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -135,29 +139,29 @@ html_context = {
 # html_theme_options = {}
 html_theme_options = {
     # Controls how deep the sidebar navigation goes
-    'navigation_depth': 5,
+    # 'navigation_depth': 5,
 
     # If True, the sidebar will only show document titles, not subheadings
     # 'titles_only': False,
 
     # If True, headings will collapse as you navigate
-    'collapse_navigation': True,
+    # 'collapse_navigation': True,
 
-    "logo": {
-        "text": "TatSu",
-        "image_light": "_static/tatsu_logo.svg",
-        "image_dark": "_static/tatsu_logo.svg",
-    },
-    "icon_links": [
-        {
-            "name": "GitHub",
-            "url": "https://github.com/neogeny/TatSu",
-            "icon": "fa-brands fa-github",
-        },
-    ],
-    "header_links_before_dropdown": 4,  # How many nav links to show before "More"
-    "show_prev_next": True,             # Previous/Next buttons at the bottom
-    "navbar_align": "content",          # Align the top nav with the text content
+    # "logo": {
+    #     "text": "TatSu",
+    #     "image_light": "_static/tatsu_logo.svg",
+    #     "image_dark": "_static/tatsu_logo.svg",
+    # },
+    # "icon_links": [
+    #     {
+    #         "name": "GitHub",
+    #         "url": "https://github.com/neogeny/TatSu",
+    #         "icon": "fa-brands fa-github",
+    #     },
+    # ],
+    # "header_links_before_dropdown": 4,  # How many nav links to show before "More"
+    # "show_prev_next": True,             # Previous/Next buttons at the bottom
+    # "navbar_align": "content",          # Align the top nav with the text content
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
@@ -227,16 +231,26 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
+# FOR: pydata_sphinx_theme
+# html_sidebars = {
+#     '**': [
+#         'globaltoc.html',
+#         'relations.html',
+#         'sourcelink.html',
+#         'searchbox.html',
+#     ],
+# }
 
 html_sidebars = {
-    '**': [
-        'globaltoc.html',
-        'relations.html',
-        'sourcelink.html',
-        'searchbox.html',
-    ],
+    "**": [
+        "sidebar/scroll-start.html",
+        "sidebar/brand.html",
+        "sidebar/search.html",
+        "sidebar/navigation.html",
+        "sidebar/ethical-ads.html",
+        "sidebar/scroll-end.html",
+    ]
 }
-
 
 def setup(app):
     app.add_css_file('css/custom.css')  # may also be an URL
