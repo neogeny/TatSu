@@ -64,7 +64,7 @@ class FailedParse(ParseException):
 
         self.cursor = cursor.clone()
         self.info: LineInfo = cursor.lineinfo()
-        self.stack = stack.copy()
+        self.stack = [ri.name for ri in stack]
         self.msg = msg
 
     @property
