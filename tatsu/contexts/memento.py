@@ -7,7 +7,6 @@ from io import StringIO
 from ..input import LineInfo
 from ..util.strtools import slicetowidth
 from ..ztyle import Color, Style
-from .infos import RuleInfo
 
 
 MEMENTO_DEFAULT_COLOR = Color.stderr()
@@ -28,13 +27,12 @@ def memento(
     msg: str,
     text: str,
     info: LineInfo,
-    stack: list[RuleInfo],
+    rulestack: list[str],
     color: Color = MEMENTO_DEFAULT_COLOR,
 ) -> str:
     c = _ColorSet(color)
     line, col = info.line, info.col
     source = info.source or '<unknown>'
-    rulestack = [r.name for r in reversed(stack)]
 
     out = StringIO()
     s = Style(color=color)
