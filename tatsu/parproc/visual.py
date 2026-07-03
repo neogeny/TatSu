@@ -57,7 +57,7 @@ def parproc_visual(
             total=total,
             fill="---",
             style=[f, f, b],
-            cols=["   ", Col.label, Col.padding, Col.bar],
+            cols=["   ", Col.label, Col.bar],
             width=47,
         )
         multi = Multi([], out=sys.stderr)
@@ -109,7 +109,7 @@ def parproc_visual(
             path = result.payload.path
             progress.update(count, total, label=f"{path.name:44}")
             if verbose:
-                show_result(eprint, result)
+                show_result(eprint, result, width=44)
 
             if result.exception:
                 if logpath:
