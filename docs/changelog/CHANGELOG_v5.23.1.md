@@ -21,6 +21,8 @@ SPDX-License-Identifier: BSD-4-Clause
 
 * Keeping the files for queues happeens on a per-queue basis with `Packetz(keep=True)`. The files are stored uner `./packetz/` by default. The format of the filenames is `aaaa-HH-mmmm.pkz.jsonl`, where `aaaa` is four letters representing the Unix timestamp day in base `len(strings.ascii_loweercase)`, `HH` is the UTC hour, and `mmmm` is the fraction of the hour in tenth mof millisecond. The format of the files is JSONL, with one line of flattened JSON per packet. Keeping all the files for queues may be activated by setting the `PACKETZ_KEEP` environment variable to _non-falsy_.
 
+* Optimized `PacketzQueue.receive()` to read by line and retry if a line of JSONL was incomplete (no newline at the end).
+
 ### Other
 
 * Changed the documentatiion theme to [Furo](https://pradyunsg.me/furo/).
