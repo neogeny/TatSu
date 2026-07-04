@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 from .. import peg as g
@@ -214,6 +215,21 @@ def to_parsermodel_sourcecode(
     filename = filename or settings.pop('source', None)
     model = compile(grammar, config=config, name=name, source=filename, **settings)
     return parsermodel_gen(model, name=name)
+
+
+def load_grammar(path: str | Path) -> g.Grammar:
+    """Load a Grammar from an .ebnf or .json file."""
+
+    p = Path(path)
+    source = p.read_text(encoding="utf-8")
+    if p.suffix == ".json":
+        return load_json_grammar(source)
+    else:
+        return compile(source)
+
+
+def load_json_grammar(source: str) -> g.Grammar:
+    return g.Grammar.loads(source)
 
 
 def to_grammar_json(grammar: str) -> Any:
