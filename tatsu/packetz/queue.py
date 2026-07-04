@@ -8,7 +8,7 @@ import contextlib
 import json
 import os
 import sys
-from collections.abc import AsyncGenerator, Generator
+from collections.abc import AsyncGenerator, Generator, Iterator
 from pathlib import Path
 from typing import IO, Any
 
@@ -113,7 +113,34 @@ class PacketzQueue(JSONBase):
             queue.write(serial + "\n")
         return packet
 
-    def receive(self) -> Generator[PacketLike, None, None]:
+    def receive(self) -> Iterator[PacketLike]:
+        with self._ensure_open() as q:
+            q.seek(self._told)
+
+            while line := q.readline():
+                # If the line doesn't end with a newline, it's a partial write.
+                # Stop here and leave self._told right at the start of this line.
+                if not line.endswith("\n"):
+                    break
+
+                self._told = max(q.tell(), self._told)
+
+                try:
+                    packet = unpack(line)
+                except (
+                    BadPacketError,
+                    json.JSONDecodeError,
+                    TypeError,
+                    PacketHashError,
+                    ValueError,
+                ):
+                    continue  # Skip corrupt rows safely
+
+                if packet.id not in self._seen:
+                    self._seen.add(packet.id)
+                    yield packet
+
+    def receive_0(self) -> Iterator[PacketLike]:
         with self.reader() as queue:
             lines = queue.readlines()
         for serial in lines:
