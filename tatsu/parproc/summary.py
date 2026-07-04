@@ -161,19 +161,15 @@ def show_summary(
 
 
 def show_result(
-    rprint: PrintFunc, r: Result, width: int = 60, usecolor: bool = False
+    rprint: PrintFunc, r: Result, /, *, width: int = 60, usecolor: bool = False
 ) -> None:
     c = Color(usecolor)
     s = ResultsStyle(c)
-    nm = slicetowidth(Path(r.payload.path).name, width)
+    nm = s.plain(slicetowidth(Path(r.payload.path).name, width))
     if r.exception or isinstance(r.outcome, Exception):
-        rprint(
-            f" {s.bad('✗')} {s.plain(f'{nm}'):{width}}{s.bad(f'⏲ {r.runtime:>7.3f}')}"
-        )
+        rprint(f" {s.bad('✗')} {nm:{width}}{s.bad(f'⏲ {r.runtime:>7.3f}')}")
     else:
-        rprint(
-            f" {s.good('✓')} {s.plain(f'{nm}'):{width}}{s.good(f'⏲ {r.runtime:>7.3f}')}"
-        )
+        rprint(f" {s.good('✓')} {nm:{width}}{s.good(f'⏲ {r.runtime:>7.3f}')}")
 
 
 def show_results(
@@ -184,5 +180,5 @@ def show_results(
     usecolor: bool = False,
 ) -> Iterable[Result]:
     for r in results:
-        show_result(rprint, r, usecolor)
+        show_result(rprint, r, usecolor=usecolor)
         yield r

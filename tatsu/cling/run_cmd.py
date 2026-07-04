@@ -38,7 +38,7 @@ class FileHeartRow(BarRow, Heart):
         dim = s.black().bold()
 
         super().__init__(
-            cols=[f"   {white(name):<60} ", Col.bar, " " * 12],
+            cols=[f"   {white(name):<60s} ", Col.bar, " " * 12],
             fill="⎯⎯⎯",
             style=[green, green, dim],
             label=name,
@@ -171,10 +171,10 @@ def run_with_progress(
                 count += 1  # noqa: SIM113
                 top_row.update(pos=count, total=total)
                 if last:
-                    show_result(multi.print, last, cfg.usecolor)
+                    show_result(multi.print, last, usecolor=cfg.usecolor)
                 last = r
             if last:
-                show_result(multi.print, last, cfg.usecolor)
+                show_result(multi.print, last, usecolor=cfg.usecolor)
 
         if not cfg.quiet or cfg.summary:
             broker.start()
