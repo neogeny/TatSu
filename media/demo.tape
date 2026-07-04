@@ -18,7 +18,7 @@ Set FontSize 20
 Set Shell "xonsh"
 
 Set TypingSpeed 20ms
-Type "uv run tatsu run ./java.ebnf datasets/**/*.java -vv -o /tmp/t.jsonl"
+Type "uv run cling run ./java.ebnf datasets/**/*.java -vv -o /tmp/t.jsonl"
 Enter
 
 # Simulate the 8-second processing time
