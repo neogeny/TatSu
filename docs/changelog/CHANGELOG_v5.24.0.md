@@ -3,9 +3,9 @@ Copyright (c) 2017-2026 Juancarlo Añez (apalala@gmail.com)
 SPDX-License-Identifier: BSD-4-Clause
 -->
 
-# [v5.23.1] new features + optimizations
+# [v5.24.0] new features + optimizations
 
-[v5.23.1]: https://github.com/neogeny/tatsu/compare/v5.23.0...HEAD
+[v5.24.0]: https://github.com/neogeny/tatsu/compare/v5.23.0...HEAD
 
 ## Changed
 
