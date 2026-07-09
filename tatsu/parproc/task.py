@@ -36,7 +36,10 @@ class Task(NamedTuple):
 
 def taskproc(task: Task) -> Result:
     if task.stop.is_set():
-        return Result(task.stop, task.payload)
+        return Result(
+            task.stop,
+            task.payload, exception=InterruptedError("stopped"),
+        )
 
     result = Result(task.stop, task.payload)
     outcome: Any = None
@@ -55,6 +58,9 @@ def taskproc(task: Task) -> Result:
             outcome = task.func(task.payload.path, *task.args, **task.kwargs)
 
         elapsed = time.thread_time() - start_time
+    except KeyboardInterrupt:
+        task.stop.set()
+        raise
     except RuntimeError:
         raise
     except (Exception, RecursionError) as e:
