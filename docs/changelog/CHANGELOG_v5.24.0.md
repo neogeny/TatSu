@@ -11,11 +11,11 @@ SPDX-License-Identifier: BSD-4-Clause
 
 ### Multi-bars in concurrency
 
-* Now `parproc` streams/iterates only `Result` object. Using the results stream for passing other information led to complicated code.
+* Now `parproc` streams/iterates only `Result` objects. Using the results stream for passing other information led to complicated code.
 
 * All update notifications in crross-process update of `barz` bars go through a `packetz` queue. Now `PacketzQueue` is JSON-serializable for that purpose. The actual payload of a queue passed across tasks or processes is the path to the file-based queue.
 
-* Synchronization through a queue is dome by a `barz.BarBroker` which is opt-in for users of the library. `BarBroker` uses a daemon thread to read the queue and call `update_row()` on the `Multi`.
+* Synchronization through a queue is done by a `barz.BarBroker` which is opt-in for users of the library. `BarBroker` uses a daemon thread to read the queue and call `update_row()` on the `Multi`.
 
 * `Multi.height` starts at `-1` as the magic number to preserve the line position before drawing of the first bar.
 
@@ -29,6 +29,6 @@ SPDX-License-Identifier: BSD-4-Clause
 
 ## OGoPEGo
 
-* A round of removing memory and transformation bottlenecks has **[OGoPEGo]** generating the fastest parsers among the **TatSu** family of PEG parser generators. When the CLI combines the parser speed with Go's implementation of concurrency the result feel instantaneous.
+* A round of removing memory and transformation bottlenecks has **[OGoPEGo]** generating the fastest parsers among the **TatSu** family of PEG parser generators. When the CLI combines the parser speed with Go's implementation of concurrency the result feels instantaneous.
 
 [OGoPEGo]: https://pypi.org/project/ogopego/
