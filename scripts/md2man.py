@@ -200,7 +200,7 @@ def convert(md: str, width: int = 80, do_justify: bool = True) -> str:
     walk(root)
 
     if links:
-        out = [*links, "", "LINKS", ""]
+        out += ["", "LINKS", ""]
         for text, url in links.items():
             out.append(f"  [{text}]: {url}")
         out += [""]

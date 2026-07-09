@@ -38,7 +38,8 @@ def taskproc(task: Task) -> Result:
     if task.stop.is_set():
         return Result(
             task.stop,
-            task.payload, exception=InterruptedError("stopped"),
+            task.payload,
+            exception=InterruptedError("stopped"),
         )
 
     result = Result(task.stop, task.payload)
