@@ -52,7 +52,6 @@ def active_pmap() -> Callable[
                     futures = {ex.submit(process, task): task for task in taskiter}
 
                 while futures:
-                    # 1. Check if a task signaled a stop before waiting for the next result
                     if stop.is_set():
                         ex.shutdown(wait=False, cancel_futures=True)
                         break
@@ -60,7 +59,6 @@ def active_pmap() -> Callable[
                     for future in as_completed(futures):
                         _task = futures.pop(future)
 
-                        # 2. Only submit more work if the stop event hasn't been set
                         if not stop.is_set():
                             for task in islice(taskiter, 1):
                                 new_future = ex.submit(process, task)
@@ -68,7 +66,6 @@ def active_pmap() -> Callable[
 
                         yield future.result()
 
-                        # Break out of the as_completed loop early if stopped
                         if stop.is_set():
                             break
 
