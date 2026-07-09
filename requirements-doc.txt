@@ -2,17 +2,15 @@
 #    uv export --no-hashes --format requirements-txt -o requirements-doc.txt --group doc --no-group dev
 -e .
 accessible-pygments==0.0.5
-    # via pydata-sphinx-theme
+    # via furo
 alabaster==1.0.0
     # via sphinx
 astroid==3.3.11
     # via sphinx-autodoc2
 babel==2.18.0
-    # via
-    #   pydata-sphinx-theme
-    #   sphinx
+    # via sphinx
 beautifulsoup4==4.15.0
-    # via pydata-sphinx-theme
+    # via furo
 certifi==2026.6.17
     # via requests
 charset-normalizer==3.4.7
@@ -22,10 +20,10 @@ colorama==0.4.6 ; sys_platform == 'win32'
 docutils==0.22.4
     # via
     #   myst-parser
-    #   pydata-sphinx-theme
     #   sphinx
     #   sphinx-markdown-builder
     #   sphinx-rtd-theme
+furo==2025.12.19
 idna==3.18
     # via requests
 imagesize==2.0.0
@@ -52,11 +50,10 @@ myst-docutils==5.1.0
 myst-parser==5.1.0
 packaging==26.2
     # via sphinx
-pydata-sphinx-theme==0.19.0
 pygments==2.20.0
     # via
     #   accessible-pygments
-    #   pydata-sphinx-theme
+    #   furo
     #   sphinx
 pyyaml==6.0.3
     # via
@@ -72,13 +69,16 @@ soupsieve==2.8.4
     # via beautifulsoup4
 sphinx==9.1.0
     # via
+    #   furo
     #   myst-parser
-    #   pydata-sphinx-theme
+    #   sphinx-basic-ng
     #   sphinx-copybutton
     #   sphinx-markdown-builder
     #   sphinx-rtd-theme
     #   sphinxcontrib-jquery
 sphinx-autodoc2==0.5.0
+sphinx-basic-ng==1.0.0b2
+    # via furo
 sphinx-copybutton==0.5.2
 sphinx-markdown-builder==0.6.10
 sphinx-rtd-theme==3.1.0
@@ -101,7 +101,6 @@ tabulate==0.10.0
 typing-extensions==4.15.0
     # via
     #   beautifulsoup4
-    #   pydata-sphinx-theme
     #   sphinx-autodoc2
 urllib3==2.7.0
     # via requests
