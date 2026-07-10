@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import builtins
 import contextlib
 import pathlib
 import sys
 import tempfile
+import types
 import unittest
 
 from tatsu.api import compile
@@ -57,7 +59,7 @@ class ParameterTests(unittest.TestCase):
                 assert_equal('+', p4)
                 return ast
 
-            def rule_keyword(self, ast, k1, k2, k3, k4):
+            def rule_keywords(self, ast, k1, k2, k3, k4):
                 assert_equal('ABC', k1)
                 assert_equal(123, k2)
                 assert_equal('=', k3)
@@ -112,7 +114,13 @@ class ParameterTests(unittest.TestCase):
         semantics = TC36Semantics()
         ast = model.parse('a b c', semantics=semantics)
         self.assertEqual(['a', 'b', 'c'], ast)
-        pythongen(model)
+        code = pythongen(model)
+        module = types.ModuleType('tc36params')
+        module.__file__ = '<tc36params>'
+        exec(builtins.compile(code, module.__file__, 'exec'), module.__dict__)
+        parser = module.RuleArgumentsParser()
+        ast = parser.parse('a b c', semantics=semantics, parseinfo=False)
+        self.assertEqual(['a', 'b', 'c'], ast)
 
     def test_36_unichars(self):
         grammar = """
