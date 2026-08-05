@@ -17,7 +17,7 @@ from ..contexts import AST, CanParse, Ctx, Func, ParseContext, RuleInfo
 from ..exceptions import GrammarError
 from ..input import Text
 from ..objectmodel import ModelBuilderSemantics, Node, nodedataclass
-from ..util import indent, trim, typename
+from ..util import delimited_regex, indent, trim, typename
 from ..util.strtools import slicetowidth
 from ..util.undefined import UndefinedType
 from .math import ffset, kdot
@@ -716,10 +716,7 @@ class Grammar(Model):
         # noinspection PyUnresolvedReferences
         for name, value in self.directives.items():
             if name in regex_directives:
-                if '/' in value:
-                    directives += f'@@{name} :: ?"{value}"\n'
-                else:
-                    directives += f'@@{name} :: /{value}/\n'
+                directives += f'@@{name} :: {delimited_regex(value)}\n'
             elif name in string_directives:
                 directives += f'@@{name} :: {value!r}\n'
             else:
