@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-4-Clause
 from __future__ import annotations
 
+import re
 from functools import cached_property
 from typing import Any
 
@@ -13,6 +14,61 @@ from .math import ffset
 
 EOF_SYM = '$'
 EOL_SYM = '⏎'
+
+# Words that the `literal` rule in the constant syntax evaluates to
+# non-string values (booleans, None, and the JSON names).
+_LITERAL_KEYWORDS = frozenset(
+    {'True', 'False', 'None', 'true', 'false', 'null'},
+)
+
+# Bodies that the '`' =literal '`' alternative of the `constant` rule would
+# consume whole and evaluate, so writing them bare would not read back as
+# the original string (see grammar/tatsu.ebnf).
+_LITERAL_LOOKALIKES = (
+    re.compile(r'[-+]?\d+'),  # int
+    re.compile(r'[-+]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][-+]?\d+)?'),  # float
+    re.compile(r'-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?'),  # number
+    re.compile(r'\s+[_\w][_\w\d]*'),  # word, which drops leading whitespace
+)
+
+
+def _bare_safe(literal: str) -> bool:
+    """Whether ``literal`` written bare between backticks reads back as itself."""
+    if '`' in literal:
+        return False  # /`(.*?)`/ would stop at the first embedded backtick
+    if literal.splitlines() not in ([], [literal]):
+        return False  # pretty() output is re-indented line by line
+    if literal in _LITERAL_KEYWORDS:
+        return False
+    if literal[:1] in '\'"' or literal[:2] in {"r'", 'r"'}:
+        return False  # could be consumed as a (raw) string literal
+    return not any(lookalike.fullmatch(literal) for lookalike in _LITERAL_LOOKALIKES)
+
+
+def constant_source(literal: Any) -> str:
+    """Render a constant literal as grammar source that parses back to it."""
+    if not isinstance(literal, str):
+        return f'`{literal}`'  # int/float/bool/None read back via `literal`
+    if _bare_safe(literal):
+        return f'`{literal}`'
+    if "'" not in literal or '"' not in literal:
+        # repr() picks a quote character not present in the string, so the
+        # result contains no escaped quotes, on which the single-line string
+        # patterns stop short
+        return f'`{literal!r}`'
+    # Both quote characters present: use a multiline string with every quote
+    # escaped so the body cannot contain the closing delimiter.  Line breaks
+    # and tabs are escaped because multiline strings are trimmed of common
+    # indentation when read back, and whitespace at either end is escaped
+    # because it is stripped.
+    escaped = literal.replace('\\', '\\\\').replace("'", "\\'")
+    for char in '\n\r\t\v\f\x1c\x1d\x1e\x85\u2028\u2029':
+        escaped = escaped.replace(char, f'\\u{ord(char):04x}')
+    if escaped[:1].isspace():
+        escaped = f'\\u{ord(escaped[0]):04x}' + escaped[1:]
+    if escaped[-1:].isspace():
+        escaped = escaped[:-1] + f'\\u{ord(escaped[-1]):04x}'
+    return f"`'''{escaped}'''`"
 
 
 @nodedataclass
@@ -132,7 +188,7 @@ class Constant(Leaf):
 
     def _pretty(self, lean=False):
         _ = lean
-        return f'`{self.literal!s}`'
+        return constant_source(self.literal)
 
     @cached_property
     def _nullable(self) -> bool:
