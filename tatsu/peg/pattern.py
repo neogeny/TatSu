@@ -8,7 +8,7 @@ from typing import Any
 
 from ..contexts import Ctx
 from ..objectmodel import nodedataclass
-from ..util import regexpp, trim
+from ..util import regex_source, regexpp
 from .base import Leaf
 from .math import ffset
 
@@ -38,15 +38,7 @@ class Pattern(Leaf):
 
     def _pretty(self, lean=False):
         _ = lean
-        pat = self.pattern or ""
-        # multiline patterns are OK
-        pat = trim(pat)
-        if '/' in pat:
-            newpat = pat.replace('"', r'\"')
-            regex = f'?"{newpat}"'
-        else:
-            regex = f'/{pat}/'
-        return regex
+        return regex_source(self.pattern or "")
 
     @cached_property
     def _nullable(self) -> bool:

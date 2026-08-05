@@ -7,11 +7,31 @@ import sys
 from functools import cache
 from typing import Any
 
+from .strtools import trim
+
 
 if sys.version_info >= (3, 13):
     from re import PatternError
 else:
     PatternError = re.error
+
+
+# The pretty printer works on lines, so a regex holding any of the characters
+# str.splitlines() breaks on comes back reindented, or split across rules.
+_LAYOUT_ESCAPES = {
+    '\n': r'\n',
+    '\v': r'\v',
+    '\f': r'\f',
+    '\r': r'\r',
+    '\x1c': r'\x1c',
+    '\x1d': r'\x1d',
+    '\x1e': r'\x1e',
+    '\x85': r'\x85',
+    '\u2028': r'\u2028',
+    '\u2029': r'\u2029',
+}
+
+_SLASH_ESCAPE = {'/': r'\/'}
 
 
 @cache
@@ -24,6 +44,44 @@ def cached_re_compile(
         return pattern
     pattern = str(pattern)
     return re.compile(pattern, flags=flags)
+
+
+def _rewrite(pattern: str, escapes: dict[str, str]) -> str:
+    """Apply ``escapes`` to a regex, leaving escaped characters alone."""
+    result = []
+    index = 0
+    while index < len(pattern):
+        char = pattern[index]
+        if char == '\\' and index + 1 < len(pattern):
+            index += 1
+            char = pattern[index]
+            if char not in escapes:
+                result.append('\\')
+        result.append(escapes.get(char, char))
+        index += 1
+    return ''.join(result)
+
+
+def delimited_regex(pattern: str) -> str:
+    """Write a regex in the ``/.../`` or ``?"..."`` form of the grammar syntax."""
+    if not pattern:
+        return '?""'  # `//` would open an end-of-line comment
+    if '/' in pattern and '"' not in pattern and '\n' not in pattern:
+        # DOUBLEQUOTED holds neither double quotes nor line breaks
+        return f'?"{pattern}"'
+    return f'/{_rewrite(pattern, _SLASH_ESCAPE)}/'
+
+
+def regex_source(pattern: str) -> str:
+    """Write a regex as grammar source that reads back as the same regex."""
+    if cached_re_compile(pattern).flags & re.VERBOSE:
+        # layout is not significant under (?x), where escaping it would be
+        pattern = trim(pattern)
+    else:
+        # pretty() reindents its output line by line, so a regex spanning
+        # lines otherwise reads back with the new indentation inside it
+        pattern = _rewrite(pattern, _LAYOUT_ESCAPES)
+    return delimited_regex(pattern)
 
 
 def regexpp(regex: Any) -> str:
