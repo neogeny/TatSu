@@ -46,7 +46,7 @@ This is an example of how to use **TatSu** as a library:
 .. code:: python
 
     GRAMMAR = '''
-        @@grammar[Calc]
+        @@grammar::Calc
 
         start: expression $
 
