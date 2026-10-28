@@ -307,6 +307,18 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
         elif whitespace is not None:
             whitespace = regexpp(whitespace)
 
+        comments = grammar.config.comments
+        if comments is Undefined or comments is None:  # unset
+            comments = None
+        else:
+            comments = regexpp(comments)
+
+        eol_comments = grammar.config.eol_comments
+        if eol_comments is Undefined or eol_comments is None:  # unset
+            eol_comments = None
+        else:
+            eol_comments = regexpp(eol_comments)
+
         name = grammar.directives.get('grammar', grammar.name)
         self.print(f'''
                 config = ParserConfig.new(
@@ -317,8 +329,8 @@ class PythonParserGenerator(IndentPrintMixin, NodeWalker):
                     ignorecase={grammar.config.ignorecase or False},
                     namechars={grammar.config.namechars or ""!r},
                     parseinfo={grammar.config.parseinfo},
-                    comments={regexpp(grammar.config.comments)},
-                    eol_comments={regexpp(grammar.config.eol_comments)},
+                    comments={comments},
+                    eol_comments={eol_comments},
                     keywords=KEYWORDS,
                     start={start!r},
                 )
