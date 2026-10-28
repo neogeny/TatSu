@@ -39,11 +39,9 @@ IMPORTS: str = """
 
 def PARSER_BODY(rules_name: str) -> str:
     return f"""\
-        config = ParserConfig.new(config, **settings)
         rulessource = {rules_name}()
-        assert isinstance(config, ParserConfig)
 
-        super().__init__(rulessource, config=config)
+        super().__init__(rulessource, config=config, **settings)
     """.rstrip()
 
 

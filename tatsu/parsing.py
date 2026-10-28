@@ -54,11 +54,14 @@ class Parser(ParseContext):
     ) -> None:
         self.rulesource = rulesource
 
-        config = ParserConfig.new(config, **settings)
+        # base config comes from the grammar (rules) so that grammar
+        # directives take effect; explicitly passed config/settings win
         srcconfig = ParserConfig.new(getattr(rulesource, '_config', None))
-        config = srcconfig.override_config(config)
+        srcconfig = srcconfig.override_config(config)
+        if settings:
+            srcconfig = srcconfig.override(**settings)
 
-        super().__init__(config=config)
+        super().__init__(config=srcconfig)
 
     def find_rule(self, name: str) -> Func:
         if self.rulesource:
