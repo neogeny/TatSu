@@ -38,7 +38,7 @@ class Node(BaseNode):
     @property
     def text(self) -> str | None:
         pi = self.parseinfo
-        if pi and hasattr(pi.cursor, "text"):
+        if pi and hasattr(pi.cursor, "textstr"):
             return pi.cursor.textstr[pi.pos : pi.endpos]
         return None
 
